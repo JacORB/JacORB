@@ -75,8 +75,6 @@ public class ClientConnectionManager
         this.orb = orb;
         this.transport_manager = transport_manager;
         this.giop_connection_manager = giop_connection_manager;
-
-        receptor_pool = MessageReceptorPool.getInstance();
     }
 
     /**
@@ -86,6 +84,9 @@ public class ClientConnectionManager
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
+        // Moved from the constructor to facilitate logging.
+        receptor_pool = MessageReceptorPool.getInstance(myConfiguration);
+
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.orb.giop");
 
