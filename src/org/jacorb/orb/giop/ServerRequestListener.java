@@ -63,7 +63,7 @@ public class ServerRequestListener
         if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
             int required =
-                Environment.getIntProperty( "jacorb.security.ssl.server.required_options" );
+                Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 );
          
             //if we require EstablishTrustInTarget or
             //EstablishTrustInClient, SSL must be used.

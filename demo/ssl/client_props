@@ -5,8 +5,8 @@
 
 jacorb.security.support_ssl=on
 
-jacorb.security.ssl.client.supported_options=41
-jacorb.security.ssl.client.required_options=20
+jacorb.security.ssl.client.supported_options=60
+jacorb.security.ssl.client.required_options=60
 
 # files with public key certs of trusted CAs
 #

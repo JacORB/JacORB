@@ -573,10 +573,12 @@ public class Environment
         }
     }
 
+    /*
     public static int getIntProperty( String key )
     {
         return getIntProperty( key, 10 );
     }
+    */
 
     public static boolean hasProperty( String key )
     {
