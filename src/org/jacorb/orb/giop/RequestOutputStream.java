@@ -109,13 +109,13 @@ public class RequestOutputStream
             case 0 :
             {
                 // GIOP 1.0 inlining
-		org.omg.IOP.ServiceContextListHelper.write( this , Messages.service_context );
-		write_ulong( request_id);
-		write_boolean( response_expected );
-		write_long( object_key.length );
-		write_octet_array( object_key, 0, object_key.length);
-		write_string( operation);
-		org.omg.CORBA.PrincipalHelper.write( this,
+                org.omg.IOP.ServiceContextListHelper.write( this , Messages.service_context );
+                write_ulong( request_id);
+                write_boolean( response_expected );
+                write_long( object_key.length );
+                write_octet_array( object_key, 0, object_key.length);
+                write_string( operation);
+                org.omg.CORBA.PrincipalHelper.write( this,
                                                      principal);
 
                 break;
@@ -123,13 +123,13 @@ public class RequestOutputStream
             case 1 :
             {
                 //GIOP 1.1
-		org.omg.IOP.ServiceContextListHelper.write( this , Messages.service_context );
-		write_ulong( request_id);
-		write_boolean( response_expected );
-		write_long( object_key.length );
-		write_octet_array( object_key, 0, object_key.length);
-		write_string( operation);
-		org.omg.CORBA.PrincipalHelper.write( this,
+                org.omg.IOP.ServiceContextListHelper.write( this , Messages.service_context );
+                write_ulong( request_id);
+                write_boolean( response_expected );
+                write_long( object_key.length );
+                write_octet_array( object_key, 0, object_key.length);
+                write_string( operation);
+                org.omg.CORBA.PrincipalHelper.write( this,
                                                      principal);
 
                 break;
@@ -145,31 +145,31 @@ public class RequestOutputStream
                 write_ulong( request_id);
                 if (response_expected)
                 {
-                	write_octet ((byte)0x03);
+                    write_octet ((byte)0x03);
                 }
                 else
                 {
-                	switch (syncScope)
-                	{
-                		case org.omg.Messaging.SYNC_NONE.value:
-                		case org.omg.Messaging.SYNC_WITH_TRANSPORT.value:
-                			write_octet ((byte)0x00);
-                			break;
-                		case org.omg.Messaging.SYNC_WITH_SERVER.value:
-                			write_octet ((byte)0x01);
-                			break;
-                		case org.omg.Messaging.SYNC_WITH_TARGET.value:
-                			write_octet ((byte)0x03);
-                			break;
-                		default:
-                			throw new org.omg.CORBA.MARSHAL ("Invalid SYNC_SCOPE: " + syncScope);
-                	}
+                    switch (syncScope)
+                    {
+                        case org.omg.Messaging.SYNC_NONE.value:
+                        case org.omg.Messaging.SYNC_WITH_TRANSPORT.value:
+                        write_octet ((byte)0x00);
+                        break;
+                        case org.omg.Messaging.SYNC_WITH_SERVER.value:
+                        write_octet ((byte)0x01);
+                        break;
+                        case org.omg.Messaging.SYNC_WITH_TARGET.value:
+                        write_octet ((byte)0x03);
+                        break;
+                        default:
+                        throw new org.omg.CORBA.MARSHAL ("Invalid SYNC_SCOPE: " + syncScope);
+                    }
                 }
 
-		write_octet_array( reserved,0,3 );
-		org.omg.GIOP.TargetAddressHelper.write( this, addr );
-		write_string( operation );
-		org.omg.IOP.ServiceContextListHelper.write( this, Messages.service_context );
+                write_octet_array( reserved,0,3 );
+                org.omg.GIOP.TargetAddressHelper.write( this, addr );
+                write_string( operation );
+                org.omg.IOP.ServiceContextListHelper.write( this, Messages.service_context );
 
                 markHeaderEnd(); //use padding if GIOP minor == 2
 
@@ -192,10 +192,10 @@ public class RequestOutputStream
         return response_expected;
     }
 
-	public short syncScope()
-	{
-		return syncScope;
-	}
+    public short syncScope()
+    {
+        return syncScope;
+    }
 
     public String operation()
     {
