@@ -1,6 +1,6 @@
 
-    This is a simple example shows how to use unions in sending(in) and 
-    receiving(out) as parameters.
+    This is a simple example shows how to use unions in sending (in) and 
+    receiving (out) as parameters.
     
     Compile:
         ant

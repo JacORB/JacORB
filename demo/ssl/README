@@ -42,71 +42,51 @@ key pair each store contains the (trusted) certificate of the other party.
 The existing keystores should last till mid summer 2036. But if you're
 curious...
 
-$>keytool -genkey -alias client_alias -validity 25000 -keystore jsse_client_ks -storepass jsse_client_ks_pass -keypass jsse_client_ks_pass
-What is your first and last name?
-  [Unknown]:  JSSE SSL Demo Client
-What is the name of your organizational unit?
-  [Unknown]:
-What is the name of your organization?
-  [Unknown]:  JacORB
-What is the name of your City or Locality?
-  [Unknown]:
-What is the name of your State or Province?
-  [Unknown]:
-What is the two-letter country code for this unit?
-  [Unknown]:
-Is CN=JSSE SSL Demo Client, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown correct?
-  [no]:  y
+$>keytool -genkey -keyalg RSA -alias client_alias -validity 25000 \
+          -keystore jsse_client_ks -storepass jsse_client_ks_pass \
+          -keypass jsse_client_ks_pass \
+          -dname "CN=JSSE SSL Demo Client, O=JacORB"
 
+$>keytool -genkey -keyalg RSA -alias server_alias -validity 25000 \
+          -keystore jsse_server_ks -storepass jsse_server_ks_pass \
+          -keypass jsse_server_ks_pass \
+          -dname "CN=JSSE SSL Demo Server, O=JacORB"
 
-$>keytool -genkey -alias server_alias -validity 25000  -keystore jsse_server_ks -storepass jsse_server_ks_pass -keypass jsse_server_ks_pass
-What is your first and last name?
-  [Unknown]:  JSSE SSL Demo Server
-What is the name of your organizational unit?
-  [Unknown]:
-What is the name of your organization?
-  [Unknown]:  JacORB
-What is the name of your City or Locality?
-  [Unknown]:
-What is the name of your State or Province?
-  [Unknown]:
-What is the two-letter country code for this unit?
-  [Unknown]:
-Is CN=JSSE SSL Demo Server, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unkno
-wn correct?
-  [no]:  y
-
-
-$>keytool -export -keystore jsse_client_ks -alias client_alias -storepass jsse_client_ks_pass -file jsse_client_cert
+$>keytool -export -keystore jsse_client_ks -alias client_alias \
+          -storepass jsse_client_ks_pass -file jsse_client_cert
 Certificate stored in file <jsse_client_cert>
 
-$>keytool -import -keystore jsse_server_ks -alias client_alias -storepass jsse_server_ks_pass -file jsse_client_cert
-Owner: CN=JSSE SSL Demo Client, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown
-Issuer: CN=JSSE SSL Demo Client, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown
-Serial number: 403cd69c
-Valid from: Wed Feb 25 17:08:44 GMT 2004 until: Tue Jul 01 11:40:28 BST 2036
+$>keytool -import -keystore jsse_server_ks -alias client_alias \
+          -storepass jsse_server_ks_pass -file jsse_client_cert
+Owner: CN=JSSE SSL Demo Client, O=JacORB
+Issuer: CN=JSSE SSL Demo Client, O=JacORB
+Serial number: 409a0258
+Valid from: Thu May 06 11:16:08 CEST 2004 bis: Wed Sep 10 04:47:52 CEST 2036
 Certificate fingerprints:
-         MD5:  AD:E4:EB:8F:33:30:02:1B:84:36:30:CA:90:2A:8E:EF
-         SHA1: F4:EF:BE:FA:46:92:24:E6:FB:70:39:00:F1:82:7D:D8:46:5D:F4:51
+         MD5:  FE:41:A8:53:11:D3:93:33:25:53:C2:69:BA:B8:A4:6C
+         SHA1: CF:1F:3A:F8:21:2A:40:FC:C5:EE:04:3D:3A:6E:BA:4F:01:2F:06:03
 Trust this certificate? [no]:  y
 Certificate was added to keystore
 
-$>keytool -export -keystore jsse_server_ks -alias server_alias -storepass jsse_server_ks_pass -file jsse_server_cert
+$>keytool -export -keystore jsse_server_ks -alias server_alias \
+          -storepass jsse_server_ks_pass -file jsse_server_cert
 Certificate stored in file <jsse_server_cert>
 
-$>keytool -import -keystore jsse_client_ks -alias server_alias -storepass jsse_client_ks_pass -file jsse_server_cert
-Owner: CN=JSSE SSL Demo Server, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown
-Issuer: CN=JSSE SSL Demo Server, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown
-Serial number: 403cd6c6
-Valid from: Wed Feb 25 17:09:26 GMT 2004 until: Tue Jul 01 11:41:10 BST 2036
+$>keytool -import -keystore jsse_client_ks -alias server_alias \
+          -storepass jsse_client_ks_pass -file jsse_server_cert
+Owner: CN=JSSE SSL Demo Server, O=JacORB
+Issuer: CN=JSSE SSL Demo Server, O=JacORB
+Serial number: 409a02ad
+Valid from: Thu May 06 11:17:33 CEST 2004 bis: Wed Sep 10 04:49:17 CEST 2036
 Certificate fingerprints:
-         MD5:  E1:F9:60:36:AF:FD:DC:44:A1:CB:C3:23:2C:AB:F0:63
-         SHA1: 5A:3D:BD:63:FD:06:1C:7A:A1:95:F3:A0:4B:C4:BF:56:F1:D8:65:5F
+         MD5:  97:F9:96:D5:03:96:83:20:70:F8:FC:DF:74:A4:F1:67
+         SHA1: D4:08:2F:69:B5:28:FF:CB:4A:44:E9:75:D4:A3:DF:B6:19:FD:99:33
 Trust this certificate? [no]:  y
 Certificate was added to keystore
+
 
               Note on the IAIK CA Keystore
               ----------------------------
 
-The keystore password for the the iaik_ca_ks is iaik_ca_ks_pass.
-The alias within the keystore is iaik_ca_alias and its password is iaik_ca_alias_pass. 
+The keystore password for the the iaik_ca_ks is iaik_ca_ks_pass. The alias
+within the keystore is iaik_ca_alias and its password is iaik_ca_alias_pass.

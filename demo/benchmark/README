@@ -1,33 +1,29 @@
 Objective:
-    A simple benchmark for remore invocations. It takes the system clock right
-    before and after method invocations.Can choose simple ping, transfer of 
+    A simple benchmark for remote invocations. It takes the system clock right
+    before and after method invocations. Can choose simple ping, transfer of 
     array of ints, or transfer of array of structs, plus size of structs and 
     number of loops.
     
     There is also a simple example for local invocations using ColocatedServer 
     
-
 How to Run:
     Compile:
         ant
+
     Run NamingServer:
-        ns.bat c:/prahalad/NS_Ref
+        ns -Djacorb.naming.ior_filename=/path/to/NS_Ref
+
     Run Server:
-        jacotemplate.bat demo.benchmark.Server
+        jaco demo.benchmark.Server
+
     Run Client:
-        jacotemplate.bat demo.bemnchmark.Client
+        jaco demo.bemnchmark.Client
 
-    Inorder to test Colocated Server invocations
-    Run Naming server, then Server as explained above. 
-    Then Run ClolocatedServer as:
-        jacotemplate.bat demo.benchmark.ColocatedServer
+    Inorder to test colocated cerver invocations run naming server, then
+    server as explained above.  Finally run ColocatedServer as:
+        jaco demo.benchmark.ColocatedServer
+
 Note:
-    Make sure ns.bat is using jacotemplate.bat because there is no jaco.bat in
-    this cvs version of the JacORB.
-
-    Make sure ts.bat is using jacotemplate.bat because there is no jaco.bat in
-    this cvs version of the JacORB.
-	
     Make sure that jacorb.properties is in place(in the current dir) and has 
     the name server reference such as -
-    ORBInitRef.NameService=file:/c:/prahalad/NS_Ref
+    ORBInitRef.NameService=file:/path/to/NS_Ref

@@ -1,12 +1,14 @@
 Objective:
-    This is a simple example to show wide string transpotation is supported.
+    This is a simple example to show wide string transportation is supported.
     It has a simple server sending wide string and also normal strings to the 
     client.
     
 How to Run:
     Compile:
         ant
+
     Run Server:
         jaco demo.hello.Server <IOR-file>
+
     Run Client:
         jaco demo.hello.Client <IOR-file>
