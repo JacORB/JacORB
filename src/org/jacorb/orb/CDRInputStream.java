@@ -848,7 +848,7 @@ public class CDRInputStream
 
           closeEncapsulation();
           org.omg.CORBA.TypeCode seq_tc = 
-             orb.create_sequence_tc(0, content_type);
+             orb.create_sequence_tc(length, content_type);
           return seq_tc;
        case TCKind._tk_alias: 
           openEncapsulation();
