@@ -125,29 +125,34 @@ class ConstDecl
         }
 
 	ps.print("\t" + const_type + " " + name + " = ");
-	if( ts instanceof IntType && 
-	    ((IntType)ts).type_spec instanceof ShortType )
+	if (ts instanceof IntType && ((IntType)ts).type_spec instanceof ShortType)
 	{
 		// short constant values have to be cast explicitly  
 		ps.print("(short)(");
 		const_expr.print(ps);
 		ps.println(");");	
 	}
-	else if( ts instanceof FloatType )
+        else if (ts instanceof LongLongType)
+        {
+		// long constant values need to terminate with an L
+                const_expr.print (ps);
+		ps.println ("L;");	
+        }
+	else if (ts instanceof FloatType)
 	{
 		// float constant values have to be cast explicitly  
 		ps.print("(float)(");
 		const_expr.print(ps);
 		ps.println(");");	
 	}
-	else if( ts instanceof FixedPointConstType )
+	else if (ts instanceof FixedPointConstType)
 	{
 		// fixed point values have to be created explicitly 
 		ps.print("new java.math.BigDecimal(");
 		const_expr.print(ps);
 		ps.println(");");	
 	}
-	else if( ts instanceof OctetType )
+	else if (ts instanceof OctetType)
 	{
 		// float constant values have to be cast explicitly  
 		ps.print("(byte)(");
