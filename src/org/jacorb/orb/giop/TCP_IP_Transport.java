@@ -170,8 +170,6 @@ public abstract class TCP_IP_Transport
                        int length,
                        long time_out )
     {
-        connect (null, 0);
-        
         try
         {
             out_stream.write( data, offset, length );
