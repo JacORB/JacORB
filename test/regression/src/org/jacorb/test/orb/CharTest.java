@@ -90,21 +90,33 @@ public class CharTest extends ClientServerTestCase
             result = server.pass_in_char( (char)256 );
             fail( "exception expected for (char)256" );
         }
-        catch( org.omg.CORBA.MARSHAL e ) { }
+        catch( org.omg.CORBA.DATA_CONVERSION e ) { }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
 
         try
         {
             result = server.pass_in_char( EURO_SIGN );
             fail( "exception expected for euro sign" );
         }
-        catch( org.omg.CORBA.MARSHAL e ) { }
+        catch( org.omg.CORBA.DATA_CONVERSION e ) { }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
         
         try
         {
             result = server.pass_in_char( (char)0xffff );
             fail( "exception expected for (char)0xffff" );
         }
-        catch( org.omg.CORBA.MARSHAL e ) { }
+        catch( org.omg.CORBA.DATA_CONVERSION e ) { }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
     }
     
     public void test_pass_out_char()
@@ -125,14 +137,22 @@ public class CharTest extends ClientServerTestCase
             server.pass_out_char( (short)EURO_SIGN, x );
             fail( "exception expected for euro sign" );
         }
-        catch( org.omg.CORBA.MARSHAL e ) { }
+        catch( org.omg.CORBA.DATA_CONVERSION e ) { }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
         
         try
         {
             server.pass_out_char( (short)0x8fff, x );
             fail( "exception expected for (char)0x8fff" );
         }
-        catch( org.omg.CORBA.MARSHAL e ) { }
+        catch( org.omg.CORBA.DATA_CONVERSION e ) { }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
     }
     
     public void test_pass_inout_char()
@@ -155,7 +175,11 @@ public class CharTest extends ClientServerTestCase
             server.pass_inout_char( x );
             fail( "exception expected for euro sign" );
         }
-        catch( org.omg.CORBA.MARSHAL e ) { }
+        catch( org.omg.CORBA.DATA_CONVERSION e ) { }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
     }
     
     public void test_return_char()
@@ -174,7 +198,12 @@ public class CharTest extends ClientServerTestCase
             char result = server.return_char( (short)EURO_SIGN );
             fail( "exception expected for euro sign" );
         }
-        catch( org.omg.CORBA.MARSHAL e ) { }
+        catch( org.omg.CORBA.DATA_CONVERSION e ) { }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
+        
     }
     
     public void test_bounce_char()
