@@ -65,7 +65,8 @@ public class BasicAdapter
     private ReplyListener reply_listener = null;
     private int timeout = 0;
 
-    public BasicAdapter(org.jacorb.orb.ORB orb, POA rootPOA)
+    public BasicAdapter( org.jacorb.orb.ORB orb, POA rootPOA )
+        throws IOException
     {
         this.orb = orb;
         this.rootPOA = rootPOA;
@@ -312,7 +313,7 @@ public class BasicAdapter
         public Listener( String oa_port, 
                          ServerSocketFactory factory,
                          boolean is_ssl )
-
+            throws IOException 
         {
             if( factory == null )
             {
@@ -354,7 +355,8 @@ public class BasicAdapter
                     {
                         System.err.println("[ Listener: Couldn't initialize, illegal ip addr " + 
                                            ip_addr +" ]");
-                        System.exit(1);
+                        throw new java.io.IOException( "Listener: Couldn't initialize, illegal ip addr " + 
+                                                      ip_addr );
                     }
 
                     if( oa_port != null )
@@ -379,7 +381,8 @@ public class BasicAdapter
             {
                 Debug.output(2,e);
                 System.err.println("[ Listener: Couldn't initialize. Illegal address configuration? ]");
-                System.exit(1);
+                throw new java.io.IOException( "Listener: Couldn't initialize. Illegal address configuration?" );  
+                // System.exit(1);
             }
 
             if( ssl_socket_factory == null )

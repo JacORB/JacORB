@@ -32,11 +32,11 @@ import java.io.*;
 
 public final class Version
 {
-    public static final String shortVersion = "1.4";
+    public static final String shortVersion = "1.4.1";
 
     public static final String version = shortVersion;
 
-    public static final String date = "June 2002";
+    public static final String date = "July 2002";
 
     public static final String longVersion = version + ", " + date;
 

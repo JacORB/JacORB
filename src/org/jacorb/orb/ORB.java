@@ -710,11 +710,19 @@ public final class ORB
 
     public org.jacorb.poa.POA getRootPOA()
     {
-        if (rootpoa == null)
+        if( rootpoa == null )
         {
             rootpoa = org.jacorb.poa.POA._POA_init(this);
             rootpoa._addPOAEventListener( this );
-            basicAdapter = new BasicAdapter( this, rootpoa );
+
+            try
+            {
+                basicAdapter = new BasicAdapter( this, rootpoa );
+            }
+            catch( IOException io )
+            {
+                System.err.println("ORB: could not initialize Root POA!");
+            }
         }
         return rootpoa;
     }
