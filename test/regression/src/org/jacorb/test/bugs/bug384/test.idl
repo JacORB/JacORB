@@ -1,0 +1,15 @@
+module org {
+    module jacorb {
+        module test {
+            module bugs {
+                module bug384 {
+                    interface TestObject
+                    {
+                        void ping();
+                    };
+                };
+            };
+        };
+    };
+};
+                        
