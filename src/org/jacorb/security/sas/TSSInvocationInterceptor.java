@@ -55,6 +55,8 @@ public class TSSInvocationInterceptor
 
     private static GSSCredential myCredential = null;
     private static boolean context_stateful = true;
+    private static short targetRequires = (short)0;
+    private static boolean use_ssl = false;
 
     private String name = null;
     private org.jacorb.orb.ORB orb = null;
@@ -72,6 +74,22 @@ public class TSSInvocationInterceptor
         this.sasReplySlotID = sasReplySlotID;
         name = DEFAULT_NAME;
         context_stateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.tss.stateful", "true")).booleanValue();
+
+        // see what transport modes are required
+        String targetRequiresNames = org.jacorb.util.Environment.getProperty( "jacorb.security.sas.tss.target_requires", "" );
+        java.util.StringTokenizer nameTokens = new java.util.StringTokenizer(targetRequiresNames, ":;, ");
+        while (nameTokens.hasMoreTokens())
+        {
+          String token = nameTokens.nextToken();
+          if (token.equals("Integrity"))                   targetRequires |= org.omg.CSIIOP.Integrity.value;
+          else if (token.equals("Confidentiality"))        targetRequires |= org.omg.CSIIOP.Confidentiality.value;
+          else if (token.equals("EstablishTrustInTarget")) targetRequires |= org.omg.CSIIOP.EstablishTrustInTarget.value;
+          else if (token.equals("EstablishTrustInClient")) targetRequires |= org.omg.CSIIOP.EstablishTrustInClient.value;
+          else if (token.equals("IdentityAssertion"))      targetRequires |= org.omg.CSIIOP.IdentityAssertion.value;
+          else if (token.equals("DelegationByClient"))     targetRequires |= org.omg.CSIIOP.DelegationByClient.value;
+          else org.jacorb.util.Debug.output(1, "Unknown SAS Association Taken: " + token);
+        }
+        use_ssl =(targetRequires & EstablishTrustInTarget.value) != 0 || (targetRequires & EstablishTrustInClient.value) != 0;
     }
 
     public String name()
@@ -100,14 +118,21 @@ public class TSSInvocationInterceptor
         //System.out.println("receive_request_service_contexts");
         if (ri.operation().equals("_is_a")) return;
         if (ri.operation().equals("_non_existent")) return;
-
-        SASContextBody contextBody = null;
+        if (ri.operation().equals("subscription_change")) return;
         GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
+
+        // verify SSL requirements
+        if (use_ssl && !connection.isSSL())
+        {
+            Debug.output(1, "SSL required for operation " + ri.operation());
+            throw new org.omg.CORBA.NO_PERMISSION("SSL Required!", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+        }
+
+        // parse service context
+        SASContextBody contextBody = null;
         long client_context_id = 0;
         byte[] contextToken = null;
         GSSManager gssManager = TSSInitializer.gssManager;
-
-        // parse service context
         try
         {
             ServiceContext ctx = ri.get_request_service_context(SecurityAttributeService);

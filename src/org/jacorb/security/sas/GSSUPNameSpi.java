@@ -86,6 +86,23 @@ public final class GSSUPNameSpi implements GSSNameSpi
         return out;
     }
 
+    public static byte[] encode(String username, char[] password, String target_name)
+    {
+        InitialContextToken subject = new InitialContextToken(username.getBytes(), (new String(password)).getBytes(), target_name.getBytes());
+        Any any = GSSUPProvider.orb.create_any();
+        InitialContextTokenHelper.insert( any, subject );
+        byte[] out = new byte[0];
+        try
+        {
+            out = GSSUPProvider.codec.encode( any );
+        }
+        catch (Exception e)
+        {
+            Debug.output(1, "Error encoding for GSSNameSpi: " + e);
+        }
+        return out;
+    }
+
     public static InitialContextToken decode(byte[] name)
     {
         try
