@@ -90,10 +90,17 @@ public abstract class VectorType
         return name + "[]";
     }
 
+    boolean typedefd()
+    {
+        return typedefd;
+    }
 
     public String printReadExpression( String streamname )
     {
-        return helperName() + ".read(" + streamname + ")";
+        if( typedefd() )
+            return helperName() + ".read(" + streamname + ")";
+       else
+            return "*****";
     }
 
 

@@ -102,10 +102,6 @@ public class SequenceType
             max.setPackage( s );
     }
 
-    boolean typedefd()
-    {
-        return typedefd;
-    }
 
 
     void setRecursive()
