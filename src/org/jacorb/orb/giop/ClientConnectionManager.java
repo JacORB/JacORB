@@ -137,8 +137,8 @@ public class ClientConnectionManager
      * @param <code>String host_and_port</code> - in "host:xxx" notation
      * @return <code>Connection</code> */
 
-    public synchronized ClientConnection getConnection( IIOPProfile profile,
-                                                        boolean use_ssl )
+    public synchronized ClientConnection getConnection 
+                                              (org.omg.ETF.Profile profile)
     {
         /* look for an existing connection */
         
@@ -147,18 +147,17 @@ public class ClientConnectionManager
 
         if (c == null)
         {
-            Transport transport = 
-                transport_manager.createClientTransport( profile,
-                                                         use_ssl );
+            Transport transport = transport_manager.createClientTransport();
 
             GIOPConnection connection = 
                 giop_connection_manager.createClientGIOPConnection( 
+                    profile,
                     transport,
                     request_listener,
                     null );
             
             c = new ClientConnection( connection, orb, this, 
-                                      profile.getAddress().toString(), true );
+                                      profile.toString(), true );
 
             Debug.output( 2, "ClientConnectionManager: created new conn to target " +
                           c.getInfo() );
