@@ -37,9 +37,13 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class EvaluationResult
 {
+    static Logger logger_ = Debug.getNamedLogger( EvaluationResult.class.getName() );
+
     public static final EvaluationResult BOOL_TRUE;
 
     public static final EvaluationResult BOOL_FALSE;
+
+    ////////////////////////////////////////
 
     static {
         EvaluationResult _r = new EvaluationResult();
@@ -50,17 +54,21 @@ public class EvaluationResult
         BOOL_FALSE = wrapImmutable( _r );
     }
 
-    static Logger logger_ = Debug.getNamedLogger( EvaluationResult.class.getName() );
+    ////////////////////////////////////////
 
     private int typeCode_;
 
     private Object value_;
+
     private Any any_;
+
+    ////////////////////////////////////////
 
     protected Object getValue()
     {
         return value_;
     }
+
 
     private Object setValue( Object value )
     {
@@ -71,30 +79,36 @@ public class EvaluationResult
         return _old;
     }
 
+
     public boolean isLongLong()
     {
         return typeCode_ == TCKind._tk_longlong;
     }
+
 
     public boolean isDouble()
     {
         return typeCode_ == TCKind._tk_double;
     }
 
+
     public boolean isFloat()
     {
         return typeCode_ == TCKind._tk_float;
     }
+
 
     public boolean isLong()
     {
         return typeCode_ == TCKind._tk_long;
     }
 
+
     public boolean isString()
     {
         return typeCode_ == TCKind._tk_string;
     }
+
 
     public void setString( String s )
     {
@@ -102,15 +116,18 @@ public class EvaluationResult
         typeCode_ = TCKind._tk_string;
     }
 
+
     public void setFloat( float f )
     {
         setFloat( new Double( f ) );
     }
 
+
     public void setFloat( double d )
     {
         setFloat( new Double( d ) );
     }
+
 
     public void setFloat( Double d )
     {
@@ -118,10 +135,12 @@ public class EvaluationResult
         typeCode_ = TCKind._tk_float;
     }
 
+
     public void setLongLong( long l )
     {
         setLongLong( new Double( l ) );
     }
+
 
     public void setLongLong( Double d )
     {
@@ -129,10 +148,12 @@ public class EvaluationResult
         typeCode_ = TCKind._tk_longlong;
     }
 
+
     public void setLong( int l )
     {
         setLong( new Double( l ) );
     }
+
 
     public void setLong( Double d )
     {
@@ -140,16 +161,19 @@ public class EvaluationResult
         typeCode_ = TCKind._tk_long;
     }
 
+
     public void setDouble( Double d )
     {
         setValue( d );
         typeCode_ = TCKind._tk_double;
     }
 
+
     public void setDouble( double d )
     {
         setDouble( new Double( d ) );
     }
+
 
     public String getString() throws DynamicTypeException
     {
@@ -159,9 +183,29 @@ public class EvaluationResult
             }
         catch ( ClassCastException c )
             {
-                throw new DynamicTypeException("value " + getValue() + " is not a String");
+                throw newDynamicTypeException("String");
             }
     }
+
+
+    private DynamicTypeException newDynamicTypeException(String type)
+    {
+        return new DynamicTypeException("could not convert value: " + getValue() + " to " + type);
+    }
+
+
+    private static DynamicTypeException newDynamicTypeException(String operand,
+                                                                EvaluationResult left,
+                                                                EvaluationResult right)
+    {
+        return new DynamicTypeException("failed to "
+                                        + operand
+                                        + " incompatible operands "
+                                        + left
+                                        + " and "
+                                        + right );
+    }
+
 
     public long getLongLong() throws DynamicTypeException
     {
@@ -191,8 +235,9 @@ public class EvaluationResult
         catch ( ClassCastException e )
             {}
 
-        throw new DynamicTypeException("Unable to convert value to LongLong");
+        throw newDynamicTypeException("LongLong");
     }
+
 
     public int getLong() throws DynamicTypeException
     {
@@ -230,8 +275,9 @@ public class EvaluationResult
                 return any_.extract_long();
             }
 
-        throw new DynamicTypeException("unable to convert value " + getValue() + " to long");
+        throw newDynamicTypeException("Long");
     }
+
 
     public double getDouble() throws DynamicTypeException
     {
@@ -261,7 +307,7 @@ public class EvaluationResult
         catch ( ClassCastException e )
             {}
 
-        throw new DynamicTypeException("unable to convert value to double");
+        throw newDynamicTypeException("Double");
     }
 
 
@@ -293,8 +339,9 @@ public class EvaluationResult
         catch ( ClassCastException c3 )
             {}
 
-        throw new DynamicTypeException("unable to convert value to float");
+        throw newDynamicTypeException("Float");
     }
+
 
     public boolean getBool() throws DynamicTypeException
     {
@@ -305,8 +352,9 @@ public class EvaluationResult
         catch ( ClassCastException c )
             {}
 
-        throw new DynamicTypeException("unable to convert value to bool");
+        throw newDynamicTypeException("Boolean");
     }
+
 
     public void setBool( boolean b )
     {
@@ -322,21 +370,24 @@ public class EvaluationResult
         typeCode_ = TCKind._tk_boolean;
     }
 
+
     public Any getAny()
     {
         return any_;
     }
+
 
     public void addAny( Any any )
     {
         any_ = any;
     }
 
-    static String typeCodeToName( int x )
+
+    private static String typeCodeToName( int x )
     {
         try
             {
-                java.lang.reflect.Field[] _fields = TCKind.class.getDeclaredFields();
+                Field[] _fields = TCKind.class.getDeclaredFields();
 
                 return _fields[ x ].getName();
             }
@@ -345,6 +396,7 @@ public class EvaluationResult
                 return "unknown: " + x;
             }
     }
+
 
     public String toString()
     {
@@ -360,6 +412,7 @@ public class EvaluationResult
         return _buffer.toString();
     }
 
+
     public boolean equals( Object o )
     {
         logger_.debug( toString() + ".equals(" + o + ")" );
@@ -372,27 +425,21 @@ public class EvaluationResult
         return super.equals( o );
     }
 
+
     public int hashCode()
     {
         return getValue().hashCode();
     }
 
+
     public int compareTo( EvaluationResult other )
         throws DynamicTypeException,
                EvaluationException
     {
-
         int _ret = Integer.MAX_VALUE;
-
-        if ( logger_.isDebugEnabled() )
-            {
-                logger_.debug( "compare " + this + ", " + other );
-            }
 
         if ( getValue() == null && any_ != null && other.getValue() instanceof String )
             {
-                logger_.debug( "case 1" );
-
                 try
                     {
                         String _l = any_.type().member_name( 0 );
@@ -440,7 +487,6 @@ public class EvaluationResult
                     {
                         _ret = 1;
                     }
-
             }
         else
             {
@@ -463,58 +509,53 @@ public class EvaluationResult
 
         if ( _ret == Integer.MAX_VALUE )
             {
-                throw new DynamicTypeException();
+                throw newDynamicTypeException("compare", this, other);
             }
 
         return _ret;
     }
+
 
     public static EvaluationResult wrapImmutable( EvaluationResult e )
     {
         return new ImmutableEvaluationResultWrapper( e );
     }
 
-    public static EvaluationResult plus( EvaluationResult left,
-                                         EvaluationResult right ) throws DynamicTypeException
-    {
 
+    public static EvaluationResult plus( EvaluationResult left,
+                                         EvaluationResult right )
+        throws DynamicTypeException
+    {
         EvaluationResult _res = new EvaluationResult();
 
         if ( left.isDouble() ||
-
              right.isDouble() )
             {
                 _res.setDouble( left.getDouble() + right.getDouble() );
-
             }
         else if ( left.isFloat() ||
                   right.isFloat() )
             {
-
                 _res.setFloat( left.getDouble() + right.getDouble() );
-
             }
         else if ( left.isLongLong() ||
                   right.isLongLong() )
             {
-
                 _res.setLongLong( left.getLongLong() + right.getLongLong() );
-
             }
         else if ( left.isLong() ||
                   right.isLong() )
             {
-
                 _res.setLong( left.getLong() + right.getLong() );
-
             }
         else
             {
-                throw new DynamicTypeException("unable to add values");
+                throw newDynamicTypeException("add", left, right);
             }
 
         return _res;
     }
+
 
     public static EvaluationResult minus( EvaluationResult left,
                                           EvaluationResult right )
@@ -528,38 +569,33 @@ public class EvaluationResult
              right.isDouble() )
             {
                 _res.setDouble( left.getDouble() - right.getDouble() );
-
             }
         else if ( left.isFloat() ||
                   right.isFloat() )
             {
-
                 _res.setFloat( left.getDouble() - right.getDouble() );
-
             }
         else if ( left.isLongLong() ||
                   right.isLongLong() )
             {
-
                 _res.setLongLong( left.getLongLong() - right.getLongLong() );
-
             }
         else if ( left.isLong() ||
                   right.isLong() )
             {
-
                 _res.setLong( left.getLong() - right.getLong() );
-
             }
         else
             {
-                throw new DynamicTypeException("unable to subtract values");
+                throw newDynamicTypeException("subtract", left, right);
             }
 
         return _res;
     }
 
-    static public EvaluationResult unaryMinus( EvaluationResult r ) throws DynamicTypeException
+
+    static public EvaluationResult unaryMinus( EvaluationResult r )
+        throws DynamicTypeException
     {
         EvaluationResult _ret = new EvaluationResult();
 
@@ -575,104 +611,88 @@ public class EvaluationResult
         return _ret;
     }
 
-    static public EvaluationResult div( EvaluationResult left,
-                                        EvaluationResult right ) throws DynamicTypeException
-    {
 
+    static public EvaluationResult div( EvaluationResult left,
+                                        EvaluationResult right )
+        throws DynamicTypeException
+    {
         EvaluationResult _res = new EvaluationResult();
 
 
         if ( left.isDouble() ||
-
              right.isDouble() )
             {
                 _res.setDouble( left.getDouble() / right.getDouble() );
-
             }
         else if ( left.isFloat() ||
                   right.isFloat() )
             {
-
                 _res.setFloat( left.getDouble() / right.getDouble() );
-
             }
         else if ( left.isLongLong() ||
                   right.isLongLong() )
             {
-
                 _res.setLongLong( left.getLongLong() / right.getLongLong() );
-
             }
         else if ( left.isLong() ||
                   right.isLong() )
             {
-
                 _res.setLong( left.getLong() / right.getLong() );
-
             }
         else
             {
-                throw new DynamicTypeException("unable to divide values");
+                throw newDynamicTypeException("divide", left, right);
             }
 
         return _res;
 
     }
+
 
     static public EvaluationResult mult( EvaluationResult left,
                                          EvaluationResult right )
         throws DynamicTypeException
     {
-
         EvaluationResult _res = new EvaluationResult();
 
         if ( left.isDouble() ||
-
              right.isDouble() )
             {
                 _res.setDouble( left.getDouble() * right.getDouble() );
-
             }
         else if ( left.isFloat() ||
                   right.isFloat() )
             {
-
                 _res.setFloat( left.getDouble() * right.getDouble() );
-
             }
         else if ( left.isLongLong() ||
                   right.isLongLong() )
             {
-
                 _res.setLongLong( left.getLongLong() * right.getLongLong() );
-
             }
         else if ( left.isLong() ||
                   right.isLong() )
             {
-
                 _res.setLong( left.getLong() * right.getLong() );
-
             }
         else
             {
-                throw new DynamicTypeException("unable to multiply values");
+                throw newDynamicTypeException("multiply", left, right);
             }
 
         return _res;
     }
 
+
     public static EvaluationResult fromAny( Any any )
     {
-        logger_.debug( "extractFromAny(Any)" );
-
         if (any == null) {
             return null;
         }
 
         EvaluationResult _ret = null;
 
-        // if it is a wrapped any dont create EvaluationResult
+        // if any is a wrapped Any dont create EvaluationResult
         // instead fromAny is called recursively again (in next switch
         // below)
         switch (any.type().kind().value() ) {
@@ -686,33 +706,26 @@ public class EvaluationResult
         switch ( any.type().kind().value() )
             {
             case TCKind._tk_boolean:
-                logger_.debug( "bool" );
                 _ret.setBool( any.extract_boolean() );
                 break;
 
             case TCKind._tk_string:
-                logger_.debug( "string" );
                 _ret.setString( any.extract_string() );
                 break;
 
             case TCKind._tk_long:
-                logger_.debug( "long" );
                 _ret.setLong( any.extract_long() );
                 break;
 
             case TCKind._tk_short:
-                logger_.debug( "int" );
                 _ret.setLong( any.extract_short() );
                 break;
 
             case TCKind._tk_ulonglong:
-                logger_.debug("long long");
-
                 _ret.setLongLong( any.extract_ulonglong() );
                 break;
 
             case TCKind._tk_any:
-                logger_.debug( "nested" );
                 return fromAny( any.extract_any() );
 
             default:
@@ -726,18 +739,21 @@ public class EvaluationResult
 
 class ImmutableEvaluationResultWrapper extends EvaluationResult
 {
+    private EvaluationResult delegate_;
 
-    static void unsupported()
+    ////////////////////////////////////////
+
+    ImmutableEvaluationResultWrapper( EvaluationResult delegate )
     {
-        throw new UnsupportedOperationException();
+        delegate_ = delegate;
     }
 
-    private EvaluationResult delegate_;
+    ////////////////////////////////////////
 
     public int compareTo( EvaluationContext evaluationContext,
                           EvaluationResult evaluationResult )
-    throws DynamicTypeException,
-                EvaluationException
+        throws DynamicTypeException,
+               EvaluationException
     {
 
         return delegate_.compareTo( evaluationResult );
@@ -803,11 +819,6 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
         return delegate_.getAny();
     }
 
-    ImmutableEvaluationResultWrapper( EvaluationResult er )
-    {
-        delegate_ = er;
-    }
-
     public void setString( String s )
     {
         unsupported();
@@ -842,11 +853,16 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
     {
         unsupported();
     }
+
+    private static void unsupported()
+    {
+        throw new UnsupportedOperationException();
+    }
 }
+
 
 class DynamicTypeException extends EvaluationException
 {
-
     public DynamicTypeException()
     {
         super();
@@ -856,5 +872,4 @@ class DynamicTypeException extends EvaluationException
     {
         super( msg );
     }
-
 }
