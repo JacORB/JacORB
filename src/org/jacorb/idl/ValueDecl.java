@@ -88,10 +88,21 @@ class ValueDecl
     public void parse()
     {	
         stateMembers.parse();
+
         for (Iterator i = operations.iterator(); i.hasNext();)
             ((IdlSymbol)i.next()).parse();
+
         for (Iterator i = exports.iterator(); i.hasNext();)
-            ((IdlSymbol)i.next()).parse();
+        {
+            IdlSymbol sym = (IdlSymbol)i.next();
+            sym.parse();
+            if (sym instanceof AttrDecl)
+            {
+                for (Enumeration e = ((AttrDecl)sym).getOperations();
+                     e.hasMoreElements();)
+                    operations.add (e.nextElement());
+            }
+        }
 
 	try
 	{
@@ -217,9 +228,9 @@ class ValueDecl
 
     public String printReadExpression (String streamname)
     {
-        return "(" + javaName() + ")" + 
-               "((org.omg.CORBA_2_3.portable.InputStream)" + streamname +")"+ 
-               ".read_value (\"" + id() + "\")";
+        return "(" + javaName() + ")" 
+             + "((org.omg.CORBA_2_3.portable.InputStream)" + streamname + ")" 
+             + ".read_value (\"" + id() + "\")";
     }
 
     public String printReadStatement (String var_name, String streamname)
@@ -260,6 +271,12 @@ class ValueDecl
         for (Iterator i = stateMembers.v.iterator(); i.hasNext();)
         {
             ((StateMember)i.next()).print (out);
+            out.println();
+        }
+
+        for (Iterator i = operations.iterator(); i.hasNext();)
+        {
+            ((Operation)i.next()).printSignature (out, true);
             out.println();
         }
 
