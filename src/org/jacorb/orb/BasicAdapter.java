@@ -69,7 +69,7 @@ public class BasicAdapter
                          POA rootPOA,
                          TransportManager transport_manager,
                          GIOPConnectionManager giop_connection_manager )
-        throws IOException
+        throws org.omg.CORBA.INITIALIZE
     {
         this.orb = orb;
         this.rootPOA = rootPOA;
@@ -83,7 +83,7 @@ public class BasicAdapter
                 String s = Environment.getProperty( "jacorb.ssl.server_socket_factory" );
                 if( s == null || s.length() == 0 )
                 {
-                    throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.server_socket_factory\" is not set!" );
+                    throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.server_socket_factory\" is not set!" );
                 }
 
                 try
@@ -101,7 +101,7 @@ public class BasicAdapter
                     Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT,
                                   e );
 
-                    throw new RuntimeException( "SSL support is on, but the ssl server socket factory can't be instanciated (see trace)!" );
+                    throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl server socket factory can't be instanciated (see trace)!" );
                 }
             }
             
@@ -110,7 +110,7 @@ public class BasicAdapter
                 String s = Environment.getProperty( "jacorb.ssl.socket_factory" );
                 if( s == null || s.length() == 0 )
                 {
-                    throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
+                    throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
                 }
 
                 try
@@ -128,7 +128,7 @@ public class BasicAdapter
                     Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT,
                                   e );
 
-                    throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
+                    throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
                 }
             }
 
@@ -312,11 +312,11 @@ public class BasicAdapter
         public Listener( String oa_port, 
                          ServerSocketFactory factory,
                          boolean is_ssl )
-            throws IOException 
+            throws org.omg.CORBA.INITIALIZE
         {
             if( factory == null )
             {
-                throw new Error("No socket factory available!");
+                throw new org.omg.CORBA.INITIALIZE("No socket factory available!");
             }
 
             this.factory = factory;
@@ -354,8 +354,10 @@ public class BasicAdapter
                     {
                         System.err.println("[ Listener: Couldn't initialize, illegal ip addr " + 
                                            ip_addr +" ]");
-                        throw new java.io.IOException( "Listener: Couldn't initialize, illegal ip addr " + 
-                                                      ip_addr );
+                        throw new org.omg.CORBA.INITIALIZE("Listener: Could not initialize. " + 
+                                                           " illegal ip addr " + ip_addr,
+                                                           1,
+                                                           org.omg.CORBA.CompletionStatus.COMPLETED_NO );
                     }
 
                     if( oa_port != null )
@@ -379,8 +381,9 @@ public class BasicAdapter
             catch (Exception e) 
             {
                 Debug.output(2,e);
-                System.err.println("[ Listener: Couldn't initialize. Illegal address configuration? ]");
-                throw new java.io.IOException( "Listener: Couldn't initialize. Illegal address configuration?" );  
+                throw new org.omg.CORBA.INITIALIZE("ORB Listener: could not initialize, illegal address config.?!", 
+                                          1,
+                                         org.omg.CORBA.CompletionStatus.COMPLETED_NO);
                 // System.exit(1);
             }
 
