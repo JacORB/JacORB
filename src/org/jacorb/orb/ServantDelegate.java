@@ -28,7 +28,6 @@ import org.omg.PortableServer.*;
 import org.omg.PortableServer.POAPackage.*; 
 import org.omg.PortableServer.CurrentPackage.NoContext;
 
-import org.jacorb.orb.domain.*;
 import org.jacorb.util.Debug;
 
 /**
@@ -45,10 +44,6 @@ public class ServantDelegate
     private transient org.omg.PortableServer.Current _current = null;
     private transient POA poa = null;
     private transient POA selfPOA = null;
-
-    /** domain service used to implement get_policy and get_domain_managers */
-
-    private static Domain  _domainService= null;
 
     ServantDelegate( org.jacorb.orb.ORB orb )
     {
@@ -186,8 +181,8 @@ public class ServantDelegate
 	return false;
     }
 
-    public org.omg.CORBA.InterfaceDef get_interface(org.omg.PortableServer.Servant self)
-    {       
+    public org.omg.CORBA.Object get_interface_def( org.omg.PortableServer.Servant self)
+    {
 	check();
 	if ( ir == null) 
 	{       
@@ -200,9 +195,12 @@ public class ServantDelegate
 		throw new org.omg.CORBA.INITIALIZE(e.toString());    
 	    }     
 	}   
+        return ir.lookup_id( ((org.omg.CORBA.portable.ObjectImpl)self._this_object())._ids()[0] );
+    }
 
-	return org.omg.CORBA.InterfaceDefHelper.narrow( 
-                 ir.lookup_id( ((org.omg.CORBA.portable.ObjectImpl)self._this_object())._ids()[0] ));
+    public org.omg.CORBA.InterfaceDef get_interface(org.omg.PortableServer.Servant self)
+    {       
+	return org.omg.CORBA.InterfaceDefHelper.narrow( get_interface_def( self ));
     }
 
     public boolean is_a(org.omg.PortableServer.Servant self, String repid)
@@ -226,34 +224,6 @@ public class ServantDelegate
     }
 
 
-    /* domain management-related operations */
-
-    /** returns a domain service. The returned reference is a reference 
-     *  to the local orb domain. 
-     */
-
-    private org.jacorb.orb.domain.Domain _domainService()
-    {
-	if (_domainService == null)
-	{
-	    try 
-	    { 
-		org.jacorb.util.Debug.output
-		    (Debug.DOMAIN | Debug.DEBUG1, "ServantDelegate._domainService: fetching local domain service reference from orb");
-		check();
-		_domainService = 
-                    org.jacorb.orb.domain.DomainHelper.narrow( 
-                       orb.resolve_initial_references("LocalDomainService") ); // local
-		// ( orb.resolve_initial_references("DomainService") );      // global 
-	    }
-	    catch (Exception e) 
-	    {
-		org.jacorb.util.Debug.output(Debug.DOMAIN | Debug.IMPORTANT, e);
-	    }
-	}
-	return _domainService;
-    } 
-
     /**
      * _get_policy
      */
@@ -261,7 +231,7 @@ public class ServantDelegate
     public org.omg.CORBA.Policy _get_policy(org.omg.CORBA.Object self, 
 					    int policy_type)
     {
-	return _domainService().getPolicy(self, policy_type);
+        return null;
     } 
 
     /**
@@ -271,14 +241,13 @@ public class ServantDelegate
     public org.omg.CORBA.DomainManager[] _get_domain_managers
 	(org.omg.CORBA.Object self)
     {    
-	return _domainService().getDomains(self);
+        return null;
     } 
 
     /**
      * Similar to invoke in InvikeHandler, which is ultimately implement by 
      * skeletons. This method is used by the POA to handle operations that
-     * are "special", i.e. not implemented by skeletons, e.g. the domain
-     * management operation
+     * are "special", i.e. not implemented by skeletons
      */
 
     public org.omg.CORBA.portable.OutputStream _invoke(org.omg.PortableServer.Servant self,
@@ -289,12 +258,7 @@ public class ServantDelegate
     {
 	org.omg.CORBA.portable.OutputStream _out = null;
 
-	if(  method.equals("_get_domain_managers"))
-	{
-	    _out = handler.createReply();
-	    org.omg.CORBA.DomainManagersListHelper.write(_out, _get_domain_managers( _input.read_Object() ));
-	}
-	else if( method.equals("_get_policy"))
+	if(  method.equals("_get_policy"))
 	{
 	    _out = handler.createReply();
 	    _out.write_Object(_get_policy(_input.read_Object() , _input.read_long()  ) );
