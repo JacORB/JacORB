@@ -33,7 +33,7 @@ class UnionType
     TypeSpec switch_type_spec;
 
     SwitchBody switch_body;
-    boolean written = false;
+    private boolean written = false;
 
     private ScopeData scopeData;
 
@@ -305,7 +305,7 @@ class UnionType
         ps.println( " */\n" );
     }
 
-    public void printUnionClass( String className, PrintWriter pw )
+    private void printUnionClass( String className, PrintWriter pw )
     {
         Enumeration e;
         if( !pack_name.equals( "" ) )
@@ -1325,5 +1325,3 @@ class UnionType
         return tspec;
     }
 }
-
-
