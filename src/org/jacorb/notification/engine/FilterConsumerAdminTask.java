@@ -114,13 +114,13 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
             AbstractDeliverTask[] _listOfPushToConsumerTaskToBeScheduled = null;
 
             _listOfPushToConsumerTaskToBeScheduled =
-                taskFactory_.newPushToConsumerTask(_filterStagesWithMessageConsumer,
-                                                        copyMessage());
+                getTaskFactory().newPushToConsumerTask(_filterStagesWithMessageConsumer,
+                                                       copyMessage());
 
             AbstractDeliverTask.scheduleTasks(_listOfPushToConsumerTaskToBeScheduled);
         }
 
-        _filterTaskToBeScheduled = taskFactory_.newFilterProxySupplierTask( this );
+        _filterTaskToBeScheduled = getTaskFactory().newFilterProxySupplierTask( this );
 
         _filterTaskToBeScheduled.schedule();
 
