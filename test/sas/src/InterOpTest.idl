@@ -1,0 +1,61 @@
+#ifndef _InterOpTest_IDL_
+#define _InterOpTest_IDL_
+
+#pragma prefix "adiron.com"
+
+module InterOpTest {
+
+    /**
+     * This interface cotains the operation "say_hello", 
+     * which will return you a string representation of 
+     * its client's SecurityLevel3::Principal.
+     */ 
+    interface Peter
+    {
+        string say_hello(
+            in string msg
+        );
+    };
+    
+    /**
+     * The object behind this interface has two operations
+     * that test the CSIv2 invocation on your Maurice object.
+     */
+    interface Johnson : Peter
+    {
+        /**
+         * This operation will execute "say_hello" on the
+         * given Peter object, using the credentials
+         * of the server.
+         */
+        string say_hello_from_you(
+            in Peter pete,
+            in long  times
+        );
+        
+        /**
+         * This operation will execute "say_hello" on the 
+         * given Peter object, but it will do it with
+         * CSIv2 Credentials that quotes the client.
+         */
+        string say_hello_from_me(
+            in Peter pete,
+            in long  times
+        );
+        
+        /**
+         * This operation will execute "say_hello" on the 
+         * given Peter object, but it will do it with
+         * CSIv2 Credentials that test your GSSUP mechanism.
+         */
+        string say_hello_from_user_password(
+            in Peter pete,
+            in string targetname,
+            in string username,
+            in string password,
+            in long  times
+        );
+    };
+
+};
+#endif
