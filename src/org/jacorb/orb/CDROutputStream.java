@@ -42,8 +42,6 @@ import org.omg.PortableServer.*;
 public class CDROutputStream
     extends org.omg.CORBA_2_3.portable.OutputStream
 {
-    static int instances = 0;
-
     /** needed for alignment purposes */
     private int index = 0;
 
@@ -54,6 +52,7 @@ public class CDROutputStream
         size, but that have not yet been written */
     private int deferred_writes = 0;
 
+    private BufferManager bufMgr = null;
     private byte[] buffer = null;
 
     private boolean closed = false;
@@ -63,7 +62,6 @@ public class CDROutputStream
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
 
-    private BufferManager bufMgr = null;
 
     private int resize_factor = 1;
     private int encaps_start = -1;
@@ -155,7 +153,6 @@ public class CDROutputStream
     {
         bufMgr = BufferManager.getInstance();
         buffer = bufMgr.getPreferredMemoryBuffer();
-        instances++;
     }
 
     /**
@@ -315,10 +312,8 @@ public class CDROutputStream
 	    return;
 	}
 
-        if( bufMgr != null )
-        {
-            bufMgr.returnBuffer( buffer );
-        }
+        bufMgr.returnBuffer( buffer, true );
+        buffer = null;
 
         deferredArrayQueue.clear ();
         deferred_writes = 0;
@@ -373,27 +368,20 @@ public class CDROutputStream
 
     private final void check (final int i)
     {
-        //if( closed )
-        //   throw new java.lang.Error("Trying to write to a closed stream!");
+        byte [] new_buf;
 
-        if( pos + i + 2 > (buffer.length))
+        if (buffer == null || (pos + i + 2) > buffer.length)
         {
-            byte [] new_buf;
-            if( bufMgr == null )
+            new_buf = bufMgr.getBuffer( pos+i+2, true);
+
+            if (buffer != null)
             {
-                int size = buffer.length;
-                while( pos + i + 2 > size )
-                    size = size<<1;
-                new_buf = new byte[size];
                 System.arraycopy(buffer,0,new_buf,0,pos);
             }
-            else
-            {
-                new_buf = bufMgr.getBuffer( pos+i+2 );
-                System.arraycopy( buffer, 0, new_buf, 0, pos );
-                bufMgr.returnBuffer( buffer );
-            }
+            // Change buffer size so return the old one.
+            bufMgr.returnBuffer (buffer, true);
             buffer = new_buf;
+            new_buf = null;
         }
     }
 
@@ -526,12 +514,6 @@ public class CDROutputStream
         return buffer;
     }
 
-//      public byte[] getInternalBufferCopy()
-//      {
-//          // TODO : make copy
-//          return getBufferCopy();
-//      }
-
     private void resetIndex()
     {
         index = 0;
@@ -579,7 +561,7 @@ public class CDROutputStream
 
     public void setBuffer (final byte[] b)
     {
-        bufMgr.returnBuffer( buffer );
+        bufMgr.returnBuffer( buffer, true );
 
         buffer = b;
 
@@ -1149,20 +1131,6 @@ public class CDROutputStream
         index++;
         buffer[pos++] = value;
     }
-
-/*
-      public final void write_octet_array
-          (final byte[] value, final int offset, final int length)
-      {
-          if( value != null )
-          {
-              check(length);
-              System.arraycopy(value,offset,buffer,pos,length);
-              index += length;
-              pos += length;
-          }
-      }
-*/
 
     public final void write_octet_array( final byte[] value,
                                          final int offset,

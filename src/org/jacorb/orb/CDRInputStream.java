@@ -20,16 +20,17 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
-
-import org.omg.CORBA.*;
+import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.util.*;
+import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.StructMember;
+import org.omg.CORBA.TCKind;
+import org.omg.CORBA.UnionMember;
+import org.omg.CORBA.ValueMember;
 import org.omg.CORBA.portable.IDLEntity;
 
-import org.jacorb.util.*;
-import org.jacorb.orb.connection.CodeSet;
-
-import org.jacorb.util.ValueHandler;
 
 /**
  * Read CDR encoded data
@@ -59,8 +60,10 @@ public class CDRInputStream
 
     private boolean closed = false;
 
-    /** can be set on using property */
-    private boolean use_BOM = false;
+    /** configurable propertes */
+    private static boolean useBOM = false;
+    private static boolean cometInteropFix = false;
+    private static boolean laxBooleanEncoding = false;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
     private int codeSet =  CodeSet.getTCSDefault();
@@ -117,12 +120,17 @@ public class CDRInputStream
      */
     private org.omg.CORBA.ORB orb = null;
 
+    static
+    {
+        useBOM = Environment.isPropertyOn ("jacorb.use_bom");
+        cometInteropFix = Environment.isPropertyOn ("jacorb.interop.comet");
+        laxBooleanEncoding = Environment.isPropertyOn ("jacorb.interop.lax_boolean_encoding");
+    }
+
     public CDRInputStream (final org.omg.CORBA.ORB orb, final byte[] buf)
     {
-	this.orb = orb;
-	buffer = buf;
-
-        use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
+        this.orb = orb;
+        buffer = buf;
     }
 
     public CDRInputStream (final org.omg.CORBA.ORB orb,
@@ -130,7 +138,7 @@ public class CDRInputStream
                            final boolean littleEndian )
     {
         this( orb, buf );
-	this.littleEndian = littleEndian;
+        this.littleEndian = littleEndian;
     }
 
     public void setGIOPMinor (final  int giop_minor )
@@ -397,15 +405,31 @@ public class CDRInputStream
         index++;
         byte bb = buffer[pos++];
 
-        if( bb == 1 )
-            return true;
-        else if ( bb == 0 )
+        if (bb == 0)
+        {
             return false;
+        }
         else
         {
-            Debug.output( 1, "", buffer );
-            throw new Error("Unexpected boolean value: " + bb
-                            + " pos: " + pos + " index: " + index);
+            if (bb == 1)
+            {
+                return true;
+            }
+            else
+            {
+                if (laxBooleanEncoding)
+                {
+                    // Technically only valid values are 0 (false) and 1 (true)
+                    // however some ORBs send values other than 1 for true.
+                    return true;
+                }
+                else
+                {
+                    Debug.output( 1, "", buffer );
+                    throw new Error("Unexpected boolean value: " + bb
+                                    + " pos: " + pos + " index: " + index);
+                }
+            }
         }
     }
 
@@ -748,6 +772,8 @@ public class CDRInputStream
 
     public final String read_string()
     {
+        String result = null;
+
         handle_chunking();
 
         int remainder = 4 - (index % 4);
@@ -774,12 +800,14 @@ public class CDRInputStream
             (buf[ size - 1 ] == 0) )
         {
             //omit terminating NULL char
-            return new String( buf, 0, size - 1 );
+            result = new String( buf, 0, size - 1 );
         }
         else
         {
-            return new String( buf );
+            result = new String( buf );
         }
+        buf = null;
+        return result;
     }
 
 
@@ -1396,6 +1424,9 @@ public class CDRInputStream
 
     public final String read_wstring()
     {
+        String result = null;
+        char buf[] = null;
+
         handle_chunking();
 
 	int remainder = 4 - (index % 4);
@@ -1417,7 +1448,7 @@ public class CDRInputStream
                 return "";
             }
 
-            char[] buf = new char[ size ];
+            buf = new char[ size ];
 
             int i = 0;
             int endPos = pos + size;
@@ -1432,7 +1463,7 @@ public class CDRInputStream
                 buf[ i++ ] = read_wchar( wchar_litte_endian );
             }
 
-            return new String( buf, 0, i );
+            result = new String( buf, 0, i );
         }
         else //GIOP 1.1 / 1.0
         {
@@ -1440,7 +1471,7 @@ public class CDRInputStream
             int size = _read4int( littleEndian, buffer, pos);
             index += 4;
             pos += 4;
-            char[] buf = new char[ size ];
+            buf = new char[ size ];
 
             int endPos = pos + size;
 
@@ -1462,15 +1493,17 @@ public class CDRInputStream
                 (buf[ i - 1 ] == 0) )
             {
                 //don't return terminating NUL
-                return new String( buf, 0, i - 1 );
+                result = new String( buf, 0, i - 1 );
             }
             else
             {
                 //doesn't have a terminating NUL. This is actually not
                 //allowed.
-                return new String( buf, 0, i );
+                result = new String( buf, 0, i );
             }
         }
+        buf = null;
+        return result;
     }
 
     public boolean markSupported()

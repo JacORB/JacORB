@@ -36,11 +36,11 @@ import org.jacorb.util.Debug;
  * Created: Sat Aug 18 12:12:22 2002
  *
  * @author Nicolas Noffke
- * @version $Id$ 
+ * @version $Id$
  */
 
-public class MessageOutputStream 
-    extends CDROutputStream 
+public class MessageOutputStream
+    extends CDROutputStream
 {
     public MessageOutputStream()
     {
@@ -68,11 +68,11 @@ public class MessageOutputStream
         buffer[5] = (byte) minor_version; //GIOP minor
 
         //endianess in GIOP 1.0, flags in GIOP 1.1/1.2. Always use big
-        //endian. 
+        //endian.
         //For 1.1/1.2: 2nd LSB is 1 for fragments, but this
         //isn't supported (yet?) by JacORB. 6 MSBs must stay 0
         buffer[6] = 0;
-        
+
         buffer[7] = (byte) message_type;
 
         // Skip the header + leave 4 bytes for message size
@@ -82,7 +82,7 @@ public class MessageOutputStream
     public void insertMsgSize( int size )
     {
         byte[] buffer = getInternalBuffer();
-        
+
         //using big endian byte ordering
         buffer[8]  = (byte)((size >> 24) & 0xFF);
         buffer[9]  = (byte)((size >> 16) & 0xFF);
@@ -100,13 +100,9 @@ public class MessageOutputStream
         throws IOException
     {
         insertMsgSize();
-        
+
         write( conn, 0, size() );
+
+        release();
     }
 }// MessageOutputStream
-
-
-
-
-
-
