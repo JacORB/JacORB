@@ -74,9 +74,15 @@ public class MappingFilterTest extends NotificationTestCase
         appContext_ =
             new ApplicationContext(orb_, POAHelper.narrow(orb_.resolve_initial_references("RootPOA")));
 
+        appContext_.configure(getConfiguration());
+
         filter_ = new FilterImpl(appContext_, FilterFactoryImpl.CONSTRAINT_GRAMMAR);
 
-        filterFactory_ = new FilterFactoryImpl(appContext_).getFilterFactory();
+        FilterFactoryImpl _filterFactoryServant = new FilterFactoryImpl(appContext_);
+
+        _filterFactoryServant.configure(getConfiguration());
+
+        filterFactory_ = _filterFactoryServant.getFilterFactory();
 
         testPerson_ = getTestUtils().getTestPersonAny();
     }

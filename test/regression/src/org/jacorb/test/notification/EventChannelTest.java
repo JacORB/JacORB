@@ -18,11 +18,9 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.FilterFactory;
 
 import org.jacorb.test.common.TestUtils;
-import org.jacorb.util.Debug;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
 import org.omg.CORBA.TRANSIENT;
 
 /**
@@ -31,9 +29,6 @@ import org.omg.CORBA.TRANSIENT;
  */
 
 public class EventChannelTest extends NotificationTestCase {
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     Any testPerson_;
 
     EventChannel channel_;
@@ -174,16 +169,12 @@ public class EventChannelTest extends NotificationTestCase {
 
 
     public void testSendEventPushPush() throws Exception {
-        logger_.debug("testSendEventPushPush");
+
         // start a receiver thread
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
         _receiver.connect(channel_, false);
 
-        logger_.debug("Connected");
-
         Thread _receiverThread = new Thread(_receiver);
-
-        logger_.debug("Receiver started");
 
         // start a sender
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
@@ -193,8 +184,6 @@ public class EventChannelTest extends NotificationTestCase {
         _receiverThread.start();
 
         _sender.run();
-
-        logger_.debug("Sender started");
 
         _receiverThread.join();
 
@@ -244,8 +233,6 @@ public class EventChannelTest extends NotificationTestCase {
         _receiverThread.start();
 
         _sender.run();
-
-        logger_.info("Sent Event");
 
         _receiverThread.join();
 

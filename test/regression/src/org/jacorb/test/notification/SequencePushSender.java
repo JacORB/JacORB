@@ -15,9 +15,6 @@ import org.omg.CosNotifyComm.SequencePushSupplierHelper;
 import org.omg.CosNotifyComm.SequencePushSupplierOperations;
 import org.omg.CosNotifyComm.SequencePushSupplierPOATie;
 
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 class SequencePushSender
@@ -25,8 +22,6 @@ class SequencePushSender
     implements SequencePushSupplierOperations,
                TestClientOperations
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     SequenceProxyPushConsumer pushConsumer_;
     StructuredEvent[] event_;
     int times_ = 1;
@@ -74,7 +69,6 @@ class SequencePushSender
             }
             catch (Exception e)
             {
-                logger_.info("error while pushing", e);
                 error_ = true;
             }
         }

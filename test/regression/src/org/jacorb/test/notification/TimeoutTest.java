@@ -25,11 +25,10 @@ import java.util.Date;
 
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
 import org.jacorb.util.Time;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
+
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
@@ -43,8 +42,8 @@ import org.omg.TimeBase.UtcTHelper;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.test.common.TestUtils;
+import org.jacorb.orb.ORB;
 
 /**
  * @author Alphonse Bendt
@@ -53,8 +52,6 @@ import org.jacorb.test.common.TestUtils;
 
 public class TimeoutTest extends NotificationTestCase
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     MessageFactory messageFactory_;
     StructuredEvent structuredEvent_;
     EventChannel eventChannel_;
@@ -71,10 +68,12 @@ public class TimeoutTest extends NotificationTestCase
 
     public void setUp() throws Exception
     {
+        ORB _orb = (ORB)ORB.init(new String[] {}, null);
+
         eventChannel_ = getDefaultChannel();
 
         messageFactory_ = new MessageFactory();
-        messageFactory_.init();
+        messageFactory_.configure(getConfiguration());
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();

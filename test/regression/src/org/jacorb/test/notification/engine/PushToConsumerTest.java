@@ -24,7 +24,6 @@ package org.jacorb.test.notification.engine;
 import org.jacorb.notification.engine.PushToConsumerTask;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.test.notification.MockMessage;
-import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -32,7 +31,7 @@ import org.omg.CORBA.ORB;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
 
 /**
  * @author Alphonse Bendt
@@ -41,15 +40,19 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class PushToConsumerTest extends TestCase
 {
-    Logger test_logger = Debug.getNamedLogger(getClass().getName());
-
     TaskProcessor taskProcessor_;
-
-    ORB orb = ORB.init();
+    ORB orb;
+    private Configuration configuration_;
 
     public void setUp() throws Exception
     {
         taskProcessor_ = new TaskProcessor();
+
+        orb = ORB.init(new String[] {}, null);
+
+        configuration_ = ((org.jacorb.orb.ORB)orb).getConfiguration();
+
+        taskProcessor_.configure( configuration_ );
     }
 
 
@@ -64,10 +67,15 @@ public class PushToConsumerTest extends TestCase
         PushToConsumerTask task =
             new PushToConsumerTask(taskProcessor_);
 
+        task.configure(configuration_);
+
         MockMessage event =
             new MockMessage("testEvent");
 
+        event.configure(configuration_);
+
         Any any = orb.create_any();
+
         any.insert_string("test");
 
         event.setAny(any);

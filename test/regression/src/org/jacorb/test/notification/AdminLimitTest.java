@@ -43,15 +43,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class AdminLimitTest extends TestCase
+public class AdminLimitTest extends NotificationTestCase
 {
     ConsumerAdminTieImpl consumerAdmin_;
     ChannelContext channelContext_;
@@ -63,7 +61,10 @@ public class AdminLimitTest extends TestCase
         ORB _orb = ORB.init(new String[0], null);
         POA _poa = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));
 
+        QoSPropertySet.initStatics( ( (org.jacorb.orb.ORB)_orb).getConfiguration() );
+
         appContext_ = new ApplicationContext(_orb, _poa);
+        appContext_.configure( getConfiguration() );
 
         channelContext_ = new ChannelContext();
         channelContext_.setTaskProcessor(new TaskProcessor());
@@ -77,6 +78,7 @@ public class AdminLimitTest extends TestCase
 
         consumerAdmin_.set_qos(qosSettings_.get_qos());
     }
+
 
     public void tearDown() throws Exception
     {
@@ -189,28 +191,15 @@ public class AdminLimitTest extends TestCase
         assertTrue(counter_ == 3);
     }
 
-    /**
-     * Creates a new <code>AdminLimitTest</code> instance.
-     *
-     * @param name test name
-     */
-    public AdminLimitTest (String name)
+
+    public AdminLimitTest (String name, NotificationTestCaseSetup setup)
     {
-        super(name);
+        super(name, setup);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(AdminLimitTest.class);
 
-        return suite;
-    }
-
-    public static void main(String[] args)
+    public static Test suite() throws Exception
     {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.notificationSuite(AdminLimitTest.class);
     }
 }

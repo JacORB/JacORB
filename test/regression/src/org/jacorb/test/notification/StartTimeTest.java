@@ -23,10 +23,10 @@ package org.jacorb.test.notification;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.servant.AbstractProxyConsumerI;
 import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
+import org.jacorb.notification.servant.AbstractProxyConsumerI;
 import org.jacorb.util.Time;
 
 import org.omg.CORBA.Any;
@@ -48,25 +48,17 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.interfaces.FilterStage;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class StartTimeTest extends TestCase
+public class StartTimeTest extends NotificationTestCase
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     MessageFactory notificationEventFactory_;
 
-    ApplicationContext applicationContext_;
-
     StructuredEvent structuredEvent_;
-
-    ORB orb_;
 
     AbstractProxyConsumerI proxyConsumerMock_ =
         new AbstractProxyConsumerI() {
@@ -85,19 +77,16 @@ public class StartTimeTest extends TestCase
 
     ////////////////////////////////////////
 
-    public StartTimeTest (String name)
+    public StartTimeTest (String name, NotificationTestCaseSetup setup)
     {
-        super(name);
+        super(name, setup);
     }
 
 
     public void setUp() throws Exception {
-        orb_ = ORB.init(new String[0], null);
-        POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
-        applicationContext_ = new ApplicationContext(orb_, _poa, true);
 
         notificationEventFactory_ = new MessageFactory();
-        notificationEventFactory_.init();
+        notificationEventFactory_.configure( getConfiguration() );
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -111,25 +100,27 @@ public class StartTimeTest extends TestCase
 
         structuredEvent_.filterable_data = new Property[0];
 
-        structuredEvent_.remainder_of_body = orb_.create_any();
+        structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
 
     public void tearDown() throws Exception {
         super.tearDown();
+
         notificationEventFactory_.dispose();
-        applicationContext_.dispose();
     }
 
 
     public void testStructuredEventWithoutStartTimeProperty() throws Exception {
         Message _event = notificationEventFactory_.newMessage(structuredEvent_);
+
         assertTrue(!_event.hasStartTime());
     }
 
 
     public void testAnyEventHasNoStartTime() throws Exception {
-        Message _event = notificationEventFactory_.newMessage(orb_.create_any());
+        Message _event = notificationEventFactory_.newMessage(getORB().create_any());
+
         assertTrue(!_event.hasStartTime());
     }
 
@@ -139,7 +130,7 @@ public class StartTimeTest extends TestCase
 
         Date _now = new Date();
 
-        Any _startTimeAny = orb_.create_any();
+        Any _startTimeAny = getORB().create_any();
         UtcT _startTime = Time.corbaTime(_now);
         UtcTHelper.insert(_startTimeAny, _startTime);
 
@@ -167,7 +158,7 @@ public class StartTimeTest extends TestCase
 
         final Date _startTime = new Date(System.currentTimeMillis() + offset);
 
-        Any _startTimeAny = orb_.create_any();
+        Any _startTimeAny = getORB().create_any();
         UtcTHelper.insert(_startTimeAny, Time.corbaTime(_startTime));
 
         structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
@@ -190,6 +181,8 @@ public class StartTimeTest extends TestCase
 
             };
 
+        _taskProcessor.configure( getConfiguration() );
+
         _taskProcessor.processMessage(_event);
 
         _latch.acquire();
@@ -198,17 +191,8 @@ public class StartTimeTest extends TestCase
     }
 
 
-
-    public static Test suite()
+    public static Test suite() throws Exception
     {
-        TestSuite suite = new TestSuite(StartTimeTest.class);
-
-        return suite;
-    }
-
-
-    public static void main(String[] args)
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.notificationSuite(StartTimeTest.class);
     }
 }

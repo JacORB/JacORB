@@ -32,7 +32,6 @@ import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.jacorb.test.notification.StructuredPullReceiver;
 import org.jacorb.test.notification.StructuredPushReceiver;
-import org.jacorb.util.Debug;
 
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
@@ -44,8 +43,6 @@ import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-
 
 /**
  * @author Alphonse Bendt
@@ -54,9 +51,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class ReleaseTasksTest extends NotificationTestCase
 {
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     EventChannelFactoryImpl factory_;
     EventChannelImpl eventChannelServant_;
     EventChannel eventChannel_;

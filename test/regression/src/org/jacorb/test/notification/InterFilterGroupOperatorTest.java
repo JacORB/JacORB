@@ -31,11 +31,8 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 
-import org.jacorb.util.Debug;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * Test the various InterFilterGroupOperator settings.
@@ -69,8 +66,6 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
     ConsumerAdmin consumerAdmin_;
     Filter trueFilter_;
     Filter falseFilter_;
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     public void setUp() throws Exception
     {

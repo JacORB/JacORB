@@ -5,11 +5,8 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 
-import org.jacorb.util.Debug;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -18,7 +15,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class SequenceEventChannelTest extends NotificationTestCase {
 
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     EventChannel channel_;
     StructuredEvent[] testEvent_;
 

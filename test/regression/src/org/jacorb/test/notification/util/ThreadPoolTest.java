@@ -21,7 +21,7 @@ package org.jacorb.test.notification.util;
  *
  */
 
-import org.jacorb.notification.util.TaskExecutor;
+import org.jacorb.notification.engine.TaskExecutor;
 
 import java.util.HashSet;
 
@@ -31,9 +31,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- *  Unit Test for class ThreadPool
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -42,52 +39,66 @@ public class ThreadPoolTest extends TestCase
 {
     TaskExecutor threadPool_;
 
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         threadPool_ = new TaskExecutor("Testing", 2);
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception
+    {
         threadPool_.dispose();
     }
 
-    public void testExceute() throws Exception {
+    public void testExceute() throws Exception
+    {
         final HashSet s = new HashSet();
 
-        threadPool_.execute(new Runnable() {
-                public void run() {
-                    s.add("passed");
-                }
-            });
+        threadPool_.execute(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    s.add("passed");
+                                }
+                            }
+                           );
 
         Thread.sleep(100);
 
         assertTrue(s.contains("passed"));
     }
 
-    public void testDirectExceute() throws Exception {
+    public void testDirectExceute() throws Exception
+    {
         threadPool_.dispose();
         threadPool_ = new TaskExecutor("Testing", 0);
 
         final HashSet s = new HashSet();
 
-        threadPool_.execute(new Runnable() {
-                public void run() {
-                    s.add("passed");
-                }
-            });
+        threadPool_.execute(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    s.add("passed");
+                                }
+                            }
+                           );
 
         assertTrue(s.contains("passed"));
     }
 
-    public void testNegativeNumberOfThreadsIsInvalid() throws Exception {
-        try {
+    public void testNegativeNumberOfThreadsIsInvalid() throws Exception
+    {
+        try
+        {
             new TaskExecutor("Testing", -1);
             fail();
-        } catch (IllegalArgumentException e) {
         }
+        catch (IllegalArgumentException e)
+        {}
     }
 
-    public void testIsTaskQueued() throws Exception {
+    public void testIsTaskQueued() throws Exception
+    {
         assertTrue(!threadPool_.isTaskQueued());
 
         Latch _l1 = new Latch();
@@ -105,19 +116,13 @@ public class ThreadPoolTest extends TestCase
         assertTrue(!threadPool_.isTaskQueued());
     }
 
-    /**
-     * Creates a new <code>ThreadPoolTest</code> instance.
-     *
-     * @param name test name
-     */
+
     public ThreadPoolTest (String name)
     {
         super(name);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite()
     {
         TestSuite suite =
@@ -125,27 +130,25 @@ public class ThreadPoolTest extends TestCase
 
         return suite;
     }
-
-    /**
-     * Entry point
-     */
-public static void main(String[] args)
-    {
-        junit.textui.TestRunner.run(suite());
-    }
 }
 
-class BlockingRunnable implements Runnable {
 
+class BlockingRunnable implements Runnable
+{
     private final Latch signal_;
 
-    BlockingRunnable(Latch l) {
+    BlockingRunnable(Latch l)
+    {
         signal_ = l;
     }
 
-    public void run() {
-        try {
+    public void run()
+    {
+        try
+        {
             signal_.acquire();
-        } catch (InterruptedException e) {}
+        }
+        catch (InterruptedException e)
+        {}
     }
 }

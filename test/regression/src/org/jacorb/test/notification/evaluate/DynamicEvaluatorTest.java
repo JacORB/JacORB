@@ -71,6 +71,8 @@ public class DynamicEvaluatorTest extends TestCase {
             DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
 
         evaluator_ = new DynamicEvaluator(_dynAnyFactory);
+
+        evaluator_.configure(((org.jacorb.orb.ORB)orb_).getConfiguration());
     }
 
     public void testExtractAny() throws Exception {

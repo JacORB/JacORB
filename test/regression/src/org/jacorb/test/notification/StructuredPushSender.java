@@ -17,19 +17,15 @@ import org.omg.CosNotifyComm.StructuredPushSupplier;
 import org.omg.CosNotifyComm.StructuredPushSupplierOperations;
 import org.omg.CosNotifyComm.StructuredPushSupplierPOATie;
 
-import org.jacorb.util.Debug;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avalon.framework.logger.Logger;
 
 public class StructuredPushSender
     extends Thread
     implements StructuredPushSupplierOperations,
                TestClientOperations {
 
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     PerformanceListener perfListener_;
     StructuredGenerator generator_;
     StructuredProxyPushConsumer pushConsumer_;
@@ -102,12 +98,8 @@ public class StructuredPushSender
     private void runOnEventArray()  {
         for (int x=0; x<events_.length; ++x) {
             try {
-                if (logger_.isDebugEnabled()) {
-                    logger_.debug("push#" + x  + " => " + events_[x] + " to channel");
-                }
                 pushConsumer_.push_structured_event(events_[x]);
             } catch (Exception e) {
-                logger_.error("", e);
                 testCase_.fail();
             }
         }
@@ -122,7 +114,6 @@ public class StructuredPushSender
                     pushConsumer_.push_structured_event(event_);
                 }
             } catch (Exception e) {
-                logger_.info("error while push", e);
                 error_ = true;
             }
             try {

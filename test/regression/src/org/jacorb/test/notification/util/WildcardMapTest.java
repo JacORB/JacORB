@@ -9,30 +9,33 @@ import org.jacorb.notification.util.WildcardMap;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.util.Debug;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class WildcardMapTest extends TestCase {
+public class WildcardMapTest extends TestCase
+{
 
     protected WildcardMap map_;
 
     ////////////////////////////////////////
 
-    public WildcardMapTest (String name){
+    public WildcardMapTest (String name)
+    {
         super(name);
     }
 
     ////////////////////////////////////////
 
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         map_ = new WildcardMap();
     }
 
-    public void testBugInsertAfterSplit() throws Exception {
+    public void testBugInsertAfterSplit() throws Exception
+    {
         map_.put("abcd", "ABCD");
         map_.put("abef", "ABEF");
         map_.put("ab", "AB");
@@ -42,15 +45,12 @@ public class WildcardMapTest extends TestCase {
         assertEquals("ABEF", ((Object[])map_.getWithExpansion("abef"))[0]);
     }
 
-    public void performancePut() throws Exception {
+    public void performancePut() throws Exception
+    {
 
         long _wcTime = 0;
         long _hashTime = 0;
         int _iterations = 20;
-
-        if (Debug.getNamedLogger("org.jacorb.notification.util").isInfoEnabled()) {
-            Debug.getNamedLogger("org.jacorb.notification.util").info("you should disable logging for testPerformance");
-        }
 
         Random _random = new Random(System.currentTimeMillis());
 
@@ -59,22 +59,26 @@ public class WildcardMapTest extends TestCase {
         Integer[] _testValues = new Integer[_testSize];
         String[] _testKeys = new String[_testSize];
 
-        for (int x=0; x<_testSize; ++x) {
+        for (int x = 0; x < _testSize; ++x)
+        {
             // only positive values
             _testValues[x] = new Integer(_random.nextInt(Integer.MAX_VALUE));
             _testKeys[x] = _testValues[x].toString();
         }
 
-        for (int runs=0; runs<_iterations; ++runs) {
+        for (int runs = 0; runs < _iterations; ++runs)
+        {
             WildcardMap _wcMap = new WildcardMap();
 
             long _start = System.currentTimeMillis();
-            for (int x=0; x<_testSize; x++) {
+            for (int x = 0; x < _testSize; x++)
+            {
                 _wcMap.put(_testKeys[x], _testValues[x]);
             }
             long _stop = System.currentTimeMillis();
 
-            for (int x=0; x<_testSize; ++x) {
+            for (int x = 0; x < _testSize; ++x)
+            {
 
                 assertEquals(_testValues[x],
                              (((Object[])_wcMap.getWithExpansion(_testKeys[x]))[0]));
@@ -84,7 +88,8 @@ public class WildcardMapTest extends TestCase {
 
             Map _hashTable = new Hashtable();
             _start = System.currentTimeMillis();
-            for (int x=0; x<_testSize; ++x) {
+            for (int x = 0; x < _testSize; ++x)
+            {
                 _hashTable.put(_testKeys[x], _testValues[x]);
             }
             _stop = System.currentTimeMillis();
@@ -104,7 +109,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public void performanceGet() throws Exception {
+    public void performanceGet() throws Exception
+    {
         long _wcTime = 0;
 
         int testRuns = 10;
@@ -117,11 +123,13 @@ public class WildcardMapTest extends TestCase {
 
         Random _random = new Random(System.currentTimeMillis());
 
-        for (int t = 0; t < totalTests; ++t) {
+        for (int t = 0; t < totalTests; ++t)
+        {
 
             Integer[] _testValues = new Integer[initialTestSize];
             String[] _testKeys = new String[initialTestSize];
-            for (int x=0; x<initialTestSize; ++x) {
+            for (int x = 0; x < initialTestSize; ++x)
+            {
                 // only positive values
                 _testValues[x] = new Integer(_random.nextInt(Integer.MAX_VALUE));
                 _testKeys[x] = _testValues[x].toString();
@@ -130,27 +138,31 @@ public class WildcardMapTest extends TestCase {
 
             WildcardMap _wcMap = new WildcardMap();
 
-            for (int x=0; x<initialTestSize; x++) {
+            for (int x = 0; x < initialTestSize; x++)
+            {
                 _wcMap.put(_testKeys[x], _testValues[x]);
             }
 
             _wcTime = wcMapGet(_wcMap, _testKeys, testRuns);
 
-            System.out.println("\tget() MapSize:" + (initialTestSize/10) + " Average Time:" + _wcTime);
+            System.out.println("\tget() MapSize:" + (initialTestSize / 10) + " Average Time:" + _wcTime);
 
-            initialTestSize *= 2;// testSizeIncrement;
+            initialTestSize *= 2; // testSizeIncrement;
         }
     }
 
 
-    private long wcMapGet(WildcardMap map, Object[] keys, int runs) {
+    private long wcMapGet(WildcardMap map, Object[] keys, int runs)
+    {
         long _start = System.currentTimeMillis();
 
         // fetch every n'th key
-        int n=10;
+        int n = 10;
 
-        for (int r=0; r<runs; ++r) {
-            for (int x=0; x<keys.length/n; ++x) {
+        for (int r = 0; r < runs; ++r)
+        {
+            for (int x = 0; x < keys.length / n; ++x)
+            {
                 map.getWithExpansion(keys[x*n]);
             }
         }
@@ -160,7 +172,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public void testRemove() throws Exception {
+    public void testRemove() throws Exception
+    {
         map_.put("hallo", "Hallo");
         map_.put("hallo2", "Hallo2");
         map_.put("hallo3", "Hallo3");
@@ -175,7 +188,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public void testAddStar1() throws Exception {
+    public void testAddStar1() throws Exception
+    {
         map_.put("ha*o", "default");
         Object[] _res = (Object[])map_.getWithExpansion("hallo");
         assertTrue(_res.length == 1);
@@ -191,7 +205,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public void testAddStar2() throws Exception {
+    public void testAddStar2() throws Exception
+    {
         map_.put("*abc*de", "value");
         Object[] _res = (Object[])map_.getWithExpansion("abcde");
         assertTrue(_res.length == 1);
@@ -210,7 +225,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public void testAddStar() throws Exception {
+    public void testAddStar() throws Exception
+    {
         map_.put("abc*", "value1");
         map_.put("abcd", "value2");
 
@@ -225,7 +241,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public void testSplitAfterStar() throws Exception {
+    public void testSplitAfterStar() throws Exception
+    {
         map_.put("abc*def", "value1");
         map_.put("abc*ef", "value2");
         map_.put("abc", "value3");
@@ -241,7 +258,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public void testExactGet() throws Exception {
+    public void testExactGet() throws Exception
+    {
         map_.put("name1", "value1");
         map_.put("name2", "value2");
         map_.put("nane1", "value3");
@@ -258,11 +276,12 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public void testAdd() throws Exception {
+    public void testAdd() throws Exception
+    {
         map_.put("name", "wert");
         map_.put("java", "Programming Language");
 
-        Object _old = map_.put("name","neuer wert");
+        Object _old = map_.put("name", "neuer wert");
 
         assertEquals("wert", _old);
 
@@ -277,7 +296,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public static Test suite(){
+    public static Test suite()
+    {
         TestSuite suite = new TestSuite();
 
         suite = new TestSuite(WildcardMapTest.class);
@@ -291,7 +311,8 @@ public class WildcardMapTest extends TestCase {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         junit.textui.TestRunner.run(suite());
     }
 }

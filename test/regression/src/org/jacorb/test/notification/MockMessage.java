@@ -22,22 +22,22 @@ package org.jacorb.test.notification;
  */
 
 import org.jacorb.notification.AbstractMessage;
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.filter.ComponentName;
+import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.interfaces.FilterStage;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.MappingFilter;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import junit.framework.Assert;
-import org.omg.CosNotifyFilter.Filter;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
  * @author Alphonse Bendt
@@ -134,6 +134,7 @@ public class MockMessage extends AbstractMessage {
 
     public void validateRefCounter() {
         Assert.assertTrue("referenced: " + referenced_ + " callers: " + refAdders, referenced_ == 0);
+
         if (refsExpected_ != 0) {
             Assert.assertTrue("refs expected: " + refsExpected_, refsExpected_ == referenceCalled_);
         }
@@ -189,7 +190,6 @@ public class MockMessage extends AbstractMessage {
         if (maxRef_ > 0 && refCount_ > maxRef_) {
             throw new RuntimeException(refCount_ + " > " + maxRef_);
         }
-        logger_.info("Ref added");
     }
 
     /**
@@ -199,9 +199,8 @@ public class MockMessage extends AbstractMessage {
     public synchronized void removeReference()
     {
         super.removeReference();
+
         refCount_--;
-        logger_.info("Ref removed");
-        //        throw new RuntimeException();
     }
 
     public void setMaxRef(int max) {
@@ -211,5 +210,4 @@ public class MockMessage extends AbstractMessage {
     public void setExpectedRef(int refsExpected) {
         refsExpected_ = refsExpected;
     }
-
 }

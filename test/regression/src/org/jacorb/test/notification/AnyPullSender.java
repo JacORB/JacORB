@@ -3,7 +3,6 @@ package org.jacorb.test.notification;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
@@ -19,9 +18,6 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.PullSupplierPOA;
 
-import org.jacorb.util.Debug;
-
-import junit.framework.TestCase;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
@@ -31,8 +27,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class AnyPullSender extends PullSupplierPOA implements TestClientOperations
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     Any event_;
     Any invalidAny_;
     ProxyPullConsumer myConsumer_;
@@ -117,8 +111,6 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
 
     public Any pull() throws Disconnected
     {
-        logger_.info("pull()");
-
         BooleanHolder _b = new BooleanHolder();
         Any _event;
         while (true)
@@ -134,8 +126,6 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
 
     public Any try_pull(BooleanHolder success) throws Disconnected
     {
-        logger_.debug("try_pull");
-
         try
         {
             Any _event = invalidAny_;
@@ -149,7 +139,7 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
                         _event = event_;
                         event_ = null;
                         success.value = true;
-                        logger_.debug("try_pull will be successful");
+
                         sent_ = true;
                         available_ = false;
                     }
@@ -159,7 +149,6 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         }
         catch (Throwable t)
         {
-            logger_.error("during try_pull", t);
             t.printStackTrace();
             throw new RuntimeException();
         }

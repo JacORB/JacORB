@@ -18,10 +18,6 @@ import org.omg.CosNotifyComm.PushSupplierPOA;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.PortableServer.POA;
 
-import org.jacorb.util.Debug;
-
-import junit.framework.TestCase;
-import org.apache.avalon.framework.logger.Logger;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 public class AnyPushSender
@@ -40,7 +36,6 @@ public class AnyPushSender
     PerformanceListener perfListener_;
     int runs_;
     long interval_;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     SupplierAdmin myAdmin_;
     NotificationTestCase testCase_;
@@ -117,8 +112,6 @@ public class AnyPushSender
 
     public void run()
     {
-        logger_.info("run()");
-
         if (event_ != null)
         {
             singleSend();
@@ -142,9 +135,7 @@ public class AnyPushSender
                 {
                     _event = generator_.getNextEvent();
                     _start = System.currentTimeMillis();
-                    logger_.debug("pre push #" + x);
                     myConsumer_.push(_event);
-                    logger_.debug("pst push #" + x);
                     _stop = System.currentTimeMillis();
                 }
 

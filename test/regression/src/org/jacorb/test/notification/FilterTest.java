@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.jacorb.notification.FilterFactoryImpl;
-import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -19,7 +18,6 @@ import org.omg.CosNotifyFilter.FilterFactory;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -27,13 +25,11 @@ import org.apache.avalon.framework.logger.Logger;
  * @version $Id$
  */
 
-public class FilterTest extends TestCase {
+public class FilterTest extends NotificationTestCase {
 
     static Random random_ = new Random(System.currentTimeMillis());
 
     ////////////////////////////////////////
-
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     FilterFactory factory_;
 
@@ -45,12 +41,10 @@ public class FilterTest extends TestCase {
 
     FilterFactoryImpl factoryServant_;
 
-    ORB orb_;
-
     ////////////////////////////////////////
 
-    public FilterTest(String name) {
-        super(name);
+    public FilterTest(String name, NotificationTestCaseSetup setup) {
+        super(name, setup);
     }
 
     ////////////////////////////////////////
@@ -60,11 +54,11 @@ public class FilterTest extends TestCase {
 
         factoryServant_ = new FilterFactoryImpl();
 
+        factoryServant_.configure( getConfiguration() );
+
         factory_ = factoryServant_.getFilterFactory();
 
-        orb_ = ORB.init(new String[0], null);
-
-        testUtils_ = new NotificationTestUtils(orb_);
+        testUtils_ = new NotificationTestUtils(getORB());
 
         testPerson_ = testUtils_.getTestPersonAny();
 
@@ -74,8 +68,6 @@ public class FilterTest extends TestCase {
 
     public void tearDown() throws Exception {
         super.tearDown();
-
-        orb_.shutdown(true);
 
         factoryServant_.dispose();
     }
@@ -252,14 +244,7 @@ public class FilterTest extends TestCase {
 
 
     public static Test suite() throws Exception {
-        TestSuite _suite = new TestSuite(FilterTest.class);
-
-        return _suite;
-    }
-
-
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.notificationSuite(FilterTest.class);
     }
 }
 
@@ -270,7 +255,6 @@ class FilterRead extends Thread {
     int iterations_;
     boolean lengthOk_ = true;
     boolean countOk_ = true;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     TestCase testCase_;
     static int sCounter = 0;
@@ -280,9 +264,6 @@ class FilterRead extends Thread {
         setDaemon(true);
     }
 
-    void debug(String msg) {
-        logger_.debug(msg);
-    }
 
     FilterRead(TestCase testCase, Filter filter, int iterations) {
         super();
@@ -298,7 +279,6 @@ class FilterRead extends Thread {
 
         CounterMap _counter = new CounterMap();
         for (int x=0; x<iterations_; x++) {
-            logger_.debug("Reader: " + x);
             // constraint count should always be a multiple of 10
             ConstraintInfo[] _info = filter_.get_all_constraints();
             testCase_.assertTrue(_info.length % 10 == 0);
@@ -376,7 +356,6 @@ class FilterModify extends Thread {
     Filter filter_;
     int iterations_ = 100;
     ConstraintExp[] constraintExp_;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     FilterModify(TestCase testCase, Filter filter, String expression, int iterations) {
         super();
@@ -411,7 +390,6 @@ class FilterModify extends Thread {
                     for (int y=0; y<_info.length; y++) {
                         _toBeDeleted[y] = _info[y].constraint_id;
                     }
-                    logger_.debug("delete some");
                     // delete the constraints this thread added earlier
                     filter_.modify_constraints(_toBeDeleted, new ConstraintInfo[0]);
 
@@ -420,7 +398,6 @@ class FilterModify extends Thread {
                     } catch (InterruptedException ie) {}
 
                 }
-                logger_.debug("add some");
                 // add some constraints
                 _info = filter_.add_constraints(constraintExp_);
 

@@ -25,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.AbstractBoundedEventQueue;
 import org.jacorb.notification.queue.BoundedFifoEventQueue;
@@ -36,36 +35,14 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
 
 /**
- *  Unit Test for class BoundedFIFOEventQueue
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class BoundedFifoEventQueueTest extends TestCase
 {
-
-    ApplicationContext context;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
-    public void setUp() throws Exception {
-        context = new ApplicationContext(false);
-    }
-
-    public void tearDown() throws Exception {
-        context.dispose();
-    }
-
-    /**
-     * Creates a new <code>BoundedFIFOEventQueueTest</code> instance.
-     *
-     * @param name test name
-     */
     public BoundedFifoEventQueueTest (String name)
     {
         super(name);
@@ -146,8 +123,6 @@ public class BoundedFifoEventQueueTest extends TestCase
                     Message e =
                         EventQueueOverflowStrategy.LIFO.removeElementFromQueue(queue);
 
-                    logger_.info("remove " + e);
-
                     removedEvents.add(e);
 
                     return e;
@@ -185,22 +160,11 @@ public class BoundedFifoEventQueueTest extends TestCase
     }
 
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
     public static Test suite()
     {
         TestSuite suite = new TestSuite(BoundedFifoEventQueueTest.class);
 
         return suite;
-    }
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args)
-    {
-        junit.textui.TestRunner.run(suite());
     }
 }
 

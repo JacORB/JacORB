@@ -24,15 +24,12 @@ package org.jacorb.test.notification;
 import java.util.Date;
 import java.util.HashSet;
 
-import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Debug;
 import org.jacorb.util.Time;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -47,9 +44,7 @@ import org.omg.TimeBase.UtcTHelper;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
 import org.omg.CosNotification.StopTimeSupported;
-import org.omg.CORBA.BAD_QOS;
 import org.jacorb.test.common.TestUtils;
 
 /**
@@ -59,13 +54,13 @@ import org.jacorb.test.common.TestUtils;
 
 public class StopTimeTest extends NotificationTestCase
 {
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
     MessageFactory messageFactory_;
 
     StructuredEvent structuredEvent_;
 
     EventChannel eventChannel_;
+
+    ORB orb_;
 
 
     public StopTimeTest (String name, NotificationTestCaseSetup setup)
@@ -74,10 +69,12 @@ public class StopTimeTest extends NotificationTestCase
     }
 
     public void setUp() throws Exception {
+        orb_ = (ORB) ORB.init(new String[] {}, null);
+
         eventChannel_ = getDefaultChannel();
 
         messageFactory_ = new MessageFactory();
-        messageFactory_.init();
+        messageFactory_.configure( getConfiguration() );
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -102,8 +99,6 @@ public class StopTimeTest extends NotificationTestCase
 
 
     public void testA_SendEvent() throws Exception {
-        logger_.info("testSendEvent");
-
         // StartTime +1000ms, StopTime +500ms
         sendEvent(1000, 500, false);
 
@@ -169,8 +164,6 @@ public class StopTimeTest extends NotificationTestCase
 
 
     public void testStructuredEventWithoutStopTimeProperty() throws Exception {
-        logger_.info("testStructuredEventWithoutStopTimeProperty");
-
         Message _event = messageFactory_.newMessage(structuredEvent_);
         assertTrue(!_event.hasStopTime());
     }
@@ -183,8 +176,6 @@ public class StopTimeTest extends NotificationTestCase
 
 
     public void testStructuredEventWithStopTimeProperty() throws Exception {
-        logger_.debug("testStructuredEventWithStopTimeProperty");
-
         structuredEvent_.header.variable_header = new Property[1];
 
         Date _now = new Date();
@@ -202,8 +193,6 @@ public class StopTimeTest extends NotificationTestCase
 
 
     public void testProcessEventWithStopTime() throws Exception {
-        logger_.debug("testProcessEventWithStopTime");
-
         processEventWithStopTime(-10000, 5000, false);
         processEventWithStopTime(-2000, 5000, false);
         processEventWithStopTime(1000, 5000, true);
@@ -220,10 +209,6 @@ public class StopTimeTest extends NotificationTestCase
 
         UtcTHelper.insert(_any, Time.corbaTime(_time));
 
-        logger_.debug("insert StopTime: " + _time);
-
-        logger_.debug("now: " + new Date());
-
         structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
 
         final Message _event = messageFactory_.newMessage(structuredEvent_);
@@ -235,8 +220,6 @@ public class StopTimeTest extends NotificationTestCase
         TaskProcessor _taskProcessor = new TaskProcessor() {
                 public void processMessageInternal(Message event) {
                     try {
-                        logger_.debug("processMessageInternal called");
-
                         long _recvTime = System.currentTimeMillis();
                         assertEquals("unexpected event", event, _event);
                         assertTrue("received too late", _recvTime <= _time.getTime());
@@ -248,6 +231,8 @@ public class StopTimeTest extends NotificationTestCase
                     }
                 }
             };
+
+        _taskProcessor.configure( getConfiguration() );
 
         _taskProcessor.processMessage(_event);
 

@@ -26,12 +26,14 @@ import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.PortableServer.POA;
 
-import org.jacorb.notification.EventChannelFactoryImpl;
-
 import junit.framework.TestCase;
+import org.jacorb.config.Configuration;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.jacorb.test.common.TestUtils;
+import java.lang.reflect.Constructor;
 
 /**
  * @author Alphonse Bendt
@@ -84,6 +86,11 @@ public class NotificationTestCase extends TestCase {
     }
 
 
+    public Configuration getConfiguration() {
+        return ((org.jacorb.orb.ORB)getORB()).getConfiguration();
+    }
+
+
     public NotificationTestUtils getTestUtils() {
         return setup_.getTestUtils();
     }
@@ -100,5 +107,24 @@ public class NotificationTestCase extends TestCase {
 
     private NotificationTestCaseSetup getSetup() {
         return setup_;
+    }
+
+
+    protected static Test notificationSuite(Class clazz) throws Exception {
+        TestSuite _suite = new TestSuite();
+
+        NotificationTestCaseSetup _setup =
+            new NotificationTestCaseSetup(_suite);
+
+        String[] _methodNames = TestUtils.getTestMethods(clazz);
+
+        Constructor _ctor =
+            clazz.getConstructor(new Class[] {String.class, NotificationTestCaseSetup.class});
+
+        for (int x=0; x<_methodNames.length; ++x) {
+            _suite.addTest((Test)_ctor.newInstance(new Object[] {_methodNames[x], _setup}));
+        }
+
+        return _setup;
     }
 }

@@ -25,7 +25,7 @@ import org.jacorb.notification.interfaces.FilterStage;
  * @version $Id$
  */
 
-public class MessageFactoryTest extends TestCase {
+public class MessageFactoryTest extends NotificationTestCase {
 
     ORB orb_;
     MessageFactory messageFactory_;
@@ -63,10 +63,8 @@ public class MessageFactoryTest extends TestCase {
 
     public void testNewEventAny() throws Exception {
         Message _notifyEvent = messageFactory_.newMessage(testPerson_);
+
         assertNotNull(_notifyEvent);
-
-        System.out.println(_notifyEvent);
-
     }
 
 
@@ -152,7 +150,7 @@ public class MessageFactoryTest extends TestCase {
         testUtils_ = new NotificationTestUtils(orb_);
 
         messageFactory_ = new MessageFactory();
-        messageFactory_.init();
+        messageFactory_.configure(getConfiguration());
 
         testPerson_ = testUtils_.getTestPersonAny();
 
@@ -172,26 +170,12 @@ public class MessageFactoryTest extends TestCase {
     }
 
 
-    public void tearDown() throws Exception {
-        super.tearDown();
+    public MessageFactoryTest(String test, NotificationTestCaseSetup setup) {
+        super(test, setup);
     }
 
 
-    public MessageFactoryTest(String test) {
-        super(test);
-    }
-
-
-    public static Test suite() {
-        TestSuite suite;
-
-        suite = new TestSuite(MessageFactoryTest.class);
-
-        return suite;
-    }
-
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+    public static Test suite() throws Exception {
+        return NotificationTestCase.notificationSuite(MessageFactoryTest.class);
     }
 }

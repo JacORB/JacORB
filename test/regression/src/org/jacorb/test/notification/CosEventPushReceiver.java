@@ -10,10 +10,6 @@ import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushConsumerPOA;
 
-import org.jacorb.util.Debug;
-
-import org.apache.avalon.framework.logger.Logger;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -26,7 +22,6 @@ public class CosEventPushReceiver extends PushConsumerPOA implements Runnable, T
     boolean received_ = false;
     boolean connected_;
     ProxyPushSupplier mySupplier_;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     NotificationTestCase currentTest_;
 
     public CosEventPushReceiver(NotificationTestCase testCase) {
@@ -59,8 +54,6 @@ public class CosEventPushReceiver extends PushConsumerPOA implements Runnable, T
 
         if (event_ != null) {
             received_ = true;
-        } else {
-            logger_.info("Timout !!!");
         }
     }
 

@@ -21,15 +21,8 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
 import org.omg.DynamicAny.DynAnyFactory;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
 
 /**
- * TestUtils.java
- *
- *
- * Created: Sat Dec 07 16:04:32 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -39,8 +32,6 @@ public class NotificationTestUtils {
     ORB orb_;
     StructuredEvent structuredEvent_;
     Any structuredEventAny_;
-
-    static Logger logger_ = Debug.getNamedLogger(NotificationTestUtils.class.getName());
 
     public NotificationTestUtils(ORB orb) {
         orb_ = orb;
@@ -217,8 +208,6 @@ public class NotificationTestUtils {
         _context.setDynamicEvaluator(_dynamicEvaluator);
 
         _res = _evaluator.evaluate(_context, event);
-
-        logger_.debug("Result: " + _res);
 
         testCase.assertEquals("expected "
                               + _root.toStringTree()

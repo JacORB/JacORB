@@ -25,7 +25,7 @@ import junit.framework.TestSuite;
  * @version $Id$
  */
 
-public class FilterImplTest extends TestCase {
+public class FilterImplTest extends NotificationTestCase {
 
     /**
      * the testling
@@ -36,8 +36,8 @@ public class FilterImplTest extends TestCase {
 
     ////////////////////////////////////////
 
-    public FilterImplTest(String test) {
-        super(test);
+    public FilterImplTest(String test, NotificationTestCaseSetup setup) {
+        super(test, setup);
     }
 
     ////////////////////////////////////////
@@ -48,12 +48,15 @@ public class FilterImplTest extends TestCase {
         appContext_ =
             new ApplicationContext(_orb, POAHelper.narrow(_orb.resolve_initial_references("RootPOA")));
 
+        appContext_.configure(getConfiguration());
+
         filter_ = new FilterImpl(appContext_, FilterFactoryImpl.CONSTRAINT_GRAMMAR);
     }
 
 
     public void tearDown() throws Exception {
         super.tearDown();
+
         appContext_.dispose();
     }
 
@@ -232,12 +235,7 @@ public class FilterImplTest extends TestCase {
     }
 
 
-    public static Test suite() {
-        return new TestSuite(FilterImplTest.class);
-    }
-
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+    public static Test suite() throws Exception {
+        return NotificationTestCase.notificationSuite(FilterImplTest.class);
     }
 }

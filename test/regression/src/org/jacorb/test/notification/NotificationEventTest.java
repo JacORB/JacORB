@@ -1,82 +1,61 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.DynamicEvaluator;
-import org.jacorb.notification.filter.etcl.ETCLComponentName;
+import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.ETCLComponentName;
+import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
+import org.jacorb.notification.interfaces.Message;
+
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
-import org.apache.log.Priority;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
+
+import junit.framework.Test;
 
 /**
- *  Unit Test for class NotificationEvent
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class NotificationEventTest extends TestCase {
+public class NotificationEventTest extends NotificationTestCase {
 
     MessageFactory factory_;
     Any testPerson_;
     Any testUnion_;
-    ORB orb_;
-    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     StructuredEvent testStructured_;
     EvaluationContext evaluationContext_;
     NotificationTestUtils testUtils_;
 
-    ApplicationContext appContext_;
-
     public void setUp() throws Exception {
-        orb_ = ORB.init(new String[0], null);
-        POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
-        appContext_ = new ApplicationContext(orb_, _poa);
-
-        testUtils_ = new NotificationTestUtils(orb_);
+        testUtils_ = new NotificationTestUtils(getORB());
 
         DynAnyFactory _dynAnyFactory =
-            DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
+            DynAnyFactoryHelper.narrow(getORB().resolve_initial_references("DynAnyFactory"));
 
         DynamicEvaluator _dynEval = new DynamicEvaluator(_dynAnyFactory);
+        _dynEval.configure(getConfiguration());
 
         evaluationContext_ = new EvaluationContext();
         evaluationContext_.setDynamicEvaluator(_dynEval);
 
         factory_ = new MessageFactory();
-        factory_.init();
+        factory_.configure( getConfiguration() );
 
         testPerson_ = testUtils_.getTestPersonAny();
 
         TestUnion _t1 = new TestUnion();
         _t1.default_person(testUtils_.getTestPerson());
-        testUnion_ = orb_.create_any();
+        testUnion_ = getORB().create_any();
         TestUnionHelper.insert(testUnion_, _t1);
 
         testStructured_ = testUtils_.getStructuredEvent();
     }
 
-    public void tearDown() throws Exception {
-        super.tearDown();
-        appContext_.dispose();
-    }
 
     public void testGetType() throws Exception {
         Message _event = factory_.newMessage(testPerson_);
@@ -125,33 +104,13 @@ public class NotificationEventTest extends TestCase {
         assertEquals("lastname", _p.last_name);
     }
 
-    //    public
 
-    /**
-     * Creates a new <code>NotificationEventTest</code> instance.
-     *
-     * @param name test name
-     */
-    public NotificationEventTest(String name){
-        super(name);
+    public NotificationEventTest(String name, NotificationTestCaseSetup setup){
+        super(name, setup);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
-    public static Test suite(){
-        TestSuite suite;
 
-        suite = new TestSuite(NotificationEventTest.class);
-
-        return suite;
+    public static Test suite() throws Exception {
+        return NotificationTestCase.notificationSuite(NotificationEventTest.class);
     }
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
 }

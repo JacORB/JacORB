@@ -3,7 +3,6 @@ package org.jacorb.test.notification.node;
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
 import org.jacorb.notification.filter.etcl.ETCLComponentName;
@@ -29,13 +28,11 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
 import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
-import antlr.RecognitionException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -50,13 +47,9 @@ import junit.framework.TestSuite;
 
 public class TCLTest extends TestCase
 {
-
     ApplicationContext applicationContext_;
     ORB orb_;
     NotificationTestUtils testUtils_;
-    DynamicEvaluator dynamicEvaluator_;
-    DynAnyFactory dynAnyFactory_;
-    MessageFactory notificationEventFactory_;
 
     //////////////////////////////////////////////////
     // the testdata
@@ -179,10 +172,7 @@ public class TCLTest extends TestCase
 
         applicationContext_ = new ApplicationContext( orb_, _poa );
 
-        dynAnyFactory_ =
-            DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
-
-        dynamicEvaluator_ = new DynamicEvaluator(dynAnyFactory_ );
+        applicationContext_.configure(((org.jacorb.orb.ORB)orb_).getConfiguration());
 
         Person _person = setUpPerson();
 
