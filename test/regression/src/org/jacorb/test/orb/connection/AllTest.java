@@ -1,4 +1,4 @@
-package org.jacorb.test.orb;
+package org.jacorb.test.orb.connection;
 
 /*
  *        JacORB  - a free Java ORB
@@ -21,7 +21,6 @@ package org.jacorb.test.orb;
  */
 
 import junit.framework.*;
-import org.jacorb.test.common.ORBSetup;
 
 public class AllTest extends TestCase
 {
@@ -32,12 +31,10 @@ public class AllTest extends TestCase
 
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("All orb");
-      ORBSetup setup = new ORBSetup (suite);
+      TestSuite suite = new TestSuite ("All orb/connection");
 
-      suite.addTest (org.jacorb.test.orb.dynany.AllTest.suite ());
-      suite.addTest (org.jacorb.test.orb.connection.AllTest.suite ());
+      suite.addTest( org.jacorb.test.orb.connection.GIOPConnectionTest.suite() );
 
-      return setup;
+      return suite;
    }
 }
