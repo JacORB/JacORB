@@ -23,8 +23,8 @@
    </target>
 
 
-   <target name="clean">
-   <deltree dir="${classdir}/demo/${name}"/>
+   <target name="clean" depends="init">
+           <delete dir="${classdir}/demo/${name}"/>
    </target>
 
 </project>
