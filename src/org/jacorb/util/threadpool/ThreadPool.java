@@ -101,8 +101,6 @@ public class ThreadPool
             }
         }
 
-        idle_threads--;
-
         return job_queue.removeFirst();
     }
 
@@ -111,10 +109,23 @@ public class ThreadPool
         job_queue.add(job);
         notifyAll();
 
-        if ((idle_threads == 0) &&
-            (total_threads < max_threads))
+        // yes it is possible to have a negative value, look further
+        if(idle_threads <= 0)
         {
-            createNewThread();
+            if(total_threads < max_threads)
+            {
+                createNewThread();
+
+                // reserve the new thread for this job, not idle anymore
+                // can become negative, will be immediately reincremented in getJob()
+                idle_threads--;
+            }
+        } 
+        else
+        {
+            // reserve a thread for this job, not idle anymore
+            // can become negative, will be immediately reincremented in getJob()
+            idle_threads--;
         }
     }
 
