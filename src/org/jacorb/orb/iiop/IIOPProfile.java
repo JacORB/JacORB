@@ -19,45 +19,46 @@ import org.omg.CSIIOP.*;
  * @author Andre Spiegel
  * @version $Id$
  */
-public class IIOPProfile extends _ProfileLocalBase
-                         implements Cloneable
+public class IIOPProfile 
+    extends _ProfileLocalBase
+    implements Cloneable
 {
     private org.omg.GIOP.Version version = null;
     private IIOPAddress          primaryAddress = null; 
     private byte[]               objectKey = null;
     private TaggedComponentList  components = null;
     
-    public IIOPProfile (byte[] data)
+    public IIOPProfile(byte[] data)
     {
-        CDRInputStream in = new CDRInputStream (null, data);
+        CDRInputStream in = new CDRInputStream(null, data);
         in.openEncapsulatedArray();
 
         org.omg.IIOP.Version iiopVersion =
             org.omg.IIOP.VersionHelper.read(in);
-        this.version = new org.omg.GIOP.Version (iiopVersion.major,
+        this.version = new org.omg.GIOP.Version(iiopVersion.major,
                                                  iiopVersion.minor);
                                                  
-        this.primaryAddress = IIOPAddress.read (in);
+        this.primaryAddress = IIOPAddress.read(in);
         
         int length = in.read_ulong();
         objectKey = new byte[length];
-        in.read_octet_array (objectKey, 0, length);
+        in.read_octet_array(objectKey, 0, length);
         
         components = (version.minor > 0) ? new TaggedComponentList(in)
                                          : new TaggedComponentList();
     }
 
-    public IIOPProfile (IIOPAddress address, byte[] objectKey)
+    public IIOPProfile(IIOPAddress address, byte[] objectKey)
     {
-        this.version        = new org.omg.GIOP.Version ((byte)1, (byte)2);
+        this.version        = new org.omg.GIOP.Version((byte)1,(byte)2);
         this.primaryAddress = address;
         this.objectKey      = objectKey;
         this.components     = new TaggedComponentList();
     }
 
-    public IIOPProfile (IIOPAddress address, byte[] objectKey, int minor)
+    public IIOPProfile(IIOPAddress address, byte[] objectKey, int minor)
     {
-        this.version        = new org.omg.GIOP.Version ((byte)1, (byte)minor);
+        this.version        = new org.omg.GIOP.Version((byte)1,(byte)minor);
         this.primaryAddress = address;
         this.objectKey      = objectKey;
         this.components     = new TaggedComponentList();
@@ -67,7 +68,7 @@ public class IIOPProfile extends _ProfileLocalBase
      * Constructs an IIOPProfile from a corbaloc URL.  Only to be used
      * from the corbaloc parser.
      */
-    public IIOPProfile (String corbaloc)
+    public IIOPProfile(String corbaloc)
     {
         this.version = null;
         this.primaryAddress = null;
@@ -77,13 +78,13 @@ public class IIOPProfile extends _ProfileLocalBase
         {
             this.decode_corbaloc(corbaloc);
         }
-        catch (Exception e)
+        catch(Exception e)
         {
-            Debug.output (1,"could not create new IIOPProfile");
+            Debug.output(1,"could not create new IIOPProfile");
         }
     }
 
-    private void decode_corbaloc (String addr)
+    private void decode_corbaloc(String addr)
     {
         String host = "127.0.0.1"; //default to localhost
         short port = 2809; // default IIOP port
@@ -93,13 +94,13 @@ public class IIOPProfile extends _ProfileLocalBase
 
         String errorstr =
             "Illegal IIOP protocol format in object address format: " + addr;
-        int sep = addr.indexOf (':');
+        int sep = addr.indexOf(':');
         String protocol_identifier = "";
         if( sep != 0)
             protocol_identifier = addr.substring( 0,sep);
         if( sep + 1 == addr.length())
             throw new IllegalArgumentException(errorstr);
-        addr = addr.substring (sep + 1);
+        addr = addr.substring(sep + 1);
 
         // decode optional version number
         sep = addr.indexOf( '@' );
@@ -121,14 +122,14 @@ public class IIOPProfile extends _ProfileLocalBase
                 }
             }
         }
-        version = new org.omg.GIOP.Version ((byte)major,(byte)minor);
+        version = new org.omg.GIOP.Version((byte)major,(byte)minor);
 
-        sep = addr.indexOf (':');
+        sep = addr.indexOf(':');
         if( sep != -1 )
         {
             try
             {
-                port = (short)Integer.parseInt(addr.substring(sep+1));
+                port =(short)Integer.parseInt(addr.substring(sep+1));
                 host = addr.substring(0, sep);
             }
             catch( NumberFormatException ill )
@@ -136,11 +137,11 @@ public class IIOPProfile extends _ProfileLocalBase
                 throw new IllegalArgumentException(errorstr);
             }
         }
-        primaryAddress = new IIOPAddress (host,port);
-        decode_extensions (protocol_identifier.toLowerCase());
+        primaryAddress = new IIOPAddress(host,port);
+        decode_extensions(protocol_identifier.toLowerCase());
     }
 
-    private void decode_extensions (String ident)
+    private void decode_extensions(String ident)
     {
         this.components = new TaggedComponentList();
         if (ident.equals("ssliop"))
@@ -149,10 +150,10 @@ public class IIOPProfile extends _ProfileLocalBase
             ssl.port = (short)primaryAddress.getPort();
             String propname =
                 "jacorb.security.ssl.corbaloc_ssliop.supported_options";
-            ssl.target_supports = get_ssl_options (propname);
+            ssl.target_supports = get_ssl_options(propname);
             propname =
                 "jacorb.security.ssl.corbaloc_ssliop.required_options";
-            ssl.target_requires = get_ssl_options (propname);
+            ssl.target_requires = get_ssl_options(propname);
 
             //create the tagged component containing the ssl struct
             CDROutputStream out = new CDROutputStream();
@@ -166,7 +167,7 @@ public class IIOPProfile extends _ProfileLocalBase
         }
     }
 
-    private short get_ssl_options (String propname)
+    private short get_ssl_options(String propname)
     {
         String option_str = Environment.getProperty(propname);
         short value = EstablishTrustInTarget.value;
@@ -197,7 +198,7 @@ public class IIOPProfile extends _ProfileLocalBase
      * transport into the tagged profile.  ORBs will typically need 
      * to call the IOR interception points before calling marshal().
      */
-    public void marshal (TaggedProfileHolder tagged_profile,
+    public void marshal(TaggedProfileHolder tagged_profile,
                          TaggedComponentSeqHolder components)
     {
         TaggedComponent[] allComponents = null;
@@ -205,7 +206,7 @@ public class IIOPProfile extends _ProfileLocalBase
         
         if (components == null)
         {
-            components = new TaggedComponentSeqHolder (new TaggedComponent[0]);
+            components = new TaggedComponentSeqHolder(new TaggedComponent[0]);
         }
 
         switch( version.minor )
@@ -231,7 +232,7 @@ public class IIOPProfile extends _ProfileLocalBase
                 ProfileBody_1_1 pb1 = new ProfileBody_1_1
                 (
                     new org.omg.IIOP.Version( version.major, version.minor ),
-                    Environment.isPropertyOn ("jacorb.dns.enable")
+                    Environment.isPropertyOn("jacorb.dns.enable")
                       ? primaryAddress.getHostname()
                       : primaryAddress.getIP(),
                     (short)primaryAddress.getPort(),
@@ -257,7 +258,7 @@ public class IIOPProfile extends _ProfileLocalBase
                 ProfileBody_1_0 pb0 = new ProfileBody_1_0
                 (
                     new org.omg.IIOP.Version( version.major, version.minor ),
-                    Environment.isPropertyOn ("jacorb.dns.enable")
+                    Environment.isPropertyOn("jacorb.dns.enable")
                       ? primaryAddress.getHostname()
                       : primaryAddress.getIP(),
                     (short)primaryAddress.getPort(),
@@ -300,7 +301,7 @@ public class IIOPProfile extends _ProfileLocalBase
         }
         catch (CloneNotSupportedException e)
         {
-            throw new RuntimeException ("error cloning profile: " + e);
+            throw new RuntimeException("error cloning profile: " + e);
         }
     }
 
@@ -308,7 +309,7 @@ public class IIOPProfile extends _ProfileLocalBase
     {
         IIOPProfile result = (IIOPProfile)super.clone();  // bitwise copy
 
-        result.version = new org.omg.GIOP.Version (this.version.major,
+        result.version = new org.omg.GIOP.Version(this.version.major,
                                                    this.version.minor);
 
         // No need to make a deep copy of the primaryAddress, because
@@ -319,7 +320,7 @@ public class IIOPProfile extends _ProfileLocalBase
         if (this.objectKey != null)
         {
             result.objectKey = new byte [this.objectKey.length];
-            System.arraycopy (this.objectKey, 0, result.objectKey, 0,
+            System.arraycopy(this.objectKey, 0, result.objectKey, 0,
                               this.objectKey.length);
         }
         
@@ -346,7 +347,7 @@ public class IIOPProfile extends _ProfileLocalBase
         if (prof instanceof IIOPProfile)
         {
             IIOPProfile other = (IIOPProfile)prof;
-            return this.primaryAddress.equals (other.primaryAddress)
+            return this.primaryAddress.equals(other.primaryAddress)
                &&  this.getAlternateAddresses().equals(other.getAlternateAddresses());
         }
         else
@@ -382,7 +383,7 @@ public class IIOPProfile extends _ProfileLocalBase
      * Replaces the host in this profile's primary address with newHost
      * (if it is not null), and the port with newPort (if it is not -1).
      */
-    public void patchPrimaryAddress (String newHost, int newPort)
+    public void patchPrimaryAddress(String newHost, int newPort)
     {
         if (newHost != null)
         {
@@ -393,9 +394,9 @@ public class IIOPProfile extends _ProfileLocalBase
                                 : primaryAddress.getPort()
             );
         }
-        else if (newPort != -1)
+        else if(newPort != -1)
         {
-            primaryAddress = new IIOPAddress (primaryAddress.getIP(),
+            primaryAddress = new IIOPAddress(primaryAddress.getIP(),
                                               newPort);
         }
     }
@@ -439,25 +440,25 @@ public class IIOPProfile extends _ProfileLocalBase
         return components;
     }
 
-    public Object getComponent (int tag, Class helper)
+    public Object getComponent(int tag, Class helper)
     {
-        return components.getComponent (tag, helper);
+        return components.getComponent(tag, helper);
     }
     
-    public void addComponent (int tag, Object data, Class helper)
+    public void addComponent(int tag, Object data, Class helper)
     {
-        components.addComponent (tag, data, helper);
+        components.addComponent(tag, data, helper);
     }
     
-    public void addComponent (int tag, byte[] data)
+    public void addComponent(int tag, byte[] data)
     {
-        components.addComponent (tag, data);
+        components.addComponent(tag, data);
     }
     
     public TaggedProfile asTaggedProfile()
     {
         TaggedProfileHolder result = new TaggedProfileHolder();
-        this.marshal (result, null);
+        this.marshal(result, null);
         return result.value;
     }
     
@@ -466,16 +467,16 @@ public class IIOPProfile extends _ProfileLocalBase
      */
     public IIOPProfile to_GIOP_1_0()
     {
-        IIOPProfile result = new IIOPProfile (this.primaryAddress,
+        IIOPProfile result = new IIOPProfile(this.primaryAddress,
                                               this.objectKey);
         result.version.minor = 0;
         return result;
     }
     
-    public boolean equals (Object other)
+    public boolean equals(Object other)
     {
         if (other instanceof org.omg.ETF.Profile)
-            return is_match ((org.omg.ETF.Profile)other);
+            return this.primaryAddress.equals( ((org.jacorb.orb.iiop.IIOPProfile)other).primaryAddress);
         else
             return false;
     }
