@@ -1930,6 +1930,7 @@ public class CDROutputStream
     {
         if (!write_special_value (value))
         {
+            check(7,4);
             valueMap.put (value, new Integer(pos));
             write_previous_chunk_size();
             if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
@@ -2147,6 +2148,7 @@ public class CDROutputStream
     private void write_value_internal (final java.io.Serializable value,
                                        final String repository_id)
     {
+        check(7,4);
         valueMap.put (value, new Integer(pos));
 
         if (value.getClass() == String.class)
