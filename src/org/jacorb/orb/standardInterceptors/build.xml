@@ -2,53 +2,32 @@
 
 <project name="standardInterceptor" default="all" basedir="../../../../..">
 
-  <!-- ==================================================== -->
-  <!--      JacORB Standard Interceptors build file         -->
-  <!-- $Id$ -->
-  <!-- ==================================================== -->
-
+   <!-- ==================================================== -->
+   <!--      JacORB Standard Interceptors build file         -->
+   <!-- $Id$ -->
+   <!-- ==================================================== -->
    <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" 
-                value="-I${include}/omg -I${include}/jacorb -d
-	${src}/generated"/>
-      <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />       
-  </target>
-
-   <target name="all" depends="init">
-	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="jacorb/orb/standardInterceptors/*.java"
-	       />
+        <property name="dirs.base" value="${basedir}"/>
+        <property name="classdir" value="${dirs.base}/classes"/>
+        <property name="src" value="${dirs.base}/src"/>
+        <property name="lib" value="${dirs.base}/lib"/>
+        <property name="include" value="${dirs.base}/idl"/>
+        <property name="idlflags"
+                  value="-I${include}/omg -I${include}/jacorb -d ${src}/generated"/>
+        <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />
    </target>
 
-   <target name="all" depends="init,compile,jggs" />
+   <target name="all" depends="init,compile"/>
 
    <target name="compile">
-	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	        includes="jacorb/orb/standardInterceptors/*.java"
-		  excludes="jacorb/orb/standardInterceptors/SAS*.java"
-	        />
-   </target>
-
-   <target name="jgss" if="jgss.present">
-	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="jacorb/orb/standardInterceptors/SAS*.java"
-	        />
+        <javac debug="${debug}" srcdir="${src}" destdir="${classdir}">
+               <include name="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java" if="jgss.present"/>
+               <include name="org/jacorb/orb/standardInterceptors/CodeSetInfoInterceptor.java"/>
+               <include name="org/jacorb/orb/standardInterceptors/IORInterceptorInitializer.java"/>
+               <include name="org/jacorb/orb/standardInterceptors/SSLComponentInterceptor.java"/>
+        </javac>
    </target>
 
    <target name="clean">
    </target>
-
 </project>
-
-
-
-
-
