@@ -240,10 +240,10 @@ public class NameServer
              * set a connection time out : after 10 secs. idle time,
              * the adapter will close connections
              */
-            if( Environment.getIntPropertyWithDefault( "jacorb.connection.server_timeout", -1 ) < 0 )
+            if( Environment.getIntPropertyWithDefault( "jacorb.connection.server.timeout", -1 ) < 0 )
             {
-                logger.debug( "Default server_timeout to 10000" );
-                props.put( "jacorb.connection.server_timeout", "10000" );
+                logger.debug( "Default server.timeout to 10000" );
+                props.put( "jacorb.connection.server.timeout", "10000" );
             }
 
             // If port not set on command line see if configured
