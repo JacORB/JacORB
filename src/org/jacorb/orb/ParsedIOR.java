@@ -486,6 +486,9 @@ public class ParsedIOR
 
     public void init()
     {
+        if( isNull() )
+            throw new org.omg.CORBA.INV_OBJREF( "Trying to use NULL reference" );
+
         ProfileBody_1_1 pb = getProfileBody();
         
         if( pb == null )
