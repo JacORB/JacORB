@@ -217,7 +217,7 @@ public class NameServer
              */
 
   	    props.put("jacorb.orb.objectKeyMap.NameService",
-                        "%01StandardNS/NameServer-POA/_root");
+                        "%01StandardNS/NameServer%2DPOA/_root");
 
 	    /* 
              * set a connection time out : after 30 secs. idle time,
