@@ -611,17 +611,17 @@ non terminal InterfaceBody interface_body;
 non terminal Definition export;
 non terminal ScopedName scopename;
 
-non terminal ValueDeclaration value;
+non terminal Value        value;
 non terminal ValueBoxDecl value_box_dcl;
-non terminal ValueDeclaration value_abs_dcl;
-non terminal IdlSymbol value_body;
-non terminal Value value_dcl;
-non terminal IdlSymbol value_inheritance_spec;
-non terminal IdlSymbol value_elements;
-non terminal IdlSymbol value_element;
-non terminal IdlSymbol state_member;
-non terminal IdlSymbol init_param_decls;
-non terminal IdlSymbol init_param_decl;
+non terminal ValueDecl    value_dcl;
+non terminal ValueAbsDecl value_abs_dcl;
+non terminal IdlSymbol    value_body;
+non terminal IdlSymbol    value_inheritance_spec;
+non terminal Definitions  value_elements;
+non terminal Definition   value_element;
+non terminal StateMember  state_member;
+non terminal IdlSymbol    init_param_decls;
+non terminal IdlSymbol    init_param_decl;
 
 non terminal ConstDecl const_dcl;
 non terminal ConstType const_type;
@@ -983,15 +983,15 @@ scopename ::=
 value ::=
           value_dcl:vd
                {: 
-                        RESULT.setValueDeclaration( vd );
+                        RESULT.setValue (vd);
                 :}
         | value_abs_dcl:vad
                {: 
-                        RESULT.setValueDeclaration( vad );
+                        RESULT.setValue (vad);
                 :}
         | value_box_dcl:vbx
                {: 
-                        RESULT.setValueDeclaration( vbx );
+                        RESULT.setValue (vbx);
                 :}
         | ABSTRACT VALUETYPE ID:i 
         | VALUETYPE ID:i 
@@ -1018,8 +1018,20 @@ value_body ::=
 
 value_dcl ::= 
           CUSTOM VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
+                {:
+                        RESULT.set_token (i);
+                        // RESULT.setInheritanceSpec (is);
+                        RESULT.setValueElements (ve);
+                        RESULT.isCustomMarshalled (true);
+                :}
         | VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
-        ;
+                {:
+                        RESULT.set_token (i);
+                        // RESULT.setInheritanceSpec (is);
+                        RESULT.setValueElements (ve);
+                        RESULT.isCustomMarshalled (false);
+                :} 
+       ;
 
 value_inheritance_spec ::= 
           COLON truncatable:t scopename_list:vn 
@@ -1040,20 +1052,41 @@ truncatable ::=
         ;      
 
 value_elements ::=
-          value_element value_elements
+          value_element:e value_elements:es
+                {:
+                        RESULT.v = (Vector)es.v.clone();
+                        RESULT.v.insertElementAt(e,0);
+                :}
         | empty
         ;
 
 value_element ::=
-          export
+          export:e
+                {:
+                        RESULT.set_declaration (e.get_declaration());
+                :}
         | state_member:sm
+                {:
+                        RESULT.set_declaration (sm);
+                :}
         | FACTORY ID:i LPAREN init_param_decls:ipd RPAREN SEMI
         | FACTORY ID:i LPAREN RPAREN SEMI
         ;
 
 state_member ::=
-          PUBLIC type_spec:ts declarators SEMI
-        | PRIVATE type_spec:ts declarators SEMI
+          PUBLIC type_spec:ts declarators:ds SEMI
+                  {:
+                           RESULT.isPublic    = true;
+                           RESULT.type_spec   = ts;
+                           RESULT.declarators = ds;
+                  :}
+                           
+        | PRIVATE type_spec:ts declarators:ds SEMI
+                  {:
+                           RESULT.isPublic    = false;
+                           RESULT.type_spec   = ts;
+                           RESULT.declarators = ds;
+                  :}
         ;
         
 init_param_decls ::=
