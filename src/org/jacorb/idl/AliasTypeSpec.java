@@ -359,7 +359,7 @@ public class AliasTypeSpec
 
         printClassComment( className, ps );
 
-	ps.println("final public class " + className + "Holder");
+	ps.println("public final class " + className + "Holder");
 	ps.println("\timplements org.omg.CORBA.portable.Streamable");
 	ps.println("{");
 
@@ -369,24 +369,24 @@ public class AliasTypeSpec
 	ps.println("\t{");
 	ps.println("\t}");
 
-	ps.println("\tpublic " + className + "Holder (" + originalType.typeName() + " initial)");
+	ps.println("\tpublic " + className + "Holder (final " + originalType.typeName() + " initial)");
 	ps.println("\t{");
 	ps.println("\t\tvalue = initial;");
 	ps.println("\t}");
 
-	ps.println("\tpublic org.omg.CORBA.TypeCode _type()");
+	ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
 	ps.println("\t{");
-	ps.println("\t\treturn " + className  + "Helper.type();");
+	ps.println("\t\treturn " + className  + "Helper.type ();");
 	ps.println("\t}");
 
-	ps.println("\tpublic void _read(org.omg.CORBA.portable.InputStream in)");
+	ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream in)");
 	ps.println("\t{");
-	ps.println("\t\tvalue = " + className  + "Helper.read(in);");
+	ps.println("\t\tvalue = " + className  + "Helper.read (in);");
 	ps.println("\t}");
 
-	ps.println("\tpublic void _write(org.omg.CORBA.portable.OutputStream out)");
+	ps.println("\tpublic void _write (final org.omg.CORBA.portable.OutputStream out)");
 	ps.println("\t{");
-	ps.println("\t\t" + className + "Helper.write(out,value);");
+	ps.println("\t\t" + className + "Helper.write (out,value);");
 	ps.println("\t}");
 
 	ps.println("}");
@@ -402,7 +402,7 @@ public class AliasTypeSpec
 
         printClassComment( className, ps );
 
-	ps.println("public class " + className + "Helper");
+	ps.println("public final class " + className + "Helper");
 	ps.println("{");
 
 	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = "+
@@ -414,13 +414,13 @@ public class AliasTypeSpec
 	ps.println("\t{");
 	ps.println("\t}");
 
-	ps.println("\tpublic static void insert (org.omg.CORBA.Any any, " + type + " s)");
+	ps.println("\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)");
 	ps.println("\t{");
         ps.println("\t\tany.type (type ());");       
         ps.println("\t\twrite (any.create_output_stream (), s);");
         ps.println("\t}");
 
-	ps.println("\tpublic static " + type + " extract (org.omg.CORBA.Any any)");
+	ps.println("\tpublic static " + type + " extract (final org.omg.CORBA.Any any)");
 	ps.println("\t{");
         ps.println("\t\treturn read (any.create_input_stream ());");
 	ps.println("\t}");
@@ -435,7 +435,7 @@ public class AliasTypeSpec
 	if( originalType.basic() || originalType instanceof AnyType )
 	{
 	    /* read */
-	    ps.println("\tpublic static " +type+ " read(org.omg.CORBA.portable.InputStream _in)");
+	    ps.println("\tpublic static " +type+ " read (final org.omg.CORBA.portable.InputStream _in)");
 	    ps.println("\t{");	
 	    ps.println("\t\t" + type + " _result;");
 	    ps.println("\t\t" + originalType.printReadStatement("_result","_in"));
@@ -443,7 +443,7 @@ public class AliasTypeSpec
 	    ps.println("\t}");
 
 	    /* write */
-	    ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");
+	    ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");
 	    ps.println("\t{");
 	    ps.println("\t\t" + originalType.printWriteStatement("_s","_out"));
 	    ps.println("\t}");
@@ -454,21 +454,17 @@ public class AliasTypeSpec
 	    String helpername = ( originalType instanceof AliasTypeSpec ? 
 				  originalType.full_name() : originalType.typeName() ) + "Helper";
 	    /* read */
-	    ps.println("\tpublic static " +type+ " read(org.omg.CORBA.portable.InputStream _in)");
+	    ps.println("\tpublic static " +type+ " read (final org.omg.CORBA.portable.InputStream _in)");
 	    ps.println("\t{");	
 	    ps.println("\t\treturn " + helpername +".read(_in);");
 	    ps.println("\t}");
 
 	    /* write */
-	    ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");
+	    ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");
 	    ps.println("\t{");
 	    ps.println("\t\t" +helpername + ".write(_out,_s);");
 	    ps.println("\t}");
 	    ps.println("}");
 	}
     }
-
 }
-
-
-

@@ -622,7 +622,7 @@ class UnionType
 
         printClassComment( className, ps );
 
-	ps.println("final public class " + className + "Holder");
+	ps.println("public final class " + className + "Holder");
 	ps.println("\timplements org.omg.CORBA.portable.Streamable");
 	ps.println("{");
 
@@ -632,24 +632,24 @@ class UnionType
 	ps.println("\t{");
 	ps.println("\t}");
 
-	ps.println("\tpublic " + className + "Holder (" + className + " initial)");
+	ps.println("\tpublic " + className + "Holder (final " + className + " initial)");
 	ps.println("\t{");
 	ps.println("\t\tvalue = initial;");
 	ps.println("\t}");
 
-	ps.println("\tpublic org.omg.CORBA.TypeCode _type()");
+	ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
 	ps.println("\t{");
-	ps.println("\t\treturn " + className + "Helper.type();");
+	ps.println("\t\treturn " + className + "Helper.type ();");
 	ps.println("\t}");
 
-	ps.println("\tpublic void _read(org.omg.CORBA.portable.InputStream in)");
+	ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream in)");
 	ps.println("\t{");
-	ps.println("\t\tvalue = " + className + "Helper.read(in);");
+	ps.println("\t\tvalue = " + className + "Helper.read (in);");
 	ps.println("\t}");
 
-	ps.println("\tpublic void _write(org.omg.CORBA.portable.OutputStream out)");
+	ps.println("\tpublic void _write (final org.omg.CORBA.portable.OutputStream out)");
 	ps.println("\t{");
-	ps.println("\t\t" + className + "Helper.write(out, value);");
+	ps.println("\t\t" + className + "Helper.write (out, value);");
 	ps.println("\t}");
 
 	ps.println("}");
@@ -664,7 +664,7 @@ class UnionType
 
         printClassComment( className, ps );
 
-	ps.println("public class " + className + "Helper");
+	ps.println("public final class " + className + "Helper");
 	ps.println("{");
 	ps.println("\tprivate static org.omg.CORBA.TypeCode _type;");
 	

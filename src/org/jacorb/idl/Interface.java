@@ -420,41 +420,41 @@ class Interface
 
 
 
-    private void printHolder( String classname, PrintWriter ps )
+    private void printHolder (String classname, PrintWriter ps )
     {
         if( !pack_name.equals(""))
             ps.println("package " + pack_name + ";\n");
 
         printClassComment( classname, ps );
 
-        ps.print("public class " + classname + "Holder");
+        ps.print("public final class " + classname + "Holder");
         ps.print("\timplements org.omg.CORBA.portable.Streamable");
 
         ps.println("{");
         ps.println("\t public " + classname + " value;");
 
-        ps.println("\tpublic " + classname +"Holder()");
+        ps.println("\tpublic " + classname +"Holder ()");
         ps.println("\t{");
         ps.println("\t}");
 
-        ps.println("\tpublic " + classname +"Holder("+classname+" initial)");
+        ps.println("\tpublic " + classname +"Holder (final "+classname+" initial)");
         ps.println("\t{");
         ps.println("\t\tvalue = initial;");
         ps.println("\t}");
 
-        ps.println("\tpublic org.omg.CORBA.TypeCode _type()");
+        ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
         ps.println("\t{");
-        ps.println("\t\treturn " + classname + "Helper.type();");
+        ps.println("\t\treturn " + classname + "Helper.type ();");
         ps.println("\t}");
 
-        ps.println("\tpublic void _read(org.omg.CORBA.portable.InputStream in)");
+        ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
-        ps.println("\t\tvalue = " + classname + "Helper.read(in);");
+        ps.println("\t\tvalue = " + classname + "Helper.read (in);");
         ps.println("\t}");
 
-        ps.println("\tpublic void _write(org.omg.CORBA.portable.OutputStream _out)");
+        ps.println("\tpublic void _write (final org.omg.CORBA.portable.OutputStream _out)");
         ps.println("\t{");
-        ps.println("\t\t" + classname + "Helper.write(_out,value);");
+        ps.println("\t\t" + classname + "Helper.write (_out,value);");
         ps.println("\t}");
 
         ps.println("}");
@@ -469,7 +469,7 @@ class Interface
 
         printClassComment( className, ps );
 
-        ps.println("public class " + className + "Helper");
+        ps.println("public final class " + className + "Helper");
         ps.println("{");
 
         ps.println("\tpublic " + className + "Helper()");
@@ -496,12 +496,12 @@ class Interface
 
         printIdMethod(ps);
 
-        ps.println("\tpublic static " + className + " read(org.omg.CORBA.portable.InputStream in)");
+        ps.println("\tpublic static " + className + " read (final org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
         ps.println("\t\treturn narrow( in.read_Object());");
         ps.println("\t}");
 
-        ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream _out, " + typeName() + " s)");
+        ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, final " + typeName() + " s)");
         ps.println("\t{");
         ps.println("\t\t_out.write_Object(s);");
         ps.println("\t}");

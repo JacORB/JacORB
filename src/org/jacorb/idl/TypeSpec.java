@@ -184,13 +184,13 @@ public class TypeSpec
 
     public static void printHelperClassMethods(String className, PrintWriter ps, String type)
     {
-	ps.println("\tpublic static void insert(org.omg.CORBA.Any any, " + type + " s)");
+	ps.println("\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)");
 	ps.println("\t{");
 	ps.println("\t\tany.type(type());");
 	ps.println("\t\twrite( any.create_output_stream(),s);");
 	ps.println("\t}");
 
-	ps.println("\tpublic static " + type + " extract(org.omg.CORBA.Any any)");
+	ps.println("\tpublic static " + type + " extract (final org.omg.CORBA.Any any)");
 	ps.println("\t{");
 	ps.println("\t\treturn read(any.create_input_stream());");
 	ps.println("\t}");
@@ -199,33 +199,5 @@ public class TypeSpec
 	ps.println("\t{");
 	ps.println("\t\treturn _type;");
 	ps.println("\t}");
-	
-//  	ps.println("\tpublic String get_id()");
-//  	ps.println("\t{");
-//  	ps.println("\t\treturn id();");
-//  	ps.println("\t}");
-//  
-//  	ps.println("\tpublic org.omg.CORBA.TypeCode get_type()");
-//  	ps.println("\t{");
-//  	ps.println("\t\treturn type();");
-//  	ps.println("\t}");
-//  
-//  	// what are these good for??
-//  
-//  	ps.println("\tpublic void write_Object(org.omg.CORBA.portable.OutputStream out, java.lang.Object obj)");
-//  	ps.println("\t{");
-//  	ps.println("\t\t throw new RuntimeException(\" not implemented\");");
-//  	ps.println("\t}");
-//  	
-//  	ps.println("\tpublic java.lang.Object read_Object(org.omg.CORBA.portable.InputStream in)");
-//  	ps.println("\t{");
-//  	ps.println("\t\t throw new RuntimeException(\" not implemented\");");
-//  	ps.println("\t}");
     }
-
 }
-
-
-
-
-

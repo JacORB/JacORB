@@ -200,7 +200,7 @@ class ValueBoxDecl
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
 
-	ps.println("final public class " + className + "Holder");
+	ps.println("public final class " + className + "Holder");
 	ps.println("\timplements org.omg.CORBA.portable.Streamable");
 	ps.println("{");
 
@@ -210,24 +210,24 @@ class ValueBoxDecl
 	ps.println("\t{");
 	ps.println("\t}");
 
-	ps.println("\tpublic " + className + "Holder (" + typeName() + " initial)");
+	ps.println("\tpublic " + className + "Holder (final " + typeName() + " initial)");
 	ps.println("\t{");
 	ps.println("\t\tvalue = initial;");
 	ps.println("\t}");
 
-	ps.println("\tpublic org.omg.CORBA.TypeCode _type()");
+	ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
 	ps.println("\t{");
-	ps.println("\t\treturn " + helperName() + ".type();");
+	ps.println("\t\treturn " + helperName() + ".type ();");
 	ps.println("\t}");
 
-	ps.println("\tpublic void _read(org.omg.CORBA.portable.InputStream _in)");
+	ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream _in)");
 	ps.println("\t{");
-	ps.println("\t\tvalue = " + helperName() + ".read(_in);");
+	ps.println("\t\tvalue = " + helperName() + ".read (_in);");
 	ps.println("\t}");
 
-	ps.println("\tpublic void _write(org.omg.CORBA.portable.OutputStream _out)");
+	ps.println("\tpublic void _write (final org.omg.CORBA.portable.OutputStream _out)");
 	ps.println("\t{");
-	ps.println("\t\t" + helperName() + ".write(_out,value);");
+	ps.println("\t\t" + helperName() + ".write (_out,value);");
 	ps.println("\t}");
 
 	ps.println("}");
@@ -239,7 +239,7 @@ class ValueBoxDecl
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
 
-	ps.println("public class " + className + "Helper");
+	ps.println("public final class " + className + "Helper");
         ps.println("\timplements org.omg.CORBA.portable.BoxedValueHelper");
 	ps.println("{");
 	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = "+getTypeCodeExpression()+";");
@@ -255,7 +255,7 @@ class ValueBoxDecl
 	printIdMethod( ps ); // inherited from IdlSymbol
 
 	/* read */
-	ps.println("\tpublic static " +type+ " read(org.omg.CORBA.portable.InputStream in)");
+	ps.println("\tpublic static " +type+ " read (final org.omg.CORBA.portable.InputStream in)");
 	ps.println("\t{");
         if (typeSpec.typeSpec() instanceof BaseType)
 
@@ -266,7 +266,7 @@ class ValueBoxDecl
 	ps.println("\t}");
 
 	/* write */
-	ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream out, " + type + " s)");
+	ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream out, final " + type + " s)");
 	ps.println("\t{");
         if (typeSpec.typeSpec() instanceof BaseType)
             ps.println("\t\t" + typeSpec.typeSpec().printWriteStatement ("s.value", "out"));
@@ -274,12 +274,12 @@ class ValueBoxDecl
             ps.println("\t\t" + typeSpec.typeSpec().printWriteStatement ("s", "out"));
 	ps.println("\t}");
 
-        ps.println ("\tpublic java.io.Serializable read_value (org.omg.CORBA.portable.InputStream is)");
+        ps.println ("\tpublic java.io.Serializable read_value (final org.omg.CORBA.portable.InputStream is)");
         ps.println ("\t{");
         ps.println ("\t\treturn " + helperName() + ".read (is);");
         ps.println ("\t}");
 
-        ps.println ("\tpublic void write_value (org.omg.CORBA.portable.OutputStream os, java.io.Serializable value)");
+        ps.println ("\tpublic void write_value (final org.omg.CORBA.portable.OutputStream os, final java.io.Serializable value)");
         ps.println ("\t{");
         ps.println ("\t\t" + helperName() + ".write (os, (" + type + ")value);");
         ps.println ("\t}");
