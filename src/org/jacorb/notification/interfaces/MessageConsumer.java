@@ -90,23 +90,9 @@ public interface MessageConsumer extends Disposable {
 
 
     /**
-     * access the current error count for this MessageConsumer.
-     */
-    //int getErrorCounter();
-
-
-    /**
      * increment the current error count by one for this MessageConsumer.
      */
     int incErrorCounter();
-
-
-    /**
-     * access the error threshold for this MessageConsumer. if the
-     * error count exeeds the threshold the MessageConsumer will be
-     * disconnected.
-     */
-    //int getErrorThreshold();
 
 
     /**

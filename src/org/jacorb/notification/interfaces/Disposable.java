@@ -22,21 +22,16 @@ package org.jacorb.notification.interfaces;
  */
 
 /**
- * Abstraction of a disposable Object.
- *
- * Created: Sat Nov 30 19:05:03 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface Disposable {
+public interface Disposable extends org.picocontainer.Disposable {
 
     /**
      * Dispose this Object. Free all associated Ressources allocated
      * by this Object. The Object may not be used after a call to
      * dispose.
      */
-    void dispose();
-
+   // void dispose();
 }

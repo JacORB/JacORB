@@ -1,5 +1,3 @@
-package org.jacorb.notification.interfaces;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,21 +19,13 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.servant.AbstractAdmin;
+package org.jacorb.notification.interfaces;
 
 /**
- * AdminEvent.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class AdminEvent extends ApplicationEvent
+public interface CallbackingDisposable extends Disposable
 {
-    public AdminEvent( AbstractAdmin source )
-    {
-        super( source );
-    }
-
+    void addDisposeHook(Disposable d);
 }

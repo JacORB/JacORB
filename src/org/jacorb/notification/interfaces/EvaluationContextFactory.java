@@ -1,5 +1,3 @@
-package org.jacorb.notification.interfaces;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,22 +19,15 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.servant.AbstractProxy;
+package org.jacorb.notification.interfaces;
+
+import org.jacorb.notification.filter.EvaluationContext;
 
 /**
- * ProxyDisposedEvent.java
- *
- *
- * Created: Wed Feb 12 15:12:52 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class ProxyDisposedEvent extends ApplicationEvent {
-
-    public ProxyDisposedEvent(AbstractProxy proxy) {
-        super(proxy);
-    }
-
+public interface EvaluationContextFactory
+{
+    EvaluationContext newEvaluationContext();
 }

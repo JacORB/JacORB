@@ -1,5 +1,3 @@
-package org.jacorb.notification.interfaces;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,19 +19,16 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.servant.AbstractAdmin;
+package org.jacorb.notification.interfaces;
+
 
 /**
- * Indicate that a Admin wants to create a new ProxyObject.
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class ProxyCreationRequestEvent extends ApplicationEvent {
-
-    public ProxyCreationRequestEvent(AbstractAdmin admin) {
-        super(admin);
-    }
-
+public interface Controllable
+{
+    String getControllerName();
+    
+    void addDisposeHook(Disposable d);
 }
