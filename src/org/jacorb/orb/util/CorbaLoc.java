@@ -120,7 +120,7 @@ public class CorbaLoc
         String sb;
         if( addr.indexOf('/') == -1 )
         {
-            sb = new String( addr.substring( addr.indexOf(':')+1 ) );
+            sb = addr.substring( addr.indexOf(':')+1 );
             if (addr.startsWith("corbaloc:rir:"))
             {
                 is_rir = true;
@@ -135,7 +135,7 @@ public class CorbaLoc
         }
         else
         {
-            sb = new String( addr.substring( addr.indexOf(':')+1, addr.indexOf('/') ) );
+            sb = addr.substring( addr.indexOf(':')+1, addr.indexOf('/') );
             keyString = addr.substring(  addr.indexOf('/')+1 );
             key = parseKey( keyString );
         }
@@ -180,7 +180,7 @@ public class CorbaLoc
         }
 
         Profile result = null;
-        if (orb == null 
+        if (orb == null
             && (colon == 0
                 || addr.startsWith("iiop:")
                 || addr.startsWith("ssliop:")))
