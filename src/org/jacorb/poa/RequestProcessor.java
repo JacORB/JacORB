@@ -205,11 +205,13 @@ public class RequestProcessor
                 else
                 {
                     ((InvokeHandler) servant)._invoke(request.operation(), 
-                                                      request.getInputStream(), request);
+                                                      request.getInputStream(), 
+                                                      request);
                 }
 
             } 
-            else if (servant instanceof org.omg.PortableServer.DynamicImplementation) {                         
+            else if (servant instanceof org.omg.PortableServer.DynamicImplementation) 
+            {                         
                 controller.getLogTrace().printLog(3, request, 
                                                   "invoke operation on servant (dsi based)");
                 if( specialOperations.containsKey(request.operation()) && 
@@ -530,12 +532,6 @@ public class RequestProcessor
     }
 
 }
-
-
-
-
-
-
 
 
 

@@ -1101,14 +1101,14 @@ public class CDRInputStream
                         Debug.output(10, 
                                      "Input  switch: " + s + " at pos " + pos );
 			out.write_long(s);
-			for(int i = 0 ; i < tc.member_count() ; i++)
+			for( int i = 0 ; i < tc.member_count() ; i++)
 			{
-			    if(i != def_idx)
+			    if( i != def_idx)
 			    {
-				int label = tc.member_label(i).create_input_stream().read_long();
+				int label = 
+                                    tc.member_label(i).create_input_stream().read_long();
 
 				Debug.output(10, "Input label: " +label + " switch: " + s );
-
 				if(s == label)
 				{
 				    member_idx = i;

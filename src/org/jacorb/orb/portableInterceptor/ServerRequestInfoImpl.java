@@ -106,7 +106,7 @@ public class ServerRequestInfoImpl
      */
     public org.omg.CORBA.Object target()
     {
-        return servant._this_object(orb);
+        return servant._this_object();
     }
 
     // implementation of RequestInfoOperations interface

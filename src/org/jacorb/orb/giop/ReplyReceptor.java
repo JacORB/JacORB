@@ -69,8 +69,8 @@ public class ReplyReceptor
 
     public void stopReceptor()
     {
-        synchronized(stopped) {
-            stopped = new Boolean(true);
+        synchronized( stopped ) {
+            stopped = new Boolean( true );
             interrupt();
         }
     }
@@ -93,7 +93,7 @@ public class ReplyReceptor
 
     public void run() 
     {	
-        while( !(stopped.booleanValue()) ) 
+        while( !isStopped() ) 
         {
 	    try 
             {
@@ -109,14 +109,17 @@ public class ReplyReceptor
             {
 	       	// when the receptor is interrupted from within
 		// Connection.closeConnection
-                org.jacorb.util.Debug.output(3,ioint);
+                if( !isStopped())
+                    org.jacorb.util.Debug.output(3,ioint);
                 break;
 	    }
             catch ( IOException e ) 
             {
-                org.jacorb.util.Debug.output(3,e);
-                if( !(stopped.booleanValue()) )
+                if( !isStopped() )
+                {
+                    org.jacorb.util.Debug.output(3,e);
                     master.closeConnection();
+                }
                 break;
 	    }
             catch ( Exception ie ) 

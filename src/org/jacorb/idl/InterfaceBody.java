@@ -20,13 +20,13 @@ package org.jacorb.idl;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.*;
+import java.io.*;
+
 /**
  * @author Gerald Brose
  * @version $Id$
  */
-
-import java.util.*;
-import java.io.*;
 
 class InterfaceBody 
     extends IdlSymbol
@@ -35,14 +35,24 @@ class InterfaceBody
     public Interface my_interface;
     SymbolList inheritance_spec = null;
     private Operation[] methods = null;
+    private boolean checking = false;
+    private String waitingName;
+
+    /** list of parse threads created and either active or still blocked */
+    public static Vector parseThreads = new Vector();
 
     public class ParseThread 
 	extends Thread 
     {
 	InterfaceBody b = null;
+        private boolean running = false;
+        private boolean incremented = false;
+
 	public ParseThread( InterfaceBody _b )
 	{
-	    b= _b;
+	    b = _b;
+            setDaemon( true );
+            parseThreads.addElement( this );
 	    start();
 	}
 
@@ -52,15 +62,18 @@ class InterfaceBody
 	    Object o = null;
 	    for( Enumeration e = inheritance_spec.v.elements(); e.hasMoreElements(); )
 	    {
-		String s = ((ScopedName)(e.nextElement())).resolvedName();
-		o = parser.get_pending( s );
+		waitingName = ((ScopedName)(e.nextElement())).resolvedName();
+		o = parser.get_pending( waitingName );
 		if( o != null )
 		{
 		    try
 		    { 
-			synchronized(o)
+			synchronized( o )
 			{ 
 			    o.wait();
+                            running = true;
+                            parser.incActiveParseThreads();
+                            incremented = true;
 			}
 		    } 
 		    catch ( InterruptedException ie )
@@ -70,9 +83,44 @@ class InterfaceBody
 		}
 	    }
 	    b.internal_parse();
-	    parser.remove_pending( b.full_name() );
+            exitParseThread();
 	}
+
+      /**
+       * check whether this thread will eventually run
+       * @return true if the thread can run or is currently running
+       *         false if it is still blocked or has just returned from run()
+       */
+
+      public synchronized boolean isRunnable()
+      {
+          boolean result = running || checkWaitCondition();
+          Environment.output( 2, "Thread is runnable: " + result);
+          return result;
+      }
+      
+      private synchronized void exitParseThread()
+      {
+          parser.remove_pending( b.full_name() );
+          if( incremented )
+               parser.decActiveParseThreads();
+          parseThreads.removeElement( this );
+          running = false;
+      }
+        
+        /**
+         * @return  true, if waiting condition is true, 
+         * i.e., if thread still needs to wait.
+         */
+        
+        private boolean checkWaitCondition()
+        {
+            return ( parser.get_pending( waitingName ) == null );
+        }
+
     }
+
+
 
     public InterfaceBody(int num)
     {
@@ -120,14 +168,14 @@ class InterfaceBody
 	    ((IdlSymbol)e.nextElement()).setPackage( s);
     }
 
-    public void parse() 
-	 
+    public void parse() 	 
     {
 	if( inheritance_spec != null )
 	{
 	    Object o = null;
 	    boolean pending = false;
-	    for( Enumeration e = inheritance_spec.v.elements(); e.hasMoreElements(); )
+	    for( Enumeration e = inheritance_spec.v.elements(); 
+                 e.hasMoreElements(); )
 	    {
 		o = parser.get_pending(	((ScopedName)(e.nextElement())).resolvedName() );
 		pending = pending || ( o != null );

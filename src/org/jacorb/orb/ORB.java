@@ -146,7 +146,7 @@ public final class ORB
 
         if( o != null )
         {
-            Debug.output(5,"Found a reference for key " + key + " in cache ");
+            Debug.output( 5, "Found a reference for key " + key + " in cache ");
             org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate) o._get_delegate();
             if (del != null)
             {
@@ -555,13 +555,14 @@ public final class ORB
      * @param poa the calling POA
      * @param object_key
      * @param rep_id
+     * @param _transient is the new reference transient or persistent
+     * @return a new CORBA Object reference
      */
 
-    public org.omg.CORBA.Object getReference(org.jacorb.poa.POA poa, 
-                                             byte[] object_key, 
-                                             String rep_id, 
-                                             boolean _transient,
-                                             BooleanHolder wasCached )
+    public org.omg.CORBA.Object getReference( org.jacorb.poa.POA poa, 
+                                              byte[] object_key, 
+                                              String rep_id, 
+                                              boolean _transient )
     {
         try 
         {
@@ -571,29 +572,8 @@ public final class ORB
             org.omg.IOP.IOR ior = 
                 createIOR( rep_id, object_key, _transient, poa );
 
-            Delegate d = new Delegate(this, ior);
-            org.omg.CORBA.Object o = d.getReference(poa);
-
-            ParsedIOR pior = new ParsedIOR( ior );
-        
-            org.omg.CORBA.Object cachedReference= 
-                (org.omg.CORBA.Object) knownReferences.get(pior.getIORString());
-            if ( cachedReference != null ) 
-            {
-                Debug.output(Debug.ORB_MISC | 5, 
-                             "ORB.getReference: returning cashed reference");
-
-                wasCached.value= true;
-                return cachedReference;
-                //                return cachedReference._duplicate();
-            }
-            // else cachedReference == null
-//              if( Environment.cacheReferences() )
-//              {   
-//                  knownReferences.put( pior.getIORString(), o );
-//              } 
-            wasCached.value= false;
-            return o;
+            Delegate d = new Delegate( this, ior );
+            return d.getReference( poa );
         } 
         catch ( Exception e )
         {

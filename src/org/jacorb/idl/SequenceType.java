@@ -20,12 +20,13 @@
 
 package org.jacorb.idl;
 
+import java.io.*;
+
 /**
  * @author Gerald Brose
  * @version $Id$
  */
 
-import java.io.*;
 
 public class SequenceType 
     extends TemplateTypeSpec
@@ -349,7 +350,8 @@ public class SequenceType
 
 	if( type_spec.typeSpec() instanceof ScopedName )
 	{
-	    TypeSpec ts = ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
+	    TypeSpec ts = 
+                ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
 	    if( ts != null ) 
 		type_spec = ts;
 	}
@@ -497,7 +499,7 @@ public class SequenceType
 	ps.println("\t\treturn result;");
 	ps.println("\t}");
 
-	/** write */
+	/* write */
 
 	ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream out, " + 
                    type + " s)");

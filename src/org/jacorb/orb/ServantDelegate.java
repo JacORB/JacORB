@@ -79,7 +79,7 @@ public class ServantDelegate
 	check();
 	try 
 	{       
-	    poa = poa(self);  
+                poa = poa(self);  
 	}     
 	catch (org.omg.CORBA.OBJ_ADAPTER e) 
 	{       
@@ -154,7 +154,7 @@ public class ServantDelegate
 	{       
 	    try 
 	    {
-			_current = org.omg.PortableServer.CurrentHelper.narrow(orb.resolve_initial_references("POACurrent"));      
+                _current = org.omg.PortableServer.CurrentHelper.narrow(orb.resolve_initial_references("POACurrent"));      
 	    }       
 	    catch (Exception e) 
 	    {

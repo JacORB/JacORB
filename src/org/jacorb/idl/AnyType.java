@@ -18,14 +18,16 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/**
- * @author Gerald Brose
- * @version $Id$
- */
+
 
 package org.jacorb.idl;
 
 import java.io.PrintWriter;
+
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 
 class AnyType 
 	extends BaseType

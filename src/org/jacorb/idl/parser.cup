@@ -31,7 +31,7 @@ parser code
     public static Stack scopes = new Stack();
 
     public static String currentVersion = "";
-    public static String compiler_version = "1.3.23, 5 April 2001";
+    public static String compiler_version = "1.3.24, 12 April 2001";
 
     static String out_dir = "."; 
     static String package_prefix = null;
@@ -48,6 +48,8 @@ parser code
     private static boolean generateIncluded = false;
     private static boolean inhibitionState = false;
     private static boolean localityContraint = false;
+
+    private static int activeParseThreads;
 
     /*  a la CORBA 2.4, allow forward declarations that remain undefined */
     public static boolean sloppy = false;
@@ -332,8 +334,6 @@ parser code
     }
 
 
-
-
         /* bookkeeping with IDL scopes */
 
         /** called from the lexer/scanner whenever a scope opening
@@ -366,37 +366,62 @@ parser code
 
         // forward declared interfaces are put into this list
 
-    public static java.util.Hashtable pending_interfaces = new java.util.Hashtable();
+      public static java.util.Hashtable pending_interfaces = new java.util.Hashtable();
 
-    public static synchronized void set_pending( String name )
-    {
+      public static synchronized void set_pending( String name )
+      {
            // name will only be marked pending if it has not already been
            // parsed before and if is not already pending
+
            if( ! ( pending_interfaces.containsKey(name) ||
                    NameTable.parsed_interfaces.containsKey(name)) )
            {
-                   pending_interfaces.put(name,new Object());
+                   pending_interfaces.put(name, new Object());
            }
-    }
+      }
 
-    public static synchronized void remove_pending( String name )
-    {
-        Object o = pending_interfaces.remove(name);
-        if( o!= null) 
-        {
-                synchronized(o)
+       public static synchronized void remove_pending( String name )
+       {
+            Object o = pending_interfaces.remove(name);
+            if( o != null) 
+            {
+                synchronized( o )
                 { 
-                        o.notifyAll();
+                     o.notifyAll();
                 }
-        }
-        if( pending_interfaces.size() == 0 )
+            }
+            if( pending_interfaces.size() == 0 )
+            {
                 // notify the main thread that the parsing phase is complete
                 synchronized( pending_interfaces )
                 {
-                        pending_interfaces.notifyAll();
+                     pending_interfaces.notifyAll();
                 }
+            }
        }
 
+      public static Object get_pending( String name )
+      {
+          return pending_interfaces.get(name);
+      }
+
+      public static synchronized void decActiveParseThreads()
+      {
+          Environment.output(3,"decActiveParseThreads");
+          activeParseThreads--;
+      }
+
+      public static synchronized void incActiveParseThreads()
+      {
+          Environment.output(3,"incActiveParseThreads");
+          activeParseThreads++;
+      }
+
+      public static synchronized int activeParseThreads()
+      {
+          Environment.output(3,"activeParseThreads returns "+activeParseThreads );
+          return activeParseThreads;
+      }
 
         public static boolean generateIncluded()
         {
@@ -438,10 +463,8 @@ parser code
         include_state = i;
     }
 
-    public static synchronized Object get_pending( String name )
-    {
-        return pending_interfaces.get(name);
-    }
+
+
 
     public static boolean hasImports()
     {
@@ -646,23 +669,52 @@ specification ::=
                 }
 
                 // if there are still interfaces to be parsed, wait until the
-                // threads performing this have finished. The last one will call notify() :) 
+                // threads performing this have finished. The last one 
+                // will call notify() :) 
 
-                if( parser.pending_interfaces.size() > 0 )
-                {
-                        if( Thread.activeCount() > 1 )
+                if( parser.pending_interfaces.size() > 0  )
+                {                  
+                   // give other threads a chance to start and signal
+                   // that they're active
+                   Thread.yield();
+                      
+                   boolean runnableFound = false;
+
+                   // still no one seems to be active, but we'll call 
+                   // round to be sure
+                   if( parser.activeParseThreads() == 0 )
+                   {
+                        Environment.output(3,"Check for runnable threads");
+
+                        for( int t = 0;
+                             t < InterfaceBody.parseThreads.size() && !runnableFound; 
+                             t++ )
                         {
-                           synchronized(parser.pending_interfaces)
-                           {
-                                parser.pending_interfaces.wait();
-                           }
-                        } 
-                        else 
-                        {
-                                if( !parser.sloppy )
-                                     parser.fatal_error("Undefined interface: " + 
-                                     (String)(parser.pending_interfaces.keys().nextElement()), null );
+                            runnableFound = 
+                                ((InterfaceBody.ParseThread)InterfaceBody.parseThreads.elementAt(t)).isRunnable();
                         }
+                   }
+
+                   // only block waiting if we know that there are active or
+                   // runnable threads and that there are still pending tasks
+
+                   if( ( parser.activeParseThreads() > 1 || runnableFound ) && 
+                         parser.pending_interfaces.size() > 0 )
+                   {
+                       synchronized( parser.pending_interfaces )
+                       {
+                           Environment.output(3,"Wait for pending_interfaces");
+                           parser.pending_interfaces.wait();
+                           Environment.output(3,"Waking up after wait for pending_interfaces");
+                       }
+                   } 
+                }
+ 
+                if( parser.pending_interfaces.size() > 0 && 
+                    !parser.sloppy )
+                {
+                    parser.fatal_error("Undefined interface: " + 
+                        (String)(parser.pending_interfaces.keys().nextElement()), null );
                 }
 
                 /* complete global import list */
@@ -686,7 +738,7 @@ specification ::=
                 } 
                 catch ( Exception e )
                 {
-                        e.printStackTrace();
+                     Environment.output(1,e);
                 }
         :}
         | empty

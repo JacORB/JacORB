@@ -249,7 +249,8 @@ public class AliasTypeSpec
 	//	return typeName() + "Helper.read(" + Streamname +")" ;
 
 
-	if( originalType.basic()  &&  !(originalType instanceof TemplateTypeSpec))
+	if( originalType.basic()  &&  
+            !(originalType instanceof TemplateTypeSpec))
 	{
 	    return originalType.printReadExpression(streamname);
 	}
