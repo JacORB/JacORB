@@ -178,7 +178,7 @@ public class StartTimeTest extends TestCase
         final Latch _latch = new Latch();
 
         TaskProcessor _taskProcessor = new TaskProcessor() {
-                public void processEventInternal(Message event) {
+                public void processMessageInternal(Message event) {
                     try {
                         long _recvTime = System.currentTimeMillis();
                         assertEquals(event, _event);

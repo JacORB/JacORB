@@ -232,9 +232,9 @@ public class StopTimeTest extends NotificationTestCase
         final Object lock = new Object();
 
         TaskProcessor _taskProcessor = new TaskProcessor() {
-                public void processEventInternal(Message event) {
+                public void processMessageInternal(Message event) {
                     try {
-                        logger_.debug("processEventInternal called");
+                        logger_.debug("processMessageInternal called");
 
                         long _recvTime = System.currentTimeMillis();
                         assertEquals("unexpected event", event, _event);

@@ -108,6 +108,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         _info = falseFilter_.add_constraints(_constraintExp);
     }
 
+
     public void testDestroyChannelDisconnectsClients() throws Exception
     {
         Property[] _p = new Property[0];
@@ -137,6 +138,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue(!_pullReceiver.isConnected());
     }
 
+
     public void testSendPushPush() throws Exception
     {
         StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
@@ -154,6 +156,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue("Error while sending", !_sender.error_);
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
+
 
     public void testSendPushPull() throws Exception
     {
@@ -210,6 +213,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue("Error while sending", !_senderError);
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
+
 
     public static Test suite() throws Exception
     {

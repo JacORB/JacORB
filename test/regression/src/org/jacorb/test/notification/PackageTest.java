@@ -57,7 +57,7 @@ public class PackageTest extends TestCase {
         _suite.addTest(AdminLimitTest.suite());
         _suite.addTest(FilterImplTest.suite());
         _suite.addTest(FilterTest.suite());
-        _suite.addTest(NotificationEventFactoryTest.suite());
+        _suite.addTest(MessageFactoryTest.suite());
         _suite.addTest(MessageUtilsTest.suite());
         _suite.addTest(NotificationEventTest.suite());
         _suite.addTest(CollectionsWrapperTest.suite());
