@@ -197,11 +197,23 @@ class EnumType
         sb.append("})");
         return  sb.toString(); 
     }
+   
+
+    private void printClassComment(String className, PrintWriter ps)
+    {
+	ps.println("/**");
+	ps.println(" *\tGenerated from IDL definition of enum " + 
+                    "\"" + className + "\"" );
+        ps.println(" *\t@author JacORB IDL compiler ");
+        ps.println(" */\n");
+    }
 
     private void printHolderClass(String className, PrintWriter ps)
     {
         if( !pack_name.equals(""))
             ps.println("package " + pack_name + ";" );
+
+        printClassComment( className, ps );
 
         ps.println("final public class " + className + "Holder");
         ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -241,6 +253,8 @@ class EnumType
         if( !pack_name.equals(""))
             ps.println("package " + pack_name + ";" );
 
+        printClassComment( className, ps );
+
         ps.println("public class " + className + "Helper");
         ps.println("{");
 
@@ -272,6 +286,8 @@ class EnumType
     {
         if( !pack_name.equals(""))
             pw.println("package " + pack_name + ";" );
+
+        printClassComment( className, pw );
 
         pw.println("public final class " + className);
         pw.println("\timplements org.omg.CORBA.portable.IDLEntity\n{");

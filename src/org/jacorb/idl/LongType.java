@@ -55,7 +55,10 @@ class LongType
 
     public int getTCKind()
     {
-	return 3;
+        if( unsigned )
+            return 5; // tk_ulong
+        else
+            return 3;
     }
 
     public String toString()
@@ -76,24 +79,36 @@ class LongType
 
     public String printReadExpression(String ps)
     {
-	return ps + ".read_long()";
+        if( unsigned )
+            return ps + ".read_ulong()";
+        else
+            return ps + ".read_long()";
     }
 
 
     public String printWriteStatement(String var_name, String ps)
     {
-	return ps + ".write_long(" + var_name+ ");";
+        if( unsigned )
+            return ps + ".write_ulong(" + var_name+ ");";
+        else
+            return ps + ".write_long(" + var_name+ ");";
     }
 
     public String printInsertExpression()
     {
-	return "insert_long";
+        if( unsigned )
+            return "insert_ulong";
+        else
+            return "insert_long";
     }
 
     public String printExtractExpression()
     {
-	return "extract_long";
-    }
+        if( unsigned )
+            return "extract_ulong";
+        else
+            return "extract_long";
+   }
 
 }
 

@@ -25,7 +25,6 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-
 class LongLongType 
     extends IntType 
 {
@@ -56,7 +55,10 @@ class LongLongType
 
     public int getTCKind()
     {
-        return 23;
+        if( unsigned )
+            return 24; // tk_ulonglong
+        else
+            return 23; // tk_longlong 
     }
 
     public String toString()
@@ -72,27 +74,42 @@ class LongLongType
 
     public String printReadExpression(String strname)
     {
-        return strname + ".read_longlong()";
+        if( unsigned )
+            return strname + ".read_ulonglong()";       
+        else
+            return strname + ".read_longlong()";
     }
 
     public String printReadStatement(String var_name, String strname)
     {
-        return var_name + "=" + strname + ".read_longlong();";
+        if( unsigned )
+            return var_name + "=" + strname + ".read_ulonglong();";
+        else
+            return var_name + "=" + strname + ".read_longlong();";
     }
 
     public String printWriteStatement(String var_name, String strname)
     {
-        return strname + ".write_longlong("+var_name+");";
+        if( unsigned )
+            return strname + ".write_ulonglong("+var_name+");";
+        else
+            return strname + ".write_longlong("+var_name+");";
     }
 
     public String printInsertExpression()
     {
-	return "insert_longlong";
+        if( unsigned )
+            return "insert_ulonglong";
+        else
+            return "insert_longlong";
     }
 
     public String printExtractExpression()
     {
-	return "extract_longlong";
+        if( unsigned )
+            return "extract_ulonglong";
+        else
+            return "extract_longlong";
     }
 
 
@@ -101,25 +118,5 @@ class LongLongType
         return "J";
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

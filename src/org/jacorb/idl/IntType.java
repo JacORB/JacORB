@@ -29,10 +29,20 @@ class IntType
     extends BaseType 
     implements SwitchTypeSpec 
 {
+    public boolean unsigned = false;
+
     public IntType(int num)
     {
 	super(num);
     }
+
+    public void setUnsigned()
+    {
+        unsigned = true;
+        if( type_spec != null )
+          ((IntType)type_spec).setUnsigned();
+    }
+
 }
 
 

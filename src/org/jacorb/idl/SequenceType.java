@@ -393,6 +393,15 @@ public class SequenceType
 	return name + "[]";
     }
 
+    private void printClassComment(String className, PrintWriter ps)
+    {
+	ps.println("/**");
+	ps.println(" *\tGenerated from IDL definition of sequence" + 
+                    "\"" + className + "\"" );
+        ps.println(" *\t@author JacORB IDL compiler ");
+        ps.println(" */\n");
+    }
+
 
     private void printHolderClass( String className, PrintWriter ps )
     {
@@ -400,6 +409,8 @@ public class SequenceType
 	    ps.println("package " + pack_name + ";\n" );
 
 	String type = typeName();
+
+        printClassComment( className, ps );
 
 	ps.println("public class " + className + "Holder");
 	ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -439,6 +450,8 @@ public class SequenceType
 	    ps.println("package " + pack_name + ";" );
 
 	String type = typeName();
+
+        printClassComment( className, ps );
 
 	ps.println("public class " + className + "Helper");
 	ps.println("{");

@@ -31,7 +31,7 @@ parser code
     public static Stack scopes = new Stack();
 
     public static String currentVersion = "";
-    public static String compiler_version = "1.3.22, 30 March 2001";
+    public static String compiler_version = "1.3.23, 5 April 2001";
 
     static String out_dir = "."; 
     static String package_prefix = null;
@@ -250,8 +250,8 @@ parser code
            }
            catch( Exception e )
            {
-              System.err.println( e.getMessage());
-              // e.printStackTrace();
+              System.err.println( "Error: " + e.getMessage());
+              org.jacorb.idl.Environment.output( 3, e );
               usage(argv, e.getMessage());
            }
            return true;
@@ -1332,10 +1332,12 @@ int_type ::=
         | UNSIGNED long_type:l
                 {: 
                         RESULT.type_spec = l; 
+                        RESULT.setUnsigned();
                 :}
         | UNSIGNED long_long_type:l
                 {: 
                         RESULT.type_spec = l; 
+                        RESULT.setUnsigned();
                 :}
         | short_type:s
                 {: 
@@ -1344,6 +1346,7 @@ int_type ::=
         | UNSIGNED short_type:s
                 {: 
                         RESULT.type_spec = s; 
+                        RESULT.setUnsigned();
                 :}
         ;
 
@@ -1735,3 +1738,4 @@ param_type_spec ::=
         ;
 
 empty ::= /* nothing */;
+

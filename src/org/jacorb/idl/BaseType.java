@@ -93,7 +93,10 @@ class BaseType
 
     public String toString()
     {
-	return type_spec.toString();
+        if( type_spec != null )
+            return type_spec.toString();
+        else
+            return "BaseType";
     }
 
     public String typeName()

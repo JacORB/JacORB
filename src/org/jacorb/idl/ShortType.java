@@ -50,7 +50,10 @@ class ShortType
 
     public int getTCKind()
     {
-        return 2;
+        if( unsigned )
+            return  4; //_tk_ushort
+        else
+            return 2; // _tk_short
     }
 
     public String toString() 
@@ -70,27 +73,42 @@ class ShortType
 
     public String printReadExpression(String ps)
     {
-        return ps + ".read_short()";
+        if( unsigned )
+            return ps + ".read_ushort()";
+        else
+            return ps + ".read_short()";
     }
 
     public String printReadStatement(String var_name, String ps)
     {
-        return var_name + "=" + ps + ".read_short();";
+        if( unsigned )
+            return var_name + "=" + ps + ".read_ushort();";
+        else
+            return var_name + "=" + ps + ".read_short();";
     }
 
     public String printWriteStatement(String var_name, String ps)
     {
-        return ps + ".write_short(" + var_name + ");";
+        if( unsigned )
+            return ps + ".write_ushort(" + var_name + ");";
+        else
+            return ps + ".write_short(" + var_name + ");";
     }
     
     public String printInsertExpression()
     {
-	return "insert_short";
+        if( unsigned )
+            return "insert_ushort";
+        else
+            return "insert_short";
     }
 
     public String printExtractExpression()
     {
-	return "extract_short";
+        if( unsigned )
+            return "extract_ushort";
+        else
+            return "extract_short";
     }
 }
 

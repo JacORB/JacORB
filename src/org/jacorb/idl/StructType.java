@@ -239,10 +239,22 @@ class StructType
 	return  sb.toString(); 
     }
 
+    private void printClassComment(String className, PrintWriter ps)
+    {
+	ps.println("/**");
+	ps.println(" *\tGenerated from IDL definition of " + 
+                   (exc ? "exception " : "struct ") + "\"" + 
+                   className + "\"" );
+        ps.println(" *\t@author JacORB IDL compiler ");
+        ps.println(" */\n");
+    }
+
     private void printHolderClass(String className, PrintWriter ps)
     {
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
+
+        printClassComment( className, ps );
 
 	ps.println("final public class " + className + "Holder");
 	ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -281,7 +293,9 @@ class StructType
     private void printHelperClass(String className, PrintWriter ps)
     {
 	if( !pack_name.equals(""))
-	    ps.println("package " + pack_name + ";" );
+	    ps.println("package " + pack_name + ";\n" );
+
+        printClassComment( className, ps );
 
 	ps.println("public class " + className + "Helper");
 	ps.println("{");
@@ -333,13 +347,12 @@ class StructType
 	    {
 		Member m = (Member)e.nextElement();
 		Declarator d = m.declarator;
-		ps.println( m.type_spec.typeSpec().printWriteStatement("s." + d.name(), "out") );
+		ps.println( "\t\t" + m.type_spec.typeSpec().printWriteStatement("s." + d.name(), "out") );
 	    }
 	}
 	ps.println("\t}");
 	ps.println("}");
     }
-
 
     private void printStructClass(String className, PrintWriter ps)
     {
@@ -351,6 +364,8 @@ class StructType
 
 	    ps.println("package " + pack_name + ";" );
 	}
+
+        printClassComment( className, ps );
 
 	ps.println("public final class " + className );
 

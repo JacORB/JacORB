@@ -273,6 +273,15 @@ public class AliasTypeSpec
 	}
     }
 
+    private void printClassComment(String className, PrintWriter ps)
+    {
+	ps.println("/**");
+	ps.println(" *\tGenerated from IDL definition of alias " + 
+                    "\"" + className + "\"" );
+        ps.println(" *\t@author JacORB IDL compiler ");
+        ps.println(" */\n");
+    }
+
     public String holderName()
     {
 	if( originalType.basic()  &&  !(originalType instanceof TemplateTypeSpec))
@@ -289,6 +298,8 @@ public class AliasTypeSpec
     {
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
+
+        printClassComment( className, ps );
 
 	ps.println("final public class " + className + "Holder");
 	ps.println("\timplements org.omg.CORBA.portable.Streamable");
@@ -329,10 +340,13 @@ public class AliasTypeSpec
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
 
+        printClassComment( className, ps );
+
 	ps.println("public class " + className + "Helper");
 	ps.println("{");
 
-	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = "+getTypeCodeExpression()+";");
+	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = "+
+                   getTypeCodeExpression()+";");
 
 	String type = originalType.typeName();
 
