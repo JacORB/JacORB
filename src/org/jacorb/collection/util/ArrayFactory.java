@@ -54,7 +54,7 @@ public class ArrayFactory {
                 v.addElement( current );
             }
         }
-    };
+    }
     private static void clear_array( Object [] current ){
         for( int i=current.length;i>0;){
             current[--i] = null;

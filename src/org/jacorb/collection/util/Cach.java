@@ -32,7 +32,7 @@ public class Cach{
             }
         }
         return null;
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public void putElement( Object key, Object element ){
         if( data.size() >= capacity ){
@@ -40,11 +40,11 @@ public class Cach{
         }
         Node n = new Node( key, element );
         data.insertElementAt( n, 0 );
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public void clear(){
         data.removeAllElements();
-    };
+    }
 
 }
 
