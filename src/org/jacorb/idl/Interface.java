@@ -41,6 +41,8 @@ class Interface
     private boolean is_local = false;
     private boolean is_abstract = false;
     private ScopeData scopeData;
+    
+    private ReplyHandler replyHandler = null;
 
     /* IR information that would otherwise be lost */
     private Hashtable irInfoTable = new Hashtable();
@@ -269,6 +271,13 @@ class Interface
             }
             body.parse();
             NameTable.parsed_interfaces.put( full_name(), "" );
+
+            if (parser.generate_ami_callback)
+            {
+                replyHandler = new ReplyHandler (this);
+                replyHandler.parse();
+            }
+
         }
         else if( !justAnotherOne )
         {
@@ -982,6 +991,9 @@ class Interface
 
             // print class files for interface local definitions
             body.print(null);
+            
+            if (replyHandler != null)
+                replyHandler.print (_ps);
 
             //IRMap.enter(this);
         }
