@@ -22,7 +22,7 @@ package org.jacorb.notification.engine;
  */
 
 import java.util.Collections;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jacorb.notification.interfaces.FilterStage;
@@ -46,7 +46,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         //////////////////////////////
 
         public AlternateMessageMap() {
-            this(new Hashtable());
+            this(new HashMap());
         }
 
         AlternateMessageMap(Map m) {
