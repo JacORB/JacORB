@@ -41,12 +41,16 @@ public class EncapsInfo
 
     /** constructor used by CDRInputStream */
 
-    public EncapsInfo(boolean le, int index, int start, int size)
+    public EncapsInfo(boolean le, int index, int start, int size,
+                      Map valueMap, Map repIdMap, Map codebaseMap)
     {
-	littleEndian = le;
+        littleEndian = le;
 	this.index = index;
 	this.start = start;
 	this.size = size;
+	this.valueMap = valueMap;
+	this.repIdMap = repIdMap;
+	this.codebaseMap = codebaseMap;
     }
 
     /**
