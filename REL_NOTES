@@ -46,12 +46,18 @@ gerald.brose@acm.org
                 Locally constrained objects, such as portable interceptors,
                 should now extend this class.
 
-        - bug fixes
+        - bug fixes:
+                Any:
+                        - Fix for equal operation on aliased types.
+                        - Fix for insertion and extraction of basic types
+                          when any contains an aliased (from typedef) basic type.
                 ORB:
                         - Passing a null to object_to_string now returns the
                           correct string for a null object reference.
                         - Passing a local object to object_to_string now
                           throws a MARSHAL exception.
+                        - Current and Principal deprecated. Use of any operations
+                          for these types will throw NO_IMPLEMENT.
                 DynAnys:
                         - Operations called on a DynAny that has been 
                           destroyed now throw an OBJECT_NOT_EXIST exception
