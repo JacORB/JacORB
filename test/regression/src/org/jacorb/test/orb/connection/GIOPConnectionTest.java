@@ -185,7 +185,9 @@ public class GIOPConnectionTest
                                      0,           //request id
                                      "foo",       //operation
                                      true,        //response expected
-                                     null,        //roundtrip timeout
+                                     null,        //request start time
+                                     null,        //request end time
+                                     null,        //reply start time
                                      new byte[1], //object key
                                      2            // giop minor
                                      );
@@ -265,7 +267,9 @@ public class GIOPConnectionTest
                                      0,           //request id
                                      "foo",       //operation
                                      true,        //response expected
-                                     null,        //roundtrip timeout
+                                     null,        //request start time
+                                     null,        //request end time
+                                     null,        //reply end time
                                      new byte[1], //object key
                                      0            // giop minor
                                      );
@@ -437,7 +441,9 @@ public class GIOPConnectionTest
                                      0,           //request id
                                      "foo",       //operation
                                      true,        //response expected
-                                     null,        //roundtrip timeout
+                                     null,        //request start time
+                                     null,        //request end time
+                                     null,        //reply end time
                                      new byte[1], //object key
                                      1            // giop minor
                                      );
