@@ -24,7 +24,7 @@ gerald.brose@acm.org
         - IIOP 1.2 Code set support 
         - IIOP over SSL 
         - Bidirectional GIOP
-        - Portable Interceptors, for service context passing)
+        - Portable Interceptors (for service context passing)
         - Domain Management
 
         - Object Service implementations
@@ -46,23 +46,70 @@ gerald.brose@acm.org
                 marshalling streams: 
                         recursive and repeated TypeCodes
                 DynAnys: 
-                        diverse bugs, e.g., treat aliesd types correctly
+                        diverse bugs, e.g., treat aliased types correctly
                         made implementations purely local
                 IDL compiler: 
                         name resolution bugs
                 POA and ORB: 
                         memory leaks, local invocations
+                IAIK SSL:
+                        fixed bug that prevented mutual authentication
+                        in non-role-change mode.         
 
-        - modified the property "jacorb.security.keystore". It now allows
-          three ways of specifying the keystore location:
-             a) absolute path 
-             b) relative path to current dir
-             c) relative path to users home dir
-          These possibilities are searched in the order give above.
+        - SSL support changes:                
+
+                - added support for Suns SSL implementation
+                  JSSE. Please note that for technical reasons, it
+                  isn't possible to access the clients certificates on
+                  the server side when Sun JSSE is used. To use Sun
+                  JSSE instead of IAIKs classes, please set the
+                  following properties:
+
+                  jacorb.ssl.socket_factory=org.jacorb.security.ssl.sun_jsse.SSLSocketFactory
+                  jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.sun_jsse.SSLServerSocketFactory
+                  
+                - Made a change in the SSL package structure: classes
+                  for IAIKs libraries that were formerly in package
+                  org.jacorb.security.ssl are now in the package
+                  org.jacorb.security.ssl.iaik. This makes it
+                  necessary to adapt the socket facory properties:
+
+                  jacorb.ssl.socket_factory=org.jacorb.security.ssl.iaik.SSLSocketFactory
+                  jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.iaik.SSLServerSocketFactory
+
+                - Removed property
+
+                  jacorb.security.enforce_ssl 
+
+                  Enforcing SSL can now be achieved by setting the
+                  required and supported options. Please see the
+                  Programming Guide for more details on these
+                  properties. 
+                  
+                - Replaced properties
+
+                  jacorb.security.ssl.supported_options
+                  jacorb.security.ssl.requireded_options   
+
+                  by
+
+                  jacorb.security.ssl.client.supported_options
+                  jacorb.security.ssl.client.required_options
+                  jacorb.security.ssl.server.supported_options
+                  jacorb.security.ssl.server.required_options
+
+                  This allows for a more fine-grained setup of
+                  SSL. Please see the Programming Guide for more 
+                  details on these properties.
+
+                - modified the property "jacorb.security.keystore". It
+                  now allows three ways of specifying the keystore
+                  location: 
+                  a) absolute path 
+                  b) relative path to current dir
+                  c) relative path to users home dir
+                  These possibilities are searched in the order give above.
         
-        - Using the standard SSL mode now allows mutual authentication,
-          which previously was only possible using the role change mode.
-
         - OBV support added
 
         - GIOP 1.2 and bidirectional GIOP
