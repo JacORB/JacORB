@@ -30,6 +30,11 @@ $Revision$
 % uniform formatting of a command line, includes leading $
 \newcommand{\cmdline}[1]{\begin{small}\noindent \texttt{\$ #1}\end{small}}
 
+% Use these instead of writing version numbers directly, so 
+% version changes only have to be made in one place
+\newcommand{\JacORBDir}{JacORB1\_3\_30}
+\newcommand{\JacORBVersion}{1.3.30}
+
 \maketitle
 
 
@@ -46,10 +51,10 @@ implementations, and  a number of example programs.   This document is
 {\it  not}   an  introduction  to   CORBA  in  general.    Please  see
 \cite{Brose2001a,Siegel2000,   Vinoski1997}  for   this   purpose  and
 \cite{Henning1999}  for  more  advanced  issues.  The  JacORB  version
-described in this document is JacORB 1.3. This document is intended to
-give a  few essential hints on how  to install and use  JacORB, but it
-will  not  suffice as  either  a gentle  introduction  to  CORBA or  a
-tutorial.
+described in this document  is JacORB \JacORBVersion. This document is
+intended  to give  a few  essential hints  on how  to install  and use
+JacORB, but  it will  not suffice as  either a gentle  introduction to
+CORBA or a tutorial.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -67,11 +72,11 @@ It   can   also   be   downloaded   via  anonymous   ftp   from   {\tt
 ftp.inf.fu-berlin.de} from the directory {\tt pub/jacorb/}.
 
 To install JacORB, just unzip  and untar (or simply unzip) the archive
-somewhere.  This will result  in a new directory {\tt JacORB1\_3\_30}.
+somewhere.  This will result  in a new directory {\tt \JacORBDir}.
 Make   sure  your   CLASSPATH  environment   variable   contains  {\tt
-JacORB1\_3\_30/lib/jacorb.jar}.  If you plan to recompile all or parts
-of  JacORB,  you  should  also include  {\tt  JacORB1\_3\_30/classes}.
-Extend  your search path  with {\tt  JacORB1\_3\_30/bin}, so  that the
+\JacORBDir/lib/jacorb.jar}.  If you plan to recompile all or parts
+of  JacORB,  you  should  also include  {\tt  \JacORBDir/classes}.
+Extend  your search path  with {\tt  \JacORBDir/bin}, so  that the
 shell scripts and batch files  for the utilities in this directory are
 found.
 
@@ -329,7 +334,7 @@ The steps we will generally have to take are:
 Our example uses a simple server the definition of which should be
 clear if you know IDL. Its interface is given in {\tt server.idl}. All
 the source code for this example can be found in {\tt
-  JacORB1\_3\_30/demo/grid}.
+  \JacORBDir/demo/grid}.
 
 \small{
 \begin{verbatim}
