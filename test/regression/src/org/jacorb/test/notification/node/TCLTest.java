@@ -879,6 +879,22 @@ public class TCLTest extends NotificationTestCase
         } catch (EvaluationException e) {}
     }
 
+    public void testAccessNonExistingProperty() throws Exception {
+        StructuredEvent event = testUtils_.getStructuredEvent();
+        
+        try {
+            runEvaluation(event, "$.filterable_data(PROPERTY) == 1");
+           
+            fail();
+        } catch (EvaluationException e) {}
+        
+        try {
+            runEvaluation(event, "$.filterable_data(PROPERTY) < 5");
+            
+            fail();
+        } catch (EvaluationException e) {}
+    }
+    
     public void testLTEforwardsVisitorBug() throws Exception
     {
         String _expr = "$.time <= 1";
@@ -993,7 +1009,10 @@ public class TCLTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite(TCLTest.class);
+        return NotificationTestCase.suite("TCL Parsing and Evaluation Tests",
+                	TCLTest.class
+                	//, "testAccessNonExistingProperty"
+                );
     }
 }
 
