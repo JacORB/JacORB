@@ -20,8 +20,7 @@
 
 package org.jacorb.idl;
 
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 import java.io.*;
 
 /**
@@ -112,11 +111,18 @@ public class TypeSpec
 	return null;
     }
 
+    public String getTypeCodeExpression (Set knownTypes)
+    {
+        if (type_spec instanceof ConstrTypeSpec)
+            return type_spec.getTypeCodeExpression (knownTypes);
+        else
+            return getTypeCodeExpression();
+    }
+
     /**
      * @returns a string for an expression of type TypeCode 
      * 			that describes this type
      */
-
     public String getTypeCodeExpression()
     {
 	return type_spec.getTypeCodeExpression();

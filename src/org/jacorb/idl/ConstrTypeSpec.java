@@ -122,11 +122,15 @@ class ConstrTypeSpec
     }
 
 
+    public String getTypeCodeExpression (java.util.Set knownTypeSpecs)
+    {
+        return c_type_spec.getTypeCodeExpression (knownTypeSpecs);
+    }
+
     /**
      * @returns a string for an expression of type TypeCode 
      * 			that describes this type
      */
-
     public String getTypeCodeExpression()
     {
 	return c_type_spec.getTypeCodeExpression();
