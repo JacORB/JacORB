@@ -311,6 +311,7 @@ public class lexer
         java_keywords.put( "getClass", "" );
         java_keywords.put( "hashCode", "" );
         java_keywords.put( "notify", "" );
+        java_keywords.put( "notifyAll", "" );
         java_keywords.put( "toString", "" );
         java_keywords.put( "wait", "" );
 
