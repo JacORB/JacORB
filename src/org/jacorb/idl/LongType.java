@@ -55,10 +55,7 @@ class LongType
 
     public int getTCKind()
     {
-        if( unsigned )
-            return 5; // tk_ulong
-        else
-            return 3;
+        return ((unsigned) ? 5 : 3);
     }
 
     public String toString()
@@ -109,5 +106,4 @@ class LongType
         else
             return "extract_long";
    }
-
 }
