@@ -31,7 +31,7 @@ import java.io.*;
  */
 
 class ValueBoxDecl 
-    extends ValueDeclaration 
+    extends Value
 {
     private boolean written = false;
     private boolean parsed = false;
