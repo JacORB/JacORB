@@ -50,7 +50,7 @@ gerald.brose@acm.org
                 ORB:
                         - Passing a null to object_to_string now returns the
                           correct string for a null object reference.
-                        - Passing local object to object_to_string now
+                        - Passing a local object to object_to_string now
                           throws a MARSHAL exception.
                 DynAnys:
                         - Operations called on a DynAny that has been 
