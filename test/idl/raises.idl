@@ -18,4 +18,6 @@ interface rc
 
     Object rg1() raises(rd);
 
+    oneway void  op1() ;
+
 };

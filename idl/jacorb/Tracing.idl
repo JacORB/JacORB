@@ -40,17 +40,16 @@ module org {
                 
                     /* log trace data for a call trace */
                 
-                    oneway void logTraceAtPoint( in Request origin,
-                                                 in string operation,
-                                                 in MSec client_time,
-                                                 in MSec server_time )
+                    void logTraceAtPoint( in Request origin,
+                                          in string operation,
+                                          in MSec client_time,
+                                          in MSec server_time )
                         raises (NoSuchRequestId);
 
                     /* registers a trace as a subtrace in another */
 
-                    oneway void registerSubTrace(
-                                                 in Request original, // original call
-                                                 in Request nested ) // nested call
+                    void registerSubTrace( in Request original, // original call
+                                           in Request nested ) // nested call
                         raises (NoSuchRequestId);
                 };
 

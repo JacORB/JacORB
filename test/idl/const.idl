@@ -1,6 +1,6 @@
 //#pragma prefix "omg.org"
 
-module basetypes
+module basetypes 
 {
     // definitions
     typedef short AccessMode;
@@ -34,5 +34,6 @@ module basetypes
     const _CHAR X = ' ' ;
 
     const string ashort = "short";
-    
+    typedef unsigned long myType;
+    const myType myVar = 35;
 };

@@ -29,12 +29,12 @@
    </target>
 
    <target name="idl" >
-      <java classname="org.jacorb.idl.parser" classpath="${classpath}:${lib}/idl.jar"
-               fork="yes">
+      <java classname="org.jacorb.idl.parser" 
+            classpath="${classpath}:${lib}/idl.jar"
+            fork="yes">
                <arg line="${idlflags} ${dirs.base}/idl/jacorb/Tracing.idl"/>
       </java>
       
-      <echo message="${idlflags} ${dirs.base}/idl/jacorb/Tracing.idl"/>
    </target>
 
 
