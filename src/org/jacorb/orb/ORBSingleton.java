@@ -44,7 +44,8 @@ public class ORBSingleton
                                      String name, 
                                      TypeCode original_type)
     {
-        return new org.jacorb.orb.TypeCode( id, name, original_type);
+        return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_alias, 
+                                            id, name, original_type);
     }
 
     public TypeCode create_array_tc( int length, TypeCode element_type)
@@ -159,7 +160,8 @@ public class ORBSingleton
     public org.omg.CORBA.TypeCode create_value_box_tc(String id,
                                     String name,
                                     TypeCode boxed_type) {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_value_box,
+                                            id, name, boxed_type);
     }
 
     /* DII helper methods */
