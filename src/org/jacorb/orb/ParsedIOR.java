@@ -740,12 +740,24 @@ public class ParsedIOR
         }            
     }
 
-    public String getAddress()
+    public String getAddress ()
     {
-	int port = profileBodies[ effectiveProfileBody ].port;
-	if( port < 0 )
-	    port += 65536;
-	return profileBodies[ effectiveProfileBody ].host + ":" + port;
+        return (getHost () + ":" + getPort ());
+    }
+
+    public String getPort ()
+    {
+        int port = profileBodies[effectiveProfileBody].port;
+        if (port < 0)
+        {
+            port += 65536;
+        }
+        return (Integer.toString (port));
+    }
+
+    public String getHost ()
+    {
+        return (profileBodies[effectiveProfileBody].host);
     }
 
     public String getTypeId() 
