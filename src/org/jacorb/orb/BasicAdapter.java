@@ -126,6 +126,11 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
         return request_listener;
     }
 
+    public org.omg.ETF.Profile getEndpointProfile()
+    {
+        return listener.endpoint();
+    }
+
     /**
      * obsolete
      */
