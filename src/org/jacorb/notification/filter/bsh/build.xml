@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [
+  <!ENTITY common SYSTEM "file:../../../../../../etc/common.xml">
+]>
+
+<project name="JacORB Notify BSH Filter Plugin" default="all" basedir="../../../../../..">
+
+<!-- ============================================================== -->
+<!--               JacORB - NotificationService BSH Filter          -->
+<!-- $Id$ -->
+<!-- ============================================================== -->
+
+  &common;
+
+  <property name="current.package"
+    value="org/jacorb/notification/filter/bsh" />
+
+  <target name="local.init" depends="init">
+    <condition property="available.bsh" value="true" >
+      <available classname="bsh.Interpreter" />
+    </condition>
+  </target>
+
+  <target name="fail" unless="available.bsh">
+    <echo>Skipped build of BSH Filter Plugin because Beanshell is not
+      available (http://www.beanshell.org) 
+    </echo>
+  </target>
+
+  <target name="all" depends="local.init, fail" if="available.bsh">
+    <antcall target="jacorb-javac">
+      <param name="javac-includes"
+	value="${current.package}/*.java" />
+    </antcall>
+  </target>
+
+</project>
