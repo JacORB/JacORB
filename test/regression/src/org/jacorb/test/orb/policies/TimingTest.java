@@ -98,21 +98,31 @@ public class TimingTest extends CallbackTestCase
                   
         suite.addTest (new TimingTest ("test_sync_no_timing", setup));
         suite.addTest (new TimingTest ("test_async_no_timing", setup));
+
+        suite.addTest (new TimingTest ("test_all_policies_sync_ok", setup));
         
         suite.addTest (new TimingTest ("test_request_start_time_sync_expired", setup));
         suite.addTest (new TimingTest ("test_request_start_time_sync_wait", setup));
+
+        suite.addTest (new TimingTest ("test_request_end_time_sync_ok", setup));
+        suite.addTest (new TimingTest ("test_request_end_time_sync_pre_expired", setup));
+        suite.addTest (new TimingTest ("test_request_end_time_async_pre_expired", setup));
+        suite.addTest (new TimingTest ("test_request_end_time_sync_expired", setup));
+
+        suite.addTest (new TimingTest ("test_request_timeout_sync_ok", setup));
+        suite.addTest (new TimingTest ("test_request_timeout_sync_expired", setup));
+        suite.addTest (new TimingTest ("test_request_timeout_async_expired", setup));
         
         suite.addTest (new TimingTest ("test_reply_start_time_sync_expired", setup));
         suite.addTest (new TimingTest ("test_reply_start_time_sync_wait", setup));
         suite.addTest (new TimingTest ("test_reply_start_time_async_expired", setup));
         suite.addTest (new TimingTest ("test_reply_start_time_async_wait", setup));
 
-        suite.addTest (new TimingTest ("test_reply_end_time_sync_pre_expired", setup));
-        //suite.addTest (new TimingTest ("test_reply_end_time_async_pre_expired", setup));
-
         suite.addTest (new TimingTest ("test_reply_end_time_sync_ok", setup));
+        suite.addTest (new TimingTest ("test_reply_end_time_sync_pre_expired", setup));
         suite.addTest (new TimingTest ("test_reply_end_time_sync_expired", setup));
         suite.addTest (new TimingTest ("test_reply_end_time_async_ok", setup));
+        //suite.addTest (new TimingTest ("test_reply_end_time_async_pre_expired", setup));
         suite.addTest (new TimingTest ("test_reply_end_time_async_expired", setup));
         
         suite.addTest (new TimingTest ("test_relative_roundtrip_sync_ok", setup));
@@ -207,6 +217,30 @@ public class TimingTest extends CallbackTestCase
     }
 
     /**
+     * Set all timing policies to values that will be met by the invocation.
+     */
+    public void test_all_policies_sync_ok()
+    {
+        clearPolicies (server);
+        setRequestStartTime (server, System.currentTimeMillis());
+        setRequestEndTime (server, System.currentTimeMillis() + 200);
+        setRelativeRequestTimeout (server, System.currentTimeMillis() + 300);
+        setReplyStartTime (server, System.currentTimeMillis());
+        setReplyEndTime (server, System.currentTimeMillis() + 400);
+        setRelativeRoundtripTimeout(server, System.currentTimeMillis() + 350);
+
+        try
+        {
+            int result = server.operation (434, 50);
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            fail ("should not have been a TIMEOUT");
+        }
+    }
+
+
+    /**
      * Sets a RequestStartTime which will already have expired
      * when the request arrives.
      */    
@@ -240,6 +274,145 @@ public class TimingTest extends CallbackTestCase
             fail ("request started too late (" + delta + "ms)");
     }
 
+    /**
+     * Sets a RequestEndTime which will
+     * be met by the invocation.
+     */
+    public void test_request_end_time_sync_ok()
+    {
+        clearPolicies (server);
+        setRequestEndTime (server, System.currentTimeMillis() + 200);
+        try
+        {
+            int result = server.operation (434, 300);
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            fail ("should not have been a TIMEOUT");
+        }
+    }
+
+    /**
+     * Sets a RequestEndTime which will have expired prior
+     * to the invocation.
+     */
+    public void test_request_end_time_sync_pre_expired()
+    {
+        clearPolicies (server);
+        setRequestEndTime (server, System.currentTimeMillis() - 200);
+        try
+        {
+            int result = server.operation (121, 50);
+            fail ("should have been a TIMEOUT");
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            // ok
+        }
+    }
+    
+    /**
+     * Sets a RequestEndTime which will have expired prior to the invocation.
+     */
+    public void test_request_end_time_async_pre_expired()
+    {
+        ReplyHandler handler = new ReplyHandler();
+        
+        clearPolicies (server);
+        setRequestEndTime (server, System.currentTimeMillis() - 5);
+        try
+        {
+            ((_TimingServerStub)server).sendc_operation (ref (handler), 765, 50);
+            fail ("should have been a TIMEOUT");
+        } 
+        catch (org.omg.CORBA.TIMEOUT e) 
+        {
+            // ok
+        }    
+    }    
+    
+    /**
+     * Sets a RequestEndTime which will expire during the invocation.
+     */
+    public void test_request_end_time_sync_expired()
+    {
+        clearPolicies (server);
+        setRequestEndTime (server, System.currentTimeMillis() + 2);
+        try
+        {
+            int result = server.operation (121, 50);
+            fail ("should have been a TIMEOUT");
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            // ok
+        }
+    }
+    
+
+    /**
+     * Sets a RelativeRequestTimeout which will
+     * be met by the invocation.
+     */
+    public void test_request_timeout_sync_ok()
+    {
+        clearPolicies (server);
+        setRelativeRequestTimeout (server, 200);
+        try
+        {
+            int result = server.operation (434, 300);
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            fail ("should not have been a TIMEOUT");
+        }
+    }
+    
+    /**
+     * Sets a RelativeRequestTimeout which will expire during the invocation.
+     */
+    public void test_request_timeout_sync_expired()
+    {
+        clearPolicies (server);
+        setRelativeRequestTimeout (server, 1);
+        try
+        {
+            int result = server.operation (121, 50);
+            fail ("should have been a TIMEOUT");
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            // ok
+        }
+    }
+    
+    /**
+     * Sets a RelativeRequestTimeout which will
+     * expire during the invocation.
+     */
+    public void test_request_timeout_async_expired()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void operation (int ami_return_val)
+            {
+                fail ("should have raised TIMEOUT");
+            }
+            
+            public void operation_excep (ExceptionHolder excep_holder)
+            {
+                assertEquals (org.omg.CORBA.TIMEOUT.class,
+                              getException (excep_holder).getClass());
+                pass();
+            }
+        };
+        
+        clearPolicies (server);
+        setRelativeRequestTimeout (server, 1);
+        ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 200);
+        handler.wait_for_reply (400);
+    }    
+    
     /**
      * Sets a ReplyStartTime which will already have expired
      * when the reply arrives.
@@ -328,24 +501,6 @@ public class TimingTest extends CallbackTestCase
     }
     
     /**
-     * Sets a ReplyEndTime which has expired prior to invocation.
-     */
-    public void test_reply_end_time_sync_pre_expired()
-    {
-        clearPolicies (server);
-        setReplyEndTime (server, System.currentTimeMillis() - 100);
-        try
-        {
-            int result = server.operation (44, 100);
-            fail ("should have raised TIMEOUT");
-        }
-        catch (org.omg.CORBA.TIMEOUT t)
-        {
-            // ok
-        }
-    }
-
-    /**
      * Sets a ReplyEndTime which will
      * be met by the invocation.
      */
@@ -390,9 +545,9 @@ public class TimingTest extends CallbackTestCase
         };
         
         clearPolicies (server);
-        setReplyEndTime (server, System.currentTimeMillis() + 50);
-        ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 100);
-        handler.wait_for_reply (200);
+        setReplyEndTime (server, System.currentTimeMillis() + 100);
+        ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 200);
+        handler.wait_for_reply (400);
     }    
 
     /**
@@ -413,6 +568,23 @@ public class TimingTest extends CallbackTestCase
         }
     }
 
+    /**
+     * Sets a ReplyEndTime which has expired prior to invocation.
+     */
+    public void test_reply_end_time_sync_pre_expired()
+    {
+        clearPolicies (server);
+        setReplyEndTime (server, System.currentTimeMillis() - 100);
+        try
+        {
+            int result = server.operation (44, 100);
+            fail ("should have raised TIMEOUT");
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            // ok
+        }
+    }
 
     /**
      * Sets a ReplyEndTime which will
