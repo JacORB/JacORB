@@ -75,21 +75,25 @@ public class RepositoryImpl
         this.classpath = classpath;
         this.loader = loader;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Repository;
+        name = "Repository";
 
         // parse classpath and create a top-level container for
         // each directory in the path
 
         StringTokenizer strtok = 
-            new StringTokenizer( classpath , ";" );
+            new StringTokenizer( classpath , java.io.File.pathSeparator );
+        //            new StringTokenizer( classpath , ";" );
 
         String [] paths = 
-            new String [strtok.countTokens()];
+            new String [ strtok.countTokens() ];
+
         containers = 
-            new Container[paths.length ];
+            new Container[ paths.length ];
 
         for( int i = 0; strtok.hasMoreTokens(); i++ )
         {
             paths[i] =  strtok.nextToken();
+            org.jacorb.util.Debug.output(2, "found path: " + paths[i]);
             containers[i] = new Container( this, paths[i], null );
         }
 
@@ -109,9 +113,10 @@ public class RepositoryImpl
 
             org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( new String[0], null );
             poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+
             org.omg.CORBA.Repository myRef = 
                 org.omg.CORBA.RepositoryHelper.narrow( 
-                  poa.servant_to_reference(new org.omg.CORBA.RepositoryPOATie( this ) ) );
+                  poa.servant_to_reference( new org.omg.CORBA.RepositoryPOATie( this ) ) );
             
             PrintWriter out = new PrintWriter( new FileOutputStream( outfile ), true);
             out.println( orb.object_to_string( myRef ) );
@@ -225,7 +230,9 @@ public class RepositoryImpl
      * not supported
      */
 
-    public org.omg.CORBA.SequenceDef create_sequence(int bound, org.omg.CORBA.IDLType element_type){
+    public org.omg.CORBA.SequenceDef create_sequence(int bound, 
+                                                     org.omg.CORBA.IDLType element_type)
+    {
         return null;
     }
 
@@ -291,8 +298,10 @@ public class RepositoryImpl
 				boolean exclude_inherited )
     {
         org.jacorb.util.Debug.output(2, "IR lookup_name: " + search_name );
+
         org.omg.CORBA.Contained[] result = null;
         Vector intermediate = new Vector();
+
         for( int i = 0; i < containers.length; i++ )
         {
             intermediate.addElement( containers[i].lookup_name( search_name, 
@@ -371,10 +380,10 @@ public class RepositoryImpl
      * @return an array of descriptions
      */
 
-    public org.omg.CORBA.ContainerPackage.Description[] 
-        describe_contents(org.omg.CORBA.DefinitionKind limit_type,	
-                          boolean exclude_inherited, 
-                          int max_returned_objs)
+    public org.omg.CORBA.ContainerPackage.Description[] describe_contents( 
+                           org.omg.CORBA.DefinitionKind limit_type,	
+                           boolean exclude_inherited, 
+                           int max_returned_objs)
     {
         org.omg.CORBA.Contained[] c = contents( limit_type, exclude_inherited );
         int size;

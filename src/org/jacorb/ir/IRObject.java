@@ -3,7 +3,7 @@ package org.jacorb.ir;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -22,6 +22,10 @@ package org.jacorb.ir;
 
 
 import org.jacorb.orb.TypeCode;
+
+/**
+ * Base class for Interface Repository Objects 
+ */
 
 public abstract class IRObject 
     implements org.omg.CORBA.IRObjectOperations
@@ -64,13 +68,6 @@ public abstract class IRObject
     }
 
 }
-
-
-
-
-
-
-
 
 
 

@@ -199,10 +199,12 @@ public class StructDef
 
         for( int i = 0; i < members.length; i++ )
         {
-            members[i].type_def = IDLType.create( members[i].type, containing_repository);
+            members[i].type_def = 
+                IDLType.create( members[i].type, containing_repository);
+
             org.jacorb.util.Debug.assert( members[i].type_def != null,
-                                      "No type_def for member " + members[i].name + 
-                                      " in struct " +  full_name );
+                                          "No type_def for member " + members[i].name + 
+                                          " in struct " +  full_name );
         }
         defined = true;
         org.jacorb.util.Debug.output(2, "Struct " + name +  " defined");

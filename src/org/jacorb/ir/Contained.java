@@ -70,7 +70,6 @@ public abstract class Contained
                                              org.omg.CORBA.Container _defined_in, 
                                              org.omg.CORBA.Repository ir ) 
     {
-        org.jacorb.util.Debug.output(4, "Create for " + c.getName() + ",path " + path );
         if( !class_init )
         {
             try 
@@ -87,8 +86,7 @@ public abstract class Contained
             } 
             catch ( ClassNotFoundException cnf )
             {
-                // debug:
-                cnf.printStackTrace();
+                // debug:  cnf.printStackTrace();
             }
         }
 
@@ -106,9 +104,13 @@ public abstract class Contained
                         RepositoryImpl.loader.loadClass(c.getName() + "Helper");
 
                     if( helperClass == null )
+                    {
                         return null;
+                    }
+
                     org.jacorb.ir.InterfaceDef idef = 
                         new org.jacorb.ir.InterfaceDef( c, helperClass, path, _defined_in, ir );
+
                     return idef;
                 } 
                 catch ( ClassNotFoundException e )
@@ -126,6 +128,7 @@ public abstract class Contained
                 }
                 catch( NoSuchFieldException nsfe )
                 {
+                    //                    org.jacorb.util.Debug.output(2, nsfe );
                     return null;
                 }
             }
@@ -155,7 +158,7 @@ public abstract class Contained
                     RepositoryImpl.loader.loadClass( c.getName()+"Helper");
 
                 org.omg.CORBA.TypeCode tc = 
-                    (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod("type",null).invoke(null,null);
+                    (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod("type", null).invoke(null,null);
                 switch( tc.kind().value())
                 {
                 case org.omg.CORBA.TCKind._tk_struct:                      
@@ -171,6 +174,7 @@ public abstract class Contained
             catch( ClassNotFoundException  e )
             {     
                 // may happen for pseudo IDL
+                org.jacorb.util.Debug.output(2, e );
             }
             catch( Exception  e )
             {               

@@ -43,14 +43,18 @@ public class OperationDef
 
     private Method method;
 
-    /** the extra information on the operation that is provided in the IRHelper */
+    /** the extra information on the operation that is provided in the
+        IRHelper */
     private String opInfo;
     private String returnTypeName;
     private String[] paramTypeNames = new String[0];
 
     private boolean defined = false;
 
-    public OperationDef( Method m, Class def_in, Class irHelper, org.omg.CORBA.InterfaceDef i_def )
+    public OperationDef( Method m, 
+                         Class def_in, 
+                         Class irHelper, 
+                         org.omg.CORBA.InterfaceDef i_def )
     {
         def_kind = org.omg.CORBA.DefinitionKind.dk_Operation;
         name( m.getName());
@@ -58,8 +62,9 @@ public class OperationDef
         Debug.assert( def_in != null, "Class argument null" );
         Debug.assert( i_def != null, "Idef argument null" );
 
-        id( RepositoryID.toRepositoryID( RepositoryID.className(i_def.id())
-                                         + "/" + name() ));
+        id( RepositoryID.toRepositoryID( RepositoryID.className( i_def.id())
+                                         + "/" + name(), false));
+
         version(id().substring( id().lastIndexOf(':')));
         defined_in = i_def;
         containing_repository = i_def.containing_repository();
@@ -214,8 +219,11 @@ public class OperationDef
                     mode = org.omg.CORBA.ParameterMode.PARAM_IN;
                     if( paramInfo != null && paramInfo.indexOf(' ') > 0 )
                     {
-                        parameterTypeName = paramInfo.substring( paramInfo.indexOf(' ')+1);
-                        name = paramInfo.substring(paramInfo.indexOf(':')+1, paramInfo.indexOf(' '));
+                        parameterTypeName = 
+                            paramInfo.substring( paramInfo.indexOf(' ')+1);
+                        name = 
+                            paramInfo.substring( paramInfo.indexOf(':')+1, 
+                                                 paramInfo.indexOf(' '));
                     }
                 }
                 else
@@ -228,7 +236,8 @@ public class OperationDef
                     else
                         mode = org.omg.CORBA.ParameterMode.PARAM_OUT;
 
-                    name = paramInfo.substring(paramInfo.indexOf(':')+1, paramInfo.indexOf(' '));
+                    name = paramInfo.substring( paramInfo.indexOf(':')+1, 
+                                                paramInfo.indexOf(' '));
 
                     parameterTypeName =  
                        parameterTypeName.substring(0, parameterTypeName.indexOf("Holder"));
@@ -252,7 +261,8 @@ public class OperationDef
                 throw new org.omg.CORBA.INTF_REPOS( ErrorMsg.IR_Definition_Not_Found, 
 						    org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             }
-            org.omg.CORBA.IDLType type_def = IDLType.create( tc, containing_repository );
+            org.omg.CORBA.IDLType type_def = 
+                IDLType.create( tc, containing_repository );
             params[i] = 
                 new org.omg.CORBA.ParameterDescription( name, tc, type_def, mode);
         }

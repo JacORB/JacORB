@@ -42,6 +42,7 @@ public class ModuleDef
     {
         this.path = path;
         this.full_name = full_name.replace(fileSeparator,'/');
+
         org.jacorb.util.Debug.output(2, "New ModuleDef " + full_name + " path: " + path);
 
         def_kind = org.omg.CORBA.DefinitionKind.dk_Module;
@@ -52,20 +53,27 @@ public class ModuleDef
 
         try
         {
-            id( RepositoryID.toRepositoryID( full_name ));
+            id( RepositoryID.toRepositoryID( full_name, false ));
             if( full_name.indexOf( fileSeparator ) > 0 )
             {
                 name( full_name.substring( full_name.lastIndexOf( fileSeparator ) + 1 ));
 
                 if( defined_in instanceof org.omg.CORBA.Contained)
                 {
-                    absolute_name = ((org.omg.CORBA.Contained)defined_in).absolute_name() + "::" + name();
-                    org.jacorb.util.Debug.output(2, "New ModuleDef 1a) name " + name() + " absolute: " + absolute_name  );
+                    absolute_name = 
+                        ((org.omg.CORBA.Contained)defined_in).absolute_name() + 
+                        "::" + name();
+
+                    org.jacorb.util.Debug.output( 2, "New ModuleDef 1a) name " + 
+                                                 name() + " absolute: " + absolute_name  );
                 }
                 else
                 {
                     absolute_name = "::" + name();
-                    org.jacorb.util.Debug.output(2, "New ModuleDef 1b) name " + name() + " absolute: " + absolute_name + " defined_in : " + defined_in.getClass().getName());
+                    org.jacorb.util.Debug.output(2, "New ModuleDef 1b) name " + 
+                                                 name() + " absolute: " + 
+                                                 absolute_name + " defined_in : " + 
+                                                 defined_in.getClass().getName());
                 }
             } 
             else 
@@ -73,10 +81,12 @@ public class ModuleDef
                 defined_in = containing_repository;
                 name( full_name );
                 absolute_name = "::" + name();
-                org.jacorb.util.Debug.output(2, "New ModuleDef 2) name " + name() + 
-                                         " absolute:" + absolute_name  );
+
+                org.jacorb.util.Debug.output(2, "New ModuleDef 2) name " + 
+                                             name() + 
+                                             " absolute:" + absolute_name  );
             }
-        delegate = new Container( this, path, full_name );
+            delegate = new Container( this, path, full_name );
 
         } 
         catch ( Exception e )
@@ -119,16 +129,22 @@ public class ModuleDef
     }
 
     public org.omg.CORBA.Contained[] lookup_name(String search_name, 
-                                                 int levels_to_search, org.omg.CORBA.DefinitionKind limit_type, 
+                                                 int levels_to_search, 
+                                                 org.omg.CORBA.DefinitionKind limit_type, 
                                                  boolean exclude_inherited)
     {
-        return delegate.lookup_name( search_name, levels_to_search,  limit_type, exclude_inherited );
+        return delegate.lookup_name( search_name, levels_to_search,  
+                                     limit_type, exclude_inherited );
     }
 
-    public org.omg.CORBA.ContainerPackage.Description[] 
-        describe_contents(org.omg.CORBA.DefinitionKind limit_type, boolean exclude_inherited, int max_returned_objs)
+    public org.omg.CORBA.ContainerPackage.Description[] describe_contents( 
+                                             org.omg.CORBA.DefinitionKind limit_type, 
+                                             boolean exclude_inherited, 
+                                             int max_returned_objs)
     {
-        return delegate.describe_contents(limit_type, exclude_inherited, max_returned_objs );
+        return delegate.describe_contents( limit_type, 
+                                           exclude_inherited, 
+                                           max_returned_objs );
     }
 
     public org.omg.CORBA.ModuleDef create_module(String id, String name, String version)
@@ -136,32 +152,52 @@ public class ModuleDef
         return delegate.create_module( id,  name,  version);
     }
 
-    public org.omg.CORBA.ConstantDef create_constant( String id, String name,String version, org.omg.CORBA.IDLType type, org.omg.CORBA.Any value)
+    public org.omg.CORBA.ConstantDef create_constant( String id, 
+                                                      String name,
+                                                      String version, 
+                                                      org.omg.CORBA.IDLType type, 
+                                                      org.omg.CORBA.Any value)
     {
-        return delegate.create_constant(  id,  name, version, type, value);
+        return delegate.create_constant(  id,  name, version, type, value );
     }
 
-    public org.omg.CORBA.StructDef create_struct(String id,String name,String version,org.omg.CORBA.StructMember[] members)
+    public org.omg.CORBA.StructDef create_struct( String id,
+                                                  String name,
+                                                  String version,
+                                                  org.omg.CORBA.StructMember[] members)
     {
         return delegate.create_struct( id, name, version, members);
     }
 
-    public org.omg.CORBA.UnionDef create_union(String id, String name,  String version, org.omg.CORBA.IDLType discriminator_type, org.omg.CORBA.UnionMember[] members)
+    public org.omg.CORBA.UnionDef create_union( String id, 
+                                                String name,  
+                                                String version, 
+                                                org.omg.CORBA.IDLType discriminator_type, 
+                                                org.omg.CORBA.UnionMember[] members)
     {
         return delegate.create_union( id,  name, version, discriminator_type, members);
     }
 
-    public org.omg.CORBA.EnumDef create_enum( String id, String name, String version,String[] members)
+    public org.omg.CORBA.EnumDef create_enum( String id, 
+                                              String name, 
+                                              String version,
+                                              String[] members)
     {
         return delegate.create_enum(  id,  name, version, members);
     }
 
-    public org.omg.CORBA.AliasDef create_alias( String id, String name,  String version, org.omg.CORBA.IDLType original_type)
+    public org.omg.CORBA.AliasDef create_alias( String id, 
+                                                String name,  
+                                                String version, 
+                                                org.omg.CORBA.IDLType original_type)
     {
         return delegate.create_alias(  id,  name, version, original_type);
     }
 
-    public org.omg.CORBA.ExceptionDef create_exception(String id, String name, String version, org.omg.CORBA.StructMember[] member ) 
+    public org.omg.CORBA.ExceptionDef create_exception( String id, 
+                                                        String name, 
+                                                        String version, 
+                                                        org.omg.CORBA.StructMember[] member ) 
     {
         return delegate.create_exception(id, name, version, member);
     }
@@ -170,8 +206,11 @@ public class ModuleDef
      * not supported
      */
 
-    public org.omg.CORBA.InterfaceDef create_interface(String id, String name, String version, 
-                    org.omg.CORBA.InterfaceDef[] base_interfaces, boolean is_abstract )
+    public org.omg.CORBA.InterfaceDef create_interface( String id, 
+                                                        String name, 
+                                                        String version, 
+                                                        org.omg.CORBA.InterfaceDef[] base_interfaces, 
+                                                        boolean is_abstract )
     {
         return delegate.create_interface( id,  name,  version, 
                     base_interfaces, is_abstract );
@@ -203,8 +242,16 @@ public class ModuleDef
                                      org.omg.CORBA.InterfaceDef[] supported_interfaces, 
                                      org.omg.CORBA.Initializer[] initializers)
     {
-        return delegate.create_value(id, name, version,is_custom, is_abstract, base_value, is_truncatable, 
-                                     abstract_base_values,  supported_interfaces,  initializers);
+        return delegate.create_value( id, 
+                                      name, 
+                                      version,
+                                      is_custom, 
+                                      is_abstract, 
+                                      base_value, 
+                                      is_truncatable, 
+                                      abstract_base_values,  
+                                      supported_interfaces,
+                                      initializers);
     }
 
 
@@ -248,13 +295,5 @@ public class ModuleDef
 
 
 }
-
-
-
-
-
-
-
-
 
 

@@ -24,6 +24,7 @@ import java.io.*;
 
 import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.TCKind;
+import org.omg.DynamicAny.*;
 
 /**
  * This class prints IDL from IR-Descriptions to PrintStreams
@@ -38,6 +39,7 @@ public class IdlWriter
     private int indent = 0;
     private org.omg.CORBA.ORB orb ;
     private org.omg.CORBA.Repository ir = null;
+    private DynAnyFactory factory;
 
     /**
      *  create a new IdlWriter for the default JacORB IR 
@@ -54,6 +56,8 @@ public class IdlWriter
             orb = org.omg.CORBA.ORB.init((String[])null, null);
             ir = org.omg.CORBA.RepositoryHelper.narrow( 
                      orb.resolve_initial_references("InterfaceRepository"));
+            factory = 
+                org.omg.DynamicAny.DynAnyFactoryHelper.narrow (orb.resolve_initial_references ("DynAnyFactory"));
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName e )
         {}
@@ -73,9 +77,18 @@ public class IdlWriter
      *  @param _ir	a Repository
      */
 
-    public IdlWriter( PrintStream _ps, org.omg.CORBA.Repository _ir ){
+    public IdlWriter( PrintStream _ps, org.omg.CORBA.Repository _ir )
+    {
         ps = _ps;
-        ir = _ir;
+        try
+        {
+            orb = org.omg.CORBA.ORB.init((String[])null, null);
+            ir = _ir;
+            factory = 
+                org.omg.DynamicAny.DynAnyFactoryHelper.narrow (orb.resolve_initial_references ("DynAnyFactory"));
+        }
+        catch( org.omg.CORBA.ORBPackage.InvalidName e )
+        {}
     }
 
     public void close()
@@ -428,10 +441,15 @@ public class IdlWriter
                 }
                 else if( members[i].label.type().kind() == org.omg.CORBA.TCKind.tk_enum )
                 {
-                    int val = members[i].label.extract_long();
+                    // int val = members[i].label.extract_long();
                     try 
                     {
-                        print("case " + members[i].label.type().member_name(val) + " : " +  
+                        DynEnum dEnum = 
+                            DynEnumHelper.narrow( 
+                                  factory.create_dyn_any( members[i].label ));
+
+                        // print("case " + members[i].label.type().member_name(val) + " : " +  
+                       print("case " + dEnum.get_as_string() + " : " +  
                               idlTypeName(members[i].type) + " " + 
                               members[i].name + ";" + "\n");
                     }

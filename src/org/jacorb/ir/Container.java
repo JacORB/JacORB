@@ -65,8 +65,10 @@ public class Container
             
         my_dir = new File( path + fileSeparator + 
                            ( full_name != null ? full_name : "" ) );
+
         Debug.assert( my_dir.isDirectory(), "no directory : " + 
                           path + fileSeparator + full_name);
+
         this.name = delegator.getName();
 
         org.jacorb.util.Debug.output(2, "New Container full_name " + 
@@ -111,16 +113,19 @@ public class Container
         // load class files in this module/package
         if( classes != null) 
         {
+            String prefix = 
+                ( full_name != null ? full_name + fileSeparator : "");
+
             for( int j = 0; j< classes.length; j++ )
             {
                 try 
                 { 
-//                       org.jacorb.util.Debug.output(2, "Container " +name+ " tries " + 
-//                                               full_name + fileSeparator + 
-//                                               classes[j].substring( 0, classes[j].indexOf(".class")) );                                       
+                    org.jacorb.util.Debug.output(4, "Container " +name+ " tries " + 
+                                               prefix + 
+                                               classes[j].substring( 0, classes[j].indexOf(".class")) );                                       
                     Class cl = 
                         RepositoryImpl.loader.loadClass( 
-                                         ( full_name + fileSeparator + 
+                                         ( prefix + 
                                            classes[j].substring( 0, classes[j].indexOf(".class"))
                                            ).replace( fileSeparator, '.') );
                                         
@@ -130,7 +135,11 @@ public class Container
                                                    this_container, 
                                                    containing_repository );
                     if( containedObject == null )
+                    {
+                        org.jacorb.util.Debug.output(4, "Container: nothing created for " 
+                                                     + cl.getClass().getName() );
                         continue;
+                    }
 
                     org.omg.CORBA.Contained containedRef = 
                         Contained.createContainedReference(containedObject);
@@ -139,8 +148,9 @@ public class Container
                                        containedRef.name(), 
                                        containedRef.version() );
 
-                    org.jacorb.util.Debug.output(2, "Container " + full_name + 
+                    org.jacorb.util.Debug.output(2, "Container " + prefix + 
                                              " loads "+ containedRef.name() );
+
                     contained.put( containedRef.name() , containedRef );
                     containedLocals.put( containedRef.name(), containedObject );
                     if( containedObject instanceof ContainerType )
@@ -153,7 +163,7 @@ public class Container
                 }
                 catch ( java.lang.Throwable t ) 
                 {
-                    //e.printStackTrace();
+                    t.printStackTrace();
                 }
             }
         }

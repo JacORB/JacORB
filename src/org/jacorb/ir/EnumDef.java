@@ -48,12 +48,16 @@ public class EnumDef
         if( classId.indexOf('.') > 0 ) 
         {
             name( classId.substring( classId.lastIndexOf('.')+1));
-            String path = classId.substring(0, classId.lastIndexOf('.'));
+            String path = classId.substring( 0, classId.lastIndexOf('.'));
 
             if( path.endsWith("Package"))
-                id( RepositoryID.toRepositoryID( path.substring(0,path.lastIndexOf("Package"))+"/"+ name ));
+            {
+                id( RepositoryID.toRepositoryID( path.substring( 0, path.lastIndexOf("Package")) + "." + name ));
+            }
             else 
-                id( RepositoryID.toRepositoryID( path+"/"+ name));
+            {
+                id( RepositoryID.toRepositoryID( path + "." + name));
+            }
 
             absolute_name = myContainer.absolute_name() + "::" + name;
         } 
@@ -119,11 +123,6 @@ public class EnumDef
 
 
 }
-
-
-
-
-
 
 
 

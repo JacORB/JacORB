@@ -31,8 +31,9 @@ import java.lang.reflect.*;
 
 public class IRServer
 {
-    protected static char 	    fileSeparator = 
+    protected static char fileSeparator = 
         System.getProperty("file.separator").charAt(0);
+
     /**
      * @param  args a vector  of commandline arguments,  where args[1]
      * needs to be a filename string and args[0] a classpath string 
@@ -44,14 +45,15 @@ public class IRServer
 
         if( args.length != 2)
         {
-            System.err.println("Usage: java org.jacorb.ir.Repository <classpath> <IOR filename>");
+            System.err.println("Usage: java org.jacorb.ir.IRServer <classpath> <IOR filename>");
             System.exit(1);
         }  
  
         try
         {
             java.util.StringTokenizer strtok = 
-                new java.util.StringTokenizer( args[0], ";:" );
+                new java.util.StringTokenizer( args[0], java.io.File.pathSeparator );
+
             java.net.URL [] urls = new java.net.URL[strtok.countTokens()];
             for( int i = 0; strtok.hasMoreTokens(); i++ )
             {

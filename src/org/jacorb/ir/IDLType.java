@@ -163,8 +163,8 @@ public class IDLType
             try
             {
                 return org.omg.CORBA.WstringDefHelper.narrow( 
-                                                             RepositoryImpl.poa.servant_to_reference(
-                                                                                                     new org.omg.CORBA.WstringDefPOATie( new WstringDef( tc ))));
+                      RepositoryImpl.poa.servant_to_reference(
+                           new org.omg.CORBA.WstringDefPOATie( new WstringDef( tc ))));
             }
             catch( Exception e )
             {
