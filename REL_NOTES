@@ -105,6 +105,7 @@ gerald.brose@acm.org
                         - Fix for long long constant values.
                         - Fix for large fixed constant values.
                         - Fix for constant enum values.
+                        - Fix for format checking of fixed point types.
                 Any:
                         - Fix for equal operation on aliased types.
                         - Fix for equal operation on wchar type.
@@ -116,6 +117,10 @@ gerald.brose@acm.org
                           them more portable.
                         - Fix for read_value and write_value operations where
                           Any contained wchar type.
+                        - Added insert_fixed(BigDecimal) operation to CORBA
+                          interface.
+                        - Fix to insert_fixed(BigDecimal, TypeCode) operation
+                          to check TypeCode parameter.
                 ORB:
                         - Fix for IORs not containing zero character padding.
                         - Passing a null to object_to_string now returns the
@@ -158,6 +163,8 @@ gerald.brose@acm.org
                           implemented.
                         - Added validation of parameters to the
                           create_<type>_tc operations.
+                        - Fix for _type() operation in FixedHolder class to
+                          correctly determine TypeCodes of fixed point values.
 
 1.4 beta 2:
 ===========
