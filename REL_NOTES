@@ -39,6 +39,12 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+1.4
+
+   - DynAny
+         - Implemented DynFixed interface.
+
+
 1.4 beta 4:
 ===========
 
