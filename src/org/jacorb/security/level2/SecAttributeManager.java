@@ -55,14 +55,14 @@ public class SecAttributeManager
 
         return instance;
     }
-        
+
     public KeyAndCert getAttributeCertValue( SecAttribute attribute )
     {
         return (KeyAndCert) getAttributeValue( attribute );
     }
-    
-    public synchronized SecAttribute createAttribute( 
-        Object attrib_value, 
+
+    public synchronized SecAttribute createAttribute(
+        Object attrib_value,
         AttributeType attribute_type )
     {
         //value is id in byte array
@@ -82,10 +82,10 @@ public class SecAttributeManager
     {
         if( attribute.value.length != 4 )
         {
-            throw new Error( "Value of SecAttribute unknown!" );
+            throw new RuntimeException( "Value of SecAttribute unknown!" );
         }
 
-        int the_id = 
+        int the_id =
             ((attribute.value[0] & 0xff) << 24 ) +
             ((attribute.value[1] & 0xff) << 16 ) +
             ((attribute.value[2] & 0xff) << 8 ) +
@@ -98,7 +98,7 @@ public class SecAttributeManager
     {
         if( attribute.value.length != 4 )
         {
-            throw new Error( "Value of SecAttribute unknown!" );
+            throw new RuntimeException( "Value of SecAttribute unknown!" );
         }
 
         int the_id =
@@ -110,9 +110,3 @@ public class SecAttributeManager
         attributes.remove( new Integer( the_id ));
     }
 } // SecAttributeManager
-
-
-
-
-
-
