@@ -43,6 +43,16 @@ public class AnyType
         return "org.omg.CORBA.Any";
     }
 
+    /**
+     * @overrides getIDLTypeName in TypeSpec
+     */
+
+    public String getIDLTypeName()
+    {
+        return "any";
+    }
+
+
     public TypeSpec typeSpec()
     {
         return this;
