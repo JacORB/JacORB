@@ -16,47 +16,52 @@
 <!-- have their own base-init                                 -->
 <target name="init" depends="base-init">
     <property name="debug" value="off"/>
+ 
     <!-- This value only used under Ant 1.5 -->
     <property name="debuglevel" value="lines,source"/>
-    <available classname="org.apache.tools.ant.filters.ClassConstants" property="ant15"/>
+ 
+    <available classname="org.apache.tools.ant.filters.ClassConstants" 
+        property="ant15"/>
     <antcall target="ant-version"/>
-
+ 
     <condition property="architecture" value="windows">
-       <or>
-          <os family="windows"/>
-          <os family="dos"/>
-       </or>
+        <or>
+            <os family="windows"/>
+            <os family="dos"/>
+        </or>
     </condition>
-
+ 
     <property name="architecture" value="unix"/>
-
-
+ 
     <!-- Location of the compiled classes -->
     <pathconvert property="classdir" targetos="${architecture}">
-       <path>
-          <pathelement location="${dirs.base}/classes"/>
-       </path>
+        <path>
+            <pathelement location="${dirs.base}/classes"/>
+        </path>
     </pathconvert>
-
-
+ 
     <path id="path.base" >
-       <pathelement location="${dirs.base}/classes"/>
-       <pathelement location="${basedir}/classes"/>
-       <pathelement location="${lib}/logkit-1.2.jar"/>
-       <pathelement location="${lib}/idl.jar"/>
-       <pathelement location="${lib}/antlr-2.7.2.jar"/>
-       <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
-       <pathelement location="${lib}/concurrent-1.3.2.jar"/>
-       <pathelement location="${sun.boot.class.path}"/>
-       <pathelement location="${java.class.path}"/>
+        <pathelement location="${dirs.base}/classes"/>
+        <pathelement location="${basedir}/classes"/>
+        <pathelement location="${lib}/logkit-1.2.jar"/>
+        <pathelement location="${lib}/idl.jar"/>
+        <pathelement location="${lib}/antlr-2.7.2.jar"/>
+        <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
+        <pathelement location="${lib}/concurrent-1.3.2.jar"/>
+        <pathelement location="${lib}/picocontainer-1.2-021105.jar" />
+        <pathelement path="${sun.boot.class.path}"/>
+        <pathelement path="${java.class.path}"/>
     </path>
-	    
+
+    <path id="sourcepath.base">
+      <pathelement location="${src}" />
+      <pathelement location="${src}/generated" />
+    </path>
 
     <!-- The 'classpath' property is used as the run time for some tests -->
     <pathconvert property="classpath" targetos="${architecture}">
-	      <path refid="path.base" />
+        <path refid="path.base" />
     </pathconvert>
-
     <mkdir dir="${classdir}"/>
     <mkdir dir="${src}/generated"/>
     <filter token="path" value="basedir"/>
@@ -119,37 +124,51 @@
    <fail message="Pass javac-includes to target"/>
 </target>
 
+
 <target name="check-sourcepath" depends="init" unless="javac-sourcepath">
-
-  <pathconvert property="cp.default" targetos="${architecture}">
-    <path>
-      <pathelement location="${src}" />
-      <pathelement location="${src}/generated" />
-    </path>
-  </pathconvert>
-
-  <property name="javac-sourcepath" value="${cp.default}" />
+  <property name="javac-sourcepath" value="sourcepath.base" />
 </target>
 
 
-<!-- This target is a compatibility wrapper to allow either a Ant 14 or Ant  -->
+<!-- This target is a compatibility wrapper to allow either                  -->
+<!-- a Ant 14 or Ant                                                         -->
 <!-- 15 to be used. Optional parameters are:                                 -->
 <!-- javac-src        Defaults to ${src}                                     -->
 <!-- javac-excludes   For file selection; defaults to ''                     -->
-<!-- javac-sourcpath  Compile Option Sourcepath; defaults to ''              -->
+<!-- javac-sourcepath  Compile Option Sourcepath; defaults to ''              -->
+<!-- javac-classpathref Classpath Ref; defaults to path.base -->
 <!-- Mandatory parameter is:                                                 -->
 <!-- javac-includes   Specifies which files to compile.                      -->
 <!--                                                                         -->
-
 <target name="jacorb-javac" depends="check-includes,check-sourcepath,check-src,check-excludes">
-   <echo message="Compiling for ${ant.project.name}"/>
-   <javac srcdir="${javac-src}"
-          destdir="${classdir}"
-          debug="${debug}"
-          classpathref="path.base"
-          debuglevel="${debuglevel}"
-          sourcepath="${javac-sourcepath}"
-          includes="${javac-includes}"
-          excludes="${javac-excludes}">
-   </javac>
+   <jacorb-javac javac-src="${javac-src}"
+          javac-classpathref="path.base"
+          javac-sourcepath="${javac-sourcepath}"
+          javac-includes="${javac-includes}"
+          javac-excludes="${javac-excludes}">
+   </jacorb-javac>
 </target>
+
+ <!-- = = = = = = = = = = = = = = = = =
+          macrodef: jacorb-javac          
+      = = = = = = = = = = = = = = = = = -->
+<macrodef name="jacorb-javac">
+    <attribute name="javac-includes" />
+    <attribute name="javac-excludes" default="" />
+    <attribute name="javac-src" default="${src}" />
+    <attribute name="javac-sourcepath" default="sourcepath.base" />
+    <attribute name="javac-classpathref" default="path.base" />
+	
+    <sequential>
+        <echo message="Compiling for ${ant.project.name}"/>
+        
+        <javac srcdir="@{javac-src}"
+               destdir="${classdir}"
+               debug="${debug}"
+               classpathref="@{javac-classpathref}"
+               debuglevel="${debuglevel}"
+               sourcepathref="@{javac-sourcepath}"
+               includes="@{javac-includes}"
+               excludes="@{javac-excludes}" />
+    </sequential>
+</macrodef>
