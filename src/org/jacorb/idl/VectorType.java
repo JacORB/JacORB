@@ -31,9 +31,8 @@ package org.jacorb.idl;
 
 
 public abstract class VectorType
-        extends TemplateTypeSpec
-{
-
+    extends TemplateTypeSpec
+{    
     TypeSpec type_spec;
 
     public VectorType( int num )

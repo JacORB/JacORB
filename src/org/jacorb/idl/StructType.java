@@ -260,8 +260,28 @@ class StructType
             {
                 Member m = (Member)e.nextElement();
                 Declarator d = m.declarator;
-                sb.append( "new org.omg.CORBA.StructMember(\"" + d.name() + "\"," );
-                sb.append( m.type_spec.typeSpec().getTypeCodeExpression() + ",null)" );
+                sb.append( "new org.omg.CORBA.StructMember(\"" + d.name() + "\", " );
+
+                TypeSpec ts = m.type_spec.typeSpec();
+                if( ts instanceof BaseType ||
+                    ts instanceof ObjectTypeSpec ||
+                    ts instanceof TemplateTypeSpec || 
+                    ts instanceof TypeCodeTypeSpec )
+                {
+                    sb.append( ts.getTypeCodeExpression() );
+                }
+                else if( ts instanceof AliasTypeSpec  ) 
+                {
+                    sb.append( ts.full_name() + "Helper.type()" );
+                }
+                else
+                {
+                     sb.append( ts.typeName() + "Helper.type()" );
+                }
+
+                     //                sb.append( m.type_spec.typeSpec().getTypeCodeExpression() );
+
+                sb.append( ", null)" );
                 if( e.hasMoreElements() )
                     sb.append( "," );
             }

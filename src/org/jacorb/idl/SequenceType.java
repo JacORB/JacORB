@@ -32,7 +32,7 @@ import java.io.PrintWriter;
  */
 
 public class SequenceType
-        extends VectorType
+    extends VectorType
 {
     private boolean written = false;
 

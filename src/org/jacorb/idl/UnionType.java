@@ -26,8 +26,8 @@ import java.io.PrintWriter;
 import java.util.Enumeration;
 
 class UnionType
-        extends TypeDeclaration
-        implements Scope
+    extends TypeDeclaration
+    implements Scope
 {
 
     /** the union's discriminator's type spec */
@@ -1033,7 +1033,6 @@ class UnionType
                 if( t instanceof AliasTypeSpec )
                     t = ( (AliasTypeSpec)t ).originalType();
             }
-
 
             t = t.typeSpec();
             Declarator d = c.element_spec.d;
