@@ -76,6 +76,10 @@ brose@inf.fu-berlin.de
         - fixed bug in fallback code after a non-permanent ForwardRequest
           by a portable interceptor
 
+        - added a few properties to allow for tailor-made authentication
+          implementations (aka PrincipalAuthenticator), also fixed a 
+          few minor glitches in the SSL setup, which can now interoperate
+          with, e.g., Orbacus' SSL.
 
 1.3.11:
 
