@@ -46,4 +46,8 @@ public class EvaluationException extends Exception
         super( description );
     }
 
+    public EvaluationException( Exception other ) {
+        super(other.getMessage());
+    }
+
 } // EvaluationException
