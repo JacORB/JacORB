@@ -1,0 +1,24 @@
+module a {
+   interface POATie {
+   };
+   typedef long MyLong;
+};
+module b {
+   interface Test {
+      a::POATie doSomething();
+      a::MyLong doSomethingElse();
+   };
+};
+module aa {
+   interface Package {
+   };
+   interface MyPOATie
+   {
+   };
+};
+module bb {
+   interface Test {
+      aa::Package doSomething();
+      aa::MyPOATie doSomethingElse();
+   };
+};

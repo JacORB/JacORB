@@ -1,0 +1,40 @@
+
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            interface Ping
+            {
+
+#if   defined DefA
+               void Pong1 (in short value);
+#elif defined DefB
+               void Pong2 (in long value);
+#else
+#  error "Nothing defined!"
+#endif
+
+#ifdef ABNORMAL
+               typedef long foobar;
+#endif
+
+
+#if 0
+               void PongWrong (in long value);
+#elif 1
+               void Pong3 (in long value);
+#elif 1
+               void Pong4 (in long value);
+#endif
+               void Pong6 (in long value);
+
+            };
+         };
+      };
+   };
+};
