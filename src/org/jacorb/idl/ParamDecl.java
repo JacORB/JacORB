@@ -100,9 +100,9 @@ public class ParamDecl
                 paramTypeSpec = ts;
         }
 
-        if (paramTypeSpec == null)
+        if( paramTypeSpec == null )
         {
-            throw new ParseException( "paramTypeSpec is null " + name );
+            throw new ParseException("parameter TypeSpec is null " + name, this.myPosition );
         }
 
         //simple_declarator.print(ps);
