@@ -7,8 +7,17 @@ It was taken from Brose et al., "Java Proramming with CORBA", 3d ed,
 and modified so that no mapping filters are used.
 
 To build the example, simply type "ant". To run it, make sure that
-both the Naming Service and the Notification Service are running, then
-start the demo server like this:
+both the Naming Service and the Notification Service are running. If 
+you start the Notification Service like this:
+
+         ntfy -writeIOR c:\NTS_Ref
+
+then your jacorb.properties file should contain a line like this, 
+
+        ORBInitRef.NotificationService=file:/c:/NTS_Ref
+
+if the service is running on a machine where you have access to
+the IOR file. Then start the demo server like this:
 
         jaco demo.notification.office.PrintServer
 
