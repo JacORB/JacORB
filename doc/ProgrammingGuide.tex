@@ -102,8 +102,8 @@ protocol. We currently support:
   consisting of the crypto provider IAIK--JCE 2.5 (or higher) and the SSL
   library iSaSiLk 3.0 (or higher). Using this implementation allows you to
   access the clients authenticated certificates.
-\item Suns JSSE Reference implementation available from the Developer
-  Connection. This will also be included in the jdk1.4.
+\item Suns JSSE Reference implementation included in the JDK 1.4 and
+  separately available from the Developer Connection.
 \end{enumerate}
 
 \subsection{Configuration}
@@ -1893,8 +1893,9 @@ required:
 
         \item when using Suns libraries:
               \begin{itemize}
-              \item jsse1.0.2 available from the Developer Connection or
-                jdk1.4.
+              \item JDK 1.4 or jsse1.0.2 available from the Developer
+                Connection (for jsse1.0.2, please see the {\tt README.jsse\_1\_0\_2} in
+                {\tt src/org/jacorb/security/ssl/sun\_jsse} on how to compile.
               \item For key management, you also need additional packages like
                 OpenSSL. These are not necessary for JacORB to work.
               \end{itemize}
