@@ -30,6 +30,10 @@ import java.io.PrintWriter;
 class ParamDecl
     extends IdlSymbol
 {
+    public static final int MODE_IN    = 1;
+    public static final int MODE_OUT   = 2;
+    public static final int MODE_INOUT = 3;
+    
     public int paramAttribute;
     public TypeSpec paramTypeSpec;
     public SimpleDeclarator simple_declarator;
@@ -37,6 +41,33 @@ class ParamDecl
     public ParamDecl( int num )
     {
         super( num );
+    }
+    
+    /**
+     *  Constructs a new parameter declaration with the given characteristics.
+     */
+    public ParamDecl (int paramAttribute, 
+                      TypeSpec paramTypeSpec,
+                      SimpleDeclarator simple_declarator)
+    {
+        super (new_num());
+        this.paramAttribute = paramAttribute;
+        this.paramTypeSpec  = paramTypeSpec;
+        this.simple_declarator = simple_declarator;  
+    }
+
+    /**
+     *  Constructs a new parameter declaration with the given characteristics.
+     */
+    public ParamDecl (int paramAttribute,
+                      TypeSpec paramTypeSpec,
+                      String name)
+    {
+        super (new_num());
+        this.paramAttribute = paramAttribute;
+        this.paramTypeSpec  = paramTypeSpec;
+        this.simple_declarator = new SimpleDeclarator (new_num());
+        this.simple_declarator.name = name;
     }
 
     public void setPackage( String s )
@@ -68,14 +99,14 @@ class ParamDecl
     {
         switch( paramAttribute )
         {
-            case 1:
+            case MODE_IN:
                 //    if( paramTypeSpec instanceof ConstrTypeSpec )
                 //ps.print( paramTypeSpec.typeName() );
                 //else
                 ps.print( paramTypeSpec.toString() );
                 break;
-            case 2: /*out*/
-            case 3: /*inout*/
+            case MODE_OUT: 
+            case MODE_INOUT:
                 ps.print( paramTypeSpec.holderName() );
                 break;
         }
@@ -90,7 +121,7 @@ class ParamDecl
 
     public String printWriteStatement( String name, String ps )
     {
-        if( paramAttribute != 1 )
+        if( paramAttribute != ParamDecl.MODE_IN )
             return paramTypeSpec.typeSpec().printWriteStatement( name + ".value", ps );
         else
             return paramTypeSpec.typeSpec().printWriteStatement( name, ps );
