@@ -198,6 +198,7 @@
 		<antcall target="idl-notification" />
 		<antcall target="idl-notification-typed" />
 		<antcall target="idl-value" />
+                <antcall target="idl-exception" />
 		<antcall target="idl-bugs" />
 	</target>
 
@@ -362,6 +363,14 @@
 		<property name="file.idl" value="value.idl" />
 		<antcall target="process-idl" />
 	</target>
+
+        <target name="idl-exception">
+          <property name="props.idl" value="ExceptionServer" />
+          <property name="pkg.idl" value="org/jacorb/test" />
+          <property name="callback.idl" value="false"/>
+          <property name="file.idl" value="ExceptionServer.idl" />
+          <antcall target="process-idl" />
+        </target>
 
 	<target name="idl-bugs">
 		<property name="props.idl" value="Bugs" />
