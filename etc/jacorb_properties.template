@@ -703,11 +703,13 @@ jtrader.max_link_follow_policy=
 #                                                      #
 ########################################################
 
-jacorb.notification.filter_pool_workers = 2
+jacorb.notification.filter.thread_pool_size = 2
 
-jacorb.notification.deliver_pool_workers = 4
+jacorb.notification.proxyconsumer.thread_pool_size = 2
 
-jacorb.notification.pull_consumer_pollintervall = 1000
+jacorb.notification.proxysupplier.thread_pool_size = 4
+
+jacorb.notification.proxyconsumer.poll_intervall = 1000
 
 jacorb.notification.max_batch_size = 1
 
@@ -717,13 +719,14 @@ jacorb.notification.order_policy = PriorityOrder
 
 jacorb.notification.discard_policy = PriorityOrder
 
-jacorb.notification.backout_interval = 5000
+jacorb.notification.consumer.backout_interval = 5000
 
-jacorb.notification.eventconsumer_error_threshold = 3
+jacorb.notification.consumer.error_threshold = 3
 
 # valid values: ThreadPool, ThreadPerProxy
 jacorb.notification.proxysupplier.threadpolicy = ThreadPool
 
+jacorb.notification.default_filter_factory = builtin
 
 # Notification Service log levels:
 # 0 = fatal errors only = "almost off" (FATAL ERRORS)
