@@ -24,6 +24,7 @@ package org.jacorb.notification.engine;
 import java.util.Date;
 
 import org.jacorb.notification.ConfigurableProperties;
+import org.jacorb.notification.Constants;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
@@ -37,7 +38,6 @@ import org.omg.CosNotification.StructuredEvent;
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
-import org.jacorb.notification.Constants;
 
 /**
  *
@@ -55,7 +55,6 @@ public class TaskProcessor implements Disposable
         implements Runnable,
                    Message.MessageStateListener
     {
-
         Object timerRegistration_;
         Message event_;
 
@@ -88,14 +87,13 @@ public class TaskProcessor implements Disposable
 
     class DeferedStopTask implements Runnable
     {
-        Object timerRegistration_;
         Message event_;
 
         DeferedStopTask( Message event )
         {
             event_ = event;
 
-            timerRegistration_ = executeTaskAt( event.getStopTime(), this );
+            executeTaskAt( event.getStopTime(), this );
         }
 
         public void run()
@@ -106,15 +104,16 @@ public class TaskProcessor implements Disposable
 
     class DeferedStartTask implements Runnable
     {
-
-        Object timerRegistration_;
         Message event_;
 
         DeferedStartTask( Message event )
         {
-            logger_.debug("Message has StartTime and will be run at" + event.getStartTime());
+            if ( logger_.isDebugEnabled() ) {
+                logger_.debug("Message has StartTime and will be run at" + event.getStartTime());
+            }
+
             event_ = event;
-            timerRegistration_ = executeTaskAt( event.getStartTime(), this );
+            executeTaskAt( event.getStartTime(), this );
         }
 
         public void run()
@@ -429,6 +428,7 @@ public class TaskProcessor implements Disposable
         return clockDaemon_.executeAt( startTime, task );
     }
 
+
     void fireEventDiscarded( Message event )
     {
         switch ( event.getType() )
@@ -470,4 +470,3 @@ public class TaskProcessor implements Disposable
     }
 
 }
-
