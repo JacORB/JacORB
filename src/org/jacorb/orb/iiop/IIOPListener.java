@@ -638,13 +638,6 @@ public class IIOPListener
             }
         }
 
-        public void setup(Socket socket)
-            throws IOException
-        {
-            super.setup(socket);
-            getSSLServerSocketFactory().switchToClientMode (socket);
-        }
-
         protected void deliverConnection(Socket socket)
         {
             IIOPListener.this.deliverConnection (socket, true);
