@@ -32,8 +32,6 @@ import org.jacorb.notification.interfaces.AdminEvent;
 import org.jacorb.notification.interfaces.AdminEventListener;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.AbstractAdmin;
