@@ -76,7 +76,7 @@ public class FixIOR
     
         if (! iorString.startsWith ("IOR:"))
         {
-            System.err.println ("IOR must be in the standard IOR URL scheme");
+            System.err.println ("IOR must be in the standard IOR URL format");
             System.exit (1);
         }
 
@@ -100,6 +100,7 @@ public class FixIOR
             if (profiles[i].tag == TAG_INTERNET_IOP.value)
             {
                 is = new CDRInputStream (orb, profiles[i].profile_data);
+                is.openEncapsulatedArray ();
                 body10 = ProfileBody_1_0Helper.read (is);
                 is.close ();
 
@@ -109,6 +110,7 @@ public class FixIOR
                 if (body10.iiop_version.minor > 0)
                 {
                     is = new CDRInputStream (orb, profiles[i].profile_data);
+                    is.openEncapsulatedArray ();
                     body11 = ProfileBody_1_1Helper.read (is);
                     is.close ();
 
