@@ -36,7 +36,8 @@ public class AliasTypeSpec
     private boolean written = false;
 
     /** 
-     * create a new alias for ts
+     * Class constructor, 
+     * @param ts - the TypeSpec for which to create a new alias
      */
 
     public AliasTypeSpec( TypeSpec ts )
@@ -47,7 +48,8 @@ public class AliasTypeSpec
 
     public Object clone()
     {
-        AliasTypeSpec alias = new AliasTypeSpec( (TypeSpec)type_spec.clone() );
+        AliasTypeSpec alias = 
+            new AliasTypeSpec( (TypeSpec)type_spec.clone() );
         alias.name = name;
         alias.pack_name = pack_name;
         return alias;
@@ -57,7 +59,9 @@ public class AliasTypeSpec
     {
         if( pack_name.length() > 0 )
         {
-            String s = ScopedName.unPseudoName( pack_name + "." + name );
+            String s = 
+                ScopedName.unPseudoName( pack_name + "." + name );
+
             if( !s.startsWith( "org.omg" ) )
             {
                 return omg_package_prefix + s;
@@ -120,6 +124,10 @@ public class AliasTypeSpec
         return false;
     }
 
+    /**
+     * Perform the parsing phase, must be called before code
+     * generation
+     */
 
     public void parse()
     {
@@ -140,7 +148,8 @@ public class AliasTypeSpec
                 if( originalType instanceof VectorType )
                 {
                     tName =
-                        originalType.typeName().substring( 0, originalType.typeName().indexOf( '[' ) );
+                        originalType.typeName().substring( 0, 
+                              originalType.typeName().indexOf( '[' ) );
                 }
                 else
                 {
@@ -174,6 +183,8 @@ public class AliasTypeSpec
     /**
      * @returns a string for an expression of type TypeCode that
      * 			describes this type 
+     * Note that this is the TypeSpec for the alias type and is not unwound to
+     * the original type.
      */
 
     public String getTypeCodeExpression()
@@ -199,6 +210,11 @@ public class AliasTypeSpec
 
     }
 
+    /**
+     * Code generation, generate holder and helper classes. Holder classes 
+     * are only generated for array and sequence types.
+     */
+
     public void print( PrintWriter ps )
     {
         setPrintPhaseNames();
@@ -223,8 +239,9 @@ public class AliasTypeSpec
 
             String className = className();
 
-            String path = parser.out_dir + fileSeparator +
-                    pack_name.replace( '.', fileSeparator );
+            String path = 
+                parser.out_dir + fileSeparator +
+                pack_name.replace( '.', fileSeparator );
 
             File dir = new File( path );
             if( !dir.exists() )
@@ -241,11 +258,9 @@ public class AliasTypeSpec
 
             if
             (
-                    ( !originalType.basic()
-                    && !( originalType instanceof AnyType ) )
-                    ||
-                    ( originalType instanceof TemplateTypeSpec
-                    && !( originalType instanceof StringType ) )
+//                ( !originalType.basic() && !( originalType instanceof AnyType ) )
+//                ||
+             ( originalType instanceof TemplateTypeSpec && !( originalType instanceof StringType ) )
             )
             {
                 /** print the holder class */
@@ -276,8 +291,7 @@ public class AliasTypeSpec
     {
         //	return typeName() + "Helper.read(" + Streamname +")" ;
 
-
-        if( originalType.basic() && !( originalType instanceof TemplateTypeSpec ) )
+        if( doUnwind() )
         {
             return originalType.printReadStatement( varname, streamname );
         }
@@ -292,9 +306,7 @@ public class AliasTypeSpec
     {
         //	return typeName() + "Helper.read(" + Streamname +")" ;
 
-
-        if( originalType.basic() &&
-                !( originalType instanceof TemplateTypeSpec ) )
+        if( doUnwind() )
         {
             return originalType.printReadExpression( streamname );
         }
@@ -308,7 +320,8 @@ public class AliasTypeSpec
     public String printWriteStatement( String var_name, String streamname )
     {
         //return typeName()+"Helper.write(" + streamname +"," + var_name +");";
-        if( originalType.basic() && !( originalType instanceof TemplateTypeSpec ) )
+
+        if( doUnwind() )
         {
             return originalType.printWriteStatement( var_name, streamname );
         }
@@ -327,21 +340,32 @@ public class AliasTypeSpec
         ps.println( " */\n" );
     }
 
+    /**
+     * @returns true iff the original type is such that the alias should
+     * be unwound to it, either anothetr alias, a constructed type (e.g a struct), 
+     * an any, a basic type (long, short, etc.)
+     */
+
+    private boolean doUnwind()
+    {
+        return  
+            ( 
+             originalType.basic() &&
+             (
+              !( originalType instanceof TemplateTypeSpec )
+              || originalType instanceof StringType
+              )
+             )
+        || originalType instanceof AliasTypeSpec
+        || originalType instanceof ConstrTypeSpec
+        || originalType instanceof AnyType
+        ;
+    }
+
 
     public String holderName()
     {
-        if
-        (
-                (
-                originalType.basic() &&
-                (
-                !( originalType instanceof TemplateTypeSpec )
-                || originalType instanceof StringType
-                )
-                )
-                || originalType instanceof AliasTypeSpec
-                || originalType instanceof AnyType
-        )
+        if( doUnwind() )
         {
             return originalType.holderName();
         }
