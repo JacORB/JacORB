@@ -1,3 +1,64 @@
+2003-04-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/GIOPConnection.java (inbuf, msg_header): New
+	fields.
+	(getMessage): Use ETF-compliant read().
+	(write): Use ETF-compliant write().
+
+	* orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/Server_TCP_IP_Transport.java (waitUntilConnected):
+	Public rather than protected, because it's in the interface now.
+
+	* orb/connection/ServerGIOPConnection.java (sendCloseConnection):
+	Use ETF-compliant write().
+
+	* orb/connection/TCP_IP_Transport.java (read, write, flush): Make
+	ETF-compliant.
+	(readToBuffer): Rewritten as read(), see above.
+	(to_COMM_FAILURE): New method.
+	(waitUntilConnected): Stub has been moved up into the Transport
+	interface for the time being.
+
+	* orb/connection/Transport.java (read, write, flush): Make
+	ETF-compliant.
+	(waitUntilConnected): Pull up (temporary change).
+
+2003-04-22  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/Client_TCP_IP_Transport.java (get_server_profile):
+	Return an ETF profile rather than an IIOP profile.
+
+	* orb/connection/ClientConnectionManager.java (addConnection):
+	Don't expect a Client_TCP_IP_Transport, any ETF transport will do.
+
+	* orb/connection/GIOPConnection.java (getMessage): New method,
+	moved up from the transport layer.
+	(dump_incoming): New field, used by the above.
+	(receiveMessages): Use local implementation of getMessage().
+
+	* orb/connection/Server_TCP_IP_Transport.java (profile): New
+	attribute.
+	(c'tor): Initialize it.
+	(get_server_profile): ETF-conformant accessor.
+
+	* orb/connection/TCP_IP_Transport.java (getMessage): Method
+	removed; it is now up in GIOPConnection.
+	(msg_header, buf_mg): Attributes removed.
+
+	* orb/connection/Transport.java (getMessage): Method removed; it
+	is now up in GIOPConnection.
+	(get_server_profile): New abstract method.
+
+2003-04-16  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ORB.java, orb/connection/ServerRequestListener.java,
+	orb/dsi/ServerRequest.java, util/Debug.java: Debug and POA Name
+	scoping improvements. Removed commented out code.
+
+2003-04-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* poa/POAConstants.java: Update constants
+
 2003-04-14  Andre Spiegel  <spiegel@gnu.org>
 
 	* imr/ImplementationRepositoryImpl.java (checkServerActive): Make
