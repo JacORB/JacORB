@@ -37,7 +37,7 @@ import org.omg.CORBA.NO_MEMORY;
 public final class BufferManager
 {
     /** the buffer pool */
-    private Stack[] bufferPool;
+    private List[] bufferPool;
     // The 'extra-large' buffer cache.
     private byte[] bufferMax = null;
 
@@ -83,11 +83,11 @@ public final class BufferManager
     private BufferManager()
     {
         MAX = Environment.getMaxManagedBufSize();
-	bufferPool = new Stack[ MAX ];
+	bufferPool = new List[ MAX ];
 
 	for( int i = 0; i < MAX; i++)
         {
-	    bufferPool[ i ] = new Stack();
+	    bufferPool[ i ] = new ArrayList();
         }
 
         /* create a number of buffers for the preferred memory buffer
@@ -103,7 +103,7 @@ public final class BufferManager
         }
         for( int min = 0; min < MIN_PREFERRED_BUFS; min++ )
         {
-            bufferPool[ m_pos -MIN_OFFSET ].push( new byte[ MEM_BUFSIZE ]);
+            bufferPool[ m_pos -MIN_OFFSET ].add(new byte[ MEM_BUFSIZE ]);
         }
 
         if (time > 0)
@@ -175,7 +175,7 @@ public final class BufferManager
     public synchronized byte[] getBuffer( int initial, boolean cdrStr )
     {
         byte [] result;
-        Stack s;
+        List s;
 
         int log = log2up(initial);
 
@@ -211,9 +211,10 @@ public final class BufferManager
         {
             s = bufferPool[log > MIN_OFFSET ? log-MIN_OFFSET : 0 ];
 
-            if( ! s.isEmpty() )
+            if(!s.isEmpty())
             {
-                result = (byte [])s.pop ();
+                // pop least recently added buffer from the list
+                result = (byte[])s.remove(s.size()-1);
             }
             else
             {
@@ -262,10 +263,10 @@ public final class BufferManager
                     return;
                 }
 
-                Stack s = bufferPool[ log_curr-MIN_OFFSET ];
+                List s = bufferPool[ log_curr-MIN_OFFSET ];
                 if( s.size() < THRESHOLD )
                 {
-                    s.push( current );
+                    s.add( current );
                 }
             }
         }
@@ -277,7 +278,7 @@ public final class BufferManager
 	for( int i= MAX; i > 0; )
 	{
 	    i--;
-	    bufferPool[i].removeAllElements();
+	    bufferPool[i].clear();
 	}
         if (reaper != null)
         {
