@@ -476,14 +476,32 @@ public class CDROutputStream
         }
     }
 
-    public final void write_char_array(char[] value, int offset, int length)
+    public final void write_char_array( char[] value, int offset, int length )
     {
         if( value == null ) 
             throw new org.omg.CORBA.MARSHAL( "Null References" );
-        check( length*3 );
+
+        check( length );
+        
+        if( codeSet != CodeSet.ISO8859_1 )
+        {
+            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
+                                             CodeSet.csName( codeSet ) );
+        }
+
         for( int i = offset; i < offset+length; i++) 
-            write_char( value[i] );
-    }
+        {
+            if( ( value[i] & 0xFF00 ) != 0 )//Are there any 1s in the MSB?
+            {
+                throw new org.omg.CORBA.MARSHAL("char (" + value[i] + 
+                                                ") out of range for ISO8859_1");
+            }
+
+            buffer[ pos++ ] = (byte) value[i];
+        }
+
+        index += length; 
+    }         
         
     public final void write_string( String s )
     {
@@ -505,19 +523,19 @@ public class CDROutputStream
         check( size, 4 );
             
         _write4int( buffer, pos, size - 4 ); // write length indicator        
-            
         pos += 4;
-        //index += 4;
         
         for( int i = 0; i < s.length(); i++ )
         {
             buffer[ pos++ ] = (byte) s.charAt( i );
+            if( ( buffer[ pos-1] & 0xFF00 ) != 0 )//Are there any 1s in the MSB?
+            {
+                throw new org.omg.CORBA.MARSHAL("char (" + buffer[ pos-1 ] + 
+                                                ") out of range for ISO8859_1");
+            }
         }
-        
-        //index += s.length();
-        
+                
         buffer[ pos++ ] = (byte) 0; //terminating NUL char
-        //        index++;
         index += size;
     }
 
