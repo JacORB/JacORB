@@ -558,8 +558,12 @@ public class ImplementationRepositoryImpl
      * Save the server table to a backup file.
      * @exception org.jacorb.imr.AdminPackage.FileOpFailed something went wrong.
      */
-    public void save_server_table() throws FileOpFailed {
-	save_server_table(table_file_backup);
+    public void save_server_table() throws FileOpFailed
+    {
+        if (table_file_backup != null)
+        {
+            save_server_table(table_file_backup);
+        }
     }
 
     /**
@@ -593,6 +597,14 @@ public class ImplementationRepositoryImpl
             {
                 Debug.output (Debug.IMR | Debug.INFORMATION, e);
             }
+        }
+        try
+        {
+            save_server_table ();
+        }
+        catch (FileOpFailed f)
+        {
+            Debug.output (Debug.IMR | Debug.INFORMATION, "ImR: Failed to save backup table.");
         }
         Debug.output (Debug.IMR | Debug.INFORMATION, "ImR: Finished shutting down");
     }
@@ -637,12 +649,13 @@ public class ImplementationRepositoryImpl
     /**
      * Prints the usage screen and exits.
      */
-    public static void usage(){
+    public static void usage ()
+    {
 	System.out.println("Usage: ImplementationRepositoryImpl [Parameter]");
 	System.out.println("Parameter:");
 	System.out.println("\t -p <port> Port to listen on for requests");
-	System.out.println("\t -f <file> Read in server table from this file");
-	System.out.println("\t -n Start with empty server table");
+        System.out.println("\t[ -f <file> Read in server table from this file");
+        System.out.println("\t| -n Start with empty server table ]");
 	System.out.println("\t -i <iorfile> Place IOR in this file");
 	System.out.println("\t -b <backupfile> Put server table in this file");
 	System.out.println("\t -a Allow auto-registering of servers");
@@ -665,42 +678,74 @@ public class ImplementationRepositoryImpl
 	String _ior_file_str = null;
 	String _backup_file_str = null;
         String port = null;
+        java.util.Properties props = null;
+        File _backup_file = null;
 
         System.setProperty ("jacorb.implname", "the_ImR");
         System.setProperty ("jacorb.use_imr", "off");
 
-	try{
-	    for (int i = 0; i < args.length ; i++){
-		switch (args[i].charAt(1)){
-                    case 'h' : {
+	try
+        {
+            for (int i = 0; i < args.length ; i++)
+            {
+                switch (args[i].charAt(1))
+                {
+                    case 'h':
+                    {
                         usage();
                     }
-                    case 'p' : {
+                    case 'p':
+                    {
                         default_port = Integer.parseInt(args[++i]);
                         break;
                     }
-                    case 'f' : {
+                    case 'f':
+                    {
                         if (_new_table)
-                            // -f and -n together not allowed
+                        {
+                            System.out.println("ERROR: -n and -f not allowed together");
                             usage();
+                        }
+                        if ((i + 1) >= args.length)
+                        {
+                            System.out.println("ERROR: Supply filename with -f switch");
+                            usage();
+                        }
                         _table_file_str = args[++i];
                         break;
                     }
-                    case 'n' : {
+                    case 'n':
+                    {
                         if (_table_file_str != null)
+                        {
+                            System.out.println("ERROR: -n and -f not allowed together");
                             usage();
+                        }
                         _new_table = true;
                         break;
                     }
-                    case 'i' :{
+                    case 'i':
+                    {
+                        if ((i + 1) >= args.length)
+                        {
+                            System.out.println("ERROR: Supply IOR filename with -i switch");
+                            usage();
+                        }
                         _ior_file_str = args[++i];
                         break;
                     }
-                    case 'b' :{
+                    case 'b':
+                    {
+                        if ((i + 1) >= args.length)
+                        {
+                            System.out.println("ERROR: Supply filename with -b switch");
+                            usage();
+                        }
                         _backup_file_str = args[++i];
                         break;
                     }
-                    case 'a' :{
+                    case 'a':
+                    {
                         Environment.setProperty( "jacorb.imr.allow_auto_register",
                                                  "on" );
                         break;
@@ -710,7 +755,9 @@ public class ImplementationRepositoryImpl
 		    usage();
 		}
 	    }
-	}catch (Exception _e){
+	}
+        catch (Exception _e)
+        {
             _e.printStackTrace();
             usage();
 	}
@@ -730,6 +777,17 @@ public class ImplementationRepositoryImpl
            }
         }
 
+        port = Environment.getProperty ("jacorb.imr.endpoint_port_number");
+
+        if (port != null && port.length () > 0)
+        {
+            props = new java.util.Properties ();
+            props.setProperty ("OAPort", port);
+
+            Debug.output
+                (Debug.IMR | Debug.INFORMATION, "ImR: Using endpoint port number " + port);
+        }
+
 	// table file not specified, try via property
 	if (_table_file_str == null){
 	    _table_file_str = Environment.getProperty("jacorb.imr.table_file");
@@ -745,44 +803,41 @@ public class ImplementationRepositoryImpl
 	File _table_file = new File(_table_file_str);
 
 	// try to open table file
-	if (! _new_table){
-	    if (!_table_file.exists()){
-		System.out.println("ERROR: The table file does not exist!");
-		System.out.println("Please check " + _table_file.getAbsolutePath());
-		System.out.println("Property jacorb.imr.table_file or use the -n or -f switch");
-		System.exit(-1);
-	    }
-
-	    if (_table_file.isDirectory()){
-		System.out.println("ERROR: The table file is a directory!");
-		System.out.println("Please check " + _table_file.getAbsolutePath());
-		System.out.println("Property jacorb.imr.table_file or use the -n or -f switch");
-		System.exit(-1);
-	    }
-
-	    if (! _table_file.canRead()){
-		System.out.println("ERROR: The table file is not readable!");
-		System.out.println("Please check " + _table_file.getAbsolutePath());
-		System.exit(-1);
-	    }
-
-	    if (! _table_file.canWrite()){
-		System.out.println("WARNING: The table file is not writable!");
-		System.out.println("Please check " + _table_file.getAbsolutePath());
-	    }
-	}
-	else
-	    try{
-		//testing the hard way, if the file can be created
-		//with jdk1.2, we might try createNewFile()
-		FileOutputStream _out = new FileOutputStream(_table_file);
-		_out.close();
-		_table_file.delete(); //don't leave empty files lying around
-
-	    }catch (Exception _e){
-		System.out.println("WARNING: Unable to create table file!");
-		System.out.println("Please check " + _table_file.getAbsolutePath());
-	    }
+        if ( ! _table_file.exists ())
+        {
+            _new_table = true;
+            System.out.println("Table file " + _table_file_str + " does not exist - autocreating it.");
+            try
+            {
+                _table_file.createNewFile ();
+            }
+            catch (IOException ex)
+            {
+                Debug.output (Debug.IMR | Debug.INFORMATION, ex);
+                System.exit (-1);
+            }
+        }
+        else
+        {
+            if (_table_file.isDirectory ())
+            {
+                System.out.println("ERROR: The table file is a directory!");
+                System.out.println("Please check " + _table_file.getAbsolutePath());
+                System.out.println("Property jacorb.imr.table_file or use the -f switch");
+                System.exit (-1);
+            }
+            if (! _table_file.canRead())
+            {
+                System.out.println("ERROR: The table file is not readable!");
+                System.out.println("Please check " + _table_file.getAbsolutePath());
+                System.exit(-1);
+            }
+            if (! _table_file.canWrite())
+            {
+                System.out.println("WARNING: The table file is not writable!");
+                System.out.println("Please check " + _table_file.getAbsolutePath());
+            }
+        }
 
 	// no ior file specified, try via property
 	if (_ior_file_str == null){
@@ -795,40 +850,56 @@ public class ImplementationRepositoryImpl
 	    }
 	}
 
-	//set up server table backup file
-	if (_backup_file_str == null){
-	    _backup_file_str = Environment.getProperty("jacorb.imr.backup_file");
-	    if (_backup_file_str == null){
-		System.out.println("WARNING: No backup file specified!\n" +
-				   "Will create \"backup.dat\" in current directory, if necessary");
-		_backup_file_str = "backup.dat";
-	    }
-	}
+        //set up server table backup file
+        if (_backup_file_str == null || _backup_file_str.length() == 0)
+        {
+            _backup_file_str = Environment.getProperty("jacorb.imr.backup_file");
+            if (_backup_file_str == null || _backup_file_str.length() == 0)
+            {
+                System.out.println("WARNING: No backup file specified!. No backup file will be created.");
+            }
+        }
+        if (_backup_file_str != null)
+        {
+            _backup_file = new File(_backup_file_str);
 
-	File _backup_file = new File(_backup_file_str);
-	try{
-	    if ( _backup_file.exists()){
-		if (! _backup_file.canWrite()){
-		    System.out.println("WARNING: The backup file exists, but is not writable!");
-		    System.out.println("Please check " + _backup_file.getAbsolutePath());
-		}
-		else if (! _new_table)
+            // try to open backup file
+            if ( ! _backup_file.exists ())
+            {
+                _new_table = true;
+                System.out.println("Backup file " + _backup_file_str + " does not exist - autocreating it.");
+                try
                 {
-		    System.out.println("WARNING: The backup file already exists and might get overwritten!");
-		    System.out.println("Please check " + _backup_file.getAbsolutePath());
-		}
- 	    }
-	    else{
-		//testing the hard way, if the file can be created
-		//with jdk1.2, we might try createNewFile()
-		FileOutputStream _out = new FileOutputStream(_backup_file);
-		_out.close();
-		_backup_file.delete(); //don't leave empty files lying around
-	    }
-	}catch (Exception _e){
-	    System.out.println("WARNING: The backup file is not accessible!");
-	    System.out.println("Please check " + _backup_file.getAbsolutePath());
-	}
+                    _backup_file.createNewFile ();
+                }
+                catch (IOException ex)
+                {
+                    Debug.output (Debug.IMR | Debug.INFORMATION, ex);
+                    System.exit (-1);
+                }
+            }
+            else
+            {
+                if (_backup_file.isDirectory ())
+                {
+                    System.out.println("ERROR: The backup file is a directory!");
+                    System.out.println("Please check " + _backup_file.getAbsolutePath());
+                    System.out.println("Property jacorb.imr.table_file or use the -f switch");
+                    System.exit (-1);
+                }
+                if (! _backup_file.canRead())
+                {
+                    System.out.println("ERROR: The backup file is not readable!");
+                    System.out.println("Please check " + _backup_file.getAbsolutePath());
+                    System.exit(-1);
+                }
+                if (! _backup_file.canWrite())
+                {
+                    System.out.println("WARNING: The backup file is not writable!");
+                    System.out.println("Please check " + _backup_file.getAbsolutePath());
+                }
+            }
+        }
 
 	orb = org.omg.CORBA.ORB.init( args, null );
 
