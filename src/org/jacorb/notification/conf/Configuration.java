@@ -38,7 +38,7 @@ public interface Configuration
         "jacorb.notification.proxyconsumer.thread_pool_size";
 
     String PULL_CONSUMER_POLLINTERVALL =
-        "jacorb.notification.proxyconsumer.poll_intervall";
+        "jacorb.notification.supplier.poll_intervall";
 
     String MAX_BATCH_SIZE =
         "jacorb.notification.max_batch_size";
@@ -63,5 +63,21 @@ public interface Configuration
 
     String FILTER_FACTORY =
         "jacorb.notification.default_filter_factory";
+
+    String MAX_NUMBER_CONSUMERS =
+        "jacorb.notification.consumer.max_number";
+
+    String MAX_NUMBER_SUPPLIERS =
+        "jacorb.notification.supplier.max_number";
+
+    String START_TIME_SUPPORTED =
+        "jacorb.notification.start_time_supported";
+
+    String STOP_TIME_SUPPORTED =
+        "jacorb.notification.stop_time_supported";
+
+    String DISPOSE_PROXY_CALLS_DISCONNECT =
+        "jacorb.notification.proxy.destroy_causes_disconnect";
+
 }
 
