@@ -34,7 +34,10 @@ public class DefaultProfileSelector implements ProfileSelector
 
     public Profile selectProfile (List profiles, ClientConnectionManager ccm) 
     {
-        return (Profile)profiles.get(0);
+        if (profiles.size() > 0)
+            return (Profile)profiles.get(0);
+        else
+            return null;
     }
 
 }
