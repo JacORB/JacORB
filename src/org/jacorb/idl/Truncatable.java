@@ -30,14 +30,18 @@ package org.jacorb.idl;
  */
 
 class Truncatable
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     ScopedName scopedName = null;
 
     public Truncatable( int num )
     {
         super( num );
+    }
+
+    public String getId()
+    {
+        return scopedName.id();
     }
 
     public void print( java.io.PrintWriter ps )

@@ -167,7 +167,9 @@ class ValueDecl
 
         if( inheritanceSpec != null )
         {
-            for( Enumeration e = inheritanceSpec.getValueTypes(); e.hasMoreElements(); )
+            Hashtable h = new Hashtable();
+            for( Enumeration e = inheritanceSpec.getValueTypes(); 
+                 e.hasMoreElements(); )
             {
                 ScopedName name = (ScopedName)e.nextElement();
                 ConstrTypeSpec ts = 
@@ -175,6 +177,15 @@ class ValueDecl
 
                 if( ts.declaration() instanceof Value )
                 {
+                    if( h.containsKey( ts.full_name() ))
+                    {
+                        parser.fatal_error( "Illegal inheritance spec: " +
+                                            inheritanceSpec  + 
+                                            " (repeated inheritance not allowed).", 
+                                            token );
+                    }
+                    // else:
+                    h.put( ts.full_name(), "" );
                     continue;
                 }
                 else
@@ -372,14 +383,27 @@ class ValueDecl
 
         if( inheritanceSpec != null )
         {
+            boolean first = true;
+
             Enumeration e = inheritanceSpec.getValueTypes();
-            if( e.hasMoreElements() )
+            if( e.hasMoreElements() || inheritanceSpec.truncatable != null )
             {
                 out.print( "\textends " );
+
+                if( e.hasMoreElements() )
+                {
+                    first = false;
+                    out.print( ( (IdlSymbol)e.nextElement() ).toString() );
+                }
+
                 for( ; e.hasMoreElements(); )
                 {
-                    out.print( ( (IdlSymbol)e.nextElement() ).toString() + " " );
+                    out.print( ", " + ( (IdlSymbol)e.nextElement() ).toString() );
                 }
+
+                if( inheritanceSpec.truncatable != null )
+                    out.print( ( first ? "" : ", " ) + inheritanceSpec.truncatable.scopedName );
+
                 out.println();
             }
         }
@@ -404,15 +428,13 @@ class ValueDecl
         }
 
         out.println( "{" );
-        out.print( "\tprivate String[] _truncatable_ids = {" );
+        out.print( "\tprivate String[] _truncatable_ids = {\"" + id() + "\"" );
         if( inheritanceSpec != null )
         {
             String[] ids = inheritanceSpec.getTruncatableIds();
             for( int j = 0; j < ids.length; j++ )
             {
-                if( j > 0 )
-                    out.print( ", " );
-                out.print( "\"" + ids[ j ] + "\"" );
+                out.print( ", \"" + ids[ j ] + "\"" );
             }
         }
         out.println( "};" );
@@ -491,6 +513,12 @@ class ValueDecl
         out.println( "\tpublic void _write " +
                 "(org.omg.CORBA.portable.OutputStream os)" );
         out.println( "\t{" );
+        if( !inheritanceSpec.isEmpty() )
+        {
+            out.println( "\t\tsuper._write( os );" );
+        }
+
+
         for( Iterator i = stateMembers.v.iterator(); i.hasNext(); )
             out.println( "\t\t" + ( (StateMember)i.next() ).writeStatement( "os" ) );
         out.println( "\t}\n" );
@@ -505,6 +533,12 @@ class ValueDecl
         out.println( "\tpublic void _read " +
                 "(final org.omg.CORBA.portable.InputStream os)" );
         out.println( "\t{" );
+
+        if( !inheritanceSpec.isEmpty() )
+        {
+            out.println( "\t\tsuper._read( os );" );
+        }
+
         for( Iterator i = stateMembers.v.iterator(); i.hasNext(); )
             out.println( "\t\t" + ( (StateMember)i.next() ).readStatement( "os" ) );
         out.println( "\t}\n" );

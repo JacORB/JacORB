@@ -216,23 +216,37 @@ class Interface
             if( inheritanceSpec != null && inheritanceSpec.v.size() > 0 )
             {
                 Environment.output( 4, "Checking inheritanceSpec of " + full_name() );
+                Hashtable h = new Hashtable();
                 for( Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements(); )
                 {
-                    try
-                    {
+//                      try
+//                      {
                         ScopedName name = (ScopedName)e.nextElement();
                         ConstrTypeSpec ts = (ConstrTypeSpec)name.resolvedTypeSpec();
+                        
                         if( ts.declaration() instanceof Interface )
                         {
+                            if( h.containsKey( ts.full_name() ))
+                            {
+                                parser.fatal_error( "Illegal inheritance spec: " +
+                                                    inheritanceSpec  + 
+                                                    " (repeated inheritance not allowed).", 
+                                                    token );
+                            }
+                            // else:
+                            h.put( ts.full_name(), "" );
                             continue;
                         }
-                    }
-                    catch( Exception ex )
-                    {
-                        // ex.printStackTrace();
-                    }
-                    parser.fatal_error( "Illegal inheritance spec: " +
-                            inheritanceSpec, token );
+                        // else:
+                        parser.fatal_error( "Illegal inheritance spec: " +
+                                            inheritanceSpec  + " (ancestor " + 
+                                            ts.full_name() + " not an interface)", 
+                                            token );
+                        //                }
+//                      catch( Exception ex )
+//                      {
+//                          ex.printStackTrace();
+//                      }
                 }
                 body.set_ancestors( inheritanceSpec );
             }

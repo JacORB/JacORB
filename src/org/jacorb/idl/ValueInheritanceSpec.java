@@ -30,7 +30,7 @@ import java.util.Vector;
  */
 
 class ValueInheritanceSpec
-        extends SymbolList
+    extends SymbolList
 {
 
     /** the value types (both abstract and stateful) inherited by this
@@ -42,6 +42,7 @@ class ValueInheritanceSpec
 
     /** if the value type this spec belongs to is truncatable to the
      single stateful ancestor value type */
+
     public Truncatable truncatable = null;
 
     public ValueInheritanceSpec( int num )
@@ -59,8 +60,13 @@ class ValueInheritanceSpec
         }
         else
         {
-            return new String[]{truncatable.scopedName.toString()};
+            return new String[]{ truncatable.getId()};
         }
+    }
+
+    public boolean isEmpty()
+    {
+        return ( v.size() == 0 && truncatable == null );
     }
 
     public Enumeration getValueTypes()
