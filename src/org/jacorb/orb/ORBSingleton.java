@@ -145,7 +145,7 @@ public class ORBSingleton
 
     public TypeCode get_primitive_tc(org.omg.CORBA.TCKind tcKind)
     {
-        return new org.jacorb.orb.TypeCode( tcKind.value() );
+        return org.jacorb.orb.TypeCode.get_primitive_tc( tcKind.value() );
     }
 
     public org.omg.CORBA.TypeCode create_value_tc(String id,
