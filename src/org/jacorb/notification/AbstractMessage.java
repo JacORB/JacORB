@@ -492,7 +492,7 @@ public abstract class AbstractMessage
 
         if (logger_.isDebugEnabled())
         {
-            logger_.debug("extractValue2: " + _completePath);
+            logger_.debug("extractValue: " + _completePath);
             logger_.debug("runtimeVariable=" + runtimeVariable);
         }
 
