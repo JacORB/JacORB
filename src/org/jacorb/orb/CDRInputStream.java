@@ -53,6 +53,9 @@ public class CDRInputStream
 
     private boolean closed = false;
 
+    /** can be set on using property */
+    private boolean use_BOM = false;
+
     /* character encoding code sets for char and wchar, default ISO8859_1 */
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
@@ -89,6 +92,8 @@ public class CDRInputStream
     {
 	this.orb = orb;
 	buffer = buf;
+
+        use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
     }
 
     public CDRInputStream( org.omg.CORBA.ORB orb, 
@@ -569,8 +574,7 @@ public class CDRInputStream
         
         index += size;
 
-        if( (giop_minor < 2) &&
-            (size > 0) &&
+        if( (size > 0) &&
             (buf[ size - 1 ] == 0) )
         {
             //omit terminating NULL char
@@ -943,12 +947,15 @@ public class CDRInputStream
     /**
      * Read the byte order marker indicating the endianess.
      *
-     * @ return true for little endianess, false otherwise (including
+     * @return true for little endianess, false otherwise (including
      * no BOM present. In this case, big endianess is assumed per
      * spec).  
      */
     private final boolean readBOM()
     {
+        if( !use_BOM )
+            return littleEndian;
+
         if( (buffer[ pos     ] == (byte) 0xFE) &&
             (buffer[ pos + 1 ] == (byte) 0xFF) )
         {
