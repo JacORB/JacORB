@@ -234,7 +234,8 @@ class OpDecl
 		ParamDecl p = (ParamDecl)e2.nextElement();
 		if( p.paramAttribute > 1 ) // out or inout
 		{
-		    ps.println("\t\t\t\t" + p.simple_declarator + "._read(_is);");
+		    ps.println("\t\t\t\t" + p.simple_declarator + ".value = " + 
+                               p.printReadExpression("_is")+";");
 		}
 	    }
 	    
@@ -478,7 +479,8 @@ class OpDecl
 	    TypeSpec ts = p.paramTypeSpec;
 	    if( p.paramAttribute > 1 ) // out or inout
 	    {
-		ps.println("\t\t\t\t_arg" + (argc) + "._write(_out);");
+                ps.println("\t\t\t\t" + p.printWriteStatement( ("_arg" + (argc)), "_out"));
+                //		ps.println("\t\t\t\t_arg" + (argc) + "._write(_out);");
 	    }
 	    argc++;
 	}
