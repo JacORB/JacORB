@@ -21,6 +21,7 @@ package org.jacorb.orb;
  */
 
 import org.omg.CORBA.*;
+import java.util.*;
 
 /**
  * CORBA any
@@ -171,16 +172,9 @@ public final class Any
                 if( out1.size() != out2.size() )
                     return false;
 
-                for( int i = 0; i < out1.size(); i++ )
-                {
-                    if( out1.getInternalBuffer()[ i ] !=
-                        out2.getInternalBuffer()[ i ] )
-                    {
-                        return false;
-                    }
-                }
+                return Arrays.equals( out1.getBufferCopy(),
+                                       out2.getBufferCopy());
 
-                return true;
             }
             default:
                 throw new RuntimeException ("Cannot compare anys with type kind " + kind);
@@ -849,7 +843,7 @@ public final class Any
                 else if ( value instanceof org.omg.CORBA.portable.OutputStream )
                 { 
                     byte [] internal_buf = 
-                        ((CDROutputStream)value).getInternalBuffer();
+                        ((CDROutputStream)value).getBufferCopy();
                     
                     CDRInputStream in = 
                         new CDRInputStream( orb, internal_buf );

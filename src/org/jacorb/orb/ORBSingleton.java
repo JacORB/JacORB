@@ -438,7 +438,6 @@ public class ORBSingleton
     {
         checkTCRepositorId( id );
         checkTCName( name );
-        checkTCMemberType( concrete_base );
 
         return new org.jacorb.orb.TypeCode (id, 
                                             name, 
@@ -453,7 +452,6 @@ public class ORBSingleton
     {
         checkTCRepositorId( id );
         checkTCName( name );
-        checkTCMemberType( boxed_type );
 
         return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_value_box,
                                             id,
