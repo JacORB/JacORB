@@ -167,6 +167,11 @@ public class PrintIOR
                     } 
                 }
             }
+	    String codebase = pior.getCodebaseComponent();
+	    if( codebase != null )
+            {
+		System.out.println("\tJava Codebase Component:\n\t\t" + codebase);		
+	    }
             System.out.print("\n");
         }
          orb.shutdown(true);
