@@ -25,8 +25,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.notification.CollectionsWrapper;
-import org.jacorb.notification.JacORBCollections;
-import org.jacorb.notification.JDK13Collections;
 import java.util.List;
 import java.util.Iterator;
 
@@ -42,42 +40,6 @@ public class CollectionsWrapperTest extends TestCase
 	String o = "testling";
 
 	List list = CollectionsWrapper.singletonList(o);
-
-	assertTrue(list.size() == 1);
-
-	assertEquals(o, list.get(0));
-
-	Iterator i = list.iterator();
-
-	while (i.hasNext()) {
-	    assertEquals(o, i.next());
-	}
-    }
-
-    public void testJacORBCollections() throws Exception {
-	String o = "testling";
-
-	JacORBCollections collections = new JacORBCollections();
-	
-	List list = collections.singletonList(o);
-
-	assertTrue(list.size() == 1);
-
-	assertEquals(o, list.get(0));
-
-	Iterator i = list.iterator();
-
-	while (i.hasNext()) {
-	    assertEquals(o, i.next());
-	}
-    }
-
-    public void testJDKCollections() throws Exception {
-	String o = "testling";
-
-	JDK13Collections collections = new JDK13Collections();
-	
-	List list = collections.singletonList(o);
 
 	assertTrue(list.size() == 1);
 

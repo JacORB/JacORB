@@ -49,6 +49,7 @@ public class PackageTest extends TestCase {
 	TestSuite _suite = 
 	    new TestSuite("Tests in Package org.jacorb.test.notification");
 
+	_suite.addTest(EventChannelFactoryTest.suite());
 	_suite.addTest(EventChannelTest.suite());
 	_suite.addTest(CosEventChannelTest.suite());
 	_suite.addTest(StructuredEventChannelTest.suite());
