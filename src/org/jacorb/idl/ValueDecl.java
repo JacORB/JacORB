@@ -407,7 +407,8 @@ class ValueDecl
      * Prints the abstract Java class to which this valuetype is mapped.
      */
 
-    private void printClass( File dir ) throws IOException
+    private void printClass( File dir ) 
+        throws IOException
     {
         File outfile = new File( dir, name + ".java" );
         PrintWriter out = new PrintWriter( new FileWriter( outfile ) );

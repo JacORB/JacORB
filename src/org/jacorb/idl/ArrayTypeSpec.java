@@ -30,9 +30,8 @@ import java.io.PrintWriter;
  */
 
 class ArrayTypeSpec
-        extends VectorType
+    extends VectorType
 {
-
     ArrayDeclarator declarator = null;
     String typename = null;
     String dimensionStr = "";
@@ -186,6 +185,11 @@ class ArrayTypeSpec
     /**
      * @returns a string for an expression of type TypeCode that
      * describes this type
+     *
+     * Array and sequence types always have this expression inlined in
+     * their containing classes because arrays and sequences can be 
+     * locally defined (e,g, in a struct) without there being helper
+     * classes (so Helper.type() is not an option )
      */
 
     public String getTypeCodeExpression()
@@ -363,7 +367,7 @@ class ArrayTypeSpec
 
         ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = " +
                 getTypeCodeExpression() + ";" );
-        TypeSpec.printHelperClassMethods( className, ps, type );
+        TypeSpec.printHelperClassMethods( ps, type );
         printIdMethod( ps );
 
         /* read */

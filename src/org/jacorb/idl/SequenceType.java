@@ -414,7 +414,7 @@ public class SequenceType
         ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = " +
                 getTypeCodeExpression() + ";" );
 
-        TypeSpec.printHelperClassMethods( className, ps, type );
+        TypeSpec.printHelperClassMethods( ps, type );
         printIdMethod( ps ); // from IdlSymbol
 
         /** read */

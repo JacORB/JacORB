@@ -129,7 +129,8 @@ class StructType
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
+            System.err.println( "was " + enclosing_symbol.getClass().getName() + 
+                                " now: " + s.getClass().getName() );
             throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
         }
         enclosing_symbol = s;
@@ -248,52 +249,7 @@ class StructType
 
     public String getTypeCodeExpression()
     {
-        StringBuffer sb = new StringBuffer();
-        sb.append( "org.omg.CORBA.ORB.init().create_" +
-                ( exc ? "exception" : "struct" ) + "_tc( " +
-                typeName() + "Helper.id(),\"" + className() + "\"," );
-
-        if( memberlist != null )
-        {
-            sb.append( "new org.omg.CORBA.StructMember[]{" );
-            for( Enumeration e = memberlist.v.elements(); e.hasMoreElements(); )
-            {
-                Member m = (Member)e.nextElement();
-                Declarator d = m.declarator;
-                sb.append( "new org.omg.CORBA.StructMember(\"" + d.name() + "\", " );
-
-                TypeSpec ts = m.type_spec.typeSpec();
-                if( ts instanceof BaseType ||
-                    ts instanceof ObjectTypeSpec ||
-                    ts instanceof TemplateTypeSpec || 
-                    ts instanceof TypeCodeTypeSpec )
-                {
-                    sb.append( ts.getTypeCodeExpression() );
-                }
-                else if( ts instanceof AliasTypeSpec  ) 
-                {
-                    sb.append( ts.full_name() + "Helper.type()" );
-                }
-                else
-                {
-                     sb.append( ts.typeName() + "Helper.type()" );
-                }
-
-                     //                sb.append( m.type_spec.typeSpec().getTypeCodeExpression() );
-
-                sb.append( ", null)" );
-                if( e.hasMoreElements() )
-                    sb.append( "," );
-            }
-            sb.append( "}" );
-        }
-        else
-        {
-            sb.append( "new org.omg.CORBA.StructMember[0]" );
-        }
-        sb.append( ")" );
-
-        return sb.toString();
+        return full_name() + "Helper.type()";
     }
 
     private void printClassComment( String className, PrintWriter ps )
@@ -360,18 +316,55 @@ class StructType
 
         ps.println( "public" + parser.getFinalString() + " class " + className + "Helper" );
         ps.println( "{" );
-        ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";" );
+        ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = null;");
+
+        /* type() method */
+        ps.println( "\tpublic static org.omg.CORBA.TypeCode type ()" );
+        ps.println( "\t{" );
+        ps.println( "\t\tif( _type == null )" );
+        ps.println( "\t\t{" );
+
+        StringBuffer sb = new StringBuffer();
+        sb.append( "org.omg.CORBA.ORB.init().create_" +
+                ( exc ? "exception" : "struct" ) + "_tc( " +
+                typeName() + "Helper.id(),\"" + className() + "\"," );
+
+        if( memberlist != null )
+        {
+            sb.append( "new org.omg.CORBA.StructMember[]{" );
+            for( Enumeration e = memberlist.v.elements(); e.hasMoreElements(); )
+            {
+                Member m = (Member)e.nextElement();
+                Declarator d = m.declarator;
+                sb.append( "new org.omg.CORBA.StructMember(\"" + d.name() + "\", " );
+                sb.append( m.type_spec.typeSpec().getTypeCodeExpression() );
+                sb.append( ", null)" );
+                if( e.hasMoreElements() )
+                    sb.append( "," );
+            }
+            sb.append( "}" );
+        }
+        else
+        {
+            sb.append( "new org.omg.CORBA.StructMember[0]" );
+        }
+        sb.append( ")" );
+
+        ps.println("\t\t\t_type = " + sb.toString() + ";" );
+
+        ps.println( "\t\t}" );
+        ps.println( "\t\treturn _type;" );
+        ps.println( "\t}\n" );
 
         String type = typeName();
-
-        TypeSpec.printHelperClassMethods( className, ps, type );
+        TypeSpec.printInsertExtractMethods( ps, type );
 
         printIdMethod( ps ); // inherited from IdlSymbol
 
         /* read */
-        ps.println( "\tpublic static " + type + " read (final org.omg.CORBA.portable.InputStream in)" );
+        ps.println( "\tpublic static " + type + 
+                    " read (final org.omg.CORBA.portable.InputStream in)" );
         ps.println( "\t{" );
-
         ps.println( "\t\t" + type + " result = new " + type + "();" );
         if( exc )
         {

@@ -82,6 +82,7 @@ class TypeDeclaration
      * this type.  If `knownTypes' contains this type,
      * then a recursive type code is returned.
      */
+
     public String getTypeCodeExpression( Set knownTypes )
     {
         if( type_decl instanceof Value )

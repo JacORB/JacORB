@@ -187,24 +187,11 @@ class EnumType
         return typeName() + "Holder";
     }
 
+
     public String getTypeCodeExpression()
     {
-        StringBuffer sb = new StringBuffer();
-        sb.append( "org.omg.CORBA.ORB.init().create_enum_tc(" +
-                typeName() + "Helper.id(),\"" + className() + "\"," );
-
-        sb.append( "new String[]{" );
-
-        for( Enumeration e = enumlist.v.elements(); e.hasMoreElements(); )
-        {
-            sb.append( "\"" + (String)e.nextElement() + "\"" );
-            if( e.hasMoreElements() )
-                sb.append( "," );
-        }
-        sb.append( "})" );
-        return sb.toString();
+        return full_name() + "Helper.type()";
     }
-
 
     private void printClassComment( String className, PrintWriter ps )
     {
@@ -265,16 +252,42 @@ class EnumType
         ps.println( "public" + parser.getFinalString() + " class " + className + "Helper" );
         ps.println( "{" );
 
-        ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";" );
+        ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = null;");
+
+        /* type() method */
+        ps.println( "\tpublic static org.omg.CORBA.TypeCode type ()" );
+        ps.println( "\t{" );
+        ps.println( "\t\tif( _type == null )" );
+        ps.println( "\t\t{" );
+
+        StringBuffer sb = new StringBuffer();
+        sb.append( "org.omg.CORBA.ORB.init().create_enum_tc(" +
+                typeName() + "Helper.id(),\"" + className() + "\"," );
+
+        sb.append( "new String[]{" );
+
+        for( Enumeration e = enumlist.v.elements(); e.hasMoreElements(); )
+        {
+            sb.append( "\"" + (String)e.nextElement() + "\"" );
+            if( e.hasMoreElements() )
+                sb.append( "," );
+        }
+        sb.append( "})" );
+
+        ps.println("\t\t\t_type = " + sb.toString() + ";" );
+        ps.println( "\t\t}" );
+        ps.println( "\t\treturn _type;" );
+        ps.println( "\t}\n" );
 
         String type = typeName();
-        TypeSpec.printHelperClassMethods( className, ps, type );
+
+        TypeSpec.printInsertExtractMethods( ps, type );
         printIdMethod( ps );
 
         ps.println( "\tpublic static " + className + " read (final org.omg.CORBA.portable.InputStream in)" );
         ps.println( "\t{" );
         ps.println( "\t\treturn " + className + ".from_int( in.read_long());" );
-        ps.println( "\t}" );
+        ps.println( "\t}\n" );
 
         ps.println( "\tpublic static void write (final org.omg.CORBA.portable.OutputStream out, final " + className + " s)" );
         ps.println( "\t{" );

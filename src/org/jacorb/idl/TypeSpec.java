@@ -30,9 +30,8 @@ import java.util.Set;
 
 
 public class TypeSpec
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     protected String alias = null;
     public TypeSpec type_spec;
 
@@ -51,11 +50,6 @@ public class TypeSpec
     public String typeName()
     {
         return type_spec.typeName();
-    }
-
-    public String idlTypeName()
-    {
-        return typeName();
     }
 
     public TypeSpec typeSpec()
@@ -77,9 +71,12 @@ public class TypeSpec
         type_spec.setEnclosingSymbol( s );
     }
 
+    /**
+     * @returns true if this is a basic type
+     */
+
     public boolean basic()
     {
-        // debug: System.out.println("TypeSpec class is: " + this.getClass().getName() );
         return type_spec.basic();
     }
 
@@ -91,7 +88,6 @@ public class TypeSpec
     }
 
     public void parse()
-            throws ParseException
     {
         type_spec.parse();
     }
@@ -173,27 +169,35 @@ public class TypeSpec
     }
 
     /**
-     for use by subclasses when generating helper classes. Writes common
-     methods for all helpers to the helper class file. Must becalled after
-     beginning th class definition itself
+     * for use by subclasses when generating helper classes. Writes
+     * common methods for all helpers to the helper class file. Must
+     * be called after beginning the class definition itself 
      */
 
-    public static void printHelperClassMethods( String className, PrintWriter ps, String type )
+    static void printHelperClassMethods( PrintWriter ps, String type )
     {
-        ps.println( "\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)" );
-        ps.println( "\t{" );
-        ps.println( "\t\tany.type(type());" );
-        ps.println( "\t\twrite( any.create_output_stream(),s);" );
-        ps.println( "\t}" );
-
-        ps.println( "\tpublic static " + type + " extract (final org.omg.CORBA.Any any)" );
-        ps.println( "\t{" );
-        ps.println( "\t\treturn read(any.create_input_stream());" );
-        ps.println( "\t}" );
+        printInsertExtractMethods( ps, type );
 
         ps.println( "\tpublic static org.omg.CORBA.TypeCode type()" );
         ps.println( "\t{" );
         ps.println( "\t\treturn _type;" );
         ps.println( "\t}" );
     }
+
+    static void printInsertExtractMethods( PrintWriter ps, String type )
+    {
+        ps.println( "\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)" );
+        ps.println( "\t{" );
+        ps.println( "\t\tany.type(type());" );
+        ps.println( "\t\twrite( any.create_output_stream(),s);" );
+        ps.println( "\t}\n" );
+
+        ps.println( "\tpublic static " + type + " extract (final org.omg.CORBA.Any any)" );
+        ps.println( "\t{" );
+        ps.println( "\t\treturn read(any.create_input_stream());" );
+        ps.println( "\t}\n" );
+    }
+
+
+
 }

@@ -26,10 +26,9 @@ package org.jacorb.idl;
  */
 
 class CharType
-        extends BaseType
-        implements SwitchTypeSpec
+    extends BaseType
+    implements SwitchTypeSpec
 {
-
     private boolean wide = false;
 
     public CharType( int num )

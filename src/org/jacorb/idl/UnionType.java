@@ -29,7 +29,6 @@ class UnionType
     extends TypeDeclaration
     implements Scope
 {
-
     /** the union's discriminator's type spec */
     TypeSpec switch_type_spec;
 
@@ -231,7 +230,7 @@ class UnionType
                 ts = switch_type_spec.type_spec;
             }
 
-            // Check if valid discriminator type
+            // Check if we have a valid discriminator type
 
             if
             ( !(
@@ -245,7 +244,7 @@ class UnionType
                     ( ( (ConstrTypeSpec)ts ).c_type_spec instanceof EnumType ) )
                     ) )
             {
-                parser.error( "Illegal Switch Type: " + ts.idlTypeName(), token );
+                parser.error( "Illegal Switch Type: " + ts.typeName(), token );
             }
 
             switch_type_spec.parse();
@@ -283,7 +282,6 @@ class UnionType
     public String getTypeCodeExpression()
     {
         return typeName() + "Helper.type()";
-        //throw new RuntimeException("Compiler error: getTypeCodeExpression() not applicable to unions!");
     }
 
 
@@ -560,8 +558,6 @@ class UnionType
                     pw.print( " && discriminator != " );
                 }
             }
-//              if( switch_is_enum )
-//                  pw.print(")");
 
             pw.println( ")\n\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();" );
             pw.println( "\t\treturn " + c.element_spec.d.name() + ";" );
@@ -588,11 +584,6 @@ class UnionType
                         ts.typeName() + " _discriminator, " +
                         c.element_spec.t.typeName() + " _x )" );
                 pw.println( "\t{" );
-
-
-//                  if( switch_is_enum )
-//                      pw.print("\t\tif( ! _discriminator.equals( ");
-//                  else
                 pw.print( "\t\tif( _discriminator != " );
 
                 for( int i = 0; i < caseLabelNum; i++ )
@@ -604,15 +595,10 @@ class UnionType
 
                     if( i < caseLabelNum - 1 )
                     {
-//                          if( switch_is_enum )
-//                              pw.print(") && !discriminator.equals( ");
-//                          else
                         pw.print( " && _discriminator != " );
                     }
 
                 }
-//                  if( switch_is_enum )
-//                      pw.print(")");
 
                 pw.println( ")\n\t\t\tthrow new org.omg.CORBA.BAD_OPERATION();" );
                 pw.println( "\t\tdiscriminator = _discriminator;" );
@@ -637,7 +623,6 @@ class UnionType
             pw.println( "\t\tdiscriminator = _discriminator;" );
             pw.println( "\t}" );
         }
-
 
         pw.println( "}" );
     }
@@ -698,16 +683,8 @@ class UnionType
 
         String _type = typeName();
 
-        ps.println( "\tpublic static void insert (org.omg.CORBA.Any any, " + _type + " s)" );
-        ps.println( "\t{" );
-        ps.println( "\t\tany.type (type ());" );
-        ps.println( "\t\twrite (any.create_output_stream (), s);" );
-        ps.println( "\t}" );
+        TypeSpec.printInsertExtractMethods( ps, typeName() );
 
-        ps.println( "\tpublic static " + _type + " extract (org.omg.CORBA.Any any)" );
-        ps.println( "\t{" );
-        ps.println( "\t\treturn read (any.create_input_stream ());" );
-        ps.println( "\t}" );
         printIdMethod( ps );
 
         /** read method */
