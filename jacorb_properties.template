@@ -286,6 +286,10 @@ org.omg.PortableInterceptor.ORBInitializerClass.standard_init=org.jacorb.orb.sta
 # Switch off to avoid contacting the ImR on every server start-up
 jacorb.use_imr=off
 
+# Switch off if you don't want to write the ImR address into server IORs
+# (ignored if jacorb.use_imr=off)
+jacorb.use_imr_endpoint=on
+
 # if set to "on", servers that don't already have an entry on their
 # first call to the imr, will get automatically registered. Otherwise,
 # an UnknownServer exception is thrown.
