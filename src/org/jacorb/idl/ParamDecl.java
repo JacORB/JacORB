@@ -80,6 +80,14 @@ class ParamDecl
         paramTypeSpec.setPackage( s );
     }
 
+    /**
+     * Returns a new ParamDecl with the same characteristics as this one,
+     * except that its mode is changed to 'in'.
+     */
+    public ParamDecl asIn()
+    {
+        return new ParamDecl (MODE_IN, this.paramTypeSpec, this.simple_declarator);
+    }
 
     public void parse()
     {
