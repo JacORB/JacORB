@@ -1,21 +1,23 @@
 Gerald Brose
 
 
-            JacORB Coding Conventions
-	    =========================
+                   JacORB Coding Conventions
+                   =========================
 
+The goal of this little style guide is enhance code readability by
+using a common style. Coding style in the JacORB project is not meant
+a way of expressing oneself's views on aesthetics, but a means of
+communication between physically distributed
+developers. Performance-related code obfuscation should be limited to
+a few sensitive places - and explained in comments!)
 
-(Please remember: The ultimate goal is code readability, not
- performance or personal style. Performance-related code obfuscation should
- be limited to a few sensitive places - and explained in comments!)
-
-The astyle tool (http://astyle.sourceforge.net/) can be used to format 
-source code:
+A useful tool is astyle (http://astyle.sourceforge.net/), which can be
+used to format source code:
 
        astyle -j -s4 -b -P --convert-tabs --break-blocks 
 
-
-1) Use whitespace to make the text more readable.
+1) Use (plenty of) whitespace to make the text more readable.
+-------------------------------------------------------------
 
     a) indentation: 4 spaces, no tabs!
 
@@ -25,6 +27,7 @@ source code:
        {
        }
 
+     
     c) always write the body of an if-, for-, while- ... statmement 
        on a new line, never on the same!
 
@@ -33,14 +36,15 @@ source code:
 	  ...
        }
 
-    d) write: x = y, not: x=y
+    d) write: x = y, not: x=y, it's simpler and faster to read!
 
     e) Include extra spaces between parenthesis and expression, and
-       around operators,
+       around operators
+
        For example:
  
-             if( foo )
-             a = b * c
+             calculate( foo );
+             a = b * c;
 
     f) No spaces between method names and opening brackets, e.g:
  
@@ -48,18 +52,25 @@ source code:
 
              public int myMethod( int param 1, ... )
 
-    g) break lines that get too long  (around column 100)
+       Reason: Instantaneaously makes clear that something is a method
+       call and not a field access.
+
+    g) break lines that get too long (around column 100).
 
     h) insert empty lines freely wherever you think it helps.
 
 
 2) Comments:
+------------
+
     - as much as you can, 
          public and package local methods and fields!!!
          private and protected ones also
+
     - add javadoc wherever you modify code
 
 3) Place the JacORB LGPL license header on all files
-
+----------------------------------------------------
 
 [ More suggestions? ... ]
+
