@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.util.Debug;
 
 import org.omg.CORBA.TCKind;
@@ -33,7 +34,6 @@ import antlr.BaseAST;
 import antlr.Token;
 import antlr.collections.AST;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.filter.EvaluationResult;
 
 /**
  * Base Class for TCLTree Nodes.
@@ -61,6 +61,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         setType( tok.getType() );
     }
 
+
     protected AbstractTCLNode()
     {
         super();
@@ -86,6 +87,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         return null;
     }
 
+
     /**
      * accept a visitor for traversal Inorder
      *
@@ -94,23 +96,29 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     public abstract void acceptInOrder( AbstractTCLVisitor visitor )
         throws VisitorException;
 
+
     /**
-     * accept a visitor for traversal in Preorder. the root node is
-     * visited before the left and the right subtrees are visited.
+     * accept a visitor for traversal in Preorder.
+     *
+     * the root node is visited before the left and the right subtrees
+     * are visited.
      *
      * @param visitor
      */
     public abstract void acceptPreOrder( AbstractTCLVisitor visitor )
-    throws VisitorException;
+        throws VisitorException;
+
 
     /**
-     * accept a visitor for traversal in Postorder. the right and left
+     * accept a visitor for traversal in Postorder.
+     *
+     * the right and left
      * subtrees are visited before the root node is visited.
      *
      * @param visitor
      */
     public abstract void acceptPostOrder( AbstractTCLVisitor visitor )
-    throws VisitorException;
+        throws VisitorException;
 
     ////////////////////////////////////////////////////////////
 
@@ -119,10 +127,12 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         return name_;
     }
 
+
     void setName( String name )
     {
         name_ = name;
     }
+
 
     /**
      * Check wether this node has a Sibling.
@@ -133,6 +143,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     {
         return ( getNextSibling() != null );
     }
+
 
     /**
      * get the AST Token Type of this nodes sibling
@@ -146,13 +157,16 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         return _next.getType();
     }
 
+
     protected void setKind( TCKind kind )
     {
         tcKind_ = kind;
     }
 
+
     /**
      * Return the Runtimetype of this node.
+     *
      * If the Runtime type cannot be guessed statically this Method
      * returns null.
      *
@@ -164,6 +178,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     {
         return tcKind_;
     }
+
 
     public void printToStringBuffer( StringBuffer buffer )
     {
@@ -186,6 +201,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         }
     }
 
+
     /**
      * create a visualization of this node and all its children.
      *
@@ -200,6 +216,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         return _buffer.toString();
     }
 
+
     /**
      * Access the left child. This method returns null if this node
      * has no left child
@@ -210,6 +227,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     {
         return ( AbstractTCLNode ) getFirstChild();
     }
+
 
     /**
      * Access the right child. This method returns null if this node
@@ -229,42 +247,48 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         return false;
     }
 
+
     public boolean isNumber()
     {
         return false;
     }
+
 
     public boolean isString()
     {
         return false;
     }
 
+
     public boolean isBoolean()
     {
         return false;
     }
 
+
     /**
      * Get the AST Token Type for this node.
      *
      * @return the AST Token Type value
-     * @see org.jacorb.notification.parser.TCLParserTokenTypes
+     * @see TCLParserTokenTypes
      */
     public int getType()
     {
         return astNodeType_;
     }
 
+
     /**
      * Set AST Token Type for this node.
      *
      * @param type must be a valid TCLTokenType.
-     * @see org.jacorb.notification.parser.TCLParserTokenTypes
+     * @see TCLParserTokenTypes
      */
     public void setType( int type )
     {
         astNodeType_ = type;
     }
+
 
     /**
      * converts an int tree token type to a name.
@@ -291,6 +315,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         return "unknown type: " + t;
     }
 
+
     /**
      * satisfy abstract method from BaseAST. Not used.
      */
@@ -299,6 +324,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
         // no op
     }
 
+
     /**
      * satisfy abstract method from BaseAST. Not used.
      */
@@ -306,6 +332,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     {
         // no op
     }
+
 
     /**
      * satisfy abstract method from BaseAST. Not used.
