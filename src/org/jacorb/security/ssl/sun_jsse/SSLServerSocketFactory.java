@@ -121,9 +121,6 @@ public class SSLServerSocketFactory
 		KeyStoreUtil.getKeyStore( keystore_location,
 					  keystore_passphrase.toCharArray() );
 
-            key_store.load( new FileInputStream( keystore_location ),
-                            keystore_passphrase.toCharArray() );
-
 	    KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
             kmf.init( key_store, keystore_passphrase.toCharArray() );
 

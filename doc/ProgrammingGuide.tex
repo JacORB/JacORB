@@ -2050,9 +2050,6 @@ aliases and passwords like this:
 # the name of the default key alias to look up in the keystore
 jacorb.security.default_user=brose
 jacorb.security.default_password=jacorb
-
-# the name and location of the keystore relative to the home directory
-jacorb.security.keystore=.keystore
 \end{verbatim}
 
 
@@ -2060,11 +2057,11 @@ These SSL settings can be further refined using security options as in
 the following property definitions:
 
 \begin{verbatim}
-        jacorb.security.ssl.client.supported_options=60
-        jacorb.security.ssl.client.required_options=60
+        jacorb.security.ssl.client.supported_options=0
+        jacorb.security.ssl.client.required_options=0
 
-        jacorb.security.ssl.server.supported_options=60
-        jacorb.security.ssl.server.required_options=60
+        jacorb.security.ssl.server.supported_options=0
+        jacorb.security.ssl.server.required_options=0
 \end{verbatim}
 
 The  value  of  these security  options  is  a  bit  mask coded  as  a
@@ -2099,9 +2096,8 @@ the CORBA Security Service  Specification and reproduced here from the
 \begin{verbatim}
    jacorb.security.ssl.client.supported_options=20 //EstablishTrustInTarget
 \end{verbatim}
-This value is ignored since in SSL, the server must always
-authenticate to the client, and therefore, the client must support
-this by default.
+This value indicates that the client can use SSL. Actually, this is default
+SSL behaviour and must always be supported by the client.
 
 \begin{verbatim}
    jacorb.security.ssl.client.supported_options=40 //EstablishTrustInClient
@@ -2111,7 +2107,7 @@ keystore, because it must be prepared to authenticate to the server.
 
 \begin{verbatim}
    jacorb.security.ssl.client.required_options=20 //EstablishTrustInTarget
-\end{verbatim
+\end{verbatim}
 This enforces SSL to be used. 
 
 \begin{verbatim}
@@ -2133,7 +2129,9 @@ well, because they override this value.
 \begin{verbatim}
    jacorb.security.ssl.server.supported_options=20 //EstablishTrustInTarget
 \end{verbatim}
-This makes the server load it's key/certificate from the keystore.
+This value indicates that the server supports SSL. Actually, this is default
+SSL behaviour and must always be supported by the server. This also makes the
+server load it's key/certificate from the keystore.
 
 \begin{verbatim}
    jacorb.security.ssl.server.supported_options=40 //EstablishTrustInClient
@@ -2151,7 +2149,7 @@ This enforces SSL to be used.
    jacorb.security.ssl.server.required_options=40 //EstablishTrustInClient
 \end{verbatim}
 This enforces SSL to be used, and will request the client to authenticate. It
-also will try to load trusted certificates for the authentication process.
+also will load trusted certificates for the authentication process.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
