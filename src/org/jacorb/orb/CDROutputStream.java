@@ -50,7 +50,7 @@ public class CDROutputStream
     private int BUF_SIZE;
     private int NET_BUF_SIZE = 1024;
 
-    private static final int MEM_BUF_SIZE = 64;
+    private static final int MEM_BUF_SIZE = 128;
     private boolean closed = false;
     private boolean released = false;
 
@@ -94,7 +94,7 @@ public class CDROutputStream
     public CDROutputStream()
     {
         bufMgr = BufferManager.getInstance();
-        buffer = new byte[MEM_BUF_SIZE]; 
+        buffer = bufMgr.getBuffer( MEM_BUF_SIZE );
    }
 
     /** 
@@ -107,7 +107,7 @@ public class CDROutputStream
     {
         this.orb = orb;
         bufMgr = BufferManager.getInstance();
-        buffer = bufMgr.getBuffer( MEM_BUF_SIZE );
+        buffer = bufMgr.getBuffer( NET_BUF_SIZE );
     }
         
 

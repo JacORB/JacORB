@@ -71,6 +71,7 @@ public class RequestOutputStream
                                 org.omg.IOP.ServiceContext[] ctx,
                                 boolean  separate_header)
     {
+        super( orb );
         org.omg.CORBA.Principal principal = 
             new org.jacorb.orb.Principal( new byte[0] );
 
@@ -79,7 +80,8 @@ public class RequestOutputStream
                                                 request_id,
                                                 response_expected,
                                                 object_key,
-                                                operation,new byte[0] );
+                                                operation,
+                                                new byte[0] );
 
         if (separate_header)
             header_stream = new CDROutputStream();
