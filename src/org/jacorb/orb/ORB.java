@@ -48,7 +48,7 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener
 {
-    private static final String versionString = "1.4 beta 3";
+    private static final String versionString = "1.4 beta 4";
     private static final String dateString = "March 2002";
     private static final String nullIORString =
        "IOR:00000000000000010000000000000000";
