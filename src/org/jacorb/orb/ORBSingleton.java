@@ -438,7 +438,14 @@ public class ORBSingleton
                                                   org.omg.CORBA.ValueMember[] members) 
     {
         checkTCRepositoryId( id );
-        checkTCName( name );
+
+        // The name parameter should be a valid IDL name, but in the case of
+        // an RMI valuetype the ORB in jdk1.4 sends a dotted name (such as 
+        // "some.package.SomeClass") over the wire. For interoperability with
+        // Sun's ORB we skip the name check in this case.
+
+        if ( !id.startsWith("RMI:") )
+            checkTCName( name );
         return new org.jacorb.orb.TypeCode (id, 
                                             name, 
                                             type_modifier,
