@@ -22,15 +22,18 @@ package org.jacorb.test.notification;
  */
 
 import org.omg.CORBA.ORB;
-import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import java.io.PrintWriter;
-import java.io.FileWriter;
+import org.omg.PortableServer.Servant;
+
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
-import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.logger.Logger;
 
 
 /**

@@ -126,7 +126,9 @@ public class QoSTest extends NotificationTestCase
         };
 
         try {
-            factory_.create_channel( qosProps, new Property[0], channelId);
+            factory_.create_channel( qosProps,
+                                     new Property[0],
+                                     channelId);
             fail();
         } catch (UnsupportedQoS e) {
         }
@@ -152,7 +154,9 @@ public class QoSTest extends NotificationTestCase
         };
 
         EventChannel channel =
-            factory_.create_channel( qosProps, new Property[0], channelId);
+            factory_.create_channel( qosProps,
+                                     new Property[0],
+                                     channelId);
 
         // testdata
         StructuredEvent[] events = new StructuredEvent[10];
@@ -163,24 +167,27 @@ public class QoSTest extends NotificationTestCase
             priority.insert_short((short)x);
 
             events[x].header.variable_header =
-                new Property[] { new Property(Priority.value, priority) };
+                new Property[] {
+                    new Property(Priority.value, priority)
+                };
 
         }
 
-
         // setup clients
-        StructuredPushReceiver receiver = new StructuredPushReceiver(this, events.length);
+        StructuredPushReceiver receiver =
+            new StructuredPushReceiver(this, events.length);
+
         receiver.connect(getSetup(), channel, false);
 
         receiver.pushSupplier_.suspend_connection();
 
-        StructuredPushSender sender = new StructuredPushSender(this, events, 100);
-        sender.connect(getSetup(), channel, false);
+        StructuredPushSender sender =
+            new StructuredPushSender(this, events, 100);
 
+        sender.connect(getSetup(), channel, false);
 
         // push events
         sender.run();
-
 
         assertFalse(receiver.isEventHandled());
 
@@ -245,4 +252,5 @@ public class QoSTest extends NotificationTestCase
     {
         junit.textui.TestRunner.run(suite());
     }
+
 }// QoSTest

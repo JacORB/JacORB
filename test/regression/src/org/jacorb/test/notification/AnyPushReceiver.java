@@ -1,7 +1,5 @@
 package org.jacorb.test.notification;
 
-import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import junit.framework.TestCase;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -21,14 +19,18 @@ import org.omg.CosNotifyComm.PushConsumerPOA;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.PortableServer.POA;
+
 import org.jacorb.util.Debug;
+
+import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
+import junit.framework.TestCase;
 import org.apache.avalon.framework.logger.Logger;
 
 public class AnyPushReceiver
-    extends PushConsumerPOA
-    implements Runnable,
-               TestClientOperations {
-
+            extends PushConsumerPOA
+            implements Runnable,
+            TestClientOperations
+{
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     Any event_ = null;
@@ -51,58 +53,75 @@ public class AnyPushReceiver
 
     private Object lock_ = new Object();
 
-    public AnyPushReceiver(TestCase testCase) {
+    public AnyPushReceiver(TestCase testCase)
+    {
         testCase_ = testCase;
     }
 
-    public AnyPushReceiver(TestCase testCase, PerformanceListener listener, int expected) {
-        perfListener_=listener;
+    public AnyPushReceiver(TestCase testCase,
+                           PerformanceListener listener,
+                           int expected)
+    {
+        perfListener_ = listener;
         expected_ = expected;
         testCase_ = testCase;
     }
 
-    public void setExpected(int e) {
+    public void setExpected(int e)
+    {
         expected_ = e;
     }
 
-    public void setPerformanceListener(PerformanceListener listener) {
+    public void setPerformanceListener(PerformanceListener listener)
+    {
         perfListener_ = listener;
     }
 
-    public void setFilter(Filter filter) {
+    public void setFilter(Filter filter)
+    {
         filterId_ = mySupplier_.add_filter(filter);
     }
 
-    public void addAdminFilter(Filter filter) {
+    public void addAdminFilter(Filter filter)
+    {
         testCase_.assertNotNull(myAdmin_);
         myAdmin_.add_filter(filter);
     }
 
-    public void addProxyFilter(Filter filter) {
+    public void addProxyFilter(Filter filter)
+    {
         testCase_.assertNotNull(mySupplier_);
         mySupplier_.add_filter(filter);
     }
 
-    public boolean isEventHandled() {
-        if (expected_ > 0) {
+    public boolean isEventHandled()
+    {
+        if (expected_ > 0)
+        {
             logger_.debug(received_ + " == " + expected_);
             return received_ == expected_;
-        } else {
+        }
+        else
+        {
             logger_.debug(received_ + " > 0");
             return received_ > 0;
         }
     }
 
-    public void setTimeOut(long timeout) {
+    public void setTimeOut(long timeout)
+    {
         TIMEOUT = timeout;
     }
 
-    public void setBarrier(CyclicBarrier barrier) {
+    public void setBarrier(CyclicBarrier barrier)
+    {
         barrier_ = barrier;
     }
 
-    public void shutdown() throws FilterNotFound {
-        if (filterId_ != Integer.MIN_VALUE) {
+    public void shutdown() throws FilterNotFound
+    {
+        if (filterId_ != Integer.MIN_VALUE)
+        {
             mySupplier_.remove_filter(filterId_);
         }
         mySupplier_.disconnect_push_supplier();
@@ -112,9 +131,11 @@ public class AnyPushReceiver
                         EventChannel channel,
                         boolean useOrSemantic)
 
-        throws AdminLimitExceeded,
-               TypeError,
-               AlreadyConnected,AdminNotFound {
+    throws AdminLimitExceeded,
+                TypeError,
+                AlreadyConnected,
+                AdminNotFound
+    {
 
         logger_.debug("connect");
         IntHolder _proxyId = new IntHolder();
@@ -122,10 +143,13 @@ public class AnyPushReceiver
 
         logger_.debug("get consumer admin");
 
-        if (useOrSemantic) {
+        if (useOrSemantic)
+        {
             myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.OR_OP, _adminId);
             testCase_.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
-        } else {
+        }
+        else
+        {
             myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.AND_OP, _adminId);
             testCase_.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
         }
@@ -141,64 +165,85 @@ public class AnyPushReceiver
         connected_ = true;
     }
 
-    public  int getReceived() {
+    public int getReceived()
+    {
         return received_;
     }
 
-    public void run() {
+    public void run()
+    {
 
-        if (!isEventHandled()) {
-            try {
-                synchronized(lock_) {
+        if (!isEventHandled())
+        {
+            try
+            {
+                synchronized (lock_)
+                {
                     logger_.debug("wait: " + TIMEOUT);
                     lock_.wait(TIMEOUT);
                     logger_.debug("woke up");
-                    logger_.debug("handled: " + isEventHandled());}
+                    logger_.debug("handled: " + isEventHandled());
+                }
 
-            } catch (InterruptedException e) {}
+            }
+            catch (InterruptedException e)
+            {}
         }
 
-        if (barrier_ != null) {
-            try {
+        if (barrier_ != null)
+        {
+            try
+            {
                 barrier_.barrier();
-            } catch (InterruptedException ie) {}
+            }
+            catch (InterruptedException ie)
+            {}
         }
     }
 
-    public void push(Any any) throws Disconnected {
-        logger_.debug("recv #"+ received_);
+    public void push(Any any) throws Disconnected
+    {
+        logger_.debug("recv #" + received_);
         received_++;
 
-        if (perfListener_!= null) {
+        if (perfListener_ != null)
+        {
             perfListener_.eventReceived(any, System.currentTimeMillis());
         }
 
-        if (expected_ > 0 && (received_ == expected_)) {
+        if (expected_ > 0 && (received_ == expected_))
+        {
             logger_.debug("done - notfiy");
 
-            synchronized(lock_) {
+            synchronized (lock_)
+            {
                 lock_.notifyAll();
             }
         }
     }
 
-    public long calcTotalTime(long start) {
+    public long calcTotalTime(long start)
+    {
         return (receiveTime_ - start);
     }
 
-    public boolean isConnected() {
+    public boolean isConnected()
+    {
         return connected_;
     }
 
-    public boolean isError() {
+    public boolean isError()
+    {
         return false;
     }
 
-    public void disconnect_push_consumer() {
+    public void disconnect_push_consumer()
+    {
         logger_.debug("disconnect");
 
-        connected_ = false;;
+        connected_ = false;
     }
 
-    public void offer_change(EventType[] e1, EventType[] e2) {}
+    public void offer_change(EventType[] e1, EventType[] e2)
+    {}
 }
