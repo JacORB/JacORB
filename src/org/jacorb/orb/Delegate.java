@@ -824,11 +824,12 @@ public final class Delegate
                             Debug.output(2, "Delegate: failed to contact ImR");
                             throw cfe;
                         }
-                        String imrAddr = imr.getImRHost() + ":" + imr.getImRPort();
 
                         //create a corbaloc URL to use to contact the server
                         StringBuffer corbaloc = new StringBuffer( "corbaloc:iiop:" );
-                        corbaloc.append( imrAddr );
+                        corbaloc.append( imr.getImRHost() );
+                        corbaloc.append( ":" );
+                        corbaloc.append( imr.getImRPort() );
                         corbaloc.append( "/" );
                         corbaloc.append( CorbaLoc.parseKey( object_key ) );
 
