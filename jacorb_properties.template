@@ -255,13 +255,17 @@ jacorb.interop.indirection_encoding_disable=off
 #jacorb.net.socket_factory=org.jacorb.orb.factory.DefaultSocketFactory
 #jacorb.net.server_socket_factory=org.jacorb.orb.factory.DefaultServerSocketFactory
 #
-# An additional socket factory is supported that allows for the configuration
+# Additional socket factores are supported that allow for the configuration
 # of maximum and minimum port numbers that can be used. This can be used to
-# enable firewall traversal via a fixed port range. To use this socket factory
-# configure the following two properties.
+# enable firewall traversal via a fixed port range. To use these socket factories
+# configure one or both of the following property pairs. The first property pair
+# configures the client socket factory and the second pair the server socket
+# factory.
 #
 #jacorb.net.socket_factory.port.min
 #jacorb.net.socket_factory.port.max
+#jacorb.net.server_socket_factory.port.min
+#jacorb.net.server_socket_factory.port.max
 
 ###########################################
 #                                         #

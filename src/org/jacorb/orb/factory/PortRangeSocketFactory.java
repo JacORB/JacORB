@@ -25,26 +25,14 @@ import java.io.IOException;
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
 
-public class PortRangeSocketFactory implements SocketFactory
+public class PortRangeSocketFactory extends PortRangeFactory implements SocketFactory
 {
-    private int portMin = 0;
-    private int portMax = 0;
     public static final String MIN_PROP = "jacorb.net.socket_factory.port.min";
     public static final String MAX_PROP = "jacorb.net.socket_factory.port.max";
 
     public PortRangeSocketFactory ()
     {
-        // Get configured max and min port numbers
-
-        portMin = getPortProperty (MIN_PROP);
-        portMax = getPortProperty (MAX_PROP);
-
-        // Check min < max
-
-        if (portMin >= portMax)
-        {
-            throw new RuntimeException ("PortRangeSocketFactory: minimum port number not less than maximum");
-        }
+        super (MIN_PROP, MAX_PROP);
     }                
 
     public Socket createSocket (String host, int port)
@@ -80,42 +68,5 @@ public class PortRangeSocketFactory implements SocketFactory
     public boolean isSSL (Socket socket)
     {
         return false;
-    }
-
-    private int getPortProperty (String name)
-    {
-        String val = Environment.getProperty (name);
-        int port;
-
-        // Get configured port number
-
-        if ((val == null) || (val.length () == 0))
-        {
-            throw new RuntimeException ("PortRangeSocketFactory: " + name + " property not set");
-        }
-        else
-        {
-            try
-            {
-                port = Integer.parseInt (val);
-            }
-            catch (NumberFormatException ex)
-            {
-	        throw new RuntimeException ("PortRangeSocketFactory: " + name + " invalid port number");
-            }
-        }
-
-        // Check sensible port number
-
-        if (port < 0)
-        {
-           port += 65536;
-        }
-        if ((port <= 0) || (port > 65535))
-        {
-	    throw new RuntimeException ("PortRangeSocketFactory: " + name + " invalid port number");
-        }
-
-        return port;
     }
 }

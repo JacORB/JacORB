@@ -66,6 +66,7 @@ gerald.brose@acm.org
         - Added server-side connection management (see programming
           guide)
         - Added support for GIOP CloseConnection messages.
+        - Added port range server socket factory support.
 
       - IMR:
         - Added property 'jacorb.imr.endpoint_port_number' for port IMR runs on.

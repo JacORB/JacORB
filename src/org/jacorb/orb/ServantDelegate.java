@@ -58,11 +58,11 @@ public class ServantDelegate
     {
 	if (orb == null) 
 	{       
-	    throw new org.omg.CORBA.BAD_INV_ORDER("The Servant has not been associated with an ORB instance");  
+	    throw new org.omg.CORBA.BAD_INV_ORDER ("The Servant has not been associated with an ORB instance");  
 	}     
     }
 
-    final public org.omg.CORBA.Object this_object(org.omg.PortableServer.Servant self) 
+    final public org.omg.CORBA.Object this_object (org.omg.PortableServer.Servant self) 
     {     
 	check();
 	try 
