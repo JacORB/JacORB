@@ -565,6 +565,10 @@ jacorb.poa.queue_max=100
 # when list operation is invoked.
 
 jacorb.naming.purge=on
+
+# Whether resolve should return references without trying to
+# ping them to see if they're still alive first.
+
 jacorb.naming.noping=on
 
 # Port on which to run service
