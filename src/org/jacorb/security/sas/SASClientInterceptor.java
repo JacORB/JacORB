@@ -125,8 +125,8 @@ public class SASClientInterceptor
     public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
-        if (ri.operation().equals("_is_a")) return;
-        if (ri.operation().equals("_non_existent")) return;
+        //if (ri.operation().equals("_is_a")) return;
+        //if (ri.operation().equals("_non_existent")) return;
         org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
 
         // see if target requires protected requests by looking into the IOR
