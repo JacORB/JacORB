@@ -226,6 +226,7 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 # EstablishTrustInClient = 40
 # EstablishTrustInTarget = 20
 # mutual authentication = 60
+# please see the programming guide for more explanation
 
 jacorb.security.support_ssl=off
 jacorb.security.ssl.supported_options=60
@@ -267,6 +268,8 @@ jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.SSLServerSocketFactory
 # this role change
 jacorb.security.change_ssl_roles=off
 
+#have iaiks ssl classes print debug output to stdout
+jacorb.security.iaik_debug=off
 
 #########################
 #                       #
