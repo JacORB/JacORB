@@ -59,25 +59,23 @@ public class MapToTypeDomainsPolicy
     /** 
      * maps a newly created object reference to its type domain. 
      */
-    public Domain[] OnReferenceCreation(org.omg.CORBA.Object newReference, 
+    public Domain[] OnReferenceCreation( org.omg.CORBA.Object newReference, 
                                         Domain rootDomain)
     {
-        String type= Util.toID( newReference.toString() );
-        org.jacorb.util.Debug.output(2, "type is a " + type);
+        String type = Util.toID( newReference.toString() );
 
         //   try { getTie()._poa(); } catch (Exception e) { 
         //        org.jacorb.util.Debug.output(2, " call of _poa failed"); 
         //        org.jacorb.util.Debug.output(2, e);
-
         //      }
   
-
         Domain domain = (Domain) _typeDomains.get(type);
         if (domain == null) 
         { // new type, create domain for it
 
             // return empty list to avoid recursive hangup on second call
-            if (callMyself) return new Domain[0]; 
+            if (callMyself) 
+                return new Domain[0]; 
 
             callMyself= true; // indicate object creation which is not mapped to any domain
             domain= _domainFactory().createDomain(null, null, type);
@@ -91,20 +89,21 @@ public class MapToTypeDomainsPolicy
             }
             catch (org.jacorb.orb.domain.GraphNodePackage.ClosesCycle cc)
             {
-                org.jacorb.util.Debug.output(1, 
-                                         "MapToTypeDomainsPolicy.OnReferenceCreation: cannot "
-                                         +"insert "+Util.downcast(domain) + " as child domain to "
-                                         +"root domain " +Util.downcast(rootDomain));
-                org.jacorb.util.Debug.output(1, cc);
+                org.jacorb.util.Debug.output(3, 
+                                             "MapToTypeDomainsPolicy.OnReferenceCreation: cannot "
+                                             + "insert "+Util.downcast(domain) + 
+                                             " as child domain to "
+                                             + "root domain " + Util.downcast(rootDomain));
+                org.jacorb.util.Debug.output( 1, cc);
             }
             catch (org.jacorb.orb.domain.NameAlreadyDefined already)
             {
-                org.jacorb.util.Debug.output(1, "MapToTypeDomainsPolicy.OnReferenceCreation: cannot "
-                                         +"insert "+Util.downcast(domain) + " as child domain to "
-                                         +"root domain " +Util.downcast(rootDomain));
+                org.jacorb.util.Debug.output(3, "MapToTypeDomainsPolicy.OnReferenceCreation: cannot "
+                                             +"insert " + Util.downcast(domain) + 
+                                             " as child domain to "
+                                             + "root domain " +Util.downcast(rootDomain));
                 org.jacorb.util.Debug.output(1, already);
             }
-
         }
         // domain != null
         Domain result[]= new Domain[1];
@@ -192,20 +191,6 @@ public class MapToTypeDomainsPolicy
     }
 
 } // MapToTypeDomainsPolicy
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -26,7 +26,7 @@ public class MemberListInserter extends java.lang.Thread
 
   public MemberListInserter(DomainImpl target, org.omg.CORBA.Object memberlist[]) 
   {
-    _target= target;
+    _target=target;
     _memberlist= memberlist;
   }
 
