@@ -72,6 +72,16 @@
                property="use.jdk.orb" />
     <available classname="com.ibm.CORBA.iiop.ORB"
                property="use.jdk.orb" />
+
+    <!-- include emma tasks for code coverage -->
+    <path id="emma.lib">
+      <pathelement location="${testdir}/lib/emma.jar"/>
+      <pathelement location="${testdir}/lib/emma_ant.jar"/>
+    </path>
+
+    <taskdef resource="emma_ant.properties"
+             classpathref="emma.lib"/>
+
   </target>
 
 
@@ -393,6 +403,82 @@
     <property name="callback.idl" value="false" />
     <property name="file.idl" value="bug*.idl" />
     <antcall target="process-idl" />
+  </target>
+
+
+  <!-- ==================================================== -->
+  <!--                  code coverage                       -->
+  <!-- ==================================================== -->
+
+  <target name="instrument" depends="test-init"
+          description="Instrument the main JacORB code for coverage analysis">
+    <delete failonerror="false" includeEmptyDirs="true">
+      <fileset dir="${basedir}">
+        <include name="coverage.em"/>
+        <include name="classes-instrumented/**"/>
+      </fileset>
+    </delete>
+    <emma>
+      <instr instrpath="${basedir}/classes"
+             mode="copy"
+             outdir="${basedir}/classes-instrumented"
+             outfile="${basedir}/coverage.em">
+        <filter excludes="org.omg.*"/>
+        <filter excludes="Cos*"/>
+        <filter excludes="org.jacorb.ir.gui*"/>
+        <filter excludes="org.jacorb.naming.namemanager.*"/>
+        <filter excludes="org.jacorb.poa.gui.*"/>
+      </instr>
+    </emma>
+  </target>
+
+  <target name="run-with-coverage" depends="test-init">
+    <delete failonerror="false">
+      <fileset dir="${testdir}/coverage"
+               includes="*.ec"/>
+    </delete>
+    <path id="coverage.path">
+      <pathelement location="${basedir}/classes-instrumented"/>
+      <path refid="test.classpath"/>
+    </path>
+    <pathconvert dirsep="${file.separator}"
+                 pathsep="${path.separator}"
+                 property="coverage.path.string" 
+                 refid="coverage.path"/>
+    <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+      <jvmarg value="-Xbootclasspath/p:${coverage.path.string}"/>
+      <jvmarg value="-Dtestdir=${testdir}" />
+      <jvmarg value="-Djacorb.home=${jacorb.home}" />
+      <jvmarg value="${rmi.jvmarg}" />
+      <jvmarg value="-Djacorb.test.coverage=true"/>
+      <jvmarg value="-Demma.coverage.out.file=${testdir}/coverage/client.ec"/>
+      <jvmarg value="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB" />
+      <jvmarg value="-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton" />
+      <classpath>
+        <path refid="coverage.path"/>
+      </classpath>
+      <formatter type="plain" />
+      <test name="org.jacorb.test.AllTest" todir="${dirs.output}" />
+    </junit>
+  </target>
+
+  <target name="show">
+    <echoproperties/>
+  </target>
+
+  <target name="report-coverage" depends="test-init">
+    <emma>
+      <report sourcepath="${basedir}/src"
+              columns="name,line,method,class"
+              sort="+name">
+        <fileset dir="${basedir}">
+          <include name="coverage.em"/>
+          <include name="test/regression/coverage/client.ec"/>
+          <include name="test/regression/coverage/server.ec"/>
+        </fileset>
+        <html outfile="${testdir}/output/coverage/index.html"/>
+      </report>
+    </emma>
   </target>
 
   <!-- ==================================================== -->
