@@ -1,20 +1,25 @@
---- SSLServerSocketFactory.java	2002/02/25 20:51:07	1.6
-+++ SSLServerSocketFactory.java	2002/02/28 08:14:51
-@@ -11,7 +11,7 @@
- 
- //uncomment this line if you want to compile with the separately
- //available jsse1.0.2
--//import com.sun.net.ssl.*;
-+import com.sun.net.ssl.*;
- 
- import java.net.*;
- import java.io.*;
-@@ -33,7 +33,7 @@
-     {
-         //uncomment this line if you want to compile with the separately
-         //available jsse1.0.2
--        //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
-+        Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
- 
- 	factory = createServerSocketFactory();
- 
+Index: SSLServerSocketFactory.java
+===================================================================
+RCS file: /cvsroot/jacorb/JacORB/src/org/jacorb/security/ssl/sun_jsse/SSLServerSocketFactory.java,v
+retrieving revision 1.11
+diff -r1.11 SSLServerSocketFactory.java
+32c32
+< //import com.sun.net.ssl.*;
+---
+> import com.sun.net.ssl.*;
+55c55
+<         //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+---
+>         Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+120c120
+<             s.setWantClientAuth( request_mutual_auth );
+---
+>             throw new RuntimeException("Request mutual authentication not supported with JSSE 1.0.x");
+144c144
+<             s.setWantClientAuth( request_mutual_auth );
+---
+>             throw new RuntimeException("Request mutual authentication not supported with JSSE 1.0.x");
+169c169
+<             s.setWantClientAuth( request_mutual_auth );
+---
+>             throw new RuntimeException("Request mutual authentication not supported with JSSE 1.0.x");

@@ -1,125 +1,67 @@
 Index: ServerInvocationInterceptor.java
 ===================================================================
-RCS file: /home/bwana/brose/cvs_jacorb/JacORB/src/org/jacorb/security/ssl/sun_jsse/ServerInvocationInterceptor.java,v
-retrieving revision 1.2
-diff -c -r1.2 ServerInvocationInterceptor.java
-*** ServerInvocationInterceptor.java	2001/11/22 15:59:40	1.2
---- ServerInvocationInterceptor.java	2001/12/21 10:49:56
-***************
-*** 21,26 ****
---- 21,27 ----
-   */
-  
-  import java.io.*;
-+ import java.security.cert.*;
-  import org.omg.SecurityReplaceable.*;
-  import org.omg.Security.*;
-  
-***************
-*** 34,39 ****
---- 35,41 ----
-  import org.jacorb.orb.dsi.ServerRequest;
-  import org.jacorb.orb.connection.*;
-  
-+ import javax.security.cert.*;
-  import javax.net.ssl.SSLSocket;
-  
-  /**
-***************
-*** 49,60 ****
-  {
-      public static final String DEFAULT_NAME = "ServerInvocationInterceptor";
-  
-      private String name = null;
-  
-      private org.jacorb.security.level2.CurrentImpl current = null;
-      private SecAttributeManager attrib_mgr = null;
-      private AttributeType type = null; 
-!     
-      public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current)
-      {
-          this( current, DEFAULT_NAME );
---- 51,64 ----
-  {
-      public static final String DEFAULT_NAME = "ServerInvocationInterceptor";
-  
-+     private CertificateFactory certificateFactory = null;
-+      
-      private String name = null;
-  
-      private org.jacorb.security.level2.CurrentImpl current = null;
-      private SecAttributeManager attrib_mgr = null;
-      private AttributeType type = null; 
-! 
-      public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current)
-      {
-          this( current, DEFAULT_NAME );
-***************
-*** 72,77 ****
---- 76,92 ----
-              ( new ExtensibleFamily( (short) 0,
-                                      (short) 1 ),
-                AccessId.value );   
-+ 
-+       CertificateFactory cf = null;
-+ 
-+       try 
-+       {
-+           certificateFactory = CertificateFactory.getInstance ("X.509");
-+       }
-+       catch( Exception e ) 
-+       {
-+           Debug.output( 1, e );
-+       }      
-      }
-  
-      public String name()
-***************
-*** 116,124 ****
-          KeyAndCert kac = null;
-          
-          try
-          {
-!             kac = 
-!                 new KeyAndCert( null,  sslSocket.getSession().getPeerCertificates() );
-          }
-          catch( javax.net.ssl.SSLPeerUnverifiedException pue )
-          {
---- 131,167 ----
-          KeyAndCert kac = null;
-          
-          try
-+         {
-+             if( certificateFactory == null ) 
-+             {
-+                 return;
-+ 
-+             }
-+ 
-+             javax.security.cert.X509Certificate[] certs 
-+                 = sslSocket.getSession().getPeerCertificateChain(); 
-+ 
-+             int size = certs.length;
-+             java.security.cert.X509Certificate[] newCerts
-+                 = new java.security.cert.X509Certificate[size];  
-+ 
-+             for( int i = size - 1; 0 <= i; i-- ) 
-+             {
-+               newCerts[i] = (java.security.cert.X509Certificate) 
-+                   certificateFactory.generateCertificate( new ByteArrayInputStream( certs[i].getEncoded()));
-+             }
-+ 
-+             kac = new KeyAndCert( null,  newCerts);
-+         }
-+         catch(java.security.cert.CertificateException pue)
-          {
-!             Debug.output( 2, pue );
-!             return;
-!         }
-!         catch(javax.security.cert.CertificateEncodingException pue)
-!         {
-!             Debug.output( 2, pue );
-!             return;
-          }
-          catch( javax.net.ssl.SSLPeerUnverifiedException pue )
-          {
+RCS file: /cvsroot/jacorb/JacORB/src/org/jacorb/security/ssl/sun_jsse/ServerInvocationInterceptor.java,v
+retrieving revision 1.7
+diff -r1.7 ServerInvocationInterceptor.java
+53a54,55
+>     
+>     private CertificateFactory certificateFactory = null;
+77c79,90
+<               AccessId.value );   
+---
+>               AccessId.value );
+>  
+>        CertificateFactory cf = null;
+>  
+>        try 
+>        {
+>            certificateFactory = CertificateFactory.getInstance ("X.509");
+>        }
+>        catch( Exception e ) 
+>        {
+>            Debug.output( 1, e );
+>        }      
+123,127c136,158
+<             kac = 
+<                 new KeyAndCert( null,  sslSocket.getSession().getPeerCertificates() );
+<         }
+<         catch( javax.net.ssl.SSLPeerUnverifiedException pue )
+<         {
+---
+>          if( certificateFactory == null ) 
+>              {
+>                  return;
+>  
+>              }
+>  
+>              javax.security.cert.X509Certificate[] certs 
+>                  = sslSocket.getSession().getPeerCertificateChain(); 
+>  
+>              int size = certs.length;
+>              java.security.cert.X509Certificate[] newCerts
+>                  = new java.security.cert.X509Certificate[size];  
+>  
+>              for( int i = size - 1; 0 <= i; i-- ) 
+>              {
+>                newCerts[i] = (java.security.cert.X509Certificate) 
+>                    certificateFactory.generateCertificate( new ByteArrayInputStream( certs[i].getEncoded()));
+>              }
+>  
+>              kac = new KeyAndCert( null,  newCerts);
+>          }
+>          catch(java.security.cert.CertificateException pue)
+>           {
+130c161,171
+<         }
+---
+>           }
+>           catch( javax.net.ssl.SSLPeerUnverifiedException pue )
+>           {
+>             Debug.output( 2, pue );
+>             return;
+>           }
+>           catch(javax.security.cert.CertificateEncodingException pue)
+>          {
+>              Debug.output( 2, pue );
+>              return;
+>           }
