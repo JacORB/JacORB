@@ -60,6 +60,7 @@ import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.CORBA.NO_IMPLEMENT;
 
 /**
  * @author Alphonse Bendt
@@ -541,12 +542,12 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 
     public int[] get_all_consumeradmins()
     {
-        return null;
+        throw new NO_IMPLEMENT();
     }
 
     public int[] get_all_supplieradmins()
     {
-        return null;
+        throw new NO_IMPLEMENT();
     }
 
     public Property[] get_admin()
@@ -559,15 +560,24 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         return qosProperties_.toArray();
     }
 
-    public void set_qos( Property[] qos ) throws UnsupportedQoS
-        {}
+    public void set_qos( Property[] qos )
+        throws UnsupportedQoS
+        {
+            throw new NO_IMPLEMENT();
+        }
 
     public void validate_qos( Property[] qos,
-                              NamedPropertyRangeSeqHolder namedPropertySeqHolder ) throws UnsupportedQoS
-        {}
+                              NamedPropertyRangeSeqHolder namedPropertySeqHolder )
+        throws UnsupportedQoS
+        {
+            throw new NO_IMPLEMENT();
+        }
 
-    public void set_admin( Property[] adminProps ) throws UnsupportedAdmin
-        {}
+    public void set_admin( Property[] adminProps )
+        throws UnsupportedAdmin
+        {
+            throw new NO_IMPLEMENT();
+        }
 
     /**
      * EventChannel constructor.
@@ -734,7 +744,8 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            logger_.fatalError("error", e);
+
             return null;
         }
     }
@@ -750,7 +761,8 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            logger_.fatalError("error", e);
+
             return null;
         }
     }
@@ -810,7 +822,7 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
             }
             else
             {
-                throw new RuntimeException( "unexpected: " + _node.getClass().getName() );
+                throw new RuntimeException( "unexpected: " + _next.getClass().getName() );
             }
 
             if ( !_node.isDisposed() )

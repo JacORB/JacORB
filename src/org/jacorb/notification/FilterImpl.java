@@ -57,6 +57,7 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
+import org.omg.CORBA.NO_IMPLEMENT;
 
 /**
  * FilterImpl.java
@@ -589,7 +590,6 @@ public class FilterImpl extends FilterPOA implements Disposable
     {
         Object[] arrayOfLists_;
         Iterator current_;
-        int listCursor = 0;
         int currentListIdx_ = 0;
 
         ConstraintIterator( Object[] arrayOfLists )
@@ -717,17 +717,23 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
         finally
         {
-            _event.dispose();
-            _evaluationContext.release();
+            try {
+                _event.dispose();
+            } catch (Exception e) {}
+
+            try {
+                _evaluationContext.release();
+            } catch (Exception e) {}
         }
     }
 
-    public boolean match_structured( StructuredEvent structuredevent) throws UnsupportedFilterableData {
+    public boolean match_structured( StructuredEvent structuredevent)
+        throws UnsupportedFilterableData {
         return match_structured_internal(structuredevent) != NO_CONSTRAINT;
     }
 
     public int match_structured_internal( StructuredEvent structuredEvent )
-    throws UnsupportedFilterableData
+        throws UnsupportedFilterableData
     {
 
         logger_.debug("match_structured");
@@ -746,29 +752,35 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
         finally
         {
-            _event.dispose();
-            _evaluationContext.release();
+            try {
+                _event.dispose();
+            } catch (Exception e) {}
+
+            try {
+                _evaluationContext.release();
+            } catch (Exception e) {}
         }
     }
 
     public boolean match_typed( Property[] properties )
         throws UnsupportedFilterableData
     {
-
-        return false;
+        throw new NO_IMPLEMENT();
     }
 
     public int attach_callback( NotifySubscribe notifySubscribe )
     {
-        return 0;
+        throw new NO_IMPLEMENT();
     }
 
     public void detach_callback( int id )
-    {}
+    {
+        throw new NO_IMPLEMENT();
+    }
 
     public int[] get_callbacks()
     {
-        return null;
+        throw new NO_IMPLEMENT();
     }
 
     public POA _default_POA()
@@ -784,11 +796,11 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
         catch ( WrongPolicy e )
         {
-            e.printStackTrace();
+            logger_.fatalError("error deactivating object", e);
         }
         catch ( ObjectNotActive e )
         {
-            e.printStackTrace();
+            logger_.fatalError("error deactivating object", e);
         }
     }
 }
