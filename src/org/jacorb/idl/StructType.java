@@ -24,6 +24,7 @@ package org.jacorb.idl;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.util.Set;
 
 /**
  * @author Gerald Brose
@@ -244,13 +245,27 @@ class StructType
     }
 
     /**
-     * @returns a string for an expression of type TypeCode that describes this type
+     * @returns a string for an expression of type TypeCode that
+     * describes this type 
      */
 
     public String getTypeCodeExpression()
     {
         return full_name() + "Helper.type()";
     }
+
+    public String getTypeCodeExpression( Set knownTypes )
+    {
+        if( knownTypes.contains( this ) )
+        {
+            return this.getRecursiveTypeCodeExpression();
+        }
+        else
+        {   
+            return this.getTypeCodeExpression();
+        }
+    }
+
 
     private void printClassComment( String className, PrintWriter ps )
     {
