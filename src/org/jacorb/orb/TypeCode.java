@@ -1044,27 +1044,32 @@ public class TypeCode
      */
     public static TypeCode create_tc (Class clz)
     {
-        return create_tc (clz, new HashSet());
+        return create_tc (clz, new HashMap());
     }
 
     /**
-     * Creates a TypeCode for class `clz'.  If `clz' is a member of
-     * `knownClasses', then a recursive type code is returned for it.
-     * If `clz' is not a member of `knownClasses', and a value type
-     * code is created for it, then `clz' is also inserted into
-     * `knownClasses'.  
+     * Creates a TypeCode for class `clz'.  `knownTypes' is a map
+     * containing classes as keys and their corresponding type codes
+     * as values.  If there is an entry for `clz' in `knownTypes',
+     * then a recursive type code is returned for it.  If there is no
+     * entry for `clz' in `knownTypes', and a value type code is
+     * created for it, then an entry for `clz' is also inserted into
+     * `knownTypes'.
      */
-    private static TypeCode create_tc (Class clz, Set knownClasses)
+    private static TypeCode create_tc (Class clz, Map knownTypes)
     {
         if (clz.isPrimitive())
             return (TypeCode)primitive_tcs_map.get (clz);
-        else if (knownClasses.contains (clz))
+        else if (knownTypes.containsKey (clz)) {
             // recursive type code
-            return new TypeCode (RepositoryID.repId (clz));
+            TypeCode newTypeCode = new TypeCode (RepositoryID.repId (clz));
+	    newTypeCode.setActualTC ((TypeCode)knownTypes.get(clz));
+            return newTypeCode;
+        }
         else if (clz.isArray())
             return new TypeCode (TCKind._tk_sequence,
                                  0, create_tc (clz.getComponentType(),
-                                               knownClasses));
+                                               knownTypes));
         else if (java.rmi.Remote.class.isAssignableFrom (clz))
             return new TypeCode (TCKind._tk_objref, RepositoryID.repId (clz),
                                  clz.getName());
@@ -1073,14 +1078,15 @@ public class TypeCode
             Class    superClass    = clz.getSuperclass();
             TypeCode superTypeCode = null;
             if (superClass != null && superClass != java.lang.Object.class)
-                superTypeCode = create_tc (superClass, knownClasses);
-
-            knownClasses.add (clz);
-            return new TypeCode (RepositoryID.repId (clz),
-                                 clz.getName(),
-                                 org.omg.CORBA.VM_NONE.value,
-                                 superTypeCode,
-                                 getValueMembers (clz, knownClasses));
+                superTypeCode = create_tc (superClass, knownTypes);
+            TypeCode newTypeCode = 
+                new TypeCode (RepositoryID.repId (clz),
+                              clz.getName(),
+                              org.omg.CORBA.VM_NONE.value,
+                              superTypeCode,
+                              getValueMembers (clz, knownTypes));
+            knownTypes.put (clz, newTypeCode);
+            return newTypeCode;
         }
         else
             throw new RuntimeException 
@@ -1088,12 +1094,12 @@ public class TypeCode
     }
 
     /**
-     * Returns the array of ValueMembers of class `clz'.
-     * `knownClasses' is the set of classes for which recursive
-     * typecodes must be created; this is passed through from
-     * `create_tc (Class, Set)' above.  
+     * Returns the array of ValueMembers of class `clz'.  `knownTypes'
+     * is a map of classes and corresponding type codes for which
+     * recursive type codes must be created; this is passed through
+     * from `create_tc (Class, Map)' above.
      */
-    private static ValueMember[] getValueMembers (Class clz, Set knownClasses)
+    private static ValueMember[] getValueMembers (Class clz, Map knownTypes)
     {
         List    result = new ArrayList();
         Field[] fields = clz.getDeclaredFields();
@@ -1102,21 +1108,22 @@ public class TypeCode
             if ((fields[i].getModifiers()
                  & (Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT))
                 == 0)
-                result.add (createValueMember (fields[i], knownClasses));
+                result.add (createValueMember (fields[i], knownTypes));
         }
         return (ValueMember[])result.toArray (new ValueMember[0]);
     }
 
     /**
-     * Creates a ValueMember for field `f'.  `knownClasses' is the set
-     * of classes for which recursive type codes must be created; this
-     * is passed through from `create_tc (Class, Set)' above.  
+     * Creates a ValueMember for field `f'.  `knownTypes' is a map of
+     * classes and their corresponding type codes for which recursive
+     * type codes must be created; this is passed through from
+     * `create_tc (Class, Map)' above.
      */
-    private static ValueMember createValueMember (Field f, Set knownClasses)
+    private static ValueMember createValueMember (Field f, Map knownTypes)
     {
         Class    type   = f.getType();
         String   id     = RepositoryID.repId (type);
-        TypeCode tc     = create_tc (type, knownClasses);
+        TypeCode tc     = create_tc (type, knownTypes);
         short    access = ((f.getModifiers() & Modifier.PUBLIC) != 0)
                               ? org.omg.CORBA.PUBLIC_MEMBER.value
                               : org.omg.CORBA.PRIVATE_MEMBER.value;
