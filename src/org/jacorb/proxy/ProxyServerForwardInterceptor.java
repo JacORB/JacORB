@@ -26,7 +26,7 @@ import org.omg.CORBA.Any;
 import org.jacorb.util.Environment;
 import org.omg.IOP.ServiceContext;
 import org.omg.IOP.Codec;
-import org.jacorb.orb.ContextID;
+import org.jacorb.orb.ORBConstants;
 
 /**
  * This appligator server interceptor retrieves the original
@@ -64,7 +64,7 @@ public class ProxyServerForwardInterceptor
         
         try
         {
-            context = ri.get_request_service_context (ContextID.SERVICE_PROXY_CONTEXT);
+            context = ri.get_request_service_context (ORBConstants.SERVICE_PROXY_CONTEXT);
             any = codec.decode (context.context_data);
             ri.set_slot (slot, any);
         }

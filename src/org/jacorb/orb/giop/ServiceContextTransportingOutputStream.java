@@ -28,7 +28,7 @@ import org.omg.GIOP.*;
 import org.omg.IOP.*;
 
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.ContextID;
+import org.jacorb.orb.ORBConstants;
 import org.jacorb.util.Debug;
 
 /**
@@ -71,7 +71,7 @@ public class ServiceContextTransportingOutputStream
     //byte boundary.
 
     private static ServiceContext padding_ctx =
-        new ServiceContext (ContextID.SERVICE_PADDING_CONTEXT, new byte[0]);
+        new ServiceContext (ORBConstants.SERVICE_PADDING_CONTEXT, new byte[0]);
 
     private Vector contexts = null;
 

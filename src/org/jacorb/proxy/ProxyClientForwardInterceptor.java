@@ -70,7 +70,7 @@ public class ProxyClientForwardInterceptor
             try
             {
                 ctx = new ServiceContext
-                    (ContextID.SERVICE_PROXY_CONTEXT, codec.encode (any));
+                    (ORBConstants.SERVICE_PROXY_CONTEXT, codec.encode (any));
                 ri.add_request_service_context (ctx, false);
             }
             catch (org.omg.IOP.CodecPackage.InvalidTypeForEncoding ex)
