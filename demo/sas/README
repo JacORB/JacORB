@@ -12,6 +12,9 @@ http://free.tagish.net/jaas/ and the classes added to the CLASSPATH
 For the server:
 $> jaco -Dcustom.props=server_props demo.sas.Server ior
 
+For the JAAS server:
+$> jaco -Dcustom.props=NT_server_props demo.sas.Server ior
+
 For the client:
 $> jaco -Dcustom.props=client_props demo.sas.Client ior
 

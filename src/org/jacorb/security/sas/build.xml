@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
 
-<!-- DRR -->
-
 <project name="sas" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
@@ -13,14 +11,26 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
+      <available classname="com.tagish.auth.Utils" property="jaas.modules.present" />       
    </target>
 
-   <target name="all" depends="init">
-           <javac debug="${debug}" srcdir="${src}"
-                  destdir="${classdir}"
-                  includes="org/jacorb/security/sas/*.java"
-        />
+   <target name="all" depends="init,compile,jaas" />
+
+   <target name="compile">
+	<javac srcdir="${dirs.base}"
+              destdir="${classdir}"
+	        includes="org/jacorb/security/sas/*.java"
+		  excludes="org/jacorb/security/sas/NT_*.java"
+	        />
    </target>
+
+   <target name="jaas" if="jaas.modules.present">
+	<javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+	       includes="org/jacorb/security/sas/NT_*.java"
+	        />
+   </target>
+
 </project>
 
 

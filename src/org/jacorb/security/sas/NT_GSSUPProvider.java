@@ -30,10 +30,9 @@ import org.omg.GSSUP.*;
  * @version $Id$
  */
 
-public class GSSUPProvider extends Provider
+public class NT_GSSUPProvider extends Provider
 {
 
-    //private static InitialContextToken defaultSubject = new InitialContextToken();
     protected static org.omg.CORBA.ORB orb = null;
     protected static org.omg.IOP.Codec codec = null;
 
@@ -42,25 +41,10 @@ public class GSSUPProvider extends Provider
      *
      * @return a GSSManager implementation
      */
-    public GSSUPProvider()
+    public NT_GSSUPProvider()
     {
-            super("GSSUP", 1.0, "JacORB GSSUP provider v1.0");
-            GSSUPMechFactory.myProvider = this;
-            this.put("GssApiMechanism.2.23.130.1.1.1", "org.jacorb.security.sas.GSSUPMechFactory");
+            super("NT-GSSUP", 1.0, "JacORB NT GSSUP provider v1.0");
+            NT_GSSUPMechFactory.myProvider = this;
+            this.put("GssApiMechanism.2.23.130.1.1.1", "org.jacorb.security.sas.NT_GSSUPMechFactory");
     }
-
-    /*
-    public static void setDefaultSubject(String username, String password, String target)
-    {
-        defaultSubject.username = username.getBytes();
-        defaultSubject.password = password.getBytes();
-        defaultSubject.target_name = target.getBytes();
-    }
-
-    public static InitialContextToken getDefaultSubject()
-    {
-        return defaultSubject;
-    }
-    */
-
 }
