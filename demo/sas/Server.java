@@ -5,7 +5,6 @@ import java.io.*;
 import java.security.cert.X509Certificate;
 
 import org.omg.PortableServer.POA;
-import org.omg.SecurityLevel2.*;
 import org.omg.Security.*;
 import org.omg.CORBA.ORB;
 import org.ietf.jgss.*;

@@ -1,9 +1,16 @@
 package demo.sas;
 
 import java.io.*;
+import java.util.*;
 import org.omg.CORBA.*;
 import org.ietf.jgss.*;
 import org.jacorb.util.*;
+import java.security.Principal;
+import javax.security.auth.*;
+import javax.security.auth.callback.*;
+import javax.security.auth.login.*;
+import javax.security.auth.spi.*;
+import com.tagish.auth.*;
 
 /**
  * This is the client side of the sas demo. It just calls the single
@@ -14,8 +21,9 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class Client
+public class JAASClient
 {
+    private static LoginCallbackHandler loginCallbackHandler = new LoginCallbackHandler();
     public static void main( String args[] )
     {
         if( args.length != 1 )
@@ -49,11 +57,65 @@ public class Client
             // initialize the ORB.
             ORB orb = ORB.init( args, null );
 
+            /////////////////////
+            // Login with JAAS //
+            /////////////////////
+
+            // use the configured LoginModules for the "Login" entry
+            LoginContext lc = null;
+            try
+            {
+                lc = new LoginContext("NTLogin", loginCallbackHandler);
+            }
+            catch (LoginException le)
+            {
+                le.printStackTrace();
+                System.exit(-1);
+            }
+
+            try
+            {
+                // attempt authentication
+                lc.login();
+            }
+            catch (AccountExpiredException aee)
+            {
+                System.out.println("Your account has expired. Please notify your administrator.");
+                System.exit(-1);
+            }
+            catch (CredentialExpiredException cee)
+            {
+                System.out.println("Your credentials have expired.");
+                System.exit(-1);
+            }
+            catch (FailedLoginException fle)
+            {
+                System.out.println("Authentication Failed");
+                System.exit(-1);
+            }
+            catch (Exception e)
+            {
+                System.out.println("Unexpected Exception - unable to continue");
+                e.printStackTrace();
+                System.exit(-1);
+            }
+
+            // let's see what Principals we have
+            Iterator principalIterator = lc.getSubject().getPrincipals().iterator();
+            System.out.println("Authenticated user has the following Principals:");
+            while (principalIterator.hasNext())
+            {
+                Principal p = (Principal) principalIterator.next();
+                System.out.println("\t" + p.toString());
+            }
+
+            System.out.println("User has " + lc.getSubject().getPublicCredentials().size() + " Public Credential(s)");
+
             try {
                 // create my identity
                 GSSManager gssManager = org.jacorb.security.sas.CSSInitializer.gssManager;
                 Oid myMechOid = new Oid(org.omg.GSSUP.GSSUPMechOID.value.replaceFirst("oid:", ""));
-                byte[] name = org.jacorb.security.sas.GSSUPNameSpi.encode("MeUser", "MePassword", "MeTarget");
+                byte[] name = org.jacorb.security.sas.GSSUPNameSpi.encode(loginCallbackHandler.username, loginCallbackHandler.password, loginCallbackHandler.domain);
                 GSSName myName = gssManager.createName(name, null, myMechOid);
                 GSSCredential myCred = gssManager.createCredential(myName, GSSCredential.DEFAULT_LIFETIME, myMechOid, GSSCredential.INITIATE_ONLY);
                 org.jacorb.security.sas.CSSInvocationInterceptor.setMyCredential(myCred);
