@@ -219,4 +219,30 @@ public class IIOPAddress
     	out.write_ushort((short)port);
     	return out.getBufferCopy();
     }
+    
+    /**
+    * Method for use by the PrintIOR utility. Previously it called
+    * getHostname() which may or may not have returned what was 
+    * actually encoded in the IOR. This is of limited use for 
+    * debugging purposes. This method attempts to return the string
+    * that this address was actually constructed with (i.e. what the
+    * IOR actually contains as its host string).
+    * @return Host name or IP address or both if the original host string
+    * cannot be determined.  
+    */
+    public String getOriginalHost()
+    {
+        if (hostname == null)
+        {
+            return ip;
+        }
+        else if (ip == null)
+        {
+            return hostname;
+        }
+        else
+        {
+            return hostname + " / " + ip;
+        }
+    }
 }
