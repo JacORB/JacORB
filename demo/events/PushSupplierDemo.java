@@ -22,6 +22,11 @@ class PushSupplierDemo extends PushSupplierPOA
 
     try
     {
+      org.omg.PortableServer.POA poa =
+         org.omg.PortableServer.POAHelper.narrow
+            (orb.resolve_initial_references ("RootPOA"));
+      poa.the_POAManager().activate();
+ 
       NamingContextExt nc =
           NamingContextExtHelper.narrow(
               orb.resolve_initial_references("NameService"));
@@ -61,10 +66,12 @@ class PushSupplierDemo extends PushSupplierPOA
       }
     }
     proxyPushConsumer.disconnect_push_consumer();
-
   }
 
-  public void disconnect_push_supplier() {}
+  public void disconnect_push_supplier ()
+  {
+    System.out.println ("Supplier disconnected");
+  }
 
   public static void main(String[] args)
   {

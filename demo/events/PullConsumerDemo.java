@@ -23,6 +23,7 @@ public class PullConsumerDemo
 
   public void disconnect_pull_consumer()
   {
+    System.out.println ("Consumer disconnected");
   }
 
   static public void main  (String argv[])
@@ -37,6 +38,11 @@ public class PullConsumerDemo
     // binding the event channel reference
     try
     {
+      org.omg.PortableServer.POA poa =
+        org.omg.PortableServer.POAHelper.narrow
+          (orb.resolve_initial_references ("RootPOA"));
+ 
+      poa.the_POAManager().activate();
       NamingContextExt nc = 
               NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService")); 
       ecs = EventChannelHelper.narrow(nc.resolve(nc.to_name("eventchannel.example")));
@@ -90,7 +96,6 @@ public class PullConsumerDemo
       }
     }
     pps.disconnect_pull_supplier();
-    System.exit(0);
   }
 }
 
