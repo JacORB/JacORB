@@ -66,7 +66,9 @@
 
 
    <target name="fixup-rmi-14" if="rmi.ShutdownUtilDelegate">
-       <copy file="${src}/orb/rmi/FixSunDelegateBug.java.14" tofile="${src}/orb/rmi/FixSunDelegateBug.java"/>
+       <copy
+          file="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java.14" 
+          tofile="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java"/>
    </target>
 
 
@@ -168,10 +170,10 @@
                <available file="${classdir}/${pkg.idl}"/>
             </not>
             <not>
-               <available file="${src}/generated/${pkg.idl}"/>
+               <available file="${testdir}/generated/${pkg.idl}"/>
             </not>
             <uptodate targetfile="${idl}/${file.idl}">
-               <srcfiles dir="${src}/generated/${pkg.idl}"
+               <srcfiles dir="${testdir}/generated/${pkg.idl}"
                          includes="**/*.java"/>
             </uptodate>
          </or>
@@ -186,12 +188,12 @@
       <jacidl generateir="true"
               srcdir="${idl}"
               ami_callback="${callback.idl}"
-              destdir="${src}/generated"
+              destdir="${testdir}/generated"
               includes="${file.idl}"/>
       <antcall target="jacorb-javac">
-         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-src" value="${testdir}/generated"/>
          <param name="javac-includes" value="${pkg.idl}/**"/>
-         <param name="javac-sourcepath" value="${src}/generated" />
+         <param name="javac-sourcepath" value="${testdir}/generated" />
       </antcall>
    </target>
 
@@ -467,7 +469,7 @@
            depends="test-init"
            description="Remove all generated source files and class files">
       <delete dir="${classdir}/org" failonerror="false"/>
-      <delete dir="${src}/generated" failonerror="false"/>
+      <delete dir="generated" failonerror="false"/>
       <delete dir="${classdir}" failonerror="false"/>
       <delete file="${src}/orb/rmi/FixSunDelegateBug.java" failonerror="false"/>
    </target>
