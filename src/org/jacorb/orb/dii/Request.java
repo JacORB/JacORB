@@ -51,6 +51,11 @@ public class Request
     private org.jacorb.orb.ORB orb;
     private org.omg.CORBA.portable.InputStream reply;
 
+    /* state of request object */
+    private boolean immediate = false;
+    private boolean deferred = false;
+    private boolean finished = false;   
+
     public org.omg.CORBA.Object target;
     public ClientConnection connection;
     public byte[] object_key;
@@ -308,21 +313,30 @@ public class Request
         }
     }
 
+    public void setInfo(ClientRequestInfoImpl info)
+    {
+        this.info = info;
+    }
 
     public void invoke()
     {
+        start();
         _invoke(true);
+        finish();
     }
 
     public void send_oneway()
     {
+        start();
         _invoke(false);
+        finish();
     }
 
-    class Caller
-        extends Thread 
+
+    class Caller extends Thread 
     {
         private Request r;
+
         public Caller( Request client )
         {
             r = client;
@@ -330,40 +344,93 @@ public class Request
         
         public void run()
         {
-            r.invoke();
+            r._invoke(true);
+            r.finish();
         }
     }
 
+
     public synchronized void send_deferred()
     {
-        Caller c = new Caller(this);
-        deferred_caller = c;
+        defer();
+        orb.addRequest( this );
+        deferred_caller = new Caller( this );
         deferred_caller.start();
     }
 
     public synchronized void get_response()
     {
-        if( deferred_caller != null && deferred_caller.isAlive() )
+        if( ! immediate && ! deferred )
         {
-            try 
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 11, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+        }
+        if ( immediate )
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 13, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+        }
+
+        if( deferred_caller != null )
+        {
+            if ( deferred_caller.isAlive() )
             {
-                deferred_caller.join();
-            } 
-            catch ( InterruptedException i ){}
+                try 
+                {
+                    deferred_caller.join();
+                }
+                catch ( InterruptedException i ){}
+            }
             deferred_caller = null;
+            orb.removeRequest( this );
         }
     }
 
     public boolean poll_response()
     {
-        if( deferred_caller != null )
-            return !deferred_caller.isAlive();
-        else
-            return false;
+        Thread.yield();
+        if( ! immediate && ! deferred )
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 11, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+        }
+        if ( immediate )
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 13, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+        }
+        if ( deferred_caller == null )
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 12, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+        }
+        return finished;
     }
 
-    public void setInfo(ClientRequestInfoImpl info)
+    private synchronized void start()
+        throws org.omg.CORBA.BAD_INV_ORDER
     {
-        this.info = info;
+        if( immediate || deferred )
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 10, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+        }
+        immediate = true;
+    }
+
+    private synchronized void defer()
+        throws org.omg.CORBA.BAD_INV_ORDER
+    {
+        if( immediate || deferred )
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 10, org.omg.CORBA.CompletionStatus.COMPLETED_NO );
+        }
+        deferred = true;
+    }
+   
+    private void finish()
+    {
+        finished = true;
     }
 }
