@@ -24,10 +24,10 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import org.jacorb.orb.TypeCode;
-//import org.jacorb.orb.TypeCodeUtil;
 import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
+
 
 public class ConstantDef 
     extends Contained
@@ -35,11 +35,13 @@ public class ConstantDef
 {
     protected static char 	    fileSeparator = 
         System.getProperty("file.separator").charAt(0);
-
+    
     private Field                       field;
     private org.omg.CORBA.TypeCode      typeCode;
     private org.omg.CORBA.IDLType       type_def;
     private org.jacorb.orb.Any		value;
+    private org.omg.CORBA.ConstantDescription description;
+    private boolean defined = false;
     org.omg.CORBA.Contained             myContainer;
 
     /**
@@ -58,7 +60,8 @@ public class ConstantDef
         name( field.getName());
         version = "1.0";
 
-        myContainer = org.omg.CORBA.ContainedHelper.narrow( defined_in );
+        myContainer = 
+            org.omg.CORBA.ContainedHelper.narrow( defined_in );
 
         org.jacorb.util.Debug.assert( myContainer != null , 
                                   "Constant should be in an interface!");
@@ -67,33 +70,14 @@ public class ConstantDef
         id = def_in_id.substring(0,def_in_id.lastIndexOf(":")) + 
             "/" + name + ":" + version;
 
-		absolute_name = myContainer.absolute_name() + "::" + name;
+        absolute_name = myContainer.absolute_name() + "::" + name;
         typeCode = TypeCodeUtil.getTypeCode( field.getType(), null );
         org.jacorb.util.Debug.output( 2, "New ConstantDef " + absolute_name());
     }
 
-    void define()
-    {
-        org.jacorb.util.Debug.output( 2, "ConstantDef " + absolute_name() + " defining.");
-        value = (org.jacorb.orb.Any) orb.create_any();
-        type_def = IDLType.create( typeCode, containing_repository );
-        Debug.assert( typeCode != null, "typeCode null!");
-        Debug.assert( type_def != null, "type_def null!");
-
-        try 
-        { 
-            value.insert_object(typeCode, 
-                                orb, 
-                                field.get(null) );
-        } 
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
-    }
 
     /**
-     * Constructor to create constants defined as a separate class
+     * Constructor to create constants mapped to a separate class
      */
 
     public ConstantDef( Class c, 
@@ -106,8 +90,7 @@ public class ConstantDef
         myContainer = org.omg.CORBA.ContainedHelper.narrow( defined_in );
         try
         { 
-            Field [] f = c.getDeclaredFields();
-            Field field = f[0];
+            field = c.getDeclaredField("value");
             version = "1.0";
             String classId = c.getName();
             if( classId.indexOf('.') > 0 ) 
@@ -135,6 +118,26 @@ public class ConstantDef
         org.jacorb.util.Debug.output( 2, "New ConstantDef " + absolute_name());
     }
 
+    void define()
+    {
+        org.jacorb.util.Debug.output( 2, "ConstantDef " + absolute_name() + " defining.");
+        value = (org.jacorb.orb.Any) orb.create_any();
+        type_def = IDLType.create( typeCode, containing_repository );
+        Debug.assert( typeCode != null, "typeCode null!");
+        Debug.assert( type_def != null, "type_def null!");
+
+        try 
+        { 
+            value.insert_object(typeCode, 
+                                orb, 
+                                field.get(null) );
+        } 
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+        }
+        defined = true;
+    }
 
     public org.omg.CORBA.TypeCode type()
     {
@@ -163,22 +166,33 @@ public class ConstantDef
 
     org.omg.CORBA.ConstantDescription describe_constant()
     {
-        String def_in = null;
-
-        if( myContainer == null )
-            def_in = "Global";
-        else
-            def_in = myContainer.id();
-        return new org.omg.CORBA.ConstantDescription(name, id, def_in, version, typeCode, value);
+        Debug.assert( defined , "ConstantDef " + name + " not defined!");
+        if( description == null )
+        {
+            String def_in = null;
+            if( myContainer == null )
+                def_in = "Global";
+            else
+                def_in = myContainer.id();
+            description = 
+                new org.omg.CORBA.ConstantDescription( name, 
+                                                       id, 
+                                                       def_in, 
+                                                       version, 
+                                                       typeCode, 
+                                                       value);
+        }
+        return description;
     }
 
     // from Contained
 
     public org.omg.CORBA.ContainedPackage.Description describe()
     {
-        org.omg.CORBA.Any a =  orb.create_any();
+        org.omg.CORBA.Any a = orb.create_any();
         org.omg.CORBA.ConstantDescriptionHelper.insert( a, describe_constant() );
-        return new org.omg.CORBA.ContainedPackage.Description( org.omg.CORBA.DefinitionKind.dk_Constant, a);
+        return new org.omg.CORBA.ContainedPackage.Description( 
+                     org.omg.CORBA.DefinitionKind.dk_Constant, a);
     }
 
     // from IRObject
@@ -187,12 +201,6 @@ public class ConstantDef
 
 
 }
-
-
-
-
-
-
 
 
 

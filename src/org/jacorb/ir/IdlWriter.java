@@ -212,7 +212,6 @@ public class IdlWriter
     public void printInterface( org.omg.CORBA.InterfaceDef idef, 
                                 int indentation )
     {
-
         org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription idfid = 
             idef.describe_interface();
         org.omg.CORBA.Contained[] contents = 
@@ -306,21 +305,53 @@ public class IdlWriter
     public void printConstant( org.omg.CORBA.ConstantDescription c, int indentation )
     {
         indent( indentation );
-        StringBuffer sb = new StringBuffer (  "const " + idlTypeName( c.type ) 
-                                              + " " + c.name + " = " );
+        StringBuffer sb = 
+            new StringBuffer (  "const " + idlTypeName( c.type ) 
+                                + " " + c.name + " = " );
         switch ( c.type.kind().value() )
         {
-        case org.omg.CORBA.TCKind._tk_string: sb.append( c.value.extract_string() ); break;
-        case org.omg.CORBA.TCKind._tk_boolean: sb.append( c.value.extract_boolean() ); break;
-        case org.omg.CORBA.TCKind._tk_long: sb.append( c.value.extract_long() ); break;
-        case org.omg.CORBA.TCKind._tk_ulong: sb.append( c.value.extract_ulong() ); break;
-        case org.omg.CORBA.TCKind._tk_longlong: sb.append( c.value.extract_longlong() ); break;
-        case org.omg.CORBA.TCKind._tk_ulonglong: sb.append( c.value.extract_ulonglong() ); break;
-        case org.omg.CORBA.TCKind._tk_short: sb.append( c.value.extract_short() ); break;
-        case org.omg.CORBA.TCKind._tk_float: sb.append( c.value.extract_float() ); break;
-        case org.omg.CORBA.TCKind._tk_octet: sb.append( c.value.extract_octet() ); break;
-        case org.omg.CORBA.TCKind._tk_char: sb.append( c.value.extract_char() ); break;
-        case org.omg.CORBA.TCKind._tk_fixed: sb.append( c.value.extract_fixed() ); break;
+        case org.omg.CORBA.TCKind._tk_string: 
+            sb.append( "\"" + c.value.extract_string() + "\"" ); 
+            break;
+        case org.omg.CORBA.TCKind._tk_wstring: 
+            sb.append( "\"" + c.value.extract_wstring() + "\"" ); 
+            break;
+        case org.omg.CORBA.TCKind._tk_boolean: 
+            sb.append( c.value.extract_boolean() ); 
+            break;
+        case org.omg.CORBA.TCKind._tk_long: 
+            sb.append( c.value.extract_long() ); 
+            break;
+        case org.omg.CORBA.TCKind._tk_ulong: 
+            sb.append( c.value.extract_ulong() ); 
+            break;
+        case org.omg.CORBA.TCKind._tk_longlong: 
+            sb.append( c.value.extract_longlong() ); 
+            break;
+        case org.omg.CORBA.TCKind._tk_ulonglong: 
+            sb.append( c.value.extract_ulonglong() ); 
+            break;
+        case org.omg.CORBA.TCKind._tk_short: 
+          sb.append( c.value.extract_short() ); 
+          break;
+        case org.omg.CORBA.TCKind._tk_ushort: 
+          sb.append( c.value.extract_ushort() ); 
+          break;
+        case org.omg.CORBA.TCKind._tk_float:
+          sb.append( c.value.extract_float() ); 
+          break;
+        case org.omg.CORBA.TCKind._tk_octet: 
+          sb.append( c.value.extract_octet() ); 
+          break;
+        case org.omg.CORBA.TCKind._tk_char: 
+          sb.append( "\'" + c.value.extract_char() + "\'" ); 
+          break;
+        case org.omg.CORBA.TCKind._tk_wchar: 
+          sb.append( "\'" + c.value.extract_wchar() + "\'" ); 
+          break;
+        case org.omg.CORBA.TCKind._tk_fixed: 
+          sb.append( c.value.extract_fixed() ); 
+          break;
         }
 
         print( sb.toString()+";\n\n");
@@ -500,13 +531,6 @@ public class IdlWriter
 
 
 }
-
-
-
-
-
-
-
 
 
 

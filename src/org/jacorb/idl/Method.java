@@ -76,9 +76,9 @@ class Method
 
     public void printSignature(PrintWriter ps)
     {
-	ps.print("\tpublic ");
+	ps.print("\t");
 	if( pseudo )
-	    ps.print( " abstract ");
+	    ps.print( "abstract ");
 
 	if( resultType != null )
 	{

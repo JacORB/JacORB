@@ -20,14 +20,13 @@
 
 package org.jacorb.idl;
 
-/**
- * @author Gerald Brose
- * @version 1.0, December 1998
- */
-
-
 import java.util.*;
 import java.io.PrintWriter;
+
+/**
+ * @author Gerald Brose
+ * @version $Id$
+ */
 
 class AttrDecl 
     extends Declaration
@@ -58,8 +57,11 @@ class AttrDecl
     {
 	if( param_type_spec.typeSpec() instanceof ScopedName )
 	{
-	    // System.out.println("Attr type spec, resolved type name: " + ((ScopedName)param_type_spec.typeSpec()).resolvedName() ) ;
-	    TypeSpec ts = ((ScopedName)param_type_spec.typeSpec()).resolvedTypeSpec();
+	    // System.out.println("Attr type spec, resolved type name: " +
+            // ((ScopedName)param_type_spec.typeSpec()).resolvedName() ) ;
+
+	    TypeSpec ts = 
+                ((ScopedName)param_type_spec.typeSpec()).resolvedTypeSpec();
 	    if( ts != null ) 
 		param_type_spec = ts;
 	}
@@ -77,15 +79,16 @@ class AttrDecl
 	    operations.addElement( 
                    new Method( param_type_spec, 
                                null, 
-                               ((SimpleDeclarator)e.nextElement()).name(), is_pseudo )
+                               ((SimpleDeclarator)e.nextElement()).name(), 
+                               is_pseudo )
                    );
 	}
 	if(!readOnly)
 	{
 	    for( Enumeration e = declarators.v.elements(); e.hasMoreElements();)
 	    {
-                SimpleDeclarator d = (SimpleDeclarator)e.nextElement();
-
+                SimpleDeclarator d = 
+                    (SimpleDeclarator)e.nextElement();
 		operations.addElement( 
                               new Method( null,
                                           param_type_spec, 
@@ -105,8 +108,11 @@ class AttrDecl
 	return operations.elements();
     }
 
-    /** collect Interface Repository information in the argument hashtable */
-    public void getIRInfo(Hashtable irInfoTable )
+    /** 
+     * collect Interface Repository information in the argument hashtable 
+     */
+
+    public void getIRInfo( Hashtable irInfoTable )
     {
 	for( Enumeration e = declarators.v.elements(); e.hasMoreElements();)
 	{

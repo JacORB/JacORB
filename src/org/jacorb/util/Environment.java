@@ -70,12 +70,9 @@ public class Environment
     private static int                  maxManagedBufSize = 18;
     private static int                  _charset_flags = 0x0D;
 
-    /** domain-specific */
-
     private static String               _default_context = "<undefined>";
-    private static String               _ir_server = "<undefined>";
-    private static String               _trading_service = "<undefined>";
-    private static String               _domain_service = "<undefined>";
+
+    /** domain-specific */
 
     private static int                  _verbosity = 0;
 
@@ -90,7 +87,7 @@ public class Environment
 
     /** if set to true (default), every orb domain gets mounted as child domain to 
      *	the domain server on creation */
-    private static boolean        _mount_orb_domain= true;
+    private static boolean          _mount_orb_domain= true;
 
     /** the filename to which the IOR of the orb domain (local domain service) is written 
      *  if set to null or the empty string (""), no IOR is written */
@@ -112,7 +109,7 @@ public class Environment
     private static String               _proxy_server=null;
     private static boolean              _use_appligator_for_applets = true;
     private static boolean              _use_appligator_for_applications = false;
-    private static Hashtable  _use_httptunneling_for = new Hashtable();
+    private static Hashtable            _use_httptunneling_for = new Hashtable();
 
     public static java.net.URL          URL=null;
     
@@ -348,12 +345,6 @@ public class Environment
             maxManagedBufSize = Integer.parseInt(o); 
         else if( varName.equals("_default_context"))
             _default_context = o;
-        else    if( varName.equals("_ir_server"))
-            _ir_server = o;
-        else    if( varName.equals("_trading_service"))
-            _trading_service = o;
-        else    if( varName.equals("_domain_service"))
-            _domain_service = o;
         else    if( varName.equals("_orb_domain_filename"))
             _orb_domain_filename = o;
 	else    if( varName.equals("_default_domains"))
@@ -416,28 +407,10 @@ public class Environment
             _default_password = o;
         else    if ( varName.equals ( "_change_ssl_roles")) // rt
             _change_ssl_roles = ( o.equalsIgnoreCase ( "on" ) ? true : false );
-
-        //      try {
-        //          java.lang.reflect.Field fld=Environment.class.getDeclaredField(varName);
-        //          String typ=fld.getType().getName();
-        //          output(4,"Field found, type: '"+typ+"'");
-        //          if(typ.equals("int")) fld.setInt(null,Integer.parseInt(o));
-        //          else if(typ.equals("long")) fld.setLong(null,Long.parseLong(o));
-        //          else if(typ.equals("boolean")) fld.setBoolean(null,o.equalsIgnoreCase("on"));
-        //          else if(typ.equals("[B")) fld.set(null,o.getBytes());
-        //          else fld.set(null,o); 
-        //      output(4,"Set to: "+fld.get(null));
-                        
-        //      } catch(Exception ex)
-        //      {
-        //          ex.printStackTrace(); 
-        //    throw new RuntimeException("can't set env. attribute "+varName);
-        //}
     }
         
     private static void readValues()
     {
-
         String logFileName = null;                      
         if (_props.getProperty("logfile") != null)
             logFileName = _props.getProperty("logfile");
@@ -462,25 +435,13 @@ public class Environment
         readValue("_cache_entry_lifetime","_cache_entry_lifetime",jacorbPrefix+"domain.cache_entry.lifetime");
         readValue("_outbuf_size","outbuf_size",jacorbPrefix+"outbuf_size");
         readValue("_max_managedbufsize","maxManagedBufSize",jacorbPrefix+"maxManagedBufSize");
-        readValue("_default_context","ns",jacorbPrefix+"NameServerURL");
-        readValue("_attributeProvider",jacorbPrefix+"AttributeProviderURL",null);
-        readValue("_attributeProvider",jacorbPrefix+"AttributeProviderURL",null);
-        readValue("_attributeProvider",jacorbPrefix+"AttributeProviderURL",null);
-        readValue("_ir_server","ir",jacorbPrefix+"InterfaceRepositoryURL");
-        readValue("_trading_service","tc",jacorbPrefix+"TradingServiceURL");
-        readValue("_domain_service","ds",jacorbPrefix+"DomainServiceURL");
         readValue("_orb_domain_filename","ds",jacorbPrefix+"orb_domain.filename");
         readValue("_default_domains","ds",jacorbPrefix+"poa.default_domains");
-
 
         readValue("_verbosity","verbosity",jacorbPrefix+"verbosity");
         readValue("_locate_on_bind","locate_on_bind",jacorbPrefix+"locate_on_bind");
         readValue("_cache_references","reference_caching",jacorbPrefix+"reference_caching");
-        readValue("_interceptServerRequests","interceptor.server.Requests",jacorbPrefix+"interceptor.server.Requests");
-        readValue("_interceptClientRequests","interceptor.client.Requests",jacorbPrefix+"interceptor.client.Requests");
-        readValue("_interceptClientMessages","interceptor.client.Messages",jacorbPrefix+"interceptor.client.Messages");
-        readValue("_interceptServerMessages","interceptor.server.Messages",jacorbPrefix+"interceptor.server.Messages");
-        readValue("_perObjectInterceptors","interceptor.perObject",jacorbPrefix+"interceptor.perObject");
+
         readValue("_monitoring_on","monitoring",poaPrefix+"monitoring");
         readValue("_use_imr","use_imr",jacorbPrefix+"use_imr");
         readValue("_use_domain","use_domain",jacorbPrefix+"use_domain");
@@ -531,15 +492,10 @@ public class Environment
 
     public static final int queueMax() { return _queue_max;  }
     public static final long retryInterval() { return _retry_interval; }
-    public static final String rootNsURL() { return _default_context; }
 
-    public static final String tradingServiceURL()    { return _trading_service; }
-    public static final String DomainServiceURL()     { return _domain_service;  }
-    public static final String interfaceRepositoryURL() { return _ir_server;  }
     public static final String ORBDomainFilename()    { return _orb_domain_filename;  }
     public static final String DefaultDomains()       { return _default_domains;  }
     public static final long   LifetimeOfCacheEntry() { return _cache_entry_lifetime; }
-
     
     public static final boolean useImR()    { return _use_imr;    }
     public static final boolean useDomain()      { return _use_domain; }
@@ -595,11 +551,6 @@ public class Environment
     public static void setProxyURL(String url) 
     {
         _proxy_server=url;  
-    }
-
-    public static void  setRootNsURL(String ns) 
-    { 
-        _default_context=ns; 
     }
 
 

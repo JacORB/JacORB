@@ -21,7 +21,6 @@
 package org.jacorb.ir;
 
 import org.jacorb.util.Debug;
-//import org.jacorb.orb.TypeCodeUtil;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -49,15 +48,17 @@ public class AttributeDef
         this.mode = mode;
         name( m.getName() );
         version( "1.0" );
-        typeCode = TypeCodeUtil.getTypeCode( m.getReturnType(), 
-                                             RepositoryImpl.loader, 
-                                             null,
-                                             attrTypeName );
+        typeCode = 
+            TypeCodeUtil.getTypeCode( m.getReturnType(), 
+                                      RepositoryImpl.loader, 
+                                      null,
+                                      attrTypeName );
 
         defined_in = _defined_in;
         containing_repository = _containing_repository;
 
-        Debug.assert( containing_repository != null, "containing_repository null!");
+        Debug.assert( containing_repository != null, 
+                      "containing_repository null!");
         Debug.assert( defined_in != null, "Defined?in null!");
 
         org.omg.CORBA.Contained myContainer = 
@@ -102,12 +103,12 @@ public class AttributeDef
     org.omg.CORBA.AttributeDescription describe_attribute()
     {
         return new org.omg.CORBA.AttributeDescription(
-								   name(), 
-								   id(), 
-								   org.omg.CORBA.ContainedHelper.narrow(defined_in).id(), 
-								   version(), 
-								   type(), 
-								   mode());
+                                        name(), 
+                                        id(), 
+                                        org.omg.CORBA.ContainedHelper.narrow(defined_in).id(), 
+                                        version(), 
+                                        type(), 
+                                        mode());
     }
 
     public void define()
@@ -122,23 +123,17 @@ public class AttributeDef
     {
         org.omg.CORBA.Any a = orb.create_any();
         org.omg.CORBA.AttributeDescriptionHelper.insert( a, describe_attribute() );
-        return new org.omg.CORBA.ContainedPackage.Description( org.omg.CORBA.DefinitionKind.dk_Attribute, a);
+        return new org.omg.CORBA.ContainedPackage.Description( 
+              org.omg.CORBA.DefinitionKind.dk_Attribute, a);
     }
 
     // from IRObject
 
     public void destroy()
-	{}
+    {}
 
 
 }
-
-
-
-
-
-
-
 
 
 

@@ -458,14 +458,12 @@ public class BrowserFrame
     public org.jacorb.orb.domain.Domain getDomainServer()
     {
         org.jacorb.orb.domain.Domain result= null;
-        org.jacorb.util.Debug.output(Debug.DOMAIN | Debug.DEBUG1, "URL of domain service: "
-                                 +  org.jacorb.util.Environment.DomainServiceURL());
         try
         {
-            result= DomainHelper.narrow
-                (getORB().resolve_initial_references("DomainService"));
-            org.jacorb.util.Debug.assert(1, result != null, "domain server not running");
+            result = 
+                DomainHelper.narrow(getORB().resolve_initial_references("DomainService"));
 
+            org.jacorb.util.Debug.assert(1, result != null, "domain server not running");
         }
         catch (org.omg.CORBA.ORBPackage.InvalidName inv)
         {

@@ -507,7 +507,7 @@ class OpDecl
 
     public void printSignature(PrintWriter ps)
     {
-	ps.print("\tpublic " + opTypeSpec.toString() + " " + name + "(");
+	ps.print("\t" + opTypeSpec.toString() + " " + name + "(");
 
 	Enumeration e = paramDecls.elements();
 	if(e.hasMoreElements())

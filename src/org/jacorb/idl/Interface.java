@@ -784,7 +784,8 @@ class Interface
             {
                 // Java Interface file
 
-                String path = parser.out_dir + fileSeparator + pack_name.replace('.', fileSeparator );
+                String path = 
+                    parser.out_dir + fileSeparator + pack_name.replace('.', fileSeparator );
                 File dir = new File( path );
                 if( !dir.exists() )
                 {
@@ -795,25 +796,24 @@ class Interface
                     }
                 }
                 
-                PrintWriter ps = new PrintWriter(new java.io.FileWriter(new File(dir,name + ".java")));
+                PrintWriter ps =
+                    new PrintWriter(new java.io.FileWriter(new File(dir,name + ".java")));
                 printInterface( name, ps );
                 ps.close();
-
-                //                  ps = new PrintWriter(new java.io.FileWriter(new File(dir,name + ".xml")));
-                //                  printInterfaceXML( name, ps );
-                //                  ps.close();
 
                 if( !is_pseudo)
                 {
 
-                    ps = new PrintWriter(new java.io.FileWriter(new File(dir,name + "Operations.java")));
+                    ps = new PrintWriter(new java.io.FileWriter(new File(dir,name + 
+                                                                         "Operations.java")));
                     // are we in the unnamed package?
                     printOperations( name , ps );
                     ps.close();
                     
                     // Helper
 
-                    ps = new PrintWriter(new java.io.FileWriter(new File(dir,name + "Helper.java")));
+                    ps = new PrintWriter(new java.io.FileWriter(new File(dir,name + 
+                                                                         "Helper.java")));
                     printHelper( name, ps);
                     ps.close();
 
@@ -826,7 +826,8 @@ class Interface
                     if ( parser.generate_stubs )
                     {
                         // Stub
-                        ps = new PrintWriter(new java.io.FileWriter(new File(dir,"_" + name + "Stub.java")));
+                        ps = new PrintWriter(new java.io.FileWriter(new File(dir,"_" +
+                                                                             name + "Stub.java")));
                         printStub( name , ps );
                         ps.close();
                     }
@@ -835,18 +836,22 @@ class Interface
                     {
                         // Skeletons
 
-                        ps = new PrintWriter( new java.io.FileWriter(new File(dir, name + "POA.java")));
+                        ps = new PrintWriter( new java.io.FileWriter(new File(dir, 
+                                                                              name + 
+                                                                              "POA.java")));
                         printImplSkeleton ( name , ps );
                         ps.close();
                         
-                        ps = new PrintWriter( new java.io.FileWriter(new File(dir, name + "POATie.java")));
+                        ps = new PrintWriter( new java.io.FileWriter(new File(dir, name + 
+                                                                              "POATie.java")));
                         printTieSkeleton ( name , ps );
                         ps.close();
                     }
 
                     if( parser.generateIR )
                     {
-                        ps = new PrintWriter( new java.io.FileWriter(new File(dir, name + "IRHelper.java")));
+                        ps = new PrintWriter( new java.io.FileWriter(new File(dir, name + 
+                                                                              "IRHelper.java")));
                         printIRHelper( name , ps );
                         ps.close();
 

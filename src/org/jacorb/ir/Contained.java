@@ -75,19 +75,22 @@ public abstract class Contained
         {
             try 
             {
-                intfClass = RepositoryImpl.loader.loadClass("org.omg.CORBA.Object");
-                idlClass = RepositoryImpl.loader.loadClass("org.omg.CORBA.portable.IDLEntity");
-                stubClass = RepositoryImpl.loader.loadClass("org.omg.CORBA.portable.ObjectImpl");
-                exceptClass = RepositoryImpl.loader.loadClass("org.omg.CORBA.UserException");
+                intfClass = 
+                    RepositoryImpl.loader.loadClass("org.omg.CORBA.Object");
+                idlClass = 
+                    RepositoryImpl.loader.loadClass("org.omg.CORBA.portable.IDLEntity");
+                stubClass = 
+                    RepositoryImpl.loader.loadClass("org.omg.CORBA.portable.ObjectImpl");
+                exceptClass = 
+                    RepositoryImpl.loader.loadClass("org.omg.CORBA.UserException");
                 class_init = true;
             } 
             catch ( ClassNotFoundException cnf )
             {
-				// debug:
+                // debug:
                 cnf.printStackTrace();
             }
         }
-
 
         if( stubClass.isAssignableFrom( c ) )
         {
@@ -119,7 +122,7 @@ public abstract class Contained
                 try
                 {
                     Field f = c.getDeclaredField("value");
-                    return new org.jacorb.ir.ConstantDef( f,  _defined_in, ir );
+                    return new org.jacorb.ir.ConstantDef( c , _defined_in, ir );
                 }
                 catch( NoSuchFieldException nsfe )
                 {
@@ -148,7 +151,9 @@ public abstract class Contained
         {
             try
             {
-                Class helperClass = RepositoryImpl.loader.loadClass( c.getName()+"Helper");
+                Class helperClass = 
+                    RepositoryImpl.loader.loadClass( c.getName()+"Helper");
+
                 org.omg.CORBA.TypeCode tc = 
                     (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod("type",null).invoke(null,null);
                 switch( tc.kind().value())
@@ -173,29 +178,6 @@ public abstract class Contained
             }
             return null;
         } 
-        //          else if( constClass.isAssignableFrom( c ))
-        //          {
-        //              ConstantDef e = new ConstantDef(c, _defined_in,ir);
-        //              return e;
-        //          } 
-        //          else if( unionClass.isAssignableFrom( c ))
-        //          {
-        //              UnionDef e = new UnionDef(c, _defined_in,ir);
-        //              return e;
-        //          } 
-        //          else if( enumClass.isAssignableFrom( c ))
-        //          {
-        //              EnumDef e = new EnumDef(c, _defined_in,ir);
-        //              return e;
-        //          } 
-        //          else if( structClass.isAssignableFrom( c ) || 
-        //                   ( serialClass.isAssignableFrom( c ) &&
-        //                     !stub.isAssignableFrom(c) &&
-        //                     !holderClass.isAssignableFrom(c) )
-        //                   )
-        //          {
-        //              return new StructDef(c, _defined_in,ir);
-        //          }
         else if( c.getName().endsWith("Helper"))
         {
             try
@@ -260,8 +242,9 @@ public abstract class Contained
                 new org.omg.CORBA.ConstantDefPOATie( (org.omg.CORBA.ConstantDefOperations)containedObject );
             break;
         default: 
-            org.jacorb.util.Debug.output(1, "WARNING, createContainedReference returns null for dk " + 
-                                     containedObject.def_kind().value() );
+            org.jacorb.util.Debug.output(1, 
+                           "WARNING, createContainedReference returns null for dk " + 
+                                         containedObject.def_kind().value() );
             return null;
         }
         
@@ -340,12 +323,6 @@ public abstract class Contained
         name = new_name; 
     }
 }
-
-
-
-
-
-
 
 
 

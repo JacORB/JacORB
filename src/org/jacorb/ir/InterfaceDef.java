@@ -22,7 +22,6 @@ package org.jacorb.ir;
 
 
 import org.jacorb.util.Debug;
-//import org.jacorb.orb.TypeCodeUtil;
 
 import java.lang.reflect.*;
 import java.io.*;
@@ -31,6 +30,7 @@ import java.util.*;
 import org.omg.CORBA.IDLType;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TypeCode;
+import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
 
 /**
  * @author Gerald Brose
@@ -60,7 +60,7 @@ public class InterfaceDef
 
     private org.omg.CORBA.InterfaceDef[] 	 base_interfaces;
     private String [] 		                 base_names;
-
+    private FullInterfaceDescription             fullDescription;
     /** local references to contained objects */
     private Hashtable		    containedLocals = new Hashtable();
 
@@ -202,10 +202,11 @@ public class InterfaceDef
                                      ).replace( fileSeparator, '/') );
                         
 
-                        Contained containedObject = Contained.createContained( cl, 
-                                                                               path,
-                                                                               myReference, 
-                                                                               containing_repository );
+                        Contained containedObject = 
+                            Contained.createContained( cl, 
+                                                       path,
+                                                       myReference, 
+                                                       containing_repository );
                         if( containedObject == null )
                             continue;
                         
@@ -234,158 +235,6 @@ public class InterfaceDef
                 }
             }
         }
-//          org.jacorb.util.Debug.output(2, "Interface " +name+ " loads attributes/ops");
-
-//          Vector ops = new Vector();
-//          Vector atts = new Vector();
-//          Hashtable irInfo= null;
-
-//          Class irHelperClass = null;
-//          try
-//          {
-//              irHelperClass = 
-//                  RepositoryImpl.loader.loadClass( theClass.getName() + "IRHelper");
-//              irInfo = (Hashtable)irHelperClass.getDeclaredField("irInfo").get(null);
-//          }
-//          catch( ClassNotFoundException e )
-//          {
-//              org.jacorb.util.Debug.output(1, "!! No IR helper class for interface " + 
-//                                       theClass.getName());
-//          }
-//          catch( Exception e )
-//          {
-//              e.printStackTrace();
-//          }
-
-//          Method methods[] = signatureClass.getDeclaredMethods();
-        
-//          for( int i = 0; i < methods.length; i++ )
-//          {
-//              Object value = irInfo.get(methods[i].getName());
-//              if( value == null || !((String)value).startsWith("attribute"))
-//              {
-//                  ops.addElement( 
-//                       new OperationDef( methods[i], theClass, irHelperClass, myReference ));
-//              }
-//              else
-//              {
-//                  if( ((String)value).startsWith("attribute") )
-//                  {
-//                      String attrDescr = (String)value;
-
-//                      if( methods[i].getReturnType() == Void.class )
-//                          continue;
-                    
-//                      int idx = attrDescr.indexOf('-');
-//                      String attrTypeName = 
-//                          attrDescr.substring( attrDescr.indexOf(";")+1);
-
-//                      atts.addElement(
-//                          new AttributeDef( methods[i],
-//                                            attrTypeName,
-//                                            ( idx > 0 ? 
-//                                              org.omg.CORBA.AttributeMode.ATTR_NORMAL : 
-//                                              org.omg.CORBA.AttributeMode.ATTR_READONLY  ),
-//                                            myReference, 
-//                                            containing_repository ));
-//                  }
-//              }
-//          }
-//          org.jacorb.util.Debug.output(2, "Interface " +name+ " defines ops");
-
-//          op_defs = new OperationDef[ ops.size() ];
-//          ops.copyInto( op_defs );
-//          for( int i = 0; i < op_defs.length; i++ )
-//          {
-//              op_defs[i].move( myReference , op_defs[i].name(), version );
-//              containedLocals.put( op_defs[i].name(), op_defs[i] );
-
-//              try
-//              {
-//                  org.omg.CORBA.OperationDef operationRef = 
-//                      org.omg.CORBA.OperationDefHelper.narrow(
-//                           RepositoryImpl.poa.servant_to_reference( 
-//                                   new  org.omg.CORBA.OperationDefPOATie( op_defs[i] )));
-//                  contained.put( op_defs[i].name(), operationRef ) ;
-//                  op_defs[i].setReference(operationRef);
-//              } 
-//              catch( Exception e )
-//              {
-//                  e.printStackTrace();
-//              }
-//          }
-//          org.jacorb.util.Debug.output(2, "Interface " +name+ " defines attributes");
-
-//          att_defs = new AttributeDef[ atts.size() ];
-//          atts.copyInto( att_defs );
-
-//          for( int i = 0; i < att_defs.length; i++ )
-//          {
-//              att_defs[i].move( myReference , att_defs[i].name(), version );
-//              containedLocals.put( att_defs[i].name(), att_defs[i] );
-//              try
-//              {
-//                  org.omg.CORBA.AttributeDef attribute = 
-//                      org.omg.CORBA.AttributeDefHelper.narrow(
-//                            RepositoryImpl.poa.servant_to_reference( 
-//                                 new  org.omg.CORBA.AttributeDefPOATie( att_defs[i] )));
-//                  contained.put( att_defs[i].name(), attribute );
-//                  att_defs[i].setReference( attribute );
-//              } 
-//              catch( Exception e )
-//              {
-//                  e.printStackTrace();
-//              }
-//          }
-
-//          /* constants */
-//          org.jacorb.util.Debug.output(2, "Interface " +name+ " defines constants");
-
-//          Field[] fields = theClass.getDeclaredFields();
-//          constant_defs = new ConstantDef[ fields.length ];
-//          for( int i = 0; i < constant_defs.length; i++ )
-//          {
-//              constant_defs[i] = new ConstantDef( fields[i],   
-//                                                  myReference, 
-//                                                  containing_repository );
-//              constant_defs[i].move( myReference , constant_defs[i].name(), version );
-//              containedLocals.put( constant_defs[i].name(), constant_defs[i] );
-//              try
-//              {
-//                  org.omg.CORBA.ConstantDef constRef = 
-//                      org.omg.CORBA.ConstantDefHelper.narrow(
-//                           RepositoryImpl.poa.servant_to_reference( 
-//                               new  org.omg.CORBA.ConstantDefPOATie( constant_defs[i] )));
-
-//                  contained.put( constant_defs[i].name(), constRef ) ;
-//                  constant_defs[i].setReference(constRef);
-//              } 
-//              catch( Exception e )
-//              {
-//                  e.printStackTrace();
-//              }
-//          }
-
-//          operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
-//          for( int c = 0; c < operations.length; c++ )
-//          {
-//              operations[c] = op_defs[c].describe_operation();
-//          }
-
-//          attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
-//          for( int a = 0; a < att_defs.length; a++ )
-//          {
-//              attributes[a] = att_defs[a].describe_attribute();
-//          }
-
-//          constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
-//          for( int b = 0; b < constant_defs.length; b++ )
-//          {
-//              constants[b] = constant_defs[b].describe_constant();
-//          }
-
-//          Debug.assert( operations != null, "operations null!");
-//          Debug.assert( attributes != null, "attributes null!");
 
         loaded = true;
         org.jacorb.util.Debug.output(2, "Interface " + name +  " loaded ]");
@@ -395,10 +244,6 @@ public class InterfaceDef
     {
         Debug.assert( loaded, "Interface " + name +  " not loaded!");
         org.jacorb.util.Debug.output(2, "Interface " + name +  " defining... ]");
-        for( Enumeration e = containedLocals.elements();
-             e.hasMoreElements();
-             ((IRObject)e.nextElement()).define())
-            ;
 
         org.jacorb.util.Debug.output(2, "Interface " +name+ " loads attributes/ops");
 
@@ -505,7 +350,7 @@ public class InterfaceDef
         }
 
         /* constants */
-        org.jacorb.util.Debug.output(2, "Interface " +name+ " defines constants");
+        org.jacorb.util.Debug.output(2, "Interface " + name + " defines constants");
 
         Field[] fields = theClass.getDeclaredFields();
         constant_defs = new ConstantDef[ fields.length ];
@@ -532,26 +377,10 @@ public class InterfaceDef
             }
         }
 
-        operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
-        for( int c = 0; c < operations.length; c++ )
-        {
-            operations[c] = op_defs[c].describe_operation();
-        }
-
-        attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
-        for( int a = 0; a < att_defs.length; a++ )
-        {
-            attributes[a] = att_defs[a].describe_attribute();
-        }
-
-        constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
-        for( int b = 0; b < constant_defs.length; b++ )
-        {
-            constants[b] = constant_defs[b].describe_constant();
-        }
-
-        Debug.assert( operations != null, "operations null!");
-        Debug.assert( attributes != null, "attributes null!");
+        for( Enumeration e = containedLocals.elements();
+             e.hasMoreElements();
+             ((IRObject)e.nextElement()).define())
+            ;
 
 
         /* get base interfaces */
@@ -586,11 +415,13 @@ public class InterfaceDef
             {
                 Class baseClass = (Class)e.nextElement();
                 base_names[i] = baseClass.getName();
-                Class helperClass = RepositoryImpl.loader.loadClass(  base_names[i] + "Helper");
+                Class helperClass = 
+                    RepositoryImpl.loader.loadClass(  base_names[i] + "Helper");
                 String baseId = 
                     (String)helperClass.getDeclaredMethod("id",null).invoke(null,null);
                 base_interfaces[i] =       
-                    org.omg.CORBA.InterfaceDefHelper.narrow(containing_repository.lookup_id(baseId));
+                    org.omg.CORBA.InterfaceDefHelper.narrow(
+                        containing_repository.lookup_id(baseId));
                 i++;
             }
             catch( Exception exc )
@@ -598,26 +429,6 @@ public class InterfaceDef
                 exc.printStackTrace();
             }
         }			
-
-//          operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
-//          for( int c = 0; c < operations.length; c++ )
-//          {
-//              operations[c] = op_defs[c].describe_operation();
-//          }
-
-//          attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
-//          for( int a = 0; a < att_defs.length; a++ )
-//          {
-//              attributes[a] = att_defs[a].describe_attribute();
-//          }
-
-//          constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
-//          for( int b = 0; b < constant_defs.length; b++ )
-//          {
-//              constants[b] = constant_defs[b].describe_constant();
-//          }
-        Debug.assert( operations != null, "operations null!");
-        Debug.assert( attributes != null, "attributes null!");
 
         defined = true;
         org.jacorb.util.Debug.output(2, "Interface " + name +  " defined ]");
@@ -647,25 +458,47 @@ public class InterfaceDef
 
     public org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription describe_interface()
     {
-        if( !defined )
-            define();
+        Debug.assert( defined, "InterfaceDef " + name + " not defined.");
 
-        String def_in = "IDL:Global:1.0";
-        if( defined_in instanceof org.omg.CORBA.Contained )
-            def_in = ((org.omg.CORBA.Contained)defined_in).id();
-
-        Debug.assert( operations != null, "operations null!");
-        Debug.assert( attributes != null, "attributes null!");
-
-        return new org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription(name, 
-                                                                              id, 
-                                                                              def_in, 
-                                                                              version, 
-                                                                              operations, 
-                                                                              attributes, 
-                                                                              base_names, 
+        if( fullDescription == null )
+        {
+            String def_in = "IDL:Global:1.0";
+            if( defined_in instanceof org.omg.CORBA.Contained )
+                def_in = ((org.omg.CORBA.Contained)defined_in).id();
+            
+            operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
+            for( int c = 0; c < operations.length; c++ )
+            {
+                operations[c] = op_defs[c].describe_operation();
+            }
+            
+            attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
+            for( int a = 0; a < att_defs.length; a++ )
+            {
+                attributes[a] = att_defs[a].describe_attribute();
+            }
+            
+            constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
+            for( int b = 0; b < constant_defs.length; b++ )
+            {
+                constants[b] = constant_defs[b].describe_constant();
+            }
+            
+            Debug.assert( operations != null, "operations null!");
+            Debug.assert( attributes != null, "attributes null!");
+            
+            fullDescription =
+                new org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription(name, 
+                                                                               id, 
+                                                                           def_in, 
+                                                                           version, 
+                                                                           operations, 
+                                                                           attributes, 
+                                                                           base_names, 
                                                                               typeCode, 
-                                                                              false );
+                                                                           false );
+        }
+        return fullDescription;
     }
 
 
@@ -791,6 +624,8 @@ public class InterfaceDef
     public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type, 
                                               boolean exclude_inherited)
     {
+        Debug.assert( defined, "InterfaceDef " + name + " not defined.");
+
         Hashtable limited = new Hashtable();
 
         // analog constants, exceptions etc.
@@ -805,7 +640,9 @@ public class InterfaceDef
             }
         }
 
-        org.omg.CORBA.Contained[] c = new org.omg.CORBA.Contained[limited.size()];
+        org.omg.CORBA.Contained[] c = 
+            new org.omg.CORBA.Contained[limited.size()];
+
         int i;
         Enumeration e;
         for( e = limited.keys(), i=0 ; e.hasMoreElements(); i++ )
@@ -965,12 +802,9 @@ public class InterfaceDef
 
     public org.omg.CORBA.ContainedPackage.Description describe()
     {
-        if( ! defined )
-            define();
-        org.omg.CORBA.Any a = orb.create_any();
+        Debug.assert( defined, "InterfaceDef " + name + " not defined.");
 
-        // org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription i = describe_interface();
-        //a.insert( describe_interface() );
+        org.omg.CORBA.Any a = orb.create_any();
 
         String def_in = null;
 
@@ -980,20 +814,25 @@ public class InterfaceDef
             def_in = myContainer.id();
 	
         org.omg.CORBA.InterfaceDescriptionHelper.insert( 
-            a, 
-            new org.omg.CORBA.InterfaceDescription( name, 
-                                                    id, 
-                                                    def_in, 
-                                                    version, 
-                                                    base_names, 
-                                                    false ) 
+                                a, 
+                                new org.omg.CORBA.InterfaceDescription( name, 
+                                                                        id, 
+                                                                        def_in, 
+                                                                        version, 
+                                                                        base_names, 
+                                                                        false ) 
                 );
-        return new org.omg.CORBA.ContainedPackage.Description( org.omg.CORBA.DefinitionKind.dk_Interface, a);
+        return new org.omg.CORBA.ContainedPackage.Description(
+                         org.omg.CORBA.DefinitionKind.dk_Interface, a);
     }
 
     // from IRObject
 
-    public void destroy(){}
+    public void destroy()
+    {
+        containedLocals.clear();
+        contained.clear();
+    }
 
     // from IDLType
 
