@@ -980,49 +980,64 @@ public final class ORB
 
     private void initialReferencesInit()
     {
-        try
+        if( !Environment.useAppligator(isApplet()) && _args != null )
         {
-            if( !Environment.useAppligator(isApplet()) && _args != null )
+            for( int i = 0; i < _args.length; i++ )
             {
-                for( int i = 0; i < _args.length; i++ )
-                {
-                    if( _args[i].equals("-ORBInitRef"))
-                    {                
-                        if( _args[i+1].indexOf("=") == -1 )
-                        {
-                            throw new InvalidName();
-                        }
-                        String refName = _args[i+1].substring(0,_args[i+1].indexOf("="));
-                        String ior = _args[i+1].substring(_args[i+1].indexOf("=")+1);
+                if( _args[i].equals("-ORBInitRef"))
+                {                                    
+                    if( (i + 1) < _args.length && 
+                        _args[i+1].indexOf("=") == -1 )
+                    {
+                        continue;
+                        //throw new InvalidName();
+                    }
+                    
+                    String refName = _args[i+1].substring(0,_args[i+1].indexOf("="));
+                    String ior = _args[i+1].substring(_args[i+1].indexOf("=")+1);
+                    try
+                    {
                         org.omg.CORBA.Object obj = string_to_object(ior);
                         if( obj != null )
+                        {
                             register_initial_reference( refName, obj );
+                        }
                         else
-                            Debug.output(1,"Illegal URL : " + ior );
-                        i++;
+                        {
+                            Debug.output( 1, "Illegal URL : " + ior );
+                        }
                     }
+                    catch( Exception e )
+                    {
+                        Debug.output( 1, "Unable to create initial reference from " +
+                                      _args[i] );
+                        Debug.output( 3, e );
+                    }
+                    i++;
                 }
             }
-            Hashtable props = Environment.getProperties( "ORBInitRef." );
+        }
+        Hashtable props = Environment.getProperties( "ORBInitRef." );
             
-            for( Enumeration names = props.keys(); names.hasMoreElements(); )
-            {
-                String name = (String) names.nextElement();
-                String key = name.substring( name.indexOf('.')+1);
-                register_initial_reference( key, string_to_object( (String)props.get(name) ) );
-                Debug.output(3, "ORBInitRef " + key + " string: " + (String)props.get(name));
-            }                
-        }
-        catch( InvalidName in )
-        {        
-            System.err.println("usage: -ORBInitRef <name>=<Object_URL>");
-            System.exit(1);
-        }
-        catch( Exception e )
+        for( Enumeration names = props.keys(); names.hasMoreElements(); )
         {
-            Debug.output( 3, e );
-            // System.exit(1);
-        }
+            String name = (String) names.nextElement();
+            String key = name.substring( name.indexOf('.')+1);
+            try
+            {
+                register_initial_reference( key, 
+                           string_to_object( (String) props.get( name )));
+
+                Debug.output(3, "ORBInitRef " + key + " string: " + 
+                             (String) props.get( name ));
+            }
+            catch( Exception e )
+            {
+                Debug.output( 1, "Unable to create initial reference from " +
+                              name + "=" + props.get( name ) );
+                Debug.output( 3, e );
+            }
+        }                
     }
 
 
