@@ -48,10 +48,19 @@ gerald.brose@acm.org
                  to server and back again if server is down.
                - Fix to TypeCode::equal and TypeCode::equivalent operations
                  for handling recursive TypeCodes.
+               - Implementation of Request interface now throws BAD_INV_ORDER
+                 exception when appropriate.
          - Portable Interceptors:
                - Fix so that interceptors registered with an ORB initializer
                  are also applied to any objects registered as initial
                  references.
+
+   - ORB:
+         - Implemented the DII threading operations:
+               - send_multiple_requests_deferred
+               - send_multiple_requests_oneway
+               - poll_next_response
+               - get_next_response
 
    - DynAny:
          - Implemented DynFixed interface.
