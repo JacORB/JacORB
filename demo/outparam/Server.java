@@ -9,7 +9,7 @@ public class Server
 	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
 	try
 	{
-	    org.omg.PortableServer.POA poa = 
+	    org.omg.PortableServer.POA poa =
 		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 	    poa.the_POAManager().activate();
 	    org.omg.PortableServer.Servant servant = new serverImpl();
@@ -18,8 +18,8 @@ public class Server
 	    // register server with naming context
 	    NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
 	    NameComponent [] name = new NameComponent[]{ new NameComponent( "ParamServer", "service")};
-	    nc.bind(name, o);
-	} 
+	    nc.rebind(name, o);
+	}
 	catch ( Exception e )
 	{
 	    e.printStackTrace();
@@ -27,7 +27,3 @@ public class Server
 	orb.run();
     }
 }
-
-
-
-
