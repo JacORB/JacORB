@@ -43,11 +43,11 @@ public class ConstraintEntry
     ////////////////////////////////////////
 
     ConstraintEntry( int constraintId,
-                     FilterConstraint constraintEvaluator,
+                     FilterConstraint filterConstraint,
                      ConstraintInfo constraintInfo )
     {
         constraintId_ = constraintId;
-        filterConstraint_ = constraintEvaluator;
+        filterConstraint_ = filterConstraint;
         constraintInfo_ = constraintInfo;
     }
 
@@ -80,20 +80,24 @@ public class ConstraintEntry
         return new EventTypeWrapper( constraintInfo_.constraint_expression.event_types[ index ] );
     }
 
+
     int getEventTypeCount()
     {
         return constraintInfo_.constraint_expression.event_types.length;
     }
+
 
     int getConstraintId()
     {
         return constraintId_;
     }
 
+
     ConstraintInfo getConstraintInfo()
     {
         return constraintInfo_;
     }
+
 
     public FilterConstraint getFilterConstraint()
     {
