@@ -1,3 +1,4 @@
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -103,6 +104,7 @@ public class ServiceContextTransportingOutputStream
     {
         return header_end + header_padding;
     }
+
 
     private int getHeaderPadding()
     {
@@ -308,7 +310,18 @@ public class ServiceContextTransportingOutputStream
         
         contexts.add( ctx );
     }
-    
+
+    public byte[] getBody()
+    {
+        byte [] result = 
+            org.jacorb.orb.BufferManager.getInstance().getBuffer( size() - getBodyBegin());
+
+        System.arraycopy( getInternalBuffer(), getBodyBegin(), result, 0, result.length );
+
+        return result;
+    }
+
+
     private CDROutputStream createContextStream()
     {
         CDROutputStream out = new CDROutputStream( (org.omg.CORBA.ORB) null );
