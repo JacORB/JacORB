@@ -29,7 +29,17 @@
    </target>
 
 
+   <target name="check-junit-version" unless="junit-version">
+      <fail message="Need Junit version 3.8.1 or above (See http://www.junit.org)"/>
+   </target>
+
+
    <target name="test-init" depends="test-base-init,init,ant-version,load-taskdef">
+      <condition property="junit-version">
+         <available classname="junit.runner.TestRunListener"/>
+      </condition>
+      <antcall target="check-junit-version"/>
+
       <property name="dirs.output" value="${testdir}/output"/>
 
       <mkdir dir="${dirs.output}"/>
@@ -67,14 +77,14 @@
 
    <target name="fixup-rmi-14" if="rmi.ShutdownUtilDelegate">
        <copy
-          file="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java.14" 
+          file="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java.14"
           tofile="${src}/org/jacorb/test/orb/rmi/FixSunDelegateBug.java"/>
    </target>
 
 
   <target name="compile-src">
     <antcall target="jacorb-javac">
-      <param name="javac-includes" value="**"/>      
+      <param name="javac-includes" value="**"/>
       <param name="javac-excludes" value="generated/**,**/RMITestServant.java"/>
       </antcall>
   </target>
