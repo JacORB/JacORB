@@ -613,12 +613,12 @@ public class InterfaceDef
                 new FullInterfaceDescription( name, 
                                               id, 
                                               def_in, 
-                                              version, 
-                                              is_abstract,
+                                              version,
                                               operations, 
                                               attributes, 
                                               base_names, 
-                                              typeCode );
+                                              typeCode, 
+                                              is_abstract );
         }
         return fullDescription;
     }
