@@ -129,7 +129,7 @@ public class SocketFactoryManager
              {
                throw new RuntimeException("Configurable custom socket factory " + 
                                           className + 
-                                          " could not be configured !", ce);
+                                          " could not be configured!: "+ ce);
              }   
           }
           return ((SocketFactory) factory);
@@ -157,7 +157,7 @@ public class SocketFactoryManager
              {
                throw new RuntimeException("Configurable custom server socket factory " + 
                                           className + 
-                                          " could not be configured !", ce);
+                                          " could not be configured!: " + ce);
              }   
           }
           return ((ServerSocketFactory) factory);
