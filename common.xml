@@ -61,7 +61,7 @@
    <echo message="Compiling for ${ant.project.name}"/>
    <javac srcdir="${javac-src}"
           destdir="${classdir}"
-          bootclasspath="${classdir}:${java.home}/lib/rt.jar:${classpath}"
+          bootclasspath="${classdir}:${java.home}/lib/rt.jar:${java.home}/lib/jsse.jar:${classpath}"
           debug="${debug}"
           includes="${javac-includes}"
           excludes="${javac-excludes}">
