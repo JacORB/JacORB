@@ -20,12 +20,11 @@ package org.jacorb.poa.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.poa.*;
-import org.jacorb.poa.except.*;
- import org.jacorb.util.Debug;
+import java.util.*;
+import org.jacorb.poa.POAConstants;
+import org.jacorb.poa.except.POAInternalError;
 import org.omg.PortableServer.*;
-
-import java.util.Calendar;
+import org.jacorb.util.Debug;
 
 /**
  * This class collects some useful routines for the POA.
@@ -236,6 +235,42 @@ public final class POAUtil
             return new String(IdUtil.extract(object_key, begin, end-begin));
         }
     }
+
+
+    /**
+     * <code>extractScopedPOANames</code> returns a vector contained the
+     * poa_names. This method is faster than using a StringTokenizer.
+     *
+     * @param poa_name is a <code>String</code> value which may contain
+     * poa_names separated by
+     * {@link POAConstants.OBJECT_KEY_SEPARATOR OBJECT_KEY_SEPARATOR}
+     * @return a <code>Vector</code> value
+     */
+    public static Vector extractScopedPOANames (String poa_name)
+    {
+        Vector scopes = new Vector ();
+
+        if (poa_name.length () > 0)
+        {
+            // Fill in the vector with the poa_names.
+            int previous = 0, current=0;
+
+            for ( ; current < poa_name.length (); current++)
+            {
+                // If we've found a separator skip over it and add to the vector
+                if (poa_name.charAt (current) == POAConstants.OBJECT_KEY_SEPARATOR)
+                {
+                    scopes.add (poa_name.substring (previous, current));
+                    current++;
+                    previous = current;
+                }
+            }
+            // Add the final POA name
+            scopes.add (poa_name.substring (previous, current));
+        }
+        return scopes;
+    }
+
 
     /**
      * returns the policy with the specified policy_type from a policy list
