@@ -138,7 +138,8 @@ public class IIOPListener
                 16);
 
 
-        if (!isSSLRequired())
+        if (!isSSLRequired() || 
+            configuration.getAttributeAsBoolean("jacorb.security.ssl.always_open_unsecured_endpoint"))
         {
             acceptor = new Acceptor();
             acceptor.init();
