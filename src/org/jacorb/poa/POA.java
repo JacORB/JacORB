@@ -380,7 +380,7 @@ public class POA
                     if (logger.isWarnEnabled())
                     {
                     	logger.warn(logPrefix +
-                                    "rid: " + request.requestId() +
+                                    " rid: " + request.requestId() +
                                     " opname: " + request.operation() +
                                     " _invoke: object key not previously generated!");
                     }
@@ -391,7 +391,7 @@ public class POA
                     if (logger.isWarnEnabled())
                     {
                     	logger.warn(logPrefix +
-                                    "rid: " + request.requestId() +
+                                    " rid: " + request.requestId() +
                                     " opname: " + request.operation() +
                                     " _invoke: object key not previously generated!");
                     }
@@ -408,7 +408,7 @@ public class POA
                 if (logger.isDebugEnabled())
                 {
                     logger.debug(logPrefix +
-                                "rid: " + request.requestId() +
+                                " rid: " + request.requestId() +
                                 " opname: " + request.operation() +
                                 " _invoke: queuing request");
                 }

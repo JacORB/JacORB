@@ -39,7 +39,7 @@ public class RequestQueue
     private RequestController controller;
     private Logger logger;
     private List queue =
-        new ArrayList (POAConstants.QUEUE_CAPACITY_INI); 
+        new ArrayList (POAConstants.QUEUE_CAPACITY_INI);
                     // POAConstants.QUEUE_CAPACITY_INC);
 
     private RequestQueue()
@@ -96,7 +96,7 @@ public class RequestQueue
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("rid:" + request.requestId() +
+            logger.debug("rid: " + request.requestId() +
                          " opname: " + request.operation() +
                          " is queued (queue size: " + queue.size() + ")");
         }
