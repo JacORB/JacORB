@@ -60,17 +60,7 @@ public final class Any
 
     public org.omg.CORBA.TypeCode originalType ()
     {
-      org.omg.CORBA.TypeCode tc = typeCode;
-      try
-      {
-         while (tc.kind().value() == org.omg.CORBA.TCKind._tk_alias)
-            tc = tc.content_type();
-      }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-      {
-         // does not happen
-      }
-      return tc;
+      return TypeCode.originalType(typeCode);
     }
 
     public void type (org.omg.CORBA.TypeCode t)

@@ -1312,8 +1312,8 @@ public class CDROutputStream
 
     public final void write_TypeCode (org.omg.CORBA.TypeCode value)
     {
-        String   id     = null;
-        TypeCode cached = null;
+        String   id                   = null;
+        org.omg.CORBA.TypeCode cached = null;
 
         try
         {
@@ -1334,7 +1334,7 @@ public class CDROutputStream
             {
                 // We may previously have already compacted and cached this
                 // typecode.
-                cached = (TypeCode)cachedTypecodes.get (id);
+                cached = (org.omg.CORBA.TypeCode)cachedTypecodes.get (id);
             }
             // If we don't have a cached value get the compact form and
             // cache it.
@@ -1382,8 +1382,7 @@ public class CDROutputStream
       try
       {
 
-         if( (value instanceof org.jacorb.orb.TypeCode) &&
-             ((org.jacorb.orb.TypeCode)value).is_recursive() &&
+         if( TypeCode.isRecursive(value) &&
              tcMap != null &&
              tcMap.containsKey( value.id()) )
          {
@@ -1821,8 +1820,9 @@ public class CDROutputStream
             {
                 try
                 {
-                    TypeCode disc = (TypeCode) tc.discriminator_type();
-                    disc = disc.originalType ();
+                    org.omg.CORBA.TypeCode disc = 
+                        (org.omg.CORBA.TypeCode) tc.discriminator_type();
+                    disc = TypeCode.originalType(disc);
                     int def_idx = tc.default_index();
                     int member_idx = -1;
 

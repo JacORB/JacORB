@@ -20,9 +20,6 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.orb.TypeCode;
-//import org.jacorb.orb.TypeCodeUtil;
-
 import org.jacorb.util.Debug;
 
 import java.lang.reflect.*;
@@ -195,7 +192,7 @@ public class OperationDef
 
     org.omg.CORBA.ParameterDescription[] getParameterDescriptions()
     {
-        TypeCode tc = null;
+        org.omg.CORBA.TypeCode tc = null;
         Class m_params[] = method.getParameterTypes();
 
         org.omg.CORBA.ParameterDescription[] params =

@@ -43,8 +43,7 @@ public final class DynEnum
             org.omg.CORBA.TypeCode tc)
       throws InvalidValue, TypeMismatch
    {
-      org.jacorb.orb.TypeCode _type = 
-         ((org.jacorb.orb.TypeCode)tc).originalType();
+      org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
 
       if( _type.kind().value() != org.omg.CORBA.TCKind._tk_enum )
          throw new TypeMismatch();
@@ -87,7 +86,7 @@ public final class DynEnum
       if( ! value.type().equivalent( type()) )
          throw new TypeMismatch();
 
-      type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
+      type = TypeCode.originalType( value.type() );
 
       try
       {	    

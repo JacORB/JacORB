@@ -269,7 +269,7 @@ public class IdlWriter
             print( "exception " + e.name + " {" + "\n" );
             indent( indentation + 3 );
             for( int i = 0; i< members.length; i++){
-                print( idlTypeName( members[i].type ) + " " + members[i].name + 
+                print( TypeCode.idlTypeName( members[i].type ) + " " + members[i].name + 
                        ";" + "\n" );
             }
             indent( indentation );
@@ -299,7 +299,7 @@ public class IdlWriter
 
             for( int i = 0; i < members.length; i++)
             {
-                print( idlTypeName( members[i].type ) + " " +
+                print( TypeCode.idlTypeName( members[i].type ) + " " +
                        members[i].name + ";" + "\n" );
             }
 
@@ -325,7 +325,7 @@ public class IdlWriter
     {
         indent( indentation );
         StringBuffer sb = 
-            new StringBuffer (  "const " + idlTypeName( c.type ) 
+            new StringBuffer (  "const " + TypeCode.idlTypeName( c.type ) 
                                 + " " + c.name + " = " );
         switch ( c.type.kind().value() )
         {
@@ -387,7 +387,7 @@ public class IdlWriter
         String mode = "";
         if( a.mode.equals( org.omg.CORBA.AttributeMode.ATTR_READONLY ))
             mode = "readonly ";
-        print( mode + "attribute " + idlTypeName(a.type)
+        print( mode + "attribute " + TypeCode.idlTypeName(a.type)
                + " " + a.name + ";" +  "\n" );
     }
 
@@ -430,7 +430,7 @@ public class IdlWriter
             org.omg.CORBA.UnionMember [] members = u_def.members();
             indent( indentation );
             print( "union " + u_def.name() + " switch ( " + 
-                   idlTypeName(u_def.discriminator_type())
+                   TypeCode.idlTypeName(u_def.discriminator_type())
                    +  " )\n");
             print("{\n" );
             indent( indentation + 4 );
@@ -445,7 +445,7 @@ public class IdlWriter
                 else if( members[i].label.type().kind() == org.omg.CORBA.TCKind.tk_char )
                 {
                     print("case \'" + members[i].label.extract_char() + "\' : " +  
-                          idlTypeName(members[i].type) + " " 
+                          TypeCode.idlTypeName(members[i].type) + " " 
                           + members[i].name + ";" + "\n");
                 }
                 else if( members[i].label.type().kind() == org.omg.CORBA.TCKind.tk_enum )
@@ -459,7 +459,7 @@ public class IdlWriter
 
                         // print("case " + members[i].label.type().member_name(val) + " : " +  
                        print("case " + dEnum.get_as_string() + " : " +  
-                              idlTypeName(members[i].type) + " " + 
+                              TypeCode.idlTypeName(members[i].type) + " " + 
                               members[i].name + ";" + "\n");
                     }
                     catch( Exception bk )
@@ -469,12 +469,12 @@ public class IdlWriter
                 }
                 else
                     print("case " + members[i].label.type() + " : " +  
-                          idlTypeName(members[i].type) + " " +
+                          TypeCode.idlTypeName(members[i].type) + " " +
                           members[i].name + ";" + "\n");
             }
             if( def_idx != -1 )
             {
-                print("default : " +  idlTypeName(members[def_idx].type) + " " + 
+                print("default : " +  TypeCode.idlTypeName(members[def_idx].type) + " " + 
                       members[def_idx].name +";" + "\n" );
             }
             indent( indentation );
@@ -495,7 +495,7 @@ public class IdlWriter
             org.omg.CORBA.AliasDefHelper.narrow( ir.lookup_id( t.id ));
         indent( indentation );
 
-        String originalTypeName = idlTypeName( adef.original_type_def().type());
+        String originalTypeName = TypeCode.idlTypeName( adef.original_type_def().type());
 
         print("typedef " + originalTypeName + 
                   " " + adef.name() + ";\n\n");
@@ -514,7 +514,7 @@ public class IdlWriter
         String mode = "";
         if( op.mode.equals(org.omg.CORBA.OperationMode.OP_ONEWAY ))
             mode = "oneway ";
-        print( mode +  idlTypeName(op.result) + " " + op.name + "(");
+        print( mode +  TypeCode.idlTypeName(op.result) + " " + op.name + "(");
 
         indent(0);
 
@@ -528,9 +528,9 @@ public class IdlWriter
 
         if( op.exceptions.length > 0 ){
             print(" raises (");
-            print( idlTypeName(op.exceptions[0].type ) );
+            print( TypeCode.idlTypeName(op.exceptions[0].type ) );
             for( int i = 1; i < op.exceptions.length; i++){
-                print( idlTypeName(op.exceptions[0].type ) + ",");
+                print( TypeCode.idlTypeName(op.exceptions[0].type ) + ",");
             }
             print(")");
         }
@@ -548,17 +548,8 @@ public class IdlWriter
             print("inout ");
         else
             print("in ");
-        print( idlTypeName(p.type) + " " + p.name );
+        print( TypeCode.idlTypeName(p.type) + " " + p.name );
         print( separator );
     }
 
-    private String idlTypeName( org.omg.CORBA.TypeCode tc )
-    {
-        return ((org.jacorb.orb.TypeCode)tc).idlTypeName();
-    }
-
-
 }
-
-
-

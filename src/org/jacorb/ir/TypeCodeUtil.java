@@ -64,7 +64,8 @@ public class TypeCodeUtil
      * in order to get at nested types, as e.g. in array of arrays of arrays
      */
 
-    public static TypeCode getTypeCode( Class c, java.lang.Object o )
+    public static org.omg.CORBA.TypeCode getTypeCode( Class c, 
+                                                      java.lang.Object o )
         throws ClassNotFoundException
     {
         return getTypeCode( c, null, o, null );
@@ -75,10 +76,10 @@ public class TypeCodeUtil
      * in order to get at nested types, as e.g. in array of arrays of arrays
      */
 
-    public static TypeCode getTypeCode( Class c, 
-                                        ClassLoader classLoader,
-                                        java.lang.Object o, 
-                                        String idlName )
+    public static org.omg.CORBA.TypeCode getTypeCode( Class c, 
+                                                      ClassLoader classLoader,
+                                                      java.lang.Object o, 
+                                                      String idlName )
         throws ClassNotFoundException
     {
         String typeName = c.getName();
@@ -91,7 +92,8 @@ public class TypeCodeUtil
         else
             loader = c.getClassLoader(); // important for ir
 
-        TypeCode _tc = (TypeCode)cache.get( typeName  );
+        org.omg.CORBA.TypeCode _tc = 
+            (org.omg.CORBA.TypeCode)cache.get( typeName  );
         if( _tc != null )
         {
             //System.out.println("[ cached TypeCode ]");
@@ -100,7 +102,7 @@ public class TypeCodeUtil
 
         if( idlName != null )
         {
-            _tc = (TypeCode)cache.get( idlName );
+            _tc = (org.omg.CORBA.TypeCode)cache.get( idlName );
             if( _tc != null )
             {
                 //System.out.println("[ cached TypeCode ]");
@@ -222,7 +224,9 @@ public class TypeCodeUtil
                     //# Class type = Class.forName( idlName + "Helper" );
                     //#endif
 
-                    return (TypeCode)type.getDeclaredMethod("type", null).invoke( null, null );
+                    return (org.omg.CORBA.TypeCode)type.getDeclaredMethod(
+                                                    "type", 
+                                                    null).invoke( null, null );
                 }
                 catch( ClassNotFoundException cnfe )
                 {
@@ -248,7 +252,10 @@ public class TypeCodeUtil
                             //# Class.forName( c.getName() + "Helper" );
                             //#endif
 
-                    return (TypeCode)resultHelperClass.getDeclaredMethod("type", null).invoke( null, null );
+                    return (org.omg.CORBA.TypeCode)
+                        resultHelperClass.getDeclaredMethod(
+                                                    "type", 
+                                                    null).invoke( null, null );
                 }
                 catch( Exception cnfe )
                 {
@@ -265,7 +272,6 @@ public class TypeCodeUtil
         }
     } 
     
- 
     private static String idToIDL( String s )
     {
         if( s.startsWith("IDL:"))
@@ -287,10 +293,3 @@ public class TypeCodeUtil
         return sb.toString();
     }
 }
-
-
-
-
-
-
-

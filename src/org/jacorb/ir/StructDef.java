@@ -20,7 +20,6 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.orb.TypeCode;
 import org.jacorb.util.Debug;
 import org.omg.CORBA.INTF_REPOS;
 
@@ -95,7 +94,9 @@ public class StructDef
 //              type =
 //                  TypeCodeUtil.getTypeCode( myClass, RepositoryImpl.loader, null, classId );
 
-            type = (TypeCode)helperClass.getDeclaredMethod( "type", null ).invoke( null, null );
+            type = (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod( 
+                                                   "type", 
+                                                   null ).invoke( null, null );
 
             members = new org.omg.CORBA.StructMember[ type.member_count() ];
             for( int i = 0; i < members.length; i++ )

@@ -44,8 +44,8 @@ public final class DynArray
              org.omg.CORBA.TypeCode tc)
       throws InvalidValue, TypeMismatch
    {
-      org.jacorb.orb.TypeCode _type = 
-         ((org.jacorb.orb.TypeCode)tc).originalType();
+      org.omg.CORBA.TypeCode _type = 
+         TypeCode.originalType( tc );
       
       if(  _type.kind() != org.omg.CORBA.TCKind.tk_array )
          throw new TypeMismatch();	
@@ -55,7 +55,7 @@ public final class DynArray
          type = _type;
          this.orb = org.omg.CORBA.ORB.init();
          this.dynFactory = dynFactory;
-         elementType = ((org.jacorb.orb.TypeCode)type.content_type()).originalType();
+         elementType = TypeCode.originalType( type.content_type() );
 
          limit = type.length();
          members = new Any[limit];
@@ -85,12 +85,12 @@ public final class DynArray
       if( ! type.equivalent( value.type() ))
          throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
 
-      type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
+      type = TypeCode.originalType( value.type() );
 
       try
       {	    
          limit = type().length();
-         elementType = ((org.jacorb.orb.TypeCode)type.content_type()).originalType();
+         elementType = TypeCode.originalType( type.content_type() );
 
          if( limit > 0 )
             pos = 0;
@@ -172,8 +172,8 @@ public final class DynArray
 
       for( int i = value.length; i-- > 0 ;)
       {
-         TypeCode tc = 
-            ((org.jacorb.orb.TypeCode)value[i].type()).originalType();
+         org.omg.CORBA.TypeCode tc = 
+            TypeCode.originalType( value[i].type() );
 
          if( tc.kind() != elementType.kind() )
             throw new TypeMismatch();

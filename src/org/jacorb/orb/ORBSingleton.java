@@ -153,7 +153,7 @@ public class ORBSingleton
     private void checkTCMemberType( TypeCode tc )
         throws BAD_TYPECODE
     {
-        if( !(((org.jacorb.orb.TypeCode) tc).is_recursive ()) &&
+        if( !org.jacorb.orb.TypeCode.isRecursive(tc) &&
             (tc == null ||
              tc.kind().value() == TCKind._tk_null ||
              tc.kind().value() == TCKind._tk_void ||
@@ -296,7 +296,7 @@ public class ORBSingleton
     public TypeCode create_sequence_tc( int bound, TypeCode element_type)
     {
         checkTCMemberType( element_type );
-        org.jacorb.orb.TypeCode tc =
+        TypeCode tc = 
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_sequence,
                                          bound,
                                          element_type);
@@ -373,8 +373,8 @@ public class ORBSingleton
 
         // check discriminator type
 
-        org.jacorb.orb.TypeCode disc_tc =
-          ((org.jacorb.orb.TypeCode) discriminator_type).originalType ();
+        TypeCode disc_tc = 
+            org.jacorb.orb.TypeCode.originalType(discriminator_type);
 
         if (disc_tc == null ||
             !(disc_tc.kind().value() == TCKind._tk_short ||

@@ -47,15 +47,15 @@ public class TypeCode
 
     private int         member_count = 0;
     private String []   member_name = null;
-    private TypeCode [] member_type = null;
+    private org.omg.CORBA.TypeCode [] member_type = null;
     private short []    member_visibility = null;
     private Any []      member_label = null;
     private short       value_modifier = 0;
 
-    private TypeCode    discriminator_type = null;
+    private org.omg.CORBA.TypeCode    discriminator_type = null;
     private int         default_index = -1;
     private int         length = -1;
-    private TypeCode    content_type = null;
+    private org.omg.CORBA.TypeCode    content_type = null;
 
     /** for fixed point types */
     private short       scale;
@@ -67,7 +67,7 @@ public class TypeCode
     private boolean     secondIteration = false;
 
     private static boolean     class_init = false;
-    private static TypeCode[]  primitive_tcs = new TypeCode[34];
+    private static org.omg.CORBA.TypeCode[]  primitive_tcs = new TypeCode[34];
 
     /**
      * Maps the java.lang.Class objects for primitive types to
@@ -141,7 +141,7 @@ public class TypeCode
      * @return TypeCode with integer kind _kind
      */
 
-    static TypeCode get_primitive_tc( int _kind )
+    static org.omg.CORBA.TypeCode get_primitive_tc( int _kind )
     {
        if ( primitive_tcs[_kind] == null )
        {
@@ -202,11 +202,11 @@ public class TypeCode
         }
         member_count = _members.length;
         member_name = new String[member_count];
-        member_type = new TypeCode[member_count];
+        member_type = new org.omg.CORBA.TypeCode[member_count];
         for( int i = 0; i < member_count; i++ )
         {
             member_name[i] = _members[i].name;
-            member_type[i] = (TypeCode)_members[i].type;
+            member_type[i] = _members[i].type;
         }
     }
 
@@ -229,12 +229,12 @@ public class TypeCode
         {
             name = "";
         }
-        discriminator_type = (TypeCode)_discriminator_type;
+        discriminator_type = _discriminator_type;
 
         member_count = _members.length;
         member_name  = new String[member_count];
         member_label = new Any[member_count];
-        member_type  = new TypeCode[member_count];
+        member_type  = new org.omg.CORBA.TypeCode[member_count];
 
         for( int i = 0; i < member_count; i++ )
         {
@@ -245,7 +245,7 @@ public class TypeCode
             {
                 default_index = i;
             }
-            member_type[i] = (TypeCode)_members[i].type;
+            member_type[i] = _members[i].type;
         }
     }
 
@@ -295,7 +295,7 @@ public class TypeCode
         {
             name = "";
         }
-        content_type = (TypeCode)_original_type;
+        content_type = _original_type;
     }
 
     /**
@@ -339,7 +339,7 @@ public class TypeCode
     {
         kind = _kind;
         length = _bound;
-        content_type = (TypeCode)_element_type;
+        content_type = _element_type;
         if (content_type == null)
         {
            throw new org.omg.CORBA.BAD_PARAM ("TypeCode.ctor, content_type null");
@@ -378,7 +378,7 @@ public class TypeCode
             name = "";
         }
         value_modifier = type_modifier;
-        content_type = (TypeCode)concrete_base;
+        content_type = concrete_base;
         setValueMembers(members);
     }
 
@@ -390,12 +390,12 @@ public class TypeCode
     {
         member_count = (members != null) ? members.length : 0;
         member_name = new String[member_count];
-        member_type = new TypeCode[member_count];
+        member_type = new org.omg.CORBA.TypeCode[member_count];
         member_visibility = new short[member_count];
         for( int i = 0; i < member_count; i++ )
         {
             member_name[i] = members[i].name;
-            member_type[i] = (TypeCode)members[i].type;
+            member_type[i] = members[i].type;
             member_visibility[i] = members[i].access;
         }
     }
@@ -408,13 +408,14 @@ public class TypeCode
     {
         try
         {
-            org.jacorb.orb.TypeCode jtc = (org.jacorb.orb.TypeCode)tc;
-
             if( is_recursive() )
             {
                 checkActualTC();
-                if( jtc.is_recursive() )
+                if( tc instanceof org.jacorb.orb.TypeCode &&
+                    ((org.jacorb.orb.TypeCode)tc).is_recursive() )
                 {
+                    org.jacorb.orb.TypeCode jtc = (org.jacorb.orb.TypeCode)tc;
+
                     jtc.checkActualTC();
                     if ( secondIteration )
                     {
@@ -428,10 +429,13 @@ public class TypeCode
                         return result;
                     }
                 }
-                return jtc.equal( actualTypecode );
+                return tc.equal( actualTypecode );
             }
-            else if( jtc.is_recursive() )
+            else if( tc instanceof org.jacorb.orb.TypeCode &&
+                     ((org.jacorb.orb.TypeCode)tc).is_recursive() )
             {
+                org.jacorb.orb.TypeCode jtc = (org.jacorb.orb.TypeCode)tc;
+
                 jtc.checkActualTC();
                 return equal( jtc.actualTypecode );
             }
@@ -820,7 +824,7 @@ public class TypeCode
             result.member_type = new TypeCode [member_type.length];
             for (int i = 0; i < result.member_type.length; i++)
             {
-                result.member_type[i] = (TypeCode)member_type[i].get_compact_typecode ();
+                result.member_type[i] = member_type[i].get_compact_typecode ();
             }
         }
 
@@ -886,13 +890,14 @@ public class TypeCode
     {
         try
         {
-            org.jacorb.orb.TypeCode jtc = (org.jacorb.orb.TypeCode)tc;
-
             if( is_recursive() )
             {
                 checkActualTC();
-                if( jtc.is_recursive() )
+                if( tc instanceof org.jacorb.orb.TypeCode &&
+                    ((org.jacorb.orb.TypeCode)tc).is_recursive() )
                 {
+                    org.jacorb.orb.TypeCode jtc = (org.jacorb.orb.TypeCode)tc;
+
                     jtc.checkActualTC();
                     if ( secondIteration )
                     {
@@ -906,10 +911,13 @@ public class TypeCode
                         return result;
                     }
                 }
-                return jtc.equivalent( actualTypecode );
+                return tc.equivalent( actualTypecode );
             }
-            else if( jtc.is_recursive() )
+            else if( tc instanceof org.jacorb.orb.TypeCode &&
+                     ((org.jacorb.orb.TypeCode)tc).is_recursive() )
             {
+                org.jacorb.orb.TypeCode jtc = (org.jacorb.orb.TypeCode)tc;
+
                 jtc.checkActualTC();
                 return equivalent( jtc.actualTypecode );
             }
@@ -1062,6 +1070,15 @@ public class TypeCode
     }
 
     /**
+     * @return TRUE if the argument is a JacORB typecode and is recursive.
+     */
+    public static boolean isRecursive(org.omg.CORBA.TypeCode tc)
+    {
+        return (tc instanceof TypeCode) ? ((TypeCode)tc).is_recursive() 
+                                        : false;
+    }
+ 
+    /**
      * called after replacing the placeholder
      * to be able to break off recursion
      */
@@ -1069,6 +1086,15 @@ public class TypeCode
     private void set_recursive()
     {
         recursive = true;
+    }
+
+    /** convenience method */
+
+    public static String idlTypeName( org.omg.CORBA.TypeCode tc )
+    {
+        return (tc instanceof org.jacorb.orb.TypeCode) 
+                                  ? ((org.jacorb.orb.TypeCode)tc).idlTypeName()
+                                  : "(foreign typecode)";
     }
 
     /** convenience method */
@@ -1104,7 +1130,7 @@ public class TypeCode
        case   TCKind._tk_array:
           try
           {
-             return ((org.jacorb.orb.TypeCode)content_type()).idlTypeName() + "[]";
+             return idlTypeName(content_type()) + "[]";
           } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
           {}
        case   TCKind._tk_long: return "long";
@@ -1130,9 +1156,7 @@ public class TypeCode
        case   TCKind._tk_sequence:
           try
           {
-             return "sequence <" +
-                ((org.jacorb.orb.TypeCode)content_type()).idlTypeName()
-                + ">";
+             return "sequence <" + idlTypeName(content_type()) + ">";
           } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
           {}
        default: return "* no typeName for TK " + kind().value() + " *";
@@ -1168,31 +1192,33 @@ public class TypeCode
     }
 
     /**
-     * proprietary convenience method, not in CORBA API
-     * @return the content type if this is an alias, this otherwise
+     * @return the content type if the argument is an alias, or the argument 
+     *         itself otherwise
      */
+    public static org.omg.CORBA.TypeCode originalType(org.omg.CORBA.TypeCode tc) 
+    {
+        if (isRecursive(tc))
+        {
+            // Recursive typecodes must be structs or unions so there is no
+            // unwinding of aliases to be done. By returning here we avoid 
+            // calling kind() on a recursive typecode that might not have been 
+            // resolved yet. (If you remove the return statement below, you 
+            // will get org.omg.CORBA.BAD_INV_ORDER exceptions within kind() 
+            // calls on non-resolved recursive typecodes!)
+            return tc; 
+        }
 
-   public org.jacorb.orb.TypeCode originalType()
-   {
-      if (is_recursive ())
-      {
-         // recursive typecodes must be structs or unions so there is no
-         // unwinding of aliases to be done
-         return this;
-      }
-
-      org.jacorb.orb.TypeCode tc = this;
-      try
-      {
-         while( tc.kind() == org.omg.CORBA.TCKind.tk_alias)
-            tc = (org.jacorb.orb.TypeCode)tc.content_type();
-      }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-      {
-         // does not happen
-      }
-      return tc;
-   }
+        try
+        {
+            while (tc.kind() == org.omg.CORBA.TCKind.tk_alias)
+                tc = tc.content_type();
+        }
+        catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
+        {
+            // does not happen
+        }
+        return tc;
+    }
 
     /**
      * Creates a TypeCode for an arbitrary Java class.
@@ -1315,32 +1341,41 @@ public class TypeCode
          return;
       }
 
+      org.omg.CORBA.TypeCode typeCode;
       TypeCode tc;
       for (int i = 0; i < member_type.length; i++)
       {
-         tc = member_type[i].originalType ();
-
-         switch (tc.kind)
+         typeCode = originalType (member_type[i]);
+         if (typeCode instanceof TypeCode) 
          {
-         case   TCKind._tk_struct:
-         case   TCKind._tk_union:
-            tc.resolveRecursion (actual);
-            break;
-         case   TCKind._tk_sequence:
-            tc = tc.content_type.originalType ();
+            tc = (TypeCode)typeCode;
 
-            if (tc.is_recursive () && tc.id.equals (actual.id))
+            switch (tc.kind)
             {
-               tc.setActualTC (actual);
-            }
-            else
-            {
+            case   TCKind._tk_struct:
+            case   TCKind._tk_union:
                tc.resolveRecursion (actual);
+               break;
+            case   TCKind._tk_sequence:
+               typeCode = originalType (tc.content_type);
+               if (typeCode instanceof TypeCode) 
+               {
+                  tc = (TypeCode)typeCode;
+
+                  if (tc.is_recursive () && tc.id.equals (actual.id))
+                  {
+                     tc.setActualTC (actual);
+                  }
+                  else
+                  {
+                     tc.resolveRecursion (actual);
+                  }
+               }
+               break;
             }
          }
       }
    }
-
    /*
     * Set the actual TypeCode if this TypeCode is recursive.
     * @param tc The actual TypeCode

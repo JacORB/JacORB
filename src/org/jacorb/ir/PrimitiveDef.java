@@ -20,7 +20,6 @@
 
 package org.jacorb.ir;
 
-import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.PrimitiveKind;
 import org.omg.CORBA.INTF_REPOS;

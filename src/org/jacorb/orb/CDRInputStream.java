@@ -1205,7 +1205,7 @@ public class CDRInputStream
                     // of label types and only the discriminator type is passed on the
                     // wire.
                     org.omg.CORBA.TypeCode orig_disc_type =
-                        ((org.jacorb.orb.TypeCode) discriminator_type).originalType();
+                        TypeCode.originalType(discriminator_type);
 
                     int default_index = read_long();
                     member_count = read_long();
@@ -1965,8 +1965,8 @@ public class CDRInputStream
             case TCKind._tk_union:
                 try
                 {
-                    TypeCode disc = (TypeCode) tc.discriminator_type ();
-                    disc = disc.originalType ();
+                    org.omg.CORBA.TypeCode disc = tc.discriminator_type ();
+                    disc = TypeCode.originalType(disc);
                     int def_idx = tc.default_index();
                     int member_idx = -1;
                     switch( disc.kind().value() )
