@@ -23,6 +23,24 @@
 ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
 
+
+########################################
+#                                      #
+#      Export of corbaloc IORs         #
+#                                      #
+########################################
+
+# allow for more readable corbaloc URLs by mapping the 
+# actual object key to an arbitrary string the mapping 
+# below would permit clients of a name service to
+# access it using corbaloc::ipaddress:portnum/NameService
+# Note: it is NOT necessary to define this property for
+# the name service here because this is done already in the
+# code of the ns implementation
+
+# example: 
+#jacorb.orb.objectKeyMap.NameService=StandardNS/NameServer-POA/_root
+
 ##################################
 #                                #
 #   Appligator support           #
