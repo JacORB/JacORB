@@ -5,6 +5,8 @@ import junit.framework.*;
 import org.omg.CORBA.*;
 
 /**
+ * Test for bug 272, byte array in Any.
+ * 
  * @author Andre Spiegel
  * @version $Id$
  */
