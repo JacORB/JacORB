@@ -65,10 +65,6 @@ public final class Delegate
 
     private org.omg.CORBA.ORB orb = null;
     
-    // remember local context objects in a stack structure, this is
-    // necessary for performing recursive local calls correctly!
-    private Vector contextList = new Vector();
-
     private boolean use_interceptors = false;
 
     private boolean location_forward_permanent = true;
@@ -1209,10 +1205,7 @@ public final class Delegate
 
     public void servant_postinvoke(org.omg.CORBA.Object self, ServantObject servant) 
     {
-        org.jacorb.poa.LocalInvocationContext context =
-            (org.jacorb.poa.LocalInvocationContext) contextList.lastElement();
-        ((org.jacorb.orb.ORB)orb).getPOACurrent()._removeContext(context);
-        contextList.removeElementAt(contextList.size()-1);
+        ((org.jacorb.orb.ORB)orb).getPOACurrent()._removeContext(Thread.currentThread());
     }
 
     /**
@@ -1251,17 +1244,16 @@ public final class Delegate
                 if (!expectedType.isInstance(so.servant)) 
                     return null;
                 else 
-                {
-                    org.jacorb.poa.LocalInvocationContext context = 
-                        new org.jacorb.poa.LocalInvocationContext(
-                                      orb, 
-                                      poa, 
-                                      getObjectId(), 
-                                      (org.omg.PortableServer.Servant)so.servant);
+                {                           
                     ((org.jacorb.orb.ORB)orb).getPOACurrent()._addContext(
-                                      context, 
-                                      Thread.currentThread());
-                    contextList.addElement(context);
+                        Thread.currentThread(),
+                        new org.jacorb.poa.LocalInvocationContext(
+                            orb, 
+                            poa, 
+                            getObjectId(), 
+                            (org.omg.PortableServer.Servant)so.servant
+                        )
+                    );
                 }
                 return so;
             }

@@ -39,17 +39,10 @@ public class Current
     extends org.jacorb.orb.LocalityConstrainedObject 
     implements org.omg.PortableServer.Current 
 {
-    private Vector contextVector = new Vector();          // stores InvocationContext elements
-    private Hashtable contextTable = new Hashtable();     // InvocationContext -> Thread
+	private Hashtable threadTable = new Hashtable(); // Thread -> vector of InvocationContext elements (Stack)
 
     private Current() 
     {
-    }
-
-    synchronized public void _addContext(InvocationContext context, Thread t) 
-    {
-        contextVector.insertElementAt(context, 0);
-        contextTable.put(context, t);
     }
 
     public static Current _Current_init() 
@@ -57,12 +50,32 @@ public class Current
         return new Current();
     }
 
-    synchronized public void _removeContext(InvocationContext c) 
-    {
-        contextVector.removeElement(c);
-        contextTable.remove(c);
-    }
+	synchronized public void _addContext(Thread t, InvocationContext c) 
+	{		    
+		Vector cv = (Vector) threadTable.get(t);
 
+		if (cv == null) {
+			cv = new Vector();
+			threadTable.put(t, cv);
+		}
+		
+		cv.addElement(c);
+	}
+	    
+	synchronized public void _removeContext(Thread t) 
+	{
+		Vector cv = (Vector) threadTable.get(t);
+
+		if (cv != null) {
+			
+			cv.removeElementAt(cv.size()-1);
+			
+			if (cv.size() == 0) {
+				threadTable.remove(t);
+			}
+		}
+	}
+	
     public byte[] get_object_id() 
         throws NoContext 
     {
@@ -75,19 +88,25 @@ public class Current
         return getInvocationContext().getPOA();
     }
     
-    synchronized private InvocationContext getInvocationContext() 
-        throws NoContext 
-    {
-        java.lang.Object context;
-        Thread ct = Thread.currentThread();
-        java.util.Enumeration e = contextVector.elements();
-        while (e.hasMoreElements()) {
-            context = e.nextElement();
-            if (ct == contextTable.get(context)) return (InvocationContext) context;
-        }
-        throw new NoContext();
-    }
-    
+	synchronized private InvocationContext getInvocationContext() 
+		throws NoContext 
+	{
+		Thread ct = Thread.currentThread();
+
+		Vector cv = (Vector) threadTable.get(ct);
+
+		if (cv != null) {
+			
+			InvocationContext c = (InvocationContext) cv.lastElement();
+
+			if (c != null) {
+				return c;
+			}
+		}
+
+		throw new NoContext();
+	}
+	    
     protected org.omg.CORBA.ORB getORB() 
         throws NoContext 
     {

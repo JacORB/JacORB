@@ -89,7 +89,7 @@ public class RPPoolManager
             {
                 pool.removeElement(rps[i]);
                 pool_size--;
-                current._removeContext(rps[i]);
+				current._removeContext(rps[i]);
                 rps[i].stop();
             }		
         }
