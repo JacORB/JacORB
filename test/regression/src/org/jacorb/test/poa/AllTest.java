@@ -33,6 +33,7 @@ public class AllTest extends TestCase
    {
         TestSuite suite = new TestSuite ("All POA Tests");
 
+        suite.addTest (org.jacorb.test.poa.ByteArrayKeyTest.suite());
         suite.addTest (org.jacorb.test.poa.Deactivate.suite());
         suite.addTest (org.jacorb.test.poa.QueueNoWaitTest.suite());
         suite.addTest (org.jacorb.test.poa.QueueWaitTest.suite());

@@ -26,6 +26,7 @@ import org.jacorb.test.common.ORBSetup;
 import org.jacorb.test.orb.BasicServerImpl;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.omg.CORBA.Policy;
 
 
 /**
@@ -67,6 +68,7 @@ public class TestCase extends junit.framework.TestCase
 
         suite.addTest (new TestCase ("testActivateDeactivate1"));
         suite.addTest (new TestCase ("testActivateDeactivate2"));
+        suite.addTest (new TestCase ("testActivateDeactivate3"));
 
         return osetup;
     }
@@ -121,9 +123,7 @@ public class TestCase extends junit.framework.TestCase
 
             for (int count=0;count<100;count++)
             {
-//                System.out.println("Iteration #"+count+" - deactivating object");
                 poa.deactivate_object(id);
-//                System.out.println("Iteration #"+count+" - activating object");
                 poa.activate_object_with_id(id, soi);
             }
         }
@@ -132,6 +132,46 @@ public class TestCase extends junit.framework.TestCase
             fail( "unexpected exception: " + e );
         }
     }
+
+
+    /**
+     * <code>testActivateDeactivate3</code> tests activating an object using a POA policy
+     * of MULTIPLE_ID.
+     */
+    public void testActivateDeactivate3 ()
+    {
+        try
+        {
+            POA rootPoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+
+            // create POA
+            Policy policies[] = new Policy[3];
+            policies[0] = rootPoa.create_id_assignment_policy(
+                org.omg.PortableServer.IdAssignmentPolicyValue.SYSTEM_ID);
+            policies[1] = rootPoa.create_id_uniqueness_policy(
+                org.omg.PortableServer.IdUniquenessPolicyValue.MULTIPLE_ID);
+            policies[2] = rootPoa.create_servant_retention_policy(
+                org.omg.PortableServer.ServantRetentionPolicyValue.RETAIN);
+
+            POA poa = rootPoa.create_POA("system_id", rootPoa.the_POAManager(), policies);
+
+            BasicServerImpl soi = new BasicServerImpl();
+
+            byte [] id = poa.activate_object(soi);
+
+            for (int count=0;count<100;count++)
+            {
+                poa.deactivate_object(id);
+                poa.activate_object_with_id( id, soi);
+           }
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+            fail( "unexpected exception: " + e );
+        }
+    }
+
 
 
     /**
