@@ -88,6 +88,11 @@ public class ServerGIOPConnection
         }
     }
 
+
+    /**
+     * <code>sendCloseConnection</code> sends a close connection message
+     * flushing the transport.
+     */
     public void sendCloseConnection()
     {
         try
@@ -111,6 +116,10 @@ public class ServerGIOPConnection
             }
             else
             {
+                // Set do_close to true so anything waiting in waitUntilConnection
+                // doesn't think there is a possibility of connecting. I think.
+                do_close = true;
+
                 transport.close();
             }
         }
@@ -118,9 +127,15 @@ public class ServerGIOPConnection
         {
             Debug.output( 1, e );
         }
+        finally
+        {
+            releaseWriteLock();
+        }
 
-        releaseWriteLock();
-        manager.unregisterServerGIOPConnection( this );
+        if( manager != null )
+        {
+            manager.unregisterServerGIOPConnection( this );
+        }
     }
 
 

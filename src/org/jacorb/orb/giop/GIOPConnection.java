@@ -54,7 +54,7 @@ public abstract class GIOPConnection
     private ReplyListener reply_listener = null;
     protected ConnectionListener connection_listener = null;
 
-    private Object connect_sync = new Object();
+    protected Object connect_sync = new Object();
 
     private boolean writer_active = false;
     private Object write_sync = new Object();
@@ -70,14 +70,14 @@ public abstract class GIOPConnection
     //map request id (Integer) to ByteArrayInputStream
     private Hashtable fragments = null;
     private BufferManager buf_mg = null;
-    
+
     private boolean dump_incoming = false;
-    
-    private BufferHolder msg_header 
-        = new BufferHolder (new byte[Messages.MSG_HEADER_SIZE]); 
+
+    private BufferHolder msg_header
+        = new BufferHolder (new byte[Messages.MSG_HEADER_SIZE]);
 
     private BufferHolder inbuf = new BufferHolder();
-    
+
 
     //// support for SAS Stateful contexts
     //private Hashtable sasContexts = null;
@@ -97,8 +97,8 @@ public abstract class GIOPConnection
     protected Object pendingUndecidedSync = new Object();
 
     //stop listening for messages
-    private boolean do_close = false;
-    
+    protected boolean do_close = false;
+
     protected StatisticsProvider statistics_provider = null;
 
     public GIOPConnection( org.omg.ETF.Profile profile,
@@ -116,12 +116,12 @@ public abstract class GIOPConnection
         fragments = new Hashtable();
         buf_mg = BufferManager.getInstance();
         //sasContexts = new Hashtable();
-        
+
         String dump_incoming_str =
             Environment.getProperty( "jacorb.debug.dump_incoming_messages",
                                      "off" );
 
-        dump_incoming = "on".equals( dump_incoming_str );        
+        dump_incoming = "on".equals( dump_incoming_str );
 
         cubbyholes = new Object[cubby_count];
     }
@@ -197,14 +197,17 @@ public abstract class GIOPConnection
 
     public final org.omg.ETF.Connection getTransport()
     {
-        return transport;
+        synchronized (connect_sync)
+        {
+            return transport;
+        }
     }
 
     private boolean waitUntilConnected()
     {
-        synchronized (connect_sync)
-        {
-            while (!transport.is_connected() && 
+         synchronized (connect_sync)
+         {
+            while (!transport.is_connected() &&
                    !do_close)
             {
                 try
@@ -216,7 +219,7 @@ public abstract class GIOPConnection
                 }
             }
             return !do_close;
-        }
+         }
     }
 
     public abstract void readTimedOut();
@@ -246,7 +249,7 @@ public abstract class GIOPConnection
 
         try
         {
-            transport.read (msg_header, 0, 
+            transport.read (msg_header, 0,
                             Messages.MSG_HEADER_SIZE,
                             Messages.MSG_HEADER_SIZE,
                             0);
@@ -267,7 +270,7 @@ public abstract class GIOPConnection
         }
 
         byte[] header = msg_header.value;
-        
+
         //(minimally) decode GIOP message header. Main checks should
         //be done one layer above.
 
@@ -279,7 +282,7 @@ public abstract class GIOPConnection
 
             if( msg_size < 0 )
             {
-                Debug.output( 1, "ERROR: Negative GIOP message size: " + 
+                Debug.output( 1, "ERROR: Negative GIOP message size: " +
                               msg_size );
                 Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
                               header, 0, Messages.MSG_HEADER_SIZE );
@@ -302,12 +305,12 @@ public abstract class GIOPConnection
             catch (org.omg.CORBA.COMM_FAILURE ex)
             {
                 Debug.output( 1, "ERROR: Failed to read GIOP message" );
-                return null;                
+                return null;
             }
 
             if( dump_incoming )
             {
-                Debug.output( 1, "getMessage()", inbuf.value, 0, 
+                Debug.output( 1, "getMessage()", inbuf.value, 0,
                                  msg_size + Messages.MSG_HEADER_SIZE );
             }
 
@@ -317,7 +320,7 @@ public abstract class GIOPConnection
                                                      Messages.MSG_HEADER_SIZE );
             }
 
-            //this is the "good" exit point. 
+            //this is the "good" exit point.
             return inbuf.value;
         }
         else
@@ -341,16 +344,16 @@ public abstract class GIOPConnection
 
             if( message == null )
             {
-                if( do_close )
-                {
-                    return;
-                }
-                else
-                {
-                    continue;
-                }
+                    if( do_close )
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        continue;
+                    }
             }
-            
+
             synchronized( pendingUndecidedSync )
             {
                 if( discard_messages )
@@ -644,17 +647,17 @@ public abstract class GIOPConnection
         }
     }
 
-    public final void incPendingMessages()
+    public final synchronized void incPendingMessages()
     {
         ++pending_messages;
     }
 
-    public final void decPendingMessages()
+    public final synchronized void decPendingMessages()
     {
         --pending_messages;
     }
 
-    public final boolean hasPendingMessages()
+    public final synchronized boolean hasPendingMessages()
     {
         return pending_messages != 0;
     }
@@ -673,8 +676,9 @@ public abstract class GIOPConnection
                 connect_sync.notifyAll();
             }
         }
+
         transport.write( false, false, fragment, start, size, 0 );
-        
+
         if (getStatisticsProvider() != null)
         {
             getStatisticsProvider().messageChunkSent (size);
@@ -726,11 +730,10 @@ public abstract class GIOPConnection
         try
         {
             getWriteLock();
-
             out.write_to( this );
 
             transport.flush();
-            
+
             if (getStatisticsProvider() != null)
             {
                 getStatisticsProvider().flushed();
@@ -757,8 +760,8 @@ public abstract class GIOPConnection
 
     public void closeCompletely()
     {
-        synchronized (connect_sync)
-        {
+         synchronized (connect_sync)
+         {
             if( connection_listener != null )
             {
                 connection_listener.connectionClosed();
@@ -767,7 +770,7 @@ public abstract class GIOPConnection
             transport.close();
             do_close = true;
             connect_sync.notifyAll();
-        }
+         }
 
         Debug.output( 2, "GIOPConnection closed completely" );
     }
@@ -785,21 +788,22 @@ public abstract class GIOPConnection
      * it doesn't have any pending messages.
      *
      * @return true, if the connection has been idle and discarding
-     * has been set 
+     * has been set
      */
     public boolean tryDiscard()
     {
-        synchronized( pendingUndecidedSync )
+        if( hasPendingMessages() )
         {
-            if( pending_messages == 0 )
+            synchronized( pendingUndecidedSync )
             {
                 discard_messages = true;
-                return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -887,16 +891,3 @@ public abstract class GIOPConnection
     }
 
 }// GIOPConnection
-
-
-
-
-
-
-
-
-
-
-
-
-

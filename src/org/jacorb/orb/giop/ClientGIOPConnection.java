@@ -72,12 +72,14 @@ public class ClientGIOPConnection
 
     public void closeAllowReopen()
     {
-        getWriteLock();
-
         try
         {
-            transport.close();
-            transport = new ClientIIOPConnection ((ClientIIOPConnection)transport);
+            synchronized (connect_sync )
+            {
+                getWriteLock();
+                transport.close();
+                transport = new ClientIIOPConnection ((ClientIIOPConnection)transport);
+            }
         }
         finally
         {
