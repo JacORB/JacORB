@@ -21,10 +21,9 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.TaskExecutor;
 
-import org.omg.CosNotifyChannelAdmin.NotConnected;
+import org.omg.CosEventComm.Disconnected;
 
 /**
  * The interface MessageConsumer provides an abstraction of an
@@ -54,7 +53,7 @@ public interface MessageConsumer extends Disposable {
      * for a Consumer, a call to this method causes it to
      * deliver them.
      */
-    void deliverPendingMessages() throws NotConnected;
+    void deliverPendingMessages() throws Disconnected;
 
     boolean hasPendingMessages();
 
@@ -72,7 +71,7 @@ public interface MessageConsumer extends Disposable {
     /**
      * Deliver a Message to the associated Consumer.
      */
-    void deliverMessage(Message m);
+    void deliverMessage(Message m) throws Disconnected;
 
     void resetErrorCounter();
 
