@@ -1697,9 +1697,8 @@ public class CDROutputStream
         {
            throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
         }
-        int kind = ((TypeCode)tc)._kind();
 
-        //int kind = tc.kind().value();
+        int kind = tc.kind().value();
         switch (kind)
         {
             case TCKind._tk_null:
@@ -1765,8 +1764,7 @@ public class CDROutputStream
                 try
                 {
                     int length = tc.length();
-                    int a_kind = ((TypeCode)tc.content_type())._kind();
-                    if( a_kind == TCKind._tk_octet )
+                    if( tc.content_type().kind().value() == TCKind._tk_octet )
                     {
                         check( length );
                         in.read_octet_array( buffer, pos, length);
@@ -1828,7 +1826,7 @@ public class CDROutputStream
                     int def_idx = tc.default_index();
                     int member_idx = -1;
 
-                    switch( disc._kind() )
+                    switch( disc.kind().value() )
                     {
                         case TCKind._tk_short:
                         {
