@@ -43,7 +43,7 @@ public class RequestInputStream
                                   byte [] buf, 
                                   boolean flag )
     {
-	super(  orb, buf );
+	super( orb, buf );
     }
 
     public RequestInputStream( org.omg.CORBA.ORB orb, byte [] buf )
@@ -65,8 +65,6 @@ public class RequestInputStream
 	req_hdr = org.omg.GIOP.RequestHeader_1_0Helper.read(this);	   
     }
 }
-
-
 
 
 

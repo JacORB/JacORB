@@ -45,14 +45,13 @@ public class Messages
 
     public static byte [] locateReplyMessage( int request_id, 
                                               int status, 
-                                              org.omg.CORBA.Object arg, 
-                                              ServerConnection conn) 
+                                              org.omg.CORBA.Object arg ) 
 	throws org.omg.CORBA.COMM_FAILURE
     {
 	try 
 	{	
 	    LocateReplyOutputStream lr_out = 
-                new LocateReplyOutputStream(conn,request_id,status,arg);
+                new LocateReplyOutputStream(  request_id, status, arg );
 	    lr_out.close();
 	    return lr_out.getBufferCopy();
 	} 
@@ -212,12 +211,4 @@ public class Messages
 	    throw new RuntimeException("Cannot deal with reply message type " + msg_type + " !");
     }
 }
-
-
-
-
-
-
-
-
 

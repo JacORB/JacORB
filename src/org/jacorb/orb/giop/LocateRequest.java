@@ -37,7 +37,7 @@ public class LocateRequest
                           ServerConnection _connection )
     {
 	super( orb, _connection );
-	in = new LocateRequestInputStream(_connection,_buf);
+	in = new LocateRequestInputStream( orb, _buf);
 	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key);
     }
 
@@ -62,10 +62,10 @@ public class LocateRequest
 	{ 
 	    if( out == null )
 	    {
-		out = new ReplyOutputStream(connection,
-                                            new org.omg.IOP.ServiceContext[0],
-                                            requestId(), 
-                                            org.omg.GIOP.ReplyStatusType_1_0.from_int(status));
+		out = 
+                    new ReplyOutputStream( new org.omg.IOP.ServiceContext[0],
+                                           requestId(), 
+                                           org.omg.GIOP.ReplyStatusType_1_0.from_int(status));
 	    }
 
 	    /* DSI-based servers set results and user exceptions using anys, so 
@@ -120,12 +120,6 @@ public class LocateRequest
 	}
     }
 }
-
-
-
-
-
-
 
 
 

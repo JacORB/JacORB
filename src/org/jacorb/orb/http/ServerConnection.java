@@ -141,7 +141,7 @@ public final class ServerConnection
 	    try
 	    {
 
-		realCon.answerRequest(Messages.locateReplyMessage(request_id,status,arg,this));
+		realCon.answerRequest(Messages.locateReplyMessage(request_id,status,arg));
 		realCon.close();
 			
 	    } 

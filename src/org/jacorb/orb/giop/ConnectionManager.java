@@ -1,3 +1,5 @@
+package org.jacorb.orb.connection;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,16 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.connection;
-
-/**
- * This class manages connections.<br>
- *
- * @author Gerald Brose, FU Berlin
- * @version $Id$
- *
- */
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -36,6 +28,14 @@ import java.lang.reflect.Constructor;
 import org.jacorb.orb.*;
 import org.jacorb.orb.factory.*;
 import org.jacorb.util.*;
+
+/**
+ * This class manages connections.<br>
+ *
+ * @author Gerald Brose, FU Berlin
+ * @version $Id$
+ *
+ */
 
 public class ConnectionManager
 {    
@@ -454,7 +454,7 @@ public class ConnectionManager
                                                     "jacorb.properties"));
                         applet_properties_read = true;
                         // reinitialize
-                        //org.jacorb.util.Debug.initialize( new org.jacorb.util.Environment() );
+                        //jacorb.util.Debug.initialize( new org.jacorb.util.Environment() );
                         org.jacorb.util.Debug.initialize( );
                     }
                 }
@@ -694,9 +694,3 @@ public class ConnectionManager
     }
 
 }
-
-
-
-
-
-

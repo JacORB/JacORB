@@ -46,4 +46,6 @@ module inherit
      };
 
 
+     interface XX;
+
 }; 

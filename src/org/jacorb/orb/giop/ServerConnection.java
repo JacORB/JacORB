@@ -20,6 +20,15 @@
 
 package org.jacorb.orb.connection;
 
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+import org.jacorb.orb.*;
+import org.jacorb.util.Debug;
+import org.jacorb.util.*;
+
 /**
  * This class manages connections.<br>
  * It writes to an OutputStream or receives from an InputStream,<br>
@@ -30,14 +39,6 @@ package org.jacorb.orb.connection;
  * @version $Id$
  *
  */
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
-import org.jacorb.orb.*;
-import org.jacorb.util.Debug;
-import org.jacorb.util.*;
 
 public class ServerConnection
     extends AbstractConnection
@@ -339,7 +340,7 @@ public class ServerConnection
 	{
 	    try
 	    {
-		out_stream.write( Messages.locateReplyMessage(request_id,status,arg,this));
+		out_stream.write( Messages.locateReplyMessage( request_id, status, arg ));
 		out_stream.flush();
 	    } 
 	    catch ( Exception e )
@@ -401,14 +402,6 @@ public class ServerConnection
 
 
 }
-
-
-
-
-
-
-
-
 
 
 

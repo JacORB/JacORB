@@ -5,6 +5,9 @@ import org.omg.PortableServer.*;
 import org.omg.CORBA.*;
 import org.omg.CosNaming.*;
 
+import org.jacorb.orb.connection.*;
+
+
 class ForwarderImpl 
     extends ForwarderPOA
 {
@@ -30,15 +33,15 @@ class ForwarderImpl
         public void Xswap4(byte[] by,int a, int b, int c, int d, int off){
             byte swap;
             swap=by[a+off];by[a+off]=by[d+off];by[d+off]=swap;
-           //this line is wrong (reported by Armin Schloesser) swap=by[b+off];by[c+off]=by[b+off];by[b+off]=swap;
-	   swap=by[b+off];by[b+off]=by[c+off];by[c+off]=swap;
+            //this line is wrong (reported by Armin Schloesser) swap=by[b+off];by[c+off]=by[b+off];by[b+off]=swap;
+            swap=by[b+off];by[b+off]=by[c+off];by[c+off]=swap;
         }
 
 	public int doAlign(int index, int boundary) {
-          if (index%boundary != 0) {
-            index = index + boundary - (index%boundary);
-          }
-          return index;
+            if (index%boundary != 0) {
+                index = index + boundary - (index%boundary);
+            }
+            return index;
         }
 
 
@@ -46,43 +49,43 @@ class ForwarderImpl
         public void changeByteOrder(byte[] buffer)
         {
 
-	   // bug fixed alignement was not taken into account
+            // bug fixed alignement was not taken into account
             // 13.4.2000 A.Schloesser (Philips Automation Projects,Kassel)
             // here we have to change the MessageHeader
             //                       and  RequestHeader
             //              length info to the wanted byte Order
             /*
-               struct MessageHeader {       offset in buffer
-                 char magic[4]              0
-                 struct Version {
-                    octet major             4
-                    octet minorA            5
-                 }
-                 boolean byte_order         6
-                 octet   message_type       7
-                 unsigned long message_size 8
-               } end MessageHeader
-               struct RequestHeader {
-                 sequence<ServiceContext> {
-                   long          length         4 byte align
-                   unsigned long context_id    
-                   sequence<octet> data {    
-                     long length               
-                     octet [] data
-                   }
-                 }
-                 unsigned long request_id       4 byte align
-                 boolean  response_expected
-                 sequence<octet> object_key {
-                   long length                  4 byte align
-                   octet[] object_key
-                 }
-                 string operation {
-                   long length                  4 byte align
-                   char [] operation (null terminated)
-                 }
-                 Principal requesting_principal
-               } end RequestHeader
+              struct MessageHeader {       offset in buffer
+              char magic[4]              0
+              struct Version {
+              octet major             4
+              octet minorA            5
+              }
+              boolean byte_order         6
+              octet   message_type       7
+              unsigned long message_size 8
+              } end MessageHeader
+              struct RequestHeader {
+              sequence<ServiceContext> {
+              long          length         4 byte align
+              unsigned long context_id    
+              sequence<octet> data {    
+              long length               
+              octet [] data
+              }
+              }
+              unsigned long request_id       4 byte align
+              boolean  response_expected
+              sequence<octet> object_key {
+              long length                  4 byte align
+              octet[] object_key
+              }
+              string operation {
+              long length                  4 byte align
+              char [] operation (null terminated)
+              }
+              Principal requesting_principal
+              } end RequestHeader
             */
 
             boolean little=((buffer[6]&1)==0);
@@ -96,7 +99,7 @@ class ForwarderImpl
 
             //debug
             if (org.jacorb.util.Environment.verbosityLevel()>=3){
-              System.out.println("[changeByteOrder] little=" + little + " is_giop_1_1=" + is_giop_1_1);
+                System.out.println("[changeByteOrder] little=" + little + " is_giop_1_1=" + is_giop_1_1);
             }
 
             off += 8;
@@ -113,7 +116,7 @@ class ForwarderImpl
 			  ((buffer[3+off] & 0xff) << 0));
 
             if (org.jacorb.util.Environment.verbosityLevel()>=3){
-              System.out.println("[changeByteOrder[" + off + "]] msgSize=" + msgSize);
+                System.out.println("[changeByteOrder[" + off + "]] msgSize=" + msgSize);
             }
             off += 4;
             Xswap4(buffer,0,1,2,3,off);   //serviceContext Length               
@@ -129,7 +132,7 @@ class ForwarderImpl
                                        ((buffer[3+off] & 0xff) << 0));
 
             if (org.jacorb.util.Environment.verbosityLevel()>=3){
-              System.out.println("[changeByteOrder[" + off + "]] serviceContextLength=" + serviceContextLength);
+                System.out.println("[changeByteOrder[" + off + "]] serviceContextLength=" + serviceContextLength);
             }
 
             off += 4; // we are now at the RequestHeader
@@ -149,7 +152,7 @@ class ForwarderImpl
                                          ((buffer[7+off] & 0xff) << 0));
 
                 if (org.jacorb.util.Environment.verbosityLevel()>=3){
-                  System.out.println("[changeByteOrder[" + off + "]] context_dataLength=" + context_dataLength);
+                    System.out.println("[changeByteOrder[" + off + "]] context_dataLength=" + context_dataLength);
                 }
 
                 off=off+8+context_dataLength;
@@ -179,7 +182,7 @@ class ForwarderImpl
                                    ((buffer[3+off] & 0xff) << 0));
 
             if (org.jacorb.util.Environment.verbosityLevel()>=3){
-              System.out.println("[changeByteOrder[" + off + "]] object_keyLength=" + object_keyLength);
+                System.out.println("[changeByteOrder[" + off + "]] object_keyLength=" + object_keyLength);
             }
 
             off+=4 + object_keyLength;
@@ -201,7 +204,7 @@ class ForwarderImpl
                                 ((buffer[2+off] & 0xff) << 8) +
                                 ((buffer[3+off] & 0xff) << 0));
             if (org.jacorb.util.Environment.verbosityLevel()>=3){
-              System.out.println("[changeByteOrder[" + off + "]] opname_Length=" + opname_Length);
+                System.out.println("[changeByteOrder[" + off + "]] opname_Length=" + opname_Length);
             }
 
             buffer[6] = (little)?(byte)1:(byte)0; //toggle the endian byte
@@ -218,12 +221,14 @@ class ForwarderImpl
             byte[] oid=null;
             Integer key = null;
 
-            org.jacorb.orb.dsi.ServerRequest inrequest = (org.jacorb.orb.dsi.ServerRequest)r;         
+            org.jacorb.orb.dsi.ServerRequest inrequest = 
+                (org.jacorb.orb.dsi.ServerRequest)r;         
             oid=inrequest.objectId();
             org.omg.PortableServer.Current poa_current=null;
             try
             {
-                poa_current=org.omg.PortableServer.CurrentHelper.narrow(orb.resolve_initial_references("POACurrent"));
+                poa_current=
+                    org.omg.PortableServer.CurrentHelper.narrow(orb.resolve_initial_references("POACurrent"));
             }
             catch(org.omg.CORBA.UserException ue)
             {
@@ -234,28 +239,28 @@ class ForwarderImpl
             org.jacorb.orb.ParsedIOR ior=mStub.getParsedIOR();
             org.jacorb.util.Debug.output(4,"[Call should go to IOR: "+ior+" ]");
 
-            org.jacorb.orb.connection.ReplyInputStream rep=null;
+            ReplyInputStream rep=null;
 
-            org.jacorb.orb.connection.ClientConnection realCon = 
+            ClientConnection realCon = 
                 mStub.getConnection();
 
             if (!realCon.connected())
             { //Connection was closed
                 realCon.reconnect();
             }
-            org.jacorb.orb.connection.RequestOutputStream cdr=null;
+            RequestOutputStream cdr=null;
                 
             try
             {   
                 //create new Message    
                 //Msgheader
-                cdr=new org.jacorb.orb.connection.RequestOutputStream(
-                                                            realCon,
-                                                            orb,
-                                                            inrequest.operation(),
-                                                            inrequest.get_in().req_hdr.response_expected,
-                                                            ior.get_object_key(),
-                                                            inrequest.getServiceContext());
+                cdr = 
+                    new RequestOutputStream(                                                            orb,
+                                                                                                        realCon.getId(),
+                                                                                                        inrequest.operation(),
+                                                                                                        inrequest.get_in().req_hdr.response_expected,
+                                                                                                        ior.get_object_key(),
+                                                                                                        inrequest.getServiceContext());
                 //data
                 synchronized(realCon.writeLock)
                 {
@@ -296,18 +301,18 @@ class ForwarderImpl
                     }               
                     if (cdr.response_expected())
                     {
-                        rep=new org.jacorb.orb.connection.ReplyInputStream(realCon, cdr.requestId());
+                        rep = new ReplyInputStream( orb, cdr.requestId());
                         key = new Integer( cdr.requestId() );
                         //                      ((org.jacorb.orb.ClientSideConnection)realCon).get_buffers().put( key, cdr);
-                        ((org.jacorb.orb.connection.ClientConnection)realCon).get_replies().put( key, rep );
-                        ((org.jacorb.orb.connection.ClientConnection)realCon).get_objects().put( key, poa_current.get_POA().servant_to_reference(this) ); 
+                        ((ClientConnection)realCon).get_replies().put( key, rep );
+                        ((ClientConnection)realCon).get_objects().put( key, poa_current.get_POA().servant_to_reference(this) ); 
                     }
                     //if (! realCon.connected()) done above
                     //  realCon.reconnect();
                     //realCon.get_out_stream().write(cdr.getBuffer(),0,cdr.size());
                     //realCon.get_out_stream().flush();
                     System.out.println("["+mycounter+"]Outgoing Request with size: "+cdr.size());
-                    ((org.jacorb.orb.connection.ClientConnection)realCon).writeDirectly(cdr.getInternalBuffer(),cdr.size());
+                    ((ClientConnection)realCon).writeDirectly(cdr.getInternalBuffer(),cdr.size());
                 }
             }
             catch (Exception e)
@@ -318,11 +323,11 @@ class ForwarderImpl
             {
                 if (cdr.response_expected())
                 {
-                    org.jacorb.orb.CDRInputStream xxx=((org.jacorb.orb.connection.ReplyInputStream)rep.rawResult());
-                    //              ((org.jacorb.orb.connection.ClientConnection)realCon).get_buffers().remove(key);
-                    ((org.jacorb.orb.connection.ClientConnection)realCon).get_replies().remove(key);
-                    ((org.jacorb.orb.connection.ClientConnection)realCon).get_objects().remove(key);
-                    inrequest.reply(xxx.getBuffer(),((org.jacorb.orb.connection.ReplyInputStream)xxx).msg_hdr.message_size+12);
+                    org.jacorb.orb.CDRInputStream xxx=((ReplyInputStream)rep.rawResult());
+                    //              ((ClientConnection)realCon).get_buffers().remove(key);
+                    ((ClientConnection)realCon).get_replies().remove(key);
+                    ((ClientConnection)realCon).get_objects().remove(key);
+                    inrequest.reply(xxx.getBuffer(),((ReplyInputStream)xxx).msg_hdr.message_size+12);
                 }
             }
             catch (Exception e)
@@ -401,11 +406,11 @@ class ForwarderImpl
                 org.jacorb.orb.Delegate delegate = (org.jacorb.orb.Delegate)
                     ((org.omg.CORBA.portable.ObjectImpl)o)._get_delegate();
 
-                //jacorb.orb.connection.ClientConnection c =(org.jacorb.orb.connection.ClientConnection)
+                //jacorb.orb.connection.ClientConnection c =(ClientConnection)
                 //    ((org.jacorb.orb.ORB)orb).getConnectionManager()._getConnection(delegate);
 
-                org.jacorb.orb.connection.ClientConnection c = 
-                    (org.jacorb.orb.connection.ClientConnection) orb.getConnectionManager()._getConnection(pIOR.getAddress(), false);
+                ClientConnection c = 
+                    (ClientConnection) orb.getConnectionManager()._getConnection(pIOR.getAddress(), false);
 
                 MiniStub mStub = new MiniStub(c, pIOR );
                 forwardMap.put( oid,mStub );
@@ -488,7 +493,7 @@ class ForwarderImpl
             {
                 iorMap.remove(IOR);
                 forwardMap.remove(uid);
-                org.jacorb.orb.connection.ClientConnection c = 
+                ClientConnection c = 
                     mStub.getConnection();
                 c.releaseConnection();
                 iorRefCnt.remove(IOR);

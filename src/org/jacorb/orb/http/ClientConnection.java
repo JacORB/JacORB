@@ -165,7 +165,7 @@ public final class ClientConnection
 		notifier=new Object();
 		repReceptor=new ReplyReceptor(this,true);
 		byte buf [] =  os.getBufferCopy();
-		rep = new LocateReplyInputStream(this, os.requestId());
+		rep = new LocateReplyInputStream(this.orb, os.requestId());
 		Integer key = new Integer( os.requestId() );
 		buffers.put( key, os ); //changed in 1.1 from byte[]->CDR
 		replies.put( key, rep );
@@ -220,7 +220,7 @@ public final class ClientConnection
 
 		if( os.response_expected() )
 		{
-		    rep = new ReplyInputStream(this, os.requestId());
+		    rep = new ReplyInputStream(this.orb, os.requestId());
 		    Integer key = new Integer( os.requestId() );
 		    buffers.put( key, os );
 		    replies.put( key, rep );
