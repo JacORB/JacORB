@@ -108,6 +108,8 @@ public class SSLServerSocketFactory
         }
 
         //defaultContext.setDebugStream( System.out );
+        
+        //defaultContext.setEnabledCipherSuites( CipherSuite.CS_RSA_WITH_NULL );
     }
            
     /**

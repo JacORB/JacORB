@@ -99,7 +99,7 @@ public class SSLSocketFactory
         // rt: switch to server mode
         if (isRoleChange) 
         {
-            org.jacorb.util.Debug.output(1, "SSLSocket switch to server mode...");
+            Debug.output(1, "SSLSocket switch to server mode...");
 	    sock.setUseClientMode( false );
 	}
 		
@@ -163,6 +163,8 @@ public class SSLSocketFactory
 
         //ctx.setDebugStream( System.out );
 
+        //ctx.setEnabledCipherSuites( CipherSuite.CS_RSA_WITH_NULL );
+
         return ctx;
     }
     
@@ -194,10 +196,10 @@ public class SSLSocketFactory
      * @returns:
      * 	an array of cipher suite names
      */
-    public java.lang.String[] getSupportedCipherSuites()
+    public String[] getSupportedCipherSuites()
     {
-	CipherSuite [] suites = CipherSuite.getDefault ();
-	java.lang.String lst [] = new java.lang.String[ suites.length ];
+	CipherSuite [] suites = CipherSuite.getDefault();
+	java.lang.String lst [] = new String[ suites.length ];
 	for ( int i = 0; i < lst.length; i++ )
 	    lst [ i ] = suites[ i ].toString ();
 	return lst;
