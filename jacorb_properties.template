@@ -130,6 +130,9 @@ jacorb.hashtable_class=java.util.Hashtable
 # use GIOP 1.2 byte order markers (since CORBA 2.4-5)
 jacorb.use_bom=off
 
+# add additional IIOP 1.0 profiles even if we are using IIOP 1.2
+jacorb.giop.add_1_0_profiles=on
+
 ###########################################
 #                                         #
 #       Proxy address in IOR              #
