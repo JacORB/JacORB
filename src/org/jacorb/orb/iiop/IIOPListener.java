@@ -293,7 +293,7 @@ public class IIOPListener extends _ListenerLocalBase
         IIOPProfile result = null;
         if (acceptor != null)
         {
-            String host = getConfiguredHost().getHostName();
+            String host = getHost().getHostName();
             int    port = getConfiguredPort();
             if (port == 0)
                 port = acceptor.getLocalAddress().getPort();
@@ -303,7 +303,7 @@ public class IIOPListener extends _ListenerLocalBase
         {
             // only an SSL acceptor exists: make a dummy primary address
             // (port number zero)
-            String host = getConfiguredHost().getHostName();
+            String host = getHost().getHostName();
             result = new IIOPProfile (new IIOPAddress (host, 0), null);
         }
         else
@@ -337,22 +337,26 @@ public class IIOPListener extends _ListenerLocalBase
     }
 
     /**
-     * Returns the IP address that this listener should listen on,
-     * if one has been configured explicitly.  If none has been
-     * specified, returns the IP address of the local host.
+     * Returns the IP address that this listener should listen on, if one has 
+     * been configured explicitly. In the absence of an explicit configuration 
+     * (through the <code>"OAIAddr"</code> property), returns null. Eventually 
+     * the returned address will be passed as the `bindAddr' argument to a 
+     * <code>java.net.ServerSocket</code> constructor, so a null address (no 
+     * explicit configuration) means that this listener will accept connections
+     * on any/all local addresses. On the other hand, a non-null address means
+     * that this listener will only accept connect requests to the configured 
+     * IP address.
+     *
+     * @return an <code>InetAddress</code>object with the IP address 
+     *         specified by the <code>"OAIAddr"</code> property, or 
+     *         <code>null</code> if this property has not been defined.
      */
     private InetAddress getConfiguredHost()
     {
         try
         {
             String oa_addr = Environment.getProperty ("OAIAddr");
-            if (oa_addr == null)
-                return InetAddress.getLocalHost();
-            else
-            {
-                InetAddress result = InetAddress.getByName(oa_addr);
-                return result;
-            }
+            return (oa_addr == null) ? null : InetAddress.getByName(oa_addr);
         }
         catch (java.net.UnknownHostException e)
         {
@@ -361,6 +365,31 @@ public class IIOPListener extends _ListenerLocalBase
         }
     }
 
+    /**
+     * Returns the IP address to be placed in this listener's endpoint
+     * profile. The returned value is either an explicitly configured IP 
+     * address or (in the absence of an explicit configuration) is the IP
+     * address of the local host.
+     *
+     * @return an <code>InetAddress</code>object with the IP address 
+     *         specified by the <code>"OAIAddr"</code> property, or 
+     *         (if this property has not been defined) an 
+     *         <code>InetAddress</code>object for the local host.
+     */
+    private InetAddress getHost()
+    {
+        try
+        {
+            InetAddress configuredHost = getConfiguredHost();
+            return (configuredHost == null) ? InetAddress.getLocalHost()
+                                            : configuredHost;
+        }
+        catch (java.net.UnknownHostException e)
+        {
+            throw new org.omg.CORBA.INITIALIZE
+                             ("Could not resolve configured listener host");
+        }
+    }
 
     /**
      * Returns the number of the port that this Listener should listen on.
