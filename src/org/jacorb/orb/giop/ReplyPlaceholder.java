@@ -148,7 +148,7 @@ public abstract class ReplyPlaceholder
 
         if( timeoutException )
         {
-            throw new org.omg.CORBA.IMP_LIMIT("Client timeout reached.");
+            throw new org.omg.CORBA.TIMEOUT ("client timeout reached");
         }
                 
         return in;
