@@ -155,6 +155,10 @@ public final class Delegate
         doNotCheckExceptions = _donotcheckexceptions;
     }
 
+    public boolean doNotCheckExceptions()
+    {
+        return doNotCheckExceptions;
+    }
 
     /**
      * Method to determine if this delegate is the delegate for the ImR.
@@ -320,6 +324,11 @@ public final class Delegate
             }
 
         }
+    }
+
+    public void rebind( org.omg.CORBA.Object o )
+    {
+        rebind ( orb.object_to_string( o ) );
     }
 
     public void rebind( ParsedIOR p )
@@ -731,13 +740,12 @@ public final class Delegate
         throws ApplicationException, RemarshalException
     {
     
-        RequestOutputStream ros         = ( RequestOutputStream ) os;
-        ReplyPlaceholder    placeholder = null;
+        RequestOutputStream ros      = ( RequestOutputStream ) os;
+        ReplyReceiver       receiver = null;
 
         ClientInterceptorHandler interceptors = 
-          new ClientInterceptorHandler ( orb, ros, self, this, 
-                                         piorOriginal, connection );
-
+            new ClientInterceptorHandler ( orb, ros, self, this, 
+                                           piorOriginal, connection );
 
         interceptors.handle_send_request();
 
@@ -751,10 +759,9 @@ public final class Delegate
             }
             else  // response expected, synchronous or asynchronous
             {
-                placeholder = new ReplyPlaceholder ( replyHandler );
-                // placeholder = new ReplyPlaceholder ( interceptors,
-                //                                      pending_replies,
-                //                                      replyHandler );
+                receiver = new ReplyReceiver ( this, 
+                                               interceptors,
+                                               replyHandler );
                 synchronized ( bind_sync )
                 {
                     if ( ros.getConnection() == connection )
@@ -762,7 +769,7 @@ public final class Delegate
                         // RequestOutputStream has been created for
                         // exactly this connection, go ahead
                         connection.sendRequest ( ros,
-                                                 placeholder,
+                                                 receiver,
                                                  ros.requestId() );
                     }
                     else
@@ -790,11 +797,11 @@ public final class Delegate
             throw cfe;
         }
 
-        if ( replyHandler == null && placeholder != null )
+        if ( replyHandler == null && receiver != null )
         {
             // Synchronous invocation, 
             // the following blocks until the reply arrives.
-            return placeholder.getInputStream();
+            return receiver.getReplyInputStream();
         }
         else
         {
@@ -916,7 +923,7 @@ public final class Delegate
         {
             if ( ros.response_expected() )
             {
-                placeholder = new ReplyPlaceholder( replyHandler );
+                placeholder = new ReplyPlaceholder();
 
                 //store pending replies, so in the case of a
                 //LocationForward a RemarshalException can be thrown
@@ -1769,6 +1776,26 @@ public final class Delegate
             return getParsedIOR().getCodebaseComponent();
         }
 
+        public Set get_pending_replies()
+        {
+            return pending_replies;
+        }
+
+        public void lockBarrier()
+        {
+             pending_replies_sync.lockBarrier();
+        }
+        
+        public void waitOnBarrier()
+        {
+            pending_replies_sync.waitOnBarrier();
+        }            
+
+        public void openBarrier()
+        {
+            pending_replies_sync.openBarrier();
+        }
+
         private class Barrier
         {
             private boolean is_open = true;
@@ -1785,13 +1812,10 @@ public final class Delegate
                     {
                         //ignore
                     }
-
                 }
-
             }
 
             public synchronized void lockBarrier()
-
             {
                 is_open = false;
             }
