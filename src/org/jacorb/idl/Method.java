@@ -100,62 +100,6 @@ class Method
     }
 
 
-//      public void printLocalMethod(PrintWriter ps, String classname)
-//      {
-//  	ps.print("\tpublic ");
-
-
-//  	if( resultType != null )
-//  	{
-//  	    ps.print( resultType.typeName() );
-//  	    ps.println( " " + name  + "()");
-//  	    ps.println("\t{");
-//  	    ps.println("\t\torg.omg.CORBA.portable.ServantObject so = _servant_preinvoke( \"_get_" + name + "\", " + classname + "Operations.class);");
-
-//  	    ps.println("\t\tif( so == null )");
-//  	    ps.println("\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");");
-//  	    ps.println("\t\t" + classname + "Operations localServant = (" + classname + "Operations)so.servant;");
-
-//  	    ps.println("\t\t\t" + resultType + " result;");
-
-//  	    ps.println("\t\ttry");
-//  	    ps.println("\t\t{");
-//  	    ps.println("\t\t\tresult = localServant." + name + "();");
-//  	    ps.println("\t\t}");
-//  	    ps.println("\t\tfinally");
-//  	    ps.println("\t\t{");
-//  	    ps.println("\t\t\t_servant_postinvoke(so);");
-//  	    ps.println("\t\t}");
-//  	    ps.println("\t\treturn result;");
-//  	}
-//  	else
-//  	{
-//  	    /** modifier */
-
-//  	    ps.print("void " + name + "(" + parameterType.toString() );
-//  	    ps.println(" a)");
-//  	    ps.println("\t{");
-//  	    ps.println("\t\torg.omg.CORBA.portable.ServantObject so = _servant_preinvoke( \"_get_" + name + "\", " + classname + "Operations.class);");
-
-//  	    ps.println("\t\tif( so == null )");
-//  	    ps.println("\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");");
-
-//  	    ps.println("\t\ttry");
-//  	    ps.println("\t\t{");
-//  	    ps.println("\t\t\t" + classname + "Operations localServant = (" + classname + "Operations)so.servant;");
-//  	    ps.println("\t\t}");
-//  	    ps.println("\t\tfinally");
-//  	    ps.println("\t\t{");
-//  	    ps.println("\t\t\t_servant_postinvoke(so);");
-//  	    ps.println("\t\t}");
-//  	}
-
-//  	ps.println("\t}\n");
-//      }
-
-
-
-
     public void printMethod( PrintWriter ps, String classname, boolean is_local )
     {
         ps.print( "\tpublic " );
@@ -284,61 +228,8 @@ class Method
         }
     }
 
-//      public void printLocalMethod(PrintWriter ps, String classname)
-//      {
-//  	ps.print("\tpublic ");
 
-
-//  	if( resultType != null )
-//  	{
-//  	    ps.print( resultType.typeName() );
-//  	    ps.println( " " + name  + "()");
-//  	    ps.println("\t{");
-//  	    ps.println("\t\torg.omg.CORBA.portable.ServantObject so = _servant_preinvoke( \"_get_" + name + "\", " + classname + "Operations.class);");
-
-//  	    ps.println("\t\tif( so == null )");
-//  	    ps.println("\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");");
-//  	    ps.println("\t\t" + classname + "Operations localServant = (" + classname + "Operations)so.servant;");
-
-//  	    ps.println("\t\t\t" + resultType + " result;");
-
-//  	    ps.println("\t\ttry");
-//  	    ps.println("\t\t{");
-//  	    ps.println("\t\t\tresult = localServant." + name + "();");
-//  	    ps.println("\t\t}");
-//  	    ps.println("\t\tfinally");
-//  	    ps.println("\t\t{");
-//  	    ps.println("\t\t\t_servant_postinvoke(so);");
-//  	    ps.println("\t\t}");
-//  	    ps.println("\t\treturn result;");
-//  	}
-//  	else
-//  	{
-//  	    /** modifier */
-
-//  	    ps.print("void " + name + "(" + parameterType.toString() );
-//  	    ps.println(" a)");
-//  	    ps.println("\t{");
-//  	    ps.println("\t\torg.omg.CORBA.portable.ServantObject so = _servant_preinvoke( \"_get_" + name + "\", " + classname + "Operations.class);");
-
-//  	    ps.println("\t\tif( so == null )");
-//  	    ps.println("\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");");
-
-//  	    ps.println("\t\ttry");
-//  	    ps.println("\t\t{");
-//  	    ps.println("\t\t\t" + classname + "Operations localServant = (" + classname + "Operations)so.servant;");
-//  	    ps.println("\t\t}");
-//  	    ps.println("\t\tfinally");
-//  	    ps.println("\t\t{");
-//  	    ps.println("\t\t\t_servant_postinvoke(so);");
-//  	    ps.println("\t\t}");
-//  	}
-
-//  	ps.println("\t}\n");
-//      }
-
-
-    public void print_sendc_Method( PrintWriter ps, 
+    public void print_sendc_Method( PrintWriter ps,
                                     String classname )
     {
         ps.print( "\tpublic void sendc_" );
@@ -437,8 +328,3 @@ class Method
 
 
 }
-
-
-
-
-

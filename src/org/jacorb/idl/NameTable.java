@@ -117,50 +117,6 @@ class NameTable
         {
             throw new IllegalRedefinition( name );
         }
-
-
-        // later use...
-//          for( int i = scopes.length-1; i >= 0; i-- )
-//          {
-//              if( logger.isDebugEnabled() )
-        //		 logger.debug(
-//                                  "NameTable.checkScopingRules2:  " +
-//                                  name + " kind: " + kind );
-
-//              StringBuffer sb = new StringBuffer();
-
-//              for( int j = 0; j < i-1; j++ )
-//              {
-//                  sb.append( scopes[j].toUpperCase() + "." );
-//              }
-
-//              sb.append( scopes[ scopes.length - 1 ] );
-
-//              if( logger.isDebugEnabled() )
-        //		 logger.debug(
-//                                  "NameTable.checkScopingRules3:  " + sb.toString() );
-
-
-//              if( h.containsKey( sb.toString() ))
-//              {
-//                  String definedKind = (String)h.get( sb.toString() );
-//                  if( logger.isDebugEnabled() )
-        //		 logger.debug(
-//                                      "NameTable.checkScopingRules4:  " +
-//                                      sb.toString() +
-//                                      " definedKind: " + definedKind);
-
-
-//                  if( definedKind.equals("type-struct") ||
-//                      definedKind.equals("type-union") ||
-//                      definedKind.equals("module") ||
-//                      definedKind.endsWith("interface")
-//                      )
-//                  {
-//                      throw new IllegalRedefinition( sb.toString(), name );
-//                  }
-//              }
-//          }
     }
 
 
@@ -325,7 +281,7 @@ class NameTable
      *  @throw NameAlreadyDefined
      */
 
-    public static synchronized void inheritFrom( String name, 
+    public static synchronized void inheritFrom( String name,
                                                  SymbolList ancestors )
         throws NameAlreadyDefined
     {
@@ -374,18 +330,6 @@ class NameTable
                                     key.substring( key.lastIndexOf( '.' ) ), t );
                         }
                         shadowNames.put( name + key.substring( key.lastIndexOf( '.' ) ), kind );
-                        //                          try
-                        //                          {
-                        //                              define( name + key.substring( key.lastIndexOf('.')),kind );
-                        //                          }
-                        //                          catch ( NameAlreadyDefined nad )
-                        //                          {
-                        //                            if( logger.isInfoEnabled() )
-                        //		 logger.info(nad);
-                        //                              // Can be ignored: it is legal to inherit multiple
-                        //                              // type definitions of the same name in IDL
-                        //                              // System.err.println("Problem " + name + " inherits (multiple inh.)");
-                        //                          }
                     }
                     else if( kind.equals( "operation" ) )
                     {
@@ -414,7 +358,6 @@ class NameTable
         {
             if( logger.isDebugEnabled() )
 		 logger.debug( "Exception ", nad );
-            // System.err.println( nad.getMessage + " already defined, " + name + " inherits (multiple inh.)");
         }
     }
 
@@ -446,48 +389,4 @@ class NameTable
                 _s.equals( "void" ) || _s.equals( "org.omg.CORBA.Object" ) ||
                 _s.equals( "org.omg.CORBA.Any" ) || _s.equals( "<anon>" ) );
     }
-
-
-//      static Enumeration getGlobalTypes()
-//      {
-//          Vector v = new Vector();
-
-//          for( Enumeration e = h.keys(); e.hasMoreElements(); )
-//          {
-//              String str = (String)e.nextElement();
-//              if( str.indexOf( '.' ) == -1 && !baseType( str ) &&
-//                      ( ( (String)h.get( str ) ).startsWith( "type" ) ||
-//                      ( (String)h.get( str ) ).equals( "interface" ) )
-//              )
-//              {
-//                  v.addElement( str );
-//              }
-//              else
-//              {
-//                  if( logger.isDebugEnabled() )
-    //		 logger.debug( "Not a global type: " + str );
-//              }
-//          }
-
-//          return v.elements();
-//      }
-
-
-    /**
-     * for debugging purposes only
-     *
-     */
-    public static void print( PrintWriter ps )
-    {
-        //      for( Enumeration e = h.keys(); e.hasMoreElements();)
-        //  ps.println( (String)e.nextElement());
-    }
-
 }
-
-
-
-
-
-
-
