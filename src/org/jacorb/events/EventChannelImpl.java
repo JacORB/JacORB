@@ -35,7 +35,7 @@ import java.net.*;
  * and interacts with the implementation objects locally, i.e. using Java
  * references only.
  *
- * @author Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose
+ * @author Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose, Jeff Carlson
  * @version $Id$
  */
 
