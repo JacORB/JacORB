@@ -637,7 +637,7 @@ public class Environment
     }
 
     /**
-     * This will return true if the properties value is
+     * This will return true if the property's value is
      * "on". Otherwise (i.e. value "off", or property not set), false
      * is returned.
      */
@@ -750,6 +750,24 @@ public class Environment
         {
             return null;
         }
+    }
+
+    /**
+     * For a property that has a list of comma-separated values,
+     * this method returns these values as a list of Strings.
+     * If the property is not set, an empty list is returned.
+     */
+    public static List getListProperty (String key)
+    {
+        List   result = new ArrayList();
+        String value  = _props.getProperty (key);
+        if (value != null)
+        {
+            StringTokenizer tok = new StringTokenizer (value, ",");
+            while (tok.hasMoreTokens())
+                result.add (tok.nextToken().trim());
+        }
+        return result;                            
     }
 
     /*
