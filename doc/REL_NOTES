@@ -44,6 +44,16 @@ gerald.brose@acm.org
       - rename property jacorb.connection.server_timeout to
         jacorb.connection.server.timeout, for consistency
 
+      - added property
+        "jacorb.connection.client.timeout_ignores_pending_message"
+        which controls if client-side idle timeouts take care of
+        pending messages or not. 
+
+      - added property "jacorb.connection.client.retry_on_failure"
+        which controls if network failures on existing connections
+        should yield a COMM_FAILURE or should trigger a remarshaling
+        of all pending messages.
+
 2.0 beta 3
 ==========
 
