@@ -1,4 +1,5 @@
 package org.jacorb.orb.giop;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -63,12 +64,12 @@ public class ServerRequestListener
         if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
             int required =
-                Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 );
+            Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 );
 
             //if we require EstablishTrustInTarget or
             //EstablishTrustInClient, SSL must be used.
             require_ssl =
-                Environment.isPropertyOn( "jacorb.security.support_ssl" ) &&
+            Environment.isPropertyOn( "jacorb.security.support_ssl" ) &&
                 (required & 0x60) != 0;
         }
     }
@@ -77,20 +78,20 @@ public class ServerRequestListener
                                  GIOPConnection connection )
     {
         RequestInputStream in =
-            new RequestInputStream( orb, request );
+        new RequestInputStream( orb, request );
 
         if( require_ssl && ! connection.isSSL() )
         {
             ReplyOutputStream out =
-                new ReplyOutputStream( in.req_hdr.request_id,
-                                       ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                       in.getGIOPMinor(),
-				       false); //no locate reply
+            new ReplyOutputStream( in.req_hdr.request_id,
+                                   ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                   in.getGIOPMinor(),
+                                   false); //no locate reply
 
             Debug.output( 2, "About to reject request because connection is not SSL.");
 
             SystemExceptionHelper.write( out,
-                  new NO_PERMISSION( 3, CompletionStatus.COMPLETED_NO ));
+                                         new NO_PERMISSION( 3, CompletionStatus.COMPLETED_NO ));
 
             try
             {
@@ -120,7 +121,7 @@ public class ServerRequestListener
             else
             {
                 CodeSetContext ctx =
-                    CodeSet.getCodeSetContext( in.req_hdr.service_context );
+                CodeSet.getCodeSetContext( in.req_hdr.service_context );
 
                 if( ctx != null )
                 {
@@ -139,62 +140,62 @@ public class ServerRequestListener
 
         ServerRequest server_request = null;
 
-	try
-	{
-	    server_request =
-		new ServerRequest( orb, in, connection );
-	}
-	catch( org.jacorb.poa.except.POAInternalError pie )
-	{
-	    Debug.output( 1, "WARNING: Received a request with a non-jacorb object key" );
+        try
+        {
+            server_request =
+            new ServerRequest( orb, in, connection );
+        }
+        catch( org.jacorb.poa.except.POAInternalError pie )
+        {
+            Debug.output( 1, "WARNING: Received a request with a non-jacorb object key" );
 
-	    if( in.isLocateRequest() )
-	    {
-		LocateReplyOutputStream lr_out =
-		    new LocateReplyOutputStream(in.req_hdr.request_id,
-						LocateStatusType_1_2._UNKNOWN_OBJECT,
-						in.getGIOPMinor() );
+            if( in.isLocateRequest() )
+            {
+                LocateReplyOutputStream lr_out =
+                new LocateReplyOutputStream(in.req_hdr.request_id,
+                                            LocateStatusType_1_2._UNKNOWN_OBJECT,
+                                            in.getGIOPMinor() );
 
-		try
-		{
-		    connection.sendReply( lr_out );
-		}
-		catch( IOException e )
-		{
-		    Debug.output( 1, e );
-		}
-	    }
-	    else
-	    {
-		ReplyOutputStream out =
-		    new ReplyOutputStream( in.req_hdr.request_id,
-					   ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-					   in.getGIOPMinor(),
-					   false );//no locate reply
+                try
+                {
+                    connection.sendReply( lr_out );
+                }
+                catch( IOException e )
+                {
+                    Debug.output( 1, e );
+                }
+            }
+            else
+            {
+                ReplyOutputStream out =
+                new ReplyOutputStream( in.req_hdr.request_id,
+                                       ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                       in.getGIOPMinor(),
+                                       false );//no locate reply
 
-		SystemExceptionHelper.write( out, new OBJECT_NOT_EXIST( 0, CompletionStatus.COMPLETED_NO ));
+                SystemExceptionHelper.write( out, new OBJECT_NOT_EXIST( 0, CompletionStatus.COMPLETED_NO ));
 
-		try
-		{
-		    connection.sendReply( out );
-		}
-		catch( IOException e )
-		{
-		    Debug.output( 1, e );
-		}
-	    }
+                try
+                {
+                    connection.sendReply( out );
+                }
+                catch( IOException e )
+                {
+                    Debug.output( 1, e );
+                }
+            }
 
-	    return;
-	}
+            return;
+        }
 
         deliverRequest( server_request );
     }
 
     public void locateRequestReceived ( byte[] request,
-                                       GIOPConnection connection )
+                                        GIOPConnection connection )
     {
-	//for the time being, map to normal request
-	requestReceived( request, connection );
+        //for the time being, map to normal request
+        requestReceived( request, connection );
     }
 
 
