@@ -49,8 +49,6 @@ public class MessageOutputStream
     public void writeGIOPMsgHeader( int message_type,
                                     int minor_version )
     {
-        byte[] buffer = getInternalBuffer();
-
         //attribute: magic (4 bytes)
         buffer[0] = (byte) 'G';
         buffer[1] = (byte) 'I';
@@ -75,8 +73,6 @@ public class MessageOutputStream
 
     public void insertMsgSize( int size )
     {
-        byte[] buffer = getInternalBuffer();
-
         //using big endian byte ordering
         buffer[8]  = (byte)((size >> 24) & 0xFF);
         buffer[9]  = (byte)((size >> 16) & 0xFF);

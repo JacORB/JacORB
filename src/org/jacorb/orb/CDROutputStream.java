@@ -60,7 +60,7 @@ public class CDROutputStream
     private int deferred_writes;
 
     private BufferManager bufMgr;
-    private byte[] buffer;
+    protected byte[] buffer;
 
     private boolean closed;
 
@@ -148,7 +148,7 @@ public class CDROutputStream
         Environment.isPropertyOn("jacorb.interop.chunk_custom_rmi_valuetypes");
     }
 
-    private class DeferredWriteFrame
+    private static class DeferredWriteFrame
     {
         public int write_pos = 0;
         public int start = 0;
@@ -608,15 +608,6 @@ public class CDROutputStream
         }
 
         return bos.toByteArray();
-    }
-
-    /**
-     * don't use this one...
-     */
-
-    public byte[] getInternalBuffer()
-    {
-        return buffer;
     }
 
     private void resetIndex()
