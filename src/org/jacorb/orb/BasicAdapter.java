@@ -23,12 +23,14 @@ package org.jacorb.orb;
 import java.lang.reflect.Constructor;
 import java.net.*;
 import org.jacorb.orb.connection.*;
+import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.factory.SSLServerSocketFactory;
 import org.jacorb.orb.factory.ServerSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
+import org.omg.ETF.Connection;
 import org.omg.PortableServer.POA;
 
 /**
@@ -37,21 +39,20 @@ import org.omg.PortableServer.POA;
  *
  * @author Gerald Brose, FU Berlin
  * @version $Id$
- */public class BasicAdapter
+ */
+public class BasicAdapter extends org.omg.ETF._HandleLocalBase
 {
     public  static SSLServerSocketFactory ssl_socket_factory = null;
     private static ServerSocketFactory socket_factory = null;
-    private static SocketFactory client_socket_factory = null;
 
     static
     {
         socket_factory = SocketFactoryManager.getServerSocketFactory ((ORB) null);
     }
 
-    private  org.jacorb.orb.ORB orb;
-    private  POA rootPOA;
-    private  Listener listener;
-    private  Listener sslListener; // bnv
+    private org.jacorb.orb.ORB orb;
+    private POA rootPOA;
+    private org.omg.ETF.Listener listener;
 
     private MessageReceptorPool receptor_pool = null;
     private RequestListener request_listener = null;
@@ -101,61 +102,11 @@ import org.omg.PortableServer.POA;
                 }
             }
 
-            if( client_socket_factory == null )
-            {
-                String s = Environment.getProperty( "jacorb.ssl.socket_factory" );
-                if( s == null || s.length() == 0 )
-                {
-                    throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
-                }
-
-                try
-                {
-                    Class ssl = Class.forName( s );
-
-                    Constructor constr = ssl.getConstructor( new Class[]{
-                        org.jacorb.orb.ORB.class });
-
-                    client_socket_factory = (SocketFactory)
-                        constr.newInstance( new Object[]{ orb });
-                }
-                catch (Exception e)
-                {
-                    Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT,
-                                  e );
-
-                    throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
-                }
-            }
-
-            sslListener =
-                new Listener( Environment.getProperty( "OASSLPort" ),
-                              ssl_socket_factory,
-                              true );
-
-            Debug.output( 1, "SSL Listener on port " + sslListener.port );
-        }
-        else
-        {
-            if (client_socket_factory == null)
-            {
-                client_socket_factory = SocketFactoryManager.getSocketFactory (orb);
-            }
         }
 
         receptor_pool = MessageReceptorPool.getInstance();
         request_listener = new ServerRequestListener( orb, rootPOA );
         reply_listener = new NoBiDirServerReplyListener();
-
-        /*
-         * We always create a plain socket listener as well. If SSL is
-         * required, we do not accept requests on this port, however
-         * (see below).
-         */
-
-        listener = new Listener( Environment.getProperty( "OAPort" ),
-                                 socket_factory,
-                                 false );
 
         String prop =
             Environment.getProperty("jacorb.connection.server_timeout");
@@ -164,6 +115,10 @@ import org.omg.PortableServer.POA;
         {
             timeout = Integer.parseInt(prop);
         }
+
+        listener = new IIOPListener();
+        listener.set_handle (this);
+        listener.listen();
     }
 
     public RequestListener getRequestListener()
@@ -171,19 +126,24 @@ import org.omg.PortableServer.POA;
         return request_listener;
     }
 
+    /**
+     * obsolete
+     */
     public int getPort()
     {
-        return listener.getPort();
+        IIOPProfile profile = (IIOPProfile)listener.endpoint();
+        return profile.getAddress().getPort();
     }
 
     public int getSSLPort()
     {
-        return sslListener.getPort();
+        IIOPProfile profile = (IIOPProfile)listener.endpoint();
+        return profile.getSSLPort();
     }
 
     public boolean hasSSLListener()
     {
-        return sslListener != null;
+        return getSSLPort() != -1;
     }
 
     /**
@@ -192,7 +152,8 @@ import org.omg.PortableServer.POA;
 
     public String getAddress()
     {
-        return listener.getAddress();
+        IIOPProfile profile = (IIOPProfile)listener.endpoint();
+        return profile.getAddress().getHost();
     }
 
     /**
@@ -279,227 +240,68 @@ import org.omg.PortableServer.POA;
 
     public void stopListeners()
     {
-        listener.doStop();
+        listener.destroy();
+    }
 
-        if( sslListener != null )
-        {
-            sslListener.doStop();
-        }
+    // Handle methods below this line
+
+    /**
+     * Announces a new connection instance to the ORB. 
+     * The caller shall examine the boolean return value and
+     * destroy the connection, if the call returns false.
+     * A new connection initially belongs to the plug-in, 
+     * and it shall signal the connection to the ORB when 
+     * the first incoming request data was received, 
+     * using this Handle upcall.
+     * <p>
+     * The Handle shall accept the connection (and cache
+     * information about it if needed), as long as it is
+     * allowed to do so by the ORB. In this case it shall
+     * return true. If a new connection is currently not 
+     * allowed, it shall ignore the passed instance and 
+     * return false.
+     */
+    public boolean add_input (org.omg.ETF.Connection conn)
+    {
+        GIOPConnection giopConnection =
+            giop_connection_manager.createServerGIOPConnection
+            (
+                          listener.endpoint(),
+                          conn,
+                          request_listener,
+                          reply_listener
+            );
+        receptor_pool.connectionCreated( giopConnection );
+        return true;
     }
 
     /**
-     * Inner class Listener, responsible for accepting connection requests
+     * In some cases, the client side can initiate the closing of a 
+     * connection. The plugin shall signal this event to the server side 
+     * ORB via its Handle by calling this function.
      */
-
-    class Listener
-        extends Thread
+    public void closed_by_peer (org.omg.ETF.Connection conn)
     {
-        private ServerSocket serverSocket = null;
-
-        private int port = 0;
-        private String address_string = null;
-
-        private boolean is_ssl = false;
-
-        private ServerSocketFactory factory = null;
-
-        private boolean do_run = true;
-
-        public Listener( String oa_port,
-                         ServerSocketFactory factory,
-                         boolean is_ssl )
-            throws org.omg.CORBA.INITIALIZE
-        {
-            if( factory == null )
-            {
-                throw new org.omg.CORBA.INITIALIZE("No socket factory available!");
-            }
-
-            this.factory = factory;
-            this.is_ssl = is_ssl;
-
-            try
-            {
-                String ip_addr = Environment.getProperty("OAIAddr");
-
-                if( ip_addr == null)
-                {
-                    if( oa_port != null )
-                    {
-                        serverSocket =
-                            factory.createServerSocket(
-                                Integer.parseInt( oa_port ));
-                    }
-                    else
-                    {
-                        serverSocket = factory.createServerSocket( 0 );
-                    }
-
-
-                    setAddress( InetAddress.getLocalHost() );
-                }
-                else
-                {
-                    InetAddress target_addr =
-                        InetAddress.getByName( ip_addr );
-
-                    if( target_addr == null )
-                        target_addr = InetAddress.getLocalHost();
-
-                    if( target_addr == null )
-                    {
-                        System.err.println("[ Listener: Couldn't initialize, illegal ip addr " +
-                                           ip_addr +" ]");
-                        throw new org.omg.CORBA.INITIALIZE("Listener: Could not initialize. " +
-                                                           " illegal ip addr " + ip_addr,
-                                                           1,
-                                                           org.omg.CORBA.CompletionStatus.COMPLETED_NO );
-                    }
-
-                    if( oa_port != null )
-                    {
-                        serverSocket =
-                            factory.createServerSocket( Integer.parseInt( oa_port),
-                                                        20,
-                                                        target_addr );
-                    }
-                    else
-                    {
-                        serverSocket =
-                            factory.createServerSocket( 0, 20, target_addr );
-                    }
-
-                    setAddress( target_addr );
-                }
-
-                port = serverSocket.getLocalPort();
-            }
-            catch (Exception e)
-            {
-                Debug.output(2,e);
-                throw new org.omg.CORBA.INITIALIZE("ORB Listener: could not initialize, illegal address config.?!",
-                                          1,
-                                         org.omg.CORBA.CompletionStatus.COMPLETED_NO);
-            }
-
-            if( ssl_socket_factory == null )
-            {
-                //can't be SSL, if no corresponding factory is present
-                is_ssl = false;
-            }
-            else
-            {
-                //let the factory decide
-                is_ssl = ssl_socket_factory.isSSL( serverSocket );
-            }
-
-            this.setName("JacORB Listener Thread on port " + port );
-            setDaemon(true);
-            start();
-        }
-
-        public int getPort()
-        {
-            return port;
-        }
-
-        private void setAddress( InetAddress addr )
-        {
-            address_string =
-                org.jacorb.orb.dns.DNSLookup.inverseLookup( addr );
-
-            if( address_string == null )
-            {
-                address_string = addr.toString();
-
-                if( address_string.indexOf( "/" ) >= 0 )
-                {
-                    address_string =
-                        address_string.substring(
-                              address_string.indexOf( "/" ) + 1 );
-                }
-            }
-
-            Debug.output( 2, "Set BasicListener address string to " +
-                          address_string );
-        }
-
-        private void setAddress( String ip )
-        {
-            address_string =
-                org.jacorb.orb.dns.DNSLookup.inverseLookup( ip );
-
-            if( address_string == null )
-            {
-                address_string = ip;
-            }
-
-            Debug.output( 2, "Set BasicListener address string to " +
-                          address_string );
-        }
-
-        public String getAddress()
-        {
-            return address_string;
-        }
-
-        public void run()
-        {
-            // setPriority(Thread.MAX_PRIORITY);
-            while( do_run )
-            {
-                try
-                {
-                    Socket socket = serverSocket.accept();
-
-                    if( timeout > 0 )
-                    {
-                        if ( Debug.isDebugEnabled() )
-                        {
-                            Debug.output( 3, "Socket timeout: " + timeout );
-                        }
-                        socket.setSoTimeout(timeout);
-                    }
-
-                    if( is_ssl )
-                    {
-                        // the operation does both the check and the
-                        // switch (if necessary)
-                        ssl_socket_factory.switchToClientMode( socket );
-                    }
-
-                    GIOPConnection connection =
-                        giop_connection_manager.createServerGIOPConnection(
-                            null,
-                            transport_manager.createServerTransport( socket, is_ssl ),
-                            request_listener,
-                            reply_listener );
-
-                    receptor_pool.connectionCreated( connection );
-                }
-                catch( Exception e )
-                {
-                    if( do_run )
-                        Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT, e );
-                }
-            }
-
-            Debug.output( Debug.INFORMATION | Debug.ORB_CONNECT,
-                          "Listener exited");
-        }
-
-        public void doStop()
-        {
-            do_run = false;
-
-            try
-            {
-                serverSocket.close();
-            }
-            catch( java.io.IOException e )
-            {
-                Debug.output( Debug.INFORMATION | Debug.ORB_CONNECT, e );
-            }
-        }
+        // We don't do this in JacORB; Connections are never
+        // given back to the Listener after they have been
+        // passed up initially.
+        throw new org.omg.CORBA.NO_IMPLEMENT();
     }
+
+    /**
+     * The plugged-in transport (e.g. the Listener instance) shall call
+     * this function when it owns a server-side Connection and data arrives 
+     * on the local endpoint. This will start a new request dispatching 
+     * cycle in the ORB. Subsequently, it shall ignore any other incoming
+     * data from this Connection until the Listener's completed_data function 
+     * is called by the ORB.
+     */
+    public void signal_data_available (Connection conn)
+    {
+        // We don't do this in JacORB; Connections are never
+        // given back to the Listener after they have been
+        // passed up initially.
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
 }
