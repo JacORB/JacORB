@@ -1,5 +1,4 @@
-package jacorb.orb.connection;
-
+package org.jacorb.orb.connection;
 /*
  *        JacORB - a free Java ORB
  *
@@ -35,10 +34,12 @@ public class LocateReplyOutputStream
 {
     private org.omg.GIOP.LocateReplyHeader_1_0 locate_rep_hdr;
 
-    public LocateReplyOutputStream ( int request_id, 
+    public LocateReplyOutputStream ( ServerConnection c,
+                                     int request_id, 
 				     int status, 
                                      org.omg.CORBA.Object arg )
     {
+        super(c);
 	locate_rep_hdr = 
             new org.omg.GIOP.LocateReplyHeader_1_0( request_id, 
                                                     org.omg.GIOP.LocateStatusType_1_0.from_int(status));
@@ -54,6 +55,12 @@ public class LocateReplyOutputStream
 
 
 }
+
+
+
+
+
+
 
 
 

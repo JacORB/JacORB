@@ -39,15 +39,17 @@ public class ReplyOutputStream
     /**
      * To be called only from derived classes.
      */
-    ReplyOutputStream()
+    ReplyOutputStream( ServerConnection c)
     {
+        super(c);
     }
 
-    public ReplyOutputStream ( org.omg.IOP.ServiceContext[] service_context, 
+    public ReplyOutputStream ( ServerConnection c,
+                               org.omg.IOP.ServiceContext[] service_context, 
                                int request_id,
                                org.omg.GIOP.ReplyStatusType_1_0 reply_status )
     {
-        this( service_context, request_id, reply_status, false);
+        this(c, service_context, request_id, reply_status, false);
     }
 
     /**
@@ -63,16 +65,18 @@ public class ReplyOutputStream
      *
      * @see setServiceContexts()
      */
-    public ReplyOutputStream ( org.omg.IOP.ServiceContext[] service_context, 
+    public ReplyOutputStream ( ServerConnection c,
+                               org.omg.IOP.ServiceContext[] service_context, 
                                int request_id,
                                org.omg.GIOP.ReplyStatusType_1_0 reply_status,
                                boolean separate_header )
     {
+        super(c);
         rep_hdr = 
             new org.omg.GIOP.ReplyHeader_1_0(service_context,  request_id, reply_status);
 
         if (separate_header)
-            header_stream = new CDROutputStream();
+            header_stream = new CDROutputStream(connection);
         else
             writeHeader(this);
     }
@@ -110,7 +114,7 @@ public class ReplyOutputStream
 
         rep_hdr.service_context = context;
     
-        header_stream = new CDROutputStream();
+        header_stream = new CDROutputStream(connection);
         writeHeader(header_stream);
     
         int difference = header_stream.size() % 8; //difference to next 8 byte border
@@ -128,6 +132,10 @@ public class ReplyOutputStream
         }
     } 
 }
+
+
+
+
 
 
 

@@ -25,11 +25,11 @@ package org.jacorb.orb.connection;
  * @author Gerald Brose, FU Berlin
  * @version $Id$
  *
- * Hack for locate requests: turn a locate request into
- * a _non_existent() request and actually ping the object. This appears
- * to be necessary because we have to get around potentially holding
- * POAs - which can only be done using proper requests in our design.
- */
+ *  Hack   for  locate  requests:   turn  a  locate  request   into  a
+ * _non_existent() request and  actually ping the object. This appears
+ * to be  necessary because we have to  get around potentially holding
+ * POAs - which can only be done using proper requests in our design.  
+*/
 
 import java.io.*;
 import java.net.*;
@@ -41,9 +41,9 @@ public class LocateRequestInputStream
 {
     public org.omg.GIOP.LocateRequestHeader_1_0 locate_req_hdr;
 
-    public LocateRequestInputStream( org.omg.CORBA.ORB orb, byte [] buf )
+    public LocateRequestInputStream( ServerConnection c,byte [] buf )
     {
-	super( orb, buf, true );
+	super( c, buf, true );
 	if( buffer[7] != (byte)org.omg.GIOP.MsgType_1_0._LocateRequest )
 	    throw new RuntimeException("Error: not a locate request!");
 	setLittleEndian( buffer[6]!=0);
@@ -60,6 +60,10 @@ public class LocateRequestInputStream
                                                 null ); 
     }
 }
+
+
+
+
 
 
 
