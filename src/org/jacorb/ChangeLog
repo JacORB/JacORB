@@ -1,3 +1,66 @@
+2004-01-06  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/Delegate.java: Error handling
+
+	* orb/giop/ClientConnection.java,
+	orb/giop/ClientConnectionManager.java: Keep close in clientconnmgr
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java,
+	orb/giop/MessageOutputStream.java,
+	orb/giop/ServiceContextTransportingOutputStream.java,
+	orb/portableInterceptor/Codec_CDR_1_0_Impl.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java: CDRStreams
+	- normalise close/release
+
+	* poa/RequestProcessor.java: Better error
+
+	* poa/POA.java, poa/RequestQueue.java: Whitespace only
+
+	* orb/Any.java: Minor optimization save creating new Boolean objects
+
+	* idl/AliasTypeSpec.java, idl/ArrayTypeSpec.java,
+	idl/ConstDecl.java, idl/EnumType.java, idl/Environment.java,
+	idl/FixedPointType.java, idl/Interface.java,
+	idl/SequenceType.java, idl/StructType.java, idl/UnionType.java,
+	idl/ValueAbsDecl.java, idl/ValueBoxDecl.java: Remove -jdk14
+	option (now outputs a warning rather than forcing an error).
+
+	* idl/parser.cup, idl/parser.java, idl/sym.java: Remove -jdk14
+	option (now outputs a warning rather than forcing an error) and
+	updated year string.
+
+2004-01-06  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GssUpContext.java: SAS Documentation
+
+2004-01-05  Gerald Brose  <gerald.brose@acm.org>
+
+	* Version 2.0 GA released.
+	
+	* orb/portableInterceptor/IORInfoExt.java: fixed typo in javadoc tag
+
+	* orb/portableInterceptor/IORInfoImpl.java:
+	fixed typo in in javadoc tag
+
+	* idl/parser.java, idl/sym.java: *** empty log message ***
+
+2004-01-05  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GssUpContext.java: Updates GssUp demo files
+
+2004-01-05  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/parser.cup: remove -global-import option, updated -help
+	output, changed order of inserting vector elements in switch_body
+	rule (preserves order of IDL union cases in the generated code).
+
+	* util/LogKitLoggerFactory.java: changes in comments
+
+	* util/Version.java: update for 2.0 GA
+
+	* util/Environment.java: minor cosmetics
+
 2004-01-03  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/Delegate.java (set_policy_override): Remove code that
