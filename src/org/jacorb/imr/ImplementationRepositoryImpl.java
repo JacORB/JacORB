@@ -750,11 +750,13 @@ public class ImplementationRepositoryImpl
      * <br> When a connection is accepted a
      * new RequestReceptor thread is started.  
      */
-    private class SocketListener extends Thread {
+    private class SocketListener 
+	extends Thread 
+    {
 	private java.net.ServerSocket server_socket;
 	private int port = 0;
 	private String address;
-	private int timeout = 0;
+	private int timeout = 2000; // 2 secs
 	private boolean run = true;
 	private boolean wait = false;
 
@@ -779,6 +781,25 @@ public class ImplementationRepositoryImpl
 
 		Debug.output(Debug.IMR | Debug.INFORMATION,
                              "ImR Listener at " + port + ", " + address );
+		
+		String s = 
+		    Environment.getProperty( "jacorb.imr.connection_timeout" );
+		
+		if( s != null )
+		{
+		    try
+		    {
+			timeout = Integer.parseInt( s );
+		    }
+		    catch( NumberFormatException nfe )
+		    {
+			Debug.output( Debug.IMR | Debug.IMPORTANT,
+				      "ERROR: Unable to build timeout int from string >>" + 
+				      s + "<<" );
+			Debug.output( Debug.IMR | Debug.IMPORTANT,
+				      "Please check property \"jacorb.imr.connection_timeout\"" );
+		    }	      
+		}
 	    } 
 	    catch (Exception e)
             {
@@ -918,7 +939,6 @@ public class ImplementationRepositoryImpl
 
 
 	    /* set up a connection object */
-	    
 	    try 
             {
 		connection = 
@@ -939,50 +959,63 @@ public class ImplementationRepositoryImpl
 
 	    /* receive request */
 
-	    try
-            {
-                byte[] _buf = connection.readBuffer();
+	    while( true )
+	    {
+		try
+		{
+		    byte[] _buf = connection.readBuffer();
 		    
-                int _msg_type = _buf[7];
+		    int _msg_type = _buf[7];
 		    
-                switch( _msg_type )
-                {
-                case org.omg.GIOP.MsgType_1_0._Request:		  
-                    {
-                        replyNewLocation( _buf );
-                        break;			    
-                    } 
-                case org.omg.GIOP.MsgType_1_0._CancelRequest:
-                    {
+		    switch( _msg_type )
+		    {
+		    case org.omg.GIOP.MsgType_1_0._Request:		  
+			{
+			    replyNewLocation( _buf );
+			    break;			    
+			} 
+		    case org.omg.GIOP.MsgType_1_0._CancelRequest:
+			{
                             break;
-                    }
-                case org.omg.GIOP.MsgType_1_0._LocateRequest:
-                    {
-                        replyNewLocation( _buf );
-                        break;
-                    }
-                default:
-                    {
-                        Debug.output( Debug.IMR | Debug.IMPORTANT,
-                                      "SessionServer, message_type " + 
-                                      _msg_type + " not understood." );
-                    }		    
+			}
+		    case org.omg.GIOP.MsgType_1_0._LocateRequest:
+			{
+			    replyNewLocation( _buf );
+			    break;
+			}
+		    default:
+			{
+			    Debug.output( Debug.IMR | Debug.IMPORTANT,
+					  "SessionServer, message_type " + 
+					  _msg_type + " not understood." );
+			}		    
+		    } 
+		}
+		catch( java.io.EOFException eof )
+		{
+		    Debug.output( Debug.IMR | Debug.DEBUG1,eof );
+		    
+		    break;
 		} 
-	    }
-	    catch( java.io.EOFException eof )
-	    {
-		Debug.output( Debug.IMR | Debug.DEBUG1,eof );
-	    } 
-	    catch( org.omg.CORBA.COMM_FAILURE cf )
-	    {
-		Debug.output(Debug.IMR | Debug.IMPORTANT,cf);
-	    } 
-	    catch( java.io.IOException i )
-	    {
-		Debug.output(Debug.IMR | Debug.DEBUG1,i);		
+		catch( org.omg.CORBA.COMM_FAILURE cf )
+		{
+		    Debug.output(Debug.IMR | Debug.IMPORTANT,cf);
+		    
+		    break;
+		} 
+		catch( java.io.IOException i )
+		{
+		    Debug.output(Debug.IMR | Debug.DEBUG1,i);		
+		    
+		    break;
+		}
 	    }
 
             close();
+	    
+	    System.out.println( ">>>>>>>>>>>>>>>>>>>>>>>>>>Thread freed");
+	    
+	    
 	}	
 	
 	
