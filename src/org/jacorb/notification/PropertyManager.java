@@ -47,7 +47,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class PropertyManager implements Cloneable
 {
-
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private boolean dirty_ = true;
@@ -113,8 +112,8 @@ public class PropertyManager implements Cloneable
                     int x = 0;
                     while (_i.hasNext())
                     {
-                        String _key = (String)_i.next();
-                        asArray_[x++] = new Property(_key, (Any)properties_.get(_key));
+                        String _key = (String) _i.next();
+                        asArray_[x++] = new Property(_key, (Any) properties_.get(_key));
                     }
                     dirty_ = false;
                 }

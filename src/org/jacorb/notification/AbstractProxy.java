@@ -121,7 +121,7 @@ public abstract class AbstractProxy implements FilterAdminOperations,
         notificationEventFactory_ =
             applicationContext_.getMessageFactory();
 
-        filterManager_ = new FilterManager();
+        filterManager_ = new FilterManager(applicationContext_);
     }
 
     abstract public Servant getServant();
@@ -182,7 +182,7 @@ public abstract class AbstractProxy implements FilterAdminOperations,
 
     public void validate_event_qos(Property[] qosProps,
                                    NamedPropertyRangeSeqHolder propSeqHolder)
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT();
     }
@@ -206,14 +206,14 @@ public abstract class AbstractProxy implements FilterAdminOperations,
 
     public void offer_change(EventType[] eventTypes,
                              EventType[] eventTypes2)
-    throws InvalidEventType
+        throws InvalidEventType
     {
         throw new NO_IMPLEMENT();
     }
 
     public void subscription_change(EventType[] eventType,
                                     EventType[] eventType2)
-    throws InvalidEventType
+        throws InvalidEventType
     {
         throw new NO_IMPLEMENT();
     }
