@@ -132,7 +132,7 @@
 
    <target name="giop" depends="init">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} ${include}/omg/GIOP.idl"/>
+	      <arg line="${idlflags} -DGIOP_1_1 ${include}/omg/GIOP.idl"/>
 	</java>
    </target>
 
