@@ -68,7 +68,6 @@ public class LocateRequestInputStream
                     req_hdr =
                         LocateRequestHeader_1_2Helper.read( this );
 
-                    ParsedIOR.unfiyTargetAddress( req_hdr.target );
 
                     break;
                 }
