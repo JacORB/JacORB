@@ -175,8 +175,11 @@ class ValueBoxDecl
     }
 
     /**
-     * @returns a string for an expression of type TypeCode that describes this type
-     * @overrides getTypeCodeExpression( Set knownTypes ) in TypeDeclaration
+     * @returns a string for an expression of type TypeCode that
+     * describes this type
+     *
+     * @overrides getTypeCodeExpression( Set knownTypes ) in 
+     * TypeDeclaration 
      */
 
     public String getTypeCodeExpression( Set knownTypes )

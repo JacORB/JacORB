@@ -174,7 +174,9 @@ class ValueDecl
 
         if (stateMembers.size () != 0)
         {
+            ScopedName.addRecursionScope( typeName() );
             stateMembers.parse();
+            ScopedName.removeRecursionScope( typeName() );
 
             for( Iterator i = operations.iterator(); i.hasNext(); )
                 ( (IdlSymbol)i.next() ).parse();
@@ -347,6 +349,7 @@ class ValueDecl
         short access = m.isPublic
                 ? org.omg.CORBA.PUBLIC_MEMBER.value
                 : org.omg.CORBA.PRIVATE_MEMBER.value;
+
         return "new org.omg.CORBA.ValueMember (" +
                 "\"" + m.name + "\", \"" + typeSpec.id() +
                 "\", \"" + name + "\", \"1.0\", " +

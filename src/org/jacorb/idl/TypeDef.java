@@ -30,9 +30,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 class TypeDef
-        extends TypeDeclaration
+    extends TypeDeclaration
 {
-
     public TypeDeclarator type_declarator;
     private Vector typeSpecs = new Vector();
 

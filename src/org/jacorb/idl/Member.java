@@ -33,7 +33,8 @@ import java.util.Vector;
 class Member
     extends Declaration
 {
-    public TypeSpec type_spec;
+    TypeSpec type_spec;
+
     public SymbolList declarators;
     public Vector extendVector;
     public TypeDeclaration containingType;

@@ -27,8 +27,7 @@ package org.jacorb.idl;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.*;
 
 class Interface
     extends TypeDeclaration
@@ -133,6 +132,19 @@ class Interface
         return "org.omg.CORBA.ORB.init().create_interface_tc( \"" +
                 id() + "\", \"" + name + "\")";
     }
+
+    public String getTypeCodeExpression( Set knownTypes )
+    {
+        if( knownTypes.contains( this ) )
+        {
+            return this.getRecursiveTypeCodeExpression();
+        }
+        else
+        {   
+            return this.getTypeCodeExpression();
+        }
+    }
+
 
     public boolean basic()
     {
