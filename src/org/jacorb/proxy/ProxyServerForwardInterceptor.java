@@ -51,7 +51,7 @@ public class ProxyServerForwardInterceptor
         slot = sl;
         orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
 
-        String url = Environment.getProperty ("jacorb.ProxyServerURL");
+        String url = Environment.getProperty ("jacorb.ProxyServer.URL");
         org.omg.CORBA.Object obj = orb.string_to_object (url);
         proxy = org.jacorb.proxy.ProxyHelper.narrow (obj);
     }
