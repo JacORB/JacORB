@@ -32,12 +32,13 @@ import org.jacorb.util.*;
 public class ClientGIOPConnection
     extends GIOPConnection
 {
-    public ClientGIOPConnection( Transport transport,
+    public ClientGIOPConnection( org.omg.ETF.Profile profile,
+                                 Transport transport,
                                  RequestListener request_listener,
                                  ReplyListener reply_listener,
                                  StatisticsProvider statistics_provider )
     {
-        super( transport, request_listener, reply_listener, statistics_provider );
+        super( profile, transport, request_listener, reply_listener, statistics_provider );
     }
 
 

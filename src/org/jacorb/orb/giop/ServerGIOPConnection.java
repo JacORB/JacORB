@@ -50,13 +50,14 @@ public class ServerGIOPConnection
 
     private boolean delayClose = false;
 
-    public ServerGIOPConnection( Transport transport,
+    public ServerGIOPConnection( org.omg.ETF.Profile profile,
+                                 Transport transport,
                                  RequestListener request_listener,
                                  ReplyListener reply_listener,
                                  StatisticsProvider statistics_provider,
                                  GIOPConnectionManager manager )
     {
-        super( transport, request_listener, reply_listener, statistics_provider );
+        super( profile, transport, request_listener, reply_listener, statistics_provider );
 
         this.manager = manager;
 
