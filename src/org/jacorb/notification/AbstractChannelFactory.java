@@ -501,7 +501,7 @@ public abstract class AbstractChannelFactory
         } catch (Throwable ex) {
             ex.printStackTrace();
 
-            throw new RuntimeException(ex);
+            throw new RuntimeException(ex.getMessage());
         }
 
         _eventChannelServant.setKey(_channelID);

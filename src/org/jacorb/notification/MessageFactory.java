@@ -185,7 +185,7 @@ public class MessageFactory implements Disposable, Configurable
             return _handle;
         } catch (Bounds e) {
             // this should never happen!
-            throw new RuntimeException (e);
+            throw new RuntimeException (e.getMessage());
         }
     }
 
