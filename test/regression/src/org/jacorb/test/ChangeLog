@@ -1,3 +1,20 @@
+2003-08-13  Andre Spiegel  <spiegel@gnu.org>
+
+	* bugs/AllTest.java (suite): Add bug 272.
+
+	* bugs/bug272/TestCase.java: Initial revision.
+
+	* orb/MiscTest.java: Moved to bugs.bug272.
+
+	* orb/AllTest.java (suite): Remove MiscTest, this is now in
+	bugs.bug272.
+
+	* AllTest.java (suite): Add bugs.AllTest.
+
+	* bugs/AllTest.java, bugs/bug351/RetrievalResultImpl.java,
+	bugs/bug351/TestCase.java, bugs/bug351/ValueServerImpl.java:
+	Initial revision.
+
 2003-08-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/rmi/AllTest.java (suite): Fix name.

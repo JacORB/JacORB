@@ -1,3 +1,7 @@
+2003-08-13  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/VectorType.java: RT1010 Fix for JDK122 ObjectHelper (OMG 1536)
+
 2003-08-12  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/IIOPAddress.java: Add comments to explain port number format.
