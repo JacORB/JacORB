@@ -1,3 +1,75 @@
+2001-11-23  Steve Osselton
+
+	* orb/ORB.java: Check for local object added to object_to_string
+
+2001-11-22  Prism
+
+	* transaction/ServerInitializer.java,
+	transaction/TransactionCurrentImpl.java,
+	util/tracing/ClientTraceInterceptor.java,
+	util/tracing/ServerTraceInterceptor.java,
+	util/tracing/TraceInitializer.java,
+	security/ssl/iaik/SecurityServiceInitializer.java,
+	security/ssl/iaik/ServerInvocationInterceptor.java,
+	security/ssl/sun_jsse/SecurityServiceInitializer.java,
+	security/ssl/sun_jsse/ServerInvocationInterceptor.java,
+	transaction/ClientContextTransferInterceptor.java,
+	transaction/ClientInitializer.java,
+	transaction/ServerContextTransferInterceptor.java,
+	security/level2/EstablishTrustPolicyImpl.java,
+	security/level2/InvocationCredentialsPolicyImpl.java,
+	security/level2/MechanismPolicyImpl.java,
+	security/level2/PrincipalAuthenticatorImpl.java,
+	security/level2/QOPPolicyImpl.java,
+	security/level2/RequiredRightsImpl.java,
+	security/level2/ServerAccessDecisionInterceptor.java,
+	security/level2/ServerInitializer.java,
+	poa/policy/RequestProcessingPolicy.java,
+	poa/policy/ServantRetentionPolicy.java,
+	poa/policy/ThreadPolicy.java,
+	security/level2/AccessDecisionImpl.java,
+	security/level2/CredentialsImpl.java,
+	security/level2/CurrentImpl.java,
+	security/level2/DelegationDirectivePolicyImpl.java,
+	poa/POAManager.java, poa/policy/IdAssignmentPolicy.java,
+	poa/policy/IdUniquenessPolicy.java,
+	poa/policy/ImplicitActivationPolicy.java,
+	poa/policy/LifespanPolicy.java,
+	poa/policy/MapToDefaultDomainsPolicy.java,
+	orb/portableInterceptor/RecursionAwareCI.java,
+	orb/portableInterceptor/RequestInfoImpl.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java,
+	poa/Current.java, poa/POA.java,
+	orb/portableInterceptor/CodecFactoryImpl.java,
+	orb/portableInterceptor/Codec_CDR_1_0_Impl.java,
+	orb/portableInterceptor/DefaultClientInterceptor.java,
+	orb/portableInterceptor/DefaultServerInterceptor.java,
+	orb/portableInterceptor/IORInfoImpl.java,
+	orb/portableInterceptor/ORBInitInfoImpl.java,
+	orb/portableInterceptor/PICurrentImpl.java,
+	orb/connection/BiDirPolicy.java,
+	orb/connection/BiDirPolicyFactory.java, orb/dynany/DynAny.java,
+	orb/dynany/DynAnyFactoryImpl.java,
+	orb/policies/BiDirPolicyFactoryImpl.java,
+	orb/policies/BiDirPolicyImpl.java, orb/Current.java,
+	orb/LocalityConstrainedObject.java,
+	orb/connection/BiDirConnectionInitializer.java,
+	orb/CDROutputStream.java: org.jacorb.orb.LocalityConstrainedObject
+	replaced with org.omg.CORBA.LocalObject
+
+2001-11-21  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/CDRInputStream.java:
+	(read_string) added "0xff &" before casting byte to char.
+
+2001-11-20  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/sym.java, idl/parser.java: *** empty log message ***
+
+	* idl/parser.cup, orb/ORB.java: updated version string
+
 2001-11-20  Gerald Brose  <gerald.brose@acm.org>
 
 	* JacORB 1.4 beta 2 released.
