@@ -78,17 +78,17 @@ public class CDROutputStream
      * for data encapsulation which should not use connection's
      * properties such as CodeSet.
      */
-    // protected AbstractConnection connection = null;
 
     /**
      * This stream contains the separated header
      */
+
     protected CDROutputStream header_stream = null;
 
     /** 
-     * OutputStreams created using the empty constructor 
-     * are used for in memory marshaling, but do not use the
-     * ORB's output buffer manager
+     * OutputStreams created using  the empty constructor are used for
+     * in  memory marshaling, but do  not use the  ORB's output buffer
+     * manager 
      */
 
     public CDROutputStream()
@@ -890,15 +890,18 @@ public class CDROutputStream
         try
         {
 
-            if( ((org.jacorb.orb.TypeCode)value).is_recursive() &&
-                tcMap.containsKey( value.id()) )
+            if( // ((org.jacorb.orb.TypeCode)value).is_recursive() || 
+               ( _kind == -1 || _kind == 15 || _kind == 16  ) &&
+               tcMap.containsKey( value.id() ) )
             {
-                org.jacorb.util.Debug.output(4,"Write recursive Type code for id " +
-                                         value.id() + " pos " +
-                                         (((Integer)tcMap.get( value.id())).intValue() - pos ) );
+                org.jacorb.util.Debug.output( 4, "Write recursive Type code for id " +
+                                              value.id() + " pos " +
+                                              (((Integer)tcMap.get( value.id())).intValue() - pos ) );
                 // recursive TypeCode
                 write_long( -1 ); // recursion marker
-                write_long( ((Integer) tcMap.get( value.id())).intValue() - pos );
+                int curr = pos; // that's where we will be in a second...
+                int negative_offset = ((Integer) tcMap.get( value.id())).intValue() - curr;
+                write_long( negative_offset  );
                 return;
             }
             else
@@ -945,7 +948,9 @@ public class CDROutputStream
                     write_long(_mc);
                     for( int i = 0; i < _mc; i++)
                     {
-                        org.jacorb.util.Debug.output(3,"struct member name " +  value.member_name(i)  );
+                        org.jacorb.util.Debug.output( 3, "struct member name " +  
+                                                      value.member_name(i)  );
+
                         write_string( value.member_name(i) );
                         write_TypeCode( value.member_type(i), tcMap );
                     }
@@ -954,8 +959,8 @@ public class CDROutputStream
                 case TCKind._tk_enum:
                     {
                         beginEncapsulation();
-                        write_string(value.id());
-                        write_string(value.name());
+                        write_string( value.id());
+                        write_string( value.name());
                         _mc = value.member_count();
                         write_long(_mc);
                         for( int i = 0; i < _mc; i++)
@@ -968,9 +973,10 @@ public class CDROutputStream
                 case TCKind._tk_union:
                     {
                         tcMap.put( value.id(), new Integer( start_pos ) );
+
                         beginEncapsulation();
-                        write_string(value.id());
-                        write_string(value.name());
+                        write_string( value.id() );
+                        write_string( value.name() );
 
                         write_TypeCode( value.discriminator_type());
                         write_long( value.default_index());
@@ -1109,354 +1115,391 @@ public class CDROutputStream
     //      }
 
     /** to be called from Any */
-
-    public final void write_value( org.omg.CORBA.TypeCode tc, CDRInputStream in)
+    public  final void write_value( org.omg.CORBA.TypeCode tc, CDRInputStream in)
     {
+        Hashtable tcMap = new Hashtable();
+        write_value( tc, in, tcMap );
+        tcMap.clear();
+    }
+
+    private final void write_value( org.omg.CORBA.TypeCode tc, CDRInputStream in, Hashtable tcMap)
+    {
+        org.jacorb.util.Debug.assert( tc != null, "Illegal null pointer for TypeCode");
         int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
         org.jacorb.util.Debug.output(3, "CDROutput.write_value kind " + kind );
+
         //int kind = tc.kind().value();
         switch (kind)
         {
-        case TCKind._tk_null: 
-        case TCKind._tk_void:
-            break;
-        case TCKind._tk_boolean:
-            write_boolean( in.read_boolean());
-            break;
-        case TCKind._tk_char:
-            write_char( in.read_char());
-            break;
-        case TCKind._tk_wchar:
-            write_wchar( in.read_wchar());
-            break;
-        case TCKind._tk_octet:
-            write_octet( in.read_octet());
-            break;          
-        case TCKind._tk_short:
-            write_short( in.read_short());
-            break;
-        case TCKind._tk_ushort:
-            write_ushort(in.read_ushort());
-            break;
-        case TCKind._tk_long:
+            case TCKind._tk_null: 
+            case TCKind._tk_void:
+                break;
+            case TCKind._tk_boolean:
+                write_boolean( in.read_boolean());
+                break;
+            case TCKind._tk_char:
+                write_char( in.read_char());
+                break;
+            case TCKind._tk_wchar:
+                write_wchar( in.read_wchar());
+                break;
+            case TCKind._tk_octet:
+                write_octet( in.read_octet());
+                break;          
+            case TCKind._tk_short:
+                write_short( in.read_short());
+                break;
+            case TCKind._tk_ushort:
+                write_ushort(in.read_ushort());
+                break;
+            case TCKind._tk_long:
             {
                 write_long( in.read_long());
                 break;
             }
-        case TCKind._tk_ulong:
-            write_ulong( in.read_ulong());
-            break;
-        case TCKind._tk_float:
-            write_float( in.read_float());
-            break;
-        case TCKind._tk_double:
-            write_double(in.read_double());
-            break;
-        case TCKind._tk_longlong:
-            write_longlong(in.read_longlong());
-            break;
-        case TCKind._tk_ulonglong:
-            write_ulonglong( in.read_ulonglong());
-            break;
-        case TCKind._tk_any:
-            write_any( in.read_any());
-            break;
-        case TCKind._tk_TypeCode:
-            write_TypeCode(in.read_TypeCode());
-            break;
-        case TCKind._tk_Principal:
-            write_Principal( in.read_Principal());
-            break;
-        case TCKind._tk_objref: 
-            write_Object( in.read_Object());
-            break;
-        case TCKind._tk_string: 
-            write_string( in.read_string());
-            break;
-        case TCKind._tk_wstring: 
-            write_wstring( in.read_wstring());
-            break;
-        case TCKind._tk_array: 
-            try
+            case TCKind._tk_ulong:
+                write_ulong( in.read_ulong());
+                break;
+            case TCKind._tk_float:
+                write_float( in.read_float());
+                break;
+            case TCKind._tk_double:
+                write_double(in.read_double());
+                break;
+            case TCKind._tk_longlong:
+                write_longlong(in.read_longlong());
+                break;
+            case TCKind._tk_ulonglong:
+                write_ulonglong( in.read_ulonglong());
+                break;
+            case TCKind._tk_any:
+                write_any( in.read_any());
+                break;
+            case TCKind._tk_TypeCode:
+                write_TypeCode(in.read_TypeCode());
+                break;
+            case TCKind._tk_Principal:
+                write_Principal( in.read_Principal());
+                break;
+            case TCKind._tk_objref: 
+                write_Object( in.read_Object());
+                break;
+            case TCKind._tk_string: 
+                write_string( in.read_string());
+                break;
+            case TCKind._tk_wstring: 
+                write_wstring( in.read_wstring());
+                break;
+            case TCKind._tk_array: 
+                try
+                {
+                    int length = tc.length();
+                    int a_kind = ((org.jacorb.orb.TypeCode)tc.content_type())._kind();
+                    if( a_kind == TCKind._tk_octet )
+                    {
+                        check( length );
+                        in.read_octet_array( buffer, pos, length);
+                        index+= length;
+                        pos += length;
+                    }
+                    else
+                    {
+                        for( int i = 0; i < length; i++ )
+                            write_value( tc.content_type(), in, tcMap);
+                    }
+                } 
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+                {} 
+                break;
+            case TCKind._tk_sequence: 
+                try
+                {
+                    int len = in.read_long();
+                    write_long(len);
+        org.jacorb.util.Debug.output(4,"Write_value, sequence of length " + len  );
+                    int s_kind = ((org.jacorb.orb.TypeCode)tc.content_type())._kind();
+                    if( s_kind == TCKind._tk_octet )
+                    {
+                        check( len );
+                        in.read_octet_array( buffer, pos, len );
+                        index+= len;
+                        pos += len;
+                    }
+                    else
+                    {
+                        org.omg.CORBA.TypeCode content_tc = tc.content_type();
+                        for( int i = 0; i < len; i++ )
+                            write_value(  content_tc, in, tcMap);
+                    }
+                } 
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+                break;
+            case TCKind._tk_except:
+                write_string( in.read_string());
+                // don't break, fall through to ...
+            case TCKind._tk_struct: 
             {
-                int length = tc.length();
-                int a_kind = ((org.jacorb.orb.TypeCode)tc.content_type())._kind();
-                if( a_kind == TCKind._tk_octet )
+                //            recursiveTCStack.push(tc);
+                try
                 {
-                    check( length );
-                    in.read_octet_array( buffer, pos, length);
-                    index+= length;
-                    pos += length;
-                }
-                else
-                {
-                    for( int i = 0; i < length; i++ )
-                        write_value( tc.content_type(), in);
-                }
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-            {} 
-            break;
-        case TCKind._tk_sequence: 
-            try
+                    tcMap.put( tc.id(), tc );
+                    for( int i = 0; i < tc.member_count(); i++)
+                        write_value( tc.member_type(i), in, tcMap);
+                } 
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+                catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
+                // recursiveTCStack.pop();
+                break;
+            }
+            case TCKind._tk_enum:
             {
-                int len = in.read_long();
-                write_long(len);
-                int s_kind = ((org.jacorb.orb.TypeCode)tc.content_type())._kind();
-                if( s_kind == TCKind._tk_octet )
-                {
-                    check( len );
-                    in.read_octet_array( buffer, pos, len );
-                    index+= len;
-                    pos += len;
-                }
-                else
-                {
-                    for( int i = 0; i < len; i++ )
-                        write_value( tc.content_type(), in);
-                }
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
-            break;
-        case TCKind._tk_except:
-            write_string( in.read_string());
-            // don't break, fall through to ...
-        case TCKind._tk_struct: 
-            //            recursiveTCStack.push(tc);
-            try
+                write_long( in.read_long() );
+                break;
+            }
+            case TCKind._tk_union:
             {
-                for( int i = 0; i < tc.member_count(); i++)
-                    write_value( tc.member_type(i), in);
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
-            catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
-            // recursiveTCStack.pop();
-            break;
-        case TCKind._tk_enum:
-            write_long( in.read_long() );
-            break;
-        case TCKind._tk_union:
-            try
-            {       
-                //                recursiveTCStack.push(tc);
-                org.jacorb.orb.TypeCode disc = (org.jacorb.orb.TypeCode)tc.discriminator_type();
-                int def_idx = tc.default_index();
-                int member_idx = -1;
+                try
+                {       
+                    tcMap.put( tc.id(), tc );
+                    //                recursiveTCStack.push(tc);
+                    org.jacorb.orb.TypeCode disc = (org.jacorb.orb.TypeCode)tc.discriminator_type();
+                    int def_idx = tc.default_index();
+                    int member_idx = -1;
 
-                switch( disc._kind() )
-                {
-                case TCKind._tk_short:
+                    switch( disc._kind() )
                     {
-                        short s = in.read_short();
-                        write_short(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        case TCKind._tk_short:
                         {
-                            if(i != def_idx)
+                            short s = in.read_short();
+                            write_short(s);
+                            for(int i = 0 ; i < tc.member_count() ; i++)
                             {
-                                if(s == tc.member_label(i).extract_short())
+                                if(i != def_idx)
                                 {
-                                    member_idx = i;
-                                    break;
-                                }
-                            }           
+                                    if(s == tc.member_label(i).extract_short())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
+                                }           
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case TCKind._tk_ushort:
-                    {
-                        short s = in.read_ushort();
-                        write_ushort(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        case TCKind._tk_ushort:
                         {
-                            if(i != def_idx)
+                            short s = in.read_ushort();
+                            write_ushort(s);
+                            for(int i = 0 ; i < tc.member_count() ; i++)
                             {
-                                if(s == tc.member_label(i).extract_ushort())
+                                if(i != def_idx)
                                 {
-                                    member_idx = i;
-                                    break;
-                                }
-                            }           
+                                    if(s == tc.member_label(i).extract_ushort())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
+                                }           
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case TCKind._tk_long:
-                    {
-                        int s = in.read_long();
-                        write_long(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        case TCKind._tk_long:
                         {
-                            if(i != def_idx)
+                            int s = in.read_long();
+                            write_long(s);
+                            for(int i = 0 ; i < tc.member_count() ; i++)
                             {
-                                if(s == tc.member_label(i).extract_long())
+                                if(i != def_idx)
                                 {
-                                    member_idx = i;
-                                    break;
+                                    if(s == tc.member_label(i).extract_long())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
                                 }
                             }
+                            break;
                         }
-                        break;
-                    }
-                case TCKind._tk_ulong:
-                    {
-                        int s = in.read_ulong();
-                        write_ulong(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        case TCKind._tk_ulong:
                         {
-                            if(i != def_idx)
+                            int s = in.read_ulong();
+                            write_ulong(s);
+                            for(int i = 0 ; i < tc.member_count() ; i++)
                             {
-                                if(s == tc.member_label(i).extract_ulong())
+                                if(i != def_idx)
                                 {
-                                    member_idx = i;
-                                    break;
+                                    if(s == tc.member_label(i).extract_ulong())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
                                 }
                             }
+                            break;
                         }
-                        break;
-                    }
-                case TCKind._tk_longlong:
-                    {
-                        long s = in.read_longlong();
-                        write_longlong(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        case TCKind._tk_longlong:
                         {
-                            if(i != def_idx)
+                            long s = in.read_longlong();
+                            write_longlong(s);
+                            for(int i = 0 ; i < tc.member_count() ; i++)
                             {
-                                if(s == tc.member_label(i).extract_longlong())
+                                if(i != def_idx)
                                 {
-                                    member_idx = i;
-                                    break;
+                                    if(s == tc.member_label(i).extract_longlong())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
                                 }
                             }
+                            break;
                         }
-                        break;
-                    }
-                case TCKind._tk_ulonglong:
-                    {
-                        long s = in.read_ulonglong();
-                        write_ulonglong(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        case TCKind._tk_ulonglong:
                         {
-                            if(i != def_idx)
+                            long s = in.read_ulonglong();
+                            write_ulonglong(s);
+                            for(int i = 0 ; i < tc.member_count() ; i++)
                             {
-                                if(s == tc.member_label(i).extract_ulonglong())
+                                if(i != def_idx)
                                 {
-                                    member_idx = i;
-                                    break;
+                                    if(s == tc.member_label(i).extract_ulonglong())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
                                 }
                             }
+                            break;
                         }
-                        break;
-                    }
-                case TCKind._tk_boolean:
-                    {
-                        boolean s = in.read_boolean();
-                        write_boolean(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        case TCKind._tk_boolean:
                         {
-                            if(i != def_idx)
+                            boolean s = in.read_boolean();
+                            write_boolean(s);
+                            for(int i = 0 ; i < tc.member_count() ; i++)
                             {
-                                if(s == tc.member_label(i).extract_boolean())
+                                if(i != def_idx)
                                 {
-                                    member_idx = i;
-                                    break;
-                                }
-                            }           
+                                    if(s == tc.member_label(i).extract_boolean())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
+                                }           
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case TCKind._tk_enum:
-                    {
-                        int s = in.read_long();
-                        write_long(s);
-                        for( int i = 0 ; i < tc.member_count(); i++ )
+                        case TCKind._tk_enum:
                         {
-                            if( i != def_idx)
+                            int s = in.read_long();
+                            write_long(s);
+                            for( int i = 0 ; i < tc.member_count(); i++ )
                             {
-                                int label = tc.member_label(i).create_input_stream().read_long();
+                                if( i != def_idx)
+                                {
+                                    int label = tc.member_label(i).create_input_stream().read_long();
                                 /* we have to use the any's input stream because enums are not 
                                    inserted as longs */
-                                org.jacorb.util.Debug.output(10, "label: " +label + " switch: " + s );
+                                    org.jacorb.util.Debug.output(10, "label: " +label + " switch: " + s );
 
-                                if( s == label)
-                                {
-                                    member_idx = i;
-                                    break;
-                                }
-                            }           
+                                    if( s == label)
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
+                                }           
+                            }
+                            break;
                         }
-                        break;
-                    }
-                case TCKind._tk_char:
-                    {
-                        char s = in.read_char();
-                        write_char(s);
-                        for(int i = 0 ; i < tc.member_count() ; i++)
+                        case TCKind._tk_char:
                         {
-                            if(i != def_idx)
+                            char s = in.read_char();
+                            write_char(s);
+                            for(int i = 0 ; i < tc.member_count() ; i++)
                             {
-                                if(s == tc.member_label(i).extract_char())
+                                if(i != def_idx)
                                 {
-                                    member_idx = i;
-                                    break;
-                                }
-                            }           
-                        }
-                        break;
-                    }           
-                default:
-                        throw new RuntimeException("Unfinished implementation for unions in anys, sorry.");
-                }
+                                    if(s == tc.member_label(i).extract_char())
+                                    {
+                                        member_idx = i;
+                                        break;
+                                    }
+                                }           
+                            }
+                            break;
+                        }           
+                        default:
+                            throw new RuntimeException("Unfinished implementation for unions in anys, sorry.");
+                    }
 
-                // write the member or default value, if any
-                // (if the union has no explicit default but the
-                // the case labels do not cover the range of 
-                // possible discriminator values, there may be
-                // several "implicit defaults" without associated
-                // union values.
+                    // write the member or default value, if any
+                    // (if the union has no explicit default but the
+                    // the case labels do not cover the range of 
+                    // possible discriminator values, there may be
+                    // several "implicit defaults" without associated
+                    // union values.
 
-                if( member_idx != -1 )
-                {
-                    write_value( tc.member_type( member_idx ), in);
-                }
-                else if( def_idx != -1 )
-                {
-                    write_value( tc.member_type( def_idx ), in);
-                }
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
-            catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
-            //            recursiveTCStack.pop();
-            break;
-        case TCKind._tk_alias:
-            //      write_string( in.read_string());
-            //      write_string( in.read_string());
-            //      write_TypeCode( in.read_TypeCode());
-
-            try
+                    if( member_idx != -1 )
+                    {
+                        write_value( tc.member_type( member_idx ), in, tcMap);
+                    }
+                    else if( def_idx != -1 )
+                    {
+                        write_value( tc.member_type( def_idx ), in, tcMap);
+                    }
+                } 
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+                catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
+                //            recursiveTCStack.pop();
+                break;
+            }
+            case TCKind._tk_alias:
             {
-                write_value( tc.content_type(), in );
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
-            break;
-        case 0xffffffff:
-            throw new RuntimeException("Cannot handle recursive TypeCode here!");
-            // write_value( (org.omg.CORBA.TypeCode)recursiveTCStack.peek(), in);
-        default:
-            throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
+                //      write_string( in.read_string());
+                //      write_string( in.read_string());
+                //      write_TypeCode( in.read_TypeCode());
+
+                try
+                {
+                    write_value( tc.content_type(), in, tcMap );
+                } 
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+                break;
+            }
+            case 0xffffffff:
+            {
+                try
+                {
+                    org.omg.CORBA.TypeCode _tc = 
+                        (org.omg.CORBA.TypeCode)tcMap.get(tc.id());
+                    write_value( _tc , in, tcMap );
+                } 
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){
+                    b.printStackTrace();
+                } 
+                break;
+                //            throw new RuntimeException("Cannot handle recursive TypeCode here!");
+                // write_value( (org.omg.CORBA.TypeCode)recursiveTCStack.peek(), in);
+            }
+            default:
+                throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
         }
     }
 
-    public void setSize(int s){
+    public void setSize(int s)
+    {
         pos = s;
     }
 
-    public void setGIOPRequestId(int id){
-        if ((buffer[6]&1)==0){ //little     
+    public void setGIOPRequestId( int id )
+    {
+        if ((buffer[6]&1)==0)
+        { //little     
             buffer[16]=(byte)((id >> 24) & 0xFF);
             buffer[17]=(byte)((id >> 16) & 0xFF);
             buffer[18]=(byte)((id >>  8) & 0xFF);
             buffer[19]=(byte)( id        & 0xFF);
-        }else{
+        }
+        else
+        {
             buffer[16]=(byte)( id        & 0xFF);
             buffer[17]=(byte)((id >>  8) & 0xFF);
             buffer[18]=(byte)((id >> 16) & 0xFF);

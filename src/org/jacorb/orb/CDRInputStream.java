@@ -760,8 +760,8 @@ public class CDRInputStream
 	    return result_tc;
 	case 0xffffffff:
 	    /* recursive TC */
-	    int offset = pos + read_long();
-            String recursiveId = (String)tcMap.get( new Integer(offset));
+	    int negative_offset = read_long();
+            String recursiveId = (String)tcMap.get( new Integer( pos -4 + negative_offset ) );
             Debug.assert( recursiveId != null,
                           "Could not resolve for recursive TypeCode!");
 	    org.omg.CORBA.TypeCode rec_tc = 
@@ -865,6 +865,19 @@ public class CDRInputStream
 
     final void read_value( org.omg.CORBA.TypeCode tc, CDROutputStream out)
     {
+        Hashtable tcMap = new Hashtable();
+        read_value( tc, out, tcMap );
+        tcMap.clear();
+    }
+
+    /**
+     * internal read_value
+     */
+
+    private final void read_value( org.omg.CORBA.TypeCode tc, 
+                                   CDROutputStream out, 
+                                   Hashtable tcMap )
+    {
 	int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
 
 	switch (kind)
@@ -931,16 +944,17 @@ public class CDRInputStream
 	    {
 		int length = tc.length();
 		for( int i = 0; i < length; i++ )
-		    read_value( tc.content_type(), out);
+		    read_value( tc.content_type(), out, tcMap);
 	    } catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
 	    break;
 	case TCKind._tk_sequence: 
 	    try
 	    {
 		int len = read_long();
+        org.jacorb.util.Debug.output(4,"Read_value, sequence of length " + len  );
 		out.write_long(len);
 		for( int i = 0; i < len; i++ )
-		    read_value( tc.content_type(), out);
+		    read_value( tc.content_type(), out, tcMap);
 	    } 
 	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
 	    break;
@@ -950,8 +964,9 @@ public class CDRInputStream
 	case TCKind._tk_struct: 
 	    try
 	    {
+                tcMap.put( tc.id(), tc );
 		for( int i = 0; i < tc.member_count(); i++)
-		    read_value( tc.member_type(i), out);
+		    read_value( tc.member_type(i), out, tcMap);
 	    } 
 	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
 	    catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
@@ -972,6 +987,7 @@ public class CDRInputStream
 	case TCKind._tk_union:
 	    try
 	    {
+                tcMap.put( tc.id(), tc );
 		org.omg.CORBA.TypeCode disc = tc.discriminator_type();
 		int def_idx = tc.default_index();
 		Debug.output(4, "Union Default index " + def_idx ); 
@@ -1099,6 +1115,23 @@ public class CDRInputStream
 			}
 			break;
 		    }
+		case TCKind._tk_boolean:
+		    {
+			boolean b = read_boolean();
+			out.write_boolean( b );
+			for(int i = 0 ; i < tc.member_count() ; i++)
+			{
+			    if( i != def_idx)
+			    {
+				if( b == tc.member_label(i).extract_boolean() )
+				{
+				    member_idx = i;
+				    break;
+				}
+			    }		
+			}
+			break;
+		    }
 		case TCKind._tk_enum:
 		    {
 			int s = read_long();
@@ -1112,7 +1145,7 @@ public class CDRInputStream
 				int label = 
                                     tc.member_label(i).create_input_stream().read_long();
 
-				Debug.output(10, "Input label: " +label + " switch: " + s );
+				Debug.output( 10, "Input label: " +label + " switch: " + s );
 				if(s == label)
 				{
 				    member_idx = i;
@@ -1128,11 +1161,11 @@ public class CDRInputStream
 
 		if( member_idx != -1 )
                 {
-		    read_value( tc.member_type( member_idx ), out);
+		    read_value( tc.member_type( member_idx ), out, tcMap);
                 }
 		else if( def_idx != -1 )
                 {
-		    read_value( tc.member_type( def_idx ), out);
+		    read_value( tc.member_type( def_idx ), out, tcMap);
 		}
 	    } 
 	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
@@ -1140,7 +1173,15 @@ public class CDRInputStream
 
 	    break;	
 	case 0xffffffff:
-	    out.write_long( read_long());
+            try
+            {
+                org.omg.CORBA.TypeCode _tc = 
+                    (org.omg.CORBA.TypeCode)tcMap.get(tc.id());
+                read_value( _tc , out, tcMap );
+            } 
+            catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){
+                b.printStackTrace();
+            } 
 	    break;
 	default:
 	    throw new RuntimeException("Cannot handle TypeCode with kind " + kind);

@@ -40,8 +40,8 @@ import org.jacorb.util.Debug;
  */
 
 public class ORBInitInfoImpl 
-  extends org.jacorb.orb.LocalityConstrainedObject
-  implements ORBInitInfo
+    extends org.jacorb.orb.LocalityConstrainedObject
+    implements ORBInitInfo
 {
     private int slot_count = 0;
     private ORB orb = null;
@@ -59,7 +59,8 @@ public class ORBInitInfoImpl
 
     private boolean valid = true;
 
-    public ORBInitInfoImpl(ORB orb) {
+    public ORBInitInfoImpl(ORB orb) 
+    {
         this.orb = orb;
         
         named_server_interceptors = new Hashtable();
@@ -80,11 +81,13 @@ public class ORBInitInfoImpl
      * Be careful with that since there is a reason, why there is no 
      * other way to get acces to the ORB.
      */
-    public ORB getORB(){
+    public ORB getORB()
+    {
         return orb;
     }
 
-    public void setInvalid(){
+    public void setInvalid()
+    {
         valid = false;
     }
 
@@ -92,45 +95,53 @@ public class ORBInitInfoImpl
      * Copies the elements of a Hashtable into
      * a Vector.
      */
-    private void merge(Vector target, Hashtable source){
+
+    private void merge(Vector target, Hashtable source)
+    {
         Enumeration enum = source.elements();
 
         while(enum.hasMoreElements())
             target.addElement(enum.nextElement());
     }
 
-    public Vector getClientInterceptors(){
+    public Vector getClientInterceptors()
+    {
         merge(anonymous_client_interceptors, 
               named_client_interceptors);
     
         return anonymous_client_interceptors;
     }
 
-    public Vector getServerInterceptors(){
+    public Vector getServerInterceptors()
+    {
         merge(anonymous_server_interceptors, 
               named_server_interceptors);
     
         return anonymous_server_interceptors;
     }
 
-    public Vector getIORInterceptors(){
+    public Vector getIORInterceptors()
+    {
         merge(anonymous_ior_interceptors, 
               named_ior_interceptors);
     
         return anonymous_ior_interceptors;
     }
 
-    public Hashtable getPolicyFactories(){
+    public Hashtable getPolicyFactories()
+    {
         return policy_factories;
     }
 
-    public int getSlotCount(){
+    public int getSlotCount()
+    {
         return slot_count;
     }
 
     // implementation of org.omg.PortableInterceptor.ORBInitInfoOperations interface
     public void add_client_request_interceptor(ClientRequestInterceptor interceptor) 
-        throws DuplicateName {
+        throws DuplicateName 
+    {
 
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
@@ -140,7 +151,8 @@ public class ORBInitInfoImpl
 
         if (interceptor.name().length() == 0)
             anonymous_client_interceptors.addElement(interceptor);
-        else {
+        else 
+        {
             if (named_client_interceptors.containsKey(interceptor.name()))
                 throw new DuplicateName(interceptor.name());
 
@@ -149,7 +161,8 @@ public class ORBInitInfoImpl
     }
   
     public void add_ior_interceptor(IORInterceptor interceptor) 
-        throws DuplicateName {
+        throws DuplicateName 
+    {
 
         if (interceptor.name() == null)
             throw new DuplicateName("The name is null!");
@@ -165,7 +178,8 @@ public class ORBInitInfoImpl
     }
   
     public void add_server_request_interceptor(ServerRequestInterceptor interceptor) 
-        throws DuplicateName {  
+        throws DuplicateName 
+    {  
 
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
@@ -183,51 +197,63 @@ public class ORBInitInfoImpl
         }
     }
   
-    public int allocate_slot_id() {
+    public int allocate_slot_id() 
+    {
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
 
         return slot_count++;
     }
 
-    public String[] arguments() {
+    public String[] arguments() 
+    {
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
         return orb._args ;
     }
 
-    public CodecFactory codec_factory() {
+    public CodecFactory codec_factory() 
+    {
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
 
-        try{
+        try
+        {
             return (CodecFactory) orb.resolve_initial_references("CodecFactory");
-        }catch (Exception e){
+        }
+        catch (Exception e)
+        {
             //shouldn't happen anyway
             Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, e);
         }
         return null;
     }
 
-    public String orb_id() {
+    public String orb_id() 
+    {
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
         return orb.orb_id;
     }
 
-    public void register_initial_reference(String id, Object obj) 
-        throws InvalidName {
+    public void register_initial_reference( String id, Object obj ) 
+        throws InvalidName 
+    {
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
       
-        try{
+        try
+        {
             orb.register_initial_reference(id, obj);
-        }catch(org.omg.CORBA.ORBPackage.InvalidName e){
+        }
+        catch(org.omg.CORBA.ORBPackage.InvalidName e)
+        {
             throw new InvalidName();
         }
     }
 
-    public void register_policy_factory(int type, PolicyFactory policy_factory) {
+    public void register_policy_factory(int type, PolicyFactory policy_factory)
+    {
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
       
@@ -244,14 +270,19 @@ public class ORBInitInfoImpl
         policy_factories.put(key, policy_factory);
     }
 
+
     public org.omg.CORBA.Object resolve_initial_references(String id) 
-        throws InvalidName {
+        throws InvalidName 
+    {
         if (! valid)
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("This ORBInitIfo is not valid anymore!");
 
-        try{
+        try
+        {
             return orb.resolve_initial_references(id);
-        }catch(org.omg.CORBA.ORBPackage.InvalidName e){
+        }
+        catch(org.omg.CORBA.ORBPackage.InvalidName e)
+        {
             throw new InvalidName();
         }
     }

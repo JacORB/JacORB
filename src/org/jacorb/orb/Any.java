@@ -86,10 +86,92 @@ public final class Any
 
     public boolean equal(org.omg.CORBA.Any a)
     {   
-        if( !typeCode.equal(a.type()))
+        if( !typeCode.equal( a.type()) )
             return false;
         else
-            return ((org.jacorb.orb.Any)a).value().equals(value()); // compare values
+        {
+            int kind = kind().value();
+            switch (kind)
+            {
+                case TCKind._tk_null: 
+                case TCKind._tk_void:
+                    return true;
+                case TCKind._tk_short:
+                    return extract_short() == a.extract_short();
+                case TCKind._tk_long:
+                    return extract_long() == a.extract_long();
+                case TCKind._tk_longlong:
+                    return extract_longlong() == a.extract_longlong();
+                case TCKind._tk_ushort:
+                    return extract_ushort() == a.extract_ushort();
+                case TCKind._tk_ulong:
+                    return extract_ulong() == a.extract_ulong();
+                case TCKind._tk_ulonglong:
+                    return extract_ulonglong() == a.extract_ulonglong();
+                case TCKind._tk_float:
+                    return extract_float() == a.extract_float();
+                case TCKind._tk_double:
+                    return extract_double() == a.extract_double();
+                case TCKind._tk_fixed:
+                    return extract_fixed().equals( a.extract_fixed() );
+                case TCKind._tk_boolean:
+                    return extract_boolean() == a.extract_boolean();
+                case TCKind._tk_char:
+                    return extract_char() == a.extract_char();
+                case TCKind._tk_octet:
+                    return extract_octet() == a.extract_octet();
+                case TCKind._tk_any:
+                    return extract_any().equals( a.extract_any() );
+                case TCKind._tk_TypeCode:
+                    return extract_TypeCode().equal( a.extract_TypeCode() );
+                case TCKind._tk_Principal:
+                    return extract_Principal().equals( a.extract_Principal() );
+                case TCKind._tk_objref: 
+                    return extract_Object().equals( a.extract_Object() );
+                case TCKind._tk_string: 
+                    return extract_string().equals( a.extract_string() );
+                case TCKind._tk_wstring: 
+                    return extract_wstring().equals( a.extract_wstring() );
+                case TCKind._tk_array: 
+                case TCKind._tk_sequence: 
+                case TCKind._tk_struct: 
+                case TCKind._tk_except:
+                case TCKind._tk_enum:
+                case TCKind._tk_union:
+                {
+                    org.jacorb.orb.CDROutputStream out1, out2;
+                    if( !( orb instanceof org.jacorb.orb.ORB ))
+                    {
+                        out1 = new org.jacorb.orb.CDROutputStream();
+                        out2 = new org.jacorb.orb.CDROutputStream();
+                    }
+                    else
+                    {
+                        out1 = new org.jacorb.orb.CDROutputStream(orb);
+                        out2 = new org.jacorb.orb.CDROutputStream(orb);
+                    }
+                    write_value( out1 );
+                    a.write_value( out2 );
+
+                    if( out1.buffer.length != out2.buffer.length )
+                        return false;
+
+                    for( int i = 0; i < out1.buffer.length; i++ )
+                    {
+                        if( out1.buffer[ i ] != out2.buffer[ i ] )
+                            return false;
+                    }
+
+                    return true;
+                }
+                case TCKind._tk_alias:
+                    return true;
+        default:
+            throw new RuntimeException("Cannot compare anys with type kind " + kind);
+        }           
+ 
+//              return ((org.jacorb.orb.Any)a).value().equals(value()); // compare values
+        }
     }
 
     public boolean equals( java.lang.Object obj )
@@ -571,32 +653,36 @@ public final class Any
         case TCKind._tk_except:
         case TCKind._tk_enum:
         case TCKind._tk_union:
+        case TCKind._tk_alias:
             if(! (orb instanceof org.jacorb.orb.ORB ))
                 value = new CDROutputStream();
             else
                 value = new CDROutputStream(orb);
             ((CDRInputStream)input).read_value(type, (CDROutputStream)value);
             break;
-        case TCKind._tk_alias:
-            try
-            {
-                // save alias type code...
-                org.omg.CORBA.TypeCode _tc = typeCode;
-                // because it gets overwritten here...
-                read_value( input, type.content_type());
-                // restore type code
-                typeCode = _tc;
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-            {
-                throw new org.omg.CORBA.UNKNOWN("Bad TypeCode kind");
-            }
-            break;
+//          case TCKind._tk_alias:
+//              try
+//              {
+//                  // save alias type code...
+//                  org.omg.CORBA.TypeCode _tc = typeCode;
+//                  // because it gets overwritten here...
+//                  read_value( input, type.content_type());
+//                  // restore type code
+//                  typeCode = _tc;
+//              } 
+//              catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+//              {
+//                  throw new org.omg.CORBA.UNKNOWN("Bad TypeCode kind");
+//              }
+//              break;
         default:
             throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
         }
-        org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind() );
+        org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
     }
+
+
+
 
     public void write_value(org.omg.CORBA.portable.OutputStream output)
     {
@@ -668,6 +754,7 @@ public final class Any
         case TCKind._tk_union:
         case TCKind._tk_array: 
         case TCKind._tk_sequence: 
+        case TCKind._tk_alias:
             try
             {
                 if( value instanceof org.omg.CORBA.portable.Streamable )
@@ -688,22 +775,22 @@ public final class Any
                 e.printStackTrace();
                 throw new RuntimeException( e.getMessage());
             }
-        case TCKind._tk_alias:
-            try
-            {
-                // save tc
-                org.omg.CORBA.TypeCode _tc = typeCode;
-                typeCode = typeCode.content_type();
-                // it gets overwritten here
-                write_value( output);
-                // restore
-                typeCode = _tc;
-            } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-            {
-                throw new org.omg.CORBA.UNKNOWN("Bad TypeCode kind");
-            }
-            break;
+//          case TCKind._tk_alias:
+//              try
+//              {
+//                  // save tc
+//                  org.omg.CORBA.TypeCode _tc = typeCode;
+//                  typeCode = typeCode.content_type();
+//                  // it gets overwritten here
+//                  write_value( output);
+//                  // restore
+//                  typeCode = _tc;
+//              } 
+//              catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+//              {
+//                  throw new org.omg.CORBA.UNKNOWN("Bad TypeCode kind");
+//              }
+//              break;
         default:
             throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
         }
