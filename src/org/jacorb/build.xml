@@ -15,12 +15,18 @@
 
    <target name="all" depends="init,load-taskdef,subdirs" />
 
-   <target name="utils" depends="init">
-      <ant antfile="${src}/org/jacorb/util/build.xml" dir="${basedir}"/>
+   <!-- Do all the template copying first to avoid cross-dependacy problems -->
+   <target name="template">
+      <ant antfile="${src}/org/jacorb/util/build.xml" dir="${basedir}" target="template"/>
+      <ant antfile="${src}/org/jacorb/orb/build.xml" dir="${basedir}" target="template"/>
    </target>
 
    <target name="subdirs"
-               depends="utils,orb,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification">
+           depends="template,util,orb,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification">
+   </target>
+
+   <target name="util" depends="init">
+      <ant antfile="${src}/org/jacorb/util/build.xml" dir="${basedir}"/>
    </target>
 
 <!--proxy-->
@@ -52,7 +58,6 @@
    </target>
 
    <target name="orb" depends="init">
-      <ant antfile="${src}/org/jacorb/util/build.xml" target="valuehandler" dir="${basedir}"/>
       <ant antfile="${src}/org/jacorb/orb/build.xml" dir="${basedir}"/>
    </target>
 
@@ -84,9 +89,9 @@
       <ant antfile="${src}/org/jacorb/notification/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="clean">
-      <ant antfile="build.xml" dir="orb" target="clean"/>
-      <ant antfile="build.xml" dir="util" target="clean"/>
+   <target name="clean" depends="init">
+      <ant antfile="${src}/org/jacorb/util/build.xml" target="clean" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/orb/build.xml" target="clean" dir="${basedir}"/>
    </target>
 
 </project>

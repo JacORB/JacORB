@@ -12,12 +12,14 @@
 
    &common;
 
+   <target name="all" depends="init,template,compile,dns,stdInterceptors" description="Compile the ORB files"/>
+
+   <target name="template" depends="javatest,reference-without-rmi,reference-with-rmi"/>
+
    <target name="javatest" unless="no-rmi">
         <available classname="javax.rmi.CORBA.Stub"
                    property="rmi.iiop.present"/>
    </target>
-
-   <target name="all" depends="init,javatest,reference-without-rmi,reference-with-rmi,compile,dns,stdInterceptors"/>
 
    <target name="reference-without-rmi" unless="rmi.iiop.present">
         <echo message="RMI/IIOP not present, using old Reference inheritance."/>
@@ -55,6 +57,6 @@
 
 
    <target name="clean">
-      <delete file="Reference.java"/>
+      <delete file="${src}/org/jacorb/orb/Reference.java"/>
    </target>
 </project>

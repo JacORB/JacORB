@@ -15,7 +15,7 @@
        <available classname="javax.rmi.CORBA.ValueHandler" property="valuehandler.present" />
    </target>
 
-  <target name="valuehandler" depends="value-handler-test,valuehandler-real,valuehandler-dummy" />
+  <target name="template" depends="value-handler-test,valuehandler-real,valuehandler-dummy" />
 
    <target name="valuehandler-dummy" unless="valuehandler.present">
       <echo message="ValueHandler not present, creating dummy wrapper."/>
@@ -32,7 +32,7 @@
    </target>
 
 
-   <target name="all" depends="init,valuehandler">
+   <target name="all" depends="init,template">
       <ant antfile="${src}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
       <antcall target="jacorb-javac">
          <param name="javac-includes" value="org/jacorb/util/*.java,org/jacorb/util/**/*.java"/>
