@@ -138,7 +138,7 @@ public class SASTargetInterceptor
 		try
 		{
 			ServiceContext ctx = ri.get_request_service_context(SASInitializer.SecurityAttributeService);
-			Any ctx_any = codec.decode( ctx.context_data );
+			Any ctx_any = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
 			contextBody = SASContextBodyHelper.extract(ctx_any);
 		}
 		catch (BAD_PARAM e)
@@ -266,7 +266,7 @@ public class SASTargetInterceptor
         try
         {
             ServiceContext ctx = ri.get_request_service_context(SASInitializer.SecurityAttributeService);
-            Any ctx_any = codec.decode( ctx.context_data );
+            Any ctx_any = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
             contextBody = SASContextBodyHelper.extract(ctx_any);
         }
 		catch (BAD_PARAM e)
@@ -377,7 +377,7 @@ public class SASTargetInterceptor
 
         try
         {
-            ri.add_reply_service_context(new ServiceContext(SASInitializer.SecurityAttributeService, codec.encode( slot_any ) ), true);
+            ri.add_reply_service_context(new ServiceContext(SASInitializer.SecurityAttributeService, codec.encode_value( slot_any ) ), true);
         }
         catch (Exception e)
         {
@@ -406,7 +406,7 @@ public class SASTargetInterceptor
 
         try
         {
-            ri.add_reply_service_context(new ServiceContext(SASInitializer.SecurityAttributeService, codec.encode( slot_any ) ), true);
+            ri.add_reply_service_context(new ServiceContext(SASInitializer.SecurityAttributeService, codec.encode_value( slot_any ) ), true);
         }
         catch (Exception e)
         {

@@ -27,12 +27,8 @@ import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
-import org.jacorb.orb.CDRInputStream;
 import org.omg.CSI.KRB5MechOID;
 import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.CSIIOP.CompoundSecMechListHelper;
-import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
-import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
@@ -49,7 +45,7 @@ public class KerberosContext implements ISASContext
 	public void initClient() {
 		String principal = "";
 		try {
-			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
+			Oid krb5Oid = new Oid(KRB5MechOID.value.substring(4));
 			GSSManager gssManager = GSSManager.getInstance();
 			clientCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
 		} catch (Exception e) {
@@ -61,16 +57,32 @@ public class KerberosContext implements ISASContext
 		return KRB5MechOID.value.substring(4);
 	}
 
-	public byte[] createClientContext(ClientRequestInfo ri) {
+	public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
+		// see if context supported
+		//if ((csmList.mechanism_list[0].as_context_mech.target_supports & EstablishTrustInClient.value) == 0) {
+		//	// SAS context not supported
+		//	return new byte[0];
+		//}
+		
+		// check for acceptable security mech
+		//try {
+		//	byte[] mechOid = csmList.mechanism_list[0].as_context_mech.client_authentication_mech;
+		//	Oid krb5Oid = new Oid(KRB5MechOID.value.substring(4));
+		//	if (!mechOid.equals(krb5Oid.getDER())) {
+		//		logger.warn("Kerberos mechanism not supported");
+		//		return new byte[0];
+		//	}
+		//} catch (GSSException e) {
+		//	logger.warn("Error getting Client Context: "+e);
+		//	return new byte[0];
+		//}
+		
+		// generate context
 		byte[] contextToken = new byte[0];
 		try {
-			TaggedComponent tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
-			CDRInputStream is = new CDRInputStream( (org.omg.CORBA.ORB)null, tc.component_data);
-			is.openEncapsulatedArray();
-			CompoundSecMechList csmList = CompoundSecMechListHelper.read( is );
 			byte[] target = csmList.mechanism_list[0].as_context_mech.target_name;
 			
-			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
+			Oid krb5Oid = new Oid(KRB5MechOID.value.substring(4));
 			GSSManager gssManager = GSSManager.getInstance();
 			GSSName myPeer = gssManager.createName(target, null, krb5Oid);
 			if (clientCreds == null) clientCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
@@ -85,7 +97,7 @@ public class KerberosContext implements ISASContext
 	public String getClientPrincipal() {
 		String principal = "";
 		try {
-			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
+			Oid krb5Oid = new Oid(KRB5MechOID.value.substring(4));
 			GSSManager gssManager = GSSManager.getInstance();
 			if (clientCreds == null) clientCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
 			principal = clientCreds.getName().toString();
@@ -97,7 +109,7 @@ public class KerberosContext implements ISASContext
     
 	public void initTarget() {
 		try {
-			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
+			Oid krb5Oid = new Oid(KRB5MechOID.value.substring(4));
 			GSSManager gssManager = GSSManager.getInstance();
 			if (targetCreds == null) targetCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.ACCEPT_ONLY);
 		} catch (GSSException e) {
@@ -109,7 +121,7 @@ public class KerberosContext implements ISASContext
 		byte[] token = null;
 		
 		try {
-			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
+			Oid krb5Oid = new Oid(KRB5MechOID.value.substring(4));
 			GSSManager gssManager = GSSManager.getInstance();
 			if (targetCreds == null) targetCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.ACCEPT_ONLY);
 			validatedContext = gssManager.createContext(targetCreds);

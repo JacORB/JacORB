@@ -147,7 +147,9 @@ public class SASClientInterceptor
 		}
         if (csmList == null) return;
         if (csmList.mechanism_list[0].as_context_mech.target_supports == 0 &&
-			csmList.mechanism_list[0].as_context_mech.target_requires == 0)
+			csmList.mechanism_list[0].as_context_mech.target_requires == 0 && 
+			csmList.mechanism_list[0].sas_context_mech.target_supports == 0 && 
+			csmList.mechanism_list[0].sas_context_mech.target_requires == 0)
 			return;
 
         // ask connection for client_context_id
@@ -168,14 +170,14 @@ public class SASClientInterceptor
             {
                 IdentityToken identityToken = new IdentityToken();
                 identityToken.absent(true);
-                if (sasContext != null) contextToken = sasContext.createClientContext(ri);
+				contextToken = sasContext.createClientContext(ri, csmList);
                 msg = makeEstablishContext(orb, -client_context_id, authorizationList, identityToken, contextToken);
             }
             else
             {
                 msg = makeMessageInContext(orb, client_context_id, false);
             }
-            ri.add_request_service_context(new ServiceContext(SecurityAttributeService, codec.encode( msg ) ), true);
+            ri.add_request_service_context(new ServiceContext(SecurityAttributeService, codec.encode_value( msg ) ), true);
         }
         catch (Exception e)
         {
@@ -209,7 +211,7 @@ public class SASClientInterceptor
         
         try
         {
-            Any msg = codec.decode( ctx.context_data );
+            Any msg = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
             contextBody = SASContextBodyHelper.extract(msg);
         }
         catch (Exception e)
@@ -258,7 +260,7 @@ public class SASClientInterceptor
         
         try
         {
-            Any msg = codec.decode( ctx.context_data );
+            Any msg = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
             contextBody = SASContextBodyHelper.extract(msg);
         }
         catch (Exception e)

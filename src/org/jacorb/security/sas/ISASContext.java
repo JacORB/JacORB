@@ -21,6 +21,7 @@ package org.jacorb.security.sas;
  */
 
 
+import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
@@ -29,7 +30,7 @@ public interface ISASContext
 	public String getMechOID();
 	
 	public void initClient();
-	public byte[] createClientContext(ClientRequestInfo ri);
+	public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList);
 	public String getClientPrincipal();
 	
 	public void initTarget();

@@ -30,6 +30,8 @@ import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.util.Debug;
+import org.omg.CSI.IdentityToken;
+import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
@@ -170,7 +172,7 @@ public class JsseContext implements ISASContext
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
 	 */
-	public byte[] createClientContext(ClientRequestInfo ri) {
+	public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -217,5 +219,13 @@ public class JsseContext implements ISASContext
     
 	public String getMechOID() {
 		return "";
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#createIdentityToken(org.omg.PortableInterceptor.ClientRequestInfo, org.omg.CSIIOP.CompoundSecMechList)
+	 */
+	public IdentityToken createIdentityToken(ClientRequestInfo ri, CompoundSecMechList csmList) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
