@@ -44,7 +44,7 @@ public class SSLComponentInterceptor
                                          Environment.requiredBySSL(),
                                          (short) orb.getBasicAdapter().getSSLPort());
 
-            if( !org.jacorb.util.Environment.enforceSSL() ) 
+            if( ! Environment.enforceSSL() ) 
             {
                 // target (we) also supports unprotected messages
                 // viz. on the other, non-SSL socket
@@ -53,10 +53,20 @@ public class SSLComponentInterceptor
 
             //we don't support delegation
             //0x80 -> NoDelegation
-            ssl.target_supports |= 0x80;
-
             //we don't care if the other side delegates,
             //so no required options are set.
+            ssl.target_supports |= 0x80;
+
+	    //this is SSLs default behaviour, included for
+	    //completeness	    
+	    ssl.target_supports |= 0x20; //establish trust in target
+	    if( Environment.enforceSSL() ) 
+	    {
+		//tell the client right away that we only accept ssl
+		//connections
+		ssl.target_requires |= 0x20; //establish trust in target
+	    }
+
             
             CDROutputStream sslDataStream = 
                 new org.jacorb.orb.CDROutputStream(orb);
