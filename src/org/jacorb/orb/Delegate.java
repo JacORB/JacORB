@@ -22,21 +22,27 @@ package org.jacorb.orb;
 
 import java.util.*;
 import java.io.*;
-import java.lang.Object;
 import java.net.*;
 
 import org.jacorb.imr.*;
 import org.jacorb.util.*;
+import org.jacorb.util.Time;
 import org.jacorb.poa.POAConstants;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.orb.connection.*;
 import org.jacorb.orb.util.CorbaLoc;
+import org.jacorb.orb.policies.*;
 import org.jacorb.orb.portableInterceptor.*;
 
 import org.omg.CORBA.portable.*;
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.ServiceContext;
 import org.omg.GIOP.*;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.Policy;
+import org.omg.CORBA.TIMEOUT;
+import org.omg.TimeBase.*;
+import org.omg.Messaging.*;
 import org.omg.CORBA.SystemException;
 import org.omg.PortableServer.POAPackage.*;
 
@@ -443,65 +449,30 @@ public final class Delegate
         return null;
     }
 
-
-    /**
-     * this is get_policy without the call to request(), which would
-     * invoke interceptors.
-     */
-    public org.omg.CORBA.Policy get_policy_no_intercept( org.omg.CORBA.Object self,
-            int policy_type )
-    {
-        RequestOutputStream _os = null;
-
-        synchronized ( bind_sync )
-        {
-            bind();
-
-            ParsedIOR p = getParsedIOR();
-
-            _os =
-                new RequestOutputStream( connection,
-                                         connection.getId(),
-                                         "_get_policy",
-                                         true,
-                                         p.get_object_key(),
-                                         ( int ) p.getProfileBody().iiop_version.minor );
-
-            //Problem: What about the case where different objects
-            //that are accessed by the same connection have different
-            //codesets?  Is this possible anyway?
-            if ( ! connection.isTCSNegotiated() )
-            {
-                ServiceContext ctx = connection.setCodeSet( p );
-
-                if ( ctx != null )
-                {
-                    _os.addServiceContext( ctx );
-                }
-
-            }
-
-            //Setting the codesets not until here results in the
-            //header being writtend using the default codesets. On the
-            //other hand, the server side must have already read the
-            //header to discover the codeset service context.
-            _os.setCodeSet( connection.getTCS(), connection.getTCSW() );
-
-        }
-
-        return get_policy( self, policy_type, _os );
-    }
-
-
-
     public org.omg.CORBA.Policy get_policy( org.omg.CORBA.Object self,
                                             int policy_type )
     {
-        return get_policy( self,
-                           policy_type,
-                           request( self, "_get_policy", true ) );
+        Policy result = get_client_policy (policy_type);
+        if (result != null)
+            return result;
+        else
+            // if not locally overridden, ask the server
+            return get_policy( self,
+                               policy_type,
+                               request( self, "_get_policy", true ) );
     }
 
+    /**
+     * Gets the policy with the given type from the client-side.
+     */
+    public org.omg.CORBA.Policy get_client_policy (int policy_type)
+    {
+        // Currently, we only check for object-specific client-side
+        // overrides.  We should actually look for policies at the
+        // ORB and Thread level as well.
+        Integer key    = new Integer (policy_type);
+        return (Policy)policy_overrides.get (key);
+    }
 
 
     public org.omg.CORBA.Policy get_policy( org.omg.CORBA.Object self,
@@ -530,6 +501,61 @@ public final class Delegate
         }
     } // get_policy
 
+    public UtcT getRequestEndTime()
+    {
+        Policy p = get_client_policy (REQUEST_END_TIME_POLICY_TYPE.value);
+        if (p != null)
+            return ((org.omg.Messaging.RequestEndTimePolicy)p).end_time();
+        else
+            return null;
+    }
+
+    public UtcT getReplyEndTime()
+    {
+        Policy p = get_client_policy (REPLY_END_TIME_POLICY_TYPE.value);
+        if (p != null)
+            return ((org.omg.Messaging.ReplyEndTimePolicy)p).end_time();
+        else
+            return null;
+    }
+
+    public UtcT getRequestStartTime()
+    {
+        Policy p = get_client_policy (REQUEST_START_TIME_POLICY_TYPE.value);
+        if (p != null)
+            return ((org.omg.Messaging.RequestStartTimePolicy)p).start_time();
+        else
+            return null;
+    }
+
+    public UtcT getReplyStartTime()
+    {
+        Policy p = get_client_policy (REPLY_START_TIME_POLICY_TYPE.value);
+        if (p != null)
+            return ((org.omg.Messaging.ReplyStartTimePolicy)p).start_time();
+        else
+            return null;
+    }
+
+    public long getRelativeRoundtripTimeout()
+    {
+        Policy p = get_client_policy (RELATIVE_RT_TIMEOUT_POLICY_TYPE.value);
+        if (p != null)
+            return ((org.omg.Messaging.RelativeRoundtripTimeoutPolicy)p)
+                                                            .relative_expiry();
+        else
+            return -1;
+    }
+    
+    public long getRelativeRequestTimeout()
+    {
+        Policy p = get_client_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value);
+        if (p != null)
+            return ((org.omg.Messaging.RelativeRequestTimeoutPolicy)p)
+                                                            .relative_expiry();
+        else
+            return -1;
+    }
 
     /**
      * @deprecated Deprecated by CORBA 2.3
@@ -767,6 +793,7 @@ public final class Delegate
             {
                 receiver = new ReplyReceiver ( this,
                                                ros.operation(),
+                                               ros.getRoundtripTimeout(),
                                                interceptors,
                                                replyHandler );
                 synchronized ( bind_sync )
@@ -1128,10 +1155,40 @@ public final class Delegate
             catch ( java.io.IOException io )
             {
             }
-
         }
-
+        ensureReplyStartTime();
     }
+
+    /**
+     * This method blocks until the ReplyStartTime has been reached.
+     * If no ReplyStartTime is defined, or it has already passed,
+     * then this method returns immediately.
+     */
+    public void ensureReplyStartTime()
+    {
+        UtcT replyStartTime = getReplyStartTime();
+        if (replyStartTime != null)
+        {
+            long delta = Time.millisTo (replyStartTime);
+            if (delta > 0)
+            {
+                Object lock = new Object();
+                synchronized (lock)
+                {
+                    try
+                    {
+                        lock.wait (delta);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        Debug.output 
+                            (Debug.ORB_MISC | Debug.IMPORTANT,
+                            "interrupted while waiting for reply start time");
+                    }
+                }
+            }
+        }
+    }        
 
     public synchronized org.omg.CORBA.Request request( org.omg.CORBA.Object self,
 
@@ -1153,13 +1210,26 @@ public final class Delegate
     /**
      */
 
-    public synchronized org.omg.CORBA.portable.OutputStream request( org.omg.CORBA.Object self,
-            String operation,
-            boolean responseExpected )
+    public synchronized org.omg.CORBA.portable.OutputStream request
+                                                 ( org.omg.CORBA.Object self,
+                                                   String operation,
+                                                   boolean responseExpected )
     {
-        // NOTE: When making changes to this method which are outside of the
-        // Interceptor-if-statement, please make sure to update
-        // get_poliy_no_intercept as well!
+        // Compute absolute timeouts at the earliest possible time: now.
+        long roundtrip = getRelativeRoundtripTimeout();
+        UtcT roundtripTimeout = (roundtrip > 0) ? Time.corbaFuture (roundtrip)
+                                                : null;
+        long request = getRelativeRequestTimeout();
+        UtcT requestTimeout   = (request > 0) ? Time.corbaFuture (request)
+                                              : null;
+        
+        // Perhaps we're already too late?
+        if (Time.hasPassed (getRequestEndTime()))
+            throw new TIMEOUT ("Request End Time exceeded prior to invocation",
+                               0, CompletionStatus.COMPLETED_NO);
+        else if (Time.hasPassed (getReplyEndTime()))
+            throw new TIMEOUT ("Reply End Time exceeded prior to invocation",
+                               0, CompletionStatus.COMPLETED_NO);        
 
         synchronized ( bind_sync )
         {
@@ -1172,6 +1242,7 @@ public final class Delegate
                                          connection.getId(),
                                          operation,
                                          responseExpected,
+                                         roundtripTimeout,
                                          p.get_object_key(),
                                          ( int ) p.getProfileBody().iiop_version.minor );
 
@@ -1375,17 +1446,19 @@ public final class Delegate
 
             for ( int i = 0; i < policies.length; i++ )
             {
-                if ( orb.hasPolicyFactoryForType( policies[ i ].policy_type() ) )
-                {
+                // if ( orb.hasPolicyFactoryForType( policies[ i ].policy_type() ) )
+                // {
                     policy_overrides.put( new Integer( policies[ i ].policy_type() ), policies[ i ] );
-                }
+                // }
 
             }
 
             ParsedIOR pior = getParsedIOR();
             org.omg.IOP.IOR ior = orb.createIOR( pior.getIOR().type_id,
                                                  pior.get_object_key(),
-                                                 !poa.isPersistent(),
+                                                 poa != null 
+                                                     ? !poa.isPersistent()
+                                                     : false,
                                                  poa,
                                                  policy_overrides );
 
@@ -1406,6 +1479,14 @@ public final class Delegate
         public Set get_pending_replies()
         {
             return pending_replies;
+        }
+        
+        public void replyDone (ReplyPlaceholder placeholder)
+        {
+            synchronized (pending_replies)
+            {
+                pending_replies.remove (placeholder);
+            }
         }
 
         public void lockBarrier()
