@@ -340,7 +340,6 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
     {
         try
         {
-
             Iterator i = messageQueueMap_.keySet().iterator();
 
             while (i.hasNext())
@@ -467,17 +466,26 @@ public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
             int idx = _fullQualifiedOperation.lastIndexOf("::");
             String _operation = _fullQualifiedOperation.substring(idx + 2);
 
-            ((MessageQueueAdapter) messageQueueMap_.get(_operation)).enqeue(message);
+            final Message _clonedMessage = (Message) message.clone();
+           
+            try
+            {
+                ((MessageQueueAdapter) messageQueueMap_.get(_operation)).enqeue(_clonedMessage);
+            } catch (InterruptedException e)
+            {
+                _clonedMessage.dispose();
+            }
         } catch (NoTranslationException e)
         {
             // ignore
             // Message is not delivered to the connected Consumer
-        } catch (InterruptedException e)
-        {
-            // ignore
         }
     }
 
+    public void messageDelivered()
+    {
+    }
+    
     public void deliverPendingData()
     {
         // No Op as this Proxy is a PullSupplier

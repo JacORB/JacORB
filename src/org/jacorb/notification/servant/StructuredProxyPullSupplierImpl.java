@@ -41,6 +41,7 @@ import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierOperations;
@@ -81,14 +82,14 @@ public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier imple
      */
     private StructuredPullConsumer structuredPullConsumer_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public StructuredProxyPullSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor, OfferManager offerManager,
-            SubscriptionManager subscriptionManager) throws ConfigurationException
+            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin) throws ConfigurationException
     {
         super(admin, orb, poa, conf, taskProcessor, DefaultTaskExecutor.getDefaultExecutor(),
-                offerManager, subscriptionManager, null);
+                offerManager, subscriptionManager, consumerAdmin);
     }
 
     public ProxyType MyType()
@@ -170,9 +171,8 @@ public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier imple
     /**
      * PullSupplier always enqueues.
      */
-    public void deliverMessage(Message event)
+    public void messageDelivered()
     {
-        enqueue(event);
     }
 
     public List getSubsequentFilterStages()

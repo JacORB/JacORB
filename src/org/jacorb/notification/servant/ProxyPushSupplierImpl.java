@@ -35,6 +35,7 @@ import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.PushConsumer;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOATie;
@@ -52,14 +53,14 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
 {
     private PushConsumer pushConsumer_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public ProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
-            SubscriptionManager subscriptionManager) throws ConfigurationException
+            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin) throws ConfigurationException
     {
         super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
-                subscriptionManager, null);
+                subscriptionManager, consumerAdmin);
     }
 
     public ProxyType MyType()
@@ -79,34 +80,42 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
         pushConsumer_ = null;
     }
 
-    public void deliverMessage(final Message message)
+    public void messageDelivered()
     {
-        if (isConnected())
+        if (!isSuspended() && isEnabled())
         {
-            if (!isSuspended() && isEnabled())
-            {
-                try
-                {
-                    logger_.debug("pushConsumer.push(Any)");
-
-                    pushConsumer_.push(message.toAny());
-
-                    resetErrorCounter();
-                } catch (Throwable e)
-                {
-                    PushAnyOperation _failedOperation = new PushAnyOperation(pushConsumer_, message);
-
-                    handleFailedPushOperation(_failedOperation, e);
-                }
-            }
-            else
-            {
-                enqueue(message);
-            }
+            deliverPendingData();
         }
-        else
+    }
+
+    private void deliverMessageInternal(final Message message)
+    {
+        try
         {
-            logger_.debug("Not connected");
+            pushConsumer_.push(message.toAny());
+
+            resetErrorCounter();
+        } catch (Throwable e)
+        {
+            PushAnyOperation _failedOperation = new PushAnyOperation(pushConsumer_, message);
+
+            handleFailedPushOperation(_failedOperation, e);
+        }
+    }
+
+    public void deliverPendingData()
+    {
+        Message[] _events = getAllMessages();
+
+        for (int x = 0; x < _events.length; ++x)
+        {
+            try
+            {
+                deliverMessageInternal(_events[x]);
+            } finally
+            {
+                _events[x].dispose();
+            }
         }
     }
 
@@ -132,22 +141,6 @@ public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
     public boolean hasMessageConsumer()
     {
         return true;
-    }
-
-    public void deliverPendingData()
-    {
-        Message[] _events = getAllMessages();
-
-        for (int x = 0; x < _events.length; ++x)
-        {
-            try
-            {
-                deliverMessage(_events[x]);
-            } finally
-            {
-                _events[x].dispose();
-            }
-        }
     }
 
     protected void connectionResumed()

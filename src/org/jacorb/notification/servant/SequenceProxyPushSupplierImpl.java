@@ -36,6 +36,7 @@ import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
@@ -56,9 +57,11 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
 
     public SequenceProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor, TaskExecutor te, OfferManager offerManager,
-            SubscriptionManager subscriptionManager) throws ConfigurationException
+            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
+            throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, te, offerManager, subscriptionManager);
+        super(admin, orb, poa, conf, taskProcessor, te, offerManager, subscriptionManager,
+                consumerAdmin);
     }
 
     /**
@@ -87,8 +90,8 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
      * a minimal amount of time. Therefor the Callback does not do the actual delivery. Instead a
      * DeliverTask is scheduled for this Supplier.
      */
-    //    private Runnable timerCallback_;
-    ////////////////////////////////////////
+    // private Runnable timerCallback_;
+    // //////////////////////////////////////
     public ProxyType MyType()
     {
         return ProxyType.PUSH_SEQUENCE;
@@ -103,27 +106,12 @@ public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierIm
         configurePacingInterval();
     }
 
-    // overwrite
-    public void deliverMessage(Message event)
+
+    public void messageDelivered()
     {
-        if (logger_.isDebugEnabled())
+        if (!isSuspended() && isEnabled() && (getPendingMessagesCount() >= maxBatchSize_))
         {
-            logger_.debug("deliverEvent connected=" + isConnected() + " suspended=" + isSuspended()
-                    + " enabled=" + isEnabled());
-        }
-
-        if (isConnected())
-        {
-            enqueue(event);
-
-            if (!isSuspended() && isEnabled() && (getPendingMessagesCount() >= maxBatchSize_))
-            {
-                deliverPendingMessages(false);
-            }
-        }
-        else
-        {
-            logger_.debug("Not connected");
+            deliverPendingMessages(false);
         }
     }
 

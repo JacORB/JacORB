@@ -38,6 +38,7 @@ import org.omg.CORBA.UNKNOWN;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PullConsumer;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
@@ -68,10 +69,10 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
 
     ////////////////////////////////////////
 
-    public ProxyPullSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf, TaskProcessor taskProcessor, OfferManager offerManager, SubscriptionManager subscriptionManager)
+    public ProxyPullSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf, TaskProcessor taskProcessor, OfferManager offerManager, SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
             throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, DefaultTaskExecutor.getDefaultExecutor(), offerManager, subscriptionManager, null);
+        super(admin, orb, poa, conf, taskProcessor, DefaultTaskExecutor.getDefaultExecutor(), offerManager, subscriptionManager, consumerAdmin);
     }
 
     public ProxyType MyType()
@@ -145,9 +146,9 @@ public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
      * Deliver Event to the underlying Consumer. As our Consumer is a PullConsumer we simply put the
      * Events in a Queue. The PullConsumer will pull the Events out of the Queue at a later time.
      */
-    public void deliverMessage(Message message)
+    public void messageDelivered()
     {
-        enqueue(message);
+        // No Op
     }
 
     public void connect_any_pull_consumer(PullConsumer consumer) throws AlreadyConnected

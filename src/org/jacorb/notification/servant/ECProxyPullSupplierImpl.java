@@ -31,6 +31,7 @@ import org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper;
 import org.omg.CosEventChannelAdmin.ProxyPullSupplierOperations;
 import org.omg.CosEventChannelAdmin.ProxyPullSupplierPOATie;
 import org.omg.CosEventComm.PullConsumer;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
@@ -42,10 +43,12 @@ import org.omg.PortableServer.Servant;
 public class ECProxyPullSupplierImpl extends ProxyPullSupplierImpl implements
         ProxyPullSupplierOperations
 {
+    private static final ConsumerAdmin NO_ADMIN = null;
+    
     public ECProxyPullSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor) throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, OfferManager.NULL_MANAGER, SubscriptionManager.NULL_MANAGER);
+        super(admin, orb, poa, conf, taskProcessor, OfferManager.NULL_MANAGER, SubscriptionManager.NULL_MANAGER, NO_ADMIN);
     }
 
     public void connect_pull_consumer(PullConsumer pullConsumer) throws AlreadyConnected
@@ -66,5 +69,4 @@ public class ECProxyPullSupplierImpl extends ProxyPullSupplierImpl implements
     {
         return ProxyPullSupplierHelper.narrow(getServant()._this_object(getORB()));
     }
-
 }

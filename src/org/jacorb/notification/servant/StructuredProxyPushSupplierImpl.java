@@ -37,6 +37,7 @@ import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
@@ -72,14 +73,15 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
 
     private StructuredPushConsumerOperations pushConsumer_;
 
-    ////////////////////////////////////////
+    // //////////////////////////////////////
 
     public StructuredProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
             TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
-            SubscriptionManager subscriptionManager) throws ConfigurationException
+            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
+            throws ConfigurationException
     {
         super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
-                subscriptionManager, null);
+                subscriptionManager, consumerAdmin);
     }
 
     public ProxyType MyType()
@@ -87,43 +89,47 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
         return ProxyType.PUSH_STRUCTURED;
     }
 
-    public void deliverMessage(final Message message)
+    public void messageDelivered()
     {
-        if (logger_.isDebugEnabled())
+        if (!isSuspended() && isEnabled())
         {
-            logger_.debug("deliverMessage() connected=" + isConnected() + " suspended="
-                    + isSuspended() + " enabled=" + isEnabled());
+            deliverPendingData();
         }
+    }
 
-        if (isConnected())
+    public void deliverPendingData()
+    {
+        Message[] _events = getAllMessages();
+
+        if (_events != null)
         {
-            if (!isSuspended() && isEnabled())
+            for (int x = 0; x < _events.length; ++x)
             {
                 try
                 {
-                    logger_.debug("push to consumer");
-                    pushConsumer_.push_structured_event(message.toStructuredEvent());
-
-                    resetErrorCounter();
-                } catch (Throwable e)
+                    deliverMessageInternal(_events[x]);
+                } finally
                 {
-                    e.printStackTrace();
-
-                    PushStructuredOperation _failedOperation = new PushStructuredOperation(
-                            pushConsumer_, message);
-
-                    handleFailedPushOperation(_failedOperation, e);
+                    _events[x].dispose();
                 }
             }
-            else
-            {
-                // not enabled
-                enqueue(message);
-            }
         }
-        else
+    }
+
+    private void deliverMessageInternal(final Message message)
+    {
+        try
         {
-            logger_.debug("Not connected");
+            logger_.debug("push to consumer");
+            pushConsumer_.push_structured_event(message.toStructuredEvent());
+
+            resetErrorCounter();
+        } catch (Throwable e)
+        {
+            PushStructuredOperation _failedOperation = new PushStructuredOperation(pushConsumer_,
+                    message);
+
+            handleFailedPushOperation(_failedOperation, e);
         }
     }
 
@@ -145,25 +151,6 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
     public void disconnect_structured_push_supplier()
     {
         destroy();
-    }
-
-    public void deliverPendingData()
-    {
-        Message[] _events = getAllMessages();
-
-        if (_events != null)
-        {
-            for (int x = 0; x < _events.length; ++x)
-            {
-                try
-                {
-                    deliverMessage(_events[x]);
-                } finally
-                {
-                    _events[x].dispose();
-                }
-            }
-        }
     }
 
     protected void connectionResumed()

@@ -36,6 +36,7 @@ import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
@@ -67,9 +68,9 @@ public class SequenceProxyPullSupplierImpl extends StructuredProxyPullSupplierIm
     ////////////////////////////////////////
 
     public SequenceProxyPullSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
-            TaskProcessor taskProcessor, OfferManager offerManager, SubscriptionManager subscriptionManager) throws ConfigurationException
+            TaskProcessor taskProcessor, OfferManager offerManager, SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin) throws ConfigurationException
     {
-        super(admin, orb, poa, conf, taskProcessor, offerManager, subscriptionManager);
+        super(admin, orb, poa, conf, taskProcessor, offerManager, subscriptionManager, consumerAdmin);
     }
 
     public ProxyType MyType()
