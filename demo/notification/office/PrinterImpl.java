@@ -86,7 +86,7 @@ class PrinterImpl
 		    {
 			synchronized( this )
 			{ 
-			    wait(); 
+			    this.wait(); 
 			}
 		    }
 		    catch( InterruptedException ie )
