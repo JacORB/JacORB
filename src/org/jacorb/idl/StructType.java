@@ -104,7 +104,7 @@ class StructType
 
     public void set_memberlist( MemberList m )
     {
-	m.setStruct(this);
+	m.setContainingType (this);
 	memberlist = m;
 	memberlist.setPackage( name );
 	if( memberlist != null )
