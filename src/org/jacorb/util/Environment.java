@@ -574,7 +574,8 @@ public class Environment
 
     public static void setProperty( String key, String value ) 
     { 
-        _props.setProperty( key, value ); 
+        //for jdk1.1 compatibility (was _props.setProperty())
+        _props.put( key, value ); 
     }
 
     public static String[] getPropertyValueList(String key) 
