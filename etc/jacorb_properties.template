@@ -112,7 +112,7 @@ jacorb.orb.print_version=on
 # 3 = informational messages and exceptions (INFO)
 # 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
 # NOTE: the name of this property has changed from jacorb.verbosity!!
-jacorb.log.verbosity=3
+jacorb.log.default.verbosity=3
 
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
