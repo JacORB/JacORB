@@ -154,7 +154,7 @@ public class PerformanceTest extends NotificationTestCase {
                    ).start();
     }
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
         super.tearDown();
 
         try {
