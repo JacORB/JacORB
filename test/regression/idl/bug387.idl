@@ -1,0 +1,27 @@
+module org {
+  module jacorb {
+    module test {
+      module bugs {
+        module bug387 {
+	
+          // Boxed Value Type for String
+          valuetype boxString string;
+
+          interface TestInterface {
+            boolean test_pass_value(in any a, in string expected);
+            boolean test_pass_null(in any a);
+	        any test_return_value();
+	        any test_return_null();
+          };
+
+          struct TestStruct {
+	        boxString name;
+	        long id;
+          };
+
+        };
+      };
+    };
+  };
+};
+
