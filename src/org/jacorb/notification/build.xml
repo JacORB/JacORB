@@ -135,7 +135,7 @@
       <param name="javac-excludes"
              value="org/jacorb/notification/util/*PatternWrapper.java,
                     org/jacorb/notification/WrapperMain.java,
-	            org/jacorb/notification/filter/bsh" />
+	            org/jacorb/notification/filter/bsh/**" />
     </antcall>
 
     <javac srcdir="${src}"
