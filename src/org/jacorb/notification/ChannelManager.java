@@ -36,126 +36,163 @@ import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class ChannelManager implements Disposable {
+public class ChannelManager implements Disposable
+{
 
     private static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[ 0 ];
 
-    private Map allChannels_ = new HashMap();
-    private Object allChannelsLock_ = allChannels_;
-    private List listEventChannelEventListener_ = new ArrayList();
+    private Map channels_ = new HashMap();
+    private Object channelsLock_ = channels_;
+
+    private boolean isChannelsModified_ = true;
+    private int[] cachedKeys_;
+
+    private List eventListeners_ = new ArrayList();
+
+    //////////////////////////////
 
     public int[] get_all_channels()
     {
-        Integer[] _keys;
-
-        synchronized(allChannelsLock_) {
-            _keys = ( Integer[] ) allChannels_.keySet().toArray( INTEGER_ARRAY_TEMPLATE );
-        }
-
-        int[] _ret = new int[ _keys.length ];
-
-        for ( int x = _keys.length - 1; x >= 0; --x )
+        synchronized (channelsLock_)
         {
-            _ret[ x ] = _keys[ x ].intValue();
-        }
+            if (isChannelsModified_) {
+                Integer[] _keys =
+                    ( Integer[] ) channels_.keySet().toArray( INTEGER_ARRAY_TEMPLATE );
 
-        return _ret;
+                cachedKeys_ = new int[ _keys.length ];
+
+                for ( int x = 0; x < _keys.length; ++x)
+                    {
+                        cachedKeys_[ x ] = _keys[ x ].intValue();
+                    }
+
+                isChannelsModified_ = false;
+            }
+        }
+        return cachedKeys_;
     }
 
-    public AbstractEventChannel get_event_channel_servant( int id )
+
+    public AbstractEventChannel get_channel_servant( int id )
         throws ChannelNotFound
     {
         Integer _key = new Integer(id);
 
-        synchronized(allChannelsLock_) {
-            if (allChannels_.containsKey(_key)) {
-                return ( AbstractEventChannel ) allChannels_.get( _key );
-            } else {
+        synchronized (channelsLock_)
+        {
+            if (channels_.containsKey(_key))
+            {
+                return ( AbstractEventChannel ) channels_.get( _key );
+            }
+            else
+            {
                 throw new ChannelNotFound("The Channel " + id + " does not exist");
             }
         }
     }
 
 
-    public void addToChannels(int key, final AbstractEventChannel channel) {
+    public void add_channel(int key, final AbstractEventChannel channel)
+    {
         final Integer _key = new Integer(key);
 
-        synchronized(allChannelsLock_) {
-            allChannels_.put( _key, channel );
+        synchronized (channelsLock_)
+        {
+            channels_.put( _key, channel );
+            isChannelsModified_ = true;
         }
 
-        channel.setDisposeHook(new Runnable() {
-                public void run() {
-                    synchronized(allChannelsLock_) {
-                        allChannels_.remove( _key );
-                    }
+        channel.setDisposeHook(new Runnable()
+                               {
+                                   public void run()
+                                   {
+                                       synchronized (channelsLock_)
+                                       {
+                                           channels_.remove( _key );
+                                           isChannelsModified_ = true;
+                                       }
 
-                    fireEventChannelDestroyed(channel);
+                                       fireChannelRemoved(channel);
+                                   }
+                               }
+                              );
+
+        fireChannelAdded(channel);
+    }
+
+
+    private void fireChannelRemoved(AbstractEventChannel channel)
+    {
+        EventChannelEvent _event =
+            new EventChannelEvent( channel );
+
+        synchronized(eventListeners_) {
+            Iterator i = eventListeners_.iterator();
+
+            while ( i.hasNext() )
+                {
+                    ( ( EventChannelEventListener ) i.next() ).actionEventChannelDestroyed( _event );
                 }
-            });
-
-        eventChannelServantCreated(channel);
+        }
     }
 
-    private void fireEventChannelDestroyed(AbstractEventChannel channel) {
-        if (!listEventChannelEventListener_.isEmpty())
-            {
-                EventChannelEvent _event =
-                    new EventChannelEvent( channel );
 
-                Iterator i = listEventChannelEventListener_.iterator();
-
-                while ( i.hasNext() )
-                    {
-                        ( ( EventChannelEventListener ) i.next() ).actionEventChannelDestroyed( _event );
-                    }
-            }
-    }
-
-    private void eventChannelServantCreated( AbstractEventChannel servant )
+    private void fireChannelAdded( AbstractEventChannel servant )
     {
         EventChannelEvent _event = new EventChannelEvent( servant );
 
-        Iterator _i = listEventChannelEventListener_.iterator();
+        synchronized(eventListeners_) {
+            Iterator i = eventListeners_.iterator();
 
-        while ( _i.hasNext() )
-        {
-            ( ( EventChannelEventListener ) _i.next() ).actionEventChannelCreated( _event );
+            while ( i.hasNext() )
+                {
+                    ( ( EventChannelEventListener ) i.next() ).actionEventChannelCreated( _event );
+                }
         }
     }
 
+
     public void addEventChannelEventListener( EventChannelEventListener listener )
     {
-        listEventChannelEventListener_.add( listener );
+        synchronized(eventListeners_) {
+            eventListeners_.add( listener );
+        }
     }
 
 
     public void removeEventChannelEventListener( EventChannelEventListener listener )
     {
-        listEventChannelEventListener_.remove( listener );
-    }
-
-
-    public Iterator getChannelIterator() {
-        synchronized(allChannelsLock_) {
-            return allChannels_.entrySet().iterator();
+        synchronized(eventListeners_) {
+            eventListeners_.remove( listener );
         }
     }
 
-    public void dispose() {
-        synchronized(allChannelsLock_) {
-            Iterator _i = allChannels_.entrySet().iterator();
 
-            while ( _i.hasNext() )
-                {
-                    AbstractEventChannel _ec =
-                        ( AbstractEventChannel ) ( ( Map.Entry ) _i.next() ).getValue();
+    public Iterator getChannelIterator()
+    {
+        synchronized (channelsLock_)
+        {
+            return channels_.entrySet().iterator();
+        }
+    }
 
-                    _i.remove();
-                    _ec.dispose();
-                }
+
+    public void dispose()
+    {
+        synchronized (channelsLock_)
+        {
+            Iterator i = channels_.entrySet().iterator();
+
+            while ( i.hasNext() )
+            {
+                AbstractEventChannel _channel =
+                    ( AbstractEventChannel ) ( ( Map.Entry ) i.next() ).getValue();
+
+                i.remove();
+                _channel.dispose();
+            }
         }
 
-        listEventChannelEventListener_.clear();
+        eventListeners_.clear();
     }
 }

@@ -21,13 +21,21 @@ package org.jacorb.notification;
  *
  */
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.jacorb.notification.conf.Attributes;
+import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.interfaces.Disposable;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
+import org.omg.CORBA.UNKNOWN;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosNotifyFilter.FilterFactoryPOA;
@@ -38,11 +46,8 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
-
-import java.util.ArrayList;
-import java.util.Iterator;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -54,7 +59,21 @@ public class FilterFactoryImpl
     implements Disposable,
                Configurable
 {
-    public final static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
+    private static Iterator getAttributeNamesWithPrefix(Configuration configuration,
+                                                        String prefix) {
+        List _attributesWithPrefix = new ArrayList();
+
+        String[] _allAttributes = configuration.getAttributeNames();
+
+        for (int x=0; x<_allAttributes.length; ++x) {
+            if (_allAttributes[x].startsWith(prefix)) {
+                _attributesWithPrefix.add(_allAttributes[x]);
+            }
+        }
+
+        return _attributesWithPrefix.iterator();
+    }
+
 
     ////////////////////////////////////////
 
@@ -67,6 +86,8 @@ public class FilterFactoryImpl
     private FilterFactory thisRef_;
     private Logger logger_ = null;
     private org.jacorb.config.Configuration config_ = null;
+
+    private Map availableFilters_ = new HashMap();
 
     ////////////////////////////////////////
 
@@ -118,11 +139,42 @@ public class FilterFactoryImpl
     }
 
 
-    public void configure (Configuration conf)
+    private void loadFilterPlugins(Configuration conf) throws ConfigurationException {
+        Iterator i = getAttributeNamesWithPrefix(conf, Attributes.FILTER_PLUGIN_PREFIX);
+
+        String key = null;
+        while (i.hasNext()) {
+            try {
+                key = (String)i.next();
+
+                String grammar = key.substring(Attributes.FILTER_PLUGIN_PREFIX.length() + 1);
+
+                logger_.info("Loading Filterplugin for Grammar: " + grammar);
+
+                String clazzName = conf.getAttribute(key);
+
+                Class clazz = Class.forName(clazzName);
+
+                Constructor _constructor =
+                    clazz.getConstructor(new Class[] {ApplicationContext.class});
+
+                availableFilters_.put(grammar, _constructor);
+            } catch (ClassNotFoundException e) {
+                throw new ConfigurationException(key);
+            } catch (NoSuchMethodException e) {
+                throw new ConfigurationException(key);
+            }
+        }
+    }
+
+
+    public void configure (Configuration conf) throws ConfigurationException
     {
         config_ = ((org.jacorb.config.Configuration)conf);
 
         logger_ = config_.getNamedLogger(getClass().getName());
+
+        loadFilterPlugins(conf);
     }
 
     ////////////////////////////////////////
@@ -130,7 +182,7 @@ public class FilterFactoryImpl
     public Filter create_filter( String grammar )
         throws InvalidGrammar
     {
-        final FilterImpl _servant = create_filter_servant( grammar );
+        final AbstractFilter _servant = create_filter_servant( grammar );
 
         _servant.setORB(orb_);
 
@@ -156,22 +208,55 @@ public class FilterFactoryImpl
     }
 
 
-    private FilterImpl create_filter_servant( String grammar )
+    private String getFilterGrammarNames() {
+        Iterator i = availableFilters_.keySet().iterator();
+
+        StringBuffer b = new StringBuffer();
+
+        while(i.hasNext()) {
+            b.append(", ");
+            b.append(i.next());
+        }
+
+        return b.toString();
+    }
+
+
+    private AbstractFilter create_filter_servant( String grammar )
         throws InvalidGrammar
     {
-        if ( CONSTRAINT_GRAMMAR.equals( grammar ) )
+        AbstractFilter _filterServant;
+
+        if ( ETCLFilter.CONSTRAINT_GRAMMAR.equals( grammar ) )
         {
 
-            FilterImpl _filterServant =
-                new FilterImpl( applicationContext_,
-                                CONSTRAINT_GRAMMAR );
-            _filterServant.configure (config_);
-            return _filterServant;
+            _filterServant =
+                new ETCLFilter( applicationContext_);
+        } else if (availableFilters_.containsKey(grammar)) {
+            try {
+                Constructor _constructor =
+                    (Constructor)availableFilters_.get(grammar);
+
+
+                _filterServant =
+                    (AbstractFilter)_constructor.newInstance(new Object[] {applicationContext_});
+
+            } catch (Exception e) {
+                logger_.fatalError("unable to create custom filter", e);
+
+                throw new UNKNOWN();
+            }
+        } else {
+            throw new InvalidGrammar( "Constraint Language '"
+                                      + grammar
+                                      + "' is not supported. Try one of the following: "
+                                      + ETCLFilter.CONSTRAINT_GRAMMAR
+                                      + getFilterGrammarNames() );
         }
-        throw new InvalidGrammar( "Constraint Language '"
-                                  + grammar
-                                  + "' is not supported. Try one of the following: "
-                                  + CONSTRAINT_GRAMMAR );
+
+        _filterServant.configure (config_);
+
+        return _filterServant;
     }
 
 
@@ -179,7 +264,7 @@ public class FilterFactoryImpl
                                                 Any any ) throws InvalidGrammar
     {
 
-        FilterImpl _filterImpl = create_filter_servant( grammar );
+        AbstractFilter _filterImpl = create_filter_servant( grammar );
 
         MappingFilterImpl _mappingFilterServant =
             new MappingFilterImpl( applicationContext_,

@@ -27,34 +27,34 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannel;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryOperations;
-import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelHelper;
-import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.omg.PortableServer.Servant;
 import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryPOATie;
+import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelHelper;
+import org.omg.PortableServer.Servant;
+
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
+
 public class TypedEventChannelFactoryImpl
-    extends EventChannelFactoryImpl
+    extends AbstractChannelFactory
     implements TypedEventChannelFactoryOperations {
-
-    private ChannelManager typedChannels_ = new ChannelManager();
-
-    // Implementation of org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryOperations
 
     public TypedEventChannel create_typed_channel(Property[] qosProps,
                                                   Property[] adminProps,
                                                   IntHolder intHolder)
-        throws UnsupportedAdmin, UnsupportedQoS {
+        throws UnsupportedAdmin,
+               UnsupportedQoS
+    {
 
         try {
             AbstractEventChannel _channel = create_channel_servant(intHolder,
-                                                               qosProps,
-                                                               adminProps);
+                                                                   qosProps,
+                                                                   adminProps);
 
-            typedChannels_.addToChannels(intHolder.value, _channel);
+            addToChannels(intHolder.value, _channel);
 
             return TypedEventChannelHelper.narrow(_channel.activate());
         } catch (ConfigurationException e) {
@@ -64,22 +64,55 @@ public class TypedEventChannelFactoryImpl
         }
     }
 
-    protected AbstractEventChannel newEventChannelImpl() {
+
+    protected AbstractEventChannel newEventChannel() {
         return new TypedEventChannelImpl();
     }
 
 
     public int[] get_all_typed_channels() {
-        return typedChannels_.get_all_channels();
+        return getAllChannels();
     }
 
 
-    public TypedEventChannel get_typed_event_channel(int n) throws ChannelNotFound {
-        return TypedEventChannelHelper.narrow(typedChannels_.get_event_channel_servant(n));
+    public TypedEventChannel get_typed_event_channel(int id) throws ChannelNotFound {
+        return TypedEventChannelHelper.narrow(get_event_channel_servant(id));
     }
 
 
     public Servant getServant() {
         return new TypedEventChannelFactoryPOATie(this);
+    }
+
+
+    public String getObjectName() {
+        return "_ECFactory";
+    }
+
+
+    protected String getShortcut() {
+        return "NotificationService";
+    }
+
+
+    public final void preActivate() throws Exception {
+        // this will fail if IR is not available.#
+        // IR is necessary to use Typed Notification Channels.
+        try {
+            getORB().resolve_initial_references("InterfaceRepository");
+        } catch (Exception e) {
+            logger_.fatalError("No InterfaceRepository available!. Typed Notification Channels will not work without an InterfaceRepository", e);
+
+            throw new RuntimeException();
+        }
+    }
+
+
+    protected org.omg.CORBA.Object create_abstract_channel(Property[] admin,
+                                                 Property[] qos,
+                                                 IntHolder id)
+        throws UnsupportedQoS,
+               UnsupportedAdmin {
+        return create_typed_channel(admin, qos, id);
     }
 }

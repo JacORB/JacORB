@@ -52,6 +52,7 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 public abstract class AbstractMessage
     extends AbstractPoolable
 {
+    int x;
     /**
      * Instead of directly using an instance of AbstractMessage an
      * indirection via MessageHandle is used. This way the Data in
@@ -450,7 +451,7 @@ public abstract class AbstractMessage
     }
 
     /**
-     * Add a reference on this NotificationEvent. After Usage removeReference 
+     * Add a reference on this NotificationEvent. After Usage removeReference
      * must be called.
      */
     public synchronized void addReference()
@@ -609,7 +610,7 @@ public abstract class AbstractMessage
     public abstract boolean match(Filter filter) throws UnsupportedFilterableData;
 
 
-    public boolean match(FilterStage filterStage) 
+    public boolean match(FilterStage filterStage)
     {
         List _filterList = filterStage.getFilters();
 

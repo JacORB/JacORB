@@ -63,7 +63,6 @@ public class MessageFactory implements Disposable, Configurable
             }
         };
 
-
     private AbstractObjectPool anyMessagePool_ =
         new AbstractObjectPool("AnyMessagePool")
         {

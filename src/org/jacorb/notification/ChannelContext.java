@@ -45,7 +45,7 @@ import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$ 
+ * @version $Id$
  */
 
 public class ChannelContext implements Configurable, Disposable
@@ -57,6 +57,7 @@ public class ChannelContext implements Configurable, Disposable
     }
 
     private Map map_;
+
     private Logger logger_;
 
     ////////////////////////////////////////
@@ -184,13 +185,15 @@ public class ChannelContext implements Configurable, Disposable
         return (EventChannel)get(EventChannel.class.getName());
     }
 
-    public void setEventChannelFactory(EventChannelFactory factory) {
-        map_.put(EventChannelFactory.class.getName(), factory);
+    private final static String EVENT_CHANNEL_FACTORY = "EventChannelFactory";
+
+    public void setEventChannelFactory(AbstractChannelFactory factory) {
+        map_.put(AbstractChannelFactory.class.getName(), factory);
     }
 
 
-    private EventChannelFactory getEventChannelFactory() {
-        return (EventChannelFactory)get(EventChannelFactory.class.getName());
+    private AbstractChannelFactory getEventChannelFactory() {
+        return (AbstractChannelFactory)get(AbstractChannelFactory.class.getName());
     }
 
     public void resolveDependencies(Dependant o) {
@@ -229,7 +232,7 @@ public class ChannelContext implements Configurable, Disposable
         try {
             EventChannelFactoryDependency ef = (EventChannelFactoryDependency)o;
 
-            ef.setEventChannelFactory(getEventChannelFactory());
+            ef.setEventChannelFactory(getEventChannelFactory().activate());
         } catch (ClassCastException e) {}
 
 

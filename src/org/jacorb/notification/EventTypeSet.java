@@ -45,7 +45,6 @@ import EDU.oswego.cs.dl.util.concurrent.FIFOReadWriteLock;
 abstract class EventTypeSet
     implements Configurable
 {
-
     private static class EventTypeWrapper implements Comparable {
 
         private EventType wrappedEventType_;
@@ -120,6 +119,7 @@ abstract class EventTypeSet
     private boolean setModified_;
 
     ////////////////////////////////////////
+
     public void configure (Configuration conf)
     {
         logger_ = ((org.jacorb.config.Configuration)conf).
@@ -143,13 +143,14 @@ abstract class EventTypeSet
             Set _changedEventTypeSet = new TreeSet(eventTypeSet_);
 
             for (int x=0; x<added.length; ++x) {
-                _changedEventTypeSet.add(new EventTypeWrapper(added[x]));
+                EventTypeWrapper event = new EventTypeWrapper(added[x]);
+                _changedEventTypeSet.add(event);
             }
 
             for (int x=0; x<removed.length; ++x) {
-                _changedEventTypeSet.remove(new EventTypeWrapper(removed[x]));
+                EventTypeWrapper event = new EventTypeWrapper(removed[x]);
+                _changedEventTypeSet.remove(event);
             }
-
 
             Iterator _i = _changedEventTypeSet.iterator();
 
@@ -213,7 +214,6 @@ abstract class EventTypeSet
         try {
             readWriteLock_.readLock().acquire();
 
-
             synchronized(this) {
                 if (setModified_ || arrayView_ == null) {
 
@@ -230,10 +230,11 @@ abstract class EventTypeSet
 
                     arrayView_ = _all;
                 }
+
+                return arrayView_;
             }
         } finally {
             readWriteLock_.readLock().release();
         }
-        return arrayView_;
     }
 }

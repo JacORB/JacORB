@@ -86,7 +86,7 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
 
 //     private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
-    private FilterImpl filterImpl_;
+    private AbstractFilter filterImpl_;
 
     private Any defaultValue_;
 
@@ -97,7 +97,7 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
     ////////////////////////////////////////
 
     public MappingFilterImpl( ApplicationContext context,
-                              FilterImpl filterImpl,
+                              AbstractFilter filterImpl,
                               Any defaultValue )
     {
         filterImpl_ = filterImpl;
