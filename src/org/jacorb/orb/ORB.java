@@ -483,7 +483,7 @@ public final class ORB
 
         TaggedComponentList multipleComponents = new TaggedComponentList();
         componentMap.put (new Integer (TAG_MULTIPLE_COMPONENTS.value),
-                          new TaggedComponentList());
+                          multipleComponents);
 
         // invoke IOR interceptors
         if ((interceptor_manager != null) &&
