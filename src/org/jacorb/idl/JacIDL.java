@@ -27,9 +27,10 @@ import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.util.GlobPatternMapper;
 import org.apache.tools.ant.util.SourceFileScanner;
 
+import java.util.Vector;
+
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +66,6 @@ public class JacIDL extends MatchingTask
 
     public JacIDL()
     {
-
         parser.command_line = null;
         parser.import_list = new java.util.Vector();
         parser.pack_replace = new java.util.Hashtable();
@@ -243,57 +243,19 @@ public class JacIDL extends MatchingTask
      */
     public void execute() throws BuildException
     {
+        parser myparser = null;
 
-        parser myparser = new parser();
-        Class parserClass = parser.class;
-
-        Environment.verbosityLevel( _debuglevel );
-        try
-        {
-            // ***********************************
-            // **** setup parser arguments
-            // ***********************************
-            // generate included files. This field ist private and
-            // has to be set by reflection
-            Field generateIncludedField =
-                    parserClass.getDeclaredField( "generateIncluded" );
-            generateIncludedField.setAccessible( true );
-            generateIncludedField.setBoolean( null, _generateincluded );
-
-        }
-        catch( NoSuchFieldException nsfex )
-        {
-
-            nsfex.printStackTrace();
-
-        }
-        catch( SecurityException sex )
-        {
-
-            sex.printStackTrace();
-
-        }
-        catch( IllegalAccessException iaex )
-        {
-
-            iaex.printStackTrace();
-        }
+        parser.init ();
 
         // set destination directory
-        if( dirExists( _destdir ) )
+        if ( ! _destdir.exists ())
         {
-
-            parser.out_dir = _destdir.getPath();
-
+            _destdir.mkdirs ();
         }
-        else if( _destdir != null )
-        {
+        parser.out_dir = _destdir.getPath();
 
-            // Fehlerbehandlung
-            throw new BuildException( "output directory \"" + _destdir +
-                    "\" does not exist or " +
-                    "is not a directory", location );
-        }
+        // Generate code for all IDL files, even included ones
+        parser.generateIncluded = _generateincluded;
 
         // generate interface repository
         parser.generateIR = _generateir;
@@ -339,7 +301,6 @@ public class JacIDL extends MatchingTask
         // package prefix
         if( _packageprefix != null && _packageprefix.length() > 0 )
         {
-
             parser.package_prefix = _packageprefix;
         }
 
@@ -355,14 +316,6 @@ public class JacIDL extends MatchingTask
         // ***********************************
         // invoke the parser for parsing the files that were
         // specified in the task specification
-        /*
-        if (_includepath != null) log("includepath: "+_includepath.toString());
-        log("generateir: "+_generateir);
-        log("noskel: "+_noskel);
-        log("nostub: "+_nostub);
-        log("packageprefix: "+_packageprefix);
-        if (_destdir != null) log("destdir: "+_destdir.getPath());
-        */
         try
         {
             if( _compileList != null )
@@ -416,7 +369,6 @@ public class JacIDL extends MatchingTask
      */
     protected void scanFiles( String files[] ) throws BuildException
     {
-
         File file;
 
         // TODO: create an own pattern mapper
@@ -429,7 +381,6 @@ public class JacIDL extends MatchingTask
 
         for( int i = 0; i < newfiles.length; i++ )
         {
-
             log( "scan file: " + newfiles[ i ].getPath() );
             file = newfiles[ i ];
             if( !file.exists() )
@@ -440,7 +391,6 @@ public class JacIDL extends MatchingTask
             }
             _compileList[ i ] = file;
         }
-
     }
 
     public File[] getFileList()
@@ -487,4 +437,3 @@ public class JacIDL extends MatchingTask
         }
     }
 }
-
