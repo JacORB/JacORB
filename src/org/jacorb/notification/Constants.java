@@ -39,4 +39,6 @@ public interface Constants
     public final static int DEFAULT_MAX_BATCH_SIZE = 1;
     public final static int DEFAULT_FILTER_POOL_SIZE = 2;
     public final static int DEFAULT_DELIVER_POOL_SIZE = 4;
+    public static final int DEFAULT_BACKOUT_INTERVAL = 2000;
+    public static final int DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD = 3;
 }
