@@ -1,3 +1,6 @@
+%
+% $Id$
+%
 
 This document gives an introduction to programming distributed
 applications with JacORB, a free Java object request broker. JacORB
@@ -5,51 +8,98 @@ comes with full source code, a couple of CORBA Object Service
 implementations, and a number of example programs.  The JacORB version
 described in this document is JacORB \JacORBVersion.
 
-This document is {\it not} an introduction to CORBA in general.
-Please see \cite{Brose2001a,Siegel2000, Vinoski1997} for this purpose
-and \cite{Henning1999} for more advanced issues.
+\section{Brief CORBA introduction}
+
+The idea behind CORBA is to model distributed resources as objects
+that provide a well-defined interface, and to invoke services through
+remote invocations (RPCs). Since the transfer syntax for
+sending messages to objects is strictly defined, it is possible to
+exchange requests and replies between processes running program
+written in arbitrary programming languages and hosted on arbitary
+hardware and operating systems. Target addresses are represented as
+{\em Interoperable Object References} (IORs), which contain transport
+addresses as well as identifiers needed to dispatch incoming messages
+to implementations. 
+
+Interfaces are described declaratively in an
+programming language-independent {\em Interface Definition Language}
+(IDL), which can be used to automatically generate language-specific
+stub code.
+
+It is important to stress that:
+\begin{itemize}
+\item CORBA objects are abstract entities  seen by clients and
+  represented by artifacts in potentially arbitrary, even non-OO
+  languages. These artifacts are calles {\em servants} in CORBA
+  terminology.
+\item CORBA objects achieve location transparency, i.e., clients need
+  not be (and generally are not) aware of the actual target hosts
+  where servants reside. However, complete distribution transparancy
+  is not achieved in the sense that clients would not notice a
+  difference between a local function call and a remote CORBA
+  invocation. This is due to factors such as increased latency,
+  network error conditions, and CORBA-specific initialization code in
+  applications, and data type mappings.
+\end{itemize}
+
+Please see \cite{Brose2001a,Siegel2000, Vinoski1997} for more
+information and additiomal details, and \cite{Henning1999} for
+advanced issues.
 
 \section{Project History}
 
-JacORB originated in 1995 or 1996 at Freie Universität Berlin as a
-small Java RPC library and a stub compiler that would process Java
-interfaces. This tool was written --- most for fun and out of
-curiosity --- by Boris Bokowski and Gerald Brose because at that time
-no Java RMI was available. We then realized how close the Java
-interface syntax was to CORBA IDL, so we wrote an IDL grammar for our
-parser generator and moved to GIOP and IIOP as the transport protocol.
-For a long time, JacORB was the only free (in the GNU sense)
-Java/CORBA implementation avialable, and it soon enjoyed widespread
-interest in both academic and industrial projects.
+JacORB originated in 1995 (was it 1996?) in the CS department at Freie
+Universit{\"a} Berlin (FUB). It evolved from a small Java RPC library and a
+stub compiler that would process Java interfaces. This predecessor was
+written --- most for fun and out of curiosity --- by Boris Bokowski
+and Gerald Brose because at that time no Java RMI was available. The
+tow of us then realized how close the Java interface syntax was to
+CORBA IDL, so we wrote an IDL grammar for our parser generator and
+moved to GIOP and IIOP as the transport protocol. It was shortly
+before Christmas 1996 when the first interoperable GIOP request was
+sent form a JacORB client to an IONA Orbix server. For a long time,
+JacORB was the only free (in the GNU sense) Java/CORBA implementation
+avialable, and it soon enjoyed widespread interest, at first mostly in
+academic projects, but commercial use followed soon after.
 
-JacORB lived as a one-man-project for a while until a few student
-projects and master theses started adding to it, most notably Reimo
-Tiedemann's POA implementation, and Nicolas Noffke's Implementation
-Repository and Portable Interceptor implementations. Another early
-contributor was Sebastian Müller who wrote the Appligator. A more
-recent addition is Alphonse Bendt's implementation of a CORBA
-Notification Services as part of his master's theses, or André
-Spiegel's OBV and AMI implementations. Substantial contributions to
-JacORB have been added obver time by the team at PrismTech UK (Steve
-Osselton, Nick Cross, Simon McQueen, Jason Courage).
+For a while, Gerald developed JacORB as a one-man-project until a few
+student projects and master theses started adding to it, most notably
+Reimo Tiedemann's POA implementation, and Nicolas Noffke's
+Implementation Repository and Portable Interceptor implementations.
+Other early contributors were Sebastian Müller, who wrote the
+Appligator, and Herbert Kiefer, who added a policy domain service
+(which is no longer part of the JacORB distribution). 
 
-JacORB continues to be used for research at Freie Universität Berlin,
-especially in the field of security. Even though a number of people
+A more recent addition is Alphonse Bendt's implementation of the CORBA
+Notification Services as part of his master's theses. Substantial
+additions to the JacORB core were made by André Spiegel, who
+contributed OBV and AMI implementations. Other substantial
+contributions to JacORB have been added over time by the team at
+PrismTech UK (Steve Osselton, Nick Cross, Simon McQueen, Jason
+Courage).
+
+JacORB continues to be used for research at FUB, especially in the
+field of distributed object security. Even though a number of people
 from the core team have left FUB (Gerald, Nico, and Reimo are now with
 Xtradyne Technologies, André Spiegel is now a freelance developer and
-consultant), the JacORB project is still seated at Freie Universität
-Berlin, which hosts the JacORB web and CVS server. Students there can
-write their master's theses on top of a solid CORBA basis, knowing
-that others will benefit from their work.
+consultant), the JacORB project is still rooted at Freie
+Universit{\"a}t Berlin, which hosts the JacORB web and CVS server.
+
+Due to the limited number of developers, the philosophy around the
+development has never been to achieve feature-completeness beyond the
+core 90\%, but standards compliance and quality.  (e.g., JacORB 2.0
+does not come with a PolicyManager).  Brand-new and less widely-used
+features had to wait until the specification had reached a minimum
+maturity --- or until somene offered project funding.
 
 \section{Support}
 
-In addition to the best effort support that we always do on the
-mailing lists, it is now possible to purchase commercial JacORB
-support. Please send email to {\tt info@jacorb.com} if you want
-members of the JacORB core team. Commercial support is also available
-from PrismTech and OCI.
+The JacORB core team and the user community together provide best
+effort support over our mailing lists. 
 
+To enquire about commercial support, please send email to {\tt
+  info@jacorb.com} if you want members of the JacORB core team.
+Commercial support is also available from PrismTech and OCI.
 
 \section{Contributing --- Donations}
 
@@ -61,15 +111,15 @@ would have been possible --- and still is.
 
 If you feel that returning some of the value created by the use of
 Open Source software in your company is a wise investment in the
-future of that the software (maintenaince, quality improvements,
+future of that the software (maintenance, quality improvements,
 further development) in the future, then you should contact us about
 donations.
 
 Buying hardware and sending it to us is one option. It is also
 possible to directly donate money to the JacORB project at Freie
-Universität Berlin. If straight donations are difficult to get through
-accounting, then you can ask us to send you an invoice for, e.g..,
-CORBA consulting.
+Universit{\"a}t Berlin. If approval for outright donations is
+difficult to obtain at your company, we can send you an invoice for,
+e.g.., CORBA consulting.
 
 \section{Contributing --- Development}
 
