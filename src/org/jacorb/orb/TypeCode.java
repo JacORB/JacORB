@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import org.jacorb.ir.RepositoryID;
+import org.jacorb.util.Debug;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.ValueMember;
 
@@ -841,6 +842,10 @@ public class TypeCode
 
         result.resolveRecursion ();
 
+        if( Debug.isDebugEnabled() )
+        {
+            Debug.output( "Compacting typecode " + this + " and returning " + result );
+        }
         return result;
     }
 
