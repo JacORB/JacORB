@@ -23,7 +23,6 @@ package org.jacorb.test.notification.perf;
 
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Vector;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
@@ -63,6 +62,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Alphonse Bendt
@@ -70,10 +71,6 @@ import org.apache.log.Logger;
  */
 
 public class PerformanceTest extends NotificationTestCase {
-
-    ORB orb_;
-
-    POA poa_;
 
     EventChannelFactory factory_;
 
@@ -109,16 +106,16 @@ public class PerformanceTest extends NotificationTestCase {
         super(name, setup);
     }
 
+
     /**
      * setup EventChannelFactory, FilterFactory and Any with Testdata
      */
     public void setUp() throws Exception {
-        orb_ = ORB.init(new String[0], null);
-        poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+        super.setUp();
 
-        testUtils_ = new TestUtils(orb_);
+        testUtils_ = new TestUtils(getORB());
 
-        factory_ = EventChannelFactoryHelper.narrow(orb_.resolve_initial_references("NotificationService"));
+        factory_ = EventChannelFactoryHelper.narrow(getORB().resolve_initial_references("NotificationService"));
 
         // prepare test data
         testPerson_ = testUtils_.getTestPersonAny();
@@ -142,33 +139,25 @@ public class PerformanceTest extends NotificationTestCase {
         String _expression = "TRUE";
         _constraintExp[0] = new ConstraintExp(_eventType, _expression);
         ConstraintInfo[] _info = trueFilter_.add_constraints(_constraintExp);
-
-        poa_.the_POAManager().activate();
-
-        new Thread(
-                   new Runnable() {
-                       public void run() {
-                           orb_.run();
-                       }
-                   }
-                   ).start();
     }
+
 
     public void tearDown() throws Exception {
         super.tearDown();
+
+        trueFilter_.destroy();
 
         try {
             channel_.destroy();
         } catch (Exception e) {
             // ignore
         }
-
-        orb_.shutdown(true);
     }
 
+
     public void testCompareAny() throws Exception {
-        Any _a1 = orb_.create_any(),
-            _a2 = orb_.create_any();
+        Any _a1 = getORB().create_any(),
+            _a2 = getORB().create_any();
 
         _a1.insert_long(10);
         _a2.insert_long(10);
@@ -176,8 +165,9 @@ public class PerformanceTest extends NotificationTestCase {
         assertEquals(_a1, _a2);
     }
 
+
     public void testMeasureFilterLatency() throws Exception {
-        Any _any = orb_.create_any();
+        Any _any = getORB().create_any();
         _any.insert_long(10);
 
         int _runs = 100;
@@ -271,9 +261,8 @@ public class PerformanceTest extends NotificationTestCase {
                            + _total
                            + " in average: "
                            + (_total / runs) );
-
-        //      _filter.destroy();
     }
+
 
     public void measureLatencyPushPushMultipleFilter(int numberOfConsumers,
                                                      int events) throws Exception {
@@ -285,7 +274,7 @@ public class PerformanceTest extends NotificationTestCase {
 
         PerformanceLogger _perfLogger = new PerformanceLogger();
 
-        StructuredGenerator _generator = new StructuredGenerator(orb_);
+        StructuredGenerator _generator = new StructuredGenerator(getORB());
 
         CyclicBarrier _barrier = new CyclicBarrier(numberOfConsumers);
 
@@ -355,6 +344,7 @@ public class PerformanceTest extends NotificationTestCase {
         System.out.println("Average per Event: " + ((System.currentTimeMillis() - _start)/events ) );
     }
 
+
     public void measureLatencyPushPushFilter(int numberOfSuppliers,
                                              int numberOfConsumers,
                                              int events) throws Exception {
@@ -368,7 +358,7 @@ public class PerformanceTest extends NotificationTestCase {
 
         final Latch _done = new Latch();
         PerformanceLogger _perfLogger = new PerformanceLogger();
-        AnyGenerator _generator = new AnyGenerator(orb_);
+        AnyGenerator _generator = new AnyGenerator(getORB());
 
         CyclicBarrier _barrier = new CyclicBarrier(numberOfConsumers);
         _barrier.setBarrierCommand(new Runnable() {
@@ -431,6 +421,7 @@ public class PerformanceTest extends NotificationTestCase {
                            ((System.currentTimeMillis() - _start)/events ) );
     }
 
+
     public void measureLatencyPushPush(int numberOfSuppliers,
                                        int numberOfConsumers,
                                        int numberOfevents,
@@ -450,8 +441,10 @@ public class PerformanceTest extends NotificationTestCase {
         long _start = System.currentTimeMillis();
 
         final Latch _done = new Latch();
+
         PerformanceLogger _perfLogger = new PerformanceLogger();
-        AnyGenerator _generator = new AnyGenerator(orb_);
+
+        AnyGenerator _generator = new AnyGenerator(getORB());
 
         CyclicBarrier _barrier = new CyclicBarrier(numberOfConsumers);
 
@@ -462,6 +455,7 @@ public class PerformanceTest extends NotificationTestCase {
                 }});
 
         AnyPushReceiver[] _receivers = new AnyPushReceiver[numberOfConsumers];
+
         AnyPushSender[] _sender = new AnyPushSender[numberOfSuppliers];
 
         for (int x=0; x<numberOfSuppliers; ++x) {
@@ -533,6 +527,7 @@ public class PerformanceTest extends NotificationTestCase {
             _b.append("\n");
             _b.append("Average per Event: " + _averagePerEvent);
         }
+
         System.out.println(_b.toString());
     }
 
@@ -540,7 +535,7 @@ public class PerformanceTest extends NotificationTestCase {
     public void testMeasureLatencyEcho() throws Exception {
 
         EchoServer _echoServer =
-            EchoServerHelper.narrow(orb_.resolve_initial_references("EchoServer"));
+            EchoServerHelper.narrow(getORB().resolve_initial_references("EchoServer"));
 
         final Any _data = testUtils_.getSizedTestData(100);
 
@@ -560,11 +555,12 @@ public class PerformanceTest extends NotificationTestCase {
 
     }
 
+
     public void testBurstEcho() throws Exception {
         EchoServer server =
-            EchoServerHelper.narrow(orb_.resolve_initial_references("EchoServer"));
+            EchoServerHelper.narrow(getORB().resolve_initial_references("EchoServer"));
 
-        AnyGenerator generator = new AnyGenerator(orb_);
+        AnyGenerator generator = new AnyGenerator(getORB());
 
         measureLatencyEcho(generator, server, 10);
         measureLatencyEcho(generator, server, 100);
@@ -573,6 +569,7 @@ public class PerformanceTest extends NotificationTestCase {
         measureLatencyEcho(generator, server, 10000);
         measureLatencyEcho(generator, server, 20000);
     }
+
 
     public void measureLatencyEcho(TestEventGenerator gen,
                                    EchoServer server,
@@ -591,6 +588,7 @@ public class PerformanceTest extends NotificationTestCase {
 
     }
 
+
     public void testMeasureBurstSend() throws Exception {
 
         int[] tests = {10, 10, 100, 1000}; //, 5000};
@@ -602,6 +600,7 @@ public class PerformanceTest extends NotificationTestCase {
             Thread.sleep(3000);
         }
     }
+
 
     public void testMeasureThroughputWithSize() throws Exception {
 
@@ -621,6 +620,7 @@ public class PerformanceTest extends NotificationTestCase {
         measureThroughputWithSize(1024, 100);
 
     }
+
 
     public void measureThroughputWithSize(int size, int events) throws Exception {
 
@@ -659,12 +659,13 @@ public class PerformanceTest extends NotificationTestCase {
         Thread.sleep(1000);
     }
 
+
     public void measureBurstSend(int events,int numberOfConsumers) throws Exception {
 
         System.out.println("Send Burst: " + events + " Events to " + numberOfConsumers + " Consumers");
 
         SendCounter _logger = new SendCounter(events);
-        AnyGenerator _generator = new AnyGenerator(orb_);
+        AnyGenerator _generator = new AnyGenerator(getORB());
         final Latch _done = new Latch();
 
         AnyPushReceiver[] _consumers = new AnyPushReceiver[numberOfConsumers];
@@ -717,6 +718,7 @@ public class PerformanceTest extends NotificationTestCase {
         System.out.println(_result);
     }
 
+
     public void testLatencyPushPushMultipleFilter() throws Exception {
         measureLatencyPushPushMultipleFilter(1, 1);
         //        measureLatencyPushPushMultipleFilter(1, 100);
@@ -724,6 +726,17 @@ public class PerformanceTest extends NotificationTestCase {
 //         measureLatencyPushPushMultipleFilter(50, 100);
     }
 
+
+    public void _testLoop() throws Exception {
+        while(true) {
+            measureLatencyPushPush(1, 1, 10, true, false);
+
+            System.out.println("run completed");
+
+
+            Thread.sleep(10);
+        }
+    }
 
 
     public void testLatencyPushPush() throws Exception {
@@ -742,14 +755,16 @@ public class PerformanceTest extends NotificationTestCase {
 //         measureLatencyPushPush(10, 50, 100, true, latex);
     }
 
+
     public void testLatencyPushPushWithFilter() throws Exception {
         measureLatencyPushPushFilter(1,1, 100);
         measureLatencyPushPushFilter(1,10, 100);
         measureLatencyPushPushFilter(1,50, 100);
     }
 
+
     public void testAccessTimes() throws Exception {
-        Vector _v = new Vector();
+        List _v = new ArrayList();
         Hashtable _h = new Hashtable();
 
         for (int x=0; x<100000; x++) {
@@ -774,9 +789,11 @@ public class PerformanceTest extends NotificationTestCase {
         System.out.println("Iterate Vector: " + (System.currentTimeMillis() - _start));
     }
 
+
     private void doIt(Object s) {
         s.getClass();
     }
+
 
     /**
      * @return a <code>TestSuite</code>
@@ -787,16 +804,17 @@ public class PerformanceTest extends NotificationTestCase {
         NotificationTestCaseSetup setup =
             new NotificationTestCaseSetup(_suite);
 
-        //        _suite.addTest(new PerformanceTest("testBurstEcho", setup));
-                        _suite.addTest(new PerformanceTest("testMeasureBurstSend", setup));
-        _suite.addTest(new PerformanceTest("testLatencyPushPush", setup));
-//          _suite.addTest(new PerformanceTest("testMeasureFilterLatency", setup));
-                //  _suite.addTest(new PerformanceTest("testLatencyPushPushWithFilter", setup));
+        // _suite.addTest(new PerformanceTest("testBurstEcho", setup));
+        // _suite.addTest(new PerformanceTest("testMeasureBurstSend", setup));
+        _suite.addTest(new PerformanceTest("_testLoop", setup));
+        // _suite.addTest(new PerformanceTest("testMeasureFilterLatency", setup));
+        // _suite.addTest(new PerformanceTest("testLatencyPushPushWithFilter", setup));
 
-        //_suite.addTest(new PerformanceTest("testLatencyPushPushMultipleFilter", setup));
+        // _suite.addTest(new PerformanceTest("testLatencyPushPushMultipleFilter", setup));
 
         return setup;
     }
+
 
     /**
      * Entry point
@@ -804,7 +822,8 @@ public class PerformanceTest extends NotificationTestCase {
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());
     }
-}// PerformanceTest
+}
+
 
 class SendCounter implements PerformanceListener {
 
@@ -815,9 +834,11 @@ class SendCounter implements PerformanceListener {
     int received_;
     int expected_;
 
+
     SendCounter(int expected) {
         expected_ = expected;
     }
+
 
     public String toString() {
         return received_
@@ -828,12 +849,15 @@ class SendCounter implements PerformanceListener {
             + " \\\\";
     }
 
+
     synchronized public void eventSent(Any event, long a, long b) {
         senderSum_ += b;
     }
 
+
     synchronized public void eventReceived(StructuredEvent event, long s) {
     }
+
 
     synchronized public void eventReceived(Any event, long a) {
         if (!active_) {
@@ -846,6 +870,7 @@ class SendCounter implements PerformanceListener {
         receiveTime_ = System.currentTimeMillis() - recvStart_;
 
     }
+
 
     public void eventFailed(Any event, Exception e) {
 

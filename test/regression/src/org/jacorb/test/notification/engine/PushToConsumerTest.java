@@ -32,27 +32,23 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.test.notification.NotificationTestCase;
+import org.jacorb.test.notification.NotificationTestCaseSetup;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class PushToConsumerTest extends TestCase
+public class PushToConsumerTest extends NotificationTestCase
 {
     TaskProcessor taskProcessor_;
-    ORB orb;
-    private Configuration configuration_;
 
     public void setUp() throws Exception
     {
         taskProcessor_ = new TaskProcessor();
 
-        orb = ORB.init(new String[] {}, null);
-
-        configuration_ = ((org.jacorb.orb.ORB)orb).getConfiguration();
-
-        taskProcessor_.configure( configuration_ );
+        taskProcessor_.configure( getConfiguration() );
     }
 
 
@@ -67,14 +63,14 @@ public class PushToConsumerTest extends TestCase
         PushToConsumerTask task =
             new PushToConsumerTask(taskProcessor_);
 
-        task.configure(configuration_);
+        task.configure(getConfiguration());
 
         MockMessage event =
             new MockMessage("testEvent");
 
-        event.configure(configuration_);
+        event.configure(getConfiguration());
 
-        Any any = orb.create_any();
+        Any any = getORB().create_any();
 
         any.insert_string("test");
 
@@ -96,22 +92,14 @@ public class PushToConsumerTest extends TestCase
     }
 
 
-    public PushToConsumerTest (String name)
+    public PushToConsumerTest(String name, NotificationTestCaseSetup setup)
     {
-        super(name);
+        super(name, setup);
     }
 
 
-    public static Test suite()
+    public static Test suite() throws Exception
     {
-        TestSuite suite = new TestSuite(PushToConsumerTest.class);
-
-        return suite;
-    }
-
-
-    public static void main(String[] args)
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite(PushToConsumerTest.class);
     }
 }

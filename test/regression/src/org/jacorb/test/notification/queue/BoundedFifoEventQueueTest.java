@@ -23,7 +23,6 @@ package org.jacorb.test.notification.queue;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.AbstractBoundedEventQueue;
@@ -35,6 +34,7 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import java.util.ArrayList;
 
 /**
  * @author Alphonse Bendt
@@ -65,7 +65,7 @@ public class BoundedFifoEventQueueTest extends TestCase
 
         final SynchronizedInt called = new SynchronizedInt(0);
 
-        final Vector removedEvents = new Vector();
+        final List removedEvents = new ArrayList();
 
         EventQueueOverflowStrategy strategy = new
             EventQueueOverflowStrategy() {
@@ -81,7 +81,7 @@ public class BoundedFifoEventQueueTest extends TestCase
                 }
             };
 
-        List _events = new Vector();
+        List _events = new ArrayList();
 
         Message e1 = new MockMessage().getHandle();
         Message e2 = new MockMessage().getHandle();
@@ -113,7 +113,7 @@ public class BoundedFifoEventQueueTest extends TestCase
 
         final SynchronizedInt called = new SynchronizedInt(0);
 
-        final Vector removedEvents = new Vector();
+        final List removedEvents = new ArrayList();
 
         EventQueueOverflowStrategy strategy = new
             EventQueueOverflowStrategy() {
@@ -129,7 +129,7 @@ public class BoundedFifoEventQueueTest extends TestCase
                 }
             };
 
-        List _events = new Vector();
+        List _events = new ArrayList();
 
         _events.add(new MockMessage("#1").getHandle());
 

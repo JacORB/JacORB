@@ -34,8 +34,6 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.jacorb.test.common.TestUtils;
 
 /**
  * Test to reveal bug reported by Matthew Leahy
@@ -64,21 +62,7 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        TestSuite _suite;
-
-        _suite = new TestSuite("Test of Structured EventChannel");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames = TestUtils.getTestMethods(MultipleDeliveryBugTest.class);
-
-        for (int x = 0; x < methodNames.length; ++x)
-        {
-            _suite.addTest(new MultipleDeliveryBugTest(methodNames[x], _setup));
-        }
-
-        return _setup;
+        return NotificationTestCase.suite("Test of Structured EventChannel", MultipleDeliveryBugTest.class);
     }
 
 
@@ -116,11 +100,5 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
         _receiver.join();
 
         assertTrue(_receiver.isEventHandled());
-    }
-
-
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
     }
 }

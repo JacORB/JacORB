@@ -125,14 +125,9 @@ public class WaitRetryStrategyTest extends TestCase {
     }
 
 
-    public static TestSuite suite(){
+    public static Test suite(){
         TestSuite suite = new TestSuite(WaitRetryStrategyTest.class);
 
         return suite;
-    }
-
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
     }
 }

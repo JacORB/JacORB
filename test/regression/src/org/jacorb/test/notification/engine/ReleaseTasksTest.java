@@ -67,11 +67,13 @@ public class ReleaseTasksTest extends NotificationTestCase
         eventChannel_ = EventChannelHelper.narrow(eventChannelServant_.activate());
     }
 
+
     public void tearDown() throws Exception {
         super.tearDown();
 
         factory_.dispose();
     }
+
 
     public void testAllTasksAreReleased() throws Exception {
         StructuredPushReceiver pushReceiver = new StructuredPushReceiver(this);
@@ -111,45 +113,19 @@ public class ReleaseTasksTest extends NotificationTestCase
         eventMock.validateRefCounter();
     }
 
-    /**
-     * Creates a new <code>ReleaseTasksTest</code> instance.
-     *
-     * @param name test name
-     */
+
     public ReleaseTasksTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite() throws Exception
     {
-        TestSuite _suite;
-
-        _suite = new TestSuite("");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames = TestUtils.getTestMethods( ReleaseTasksTest.class);
-
-        for (int x=0; x<methodNames.length; ++x) {
-            _suite.addTest(new ReleaseTasksTest(methodNames[x], _setup));
-        }
-
-        return _setup;
-    }
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite(ReleaseTasksTest.class);
     }
 }
+
 
 class MockFilterStage implements FilterStage {
 

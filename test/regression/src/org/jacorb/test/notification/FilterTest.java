@@ -8,7 +8,6 @@ import java.util.Random;
 import org.jacorb.notification.FilterFactoryImpl;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
@@ -17,7 +16,6 @@ import org.omg.CosNotifyFilter.FilterFactory;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
