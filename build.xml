@@ -179,7 +179,9 @@
       <delete dir="${classdir}/org"/>
       <delete dir="${classdir}/java_cup"/>
       <delete dir="${classdir}/HTTPClient"/>
-      <delete dir="${src}/generated"/>
+      <delete dir="${src}/generated/CosEventChannelAdmin"/>
+      <delete dir="${src}/generated/CosEventComm"/>
+      <delete dir="${src}/generated/org"/>
    </target>
 
    <target name="realclean" depends="clean" description="Clean the checkout including generated jars">
