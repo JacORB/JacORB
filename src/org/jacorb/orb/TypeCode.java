@@ -453,6 +453,7 @@ public class TypeCode
         switch( kind )
         {
         case   TCKind._tk_string:
+        case   TCKind._tk_wstring:
         case   TCKind._tk_sequence:
         case   TCKind._tk_array : return length;
         default: throw new org.omg.CORBA.TypeCodePackage.BadKind();
