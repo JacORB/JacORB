@@ -38,50 +38,6 @@ public class Messages
     private static org.omg.IOP.ServiceContext[] service_context = 
 	new org.omg.IOP.ServiceContext[0]; 
 
-    /** 
-     * @returns a buffer containing a locate reply message ready for writing
-     * called through Connection by servers only.
-     */
-/*
-    public static byte[] locateReplyMessage( int request_id, 
-                                             int status, 
-                                             org.omg.CORBA.Object arg,
-                                             int giop_minor ) 
-	throws org.omg.CORBA.COMM_FAILURE
-    {
-	try 
-	{	
-	    LocateReplyOutputStream lr_out = 
-                new LocateReplyOutputStream(  request_id, status, arg, giop_minor );
-	    lr_out.close();
-	    return lr_out.getBufferCopy();
-	} 
-	catch ( Exception e )
-	{
-	    org.jacorb.util.Debug.output(2,e);
-	    throw new org.omg.CORBA.COMM_FAILURE
-            (
-                "Error marshalling GIOP reply"
-                0,
-                org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE
-            );
-	}
-    }
-
-    public static byte[] closeConnectionMessage() 
-    {
-	byte [] buffer = new byte[MSG_HEADER_SIZE];
-	buffer[0] = (byte)'G';
-	buffer[1] = (byte)'I';
-	buffer[2] = (byte)'O';
-	buffer[3] = (byte)'P';
-	buffer[4] = (byte) 1;
-	buffer[5] = (byte) 0; //using GIOP 1.0. That should universally be understood
-	buffer[6] = 0; 
-	buffer[7] = (byte) MsgType_1_1._CloseConnection;
-	return buffer;
-    }
-*/
     /**
      * Skips over a number of service contexts in a GIOP reply message.
      *

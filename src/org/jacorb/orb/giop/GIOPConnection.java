@@ -208,6 +208,35 @@ public final class GIOPConnection
 
             if( msg_type == MsgType_1_1._Fragment )
             {
+                //GIOP 1.0 messages aren't allowed to be fragmented
+                if( Messages.getGIOPMinor( message ) == 0 )
+                {
+                    Debug.output( 1, "WARNING: Received a GIOP 1.0 message of type Fragment" );
+                    
+                    MessageOutputStream out =
+                        new MessageOutputStream();
+                    out.writeGIOPMsgHeader( MsgType_1_1._MessageError,
+                                            0 );
+                    out.insertMsgSize();
+                    sendMessage( out );
+                    buf_mg.returnBuffer( message );
+
+                    continue;
+                }
+
+                //GIOP 1.1 Fragmented messages currently not supported
+                if( Messages.getGIOPMinor( message ) == 1 ) 
+                {
+                        Debug.output( 1, "WARNING: Received a GIOP 1.1 Fragment message" );
+                        
+                        //Can't return a message in this case, because
+                        //GIOP 1.1 fragments don't have request
+                        //ids. Therefore, just discard.
+                        buf_mg.returnBuffer( message );
+
+                        continue;
+                }
+
                 Integer request_id = 
                     new Integer( Messages.getGIOPMinor( message ));
                 
@@ -230,9 +259,9 @@ public final class GIOPConnection
                              Messages.MSG_HEADER_SIZE + 4 , 
                              Messages.getMsgSize(message) - 4 );
 
-                //more to follow, so don't hand over to processing
                 if( Messages.moreFragmentsFollow( message ))
                 {
+                    //more to follow, so don't hand over to processing
                     buf_mg.returnBuffer( message );
                     continue;
                 }
@@ -271,7 +300,7 @@ public final class GIOPConnection
                     if( msg_type != MsgType_1_1._Request &&
                         msg_type != MsgType_1_1._Reply )
                     {
-                        Debug.output( 1, "WARNING: Received a GIOP 1.1 message with the \"more fragments follow\" bits set" );
+                        Debug.output( 1, "WARNING: Received a GIOP 1.1 message of type " + msg_type + " with the \"more fragments follow\" bits set" );
                         
                         MessageOutputStream out =
                             new MessageOutputStream();

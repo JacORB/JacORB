@@ -204,13 +204,6 @@ public class ServerRequestListener
 
     }
 
-    
-    public void fragmentReceived( byte[] fragment,
-                                  GIOPConnection connection )
-    {
-
-    }
-
     private void deliverRequest( ServerRequest request )
     {
         POA tmp_poa = rootPOA;

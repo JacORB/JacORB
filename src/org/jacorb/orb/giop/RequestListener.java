@@ -41,9 +41,6 @@ public interface RequestListener
     public void cancelRequestReceived( byte[] request,
                                        GIOPConnection connection );
     
-    public void fragmentReceived( byte[] fragment,
-                                  GIOPConnection connection );
-
 }// RequestListener
 
 

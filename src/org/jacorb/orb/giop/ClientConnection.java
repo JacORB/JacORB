@@ -293,12 +293,6 @@ public class ClientConnection
     }
 
     
-    public void fragmentReceived( byte[] fragment,
-                                  GIOPConnection connection )
-    {
-        
-    }
-
     /*
      * Operations from ConnectionListener
      */

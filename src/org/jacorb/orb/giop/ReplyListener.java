@@ -40,9 +40,6 @@ public interface ReplyListener
 
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection );
-    
-    public void fragmentReceived( byte[] fragment,
-                                  GIOPConnection connection );
 }// ReplyListener
 
 

@@ -72,13 +72,6 @@ public class NoBiDirClientRequestListener
         replyException( request, connection );
     }
 
-    
-    public void fragmentReceived( byte[] fragment,
-                                  GIOPConnection connection )
-    {
-        
-    }
-    
     private void replyException( byte[] request, 
                                  GIOPConnection connection )
     {

@@ -55,14 +55,9 @@ public class NoBiDirServerReplyListener
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a close connection message on a non bidir connection" );
+        //Debug.output( 1, "WARNING: Received a close connection message on a non bidir connection" );
     }
     
-    public void fragmentReceived( byte[] fragment,
-                                  GIOPConnection connection )
-    {
-        
-    }
 }// NoBiDirServerReplyListener
 
 
