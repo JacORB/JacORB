@@ -117,14 +117,14 @@ public class PrintIOR
         System.out.println("TAG_INTERNET_IOP Profiles:");
         for( int i = 0; i < profiles.size(); i++ )
         {
-            System.out.print("\tProfile Id   :  ");
+            System.out.print("\tProfile Id:  ");
 
             IIOPProfile p = (IIOPProfile)profiles.get(i);
             System.out.println("\tIIOP Version :  " +
                                (int)p.version().major + "." +
                                (int)p.version().minor);
 
-            System.out.println("\tHost\t:\t" + p.getAddress().getIP());
+            System.out.println("\tHost\t:\t" + p.getAddress().getHostname());
             int port = p.getAddress().getPort();
             if( port < 0 )
                 port += 65536;
