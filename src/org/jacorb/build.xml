@@ -17,8 +17,9 @@
 	<property name="jsrc" value="${dirs.base}/src"/>
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
-	<property name="jidlflags" value="-I${include}/omg
-	-I${include}/jacorb -ir -d ${jsrc}/generated"/>
+        <taskdef name="jacidl"
+                 classname="org.jacorb.idl.JacIDL"
+                 classpath="${basedir}/classes"/>
    </target>
 
    <target name="value-handler-test" unless="no-rmi">
@@ -40,20 +41,15 @@
    <!-- Determine if IDL compilation is necessary. -->
 
 
-   <target name="idl" depends="init">
-	   <java classname="org.jacorb.idl.parser"
-                 fork="yes"
-                 classpath="${classpath}">
-                 <arg line="${jidlflags} -sloppy_names"/>
+    <target name="idl" depends="init">
+        <jacidl srcdir="${include}/jacorb"
+                destdir="${jsrc}/generated"
+                sloppynames="true"
+                generateir="true"
+                includepath="${include}/omg"
+                includes="Proxy.idl,imr.idl,channel.idl,Tracing.idl"/>
+    </target>
 
-                 <arg file="${include}/jacorb/Proxy.idl"/>
-
-                 <arg file="${include}/jacorb/imr.idl"/>
-                 <arg file="${include}/jacorb/channel.idl"/>
-                 <arg file="${include}/jacorb/Tracing.idl"/>
-           </java>           
-
-   </target>
 
    <target name="valuehandler" depends="valuehandler-real,valuehandler-dummy" />
 
