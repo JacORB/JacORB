@@ -682,7 +682,11 @@ public class Environment
 
                 try
                 {
-                    orb_initializers.addElement(Class.forName(name).newInstance());
+		    ClassLoader cl = 
+			Thread.currentThread().getContextClassLoader();
+		    if (cl == null)
+			cl = ClassLoader.getSystemClassLoader();
+                    orb_initializers.addElement(cl.loadClass(name).newInstance());
                     Debug.output(Debug.INTERCEPTOR | Debug.DEBUG1, 
                                  "Build: " + name);
                 }
