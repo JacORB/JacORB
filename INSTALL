@@ -1,4 +1,4 @@
-JacORB 1.4 Beta 4
+JacORB 1.4
 
 	  Installing and Building JacORB
 _____________________________________________________________________
@@ -9,13 +9,12 @@ Required:
 
 	- JDK 1.2 or later
 
+	- Version 1.2 or later of the Jakarta Ant make tool,
+          available from http://jakarta.apache.org/ant.
+
 	- for IIOP over SSL:
           JDK 1.4 or IAIK crytography provider and SSL implementation,
           available from http://www.iaik.at
-
-	- for rebuilding JacORB or compiling the demos:
-	       Version 1.2 or later of the Jakarta Ant make tool,
-          available from http://jakarta.apache.org/ant.
 
         - for using names instead of ip adresses in IORs:
           dnsjava 1.1.6 (or above) available from
