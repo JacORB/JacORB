@@ -20,8 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.*;
 import org.omg.CORBA.INTERNAL;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAManagerPackage.State;
@@ -38,7 +37,7 @@ public class POAManager
 {
     public State state = State.HOLDING;
     private org.jacorb.orb.ORB orb;
-    private Vector poas = new Vector();
+    private List poas = new ArrayList();
     private POAManagerMonitor monitor;
     protected boolean poaCreationFailed;
 
@@ -72,7 +71,7 @@ public class POAManager
             synchronized (this)
             {
                 poaArray = new POA[poas.size()];
-                poas.copyInto(poaArray);
+                poas.toArray(poaArray);
             }
             // notify all registered poas
             Thread thread = new Thread()
@@ -117,7 +116,7 @@ public class POAManager
             synchronized (this)
             {
                 poaArray = new POA[poas.size()];
-                poas.copyInto(poaArray);
+                poas.toArray(poaArray);
             }
             // notify all registered poas
             Thread thread = new Thread()
@@ -168,7 +167,7 @@ public class POAManager
             synchronized (this)
             {
                 poaArray = new POA[poas.size()];
-                poas.copyInto(poaArray);
+                poas.toArray(poaArray);
             }
             // notify all registered poas
             Thread thread = new Thread()
@@ -203,10 +202,10 @@ public class POAManager
     protected synchronized POA getRegisteredPOA(String name)
     {
         POA result;
-        Enumeration en = poas.elements();
-        while (en.hasMoreElements())
+        Iterator en = poas.iterator();
+        while (en.hasNext())
         {
-            result = (POA) en.nextElement();
+            result = (POA) en.next();
             if (name.equals(result._getQualifiedName()))
             {
                 return result;
@@ -246,7 +245,7 @@ public class POAManager
             synchronized (this)
             {
                 poaArray = new POA[poas.size()];
-                poas.copyInto(poaArray);
+                poas.toArray(poaArray);
             }
             // notify all registered poas
             Thread thread = new Thread()
@@ -290,7 +289,7 @@ public class POAManager
     {
         if (!poas.contains(poa))
         {
-            poas.addElement(poa);
+            poas.add(poa);
             monitor.addPOA(poa._getQualifiedName());
         }
     }
@@ -304,7 +303,7 @@ public class POAManager
 
     protected synchronized void unregisterPOA(POA poa)
     {
-        poas.removeElement(poa);
+        poas.remove(poa);
         monitor.removePOA(poa._getQualifiedName());
     }
 
