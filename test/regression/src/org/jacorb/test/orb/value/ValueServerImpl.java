@@ -5,6 +5,7 @@ import java.util.*;
 import org.omg.CORBA.portable.InputStream;
 import org.omg.CORBA.portable.OutputStream;
 import org.omg.CORBA.portable.ResponseHandler;
+import org.omg.CORBA.Any;
 
 public class ValueServerImpl extends ValueServerPOA
 {
@@ -17,7 +18,7 @@ public class ValueServerImpl extends ValueServerPOA
         else
             return "two longs: " + p1.value + ", " + p2.value;
     }
-    
+
     public String receive_string (String s1, String s2)
     {
         if (s1 == null || s2 == null)
@@ -28,12 +29,20 @@ public class ValueServerImpl extends ValueServerPOA
             return "two strings: `" + s1 + "', `" + s2 + "'";
     }
 
+
+    public String receive_list_in_any(Any any) {
+        Node n = NodeHelper.extract(any);
+
+        return receive_list(n);
+    }
+
+
     public String receive_list (Node n)
     {
         List l = new ArrayList();
         Node x = n;
         boolean shared = false;
-        
+
         while (x != null)
         {
             l.add (x);
@@ -45,7 +54,7 @@ public class ValueServerImpl extends ValueServerPOA
             }
         }
 
-        StringBuffer result = new StringBuffer ("list of length: " 
+        StringBuffer result = new StringBuffer ("list of length: "
                                                 + l.size() + " -- ");
         for (Iterator i = l.iterator(); i.hasNext();)
         {
@@ -53,10 +62,10 @@ public class ValueServerImpl extends ValueServerPOA
             result.append (q.id);
             if (i.hasNext()) result.append (" ");
         }
-        
-        if (shared) 
+
+        if (shared)
             result.append(" -- shared");
-        
+
         return result.toString();
     }
 
@@ -84,7 +93,7 @@ public class ValueServerImpl extends ValueServerPOA
         {
             result[i] = new RecordImpl(i, "node: " + i);
         }
-        return result; 
+        return result;
     }
 
 }
