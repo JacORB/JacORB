@@ -41,11 +41,14 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+      - rename property jacorb.connection.server_timeout to
+        jacorb.connection.server.timeout, for consistency
+
 2.0 beta 3
 ==========
 
       - loads of bug fixes
-      - more ETF work
+      - more ETF work (corbaloc support)
       - IDL compiler now generated code only if the IDL file is more recent
         than any previously generated code.
       - remorphing of logging, now using Apache Avalon interfaces to go
