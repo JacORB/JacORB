@@ -2066,7 +2066,9 @@ public class CDROutputStream
         if (value.getClass() == String.class) 
 	{
             // special handling for strings required according to spec
-	    write_value_header( new String[]{ repository_id } );
+	    String[] repository_ids = 
+		(repository_id == null) ? null : new String[]{ repository_id };
+	    write_value_header( repository_ids );
 	    write_wstring((String)value);
 	}
         else if (value instanceof org.omg.CORBA.portable.StreamableValue)
@@ -2076,9 +2078,11 @@ public class CDROutputStream
 	}
         else 
         {
+	    String[] repository_ids = 
+		(repository_id == null) ? null : new String[]{ repository_id };
 	    String codebase = 
 		ValueHandler.getCodebase(value.getClass());
-	    write_value_header( new String[]{ repository_id }, codebase );
+	    write_value_header( repository_ids, codebase );
             ValueHandler.writeValue (this, value);
 	}
     }
