@@ -114,6 +114,8 @@ gerald.brose@acm.org
                           IDL name from the RepositoryId.
                         - Fix for read_value and write_value operations to make
                           them more portable.
+                        - Fix for read_value and write_value operations where
+                          Any contained wchar type.
                 ORB:
                         - Fix for IORs not containing zero character padding.
                         - Passing a null to object_to_string now returns the
