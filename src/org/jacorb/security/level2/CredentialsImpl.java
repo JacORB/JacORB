@@ -327,8 +327,7 @@ public class CredentialsImpl
             return false; 
     }
   
-  
-    public boolean is_valid(org.omg.Security.UtcTHolder/*out*/ expiry_time)
+    public boolean is_valid(org.omg.TimeBase.UtcTHolder/*out*/ expiry_time)
     { 
         return false; 
     }

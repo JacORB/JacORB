@@ -24,7 +24,7 @@ import org.omg.Security.*;
 import org.omg.SecurityLevel2.*;
 
 /**
- *  JacORB implementation of security Credentials
+ * JacORB implementation of security Credentials
  *
  * @author Gerald Brose
  * @version  $Id$
@@ -71,14 +71,5 @@ public class ReceivedCredentialsImpl
         return org.omg.Security.DelegationMode.SecDelModeNoDelegation;
     }
 }
-
-
-
-
-
-
-
-
-
 
 
