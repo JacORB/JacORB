@@ -18,15 +18,16 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.util;
+package jacorb.orb.util;
+
+import jacorb.orb.connection.CodeSet;
+import jacorb.orb.ParsedIOR;
+import java.io.*;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
-
-import org.jacorb.orb.ParsedIOR;
-import java.io.*;
 
 public class PrintIOR 
 {
@@ -115,7 +116,7 @@ public class PrintIOR
             System.out.print("\tObject key (hex):    0x" );
             dumpHex( pior.get_object_key() );
             System.out.println();
-            if ( pb.iiop_version.minor == ( char ) 1 )
+            if ( pb.iiop_version.minor >= ( char ) 1 )
             {
                 org.omg.SSLIOP.SSL ssl =
                     ParsedIOR.getSSLTaggedComponent ( pb );
@@ -132,6 +133,30 @@ public class PrintIOR
                     dump               ( ssl.target_requires );
                     java.lang.System.out.println();
                     System.out.println ( "\t\tSSL Port\t:\t" + ssl.port );
+                }
+                System.out.println("TAG_MULTIPLE_COMPONENTS Profiles:");
+                org.omg.CONV_FRAME.CodeSetComponentInfo codeSet = 
+                    pior.getCodeSetComponentInfo();
+                if( codeSet != null )
+                {
+                    System.out.println("\tCodeSet Component Info:  " );
+                    System.out.println("\t\tForChar native code set Id: " +
+                                     CodeSet.csName(codeSet.ForCharData.native_code_set ));
+                    System.out.print("\t\tChar Conversion Code Sets: ");
+                    for( int ji = 0; ji < codeSet.ForCharData.conversion_code_sets.length; ji++ )
+                    {
+                        System.out.println( CodeSet.csName( 
+                                                codeSet.ForCharData.conversion_code_sets[ji] )+ ",");
+                       
+                    }
+                    System.out.println("\t\tForWChar native code set Id: " +
+                                     CodeSet.csName(codeSet.ForWcharData.native_code_set ));
+                    System.out.print("\t\tWChar Conversion Code Sets: ");
+                    for( int ji = 0; ji < codeSet.ForWcharData.conversion_code_sets.length; ji++ )
+                    {
+                        System.out.println( CodeSet.csName( 
+                                                codeSet.ForWcharData.conversion_code_sets[ji] ) + ",");
+                    } 
                 }
             }
             System.out.print("\n");
@@ -212,10 +237,4 @@ public class PrintIOR
         }
     }
 }
-
-
-
-
-
-
 
