@@ -11,8 +11,10 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
-	<available classname="iaik.x509.X509Certificate" property="iaik.present" />
-	<available classname="javax.net.ssl.SSLSocketFactory" property="sun_jsse.present" />
+	<available classname="iaik.x509.X509Certificate" 
+                   property="iaik.present" />
+	<available classname="javax.net.ssl.TrustManager" 
+                   property="sun_jsse.present" />
    </target>
 
    <target name="all" depends="init,iaik,sun_jsse">
