@@ -76,11 +76,16 @@ public class ReplyHandler extends Interface
               }
         }      
     }
-    
+
+    /**
+     * Creates the ReplyHandler operations for the given operation of the
+     * parent interface, and puts them into the body of this ReplyHandler.
+     */
     private void createOperationsFor (OpDecl d)
     {
+        // Create the parameter list for the NO_EXCEPTION reply operation
         List paramDecls = new ArrayList();
-        if (!(d.opTypeSpec instanceof VoidTypeSpec))
+        if (!(d.opTypeSpec.type_spec instanceof VoidTypeSpec))
         {
             paramDecls.add (new ParamDecl (ParamDecl.MODE_IN,
                                            d.opTypeSpec,
@@ -96,16 +101,73 @@ public class ReplyHandler extends Interface
                                                p.simple_declarator));               
             }
         }   
-        body.v.add (new Definition (new OpDecl (this, d.name, paramDecls)));
+        body.addDefinition (new OpDecl (this, d.name, paramDecls));
+        body.addDefinition 
+          (new OpDecl (this, d.name + "_excep", excepParameterList()));
     }
     
+    /**
+     * Creates the ReplyHandler operations for the given attribute declaration
+     * of the parent interface, and puts them into the body of this ReplyHandler.
+     */
     private void createOperationsFor (AttrDecl d)
     {
-        
+        for (Iterator i = d.declarators.v.iterator(); i.hasNext();)
+        {
+            SimpleDeclarator decl = (SimpleDeclarator)i.next();
+            body.addDefinition 
+              (new OpDecl (this, "get_" + decl.name,
+                           parameterList (d.param_type_spec, "ami_return_val")));
+            body.addDefinition
+              (new OpDecl (this, "get_" + decl.name + "_excep", 
+                           excepParameterList()));
+            if (!d.readOnly)
+            {
+                body.addDefinition
+                  (new OpDecl (this, "set_" + decl.name, new ArrayList()));
+                body.addDefinition
+                  (new OpDecl (this, "set_" + decl.name + "_excep",
+                               excepParameterList()));
+            }
+        }                  
+    }
+
+    /**
+     * Returns a parameter list with a single "in" argument that has
+     * the given type and name.
+     */
+    private List parameterList(TypeSpec type, String name)
+    {
+        List result = new ArrayList();
+        result.add (new ParamDecl (ParamDecl.MODE_IN, type, name));
+        return result;
     }
     
+    private List excepParameterList()
+    {
+        return parameterList (new ExceptionHolderTypeSpec (new_num()),
+                              "excep_holder");
+    }
+
+    public String id()
+    {
+        return "IDL:" + full_name().replace('.', '/') + ":1.0";
+    }
+        
     public void parse()
     {
+        ConstrTypeSpec ctspec = new ConstrTypeSpec (this);
+        try 
+        {
+            NameTable.define (full_name(), "interface");
+            TypeMap.typedef(full_name(), ctspec);
+        }
+        catch (NameAlreadyDefined e)
+        {
+            Environment.output( 4, e );
+            parser.error( "Interface " + typeName() + " already defined", token );
+        }
+        
         body.parse();
     }
     
@@ -113,6 +175,11 @@ public class ReplyHandler extends Interface
     {
         printInterface();
         printOperations();
+        printLocalBase();
+        printLocalTie();
+        printImplSkeleton();
+        printTieSkeleton();
     }
             
+
 }
