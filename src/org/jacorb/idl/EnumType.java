@@ -1,7 +1,7 @@
 /*
 *        JacORB - a free Java ORB
 *
-*   Copyright (C) 1997-2003  Gerald Brose.
+*   Copyright (C) 1997-2004  Gerald Brose.
 *
 *   This library is free software; you can redistribute it and/or
 *   modify it under the terms of the GNU Library General Public
@@ -147,8 +147,7 @@ public class EnumType
                 catch (NameAlreadyDefined p)
                 {
                     parser.error("Identifier " + enum_ident +
-                                  " already defined \n" +
-                                  "(Enums don't define new scopes in IDL)",
+                                  " already defined in immediate scope\n",
                                   token);
                 }
             }
