@@ -1,3 +1,158 @@
+2003-10-24  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/sym.java: *** empty log message ***
+
+	* idl/ValueBoxDecl.java: added recentness check to avoid
+	unnecessary code generation and applied some coding style
+	cosmetics.
+
+	* idl/ValueAbsDecl.java: added recentness checks to avoid
+	unnecessary code generation and applied some coding style
+	cosmetics.
+
+	* idl/ValueDecl.java: cosmetics
+
+	* idl/ValueDecl.java: added recentness checks to avoid unnecessary
+	code generation to all print() methods.
+
+	* idl/Interface.java:
+	(openOutput) added check to avoid opening files that are up to
+	date.  coding style cosmetics.
+
+	* idl/EnumType.java:
+	(print) added check to avoid unnecessary code generation coding
+	style cosmetics
+
+	* idl/parser.java: *** empty log message ***
+
+	* idl/UnionType.java:
+	(print) added recentness check to avoid uncessary code generation
+	coding style cosmetics.
+
+	* idl/SequenceType.java:
+	(print) added recentness ccheck to avoid unnecessary code generation
+	coding style cosmetics.
+
+	* idl/Module.java:
+	(print) added IDL recentness check to avoid generating code when the
+	mapped Java is up to date
+	coding style cosmetics.
+
+	* idl/FixedPointType.java: (print) added IDL recentness check,
+	coding style cosmetics.
+
+	* idl/JacIDL.java: added forceOverwrite option, coding style
+	cosmetics
+
+	* idl/AndExpr.java: coding style cosmetics
+
+	* idl/ConstDecl.java:
+	(print) added check to compare existing mapped Java code with IDL.
+	coding style cosmetics.
+
+	* idl/ArrayTypeSpec.java: (print) added recentness check
+	(printHelperClass) fixed a one-off bug when generating the static
+	read() method, which resulted in illegal Java code. This was
+	unnoticed earlier because of a bug in AliasTypeSpec, so this code
+	was not used.
+
+	coding style cosmetics
+
+	* idl/GlobalInputStream.java: more cosmetics.
+
+	* idl/GlobalInputStream.java:
+	(isMoreRecentThan) new static method that lets each AST class
+	check if IDL is more recent than existing mapped Java code.
+
+	some cosmetics.
+
+	* idl/parser.cup: added a new option "-forceOverwrite" to override
+	the new IDL "recentness" checks.
+
+	* idl/StructType.java: coding cosmetics
+
+	* idl/StructType.java:
+	(print) check if IDL is more recent than any existing mapped Java
+	code.
+
+	* idl/AliasTypeSpec.java: coding style cosmetics
+
+	* idl/AliasTypeSpec.java:
+	(print) added code to check if existing mapped Java classes are as
+	recent as the IDL file.
+
+	some cosmetics.
+
+2003-10-24  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/dsi/ServerRequest.java (createReply): Don't barf if the
+	reply was already created.  This happens with SyncScope
+	SYNC_WITH_SERVER and does not do any harm.
+
+	* orb/Delegate.java (getSyncScope): Default to
+	SYNC_WITH_TRANSPORT, not SYNC_NONE.
+
+2003-10-20  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: Fixed
+	compilation error at JDK 1.3.x
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java.patch,
+	security/ssl/sun_jsse/SSLSocketFactory.java.patch,
+	security/ssl/sun_jsse/ServerInvocationInterceptor.java.patch:
+	Updated diffs for using JSSE 1.0.x
+
+	* security/ssl/sun_jsse/build.xml: Replaced missing property.
+
+2003-10-17  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/ServantDelegate.java: final public POA poa(Servant) - Add
+	error message in case where there is a conflict with Sun SDK
+	'Current' implementation.
+
+2003-10-16  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/giop/ReplyPlaceholder.java,
+	orb/iiop/ClientIIOPConnection.java: Fix for bug #396, inconsistent
+	property names
+
+2003-10-15  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/portableInterceptor/ServerRequestInfoImpl.java: Fix for bug
+	#392, duff portable interceptor reply status removed
+
+2003-10-10  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDROutputStream.java:
+	(write_value(TypeCode, InputStream)): Add case for _tk_value_box,
+	fixing bug 387.
+
+	* orb/CDRInputStream.java:
+	(read_value(TypeCode, OutputStream)): Add case for _tk_value_box,
+	fixing bug 387.
+
+2003-10-09  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* security/level2/SecAttributeManager.java:
+	(createAttribute) made synchronized, has possible concurrent
+	access
+
+2003-10-08  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* security/level2/SecAttributeManager.java,
+	security/ssl/iaik/ServerInvocationInterceptor.java,
+	security/ssl/sun_jsse/ServerInvocationInterceptor.java: fix for
+	bug 388/389: entries into SecAttributeManager Hashtable were never
+	released. Fixed by removing them in all send* operations of the
+	server interceptor. Patch supplied by mgosselin@interstarinc.com
+
+2003-10-08  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/parser.java, idl/sym.java: *** empty log message ***
+
+	* idl/parser.cup: (init) also resets strict_names now.
+
 2003-10-08  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/Delegate.java: Fix for bug #310, patch by Marc Heide
