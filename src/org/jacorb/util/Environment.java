@@ -638,6 +638,59 @@ public class Environment
         }
     }
 
+    public static int getIntPropertyWithDefault( String key, int def )
+    {
+        String s = _props.getProperty( key );
+
+        if( s != null && s.length() > 0 )
+        {
+            try
+            {
+                return Integer.parseInt( s );
+            }
+            catch( NumberFormatException nfe )
+            {
+                throw new Error( "Unable to create int from string >>" +
+                                 s + "<<. " +
+                                 "Please check property \"" + key + '\"');
+            }
+        }
+        else
+        {
+            return def;
+        }
+    }
+
+    /**
+     * Create an object from the give property. The classes default
+     * constructor will be used.  
+     *
+     * @returns null or an object of the class of the keys value 
+     * @throws Error if reflection fails.
+     */
+    public static Object getObjectProperty( String key )
+    {
+        String s = _props.getProperty( key );
+        
+        if( s != null && s.length() > 0 )
+        {
+            try
+            {
+                Class c = Class.forName( s );
+                return c.newInstance();
+            }
+            catch( Exception e )
+            {
+                throw new Error( "Unable to build class from key >" +
+                                 key +"<: " + e );
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     /*
       public static int getIntProperty( String key )
       {
