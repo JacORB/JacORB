@@ -998,6 +998,7 @@ public final class Delegate
 
                 //clean up and start fresh
                 piorOriginal = null;
+                piorLastFailed = null; // supplied byte Kevin Heifner, OCI
 
                 return true;
             }
@@ -1061,6 +1062,7 @@ public final class Delegate
 
                 //clean up and start fresh
                 piorOriginal = null;
+                piorLastFailed = null; //***
 
                 return true;
             }
