@@ -139,6 +139,18 @@ public class CDROutputStream
     }
 
 
+    // rmic-generated generated stubs call this method.
+    // Before adding this implementation I was getting NO_IMPLEMENT 
+    // exceptions on calls to this method. After I added it I started getting
+    // NO_IMPLEMENT exceptions on calls to org.jacorb.orb.Any.insert_Value()
+    public org.omg.CORBA.ORB orb ()
+    {
+        if (orb != null)
+            return orb;
+	else
+	    return new ORBSingleton();
+    }
+
     public void setCodeSet( int codeSet, int codeSetWide )
     {
         this.codeSet = codeSet;
@@ -1479,11 +1491,12 @@ public class CDROutputStream
         if (!write_special_value (value))
         {
             Class c = value.getClass();
-            if (c == clz)
+	    String repId = RepositoryID.repId (c);
+            if (c == clz && !repId.startsWith("RMI:"))
+		// the repository id is required for "RMI:" valuetypes
                 write_value_internal (value, null);
             else if (clz.isInstance (value))
-                write_value_internal (value, 
-                                      RepositoryID.repId (value.getClass()));
+                write_value_internal (value, repId);
             else
                 throw new org.omg.CORBA.BAD_PARAM();
         }
@@ -1557,7 +1570,11 @@ public class CDROutputStream
         else
             write_long (0x7fffff00);
 
-        if (value instanceof org.omg.CORBA.portable.StreamableValue)
+        if (value.getClass() == String.class) 
+	    // ValueHandler does not work forStrings,
+	    // so I treat them as a special case
+	    write_wstring((String)value);
+        else if (value instanceof org.omg.CORBA.portable.StreamableValue)
             ((org.omg.CORBA.portable.StreamableValue)value)._write (this);
         else
             javax.rmi.CORBA.Util.createValueHandler().writeValue (this, value);
