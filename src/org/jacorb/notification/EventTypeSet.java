@@ -109,8 +109,6 @@ abstract class EventTypeSet {
 
     private Set eventTypeSet_ = new TreeSet();
 
-    private Object eventTypeLock_ = eventTypeSet_;
-
     private ReadWriteLock readWriteLock_ = new FIFOReadWriteLock();
 
     private EventType[] arrayView_;
