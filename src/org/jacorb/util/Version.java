@@ -31,7 +31,7 @@ import java.io.*;
 
 public final class Version
 {
-    private static String version = "1.4 pre 1, September 2002";
+    private static String version = "1.4 Beta 4, March 2002";
 
     public static String get()
     {
