@@ -23,6 +23,8 @@ package org.jacorb.orb.iiop;
 import java.net.*;
 import java.io.*;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.*;
 
 /**
@@ -49,6 +51,7 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
     protected Socket socket;
 
     private int finalTimeout = 20000;
+    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.iiop.conn");
 
     public IIOPConnection (IIOPConnection other)
     {
@@ -76,6 +79,10 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
                                                    20000 );
     }
 
+    /**
+     * read actual messages
+     */
+
     public void read (org.omg.ETF.BufferHolder data,
                       int offset,
                       int min_length,
@@ -93,6 +100,7 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
                 n = in_stream.read( data.value,
                                     offset + read,
                                     min_length - read );
+
             }
             catch( InterruptedIOException e )
             {
@@ -108,12 +116,11 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
 
                 if (soTimeout != 0)
                 {
-                    Debug.output
-                        (
-                         2,
-                         "Socket timed out with timeout period of " +
-                         soTimeout
-                        );
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug("Socket timeout (timeout period: " +
+                                     soTimeout + ")" );
+                    }
                     throw new org.omg.CORBA.TIMEOUT();
                 }
                 else
@@ -123,15 +130,21 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
             }
             catch( IOException se )
             {
-                Debug.output( 2, "Transport to " + connection_info +
-                              ": stream closed" );
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("Transport to " + connection_info +
+                                 ": stream closed" );
+                }
                 throw to_COMM_FAILURE (se);
             }
 
             if( n < 0 )
             {
-                Debug.output( 2, "Transport to " + connection_info +
-                              ": stream closed" );
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("Transport to " + connection_info +
+                                 ": stream closed" );
+                }
                 throw new org.omg.CORBA.COMM_FAILURE ("read() did not return any data");
             }
 
@@ -214,7 +227,7 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
 
     protected org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE (IOException ex)
     {
-        return new org.omg.CORBA.COMM_FAILURE ("IOException: "
+        return new org.omg.CORBA.COMM_FAILURE("IOException: "
                                                + ex.toString());
     }
 
