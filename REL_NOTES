@@ -55,12 +55,15 @@ brose@inf.fu-berlin.de
 
 1.3.30
 
-        - fixed a problem with client-side time outs, which resulted
-             in the client only timing out once, and not also 
-             after subsequent reconnects. Involved changing some of
-             COMM_FAILURE exceptions thrown in the runtime to IMP_LIMIT
-             (those for tiemouts) and others to TRANSIENT (those for
-             failures in the *initial* connection setup).
+        - fixed a problem with client-side connection time outs (clients
+             would only time out once, and not also after subsequent 
+             reconnects).       
+
+             Involved changing some of COMM_FAILURE exceptions thrown 
+             in the runtime to IMP_LIMIT for tiemouts - these are the
+             ones yu want to catch! Also changed a few others to 
+             TRANSIENT where they are appropriate for failures in 
+             the *initial* connection setup.
 
         - IDL compiler bug fixes:
 
