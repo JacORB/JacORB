@@ -196,13 +196,12 @@ public class NameServer
                 {
                     if( idx+1 < args.length )
                     {
-                        port = args[ idx+1 ];
+                        port = args[ ++idx ];
                         idx++;
                     }
                     else
                         usage();
                 }
-
 
                 if( idx < args.length  && args[ idx ].startsWith("-t"))
                 {
@@ -210,7 +209,7 @@ public class NameServer
                     {
                         try
                         {
-                            time_out = Integer.parseInt( args[ idx+1] );
+                            time_out = Integer.parseInt( args[ ++idx] );
                             idx++;
                         }
                         catch( NumberFormatException nf )
@@ -218,11 +217,7 @@ public class NameServer
                         }
                         if( idx +1 < args.length && args[idx +1].equals("imr_register") )
                         {
-                            //#ifjdk 1.2
                             imr_register = true;
-                        //#else
-                        //# throw new RuntimeException ("Sorry, imr_register not supported in this release");
-                        //#endif
                         }
                     }
                     else

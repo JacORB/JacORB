@@ -21,11 +21,13 @@
 package org.jacorb.naming.namemanager;
 
 import java.util.*;
+import javax.swing.table.*;
 
 public class NSTable 
     extends javax.swing.JTable 
 {
     private ContextNode current;
+    private NSTableCellRenderer nsRenderer;
 
     /**
      * NSTable constructor comment.
@@ -33,12 +35,25 @@ public class NSTable
     
     public NSTable() 
     {
-        super(new NSTableModel());
+        super( new NSTableModel());
         setShowGrid(false);
         setAutoCreateColumnsFromModel(false);
         setDoubleBuffered(true);
         setCellSelectionEnabled(false);
         setColumnSelectionAllowed(false);
+        nsRenderer = new NSTableCellRenderer();
+    }
+
+    public TableCellRenderer getCellRenderer(int row, int column) 
+    {
+        String type = (String)getValueAt(row,2);
+
+        if (type.startsWith("IDL:omg.org/CosNaming/NamingContext"))
+        {
+            return nsRenderer;
+        }
+        else
+            return super.getCellRenderer(row, column);
     }
 
     /**
@@ -62,7 +77,7 @@ public class NSTable
     /**
      * unbind a name and remove it from the table
      */
-    public void unbind() 
+    public synchronized void unbind() 
     {
         int row = getSelectedRow();
         if( row > -1 )

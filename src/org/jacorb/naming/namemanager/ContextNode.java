@@ -44,10 +44,11 @@ public class ContextNode
     private DefaultTreeModel model;
     private Binding binding;
     private Vector bindingData;
+    private String myName;
 
     public ContextNode( NamingContextExt context, DefaultTreeModel model )
     { 
-	used=false;
+	used = false;
 	this.model = model;
 	this.context = context;
     }
@@ -56,7 +57,7 @@ public class ContextNode
                         Binding b,
                         DefaultTreeModel model)
     { 
-	used=false;
+	used = false;
 	this.model = model;
 	this.context = context;
 	binding = b;
@@ -100,8 +101,14 @@ public class ContextNode
 	    return "RootContext";
 	else
 	{
-	    NameComponent[] name=binding.binding_name;
-	    return name[name.length-1].id + "." + name[name.length-1].kind;
+            if (myName == null )
+            {
+                NameComponent[] name = binding.binding_name;
+                String kind = name[name.length-1].kind;
+                myName =  name[name.length-1].id + 
+                    ( kind != null && kind.length() > 0 ? "." + kind : "");
+            }
+            return myName;
 	}
     }
 
@@ -131,9 +138,9 @@ public class ContextNode
 	    ContextNode context_node;
 	
 	    context.list( NSTree.MAX_BIND, blsoh, bioh);
-	    Binding[] bindings=blsoh.value;
+	    Binding[] bindings = blsoh.value;
 	
-	    int childCount=myDefaultNode.getChildCount();
+	    int childCount = myDefaultNode.getChildCount();
 	
             // set up lists of object bindings and subcontext bindings
 	
@@ -163,17 +170,17 @@ public class ContextNode
             // Compare this node's sub contexts and mark those found
             // in the list of context bindings as used
 				
-	    for( int i = 0 ; i < childCount; i++ )
+	    for( int i = 0; i < childCount; i++ )
 	    {
 		DefaultMutableTreeNode dmtn = 
                     (DefaultMutableTreeNode)myDefaultNode.getChildAt(i);
-		context_node=(ContextNode) dmtn.getUserObject();
-		for (int j=0;j<contexts.length;j++)
+		context_node = (ContextNode)dmtn.getUserObject();
+		for (int j = 0; j < contexts.length; j++)
 		{	
 		    if (context_node.equals(contexts[j]))
 		    {
-			context_node.matched=true;
-			contexts[j].matched=true;
+			context_node.matched = true;
+			contexts[j].matched = true;
 		    }
 		}
 	    }
@@ -182,11 +189,11 @@ public class ContextNode
             // list
 	
 	    Vector removeList = new Vector();
-	    for (int i=0;i<childCount;i++)
+	    for (int i = 0; i < childCount; i++)
 	    {
-		DefaultMutableTreeNode node=(DefaultMutableTreeNode) 
-		    myDefaultNode.getChildAt(i);
-		context_node=(ContextNode) node.getUserObject();
+		DefaultMutableTreeNode node = 
+                    (DefaultMutableTreeNode)myDefaultNode.getChildAt(i);
+		context_node = (ContextNode)node.getUserObject();
 		if (!context_node.matched)
 		{
 		    removeList.addElement(node);
@@ -196,7 +203,7 @@ public class ContextNode
 	    }
 	
 	    int rsize = removeList.size();
-	    for(int i=0; i < rsize; i++)
+	    for(int i = 0; i < rsize; i++)
 	    {
 		model.removeNodeFromParent((DefaultMutableTreeNode)removeList.elementAt(i));
 	    }
@@ -206,13 +213,13 @@ public class ContextNode
             // Insert new context nodes found in the list as
             // children of this tree node
 
-	    for (int i=0; i<contexts.length; i++)
+	    for (int i = 0; i < contexts.length; i++)
 	    {
 		if (!contexts[i].matched) 
 		{
 		    contexts[i].used=true;
 	
-		    DefaultMutableTreeNode node=new DefaultMutableTreeNode();
+		    DefaultMutableTreeNode node = new DefaultMutableTreeNode();
 	
 		    // tree node and context node need to know each other:
 		    contexts[i].setNode(node);
@@ -284,12 +291,12 @@ public class ContextNode
             // recursively update child nodes
 				
 	    childCount = myDefaultNode.getChildCount();
-	    for (int i=0;i<childCount;i++)
+	    for (int i = 0; i < childCount; i++ )
 	    {
-		DefaultMutableTreeNode dmtn=(DefaultMutableTreeNode)
-		    myDefaultNode.getChildAt(i);
-		context_node=(ContextNode)dmtn.getUserObject();				
-		Name name=new Name(bindings[i].binding_name);
+		DefaultMutableTreeNode dmtn = 
+                    (DefaultMutableTreeNode)myDefaultNode.getChildAt(i);
+		context_node = (ContextNode)dmtn.getUserObject();				
+                //		Name name = new Name(bindings[i].binding_name);
 		context_node.update();
 	    }
 	}

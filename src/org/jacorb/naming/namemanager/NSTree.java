@@ -20,11 +20,6 @@
 
 package org.jacorb.naming.namemanager;
 
-/**
- * 
- *	@author Gerald Brose, FU Berlin
- *	@version $Id$
- */
 
 import java.awt.*;
 import javax.swing.tree.*;
@@ -33,6 +28,11 @@ import javax.swing.*;
 import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
 import org.jacorb.naming.*;
+
+/**
+ *  @author Gerald Brose, FU Berlin/XTRADYNE Technologies AG
+ *  @version $Id$
+ */
 
 public class NSTree
     extends JTree 
@@ -46,7 +46,11 @@ public class NSTree
 
     public static NSTable nsTable;
 
-    public NSTree(int width, int height, NSTable theTable, NamingContextExt rootCntxt, org.omg.CORBA.ORB orb)
+    public NSTree(int width, 
+                  int height,
+                  NSTable theTable, 
+                  NamingContextExt rootCntxt, 
+                  org.omg.CORBA.ORB orb)
     {
         this.orb = orb;
 	DefaultMutableTreeNode root = new DefaultMutableTreeNode("RootContext");
@@ -66,14 +70,14 @@ public class NSTree
      */
 
     public void bind(String name)
-	throws NotFound,CannotProceed,InvalidName, AlreadyBound
+	throws NotFound, CannotProceed, InvalidName, AlreadyBound
     {
-	TreePath path=null;
-	int length=0;
+	TreePath path = null;
+	int length = 0;
 	try 
 	{ 
-	    path=getSelectionPath(); 
-	    length=path.getPathCount();
+	    path = getSelectionPath(); 
+	    length = path.getPathCount();
 	}
 	catch (Exception e)
 	{
@@ -81,16 +85,17 @@ public class NSTree
 					  "Selection error",JOptionPane.ERROR_MESSAGE);
 	    return;
 	}
-	DefaultMutableTreeNode node=(DefaultMutableTreeNode) getModel().getRoot();
-	NamingContextExt context=rootContext;
 
-	if (length>1)
+	DefaultMutableTreeNode node = (DefaultMutableTreeNode) getModel().getRoot();
+	NamingContextExt context = rootContext;
+
+	if (length > 1)
 	{
-	    for (int i=1;i<length;i++)
+	    for (int i = 1; i < length; i++)
 	    {
-		node=(DefaultMutableTreeNode) path.getPathComponent(i);
-		ContextNode bind=(ContextNode) node.getUserObject();
-		context=NamingContextExtHelper.narrow(context.resolve(bind.getName()));
+		node = (DefaultMutableTreeNode)path.getPathComponent(i);
+		ContextNode bind = (ContextNode)node.getUserObject();
+		context = NamingContextExtHelper.narrow(context.resolve(bind.getName()));
 		if( context == null )
 		{
 		    System.err.println("Naming context narrow failed!");
@@ -100,7 +105,7 @@ public class NSTree
 	}
 	if (node.getAllowsChildren())
 	{
-	    Name bindname=new Name(name);
+	    Name bindname = new Name(name);
 	    if( context == null )
 		System.err.println("context null ");
 
@@ -119,11 +124,11 @@ public class NSTree
     }
 
 
-    public void bindObject( String name, String ior)
+    public void bindObject( String name, String ior, boolean isRebind)
 	throws NotFound,CannotProceed,InvalidName, AlreadyBound
     {
-	TreePath path=null;
-	int length=0;
+	TreePath path = null;
+	int length = 0;
 	try 
 	{ 
 	    path = getSelectionPath(); 
@@ -136,16 +141,16 @@ public class NSTree
 	    return;
 	}
 
-	DefaultMutableTreeNode node=(DefaultMutableTreeNode) getModel().getRoot();
+	DefaultMutableTreeNode node = (DefaultMutableTreeNode) getModel().getRoot();
 	NamingContextExt context = rootContext;
 
 	if (length>1)
 	{
-	    for (int i=1;i<length;i++)
+	    for (int i = 1;i<length;i++)
 	    {
-		node=(DefaultMutableTreeNode) path.getPathComponent(i);
-		ContextNode bind=(ContextNode) node.getUserObject();
-		context=NamingContextExtHelper.narrow(context.resolve(bind.getName()));
+		node = (DefaultMutableTreeNode) path.getPathComponent(i);
+		ContextNode bind = (ContextNode) node.getUserObject();
+		context = NamingContextExtHelper.narrow( context.resolve( bind.getName()));
 		if( context == null )
 		{
 		    System.err.println("Naming context narrow failed!");
@@ -155,14 +160,24 @@ public class NSTree
 	}
 	if (node.getAllowsChildren())
 	{
-	    Name bindname=new Name(name);
+	    Name bindname = new Name(name);
 	    if( context == null )
 		System.err.println("context null ");
 
 	    if( bindname.components() == null )
 		System.err.println("name is null ");
-
-	    context.bind(bindname.components(), orb.string_to_object( ior ));
+                                                   
+            try
+            {                                                   
+                context.bind( bindname.components(), orb.string_to_object( ior ));
+            }
+            catch( AlreadyBound ab )
+            {
+                if (isRebind)
+                    context.rebind( bindname.components(), orb.string_to_object( ior ));
+                else
+                    throw ab;
+            }
 	    update();
 	}
 	else 
@@ -179,7 +194,7 @@ public class NSTree
     { 
 	if (!created) 
 	{ 
-	    created=true; 
+	    created = true; 
 	    return size; 
 	}
 	else 
@@ -193,33 +208,41 @@ public class NSTree
     public void unbind()
     {
 	DefaultMutableTreeNode node;
-	NamingContextExt context=rootContext;
-	TreePath path=null;
-	int length=0;
+	NamingContextExt context = rootContext;
+	TreePath path = null;
+	int length = 0;
 	try 
 	{ 
-	    path=getSelectionPath(); 
-	    length=path.getPathCount();
-	    if (length>1) 
+	    path = getSelectionPath(); 
+	    length = path.getPathCount();
+	    if (length > 1) 
 	    {
-		for (int i=1;i<length-1;i++)
+		for (int i = 1; i < length-1; i++)
 		{
-		    node=(DefaultMutableTreeNode) path.getPathComponent(i);
-		    ContextNode bind=(ContextNode) node.getUserObject();
-		    context=NamingContextExtHelper.narrow(context.resolve(bind.getName()));
+		    node = (DefaultMutableTreeNode)path.getPathComponent(i);
+		    ContextNode bind = (ContextNode)node.getUserObject();
+		    context = NamingContextExtHelper.narrow(context.resolve(bind.getName()));
 		}
 	    } 
-	    if (length>0)
+
+	    if (length > 0)
 	    {
-		node=(DefaultMutableTreeNode) path.getPathComponent(length-1);
-		ContextNode binding=(ContextNode) node.getUserObject();
+		node = (DefaultMutableTreeNode)path.getPathComponent(length-1);
+		ContextNode binding = (ContextNode)node.getUserObject();
 		context.unbind(binding.getName());
-		DefaultTreeModel model=(DefaultTreeModel) getModel();
+		DefaultTreeModel model = (DefaultTreeModel)getModel();
 		model.removeNodeFromParent(node);
+                
+                // select the parent node and display its content
+                DefaultMutableTreeNode parent = (DefaultMutableTreeNode)path.getPathComponent(length-2);
+                setSelectionPath(new TreePath(parent.getPath()));
+		((ContextNode)parent.getUserObject()).display();
 	    }
 	}
 	catch (Exception e) 
 	{
+            e.printStackTrace();
+
 	    JOptionPane.showMessageDialog(this,
 					  "Nothing selected or invalid selection",
 					  "Selection error",
@@ -232,13 +255,12 @@ public class NSTree
      * update the entire tree of contexts
      */
 	 
-    public void update()
+    public synchronized void update()
     {
-	DefaultTreeModel model=(DefaultTreeModel) getModel();
-	((ContextNode)((DefaultMutableTreeNode) model.getRoot()).getUserObject()).update();
+	DefaultTreeModel model = (DefaultTreeModel)getModel();
+	((ContextNode)((DefaultMutableTreeNode)model.getRoot()).getUserObject()).update();
 	nsTable.update();
     }
 }
-
 
 

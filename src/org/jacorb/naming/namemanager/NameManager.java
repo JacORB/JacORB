@@ -21,6 +21,8 @@
 package org.jacorb.naming.namemanager;
 
 import java.awt.*;
+import java.awt.event.*;
+
 import javax.swing.*;
 import org.omg.CosNaming.*;
 import org.jacorb.naming.*;
@@ -52,13 +54,20 @@ public class NameManager
         JMenu editMenu = new JMenu("Edit");
         JMenu helpMenu = new JMenu("Help");
 
-        JMenuItem quit = new JMenuItem("Quit");
+        JMenuItem quit = new JMenuItem("Quit", KeyEvent.VK_Q);
+        quit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK));
         fileMenu.add(quit);
 
         JMenuItem options = new JMenuItem("Options");
-        JMenuItem create =  new JMenuItem("BindNewContext");
-	JMenuItem bindObject = new JMenuItem("Bind object");
-        JMenuItem unbind =  new JMenuItem("Unbind name");
+
+        JMenuItem create =  new JMenuItem("BindNewContext", KeyEvent.VK_N);
+        create.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+
+	JMenuItem bindObject = new JMenuItem("Bind Object", KeyEvent.VK_B);
+        bindObject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
+
+        JMenuItem unbind =  new JMenuItem("Unbind name", KeyEvent.VK_U);
+        unbind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK));
 
         editMenu.add(options);
         editMenu.add(create);

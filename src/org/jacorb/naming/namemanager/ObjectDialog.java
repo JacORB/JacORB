@@ -24,29 +24,34 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * A dialog to enter the name and ior for an object binding
+ *
+ * @version $Id$
+ * @author Gerald Brose, Xtradyne Technologies
+ */
+
 public class ObjectDialog
     extends JDialog
     implements ActionListener, KeyListener
 {
     JTextField nameField;
     JTextField iorField;
+    JCheckBox rebindCheckBox;
     boolean isOk;
 
-    public ObjectDialog(Frame frame, int updInt)
+    public ObjectDialog(Frame frame)
     {
         super(frame, "Bind Object", true);
+
         isOk = false;
-        JPanel mainPanel = new JPanel( new GridLayout(2,1));
-        getContentPane().add(mainPanel);
+        JPanel mainPanel = new JPanel( new BorderLayout());
+
         JPanel hiPanel = new JPanel();
         hiPanel.setLayout( new BoxLayout( hiPanel, BoxLayout.Y_AXIS ));
-        JPanel loPanel = new JPanel();
-
-        mainPanel.add(hiPanel);
-        mainPanel.add(loPanel);
-
         JLabel nameLabel = new JLabel("Name:");
         JLabel objectLabel = new JLabel("IOR:");
+        rebindCheckBox = new JCheckBox("Rebind if name is bound?", false);
         nameField = new JTextField(40);
         iorField = new JTextField(40);
 
@@ -54,16 +59,30 @@ public class ObjectDialog
         hiPanel.add(nameField); 
         hiPanel.add(objectLabel);
         hiPanel.add(iorField);
+        hiPanel.add(rebindCheckBox);
 
         JButton ok = new JButton("Ok");
         JButton cancel = new JButton("Cancel");
 
+        JPanel loPanel = new JPanel();
         loPanel.add(ok); 
         loPanel.add(cancel);
 
         ok.addActionListener(this);
         cancel.addActionListener(this);
 
+        mainPanel.add(hiPanel, BorderLayout.CENTER);
+        mainPanel.add(loPanel, BorderLayout.SOUTH);
+        getContentPane().add(mainPanel);
+
+        pack();
+        show();
+
+    }
+
+    public boolean isRebind()
+    {
+        return rebindCheckBox.isSelected();
     }
 
     public String getName()
@@ -93,6 +112,7 @@ public class ObjectDialog
         }
         else dispose();
     }
+
     public void keyPressed(KeyEvent e) 
     {
         if (e.getKeyCode()==KeyEvent.VK_ENTER) 

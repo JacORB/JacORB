@@ -26,12 +26,12 @@ public class NSTableModel
 	extends javax.swing.table.DefaultTableModel 
 {
     /**
-     * NSTableModel constructor comment.
+     * NSTableModel constructor.
      */
     public NSTableModel() 
     {
 	super();
-	String [] colNames = {"Name", "Kind", "Type","Host"};
+	String [] colNames = {"Name", "Kind", "Type", "Host"};
 	super.setColumnIdentifiers(convertToVector(colNames));
     }
 
@@ -53,6 +53,7 @@ public class NSTableModel
     {
 	return false;
     }
+
     /**
      * 
      * @param data Vector
@@ -61,12 +62,7 @@ public class NSTableModel
     {
         if (newData == null)
             throw new IllegalArgumentException("setDataVector() - Null parameter");
-        
-        // Clear all the previous data.
-        dataVector = new Vector(0);
-        
-        fireTableStructureChanged();
-        
+                
         // Add the new rows.
         dataVector = newData;
         

@@ -20,21 +20,19 @@
 
 package org.jacorb.naming.namemanager;
 
-/**
- * 
- * @author Gerald Brose, FU Berlin
- * @version $Id$
- */
-
 import java.awt.event.*;
 import java.awt.*;
 import javax.swing.tree.*;
 import javax.swing.*;
+
 import org.jacorb.naming.Name;
 import org.omg.CosNaming.*;
 
 /**
- *	This class handles the events on the tree
+ * This class handles the events on the tree
+ *
+ * @author Gerald Brose, FU Berlin
+ * @version $Id$ 
  */
 
 public class Handler
@@ -56,7 +54,7 @@ public class Handler
 		
 	popup = new JPopupMenu();
 	JMenuItem bindContext = new JMenuItem("BindNewContext");
-	JMenuItem bindObject = new JMenuItem("Bind object");
+	JMenuItem bindObject = new JMenuItem("Bind Object");
 	JMenuItem unbind=new JMenuItem("Unbind name");
 
 	popup.add(bindContext);
@@ -82,16 +80,17 @@ public class Handler
 	{
 	    tree.unbind();
 	}
-	else if (e.getActionCommand().equals("Bind object")) 
+	else if (e.getActionCommand().equals("Bind Object")) 
 	{
-	    ObjectDialog dialog = new ObjectDialog((Frame) frame, updateInterval);
-	    dialog.pack(); 
-	    dialog.show();
+	    ObjectDialog dialog = new ObjectDialog((Frame)frame);
+	    //dialog.pack(); 
+	    //dialog.show();
+
 	    if (dialog.isOk)
             {
                 try
                 {
-                    tree.bindObject( dialog.getName(), dialog.getIOR());
+                    tree.bindObject( dialog.getName(), dialog.getIOR(), dialog.isRebind());
                 }               
                 catch ( org.omg.CORBA.UserException ue )
                 {
@@ -107,22 +106,31 @@ public class Handler
 	{
 	    try
 	    {
-		tree.bind(JOptionPane.showInputDialog(frame,
-						      "Name of the new context", "BindNewContext",
-						      JOptionPane.QUESTION_MESSAGE));
+                String contextName = 
+                    JOptionPane.showInputDialog(frame,
+                                                "Name of the new context", 
+                                                "BindNewContext",
+                                                JOptionPane.QUESTION_MESSAGE);
+
+                // check if user input is okay or if CANCEL was hit
+                if (contextName != null && contextName.length() > 0)
+                    tree.bind(contextName);
 	    } 
 	    catch ( org.omg.CORBA.UserException ue )
 	    {
-		JOptionPane.showMessageDialog(frame, ue.getClass().getName() + 
+		JOptionPane.showMessageDialog(frame, 
+                                              ue.getClass().getName() + 
 					      (ue.getMessage() != null ? (":" + ue.getMessage()):""),
-					      "Exception",JOptionPane.INFORMATION_MESSAGE);
+					      "Exception",
+                                              JOptionPane.INFORMATION_MESSAGE);
 	    }
 	}
 	else if (e.getActionCommand().equals("About..."))
 	{
 	    JOptionPane.showMessageDialog(frame,
 					  "JacORB NameManager 1.2\n(C) 1998-2004 Gerald Brose, Wei-ju Wu & Volker Siegel\nFreie Universitaet Berlin",
-					  "About",JOptionPane.INFORMATION_MESSAGE);
+					  "About",
+                                          JOptionPane.INFORMATION_MESSAGE);
 	}
 	else if (e.getActionCommand().equals("Options"))
 	{
@@ -135,11 +143,13 @@ public class Handler
 	else 
 	    throw new RuntimeException("Should not happen");
     }
+
     /**
      * @param k java.awt.event.KeyEvent
      */
 	
     public void keyPressed(KeyEvent k) {}
+
     /**
      * @param k java.awt.event.KeyEvent
      */
@@ -154,16 +164,16 @@ public class Handler
     public void mouseClicked(MouseEvent e) {}
     public void mouseEntered(MouseEvent e) {}
     public void mouseExited(MouseEvent e) {}
-
     public void mousePressed(MouseEvent e) {}
+
     /**
      * opens pop-up menu or displays context node content
      */
 
     public void mouseReleased(MouseEvent e)
     {
-	/** on Solaris, the right mouse button somehow seems not be a popup trigger, so we
-	    accept mouse 3 explicitly */
+	// on Solaris, the right mouse button somehow seems not be a popup trigger, so we
+        // accept mouse 3 explicitly
 	if (e.isPopupTrigger() || e.getModifiers() == java.awt.event.InputEvent.BUTTON3_MASK )
 	{
 	    popup.pack();
@@ -179,6 +189,7 @@ public class Handler
 	    }
 	}
     }
+
     // WindowListener
     public void windowClosing(WindowEvent e) 
     { 
