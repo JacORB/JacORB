@@ -33,7 +33,7 @@ class ValueInheritanceSpec
 {
     /** the value types (both abstract and stateful) inherited by this
      value type */
-    Vector v;
+    //Vector v;
 
     /** the IDL interfaces inherited ("supported") by this value type */
     Vector supports;
@@ -45,7 +45,7 @@ class ValueInheritanceSpec
     public ValueInheritanceSpec( int num )
     {
         super( num );
-        v = new Vector();
+        //v = new Vector();
         supports = new Vector();
     }
 
