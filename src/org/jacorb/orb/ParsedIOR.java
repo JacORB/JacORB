@@ -66,6 +66,7 @@ public class ParsedIOR
 
     private String adport = null;
     private boolean use_ssl = false;
+    private boolean use_sas = false;
 
     private CodeSetComponentInfo cs_info = null;
     private Integer orbTypeId = null;
@@ -403,6 +404,46 @@ public class ParsedIOR
         return null;
     }
 
+    private static CompoundSecMechList getSASTaggedComponent( ProfileBody_1_1 profileBody )
+    {
+        if ( profileBody == null ||
+             profileBody.iiop_version == null ||
+             profileBody.iiop_version.minor == (short) 0 ||
+             profileBody.components == null
+             )
+        {
+            return null;
+        }
+
+        /* else: */
+
+        boolean found_sas = false;
+        for ( int i = 0; i < profileBody.components.length; i++ )
+        {
+            if( profileBody.components[i].tag == TAG_CSI_SEC_MECH_LIST.value )
+            {
+                found_sas = true;
+
+                Debug.output( 8, "Component data",
+                              profileBody.components[ i ].component_data);
+
+                CDRInputStream in =
+                    new CDRInputStream((org.omg.CORBA.ORB)null,
+                                       profileBody.components[ i ].component_data );
+                try
+                {
+                    in.openEncapsulatedArray();
+                    return CompoundSecMechListHelper.read( in );
+                }
+                catch ( Exception ex )
+                {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
 
     /**
      * The TargetAddress struct provides three different ways of
@@ -553,6 +594,13 @@ public class ParsedIOR
         {
             use_ssl = false; 
         } 
+
+        // parse SAS
+        CompoundSecMechList sas = getSASTaggedComponent( pb );
+        if (sas != null)
+        {
+            use_sas = true;
+        }
             
         if( port < 0 ) 
             port += 65536;
@@ -568,6 +616,11 @@ public class ParsedIOR
     public boolean useSSL()
     {
         return use_ssl;
+    }
+
+    public boolean useSAS()
+    {
+        return use_sas;
     }
 
     /**
