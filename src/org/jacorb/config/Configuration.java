@@ -166,11 +166,12 @@ public class Configuration
        String separator = System.getProperty("file.separator");
        String home = System.getProperty("user.home");
        String lib = System.getProperty("java.home");
-       int logLevel = DEFAULT_LOG_LEVEL;
        boolean loaded = false;
 
        // 1) include system properties
        setAttributes( System.getProperties() );
+       
+       int logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
 
        // 2) look for orb.properties       
        // look for common properties files in java.home/lib first
