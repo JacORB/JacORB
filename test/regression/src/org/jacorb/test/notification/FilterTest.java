@@ -19,6 +19,7 @@ import org.omg.CosNotifyFilter.FilterFactory;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.Assert;
 
 /**
  * @author Alphonse Bendt
@@ -89,21 +90,20 @@ public class FilterTest extends NotificationTestCase {
     }
 
 
-    /**
-     * @todo Spec checken was hier passieren soll.
-     */
-    public void _testEQOperatorBug() throws Exception {
-        ConstraintExp[] _constraintExp = new ConstraintExp[1];
-        EventType[] _eventType = new EventType[1];
-        _eventType[0] = new EventType("*", "*");
+    public void testAccessNonExistingMember() throws Exception {
+        EventType[] _eventType = new EventType[] {
+            new EventType("*", "*")
+        };
 
-        _constraintExp[0] = new ConstraintExp(_eventType, "$not_exist == 3");
+        ConstraintExp[] _constraintExp = new ConstraintExp[] {
+            new ConstraintExp(_eventType, "$not_exist == 3"),
+            new ConstraintExp(_eventType, "TRUE"),
+        };
+
         ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
 
-        // this should match
         assertTrue(filter_.match(testPerson_));
     }
-
 
 
     public void testMatchEmptyFilter() throws Exception {
@@ -350,7 +350,7 @@ class FilterRead extends Thread {
         for (int x=0; x<iterations_; x++) {
             // constraint count should always be a multiple of 10
             ConstraintInfo[] _info = filter_.get_all_constraints();
-            testCase_.assertTrue(_info.length % 10 == 0);
+            Assert.assertTrue(_info.length % 10 == 0);
 
             for (int y=0; y<_info.length; y++) {
                 _counter.incr(_info[y].constraint_expression.constraint_expr);
@@ -361,7 +361,7 @@ class FilterRead extends Thread {
             // constraint type count should always be a multiple of 10
             while (_i.hasNext()) {
                 Counter _c = (Counter)_i.next();
-                testCase_.assertTrue(_c.value() % 10 == 0);
+                Assert.assertTrue(_c.value() % 10 == 0);
             }
 
             _counter.reset();
@@ -474,7 +474,7 @@ class FilterModify extends Thread {
                 } catch (InterruptedException ie) {}
             } catch (Exception e) {
                 e.printStackTrace();
-                testCase_.fail();
+                Assert.fail();
             }
         }
     }
