@@ -35,6 +35,7 @@ import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.poa.util.POAUtil;
 
 import org.apache.avalon.framework.logger.*;
+import org.apache.avalon.framework.configuration.*;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INITIALIZE;
@@ -58,12 +59,29 @@ import org.omg.ETF.*;
 
 public final class ORB
     extends ORBSingleton
-    implements org.jacorb.poa.POAListener
+    implements org.jacorb.poa.POAListener, Configurable
 {
     private static final String versionString = org.jacorb.util.Version.version;
     private static final String dateString = org.jacorb.util.Version.date;
     private static final String nullIORString =
         "IOR:00000000000000010000000000000000";
+
+    /** the configuration object for this ORB instance */
+    private org.jacorb.config.Configuration configuration = null;
+
+    /** configuration properties */
+    private boolean cacheReferences;
+    private String implName;
+    private int giopMinorVersion;
+    private boolean giopAdd_1_0_Profiles;
+    private String hashTableClassName;
+    private boolean useIMR;
+    private boolean useIMREndpoint;
+    private String imrProxyHost = null;
+    private int imrProxyPort = -1;
+    private String iorProxyHost;
+    private int iorProxyPort = -1;
+    private boolean printVersion = true;
 
     /** "initial" references */
     private Map initial_references = new HashMap();
@@ -154,7 +172,64 @@ public final class ORB
 
     public ORB()
     {
-        logger = Debug.getNamedLogger("jacorb.orb");
+    }
+
+    /**
+     * configure the ORB 
+     */
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.orb");
+
+        cacheReferences = 
+            configuration.getAttribute("jacorb.reference_caching", "off").equals("on");
+                            
+        implName = 
+            configuration.getAttribute("jacorb.implname", "" );
+
+        giopMinorVersion = 
+            configuration.getAttributeAsInteger("jacorb.giop_minor_version", 2);
+
+        giopAdd_1_0_Profiles = 
+            configuration.getAttribute("jacorb.giop.add_1_0_profiles", "off").equals("on");
+
+        hashTableClassName = 
+            configuration.getAttribute( "jacorb.hashtable_class" );
+             
+        useIMR = 
+            configuration.getAttribute("jacorb.use_imr","off").equals("on");
+
+        imrProxyHost = 
+            configuration.getAttribute("jacorb.imr.ior_proxy_host",null);
+
+        imrProxyPort = 
+            configuration.getAttributeAsInteger("jacorb.imr.ior_proxy_port",-1); 
+
+        useIMREndpoint = 
+            configuration.getAttribute("jacorb.use_imr", "on").equals("on");
+
+        iorProxyHost = 
+        configuration.getAttribute("jacorb.ior_proxy_host");
+
+        iorProxyPort = 
+            configuration.getAttributeAsInteger("jacorb.ior_proxy_port",-1);
+
+        printVersion = 
+            configuration.getAttribute("jacorb.orb.print_version", "true").equals("true");
+    }
+
+    /**
+     * Some parts of JacORB cannot be elegantly configured from the outside
+     * and need access to the ORB's configuration retrieve config settings.
+     * This method should only be used in those restricted cases!
+     */
+
+    public org.jacorb.config.Configuration getConfiguration()
+    {
+        return configuration;
     }
 
     /**
@@ -186,6 +261,7 @@ public final class ORB
      *  arrived over the network and is called from CDRInputStream. It
      *  removes stale cache entries
      */
+
     public synchronized org.omg.CORBA.Object _getObject( ParsedIOR pior )
     {
         String key = pior.getIORString();
@@ -214,7 +290,7 @@ public final class ORB
             }
             else
             {
-                if( logger.isDebugEnabled() )
+                if (logger.isDebugEnabled())
                 {
                     logger.debug("Remove stale reference from cache ");
                 }
@@ -223,9 +299,19 @@ public final class ORB
         }
 
         org.jacorb.orb.Delegate d = new Delegate(this, pior );
+        try
+        {
+            d.configure(configuration);
+        }
+        catch(ConfigurationException ce)
+        {
+            if (logger.isErrorEnabled())
+                logger.error(ce.getMessage());
+        }
+
         o = d.getReference( null );
 
-        if( Environment.cacheReferences() )
+        if( cacheReferences )
         {
             knownReferences.put( key, o );
         }
@@ -252,7 +338,7 @@ public final class ORB
             return null;
         }
 
-        String orbImplName = Environment.getProperty( "jacorb.implname", "" );
+        // String orbImplName = Environment.getProperty( "jacorb.implname", "" );
 
         try
         {
@@ -270,7 +356,7 @@ public final class ORB
 
         if( refImplName == null )
         {
-            if( orbImplName.length() > 0 )
+            if( implName.length() > 0 )
             {
                 if( logger.isDebugEnabled() )
                 {
@@ -281,7 +367,7 @@ public final class ORB
         }
         else
         {
-            if( !(orbImplName.equals( refImplName ) ))
+            if( !(implName.equals( refImplName ) ))
             {
                 if( logger.isDebugEnabled() )
                 {
@@ -341,7 +427,7 @@ public final class ORB
                 org.jacorb.poa.util.POAUtil.extractOID( ref );
 
             if( tmp_poa.isSystemId()
-               && ! tmp_poa.previouslyGeneratedObjectId( objectId ))
+               && ! tmp_poa.previouslyGeneratedObjectId(objectId))
             {
                 if( logger.isDebugEnabled() )
                 {
@@ -354,8 +440,12 @@ public final class ORB
         }
         catch( Exception e )
         {
-            Debug.output( 2, e); // TODO
+            if( logger.isErrorEnabled() )
+            {
+                logger.error(e.getMessage());
+            }
         }
+
         if( logger.isDebugEnabled() )
         {
             logger.debug("findPOA: nothing found");
@@ -521,15 +611,17 @@ public final class ORB
             }
             catch (Exception e)
             {
-                Debug.output(2, e);
+                if (logger.isErrorEnabled())
+                    logger.error(e.getMessage());
             }
         }
 
         // add GIOP 1.0 profile if necessary
         IIOPProfile iiopProfile = findIIOPProfile (profiles);
-        if (   (iiopProfile != null)
-            && (   Environment.giopMinorVersion() == 0
-                || Environment.giopAdd_1_0_Profiles()))
+        if ( (iiopProfile != null)
+             && ( this.giopMinorVersion == 0 || this.giopAdd_1_0_Profiles ))
+            //            && (   Environment.giopMinorVersion() == 0
+            //    || Environment.giopAdd_1_0_Profiles()))
         {
             Profile profile_1_0 = iiopProfile.to_GIOP_1_0();
             profiles.add (profile_1_0);
@@ -543,7 +635,7 @@ public final class ORB
             multipleComponents.addAll (iiopComponents);
 
             // if we only want GIOP 1.0, remove the other profile
-            if (Environment.giopMinorVersion() == 0)
+            if (giopMinorVersion == 0)
             {
                 profiles.remove (iiopProfile);
             }
@@ -658,7 +750,15 @@ public final class ORB
         createIOR( rep_id, object_key, _transient, poa, null );
 
         Delegate d = new Delegate( this, ior );
-
+        try
+        {
+            d.configure(configuration);
+        }
+        catch(ConfigurationException ce)
+        {
+            if (logger.isErrorEnabled())
+                logger.error(ce.getMessage());
+        }
         return d.getReference( poa );
     }
 
@@ -674,6 +774,17 @@ public final class ORB
                                              rootpoa,
                                              transport_manager,
                                              giop_connection_manager );
+
+            try
+            {
+                basicAdapter.configure(configuration);
+                rootpoa.configure(configuration);
+            }
+            catch( ConfigurationException ce )
+            {
+                throw new org.omg.CORBA.INITIALIZE("ConfigurationException: " + 
+                                                   ce.getMessage() );
+            }
 
         }
         return rootpoa;
@@ -740,7 +851,7 @@ public final class ORB
             if( imr != null )
             {
                 /* Register the POA */
-                String server_name = new String( Environment.implName() );
+                String server_name = implName;
 
                 imr.registerPOA( server_name + "/" + poa._getQualifiedName(),
                                  server_name, // logical server name
@@ -754,7 +865,7 @@ public final class ORB
     private void getImR ()
     {
         /* Lookup the implementation repository */
-        if( imr == null && Environment.useImR() )
+        if( imr == null && useIMR )
         {
             try
             {
@@ -797,26 +908,23 @@ public final class ORB
     {
         if (repId.equals ("IDL:org/jacorb/imr/ImplementationRepository:1.0"))
         {
-            profile.patchPrimaryAddress (Environment.imrProxyHost(),
-                                         Environment.imrProxyPort());
+            profile.patchPrimaryAddress(imrProxyHost,imrProxyPort);
         }
         else if (!_transient
-                 && Environment.useImR()
-                 && Environment.useImREndpoint())
+                 && useIMR
+                 && useIMREndpoint )
         {
             getImR();
 
             // The double call to patchPrimaryAddress ensures that either the
             // actual imr address or the environment values are patched into the
             // address, giving precedence to the latter.
-            profile.patchPrimaryAddress (imr.getImRHost(), imr.getImRPort());
-            profile.patchPrimaryAddress (Environment.imrProxyHost(),
-                                         Environment.imrProxyPort());
+            profile.patchPrimaryAddress(imr.getImRHost(), imr.getImRPort());
+            profile.patchPrimaryAddress( imrProxyHost, imrProxyPort);
         }
         else
         {
-            profile.patchPrimaryAddress (Environment.iorProxyHost(),
-                                         Environment.iorProxyPort());
+            profile.patchPrimaryAddress(iorProxyHost, iorProxyPort);
         }
     }
 
@@ -847,7 +955,7 @@ public final class ORB
      */
     private String getServerAddress()
     {
-        String address = Environment.getProperty( "jacorb.ior_proxy_host" );
+        String address = iorProxyHost;
 
         if( address == null )
         {
@@ -876,21 +984,11 @@ public final class ORB
      */
     private int getServerPort()
     {
-        String port_str = Environment.getProperty( "jacorb.ior_proxy_port" );
         int port = -1;
 
-        if( port_str != null )
+        if( iorProxyPort != -1 )
         {
-            try
-            {
-                port = Integer.parseInt( port_str );
-            }
-            catch( NumberFormatException nfe )
-            {
-                throw new BAD_QOS( "Unable to create integer from string >>" +
-                                   port_str + "<<. " +
-                                   "(check property \"jacorb.ior_proxy_port\")" );
-            }
+            port = iorProxyPort;          
 
             if( port < 0 )
             {
@@ -920,7 +1018,6 @@ public final class ORB
      */
     private String getIMRAddressForIOR(String imrAddress)
     {
-        String imrProxyHost = Environment.getProperty("jacorb.imr.ior_proxy_host");
         return (imrProxyHost == null ? imrAddress : imrProxyHost);
     }
 
@@ -932,23 +1029,7 @@ public final class ORB
      */
     private int getIMRPortForIOR(int imrPort)
     {
-        String imrProxyPort = Environment.getProperty("jacorb.imr.ior_proxy_port");
-        if (imrProxyPort != null)
-        {
-            try
-            {
-                imrPort = Integer.parseInt(imrProxyPort);
-            }
-            catch (NumberFormatException nfe)
-            {
-                if (logger.isWarnEnabled())
-                {
-                    logger.warn("IMR Proxy Port is configured to a none integer value. " +
-                                "Check the value of property \"jacorb.imr.ior_proxy_port");
-                }
-            }
-        }
-        return imrPort;
+        return imrProxyPort;
     }
 
     public void poaStateChanged(org.jacorb.poa.POA poa, int new_state)
@@ -962,7 +1043,7 @@ public final class ORB
                the server */
             if( --persistentPOACount == 0 )
             {
-                imr.setServerDown(new String(Environment.implName()));
+                imr.setServerDown(implName);
             }
         }
     }
@@ -1006,7 +1087,16 @@ public final class ORB
         else
         {
             org.omg.CORBA.Object obj = null;
-            String url = Environment.getProperty("ORBInitRef." + identifier);
+            String url = null;
+
+            try
+            {
+                configuration.getAttribute("ORBInitRef." + identifier);
+            }
+            catch( Exception e )
+            {
+                // ignore
+            }
 
             if( url != null )
             {
@@ -1033,22 +1123,29 @@ public final class ORB
             /* "special" behavior follows */
             else if (identifier.equals ("NameService") && isApplet ())
             {
-                // try to get location of URL with ns's IOR from a file
-                //     called NameService.ior at the applet's host
-                String ior_str =
-                    org.jacorb.util.ObjectUtil.readURL("http://"
-                                                       + applet.getCodeBase().getHost()
-                                                       + "/"
-                                                       + "NameService.ior");
-
-                obj = this.string_to_object (ior_str);
-
+                try
+                {
+                    // try to get location of URL with ns's IOR from a file
+                    //     called NameService.ior at the applet's host
+                    String ior_str =
+                        org.jacorb.util.ObjectUtil.readURL("http://"
+                                                           + applet.getCodeBase().getHost()
+                                                           + "/"
+                                                           + "NameService.ior");
+                    obj = this.string_to_object (ior_str);
+                }
+                catch( IOException io )
+                {
+                    if (logger.isWarnEnabled())
+                        logger.warn(io.getMessage());
+                }
+                
                 if (obj != null)
                 {
-                    if (! obj._is_a (org.omg.CosNaming.NamingContextHelper.id ()))
+                    if (! obj._is_a(org.omg.CosNaming.NamingContextHelper.id()))
                     {
                         obj = null;
-                    }
+                        }
                 }
             }
             else if( identifier.equals("RootPOA") )
@@ -1065,7 +1162,8 @@ public final class ORB
                 {
                     try
                     {
-                        Class currentClass = Environment.classForName( "org.jacorb.security.level2.CurrentImpl" );
+                        Class currentClass = 
+                            ObjectUtil.classForName( "org.jacorb.security.level2.CurrentImpl" );
 
                         Constructor constr = currentClass.getConstructor( new Class[]{
                             org.omg.CORBA.ORB.class });
@@ -1263,22 +1361,46 @@ public final class ORB
         requests.add( req );
     }
 
-       public void removeRequest( org.omg.CORBA.Request req )
+    public void removeRequest( org.omg.CORBA.Request req )
     {
         requests.remove( req );
     }
 
 
     /**
-     * called from ORB.init()
+     * called from ORB.init(), entry point for initialization. 
      */
 
-    protected void set_parameters( String[] args, java.util.Properties props )
+    protected void set_parameters(String[] args, java.util.Properties props)
     {
+        // determine the ORBId, if set, so we can locate the corresponding
+        // configuration
+        String orbID = System.getProperty("ORBid");
+
         if( props != null )
         {
             _props = props;
-            Environment.addProperties( props );
+            String myOrbID = (String)props.get("ORBid");
+            if (myOrbID != null )
+                orbID = myOrbID;
+        }
+
+        if (orbID == null )
+        {
+            orbID = "anonymous";
+        }
+
+        try
+        {
+            configure( new org.jacorb.config.Configuration(orbID, props));
+        }
+        catch( ConfigurationException ce )
+        {
+            if (logger.isErrorEnabled())
+            {
+                logger.error( ce.getMessage());
+            }
+            throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
         }
 
         /*
@@ -1309,8 +1431,8 @@ public final class ORB
                     }
 
                     //add the property to environment
-                    Environment.setProperty( prop.substring( 0, equals_pos ),
-                                             prop.substring( equals_pos + 1) );
+                    ((DefaultConfiguration)configuration).setAttribute( prop.substring( 0, equals_pos ),
+                                                                        prop.substring( equals_pos + 1) );
                 }
                 else if( arg.equals( "-ORBInitRef" ))
                 {
@@ -1337,37 +1459,49 @@ public final class ORB
                     }
 
                     //add the property to environment
-                    Environment.setProperty( "ORBInitRef." +
-                                             prop.substring( 0, equals_pos ),
-                                             prop.substring( equals_pos + 1) );
+                     ((DefaultConfiguration)configuration).setAttribute( "ORBInitRef." +
+                                                                         prop.substring( 0, equals_pos ),
+                                                                         prop.substring( equals_pos + 1) );
                 }
             }
         }
         policyManager = new PolicyManager( this );
 
-        transport_manager = new TransportManager( this );
-        giop_connection_manager = new GIOPConnectionManager();
+        try
+        {
+            transport_manager = new TransportManager( this );
+            transport_manager.configure(configuration);
 
-        clientConnectionManager =
-            new ClientConnectionManager( this,
-                                         transport_manager,
-                                         giop_connection_manager );
+            giop_connection_manager = new GIOPConnectionManager();
+            
+            clientConnectionManager =
+                new ClientConnectionManager( this,
+                                             transport_manager,
+                                             giop_connection_manager );        
+            clientConnectionManager.configure(configuration);
+        }
+        catch( ConfigurationException ce )
+        {
+            if (logger.isErrorEnabled())
+                logger.error(ce.getMessage());
+        }
 
-        String s = Environment.getProperty( "jacorb.hashtable_class" );
-        if( s == null || s.length() == 0 )
+
+        //String s = Environment.getProperty( "jacorb.hashtable_class" );
+        if( hashTableClassName == null || hashTableClassName.length() == 0 )
         {
             if (logger.isInfoEnabled())
             {
                 logger.info("Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
             }
             knownReferences = new HashMap();
-
         }
         else
         {
             try
             {
-                knownReferences = (Map) Environment.classForName( s ).newInstance();
+                knownReferences = 
+                    (Map)ObjectUtil.classForName( hashTableClassName ).newInstance();
             }
             catch( Exception e )
             {
@@ -1379,14 +1513,7 @@ public final class ORB
             }
         }
 
-        objectKeyMap =
-            Environment.getProperties("jacorb.orb.objectKeyMap", true );
-
-        String versionProperty =
-            Environment.getProperty("jacorb.orb.print_version");
-
-        if( versionProperty != null &&
-            versionProperty.equals("on") )
+        if( printVersion )
         {
             System.out.println("\tJacORB V " + versionString +
                                ", www.jacorb.org");
@@ -1407,7 +1534,35 @@ public final class ORB
         applet = app;
         _props = props;
 
-        Environment.addProperties( props );
+        // determine the ORBId, if set, so we can locate the corresponding
+        // configuration
+        String orbID = System.getProperty("ORBid");
+
+        if( props != null )
+        {
+            _props = props;
+            String myOrbID = (String)props.get("ORBid");
+            if (myOrbID != null )
+                orbID = myOrbID;
+        }
+
+        if (orbID == null )
+        {
+            orbID = "anonymous";
+        }
+
+        try
+        {
+            configure( new org.jacorb.config.Configuration(orbID, props));
+        }
+        catch( ConfigurationException ce )
+        {
+            if (logger.isErrorEnabled())
+            {
+                logger.error( ce.getMessage());
+            }
+            throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
+        }
 
         transport_manager = new TransportManager( this );
         giop_connection_manager = new GIOPConnectionManager();
@@ -1419,27 +1574,27 @@ public final class ORB
                 transport_manager,
                 giop_connection_manager);
 
-        String s = Environment.getProperty( "jacorb.hashtable_class" );
-        if( s == null || s.length() == 0 )
+
+        if( hashTableClassName == null || hashTableClassName.length() == 0 )
         {
             if (logger.isInfoEnabled())
             {
                 logger.info("Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
             }
             knownReferences = new HashMap();
-
         }
         else
         {
             try
             {
-                knownReferences = (Map)Environment.classForName( s ).newInstance();
+                knownReferences = 
+                    (Map)ObjectUtil.classForName( hashTableClassName ).newInstance();
             }
             catch( Exception e )
             {
-                if (logger.isDebugEnabled())
+                if (logger.isInfoEnabled())
                 {
-                    logger.debug( e.getMessage());
+                    logger.info(e.getMessage());
                 }
                 knownReferences = new HashMap();
             }
@@ -1447,7 +1602,6 @@ public final class ORB
 
 
         // unproxyTable = new Hashtable();
-
         interceptorInit();
     }
 
@@ -1458,8 +1612,7 @@ public final class ORB
 
     private void interceptorInit()
     {
-        // get instances from Environment
-        Vector orb_initializers = Environment.getORBInitializers ();
+        Vector orb_initializers = getORBInitializers();
 
         if (orb_initializers.size () > 0)
         {
@@ -1526,6 +1679,72 @@ public final class ORB
             policy_factories = info.getPolicyFactories();
         }
     }
+
+
+    /**
+     * Collects all properties with prefix "org.omg.PortableInterceptor.ORBInitializerClass."
+     * and try to instantiate their values as ORBInitializer-Classes.
+     *
+     * @return a Vector containing ORBInitializer instances
+     */
+
+    private Vector getORBInitializers()
+    {
+        String[] prop_names = configuration.getAttributeNames();
+        Vector orb_initializers = new Vector();
+
+        String initializer_prefix =
+            "org.omg.PortableInterceptor.ORBInitializerClass.";
+
+        //Test EVERY property if prefix matches.
+        for(int i = 0; i < prop_names.length; i++)
+        {
+            if ( prop_names[i].startsWith( initializer_prefix ))
+            {
+                String name = null;
+                try
+                {
+                    name = configuration.getAttribute( prop_names[i] );
+                }
+                catch( ConfigurationException ce )
+                {
+                    ce.printStackTrace(); // debug
+                }
+
+                if( name == null || name.length() == 0 )
+                {
+                    if( prop_names[i].length() > initializer_prefix.length() )
+                    {
+                        name =
+                            prop_names[i].substring( initializer_prefix.length() );
+                    }
+                }
+
+                if( name == null )
+                {
+                    continue;
+                }
+
+                try
+                {
+                    orb_initializers.addElement(ObjectUtil.classForName(name).newInstance());
+                    if( logger.isDebugEnabled())
+                        logger.debug("Build: " + name);
+                }
+                catch (Exception e)
+                {
+                    if( logger.isDebugEnabled())
+                        logger.debug( "Unable to build ORBInitializer from >>" +
+                                      name + "<<" );
+                }
+            }
+        }
+
+        return orb_initializers;
+    }
+
+
+
 
     public void shutdown( boolean wait_for_completion )
     {
@@ -1641,7 +1860,7 @@ public final class ORB
 
         try
         {
-            ParsedIOR pior = new ParsedIOR( str, this );
+            ParsedIOR pior = new ParsedIOR( str, this, logger );
             if( pior.isNull() )
             {
                 return null;
@@ -1843,14 +2062,14 @@ public final class ORB
         Class result = null;
         try
         {
-            result = Environment.classForName(name);
+            result = ObjectUtil.classForName(name);
         }
         catch (ClassNotFoundException e)
         {
             if (orgomg && name.startsWith ("org.omg"))
                 try
                 {
-                    result = Environment.classForName("omg.org" + name.substring(7));
+                    result = ObjectUtil.classForName("omg.org" + name.substring(7));
                 }
                 catch (ClassNotFoundException x)
                 {
@@ -2071,7 +2290,7 @@ public final class ORB
                     // the byte key.
                     try
                     {
-                        pIOR = new ParsedIOR( found, this );
+                        pIOR = new ParsedIOR( found, this, logger );
                         return pIOR.get_object_key();
                     }
                     catch ( IllegalArgumentException e )

@@ -3,7 +3,7 @@ package org.jacorb.orb.giop;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,12 +25,15 @@ import java.net.*;
 import java.util.*;
 import java.lang.reflect.Constructor;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.ETF.*;
 
 import org.jacorb.orb.*;
 import org.jacorb.orb.factory.*;
 import org.jacorb.orb.iiop.*;
-import org.jacorb.util.*;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * This class manages Transports. On the one hand it creates them, and
@@ -41,11 +44,21 @@ import org.jacorb.util.*;
  * */
 
 public class TransportManager
+    implements Configurable
 {
     public static SocketFactory socket_factory = null;
     public static SocketFactory ssl_socket_factory = null;
 
+    private ORB orb = null;
+
+    /** the configuration object  */
+    private org.jacorb.config.Configuration configuration = null;
+
+    /** configuration properties */
+    private Logger logger = null;
+    private List factoryClassNames = null;
     private ProfileSelector profileSelector = null;
+    private SocketFactoryManager socketFactoryManager = null;
 
     /**
      * Maps ETF Profile tags (Integer) to ETF Factories objects.
@@ -61,48 +74,73 @@ public class TransportManager
 
     public TransportManager( ORB orb )
     {
-        socket_factory = SocketFactoryManager.getSocketFactory (orb);
+        this.orb = orb;
+        socketFactoryManager = new SocketFactoryManager(orb);
+    }
 
-        if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = 
+            configuration.getNamedLogger("jacorb.orb.giop");
+        socketFactoryManager.configure(configuration); 
+
+        // get factory class names
+        factoryClassNames =
+            this.configuration.getAttributeList("jacorb.transport.factories");
+
+        if (factoryClassNames.isEmpty())
+            factoryClassNames.add("org.jacorb.orb.iiop.IIOPFactories");
+
+        // get profile selector info
+        profileSelector =
+            (ProfileSelector)configuration.getAttributeAsObject("jacorb.transport.client.selector");
+
+        if (profileSelector == null)
         {
-            String s = Environment.getProperty( "jacorb.ssl.socket_factory" );
-            if( s == null || s.length() == 0 )
+            profileSelector = new DefaultProfileSelector();
+        }
+
+        if( configuration.getAttribute("jacorb.security.support_ssl","off").equals("on"))
+        {
+            String s = configuration.getAttribute("jacorb.ssl.socket_factory");
+            if (s == null || s.length() == 0)
             {
                 throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
             }
 
             try
             {
-                Class ssl = Environment.classForName( s );
+                Class ssl = ObjectUtil.classForName(s);
 
-                Constructor constr = ssl.getConstructor( new Class[]{
-                    ORB.class });
+                Constructor constr =
+                    ssl.getConstructor( new Class[]{ ORB.class });
 
-                ssl_socket_factory = (SocketFactory)
-                    constr.newInstance( new Object[]{ orb });
+                ssl_socket_factory = 
+                    (SocketFactory)constr.newInstance( new Object[]{ orb });
             }
             catch (Exception e)
             {
-                Debug.output( 2, e.getMessage());
+                if (logger.isErrorEnabled())
+                    logger.error(e.getMessage());
 
-                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
+                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instantiated ("+ e.getMessage()+")!" );
             }
         }
+
+        socket_factory = socketFactoryManager.getSocketFactory();
+
     }
 
     public ProfileSelector getProfileSelector()
     {
-        if (profileSelector == null)
-        {
-            profileSelector =
-                (ProfileSelector)Environment.getObjectProperty
-                                         ("jacorb.transport.client.selector");
-            if (profileSelector == null)
-            {
-                profileSelector = new DefaultProfileSelector();
-            }
-        }
         return profileSelector;
+    }
+
+    public SocketFactoryManager getSocketFactoryManager()
+    {
+        return socketFactoryManager;
     }
 
     /**
@@ -129,7 +167,7 @@ public class TransportManager
         {
             loadFactories();
         }
-        return Collections.unmodifiableList (factoriesList);
+        return Collections.unmodifiableList(factoriesList);
     }
 
     /**
@@ -140,16 +178,11 @@ public class TransportManager
         factoriesMap  = new HashMap();
         factoriesList = new ArrayList();
 
-        List classNames =
-            Environment.getListProperty ("jacorb.transport.factories");
-        if (classNames.isEmpty())
-            classNames.add ("org.jacorb.orb.iiop.IIOPFactories");
-
-        for (Iterator i = classNames.iterator(); i.hasNext();)
+        for (Iterator i = factoryClassNames.iterator(); i.hasNext();)
         {
             String className = (String)i.next();
-            Factories f    = instantiateFactories (className);
-            factoriesMap.put (new Integer (f.profile_tag()), f);
+            Factories f = instantiateFactories(className);
+            factoriesMap.put(new Integer(f.profile_tag()), f);
             factoriesList.add (f);
         }
     }
@@ -165,7 +198,7 @@ public class TransportManager
             // This is important here because JacORB might be on the
             // bootclasspath, and the external transport on the normal
             // classpath.
-            Class c = Environment.classForName(className);
+            Class c = ObjectUtil.classForName(className);
             return (Factories)c.newInstance();
         }
         catch (Exception e)

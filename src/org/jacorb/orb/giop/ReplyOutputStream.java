@@ -129,7 +129,7 @@ public class ReplyOutputStream
                         int status;
 
                         //_non_existent?
-                        if( r_in.read_boolean() )
+                        if (r_in.read_boolean())
                         {
                             //_non_existent == true
                             status = LocateStatusType_1_2._UNKNOWN_OBJECT;
@@ -160,18 +160,18 @@ public class ReplyOutputStream
                         // LOC_SYSTEM_EXCEPTION, so we have to return
                         // OBJECT_UNKNOWN (even if it may not be unknown)
                         lr_out =
-                        new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                     LocateStatusType_1_2._UNKNOWN_OBJECT,
-                                                     r_in.getGIOPMinor() );
+                            new LocateReplyOutputStream( r_in.rep_hdr.request_id,
+                                                         LocateStatusType_1_2._UNKNOWN_OBJECT,
+                                                         r_in.getGIOPMinor() );
                         break;
                     }
                     case ReplyStatusType_1_2._LOCATION_FORWARD :
                     {
 
                         lr_out =
-                        new LocateReplyOutputStream( r_in.rep_hdr.request_id,
-                                                     LocateStatusType_1_2._OBJECT_FORWARD,
-                                                     r_in.getGIOPMinor() );
+                            new LocateReplyOutputStream( r_in.rep_hdr.request_id,
+                                                         LocateStatusType_1_2._OBJECT_FORWARD,
+                                                         r_in.getGIOPMinor() );
 
 
                         //FIXME: it would be more efficient to copy

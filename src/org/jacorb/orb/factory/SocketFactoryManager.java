@@ -24,84 +24,96 @@ import java.net.*;
 import java.lang.reflect.Constructor;
 
 import org.apache.avalon.framework.logger.*;
+import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.orb.*;
-import org.jacorb.util.*;
+import org.jacorb.util.ObjectUtil;
 
 public class SocketFactoryManager
+    implements Configurable
 {
     // Properties used to define custom socket and server socket factories
-
     private static final String FACTORY_PROP = "jacorb.net.socket_factory";
     private static final String SERVER_FACTORY_PROP = "jacorb.net.server_socket_factory";
 
-    private static SocketFactory socketFactory = null;
-    private static ServerSocketFactory serverFactory = null;
+    private SocketFactory socketFactory = null;
+    private ServerSocketFactory serverFactory = null;
+    private ORB orb;
 
-    private static Logger logger = null; 
+    /** the configuration object  */
+    private Configuration configuration = null;
+    private Logger logger = null; 
+    private String serverFactoryClassName = null;
+    private String factoryClassName = null;
+    private String portNo = null;
 
-    public static synchronized SocketFactory getSocketFactory (ORB orb)
+    public SocketFactoryManager(ORB orb)
+    {
+        this.orb = orb;
+    }
+
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = configuration;
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.factory");
+        serverFactoryClassName = configuration.getAttribute(SERVER_FACTORY_PROP);
+        factoryClassName = configuration.getAttribute(FACTORY_PROP);
+        portNo = configuration.getAttribute(PortRangeSocketFactory.MIN_PROP);
+    }
+
+
+    public synchronized SocketFactory getSocketFactory()
     {
         if (socketFactory != null)
         {
            return socketFactory;
         }
 
-        if (logger==null)
+        if ((factoryClassName  == null) || (factoryClassName.length() == 0))
         {
-            logger = Debug.getNamedLogger("jacorb.orb.factory");
-        }
-
-        String className = Environment.getProperty (FACTORY_PROP);
-
-        if ((className == null) || (className.length() == 0))
-        {
-            String portNo = Environment.getProperty (PortRangeSocketFactory.MIN_PROP);
             if ((portNo != null) && (portNo.length() > 0))
             {
                 // If mimimum port number configured construct PortRangeSocketFactory
-
                 socketFactory = new PortRangeSocketFactory();
             }
             else
             {
                 // Construct default socket factory
-
                 socketFactory = new DefaultSocketFactory();
             }
         }
         else
         {
-           socketFactory = getFactory (orb, className);
+           socketFactory = getFactory(factoryClassName);
         }
 
         return socketFactory;
     }
 
-    public static synchronized ServerSocketFactory getServerSocketFactory(ORB orb)
+    public synchronized ServerSocketFactory getServerSocketFactory()
     {
         if (serverFactory != null)
         {
            return serverFactory;
         }
 
-        String className = Environment.getProperty(SERVER_FACTORY_PROP);
-
-        if ((className == null) || (className.length() == 0))
+        if ((serverFactoryClassName == null) || (serverFactoryClassName.length() == 0))
         {
             // Construct default server socket factory
-
             serverFactory = new DefaultServerSocketFactory();
         }
         else
         {
-           serverFactory = getServerFactory (orb, className);
+            serverFactory = getServerFactory(serverFactoryClassName);
         }
 
         return serverFactory;
     }
 
-    private static SocketFactory getFactory(ORB orb, String className)
+    private SocketFactory getFactory(String className)
     {
        java.lang.Object factory = getFactoryObject(orb, className);
 
@@ -116,7 +128,7 @@ public class SocketFactoryManager
        }
     }
 
-    private static ServerSocketFactory getServerFactory(ORB orb, String className)
+    private ServerSocketFactory getServerFactory(String className)
     {
        java.lang.Object factory = getFactoryObject (orb, className);
 
@@ -132,7 +144,7 @@ public class SocketFactoryManager
        }
     }
 
-    private static java.lang.Object getFactoryObject(ORB orb, String className)
+    private java.lang.Object getFactoryObject(ORB orb, String className)
     {
         Constructor ctor = null;
         Class sfClass;
@@ -140,14 +152,13 @@ public class SocketFactoryManager
 
         try
         {
-            sfClass = Environment.classForName(className);
+            sfClass = ObjectUtil.classForName(className);
 
             if (orb != null)
             {
                 try
                 {
                     // First try getting constructor with ORB parameter
-
                     ctor = sfClass.getConstructor (new Class[] { ORB.class });
                 }
                 catch (Exception ex)
@@ -159,13 +170,11 @@ public class SocketFactoryManager
             if (ctor != null)
             {
                 // Construct passing ORB as parameter
-
                 factory = ctor.newInstance (new Object[] { orb });
             }
             else
             {
                 // Default construction
-
                 factory = sfClass.newInstance();
             }
         }
@@ -175,7 +184,8 @@ public class SocketFactoryManager
             {
                 logger.debug(ex.getMessage());
             }
-            throw new RuntimeException("Failed to create custom socket factory: " + className);
+            throw new RuntimeException("Failed to create custom socket factory: " + 
+                                       className);
         }
 
         if (logger.isDebugEnabled())

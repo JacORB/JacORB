@@ -20,9 +20,12 @@
  */
 package org.jacorb.orb.standardInterceptors;
 
+import org.apache.avalon.framework.logger.*;
+
 import org.omg.PortableInterceptor.*;
+
 import org.jacorb.orb.*;
-import org.jacorb.util.Environment;
+import org.jacorb.config.Configuration;
 
 /**
  * This class initializes the default IOR interceptors
@@ -51,21 +54,27 @@ public class IORInterceptorInitializer
      */
     public void post_init(ORBInitInfo info)
     {
+        Configuration config = null;
         try
         {
             ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
-            if( Environment.isPropertyOn( "jacorb.security.support_ssl" ) &&
-                Environment.hasProperty( "jacorb.security.ssl.server.supported_options" ) &&
-                Environment.hasProperty( "jacorb.security.ssl.server.required_options" ))
+            config = orb.getConfiguration();
+
+            String supportedOptions = 
+                config.getAttribute("jacorb.security.ssl.server.supported_options");
+            String requiredOptions = 
+                config.getAttribute("jacorb.security.ssl.server.required_options");
+
+            if( config.getAttribute("jacorb.security.support_ssl","off").equals("on") &&
+                supportedOptions != null &&
+                requiredOptions != null
+                )
             {
                 info.add_ior_interceptor(new SSLComponentInterceptor(orb));
             }
 
             int giop_minor =
-                Integer.parseInt(
-                    Environment.getProperty(
-                        "jacorb.giop_minor_version",
-                        "2" ));
+                config.getAttributeAsInteger("jacorb.giop_minor_version",2);
 
             if( giop_minor > 0 )
             {
@@ -74,7 +83,15 @@ public class IORInterceptorInitializer
         }
         catch (Exception e)
         {
-            org.jacorb.util.Debug.output(1, e);
+            if (config!= null)
+            {
+                Logger logger = 
+                    config.getNamedLogger("org.jacorb.interceptors.ior_init");
+                if (logger.isErrorEnabled())
+                    logger.error("During IORInterceptor.post_init(): " + e.getMessage());
+            }
+            else
+                e.printStackTrace(); // last resort...
         }
     }
 

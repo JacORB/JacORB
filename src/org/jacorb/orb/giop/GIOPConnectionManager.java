@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,10 +20,11 @@
 package org.jacorb.orb.giop;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 import java.util.*;
 
-import org.jacorb.util.*;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * @author Nicolas Noffke
@@ -31,7 +32,14 @@ import org.jacorb.util.*;
  */
 
 public class GIOPConnectionManager 
+    implements Configurable
 {
+    /** the configuration object  */
+    private org.jacorb.config.Configuration configuration = null;
+
+    /** configuration properties */
+    private Logger logger = null;
+
     //private List client_giop_connections = null;
     private List server_giop_connections = null;
     private int max_server_giop_connections = 0;
@@ -39,46 +47,50 @@ public class GIOPConnectionManager
     private SelectionStrategy selection_strategy = null;
     private int wait_for_idle_interval = 0;
 
-    private Logger logger = Debug.getNamedLogger("jacorb.giop.conn");
 
 
     public GIOPConnectionManager()
     {
-        server_giop_connections = new LinkedList(); 
+        server_giop_connections = new LinkedList();
+    }
+
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = 
+            configuration.getNamedLogger("jacorb.orb.giop.conn");
         
         max_server_giop_connections = 
-            Environment.getIntPropertyWithDefault( 
-                "jacorb.connection.max_server_connections",
-                Integer.MAX_VALUE );
+            configuration.getAttributeAsInteger("jacorb.connection.max_server_connections",
+                                                Integer.MAX_VALUE );
         
         selection_strategy = (SelectionStrategy)
-            Environment.getObjectProperty( 
+            configuration.getAttributeAsObject( 
                 "jacorb.connection.selection_strategy_class" );
         
         wait_for_idle_interval =
-            Environment.getIntPropertyWithDefault( 
+            configuration.getAttributeAsInteger( 
                 "jacorb.connection.wait_for_idle_interval", 500 );
                 
-        if( Environment.hasProperty( 
-            "jacorb.connection.statistics_provider_class" ))
-        {
-            String s = Environment.getProperty( 
-                "jacorb.connection.statistics_provider_class" );
 
-            if( s != null && s.length() > 0 )
+        String s = 
+            configuration.getAttribute( "jacorb.connection.statistics_provider_class" );
+
+        if( s != null && s.length() > 0 )
+        {
+            try
             {
-                try
+                statistics_provider_class =
+                    ObjectUtil.classForName( s );
+            }
+            catch( Exception e )
+            {
+                if (logger.isErrorEnabled())
                 {
-                    statistics_provider_class =
-                        Environment.classForName( s );
-                }
-                catch( Exception e )
-                {
-                    if (logger.isErrorEnabled())
-                    {
-                        logger.error( "Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e.getMessage() );
-                    }                        
-                }
+                    logger.error( "Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e.getMessage() );
+                }                        
             }
         }
 
@@ -118,7 +130,10 @@ public class GIOPConnectionManager
                         }
                         catch( Exception e )
                         {
-                            Debug.output( 1, e );
+                            if (logger.isWarnEnabled())
+                            {
+                                logger.warn("During thread.sleep: " + e.getMessage());
+                            }
                         }
                     }
                 }
@@ -182,9 +197,9 @@ public class GIOPConnectionManager
             }
             catch( Exception e )
             {
-                Debug.output( 1, "ERROR: Unable to create instance from Class >" +
-                              statistics_provider_class + '<');
-                
+                if (logger.isErrorEnabled())
+                    logger.error( "Unable to create instance from Class >" +
+                                  statistics_provider_class + '<');
             }
         }
         return result;       

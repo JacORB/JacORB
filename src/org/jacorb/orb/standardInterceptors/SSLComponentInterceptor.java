@@ -47,7 +47,6 @@ public class SSLComponentInterceptor
     }
 
     // implementation of org.omg.PortableInterceptor.IORInterceptorOperations interface
-
     public String name()
     {
         return "SSLComponentCreator";
@@ -120,7 +119,8 @@ public class SSLComponentInterceptor
         }
         catch (Exception e)
         {
-            Debug.output( 1, e);
+            // should not happen
+            e.printStackTrace();
         }
     }
 } // SSLComponentInterceptor

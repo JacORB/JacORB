@@ -24,7 +24,7 @@ import org.omg.CORBA.*;
 import org.omg.CORBA.portable.*;
 import java.lang.reflect.*;
 import org.jacorb.ir.RepositoryID;
-import org.jacorb.util.Environment;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * This class provides a method for inserting an arbirtary
@@ -59,8 +59,8 @@ public class ApplicationExceptionHelper
 
         // Get various required classes
 
-        Class exClass = Environment.classForName (name);
-        Class helperClass = Environment.classForName (helperName);
+        Class exClass = ObjectUtil.classForName (name);
+        Class helperClass = ObjectUtil.classForName (helperName);
         Class anyClass = org.omg.CORBA.Any.class;
         Class isClass = org.omg.CORBA.portable.InputStream.class;
 

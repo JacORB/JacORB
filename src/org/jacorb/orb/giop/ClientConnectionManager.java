@@ -3,7 +3,7 @@ package org.jacorb.orb.giop;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,14 +26,17 @@ import java.util.*;
 import java.lang.reflect.Constructor;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 import org.omg.ETF.Factories;
 
 import org.jacorb.orb.*;
 import org.jacorb.orb.factory.*;
 import org.jacorb.orb.iiop.*;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * This class manages connections.<br>
@@ -44,6 +47,7 @@ import org.jacorb.util.Environment;
  */
 
 public class ClientConnectionManager
+    implements Configurable
 {
     private org.jacorb.orb.ORB orb = null;
 
@@ -59,7 +63,10 @@ public class ClientConnectionManager
 
     private TransportManager transport_manager = null;
     private GIOPConnectionManager giop_connection_manager = null;
-    private Logger logger = Debug.getNamedLogger("jacorb.giop");
+
+    /** the configuration object  */
+    private org.jacorb.config.Configuration configuration = null;
+    private Logger logger = null;
 
     public ClientConnectionManager( ORB orb,
                                     TransportManager transport_manager,
@@ -69,37 +76,50 @@ public class ClientConnectionManager
         this.transport_manager = transport_manager;
         this.giop_connection_manager = giop_connection_manager;
 
-        socket_factory = SocketFactoryManager.getSocketFactory (orb);
+        request_listener = new NoBiDirClientRequestListener();
+        receptor_pool = MessageReceptorPool.getInstance();
+    }
 
-        if (Environment.isPropertyOn( "jacorb.security.support_ssl" ))
+    /**
+     * configure this connection manager
+     */
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.orb.giop");
+ 
+        socket_factory = 
+            transport_manager.getSocketFactoryManager().getSocketFactory();
+
+        if (configuration.getAttribute("jacorb.security.support_ssl","off").equals("on") )
         {
-            String s = Environment.getProperty( "jacorb.ssl.socket_factory" );
-            if( s == null || s.length() == 0 )
+            String s = configuration.getAttribute("jacorb.ssl.socket_factory");
+            if ( s == null || s.length() == 0)
             {
                 throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
             }
 
             try
             {
-                Class ssl = Environment.classForName( s );
+                Class ssl = ObjectUtil.classForName(s);
 
-                Constructor constr = ssl.getConstructor( new Class[]{
-                    ORB.class });
+                Constructor constr = 
+                    ssl.getConstructor( new Class[]{ ORB.class });
 
-                ssl_socket_factory = (SocketFactory)
-                    constr.newInstance( new Object[]{ orb });
+                ssl_socket_factory = 
+                    (SocketFactory)constr.newInstance( new Object[]{ orb });
             }
             catch (Exception e)
             {
-                Debug.output( 2, e );
-                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
+                throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instantiated ("+e.getMessage()+")!" );
             }
         }
 
-        request_listener = new NoBiDirClientRequestListener();
 
-        receptor_pool = MessageReceptorPool.getInstance();
     }
+
 
     public void setRequestListener( RequestListener listener )
     {
@@ -140,12 +160,10 @@ public class ClientConnectionManager
             }
 
             connections.put( profile, c );
-
             receptor_pool.connectionCreated( connection );
         }
         else
         {
-
             if( logger.isInfoEnabled())
             {
                 logger.info("ClientConnectionManager: found conn to target " +
@@ -167,7 +185,7 @@ public class ClientConnectionManager
         if ( c.decClients() )
         {
             c.close();
-            connections.remove (c.getRegisteredProfile());
+            connections.remove(c.getRegisteredProfile());
         }
     }
 
@@ -182,8 +200,8 @@ public class ClientConnectionManager
 
     public synchronized void addConnection( GIOPConnection connection )
     {
-        addConnection ( connection,
-                        connection.getTransport().get_server_profile() );
+        addConnection(connection,
+                      connection.getTransport().get_server_profile() );
     }
 
     public synchronized void addConnection( GIOPConnection connection,

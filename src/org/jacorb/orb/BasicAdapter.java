@@ -30,10 +30,10 @@ import org.jacorb.orb.factory.SSLServerSocketFactory;
 import org.jacorb.orb.factory.ServerSocketFactory;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.factory.SocketFactoryManager;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
+import org.jacorb.util.ObjectUtil;
 
 import org.apache.avalon.framework.logger.*;
+import org.apache.avalon.framework.configuration.*;
 
 import org.omg.CORBA.INTERNAL;
 import org.omg.ETF.*;
@@ -49,16 +49,11 @@ import org.omg.PortableServer.POA;
 
 public class BasicAdapter
     extends org.omg.ETF._HandleLocalBase
+    implements Configurable
 {
-    public  static SSLServerSocketFactory ssl_socket_factory = null;
-    private static ServerSocketFactory socket_factory = null;
+    public  SSLServerSocketFactory ssl_socket_factory = null;
+    private ServerSocketFactory socket_factory = null;
 
-    private Logger logger = null;
-
-    static
-    {
-        socket_factory = SocketFactoryManager.getServerSocketFactory ((ORB) null);
-    }
 
     private org.jacorb.orb.ORB orb;
     private POA rootPOA;
@@ -72,23 +67,41 @@ public class BasicAdapter
     private TransportManager transport_manager = null;
     private GIOPConnectionManager giop_connection_manager = null;
 
-    public BasicAdapter( org.jacorb.orb.ORB orb,
-                         POA rootPOA,
-                         TransportManager transport_manager,
-                         GIOPConnectionManager giop_connection_manager )
-        throws org.omg.CORBA.INITIALIZE
+    /** the configuration object  */
+    private org.jacorb.config.Configuration configuration = null;
+    private Logger logger = null;
+
+    /**
+     * called from ORB.java
+     */
+
+    BasicAdapter( org.jacorb.orb.ORB orb,
+                  POA rootPOA,
+                  TransportManager transport_manager,
+                  GIOPConnectionManager giop_connection_manager )
     {
         this.orb = orb;
         this.rootPOA = rootPOA;
         this.transport_manager = transport_manager;
         this.giop_connection_manager = giop_connection_manager;
-        logger = Debug.getNamedLogger("jacorb.orb.basic");
+    }
 
-        if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = 
+            configuration.getNamedLogger("jacorb.orb.basic");
+
+        socket_factory = 
+            transport_manager.getSocketFactoryManager().getServerSocketFactory();
+
+        if( configuration.getAttribute( "jacorb.security.support_ssl","off").equals("on"))
         {
             if( ssl_socket_factory == null )
             {
-                String s = Environment.getProperty( "jacorb.ssl.server_socket_factory" );
+                String s = configuration.getAttribute( "jacorb.ssl.server_socket_factory" );
                 if( s == null || s.length() == 0 )
                 {
                     throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.server_socket_factory\" is not set!" );
@@ -96,7 +109,7 @@ public class BasicAdapter
 
                 try
                 {
-                    Class ssl = Environment.classForName( s );
+                    Class ssl = ObjectUtil.classForName( s );
 
                     Constructor constr = ssl.getConstructor( new Class[]{
                         org.jacorb.orb.ORB.class });
@@ -142,21 +155,25 @@ public class BasicAdapter
      * should listen for incoming connections.
      */
     private List getListenerFactories()
+        throws ConfigurationException
     {
         List result = new ArrayList();
-        List tags = Environment.getListProperty
-                                    ("jacorb.transport.server.listeners");
+        List tags = 
+            configuration.getAttributeList("jacorb.transport.server.listeners");
+
         if (tags.isEmpty())
-            result.addAll (transport_manager.getFactoriesList());
+        {
+            result.addAll(transport_manager.getFactoriesList());
+        }
         else
         {
-            for (Iterator i=tags.iterator(); i.hasNext();)
+            for (Iterator i = tags.iterator(); i.hasNext();)
             {
                 String s = ((String)i.next());
                 int tag = -1;
                 try
                 {
-                    tag = Integer.parseInt (s);
+                    tag = Integer.parseInt(s);
                 }
                 catch (NumberFormatException ex)
                 {
@@ -169,7 +186,7 @@ public class BasicAdapter
                     throw new RuntimeException
                         ("could not find Factories for profile tag: " + tag);
                 else
-                    result.add (f);
+                    result.add(f);
             }
         }
         return result;
@@ -273,9 +290,13 @@ public class BasicAdapter
         if (l != null)
         {
             IIOPProfile profile = (IIOPProfile)l.endpoint();
-            return Environment.isPropertyOn ("jacorb.dns.enable")
-                   ? profile.getAddress().getHostname()
-                   : profile.getAddress().getIP();
+            String dnsEnable = 
+                configuration.getAttribute("jacorb.dns.enable","off");
+
+            if (dnsEnable.equals("on"))
+                return profile.getAddress().getHostname();
+            else
+                return profile.getAddress().getIP();
         }
         else
         {

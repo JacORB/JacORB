@@ -24,6 +24,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.imr.ImRAccessImpl;
@@ -32,9 +35,9 @@ import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.util.*;
 import org.jacorb.poa.util.POAUtil;
-import org.jacorb.util.Debug;
 import org.jacorb.util.Time;
-import org.jacorb.util.Environment;
+import org.jacorb.util.ObjectUtil;
+import org.jacorb.config.Configuration;
 
 import org.omg.CORBA.*;
 import org.omg.CORBA.Object;
@@ -58,12 +61,15 @@ import org.omg.PortableServer.Servant;
 
 public final class Delegate
     extends org.omg.CORBA_2_3.portable.Delegate
+    implements Configurable
 {
     // WARNING: DO NOT USE _pior DIRECTLY, BECAUSE THAT IS NOT MT
     // SAFE. USE getParsedIOR() INSTEAD, AND KEEP A METHOD-LOCAL COPY
     // OF THE REFERENCE.
     private ParsedIOR _pior = null;
+    private org.omg.IOP.IOR ior = null;
     private ClientConnection connection = null;
+    private String objectReference = null;
 
     /* save original ior for fallback */
     private ParsedIOR piorOriginal = null;
@@ -78,7 +84,7 @@ public final class Delegate
     private org.jacorb.poa.POA poa;
 
     private org.jacorb.orb.ORB orb = null;
-    private Logger logger = Debug.getNamedLogger("jacorb.orb");
+    private Logger logger = null;
 
     /** set after the first attempt to determine whether
         this reference is to a local object */
@@ -100,6 +106,13 @@ public final class Delegate
     private CookieHolder cookie = null;
 
     private String invokedOperation = null;
+
+    /** the configuration object for this delegate */
+    private org.apache.avalon.framework.configuration.Configuration configuration = null;
+
+    /** configuration properties */
+    private boolean useIMR;
+    private boolean locateOnBind;
 
     /**
      * A general note on the synchronization concept
@@ -133,30 +146,43 @@ public final class Delegate
         conn_mg = orb.getClientConnectionManager();
     }
 
-    public Delegate ( org.jacorb.orb.ORB orb, String object_reference )
+    public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
+        throws org.apache.avalon.framework.configuration.ConfigurationException
     {
-        this.orb = orb;
+        this.configuration = configuration;
+        logger = 
+            ((Configuration)configuration).getNamedLogger("jacorb.orb");
+        useIMR = 
+            configuration.getAttribute("jacorb.use_imr","off").equals("on");
+        locateOnBind =
+            configuration.getAttribute("jacorb.locate_on_bind","off").equals("on");
 
-        if ( object_reference.indexOf( "IOR:" ) == 0 )
-        {
-            _pior = new ParsedIOR( object_reference, orb );
-        }
+        if (objectReference != null)
+            _pior = new ParsedIOR( objectReference, orb, logger);
+        else if (ior!=null)
+            _pior = new ParsedIOR( ior, orb, logger);
         else
+            throw new ConfigurationException("Neither objectReference nor IOR set!");
+        checkIfImR( _pior.getTypeId() );
+   }
+
+    public Delegate( org.jacorb.orb.ORB orb, String object_reference )
+    {
+        if ( object_reference.indexOf( "IOR:" ) != 0 )
         {
             throw new org.omg.CORBA.INV_OBJREF( "Not an IOR: " +
                                                 object_reference );
         }
 
-        checkIfImR( _pior.getTypeId() );
+        this.orb = orb;
+        this.objectReference = object_reference;
         conn_mg = orb.getClientConnectionManager();
     }
 
-    public Delegate(org.jacorb.orb.ORB orb, org.omg.IOP.IOR _ior)
+    public Delegate(org.jacorb.orb.ORB orb, org.omg.IOP.IOR ior)
     {
         this.orb = orb;
-        _pior = new ParsedIOR( _ior, orb );
-
-        checkIfImR( _pior.getTypeId() );
+        this.ior = ior;
         conn_mg = orb.getClientConnectionManager();
     }
 
@@ -234,7 +260,7 @@ public final class Delegate
              *  (provided the server's answer is definite):
              */
             if (( ! locate_on_bind_performed ) &&
-                    Environment.locateOnBind() )
+                    locateOnBind )
             {
                 //only locate once, because bind is called from the
                 //switch statement below again.
@@ -313,7 +339,8 @@ public final class Delegate
                 }
                 catch ( Exception e )
                 {
-                    Debug.output( 1, e );
+                    if (logger.isWarnEnabled())
+                        logger.warn( e.getMessage() );
                 }
 
             }
@@ -329,7 +356,7 @@ public final class Delegate
 //         {
             if (object_reference.indexOf( "IOR:" ) == 0)
             {
-                rebind( new ParsedIOR( object_reference, orb ) );
+                rebind( new ParsedIOR( object_reference, orb, logger ) );
             }
             else
             {
@@ -341,7 +368,7 @@ public final class Delegate
 
     public void rebind( org.omg.CORBA.Object o )
     {
-        rebind(orb.object_to_string( o ) );
+        rebind(orb.object_to_string(o));
     }
 
     public void rebind( ParsedIOR p )
@@ -1002,7 +1029,7 @@ public final class Delegate
 
                 return true;
             }
-            else if ( Environment.useImR() && ! isImR )
+            else if ( useIMR && ! isImR )
             {
                 Integer orbTypeId = getParsedIOR().getORBTypeId();
 
@@ -1058,7 +1085,7 @@ public final class Delegate
                 corbaloc.append( CorbaLoc.parseKey( object_key ) );
 
                 //rebind to the new IOR
-                rebind( new ParsedIOR( corbaloc.toString(), orb ) );
+                rebind( new ParsedIOR( corbaloc.toString(), orb, logger));
 
                 //clean up and start fresh
                 piorOriginal = null;
@@ -1074,7 +1101,7 @@ public final class Delegate
     }
 
     public void invokeInterceptors( ClientRequestInfoImpl info, short op )
-    throws RemarshalException
+        throws RemarshalException
     {
         ClientInterceptorIterator intercept_iter =
             orb.getInterceptorManager().getClientIterator();
@@ -1090,7 +1117,8 @@ public final class Delegate
         }
         catch ( org.omg.CORBA.UserException ue )
         {
-            Debug.output( 3, ue );
+            if (logger.isErrorEnabled())
+                logger.error( ue.getMessage() );
         }
     }
 
@@ -1171,7 +1199,7 @@ public final class Delegate
                 // This will only work if there is a correspondence between the Java class
                 // name and the Repository ID. If prefixes have been using then this mapping
                 // may have been lost.
-                Class stub = Environment.classForName( scn.toString());
+                Class stub = ObjectUtil.classForName( scn.toString());
                 Method idm = stub.getMethod ( "_ids", null );
                 String newids[] = (String[] )idm.invoke( stub.newInstance(),  new Object[] { } );
 
@@ -1218,11 +1246,11 @@ public final class Delegate
     {
         boolean result = true;
 
-        if ( self != obj )
+        if (self != obj)
         {
-            ParsedIOR pior1 = new ParsedIOR ( obj.toString (), orb );
-            ParsedIOR pior2 = new ParsedIOR ( self.toString (), orb );
-            result = pior2.getIDString().equals ( pior1.getIDString () );
+            ParsedIOR pior1 = new ParsedIOR( obj.toString (), orb, logger );
+            ParsedIOR pior2 = new ParsedIOR( self.toString (), orb, logger );
+            result = pior2.getIDString().equals( pior1.getIDString () );
         }
 
         return result;
@@ -1230,7 +1258,7 @@ public final class Delegate
 
     public String getIDString()
     {
-        return getParsedIOR().getIDString ();
+        return getParsedIOR().getIDString();
     }
 
     /**
@@ -1471,7 +1499,8 @@ public final class Delegate
                   }
                   catch ( Throwable e )
                   {
-                      Debug.output( 2, e );
+                      if (logger.isWarnEnabled())
+                          logger.warn( e.getMessage() );
                   }
                }
             }

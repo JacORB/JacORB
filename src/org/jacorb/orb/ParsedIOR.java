@@ -27,7 +27,8 @@ import java.util.*;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.util.CorbaLoc;
 
-import org.jacorb.util.Debug;
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.Environment;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
@@ -66,6 +67,7 @@ public class ParsedIOR
 
     private CodeSetComponentInfo cs_info = null;
     private Integer orbTypeId = null;
+    private Logger logger;
 
     /* static part */
 
@@ -156,7 +158,8 @@ public class ParsedIOR
      * @param orb an <code>org.omg.CORBA.ORB</code> value
      * @exception IllegalArgumentException if an error occurs
      */
-    public ParsedIOR( String object_reference, org.omg.CORBA.ORB orb)
+
+    public ParsedIOR( String object_reference, org.omg.CORBA.ORB orb, Logger logger)
         throws IllegalArgumentException
     {
         if (orb instanceof ORB)
@@ -169,6 +172,7 @@ public class ParsedIOR
             throw new IllegalArgumentException
                 ("Construct ParsedIOR with full ORB not Singleton");
         }
+        this.logger = logger;
     }
 
     /**
@@ -178,16 +182,18 @@ public class ParsedIOR
      * @param orb an <code>org.jacorb.orb.ORB</code> value
      * @exception IllegalArgumentException if an error occurs
      */
-    public ParsedIOR( String object_reference, ORB orb )
+    public ParsedIOR( String object_reference, ORB orb, Logger logger )
         throws IllegalArgumentException
     {
         this.orb = orb;
+        this.logger = logger;
         parse( object_reference );
     }
 
-    public ParsedIOR( IOR _ior, org.jacorb.orb.ORB orb )
+    public ParsedIOR( IOR _ior, org.jacorb.orb.ORB orb, Logger logger )
     {
         this.orb = orb;
+        this.logger = logger;
         decode( _ior );
     }
 
@@ -231,27 +237,24 @@ public class ParsedIOR
                     }
                     else
                     {
-                        Debug.output 
-                            (4, "No transport available for profile tag "
-                                + tag);
+                        if (logger.isDebugEnabled())
+                            logger.debug("No transport available for profile tag " + tag);
                     }
                     break;
                 }
             }
         }
 
-        effectiveProfile = orb.getTransportManager()
-                              .getProfileSelector()
-                              .selectProfile (profiles,
-                                              orb.getClientConnectionManager());
+        effectiveProfile = 
+            orb.getTransportManager().getProfileSelector().selectProfile (profiles,
+                                                                          orb.getClientConnectionManager());
         ior = _ior;
         ior_str = getIORString();
 
         if( effectiveProfile != null )
         {
-            cs_info   = (CodeSetComponentInfo)getComponent
-                                            (TAG_CODE_SETS.value,
-                                             CodeSetComponentInfoHelper.class);
+            cs_info = (CodeSetComponentInfo)getComponent(TAG_CODE_SETS.value,
+                                                         CodeSetComponentInfoHelper.class);
             orbTypeId = getLongComponent (TAG_ORB_TYPE.value);
         }
     }
@@ -296,7 +299,8 @@ public class ParsedIOR
             }
             catch (Exception e)
             {
-                Debug.output(2,e);
+                if (logger.isErrorEnabled())
+                    logger.error(e.getMessage());
                 throw new org.omg.CORBA.UNKNOWN("Error in building IIOP-IOR");
             }
         }
@@ -326,14 +330,14 @@ public class ParsedIOR
 
     public String getIDString ()
     {
-        StringBuffer buff = new StringBuffer (getTypeId ());
+        StringBuffer buff = new StringBuffer(getTypeId ());
         buff.append (":");
         byte[] key = get_object_key ();
 
         for (int j = 0; j < key.length; j++)
         {
-            buff.append (lookup [(key[j] >> 4) & 0xF]);
-            buff.append (lookup [(key[j]     ) & 0xF]);
+            buff.append(lookup [(key[j] >> 4) & 0xF]);
+            buff.append(lookup [(key[j]     ) & 0xF]);
         }
 
         return (buff.toString ());
@@ -346,7 +350,7 @@ public class ParsedIOR
 
     public boolean isNull()
     {
-        return ( ior.type_id.equals("") && ( ior.profiles.length == 0 ));
+        return ior.type_id.equals("") && ior.profiles.length == 0;
     }
 
     /**
@@ -356,45 +360,55 @@ public class ParsedIOR
      * @exception IllegalArgumentException if object_reference is null or the
      * designated resource cannot be found.
      */
-    protected void parse (String object_reference)
+    protected void parse(String object_reference)
         throws IllegalArgumentException
     {
         if (object_reference == null)
         {
-            throw new IllegalArgumentException ("Null object reference");
+            throw new IllegalArgumentException("Null object reference");
         }
 
-        if (object_reference.startsWith ("IOR:"))
+        if (object_reference.startsWith("IOR:"))
         {
-            parse_stringified_ior (object_reference);
+            parse_stringified_ior(object_reference);
         }
-        else if (object_reference.startsWith ("corbaloc:"))
+        else if (object_reference.startsWith("corbaloc:"))
         {
-            parse_corbaloc (object_reference);
+            parse_corbaloc(object_reference);
         }
-        else if (object_reference.startsWith ("corbaname:"))
+        else if (object_reference.startsWith("corbaname:"))
         {
-            parse_corbaname (object_reference);
+            parse_corbaname(object_reference);
         }
-        else if (object_reference.startsWith ("resource:"))
+        else if (object_reference.startsWith("resource:"))
         {
-            parse_resource (object_reference.substring(9));
+            parse_resource(object_reference.substring(9));
         }
-        else if (object_reference.startsWith ("jndi:"))
+        else if (object_reference.startsWith("jndi:"))
         {
-            parse_jndi (object_reference.substring(5));
+            parse_jndi(object_reference.substring(5));
         }
         else
         {
-            Debug.output (2, "Trying to resolve URL/IOR from: " + object_reference);
-            String content = ObjectUtil.readURL (object_reference);
+            if (logger.isDebugEnabled())
+                logger.debug("Trying to resolve URL/IOR from: " + object_reference);
+
+            String content = null;
+            try
+            {
+                ObjectUtil.readURL(object_reference);
+            }
+            catch(java.io.IOException ioe)
+            {
+                // ignore;
+            }
             if (content == null)
             {
-                throw new IllegalArgumentException ("Invalid or unreadable URL/IOR: " + object_reference);
+                throw new IllegalArgumentException("Invalid or unreadable URL/IOR: " + object_reference);
             }
-            parse (content);
+            parse(content);
         }
-        ior_str = getIORString ();
+        ior_str = getIORString();
     }
 
     // parser helper methods
@@ -459,13 +473,12 @@ public class ParsedIOR
                 }
 
                 ior =
-                    ((Delegate) ((org.omg.CORBA.portable.ObjectImpl)obj)
-                        ._get_delegate())
-                        .getIOR();
+                    ((Delegate) ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate()).getIOR();
             }
             catch (Exception e)
             {
-                Debug.output(2, e);
+                if (logger.isErrorEnabled())
+                    logger.error(e.getMessage());
                 throw new IllegalArgumentException("Invalid corbaloc: URL");
             }
         }
@@ -500,7 +513,9 @@ public class ParsedIOR
         /* empty key string in corbaname becomes NameService */
         if (corbaloc.indexOf('/') == -1)
             corbaloc += "/NameService";
-        Debug.output(4, corbaloc);
+
+        if (logger.isDebugEnabled())
+            logger.debug(corbaloc);
 
         try
         {
@@ -528,24 +543,22 @@ public class ParsedIOR
         }
         catch (Exception e)
         {
-            Debug.output(4, e);
-            throw new IllegalArgumentException(
-                "Invalid object reference: " + object_reference);
+            if (logger.isErrorEnabled())
+                logger.error(e.getMessage());
+            throw new IllegalArgumentException("Invalid object reference: " + 
+                                               object_reference);
         }
     }
 
     private void parse_resource(String resourceName)
     {
-        Debug.output(2, "Trying to resolve URL/IOR from resource: " 
-                        + resourceName);
+        if (logger.isDebugEnabled())
+            logger.debug("Trying to resolve URL/IOR from resource: " + resourceName);
+
         ClassLoader cl = getClass().getClassLoader();
         if (cl == null)
         {
-            //#ifjdk 1.2
-                cl = ClassLoader.getSystemClassLoader();
-            //#else
-            //# throw new RuntimeException ("couldn't find class loader");
-            //#endif
+            cl = ClassLoader.getSystemClassLoader();
         }
 
         URL url = cl.getResource(resourceName);
@@ -555,18 +568,28 @@ public class ParsedIOR
                 "Failed to get resource: " + resourceName);
         }
 
-        String content = ObjectUtil.readURL(url.toString());
+        String content = null;
+        try
+        {
+            ObjectUtil.readURL(url.toString());
+        }
+        catch( java.io.IOException ioe )
+        {
+            // ignore
+        }
+
         if (content == null)
         {
-            throw new IllegalArgumentException(
-                "Failed to read resource: " + resourceName);
+            throw new IllegalArgumentException("Failed to read resource: " + 
+                                               resourceName);
         }
         parse(content);
     }
 
     private void parse_jndi(String jndiName)
     {
-        Debug.output(2, "Trying to resolve JNDI/IOR from name: " + jndiName);
+        if (logger.isDebugEnabled())
+            logger.debug("Trying to resolve JNDI/IOR from name: " + jndiName);
 
         java.lang.Object obj = null;
         try
@@ -583,7 +606,7 @@ public class ParsedIOR
             Class[] types = new Class[1];
             java.lang.Object[] params = new java.lang.Object[1];
 
-            Class cls = Environment.classForName("javax.naming.InitialContext");
+            Class cls = ObjectUtil.classForName("javax.naming.InitialContext");
             java.lang.Object initialContext = cls.newInstance();
 
             types[0] = String.class;
