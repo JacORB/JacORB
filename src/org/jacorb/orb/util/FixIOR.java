@@ -132,7 +132,7 @@ public class FixIOR
             }
         }
 
-        pior = new ParsedIOR (ior);
+        pior = new ParsedIOR (ior, (org.jacorb.orb.ORB)orb);
 
         // Write out new IOR to file
 
