@@ -795,7 +795,7 @@ public class LookupImpl
 	Any value = (Any) policies.get(name);
 	if (value != null) {
 	    try {
-		TypeCode _type = (new FollowOptionHelper()).get_type();
+		TypeCode _type = FollowOptionHelper.type();
 		if (! _type.equal(value.type()))
 		    throw new PolicyTypeMismatch(new org.omg.CosTrading.Policy(name, value));
 		

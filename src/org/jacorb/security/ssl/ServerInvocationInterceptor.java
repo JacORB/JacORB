@@ -64,7 +64,7 @@ public class ServerInvocationInterceptor
 
     public String name()
     {
-        return "ServerInvocationInterceptor";
+        return "1_ServerInvocationInterceptor";
     }
 
     public void receive_request( ServerRequestInfo ri )

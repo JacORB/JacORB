@@ -506,6 +506,27 @@ module CORBA
 	TypeCode type; 
     };
 
+    interface ValueDef;
+
+    typedef sequence <ValueDef> ValueDefSeq;
+    typedef short Visibility;
+
+    const Visibility PRIVATE_MEMBER = 0;
+    const Visibility PUBLIC_MEMBER = 1;    
+
+    struct ValueMember {
+      Identifier name;
+      RepositoryId id;
+      RepositoryId defined_in;
+      VersionSpec version;
+      TypeCode type;
+      IDLType type_def;
+      Visibility access;
+    };
+
+    typedef sequence <ValueMember> ValueMemberSeq;
+
+
     enum AttributeMode {ATTR_NORMAL, ATTR_READONLY};
 
     interface AttributeDef : Contained {
@@ -617,6 +638,82 @@ module CORBA
 	RepositoryId defined_in; 
 	VersionSpec version;
 	RepositoryIdSeq base_interfaces;
+    };
+    interface ValueMemberDef : Contained {
+      readonly attribute TypeCode type;
+      attribute IDLType type_def;
+      attribute Visibility access;
+    };
+
+    interface ValueDef : Container, Contained, IDLType {
+      // read/write interface
+      attribute InterfaceDefSeq supported_interfaces;
+      attribute InitializerSeq initializers;
+      attribute ValueDef base_value;
+      attribute ValueDefSeq abstract_base_values;
+      attribute boolean is_abstract;
+      attribute boolean is_custom;
+      attribute boolean is_truncatable;
+      // read interface
+      boolean is_a(
+                   in RepositoryId id
+                   );
+      struct FullValueDescription {
+        Identifier name;
+        RepositoryId id;
+        boolean is_abstract;
+        boolean is_custom;
+        RepositoryId defined_in;
+        VersionSpec version;
+        OpDescriptionSeq operations;
+        AttrDescriptionSeq attributes;
+        ValueMemberSeq members;
+        InitializerSeq initializers;
+        RepositoryIdSeq supported_interfaces;
+        RepositoryIdSeq abstract_base_values;
+        boolean is_truncatable;
+        RepositoryId base_value;
+        TypeCode type;
+      };
+      
+      FullValueDescription describe_value();
+      ValueMemberDef create_value_member(
+                                         in RepositoryId id,
+                                         in Identifier name,
+                                         in VersionSpec version,
+                                         in IDLType type,
+                                         in Visibility access
+                                         );
+      AttributeDef create_attribute(
+                                    in RepositoryId id,
+                                    in Identifier name,
+                                    in VersionSpec version,
+                                    in IDLType type,
+                                    in AttributeMode mode
+                                    );
+      OperationDef create_operation (
+                                     in RepositoryId id,
+                                     in Identifier name,
+                                     in VersionSpec version,
+                                     in IDLType result,
+                                     in OperationMode mode,
+                                     in ParDescriptionSeq params,
+                                     in ExceptionDefSeq exceptions,
+                                     in ContextIdSeq contexts
+                                     );
+    };
+
+    struct ValueDescription {
+      Identifier name;
+      RepositoryId id;
+      boolean is_abstract;
+      boolean is_custom;
+      RepositoryId defined_in;
+      VersionSpec version;
+      RepositoryIdSeq supported_interfaces;
+      RepositoryIdSeq abstract_base_values;
+      boolean is_truncatable;
+      RepositoryId base_value;
     };
 
     // CORBA 2.1

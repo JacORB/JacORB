@@ -148,6 +148,20 @@ public class ORBSingleton
         return new org.jacorb.orb.TypeCode( tcKind.value() );
     }
 
+    public org.omg.CORBA.TypeCode create_value_tc(String id,
+                                    String name,
+                                    short type_modifier,
+                                    TypeCode concrete_base,
+                                    org.omg.CORBA.ValueMember[] members) {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
+    public org.omg.CORBA.TypeCode create_value_box_tc(String id,
+                                    String name,
+                                    TypeCode boxed_type) {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
     /* DII helper methods */
 
     public org.omg.CORBA.ExceptionList create_exception_list()
@@ -272,8 +286,6 @@ public class ORBSingleton
 
 
 }
-
-
 
 
 

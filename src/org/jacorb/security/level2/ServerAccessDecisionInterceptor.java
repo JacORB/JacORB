@@ -5,6 +5,7 @@ import org.omg.SecurityLevel2.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import java.util.Hashtable;
+
 /**
  * ServerAccessDecisionInterceptor.java
  *
@@ -43,7 +44,7 @@ public class ServerAccessDecisionInterceptor
     // InterceptorOperations interface
     public String name()
     {
-        return "ServerAccessDecisionInterceptor";
+        return "3_ServerAccessDecisionInterceptor";
     }
 
     /**
@@ -74,7 +75,7 @@ System.out.println("Call to: " + ri.target_most_derived_interface() );
             return;
         }
         else
-            System.out.println("Controlling operation: " + ri.operation());
+            System.out.println("(ServerAccessDecInterc.)Controlling operation: " + ri.operation());
 
         //proprietary call!!
         org.omg.CORBA.Object target = 
