@@ -1218,7 +1218,7 @@ public class UnionType
                 }
                 else
                 {
-                    throw new Error("Compiler error: unrecognized label type: " + label_t.typeName());
+                    throw new RuntimeException("Compiler error: unrecognized label type: " + label_t.typeName());
                 }
 
                 ps.print
@@ -1345,7 +1345,7 @@ public class UnionType
     }
 
     /**
-     */ 
+     */
 
     public void accept(IDLTreeVisitor visitor)
     {
@@ -1354,4 +1354,3 @@ public class UnionType
 
 
 }
-
