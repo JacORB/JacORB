@@ -41,14 +41,22 @@ public class RequestQueue
     private RequestController controller;
     private LogTrace logTrace;
     private Vector queue = new Vector(POAConstants.QUEUE_CAPACITY_INI, POAConstants.QUEUE_CAPACITY_INC);
-    private RequestQueue() {
+
+    private RequestQueue() 
+    {
     }
-    protected RequestQueue(RequestController _controller, LogTrace _logTrace) {
+
+    protected RequestQueue(RequestController _controller, LogTrace _logTrace) 
+    {
         controller = _controller;
         logTrace = _logTrace;
     }
-    synchronized protected void add(ServerRequest request) throws ResourceLimitReachedException {
-        if (queue.size() == Environment.queueMax()) {
+
+    synchronized protected void add(ServerRequest request) 
+        throws ResourceLimitReachedException 
+    {
+        if (queue.size() == Environment.queueMax()) 
+        {
             throw new ResourceLimitReachedException();
         }
         queue.addElement(request);
