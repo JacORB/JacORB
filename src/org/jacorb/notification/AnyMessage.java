@@ -155,38 +155,9 @@ public class AnyMessage extends AbstractMessage
     }
 
 
-    public boolean match( FilterStage destination )
+    public boolean match( Filter filter ) throws UnsupportedFilterableData
     {
-        List _filterList = destination.getFilters();
-
-        if ( _filterList.isEmpty() )
-        {
-            return true;
-        }
-
-        Iterator _allFilters = _filterList.iterator();
-
-        while ( _allFilters.hasNext() )
-        {
-            try
-            {
-
-                Filter _filter = ( Filter )
-                                 ( ( KeyedListEntry ) _allFilters.next() ).getValue();
-
-                if ( _filter.match( toAny() ) )
-                {
-                    return true;
-                }
-            }
-            catch ( UnsupportedFilterableData e )
-                {
-                    logger_.debug("Evaluation of a Filter failed", e);
-                    // error means false
-                }
-        }
-
-        return false;
+        return filter.match( toAny() );
     }
 
 

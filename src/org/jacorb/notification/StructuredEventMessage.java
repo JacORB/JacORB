@@ -85,7 +85,7 @@ class StructuredEventMessage extends AbstractMessage
 
     ////////////////////////////////////////
 
-    public void setStructuredEventValue( StructuredEvent event ,
+    public void setStructuredEventValue( StructuredEvent event,
                                          boolean startTimeSupported,
                                          boolean timeOutSupported)
     {
@@ -228,37 +228,8 @@ class StructuredEventMessage extends AbstractMessage
     }
 
 
-    public boolean match(FilterStage destination) {
-        List _filterList = destination.getFilters();
-
-        if ( _filterList.isEmpty() )
-        {
-            return true;
-        }
-
-        Iterator _allFilters = _filterList.iterator();
-
-        while ( _allFilters.hasNext() )
-        {
-            try
-            {
-                Filter _filter = ( Filter )
-                                 ( ( KeyedListEntry ) _allFilters.next() ).getValue();
-
-                if ( _filter.match_structured( toStructuredEvent() ) )
-                {
-                    return true;
-                }
-            }
-            catch ( UnsupportedFilterableData e )
-            {
-                // no problem
-                // error means false
-                logger_.info("unsupported filterable data. match result defaults to false.", e);
-            }
-        }
-
-        return false;
+    public boolean match(Filter filter) throws UnsupportedFilterableData {
+        return filter.match_structured(toStructuredEvent());
     }
 
 
