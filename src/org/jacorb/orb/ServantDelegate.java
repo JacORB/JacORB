@@ -111,7 +111,14 @@ public class ServantDelegate
         }
         try
         {
-            if( _current.get_servant() != self )
+            // CORBA 2.4 added the get_servant() operation to the
+            // PortableServer::Current interface. As of JDK 1.4.2,
+            // however, the class org.omg.PortableServant.Current 
+            // in Sun's JDK does not have the method get_servant().
+            // Instead of simply saying _current.get_servant(), below
+            // we say ((org.jacorb.poa.Current)_current).get_servant().
+            // The cast allows JacORB to run with the obsolete Sun class.
+            if( ((org.jacorb.poa.Current)_current).get_servant() != self )
             {
                 throw new org.omg.CORBA.OBJ_ADAPTER();
             }
@@ -121,15 +128,6 @@ public class ServantDelegate
         catch(NoContext e)
         {
             throw new org.omg.CORBA.OBJ_ADAPTER(e.toString());
-        }
-        catch(NoSuchMethodError nsme)
-        {
-            // We most likely get this if the Sun JDK definition of Current is getting picked up rather than ours.
-            // It has (at present - SDK 1.4.2) no get_servant() method.
-            // Give the user a hint as to how this can be fixed.
-            org.jacorb.util.Debug.output(1, "ERROR: NoSuchMethodError - re-run specifying jacorb.jar "
-                                             + "with -Xbootclasspath/p: option to avoid use of (incorrect) SDK implementation class.");
-            throw nsme;
         }
     }
 
