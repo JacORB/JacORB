@@ -68,6 +68,7 @@ public class RequestProcessor
     private CookieHolder cookieHolder;
 
     private static Hashtable specialOperations;
+    private static int count = 0;
 
     static
     {
@@ -80,8 +81,9 @@ public class RequestProcessor
         specialOperations.put("_set_policy_overrides", "");
     }
 
-    RequestProcessor( RPPoolManager _poolManager ) 
+    RequestProcessor (RPPoolManager _poolManager) 
     {
+        super ("RequestProcessor-" + (++count));
         poolManager = _poolManager;
     }
 
