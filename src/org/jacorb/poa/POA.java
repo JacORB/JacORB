@@ -27,7 +27,6 @@ import org.jacorb.util.Environment;
 import org.jacorb.util.Debug;
 
 import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.orb.domain.*;
 
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.POAPackage.*;
@@ -103,9 +102,6 @@ public class POA
 
     // default: NORMAL
     protected BidirectionalPolicy       bidirectionalPolicy;
-
-    // used to synchronize doInitialDomainMapping
-    private static boolean        inDomainMapping= false;
 
     private Hashtable all_policies = null;
 
@@ -196,32 +192,6 @@ public class POA
             {
                 _orb.turnOnBiDirGIOP();
             }
-        }
-        
-        org.omg.CORBA.Policy pol = 
-            this.getPolicy(org.jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value);
-
-        if (pol == null)
-        { 
-            // herb: create a initial map policy: this policy maps to the  
-            // default domain provided by the environment or to the 
-            // orb domain if env provides none
-            Debug.output(Debug.POA | Debug.DEBUG1, 
-                         "no initial map policy defined. Defining default initial map policy");
-            String defaultDomains= Environment.DefaultDomains();
-            //if ( defaultDomain == null )
-            //defaultDomain= "/";
-            
-            all_policies.put(
-                 new Integer(org.jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value), 
-                 new org.jacorb.poa.policy.MapToDefaultDomainsPolicy(defaultDomains)
-                     );
-   
-        }
-        else
-        { 
-            // an initial map policy has been already provided. The provided 
-            // one takes precedence. nothing more needs to be done
         }
 
         watermark = generateWatermark();
@@ -439,15 +409,7 @@ public class POA
         /* the only policy value that differs from default */
         org.omg.CORBA.Policy [] policies= null; 
 
-        if (Environment.DefaultDomains() == null) 
-            policies= new org.omg.CORBA.Policy[1];
-        else 
-        { 
-            // if default domain is set add as additional policy
-            policies=  new org.omg.CORBA.Policy[2];
-            policies[1] = 
-              new org.jacorb.poa.policy.MapToDefaultDomainsPolicy( Environment.DefaultDomains() );
-        }
+        policies= new org.omg.CORBA.Policy[1];
 
         policies[0] = 
             new org.jacorb.poa.policy.ImplicitActivationPolicy(ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
@@ -1051,14 +1013,6 @@ public class POA
                createdReferences.put (key, result);
             }
 
-//              Debug.output(Debug.POA | Debug.DEBUG1, "Poa.getReference <" +
-//                           _getQualifiedName() + 
-//                           ">: a new "
-//                           + org.jacorb.orb.domain.Util.toID(result.toString()));
-            
-            if ( org.jacorb.util.Environment.useDomain() ) 
-                doInitialDomainMapping( result );
-                
             if ( poaListener != null ) 
                 poaListener.referenceCreated( result );
         }
@@ -1899,77 +1853,5 @@ public class POA
     {
         return (org.omg.CORBA.Policy) all_policies.get(new Integer(type));
     }
-
-    /** 
-     * Does the initial mapping of a newly created object reference to
-     * some  domains.  This  function  uses  the  initial map  policy
-     * provided at  poa construction.  If  no initial  map policy  is
-     * available at this poa, a default initial map policy is used. 
-     */
-
-    private void doInitialDomainMapping( org.omg.CORBA.Object newReference )
-    {
-        InitialMapPolicy mapper= null;
-        Domain ds[];
-        Domain orb_domain;
-
-        if ( inDomainMapping )
-        {
-            Debug.output( Debug.POA | 5, 
-                          "POA.doInitialMapping: avoiding mapping of a "
-                          + Util.toID( newReference.toString() ) );
-            return; // avoid recursive calls
-        }
-    
-        inDomainMapping = true;
-
-        try 
-        {
-            orb_domain
-                = DomainHelper.narrow( orb.resolve_initial_references("LocalDomainService"));
-            // Debug.myAssert(1, orb_domain != null, "POA.doInitialDomainMapping: orb_domain is null");
-        }
-        catch (org.omg.CORBA.ORBPackage.InvalidName invalid)
-        {
-            Debug.output(Debug.POA | Debug.INFORMATION, "POA.doInitialDomainMapping: cannot obtain"
-                         +" (local) domain service , skipping object domain mapping. (may be recursion end)");
-
-            inDomainMapping= false;
-            return;
-        }
-
-        // get initial map policy and use it
-        try
-        {
-            mapper= InitialMapPolicyHelper.narrow
-                ( this.getPolicy(org.jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value) );
-        }
-        catch( org.omg.CORBA.BAD_PARAM bp )
-        {
-            Debug.output(Debug.POA | Debug.INFORMATION, 
-                         "POA.doInitialDomainMapping: no initial"
-                         + " map policy available, mapping a " + 
-                         Util.toID( newReference.toString() )
-                         +" to local orb domain.");
-            orb_domain.insertMember(newReference);
-
-            inDomainMapping= false;
-            return;
-        }
-    
-        // main case 
-        ds = mapper.OnReferenceCreation(newReference, orb_domain);
-
-        // main job: do the insertion of the object reference into the domains
-        for (int i= 0; i < ds.length ; i++) 
-        {
-            Debug.output(Debug.POA | Debug.DEBUG1,
-                         " POA.doInitialMapping: putting obj into "
-                         + ds[i].name() );
-            ds[i].insertMember(newReference);
-        }
-        inDomainMapping = false;
-       
-    } // doInitialDomainMapping
 
 }
