@@ -231,6 +231,7 @@ public class Configuration
            configDir += separator + "etc";
        else
        {
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 0)
                System.err.println("[ jacorb.home unset! Will use '.' ]");
            configDir = ".";
@@ -253,6 +254,7 @@ public class Configuration
        }
        else
        {
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 0)
                System.err.println("[ File " + propFileName + " for configuration " + name + 
                                   " not found ]");
