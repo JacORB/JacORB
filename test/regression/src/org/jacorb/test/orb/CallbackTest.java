@@ -28,11 +28,12 @@ public class CallbackTest extends CallbackTestCase
         ClientServerSetup setup = new ClientServerSetup
             ( suite, "org.jacorb.test.orb.CallbackServerImpl" );
 
-        //suite.addTest( new CallbackTest( "test_sync_ping", setup ) );            
+        suite.addTest( new CallbackTest( "test_sync_ping", setup ) );            
         suite.addTest( new CallbackTest( "test_ping", setup ) );
-        suite.addTest( new CallbackTest( "test_ping", setup ) );
-        suite.addTest( new CallbackTest( "test_ping", setup ) );
-        suite.addTest( new CallbackTest( "test_ping", setup ) );
+        suite.addTest( new CallbackTest( "test_delayed_ping", setup ) );
+        //suite.addTest( new CallbackTest( "test_ping", setup ) );
+        //suite.addTest( new CallbackTest( "test_ping", setup ) );
+        //suite.addTest( new CallbackTest( "test_ping", setup ) );
             
         return setup;
     }
@@ -93,6 +94,13 @@ public class CallbackTest extends CallbackTestCase
 
     }
 
+    private AMI_CallbackServerHandler ref ( ReplyHandler handler )
+    {
+        AMI_CallbackServerHandlerPOATie tie =
+            new AMI_CallbackServerHandlerPOATie( handler );
+        return tie._this( setup.getClientOrb() );
+    }
+
     public void test_sync_ping()
     {
         server.ping();
@@ -108,12 +116,22 @@ public class CallbackTest extends CallbackTestCase
             }
         };
         
-        AMI_CallbackServerHandlerPOATie tie = 
-            new AMI_CallbackServerHandlerPOATie( handler );
-        AMI_CallbackServerHandler h = tie._this( setup.getClientOrb() );
-        
-        ( ( _CallbackServerStub ) server ).sendc_ping( h );
-        handler.wait_for_reply( 300 );
+        ( ( _CallbackServerStub ) server ).sendc_ping( ref( handler ) );
+        handler.wait_for_reply( 1000 );
     }
 
+    public void test_delayed_ping()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void delayed_ping()
+            {
+                pass();
+            }
+        };
+        
+        ( ( _CallbackServerStub ) server )
+                    .sendc_delayed_ping( ref( handler ), 500 );
+        handler.wait_for_reply( 700 );
+    }        
 }
