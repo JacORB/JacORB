@@ -4,6 +4,7 @@
 
 <project name="regression-test" default="help" basedir="../../">
 
+ <property name="jacorb.home" value="${basedir}" />
 
   <!-- ==================================================== -->
   <!--             JacORB Tests build file                  -->
@@ -166,6 +167,7 @@
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
          <jvmarg value="-Dtestdir=${testdir}"/>
+         <jvmarg value="-Djacorb.home=${jacorb.home}" />
          <jvmarg value="${rmi.jvmarg}"/>
          <classpath path="${classpath}"/>
          <formatter type="plain"/>
@@ -180,6 +182,7 @@
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
          <jvmarg value="-Dtestdir=${testdir}"/>
+         <jvmarg value="-Djacorb.home=${jacorb.home}" />
          <jvmarg value="${rmi.jvmarg}"/>
          <classpath path="${classpath}"/>
          <formatter type="plain"/>
