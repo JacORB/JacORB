@@ -16,8 +16,4 @@
          <param name="javac-includes" value="org/jacorb/orb/portableInterceptor/*.java"/>
       </antcall>
    </target>
-
-
-   <target name="clean">
-   </target>
 </project>

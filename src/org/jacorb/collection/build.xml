@@ -16,8 +16,4 @@
          <param name="javac-includes" value="org/jacorb/collection/util/*.java,org/jacorb/collection/*.java"/>
       </antcall>
    </target>
-
-
-   <target name="clean">
-   </target>
 </project>

@@ -27,8 +27,4 @@
          <param name="javac-includes" value="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java"/>
       </antcall>
    </target>
-
-
-   <target name="clean">
-   </target>
 </project>
