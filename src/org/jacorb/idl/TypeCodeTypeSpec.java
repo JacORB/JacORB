@@ -47,11 +47,6 @@ public class TypeCodeTypeSpec
         return "org.omg.CORBA.TypeCode";
     }
 
-    public String signature()
-    {
-        return "L" + typeName() + ";";
-    }
-
     public TypeSpec typeSpec()
     {
         return this;

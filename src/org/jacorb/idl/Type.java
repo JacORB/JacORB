@@ -34,8 +34,6 @@ public interface Type
 {
     public String typeName();
     
-    public String signature();
-    
     public boolean basic();
 
     public String getTypeCodeExpression();

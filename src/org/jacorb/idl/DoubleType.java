@@ -63,11 +63,6 @@ class DoubleType
         return "org.omg.CORBA.DoubleHolder";
     }
 
-    public String signature()
-    {
-        return "D";
-    }
-
     public String printReadExpression(String strname)
     {
         return strname + ".read_double()";

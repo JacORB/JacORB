@@ -60,10 +60,6 @@ class Value
 	return value.typeName();
     }
 
-    public String signature()
-    {
-	return value.signature();
-    }
 
     /**
      * @returns a string for an expression of type TypeCode 

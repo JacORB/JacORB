@@ -592,10 +592,6 @@ class ScopedName
 	return n;
     }
 
-//      public String signature()
-//      {
-//  	return resolvedTypeSpec().signature();
-//      }
 
     public String holderName()
     {

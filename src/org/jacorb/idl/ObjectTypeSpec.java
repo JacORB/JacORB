@@ -29,84 +29,79 @@ import java.util.Enumeration;
 import java.io.*;
 
 public class ObjectTypeSpec 
-	extends TypeSpec
-	{
+    extends TypeSpec
+{
 
-	public ObjectTypeSpec(int num) 
-	{
-		super(num);
-	}
+    public ObjectTypeSpec(int num) 
+    {
+        super(num);
+    }
 
-	public Object clone()
-	{ 
-		return this;
-	}
+    public Object clone()
+    { 
+        return this;
+    }
 
-	public String typeName()
-	{
-		return "org.omg.CORBA.Object";
-	}
+    public String typeName()
+    {
+        return "org.omg.CORBA.Object";
+    }
 
-	public String signature()
-	{
-		return "L" + typeName() + ";";
-	}
+    public TypeSpec typeSpec()
+    {
+        return this;
+    }
 
-	public TypeSpec typeSpec()
-	{
-		return this;
-	}
+    public void setPackage( String s)
+    {
+        s = parser.pack_replace(s);
+    }
 
-        public void setPackage( String s)
-        {
-            s = parser.pack_replace(s);
-	}
+    public boolean basic()
+    {
+        return true;
+    } 
 
-	public boolean basic()
-	{
-		return true;
-	} 
+    public void set_constr(TypeDeclaration td)
+    {
+    }
 
-	public void set_constr(TypeDeclaration td)
-	{
-	}
+    public void parse() 
+    {
+    }
 
-	public void parse() 
-	{
-	}
+    public String toString()
+    {
+        return "org.omg.CORBA.Object";
+    }
 
-	public String toString()
-	{
-		return "org.omg.CORBA.Object";
-	}
+    /**
+     * @returns a string for an expression of type TypeCode 
+     * 			that describes this type
+     */
 
-	/**
-	 * @returns a string for an expression of type TypeCode 
-	 * 			that describes this type
-	 */
+    public String getTypeCodeExpression ()
+    {
+        return "org.omg.CORBA.ORB.init().create_interface_tc(\"IDL:omg.org/CORBA/Object:1.0\",\"Object\")";
+    }
 
-	public String getTypeCodeExpression ()
-	{
-		return "org.omg.CORBA.ORB.init().create_interface_tc(\"IDL:omg.org/CORBA/Object:1.0\",\"Object\")";
-	}
+    public void print(PrintWriter ps)
+    {
+    }
 
-	public void print(PrintWriter ps)
-	{
-	}
+    public String holderName()
+    {
+        return typeName() + "Holder";
+    }
 
-	public String holderName()
-	{
-		return typeName() + "Holder";
-	}
+    public String printReadExpression(String streamname)
+    {
+        return streamname + ".read_Object()";
+    }
 
-	public String printReadExpression(String streamname)
-	{
-		return streamname + ".read_Object()";
-	}
-
-	public String printWriteStatement(String var_name, String streamname)
-	{
-		return streamname + ".write_Object("+ var_name + ");";
-	}
+    public String printWriteStatement(String var_name, String streamname)
+    {
+        return streamname + ".write_Object("+ var_name + ");";
+    }
 
 }

@@ -77,11 +77,6 @@ class BaseType
                  typeName.startsWith( "string" ) );
     }
 
-    public String signature()
-    {
-	return type_spec.signature();
-    }
-
     public void setEnclosingSymbol( IdlSymbol s )
     {
 	if( enclosing_symbol != null && enclosing_symbol != s )

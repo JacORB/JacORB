@@ -92,11 +92,6 @@ class CharType
 	return "org.omg.CORBA.CharHolder";
     }
 
-    public String signature()
-    {
-	return "C";
-    }
-
     public String printReadExpression(String strname)
     {
 	if( wide )

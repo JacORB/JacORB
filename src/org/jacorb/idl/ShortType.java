@@ -66,10 +66,6 @@ class ShortType
         return "org.omg.CORBA.ShortHolder";
     }
 
-    public String signature()
-    {
-        return "S";
-    }
 
     public String printReadExpression(String ps)
     {
@@ -111,23 +107,5 @@ class ShortType
             return "extract_short";
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

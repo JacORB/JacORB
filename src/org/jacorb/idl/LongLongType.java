@@ -112,11 +112,6 @@ class LongLongType
             return "extract_longlong";
     }
 
-
-    public String signature()
-    {
-        return "J";
-    }
 }
 
 

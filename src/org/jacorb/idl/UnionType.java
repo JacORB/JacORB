@@ -140,11 +140,6 @@ class UnionType
 	included = i;
     }
 
-    public String signature()
-    {
-	return "L" + typeName() + ";";
-    }
-
     public void setSwitchType( TypeSpec s )
     {
         switch_type_spec = s;

@@ -57,11 +57,6 @@ public class TypeSpec
        return typeName ();
     }
 
-    public String signature()
-    {
-	return type_spec.signature();
-    }
-
     public TypeSpec typeSpec()
     {
 	return type_spec.typeSpec();

@@ -100,11 +100,6 @@ class ConstrTypeSpec
 	return c_type_spec.omg_package_prefix;
     }
 
-    public String signature()
-    {
-	return c_type_spec.signature();
-    }
-
     public TypeSpec typeSpec()
     {
 	return this;

@@ -70,11 +70,6 @@ public class AliasTypeSpec
 	return originalType.typeName();
     }
 
-    public String signature()
-    {
-	throw new java.lang.Error("compiler error, should not be called");
-    }
-
     public TypeSpec typeSpec()
     {
 	return this;

@@ -92,10 +92,6 @@ class StructType
         return typeName;
     }
 
-    public String signature()
-    {
-	return "L" + typeName() + ";";
-    }
 
     public boolean basic()
     {

@@ -68,11 +68,6 @@ class OctetType
 		 
     {}
 
-    public String signature()
-    {
-	return "B";
-    }
-
 
     public String holderName()
     {
@@ -101,23 +96,6 @@ class OctetType
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

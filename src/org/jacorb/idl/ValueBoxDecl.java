@@ -72,11 +72,6 @@ class ValueBoxDecl
         return typeName;
     }
 
-    public String signature()
-    {
-	return "L" + typeName() + ";";
-    }
-
     public boolean basic()
     {
 	return false;

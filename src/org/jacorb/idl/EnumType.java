@@ -86,12 +86,6 @@ class EnumType
         return typeName;
     }
 
-    public String signature()
-    {
-        return  "L" +  typeName() + ";";
-    }
-
-
     public boolean basic()
     {
         return true;

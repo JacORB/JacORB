@@ -63,10 +63,6 @@ class LongType
 	return typeName();
     }
 
-    public String signature()
-    {
-	return "I";
-    }
 
     public String holderName()
     {

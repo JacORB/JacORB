@@ -57,10 +57,6 @@ class TypeDeclaration
 	return type_decl.typeName();
     }
 
-    public String signature()
-    {
-	return type_decl.signature();
-    }
 
    /**
      *	we have to be able to distinguish between explicitly typedef'd
