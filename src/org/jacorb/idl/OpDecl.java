@@ -31,10 +31,9 @@ import java.util.Vector;
  */
 
 class OpDecl
-        extends Declaration
-        implements Operation
+    extends Declaration
+    implements Operation
 {
-
     public int opAttribute; // 0 means normal, 1 means oneway semantics
     public TypeSpec opTypeSpec;
     public Vector paramDecls;
@@ -118,12 +117,16 @@ class OpDecl
 
             if( param.paramAttribute > 1 )
             {
-                myInterface.addImportedNameHolder( param.paramTypeSpec.typeName() );
+                // for out and inout params
+                myInterface.addImportedNameHolder( param.paramTypeSpec.holderName() );
             }
-            else
-            {
-                myInterface.addImportedName( param.paramTypeSpec.typeName() );
-            }
+//              else
+//              {
+//                  Environment.output( 2, "addImportedName " + param.paramTypeSpec.toString()  );
+//                  myInterface.addImportedName( param.paramTypeSpec.toString() );
+//              }
+            myInterface.addImportedName( param.paramTypeSpec.full_name(), 
+                                         param.paramTypeSpec );
         }
 
         if( opTypeSpec.typeSpec() instanceof ScopedName )
@@ -399,8 +402,11 @@ class OpDecl
             ParamDecl p = (ParamDecl)e.nextElement();
             TypeSpec ts = p.paramTypeSpec.typeSpec();
 
-            boolean is_wstring = ( ( ts instanceof StringType ) && ( ( (StringType)ts ).isWide() ) );
-            boolean is_wchar = ( ( ts instanceof CharType ) && ( ( (CharType)ts ).isWide() ) );
+            boolean is_wstring = 
+                ( ( ts instanceof StringType ) && ( ( (StringType)ts ).isWide() ) );
+
+            boolean is_wchar = 
+                ( ( ts instanceof CharType ) && ( ( (CharType)ts ).isWide() ) );
 
             if( p.paramAttribute == 1 ) // in params
             {
