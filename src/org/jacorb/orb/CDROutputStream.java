@@ -62,7 +62,10 @@ public class CDROutputStream
     private int resize_factor = 1;
     private int encaps_start = -1;
     private Stack encaps_stack = new java.util.Stack();
-    private Stack recursiveTCStack = new Stack();
+
+    /** hashtable to remember the original  TCs for a given ID that is
+        used in a recursive/repeated TC */
+    private Hashtable recursiveTCMap = new Hashtable();
 
     /**
      * Maps all value objects that have already been written to this stream
@@ -174,14 +177,15 @@ public class CDROutputStream
 
     /**
      * This version of check does both array length checking and
-     * data type alignement. It is a convenience method.
+     * data type alignment. It is a convenience method.
      */
 
-    private final void check(int i,int align)
+    private final void check( int i, int align )
     {
-        check(i);
+        //        check(i);
         int remainder = align - (index % align);
-        if (remainder != align)
+        check( i + remainder );
+        if ( remainder != align )
         {
             index += remainder;
             pos+=remainder;
@@ -189,7 +193,6 @@ public class CDROutputStream
     }
         
     /** 
-
      * check whether the current buffer is big enough to receive
      * i more bytes. If it isn't, get a bigger buffer.
      */
@@ -473,23 +476,23 @@ public class CDROutputStream
         // size indicator ulong + length in chars( i.e. bytes for type char)
         // incl. terminating NUL char
         int size = 4 + s.length() + 1;
-
         check( size, 4 );
             
         _write4int( buffer, pos, size - 4 ); // write length indicator        
             
         pos += 4;
-        index += 4;
+        //index += 4;
         
         for( int i = 0; i < s.length(); i++ )
         {
             buffer[ pos++ ] = (byte) s.charAt( i );
         }
         
-        index += s.length();
+        //index += s.length();
         
         buffer[ pos++ ] = (byte) 0; //terminating NUL char
-        index++;
+        //        index++;
+        index += size;
     }
 
     public final void write_wchar( char c )
@@ -998,6 +1001,8 @@ public class CDROutputStream
                     {         
                         write_long( _kind  );
                         tcMap.put( value.id(), new Integer( start_pos ) );
+                        recursiveTCMap.put(  value.id(), value );
+
                         beginEncapsulation();
                         write_string(value.id());
                         write_string(value.name());
@@ -1039,6 +1044,7 @@ public class CDROutputStream
                     else
                     {
                         tcMap.put( value.id(), new Integer( start_pos ) );
+                        recursiveTCMap.put(  value.id() , value );
 
                         write_long( _kind  );
                         beginEncapsulation();
@@ -1096,6 +1102,7 @@ public class CDROutputStream
                     }
                     else
                     {
+                        recursiveTCMap.put( value.id(), value );
                         write_long( _kind  );
                         beginEncapsulation();
                         tcMap.put( value.id(), new Integer( start_pos ) );
@@ -1114,6 +1121,7 @@ public class CDROutputStream
                     {
                         write_long( _kind  );
                         tcMap.put( value.id(), new Integer( start_pos ) );
+                        recursiveTCMap.put( value.id(), value );
                         beginEncapsulation();
                         write_string(value.id());
                         write_string(value.name());
@@ -1241,15 +1249,6 @@ public class CDROutputStream
     public  final void write_value( org.omg.CORBA.TypeCode tc, 
                                     CDRInputStream in)
     {
-        Hashtable tcMap = new Hashtable();
-        write_value( tc, in, tcMap );
-        tcMap.clear();
-    }
-
-    private final void write_value( org.omg.CORBA.TypeCode tc, 
-                                    CDRInputStream in, 
-                                    Hashtable tcMap)
-    {
         Debug.myAssert( tc != null, "Illegal null pointer for TypeCode");
         int kind = ((TypeCode)tc)._kind();
  
@@ -1330,7 +1329,7 @@ public class CDROutputStream
                     else
                     {
                         for( int i = 0; i < length; i++ )
-                            write_value( tc.content_type(), in, tcMap);
+                            write_value( tc.content_type(), in );
                     }
                 } 
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
@@ -1345,7 +1344,7 @@ public class CDROutputStream
 
                     org.omg.CORBA.TypeCode content_tc = tc.content_type();
                     for( int i = 0; i < len; i++ )
-                        write_value(  content_tc, in, tcMap);
+                        write_value(  content_tc, in );
                     
                 } 
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
@@ -1360,9 +1359,8 @@ public class CDROutputStream
             {
                 try
                 {
-                    tcMap.put( tc.id(), tc );
                     for( int i = 0; i < tc.member_count(); i++)
-                        write_value( tc.member_type(i), in, tcMap);
+                        write_value( tc.member_type(i), in );
                 } 
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
                 {} 
@@ -1379,7 +1377,6 @@ public class CDROutputStream
             {
                 try
                 {       
-                    tcMap.put( tc.id(), tc );
                     TypeCode disc = (TypeCode)tc.discriminator_type();
                     int def_idx = tc.default_index();
                     int member_idx = -1;
@@ -1558,11 +1555,11 @@ public class CDROutputStream
 
                     if( member_idx != -1 )
                     {
-                        write_value( tc.member_type( member_idx ), in, tcMap);
+                        write_value( tc.member_type( member_idx ), in );
                     }
                     else if( def_idx != -1 )
                     {
-                        write_value( tc.member_type( def_idx ), in, tcMap);
+                        write_value( tc.member_type( def_idx ), in );
                     }
                 } 
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
@@ -1574,10 +1571,7 @@ public class CDROutputStream
             {
                 try
                 {
-                    tcMap.put( tc.id(), tc );
-                    write_value( tc.content_type(), in, tcMap );
-
-
+                    write_value( tc.content_type(), in );
                 } 
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
                 break;
@@ -1587,15 +1581,16 @@ public class CDROutputStream
                 try
                 {
                     org.omg.CORBA.TypeCode _tc = 
-                        (org.omg.CORBA.TypeCode)tcMap.get(tc.id());
+                        (org.omg.CORBA.TypeCode)recursiveTCMap.get(tc.id());
                     if( _tc == null )
                     {
                         throw new RuntimeException("Recursive TypeCode not found " 
                                                    + tc.id());
                     }
-                    write_value( _tc , in, tcMap );
+                    write_value( _tc , in );
                 } 
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+                {
                     b.printStackTrace();
                 } 
                 break;
