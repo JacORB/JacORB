@@ -51,6 +51,7 @@ class UnionType
     private boolean allCasesCovered = false;
     private boolean switch_is_enum = false;
     private boolean switch_is_bool = false;
+    private boolean switch_is_longlong = false;
     private boolean explicit_default_case = false;
     private int labels;
 
@@ -354,7 +355,9 @@ class UnionType
 	else 
 	{
 	    if( ts instanceof BaseType )
+            {
 		ts = ((BaseType)ts).typeSpec();
+            }
 
 	    if( ts instanceof BooleanType )
 	    {
@@ -405,11 +408,17 @@ class UnionType
 			break;
 		    }
 		}
-		
+                if (ts instanceof LongLongType)
+                {
+                   this.switch_is_longlong = true;
+                }
 	    }
 	    else
-		System.err.println("Something went wrong in UnionType, could not identify switch type " + 
-                                   switch_type_spec.type_spec );
+            {
+		System.err.println ("Something went wrong in UnionType, "
+                    + "could not identify switch type "
+                    + switch_type_spec.type_spec);
+            }
 	    
 	}
 
@@ -633,7 +642,7 @@ class UnionType
 	ps.println("}");
     }
 
-    private void printHelperClass(String className, PrintWriter ps)
+    private void printHelperClass (String className, PrintWriter ps)
     {
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
@@ -652,23 +661,23 @@ class UnionType
 	ps.println("\t{");
 	ps.println("\t}");
 
-	ps.println("\tpublic static void insert(org.omg.CORBA.Any any, " + _type + " s)");
+	ps.println("\tpublic static void insert (org.omg.CORBA.Any any, " + _type + " s)");
 	ps.println("\t{");
-	ps.println("\t\tany.type(type());");
-	ps.println("\t\twrite( any.create_output_stream(),s);");
+	ps.println("\t\tany.type (type ());");
+	ps.println("\t\twrite (any.create_output_stream (),s);");
 	ps.println("\t}");
 
-	ps.println("\tpublic static " + _type + " extract(org.omg.CORBA.Any any)");
+	ps.println("\tpublic static " + _type + " extract (org.omg.CORBA.Any any)");
 	ps.println("\t{");
-	ps.println("\t\treturn read(any.create_input_stream());");
+	ps.println("\t\treturn read (any.create_input_stream ());");
 	ps.println("\t}");
-	printIdMethod(ps);
+	printIdMethod (ps);
 
 	/** read method */
 
-	ps.println("\tpublic static " + className + " read(org.omg.CORBA.portable.InputStream in)");
+	ps.println("\tpublic static " + className + " read (org.omg.CORBA.portable.InputStream in)");
 	ps.println("\t{");
-	ps.println("\t\t" + className + " result = new " + className + "();");
+	ps.println("\t\t" + className + " result = new " + className + " ();");
 
 	TypeSpec switch_ts_resolved = switch_type_spec;
 
@@ -676,6 +685,14 @@ class UnionType
 	{
 	    switch_ts_resolved=((ScopedName)switch_type_spec.type_spec).resolvedTypeSpec();
 	}
+
+        String indent1 = "\t\t\t";
+        String indent2 = "\t\t\t\t";
+        if (switch_is_longlong)
+        {
+            indent1 = "\t\t";
+            indent2 = "\t\t\t";
+        }
 
 
 	String case_str = "case ";
@@ -686,20 +703,29 @@ class UnionType
 	{
 	    ps.println("\t\t" + switch_ts_resolved.toString() + " disc = " +
 		      switch_ts_resolved.toString() +".from_int(in.read_long());"); 
-	    ps.println("\t\tswitch(disc.value())");
+	    ps.println("\t\tswitch (disc.value ())");
 	    ps.println("\t\t{");
 	}
 	else
 	{
 	    ps.println("\t\t" + switch_ts_resolved.toString() + " " 
 		       + switch_ts_resolved.printReadStatement("disc","in"));
-	    if( switch_is_bool )
+	    if (switch_is_bool)
 	    {
-		/* special case: booleans are no switch type in java */
-		case_str = "if(disc==";
+		/* special case: boolean is not a switch type in java */
+
+		case_str = "if (disc == ";
 		colon_str = ")";
 		default_str = "else";
 	    }
+            else if (switch_is_longlong)
+            {
+		/* special case: long is not a switch type in java */
+
+                case_str = "if (disc == ";
+                colon_str = ")";
+                default_str = "else";
+            }
 	    else
 	    {
 		ps.println("\t\tswitch(disc)");
@@ -724,24 +750,24 @@ class UnionType
 	    {
 		Object o = c.case_label_list.v.elementAt(i);
 		
-		if( o == null ) 
+		if (o == null) 
 		{ 
 		    // null means "default"
-		    defaultWriter.println("\t\t\t" + default_str);
+		    defaultWriter.println(indent1 + default_str);
                     was_default = true;
 		} 
-		else if( o != null && o instanceof ConstExpr ) 
+		else if (o instanceof ConstExpr) 
 		{
-		    ps.println("\t\t\t" + case_str + ((ConstExpr)o).value() + colon_str);
+		    ps.println (indent1 + case_str + ((ConstExpr)o).value() + colon_str);
 		} 
-		else if( o instanceof ScopedName ) 
+		else if (o instanceof ScopedName) 
 		{
 		    String _t = ((ScopedName)o).typeName();
 		    if(switch_is_enum)
-			ps.println("\t\t\t" + case_str + _t.substring(0, _t.lastIndexOf('.')+1) 
+			ps.println (indent1 + case_str + _t.substring(0, _t.lastIndexOf('.')+1) 
 				   + "_" + _t.substring( _t.lastIndexOf('.')+1) + colon_str);
 		    else
-			ps.println("\t\t\t" + case_str + _t  + colon_str);
+			ps.println (indent1 + case_str + _t  + colon_str);
 		}
 
 		if( i == caseLabelNum-1)
@@ -751,36 +777,51 @@ class UnionType
 			alt = ps;
 			ps = defaultWriter;
 		    }
-		    ps.println("\t\t\t{");
+		    ps.println (indent1 + "{");
 		
 		    if( t instanceof ScopedName )
 			t = ((ScopedName)t).resolvedTypeSpec();
 		    t = t.typeSpec();		
 		
 		    String varname = "_var";
-		    ps.println("\t\t\t\t" + t.typeSpec().toString() + " " + varname + ";");
-		    ps.println("\t\t\t\t" + t.printReadStatement( varname, "in"));
-		    ps.print("\t\t\t\tresult." + d.name() + "(" );
+		    ps.println (indent2 + t.typeSpec().toString() + " " + varname + ";");
+		    ps.println (indent2 + t.printReadStatement( varname, "in"));
+		    ps.print(indent2 + "result." + d.name() + "(" );
 		    if( caseLabelNum > 1 )
 			ps.print("disc,");
 		    ps.println( varname +");");
 
-		    if( o!= null && !switch_is_bool ) // no "break" written for default case or for "if"
-			ps.println("\t\t\t\tbreak;");
-		    ps.println("\t\t\t}");
+                    // no "break" written for default case or for "if" construct
+
+		    if (o != null && !switch_is_bool && !switch_is_longlong)
+                    {
+                        ps.println (indent2 + "break;");
+                    }
+                    if (switch_is_longlong)
+                    {
+                        ps.println (indent2 + "return result;");
+                    }
+		    ps.println (indent1 + "}");
 		    if( o == null )
 		    {
 			ps = alt;
 		    }
 		}
 	    }
-	    if( switch_is_bool && !was_default )
-		case_str = "else " + case_str;
+            if (switch_is_bool && !was_default)
+            {
+                case_str = "else " + case_str;
+            }
 	}
-	if( !explicit_default_case && ! switch_is_bool && !allCasesCovered )
-	{
-	    defaultWriter.println("\t\t\tdefault: result.__default (disc);");		    
-	}
+        if (!explicit_default_case && ! switch_is_bool && ! switch_is_longlong && !allCasesCovered)
+        {
+            defaultWriter.println("\t\t\tdefault: result.__default (disc);");		    
+        }
+        if (!explicit_default_case && switch_is_longlong)
+        {
+            defaultWriter.println ("\t\tresult.__default (disc);");		    
+            defaultWriter.println ("\t\treturn result;");		    
+        }
 	defaultWriter.close();
 
 	if( bos.size() > 0 )
@@ -788,14 +829,19 @@ class UnionType
 	    ps.print( bos.toString() );
 	}
 
-	if( !switch_is_bool )
-	    ps.println("\t\t}"); // close switch statement
-	ps.println("\t\treturn result;");
+        if (!switch_is_bool && !switch_is_longlong)
+        {
+            ps.println("\t\t}"); // close switch statement
+        }
+        if (! switch_is_longlong)
+        {
+            ps.println ("\t\treturn result;");
+        }
 	ps.println("\t}");
 
 	/** write method */
 
-	ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream out, " + className + " s)");
+	ps.println("\tpublic static void write (org.omg.CORBA.portable.OutputStream out, " + className + " s)");
 	ps.println("\t{");
 
         if( switch_is_enum  )
@@ -806,16 +852,20 @@ class UnionType
 	}
 	else
 	{
-	    ps.println("\t\t" + switch_type_spec.typeSpec().printWriteStatement("s.discriminator()","out")+ ";");      
-	    if( switch_is_bool )
+	    ps.println("\t\t" + switch_type_spec.typeSpec().printWriteStatement("s.discriminator ()","out")+ ";");      
+	    if (switch_is_bool)
 	    {
 		/* special case: booleans are no switch type in java */
 		case_str = "if(s.discriminator()==";
 		// colon_str and default_str are already set correctly
 	    }
+            else if (switch_is_longlong)
+	    {
+                ps.println("\t\tlong disc = s.discriminator ();");
+	    }
 	    else
 	    {
-		ps.println("\t\tswitch(s.discriminator())");
+		ps.println("\t\tswitch (s.discriminator ())");
 		ps.println("\t\t{");
 	    }
 	}
@@ -839,21 +889,21 @@ class UnionType
 		if( o == null ) 
 		{ 
 		    // null means "default"
-		    defaultWriter.println("\t\t\t"+ default_str);
+		    defaultWriter.println (indent1 + default_str);
                     was_default = true;
 		} 
 		else if( o != null && o instanceof ConstExpr ) 
 		{	
-		    ps.println("\t\t\t" + case_str + ((ConstExpr)o).value() + colon_str );
+		    ps.println (indent1 + case_str + ((ConstExpr)o).value() + colon_str );
 		} 
 		else if( o instanceof ScopedName ) 
 		{
 		    String _t = ((ScopedName)o).typeName();
 		    if(switch_is_enum)
-			ps.println("\t\t\t" + case_str + _t.substring(0, _t.lastIndexOf('.')+1) 
+			ps.println (indent1 + case_str + _t.substring(0, _t.lastIndexOf('.')+1) 
 				   + "_" + _t.substring( _t.lastIndexOf('.')+1) + colon_str);
 		    else
-			ps.println("\t\t\t" + case_str + _t  + colon_str);
+			ps.println(indent1 + case_str + _t  + colon_str);
 		}
 		if( i == caseLabelNum-1)
 		{
@@ -862,17 +912,25 @@ class UnionType
 			alt = ps;
 			ps = defaultWriter;
 		    }
-		    ps.println("\t\t\t{");
+		    ps.println(indent1 + "{");
 		
 		    if( t instanceof ScopedName )
 			t = ((ScopedName)t).resolvedTypeSpec();
 		    t = t.typeSpec();		
 		
-		    ps.println("\t\t\t\t" + t.printWriteStatement("s." + d.name()+"()", "out"));
+		    ps.println (indent2 + t.printWriteStatement ("s." + d.name ()+" ()", "out"));
 
-		    if( o!= null && !switch_is_bool) // no "break" written for default case
-			ps.println("\t\t\t\tbreak;");
-		    ps.println("\t\t\t}");
+                    // no "break" written for default case
+
+                    if (o != null && !switch_is_bool && !switch_is_longlong)
+                    {
+                        ps.println (indent2 + "break;");
+                    }
+                    if (switch_is_longlong)
+                    {
+                       ps.println (indent2 + "return;");
+                    }
+		    ps.println (indent1 + "}");
 		    if( o == null )
 		    {
 			ps = alt;
@@ -891,9 +949,12 @@ class UnionType
 	    ps.print( bos.toString() );
 	}
 
-	/* close switch statement */
-	if( !switch_is_bool )
-	    ps.println("\t\t}");
+        /* close switch statement */
+
+        if (!switch_is_bool && !switch_is_longlong)
+        {
+            ps.println("\t\t}");
+        }
 
 	ps.println("\t}"); 
 
@@ -1043,6 +1104,3 @@ class UnionType
     }
 
 }
-
-
-
