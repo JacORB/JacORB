@@ -149,13 +149,6 @@ public class PrintIOR
                                        " Tagged Components--" );
 
                 printTaggedComponents( pb.components );
-                String codebase = pior.getCodebaseComponent();
-                if( codebase != null )
-                {
-                    System.out.println("\tJava Codebase Component:\n\t\t" + codebase);		
-                }
-                System.out.print("\n");
-
             }
             System.out.print("\n");
         }
@@ -190,6 +183,10 @@ public class PrintIOR
                 case TAG_CODE_SETS.value:
                     System.out.println("\t#"+ i + ": TAG_CODE_SETS");
                     printCodeSetComponent( taggedComponents[i] );
+                    break;
+                case TAG_JAVA_CODEBASE.value:
+                    System.out.println("\t#"+ i + ": TAG_JAVA_CODEBASE");
+                    printJavaCodebaseComponent( taggedComponents[i] );
                     break;
                 default:             
                     System.out.println("\tUnknown tag : " + 
@@ -303,6 +300,16 @@ public class PrintIOR
         
     }
 
+    private static void printJavaCodebaseComponent( TaggedComponent taggedComponent )
+    {
+        CDRInputStream is =
+            new CDRInputStream( (org.omg.CORBA.ORB)null, 
+                                taggedComponent.component_data );
+
+        String codebase = is.read_string();
+
+        System.out.println( "\t\tCodebase: " + codebase );
+    }
     
     public static void dumpHex(byte bs[])
     {
