@@ -20,6 +20,10 @@ public class ServerAccessDecisionInterceptor
     extends org.jacorb.orb.LocalityConstrainedObject 
     implements ServerRequestInterceptor
 {
+    public static final String DEFAULT_NAME = 
+        "ServerAccessDecisionInterceptor";
+
+    private String name = null;
 
     private AccessDecision access_decision = null;
     private org.omg.SecurityLevel2.Current current = null;
@@ -28,7 +32,16 @@ public class ServerAccessDecisionInterceptor
     public ServerAccessDecisionInterceptor
         (org.omg.SecurityLevel2.Current current) 
     {
+        this( current, DEFAULT_NAME );
+    }
+
+    public ServerAccessDecisionInterceptor
+        (org.omg.SecurityLevel2.Current current, 
+         String name ) 
+    {
         this.current = current;
+        this.name = name;
+
         access_decision = current.access_decision();
 
         special_operations = new Hashtable();
@@ -44,7 +57,7 @@ public class ServerAccessDecisionInterceptor
     // InterceptorOperations interface
     public String name()
     {
-        return "3_ServerAccessDecisionInterceptor";
+        return name;
     }
 
     /**
@@ -60,22 +73,24 @@ public class ServerAccessDecisionInterceptor
         throws ForwardRequest
     {
 
-System.out.println("Call to: " + ri.target_most_derived_interface() );
+        //System.out.println("Call to: " + ri.target_most_derived_interface() );
  
 
         if (special_operations.containsKey(ri.operation()))
         {
-            System.out.println("Ignoring op " + ri.operation());            
+            //System.out.println("Ignoring op " + ri.operation());            
             return;
         }
         else if (ri.target_most_derived_interface().
                  startsWith("IDL:jacorb/orb/domain"))
         {
-            System.out.println("Ignoring call to domain object");            
+            //System.out.println("Ignoring call to domain object");            
             return;
         }
         else
-            System.out.println("(ServerAccessDecInterc.)Controlling operation: " + ri.operation());
+        {
+            //System.out.println("(ServerAccessDecInterc.)Controlling operation: " + ri.operation());
+        }
 
         //proprietary call!!
         org.omg.CORBA.Object target = 
@@ -92,7 +107,7 @@ System.out.println("Call to: " + ri.target_most_derived_interface() );
             }
             else
             {
-                System.out.println("Access allowed!!");
+                //System.out.println("Access allowed!!");
             }
     }
 
