@@ -120,7 +120,8 @@ class IdlSymbol
     public void escapeName()
     {
         if( !name.startsWith( "_" ) &&
-            !pack_name.startsWith( "org.omg" ) &&
+            // Not escaping Messaging.ExceptionHolder
+            !pack_name.startsWith( "org.omg.Messaging" ) &&
             lexer.strictJavaEscapeCheck( name ) )
         {
             name = "_" + name;
@@ -193,7 +194,7 @@ class IdlSymbol
         {
 //              IdlSymbol enc = enclosing_symbol;
 //              lexer.emit_warn( "Empty full_name for " + this.getClass().getName() +
-//                               ( enc != null ? 
+//                               ( enc != null ?
 //                                 " at " + enc.get_token() :
 //                                 " in pack " + pack_name ));
 
@@ -355,9 +356,6 @@ class IdlSymbol
 
     public void setPrintPhaseNames()
     {
-//          Environment.doAssert( parser.done_parsing,
-//                                "Parser not done parsing yet.");
-
         if( pack_name.length() > 0 )
         {
             typeName = ScopedName.unPseudoName( pack_name + "." + name );
@@ -547,8 +545,3 @@ class IdlSymbol
 
 
 }
-
-
-
-
-
