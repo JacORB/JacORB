@@ -36,6 +36,11 @@ public class ClientForwardInterceptor
         return "ClientForwardInterceptor";
     }
 
+    public void destroy()
+    {
+
+    }
+
     /**
      * Throws a ForwardRequest, if target is wrong
      */
