@@ -5,97 +5,110 @@ a remote object's liveness, etc.
 
 \section{idl}
 
-The IDL compiler parses IDL specifications and maps these to Java
-classes as specified by the OMG IDL/Java language mapping. IDL
-interfaces are translated into Java interfaces, and typedefs, structs,
-const declarations etc.  are mapped onto corresponding Java classes.
-Using {\tt idl} command, stubs and skeletons for all interface types
-in the IDL specification are generated.
+The IDL compiler parses IDL files and maps type definitions to Java
+classes as specified by the OMG IDL/Java language mapping. For
+example, IDL interfaces are translated into Java interfaces, and
+typedefs, structs, const declarations etc.  are mapped onto
+corresponding Java classes. Additionally, stubs and skeletons for all
+interface types in the IDL specification are generated.
 
-\subsection*{Usage}
+\subsection*{Compiler Options}
 
-\noindent{\tt idl
-  [-h|-help] [-v|-version] [-Dsymbol[=value]] [-Idir] [-U <symbol>]
-  [-W debug\_level] [-all] [-ami\_callback] [-ami\_polling] [-jdk14]
-  [-d <Output Dir>] [-i2jpackage x:y][-i2jpackagefile <filename>]
-  [-ir] [-nofinal] [-noskel] [-nostub] [-p <package\_prefix>]
-  [-sloppy\_forward] [-sloppy\_names] [-syntax]
-  <filelist>}
+\begin{tabbing}
+XX \= XXXXXXXXXXXXX \= XX \kill
+\>  -h $|$ help \>  print help on compiler options\\
+\>  -v $|$ version \> print compiler version information\\
+\>  -d dir \> root of directory tree for output (default: current directory)\\
+\>  -syntax \> syntax check only, no code generation\\
+\>  -Dx \>  define preprocessor symbol x with value 1\\
+\>  -Dx=y  \>  define preprocessor symbol x with value y\\
+\>  -Idir  \>  set include path for idl files\\
+\>  -Usymbol \> undefine preprocessor symbol\\
+\>  -W [1..4] \> debug output level (default is 1)\\
+\>  -all  \> generate code for all IDL files, even included ones
+(default is off)\\
+\> \> If you want to make sure that for a given IDL no code will\\
+\> \>  be generated even if this option is set, use the (proprietary)
+preprocessor \\
+\> \> directive {\tt \#pragma   inhibit\_code\_generation}.\\
+\>  -forceOverwrite \> generate Java code even if the IDL files have
+not \\
+\> \> changed since the last compiler run (default is off)\\
+\>  -ami\_callback  \> generate AMI reply handlers and sendc methods
+(default is off). See chapter \ref{ch:AMI}\\
+\>  -ami\_polling  \>  generate AMI poller and sendp methods (default
+is off). See chapter \ref{ch:AMI}\\
+\>  -backend classname \>  use classname as compiler (code generator)
+backend.  The default code generator \\
+\> \>class is {\tt org.jacorb.idl.javamapping.JavaMappingGeneratingVisitor}\\
+\> \>  (c.f. API documentation). Custom generators must implement the
+interface\\
+\> \> {\tt org.jacorb.idl.IDLTreeVisitor}\\
+\>  -jdk14 \>  do extra checks for generating JDK1.4 code.\\
+\> \> (Checks that no  classes are generated to the unnamed package,
+from which \\
+\> \> JDK 1.4 does not let you import.\\ 
+\>  -i x \> (deprecated) generated Java classes will contain an  "import
+x;" statement \\
+\> \> (default is off)\\
+\> -i2jpackage x:a.b.c \>  replace IDL package name x by a.b.c in
+generated Java code \\
+\> \> (e.g. CORBA:org.omg.CORBA)\\
+\> -i2jpackagefile filename \> replace IDL package names using list
+from <filename>. \\
+\> \> Format as above.\\
+\> -ir \> generate extra information required by the JacORB Interface
+Repository \\
+\> \> (One extra file for each IDL module, and another additional file per IDL interface.)\\
+\> \> (default is off)\\
+\> -nofinal  \> generated Java code will contain no final class
+definitions, which\\
+\> \> is the default to allow for compiler optimizations.\\
+\> -unchecked\_narrow  \>  use unchecked\_narrow in generated code for IOR parameters in
+ operations \\
+\> \> (default is off). Generated helper classes contain marshalling code which, by
+default,\\
+\> \>  will try to narrow any object references to statically known interface type. This \\
+\> \> may involve remote invocations to test a remote object's type, thus incurring \\
+\> \> runtime overhead to achieve static type safety. The -unchecked\_narrow option\\
+\> \> generates code that will not by statically type safe, but avoids
+remote tests \\
+\> \>  of an object's type. If the type is not as expected, clients will experience \\
+\> \> CORBA.BAD\_OPERATION exceptions at invocation time.\\
+\> -noskel \>disables generation of POA skeletons (e.g., for
+client-side use)\\
+\> -nostub \>disables generation of client stubs (for server-side use)\\
+\> -sloppy\_forward \> allow forward declarations without later
+definitions\\
+\> \> (useful only for separate compilation).\\
+\> -sloppy\_names \> less strict checking of module name scoping
+(default: off)\\
+\> \> CORBA IDL has a number of  name resolution rules that are
+stricter than\\
+\> \> necessary for Java (e.g., a struct member's name identifier must
+not \\
+\> \> equal the type name). The -sloppy\_names option relaxes checking of
+these \\
+\> \>  rules. Note that IDL accepted with this option will be rejected
+by other, conformant  \\
+\> \> IDL compilers!\\
+\> -permissive\_rmic  \>  tolerate dubious and buggy IDL generated by
+JDK's rmic stub generator\\
+\> \> (e.g., incorrectly empty inheritance clauses), includes -sloppy\_names.\\
+\end{tabbing}
 
-\begin{itemize}
-\item[\tt -v] prints out a short version string 
-\item[\tt -h] or {\tt -help} displays brief usage information.
-\item[\tt -D] defines a preprocessor symbol, e.g., {\tt idl -Dx=y}. If
-  no value is specified, the symbol will be defined with a value of 1.
-\item[\tt -U] undefines symbols again.
-\item[\tt -I] specifies one or more search paths for
-IDL files. If no path is given, only the  current directory will  be considered.
-\item[\tt -W] specifies the amount of debug information the IDL
- compiler will output. Verbosity is between 0 and 4.
-\item[\tt -all] generates code for included IDL files (not done by
-  default). If you want to make sure that for a given IDL no code will
-  be generated even if this option is set, you can use the
-  (proprietary) preprocessor directive {\tt \#pragma
-    inhibit\_code\_generation}.
-\end{itemize}
-
-The {\tt -ami\_callback} flag allows you to use the callback model of
-Asynchronous Method Invocation. See chapter \ref{ch:AMI}.
-
-The {\tt -ami\_polling} flag allows you to use the polling model of
-Asynchronous Method Invocation. See chapter \ref{ch:AMI}.
-
-Compiling a  file with  a module {\tt  ModuleX} and
-an interface {\tt InterfaceY} in it  will result in a subdirectory
- {\tt ModuleX} with {\tt InterfaceY.java} in it (and possibly more
- {\tt .java}--files). By default, the root directory for all of the
- files created during  the process is the current directory. You can,
- however, provide a  different directory in which these  files are to
- be placed by  using the -d option. Using the -d  option when you are
- only checking the syntax of an IDL file has no effect.
-
-The {\tt -jdk14} option makes the IDL compiler do extra checks to ensure
-JDK1.4 compatible code is generated.
-
-To be able to flexibly redirect generated Java classes into packages,
-the {\tt -i2jpackage} switch can be used. Using this option, any IDL
-scope x can be replaced by one (or more) Java packages y. Specifying
-{\tt -i2jpackage X:a.b.c} will thus cause code generated for IDL
+The {\tt -i2jpackage} switch can be used to flexibly redirect
+generated Java classes into packages. Using this option, any IDL scope
+x can be replaced by one (or more) Java packages y. Specifying {\tt
+  -i2jpackage X:a.b.c} will thus cause code generated for IDL
 definitions within a scope x to end up in a Java package {\tt a.b.c},
 e.g. an IDL identifier {\tt X::Y::ident} will be mapped to {\tt
   a.b.c.y.ident} in Java. It is also possible to specify a file
 containing these mappings using the {\tt -i2jpackagefile} switch.
 
-The  {\tt -ir} option  instructs the  compiler to  generate additional
-files   that    contain   information   needed    by   the   Interface
-Repository. Basically, there  is one (very small) extra  file for each
-IDL module, and another additional file per IDL interface.
-
-By using the {\tt -nofinal} option the compiler can be made to generate
-class definitions that are not final. This will override the default
-behaviour, which is to generate final class definitions in certain
-circumstances to allow for their optimisation during compilation.
-
-The {\tt -noskel} option suppresses the generation of skeleton files,
-which may be unnecessary if you only want to {\em use} a reference and
-thus need client--side code.
-
-The {\tt -nostub} option suppresses the generation of client stubs.
-
-The {\tt -sloppy\_forward} option allows forward declarations without
-later definitions.
-
-The {\tt -sloppy\_name} option allows less strict checking of module
-name scoping.
-
-Invoking {\tt idl}  with the {\tt -syntax} option  allows you to check
-your IDL  specification for  syntactic errors without  producing code.
-Without {\tt  -syntax}, the compiler creates  directories according to
-the Java package structure.
-
 (The  IDL  parser  was   generated  with  Scott  Hudson's  CUP  parser
 generator.  The  LALR grammar for  the CORBA IDL  is in the  file {\tt
-jacorb/Idl/parser.cup}.)
+org/jacorb/idl/parser.cup}.)
 
 \section{ns}
 
