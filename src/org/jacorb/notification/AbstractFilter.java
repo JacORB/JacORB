@@ -139,13 +139,12 @@ import org.apache.avalon.framework.configuration.Configuration;
  * @version $Id$
  */
 
-public class FilterImpl
+public abstract class AbstractFilter
     extends FilterPOA
     implements Disposable,
                ManageableServant,
                Configurable
 {
-
     final static RuntimeException NOT_SUPPORTED =
         new UnsupportedOperationException("this operation is not implemented yet");
 
@@ -201,7 +200,7 @@ public class FilterImpl
 
     ////////////////////////////////////////
 
-    public FilterImpl(ApplicationContext applicationContext,
+    public AbstractFilter(ApplicationContext applicationContext,
                       String constraintGrammar)
     {
         super();
@@ -357,7 +356,7 @@ public class FilterImpl
         for ( int _x = 0; _x < constraintExp.length; _x++ )
         {
             _arrayFilterConstraint[ _x ] =
-                new FilterConstraint( constraintExp[ _x ] );
+                newFilterConstraint( constraintExp[ _x ] );
         }
 
         ConstraintInfo[] _arrayConstraintInfo =
@@ -420,6 +419,10 @@ public class FilterImpl
     }
 
 
+    protected abstract FilterConstraint newFilterConstraint(ConstraintExp constraintExp)
+        throws InvalidConstraint;
+
+
     public void modify_constraints( int[] deleteIds,
                                     ConstraintInfo[] constraintInfo )
         throws ConstraintNotFound,
@@ -460,7 +463,7 @@ public class FilterImpl
                     if ( constraints_.containsKey( _constraintKeys[ _x ] ) )
                     {
                         _arrayConstraintEvaluator[ _x ] =
-                            new FilterConstraint(
+                            newFilterConstraint(
                                 constraintInfo[ _x ].constraint_expression );
                     }
                     else
