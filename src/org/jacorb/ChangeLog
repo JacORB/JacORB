@@ -1,3 +1,39 @@
+2003-08-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/IIOPAddress.java: Add comments to explain port number format.
+
+2003-08-11  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* orb/iiop/IIOPListener.java (Acceptor): set daemon status for
+	Acceptorthread
+
+2003-08-11  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Rationalise port/host -
+	add imr.host. (RT809) Change some System.out to Debug.info (RT875)
+
+	* orb/CDROutputStream.java: Undo last - mistaken commit
+
+	* orb/CDROutputStream.java: Rationalise port/host - add
+	imr.host. (RT809) Change some System.out to Debug.info (RT875)
+
+	* orb/Delegate.java: Fix for RT892/Jac208_part1. Process preinvoke
+	result better and don't mask exceptions within it.
+
+	* orb/util/PrintIOR.java: Print hostname rather than IP
+
+	* orb/ORB.java: Add comment
+
+2003-08-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (bind): If there is no effective profile,
+	throw a COMM_FAILURE.
+
+	* orb/DefaultProfileSelector.java (selectProfile): Return null if
+	the list is empty.
+
+	* util/Environment.java (_init): Make it public for now.
+
 2003-08-08  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/dns/DNSLookupDelegateImpl.java: Removed.
