@@ -46,7 +46,7 @@
       - new:
 
          * Implementation of the ORB PolicyManager interface to
-           set QoSS policies ORB-wide
+           set QoS policies ORB-wide
 
          * CDR 1.2 Portable Interceptor codec
 
@@ -54,6 +54,8 @@
            compatible stub code
 
          * Removed deprecated option -i on the IDL Compiler
+
+         * logging enhancements (more structured logger name spaces)
 
       - fixed:
 
