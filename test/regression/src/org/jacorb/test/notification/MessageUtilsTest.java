@@ -48,7 +48,7 @@ public class MessageUtilsTest extends TestCase
         context_.setDynamicEvaluator( new DynamicEvaluator( appContext_.getOrb(),
                                                             DynAnyFactoryHelper.narrow( appContext_.getOrb().resolve_initial_references( "DynAnyFactory" ) ) ) );
 
-        context_.setResultExtractor( new ResultExtractor( DynAnyFactoryHelper.narrow( appContext_.getOrb().resolve_initial_references( "DynAnyFactory" ) ) ) );
+        context_.setResultExtractor( new ResultExtractor() );
 
     }
 

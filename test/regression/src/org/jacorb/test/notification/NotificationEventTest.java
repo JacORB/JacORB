@@ -57,7 +57,7 @@ public class NotificationEventTest extends TestCase {
             DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
 
         DynamicEvaluator _dynEval = new DynamicEvaluator(orb_, _dynAnyFactory);
-        ResultExtractor _resExtr = new ResultExtractor(_dynAnyFactory);
+        ResultExtractor _resExtr = new ResultExtractor();
 
         evaluationContext_ = new EvaluationContext();
         evaluationContext_.setDynamicEvaluator(_dynEval);

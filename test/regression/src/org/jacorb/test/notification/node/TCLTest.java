@@ -184,7 +184,7 @@ public class TCLTest extends TestCase
         dynAnyFactory_ =
             DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
 
-        resultExtractor_ = new ResultExtractor( dynAnyFactory_ );
+        resultExtractor_ = new ResultExtractor();
         dynamicEvaluator_ = new DynamicEvaluator( orb_, dynAnyFactory_ );
 
         Person _person = setUpPerson();
