@@ -97,6 +97,9 @@ module ETF
     Profile demarshal_profile (inout IOP::TaggedProfile tagged_profile,
                                out IOP::TaggedComponentSeq components);
 
+	// JacORB addition to ETF draft
+    Profile decode_corbaloc (in string corbaloc);
+
     readonly attribute IOP::ProfileId profile_tag;
   };
 
@@ -126,5 +129,3 @@ module ETF
   };
 };
 #endif // _ETF_IDL_
-
-
