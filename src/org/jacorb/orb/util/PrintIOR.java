@@ -59,11 +59,11 @@ public class PrintIOR
                     while ( line != null )
                     {
                         line = br.readLine();
-                        if ( line != null ) iorString = iorString + line;
+                        if ( line != null ) 
+                            iorString = iorString + line;
                         // System.out.print ( line );
                     }
                 }
-                // System.out.println ( "red IOR from file:" );
             } 
             catch ( IOException ioe )
             {
@@ -76,8 +76,14 @@ public class PrintIOR
             iorString = args[0];
         }
     
-        ParsedIOR pior = new ParsedIOR( iorString );
-        printIOR(pior, orb);
+        if( iorString.startsWith( "IOR:" ))
+        {
+            ParsedIOR pior = new ParsedIOR( iorString );
+            printIOR(pior, orb);
+        }
+        else
+            System.out.println("Sorry, we only unparse IORs in the standard IOR URL scheme");
+
     }
 
     public static void printIOR(ParsedIOR pior, org.omg.CORBA.ORB orb)
