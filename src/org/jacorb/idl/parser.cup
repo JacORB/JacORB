@@ -412,7 +412,7 @@ parser code
         System.out.println("\t-ami_callback\t\tgenerate AMI reply handlers and sendc methods");
         System.out.println("\t-ami_polling\t\tgenerate AMI poller and sendp methods");
         System.out.println("\t-sloppy_forward\tallow forward declarations wo. later definitions");
-        System.out.println("\t-sloppy_names\tless strict checking of names for backward compatibility");
+        System.out.println("\t-sloppy_names\tless strict checking of module name scoping (deprecated)");
         System.out.println("\t-Dx\t\tdefine preprocessor symbol x with value 1");
         System.out.println("\t-Dx=y\t\tdefine preprocessor symbol x with value y");
         System.out.println("\t-U\t\tundefine preprocessor symbol");
