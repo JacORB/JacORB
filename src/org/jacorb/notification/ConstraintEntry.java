@@ -65,7 +65,7 @@ public class ConstraintEntry
             et_ = et;
 
             constraintKey_ =
-                FilterUtils.calcConstraintKey( et_.domain_name, et_.type_name );
+                MessageUtils.calcConstraintKey( et_.domain_name, et_.type_name );
         }
 
         public String toString()
