@@ -126,7 +126,10 @@ public class BufferManager
 	    Object o = v.firstElement();
 	    v.removeElementAt(0);
 
-	    return (byte [])o;
+            byte[] result = (byte [])o;
+            // clear buffer contents
+            java.util.Arrays.fill( result, (byte)0 );
+	    return result;
 	}
 	else
 	{
