@@ -561,10 +561,10 @@ class ForwarderImpl
             fout.write(orb.object_to_string(forwarderRef));
             fout.close();
 
+            NamingContextExt nc = null;
             try
             {
-                NamingContextExt nc =
-                    NamingContextExtHelper.narrow
+                nc = NamingContextExtHelper.narrow
                     (orb.resolve_initial_references("NameService"));
             }
             catch( org.omg.CORBA.BAD_PARAM bp)
@@ -572,7 +572,7 @@ class ForwarderImpl
                 Debug.output( 2, bp );
             }  
 
-            if(nc==null)
+            if( nc == null )
             {
                 Debug.output(1,"Nameserver not present. Trying without");
             }
