@@ -24,6 +24,7 @@ import org.omg.CosEventChannelAdmin.*;
 import org.omg.CosEventComm.*;
 import org.omg.CORBA.*;
 import org.omg.CosNaming.*;
+import org.omg.PortableServer.*;
 import java.util.*;
 import org.jacorb.orb.*;
 import java.net.*;
@@ -38,404 +39,271 @@ import java.net.*;
  * @version $Id$
  */
 
-public class EventChannelImpl 
-    extends JacORBEventChannelPOA
+public class EventChannelImpl extends JacORBEventChannelPOA
 {
-    private Vector pull_suppliers;	
-    private Vector pull_consumers;
-    private Vector push_suppliers;		
-    private Vector push_consumers;
-    private Vector pending_events; 
-    private org.omg.CORBA.Any nullAny;
+  private Vector pullSuppliers = new Vector();
+  private Vector pullConsumers = new Vector();
+  private Vector pushSuppliers = new Vector();
+  private Vector pushConsumers = new Vector();
+  private Vector pendingEvents = new Vector();
+  private org.omg.CORBA.Any nullAny = null;
 
-    org.omg.PortableServer.POA poa; 
+  private org.omg.CORBA.ORB myOrb = null;
+  private org.omg.PortableServer.POA myPoa = null;
 
-    class Sender implements Runnable 
+
+  /**
+   * EventChannel constructor.
+   */
+  public EventChannelImpl(org.omg.CORBA.ORB orb, org.omg.PortableServer.POA poa)
+  {
+    myOrb = orb;
+    myPoa = poa;
+
+    _this_object(myOrb);
+    nullAny = myOrb.create_any();
+    nullAny.type(myOrb.get_primitive_tc( TCKind.tk_null));
+
+    try
     {
-	org.omg.CORBA.Any asynchEvent;
-	Vector p_suppliers= (Vector)push_suppliers.clone();
-
-	public Sender(org.omg.CORBA.Any event) 
-	{
-	    asynchEvent = event;
-	}
-	
-	public synchronized void run() 
-	{  
-	    // hand over the event asynchronously to 
-	    // our ProxyPushSuppliers  
-	    for (Enumeration e = push_suppliers.elements(); e.hasMoreElements();)
-	    {
-		ProxyPushSupplierImpl p = null;
-		try 
-		{
-		    p = (ProxyPushSupplierImpl)e.nextElement();
-		    p.internal_push( asynchEvent );
-		} 
-		catch ( org.omg.CosEventComm.Disconnected d) 
-		{ 
-		    if( p != null )
-			p.disconnect_push_supplier();
-		    else
-			System.out.println(d); 
-		}
-	    }	   
-	}
+      this.myPoa = poa;
+      myPoa.the_POAManager().activate();
     }
-
-
-    /* EventChannel */
-
-    public EventChannelImpl(org.omg.CORBA.ORB orb, org.omg.PortableServer.POA poa)
+    catch( Exception e )
     {
-	pull_suppliers = new Vector();
-	pull_consumers = new Vector();
-	push_suppliers = new Vector();
-	push_consumers = new Vector();
-	pending_events = new Vector();
-	_this_object(orb);
-	nullAny = orb.create_any();	
-	nullAny.type(orb.get_primitive_tc( TCKind.tk_null));
-	try
-	{
-	    this.poa = poa;
-	    poa.the_POAManager().activate();
-	} 
-	catch ( Exception e )
-	{
-	    e.printStackTrace();
-	}
+      e.printStackTrace();
     }
+  }
 
-    public void destroy()
+  /**
+   * send the ConsumerAdmin vectors off for destrcution.
+   */
+  private void consumerAdminDestroy()
+  {
+    releaseList( pullSuppliers );
+    releaseList( pushSuppliers );
+  }
+
+  /**
+   * send the SupplierAdmin vectors off for destrcution.
+   */
+  private void supplierAdminDestroy()
+  {
+    releaseList( pullConsumers );
+    releaseList( pushConsumers );
+  }
+
+  /**
+   * Iteratre a list and send the servant off to be destroyed.
+   */
+  private void releaseList( Vector list )
+  {
+    for ( Enumeration e = list.elements(); e.hasMoreElements(); )
     {
-	// destroy lists !
+      org.omg.PortableServer.Servant servant =
+          (org.omg.PortableServer.Servant)e.nextElement();
+      releaseServant( servant );
     }
+  }
 
-
-    /* management of local proxies */
-
-    protected void disconnect_pull_consumer( ProxyPullConsumerImpl p )
+  /**
+   * Destroy / deactivate the servant.
+   */
+  private void releaseServant( org.omg.PortableServer.Servant servant )
+  {
+    try
     {
-	pull_consumers.removeElement( p );
+      servant._poa().deactivate_object( servant._object_id() );
     }
-
-    protected void disconnect_pull_supplier( ProxyPullSupplierImpl p )
+    catch (org.omg.PortableServer.POAPackage.WrongPolicy wpEx)
     {
-	pull_suppliers.removeElement( p );
+      wpEx.printStackTrace();
     }
-
-    protected void disconnect_push_consumer( ProxyPushConsumerImpl p )
+    catch (org.omg.PortableServer.POAPackage.ObjectNotActive onaEx)
     {
-	push_consumers.removeElement( p );
+      onaEx.printStackTrace();
     }
+  }
 
-    protected void disconnect_push_supplier( ProxyPushSupplierImpl p )
+  /**
+   * Destroy all objects which are managed by the POA.
+   */
+  public void destroy()
+  {
+    consumerAdminDestroy();
+    supplierAdminDestroy();
+    releaseServant(this);
+  }
+
+
+  /**
+   * Return the consumerAdmin interface
+   */
+  public ConsumerAdmin for_consumers()
+  {
+    try
     {
-	push_suppliers.removeElement( p );
+      return ConsumerAdminHelper.narrow(myPoa.servant_to_reference(this));
     }
-
-
-    /* public admin interface */
-
-    public ConsumerAdmin for_consumers()
+    catch( Exception e )
     {
-	try
-	{
-	    return ConsumerAdminHelper.narrow(poa.servant_to_reference(this));
-	}
-	catch (Exception e)
-	{
-	    e.printStackTrace();
-	    return null;
-	}
+      e.printStackTrace();
+      return null;
     }
+  }
 
-    public SupplierAdmin for_suppliers()
+  /**
+   * Return the supplierAdmin interface
+   */
+  public SupplierAdmin for_suppliers()
+  {
+    try
     {
-	try
-	{
-	    return SupplierAdminHelper.narrow(poa.servant_to_reference(this));
-	}
-	catch (Exception e)
-	{
-	    e.printStackTrace();
-	    return null;
-	}
+      return SupplierAdminHelper.narrow(myPoa.servant_to_reference(this));
     }
-
-
-    public synchronized ProxyPullConsumer obtain_pull_consumer()
+    catch( Exception e )
     {
-	try
-	{
-	    ProxyPullConsumerImpl p =  new ProxyPullConsumerImpl( this, _orb() );
-	    pull_consumers.addElement( p );
-	    return ProxyPullConsumerHelper.narrow(poa.servant_to_reference(p));
-	} 
-	catch ( Exception e )
-	{
-	    e.printStackTrace();
-	    return null;
-	}    
+      e.printStackTrace();
+      return null;
     }
+  }
 
-    public ProxyPullSupplier obtain_pull_supplier()
+  /**
+   * Return a ProxyPullConsumer reference to be used to connect to a
+   * PullSupplier.
+   */
+  public ProxyPullConsumer obtain_pull_consumer()
+  {
+    synchronized( pullConsumers )
     {
-	try
-	{
-	    ProxyPullSupplierImpl p =  new ProxyPullSupplierImpl ( this, _orb() );
-	    pull_suppliers.addElement( p );
-	    return ProxyPullSupplierHelper.narrow(poa.servant_to_reference(p));
-	} 
-	catch ( Exception e )
-	{
-	    e.printStackTrace();
-	    return null;
-	}
+      ProxyPullConsumerImpl p =  new ProxyPullConsumerImpl( this, _orb(), myPoa );
+      pullConsumers.addElement( p );
+      return p._this( myOrb );
     }
+  }
 
-    // SupplierAdmin-Interface
-    public synchronized ProxyPushConsumer obtain_push_consumer()
+  /**
+   * Return a ProxyPullSupplier reference to be used to connect to a
+   * PullConsumer.
+   */
+  public ProxyPullSupplier obtain_pull_supplier()
+  {
+    synchronized( pullSuppliers )
     {
-	try
-	{
-	    ProxyPushConsumerImpl p = new ProxyPushConsumerImpl( this, _orb() );	
-	    push_consumers.addElement( p );
-	    return ProxyPushConsumerHelper.narrow(poa.servant_to_reference(p));
-	} 
-	catch ( Exception e )
-	{
-	    e.printStackTrace();
-	    return null;
-	}
+      ProxyPullSupplierImpl p =  new ProxyPullSupplierImpl ( this, _orb(), myPoa );
+      pullSuppliers.addElement( p );
+      return p._this( myOrb );
     }
+  }
 
-    // ConsumerAdmin-Interface
-    public ProxyPushSupplier obtain_push_supplier()
+  /**
+   * Return a ProxyPushConsumer reference to be used to connect to a
+   * PushSupplier.
+   */
+  public ProxyPushConsumer obtain_push_consumer()
+  {
+    synchronized( pushConsumers )
     {
-	try
-	{
-	    ProxyPushSupplierImpl p = new ProxyPushSupplierImpl( this, _orb() );
-	    push_suppliers.addElement( p );
-	    return ProxyPushSupplierHelper.narrow(poa.servant_to_reference(p));
-	} 
-	catch ( Exception e )
-	{
-	    e.printStackTrace();
-	    return null;
-	}
+      ProxyPushConsumerImpl p = new ProxyPushConsumerImpl( this, _orb(), myPoa );
+      pushConsumers.addElement( p );
+      return p._this( myOrb );
     }
+  }
 
-
-    /* internal interface */
-
-    protected synchronized org.omg.CORBA.Any internal_pull( ProxyPullSupplierImpl p ) 
-	throws Disconnected
+  /**
+   * Return a ProxyPushSupplier reference to be used to connect to a
+   * PushConsumer.
+   */
+  public ProxyPushSupplier obtain_push_supplier()
+  {
+    synchronized( pushSuppliers )
     {
-	Vector tmp;
-	boolean found_event = false;
-	org.omg.CORBA.Any event = null;   
-
-	while ( !found_event )
-	{
-	    // pending_events ?
-	    for (Enumeration e = pending_events.elements(); e.hasMoreElements() 
-		     && !found_event;)
-	    {
-		EventListElement evt = (EventListElement)e.nextElement();
-		if (evt.is_for_proxy(p)) 
-		{
-		    event = evt.event;
-		    evt.consumers.removeElement(p);
-		    if( evt.consumers.isEmpty() )
-			pending_events.removeElement( evt );
-		    return event;
-		}
-	    } 
-	    
-	    if( !found_event && pull_consumers.isEmpty()) 
-	    {
-		try 
-		{
-		    wait();     // notify for consumers_add_element and push.
-
-		    /* notify can happen at two places: either a new pull supplier 
-		     * has registered, or a new event was pushed into the channel 
-		     */
-		    if( pull_consumers.isEmpty() ) // i.e. a new event has arrived
-			continue;
-		} 
-		catch  (InterruptedException e) 
-		{}
-	    }
-	
-	    // no pending_events, but suppliers exixt
-	    if ( !found_event && !pull_consumers.isEmpty() ) 
-	    {
-		// pull exiting suppliers (ie proxyconsumers!) 
-		for (Enumeration e = pull_consumers.elements(); e.hasMoreElements() && !found_event;) 
-		{
-		    ProxyPullConsumerImpl supplier = (ProxyPullConsumerImpl)e.nextElement();
-		    /* pull suppliers might have disconnected */
-		    try
-		    {
-			event = supplier.internal_pull();
-			found_event = true;
-		    }
-		    catch ( Disconnected dis)
-		    {
-			disconnect_pull_consumer( supplier );
-			continue;
-		    }
-		    if (found_event)
-		    {
-			// und fuer (andere!) Konsumenten (also: ProxyPullSuppliers) in den Puffer schreiben.
-			tmp = (Vector)pull_suppliers.clone();
-			tmp.removeElement( p );
-			EventListElement x = new EventListElement( event, tmp );
-			pending_events.addElement( x );
-			notify();
-		    }
-		}
-	    }
-	
-	    // no events, but suppliers exited and pulling failed:
-	    if (!found_event) 
-	    {
-		try 
-		{
-		    wait(20);  
-		} 
-		catch  (InterruptedException e) {}
-	    }
-
-	} // end while
-	
-	return event;
+      ProxyPushSupplierImpl p = new ProxyPushSupplierImpl( this, _orb(), myPoa );
+      pushSuppliers.addElement( p );
+      return p._this( myOrb );
     }
+  }
 
-    protected synchronized void internal_push( org.omg.CORBA.Any event)
-	throws Disconnected
+
+  /**
+   * Send event to all registered consumers.
+   */
+  protected void push_event( org.omg.CORBA.Any event )
+  {
+    ProxyPushSupplierImpl push = null;
+    ProxyPullSupplierImpl pull = null;
+    synchronized( pushSuppliers )
     {
-	Thread pushThread;
-	if (!push_suppliers.isEmpty())
-	{
-	    //  pushThread = new Thread( new Sender(event, push_suppliers ));
-	    pushThread = new Thread( new Sender(event ));
-	    pushThread.start();
-	} 
-
-	if (!pull_suppliers.isEmpty())
-	{
-	    EventListElement e = new EventListElement( event, pull_suppliers );
-	    pending_events.addElement( e );
-	}
-	notify();
+      for (int i=0, n=pushSuppliers.size(); i < n; i++ )
+      {
+        push = (ProxyPushSupplierImpl)pushSuppliers.elementAt( i );
+        try
+        {
+          push.push_to_consumer( event );
+        }
+        catch( org.omg.CORBA.COMM_FAILURE comm )
+        {
+          pullSuppliers.removeElementAt( i );
+          --i;
+        }
+      }
     }
-
-
-    protected synchronized org.omg.CORBA.Any internal_try_pull ( ProxyPullSupplierImpl p, 
-								 BooleanHolder has_event ) 
-	throws Disconnected
+    synchronized( pullSuppliers )
     {
-	Vector tmp;
-	boolean found_event = false;
-	BooleanHolder found_event_ref;
-	org.omg.CORBA.Any event = null;    
-
-	found_event_ref = new BooleanHolder();
-	found_event_ref.value =false;
-	for (Enumeration e = pending_events.elements(); e.hasMoreElements() && !found_event;)
-	{
-	    EventListElement evt = (EventListElement)e.nextElement();
-	    if (evt.is_for_proxy(p)) 
-	    {
-		found_event = true;  		
-		event = evt.event;
-		evt.consumers.removeElement(p);
-		if( evt.consumers.isEmpty() )
-		    pending_events.removeElement( evt );
-		break;
-	    }
-	} 
-
-	// no pending events. try-pull existing suppliers
-	if ( !found_event && !pull_consumers.isEmpty())
-	{
-	    for (Enumeration e = pull_consumers.elements(); 
-		 e.hasMoreElements() && !found_event;)
-	    {
-		ProxyPullConsumerImpl supplier = (ProxyPullConsumerImpl)e.nextElement();
-		try
-		{
-		    event = supplier.internal_try_pull( found_event_ref );
-		}
-		catch( Disconnected dis )
-		{
-		    disconnect_pull_consumer( supplier );
-		    continue;
-		}
-		found_event = found_event_ref.value;
-		if (found_event) 
-		{
-		    // und fuer (andere!) Konsumenten (also: ProxyPullSuppliers) in den Puffer schreiben.
-		    tmp = (Vector)pull_suppliers.clone();
-		    tmp.removeElement( p );
-		    EventListElement x = new EventListElement( event, tmp );
-		    pending_events.addElement( x );
-		    notify();
-		    break;
-		}
-	    }  
-	}    // endif
-
-	has_event.value = found_event;
-	if( ! found_event )
-	{
-	    /* we have to return something, and it may not be a null reference */
-	    event = nullAny;	    
-	}
-	return event;
+      for (int i=0, n=pullSuppliers.size(); i < n; i++ )
+      {
+        pull = (ProxyPullSupplierImpl)pullSuppliers.elementAt( i );
+        try
+        {
+          pull.push_to_supplier( event );
+        }
+        catch( org.omg.CORBA.COMM_FAILURE comm )
+        {
+          pullSuppliers.removeElementAt( i );
+          --i;
+        }
+      }
     }
+  }
 
-
-
-
-    static public void main( String[] args ) 
+  static public void main( String[] args )
+  {
+    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
+    try
     {
-	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
-	try 
-	{           
-	    org.omg.PortableServer.POA poa = 
-		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-	    EventChannelImpl channel = new EventChannelImpl(orb,poa);
+      org.omg.PortableServer.POA poa =
+          org.omg.PortableServer.POAHelper.narrow(
+              orb.resolve_initial_references("RootPOA"));
 
-	    poa.the_POAManager().activate();
+      EventChannelImpl channel = new EventChannelImpl(orb,poa);
 
-	    org.omg.CORBA.Object o = poa.servant_to_reference(channel);
+      poa.the_POAManager().activate();
 
-	    NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
-	
-	    String channelName = ( args.length > 0 ? args[0] : "Generic.channel" );
+      org.omg.CORBA.Object o = poa.servant_to_reference(channel);
 
-	    nc.bind(nc.to_name( channelName  ), o);
-	    orb.run();
-	} 
-	catch ( Exception e) 
-	{
-	    e.printStackTrace();
-	}
+      NamingContextExt nc =
+          NamingContextExtHelper.narrow(
+              orb.resolve_initial_references("NameService"));
 
+      String channelName = ( args.length > 0 ? args[0] : "Generic.channel" );
+
+      nc.bind(nc.to_name( channelName  ), o);
+      orb.run();
     }
+    catch( Exception e )
+    {
+      e.printStackTrace();
+    }
+  }
 
+  /**
+   * Override this method from the Servant baseclass.  Fintan Bolton
+   * in his book "Pure CORBA" suggests that you override this method to
+   * avoid the risk that a servant object (like this one) could be
+   * activated by the <b>wrong</b> POA object.
+   */
+  public org.omg.PortableServer.POA _default_POA()
+  {
+    return myPoa;
+  }
 }
-
-
-
-
-
-
-
-
-
