@@ -59,23 +59,24 @@ public interface Operation
 
     public void print_sendc_Method( PrintWriter ps, String classname );
 
+    public String signature();
+
+
     /**
      * @param printModifiers whether "public abstract" should be added
      */
     void printSignature( PrintWriter ps, boolean printModifiers );
 
-    /** method code for stubs */
+    void printSignature( PrintWriter ps );
 
-    void printMethod( PrintWriter ps, String classname, boolean is_local );
-
-    void print_sendc_Method( PrintWriter ps, String classname );
-
-    /** method code for skeletons */
+    /**
+     * Method code for skeletons
+     * @param ps a <code>PrintWriter</code> value
+     */
 
     void printDelegatedMethod( PrintWriter ps );
 
     void printInvocation( PrintWriter ps );
-
 
     void accept( IDLTreeVisitor visitor );
 
