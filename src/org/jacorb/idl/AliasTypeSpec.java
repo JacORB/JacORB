@@ -32,11 +32,11 @@ public class AliasTypeSpec
     extends TypeSpec
 {
     /** the type for which this is an alias */
-    public TypeSpec originalType = null;
-    private boolean written = false;
+    public TypeSpec originalType;
+    private boolean written;
 
-    /** 
-     * Class constructor, 
+    /**
+     * Class constructor,
      * @param ts - the TypeSpec for which to create a new alias
      */
 
@@ -48,7 +48,7 @@ public class AliasTypeSpec
 
     public Object clone()
     {
-        AliasTypeSpec alias = 
+        AliasTypeSpec alias =
             new AliasTypeSpec( (TypeSpec)type_spec.clone() );
         alias.name = name;
         alias.pack_name = pack_name;
@@ -59,7 +59,7 @@ public class AliasTypeSpec
     {
         if( pack_name.length() > 0 )
         {
-            String s = 
+            String s =
                 ScopedName.unPseudoName( pack_name + "." + name );
 
             if( !s.startsWith( "org.omg" ) )
@@ -94,6 +94,10 @@ public class AliasTypeSpec
 
     public TypeSpec originalType()
     {
+        if (originalType instanceof AliasTypeSpec)
+        {
+            return (((AliasTypeSpec)originalType).originalType ());
+        }
         return originalType;
     }
 
@@ -148,7 +152,7 @@ public class AliasTypeSpec
                 if( originalType instanceof VectorType )
                 {
                     tName =
-                        originalType.typeName().substring( 0, 
+                        originalType.typeName().substring( 0,
                               originalType.typeName().indexOf( '[' ) );
                 }
                 else
@@ -182,7 +186,7 @@ public class AliasTypeSpec
 
     /**
      * @returns a string for an expression of type TypeCode that
-     * 			describes this type 
+     * 			describes this type
      * Note that this is the TypeSpec for the alias type and is not unwound to
      * the original type.
      */
@@ -211,7 +215,7 @@ public class AliasTypeSpec
     }
 
     /**
-     * Code generation, generate holder and helper classes. Holder classes 
+     * Code generation, generate holder and helper classes. Holder classes
      * are only generated for array and sequence types.
      */
 
@@ -239,7 +243,7 @@ public class AliasTypeSpec
 
             String className = className();
 
-            String path = 
+            String path =
                 parser.out_dir + fileSeparator +
                 pack_name.replace( '.', fileSeparator );
 
@@ -248,7 +252,7 @@ public class AliasTypeSpec
             {
                 if( !dir.mkdirs() )
                 {
-                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path, 
+                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path,
                                                        null );
                 }
             }
@@ -258,8 +262,6 @@ public class AliasTypeSpec
 
             if
             (
-//                ( !originalType.basic() && !( originalType instanceof AnyType ) )
-//                ||
              ( originalType instanceof TemplateTypeSpec && !( originalType instanceof StringType ) )
             )
             {
@@ -289,8 +291,6 @@ public class AliasTypeSpec
 
     public String printReadStatement( String varname, String streamname )
     {
-        //	return typeName() + "Helper.read(" + Streamname +")" ;
-
         if( doUnwind() )
         {
             return originalType.printReadStatement( varname, streamname );
@@ -298,14 +298,11 @@ public class AliasTypeSpec
         else
         {
             return varname + " = " + full_name() + "Helper.read(" + streamname + ");";
-            //	    return toString() + "Helper.read(" + streamname +")" ;
         }
     }
 
     public String printReadExpression( String streamname )
     {
-        //	return typeName() + "Helper.read(" + Streamname +")" ;
-
         if( doUnwind() )
         {
             return originalType.printReadExpression( streamname );
@@ -313,14 +310,11 @@ public class AliasTypeSpec
         else
         {
             return full_name() + "Helper.read(" + streamname + ")";
-            //	    return toString() + "Helper.read(" + streamname +")" ;
         }
     }
 
     public String printWriteStatement( String var_name, String streamname )
     {
-        //return typeName()+"Helper.write(" + streamname +"," + var_name +");";
-
         if( doUnwind() )
         {
             return originalType.printWriteStatement( var_name, streamname );
@@ -342,14 +336,14 @@ public class AliasTypeSpec
 
     /**
      * @returns true iff the original type is such that the alias should
-     * be unwound to it, either anothetr alias, a constructed type (e.g a struct), 
+     * be unwound to it, either anothetr alias, a constructed type (e.g a struct),
      * an any, a basic type (long, short, etc.)
      */
 
     private boolean doUnwind()
     {
-        return  
-            ( 
+        return
+            (
              originalType.basic() &&
              (
               !( originalType instanceof TemplateTypeSpec )
@@ -434,14 +428,14 @@ public class AliasTypeSpec
 
         printClassComment( className, ps );
 
-        ps.println( "public" + parser.getFinalString() + " class " + 
+        ps.println( "public" + parser.getFinalString() + " class " +
                     className + "Helper" );
         ps.println( "{" );
 
         ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = null;\n");
         String type = originalType.typeName();
 
-        ps.println( "\tpublic static void insert (org.omg.CORBA.Any any, " + 
+        ps.println( "\tpublic static void insert (org.omg.CORBA.Any any, " +
                     type + " s)" );
         ps.println( "\t{" );
         ps.println( "\t\tany.type (type ());" );
@@ -459,7 +453,7 @@ public class AliasTypeSpec
         ps.println( "\t\t{" );
 
         ps.println( "\t\t\t_type = org.omg.CORBA.ORB.init().create_alias_tc(" +
-                    full_name() + "Helper.id(), \"" + name + "\"," + 
+                    full_name() + "Helper.id(), \"" + name + "\"," +
                     originalType.typeSpec().getTypeCodeExpression() + " );" );
 
         ps.println( "\t\t}" );
@@ -468,11 +462,8 @@ public class AliasTypeSpec
 
         printIdMethod( ps ); // inherited from IdlSymbol
 
-        //  if( originalType.basic() || originalType instanceof AnyType )
-        // {
-
         /* read */
-        ps.println( "\tpublic static " + type + 
+        ps.println( "\tpublic static " + type +
                     " read (final org.omg.CORBA.portable.InputStream _in)" );
         ps.println( "\t{" );
         ps.println( "\t\t" + type + " _result;" );
@@ -486,25 +477,5 @@ public class AliasTypeSpec
         ps.println( "\t\t" + originalType.printWriteStatement( "_s", "_out" ) );
         ps.println( "\t}" );
         ps.println( "}" );
-//  	}
-//  	else
-//  	{
-//  	    String helpername = ( originalType instanceof AliasTypeSpec ?
-//  				  originalType.full_name() : originalType.typeName() ) + "Helper";
-//  	    /* read */
-//  	    ps.println("\tpublic static " +type+ " read (final org.omg.CORBA.portable.InputStream _in)");
-//  	    ps.println("\t{");
-//  	    ps.println("\t\treturn " + helpername +".read(_in);");
-//  	    ps.println("\t}");
-
-//  	    /* write */
-//  	    ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");
-//  	    ps.println("\t{");
-//  	    ps.println("\t\t" +helpername + ".write(_out,_s);");
-//  	    ps.println("\t}");
-//  	    ps.println("}");
-//  	}
     }
 }
-
-

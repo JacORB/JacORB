@@ -108,7 +108,7 @@ class AddExpr
         String x = "";
         if( add_expr != null )
         {
-            x = add_expr + operator;
+            x = add_expr.toString () + ' ' + operator + ' ';
         }
         return x + mult_expr;
     }
@@ -118,9 +118,3 @@ class AddExpr
         return mult_expr.get_token();
     }
 }
-
-
-
-
-
-

@@ -110,7 +110,7 @@ class MultExpr
         String x = "";
         if( mult_expr != null )
         {
-            x = mult_expr + operator;
+            x = mult_expr.toString () + ' ' + operator + ' ';
         }
         return x + unary_expr.toString();
     }
@@ -121,11 +121,3 @@ class MultExpr
     }
 
 }
-
-
-
-
-
-
-
-

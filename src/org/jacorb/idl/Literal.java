@@ -21,6 +21,9 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
+import java_cup.runtime.long_token;
+import java_cup.runtime.int_token;
+import java.math.BigInteger;
 
 /**
  * @author Gerald Brose
@@ -30,6 +33,7 @@ import java.io.PrintWriter;
 class Literal
     extends IdlSymbol
 {
+    private static BigInteger maximum;
     public String string;
     public boolean wide;
     public java_cup.runtime.token token;
@@ -55,6 +59,88 @@ class Literal
         if( declared_in != null )
         {
             TypeSpec ts = declared_in.const_type.symbol.typeSpec();
+            // If its an alias check the actual type not the alias
+            if (ts instanceof AliasTypeSpec)
+            {
+                ts = ((AliasTypeSpec)ts).originalType ();
+            }
+
+            // If its unsigned may need to fit the value into a signed
+            // value.
+            if (ts instanceof IntType)
+            {
+                if (((IntType)ts).unsigned &&
+                    ts instanceof LongLongType &&
+                    token instanceof fixed_token)
+                {
+                    // Need to reset the unsigned value to fit into a
+                    // signed long value.
+                    if (maximum == null)
+                    {
+                        maximum = new BigInteger ("18446744073709551615");
+                    }
+                    BigInteger current = new BigInteger (string);
+                    if (current.compareTo (maximum ) > 0)
+                    {
+                        parser.error ("Value too big for unsigned long");
+                    }
+                    else
+                    {
+                        token = new long_token
+                        (
+                            ((fixed_token)token).sym,
+                            ((fixed_token)token).fixed_val.longValue ()
+                        );
+                        string = Long.toString (((long_token)token).long_val);
+                    }
+                }
+                else if (((IntType)ts).unsigned == true &&
+                         ts instanceof LongType &&
+                         token instanceof long_token)
+                {
+                    // Need to reset the unsigned value to fit into a
+                    // signed integer value. Will need to replace the
+                    // token so it is a int_token not a long.
+                    if (((long_token)token).long_val > 4294967295L )
+                    {
+                        parser.error
+                        (
+                            "Value (" +
+                            ((long_token)token).long_val +
+                            ") too big for unsigned long"
+                        );
+                    }
+                    else
+                    {
+                        token = new int_token
+                        (
+                            ((long_token)token).sym,
+                            (int)((long_token)token).long_val
+                        );
+                        string = Integer.toString (((int_token)token).int_val);
+                    }
+                }
+                // Not unsigned but still have a long token for a Java Int type
+                else if (ts instanceof LongType && token instanceof long_token)
+                {
+                    parser.error
+                    (
+                        "Value (" +
+                        ((long_token)token).long_val +
+                        ") too big for Java int"
+                    );
+                }
+                // Not unsigned but still have a fixed_token for a Java Long type
+                else if (ts instanceof LongLongType && token instanceof fixed_token)
+                {
+                    parser.error
+                    (
+                        "Value (" +
+                        ((fixed_token)token).fixed_val.toString () +
+                        ") too big for Java long"
+                    );
+                }
+            }
 
             if( logger.isWarnEnabled() )
 		 logger.warn( "Literal " + ts.getClass().getName() + " " +
@@ -88,7 +174,12 @@ class Literal
 
     public String toString()
     {
-        return escapeBackslash( string );
+        String result = string;
+        if (token instanceof java_cup.runtime.long_token)
+        {
+            result = (string + 'L');
+        }
+        return escapeBackslash (result);
     }
 
     public void print( PrintWriter ps )
@@ -209,5 +300,3 @@ class Literal
         return result.toString();
     }
 }
-
-

@@ -30,8 +30,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.*;
 
-class ConstDecl
-    extends Declaration
+class ConstDecl extends Declaration
 {
     private static Hashtable values = new Hashtable();
     private static Hashtable declarations = new Hashtable();
@@ -92,7 +91,7 @@ class ConstDecl
         const_type.parse();
         const_expr.parse();
         t.typeName = name;
-        values.put( t.resolvedName() + 
+        values.put( t.resolvedName() +
                     ( contained() ? "" : ".value" ),
                     const_expr.value() );
         declarations.put( t.resolvedName(), this );
@@ -138,16 +137,7 @@ class ConstDecl
         }
         else if( ts instanceof LongLongType )
         {
-            String val = const_expr.toString ();
-
-            // long constant values need to terminate with an L
-
-            if (Character.isDigit (val.charAt (0)))
-            {
-               val = val + "L";
-            }
-
-            ps.println (val + ";");
+            ps.print (const_expr.toString () + ';');
         }
         else if( ts instanceof FloatType )
         {
@@ -272,16 +262,7 @@ class ConstDecl
             }
             else if( ts instanceof LongLongType )
             {
-                String val = const_expr.toString ();
-
-                // long constant values need to terminate with an L
-
-                if (Character.isDigit (val.charAt (0)))
-                {
-                   val = val + "L";
-                }
-
-                pw.println (val + ";");
+                pw.print (const_expr.toString () + ';');
             }
             else if( ts instanceof FloatType )
             {
@@ -312,5 +293,3 @@ class ConstDecl
         }
     }
 }
-
-

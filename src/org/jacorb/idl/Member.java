@@ -112,9 +112,10 @@ class Member
             if( type_spec instanceof AliasTypeSpec )
             {
                 AliasTypeSpec aliasTS = (AliasTypeSpec)type_spec;
-                if( aliasTS.originalType instanceof SequenceType )                    
+                TypeSpec originalType = aliasTS.originalType ();
+                if( originalType instanceof SequenceType )
                 {
-                    SequenceType sequenceTS = (SequenceType)aliasTS.originalType;
+                    SequenceType sequenceTS = (SequenceType)originalType;
                     if( sequenceTS.elementTypeSpec().typeName().equals( containingType.typeName()) )
                         sequenceTS.setRecursive ();
                 }
@@ -147,7 +148,6 @@ class Member
                 ts = ( (SequenceType)ts.typeSpec() ).elementTypeSpec().typeSpec();
             }
 
-            //           if( ts.typeName().equals( containingType.typeName()) ||
             if( ScopedName.isRecursionScope( ts.typeName() ) )
             {
                 seqTs.setRecursive();
@@ -197,7 +197,6 @@ class Member
                an array declarator
             */
 
-            //			if( clone_and_parse && !(ts instanceof BaseType) )
             if( clone_and_parse || d.d instanceof ArrayDeclarator )
             {
                 /* arrays need special treatment */
@@ -238,9 +237,6 @@ class Member
             /* if the type spec is a scoped name, it is already parsed and
              * the type name is defined
              */
-            //			if( clone_and_parse )
-            //				ts.parse();
-
             m.type_spec = ts;
             m.pack_name = this.pack_name;
             m.name = this.name;
@@ -288,5 +284,3 @@ class Member
         return type_spec.typeSpec();
     }
 }
-
-
