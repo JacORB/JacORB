@@ -36,6 +36,7 @@ class EnumType
     public SymbolList enumlist;
     int const_counter = 0;    
     private boolean written = false;
+    private boolean parsed = false;
 
     public EnumType(int num)
     {
@@ -53,6 +54,7 @@ class EnumType
         et.token = this.token;
         et.included = this.included;
         et.enclosing_symbol = this.enclosing_symbol;
+        et.parsed = this.parsed;
         return et;
     }
 
@@ -79,7 +81,6 @@ class EnumType
     {
         if( typeName == null )
         {
-            //System.out.println(" Enum " + full_name()  + " has no typeName");
             setPrintPhaseNames();
         }
         return typeName;
@@ -114,6 +115,12 @@ class EnumType
 
     public void parse() 
     {
+        if (parsed)
+        {
+            return;
+        }
+        parsed = true;
+
         escapeName();
 
         try
@@ -153,7 +160,7 @@ class EnumType
         } 
         catch (NameAlreadyDefined p )
         {
-            parser.error("Enum " + full_name() + " already defined", token );
+            parser.error ("Enum " + full_name() + " already defined", token );
         }
     }
 

@@ -61,7 +61,6 @@ class ConstDecl
 	}
 	else
 	{
-	    System.out.println(resolvedName + " not a defined constant");
 	    return resolvedName;
 	}
     }
