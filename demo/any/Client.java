@@ -35,7 +35,8 @@ public class Client
 	    NamingContextExt nc = 
                 NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
 
-	    AnyServer s =  AnyServerHelper.narrow(nc.resolve(nc.to_name("AnyServer.service")));
+	    AnyServer s =  
+              AnyServerHelper.narrow(nc.resolve(nc.to_name("AnyServer.service")));
 
 	    // create a new any
 	    Any a = org.omg.CORBA.ORB.init().create_any();
@@ -68,9 +69,13 @@ public class Client
 	    a.insert_string("Hi there");
 	    System.out.println( s.generic( a ) );
 
-	    // string
+	    // wstring
 	    System.out.print("Passing a Wstring...");
-            myWStringHelper.insert( a, "WWWWWSTring-הההההß" );
+            //myWStringHelper.insert( a, "WWWWWSTring-הההההß" );
+            a.insert_wstring( "WWWWWSTring-הההההß" );
+
+            System.out.println("Any.kind: " + a.type().kind().value() );
+
 	    System.out.println( s.generic( a ) );
 
 	    // sequences 
@@ -144,7 +149,7 @@ public class Client
 	    while( counter > 0 )
 	    {
 		System.out.print("Going to sleep to wait for incoming calls");
-		Thread.currentThread().sleep(1000);
+		Thread.currentThread().sleep(3000);
 	    }
 	    orb.shutdown(true);
 	} 

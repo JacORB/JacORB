@@ -39,6 +39,9 @@ public class AnyServerImpl
 	    case TCKind._tk_string:
 		result = "String: " + a.extract_string();
 		break;
+	    case TCKind._tk_wstring:
+		result = "WString: " + a.extract_wstring();
+		break;
 	    case TCKind._tk_struct:
 		if( NodeHelper.type().equal( a.type()))
 		{		
@@ -89,7 +92,7 @@ public class AnyServerImpl
                     for( int slen = 0; slen < stra.length; slen++ )
                         result += stra[slen];
                 }
-                if( alias_any.type().equal( myWStringHelper.type()))
+                else if( alias_any.type().equal( myWStringHelper.type()))
                 {
                     result = myWStringHelper.extract( alias_any );
                 }
