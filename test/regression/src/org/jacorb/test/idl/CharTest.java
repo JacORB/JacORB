@@ -1,4 +1,4 @@
-package org.jacorb.test;
+package org.jacorb.test.idl;
 
 /*
  *        JacORB  - a free Java ORB
@@ -21,22 +21,44 @@ package org.jacorb.test;
  */
 
 import junit.framework.*;
+import junit.extensions.TestSetup;
+import org.jacorb.idl.ParseException;
 
-public class AllTest extends TestCase
+
+/**
+ * Char.java
+ *
+ * IDL parse tests.
+ *
+ */
+
+public class CharTest extends TestCase
 {
-   public AllTest (String name)
+   public CharTest (String name)
    {
       super (name);
    }
 
+
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("All jacorb");
-
-      suite.addTest (org.jacorb.test.idl.AllTest.suite ());
-      suite.addTest (org.jacorb.test.orb.AllTest.suite ());
-      suite.addTest (org.jacorb.test.naming.AllTest.suite ());
+      TestSuite suite = new TestSuite ("Char Tests");
+      suite.addTest (new CharTest ("testCharParseGood"));
 
       return suite;
+   }
+
+
+   /**
+    */
+   public void testCharParseGood ()
+   {
+      StringBuffer command = new StringBuffer ();
+      String file[] = new String[3];
+      file[0] = "-d";
+      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
+      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Char.idl");
+
+      assertTrue ("Compiled Char.idl", org.jacorb.idl.parser.compile (file));
    }
 }

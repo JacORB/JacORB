@@ -1,0 +1,17 @@
+#pragma prefix "encoding.idl"
+
+module CharTests
+{
+   interface CharTester
+   {
+      union CharUnionDef switch(char) {
+         case 'c':
+         char neg_mem;
+         case 'a':
+         case 'b':
+         case 'd':
+         default:
+         string default_mem;
+      };
+   };
+};

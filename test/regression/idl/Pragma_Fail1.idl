@@ -1,0 +1,18 @@
+// Pragma Testing
+
+#pragma prefix "jacorb.org.Tests"
+
+interface GlobalInterface {};
+interface GlobalInterfaceNoVersion {};
+
+module C
+{
+   module B
+   {
+      interface BB {};
+
+#pragma ID BB "IDL:COW/B/BB:1.1"
+#pragma version BB 1.1
+// Error checking
+#pragma version BB 1.22222
+};

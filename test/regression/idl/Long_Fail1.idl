@@ -1,0 +1,5 @@
+
+module Longs
+{
+   const unsigned long long UnsignedValue1 = 18446744073709551616;
+};

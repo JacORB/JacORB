@@ -1,4 +1,4 @@
-package org.jacorb.test;
+package org.jacorb.test.idl;
 
 /*
  *        JacORB  - a free Java ORB
@@ -22,20 +22,22 @@ package org.jacorb.test;
 
 import junit.framework.*;
 
-public class AllTest extends TestCase
+public class PackageTest extends TestCase
 {
-   public AllTest (String name)
+   public PackageTest (String name)
    {
       super (name);
    }
 
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("All jacorb");
+      TestSuite suite = new TestSuite ("Package idl");
 
-      suite.addTest (org.jacorb.test.idl.AllTest.suite ());
-      suite.addTest (org.jacorb.test.orb.AllTest.suite ());
-      suite.addTest (org.jacorb.test.naming.AllTest.suite ());
+//       suite.addTest (LongTest.suite ());
+//       suite.addTest (PragmaTest.suite ());
+//       suite.addTest (ModuleTest.suite ());
+      suite.addTest (CharTest.suite ());
+//       suite.addTest (TypeDefTest.suite ());
 
       return suite;
    }
