@@ -520,6 +520,21 @@ parser code
 
     public static String pack_replace(String old)
     {
+//        for( Enumeration e = pack_replace.keys(); e.hasMoreElements();)
+//        {
+//              String key = (String)e.nextElement();
+//
+//              Environment.output(4,"Comparing name " + old + " with key " + key );
+//
+//              if( old.startsWith( key ))
+//              {
+//                  String result = (String)pack_replace.get( key ) + 
+//                                   old.substring( key.length() + 1 );
+//                  return result;
+//              }
+//        }
+//        return old;
+
         String n_str = (String)pack_replace.get(old);
         if( n_str == null )
             return old;

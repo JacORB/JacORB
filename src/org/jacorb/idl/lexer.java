@@ -602,7 +602,9 @@ public class lexer
                 advance();      // skip ' '
                 boolean useIncludePath = ( next_char == '<' );
                 advance(); // skip `\"' or '<'
+
                 String fname = get_string();
+
                 if( useIncludePath && ( next_char != '>' ))
                     emit_error("Syntax error in #include directive, expecting '>'");
                 else if( !useIncludePath && ( next_char != '\"' ))

@@ -85,9 +85,15 @@ class ElementSpec
 	else if( t.typeSpec() instanceof ScopedName )
 	{
 	    TypeSpec ts = ((ScopedName)t.typeSpec()).resolvedTypeSpec();
+            if( ts.typeName().equals( containingUnion.typeName() ))
+            {
+                parser.error("Illegal recursion in union " + containingUnion.full_name(), token);
+            }
+
 	    if( ts != null ) 
 		t = ts;
 	} 
+
         try
         {
             NameTable.define( containingUnion.full_name() + "." + d.name(), "declarator");
@@ -102,7 +108,7 @@ class ElementSpec
 
     public void print(java.io.PrintWriter ps)
     {	
-	if( t.typeSpec() instanceof TemplateTypeSpec ||
+	if( t.typeSpec() instanceof TemplateTypeSpec  ||
 	    t.typeSpec() instanceof ConstrTypeSpec )
 	{
 	    t.print(ps);

@@ -156,9 +156,9 @@ class IdlSymbol
 
     String full_name()
     {
-
 	if( name.length() == 0 ) 
 	    return null;
+
 	if( pack_name.length() > 0 )
 	{	
 	    return pack_name + "." + name;

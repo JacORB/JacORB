@@ -154,9 +154,9 @@ public class AliasTypeSpec
 
     public String getTypeCodeExpression()
     {
-	return "org.omg.CORBA.ORB.init().create_alias_tc( " + 
-		full_name() + "Helper.id(),\"" + name + "\"," +
-	    originalType.getTypeCodeExpression() + ")";
+        return "org.omg.CORBA.ORB.init().create_alias_tc( " + 
+            full_name() + "Helper.id(),\"" + name + "\"," +
+            originalType.getTypeCodeExpression() + ")";
     }
 
     public String className()
