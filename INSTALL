@@ -9,16 +9,16 @@ Required:
 
 	- JDK 1.2 or later
 
-	- for IIOP over SSL: 
-          JDK 1.4 or IAIK crytography provider and SSL implementation, 
+	- for IIOP over SSL:
+          JDK 1.4 or IAIK crytography provider and SSL implementation,
           available from http://www.iaik.at
 
 	- for rebuilding JacORB or compiling the demos:
 	       Version 1.2 or later of the Jakarta Ant make tool,
-          available from http://jakarta.apache.org/ant. 
+          available from http://jakarta.apache.org/ant.
 
         - for using names instead of ip adresses in IORs:
-          dnsjava 1.1.6 (or above) available from 
+          dnsjava 1.1.6 (or above) available from
           http://www.xbill.org/dnsjava. See step 7 for instructions.
 
         This release has been tested on:
@@ -57,12 +57,12 @@ Installation:
 
    Also, you can configure how much diagnostic information JacORB
    emits by setting the jacorb.verbosity property. A value of 0
-   means no output,  level 1 emits basic connection information, 
+   means no output,  level 1 emits basic connection information,
    and levels 2 and above are debug levels.
 
    NOTE: If you are updating from an existing JacORB installation
    you MUST change existing jacorb.properties files to reflect the
-   changes in package names (the leading "org.") where property 
+   changes in package names (the leading "org.") where property
    values point to JacORB classes. E.g., the value for property:
 
       org.omg.PortableInterceptor.ORBInitializerClass.standard_init
@@ -72,10 +72,10 @@ Installation:
       org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
 4. Generate or edit the start scripts jaco and jaco.bat:
-   (This step is carried out automatically by the build process, so 
+   (This step is carried out automatically by the build process, so
     it is only required if you are not rebuilding JacORB.)
 
-        a) If you have Ant installed, simply call 
+        a) If you have Ant installed, simply call
            "ant jaco"
 
         b) If you don't have Ant, you need to create and adapt the
@@ -90,7 +90,7 @@ Installation:
    dir, and an "ant libs" in the JacORB root dir. If you're absolutely
    sure that you're not using the jacorb.jar, you can omit rebuilding
    the libs.
-   
+
    If the IP addresses aren't resolved properly / at all, see the
    dnsjava docs on how to set properties to tell dnsjava where to look
    for the DNS servers.
@@ -104,20 +104,15 @@ Building JacORB (Optional)
    To build JacORB you need to call "ant" in the installation
    directory:
 
-	$> ant 
- 
-   By default debugging is turned off when building JacORB. To build 
+	$> ant
+
+   By default debugging is turned off when building JacORB. To build
    JacORB with debugging turned on, you need to call "ant -Ddebug=on"
    in the installation directory:
 
    $> ant -Ddebug=on
 
-   NOTES: 
-
-   The path to the installation directory cannot contain spaces. For 
-   example, if JacORB is installed on a machine running Windows in the 
-   directory C:\Program Files\JacORB then trying to build JacORB will 
-   fail because of the space in the path to the installation directory.
+   NOTES:
 
    The build process may abort, claiming that javac does not have
    enough memory. This can happen when trying to compile a large
@@ -129,13 +124,13 @@ Building JacORB (Optional)
    applicable in your setting you need to edit ANT_HOME/bin/ant(.bat)
    such that the java interpreter is passed the -mx48m (or whatever)
    switch.  For Windows add the following line after calling
-   antrc_pre.bat 
-		set ANT_OPTS=-mx48m %ANT_OPTS% 
+   antrc_pre.bat
+		set ANT_OPTS=-mx48m %ANT_OPTS%
 
-   For Unix add the following line after sourcing .antrc 
+   For Unix add the following line after sourcing .antrc
 		ANT_OPTS=-mx48m $ANT_OPTS
 
-   Yet another way of achieving the same is by setting the 
+   Yet another way of achieving the same is by setting the
    ANT_OPTS environment variable:
       set ANT_OPTS=-mx48m
    on Windows, or on Unix:
