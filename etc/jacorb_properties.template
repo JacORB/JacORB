@@ -466,7 +466,7 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 # without this interceptor
 
 #org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
-
+#org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.iaik.SecurityServiceInitializer
 
 # qualified classname of access decision object
 jacorb.security.access_decision=org.jacorb.security.level2.AccessDecisionImpl
@@ -531,6 +531,7 @@ jacorb.security.keystore_password=
 #
 # IAIK specific settings
 #
+
 
 # files with public key certs of trusted CAs
 #
