@@ -33,8 +33,6 @@
    <target name="compiler" depends="init,java_cup,idlsrc,idllib,idlcmd"/>
 
    <target name="idlcmd">
-        <delete file="bin/idl" />
-        <delete file="bin/idl.bat" />
         <copy overwrite="yes" file="bin/idltemplate" tofile="bin/idl" />
         <copy overwrite="yes" file="bin/idltemplate.bat" tofile="bin/idl.bat" />
         <replace file="bin/idl" token="@@@" value="${basedir}"/>
@@ -103,16 +101,14 @@
    </target>
 
    <target name="jaco" depends="init">
-            <delete file="bin/jaco" />
-            <delete file="bin/jaco.bat" />
-            <copy overwrite="yes" file="bin/jacotemplate" tofile="bin/jaco" />
-            <copy overwrite="yes" file="bin/jacotemplate.bat" tofile="bin/jaco.bat" />
-           <replace file="bin/jaco.bat" token="@@@" value="${basedir}\lib\jacorb.jar;${java.home}\lib\rt.jar"/>
-           <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
-            value="${basedir}" />
-           <replace file="bin/jaco" token="@@@JRE_HOME@@@"
-            value="${java.home}" />
-           <chmod file="bin/jaco" perm="ugo+rx"/>
+      <copy overwrite="yes" file="bin/jacotemplate" tofile="bin/jaco" />
+      <copy overwrite="yes" file="bin/jacotemplate.bat" tofile="bin/jaco.bat" />
+      <replace file="bin/jaco.bat" token="@@@" value="${basedir}\lib\jacorb.jar;${java.home}\lib\rt.jar"/>
+      <replace file="bin/jaco" token="@@@JACORB_HOME@@@"
+         value="${basedir}" />
+      <replace file="bin/jaco" token="@@@JRE_HOME@@@"
+         value="${java.home}" />
+      <chmod file="bin/jaco" perm="ugo+rx"/>
    </target>
 
    <!-- This target creates a jar file that contains the -->
