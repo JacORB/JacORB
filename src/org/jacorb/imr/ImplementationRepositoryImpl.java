@@ -61,11 +61,13 @@ public class ImplementationRepositoryImpl
      * be fixed by the jacorb.imr.endpoint_port_number configuration property.
      */
     private static int default_port;
+
     /**
      * <code>default_host</code> is the host name for the IMR. It defaults to
      * localhost. It may be set by jacorb.imr.host configuration property.
      */
     private static String default_host;
+
     /**
      * <code>orb</code> is the ORB instance for the IMR.
      */
@@ -85,7 +87,6 @@ public class ImplementationRepositoryImpl
     private WriteThread wt;
     private boolean updatePending;
     private Shutdown shutdownThread;
-
 
     /**
      * The constructor.
@@ -122,7 +123,7 @@ public class ImplementationRepositoryImpl
                 }
                 catch (Exception ex)
                 {
-                    Debug.output (Debug.IMR | Debug.INFORMATION, ex);
+                    Debug.output (4, ex);
                     server_table = new ServerTable ();
                     save_server_table (table_file);
                 }
@@ -130,7 +131,7 @@ public class ImplementationRepositoryImpl
         }
         catch (FileOpFailed ex)
         {
-            Debug.output (Debug.IMR | Debug.INFORMATION, ex);
+            Debug.output (4, ex);
         }
 
         shutdownThread = new Shutdown ();
@@ -206,9 +207,9 @@ public class ImplementationRepositoryImpl
      * <code>server</code> has been registered.
      */
     public void set_server_down(String server)
-        throws UnknownServerName {
-        Debug.output(Debug.IMR | Debug.INFORMATION,
-                     "ImR: server " + server + " is going down... ");
+        throws UnknownServerName 
+    {
+        Debug.output(4, "ImR: server " + server + " is going down... ");
 
         ImRServerInfo _server = server_table.getServer(server);
         _server.setDown();
@@ -244,8 +245,7 @@ public class ImplementationRepositoryImpl
 
         updatePending = true;
 
-        Debug.output(Debug.IMR | Debug.INFORMATION,
-                     "ImR: registering poa " + name + " for server: " +
+        Debug.output(4, "ImR: registering poa " + name + " for server: " +
                      server + " on " + host );
 
         if( allow_auto_register &&
@@ -274,8 +274,7 @@ public class ImplementationRepositoryImpl
             _poa = new ImRPOAInfo(name, host, port, _server);
             _server.addPOA(_poa);
             server_table.putPOA(name, _poa);
-            Debug.output
-                (Debug.IMR | Debug.INFORMATION, "ImR: new poa registered");
+            Debug.output(4, "ImR: new poa registered");
         }
         else
         {
@@ -315,17 +314,12 @@ public class ImplementationRepositoryImpl
                 }
                 else
                 {
-                    Debug.output
-                        (Debug.IMR | Debug.INFORMATION, "ImR: Remapping server/port");
+                    Debug.output(4, "ImR: Remapping server/port");
                 }
             }
 
             _poa.reactivate(host, port);
-            Debug.output
-            (
-                Debug.IMR | Debug.INFORMATION,
-                "ImR: register_poa, reactivated"
-            );
+            Debug.output(4,"ImR: register_poa, reactivated");
         }
         try
         {
@@ -336,7 +330,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+            Debug.output(4, e);
         }
     }
 
@@ -351,15 +345,19 @@ public class ImplementationRepositoryImpl
      * to the daemon.
      */
     public void register_host(HostInfo host)
-        throws IllegalHostName, InvalidSSDRef {
+        throws IllegalHostName, InvalidSSDRef 
+    {
 
         if (host.name == null || host.name.length() == 0)
             throw new IllegalHostName(host.name);
 
-        try{
+        try
+        {
             host.ssd_ref.get_system_load();
-        } catch (Exception _e){
-            Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+        } 
+        catch (Exception _e)
+        {
+            Debug.output(4, _e);
             throw new InvalidSSDRef();
         }
         updatePending = true;
@@ -375,7 +373,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+            Debug.output(4, e);
         }
     }
 
@@ -384,7 +382,9 @@ public class ImplementationRepositoryImpl
      * Get host and port (wrapped inside an ImRInfo object) of this repository.
      * @return the ImRInfo object of this repository.
      */
-    public ImRInfo get_imr_info(){
+
+    public ImRInfo get_imr_info()
+    {
         return new ImRInfo(listener.getAddress(), listener.getPort());
     }
 
@@ -398,7 +398,8 @@ public class ImplementationRepositoryImpl
      *
      * @return an array containing all known hosts.
      */
-    public HostInfo[] list_hosts() {
+    public HostInfo[] list_hosts() 
+    {
         return server_table.getHosts();
     }
 
@@ -408,13 +409,14 @@ public class ImplementationRepositoryImpl
      *
      * @return an array containing all registered servers.
      */
-    public ServerInfo[] list_servers() {
+    public ServerInfo[] list_servers() 
+    {
         ServerInfo [] servers;
 
         if (check_object_liveness)
         {
             Debug.output
-                (Debug.IMR | Debug.INFORMATION, "ImR: Checking servers");
+                (4, "ImR: Checking servers");
 
             servers = server_table.getServers();
 
@@ -433,7 +435,7 @@ public class ImplementationRepositoryImpl
                         try
                         {
                             Debug.output
-                                (Debug.IMR | Debug.INFORMATION, "ImR: Setting server " + servers[k].name + " down");
+                                (4, "ImR: Setting server " + servers[k].name + " down");
 
                             // Server is not active so set it down
                             server_table.getServer(servers[k].name).setDown();
@@ -443,12 +445,7 @@ public class ImplementationRepositoryImpl
                         }
                         catch (UnknownServerName e)
                         {
-                            Debug.output
-                            (
-                                Debug.IMR | Debug.INFORMATION,
-                                "ImR: Internal error - unknown server " +
-                                servers[k].name
-                            );
+                            Debug.output(4, "ImR: Internal error - unknown server " + servers[k].name );
                         }
                     }
                 }
@@ -496,8 +493,7 @@ public class ImplementationRepositoryImpl
         ImRServerInfo _server = new ImRServerInfo(name, host, command);
         server_table.putServer(name, _server);
 
-        Debug.output(Debug.IMR | Debug.INFORMATION,
-                     "ImR: server " + name + " on " + host + " registered");
+        Debug.output(4,"ImR: server " + name + " on " + host + " registered");
         try
         {
             synchronized (wt)
@@ -507,7 +503,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+            Debug.output(4, e);
         }
     }
 
@@ -531,8 +527,7 @@ public class ImplementationRepositoryImpl
             server_table.removePOA(_poas[_i]);
 
         server_table.removeServer(name);
-        Debug.output(Debug.IMR | Debug.INFORMATION,
-                     "ImR: server " + name + " unregistered");
+        Debug.output(4,"ImR: server " + name + " unregistered");
         try
         {
             synchronized (wt)
@@ -542,7 +537,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+            Debug.output(4, e);
         }
     }
 
@@ -555,7 +550,8 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.AdminPackage.UnknownServerName a server with <code>name</code>
      * has not been registered.
      */
-    public void edit_server(String name, String command, String host) throws UnknownServerName
+    public void edit_server(String name, String command, String host) 
+        throws UnknownServerName
     {
         updatePending = true;
 
@@ -564,8 +560,7 @@ public class ImplementationRepositoryImpl
         _server.command = command;
         _server.host = host;
 
-        Debug.output(Debug.IMR | Debug.INFORMATION,
-                     "ImR: server " + name + " edited");
+        Debug.output(4,"ImR: server " + name + " edited");
         try
         {
             synchronized (wt)
@@ -575,7 +570,7 @@ public class ImplementationRepositoryImpl
         }
         catch (IllegalMonitorStateException e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+            Debug.output(4, e);
         }
     }
 
@@ -589,7 +584,9 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> has not been registered.
      */
-    public void hold_server(String name) throws UnknownServerName {
+    public void hold_server(String name) 
+        throws UnknownServerName 
+    {
         ImRServerInfo _server = server_table.getServer(name);
         _server.holding = true;
     }
@@ -600,7 +597,9 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> has not been registered.
      */
-    public void release_server(String name) throws UnknownServerName {
+    public void release_server(String name) 
+        throws UnknownServerName 
+    {
         ImRServerInfo _server = server_table.getServer(name);
         _server.release();
     }
@@ -613,7 +612,8 @@ public class ImplementationRepositoryImpl
      * has not been registered.
      */
     public void start_server(String name)
-        throws UnknownServerName, ServerStartupFailed{
+        throws UnknownServerName, ServerStartupFailed
+    {
         restartServer(server_table.getServer(name));
     }
 
@@ -621,7 +621,8 @@ public class ImplementationRepositoryImpl
      * Save the server table to a backup file.
      * @exception org.jacorb.imr.AdminPackage.FileOpFailed something went wrong.
      */
-    public void save_server_table() throws FileOpFailed
+    public void save_server_table() 
+        throws FileOpFailed
     {
         if (table_file_backup != null)
         {
@@ -658,7 +659,7 @@ public class ImplementationRepositoryImpl
             }
             catch (InterruptedException e)
             {
-                Debug.output (Debug.IMR | Debug.INFORMATION, e);
+                Debug.output (4, e);
             }
         }
         try
@@ -667,9 +668,9 @@ public class ImplementationRepositoryImpl
         }
         catch (FileOpFailed f)
         {
-            Debug.output (Debug.IMR | Debug.INFORMATION, "ImR: Failed to save backup table.");
+            Debug.output (4, "ImR: Failed to save backup table.");
         }
-        Debug.output (Debug.IMR | Debug.INFORMATION, "ImR: Finished shutting down");
+        Debug.output (4, "ImR: Finished shutting down");
     }
 
     /**
@@ -701,8 +702,10 @@ public class ImplementationRepositoryImpl
 
             _out.flush();
             _out.close();
-        }catch (Exception _e){
-            Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+        }
+        catch (Exception _e)
+        {
+            Debug.output(4, _e);
             throw new FileOpFailed();
         }
         updatePending = false;
@@ -841,8 +844,7 @@ public class ImplementationRepositoryImpl
             {
                 default_port = Integer.parseInt(port);
 
-                Debug.output
-                    (Debug.IMR | Debug.INFORMATION, "ImR: Using endpoint port number " + default_port);
+                Debug.output(4, "ImR: Using endpoint port number " + default_port);
             }
         }
 
@@ -853,16 +855,14 @@ public class ImplementationRepositoryImpl
             props = new java.util.Properties ();
             props.setProperty ("OAPort", port);
 
-            Debug.output
-                (Debug.IMR | Debug.INFORMATION, "ImR: Using port number " + port);
+            Debug.output(4, "ImR: Using port number " + port);
         }
 
         default_host = Environment.getProperty ("jacorb.imr.host");
 
         if (default_host != null && default_host.length() > 0)
         {
-            Debug.output
-                (Debug.IMR | Debug.INFORMATION, "ImR: Using host address " + default_host);
+            Debug.output(4, "ImR: Using host address " + default_host);
 
             if( props == null )
             {
@@ -896,7 +896,7 @@ public class ImplementationRepositoryImpl
             }
             catch (IOException ex)
             {
-                Debug.output (Debug.IMR | Debug.INFORMATION, ex);
+                Debug.output (4, ex);
                 System.exit (-1);
             }
         }
@@ -954,7 +954,7 @@ public class ImplementationRepositoryImpl
                 }
                 catch (IOException ex)
                 {
-                    Debug.output (Debug.IMR | Debug.INFORMATION, ex);
+                    Debug.output (4, ex);
                     System.exit (-1);
                 }
             }
@@ -1017,7 +1017,7 @@ public class ImplementationRepositoryImpl
         }
         catch (Exception _e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+            Debug.output(4, _e);
 
             Debug.output( 1, "ERROR: Failed to write IOR to file.\nPlease check the path." );
             System.exit(-1);
@@ -1034,8 +1034,7 @@ public class ImplementationRepositoryImpl
 
         if(! server.active )
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION,
-                         "ImR: server " + server.name + " is down");
+            Debug.output(4,"ImR: server " + server.name + " is down");
 
             if (server.command.length() == 0){
                 //server can't be restartet, send exception
@@ -1065,8 +1064,7 @@ public class ImplementationRepositoryImpl
                                                            server.host + "<<" );
                         }
 
-                        Debug.output(Debug.IMR | Debug.INFORMATION,
-                                     "ImR: will restart " + server.name);
+                        Debug.output(4,"ImR: will restart " + server.name);
 
                         _host.startServer(server.command, orb);
                     }
@@ -1080,7 +1078,7 @@ public class ImplementationRepositoryImpl
                     {
                         server.setNotRestarting();
 
-                        Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+                        Debug.output(4, _e);
 
                         // sth wrong with daemon, remove from table
                         server_table.removeHost(server.host);
@@ -1089,15 +1087,13 @@ public class ImplementationRepositoryImpl
                     }
                 }
                 else
-                    Debug.output(Debug.IMR | Debug.INFORMATION,
-                                 "ImR: somebody else is restarting " +
+                    Debug.output(4,"ImR: somebody else is restarting " +
                                  server.name);
 
             }
         }
         else
-            Debug.output(Debug.IMR | Debug.INFORMATION,
-                         "ImR: server " + server.name + " is active");
+            Debug.output(4,"ImR: server " + server.name + " is active");
     }
 
 
@@ -1140,7 +1136,7 @@ public class ImplementationRepositoryImpl
         }
         catch (Throwable ex)
         {
-            Debug.output (Debug.IMR | Debug.INFORMATION, "Failed to invoke Runtime." + method.getName () + " and exception " + ex);
+            Debug.output (4, "Failed to invoke Runtime." + method.getName () + " and exception " + ex);
         }
     }
 
@@ -1209,8 +1205,7 @@ public class ImplementationRepositoryImpl
 
                 port = server_socket.getLocalPort();
 
-                Debug.output(Debug.IMR | Debug.INFORMATION,
-                             "ImR Listener at " + port + ", " + address );
+                Debug.output(4,"ImR Listener at " + port + ", " + address );
 
                 String s =
                 Environment.getProperty( "jacorb.imr.connection_timeout",
@@ -1222,18 +1217,15 @@ public class ImplementationRepositoryImpl
                 }
                 catch( NumberFormatException nfe )
                 {
-                    Debug.output( Debug.IMR | Debug.IMPORTANT,
-                                  "ERROR: Unable to build timeout int from string >>" +
+                    Debug.output( 3,"ERROR: Unable to build timeout int from string >>" +
                                   s + "<<" );
-                    Debug.output( Debug.IMR | Debug.IMPORTANT,
-                                  "Please check property \"jacorb.imr.connection_timeout\"" );
+                    Debug.output( 3,"Please check property \"jacorb.imr.connection_timeout\"" );
                 }
             }
             catch (Exception e)
             {
-                Debug.output(Debug.IMR | Debug.IMPORTANT, e);
-                Debug.output(Debug.IMR | Debug.IMPORTANT,
-                             "Listener: Couldn't init");
+                Debug.output(3, e);
+                Debug.output(3,"Listener: Couldn't init");
 
                 System.exit(1);
             }
@@ -1254,8 +1246,7 @@ public class ImplementationRepositoryImpl
          */
         public int getPort()
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION,
-                         "ImR Listener at " + port + ", " + address );
+            Debug.output(4,"ImR Listener at " + port + ", " + address );
 
             return port;
         }
@@ -1318,7 +1309,7 @@ public class ImplementationRepositoryImpl
                     // way, we don't display the Exception to avoid
                     // confusing users.
                     if (run)
-                        Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+                        Debug.output(4, _e);
                 }
             }
 
@@ -1343,14 +1334,13 @@ public class ImplementationRepositoryImpl
             }
             catch (Exception _e)
             {
-                Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+                Debug.output(4, _e);
             }
         }
     }
 
 
-    private static boolean checkServerActive
-        (String host, int port, byte []object_key)
+    private static boolean checkServerActive(String host, int port, byte []object_key)
     {
         ClientConnectionManager   cm           = null;
         IIOPAddress               address      = null;
@@ -1364,8 +1354,7 @@ public class ImplementationRepositoryImpl
         address = new IIOPAddress (host, port);
         connection = cm.getConnection (new IIOPProfile (address, object_key));
 
-        Debug.output(Debug.IMR | Debug.DEBUG1,
-                     "Pinging " + host + " / " + port);
+        Debug.output(4,"Pinging " + host + " / " + port);
         try
         {
             lros = new LocateRequestOutputStream (object_key, connection.getId(), 2);
@@ -1496,8 +1485,7 @@ public class ImplementationRepositoryImpl
             // get server of POA
             ImRServerInfo _server = _poa.server;
 
-            Debug.output( Debug.IMR | Debug.INFORMATION,
-                          "ImR: Looking up: " + _server.name );
+            Debug.output( 4,"ImR: Looking up: " + _server.name );
 
             // There is only point pinging the remote object if server
             // is active and either the QoS to ping returned objects
@@ -1527,10 +1515,7 @@ public class ImplementationRepositoryImpl
             }
             catch( ServerStartupFailed ssf )
             {
-                Debug.output
-                (
-                    Debug.IMR | Debug.INFORMATION,
-                    "Object (" + _server.name + ") on "
+                Debug.output(4,"Object (" + _server.name + ") on "
                     + _poa.host + '/' + _poa.port + " not reachable"
                 );
 
@@ -1594,7 +1579,7 @@ public class ImplementationRepositoryImpl
                     }
                     catch(Exception _e)
                     {
-                        Debug.output(Debug.IMR | Debug.DEBUG1, _e);
+                        Debug.output(4, _e);
                     }
                 }
             }
@@ -1604,7 +1589,7 @@ public class ImplementationRepositoryImpl
                 // write new location to stream
                 out.write_IOR(_ior);
 
-                Debug.output( Debug.IMR | Debug.INFORMATION,
+                Debug.output( 4,
                               "ImR: Sending location forward for " +
                               _server.name );
 
@@ -1612,7 +1597,7 @@ public class ImplementationRepositoryImpl
             }
             catch( IOException _e )
             {
-                Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+                Debug.output(4, _e);
                 sendSysException( new org.omg.CORBA.UNKNOWN(_e.toString()),
                                   connection,
                                   request_id,
@@ -1645,7 +1630,7 @@ public class ImplementationRepositoryImpl
             }
             catch( IOException _e )
             {
-                Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+                Debug.output(4, _e);
             }
         }
     }
@@ -1676,7 +1661,7 @@ public class ImplementationRepositoryImpl
                 }
                 catch (FileOpFailed ex)
                 {
-                    Debug.output(Debug.IMR | Debug.INFORMATION, ex);
+                    Debug.output(4, ex);
                 }
                 if (done)
                 {
@@ -1697,7 +1682,7 @@ public class ImplementationRepositoryImpl
                     catch (InterruptedException ex) {}
                     Debug.output
                     (
-                        Debug.IMR | Debug.INFORMATION,
+                        4,
                         "ImR: IMR write thread waking up to save server table... "
                     );
                 }
@@ -1722,7 +1707,7 @@ public class ImplementationRepositoryImpl
     {
         public synchronized void run ()
         {
-            Debug.output (Debug.IMR | Debug.INFORMATION, "ImR: Shutting down");
+            Debug.output (4, "ImR: Shutting down");
             shutdown (true);
         }
     }

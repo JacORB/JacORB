@@ -38,7 +38,9 @@ import org.jacorb.util.Debug;
  *
  */
 
-public class ImRServerInfo  implements java.io.Serializable{
+public class ImRServerInfo  
+    implements java.io.Serializable
+{
     protected String command;
     protected boolean holding = false;
     protected String host;
@@ -59,9 +61,11 @@ public class ImRServerInfo  implements java.io.Serializable{
      * server startup daemon on <code>host</code> (in case there is one active).
      * @exception IllegalServerName thrown when <code>name</code> is 
      * <code>null</code> or of length zero.
-     **/
+     */
+
     public ImRServerInfo(String name, String host, String command) 
-	throws IllegalServerName{
+	throws IllegalServerName
+    {
 
 	//super(name, host);
 
@@ -81,8 +85,10 @@ public class ImRServerInfo  implements java.io.Serializable{
      * the same info as this object.
      *
      * @return a <code>ServerInfo</code> object.
-     **/
-    public ServerInfo toServerInfo(){
+     */
+
+    public ServerInfo toServerInfo()
+    {
 	poas_lock.gainExclusiveLock();
 
 	// The ServerInfo class stores its POAs in an array, therefore
@@ -107,8 +113,10 @@ public class ImRServerInfo  implements java.io.Serializable{
      * Adds a POA to this server.
      *
      * @param poa the POA to add.
-     **/
-    public void addPOA(ImRPOAInfo poa){
+     */
+
+    public void addPOA(ImRPOAInfo poa)
+    {
 	if (! active)
 	    active = true;
 
@@ -122,8 +130,10 @@ public class ImRServerInfo  implements java.io.Serializable{
      * <br> This method is needed for deleting a server since its POAs have to be
      * as well removed from the central storage.
      * @return an array of POA names
-     **/
-    protected String[] getPOANames(){
+     */
+
+    protected String[] getPOANames()
+    {
 	// not synchronizing here since this method is only called
 	// prior to destructing this object.
 	String[] _poa_names = new String[poas.size()];
@@ -141,8 +151,10 @@ public class ImRServerInfo  implements java.io.Serializable{
      * of this server is received, the repository tries to restart the server.
      * <br>The server is automatically set back to active when the first of
      * its POAs gets reregistered.
-     **/
-    public void setDown(){
+     */
+
+    public void setDown()
+    {
 	// sets all associated to not active.
 	for (int _i = 0; _i < poas.size(); _i++)
 	    ((ImRPOAInfo) poas.elementAt(_i)).active = false;
@@ -155,21 +167,29 @@ public class ImRServerInfo  implements java.io.Serializable{
      * This method blocks until the server is released, i.e. set
      * to not holding. <br> This will not time out since holding a 
      * server is only done by administrators.
-     **/
-    public synchronized void awaitRelease(){
-	while(holding){
-	    try{		
+     */
+
+    public synchronized void awaitRelease()
+    {
+	while(holding)
+        {
+	    try
+            {		
 		wait();
-	    }catch (java.lang.Exception _e){
-		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+	    }
+            catch (java.lang.Exception _e)
+            {
+		Debug.output(4, _e);
 	    }
 	}	
     }
 
     /**
      * Release the server and unblock all waiting threads.
-     **/
-    public synchronized void release(){
+     */
+
+    public synchronized void release()
+    {
 	holding = false;
 	notifyAll();
     }
@@ -184,7 +204,9 @@ public class ImRServerInfo  implements java.io.Serializable{
      *
      * @return true, if the server should be restarted by the calling thread.
      */
-    public synchronized boolean shouldBeRestarted(){
+
+    public synchronized boolean shouldBeRestarted()
+    {
 	boolean _restart = !(active || restarting);
 	if (_restart)
 	    restarting = true;

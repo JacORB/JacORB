@@ -116,7 +116,7 @@ public class ServerStartupDaemonImpl
     {
 	try
         {
-	    Debug.output(Debug.IMR | Debug.INFORMATION, 
+	    Debug.output(4, 
                          "Starting: " + command );
 
 	    Process _server = Runtime.getRuntime().exec( command );
@@ -126,7 +126,7 @@ public class ServerStartupDaemonImpl
 	}
         catch (Exception _e)
         {
-	    Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+	    Debug.output(4, _e);
 	    throw new ServerStartupFailed( _e.toString() );
 	}
     }
@@ -197,7 +197,7 @@ public class ServerStartupDaemonImpl
 		_e.printStackTrace();
 	    }
 	    
-	    Debug.output( Debug.IMR | Debug.INFORMATION, 
+	    Debug.output( 4, 
                          "A server process exited" );
 	}
     }//OutputForwarder

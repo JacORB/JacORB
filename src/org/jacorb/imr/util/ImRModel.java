@@ -29,6 +29,7 @@ import java.util.*;
 import javax.swing.tree.*;
 import javax.swing.*;
 import javax.swing.table.*;
+
 /**
  * This class provides the GUIs functionality
  * communicating with the repository.
@@ -38,7 +39,8 @@ import javax.swing.table.*;
  * $Id$
  */
 
-public class ImRModel  {
+public class ImRModel  
+{
     private Admin m_admin;
     private org.omg.CORBA.ORB m_orb;
     
@@ -68,7 +70,9 @@ public class ImRModel  {
     /**
      * The constructor. Connects to default repository and fetches the servers.
      */
-    public ImRModel() {
+
+    public ImRModel() 
+    {
 	m_orb = org.omg.CORBA.ORB.init(new String[0], null);
         try 
         {
@@ -465,24 +469,26 @@ public class ImRModel  {
      *
      * @param e the exception that has been thrown.
      */
-    private void handleException (Exception e){
-      if (e instanceof org.omg.CORBA.UserException){
-	String _msg = e.toString();
-	if (e instanceof IllegalServerName)
-	  _msg = "The specified server name is not allowed";
-	else if (e instanceof DuplicateServerName)
-	  _msg = "A server with name " + 
-	    ((DuplicateServerName) e).name +
-	    " has already been registered with the repository";
-	else if (e instanceof FileOpFailed)
-	  _msg = "The backup operation failed";
-	
-	JOptionPane.showMessageDialog(new JFrame(), _msg, 
-				      "An error occurred",
-				      JOptionPane.ERROR_MESSAGE);
-      }
-      else
-	Debug.output(Debug.IMR | Debug.INFORMATION, e);    
+    private void handleException (Exception e)
+    {
+        if (e instanceof org.omg.CORBA.UserException)
+        {
+            String _msg = e.toString();
+            if (e instanceof IllegalServerName)
+                _msg = "The specified server name is not allowed";
+            else if (e instanceof DuplicateServerName)
+                _msg = "A server with name " + 
+                    ((DuplicateServerName) e).name +
+                    " has already been registered with the repository";
+            else if (e instanceof FileOpFailed)
+                _msg = "The backup operation failed";
+            
+            JOptionPane.showMessageDialog(new JFrame(), _msg, 
+                                          "An error occurred",
+                                          JOptionPane.ERROR_MESSAGE);
+        }
+        else
+            Debug.output(3, e);    
     }
 
 
@@ -491,7 +497,9 @@ public class ImRModel  {
      * After fetching hosts from the repository, they are "pinged" in order to
      * see if they are still up.
      */
-    private void buildHostSelectorModel(){
+
+    private void buildHostSelectorModel()
+    {
 	HostInfo[] _hosts = m_admin.list_hosts();
 
 	for (int _i = 0; _i < _hosts.length; _i++){
@@ -670,7 +678,8 @@ public class ImRModel  {
 	    }
 	}
 
-	public synchronized void setInterval(long interval){
+	public synchronized void setInterval(long interval)
+        {
 	    m_interval = interval;
 
 	    this.notifyAll();

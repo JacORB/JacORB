@@ -1,3 +1,5 @@
+package org.jacorb.imr;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,9 +20,9 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.imr;
 
 import org.jacorb.util.Debug;
+
 /**
  * This class provides shared or exclusive access to a ressource.
  * It preferes the exclusive access, i.e. if threads are waiting for 
@@ -32,15 +34,19 @@ import org.jacorb.util.Debug;
  *
  */
 
-public class RessourceLock implements java.io.Serializable {
+public class RessourceLock 
+    implements java.io.Serializable 
+{
     private int shared;
     private int exclusive;
     private boolean exclusives_waiting = false;
 
     /**
      * The constructor.
-     **/
-    public RessourceLock() {
+     */
+
+    public RessourceLock() 
+    {
 	shared = 0;
 	exclusive = 0;
     }
@@ -48,13 +54,19 @@ public class RessourceLock implements java.io.Serializable {
     /**
      * This method tries to aquire a shared lock. It blocks
      * until the exclusive lock is released.
-     **/
-    public synchronized void gainSharedLock(){
-	while(exclusive > 0 && exclusives_waiting){
-	    try{
+     */
+
+    public synchronized void gainSharedLock()
+    {
+	while(exclusive > 0 && exclusives_waiting)
+        {
+	    try
+            {
 		wait();
-	    }catch (java.lang.Exception _e){
-		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+	    }
+            catch (java.lang.Exception _e)
+            {
+		Debug.output(4, _e);
 	    }
 	}
 	shared++;
@@ -63,8 +75,10 @@ public class RessourceLock implements java.io.Serializable {
     /**
      * Release the shared lock. Unblocks threads waiting for
      * access.
-     **/
-    public synchronized void releaseSharedLock(){
+     */
+
+    public synchronized void releaseSharedLock()
+    {
 	if (--shared == 0)
 	    notifyAll();
     }
@@ -72,14 +86,20 @@ public class RessourceLock implements java.io.Serializable {
     /**
      * This method tries to aquire an exclusive lock. It blocks until
      * all shared locks have been released.
-     **/
-    public synchronized void gainExclusiveLock(){
-	while(shared > 0 || exclusive > 0){
-	    try{
+     */
+
+    public synchronized void gainExclusiveLock()
+    {
+	while(shared > 0 || exclusive > 0)
+        {
+	    try
+            {
 		exclusives_waiting = true;
 		wait();
-	    }catch (java.lang.Exception _e){
-		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+	    }
+            catch (java.lang.Exception _e)
+            {
+		Debug.output(4, _e);
 	    }
 	}
 	exclusive++;
@@ -89,18 +109,15 @@ public class RessourceLock implements java.io.Serializable {
     /**
      * Releases the exclusive lock. Unblocks all threads waiting
      * for access.
-     **/
-    public synchronized void releaseExclusiveLock(){
+     */
+
+    public synchronized void releaseExclusiveLock()
+    {
 	if (--exclusive == 0)
 	    notifyAll();
     }
 
 } // RessourceLock
-
-
-
-
-
 
 
 

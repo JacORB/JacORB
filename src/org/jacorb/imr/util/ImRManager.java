@@ -63,7 +63,7 @@ public class ImRManager
             }
             catch (UnknownServerName n)
             {
-                Debug.output(Debug.IMR | Debug.INFORMATION, n);
+                Debug.output(3, n);
             }
 
             if (info == null)
@@ -77,7 +77,7 @@ public class ImRManager
         }
         catch (Exception e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+            Debug.output(3, e);
         }
     }
 
@@ -93,7 +93,7 @@ public class ImRManager
         }
         catch (java.net.UnknownHostException e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+            Debug.output(3, e);
         }
 
         return "";
@@ -119,7 +119,7 @@ public class ImRManager
         }
         catch (Exception e)
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+            Debug.output(3, e);
         }
 
         return "";

@@ -1,3 +1,5 @@
+package org.jacorb.imr;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,8 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.imr;
-
 import java.util.*;
 import java.io.*;
 import org.jacorb.imr.RegistrationPackage.*;
@@ -38,7 +38,9 @@ import org.jacorb.util.Environment;
  * $Id$
  */
 
-public class ServerTable implements Serializable {
+public class ServerTable 
+    implements Serializable 
+{
     private Hashtable servers;
     private transient RessourceLock servers_lock;
     private Hashtable poas;
@@ -48,19 +50,26 @@ public class ServerTable implements Serializable {
 
     public transient RessourceLock table_lock;
 
-    public ServerTable() {
+    public ServerTable() 
+    {
 	int _no_of_poas = 100;
 	int _no_of_servers = 5;
 
-	try{
+	try
+        {
 	    _no_of_poas = Integer.parseInt(Environment.getProperty("jacorb.imr.no_of_poas"));
-	}catch (Exception _e){
+	}
+        catch (Exception _e)
+        {
 	    //ignore
 	}
 
-	try{
+	try
+        {
 	    _no_of_servers = Integer.parseInt(Environment.getProperty("jacorb.imr.no_of_servers"));
-	}catch (Exception _e){
+	}
+        catch (Exception _e)
+        {
 	    //ignore
 	}
 
@@ -73,8 +82,10 @@ public class ServerTable implements Serializable {
 
     /**
      * This method initializes all transient attributes.
-     **/
-    private void initTransient(){
+     */
+
+    private void initTransient()
+    {
 	// The table lock is a special case. It is used to gain
 	// exclusive access to the server table on serialization. That
 	// means the exclusive lock is set on serialization and, if it
@@ -102,7 +113,8 @@ public class ServerTable implements Serializable {
      * @param name the servers name.
      * @return true, if a server with the specified name has already
      * been registered.
-     **/
+     */
+
     public boolean hasServer( String name )
     {
         return servers.containsKey(name);
@@ -116,10 +128,11 @@ public class ServerTable implements Serializable {
      * @return ImRServerInfo the ImRServerInfo object with name <code>name</code>.
      * @exception UnknownServerName thrown if the table does not contain 
      * an entry for <code>name</code>.
-     **/
-    public ImRServerInfo getServer(String name)
-	throws UnknownServerName{
+     */
 
+    public ImRServerInfo getServer(String name)
+	throws UnknownServerName
+    {
 	ImRServerInfo _tmp = (ImRServerInfo) servers.get(name);
 	if (_tmp == null)
 	    throw new UnknownServerName(name);
@@ -134,10 +147,11 @@ public class ServerTable implements Serializable {
      * @param server the servers corresponding ImRServerInfo object.
      * @exception DuplicateServerName thrown if <code>name</code> is already
      * in the table.
-     **/
-    public void putServer(String name, ImRServerInfo server)
-	throws DuplicateServerName{
+     */
 
+    public void putServer(String name, ImRServerInfo server)
+	throws DuplicateServerName
+    {
 	if (servers.containsKey(name))
 	    throw new DuplicateServerName(name);
 
@@ -156,10 +170,11 @@ public class ServerTable implements Serializable {
      * @param name the servers name.
      * @exception UnknownServerName thrown if no server with <code>name</code>
      * is found in the table.
-     **/
-    public void removeServer(String name)
-	throws UnknownServerName{
+     */
 
+    public void removeServer(String name)
+	throws UnknownServerName
+    {
 	table_lock.gainSharedLock();
 	servers_lock.gainSharedLock();
 
@@ -178,8 +193,10 @@ public class ServerTable implements Serializable {
      * @param name the POAs name.
      * @return the ImRPOAInfo object for <code>name</code>, 
      * null if <code>name</code> not in the table.
-     **/
-    public ImRPOAInfo getPOA (String name){
+     */
+
+    public ImRPOAInfo getPOA (String name)
+    {
 	return (ImRPOAInfo) poas.get(name);
     }
 
@@ -188,8 +205,10 @@ public class ServerTable implements Serializable {
      *
      * @param name the POAs name.
      * @param poa the POAs ImRPOAInfo object.
-     **/
-    public void putPOA(String name, ImRPOAInfo poa){
+     */
+
+    public void putPOA(String name, ImRPOAInfo poa)
+    {
 	table_lock.gainSharedLock();
 	poas_lock.gainSharedLock();
 
@@ -203,8 +222,10 @@ public class ServerTable implements Serializable {
      * Remove a POA from the server table.
      *
      * @param name the POAs name.
-     **/
-    public void removePOA(String name){
+     */
+
+    public void removePOA(String name)
+    {
 	table_lock.gainSharedLock();
 	poas_lock.gainSharedLock();
 
@@ -219,8 +240,10 @@ public class ServerTable implements Serializable {
      *
      * @return a ServerInfo array containing all servers.
      * Used by the CORBA interface of the repository.
-     **/
-    public ServerInfo[] getServers(){
+     */
+
+    public ServerInfo[] getServers()
+    {
 	table_lock.gainSharedLock();
 	servers_lock.gainExclusiveLock();
 
@@ -244,8 +267,10 @@ public class ServerTable implements Serializable {
      *
      * @return a HostInfo array containing all hosts.
      * Used by the CORBA interface of the repository.
-     **/
-    public HostInfo[] getHosts(){
+     */
+
+    public HostInfo[] getHosts()
+    {
 	table_lock.gainSharedLock();
 	hosts_lock.gainExclusiveLock();
 
@@ -269,8 +294,10 @@ public class ServerTable implements Serializable {
      *
      * @return a POAInfo array containing all POAs.
      * Used by the CORBA interface of the repository.
-     **/
-    public POAInfo[] getPOAs(){
+     */
+
+    public POAInfo[] getPOAs()
+    {
 	table_lock.gainSharedLock();
 	poas_lock.gainExclusiveLock();
 
@@ -295,8 +322,10 @@ public class ServerTable implements Serializable {
      *
      * @param name the hosts name.
      * @param host the hosts ImRHostInfo object.
-     **/
-    public void putHost(String name, ImRHostInfo host){
+     */
+
+    public void putHost(String name, ImRHostInfo host)
+    {
 	table_lock.gainSharedLock();
 	hosts_lock.gainSharedLock();
 
@@ -310,8 +339,10 @@ public class ServerTable implements Serializable {
      * Remove a host from the table.
      *
      * @param name the hosts name.
-     **/
-    public Object removeHost(String name){
+     */
+
+    public Object removeHost(String name)
+    {
 	return hosts.remove(name);
     }
 
@@ -321,21 +352,23 @@ public class ServerTable implements Serializable {
      * @param name the hosts name.
      * @return the ImRHostInfo object for <code>name</code>, null 
      * if <code>name</code> not in the table.
-     **/
-    public ImRHostInfo getHost(String name){
+     */
+
+    public ImRHostInfo getHost(String name)
+    {
 	return (ImRHostInfo) hosts.get(name);
     }
 
     /**
      * Implemented from the Serializable interface. For 
      * automatic initializing after deserialization.
-     **/
+     */
+
     private void readObject(java.io.ObjectInputStream in)
 	throws java.io.IOException, java.io.NotActiveException, 
-	ClassNotFoundException{
-
+	ClassNotFoundException
+    {
 	in.defaultReadObject();
-
 	initTransient();
     }
 } // ServerTable

@@ -24,6 +24,7 @@ import org.jacorb.imr.RegistrationPackage.*;
 import org.jacorb.imr.AdminPackage.*;
 
 import org.jacorb.util.*;
+
 /**
  * This class stores information about a POA. It also provides methods 
  * for reactivation, conversion, and for waiting for reactivation.
@@ -33,7 +34,9 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class ImRPOAInfo implements java.io.Serializable{
+public class ImRPOAInfo 
+    implements java.io.Serializable
+{
     protected int port;
     protected ImRServerInfo server;
     protected String host;
@@ -41,13 +44,17 @@ public class ImRPOAInfo implements java.io.Serializable{
     protected boolean active;
     protected static long timeout = 120000; // 2 min.
 
-    static{
+    static
+    {
 	// read in timeout from Environment
 	String _tmp = Environment.getProperty("jacorb.imr.timeout");
 	if (_tmp != null)
-	    try{
+	    try
+            {
 		timeout = Integer.parseInt(_tmp);
-	    }catch(Exception _e){}
+	    }
+            catch(Exception _e)
+            {}
     }
     
     /**
@@ -59,11 +66,11 @@ public class ImRPOAInfo implements java.io.Serializable{
      * @param server the server the POA is associated with.
      * @exception IllegalPOAName thrown when <code>name</code> is 
      * <code>null</code> or of length zero.
-     **/
-    public ImRPOAInfo(String name, String host, 
-                      int port, ImRServerInfo server) 
-	throws IllegalPOAName {
+     */
 
+    public ImRPOAInfo(String name, String host, int port, ImRServerInfo server) 
+	throws IllegalPOAName 
+    {
 	if (name == null || name.length() == 0)
 	    throw new IllegalPOAName(name);
 
@@ -78,10 +85,11 @@ public class ImRPOAInfo implements java.io.Serializable{
      * "Converts" this Object to an instance of the POAInfo class.
      * 
      * @return a POAInfo object.
-     **/    
-    public POAInfo toPOAInfo(){
-	return new POAInfo(name, host, port, 
-                           server.name, active); 
+     */  
+
+    public POAInfo toPOAInfo()
+    {
+	return new POAInfo(name, host, port,server.name, active); 
     }
 
     /**
@@ -90,8 +98,10 @@ public class ImRPOAInfo implements java.io.Serializable{
      *
      * @param host the POAs new host.
      * @param port the POAs new port.
-     **/
-    public synchronized void reactivate(String host, int port){
+     */
+
+    public synchronized void reactivate(String host, int port)
+    {
 	this.host = host;
 	this.port = port;
 	active = true;	
@@ -105,34 +115,31 @@ public class ImRPOAInfo implements java.io.Serializable{
      * timeout is exceeded.
      * 
      * @return false, if the timeout has been exceeded, true otherwise.
-     **/        
-    public synchronized boolean awaitActivation(){
-	while(!active){
-	    try{
+     */
+
+    public synchronized boolean awaitActivation()
+    {
+	while(!active)
+        {
+	    try
+            {
 		long _sleep_begin = System.currentTimeMillis();
 		wait(timeout);
 		if (!active && 
                     (System.currentTimeMillis() - _sleep_begin) > timeout)
 		{
-		    Debug.output(Debug.IMR | Debug.INFORMATION,
-                                 "awaitActivation, time_out");
+		    Debug.output(4, "awaitActivation, time_out");
 		    return false;
 		}
-	    }catch (java.lang.Exception _e){
-		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+	    }
+            catch (java.lang.Exception _e)
+            {
+		Debug.output(4, _e);
 	    }
 	}
-        Debug.output(Debug.IMR | Debug.INFORMATION, 
-                     "awaitActivation, returns true");
+        Debug.output(4, "awaitActivation, returns true");
 
 	return true;
     }
 } // ImRPOAInfo
-
-
-
-
-
-
-
 

@@ -1,3 +1,4 @@
+package org.jacorb.imr;
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,9 +19,9 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.imr;
 
 import org.omg.CORBA.ORB;
+
 /**
  * This class represents a host. It contains information about 
  * a server startup daemon residing on this host and provides
@@ -31,7 +32,9 @@ import org.omg.CORBA.ORB;
  * @version $Id$
  */
 
-public class ImRHostInfo implements java.io.Serializable {
+public class ImRHostInfo 
+    implements java.io.Serializable 
+{
     protected String host;
 
     private ServerStartupDaemon ssd_ref;
@@ -44,8 +47,10 @@ public class ImRHostInfo implements java.io.Serializable {
      *
      * @param host the HostInfo object to take the information from.
      * @param orb needed for calling object_to_string().
-     **/
-    public ImRHostInfo(HostInfo host) {
+     */
+
+    public ImRHostInfo(HostInfo host) 
+    {
 	this.host = host.name;
 	ssd_ref = host.ssd_ref;
 	object_string = host.ior_string;
@@ -55,8 +60,10 @@ public class ImRHostInfo implements java.io.Serializable {
      * "Convert" this object to a HostInfo object
      *
      * @return a HostInfo instance
-     **/
-    public HostInfo toHostInfo(){
+     */
+
+    public HostInfo toHostInfo()
+    {
 	// setting ref explicitely to null since it might be stale.
 	return new HostInfo(host, null, object_string);
     }
@@ -69,10 +76,11 @@ public class ImRHostInfo implements java.io.Serializable {
      * @exception ServerStartupFailed propagated up from the daemon if something
      * went wrong. Likely to throw CORBA System Exceptions as well, especially
      * if the daemon is down.
-     **/
+     */
+
     public void startServer(String command, ORB orb) 
-	throws ServerStartupFailed{
-       
+	throws ServerStartupFailed
+    {      
 	if (reconnect)
 	    ssd_ref = ServerStartupDaemonHelper.narrow(orb.string_to_object(object_string));
 
@@ -81,19 +89,14 @@ public class ImRHostInfo implements java.io.Serializable {
 
     /**
      * Things to be done before serialization. Implemented from Serializable. 
-     **/
-    private void writeObject(java.io.ObjectOutputStream out)
-	throws java.io.IOException{
+     */
 
+    private void writeObject(java.io.ObjectOutputStream out)
+	throws java.io.IOException
+    {
 	reconnect = true; // all ssd_references are stale after deserialization
 	out.defaultWriteObject();
     }
 } // ImRHostInfo
-
-
-
-
-
-
 
 
