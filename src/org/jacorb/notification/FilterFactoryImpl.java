@@ -46,7 +46,9 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
-import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
@@ -142,27 +144,31 @@ public class FilterFactoryImpl
     private void loadFilterPlugins(Configuration conf) throws ConfigurationException {
         Iterator i = getAttributeNamesWithPrefix(conf, Attributes.FILTER_PLUGIN_PREFIX);
 
-        String key = null;
         while (i.hasNext()) {
+            String key = null;
+            String _clazzName = null;
             try {
                 key = (String)i.next();
 
-                String grammar = key.substring(Attributes.FILTER_PLUGIN_PREFIX.length() + 1);
+                String _grammar = key.substring(Attributes.FILTER_PLUGIN_PREFIX.length() + 1);
 
-                logger_.info("Loading Filterplugin for Grammar: " + grammar);
+                logger_.info("Loading Filterplugin for Grammar: " + _grammar);
 
-                String clazzName = conf.getAttribute(key);
+                _clazzName = conf.getAttribute(key);
 
-                Class clazz = Class.forName(clazzName);
+                Class _clazz = Class.forName(_clazzName);
 
                 Constructor _constructor =
-                    clazz.getConstructor(new Class[] {ApplicationContext.class});
+                    _clazz.getConstructor(new Class[] {ApplicationContext.class});
 
-                availableFilters_.put(grammar, _constructor);
+                availableFilters_.put(_grammar, _constructor);
             } catch (ClassNotFoundException e) {
-                throw new ConfigurationException(key);
+                throw new ConfigurationException(key + ": class " + _clazzName + " is unknown");
             } catch (NoSuchMethodException e) {
-                throw new ConfigurationException(key);
+                throw new ConfigurationException(key
+                                                 + ": does the c'tor of class "
+                                                 + _clazzName
+                                                 + " accept param ApplicationContext ?");
             }
         }
     }
