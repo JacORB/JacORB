@@ -145,9 +145,7 @@
     depends="notification.init, 
              check-regexp,
              notification.compile.regexp.gnu, 
-             notification.compile.regexp.jdk,
-             notification.compile.collections.jacorb,
-             notification.compile.collections.jdk" >
+             notification.compile.regexp.jdk" >
 
     <antcall target="jacorb-javac">
 
@@ -156,9 +154,7 @@
 
       <param name="javac-excludes"
         value="org/jacorb/notification/util/GNUPatternWrapper.java, 
-               org/jacorb/notification/util/JDK14PatternWrapper.java,
-	       org/jacorb/notification/JDK13Collections.java,
-	       org/jacorb/notification/JacORBCollections.java" />
+               org/jacorb/notification/util/JDK14PatternWrapper.java" />
 
     </antcall>
   </target>
@@ -167,8 +163,8 @@
     <echo message="Compiling for gnu.regexp" />
     <antcall target="jacorb-javac" >
       <param name="javac-includes"
-      value="org/jacorb/notification/util/PatternWrapper.java, 
-                org/jacorb/notification/util/GNUPatternWrapper.java" />
+	value="org/jacorb/notification/util/PatternWrapper.java, 
+	       org/jacorb/notification/util/GNUPatternWrapper.java" />
     </antcall>
   </target>
 
@@ -179,26 +175,6 @@
 	value="org/jacorb/notification/util/PatternWrapper.java, 
                org/jacorb/notification/util/JDK14PatternWrapper.java"/>
       </antcall>
-  </target>
-
-
-  <target name="notification.compile.collections.jacorb"
-    if="build.jdk12" depends="notification.init">
-    <echo message="Compiling for JDK1.2" />
-    <antcall target="jacorb-javac">
-      <param name="javac-includes"
-	value="org/jacorb/notification/JacORBCollections.java"/>
-    </antcall>
-  </target>
-
-
-  <target name="notification.compile.collections.jdk"
-    unless="build.jdk12" depends="notification.init">
-    <echo message="Compiling for JDK1.3+" />
-    <antcall target="jacorb-javac">
-      <param name="javac-includes"
-	value="org/jacorb/notification/JDK13Collections.java"/>
-    </antcall>    
   </target>
 
 

@@ -24,6 +24,9 @@ package org.jacorb.notification;
 import java.util.List;
 import java.lang.Class;
 import java.util.Collections;
+import java.lang.reflect.Method;
+import java.util.AbstractList;
+import java.io.Serializable;
 
 /**
  * provides a simple wrapper around java.util.Collections. Notification
@@ -31,40 +34,60 @@ import java.util.Collections;
  * available in a pre 1.3 JDK.
  *
  * @author Alphonse Bendt
+ * @author Marc Heide
+ *
  * @version $Id$
  */
 
 public class CollectionsWrapper {
 
-    interface CollectionsOperations {
-	public List singletonList(Object o);
-    }
- 
-    private static CollectionsOperations delegate_;
+    private static Method singletonListMethod;
 
     static {
-	boolean jdk13available;
-
-	String className;
-	
 	try {
-	    Collections.class.getMethod("singletonList", new Class[] {Object.class});
-
-	    className = "org.jacorb.notification.JDK13Collections";
+	    singletonListMethod = Collections.class.getMethod("singletonList", new Class[] {Object.class});
 	} catch (Exception e) {
-	    className = "org.jacorb.notification.JacORBCollections";
-	}
-	
-	try {
-	    Class clazz = Class.forName(className);
-	    delegate_ = (CollectionsOperations)clazz.newInstance();
-	} catch (Exception e) {
-	    e.printStackTrace();
+	    singletonListMethod = null;
 	}
     }
 
     public static List singletonList(Object o) {
-	return delegate_.singletonList(o);
+	if (singletonListMethod != null) {
+	    try {
+		return (List)(singletonListMethod.invoke(null, new Object[]{o}));
+	    } catch (Exception e) {
+		return new SingletonList(o);
+	    }
+	} else {
+	    return new SingletonList(o);
+	}
     }
 
+    private static class SingletonList extends AbstractList
+	implements Serializable {
+
+	private final Object singletonElement_;
+
+	SingletonList(Object element) {
+	    singletonElement_ = element;
+	}
+
+	public int size() {
+	    return 1;
+	}
+
+	public boolean contains(Object object) {
+	    if (object == null && singletonElement_ == null) {
+		return true;
+	    }
+	    return object.equals(singletonElement_);
+	}
+
+	public Object get(int index) {
+	    if (index != 0) {
+		throw new IndexOutOfBoundsException("Index: " + index);
+	    }
+	    return singletonElement_;
+	}
+    }
 } 
