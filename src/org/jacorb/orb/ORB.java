@@ -139,7 +139,7 @@ public final class ORB
     private Request request = null;
 
     /* PolicyManagement */
-    private org.omg.CORBA.PolicyManager policyManager = null;
+    private org.jacorb.orb.policies.PolicyManager policyManager = null;
 
     /* policy factories, from portable interceptor spec */
     private Map policy_factories = null;
@@ -1098,7 +1098,7 @@ public final class ORB
             }
             else if( identifier.equals("ORBPolicyManager") )
             {
-                return policyManager;
+                return getPolicyManager();
             }
             else if( identifier.equals("CodecFactory") )
             {
@@ -1118,6 +1118,10 @@ public final class ORB
         }
     }
 
+    PolicyManager getPolicyManager()
+    {
+        return policyManager;
+    }
 
     /**
      * Register a reference, that will be returned on subsequent calls
@@ -1339,9 +1343,11 @@ public final class ORB
                 }
             }
         }
+        policyManager = new PolicyManager( this );
 
         transport_manager = new TransportManager( this );
         giop_connection_manager = new GIOPConnectionManager();
+
         clientConnectionManager =
             new ClientConnectionManager( this,
                                          transport_manager,
@@ -1405,7 +1411,7 @@ public final class ORB
 
         transport_manager = new TransportManager( this );
         giop_connection_manager = new GIOPConnectionManager();
-        // policyManager = new PolicyManager( this );
+        policyManager = new PolicyManager( this );
 
         clientConnectionManager =
             new ClientConnectionManager(
