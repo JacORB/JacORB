@@ -39,6 +39,7 @@ import org.omg.CosNotification.StructuredEvent;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import org.apache.avalon.framework.logger.Logger;
+import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 
 /**
  * @author Alphonse Bendt
@@ -214,6 +215,17 @@ public class TaskProcessor implements Disposable
 
         clockDaemon_ = new ClockDaemon();
 
+        clockDaemon_.setThreadFactory(new ThreadFactory() {
+                public Thread newThread(Runnable command) {
+                    Thread _t = new Thread(command);
+
+                    _t.setName("ClockDaemonThread");
+
+                    return _t;
+                }
+            });
+
+
         pullTaskExecutor_ =
             new TaskExecutor( "PullThread",
                               Environment.getIntPropertyWithDefault( Configuration.PULL_POOL_WORKERS,
@@ -241,21 +253,17 @@ public class TaskProcessor implements Disposable
         String _threadPolicy = Environment.getProperty(Configuration.THREADPOLICY,
                                                        Default.DEFAULT_THREADPOLICY);
 
-        if ("ThreadPool".equals(_threadPolicy)) {
-            if (logger_.isInfoEnabled()) {
-                logger_.info("Use channel-wide ThreadPool for delivery");
-            }
+        if (logger_.isInfoEnabled()) {
+            logger_.info("use Property: " + Configuration.THREADPOLICY + "=" + _threadPolicy );
+        }
 
+        if ("ThreadPool".equals(_threadPolicy)) {
             pushTaskExecutor_ =
-                new TaskExecutor( "DeliverThread",
-                                  Environment.getIntPropertyWithDefault( Configuration.DELIVER_POOL_WORKERS,
-                                                                         Default.DEFAULT_DELIVER_POOL_SIZE ) );
+                new TaskExecutor("DeliverThread",
+                                 Environment.getIntPropertyWithDefault(Configuration.DELIVER_POOL_WORKERS,
+                                                                       Default.DEFAULT_DELIVER_POOL_SIZE));
 
         } else if ("ThreadPerProxy".equals(_threadPolicy)) {
-            if (logger_.isInfoEnabled()) {
-                logger_.info("Use Thread Per Proxy for delivery");
-            }
-
             pushTaskExecutor_ = null;
         } else {
             throw new IllegalArgumentException("The specified value: \""
@@ -335,15 +343,16 @@ public class TaskProcessor implements Disposable
      * process a Message. the various settings for the Message
      * (timeout, starttime, stoptime) are checked and applied.
      */
-    public void processMessage( Message m )
+    public void processMessage( Message mesg )
     {
-        if ( m.hasStopTime() )
+        if ( mesg.hasStopTime() )
         {
-            if ( m.getStopTime().getTime() <= System.currentTimeMillis() )
+            logger_.debug("Message has StopTime");
+            if ( mesg.getStopTime().getTime() <= System.currentTimeMillis() )
             {
-                fireEventDiscarded( m );
+                fireEventDiscarded( mesg );
 
-                m.dispose();
+                mesg.dispose();
 
                 logger_.debug("Message Stoptime is passed already");
 
@@ -351,22 +360,24 @@ public class TaskProcessor implements Disposable
             }
             else
             {
-                new DeferedStopTask( m );
+                new DeferedStopTask( mesg );
             }
         }
 
-        if ( m.hasTimeout() )
+        if ( mesg.hasTimeout() )
         {
-            new TimeoutTask( m );
+            logger_.debug("Message has TimeOut");
+
+            new TimeoutTask( mesg );
         }
 
-        if ( m.hasStartTime() && (m.getStartTime().getTime() > System.currentTimeMillis() ) )
+        if ( mesg.hasStartTime() && (mesg.getStartTime().getTime() > System.currentTimeMillis() ) )
         {
-            new DeferedStartTask( m );
+            new DeferedStartTask( mesg );
         }
         else
         {
-            processEventInternal( m );
+            processEventInternal( mesg );
         }
     }
 
