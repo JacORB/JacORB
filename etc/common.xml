@@ -43,7 +43,7 @@
        <path>
           <pathelement location="${dirs.base}/classes"/>
           <pathelement location="${basedir}/classes"/>
-          <pathelement location="${lib}/logkit.jar"/>
+          <pathelement location="${lib}/logkit-1.2.jar"/>
           <pathelement location="${lib}/idl.jar"/>
           <pathelement location="${lib}/antlr-2.7.2.jar"/>
           <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
