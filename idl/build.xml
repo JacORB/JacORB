@@ -363,6 +363,7 @@
 	</java>
    </target>
 
+
    <!--                           -->
    <!--     Notification service  -->
    <!--                           -->
@@ -404,10 +405,10 @@
    <!--                      -->
 
    <target name="security" 
-	   depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop">
+	   depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop,csi">
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
-	       includes="org/omg/TimeBase/**,org/omg/Security/**,org/omg/Security**/**,org/omg/SSLIOP/**"
+	       includes="org/omg/Security/**,org/omg/Security**/**,org/omg/SSLIOP/**"
         />
    </target>
 
@@ -421,6 +422,13 @@
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
 	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/TimeBase.idl"/>
 	</java>
+	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
+	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/CosTime.idl"/>
+	</java>
+	<javac srcdir="${src}/generated"
+               destdir="${classdir}"
+	       includes="org/omg/TimeBase/**,org/omg/CosTime/**"
+        />
    </target>
 
    <target name="level1">
@@ -452,6 +460,27 @@
 	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/SSLIOP.idl"/>
 	</java>
    </target>
+
+   <!--                      -->
+   <!--    CSI v2            -->
+   <!--                      -->
+
+   <target name="csi" depends="init">
+	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
+	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/CSI.idl"/>
+	</java>
+	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
+	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/CSIIOP.idl"/>
+	</java>
+	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
+	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/GSSUP.idl"/>
+	</java>
+           <javac srcdir="${src}/generated"
+               destdir="${classdir}"
+	       includes="org/omg/CSI/**,org/omg/CSIIOP/**,org/omg/GSSUP/**"
+           />
+   </target>
+
 
 </project>
 

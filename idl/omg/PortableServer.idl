@@ -41,9 +41,8 @@ module PortableServer
 	SINGLE_THREAD_MODEL
     };
 
-    interface ThreadPolicy : CORBA::Policy
+    local interface ThreadPolicy : CORBA::Policy
 	{
-#pragma local
 	    readonly attribute ThreadPolicyValue value;
 	};
 	
@@ -52,9 +51,8 @@ module PortableServer
 	PERSISTENT
     };
 
-    interface LifespanPolicy : CORBA::Policy
+    local interface LifespanPolicy : CORBA::Policy
 	{
-#pragma local
 	    readonly attribute LifespanPolicyValue value;
 	};
 	
@@ -63,9 +61,8 @@ module PortableServer
 	MULTIPLE_ID
     };
 
-    interface IdUniquenessPolicy : CORBA::Policy
+    local interface IdUniquenessPolicy : CORBA::Policy
     {
-#pragma local
 	readonly attribute IdUniquenessPolicyValue value;
     };
 	
@@ -74,9 +71,8 @@ module PortableServer
 	SYSTEM_ID
     };
 
-    interface IdAssignmentPolicy : CORBA::Policy
+    local interface IdAssignmentPolicy : CORBA::Policy
     {
-#pragma local
 	readonly attribute IdAssignmentPolicyValue value;
     };
 	
@@ -85,9 +81,8 @@ module PortableServer
 	NO_IMPLICIT_ACTIVATION
     };
 
-    interface ImplicitActivationPolicy : CORBA::Policy
+    local interface ImplicitActivationPolicy : CORBA::Policy
     {
-#pragma local
 	readonly attribute ImplicitActivationPolicyValue value;
     };
 	
@@ -96,9 +91,8 @@ module PortableServer
 	NON_RETAIN
     };
 
-    interface ServantRetentionPolicy : CORBA::Policy
+    local interface ServantRetentionPolicy : CORBA::Policy
     {
-#pragma local
 	readonly attribute ServantRetentionPolicyValue value;
     };
 	
@@ -108,9 +102,8 @@ module PortableServer
 	USE_SERVANT_MANAGER
     };
 
-    interface RequestProcessingPolicy : CORBA::Policy
+    local interface RequestProcessingPolicy : CORBA::Policy
     {
-#pragma local
 	readonly attribute RequestProcessingPolicyValue value;
     };
 	
@@ -120,9 +113,8 @@ module PortableServer
     //
     // **************************************************
 	
-    interface POAManager
+    local interface POAManager
     {
-#pragma local
 	exception AdapterInactive{ };
 	
 	enum State { HOLDING, ACTIVE, DISCARDING, INACTIVE };
@@ -146,9 +138,8 @@ module PortableServer
     //
     // **************************************************
 	
-    interface AdapterActivator
+    local interface AdapterActivator
     {
-#pragma local
 	boolean unknown_adapter( in POA parent, in string name );
     };
 	
@@ -158,12 +149,11 @@ module PortableServer
     //
     // **************************************************
 	
-    interface ServantManager
+    local interface ServantManager
     {};
 	
-    interface ServantActivator : ServantManager 
+    local interface ServantActivator : ServantManager 
     {
-#pragma local
 	Servant incarnate (in ObjectId oid,
 			   in POA     adapter )
 	    raises ( ForwardRequest );
@@ -213,9 +203,8 @@ module PortableServer
     // not pseudo, because it must be returned as a subtype
     // of CORBA::Object in resolve_initial_references()
 
-    interface POA
+    local interface POA
     {
-#pragma local
 	    exception AdapterAlreadyExists {};
 	    exception AdapterInactive { };
 	    exception AdapterNonExistent { };
@@ -376,9 +365,8 @@ module PortableServer
     // not pseudo, because it must be returned as a subtype
     // of CORBA::Object in resolve_initial_references()
 	
-    interface Current : CORBA::Current
+    local interface Current : CORBA::Current
     {
-#pragma local
 	exception NoContext { };
 	
 	POA get_POA( ) raises ( NoContext );

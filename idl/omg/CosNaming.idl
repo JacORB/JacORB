@@ -1,4 +1,5 @@
 // File: CosNaming.idl
+
 #ifndef _COSNAMING_IDL_
 #define _COSNAMING_IDL_
 
@@ -109,4 +110,5 @@ module CosNaming {
 
 };
 #endif // _COSNAMING_IDL_
+
 
