@@ -11,7 +11,6 @@ public class Semaphore {
     /**
      * Constructor. Sets this Semaphore up as a binary one.
      *
-     * @author Nicolas Noffke
      */
     public Semaphore() {
 	count = 1;
@@ -21,7 +20,6 @@ public class Semaphore {
      * Constructor. Sets the initial value of this Semaphore 
      * to start_value
      *
-     * @author Nicolas Noffke
      */
     public Semaphore(int start_value){
 	count = start_value;
@@ -30,7 +28,6 @@ public class Semaphore {
     /**
      * P-Operation. Blocks until somebody else calls V().
      *
-     * @author Nicolas Noffke
      */
     public synchronized void P() {
 	while (count == 0){ 
@@ -46,7 +43,6 @@ public class Semaphore {
     /**
      * V-Operation, unblocks this semaphore
      *
-     * @author Nicolas Noffke
      */   
     public synchronized void V() {
 	count = 1;

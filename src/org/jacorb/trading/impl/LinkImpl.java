@@ -28,7 +28,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * @param trader_comp The TraderComp-object of this trader
      * @param support The SupportAttrib-object of this trader
      * @param link The LinkAttrib-object of this trader
-     * @author Nicolas Noffke
      */
     public LinkImpl (TraderComp trader_comp, SupportAttrib support, LinkAttrib link){
 	m_traderComp = trader_comp;
@@ -43,7 +42,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Returns the Lookup-Interface of this trader.<br>
      * Inherited from CosTrading::TraderComponents
      * @return The Lookup-Interface
-     * @author Nicolas Noffke
      */
     public Lookup lookup_if()
     {
@@ -54,7 +52,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Returns the Register-Interface of this trader.<br>
      * Inherited from CosTrading::TraderComponents
      * @return The Register-Interface
-     * @author Nicolas Noffke
      */   
     public Register register_if()
     {
@@ -65,7 +62,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Returns the Link-Interface of this trader.<br>
      * Inherited from CosTrading::TraderComponents
      * @return The Link-Interface
-     * @author Nicolas Noffke
      */
     public Link link_if()
     {
@@ -76,7 +72,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Returns the Proxy-Interface of this trader.<br>
      * Inherited from CosTrading::TraderComponents
      * @return The Proxy-Interface
-     * @author Nicolas Noffke
      */
     public Proxy proxy_if()
     {
@@ -87,7 +82,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Returns the Admin-Interface of this trader.<br>
      * Inherited from CosTrading::TraderComponents
      * @return The Admin-Interface
-     * @author Nicolas Noffke
      */
     public Admin admin_if()
     {
@@ -100,7 +94,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Does this trader support modifiable properties.<br>
      * Inherited from CosTrading::SupportAttributes
      * @return True, if it supports them
-     * @author Nicolas Noffke
      */
     public boolean supports_modifiable_properties()
     {
@@ -112,7 +105,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Does this trader support dynamic properties.<br>
      * Inherited from CosTrading::SupportAttributes
      * @return True, if it supports them
-     * @author Nicolas Noffke
      */    
     public boolean supports_dynamic_properties()
     {
@@ -124,7 +116,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Does this trader support proxy offers.<br>
      * Inherited from CosTrading::SupportAttributes
      * @return True, if it supports them
-     * @author Nicolas Noffke
      */
     public boolean supports_proxy_offers()
     {
@@ -136,7 +127,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Returns the TypeRepository.<br>
      * Inherited from CosTrading::SupportAttributes
      * @return The TypeRepository
-     * @author Nicolas Noffke
      */
     public org.omg.CORBA.Object type_repos()
     {
@@ -149,7 +139,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Get the max_link_follow_policy of this trader.<br>
      * Inherited from CosTrading::LinkAttributes
      * @return The max_link_follow_policy
-     * @author Nicolas Noffke
      */
     public FollowOption max_link_follow_policy()
     {
@@ -172,7 +161,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * than limiting_follow_rule
      * @exception org.omg.CosTrading.LinkPackage.LimitingFollowTooPermissive limiting_follow_rule more permissive
      * than traders max_link_follow_policy     
-     * @author Nicolas Noffke
      */
     public void add_link(String name, 
 			 Lookup target, 
@@ -231,7 +219,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * @return The LinkInfo-Object of this link
      * @exception org.omg.CosTrading.LinkPackage.IllegalLinkName Link name not allowed
      * @exception org.omg.CosTrading.LinkPackage.UnknownLinkName No link with that name 
-     * @author Nicolas Noffke
      */
     public LinkInfo describe_link(String name) throws IllegalLinkName, UnknownLinkName {
 	// is name legal?
@@ -251,7 +238,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
     /**
      * Lists all link-names.
      * @return An array with all link names
-     * @author Nicolas Noffke
      */
     public String[] list_links() {
 	String[] _links_array = new String[m_current_links.size()];
@@ -275,7 +261,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * than limiting_follow_rule
      * @exception org.omg.CosTrading.LinkPackage.LimitingFollowTooPermissive limiting_follow_rule more permissive
      * than traders max_link_follow_policy
-     * @author Nicolas Noffke
      */
     public void modify_link(String name, 
 			    FollowOption default_follow_rule, 
@@ -316,7 +301,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * @param name The name of the link to remove
      * @exception org.omg.CosTrading.LinkPackage.IllegalLinkName Link name not allowed
      * @exception org.omg.CosTrading.LinkPackage.UnknownLinkName No link for that name exists
-     * @author Nicolas Noffke
      */
     public void remove_link(String name) throws IllegalLinkName, UnknownLinkName {
 	// check parameters
@@ -342,7 +326,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Check, if any links have been added, removed or modified.<br>
      * *NOT* inherited from anywhere.
      * @return True, if anything changed
-     * @author Nicolas Noffke
      */
     public boolean linksChanged(){
 	return m_links_changed;
@@ -352,7 +335,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
      * Get the links of this trader.<br>
      * *NOT* inherited from anywhere.
      * @return All LinkInfo-objects of this trader
-     * @author Nicolas Noffke
      */
     public LinkInfo[] getLinks(){
 	LinkInfo[] _links_array = new LinkInfo[m_current_links.size()];

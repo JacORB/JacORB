@@ -20,7 +20,6 @@ public class QueryPropagator {
      * For efficiency reasons it is an inner class so we can access attributes
      * of QueryPropagator in an easy fashion.
      *
-     * @author Nicolas Noffke
      */	
     private class QueryThread extends Thread{
 	private QueryContainer m_query = null;
@@ -139,7 +138,6 @@ public class QueryPropagator {
     /**
      * Constructor of QueryPropagator
      *
-     * @author Nicolas Noffke
      */
     public QueryPropagator() {
 	m_idle_threads_sema = new Semaphore();
@@ -206,7 +204,6 @@ public class QueryPropagator {
      * If no threads are idle, a new one is started.
      *
      * @param query New QueryContainer to be executed
-     * @author Nicolas Noffke
      */
     public void  putWork(QueryContainer query){
 

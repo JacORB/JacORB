@@ -23,7 +23,7 @@ package org.jacorb.security.util;
 /**
  * This class manages a key store
  *
- * @author Gerald Brose, FU Berlin
+ * @author Gerald Brose, FU Berlin; Andre Benvenuti, GST Bern
  * @version $Id$
  */
 
@@ -685,7 +685,6 @@ System.out.println("creating public key cert");
     /*
      * Imports a certificate from file; the user is asked for the file location.
      *
-     * @author Andre Benvenuti, GST Bern
      * @return - the certificate stored in the file.
      */
 
@@ -728,7 +727,6 @@ System.out.println("creating public key cert");
      * ...
      * chain[n] = self signed CA certificate
      *
-     * @author Andre Benvenuti, GST Bern
      * @return - true if we can verify all the certificates in the chain
      * and if CA is a trusted signer.
      *
@@ -778,7 +776,6 @@ System.out.println("creating public key cert");
      * Imports a certificate from file; the user is asked for the file location.
      * It then sets this certificate in the KeyStore Entry.
      *
-     * @author Andre Benvenuti, GST Bern
      */
 
     /*
@@ -841,7 +838,6 @@ System.out.println("creating public key cert");
      * Imports a certificate from file; the user is asked for the file location.
      * It then sets this certificate in a new KeyStore Trusted Certificate Entry.
      *
-     * @author Andre Benvenuti, GST Bern
      */
 
     private void addTrustee() 

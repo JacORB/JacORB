@@ -72,7 +72,6 @@ public class OfferIteratorImpl extends OfferIteratorPOA
      * Get all offers of this OfferIterator. Mainly for efficiency purposes
      * *NOT* inherited from anywhere
      * @return Offer[] All Offer-objects of this OfferIterator
-     * @author Nicolas Noffke
      */
     public Offer[] getOffers(){
 	return m_offers;

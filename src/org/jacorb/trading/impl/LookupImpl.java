@@ -749,7 +749,6 @@ public class LookupImpl
      *
      * @param id  The request_id
      * @return True, if query was recently encountered
-     * @author Nicolas Noffke
      */
     private boolean queryAlreadyEncountered (String id){
 
@@ -781,7 +780,6 @@ public class LookupImpl
      * @exception InvalidPolicyValue The value is not the expected one
      *
      * @return A FollowOption not more than maxValue
-     * @author Nicolas Noffke
      */
     protected FollowOption getPolicyValue(Hashtable policies,
 					  String name,
@@ -814,7 +812,6 @@ public class LookupImpl
      * to retrieve the links always from LinkImpl, and because LinkImpl stores the
      * Links in a Hashtable
      *
-     * @author Nicolas Noffke
      */
     private void updateLinks(){
 
@@ -831,7 +828,6 @@ public class LookupImpl
      * @param template Contains the queries parameters. Mainly for keeping the interface small.
      * @param link_follow_rule The actual link_follow_rule-policy
      * @param used_links  For storing and lookup of links that have aready been accessed
-     * @author Nicolas Noffke
      */
     private void distributeQuery(Vector queries, 
 				 QueryContainer template, 
