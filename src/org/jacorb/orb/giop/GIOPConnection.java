@@ -20,6 +20,8 @@
 
 package org.jacorb.orb.giop;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import java.io.*;
 import java.util.*;
 
@@ -58,6 +60,8 @@ public abstract class GIOPConnection
 
     private boolean writer_active = false;
     private Object write_sync = new Object();
+
+    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.giop.conn");
 
     /*
      * Connection OSF character formats.
@@ -285,10 +289,16 @@ public abstract class GIOPConnection
 
             if( msg_size < 0 )
             {
-                Debug.output( 1, "ERROR: Negative GIOP message size: " +
-                              msg_size );
-                Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-                              header, 0, Messages.MSG_HEADER_SIZE );
+                if (logger.isErrorEnabled())
+                {
+                    logger.error( "Negative GIOP message size: " + msg_size );
+                }
+
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("TCP_IP_GIOPTransport.getMessage() with header: \n" + 
+                                 header + "\nsize : " + Messages.MSG_HEADER_SIZE );
+                }
 
                 return null;
             }
@@ -307,7 +317,10 @@ public abstract class GIOPConnection
             }
             catch (org.omg.CORBA.COMM_FAILURE ex)
             {
-                Debug.output( 1, "ERROR: Failed to read GIOP message" );
+                if (logger.isErrorEnabled())
+                {
+                    logger.error( "Failed to read GIOP message" );
+                }
                 return null;
             }
 
@@ -328,10 +341,15 @@ public abstract class GIOPConnection
         }
         else
         {
-            Debug.output( 1, "ERROR: Failed to read GIOP message" );
-            Debug.output( 1, "Magic start doesn't match" );
-            Debug.output( 3, "GIOPConnection.getMessage()",
-                          msg_header.value );
+            if (logger.isErrorEnabled())
+            {
+                logger.error( "Failed to read GIOP message, incorrect magic number" );
+            }
+            
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("GIOPConnection.getMessage()" + msg_header.value );
+            }
 
             return null;
         }
@@ -343,7 +361,6 @@ public abstract class GIOPConnection
         while( true )
         {
             byte[] message = getMessage();
-
 
             if( message == null )
             {
