@@ -14,7 +14,7 @@
    <!-- top-level targets  -->
 
    <target name="all"
-      depends="corba,names,security,events,transactions,concurrency,collections,trading" />
+      depends="corba,names,security,events,transactions,concurrency,collections,trading,notification" />
 
    <target name="services"
       depends="events,trading,collections,transactions,concurrency" />
