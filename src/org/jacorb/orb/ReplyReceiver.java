@@ -344,27 +344,32 @@ public class ReplyReceiver
     }
 
     private void doRebind ( org.omg.CORBA.Object forward_reference )
-    {
-        // make other threads that have unreturned replies wait
-        delegate.lockBarrier();
-
-        // tell every pending request to remarshal
-        // they will be blocked on the barrier
-        Set pending_replies = delegate.get_pending_replies();
-        synchronized ( pending_replies )
+    {   
+        try
         {
-            for ( Iterator i = pending_replies.iterator(); i.hasNext(); )
+            // make other threads that have unreturned replies wait
+            delegate.lockBarrier();
+
+            // tell every pending request to remarshal
+            // they will be blocked on the barrier
+            Set pending_replies = delegate.get_pending_replies();
+            synchronized ( pending_replies )
             {
-                ReplyPlaceholder p = ( ReplyPlaceholder ) i.next();
-                p.retry();
+                for ( Iterator i = pending_replies.iterator(); i.hasNext(); )
+                {
+                    ReplyPlaceholder p = ( ReplyPlaceholder ) i.next();
+                    p.retry();
+                }
             }
+
+            // do the actual rebind
+            delegate.rebind ( forward_reference );
         }
-
-        // do the actual rebind
-        delegate.rebind ( forward_reference );
-
-        // now other threads can safely remarshal
-        delegate.openBarrier();
+        finally
+        {
+            // now other threads can safely remarshal
+            delegate.openBarrier();
+        }
     }
 
     private ApplicationException getApplicationException ( ReplyInputStream reply )
