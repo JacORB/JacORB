@@ -2968,6 +2968,8 @@ unexpected internal exceptions.
 
 \chapter{Asynchronous Method Invocation}
 
+\label{AMI}
+
 JacORB allows you to invoke objects asynchronously, as defined in the
 \emph{Messaging} chapter of the CORBA specification (chapter 22 in
 CORBA 3.0).  Only the callback model is implemented at this time;
@@ -3537,26 +3539,27 @@ automatically be generated.
 \subsection*{Usage}
 
 \noindent{\tt idl
-  [-h|-help] [-v|-version] [-syntax] [-all] [-Idir] [-Dsymbol[=value]]
-  [-d <Output Dir>] [-p <package\_prefix>] [-i2jpackage <mapping>]
-  [-i2jpackagefile <file> ] [-W debug\_level] [-nofinal]   <filelist>}
+  [-h|-help] [-v|-version] [-Dsymbol[=value]] [-Idir] [-U <symbol>]
+  [-W debug\_level] [-all] [-ami\_callback] [-ami\_polling] [-jdk14]
+  [-d <Output Dir>] [-i <import\_package] [-i2jpackage x:y]
+  [-i2jpackagefile <filename>] [-ir] [-nofinal] [-noskel] [-nostub]
+  [-p <package\_prefix>] [-sloppy\_forward] [-sloppy\_names] [-syntax]
+  <filelist>}
 
-The option {\tt  -v} prints out a short version  string while {\tt -h}
+The option {\tt -v} prints out a short version  string while {\tt -h}
 or {\tt -help} displays brief usage information.
 
-The {\tt -noskel} option suppresses the generation of skeleton files,
-which may be unnecessary if you only want to {\em use} a reference and
-thus need client--side code.
+With the  {\tt -D} option you can  define symbols that can  be used by
+the  preprocessor while  processing  the  IDL file.   If  no value  is
+specified, the  symbol will be  defined with a  value of 1. The {\tt
+  -U} option lets you undefine symbols again.
 
-The  {\tt -ir} option  instructs the  compiler to  generate additional
-files   that    contain   information   needed    by   the   Interface
-Repository. Basically, there  is one (very small) extra  file for each
-IDL module, and another additional file per IDL interface.
+The {\tt -I} options allows you to specify one or more search paths for
+IDL files included from within  {\tt <filelist>}. If no path is given,
+only the  current directory will  be considered.
 
-Invoking {\tt idl}  with the {\tt -syntax} option  allows you to check
-your IDL  specification for  syntactic errors without  producing code.
-Without {\tt  -syntax}, the compiler creates  directories according to
-the Java package structure.
+The {\tt -W} option specifies the amount of debug information the IDL
+ compiler will output.
 
 The  compiler  does  not,  by  default,  generate  code  for  included
 files. If that is desired, you have to use the {\tt -all} option which
@@ -3566,44 +3569,26 @@ for a given IDL no code will  be generated even if this option is set,
 you  can use  the  (proprietary) preprocessor  directive {\tt \#pragma
 inhibit\_code\_generation}.
 
-The {\tt-I} options allows you to specify one or more search paths for
-IDL files included from within  {\tt <filelist>}. If no path is given,
-only the  current directory will  be considered.
+The {\tt -ami\_callback} flag allows you to use the callback model of
+Asynchronous Method Invocation. See chapter \ref{AMI}.
 
-With the  {\tt -D} option you can  define symbols that can  be used by
-the  preprocessor while  processing  the  IDL file.   If  no value  is
-specified, the  symbol will be  defined with a  value of 1. The {\tt
-  -U} option lets you undefine symbols again.
+The {\tt -ami\_polling} flag allows you to use the polling model of
+Asynchronous Method Invocation. See chapter \ref{AMI}.
 
-Compiling a  file with  a module {\tt  ModuleX} and an  interface {\tt
-  InterfaceY} in it  will result in a subdirectory  {\tt ModuleX} with
-  {\tt    InterfaceY.java}   in   it    (and   possibly    more   {\tt
-  .java}--files). By default, the root  directory for all of the files
-  created  during  the process  is  the  current  directory. You  can,
-  however, provide a  different directory in which these  files are to
-  be placed by  using the -d option. Using the -d  option when you are
-  only checking the syntax of an IDL file has no effect.
+Compiling a  file with  a module {\tt  ModuleX} and
+an interface {\tt InterfaceY} in it  will result in a subdirectory
+ {\tt ModuleX} with {\tt InterfaceY.java} in it (and possibly more
+ {\tt .java}--files). By default, the root directory for all of the
+ files created during  the process is the current directory. You can,
+ however, provide a  different directory in which these  files are to
+ be placed by  using the -d option. Using the -d  option when you are
+ only checking the syntax of an IDL file has no effect.
 
-By using the {\tt -nofinal} option the compiler can be made to generate
-class definitions that are not final. This will override the default
-behaviour, which is to generate final class definitions in certain
-circumstances to allow for their optimisation during compilation.
+The {\tt -jdk14} option makes the IDL compiler do extra checks to ensure
+JDK1.4 compatible code is generated.
 
-With the  {\tt -p}  option it  is also possible  to specify  a package
-prefix for the generated Java  classes. E.g., if the IDL file contains
-a module {\tt Bank} which  defines an interface {\tt Account}, you can
-direct   the   IDL   compiler    to   generate   Java   classes   {\tt
-example.Bank.Account} by compiling with the package prefix set to {\tt
-example}, i.e. by compiling with
-
-\cmdline{idl -p example bank.idl}
-
-The IDL compiler will create the appropriate directories if necessary.
-Note that the effect is the same as if the entire contents of the IDL
-file was scoped with {\tt example}. In particular, this applies to
-included files: all definitions in included files will also be scoped
-this way! The -p switch should used with discretion in cases where
-other IDL files are included.
+The {\tt -i} option allows you to add the specified Java import to the
+ generated code.
 
 To be able to flexibly redirect generated Java classes into packages,
 the {\tt -i2jpackage} switch can be used. Using this option, any IDL
@@ -3613,6 +3598,33 @@ definitions within a scope x to end up in a Java package {\tt a.b.c},
 e.g. an IDL identifier {\tt X::Y::ident} will be mapped to {\tt
   a.b.c.y.ident} in Java. It is also possible to specify a file
 containing these mappings using the {\tt -i2jpackagefile} switch.
+
+The  {\tt -ir} option  instructs the  compiler to  generate additional
+files   that    contain   information   needed    by   the   Interface
+Repository. Basically, there  is one (very small) extra  file for each
+IDL module, and another additional file per IDL interface.
+
+By using the {\tt -nofinal} option the compiler can be made to generate
+class definitions that are not final. This will override the default
+behaviour, which is to generate final class definitions in certain
+circumstances to allow for their optimisation during compilation.
+
+The {\tt -noskel} option suppresses the generation of skeleton files,
+which may be unnecessary if you only want to {\em use} a reference and
+thus need client--side code.
+
+The {\tt -nostub} option suppresses the generation of client stubs.
+
+The {\tt -sloppy\_forward} option allows forward declarations without
+later definitions.
+
+The {\tt -sloppy\_name} option allows less strict checking of module
+name scoping.
+
+Invoking {\tt idl}  with the {\tt -syntax} option  allows you to check
+your IDL  specification for  syntactic errors without  producing code.
+Without {\tt  -syntax}, the compiler creates  directories according to
+the Java package structure.
 
 (The  IDL  parser  was   generated  with  Scott  Hudson's  CUP  parser
 generator.  The  LALR grammar for  the CORBA IDL  is in the  file {\tt

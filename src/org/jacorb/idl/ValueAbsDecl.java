@@ -304,6 +304,9 @@ class ValueAbsDecl
                 PrintWriter ps =
                         new PrintWriter( new java.io.FileWriter( new File( dir, name + ".java" ) ) );
 
+                if( parser.checkJdk14 && pack_name.equals( "" ) )
+                    parser.fatal_error
+                        ( "No package defined for " + name + " - illegal in JDK1.4", token );
                 if( !pack_name.equals( "" ) )
                     ps.println( "package " + pack_name + ";\n" );
 

@@ -177,8 +177,8 @@ class ValueBoxDecl
      * @returns a string for an expression of type TypeCode that
      * describes this type
      *
-     * @overrides getTypeCodeExpression( Set knownTypes ) in 
-     * TypeDeclaration 
+     * @overrides getTypeCodeExpression( Set knownTypes ) in
+     * TypeDeclaration
      */
 
     public String getTypeCodeExpression( Set knownTypes )
@@ -209,6 +209,9 @@ class ValueBoxDecl
 
     private void printHolderClass( String className, PrintWriter ps )
     {
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + className + " - illegal in JDK1.4", token );
         if( !pack_name.equals( "" ) )
             ps.println( "package " + pack_name + ";" );
 
@@ -248,6 +251,9 @@ class ValueBoxDecl
 
     private void printHelperClass( String className, PrintWriter ps )
     {
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + className + " - illegal in JDK1.4", token );
         if( !pack_name.equals( "" ) )
             ps.println( "package " + pack_name + ";" );
 
@@ -263,13 +269,13 @@ class ValueBoxDecl
         printIdMethod( ps ); // inherited from IdlSymbol
 
         /* read */
-        ps.println( "\tpublic static " + type + 
+        ps.println( "\tpublic static " + type +
                     " read (final org.omg.CORBA.portable.InputStream in)" );
         ps.println( "\t{" );
 
         if( typeSpec.typeSpec() instanceof BaseType )
         {
-            ps.println( "\t\t" + type + " result = new " + type + 
+            ps.println( "\t\t" + type + " result = new " + type +
                         "(" + typeSpec.typeSpec().printReadExpression( "in" ) + ");" );
         }
         else
@@ -313,6 +319,9 @@ class ValueBoxDecl
     {
         String fullClassName = className;
 
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + className + " - illegal in JDK1.4", token );
         if( !pack_name.equals( "" ) )
         {
             fullClassName = pack_name + "." + className;
@@ -407,8 +416,3 @@ class ValueBoxDecl
         }
     }
 }
-
-
-
-
-

@@ -129,7 +129,7 @@ class StructType
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println( "was " + enclosing_symbol.getClass().getName() + 
+            System.err.println( "was " + enclosing_symbol.getClass().getName() +
                                 " now: " + s.getClass().getName() );
             throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
         }
@@ -243,7 +243,7 @@ class StructType
 
     /**
      * @returns a string for an expression of type TypeCode that
-     * describes this type 
+     * describes this type
      */
 
     public String getTypeCodeExpression()
@@ -258,7 +258,7 @@ class StructType
             return this.getRecursiveTypeCodeExpression();
         }
         else
-        {   
+        {
             return this.getTypeCodeExpression();
         }
     }
@@ -276,6 +276,9 @@ class StructType
 
     private void printHolderClass( String className, PrintWriter ps )
     {
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + className + " - illegal in JDK1.4", token );
         if( !pack_name.equals( "" ) )
             ps.println( "package " + pack_name + ";" );
 
@@ -319,6 +322,9 @@ class StructType
 
     private void printHelperClass( String className, PrintWriter ps )
     {
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + className + " - illegal in JDK1.4", token );
         if( !pack_name.equals( "" ) )
             ps.println( "package " + pack_name + ";\n" );
 
@@ -374,7 +380,7 @@ class StructType
         printIdMethod( ps ); // inherited from IdlSymbol
 
         /* read */
-        ps.println( "\tpublic static " + type + 
+        ps.println( "\tpublic static " + type +
                     " read (final org.omg.CORBA.portable.InputStream in)" );
         ps.println( "\t{" );
         ps.println( "\t\t" + type + " result = new " + type + "();" );
@@ -418,6 +424,9 @@ class StructType
 
     private void printStructClass( String className, PrintWriter ps )
     {
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + className + " - illegal in JDK1.4", token );
         String fullClassName = className;
 
         if( !pack_name.equals( "" ) )
@@ -432,7 +441,6 @@ class StructType
         printClassComment( className, ps );
 
         ps.println( "public" + parser.getFinalString() + " class " + className );
-
         if( exc )
             ps.println( "\textends org.omg.CORBA.UserException" );
         else
@@ -592,5 +600,3 @@ class StructType
         }
     }
 }
-
-

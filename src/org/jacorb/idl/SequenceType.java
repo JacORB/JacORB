@@ -361,6 +361,9 @@ public class SequenceType
 
     private void printHolderClass( String className, PrintWriter ps )
     {
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + className + " - illegal in JDK1.4", token );
         if( !pack_name.equals( "" ) )
             ps.println( "package " + pack_name + ";\n" );
 
@@ -404,6 +407,9 @@ public class SequenceType
 
     private void printHelperClass( String className, PrintWriter ps )
     {
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + className + " - illegal in JDK1.4", token );
         if( !pack_name.equals( "" ) )
             ps.println( "package " + pack_name + ";" );
 
@@ -547,9 +553,3 @@ public class SequenceType
 
 
 }
-
-
-
-
-
-

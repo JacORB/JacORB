@@ -41,7 +41,7 @@ class Interface
     private boolean is_local = false;
     private boolean is_abstract = false;
     private ScopeData scopeData;
-    
+
     private ReplyHandler replyHandler = null;
 
     /* IR information that would otherwise be lost */
@@ -144,7 +144,7 @@ class Interface
             return this.getRecursiveTypeCodeExpression();
         }
         else
-        {   
+        {
             return this.getTypeCodeExpression();
         }
     }
@@ -293,8 +293,8 @@ class Interface
     {
         if( parser.get_pending( full_name() ) != null )
         {
-            parser.fatal_error( full_name() + 
-                                " is forward declared and still pending!", 
+            parser.fatal_error( full_name() +
+                                " is forward declared and still pending!",
                                 token );
         }
         else if( body == null )
@@ -332,12 +332,15 @@ class Interface
         catch (IOException e)
         {
             throw new RuntimeException ("Could not open output file for "
-                                        + typeName + " (" + e + ")");                                                                                  
-        }   
+                                        + typeName + " (" + e + ")");
+        }
     }
 
-    protected void printPackage (PrintWriter ps) 
+    protected void printPackage (PrintWriter ps)
     {
+        if( parser.checkJdk14 && pack_name.equals( "" ) )
+            parser.fatal_error
+                ( "No package defined for " + name + " - illegal in JDK1.4", token );
         if (!pack_name.equals (""))
             ps.println ("package " + pack_name + ";\n");
     }
@@ -354,7 +357,7 @@ class Interface
     /**
      *  If this interface inherits from classes in the unnamed package,
      *  generate explicit import statements for them.
-     */    
+     */
     protected void printSuperclassImports( PrintWriter ps )
     {
         if( inheritanceSpec.v.size() > 0 )
@@ -369,7 +372,7 @@ class Interface
                 }
             }
         }
-    }        
+    }
 
     /**
      *  generate the signature interface
@@ -657,17 +660,17 @@ class Interface
             ps.println("\t\t}");
             ps.println("\t\tcatch( ClassCastException c )");
             ps.println("\t\t{");
-        
+
             String stub_name = typeName();
             if( stub_name.indexOf('.') > -1 )
             {
-                stub_name = stub_name.substring(0,typeName().lastIndexOf('.')) + 
+                stub_name = stub_name.substring(0,typeName().lastIndexOf('.')) +
                     "._" + stub_name.substring(stub_name.lastIndexOf('.')+1) + "Stub";
             }
             else
                 stub_name = "_" + stub_name + "Stub";
             ps.println("\t\t\t\t" + stub_name + " stub;");
-          
+
             ps.println("\t\t\t\tstub = new " + stub_name + "();");
             ps.println("\t\t\t\tstub._set_delegate(((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());");
             ps.println("\t\t\t\treturn stub;");
@@ -713,7 +716,7 @@ class Interface
             for (Iterator j = base_ids.iterator(); j.hasNext(); i++)
             {
                 ids[i] = (String)j.next();
-            }                
+            }
         }
         return ids;
     }
@@ -889,7 +892,7 @@ class Interface
                            ? "com.sun.java.util.collections.Hashtable"
                            : "java.util.Hashtable";
 
-        ps.println( "\tpublic static " + HASHTABLE 
+        ps.println( "\tpublic static " + HASHTABLE
                           + " irInfo = new " + HASHTABLE + "();" );
         ps.println( "\tstatic" );
         ps.println( "\t{" );
@@ -1015,7 +1018,7 @@ class Interface
 
             // print class files for interface local definitions
             body.print(null);
-            
+
             if (replyHandler != null)
                 replyHandler.print (_ps);
 
@@ -1023,5 +1026,3 @@ class Interface
         }
     }
 }
-
-
