@@ -115,6 +115,10 @@ public class Environment
     private static byte[]               _impl_name = null;
     private static byte[]               _server_id = null;
 
+    /* properties with a given prefix */
+    private static Hashtable untrimmedPrefixProps = new Hashtable();
+    private static Hashtable trimmedPrefixProps = new Hashtable();
+
     static
     {
         _init();
@@ -725,36 +729,55 @@ public class Environment
 
     /**
      * Collects all properties with a given prefix. The prefix
-     * will be removed from the hash key if trim is trie
+     * will be removed from the hash key if trim is true
      *
      * @return a hash table with  key/value pairs 
      */
 
     public static Hashtable getProperties( String prefix, boolean trim )
     {
-        Enumeration prop_names = _props.propertyNames();
-        Hashtable properties = new Hashtable();
+        if( trim && trimmedPrefixProps.containsKey( prefix ))
+            return (Hashtable)trimmedPrefixProps.get( prefix );
+        else if( !trim && untrimmedPrefixProps.containsKey( prefix ))
+            return (Hashtable)untrimmedPrefixProps.get( prefix );
+        else
+        {           
+            Enumeration prop_names = _props.propertyNames();
+            Hashtable properties = new Hashtable();
         
-        // Test EVERY property if prefix matches.
-        while( prop_names.hasMoreElements() )
-        {
-            String name = (String) prop_names.nextElement();
-            if ( name.startsWith( prefix ))
+            // Test EVERY property if prefix matches.
+            while( prop_names.hasMoreElements() )
             {
-                if( trim )
+                String name = (String) prop_names.nextElement();
+                if ( name.startsWith( prefix ))
                 {
-                    properties.put( name.substring( prefix.length() + 1) , _props.getProperty(name) );
-                }
-                else
-                {
-                    properties.put( name , _props.getProperty(name));
+                    if( trim )
+                    {
+                        properties.put( name.substring( prefix.length() + 1) , _props.getProperty(name) );
+                    }
+                    else
+                    {
+                        properties.put( name , _props.getProperty(name));
+                    }
                 }
             }
+
+            /* record for later use */
+
+            if( trim )
+                trimmedPrefixProps.put( prefix, properties );
+            else
+                untrimmedPrefixProps.put( prefix, properties );
+            
+            return properties;
         }
-        
-        return properties;
     }
   
+    public static boolean doMapObjectKeys()
+    {
+        Hashtable h = getProperties( "jacorb.orb.objectKeyMap", true );
+        return !h.isEmpty();
+    }
 
 }
 
