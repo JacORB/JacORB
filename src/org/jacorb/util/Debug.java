@@ -171,7 +171,7 @@ public final class Debug
 
 	    for( int i = start; i < len; i++ )
 	    {
-		if((i %16 ) == 0)
+		if((i % 16 ) == 0)
 		{
 		    System.out.println( chars ); 
                     chars = new StringBuffer();                    
@@ -188,6 +188,24 @@ public final class Debug
 		}
 	    }
 
+            if( len % 16 != 0 )
+            {
+                int pad = 0;
+                int delta_bytes = 16 - (len % 16);
+
+                //rest of line (no of bytes)
+                //each byte takes two chars plus one ws
+                pad = delta_bytes * 3;
+
+                //additional whitespaces after four bytes
+                pad += (delta_bytes / 4);
+
+                for( int i = 0; i < pad; i++ )
+                {
+                    chars.insert( 0, ' ' );
+                }
+            }
+                    
 	    System.out.println( chars );
 	}
     }
@@ -283,6 +301,7 @@ public final class Debug
     /**
      * utility method,
      */
+    /*
     public static void dumpBA(byte bs[])
     {
 	int len = bs.length;
@@ -296,11 +315,11 @@ public final class Debug
 	}
 	java.lang.System.out.println();
     }
- 
+    */
     /**
      * utility method, 
      */
-
+    /*
     public static void dumpHex(byte b)
     {
 	int n1 = (b & 0xff) / 16;
@@ -314,7 +333,7 @@ public final class Debug
 	    c3 = ' ';
 	java.lang.System.out.print(c1+(c2+" ")+c3+"  ");
     }
-
+    */
 }
 
 
