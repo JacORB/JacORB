@@ -1,3 +1,489 @@
+2004-08-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDROutputStream.java (write_repository_id,
+	write_special_value, write_codebase, writeRecursiveTypeCode): Fix
+	the calculation of indirection offsets according to John Farrell's
+	investigation -- use size() rather than pos or index, to account
+	for deferred writes.
+
+	* orb/CDRInputStream.java (openEncapsulation, closeEncapsulation):
+	Back out previous change, since Francisco correctly pointed out
+	that we needn't scope the indirection maps on input (they contain
+	absolute positions in the stream anyway).
+
+	* org/EncapsInfo.java (c'tor): Likewise.
+	
+2004-08-13  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/engine/TaskExecutor.java,
+	notification/engine/TaskFactory.java: code cleanup
+
+	* notification/AbstractChannelFactory.java:
+	(eventChannelIDPool_) is final (setORB) added {}
+
+	* notification/AbstractMessage.java:
+	(extractValue) better error checking if you try to access non
+	defined properties in filter strings
+
+	* notification/filter/etcl/AndOperator.java,
+	notification/filter/etcl/BinaryOperator.java,
+	notification/filter/etcl/ComponentPositionOperator.java,
+	notification/filter/etcl/DefaultOperator.java,
+	notification/filter/etcl/DivOperator.java,
+	notification/filter/etcl/ETCLComponentName.java,
+	notification/filter/etcl/EqOperator.java,
+	notification/filter/etcl/EventNameShorthandNode.java,
+	notification/filter/etcl/GtOperator.java,
+	notification/filter/etcl/GteOperator.java,
+	notification/filter/etcl/IdentValue.java,
+	notification/filter/etcl/ImmutableEvaluationResult.java,
+	notification/filter/etcl/InOperator.java,
+	notification/filter/etcl/LtOperator.java,
+	notification/filter/etcl/LteOperator.java,
+	notification/filter/etcl/MessageUtils.java,
+	notification/filter/etcl/MinusOperator.java,
+	notification/filter/etcl/MultOperator.java,
+	notification/filter/etcl/NeqOperator.java,
+	notification/filter/etcl/NotOperator.java,
+	notification/filter/etcl/OrOperator.java,
+	notification/filter/etcl/PlusOperator.java,
+	notification/filter/etcl/RuntimeVariableNode.java,
+	notification/filter/etcl/StaticTypeException.java,
+	notification/filter/etcl/StringValue.java,
+	notification/filter/etcl/SubstrOperator.java,
+	notification/filter/etcl/UnaryOperator.java,
+	notification/filter/etcl/UnionPositionOperator.java: better error
+	checking if you try to access non defined properties in filter
+	strings
+
+2004-08-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* naming/ContextLister.java: Untabify.
+
+2004-08-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/build.xml: (server) use pathref to access classpath
+
+	* notification/FilterManager.java: filterLock_ should be final
+
+2004-07-19  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/ORB.java,
+	orb/portableInterceptor/IORInterceptorIterator.java,
+	orb/portableInterceptor/InterceptorManager.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java: added
+	support for applying codeset tagged component to all profiles
+	included in an IOR, including non-IIOP and non-MultipleComponents
+
+2004-07-19  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/ClientConnection.java (sendRequest): When receiving an
+	exception, remove the ReplyPlaceholder to avoid memory leak.  This
+	is part of the fix for bug 478, suggested by Marc Heide.
+
+	* orb/CDRInputStream.java (openEncapsulation): Fix parameter order
+	in prev change.
+
+2004-07-16  Simon McQueen  <sm@prismtechnologies.com>
+
+	* poa/RequestProcessor.java (invokeOperation): Added some debug to
+	permit display of runtime exception stack traces.
+
+	Thanks to Justin Permar for the suggestion.
+
+2004-07-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* collection/KeySortedCollectionImpl.java,
+	collection/OrderedIteratorImpl.java,
+	collection/PositionalIteratorImpl.java: Remove some superfluous
+	semicolons to get rid of unreachable code errors in Eclipse.
+
+	* collection/SequenceFactoryImpl.java,
+	collection/SortedRelationFactoryImpl.java (create): Use ObjectUtil
+	instead of Environment.
+
+	* orb/Delegate.java (invoke_internal): When catching a
+	SystemException on send, remove the ReplyReceiver to break
+	reference cycle, allowing GC.  This is part of the fix for bug
+	478, thanks to Marc Heide.
+
+	* orb/CDRInputStream.java (openEncapsulation, closeEncapsulation):
+	Save and restore the indirection maps.
+
+	* orb/EncapsInfo.java (c'tor): Include the indirection maps in the
+	constructor for CDRInputStreams as well.
+
+2004-07-15  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/IIOPAddress.java (getIP, getHostname): Moved 'is configured'
+	check from former to latter.
+
+	Configuration is only required / accessed for reverse lookups so
+	it was in the wrong place.
+
+2004-07-12  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/factory/SocketFactoryManager.java (getServerFactory):
+	Configure ServerSocketFactory instances iff they are
+	Configurable (as PortRangeServerSocketFactory is).
+
+	This fixes bug #496. Thanks to 'Phil42' for reporting that there
+	was a problem.
+
+	* config/Configuration.java (init): Permit setting of
+	jacorb.config.log.verbosity via System property.
+
+	Thanks to Richard Hash for the fix. This fixes bug # 499.
+
+2004-07-12  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractChannelFactory.java,
+	notification/AbstractEventChannel.java,
+	notification/AbstractFilter.java,
+	notification/AbstractMessage.java, notification/AnyMessage.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java,
+	notification/ChannelManager.java,
+	notification/CollectionsWrapper.java,
+	notification/ConstraintEntry.java,
+	notification/EventChannelFactoryDependency.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/EventTypeSet.java,
+	notification/FilterFactoryImpl.java,
+	notification/FilterManager.java,
+	notification/MappingFilterImpl.java,
+	notification/MessageFactory.java, notification/OfferManager.java,
+	notification/StructuredEventMessage.java,
+	notification/SubscriptionManager.java,
+	notification/TypedEventChannelFactoryImpl.java,
+	notification/TypedEventChannelImpl.java,
+	notification/TypedEventMessage.java,
+	notification/util/AdminPropertySet.java,
+	notification/util/JDK14PatternWrapper.java,
+	notification/util/PropertySet.java,
+	notification/util/PropertySetListener.java,
+	notification/util/QoSPropertySet.java,
+	notification/util/WildcardMap.java,
+	notification/util/AbstractObjectPool.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/FilterStageListManager.java,
+	notification/servant/ManageableServant.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java,
+	notification/queue/EventQueueFactory.java,
+	notification/interfaces/AbstractPoolable.java,
+	notification/interfaces/EventChannelEvent.java,
+	notification/interfaces/Message.java,
+	notification/interfaces/ProxyEvent.java,
+	notification/filter/DynamicEvaluator.java,
+	notification/filter/EvaluationContext.java,
+	notification/filter/EvaluationException.java,
+	notification/filter/EvaluationResult.java,
+	notification/filter/etcl/AbstractTCLNode.java,
+	notification/filter/etcl/AndOperator.java,
+	notification/filter/etcl/AssocOperator.java,
+	notification/filter/etcl/BoolValue.java,
+	notification/filter/etcl/DefaultOperator.java,
+	notification/filter/etcl/DivOperator.java,
+	notification/filter/etcl/ETCLComponentName.java,
+	notification/filter/etcl/ETCLFilterConstraint.java,
+	notification/filter/etcl/EqOperator.java,
+	notification/filter/etcl/ExistOperator.java,
+	notification/filter/etcl/GteOperator.java,
+	notification/filter/etcl/IdentValue.java,
+	notification/filter/etcl/ImplicitOperatorNode.java,
+	notification/filter/etcl/InOperator.java,
+	notification/filter/etcl/LteOperator.java,
+	notification/filter/etcl/MessageUtils.java,
+	notification/filter/etcl/MinusOperator.java,
+	notification/filter/etcl/MultOperator.java,
+	notification/filter/etcl/NeqOperator.java,
+	notification/filter/etcl/NotOperator.java,
+	notification/filter/etcl/NumberValue.java,
+	notification/filter/etcl/OrOperator.java,
+	notification/filter/etcl/PlusOperator.java,
+	notification/filter/etcl/RuntimeVariableNode.java,
+	notification/filter/etcl/StringValue.java,
+	notification/filter/etcl/SubstrOperator.java,
+	notification/engine/AbstractDeliverTask.java,
+	notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/DefaultTaskProcessor.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushAnyOperation.java,
+	notification/engine/PushSequenceOperation.java,
+	notification/engine/PushStructuredOperation.java,
+	notification/engine/PushTypedOperation.java,
+	notification/engine/RetryStrategy.java,
+	notification/engine/TaskExecutor.java,
+	notification/engine/TaskFactory.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/engine/TimerDeliverTask.java,
+	notification/conf/Default.java: organized imports
+
+2004-06-30  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/FilterFactoryImpl.java: exception messages
+
+	* notification/AbstractMessage.java: whitespace
+
+	* notification/filter/bsh/build.xml: lookup bsh in ${classpath}
+
+2004-06-29  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractFilter.java,
+	notification/filter/PropertyDoesNotExistException.java,
+	notification/filter/etcl/PropertyShorthandNode.java: *** empty log
+	message ***
+
+2004-06-28  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/util/AbstractObjectPool.java: call registerPool in
+	configure not in ctor. otherwise race condition can occur
+
+2004-06-26  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractChannelFactory.java,
+	notification/MessageFactory.java: compatibility w JDK1.3
+
+2004-06-25  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/filter/etcl/grammar/tcl-lexer.g:
+	(OTHER_TEXT) added ascii chars to OTHER_TEXT token. this fixes a
+	bug reported by Mike Zhao. It was impossible to use special
+	chars as *, ~, @, etc. in string constants.
+
+2004-06-24  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractChannelFactory.java:
+	(registerName) do nothing if nameId == null.
+
+	* notification/AbstractChannelFactory.java:
+	(registerName) if nameKind is not set it defaults to "". this
+	caused a null pointerexception while registering a reference to
+	the NameService.  reported by Gregory Gimler
+	news://news.gmane.org:119/6.0.0.22.2.20040623182008.01d8ab68@group33.llan.ll.mit.edu
+
+2004-06-22  Phil Mesnier  <mesnier_p@ociweb.com>
+
+	* orb/giop/ClientConnection.java: Have the setCodeSet method
+	return a defaulted service context even if no codeset component is
+	found in the profile. This resolves an interoperability problem
+	with TAO when a non-IIOP profile is used
+
+2004-06-22  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/iiop/IIOPListener.java (configure): Add property
+	jacorb.security.ssl.always_open_unsecured_endpoint to override the
+	default behaviour of not opening an unsecured acceptor when SSL is
+	required.
+
+	Fixes bug #491.
+
+2004-06-22  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/servant/AbstractProxySupplier.java:
+	(removeListener) changed visibility to protected
+	
+	whitespace
+
+	* notification/servant/AbstractProxy.java:
+	(dispose) call removeListener during dispose
+	
+	(removeListener) added abstract method
+	
+	this is to fix an issue reported by James Haiar
+	news://news.gmane.org:119/200406212023.i5LKNwx25277@group33.kmr.ll.mit.edu
+
+	* notification/servant/AbstractProxyConsumer.java:
+	(removeListener) changed visibility to protected
+
+	* notification/TypedEventChannelFactoryImpl.java:
+	(preActivate) added descriptive text in exception
+
+2004-06-21  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* orb/build.xml, orb/rmi/PortableRemoteObjectDelegateImpl.java:
+	RMI over IIOP
+
+2004-06-19  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/FilterFactoryImpl.java: cleaned up imports
+
+	added better descriptions in exceptions
+
+2004-06-18  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/build.xml: fixed typo
+
+	* notification/AbstractChannelFactory.java,
+	notification/AbstractMessage.java,
+	notification/ChannelContext.java,
+	notification/ChannelManager.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventTypeSet.java,
+	notification/FilterFactoryImpl.java,
+	notification/MappingFilterImpl.java,
+	notification/MessageFactory.java,
+	notification/TypedEventChannelFactoryImpl.java: more changes to
+	support TypedNotifications
+
+	* notification/ConsoleMain.java, notification/Main.java,
+	notification/WrapperMain.java, notification/build.xml:
+	(EventChannelFactoryImpl) extracted console related stuff to new
+	class ConsoleMain
+
+	(Main) renamed class to WrapperMain
+
+	* notification/servant/TypedProxyPushConsumerImpl.java: renamed
+	variable
+
+	* notification/servant/AbstractProxySupplier.java:
+	(offer_change) catch and log exception if offer_change fails
+
+	* notification/servant/AbstractProxyConsumer.java:
+	(subscription_change) catch and display exception if
+	subscription_change fails
+
+	* notification/filter/etcl/grammar/tcl.g: whitespace
+
+	* notification/conf/Attributes.java: new attribute
+
+	* notification/filter/bsh/BSHFilter.java, notification/filter/bsh/build.xml:
+	created beanshell filter as demonstration of a custom filter.
+
+	* notification/AbstractFilter.java, notification/FilterImpl.java,
+	notification/filter/FilterConstraint.java,
+	notification/filter/etcl/ETCLFilter.java,
+	notification/filter/etcl/ETCLFilterConstraint.java: split
+	FilterImpl in AbstractFilterImpl and ETCLFilter to allow custom
+	filters
+
+2004-06-14  Simon McQueen  <sm@prismtechnologies.com>
+
+	* config/Configuration.java (init): Added two missing checks for a
+	logging verbosity value.
+
+	Thanks to Oguzhan Eris for supplying the patch.
+
+2004-06-11  Simon McQueen  <sm@prismtechnologies.com>
+
+	* config/Configuration.java (setAttributes): Check for illegal non
+	String keys / values in Properties objects.
+
+	Thanks to John Farrell for supplying the patch.
+
+2004-06-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ClientInterceptorHandler.java (handle_location_forward,
+	handle_receive_exception, handle_receive_other,
+	handle_receive_reply): Use setter methods to put data into
+	interceptor info.
+
+	* poa/RequestProcessor.java (process): Use setter methods to put
+	data into interceptor info.
+
+	* orb/dii/Request.java (_invoke): Likewise.
+
+	* orb/dsi/ServerRequest.java (arguments): Likewise.
+
+	* orb/portableInterceptor/RequestInfoImpl.java (arguments,
+	caller_op, current, exceptions, forward_reference, operation,
+	reply_status, request_id, response_expected, result): Made fields
+	protected instead of public.
+	(arguments, exceptions, forward_reference): Accessor methods
+	weren't implemented properly.
+	(current, setArguments, setReplyStatus, setCurrent): New methods.
+
+2004-06-08  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/util/AbstractObjectPool.java: checked
+	synchronization for non-synchronized members
+
+	* notification/MessageFactory.java, notification/FilterImpl.java:
+	whitespace
+
+2004-06-07  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/interfaces/AbstractPoolable.java: whitespace
+
+2004-06-04  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/util/AbstractObjectPool.java: fix bug reported by
+	John Farrell
+	news://news.gmane.org:119/200406041629.48096.Farrell_John_W@cat.com
+	
+	(active_) wrapped member active_ in synchronized Collectionswrapper
+
+2004-06-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/filter/etcl/EqOperator.java:
+	(evaluate) undo last changes
+
+	* notification/filter/etcl/PropertyShorthandNode.java:
+	(evaluate) throw EvaluationException if property cannot be
+	resolved
+
+2004-06-02  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/filter/etcl/grammar/comp-lexer.g,
+	notification/filter/etcl/grammar/tcl-lexer.g,
+	notification/filter/etcl/grammar/tcl.g: updated copyright
+
+	* notification/filter/etcl/EqOperator.java: added fix to a bug
+	reported by John Farrell
+
+	quote:
+
+	We are seeing a problem in Jacorb Notification in class EqOperator
+	in method evaluate(EvaluationContext), where _left is null so the
+	.compareTo(_right) is failing with a NullPointerException (line
+	46). I believe this is caused by using an ETCL expression where I
+	am saying "x == 3", when "x" is not defined in the event.
+
+	(evaluate) check if _left and _right are not null before invoking
+	compare
+
+2004-05-25  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/build.xml: updated ref to wrapper.jar
+
 2004-05-19  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/ReplyReceiver.java (c'tor): Pass the ORB up to the
@@ -293,7 +779,7 @@
 	The previous revision worked only when clz was an RMI/IDL interface.
 	(Patch contributed by Bill Burke <bill@jboss.org>)
 
-2004-05-06  phil.mesnier  <phil.mesnier@hadley>
+2004-05-06  Phil Mesnier  <mesnier_p@ociweb.com>
 
 	* util/ObjectUtil.java:
 	Added a fix to allow file:// to take relative as well as absolute path names for IOR urls
@@ -1264,7 +1750,7 @@
 
 	* orb/giop/GIOPConnection.java:
 	(receiveMessages) added returning message buffer to buffer manager
-	in two error cases to avoid potential memory leakage
+	in two error cases to avoid potential memory leakage
 
 	* idl/parser.java, idl/sym.java: *** empty log message ***
 
@@ -1307,7 +1793,7 @@
 
 	* orb/giop/ServerGIOPConnection.java:
 	(close) new method to override super class' close and to
-	unregister the connection from its manager. Fixes #456 and #458
+	unregister the connection from its manager. Fixes #456 and #458
 
 	* orb/portableInterceptor/CodecFactoryImpl.java: uses new
 	CodecImpl implementation
