@@ -40,6 +40,9 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+2.0 GA
+======
+
       - You can now use IORInterceptors to add new profiles to IORs
         (rather than just adding components to profiles that were
         created by the ORB).  To achieve this, the IORInfo object
@@ -60,6 +63,15 @@
         which controls if network failures on existing connections
         should yield a COMM_FAILURE or should trigger a remarshaling
         of all pending messages.
+
+      - IDL compiler:
+        minor bug fixes
+        new option -unchecked_narrow
+
+      - ORB performance improvements
+
+      - more logging clean up        
+
 
 2.0 beta 3
 ==========
