@@ -1169,7 +1169,7 @@ public final class Delegate
         {
             // If local object call _is_a directly
 
-            if (is_local (self))
+            if (is_really_local (self))
             {
                 org.omg.PortableServer.Servant servant;
                 ServantObject so = servant_preinvoke (self, "_is_a", java.lang.Object.class);
@@ -1226,15 +1226,27 @@ public final class Delegate
     }
 
     /**
-     * @return true iff this object lives on a local POA
+     * @return true if this object lives on a local POA and
+     * interceptors are not installed. When interceptors are
+     * installed this returns false so that stubs do not call
+     * direct to implementation, avoiding installed interceptors.
      */
 
-    public boolean is_local( org.omg.CORBA.Object self )
+    public boolean is_local (org.omg.CORBA.Object self)
     {
         if (orb.hasRequestInterceptors ())
         {
             return false;
         }
+        return (is_really_local (self));
+    }
+
+    /**
+     * @return true iff this object lives on a local POA
+     */
+
+    private boolean is_really_local (org.omg.CORBA.Object self)
+    {
         if (poa == null)
         {
             resolvePOA (self);
