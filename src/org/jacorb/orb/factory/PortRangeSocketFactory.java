@@ -58,9 +58,8 @@ public class PortRangeSocketFactory extends PortRangeFactory implements SocketFa
             }
         }
 
-        Debug.output (Debug.IMPORTANT | Debug.ORB_CONNECT,
-            "Cannot bind socket between ports " + portMin + " and "
-            + portMax + " to target " + host + ":" + port);
+        Debug.output(2,"Cannot bind socket between ports " + portMin + " and "
+                     + portMax + " to target " + host + ":" + port);
         throw new BindException ("PortRangeSocketFactory: no free port between "
             + portMin + " and " + portMax);
     }

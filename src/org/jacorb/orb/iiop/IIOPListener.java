@@ -31,6 +31,8 @@ import org.omg.ETF.*;
 import org.omg.CSIIOP.*;
 import org.omg.SSLIOP.*;
 
+import org.apache.avalon.framework.logger.*;
+
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 import org.jacorb.orb.factory.*;
@@ -49,6 +51,8 @@ public class IIOPListener extends _ListenerLocalBase
     private SSLAcceptor sslAcceptor = null;
 
     private IIOPProfile endpoint = null;
+
+    private Logger logger = null;
 
     /**
      * Reference to the ORB, for delivering
@@ -81,6 +85,8 @@ public class IIOPListener extends _ListenerLocalBase
         }
 
         endpoint = createEndPointProfile();
+
+        logger = Debug.getNamedLogger("jacorb.orb.iiop");
     }
 
     /**
@@ -427,13 +433,16 @@ public class IIOPListener extends _ListenerLocalBase
         }
         catch (IOException ex)
         {
-            Debug.output (1, "Could not create connection from socket: " + ex);
+            if (logger.isErrorEnabled())
+            { 
+                logger.error("Could not create connection from socket: " + ex);
+            }
             return;
         }
 
         if (up != null)
         {
-              up.add_input (result);
+            up.add_input (result);
         }
         else
         {
@@ -475,10 +484,9 @@ public class IIOPListener extends _ListenerLocalBase
         {
             serverSocket = createServerSocket();
 
-            if( Debug.isDebugEnabled() )
+            if( logger.isDebugEnabled() )
             {
-                Debug.output
-                    ( "Created socket listener on " + serverSocket.getInetAddress() );
+                logger.debug( "Created socket listener on " + serverSocket.getInetAddress() );
             }
        }
 
@@ -495,11 +503,18 @@ public class IIOPListener extends _ListenerLocalBase
                 catch (Exception e)
                 {
                     if (!terminated)
-                        Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT, e );
+                    {
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn(e.getMessage());
+                        }
+                    }
                 }
             }
-            Debug.output( Debug.INFORMATION | Debug.ORB_CONNECT,
-                          "Listener exited");
+            if (logger.isInfoEnabled())
+            {
+                logger.info( "Listener exited");
+            }
         }
 
         /**
@@ -514,7 +529,10 @@ public class IIOPListener extends _ListenerLocalBase
             }
             catch (java.io.IOException e)
             {
-                Debug.output( Debug.INFORMATION | Debug.ORB_CONNECT, e );
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn(e.getMessage());
+                }
             }
         }
 
@@ -540,8 +558,8 @@ public class IIOPListener extends _ListenerLocalBase
                                                 getConfiguredHost());
             }
             catch (IOException ex)
-            {
-                Debug.output (2, ex);
+            {                
+                logger.warn(ex.getMessage());
                 throw new org.omg.CORBA.INITIALIZE ("Could not create server socket");
             }
         }
@@ -575,7 +593,7 @@ public class IIOPListener extends _ListenerLocalBase
             }
             catch (IOException e)
             {
-                Debug.output (2, e);
+                logger.warn(e.getMessage());
                 throw new org.omg.CORBA.INITIALIZE
                                            ("Could not create SSL server socket");
             }

@@ -20,9 +20,11 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.PortableInterceptor.*;
-import java.util.*;
 import org.jacorb.util.Debug;
+import org.omg.PortableInterceptor.*;
+import org.apache.avalon.framework.logger.Logger;
+
+import java.util.*;
 
 /**
  * This class "manages" the portable interceptors registered
@@ -45,6 +47,7 @@ public class InterceptorManager
     //#endif
     private org.omg.CORBA.ORB orb = null;
     private int current_slots = 0;
+    private Logger logger;
 
     public static final PICurrentImpl EMPTY_CURRENT = new PICurrentImpl(null, 0);
 
@@ -54,16 +57,19 @@ public class InterceptorManager
                               int slot_count,
                               org.omg.CORBA.ORB orb) 
     {
+        logger = Debug.getNamedLogger("jacorb.orb.interceptors");
         
-        Debug.output( Debug.INTERCEPTOR | Debug.INFORMATION, 
-                      "InterceptorManager started with " + 
-                      server_interceptors.size() +" SIs, " 
-                      + client_interceptors.size() + " CIs and " +
-                      ior_intercept.size() + " IORIs");
+        if (logger.isInfoEnabled())
+        {
+            logger.info("InterceptorManager started with " + 
+                        server_interceptors.size() +" SIs, " 
+                        + client_interceptors.size() + " CIs and " +
+                        ior_intercept.size() + " IORIs");
+        }
 
         //build sorted arrays of interceptors
-        client_req_interceptors = new ClientRequestInterceptor
-            [client_interceptors.size()];
+        client_req_interceptors = 
+            new ClientRequestInterceptor[client_interceptors.size()];
 
         //selection sort
         for (int j = 0; j < client_req_interceptors.length; j++){
@@ -84,8 +90,8 @@ public class InterceptorManager
             client_interceptors.removeElementAt(min_index);
         }
 
-        server_req_interceptors = new ServerRequestInterceptor
-            [server_interceptors.size()];
+        server_req_interceptors =
+            new ServerRequestInterceptor[server_interceptors.size()];
         //selection sort
         for (int j = 0; j < server_req_interceptors.length; j++){
             String min = ((ServerRequestInterceptor) server_interceptors.
@@ -159,7 +165,8 @@ public class InterceptorManager
      * Sets the thread scope current, i.e. a server side current
      * associated with the calling  thread.
      */
-    public void setTSCurrent(Current current){
+    public void setTSCurrent(Current current)
+    {
         currents.put(Thread.currentThread(), 
                      new PICurrentImpl((PICurrentImpl)current));
     }
@@ -168,14 +175,16 @@ public class InterceptorManager
      * Removes the thread scope current, that is associated with the
      * calling thread.
      */
-    public void removeTSCurrent(){
+    public void removeTSCurrent()
+    {
         currents.remove(Thread.currentThread());
     }
 
     /**
      * Returns an empty current where no slot has been set.
      */
-    public Current getEmptyCurrent(){
+    public Current getEmptyCurrent()
+    {
         return new PICurrentImpl(orb, current_slots);
     }
 
@@ -259,9 +268,5 @@ public class InterceptorManager
 
     }
 } // InterceptorManager
-
-
-
-
 
 

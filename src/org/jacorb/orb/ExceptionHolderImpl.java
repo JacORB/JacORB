@@ -106,8 +106,7 @@ public class ExceptionHolderImpl extends org.omg.Messaging.ExceptionHolder
             }
             catch( IOException ioe )
             {
-                Debug.output( Debug.IMPORTANT, 
-                              "Unexpected IOException: " + ioe );
+                Debug.output( 2, "Unexpected IOException: " + ioe );
             }
 
             org.omg.CORBA.UserException result = null;

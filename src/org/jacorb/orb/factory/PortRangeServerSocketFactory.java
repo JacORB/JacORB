@@ -1,9 +1,9 @@
 package org.jacorb.orb.factory;
 
 /*
- *        Written for JacORB - a free Java ORB
+ *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2000-2002 Nicolas Noffke, Gerald Brose.
+ *   Copyright (C) 2000-2003Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,7 +25,9 @@ import java.io.IOException;
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
 
-public class PortRangeServerSocketFactory extends PortRangeFactory implements ServerSocketFactory
+public class PortRangeServerSocketFactory 
+    extends PortRangeFactory 
+    implements ServerSocketFactory
 {
     public static final String MIN_PROP = "jacorb.net.server_socket_factory.port.min";
     public static final String MAX_PROP = "jacorb.net.server_socket_factory.port.max";
@@ -46,7 +48,7 @@ public class PortRangeServerSocketFactory extends PortRangeFactory implements Se
             try
             {
                 socket = new ServerSocket (localPort, backlog);
-                Debug.output (2, "PortRangeServerSocketFactory: Created server socket at "
+                Debug.output(2,"PortRangeServerSocketFactory: Created server socket at "
                     + ":" + localPort);
                 return socket;
             }
@@ -56,9 +58,8 @@ public class PortRangeServerSocketFactory extends PortRangeFactory implements Se
             }
         }
 
-        Debug.output (Debug.IMPORTANT | Debug.ORB_CONNECT,
-            "Cannot create server socket between ports " + portMin + " and "
-            + portMax);
+        Debug.output(2, "Cannot create server socket between ports " + portMin + " and "
+                     + portMax);
         throw new BindException ("PortRangeServerSocketFactory: no free port between "
             + portMin + " and " + portMax);
     }
@@ -75,8 +76,8 @@ public class PortRangeServerSocketFactory extends PortRangeFactory implements Se
             try
             {
                 socket = new ServerSocket (localPort, backlog, ifAddress);
-                Debug.output (2, "PortRangeServerSocketFactory: Created server socket at "
-                    + ":" + localPort);
+                Debug.output(2, "PortRangeServerSocketFactory: Created server socket at "
+                             + ":" + localPort);
                 return socket;
             }
             catch (IOException ex)
@@ -85,9 +86,8 @@ public class PortRangeServerSocketFactory extends PortRangeFactory implements Se
             }
         }
 
-        Debug.output (Debug.IMPORTANT | Debug.ORB_CONNECT,
-            "Cannot create server socket between ports " + portMin + " and "
-            + portMax);
+        Debug.output(2, "Cannot create server socket between ports " + portMin + " and "
+                     + portMax);
         throw new BindException ("PortRangeServerSocketFactory: no free port between "
             + portMin + " and " + portMax);
     }
@@ -113,10 +113,10 @@ public class PortRangeServerSocketFactory extends PortRangeFactory implements Se
             }
         }
 
-        Debug.output (Debug.IMPORTANT | Debug.ORB_CONNECT,
-            "Cannot create server socket between ports " + portMin + " and "
+        Debug.output( 3, "Cannot create server socket between ports " + portMin + " and "
             + portMax);
         throw new BindException ("PortRangeServerSocketFactory: no free port between "
             + portMin + " and " + portMax);
     }
 }
+

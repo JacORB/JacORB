@@ -89,9 +89,7 @@ public class ClientConnectionManager
             }
             catch (Exception e)
             {
-                Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT,
-                              e );
-
+                Debug.output( 2, e );
                 throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
             }
         }

@@ -169,7 +169,8 @@ public class ORBInitInfoImpl
 
         if (interceptor.name().length() == 0)
             anonymous_ior_interceptors.addElement(interceptor);
-        else {
+        else 
+        {
             if (named_ior_interceptors.containsKey(interceptor.name()))
                 throw new DuplicateName(interceptor.name());
 
@@ -224,7 +225,7 @@ public class ORBInitInfoImpl
         catch (Exception e)
         {
             //shouldn't happen anyway
-            Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, e);
+            Debug.output(4, e.getMessage());
         }
         return null;
     }

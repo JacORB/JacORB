@@ -25,6 +25,8 @@ import org.omg.CORBA.*;
 import org.omg.PortableInterceptor.*;
 import org.omg.Dynamic.Parameter;
 
+import org.apache.avalon.framework.logger.*;
+
 import java.util.*;
 
 import org.jacorb.orb.iiop.IIOPProfile;
@@ -132,7 +134,11 @@ public class ClientRequestInfoImpl
             }
             catch (Exception e)
             {
-                Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, e);
+                Logger logger = Debug.getNamedLogger("pi");
+                if( logger.isDebugEnabled() )
+                {
+                    logger.debug(e.getMessage());
+                }
             }
         }
         //exceptions will be set when available

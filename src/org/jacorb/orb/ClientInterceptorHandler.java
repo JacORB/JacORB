@@ -165,7 +165,7 @@ public class ClientInterceptorHandler
             }
             catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
             {
-                Debug.output ( Debug.INTERCEPTOR | Debug.INFORMATION, bk );
+                Debug.output ( 4, bk );
             }
             info.reply_status = SYSTEM_EXCEPTION.value;
 
@@ -194,7 +194,7 @@ public class ClientInterceptorHandler
             }
             catch ( Exception e )
             {
-                Debug.output ( Debug.INTERCEPTOR | Debug.INFORMATION, e );
+                Debug.output ( 4, e );
                 SystemExceptionHelper.insert ( info.received_exception,
                                                new org.omg.CORBA.UNKNOWN
                                                   ( e.getMessage() ) );
@@ -208,7 +208,7 @@ public class ClientInterceptorHandler
             catch ( Exception e )
             {
                 // shouldn't happen anyway
-                Debug.output ( Debug.INTERCEPTOR | Debug.INFORMATION, e);
+                Debug.output ( 2, e);
             }                        
 
             info.setReplyServiceContexts ( reply.rep_hdr.service_context );
@@ -236,7 +236,7 @@ public class ClientInterceptorHandler
         }
         catch ( org.omg.CORBA.UserException ue )
         {
-            Debug.output( Debug.INTERCEPTOR | Debug.IMPORTANT, ue );
+            Debug.output( 2, ue );
         }
     }
 

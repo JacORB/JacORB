@@ -120,7 +120,7 @@ public class SSLComponentInterceptor
         }
         catch (Exception e)
         {
-            Debug.output( Debug.SECURITY | Debug.IMPORTANT, e);
+            Debug.output( 1, e);
         }
     }
 } // SSLComponentInterceptor

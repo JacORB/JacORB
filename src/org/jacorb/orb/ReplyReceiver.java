@@ -166,8 +166,7 @@ public class ReplyReceiver extends ReplyPlaceholder
         }
         catch ( Exception e )
         {
-            Debug.output( Debug.IMPORTANT,
-                          "Exception during callback: " + e );
+            Debug.output( 2, "Exception during callback: " + e.getMessage() );
         }
         finally
         {
@@ -210,8 +209,7 @@ public class ReplyReceiver extends ReplyPlaceholder
         }
         catch ( Exception e )
         {
-            Debug.output( Debug.IMPORTANT,
-                          "Exception during callback: " + e );
+            Debug.output( 2, "Exception during callback: " + e.getMessage() );
         }
         finally
         {
@@ -424,8 +422,7 @@ public class ReplyReceiver extends ReplyPlaceholder
                         }
                         catch (InterruptedException ex)
                         {
-                            Debug.output (Debug.ORB_MISC | Debug.IMPORTANT,
-                                          "interrupted while waiting for timeout");
+                            Debug.output( 3,"interrupted while waiting for timeout");
                         }
                     }
                     if (!awakened)

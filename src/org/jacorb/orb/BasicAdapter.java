@@ -23,6 +23,7 @@ package org.jacorb.orb;
 import java.lang.reflect.Constructor;
 import java.net.*;
 import java.util.*;
+
 import org.jacorb.orb.giop.*;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.factory.SSLServerSocketFactory;
@@ -31,6 +32,9 @@ import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
+
+import org.apache.avalon.framework.logger.*;
+
 import org.omg.ETF.*;
 import org.omg.PortableServer.POA;
 
@@ -41,10 +45,14 @@ import org.omg.PortableServer.POA;
  * @author Gerald Brose, FU Berlin
  * @version $Id$
  */
-public class BasicAdapter extends org.omg.ETF._HandleLocalBase
+
+public class BasicAdapter 
+    extends org.omg.ETF._HandleLocalBase
 {
     public  static SSLServerSocketFactory ssl_socket_factory = null;
     private static ServerSocketFactory socket_factory = null;
+
+    private Logger logger = null;
 
     static
     {
@@ -73,6 +81,7 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
         this.rootPOA = rootPOA;
         this.transport_manager = transport_manager;
         this.giop_connection_manager = giop_connection_manager;
+        logger = Debug.getNamedLogger("jacorb.orb.basic");
 
         if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
@@ -96,8 +105,7 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
                 }
                 catch (Exception e)
                 {
-                    Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT,
-                                  e );
+                    logger.warn(e.getMessage());
 
                     throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl server socket factory can't be instanciated (see trace)!" );
                 }

@@ -67,7 +67,7 @@ public final class BufferManager
      * 0 : Active, never flushed
      * >0: Active with reaper flush thread.
      */
-    private static int time = -1;
+    private static int time = 0;
 
     static
     {

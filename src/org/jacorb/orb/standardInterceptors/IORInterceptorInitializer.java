@@ -38,8 +38,8 @@ public class IORInterceptorInitializer
     implements ORBInitializer
 {
 
-    public IORInterceptorInitializer() {
-
+    public IORInterceptorInitializer() 
+    {
     }
 
     // implementation of org.omg.PortableInterceptor.ORBInitializerOperations interface

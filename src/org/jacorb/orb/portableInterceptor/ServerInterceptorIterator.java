@@ -86,8 +86,7 @@ public class ServerInterceptorIterator
 
 	try
         {
-	    Debug.output(Debug.DEBUG1 | Debug.INTERCEPTOR, 
-                         "Invoking SI " + interceptor.name());
+	    Debug.output(4,"Invoking SI " + interceptor.name());
 	    switch (op) 
             {
 	    case RECEIVE_REQUEST_SERVICE_CONTEXTS :
@@ -110,7 +109,7 @@ public class ServerInterceptorIterator
 	}
         catch (ForwardRequest _fwd)
         {
-	    Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, _fwd);
+	    Debug.output(4, _fwd);
 	    reverseDirection();
 	    op = SEND_OTHER;
 	
@@ -122,7 +121,7 @@ public class ServerInterceptorIterator
 	}
         catch (org.omg.CORBA.SystemException _sysex)
         {
-	    Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, _sysex);
+	    Debug.output(4, _sysex);
 	    reverseDirection();
 	    op = SEND_EXCEPTION;
 	    interceptor_ex = _sysex;
@@ -132,16 +131,12 @@ public class ServerInterceptorIterator
         catch (Throwable th)
         {
             th.printStackTrace();
-	    Debug.output(Debug.IMPORTANT | Debug.INTERCEPTOR, 
-                         "ServerInterceptorIterator: Caught a " + th);
+	    Debug.output(4,"ServerInterceptorIterator: Caught a " + th);
 	}
 
 	info.caller_op = op;
     }
 } // ServerInterceptorIterator
-
-
-
 
 
 
