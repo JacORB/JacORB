@@ -36,7 +36,8 @@ import org.jacorb.util.ObjectUtil;
  *
  * ORB configuration options for a given name are looked up and loaded as follows:
  * <ol>
- * <li>System properties are loaded first
+ * <li>System properties are loaded first, but only to get properties
+ *     that affect further property loading
  * <li>the file <tt>orb.properties</tt> is loaded from java.home/lib
  *     and user.home if it exists
  * <li>if the ORBid is property is set, the file <tt>ORBid.properties</tt> is 
@@ -49,6 +50,10 @@ import org.jacorb.util.ObjectUtil;
  *     file lookup mechanism finally tries to load named properties files 
  *     (<tt>ORBid.properties</tt>, or <tt>jacorb.properties</tt>) from 
  *     the classpath, if it cannot find them in the config dictionary.
+ * <li> After all property files have been loaded, the System properties are
+ *      loaded again, so that command-line properties take precedence
+ * <li> Finally, properties hard-coded and passed in through ORB.init() are
+ *      loaded.
  *</ol>
  *
  * The Configuration object is also used by JacORB components to
@@ -150,9 +155,12 @@ public class Configuration
      *
      * Properties are loaded in the following order, with later
      * properties overriding earlier ones: 1) System properties
-     * (incl. command line) 2) orb.properties file 2) specific
-     * configuration file for the ORB (if any) 3) the ORB properties
-     * set in the client code and passed int through ORB.init().
+     * (incl. command line), to get properties that affect further
+     * property loading 2) orb.properties file 3) specific
+     * configuration file for the ORB (if any) 4) System properties
+     * again, so that command line args take precedence over the above
+     * 5) the ORB properties set in the client code and passed in
+     * through ORB.init().
      * (Note that these will thus always take effect!)
      *
      * @param name the name for the ORB instance, may not be null. 
@@ -168,11 +176,12 @@ public class Configuration
        String lib = System.getProperty("java.home");
        boolean loaded = false;
 
-       // 1) include system properties
-       setAttributes( System.getProperties() );
-       
-       int logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
+       // 1) load system properties to grab any command line properties
+       //    that will influence further property loading
+       setAttributes(System.getProperties());
 
+       int logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
+       
        // 2) look for orb.properties       
        // look for common properties files in java.home/lib first
        Properties commonProps = 
@@ -226,7 +235,7 @@ public class Configuration
            getAttribute("jacorb.config.dir", "");
        
        if (configDir.length() == 0)
-           configDir = getAttribute("jacorb.home", "");
+           configDir = getAttribute ("jacorb.home", "");
        
        if (configDir.length() != 0 )
            configDir += separator + "etc";
@@ -301,8 +310,12 @@ public class Configuration
            if (logLevel > 2)
                System.out.println("[ configuration " + name + " loaded from classpath]");
        }
+
+       // 5) load system properties again, so that
+       //    command line args override properties from files
+       setAttributes( System.getProperties() );
        
-       // 4) load properties passed to ORB.init(), these will override any
+       // 6) load properties passed to ORB.init(), these will override any
        // settings in config files or system properties!
        if (orbProperties != null)
        {
