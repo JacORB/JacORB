@@ -80,37 +80,4 @@ public class NotificationTestCase extends TestCase {
 	setup_ = setup;
     }
 
-    static {
-	setDefault();
-    }
-
-    public static void setDefault() {
-	setLogLevel("org.jacorb.notification", Priority.NONE);
-	setLogLevel("org.jacorb.test.notification", Priority.NONE);
-
-	setLogFormat("org.jacorb.test.notification", "%7.7{priority} [%-.25{category}] (%{context}): %{message}\\n%{throwable}");
-	setLogFormat("org.jacorb.notification", "%7.7{priority} [%-.25{category}] (%{context}): %{message}\\n%{throwable}");
-    }
-
-    public static void setLogLevel(String logger, Priority priority) {
-	Logger _logger = 
-	    Hierarchy.
-	    getDefaultHierarchy().
-	    getLoggerFor(logger);
-
-	_logger.setPriority(priority);
-    }
-
-    public static void setLogFormat(String logger, String format) {
-	Logger _logger = 
-	    Hierarchy.
-	    getDefaultHierarchy().
-	    getLoggerFor(logger);
-
-	PatternFormatter _formatter = new PatternFormatter(format);
-	StreamTarget _target = new StreamTarget(System.out, _formatter);
-
-	_logger.setLogTargets(new LogTarget[] {_target});
-    }
-
 }

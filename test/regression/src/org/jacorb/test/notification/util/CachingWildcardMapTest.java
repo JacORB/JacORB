@@ -52,8 +52,6 @@ public class CachingWildcardMapTest extends WildcardMapTest {
     }
 
     public static void main(String[] args) {
-	NotificationTestCase.setDefault();
-	NotificationTestCase.setLogLevel("org.jacorb.notification", Priority.NONE);
 	junit.textui.TestRunner.run(suite());
     }
     

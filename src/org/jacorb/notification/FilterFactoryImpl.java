@@ -31,10 +31,10 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.jacorb.notification.interfaces.Disposable;
 import org.omg.PortableServer.POAHelper;
-import org.apache.log.Priority;
 import java.io.IOException;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.CosNotifyFilter.FilterFactory;
+import org.jacorb.notification.util.LogConfiguration;
 
 /**
  * FilterFactoryImpl.java
@@ -58,9 +58,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
     public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive {
 	super();	
 
-	EventChannelFactoryImpl.setLogLevel("org.jacorb.notification", Priority.NONE);
-
-	//	EventChannelFactoryImpl.setLogFile("filterImpl.log", "org.jacorb.notification", Priority.DEBUG);
+	LogConfiguration.getInstance().configure();
 
 	final ORB _orb = ORB.init(new String[0], null);
 	POA _poa = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));

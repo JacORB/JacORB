@@ -290,11 +290,9 @@ public class WildcardMapTest extends TestCase {
      * Entry point 
      */ 
     public static void main(String[] args) {
-	NotificationTestCase.setDefault();
-	NotificationTestCase.setLogLevel("org.jacorb.notification.util", Priority.NONE);
 	junit.textui.TestRunner.run(suite());
     }
 
-}// WildcardMapTest
+}
 
 

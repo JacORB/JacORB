@@ -622,6 +622,14 @@ jacorb.notification.deliver_pool_workers = 4
 # milliseconds
 jacorb.notification.pull_consumer_pollintervall = 1000
 
+jacorb.logging.NOTIFY = console
+jacorb.logging.NOTIFY.priority = WARN
+jacorb.logging.NOTIFY.category = org.jacorb.notification
+
+jacorb.logging.NOTIFY_TEST = console
+jacorb.logging.NOTIFY_TEST.priority = NONE
+jacorb.logging.NOTIFY_TEST.category = org.jacorb.test.notification
+
 # any other custom properties can be added here.
 # These are available through the API (call
 # jacorb.orb.Environment.getProperty())

@@ -21,8 +21,6 @@ package org.jacorb.notification;
  *
  */
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -30,13 +28,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.log.Hierarchy;
-import org.apache.log.LogTarget;
 import org.apache.log.Logger;
-import org.apache.log.Priority;
-import org.apache.log.format.PatternFormatter;
-import org.apache.log.output.io.FileTarget;
-import org.apache.log.output.io.SafeFileTarget;
-import org.apache.log.output.io.StreamTarget;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventChannelEvent;
 import org.jacorb.notification.interfaces.EventChannelEventListener;
@@ -69,6 +61,7 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import org.jacorb.notification.util.PatternWrapper;
+import org.jacorb.notification.util.LogConfiguration;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -516,55 +509,6 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 						       new PropertyRange( _lowVal, _highVal ) ) } );
     }
 
-    static void setLogFile( String fileName,
-			    String logger,
-			    Priority priority ) throws IOException {
-
-	File _file = new File(fileName);
-
-        Logger _logger =
-            Hierarchy.
-            getDefaultHierarchy().
-            getLoggerFor( logger );
-
-        String _pattern = "%7.7{priority} [%-.25{category}] "
-                          + "(%{context}): %{message}\\n%{throwable}";
-
-        PatternFormatter _formatter = new PatternFormatter( _pattern );
-
-  	FileTarget _fileTarget = 
-  	    new SafeFileTarget(_file, true, _formatter);
-
-	LogTarget _target = _fileTarget;
-
-        _logger.setLogTargets( new LogTarget[] {_target} );
-
-        _logger.setPriority( priority );
-    }
-
-    static void setLogLevel( String logger, 
-			     Priority priority ) throws IOException 
-    {
-        Logger _logger =
-            Hierarchy.
-            getDefaultHierarchy().
-            getLoggerFor( logger );
-
-        String _pattern = "%7.7{priority} [%-.25{category}] "
-                          + "(%{context}): %{message}\\n%{throwable}";
-
-        PatternFormatter _formatter = new PatternFormatter( _pattern );
-
-        StreamTarget _consoleTarget = 
-	    new StreamTarget( System.out, _formatter );
-
-	LogTarget _target = _consoleTarget;
-
-        _logger.setLogTargets( new LogTarget[] {_target} );
-
-        _logger.setPriority( priority );
-    }
-
     public POA _default_POA() {
 	return applicationContext_.getPoa();
     }
@@ -588,6 +532,8 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     	String oaPort = null;
     	int channels = 0;
     	
+	LogConfiguration.getInstance().configure();
+
     	// process arguments
     	for (int i = 0; i < args.length; i++) {
 	    if (args[i].equals("-printIOR")) {
@@ -624,8 +570,6 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	}
 
 	final ORB _orb = ORB.init( new String[0], props );
-	
-	setLogLevel("org.jacorb.notification", Priority.NONE);
 
         EventChannelFactoryImpl _factory = new EventChannelFactoryImpl(_orb);
 

@@ -156,7 +156,6 @@ public class NotificationEventTest extends TestCase {
      * Entry point 
      */ 
     public static void main(String[] args) {
-	NotificationTestCase.setLogLevel("org.jacorb.notification", Priority.DEBUG);
 	junit.textui.TestRunner.run(suite());
     }
 

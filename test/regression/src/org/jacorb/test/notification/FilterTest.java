@@ -218,22 +218,9 @@ public class FilterTest extends TestCase {
 
 
 	return _suite;
-// 	NotificationTestCaseSetup _setup =
-// 	    new NotificationTestCaseSetup(_suite, FilterFactoryImpl.class.getName());
-	
-// 	String[] _testMethodNames = org.jacorb.test.common.TestUtils.getTestMethods(FilterTest.class, "testMatch");
-
-//  	for (int x=0; x<_testMethodNames.length; ++x) {
-//  	    _suite.addTest(new FilterTest(_testMethodNames[x], _setup));
-//  	}
-
-// 	return _setup;
     }
 
     public static void main(String[] args) throws Exception {
-	//	NotificationTestCase.setLogLevel("org.jacorb.test.notification", Priority.DEBUG);
-	//	NotificationTestCase.setLogLevel("org.jacorb.notification", Priority.DEBUG);
-
 	junit.textui.TestRunner.run(suite());
     }
 }
