@@ -46,77 +46,77 @@ import java.util.Date;
 
 public interface Message extends Disposable
 {
-    public interface MessageStateListener {
-        public void actionLifetimeChanged(long lifetime);
+    interface MessageStateListener {
+        void actionLifetimeChanged(long lifetime);
     }
 
-    public static final int TYPE_ANY = 0;
-    public static final int TYPE_STRUCTURED = 1;
-    public static final int TYPE_TYPED = 2;
+    int TYPE_ANY = 0;
+    int TYPE_STRUCTURED = 1;
+    int TYPE_TYPED = 2;
 
-    public void setMessageStateListener(MessageStateListener listener);
+    void setMessageStateListener(MessageStateListener listener);
 
-    public MessageStateListener removeMessageStateListener();
+    MessageStateListener removeMessageStateListener();
 
-    public String getConstraintKey();
+    String getConstraintKey();
 
-    public Any toAny();
+    Any toAny();
 
-    public StructuredEvent toStructuredEvent();
+    StructuredEvent toStructuredEvent();
 
-    public FilterStage getInitialFilterStage();
+    FilterStage getInitialFilterStage();
 
-    public void setInitialFilterStage( FilterStage node );
+    void setInitialFilterStage( FilterStage node );
 
-    public EvaluationResult extractValue(EvaluationContext context,
-                                         ComponentName componentRootNode,
-                                         RuntimeVariableNode runtimeVariable )
+    EvaluationResult extractValue(EvaluationContext context,
+                                  ComponentName componentRootNode,
+                                  RuntimeVariableNode runtimeVariable )
         throws EvaluationException,
                DynamicTypeException;
 
-    public  EvaluationResult extractFilterableData(EvaluationContext context,
-                                                   ComponentName componentRootNode,
+    EvaluationResult extractFilterableData(EvaluationContext context,
+                                           ComponentName componentRootNode,
                                                    String variable)
         throws EvaluationException;
 
-    public  EvaluationResult extractVariableHeader(EvaluationContext context,
-                                                   ComponentName componentRootNode,
-                                                   String variable)
+    EvaluationResult extractVariableHeader(EvaluationContext context,
+                                           ComponentName componentRootNode,
+                                           String variable)
         throws EvaluationException;
 
-    public EvaluationResult extractValue( EvaluationContext evaluationContext,
-                                          ComponentName componentRootNode )
+    EvaluationResult extractValue( EvaluationContext evaluationContext,
+                                   ComponentName componentRootNode )
         throws EvaluationException;
 
-    public boolean hasStartTime();
+    boolean hasStartTime();
 
-    public Date getStartTime();
+    Date getStartTime();
 
-    public boolean hasStopTime();
+    boolean hasStopTime();
 
-    public Date getStopTime();
+    Date getStopTime();
 
-    public boolean hasTimeout();
+    boolean hasTimeout();
 
-    public long getTimeout();
+    long getTimeout();
 
-    public void setTimeout(long timeout);
+    void setTimeout(long timeout);
 
-    public int getPriority();
+    int getPriority();
 
-    public void setPriority(int priority);
+    void setPriority(int priority);
 
-    public boolean match(FilterStage filterStage);
+    boolean match(FilterStage filterStage);
 
-    public boolean match(MappingFilter filter,
-                         AnyHolder value) throws UnsupportedFilterableData;
+    boolean match(MappingFilter filter,
+                  AnyHolder value) throws UnsupportedFilterableData;
 
-    public Object clone();
+    Object clone();
 
-    public boolean isInvalid();
+    boolean isInvalid();
 
-    public int getType();
+    int getType();
 
-    public void actionTimeout();
+    void actionTimeout();
 
 }

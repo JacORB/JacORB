@@ -53,9 +53,9 @@ public interface FilterStage
     List getFilters();
 
     /**
-     * check if this FilterStage has a EventConsumer associcated.
+     * check if this FilterStage has a MessageConsumer associcated.
      */
-    boolean hasEventConsumer();
+    boolean hasMessageConsumer();
 
     /**
      * check if this DistributorNode has OR Semantic enabled.
@@ -65,7 +65,7 @@ public interface FilterStage
     /**
      * get the associated DeliverTarget or null.
      */
-    EventConsumer getEventConsumer();
+    MessageConsumer getMessageConsumer();
 
     /**
      * check if this FilterStage has a LifetimeFilter attached

@@ -22,49 +22,57 @@ package org.jacorb.notification.interfaces;
  */
 
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.util.TaskExecutor;
+
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 
 /**
- * Abstraction of an ProxySupplier.
+ * The interface MessageConsumer provides an abstraction of an
+ * ProxySupplier.
+ * The MessageConsumer is responsible
+ * to maintain the Connection to the real Consumer. To deliver a
+ * Message
+ * the MessageConsumer converts the Message to the
+ * appropiate Format (Any, StructuredEvent, Sequence of
+ * StructuredEvent) required by its Consumer and delivers it.
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface EventConsumer extends Disposable {
+public interface MessageConsumer extends Disposable {
 
     /**
-     * Deliver Pending Events. If this ProxySupplier has some Events queued
+     * @return the <code>TaskExecutor</code> that should be used to
+     * deliver Messages to the associated Consumer.
+     */
+    TaskExecutor getExecutor();
+
+    /**
+     * Deliver Pending Messages. If this MessageConsumer has some
+     * Messages queued
      * for a Consumer, a call to this method causes it to
      * deliver them.
      */
-    void deliverPendingEvents() throws NotConnected;
+    void deliverPendingMessages() throws NotConnected;
 
-    boolean hasPendingEvents();
-
+    boolean hasPendingMessages();
 
     /**
-     * Activate Deliveries to Consumer via ProxySupplier.
-     *
+     * activate deliveries.
      */
     void enableDelivery();
 
     /**
-     * Disable Deliveries to this Consumer. Subsequent calls to
-     * deliverEvent queue the Events in an internal queue.
+     * Disable Deliveries. a disabled MessageConsumer enqueues
+     * Messages instead of delivering them.
      */
     void disableDelivery();
 
     /**
-     * Deliver a NotificationEvent. The Consumer is responsible
-     * to maintain the Connection to the real EventConsumer. If Delivery is
-     * enabled the Proxy converts the NotificationEvent to the
-     * appropiate Format (Any, StructuredEvent, Sequence of
-     * StructuredEvent) and delivers it to the real EventConsumer. If
-     * Delivery is disabled the Object must queue the Events and not
-     * try to deliver them.
+     * Deliver a Message to the associated Consumer.
      */
-    void deliverEvent(Message event);
+    void deliverMessage(Message m);
 
     void resetErrorCounter();
 
@@ -72,4 +80,5 @@ public interface EventConsumer extends Disposable {
 
     int incErrorCounter();
 
-}// EventDispatcher
+    int getErrorThreshold();
+}
