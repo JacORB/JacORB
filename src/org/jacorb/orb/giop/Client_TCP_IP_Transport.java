@@ -49,6 +49,9 @@ public class Client_TCP_IP_Transport
     private boolean closed = false;
     private boolean connected = false;
 
+    //for testing purposes only: # of open transports
+    //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
+    public static int openTransports = 0;
 
     public Client_TCP_IP_Transport( String target_host,
                                     int target_port,
@@ -140,13 +143,17 @@ public class Client_TCP_IP_Transport
 
                     notifyAll();
 
+                    //for testing purposes
+                    ++openTransports;
+
                     return;
                 }
                 catch ( IOException c )
                 {
                     Debug.output( 3, c );
 
-                    //only sleep and print message if we're actually going to retry
+                    //only sleep and print message if we're actually
+                    //going to retry
                     if( retries >= 0 )
                     {
                         Debug.output( 1, "Retrying to connect to " +
@@ -220,6 +227,9 @@ public class Client_TCP_IP_Transport
 
             Debug.output( 2, "Closed client-side TCP/IP transport to " +
                           connection_info );
+
+            //for testing purposes
+            --openTransports;
         }
 
         connected = false;
@@ -231,18 +241,10 @@ public class Client_TCP_IP_Transport
 
             notifyAll();
         }
-
-        /*
-          This transport can be reestablished if it has been closed
-          from the server side or reached the idle timeout.
-
-          else if( reason == READ_TIMED_OUT )
-          {
-          }
-          else if( reason == STREAM_CLOSED )
-          {
-          }
-        */
+        else if( reason == READ_TIMED_OUT || reason == STREAM_CLOSED )
+        {
+            throw new StreamClosedException( "Socket stream closed" );
+        }
     }
 
     public boolean isSSL()

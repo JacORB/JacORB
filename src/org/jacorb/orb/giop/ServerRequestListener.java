@@ -79,8 +79,6 @@ public class ServerRequestListener
     public void requestReceived( byte[] request,
                                  GIOPConnection connection )
     {
-        connection.incPendingMessages();
-
         RequestInputStream in = 
             new RequestInputStream( orb, request );
 
@@ -108,6 +106,12 @@ public class ServerRequestListener
             
             return;
         } 
+
+        //only block timeouts, if a reply needs to be sent
+        if( Messages.responseExpected( in.req_hdr.response_flags ))
+        {
+            connection.incPendingMessages();
+        }
 
         if( ! connection.isTCSNegotiated() )
         {

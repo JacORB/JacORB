@@ -183,18 +183,17 @@ public abstract class TCP_IP_Transport
                     );
                 }
                 close( READ_TIMED_OUT );
-                throw new TimeOutException( "Socket read timed out" );
             }
             catch( SocketException se )
             {
                 close( STREAM_CLOSED );
-                throw new StreamClosedException( "Socket stream closed" );
+                return -1;
             }
 
             if( n < 0 )
             {
                 close( STREAM_CLOSED );
-                throw new StreamClosedException( "Socket stream closed" );
+                return -1;
             }
 
             read += n;

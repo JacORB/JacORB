@@ -33,6 +33,5 @@ package org.jacorb.orb.connection;
 public interface ConnectionListener 
 {   
     public void connectionClosed();
-    public void connectionTimedOut();
     public void streamClosed();
 }// ConnectionListener
