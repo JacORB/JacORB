@@ -262,18 +262,17 @@ public class Environment
 
             //   _props.putAll(System.getProperties()); 
 
-            if( ! loaded )
+            //read prop values to set fields ov this class
+            readValues();
+
+            if( _verbosity > 0 && ! loaded ) // rt
             {
-                //not loaded implies that the default verbosity is used
                 System.err.println( "#####################################################################" );
 
                 System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets. A file file called \"jacorb.properties\" or \n\".jacorb_properties\" should be present in the classpath, \nthe home directory (" + home + "), the current directory (.) or \nin Javas lib directory (" + lib + ')'  );
 
                 System.err.println( "#####################################################################\n" );
             }             
-
-            //read prop values to set fields ov this class
-            readValues();
 
             if( _verbosity > 2 && sConfigFile != null)
             {
