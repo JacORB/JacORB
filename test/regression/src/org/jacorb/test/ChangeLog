@@ -1,3 +1,570 @@
+2005-03-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/ClientServerSetup.java (ctor): Hard-code JacORB ORB in
+	client-side properties.
+	(setUp): If we're in coverage mode, pass it on to the server side.
+	Don't use jaco anymore, not even for Unix. Put JacORB on the
+	bootclasspath, as that seems necessary for some of the DynAny
+	tests.
+
+2005-03-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AllTest.java (suite): Add ExceptionTest.
+
+	* orb/ExceptionServerImpl.java, orb/ExceptionTest.java:
+	Initial revision.
+
+2005-02-20  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/servant/ProxyPushSupplierImplTest.java,
+	notification/servant/StructuredProxyPushSupplierImplTest.java:
+	adapted tests to changes in src
+
+	* notification/engine/AbstractRetryStrategyTest.java,
+	notification/engine/AlwaysDisposeRetryStrategyTest.java,
+	notification/engine/PackageTest.java,
+	notification/engine/TaskProcessorRetryStrategyTest.java,
+	notification/engine/WaitRetryStrategyTest.java: new tests for
+	reworked retry mechanism
+
+	* notification/bugs/DeadlockBugTest.java: imports, comment
+
+	* notification/StructuredPushReceiver.java:
+	check validity of ConsumerAdmin
+
+2005-02-14  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/typed/NotifyIFRTestSetup.java,
+	notification/perf/PerformanceTest.java: fix
+
+	* notification/plugins/BSHFilterTest.java,
+	notification/plugins/FilterFactoryTest.java,
+	notification/queue/BoundedDeadlineEventQueueTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java,
+	notification/queue/DelegatingOverflowStrategy.java,
+	notification/queue/PackageTest.java,
+	notification/servant/PackageTest.java,
+	notification/servant/ProxyPushSupplierImplTest.java,
+	notification/servant/StructuredProxyPushSupplierImplTest.java,
+	notification/typed/NotifyIFRTestSetup.java,
+	notification/typed/PackageTest.java,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java,
+	notification/util/AbstractWildcardMapTest.java,
+	notification/util/CachingWildcardMapTest.java,
+	notification/util/DefaultWildcardMapTest.java,
+	notification/util/DisposableManagerTest.java,
+	notification/util/EventTypeUtilTest.java,
+	notification/util/LogUtilTest.java,
+	notification/util/ObjectPoolTest.java,
+	notification/util/PackageTest.java,
+	notification/util/ThreadPoolTest.java,
+	notification/util/WeakCacheWildcardMapTest.java,
+	notification/util/WeakHashSetTest.java,
+	notification/util/WildcardMapTest.java,
+	notification/util/regexp/AbstractPatternWrapperTest.java,
+	notification/bugs/DeadlockBugTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/bugs/PackageTest.java,
+	notification/container/ContainerLifecycleTest.java,
+	notification/container/CoreContainerFactoryTest.java,
+	notification/container/DeliverTaskExecutorComponentAdapterTest.java,
+	notification/container/NonCachingRememberingComponentAdapterTest.java,
+	notification/container/PackageTest.java,
+	notification/container/ReferenceComponentAdapterTest.java,
+	notification/container/Service.java,
+	notification/container/ServiceImpl.java,
+	notification/container/ServiceUser.java,
+	notification/engine/AbstractFilterTaskTestCase.java,
+	notification/engine/FilterConsumerAdminTaskTest.java,
+	notification/engine/FilterProxyConsumerTaskTest.java,
+	notification/engine/FilterProxySupplierTaskTest.java,
+	notification/engine/FilterSupplierAdminTaskTest.java,
+	notification/engine/MockEventConsumer.java,
+	notification/engine/PackageTest.java,
+	notification/engine/PushOperationTest.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/WaitRetryStrategyTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/evaluate/PackageTest.java,
+	notification/filter/CallbackManagerTest.java,
+	notification/filter/PackageTest.java,
+	notification/node/EvaluationResultTest.java,
+	notification/node/IdentValueTest.java,
+	notification/node/PackageTest.java,
+	notification/node/TCLTest.java: reflect changes in src. new tests
+	for new features.
+
+	* notification/AdminLimitTest.java, notification/AllTest.java,
+	notification/AnyMessageTest.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java, notification/BasicTest.java,
+	notification/CollectionsWrapperTest.java,
+	notification/CosEventChannelTest.java,
+	notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java,
+	notification/FilterManagerTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MappingFilterTest.java,
+	notification/MessageFactoryTest.java,
+	notification/MessageUtilsTest.java, notification/MockAdmin.java,
+	notification/MockMessage.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/OfferManagerTest.java, notification/PackageTest.java,
+	notification/PerformanceListener.java,
+	notification/PropertyValidatorTest.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredEventMessageTest.java,
+	notification/StructuredGenerator.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestUtils.java, notification/TimeoutTest.java,
+	notification/TypedEventMessageTest.java,
+	notification/TypedNotificationChannelTest.java: reflect changes in
+	src
+
+	* common/TestUtils.java:
+	(getTestMethods) replaced Vector with ArrayList
+
+2004-12-08  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* util/LogKitLoggerFactoryTest.java:
+	(setUp) fixed compilation error as signature of
+	Configuration.getConfiguration has changed (added boolean param).
+
+	* orb/connection/GIOPConnectionTest.java:
+	(setUp) fixed compilation error as signature of
+	Configuration.getConfiguration has changed (added boolean
+	param). also fixed some compiler warnings (unused variables etc.)
+
+2004-08-17  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/engine/MockEventConsumer.java: adapt to changes
+
+2004-08-13  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/NotificationTestCase.java,
+	notification/StructuredEventChannelTest.java:
+	(createFilter) new method
+
+	* notification/node/TCLTest.java: added new tests: access non
+	defined properties in filter strings
+
+2004-08-01  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AnyPushReceiver.java,
+	notification/engine/PushOperationTest.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/WaitRetryStrategyTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/node/TCLTest.java,
+	notification/perf/EchoServerImpl.java,
+	notification/perf/PerformanceTest.java,
+	notification/plugins/BSHFilterTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/AdminLimitTest.java, notification/AllTest.java,
+	notification/AnyGenerator.java, notification/AnyMessageTest.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java, notification/AnyPushSender.java,
+	notification/CallerResolver.java,
+	notification/CollectionsWrapperTest.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MappingFilterTest.java,
+	notification/MessageFactoryTest.java,
+	notification/MessageUtilsTest.java, notification/MockAdmin.java,
+	notification/MockMessage.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/OfferManagerTest.java, notification/PackageTest.java,
+	notification/PropertyValidatorTest.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePullSender.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredEventMessageTest.java,
+	notification/StructuredGenerator.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPullSender.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestClientOperations.java,
+	notification/TestServer.java, notification/TestUtils.java,
+	notification/TimeoutTest.java,
+	notification/TypedEventMessageTest.java,
+	notification/TypedNotificationChannelTest.java: organized
+	importsfixed compiler warning: static method assertEquals
+	should be accessed in a static way
+
+2004-07-30  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/IIOPAddressServerImpl.java: Fix test to work after Avalon
+	configuration changes.
+
+	* orb/AlternateIIOPAddressTest.java,
+	orb/AlternateProfileTest.java (suite): Setting retries just makes
+	the test take an unnecessary length of time.
+
+2004-07-29  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/etf/wiop/WIOPFactories.java: ETF regression was failing
+	following Gerald's Configurable work.
+
+	* common/ClientServerSetup.java (setUp): All the client / server
+	tests were failing to run on win32. Fixed.
+
+2004-07-19  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/PackageTest.java,
+	notification/typed/PackageTest.java: moved TypedEventChannelTest
+	from notification package to notification/typed package.
+
+2004-07-02  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* orb/rmi/.cvsignore: ignore FixSunDelegateBug.java
+
+2004-06-29  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/FilterTest.java: access static methods via
+	Classname
+	new test access non existing field in a filter should return false
+
+	* notification/EventChannelTest.java: access static methods via
+	Classname
+
+	* notification/AdminLimitTest.java: clean up
+
+2004-06-28  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/node/TCLTest.java: added test ParserIgnoresWhitespace
+	
+	(testStringMayContainsSpecialChars) cleaned up test
+
+2004-06-25  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/node/TCLTest.java:
+	added a testcase to expose bug reported by Mike Zhao
+
+	when we setup filter, we need to fill ConstraintExp[].constraint_expr,
+	but it seems we can't put "*" "=" or "," in the string. For example, if
+	we wrote
+
+	ConstraintExp[0].constraint_expr =  "$filter=='noti*server'"
+
+	then the notification will not do the filter at all.
+
+2004-06-21  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/TestUtils.java: class name changed
+
+2004-06-18  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/plugins/BSHFilterTest.java,
+	notification/plugins/FilterFactoryTest.java: tests to test new
+	custom filter interface
+
+	* notification/AllTest.java,
+	notification/EventChannelFactoryTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/MappingFilterTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/OfferManagerTest.java, notification/PackageTest.java,
+	notification/TypedNotificationChannelTest.java: reflect changes in
+	notification package
+
+2004-06-04  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/AllTest.java: fix bug reported by John Farrell
+	news://news.gmane.org:119/200406041629.48096.Farrell_John_W@cat.com
+	(active_) wrapped member active_ in synchronized Collectionswrapper
+
+2004-06-03  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/node/TCLTest.java: better test for bug reported by
+	John Farrell
+	news://news.gmane.org:119/c9li24$2tt$1@sea.gmane.org
+
+2004-06-02  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/node/TCLTest.java: added test to reveal bug
+	reported by John Farrell
+
+	quote:
+	We are seeing a problem in Jacorb Notification in class EqOperator
+	in method evaluate(EvaluationContext), where _left is null so the
+	.compareTo(_right) is failing with a NullPointerException (line
+	46). I believe this is caused by using an ETCL expression where I
+	am saying "x == 3", when "x" is not defined in the event.
+
+2004-05-12  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/CosEventChannelTest.java: whitespace
+
+	* notification/AllTest.java: corrected type in LICENSE
+
+	* notification/AdminLimitTest.java:
+	(counter) replaced global member with local variable
+
+	replaced assertTrue with assertEquals
+
+2004-05-11  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/EventChannelTest.java, notification/MockAdmin.java,
+	notification/NotificationTestCase.java,
+	notification/StructuredEventChannelTest.java,
+	notification/TypedEventMessageTest.java,
+	notification/typed/README,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java: further
+	towards typed channels.
+
+	(EventChannelImpl) split EventChannelImpl into
+	AbstractEventChannel and EventChannelImpl so that new
+	TypedEventChannelImpl can reuse parts of the implementation
+
+	(*) various fixes so that Unit tests run again
+
+2004-05-09  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/NotificationTestCaseSetup.java: imports
+
+	* notification/NotificationTestCase.java: fix
+
+	* notification/AdminLimitTest.java, notification/AllTest.java,
+	notification/AnyGenerator.java, notification/AnyMessageTest.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java, notification/AnyPushSender.java,
+	notification/CollectionsWrapperTest.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MappingFilterTest.java,
+	notification/MessageFactoryTest.java,
+	notification/MessageUtilsTest.java, notification/MockMessage.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/OfferManagerTest.java, notification/PackageTest.java,
+	notification/PropertyValidatorTest.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredEventMessageTest.java,
+	notification/TestServer.java, notification/TestUtils.java,
+	notification/TimeoutTest.java,
+	notification/TypedEventMessageTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/engine/PackageTest.java,
+	notification/engine/PushOperationTest.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/engine/WaitRetryStrategyTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/node/EvaluationResultTest.java,
+	notification/node/PackageTest.java,
+	notification/node/TCLTest.java,
+	notification/perf/PerformanceTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java,
+	notification/typed/PackageTest.java, notification/typed/README,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java,
+	notification/util/CachingWildcardMapTest.java,
+	notification/util/ObjectPoolTest.java,
+	notification/util/ThreadPoolTest.java,
+	notification/util/WildcardMapTest.java: added tests for typed
+	notification channel
+
+	* notification/AnyMessageTest.java,
+	notification/StructuredEventMessageTest.java,
+	notification/TypedEventMessageTest.java: New file.
+
+	* notification/AdminLimitTest.java, notification/AllTest.java,
+	notification/AnyMessageTest.java, notification/AnyPushSender.java,
+	notification/CosEventChannelTest.java,
+	notification/FilterTest.java, notification/MockMessage.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/PackageTest.java,
+	notification/PropertyValidatorTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventMessageTest.java,
+	notification/TypedEventMessageTest.java,
+	notification/engine/PackageTest.java,
+	notification/engine/PushOperationTest.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/engine/WaitRetryStrategyTest.java: tests for
+	typednotification channels
+
+	* notification/typed/PackageTest.java, notification/typed/README,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java: New file.
+
+	* notification/node/TCLTest.java,
+	notification/typed/PackageTest.java, notification/typed/README,
+	notification/typed/TypedConsumerAdminImplTest.java,
+	notification/typed/TypedProxyPullConsumerImplTest.java,
+	notification/typed/TypedProxyPullSupplierImplTest.java,
+	notification/typed/TypedProxyPushConsumerImplTest.java,
+	notification/typed/TypedProxyPushSupplierImplTest.java,
+	notification/typed/TypedSupplierAdminImplTest.java: tests for
+	typednotification channels
+
+2004-05-09  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* common/ClientServerSetup.java: Trailing '"' removed from
+	serverexec command line.
+
+2004-05-07  Gerald Brose  <gerald.brose@acm.org>
+
+	* common/ClientServerSetup.java: remove Windows call
+
+2004-05-05  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/connection/GIOPConnectionTest.java,
+	util/LogKitLoggerFactoryTest.java: changed for new factory pattern
+	in org/jacorb/config/Configuration.java
+
+2004-05-01  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/QoSTest.java, notification/StopTimeTest.java,
+	notification/engine/ReleaseTasksTest.java: removed unused imports
+
+2004-04-28  Alphonse Bendt  <alphonse.bendt@it-fws.de>
+
+	* notification/node/PackageTest.java: *** empty log message ***
+
+	* notification/node/PackageTest.java: cleanup
+
+2004-04-28  Gerald Brose  <gerald.brose@acm.org>
+
+	* AllTest.java, common/ClientServerSetup.java,
+	common/TestServer.java, notification/AdminLimitTest.java,
+	notification/AllTest.java, notification/AnyGenerator.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/ApplicationContextTest.java,
+	notification/CollectionsWrapperTest.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MappingFilterTest.java,
+	notification/MessageFactoryTest.java,
+	notification/MessageUtilsTest.java, notification/MockMessage.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/OfferManagerTest.java, notification/PackageTest.java,
+	notification/PropertyValidatorTest.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestServer.java, notification/TestUtils.java,
+	notification/TimeoutTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/engine/MockEventConsumer.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/engine/WaitRetryStrategyTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/node/EvaluationResultTest.java,
+	notification/node/TCLTest.java,
+	notification/perf/PerformanceTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java,
+	notification/util/CachingWildcardMapTest.java,
+	notification/util/ObjectPoolTest.java,
+	notification/util/ThreadPoolTest.java,
+	notification/util/WildcardMapTest.java,
+	notification/util/regexp/AbstractPatternWrapperTest.java,
+	notification/util/regexp/GNUPatternWrapperTest.java,
+	notification/util/regexp/JDK14PatternWrapperTest.java,
+	notification/util/regexp/JakartaRegexpPatternWrapperTest.java,
+	notification/util/regexp/README, orb/AllTest.java,
+	orb/CDRIOTest.java, orb/IIOPAddressServerImpl.java,
+	orb/connection/GIOPConnectionTest.java, orb/etf/AllTest.java,
+	orb/etf/wiop/WIOPFactories.java, poa/AllTest.java,
+	poa/QueueNoWaitTest.java, poa/QueueWaitTest.java,
+	util/LogKitLoggerFactoryTest.java: Joined in changes from the
+	CONFIG_FEATURE branch.
+
+2004-04-28  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/etf/AllTest.java: added @version tag
+
+	* poa/QueueWaitTest.java, poa/QueueNoWaitTest.java, poa/AllTest.java:
+	reformatting only
+
+	* orb/etf/wiop/WIOPFactories.java: some more changes for
+	configuration usage
+
+	* AllTest.java: commented out naming and util tests, which won't
+	run yet
+
 2004-04-14  Phil Mesnier  <mesnier_p@ociweb.com>
 
 	* common/ClientServerSetup.java, common/TestServer.java,
