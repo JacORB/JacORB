@@ -40,13 +40,29 @@ public class ObjectUtil
     public static final String readURL( String url )
         throws java.io.IOException
     {
-        java.net.URL u = new java.net.URL(url);
-        String line  = null;
-        java.io.BufferedReader in;
-        
-        in = new java.io.BufferedReader(new java.io.InputStreamReader(u.openStream()) );
+        String token = "file://";
+        String line = "";
+        java.io.InputStreamReader isr = null;
+        if (url.startsWith (token))
+            try
+            {
+                isr = new java.io.FileReader (url.substring(token.length()));
+            }
+            catch (Exception e)
+            {
+                System.out.println ("Tried and failed to open file: " +
+                                    url.substring(token.length()));
+                // no worries, let the URL handle it
+            }
+        if (isr == null)
+        {
+            java.net.URL u = new java.net.URL(url);
+            isr = new java.io.InputStreamReader(u.openStream());
+        }
+
+        java.io.BufferedReader in = new java.io.BufferedReader(isr);
         line = in.readLine();
-        
+
         in.close();
         return line;
     }
@@ -162,7 +178,7 @@ public class ObjectUtil
     {
         StringBuffer result = new StringBuffer();
         StringBuffer chars = new StringBuffer();
-        
+
         for ( int i = start; i < (start + len); i++ )
         {
             if ((i % 16 ) == 0)
@@ -170,29 +186,29 @@ public class ObjectUtil
                 result.append( chars.toString() );
                 chars = new StringBuffer();
             }
-            
-            chars.append( toAscii( bs[i] ));            
+
+            chars.append( toAscii( bs[i] ));
             result.append(  toHex( bs[i] ));
-            
+
             if ( (i % 4) == 3 )
             {
                 chars.append( ' ' );
                 result.append( ' ' );
             }
         }
-        
+
         if ( len % 16 != 0 )
         {
             int pad = 0;
             int delta_bytes = 16 - (len % 16);
-            
+
             //rest of line (no of bytes)
             //each byte takes two chars plus one ws
             pad = delta_bytes * 3;
-            
+
             //additional whitespaces after four bytes
             pad += (delta_bytes / 4);
-            
+
             for ( int i = 0; i < pad; i++ )
             {
                 chars.insert( 0, ' ' );
@@ -241,7 +257,7 @@ public class ObjectUtil
 
     /**
      * Convenience method to parse an argument vector (typically from
-     * the command line) and sets any arguments of the form "-Dy=x" 
+     * the command line) and sets any arguments of the form "-Dy=x"
      * as values in a properties object.
      */
 
@@ -256,7 +272,7 @@ public class ObjectUtil
                 int idx = args[i].indexOf('=');
                 if (idx < 3 )
                     continue;
-                String key = args[i].substring(2,idx);  
+                String key = args[i].substring(2,idx);
 
                 System.out.println("putting: " + key + "," + args[i].substring(idx+1));
                 props.put(key, args[i].substring(idx+1));
