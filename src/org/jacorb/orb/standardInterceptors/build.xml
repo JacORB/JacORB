@@ -1,32 +1,33 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../../common.xml"> ]>
+
 <project name="standardInterceptor" default="all" basedir="../../../../..">
 
-   <!-- ==================================================== -->
-   <!--      JacORB Standard Interceptors build file         -->
-   <!-- $Id$ -->
-   <!-- ==================================================== -->
-   <target name="init">
-        <property name="dirs.base" value="${basedir}"/>
-        <property name="classdir" value="${dirs.base}/classes"/>
-        <property name="src" value="${dirs.base}/src"/>
-        <property name="lib" value="${dirs.base}/lib"/>
-        <property name="include" value="${dirs.base}/idl"/>
-        <property name="idlflags"
-                  value="-I${include}/omg -I${include}/jacorb -d ${src}/generated"/>
-        <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />
+  <!-- ==================================================== -->
+  <!--      JacORB Standard Interceptors build file         -->
+  <!-- $Id$ -->
+  <!-- ==================================================== -->
+
+   &common;
+
+
+   <target name="all" depends="init">
+      <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/orb/standardInterceptors/*.java"/>
+         <param name="javac-excludes" value="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java"/>
+      </antcall>
+      <antcall target="compile-sas"/>
    </target>
 
-   <target name="all" depends="init,compile"/>
 
-   <target name="compile">
-        <javac debug="${debug}" srcdir="${src}" destdir="${classdir}">
-               <include name="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java" if="jgss.present"/>
-               <include name="org/jacorb/orb/standardInterceptors/CodeSetInfoInterceptor.java"/>
-               <include name="org/jacorb/orb/standardInterceptors/IORInterceptorInitializer.java"/>
-               <include name="org/jacorb/orb/standardInterceptors/SSLComponentInterceptor.java"/>
-        </javac>
+   <target name="compile-sas" if="jgss.present">
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/orb/standardInterceptors/SASComponentInterceptor.java"/>
+      </antcall>
    </target>
+
 
    <target name="clean">
    </target>

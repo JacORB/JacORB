@@ -86,7 +86,7 @@ public final class ORB
 
     private Map objectKeyMap = new HashMap();
 
-    /** properties */ 
+    /** properties */
 
     private java.util.Properties _props;
 
@@ -122,7 +122,7 @@ public final class ORB
 
     private static org.omg.CORBA.TCKind kind;
 
-    private static final String [] services  = 
+    private static final String [] services  =
         {"RootPOA","POACurrent", "DynAnyFactory", "PICurrent", "CodecFactory"};
 
     private boolean bidir_giop = false;
@@ -409,33 +409,25 @@ public final class ORB
      * If present, IORInterceptors will be invoked.
      */
 
-    org.omg.IOP.IOR createIOR( String repId, 
-                               byte[] key, 
-                               boolean _transient, 
+    org.omg.IOP.IOR createIOR( String repId,
+                               byte[] key,
+                               boolean _transient,
                                org.jacorb.poa.POA poa,
                                Hashtable policy_overrides)
     {
-        // get the address of the server
+        // get the host and port of the server
         String address;
         int port;
 
         //the ImR is a special case
         if( repId.equals( "IDL:org/jacorb/imr/ImplementationRepository:1.0") )
         {
-            address = basicAdapter.getAddress();
+            address = getIMRAddressForIOR( basicAdapter.getAddress() );
+            port = getIMRPortForIOR( basicAdapter.getPort() );
         }
         else
         {
             address = getServerAddress();
-        }
-
-        //the ImR is a special case
-        if( repId.equals( "IDL:org/jacorb/imr/ImplementationRepository:1.0") )
-        {
-            port = basicAdapter.getPort();
-        }
-        else
-        {
             port = getServerPort();
         }
 
@@ -468,9 +460,9 @@ public final class ORB
                 }
 
                 // set host and port to ImR's values
-                address = imr.getImRHost();
-                port = imr.getImRPort();
-                Debug.output( 2, "New persistent IOR created with ImR at " + 
+                address = getIMRAddressForIOR( imr.getImRHost() );
+                port = getIMRPortForIOR( imr.getImRPort() );
+                Debug.output( 2, "New persistent IOR created with ImR at " +
                               address + ":" + port );
             }
             catch (Exception _e)
@@ -529,8 +521,8 @@ public final class ORB
         {
             IORInfoImpl info = new IORInfoImpl
             (
-                this, 
-                poa, 
+                this,
+                poa,
                 components_iiop_profile,
                 components_multi_profile,
                 policy_overrides
@@ -561,20 +553,20 @@ public final class ORB
             }
             case 1:
             {
-                //create IIOP 1.1 profile  
+                //create IIOP 1.1 profile
 
-                components = new TaggedComponent[ components_iiop_profile.size() ];                
+                components = new TaggedComponent[ components_iiop_profile.size() ];
                 components_iiop_profile.copyInto( components );
 
                 ProfileBody_1_1 pb1 = new ProfileBody_1_1
                 (
-                    new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor ), 
-                    address, 
-                    (short) port, 
-                    key, 
+                    new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor ),
+                    address,
+                    (short) port,
+                    key,
                     components
                 );
-                
+
                 // serialize the profile id 1, leave idx 0 for v.1.0 profile
                 profileDataStream = new CDROutputStream( this );
                 profileDataStream.beginEncapsulatedArray();
@@ -595,7 +587,7 @@ public final class ORB
             }
             case 0:
             {
-                // create IIOP 1.0 profile                
+                // create IIOP 1.0 profile
                 ProfileBody_1_0 pb0 = new ProfileBody_1_0
                 (
                     new org.omg.IIOP.Version( (byte) 1, (byte) 0 ),
@@ -603,7 +595,7 @@ public final class ORB
                     (short) port,
                     key
                 );
-            
+
                 profileDataStream = new CDROutputStream( this );
                 profileDataStream.beginEncapsulatedArray();
                 ProfileBody_1_0Helper.write( profileDataStream, pb0 );
@@ -632,7 +624,7 @@ public final class ORB
                 TAG_MULTIPLE_COMPONENTS.value,
                 profileDataStream.getBufferCopy()
             );
-            taggedProfileVector.addElement( tp );                
+            taggedProfileVector.addElement( tp );
         }
 
         // copy the profiles into the IOR
@@ -839,7 +831,7 @@ public final class ORB
         }
         else
         {
-            Debug.output( Debug.INFORMATION | Debug.ORB_MISC, 
+            Debug.output( Debug.INFORMATION | Debug.ORB_MISC,
                           "Using proxy host " + address + " in IOR" );
         }
 
@@ -879,7 +871,7 @@ public final class ORB
                                  "(check property \"jacorb.ior_proxy_port\")" );
             }
 
-            Debug.output( Debug.INFORMATION | Debug.ORB_MISC, 
+            Debug.output( Debug.INFORMATION | Debug.ORB_MISC,
                           "Using proxy port " + port + " in IOR" );
         }
         else
@@ -889,6 +881,42 @@ public final class ORB
         }
 
         return port;
+    }
+
+    /**
+     * Method to check if a Proxy host is configured for the IMR via the
+     * <code>jacorb.imr.ior_proxy_host</code> property.
+     * @param imrAddress The actual host name or IP of the IMR.
+     * @return The proxy host value, if configured, else the supplied actual host.
+     */
+    private String getIMRAddressForIOR(String imrAddress)
+    {
+        String imrProxyHost = Environment.getProperty("jacorb.imr.ior_proxy_host");
+        return (imrProxyHost == null ? imrAddress : imrProxyHost);
+    }
+
+    /**
+     * Method to check if a Proxy port is configured for the IMR via the
+     * <code>jacorb.imr.ior_proxy_port</code> property.
+     * @param imrPort The port number that the IMR is really running on.
+     * @return The proxy port number, if configured, else the supplied actual port.
+     */
+    private int getIMRPortForIOR(int imrPort)
+    {
+        String imrProxyPort = Environment.getProperty("jacorb.imr.ior_proxy_port");
+        if (imrProxyPort != null)
+        {
+            try
+            {
+                imrPort = Integer.parseInt(imrProxyPort);
+            }
+            catch (NumberFormatException nfe)
+            {
+                Debug.output(2, "IMR Proxy Port is configured to a none integer value. " +
+                            "Check the value of property \"jacorb.imr.ior_proxy_port");
+            }
+        }
+        return imrPort;
     }
 
     public void poaStateChanged(org.jacorb.poa.POA poa, int new_state)
@@ -1300,10 +1328,10 @@ public final class ORB
             }
         }
 
-         objectKeyMap = 
+         objectKeyMap =
             Environment.getProperties("jacorb.orb.objectKeyMap", true );
-        
-        String versionProperty = 
+
+        String versionProperty =
             Environment.getProperty("jacorb.orb.print_version");
 
         if( versionProperty != null &&
@@ -1311,7 +1339,7 @@ public final class ORB
         {
             System.out.println("\tJacORB V " + versionString +
                                ", www.jacorb.org");
-            System.out.println("\t(C) Gerald Brose, FU Berlin/XTRADYNE Technologies, " + 
+            System.out.println("\t(C) Gerald Brose, FU Berlin/XTRADYNE Technologies, " +
                                dateString);
         }
 
@@ -1328,7 +1356,7 @@ public final class ORB
         always_add_1_0_Profile =
             Environment.isPropertyOn( "jacorb.giop.add_1_0_profiles" );
 
-        
+
 
         interceptorInit();
 
@@ -1766,16 +1794,24 @@ public final class ORB
         Class result = null;
         try
         {
-            result = Thread.currentThread().getContextClassLoader()
-                                           .loadClass (name);
+             //#ifjdk 1.2
+                result = Thread.currentThread().getContextClassLoader()
+                                               .loadClass (name);
+             //#else
+             //# result = Class.forName (name);
+             //#endif
         }
         catch (ClassNotFoundException e)
         {
             if (orgomg && name.startsWith ("org.omg"))
                 try
                 {
-                    result = Thread.currentThread().getContextClassLoader()
-                                   .loadClass ("omg.org" + name.substring(7));
+                     //#ifjdk 1.2
+                        result = Thread.currentThread().getContextClassLoader()
+                                       .loadClass ("omg.org" + name.substring(7));
+                     //#else
+                     //# result = Class.forName ("omg.org" + name.substring(7));
+                     //#endif
                 }
                 catch (ClassNotFoundException x)
                 {
@@ -1933,20 +1969,20 @@ public final class ORB
         }
         // else:
         return originalKey;
-                            
+
     }
 
     /**
      * Inner class that implements org.omg.PortableInterceptor.Current
      * by forwarding each invocation to a thread-dependent target.
      */
-    private class PICurrent 
+    private class PICurrent
         extends org.omg.CORBA.LocalObject
-        implements org.omg.PortableInterceptor.Current 
+        implements org.omg.PortableInterceptor.Current
     {
         // Helper method that returns the actual
         // target of a PICurrent invocation
-        private Current getTarget() 
+        private Current getTarget()
         {
             if (interceptor_manager == null)
                 return InterceptorManager.EMPTY_CURRENT;
@@ -1956,14 +1992,14 @@ public final class ORB
 
         // org.omg.PortableInterceptor.Current implementation ---
 
-        public org.omg.CORBA.Any get_slot(int id) 
-            throws InvalidSlot 
+        public org.omg.CORBA.Any get_slot(int id)
+            throws InvalidSlot
         {
             return getTarget().get_slot(id);
         }
-  
-        public void set_slot(int id, org.omg.CORBA.Any data) 
-            throws InvalidSlot 
+
+        public void set_slot(int id, org.omg.CORBA.Any data)
+            throws InvalidSlot
         {
             getTarget().set_slot(id, data);
         }

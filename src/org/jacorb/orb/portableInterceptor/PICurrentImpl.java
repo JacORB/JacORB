@@ -22,7 +22,7 @@ package org.jacorb.orb.portableInterceptor;
 
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.*;
-import java.util.Vector;
+import java.util.*;
 /**
  * This is the current object for the portable
  * interceptors. It is merely a slot table, but

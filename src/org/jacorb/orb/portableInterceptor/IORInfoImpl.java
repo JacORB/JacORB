@@ -25,8 +25,8 @@ import org.omg.IOP.*;
 import org.omg.CORBA.*;
 import org.jacorb.orb.ORB;
 import org.jacorb.poa.POA;
-import java.util.Vector;
-import java.util.Hashtable;
+import java.util.*;
+
 /**
  * This class represents the type of info object
  * that will be passed to the IORInterceptors. <br>

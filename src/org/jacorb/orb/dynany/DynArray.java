@@ -24,7 +24,7 @@ import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
 
 import org.jacorb.orb.*;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * CORBA DynArray

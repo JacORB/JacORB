@@ -21,58 +21,50 @@ package org.jacorb.orb.dns;
  */
 
 import java.net.InetAddress;
+import org.jacorb.util.Environment;
 
 public class DNSLookup  
 {
     private static DNSLookupDelegate delegate = null;
+    private static boolean enabled = false;
 
     static
     {
-        createDelegate();
+        enabled = Environment.isPropertyOn ("jacorb.dns.enable");
+        createDelegate ();
     }
 
-    private static void createDelegate()
+    private static void createDelegate ()
     {
-        Class c;
-
-        try
+        if (enabled)
         {
-            // Ensure that both the delegate implementation
-            // and the DNS support classes are available
+            try
+            {
+                Class c;
 
-            c = Class.forName ("org.xbill.DNS.dns");
-            c = Class.forName ("org.jacorb.orb.dns.DNSLookupDelegateImpl");
+                // Ensure that both the delegate implementation
+                // and the DNS support classes are available
+
+                c = Class.forName ("org.xbill.DNS.dns");
+                c = Class.forName ("org.jacorb.orb.dns.DNSLookupDelegateImpl");
             
-            delegate = (DNSLookupDelegate) c.newInstance ();
-        }
-        catch( Exception e )
-        {
-            //ignore
-        }
-    }
-
-    public static String inverseLookup( String ip )
-    {
-        if( delegate != null )
-        {
-            return delegate.inverseLookup( ip );
-        }
-        else
-        {
-            return null;
+                delegate = (DNSLookupDelegate) c.newInstance ();
+            }
+            catch (Exception e)
+            {
+                //ignore
+            }
         }
     }
 
-    public static String inverseLookup( InetAddress addr )
+    public static String inverseLookup (String ip)
     {
-        if( delegate != null )
-        {
-            return delegate.inverseLookup( addr );
-        }
-        else
-        {
-            return null;
-        }
+        return ((delegate == null) ? null : delegate.inverseLookup (ip));
+    }
+
+    public static String inverseLookup (InetAddress addr)
+    {
+        return ((delegate == null) ? null : delegate.inverseLookup (addr));
     }
             
 } // DNSLookup

@@ -1,39 +1,20 @@
 <?xml version="1.0"?>
 
-<project name="main" default="all" basedir="..">
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../common.xml"> ]>
 
-   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL"
-      classpath="${basedir}/classes"/>
+<project name="idl" default="all" basedir="..">
 
    <!-- ==================================================== -->
    <!--            JacORB idl build file                     -->
    <!-- $Id$ -->
    <!-- ==================================================== -->
 
-   <target name="init" depends="javatest">
-   <property name="name" value="omg_idl"/>
-   <property name="dirs.base" value="${basedir}"/>
-   <property name="classdir" value="${dirs.base}/classes"/>
-   <property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
-   <property name="src" value="${dirs.base}/src"/>
-   <property name="lib" value="${dirs.base}/lib"/>
-   <property name="include" value="${dirs.base}/idl"/>
-   <property name="idlflags" value="-ir -I${basedir}/idl/omg -p org.omg -d ${src}/generated"/>
-   <mkdir dir="${classdir}"/>
-   <mkdir dir="${lib}"/>
-   <available classname="java.util.Collection" property="java2.present"/>
-   <filter token="path" value="basedir"/>
-   </target>
-
-   <!-- check for Java 2 -->
-   <target name="javatest">
-      <available classname="java.lang.ref.WeakReference" property="java2" />
-   </target>
+   &common;
 
    <!-- top-level targets  -->
 
    <target name="all"
-      depends="corba,names,security,events,transactions,concurrency,collections,trading" />
+      depends="corba,names,security,events,transactions,concurrency,collections,trading,notification" />
 
    <target name="services"
       depends="events,trading,collections,transactions,concurrency" />
@@ -46,31 +27,30 @@
    <target name="corba"
            depends="orb,sysex,dynany,portableserver,iop,iiop,giop,conf,interceptor,compile"/>
 
-   <target name="compile" >
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-               includes="org/omg/CORBA/**/*.java,org/omg/DynamicAny/**/*.java"
-        />
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-               includes="org/omg/CORBA_2_3/**/*.java,org/omg/CORBA_2_5/**/*.java,org/omg/IOP/**/*.java,org/omg/GIOP/**/*.java,org/omg/IIOP/**/*.java,org/omg/CONV_FRAME/**/*.java,org/omg/Dynamic/**/*.java"
-        />
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-               includes="org/omg/Messaging/**/*.java,org/omg/PortableInterceptor/**/*.java"
-        />
-
+   <target name="compile">
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CORBA/**/*.java,org/omg/DynamicAny/**/*.java"/>
+      </antcall>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CORBA_2_3/**/*.java,org/omg/CORBA_2_5/**/*.java,org/omg/IOP/**/*.java,org/omg/GIOP/**/*.java,org/omg/IIOP/**/*.java,org/omg/CONV_FRAME/**/*.java,org/omg/Dynamic/**/*.java"/>
+      </antcall>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/Messaging/**/*.java,org/omg/PortableInterceptor/**/*.java"/>
+      </antcall>
    </target>
 
 
    <!-- standard classes defined by the IDL language mapping  -->
    <!-- are copied from a directory containing OMG-provided files -->
 
-   <target name="orb" depends="init">
+   <target name="orb" depends="init,load-taskdef">
       <jacidl generateir="true"
          srcdir="idl"
          packageprefix="org.omg"
-         includepath="${basedir}/idl/omg"
+         includepath="${idl}/omg"
          includes="omg/_orb.idl"
          destdir="${src}/generated"/>
 
@@ -102,12 +82,6 @@
       <delete file="${src}/generated/org/omg/CORBA/ORB.java"/>
       <delete file="${src}/generated/org/omg/CORBA/TypeCodePackage/BadKindHolder.java"/>
       <delete file="${src}/generated/org/omg/CORBA/TypeCodePackage/BoundsHolder.java"/>
-
-<!--  <delete file="${src}/generated/org/omg/CORBA/BadKind.java"/> -->
-<!--  <delete file="${src}/generated/org/omg/CORBA/BadKindHelper.java"/> -->
-<!--  <delete file="${src}/generated/org/omg/CORBA/BoundsHelper.java"/> -->
-<!--  <delete file="${src}/generated/org/omg/CORBA/Bounds.java"/> -->
-<!--  <delete file="${src}/generated/org/omg/CORBA/WrongTransaction.java"/> -->
 
       <copy file="${src}/java_mapping/CORBA/ORB.java"
          tofile="${src}/generated/org/omg/CORBA/ORB.java"
@@ -152,13 +126,13 @@
    <!-- System Exceptions are generated separately to obtain their Helper -->
    <!-- classes.  The Exception classes and Holder classes are discarded. -->
 
-   <target name="sysex" depends="init">
+   <target name="sysex" depends="init,load-taskdef">
       <mkdir dir="${src}/generated/temp"/>
 
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/SystemException.idl"
               destdir="${src}/generated/temp"/>
 
@@ -180,33 +154,33 @@
    <!-- the remaining OMG classes are generated by compiling  -->
    <!-- their original IDL definitions -->
 
-   <target name="iop" depends="init">
+   <target name="iop" depends="init,load-taskdef">
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/IOP.idl"
               destdir="${src}/generated"
       />
    </target>
 
-   <target name="iiop"  depends="init">
+   <target name="iiop"  depends="init,load-taskdef">
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/IIOP.idl"
               destdir="${src}/generated"
       />
    </target>
 
-   <target name="giop" depends="init">
+   <target name="giop" depends="init,load-taskdef">
    <!-- Compile two times with different preprocessor flags set, so structs -->
    <!-- for both GIOP 1.0 / 1.1 and GIOP 1.2 get generated -->
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/GIOP.idl"
               destdir="${src}/generated">
               <define key="GIOP_1_1" value=""/>
@@ -214,19 +188,19 @@
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/GIOP.idl"
               destdir="${src}/generated">
        <define key="GIOP_1_2" value=""/>
    </jacidl>
    </target>
 
-   <target name="conf" depends="init">
+   <target name="conf" depends="init,load-taskdef">
       <jacidl generateir="true"
               noskel="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CONV_FRAME.idl"
               destdir="${src}/generated"/>
    </target>
@@ -237,35 +211,32 @@
               nostub="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/Dynamic.idl,**/omg/Messaging.idl,**/omg/PortableInterceptor.idl"
               destdir="${src}/generated"/>
    </target>
 
-   <target name="portableserver" depends="init">
+   <target name="portableserver" depends="init,load-taskdef">
       <jacidl generateir="true"
               noskel="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="omg/PortableServer.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/BiDirPolicy.idl"
               destdir="${src}/generated"/>
 
-     <copy overwrite="yes" file="${src}/java_mapping/PortableServer/_ServantLocatorLocalBase.java"
-            tofile="${src}/generated/org/omg/PortableServer/_ServantLocatorLocalBase.java"
-      />
-      <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-               includes="org/omg/PortableServer/**/*.java,org/omg/BiDirPolicy/**/*.java"
-               classpath="${classpath}"
-       />
-
+      <copy overwrite="yes" file="${src}/java_mapping/PortableServer/_ServantLocatorLocalBase.java"
+            tofile="${src}/generated/org/omg/PortableServer/_ServantLocatorLocalBase.java"/>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/PortableServer/**/*.java,org/omg/BiDirPolicy/**/*.java"/>
+      </antcall>
    </target>
 
 
@@ -273,14 +244,14 @@
       <jacidl generateir="true"
       srcdir="idl"
       packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
+      includepath="${idl}/omg"
       includes="**/omg/DynamicAny.idl"
       destdir="${src}/generated"/>
 
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-               includes="org/omg/DynamicAny/**"
-        />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/DynamicAny/**"/>
+      </antcall>
    </target>
 
    <!-- ==================================================== -->
@@ -289,44 +260,45 @@
 
    <!-- name service  -->
 
-   <target name="names" depends="init">
+   <target name="names" depends="init,load-taskdef">
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosNaming.idl"
               destdir="${src}/generated"/>
 
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-               includes="org/omg/CosNaming/**/*.java,org/omg/CosNaming/*.java"          />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosNaming/**/*.java,org/omg/CosNaming/*.java"/>
+      </antcall>
    </target>
 
    <!--                -->
    <!-- event service  -->
    <!--                -->
 
-   <target name="events" depends="init,Comm,Admin">
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-          includes="org/omg/CosEventChannelAdmin/**,org/omg/CosEventComm/**"
-         />
+   <target name="events" depends="init,load-taskdef,comm,admin">
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosEventChannelAdmin/**,org/omg/CosEventComm/**"/>
+      </antcall>
    </target>
 
-   <target name="Admin">
+   <target name="admin">
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="omg/CosEventChannelAdmin.idl"
               destdir="${src}/generated"/>
    </target>
 
-   <target name="Comm">
+   <target name="comm">
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="omg/CosEventComm.idl"
               destdir="${src}/generated"/>
    </target>
@@ -335,18 +307,18 @@
    <!-- transaction service  -->
    <!--                      -->
 
-   <target name="transactions" depends="init">
+   <target name="transactions" depends="init,load-taskdef">
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosTransactions.idl"
               destdir="${src}/generated"/>
 
-      <javac debug="${debug}" srcdir="${src}/generated/"
-               destdir="${classdir}"
-               includes="org/omg/CosTransactions/**/*.java,org/omg/CosTransactions/*.java"
-      />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosTransactions/**/*.java,org/omg/CosTransactions/*.java"/>
+      </antcall>
    </target>
 
    <!--                     -->
@@ -354,47 +326,46 @@
    <!--                     -->
 
 
-   <target name="collections"  depends="init">
+   <target name="collections"  depends="init,load-taskdef">
       <jacidl generateir="true"
       srcdir="idl"
       packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
+      includepath="${idl}/omg"
       includes="**/omg/CosCollection.idl"
       destdir="${src}/generated"/>
 
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-          includes="org/omg/CosCollection/Istring*.java,org/omg/CosCollection/NVPair*.java,org/omg/CosCollection/ParameterList*.java,org/omg/CosCollection/AnySequence*.java,org/omg/CosCollection/_Operations*.java,org/omg/CosCollection/Operations*.java,org/omg/CosCollection/*Invalid*.java,org/omg/CosCollection/*Reason*.java,org/omg/CosCollection/*EmptyCollection*.java,org/omg/CosCollection/*Com*.java,org/omg/CosCollection/Iterator*.java,org/omg/CosCollection/_Iterator*.java, org/omg/CosCollection/Collection*.java, org/omg/CosCollection/_Collection*.java"
-          />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosCollection/Istring*.java,org/omg/CosCollection/NVPair*.java,org/omg/CosCollection/ParameterList*.java,org/omg/CosCollection/AnySequence*.java,org/omg/CosCollection/_Operations*.java,org/omg/CosCollection/Operations*.java,org/omg/CosCollection/*Invalid*.java,org/omg/CosCollection/*Reason*.java,org/omg/CosCollection/*EmptyCollection*.java,org/omg/CosCollection/*Com*.java,org/omg/CosCollection/Iterator*.java,org/omg/CosCollection/_Iterator*.java, org/omg/CosCollection/Collection*.java, org/omg/CosCollection/_Collection*.java"/>
+      </antcall>
 
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-          includes="org/omg/CosCollection/*BoundStyle*.java,org/omg/CosCollection/*Iterator*.java,org/omg/CosCollection/_*Iterator*.java"
-               excludes="org/omg/CosCollection/Iterator*.java,org/omg/CosCollection/_Iterator*.java"
-          />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosCollection/Istring*.java,org/omg/CosCollection/NVPain*.java, org/omg/CosCollection/_Collection*.java"/>
+         <param name="javac-excludes" value="org/omg/CosCollection/Iterator*.java,org/omg/CosCollection/_Iterator*.java"/>
+      </antcall>
 
-   <javac debug="${debug}" srcdir="${src}/generated"
-          destdir="${classdir}"
-         includes="org/omg/CosCollection/*Operations*.java, org/omg/CosCollection/Collection*.java, org/omg/CosCollection/*Heap*.java, org/omg/CosCollection/*RestrictedAccessCollection*.java, org/omg/CosCollection/*Deque*.java, org/omg/CosCollection/*Queue*.java,org/omg/CosCollection/*Stack*.java,org/omg/CosCollection/*PriorityQueue*.java,org/omg/CosCollection/*CollectionFactor*.java, org/omg/CosCollection/*OrderedCollection*.java, org/omg/CosCollection/*SequentialCollection*.java, org/omg/CosCollection/*CSequence*.java"
-        excludes="org/omg/CosCollection/*Relation*.java, org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*EqualitySequen*.java, org/omg/CosCollection/*Map*.java,org/omg/CosCollection/*Set*.java, org/omg/CosCollection/*Key*.java"
-          />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosCollection/*Operations*.java, org/omg/CosCollection/Collection*.java, org/omg/CosCollection/*Heap*.java, org/omg/CosCollection/*RestrictedAccessCollection*.java, org/omg/CosCollection/*Deque*.java, org/omg/CosCollection/*Queue*.java,org/omg/CosCollection/*Stack*.java,org/omg/CosCollection/*PriorityQueue*.java,org/omg/CosCollection/*CollectionFactor*.java, org/omg/CosCollection/*OrderedCollection*.java, org/omg/CosCollection/*SequentialCollection*.java, org/omg/CosCollection/*CSequence*.java"/>
+         <param name="javac-excludes" value="org/omg/CosCollection/*Relation*.java, org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*EqualitySequen*.java, org/omg/CosCollection/*Map*.java,org/omg/CosCollection/*Set*.java, org/omg/CosCollection/*Key*.java"/>
+      </antcall>
 
-   <javac debug="${debug}" srcdir="${src}/generated"
-          destdir="${classdir}"
-         includes="org/omg/CosCollection/*EqualitySequence*.java,org/omg/CosCollection/*Collection*.java"
-        excludes="org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*Factor*.java, org/omg/CosCollection/*Key*.java, org/omg/CosCollection/*Set*.java"
-          />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosCollection/*EqualitySequence*.java,org/omg/CosCollection/*Collection*.java"/>
+         <param name="javac-excludes" value="org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*Factor*.java, org/omg/CosCollection/*Key*.java, org/omg/CosCollection/*Set*.java"/>
+      </antcall>
 
-    <javac debug="${debug}" srcdir="${src}"
-          destdir="${classdir}"
-         includes="org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*Map*.java,org/omg/CosCollection/*Set*.java, org/omg/CosCollection/*Key*.java"
-        excludes="org/omg/CosCollection/*Factor*.java,org/omg/CosCollection/*Relation*.java"
-          />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*Map*.java,org/omg/CosCollection/*Set*.java, org/omg/CosCollection/*Key*.java"/>
+         <param name="javac-excludes" value="org/omg/CosCollection/*Factor*.java,org/omg/CosCollection/*Relation*.java"/>
+      </antcall>
 
-    <javac debug="${debug}" srcdir="${src}/generated"
-          destdir="${classdir}"
-         includes="org/omg/CosCollection/*Factor*.java,org/omg/CosCollection/*Relation*.java"
-          />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosCollection/*Factor*.java,org/omg/CosCollection/*Relation*.java"/>
+      </antcall>
    </target>
 
    <!--                      -->
@@ -405,32 +376,32 @@
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosConcurrencyControl.idl"
               destdir="${src}/generated"/>
 
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-               includes="org/omg/CosConcurrencyControl/**/*.java,org/omg/CosConcurrencyControl/*.java"
-        />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosConcurrencyControl/**/*.java,org/omg/CosConcurrencyControl/*.java"/>
+      </antcall>
    </target>
 
    <!--                      -->
    <!--     trading service  -->
    <!--                      -->
 
-   <target name="trading" depends="init,basic,repository,dynamic">
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-          includes="org/omg/CosTrading/**,org/omg/CosTradingDynamic/**,org/omg/CosTradingRepos/**"
-        />
+   <target name="trading" depends="init,load-taskdef,basic,repository,dynamic">
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosTrading/**,org/omg/CosTradingDynamic/**,org/omg/CosTradingRepos/**"/>
+      </antcall>
    </target>
 
    <target name="basic">
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosTrading.idl"
               destdir="${src}/generated"/>
    </target>
@@ -439,7 +410,7 @@
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosTradingRepos.idl"
               destdir="${src}/generated"/>
    </target>
@@ -448,7 +419,7 @@
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosTradingDynamic.idl"
               destdir="${src}/generated"/>
    </target>
@@ -457,24 +428,24 @@
    <!--     Notification service  -->
    <!--                           -->
 
-   <target name="notification" depends="init,notif,typed" description="Compile Notification Service IDL">
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-          includes="org/omg/CosNotification/*.java,org/omg/CosNotify**/*.java,org/omg/CosTyped*/**/*.java"
-        />
+   <target name="notification" depends="init,load-taskdef,notif,typed" description="Compile Notification Service IDL">
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CosNotification/*.java,org/omg/CosNotify**/*.java,org/omg/CosTyped*/**/*.java"/>
+      </antcall>
    </target>
 
    <target name="notif">
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosNotification.idl,**/omg/CosNotifyChannelAdmin.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosNotifyComm.idl,**/omg/CosNotifyFilter.idl"
               destdir="${src}/generated"/>
    </target>
@@ -483,25 +454,25 @@
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosTypedNotifyChannelAdmin.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosTypedNotifyComm.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosTypedEventChannelAdmin.idl"
               destdir="${src}/generated"/>
       <jacidl generateir="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/CosTypedEventComm.idl"
               destdir="${src}/generated"/>
    </target>
@@ -512,32 +483,32 @@
    <!--                      -->
 
    <target name="security"
-      depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop,csi">
-   <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-          includes="org/omg/TimeBase/**,org/omg/Security/**,org/omg/Security**/**,org/omg/SSLIOP/**"
-        />
+      depends="init,load-taskdef,time,secbasic,level1,level2,secadmin,replaceable,ssliop,csi">
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/TimeBase/**,org/omg/Security/**,org/omg/Security**/**,org/omg/SSLIOP/**"/>
+      </antcall>
    </target>
 
-   <target name="secbasic" depends="init">
+   <target name="secbasic">
       <jacidl generateir="true"
               srcdir="idl"
               noskel="true"
               nostub="true"
               sloppynames="true"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/Security.idl"
               destdir="${src}/generated"/>
    </target>
 
-   <target name="time" depends="init">
+   <target name="time">
       <jacidl generateir="true"
               noskel="true"
               nostub="true"
               srcdir="idl"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/TimeBase.idl"
               destdir="${src}/generated"/>
    </target>
@@ -549,7 +520,7 @@
               nostub="true"
               sloppynames="true"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/SecurityLevel1.idl"
               destdir="${src}/generated"/>
    </target>
@@ -561,7 +532,7 @@
               nostub="true"
               sloppynames="true"
               packageprefix="org.omg"
-              includepath="${basedir}/idl/omg"
+              includepath="${idl}/omg"
               includes="**/omg/SecurityLevel2.idl"
                destdir="${src}/generated"/>
    </target>
@@ -573,7 +544,7 @@
       nostub="true"
       sloppynames="true"
       packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
+      includepath="${idl}/omg"
       includes="**/omg/SecurityAdmin.idl"
       destdir="${src}/generated"/>
    </target>
@@ -585,7 +556,7 @@
       nostub="true"
       sloppynames="true"
       packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
+      includepath="${idl}/omg"
       includes="**/omg/SecurityReplaceable.idl"
       destdir="${src}/generated"/>
    </target>
@@ -597,7 +568,7 @@
       nostub="true"
       sloppynames="true"
       packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
+      includepath="${idl}/omg"
       includes="**/omg/SSLIOP.idl"
       destdir="${src}/generated"/>
    </target>
@@ -606,14 +577,14 @@
    <!--    CSI v2            -->
    <!--                      -->
 
-   <target name="csi" depends="init">
+   <target name="csi">
       <jacidl generateir="true"
       srcdir="idl"
       noskel="true"
       nostub="true"
       sloppynames="true"
       packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
+      includepath="${idl}/omg"
       includes="**/omg/CSI.idl"
       destdir="${src}/generated"/>
 
@@ -623,7 +594,7 @@
       nostub="true"
       sloppynames="true"
       packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
+      includepath="${idl}/omg"
       includes="**/omg/CSIIOP.idl"
       destdir="${src}/generated"/>
 
@@ -633,21 +604,20 @@
       nostub="true"
       sloppynames="true"
       packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
+      includepath="${idl}/omg"
       includes="**/omg/GSSUP.idl"
       destdir="${src}/generated"/>
 
-      <jacidl generateir="true"
-      srcdir="idl"
-      packageprefix="org.omg"
-      includepath="${basedir}/idl/omg"
-      includes="**/omg/ATLAS.idl"
-      destdir="${src}/generated"/>
+       <jacidl generateir="true"
+       srcdir="idl"
+       packageprefix="org.omg"
+       includepath="${idl}/omg"
+       includes="**/omg/ATLAS.idl"
+       destdir="${src}/generated"/>
 
-      <javac debug="${debug}" srcdir="${src}/generated"
-             destdir="${classdir}"
-             includes="org/omg/CSI/**,org/omg/CSIIOP/**,org/omg/GSSUP/**,org/omg/ATLAS/**"
-      />
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/omg/CSI/**,org/omg/CSIIOP/**,org/omg/GSSUP/**,org/omg/ATLAS/**"/>
+      </antcall>
    </target>
-
 </project>

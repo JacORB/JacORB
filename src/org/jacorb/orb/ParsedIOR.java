@@ -1,3 +1,4 @@
+
 package org.jacorb.orb;
 
 /*
@@ -808,7 +809,7 @@ public class ParsedIOR
         {
             ior = createObjectIOR( address.host,
                                    (short) address.port,
-                                   corbaLoc.getKey(),
+                                   orb.mapObjectKey (corbaLoc.getKey ()),
                                    address.minor );
         }
         else if( address.protocol_identifier.equals("ssliop") )
@@ -883,7 +884,7 @@ public class ParsedIOR
 
             ior =  createObjectIOR( address.host,
                                     (short) address.port,
-                                    corbaLoc.getKey(),
+                                    orb.mapObjectKey (corbaLoc.getKey ()),
                                     address.minor,
                                     new TaggedComponent[]{ssl_c});
         }
@@ -1135,7 +1136,11 @@ public class ParsedIOR
             ClassLoader cl = getClass().getClassLoader ();
             if (cl == null)
             {
-                cl = ClassLoader.getSystemClassLoader ();
+                //#ifjdk 1.2
+                    cl = ClassLoader.getSystemClassLoader ();
+                //#else
+                //# throw new RuntimeException ("couldn't find class loader");
+                //#endif
             }
 
             URL url = cl.getResource (resourceName);

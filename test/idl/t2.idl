@@ -1,5 +1,0 @@
-#include "t1.idl"
-
-module t2 {
-    typedef t1::UInt32_C t2Int_C;
-};

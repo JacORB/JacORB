@@ -40,10 +40,10 @@ public class ORBSingleton
     public org.omg.CORBA.Any create_any()
     {
         return new org.jacorb.orb.Any(this);
-    } 
-   
-    /** 
-     * Determine if a character is ok to start an id. 
+    }
+
+    /**
+     * Determine if a character is ok to start an id.
      * (Note that '_' is allowed here - it might have
      * been inserted by the IDL compiler to avoid clashes
      * with reserved Java identifiers )
@@ -53,72 +53,93 @@ public class ORBSingleton
     final protected static boolean legalStartChar(int ch)
     {
         return
-           ( ch >= 'a' &&  ch <= 'z') || (ch == '_') || 
+           ( ch >= 'a' &&  ch <= 'z') || (ch == '_') ||
            ( ch >= 'A' && ch <= 'Z');
     }
 
 
     /**
      * Determine if a character is ok for the middle of an id.
-     * @param ch the character in question. 
+     * @param ch the character in question.
      */
     final protected static boolean legalNameChar(int ch)
     {
         return
-           legalStartChar(ch) ||  
-           (ch == '_') 
+           legalStartChar(ch) ||
+           (ch == '_')
            || (ch >= '0' && ch <= '9');
     }
 
 
     /**
-     * check that a name is a legal IDL name
-     * (cf. CORBA 2.4 chapter 10, section 7.3
+     * code>checkTCName</code> checks that a name is a legal IDL name
+     * (CORBA 2.6 4-59).
      * @throw org.omg.CORBA.BAD_PARAM
      */
+    private void checkTCName (String name) throws BAD_PARAM
+    {
+        checkTCName (name, false);
+    }
 
-    private void checkTCName (String name)
+
+   /**
+    * <code>checkTCName</code> checks the name is a legal IDL name and
+    * may optionally allow a null string (CORBA 2.6 4-59).
+    *
+    * @param name a <code>String</code> value
+    * @param allowNull a <code>boolean</code> value
+    * @exception BAD_PARAM if an error occurs
+    */
+   private void checkTCName (String name, boolean allowNull)
         throws BAD_PARAM
     {
         if (name != null)
         {
-            // note that legal names can be empty
             if( name.length() > 0 )
             {
                 // check that name begins with an ASCII char
                 if( !legalStartChar( name.charAt(0)) )
                 {
-                    throw new BAD_PARAM("Illegal IDL name: " + name, 15, 
-                                        CompletionStatus.COMPLETED_NO );    
+                    throw new BAD_PARAM
+                    (
+                       "Illegal start character to IDL name: " + name,
+                       15,
+                       CompletionStatus.COMPLETED_NO
+                    );
                 }
                 for( int i = 0; i < name.length(); i++ )
                 {
                     if( ! legalNameChar( name.charAt(i) ))
-                        throw new BAD_PARAM("Illegal IDL name: " + name, 15, 
-                                            CompletionStatus.COMPLETED_NO );  
+                        throw new BAD_PARAM("Illegal IDL name: " + name, 15,
+                                            CompletionStatus.COMPLETED_NO );
                 }
-            }       
+            }
+            else
+            {
+                throw new BAD_PARAM("Illegal blank IDL name", 15,
+                                    CompletionStatus.COMPLETED_NO );
+            }
         }
-        else
+        else if (allowNull == false)
         {
-            throw new BAD_PARAM("Illegal null IDL name", 15, 
-                                CompletionStatus.COMPLETED_NO );    
+            throw new BAD_PARAM("Illegal null IDL name", 15,
+                                CompletionStatus.COMPLETED_NO );
         }
     }
 
     /**
-     * check that a repository ID is legal
+     * Check that a repository ID is legal
      * (cf. CORBA 2.4 chapter 10, section 7.3
-     * @throw org.omg.CORBA.BAD_PARAM
+     * @param repId a <code>String</code> value
+     * @exception BAD_PARAM if an error occurs
      */
-
     private void checkTCRepositoryId( String repId )
         throws BAD_PARAM
     {
         if( repId == null || repId.indexOf( ':' ) < 0 )
         {
-            throw new BAD_PARAM("Illegal Repository ID: " + repId, 
-                                16, CompletionStatus.COMPLETED_NO );    
+            throw new BAD_PARAM("Illegal Repository ID: " + repId,
+                                16, CompletionStatus.COMPLETED_NO );
         }
     }
 
@@ -132,15 +153,15 @@ public class ORBSingleton
         throws BAD_TYPECODE
     {
         if( !(((org.jacorb.orb.TypeCode) tc).is_recursive ()) &&
-            (tc == null || 
+            (tc == null ||
              tc.kind().value() == TCKind._tk_null ||
              tc.kind().value() == TCKind._tk_void ||
              tc.kind().value() == TCKind._tk_except
              )
             )
         {
-            throw new BAD_TYPECODE("Illegal member tc", 2, 
-                                   CompletionStatus.COMPLETED_NO );    
+            throw new BAD_TYPECODE("Illegal member tc", 2,
+                                   CompletionStatus.COMPLETED_NO );
         }
     }
 
@@ -149,14 +170,14 @@ public class ORBSingleton
     /* TypeCode factory section */
 
 
-    public TypeCode create_alias_tc( String id, 
-                                     String name, 
+    public TypeCode create_alias_tc( String id,
+                                     String name,
                                      TypeCode original_type)
     {
         checkTCRepositoryId( id );
-        checkTCName( name );
+        checkTCName (name, true);
         checkTCMemberType( original_type );
-        return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_alias, 
+        return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_alias,
                                             id, name, original_type);
     }
 
@@ -172,12 +193,12 @@ public class ORBSingleton
      * create an enum TypeCode
      */
 
-    public TypeCode create_enum_tc( String id, 
-                                    String name, 
+    public TypeCode create_enum_tc( String id,
+                                    String name,
                                     String[] members)
     {
         checkTCRepositoryId( id );
-        checkTCName( name );
+        checkTCName (name, true);
 
         // check that member names are legal and unique
         Hashtable names = new Hashtable() ;
@@ -194,8 +215,8 @@ public class ORBSingleton
             }
             if( names.containsKey( members[i] ) || fault )
             {
-                throw new BAD_PARAM("Illegal enum member name: " + members[i], 
-                                    17, CompletionStatus.COMPLETED_NO );    
+                throw new BAD_PARAM("Illegal enum member name: " + members[i],
+                                    17, CompletionStatus.COMPLETED_NO );
             }
             names.put( members[i], "" );
         }
@@ -208,12 +229,12 @@ public class ORBSingleton
      * create an exception TypeCode
      */
 
-    public TypeCode create_exception_tc( String id, 
-                                         String name, 
+    public TypeCode create_exception_tc( String id,
+                                         String name,
                                          org.omg.CORBA.StructMember[] members)
     {
         checkTCRepositoryId( id );
-        checkTCName( name );
+        checkTCName (name, true);
 
         // check that member names are legal and unique
         Hashtable names = new Hashtable() ;
@@ -231,9 +252,9 @@ public class ORBSingleton
             }
             if( names.containsKey( members[i].name ) || fault )
             {
-                throw new BAD_PARAM("Illegal exception member name: " + 
-                                    members[i].name, 
-                                    17, CompletionStatus.COMPLETED_NO );    
+                throw new BAD_PARAM("Illegal exception member name: " +
+                                    members[i].name,
+                                    17, CompletionStatus.COMPLETED_NO );
             }
             names.put( members[i].name, "" );
         }
@@ -249,12 +270,12 @@ public class ORBSingleton
     public TypeCode create_interface_tc( String id, String name)
     {
         checkTCRepositoryId( id );
-        checkTCName( name );
-        return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_objref, 
-					   id, name);
+        checkTCName (name, true);
+        return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_objref,
+                                            id, name);
     }
 
-    public org.omg.CORBA.TypeCode create_fixed_tc( short digits, 
+    public org.omg.CORBA.TypeCode create_fixed_tc( short digits,
                                                    short scale)
     {
         if (digits <= 0 || scale < 0 || scale > digits)
@@ -265,18 +286,18 @@ public class ORBSingleton
         return new org.jacorb.orb.TypeCode(digits, scale);
     }
 
-    public org.omg.CORBA.TypeCode create_recursive_tc( String id ) 
+    public org.omg.CORBA.TypeCode create_recursive_tc( String id )
     {
         checkTCRepositoryId( id );
         return new org.jacorb.orb.TypeCode( id );
-    }  
- 
+    }
+
     public TypeCode create_sequence_tc( int bound, TypeCode element_type)
     {
         checkTCMemberType( element_type );
-        org.jacorb.orb.TypeCode tc = 
+        org.jacorb.orb.TypeCode tc =
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_sequence,
-                                         bound, 
+                                         bound,
                                          element_type);
         return tc;
     }
@@ -291,16 +312,16 @@ public class ORBSingleton
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_wstring, bound);
     }
 
-    /** 
+    /**
      * create a struct TypeCode
      */
 
-    public TypeCode create_struct_tc(String id, 
+    public TypeCode create_struct_tc(String id,
                                      String name,
                                      org.omg.CORBA.StructMember[] members)
     {
         checkTCRepositoryId( id );
-        checkTCName( name );
+        checkTCName (name, true);
 
         // check that member names are legal and unique
         Hashtable names = new Hashtable() ;
@@ -318,18 +339,18 @@ public class ORBSingleton
             }
             if( names.containsKey( members[i].name ) || fault )
             {
-                throw new BAD_PARAM("Illegal struct member name: " + 
+                throw new BAD_PARAM("Illegal struct member name: " +
                                     members[i].name + (fault? " (Bad PARAM) ": "" ),
-                                    17, CompletionStatus.COMPLETED_NO );    
+                                    17, CompletionStatus.COMPLETED_NO );
             }
             names.put( members[i].name, "" );
         }
         names.clear();
 
-        org.jacorb.orb.TypeCode tc = 
-            new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_struct, 
-                                         id, 
-                                         name, 
+        org.jacorb.orb.TypeCode tc =
+            new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_struct,
+                                         id,
+                                         name,
                                          members);
 
         // resolve any recursive references to this TypeCode in its members
@@ -339,15 +360,15 @@ public class ORBSingleton
 
     /**
      * create a union TypeCode
-     */ 
+     */
 
-    public TypeCode create_union_tc( String id, 
-                                     String name, 
-                                     TypeCode discriminator_type, 
+    public TypeCode create_union_tc( String id,
+                                     String name,
+                                     TypeCode discriminator_type,
                                      org.omg.CORBA.UnionMember[] members)
     {
         checkTCRepositoryId( id );
-        checkTCName( name );
+        checkTCName (name, true);
 
         // check discriminator type
 
@@ -372,7 +393,7 @@ public class ORBSingleton
         }
 
         // check that member names are legal (they do not need to be unique)
-        
+
         for( int i = 0; i < members.length; i++ )
         {
             checkTCMemberType( members[i].type );
@@ -382,9 +403,9 @@ public class ORBSingleton
             }
             catch( BAD_PARAM bp )
             {
-                throw new BAD_PARAM("Illegal union member name: " + 
-                                    members[i].name, 
-                                    17, CompletionStatus.COMPLETED_NO );    
+                throw new BAD_PARAM("Illegal union member name: " +
+                                    members[i].name,
+                                    17, CompletionStatus.COMPLETED_NO );
             }
 
             // check that member type matches discriminator type or is default
@@ -397,27 +418,27 @@ public class ORBSingleton
                 )
             {
                 throw new BAD_PARAM("Label type does not match discriminator type",
-                                    19, 
+                                    19,
                                     CompletionStatus.COMPLETED_NO );
             }
 
             // check that member labels are unique
-            
+
             for( int j = 0; j < i; j++ )
             {
                 if( label.equal( members[j].label ))
                 {
-                    throw new BAD_PARAM("Duplicate union case label", 
-                                        18, 
-                                        CompletionStatus.COMPLETED_NO );   
+                    throw new BAD_PARAM("Duplicate union case label",
+                                        18,
+                                        CompletionStatus.COMPLETED_NO );
                 }
             }
         }
-        
-        org.jacorb.orb.TypeCode tc = 
-           new org.jacorb.orb.TypeCode( id, 
+
+        org.jacorb.orb.TypeCode tc =
+           new org.jacorb.orb.TypeCode( id,
                                         name,
-                                        discriminator_type, 
+                                        discriminator_type,
                                         members);
 
         // resolve any recursive references to this TypeCode in its members
@@ -435,30 +456,30 @@ public class ORBSingleton
                                                   String name,
                                                   short type_modifier,
                                                   TypeCode concrete_base,
-                                                  org.omg.CORBA.ValueMember[] members) 
+                                                  org.omg.CORBA.ValueMember[] members)
     {
         checkTCRepositoryId( id );
 
         // The name parameter should be a valid IDL name, but in the case of
-        // an RMI valuetype the ORB in jdk1.4 sends a dotted name (such as 
+        // an RMI valuetype the ORB in jdk1.4 sends a dotted name (such as
         // "some.package.SomeClass") over the wire. For interoperability with
         // Sun's ORB we skip the name check in this case.
 
         if ( !id.startsWith("RMI:") )
-            checkTCName( name );
-        return new org.jacorb.orb.TypeCode (id, 
-                                            name, 
+            checkTCName (name, true);
+        return new org.jacorb.orb.TypeCode (id,
+                                            name,
                                             type_modifier,
-                                            concrete_base, 
+                                            concrete_base,
                                             members);
     }
 
     public org.omg.CORBA.TypeCode create_value_box_tc(String id,
                                                       String name,
-                                                      TypeCode boxed_type) 
+                                                      TypeCode boxed_type)
     {
         checkTCRepositoryId( id );
-        checkTCName( name );
+        checkTCName (name, true);
         return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_value_box,
                                             id,
                                             name,
@@ -466,32 +487,32 @@ public class ORBSingleton
     }
 
     public org.omg.CORBA.TypeCode create_abstract_interface_tc(String id,
-                                                               String name) 
+                                                               String name)
     {
        checkTCRepositoryId( id );
-       checkTCName( name );
+       checkTCName (name, true);
        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_abstract_interface,
-                                           id, 
+                                           id,
                                            name);
     }
 
     public org.omg.CORBA.TypeCode create_local_interface_tc(String id,
-                                                            String name) 
+                                                            String name)
     {
        checkTCRepositoryId( id );
-       checkTCName( name );
+       checkTCName (name, true);
        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_local_interface,
-                                           id, 
+                                           id,
                                            name);
     }
-   
+
     public org.omg.CORBA.TypeCode create_native_tc(String id,
-                                                   String name) 
+                                                   String name)
     {
        checkTCRepositoryId( id );
-       checkTCName( name );
+       checkTCName (name, true);
        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_native,
-                                           id, 
+                                           id,
                                            name);
     }
 
@@ -525,7 +546,7 @@ public class ORBSingleton
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
-    public org.omg.CORBA.Object string_to_object(String str) 
+    public org.omg.CORBA.Object string_to_object(String str)
     {
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
@@ -534,7 +555,7 @@ public class ORBSingleton
     {
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
- 
+
     public  org.omg.CORBA.ContextList create_context_list()
     {
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
@@ -575,8 +596,8 @@ public class ORBSingleton
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
-    public org.omg.CORBA.Object resolve_initial_references(String identifier) 
-        throws org.omg.CORBA.ORBPackage.InvalidName 
+    public org.omg.CORBA.Object resolve_initial_references(String identifier)
+        throws org.omg.CORBA.ORBPackage.InvalidName
     {
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
@@ -601,23 +622,23 @@ public class ORBSingleton
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
-    public void run() 
-    {   
+    public void run()
+    {
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
-    public void shutdown(boolean wait_for_completion) 
-    {    
-        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
-    }      
-
-    public boolean work_pending() 
-    {     
+    public void shutdown(boolean wait_for_completion)
+    {
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
-    public void perform_work() 
-    {     
+    public boolean work_pending()
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
+    }
+
+    public void perform_work()
+    {
         throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 }

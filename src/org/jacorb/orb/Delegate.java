@@ -728,7 +728,7 @@ public final class Delegate
             ParsedIOR pior = getParsedIOR();
 
             if ( piorOriginal != null )
-                info.target = orb._getObject( pior );
+                info.target = orb._getObject( piorOriginal );
             else
                 info.target = self;
 

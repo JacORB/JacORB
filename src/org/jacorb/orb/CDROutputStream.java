@@ -62,8 +62,6 @@ public class CDROutputStream
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
 
-    /** can be set on using property */
-    private boolean use_BOM = false;
     private BufferManager bufMgr = null;
 
     private int resize_factor = 1;
@@ -99,6 +97,14 @@ public class CDROutputStream
         only one variable is needed */
     private int chunk_start = -1;
 
+    private static boolean useBOM = false;
+    private static boolean useIndirection = true;
+
+    static
+    {
+        useBOM = Environment.isPropertyOn ("jacorb.use_bom");
+        useIndirection = Environment.isPropertyOff ("jacorb.interop.indirection_encoding_disable");
+    }
 
     private class DeferredWriteFrame
     {
@@ -140,7 +146,6 @@ public class CDROutputStream
     {
         bufMgr = BufferManager.getInstance();
         buffer = bufMgr.getPreferredMemoryBuffer();
-        use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
         instances++;
     }
 
@@ -151,14 +156,8 @@ public class CDROutputStream
      */
     public CDROutputStream (final org.omg.CORBA.ORB orb)
     {
+        this ();
         this.orb = orb;
-
-        bufMgr = BufferManager.getInstance();
-        buffer = bufMgr.getPreferredNetworkBuffer();
-
-        use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
-        instances++;
-
     }
 
     /**
@@ -731,7 +730,7 @@ public class CDROutputStream
 
     public final void write_wchar (final char c)
     {
-        write_wchar( c, use_BOM, true );//with length indicator
+        write_wchar( c, useBOM, true );//with length indicator
     }
 
     private final void write_wchar
@@ -849,7 +848,7 @@ public class CDROutputStream
         index += 4;                 // reserve for length indicator
 
         //the byte order marker
-        if( giop_minor == 2 && use_BOM && s.length() > 0)
+        if( giop_minor == 2 && useBOM && s.length() > 0)
         {
             //big endian encoding
             buffer[ pos++ ] = (byte) 0xFE;
@@ -934,7 +933,11 @@ public class CDROutputStream
 
     public final void write_fixed (final java.math.BigDecimal value)
     {
-        String v = value.unscaledValue().toString ();
+        //#ifjdk 1.2
+            String v = value.unscaledValue().toString ();
+        //#else
+        //# String v = value.movePointRight(value.scale()).toString();
+        //#endif
         byte [] representation;
         int b, c;
 
@@ -1298,8 +1301,7 @@ public class CDROutputStream
                break;
             case TCKind._tk_struct:
             case TCKind._tk_except:
-               if (Environment.indirectionEncoding () &&
-                   tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1323,8 +1325,7 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_enum:
-               if (Environment.indirectionEncoding () &&
-                   tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1347,8 +1348,7 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_union:
-               if (Environment.indirectionEncoding () &&
-                   tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1407,8 +1407,7 @@ public class CDROutputStream
                endEncapsulation();
                break;
             case TCKind._tk_alias:
-               if (Environment.indirectionEncoding () &&
-                   tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1426,8 +1425,7 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_value:
-               if (Environment.indirectionEncoding () &&
-                   tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1461,8 +1459,7 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_value_box:
-               if (Environment.indirectionEncoding () &&
-                   tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1480,8 +1477,7 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_abstract_interface:
-               if (Environment.indirectionEncoding () &&
-                   tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1620,6 +1616,9 @@ public class CDROutputStream
                 break;
             case TCKind._tk_wstring:
                 write_wstring( in.read_wstring());
+                break;
+            case TCKind._tk_fixed:
+                write_fixed (in.read_fixed());
                 break;
             case TCKind._tk_array:
                 try
