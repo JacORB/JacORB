@@ -563,6 +563,7 @@ public class CDROutputStream
                     //write unaligned
                     buffer[pos++] = (byte)((c >> 8) & 0xFF);
                     buffer[pos++] = (byte) (c       & 0xFF);
+                    index += 2;
                 }
                 else
                 {
