@@ -96,7 +96,7 @@ public class Handler
 	else if (e.getActionCommand().equals("About..."))
 	{
 	    JOptionPane.showMessageDialog(frame,
-					  "JacORB NameManager 1.1\n(C) 1998-99 Gerald Brose, Wei-ju Wu & Volker Siegel\nFreie Universität Berlin",
+					  "JacORB NameManager 1.1\n(C) 1998-99 Gerald Brose, Wei-ju Wu & Volker Siegel\nFreie Universitaet Berlin",
 					  "About",JOptionPane.INFORMATION_MESSAGE);
 	}
 	else if (e.getActionCommand().equals("Options"))
