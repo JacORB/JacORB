@@ -177,8 +177,8 @@ class NameTable
                             name.hashCode() );
 
         /* check also for the all uppercase version of this name,
-           which is alse reserved to block identifiers that
-           only differ in case */
+           (which is also reserved to block identifiers that
+           only differ in case) */
 
         if( h.containsKey( name ) || 
             h.containsKey( name.toUpperCase() )  )
@@ -208,11 +208,13 @@ class NameTable
         } 
 
         if( org.jacorb.idl.parser.strict_names )
-          checkScopingRules( name, kind );
+            checkScopingRules( name, kind );
 
         h.put( name, kind );
+
         /* block identifiers that only differ in case */
-        h.put( name.toUpperCase(), kind );
+        h.put( name.toUpperCase(), "dummy" );
+
         if( kind.equals("operation"))
             operationSources.put( name, name.substring( 0, name.lastIndexOf(".") ));
     }
@@ -412,31 +414,43 @@ class NameTable
 
     public static boolean defined( String name, String kind )
     {
-        if( !h.containsKey( name )){
+        if( !h.containsKey( name ))
+        {
             return false;
         }
         String k = (String)h.get(name);
         return( k.compareTo(kind) == 0 );
     }
 
+
     static boolean baseType(String _s)
     {
         return ( _s.equals("int") || _s.equals("short") || _s.equals("long") || 
                  _s.equals("float") || _s.equals("boolean") || 
                  _s.equals("double") || _s.equals("byte") || _s.equals("char") || 
-                 _s.equals("void") || _s.equals("<anon>"));
+                 _s.equals("void") || _s.equals("org.omg.CORBA.Object") || 
+                 _s.equals("org.omg.CORBA.Any") || _s.equals("<anon>"));
     }
+
 
     static Enumeration getGlobalTypes()
     {
         Vector v = new Vector();
+
         for( Enumeration e = h.keys(); e.hasMoreElements(); )
         {          
-            String str =  (String)e.nextElement();
-            if( str.indexOf('.')== -1 && !baseType(str) && 
-                ( ((String)h.get( str )).startsWith("type") ) || 
-                ((String)h.get( str )).equals("interface"))
+            String str = (String)e.nextElement();
+            if(  str.indexOf('.') == -1 && !baseType(str) && 
+                ( ((String)h.get( str )).startsWith("type") || 
+                  (  (String)h.get( str )).equals("interface")) 
+                )
+            {
                 v.addElement(str);
+            }
+            else
+            {
+                Environment.output( 4, "Not a global type: " + str );
+            }
         }
 
         return v.elements();
