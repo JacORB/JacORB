@@ -659,7 +659,7 @@ specification ::=
                         } 
                         else 
                         {
-                                if( !sloppy )
+                                if( !parser.sloppy )
                                      parser.fatal_error("Undefined interface: " + 
                                      (String)(parser.pending_interfaces.keys().nextElement()), null );
                         }
