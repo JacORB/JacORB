@@ -787,18 +787,19 @@ public class POA
         final ServantActivator servantActivator = 
             useServantManager() ? (ServantActivator)servantManager : null;
 
-        byte[] object_id = POAUtil.maskId(oid);                
-        int pid_length = getPOAId().length;
-        int oid_length = object_id.length;
-        byte [] object_key = new byte[pid_length + oid_length + 1];         
-        int offset = 0;         
-        System.arraycopy(getPOAId(), 0, object_key, offset, pid_length);
-        offset += pid_length;
-        object_key[offset] = POAConstants.OBJECT_KEY_SEP_BYTE;
-        offset++;
-        System.arraycopy(object_id, 0, object_key, offset, oid_length);
+//          byte[] object_id = POAUtil.maskId(oid);                
+//          int pid_length = getPOAId().length;
+//          int oid_length = object_id.length;
+//          byte [] object_key = new byte[pid_length + oid_length + 1];         
+//          int offset = 0;         
+//          System.arraycopy(getPOAId(), 0, object_key, offset, pid_length);
+//          offset += pid_length;
+//          object_key[offset] = POAConstants.OBJECT_KEY_SEP_BYTE;
+//          offset++;
+//          System.arraycopy(object_id, 0, object_key, offset, oid_length);      
+        //        final String key = new String( object_key );
         
-        final String key = new String( object_key );
+        final ByteArrayKey key = new ByteArrayKey( oid );
         
         final POA thizz = this;
         Thread thread = new Thread() 
@@ -1040,7 +1041,9 @@ public class POA
         offset++;
         System.arraycopy(object_id, 0, object_key, offset, oid_length);
 
-        String key = new String( object_key );
+        //        String key = new String( object_key );
+
+        ByteArrayKey key = new ByteArrayKey( oid );
 
         org.omg.CORBA.Object result = 
             (org.omg.CORBA.Object)createdReferences.get( key );
