@@ -1,7 +1,7 @@
 package org.jacorb.util.tracing;
 
 import org.omg.IOP.ServiceContext;
-import org.omg.IOP_N.Codec;
+import org.omg.IOP.Codec;
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.*;
 
@@ -52,6 +52,10 @@ public class ClientTraceInterceptor
     public String name() 
     {
         return "ClientTraceInterceptor";
+    }
+
+    public void destroy()
+    {
     }
 
     /**

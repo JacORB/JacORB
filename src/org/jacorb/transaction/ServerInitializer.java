@@ -2,7 +2,7 @@ package org.jacorb.transaction;
 
 import org.omg.PortableInterceptor.*;
 import org.jacorb.orb.*;
-import org.omg.IOP_N.*;
+import org.omg.IOP.*;
 /**
  * This class registers the ServerContextTransferInterceptor
  * with the ORB. For that purpose, a slot is allocated

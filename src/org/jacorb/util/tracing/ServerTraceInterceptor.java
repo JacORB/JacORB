@@ -2,7 +2,7 @@ package org.jacorb.util.tracing;
 
 import java.io.*;
 
-import org.omg.IOP_N.Codec;
+import org.omg.IOP.Codec;
 import org.omg.CORBA.*;
 import org.omg.CORBA.portable.*;
 import org.omg.PortableInterceptor.*;
@@ -35,6 +35,10 @@ public class ServerTraceInterceptor
     public String name() 
     {
         return "ServerTraceInterceptor";
+    }
+
+    public void destroy()
+    {
     }
 
     public void receive_request_service_contexts( ServerRequestInfo ri ) 

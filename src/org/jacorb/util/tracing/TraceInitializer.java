@@ -3,7 +3,7 @@ package org.jacorb.util.tracing;
 import org.omg.CosNaming.*;
 import org.omg.PortableInterceptor.*;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.*;
-import org.omg.IOP_N.*;
+import org.omg.IOP.*;
 
 import org.jacorb.orb.LocalityConstrainedObject;
 

@@ -2,7 +2,7 @@ package org.jacorb.transaction;
 
 import org.omg.CosTransactions.*;
 import org.omg.CosNaming.*;
-import org.omg.IOP_N.*;
+import org.omg.IOP.*;
 import org.jacorb.orb.ORB;
 import org.omg.CORBA.Any;
 import java.util.Hashtable;
