@@ -153,10 +153,8 @@ jacorb.giop.add_1_0_profiles=off
 #
 # An additional socket factory is supported that allows for the configuration
 # of maximum and minimum port numbers that can be used. This can be used to
-# enable firewall traversal via a fixed port range. To use the socket factory
-# set the value of jacorb.net.socket_factory to 
-# org.jacorb.orb.factory.PortRangeSocketFactory and configure the following two
-# properties.
+# enable firewall traversal via a fixed port range. To use this socket factory
+# configure the following two properties.
 #
 #jacorb.net.socket_factory.port.min
 #jacorb.net.socket_factory.port.max
