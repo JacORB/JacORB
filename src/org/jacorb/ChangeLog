@@ -1,3 +1,36 @@
+2003-04-29  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/TypeMap.java, idl/lexer.java, orb/BasicAdapter.java,
+	orb/BufferManager.java, orb/CDRInputStream.java,
+	orb/CDROutputStream.java, orb/Delegate.java, orb/EncapsInfo.java,
+	orb/LocateReplyReceiver.java, orb/ReplyReceiver.java,
+	orb/TypeCode.java, orb/connection/ClientConnection.java,
+	orb/connection/ReplyPlaceholder.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/standardInterceptors/SASComponentInterceptor.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java,
+	poa/RPPoolManager.java, util/Environment.java: Performance and
+	memory usage improvements. Remove commented out code.
+
+	* orb/ParsedIOR.java: Add null check
+
+	* util/threadpool/LinkedListQueue.java,
+	util/threadpool/ListElement.java,
+	util/threadpool/ListElementPool.java,
+	util/threadpool/ThreadPool.java,
+	util/threadpool/ThreadPoolQueue.java: Use jdk2 collections
+
+	* poa/AOM.java, poa/Current.java, poa/POAManager.java,
+	poa/POAManagerMonitorImpl.java, poa/RequestQueue.java: Code cleanup
+
+2003-04-29  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/ConstraintEntry.java: forgot to check in the last time
+
+2003-04-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/TaggedComponentList.java (clone): New method.
+
 2003-04-28  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/InternetIOPProfile.java (clone): New method.
