@@ -7,12 +7,13 @@ import java.io.*;
 
 public class Server 
 {
-    public final static String [] DESCRIPTIONS = { "Servant Activator",
-                                                   "Servant Activator & location forward",
-                                                   "Servant Locator",
-                                                   "Default Servant & RETAIN",
-                                                   "One servant multiple oid's",
-                                                   "SINGLE_THREAD_MODEL"
+    public final static String [] DESCRIPTIONS = 
+    { "Servant Activator",
+      "Servant Activator & location forward",
+      "Servant Locator",
+      "Default Servant & RETAIN",
+      "One servant multiple oid's",
+      "SINGLE_THREAD_MODEL"
     };
 
     public static int    kind;
@@ -22,15 +23,21 @@ public class Server
 
     public static void main(String[] args)  
     {
-        if( args.length != 1 || (kind = Integer.parseInt(args[0])) < 1 || kind > DESCRIPTIONS.length) 
+        if( args.length != 1 || 
+            (kind = Integer.parseInt(args[0])) < 1 || 
+            kind > DESCRIPTIONS.length) 
         {
             String str = "";
-            for (int i=1; i<=DESCRIPTIONS.length; i++) str = i==DESCRIPTIONS.length ? str+i : str+i+"|";
+            for (int i=1; i <= DESCRIPTIONS.length; i++ )
+                str = i==DESCRIPTIONS.length ? str+i : str+i+"|";
+
             System.err.println("\n<usage: jaco [properties] demo.poa_monitor.user_poa.Server "+str+">\n");
             System.exit(0);
         }
+
         fooPOAName = "fooPOA"+kind;
         description = DESCRIPTIONS[kind-1];	
+
         try 
         {  
             ORB        orb     = org.omg.CORBA.ORB.init(args, null);
@@ -38,22 +45,30 @@ public class Server
             POAManager poaMgr  = rootPOA.the_POAManager();
 		    
             // create a user defined poa for the foo factory
-            org.omg.CORBA.Policy [] policies = {				
+
+            org.omg.CORBA.Policy [] policies = 
+            {				
                 rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID),
                 rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT)
             };
-            POA factoryPOA = rootPOA.create_POA(factoryPOAName, poaMgr, policies);
-            for (int i=0; i<policies.length; i++) policies[i].destroy();
+
+            POA factoryPOA = 
+                rootPOA.create_POA( factoryPOAName, poaMgr, policies);
+
+            for (int i = 0; i < policies.length; i++)
+                policies[i].destroy();
 			
             // implicit activation of an adpater activator on root poa
-            factoryPOA.the_activator(new FooAdapterActivatorImpl()._this(orb));
+            factoryPOA.the_activator( new FooAdapterActivatorImpl( orb ) );
 			
             // explicit activation of the factory servant on factory poa
             FooFactoryImpl factoryServant = new FooFactoryImpl();
-            factoryPOA.activate_object_with_id(new String("FooFactory").getBytes(), factoryServant);
+            factoryPOA.activate_object_with_id( new String("FooFactory").getBytes(), factoryServant );
 			
             // register factory on name service 
-            NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+            NamingContextExt nc = 
+                NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+
             nc.bind( nc.to_name("FooFactory.service") , factoryServant._this(orb) );
 
             // activate the poa manager

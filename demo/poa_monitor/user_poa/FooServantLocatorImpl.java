@@ -5,7 +5,7 @@ import org.omg.PortableServer.*;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 
 public class FooServantLocatorImpl 
-    extends ServantLocatorPOA 
+    extends org.omg.PortableServer._ServantLocatorLocalBase
 {
     private FooImpl foo = new FooImpl("0");
  

@@ -4,23 +4,25 @@ import demo.poa_monitor.foox.*;
 import org.omg.PortableServer.*;
 
 public class FooServantActivatorImpl 
-    extends ServantActivatorPOA 
+    extends _ServantActivatorLocalBase
 {
     private org.omg.CORBA.Object forwardRef = null;
 
-    public FooServantActivatorImpl(org.omg.CORBA.ORB orb) 
+    public FooServantActivatorImpl( org.omg.CORBA.ORB orb ) 
     {
 	if (Server.kind == 2) 
         {
             try 
             {
                 forwardRef = new FooImpl("0")._this(orb);
-            } catch (Throwable e) 
+            } 
+            catch (Throwable e) 
             {
                 e.printStackTrace();
             }
 	}	
     }
+
 
     public void etherealize( byte[] oid, 
                              POA adapter, 
@@ -31,6 +33,7 @@ public class FooServantActivatorImpl
         String oidStr = new String(oid);
         System.out.println("[ etherialize servant for oid: "+oidStr+" ]");
     }
+
 
     public Servant incarnate( byte[] oid, POA adapter) 
         throws ForwardRequest 
