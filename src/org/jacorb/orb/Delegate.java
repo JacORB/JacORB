@@ -64,7 +64,10 @@ public final class Delegate
     private org.jacorb.poa.POA poa;
 
     private org.omg.CORBA.ORB orb = null;
-    private org.jacorb.poa.InvocationContext context;
+    
+    // remember local context objects in a stack structure, this is
+    // necessary for performing recursive local calls correctly!
+    private Vector contextList = new Vector();
 
     private boolean use_interceptors = false;
 
@@ -1190,7 +1193,10 @@ public final class Delegate
 
     public void servant_postinvoke(org.omg.CORBA.Object self, ServantObject servant) 
     {
+        org.jacorb.poa.LocalInvocationContext context =
+            (org.jacorb.poa.LocalInvocationContext) contextList.lastElement();
         ((org.jacorb.orb.ORB)orb).getPOACurrent()._removeContext(context);
+        contextList.removeElementAt(contextList.size()-1);
     }
 
     /**
@@ -1230,16 +1236,16 @@ public final class Delegate
                     return null;
                 else 
                 {
-                    context = 
+                    org.jacorb.poa.LocalInvocationContext context = 
                         new org.jacorb.poa.LocalInvocationContext(
                                       orb, 
                                       poa, 
                                       getObjectId(), 
-                                      (org.omg.PortableServer.Servant)so.servant );
-
+                                      (org.omg.PortableServer.Servant)so.servant);
                     ((org.jacorb.orb.ORB)orb).getPOACurrent()._addContext(
                                       context, 
                                       Thread.currentThread());
+                    contextList.addElement(context);
                 }
                 return so;
             }
