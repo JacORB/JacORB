@@ -1,3 +1,4 @@
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -32,7 +33,6 @@ class ConstrTypeSpec
     extends TypeSpec
 {
     public TypeDeclaration c_type_spec;
-    private boolean parsed = false;
 
     public ConstrTypeSpec( int num )
     {
@@ -153,11 +153,6 @@ class ConstrTypeSpec
         return c_type_spec.printReadExpression( streamname );
     }
 
-    //  	public String printReadStatement(String var_name, String streamname)
-    //  	{
-    //  		return c_type_spec.printReadStatement(var_name, streamname);
-    //	}
-
     public String printWriteStatement( String var_name, String streamname )
     {
         return c_type_spec.printWriteStatement( var_name, streamname );
@@ -179,9 +174,3 @@ class ConstrTypeSpec
     }
 
 }
-
-
-
-
-
-
