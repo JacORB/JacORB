@@ -167,20 +167,11 @@ public class ConnectionManager
             {
                 _port += 65536;
             }
-
-            SocketFactory sf = null;
-
-            if( use_ssl )
-            {
-                sf = ssl_socket_factory;
-            }
-            else
-            {
-                sf = socket_factory;
-            }
             
             Transport transport = 
-                transport_manager.createClientTransport( host, _port );
+                transport_manager.createClientTransport( host, 
+                                                         _port,
+                                                         use_ssl );
 
             GIOPConnection connection = 
                 new GIOPConnection( transport,

@@ -119,12 +119,24 @@ public class TransportManager
     }
 
     public Transport createClientTransport( String target_host,
-                                            int target_port )
+                                            int target_port,
+                                            boolean use_ssl )
     {
+        SocketFactory sf = null;
+        
+        if( use_ssl )
+        {
+            sf = ssl_socket_factory;
+        }
+        else
+        {
+            sf = socket_factory;
+        }
+
         Transport transport =
             new Client_TCP_IP_Transport( target_host,
                                          target_port,
-                                         socket_factory,
+                                         sf,
                                          null,
                                          this );
 
@@ -216,6 +228,12 @@ public class TransportManager
         synchronized( server_transports )
         {
             server_transports.add( transport );
+
+//              Debug.output( 2, "TransportManager: current open Transports: "+
+//                            server_transports.size() +
+//                            ((max_server_transports < Integer.MAX_VALUE)?
+//                             ", max Transports: " + max_server_transports :
+//                             ""));
         }
 
         return transport;
