@@ -508,6 +508,17 @@ jacorb.security.jsse.trustees_from_ks=off
 jacorb.security.ssl.server.cipher_suites=
 jacorb.security.ssl.client.cipher_suites=
 
+# A comma seperated list of the names of the protocols to be set enabled on the SSL socket.
+# See the JSSE documentation for javax.net.ssl.SSLSocket#setEnabledProtocols()
+#jacorb.security.ssl.client.protocols=
+#jacorb.security.ssl.server.protocols=
+
+# A user defined javax.net.ssl.TrustManager implemementation class name.
+# Will be used to intialise the SSLContext. See JSSE docs for javax.net.ssl.SSLContext#init().
+# Must be capable of instantiation via a no arg constructor.
+#jacorb.security.ssl.client.trust_manager=my.trust.Manager
+#jacorb.security.ssl.server.trust_manager=my.trust.Manager 
+
 #########################
 #                       #
 #   POA Configuration   #

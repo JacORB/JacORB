@@ -44,6 +44,8 @@ public class SSLSocketFactory
 {    
     private SocketFactory factory = null;
     private String[] cipher_suites = null;
+    private String[] enabledProtocols = null;
+    private TrustManager trustManager = null;
 
     private boolean trusteesFromKS = false;
     private short clientSupportedOptions = 0;
@@ -78,6 +80,31 @@ public class SSLSocketFactory
             Short.parseShort(
                 configuration.getAttribute("jacorb.security.ssl.client.supported_options","0"),
                 16);
+        try
+        {
+            trustManager = (TrustManager) ((org.jacorb.config.Configuration)configuration).getAttributeAsObject
+                                            ("jacorb.security.ssl.client.trust_manager");
+        }
+        catch (ConfigurationException ce)
+        {
+            if (logger.isErrorEnabled())
+            {
+                logger.error("TrustManager object creation failed. Please check value of property "
+                             + "'jacorb.security.ssl.client.trust_manager'. Current value: " 
+                             + configuration.getAttribute("jacorb.security.ssl.client.trust_manager", ""), ce); 
+            }
+        }
+        
+        if (configuration.getAttribute("jacorb.security.ssl.client.protocols", null) != null)
+        {
+            enabledProtocols = (String[]) ((org.jacorb.config.Configuration)configuration).getAttributeList
+                                            ("jacorb.security.ssl.client.protocols").toArray();
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Setting user specified client enabled protocols : " + 
+                             configuration.getAttribute("jacorb.security.ssl.client.protocols", ""));
+            }
+        }     
 
         try
         {
@@ -93,7 +120,7 @@ public class SSLSocketFactory
         {
             if (logger.isErrorEnabled())
                 logger.error("Unable to create SSLSocketFactory!" );
-            throw new ConfigurationException("Unable to create ServerSocketFactory!");
+            throw new ConfigurationException("Unable to create SSLSocketFactory!");
         }
 	
         // Andrew T. Finnell / Change made for e-Security Inc. 2002
@@ -138,6 +165,11 @@ public class SSLSocketFactory
         if( cipher_suites != null )
         {
             s.setEnabledCipherSuites( cipher_suites );
+        }
+        
+        if (enabledProtocols != null)
+        {
+            s.setEnabledProtocols(enabledProtocols);
         }
 
         return s;
@@ -185,9 +217,25 @@ public class SSLSocketFactory
             tmf.init( (KeyStore) null );
         }
         
+        TrustManager[] trustManagers;
+        
+        if (trustManager == null)
+        {
+            trustManagers = tmf.getTrustManagers();
+        }
+        else
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Setting user specified client TrustManger : " + trustManager.getClass().toString());
+            }
+            trustManagers = new TrustManager[] { trustManager };
+        }
+        
         SSLContext ctx = SSLContext.getInstance( "SSLv3" );
+
         ctx.init( (kmf == null)? null : kmf.getKeyManagers(), 
-                  tmf.getTrustManagers(), 
+                  trustManagers, 
                   null );
         
         return ctx.getSocketFactory();

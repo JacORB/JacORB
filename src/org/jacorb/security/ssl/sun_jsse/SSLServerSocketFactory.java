@@ -44,6 +44,8 @@ public class SSLServerSocketFactory
     private boolean request_mutual_auth = false;
     private boolean trusteesFromKS = false;
     private String[] cipher_suites = null;
+    private String[] enabledProtocols = null;
+    private TrustManager trustManager = null;
     private short serverSupportedOptions = 0;
     private short serverRequiredOptions = 0;
     private String keystore_location = null;
@@ -100,6 +102,32 @@ public class SSLServerSocketFactory
 
         keystore_passphrase = 
             configuration.getAttribute("jacorb.security.keystore_password","UNSET" );
+            
+        try
+        {
+            trustManager = (TrustManager) ((org.jacorb.config.Configuration)configuration).getAttributeAsObject
+                                               ("jacorb.security.ssl.server.trust_manager");
+        }
+        catch (ConfigurationException ce)
+        {
+            if (logger.isErrorEnabled())
+            {
+                logger.error("TrustManager object creation failed. Please check value of property "
+                             + "'jacorb.security.ssl.server.trust_manager'. Current value: " 
+                             + configuration.getAttribute("jacorb.security.ssl.server.trust_manager", ""), ce); 
+            }
+        }
+        
+        if (configuration.getAttribute("jacorb.security.ssl.server.protocols", null) != null)
+        {
+            enabledProtocols = (String[]) ((org.jacorb.config.Configuration)configuration).getAttributeList
+                                            ("jacorb.security.ssl.server.protocols").toArray();
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Setting user specified server enabled protocols : " + 
+                             configuration.getAttribute("jacorb.security.ssl.server.protocols", ""));
+            }
+        }
  
         try
         {
@@ -170,6 +198,11 @@ public class SSLServerSocketFactory
         {
             s.setEnabledCipherSuites ( cipher_suites );	
         }
+        
+        if (enabledProtocols != null)
+        {
+            s.setEnabledProtocols(enabledProtocols);
+        }
 
         return s;
     }
@@ -196,6 +229,11 @@ public class SSLServerSocketFactory
         if( cipher_suites != null )
         {
             s.setEnabledCipherSuites ( cipher_suites );	
+        }
+        
+        if (enabledProtocols != null)
+        {
+            s.setEnabledProtocols(enabledProtocols);
         }
 
         return s;
@@ -224,6 +262,11 @@ public class SSLServerSocketFactory
         if( cipher_suites != null )
         {
             s.setEnabledCipherSuites ( cipher_suites );	
+        }
+        
+        if (enabledProtocols != null)
+        {
+            s.setEnabledProtocols(enabledProtocols);
         }
 
         return s;
@@ -263,10 +306,25 @@ public class SSLServerSocketFactory
                 tmf.init( (KeyStore) null );
             }
         }
+        
+        TrustManager[] trustManagers;
+        
+        if (trustManager == null)
+        {
+            trustManagers = (tmf == null)? null : tmf.getTrustManagers();
+        }
+        else
+        {
+            trustManagers = new TrustManager[] { trustManager };
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Setting user specified server TrustManger : " + trustManager.getClass().toString());
+            }
+        }
 		
         SSLContext ctx = SSLContext.getInstance( "TLS" );
         ctx.init( kmf.getKeyManagers(), 
-                  (tmf == null)? null : tmf.getTrustManagers(), 
+                  trustManagers, 
                   null );
         
         return ctx.getServerSocketFactory();
