@@ -55,7 +55,7 @@ module IOP
     const ComponentId TAG_ORB_TYPE = 0;
     const ComponentId TAG_CODE_SETS= 1;
     const ComponentId TAG_POLICIES= 2;
-    const ComponentId TAG_ALTERNATIVE_IIOP_ADDRESS = 3;
+    const ComponentId TAG_ALTERNATE_IIOP_ADDRESS = 3;
     const ComponentId TAG_ASSOCIATION_OPTIONS = 13;
     const ComponentId TAG_JAVA_CODEBASE = 25;
     // ... others
