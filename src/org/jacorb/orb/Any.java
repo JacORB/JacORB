@@ -814,7 +814,8 @@ public final class Any
             break;
         case TCKind._tk_value:
             insert_Value
-                (((org.omg.CORBA_2_3.portable.InputStream)input).read_value());
+                (((org.omg.CORBA_2_3.portable.InputStream)input).read_value(),
+                 type);
             break;
         case TCKind._tk_abstract_interface:
            java.lang.Object obj =
