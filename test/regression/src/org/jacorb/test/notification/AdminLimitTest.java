@@ -44,6 +44,7 @@ import java.util.Vector;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jacorb.notification.engine.TaskProcessor;
 
 /**
  *  Unit Test for class AdminLimit
@@ -69,6 +70,8 @@ public class AdminLimitTest extends TestCase {
         appContext_ = new ApplicationContext(_orb, _poa);
 
         channelContext_ = new ChannelContext();
+        channelContext_.setTaskProcessor(new TaskProcessor());
+
 
         PropertyManager _adminProps = new PropertyManager(appContext_);
         PropertyManager _qosProps = new PropertyManager(appContext_);

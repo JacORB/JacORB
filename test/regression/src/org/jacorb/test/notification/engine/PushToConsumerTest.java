@@ -23,7 +23,7 @@ package org.jacorb.test.notification.engine;
 
 import org.jacorb.notification.engine.PushToConsumerTask;
 import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.BoundedPriorityEventQueue;
 import org.jacorb.notification.queue.EventQueue;
@@ -81,25 +81,26 @@ public class PushToConsumerTest extends TestCase
 
         msg.setAny(any);
 
-        PushToConsumerTask task = new PushToConsumerTask();
+        PushToConsumerTask task =
+            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
+                                   taskProcessor_,
+                                   taskProcessor_.getTaskFactory());
 
-        task.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
-        task.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
         task.setMessage(msg.getHandle());
 
         MockEventConsumer eventConsumer = new MockEventConsumer() {
                 int counter = 0;
                 boolean enabled = true;
 
-                public boolean hasPendingEvents() {
+                public boolean hasPendingMessages() {
                     return true;
                 }
 
-                public void deliverPendingEvents() {
+                public void deliverPendingMessages() {
                     throw new TRANSIENT();
                 }
 
-                public void deliverEvent(Message event) {
+                public void deliverMessage(Message event) {
                     counter++;
                     if (enabled) {
                         throw new TRANSIENT();
@@ -124,11 +125,17 @@ public class PushToConsumerTest extends TestCase
                 }
             };
 
+        eventConsumer.
+            setErrorThreshold(Environment.getIntPropertyWithDefault(ConfigurableProperties.EVENTCONSUMER_ERROR_THRESHOLD,
+                                                                    Constants.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD) );
+
         eventConsumer.expectedDisposeCalls = 1;
 
-        task.setEventConsumer(eventConsumer);
+        task.setMessageConsumer(eventConsumer);
 
-        taskProcessor_.schedulePushToConsumerTask(task);
+        task.schedule(false);
+
+        //taskProcessor_.schedulePushToConsumerTask(task);
 
         long sleepTime =
             Environment.getIntPropertyWithDefault( ConfigurableProperties.BACKOUT_INTERVAL,
@@ -159,42 +166,48 @@ public class PushToConsumerTest extends TestCase
         event2.setAny(any2);
 
         PushToConsumerTask task =
-            new PushToConsumerTask();
+            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
+                                   taskProcessor_,
+                                   taskProcessor_.getTaskFactory());
 
-        task.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
-        task.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
+
         task.setMessage(event1.getHandle());
 
 
         PushToConsumerTask task2 =
-            new PushToConsumerTask();
+            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
+                                   taskProcessor_,
+                                   taskProcessor_.getTaskFactory());
 
-        task2.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
-        task2.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
+
         task2.setMessage(event2.getHandle());
 
 
         MockEventConsumer eventConsumer = new MockEventConsumer() {
                 boolean once = false;
-                public void deliverEvent(Message event) {
+                public void deliverMessage(Message event) {
                     if (!once) {
                         once = true;
                         throw new TRANSIENT();
                     } else {
-                        super.deliverEvent(event);
+                        super.deliverMessage(event);
                     }
                 }
             };
 
-        task.setEventConsumer(eventConsumer);
+        task.setMessageConsumer(eventConsumer);
 
-        task2.setEventConsumer(eventConsumer);
+        task2.setMessageConsumer(eventConsumer);
 
-        taskProcessor_.schedulePushToConsumerTask(task);
+        task.schedule(false);
+
+        //taskProcessor_.schedulePushToConsumerTask(task);
 
         Thread.sleep(100);
 
-        taskProcessor_.schedulePushToConsumerTask(task2);
+        task2.schedule(false);
+
+        //taskProcessor_.schedulePushToConsumerTask(task2);
 
         Thread.sleep(4000);
 
@@ -207,7 +220,9 @@ public class PushToConsumerTest extends TestCase
     public void testPushFailDispose() throws Exception {
 
         PushToConsumerTask task =
-            new PushToConsumerTask();
+            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
+                                   taskProcessor_,
+                                   taskProcessor_.getTaskFactory());
 
         MockMessage event =
             new MockMessage();
@@ -216,19 +231,21 @@ public class PushToConsumerTest extends TestCase
 
         event.setAny(any);
 
-        task.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
-        task.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
+        //        task.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
+//         task.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
         task.setMessage(event.getHandle());
 
         MockEventConsumer eventConsumer = new MockEventConsumer()  {
-                public void deliverEvent(Message event) {
+                public void deliverMessage(Message event) {
                     throw new OBJECT_NOT_EXIST();
                 }
             };
 
-        task.setEventConsumer(eventConsumer);
+        task.setMessageConsumer(eventConsumer);
 
-        taskProcessor_.schedulePushToConsumerTask(task);
+        task.schedule(false);
+
+        //taskProcessor_.schedulePushToConsumerTask(task);
 
         Thread.sleep(1000);
 
@@ -241,7 +258,9 @@ public class PushToConsumerTest extends TestCase
     public void testPush() throws Exception {
 
         PushToConsumerTask task =
-            new PushToConsumerTask();
+            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
+                                   taskProcessor_,
+                                   taskProcessor_.getTaskFactory());
 
         MockMessage event =
             new MockMessage("testEvent");
@@ -251,17 +270,19 @@ public class PushToConsumerTest extends TestCase
 
         event.setAny(any);
 
-        task.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
-        task.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
+//         task.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
+//         task.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
         task.setMessage(event.getHandle());
 
         MockEventConsumer eventConsumer = new MockEventConsumer();
 
         eventConsumer.addToExcepectedEvents(any);
 
-        task.setEventConsumer(eventConsumer);
+        task.setMessageConsumer(eventConsumer);
 
-        taskProcessor_.schedulePushToConsumerTask(task);
+        task.schedule(false);
+
+        //taskProcessor_.schedulePushToConsumerTask(task);
 
         Thread.sleep(1000);
 

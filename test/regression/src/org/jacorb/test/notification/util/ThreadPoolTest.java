@@ -21,7 +21,7 @@ package org.jacorb.test.notification.util;
  *
  */
 
-import org.jacorb.notification.util.ThreadPool;
+import org.jacorb.notification.util.TaskExecutor;
 
 import java.util.HashSet;
 
@@ -40,10 +40,10 @@ import junit.framework.TestSuite;
 
 public class ThreadPoolTest extends TestCase
 {
-    ThreadPool threadPool_;
+    TaskExecutor threadPool_;
 
     public void setUp() throws Exception {
-        threadPool_ = new ThreadPool("Testing", 2);
+        threadPool_ = new TaskExecutor("Testing", 2);
     }
 
     public void tearDown() throws Exception {
@@ -66,7 +66,7 @@ public class ThreadPoolTest extends TestCase
 
     public void testDirectExceute() throws Exception {
         threadPool_.dispose();
-        threadPool_ = new ThreadPool("Testing", 0);
+        threadPool_ = new TaskExecutor("Testing", 0);
 
         final HashSet s = new HashSet();
 
@@ -81,7 +81,7 @@ public class ThreadPoolTest extends TestCase
 
     public void testNegativeNumberOfThreadsIsInvalid() throws Exception {
         try {
-            new ThreadPool("Testing", -1);
+            new TaskExecutor("Testing", -1);
             fail();
         } catch (IllegalArgumentException e) {
         }

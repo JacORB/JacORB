@@ -230,7 +230,7 @@ public class StopTimeTest extends NotificationTestCase
                 }
             };
 
-        _taskProcessor.processEvent(_event);
+        _taskProcessor.processMessage(_event);
 
         if (!_received.contains(_event)) {
             synchronized(lock) {

@@ -3,7 +3,7 @@ package org.jacorb.test.notification.engine;
 import java.util.Iterator;
 import java.util.Vector;
 
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.BoundedPriorityEventQueue;
 import org.jacorb.notification.queue.EventQueue;
@@ -15,8 +15,9 @@ import junit.framework.Assert;
 import org.omg.CORBA.TRANSIENT;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.util.Debug;
+import org.jacorb.notification.util.TaskExecutor;
 
-class MockEventConsumer implements EventConsumer {
+class MockEventConsumer implements MessageConsumer {
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
@@ -31,6 +32,11 @@ class MockEventConsumer implements EventConsumer {
     int expectedDisposeCalls = -1;
     Vector expectedEvents = new Vector();
 
+    public void setErrorThreshold(int t) {
+        errorThreshold_ = t;
+    }
+
+    int errorThreshold_ = 3;
     SynchronizedInt errorCounter = new SynchronizedInt(0);
 
     public void addToExcepectedEvents(Object event) {
@@ -64,7 +70,7 @@ class MockEventConsumer implements EventConsumer {
         enabled = false;
     }
 
-    public void deliverEvent(Message event) {
+    public void deliverMessage(Message event) {
         logger_.info("deliverEvent " + event);
 
         if (enabled) {
@@ -82,7 +88,7 @@ class MockEventConsumer implements EventConsumer {
         disposeCalled++;
     }
 
-    public void deliverPendingEvents() {
+    public void deliverPendingMessages() {
         logger_.debug("deliverPendingEvents");
 
         try {
@@ -95,7 +101,7 @@ class MockEventConsumer implements EventConsumer {
         }
     }
 
-    public boolean hasPendingEvents() {
+    public boolean hasPendingMessages() {
         return (!eventQueue.isEmpty());
     }
 
@@ -109,5 +115,13 @@ class MockEventConsumer implements EventConsumer {
 
     public int incErrorCounter() {
         return errorCounter.increment();
+    }
+
+    public int getErrorThreshold() {
+        return errorThreshold_;
+    }
+
+    public TaskExecutor getExecutor() {
+        return TaskExecutor.getDefaultExecutor();
     }
 }

@@ -5,7 +5,6 @@ import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.node.AbstractTCLNode;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.DynamicTypeException;
@@ -55,7 +54,6 @@ public class TCLTest extends TestCase
     ApplicationContext applicationContext_;
     ORB orb_;
     NotificationTestUtils testUtils_;
-    ResultExtractor resultExtractor_;
     DynamicEvaluator dynamicEvaluator_;
     DynAnyFactory dynAnyFactory_;
     MessageFactory notificationEventFactory_;
@@ -184,7 +182,6 @@ public class TCLTest extends TestCase
         dynAnyFactory_ =
             DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
 
-        resultExtractor_ = new ResultExtractor();
         dynamicEvaluator_ = new DynamicEvaluator( orb_, dynAnyFactory_ );
 
         Person _person = setUpPerson();

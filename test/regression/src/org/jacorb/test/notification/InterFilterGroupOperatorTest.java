@@ -21,32 +21,49 @@ package org.jacorb.test.notification;
  *
  */
 
+import org.omg.CORBA.Any;
+import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyFilter.ConstraintExp;
+import org.omg.CosNotifyFilter.ConstraintInfo;
+import org.omg.CosNotifyFilter.Filter;
+import org.omg.CosNotifyFilter.FilterFactory;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+
+import org.jacorb.util.Debug;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.CORBA.Any;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CORBA.IntHolder;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.PortableServer.POAHelper;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotifyFilter.ConstraintExp;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
 
 /**
- *  Unit Test for class InterFilterGroupOperator
+ * Test the various InterFilterGroupOperator settings.
+ * naming scheme for the testMethods:
  *
+ * test[PCF][IFGOp][SAF]_[CAF][IFGOp][PSF]()
  *
- * Created: Thu Feb 06 23:35:12 2003
+ * where
+ * <ul>
+ * <li>PCF: ProxyConsumerFilter (True/False)
+ * <li>IFGOp: InterFilterGroupOperator (OR/AND)
+ * <li>SAF: SupplierAdminFilter (True/False)
+ * <li>CAF: ConsumerAdminFilter (True/False)
+ * <li>PSF: ProxySupplierFilter (True/False)
+ * </ul>
+ *
+ * for example testTrueOrTrue_FalseAndTrue() means
+ * ProxyConsumerFilter set to TRUE, SupplierAdminFilter set to TRUE
+ * and InterFilterGroupOperator set to OR.
+ * ConsumerAdminFilter set to FALSE and InterFilterGroupOperator set
+ * to AND. ProxySupplierfilter set to TRUE.
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -93,15 +110,16 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase {
 
     public void tearDown() {
         super.tearDown();
+
         channel_.destroy();
     }
 
     public void testTrueORFalse_NoneOrNone() throws Exception {
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
+
         _sender.connect(getSetup(),channel_,true);
         _receiver.connect(getSetup(), channel_, true);
-
         _sender.addProxyFilter(trueFilter_);
         _sender.addAdminFilter(falseFilter_);
 
@@ -295,7 +313,8 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase {
         NotificationTestCaseSetup _setup =
             new NotificationTestCaseSetup(_suite);
 
-        String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(InterFilterGroupOperatorTest.class);
+        String[] methodNames =
+            org.jacorb.test.common.TestUtils.getTestMethods(InterFilterGroupOperatorTest.class);
 
         for (int x=0; x<methodNames.length; ++x) {
             _suite.addTest(new InterFilterGroupOperatorTest(methodNames[x], _setup));
@@ -310,5 +329,4 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase {
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());
     }
-
 }

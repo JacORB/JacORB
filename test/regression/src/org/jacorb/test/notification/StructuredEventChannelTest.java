@@ -1,14 +1,7 @@
 package org.jacorb.test.notification;
 
-import org.jacorb.test.notification.Address;
-import org.jacorb.test.notification.NamedValue;
-import org.jacorb.test.notification.Person;
-import org.jacorb.test.notification.PersonHelper;
-import org.jacorb.test.notification.Profession;
-
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
@@ -19,19 +12,13 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.util.Debug;
 
 /**
- * StructuredEventChannelTest.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */

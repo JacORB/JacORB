@@ -165,7 +165,7 @@ public class StartTimeTest extends TestCase
 
             };
 
-        _taskProcessor.processEvent(_event);
+        _taskProcessor.processMessage(_event);
 
         _latch.acquire();
 

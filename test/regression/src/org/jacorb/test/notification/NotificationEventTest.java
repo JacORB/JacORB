@@ -8,7 +8,6 @@ import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.node.TCLCleanUp;
@@ -57,11 +56,9 @@ public class NotificationEventTest extends TestCase {
             DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
 
         DynamicEvaluator _dynEval = new DynamicEvaluator(orb_, _dynAnyFactory);
-        ResultExtractor _resExtr = new ResultExtractor();
 
         evaluationContext_ = new EvaluationContext();
         evaluationContext_.setDynamicEvaluator(_dynEval);
-        evaluationContext_.setResultExtractor(_resExtr);
 
         factory_ = new MessageFactory();
         factory_.init();

@@ -23,7 +23,7 @@ package org.jacorb.test.notification.engine;
 
 import org.jacorb.notification.EventChannelFactoryImpl;
 import org.jacorb.notification.EventChannelImpl;
-import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.test.common.TestUtils;
@@ -109,7 +109,7 @@ public class ReleaseTasksTest extends NotificationTestCase
 
         Message event = eventMock.getHandle();
 
-        eventChannelServant_.getChannelContext().dispatchEvent(event);
+        eventChannelServant_.getChannelContext().processMessage(event);
 
         pullReceiver.run();
 
@@ -175,7 +175,7 @@ class MockFilterStage implements FilterStage {
         return Collections.EMPTY_LIST;
     }
 
-    public boolean hasEventConsumer() {
+    public boolean hasMessageConsumer() {
         return false;
     }
 
@@ -183,7 +183,7 @@ class MockFilterStage implements FilterStage {
         return false;
     }
 
-    public EventConsumer getEventConsumer() {
+    public MessageConsumer getMessageConsumer() {
         return null;
     }
 

@@ -13,7 +13,6 @@ import org.jacorb.notification.FilterFactoryImpl;
 import org.jacorb.notification.FilterImpl;
 import org.jacorb.notification.MessageUtils;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.ResultExtractor;
 
 import java.util.Iterator;
 

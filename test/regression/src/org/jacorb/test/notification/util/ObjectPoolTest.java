@@ -68,7 +68,7 @@ public class ObjectPoolTest extends TestCase
 
         int testSize = 10;
 
-        AbstractObjectPool pool = new AbstractObjectPool(testSize, 1, 2, 20)
+        AbstractObjectPool pool = new AbstractObjectPool("Test", testSize, 1, 2, 20)
                                   {
                                       public Object newInstance()
                                       {
