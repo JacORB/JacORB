@@ -243,6 +243,9 @@ jacorb.verbosity=1
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
 
+# If logging to file whether to append to existing file or overwrite
+jacorb.logfile.append=off
+
 ##################################################
 #                                                #
 #    WARNING: The following properties should    #
@@ -3208,6 +3211,8 @@ to configure JacORB are given in the following tables.
 \verb"jacorb.verbosity" & Diagnostic verbosity level: 0 = off, 1 = important messages and exceptions,  $>$= 3 = debug-level output (output may be extensive) & integer \\
 \hline
 \verb"jacorb.logfile" & Output destination for diagnostic log file. If not set, then diagnostics are sent to standard output. & file \\
+\hline
+\verb"jacorb.logfile.append" & If logging to file whether to append to existing file or overwrite. Default is off. & boolean \\
 \hline
 \verb"jacorb.debug.dump_outg"
 \verb"oing_messages" & Hex dump outgoing messages. Default is off. & boolean \\

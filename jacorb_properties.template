@@ -110,6 +110,9 @@ jacorb.verbosity=1
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
 
+# If logging to file whether to append to existing file or overwrite
+jacorb.logfile.append=off
+
 # hexdump outgoing messages
 jacorb.debug.dump_outgoing_messages=off
 

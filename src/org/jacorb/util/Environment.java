@@ -81,6 +81,9 @@ public class Environment
     private static boolean              _cache_references = false;
     private static PrintWriter          _log_file_out = null;
 
+    private static String               logFileName = null;
+    private static boolean              append = false;
+
     // domain service configuration
     /** indicates whether the domain service is used or not */
     private static boolean          _use_domain= false;
@@ -395,7 +398,7 @@ public class Environment
 
     private static void readValues()
     {
-        String logFileName = null;
+        append = isPropertyOn ("jacorb.logfile.append");
         if (_props.getProperty("logfile") != null)
             logFileName = _props.getProperty("logfile");
         else if (_props.getProperty(jacorbPrefix+"logfile") != null)
@@ -429,7 +432,8 @@ public class Environment
 
             try
             {
-                _log_file_out = new PrintWriter(new FileOutputStream(logFileName));
+                _log_file_out = new PrintWriter
+                    (new FileOutputStream (logFileName, append));
                 if (_verbosity > 0)
                 {
                    System.out.println("Write output to log file \""+logFileName+"\"");

@@ -38,6 +38,10 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+      - Logging:
+        - Added property 'jacorb.logfile.append' to support appending to rather
+          than overwriting an existing log file.
+
 1.4.1
 =====
 
