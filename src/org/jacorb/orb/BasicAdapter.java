@@ -456,7 +456,8 @@ public class BasicAdapter
                 } 
                 catch (Exception e)
                 {
-                    Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT, e );
+                    if( do_run )
+                        Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT, e );
                 }
             }
                         
