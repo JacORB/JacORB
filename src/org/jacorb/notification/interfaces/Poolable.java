@@ -29,7 +29,7 @@ import org.jacorb.notification.util.ObjectPoolBase;
  *
  * Created: Sat Jan 04 17:01:16 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -45,14 +45,16 @@ public abstract class Poolable {
      * after release has been called as this may cause unexpected behaviour.
      */
     public void release() {
-	objectPool_.returnObject(this);
+	if (objectPool_ != null) {
+	    objectPool_.returnObject(this);
+	}
     }
 
     /**
      * Set the ObjectPool that administers this instance.
      */
     public void setObjectPool(ObjectPoolBase pool) {
-	    objectPool_ = pool;
+	objectPool_ = pool;
     }
 
     /**
@@ -62,4 +64,4 @@ public abstract class Poolable {
      */
     public abstract void reset();
 
-}// Poolable
+}
