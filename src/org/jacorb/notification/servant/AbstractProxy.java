@@ -377,7 +377,7 @@ public abstract class AbstractProxy
         {
             logger_.fatalError("dispose has been called twice");
 
-            throw new OBJECT_NOT_EXIST();
+            // throw new OBJECT_NOT_EXIST();
         }
         disposed_.set(true);
     }
