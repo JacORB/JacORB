@@ -30,39 +30,46 @@ package org.jacorb.imr;
  * @version $Id$
  */
 
-import org.jacorb.imr.RegistrationPackage.*;
-import org.jacorb.util.*;
-
+import org.jacorb.imr.RegistrationPackage.DuplicatePOAName;
+import org.jacorb.imr.RegistrationPackage.IllegalPOAName;
 import org.omg.CORBA.INTERNAL;
 
-public class ImRAccessImpl 
+
+public class ImRAccessImpl
     implements org.jacorb.orb.ImRAccess
 {
     private Registration reg = null;
     private ImRInfo info = null;
 
-    public ImRAccessImpl ()
-    {
-        
-    }
+    /**
+     * <code>ImRAccessImpl</code> private; use the static connect method.
+     */
+    private ImRAccessImpl () {}
 
-    public void connect( org.omg.CORBA.ORB orb )
-        throws INTERNAL
+
+   /**
+    * <code>connect</code> resolves the IMR and returns a new ImRAccessImpl.
+    *
+    * @param orb an <code>org.omg.CORBA.ORB</code> value
+    * @return an <code>ImRAccessImpl</code> value
+    */
+    public static ImRAccessImpl connect (org.omg.CORBA.ORB orb)
     {
+        ImRAccessImpl result = new ImRAccessImpl ();
         try
         {
-            reg = RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository")  );
+            result.reg = RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName in )
-        {            
+        {
         }
 
-        if (reg == null || reg._non_existent())
+        if (result.reg == null || result.reg._non_existent())
         {
             Debug.output(1, "ERROR: No connection to ImplementationRepository");
-
-            throw new INTERNAL( "Unable to resolve reference to ImR" );
+            throw new INTERNAL ("Unable to resolve reference to ImR");
         }
+        return result;
     }
 
     public String getImRHost()
@@ -85,9 +92,9 @@ public class ImRAccessImpl
         return info.port;
     }
 
-    public void registerPOA( String name, 
+    public void registerPOA( String name,
                              String server,
-                             String host, 
+                             String host,
                              int port)
         throws INTERNAL
     {
@@ -103,12 +110,12 @@ public class ImRAccessImpl
         }
         catch( IllegalPOAName e )
         {
-            throw new INTERNAL( "The ImR replied that the POA name >>" + 
+            throw new INTERNAL( "The ImR replied that the POA name >>" +
                                 e.name + "<< is illegal!" );
         }
         catch( UnknownServerName e )
         {
-            throw new INTERNAL( "The ImR replied that the server name >>" + 
+            throw new INTERNAL( "The ImR replied that the server name >>" +
                                 e.name + "<< is unknown!" );
         }
     }
@@ -121,7 +128,7 @@ public class ImRAccessImpl
             reg.set_server_down( name );
         }
         catch(UnknownServerName e)
-        {            
+        {
             throw new INTERNAL( "The ImR replied that a server with name " +
                                 name + " is unknown" );
         }
