@@ -53,6 +53,8 @@ public abstract class GIOPConnection
     private ReplyListener reply_listener = null;
     protected ConnectionListener connection_listener = null;
 
+    private Object connect_sync = new Object();
+
     private boolean writer_active = false;
     private Object write_sync = new Object();
 
@@ -193,6 +195,25 @@ public abstract class GIOPConnection
         return transport;
     }
 
+    private boolean waitUntilConnected()
+    {
+        synchronized (connect_sync)
+        {
+            while (!transport.is_connected() && 
+                   !do_close)
+            {
+                try
+                {
+                    connect_sync.wait();
+                }
+                catch( InterruptedException ie )
+                {
+                }
+            }
+            return !do_close;
+        }
+    }
+
     /**
      * Read a GIOP message from the stream. This will first try to
      * read in the fixed-length GIOP message header to determine the
@@ -211,7 +232,7 @@ public abstract class GIOPConnection
         //is necessary for the client side, so opening up a new
         //connection can be delayed until the first message is to be
         //sent.
-        if( ! transport.waitUntilConnected() )
+        if( ! waitUntilConnected() )
         {
             return null;
         }
@@ -292,7 +313,7 @@ public abstract class GIOPConnection
         {
             Debug.output( 1, "ERROR: Failed to read GIOP message" );
             Debug.output( 1, "Magic start doesn't match" );
-            Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
+            Debug.output( 3, "GIOPConnection.getMessage()",
                           msg_header.value );
 
             return null;
@@ -632,8 +653,15 @@ public abstract class GIOPConnection
      */
 
     public final void write( byte[] fragment, int start, int size )
-        throws IOException
     {
+        if (!transport.is_connected())
+        {
+            synchronized (connect_sync)
+            {
+                transport.connect (null, 0);
+                connect_sync.notifyAll();
+            }
+        }
         transport.write( false, false, fragment, start, size, 0 );
     }
 
@@ -708,13 +736,17 @@ public abstract class GIOPConnection
 
     public void closeCompletely()
     {
-        if( connection_listener != null )
+        synchronized (connect_sync)
         {
-            connection_listener.connectionClosed();
-        }
+            if( connection_listener != null )
+            {
+                connection_listener.connectionClosed();
+            }
 
-        transport.close();
-        do_close = true;
+            transport.close();
+            do_close = true;
+            connect_sync.notifyAll();
+        }
 
         Debug.output( 2, "GIOPConnection closed completely" );
     }
