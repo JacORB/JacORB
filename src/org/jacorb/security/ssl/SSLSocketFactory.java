@@ -197,7 +197,7 @@ public class SSLSocketFactory
             }
         }
 
-        // ctx.setDebugStream( System.out );
+        //default_context.setDebugStream( System.out );
 
         return default_context;
     }
