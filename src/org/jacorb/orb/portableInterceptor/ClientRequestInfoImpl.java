@@ -88,9 +88,9 @@ public class ClientRequestInfoImpl
          else
              this.target = self;
 
-                 InternetIOPProfile profile = (InternetIOPProfile)pior.getEffectiveProfile();
+         InternetIOPProfile profile = (InternetIOPProfile)pior.getEffectiveProfile();
          this.effective_profile    = profile.asTaggedProfile();
-                 this.effective_components = profile.getComponents().asArray(); 
+         this.effective_components = profile.getComponents().asArray(); 
 
          if ( this.effective_components == null )
          {
