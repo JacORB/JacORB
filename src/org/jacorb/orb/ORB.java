@@ -649,7 +649,7 @@ public final class ORB
                                               boolean _transient )
     {
         if( rep_id == null )
-            rep_id = "IDL:org.omg/CORBA/Object:1.0";
+            rep_id = "IDL:omg.org/CORBA/Object:1.0";
 
         org.omg.IOP.IOR ior =
         createIOR( rep_id, object_key, _transient, poa, null );
