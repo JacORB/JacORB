@@ -1,7 +1,8 @@
 package demo.notification.whiteboard;
 
 import java.awt.Color;
-import org.apache.log4j.Logger;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * @author Alphonse Bendt
@@ -10,7 +11,7 @@ import org.apache.log4j.Logger;
 
 public class BrushSizePixelImage extends PixelImage {
 
-    Logger logger_ = Logger.getLogger("PixelImage");
+    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor("PixelImage");
     
     int brushSize = 1;
     boolean brush = true;

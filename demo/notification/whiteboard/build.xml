@@ -4,7 +4,7 @@
   <!ENTITY common SYSTEM "file:../../../common.xml" > 
 ]>
 
-<project name="demo" default="all" basedir="../../..">
+<project name="Notification Demo" default="all" basedir="../../..">
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
@@ -12,49 +12,29 @@
 
   &common;
 
-   <target name="demo.init" depends="init" >
-    <property name="name" value="notification/whiteboard"/>
-    <property name="dirs.base" value="${basedir}"/>
-    <property name="classdir" value="${dirs.base}/classes"/>
-    <property name="compile.option.debug" value="true" />
-
-    <path id="demo.classpath">
-      <pathelement location="${basedir}/classes" />
-    </path>
-
-    <taskdef
-      name="jacidl"
-      classname="org.jacorb.idl.JacIDL"
-      classpathref="demo.classpath" />
-
-    <mkdir dir="${dirs.base}/demo/notification/generated" />
-   </target>
-
-  <target name="all" depends="demo.init" >
-        <javac srcdir="${dirs.base}/demo/${name}/"
-               destdir="${classdir}"
-               includes="**.java" />
+  <target name="demo.init" depends="init" >
+    <mkdir dir="${basedir}/demo/notification/generated" />
   </target>
 
-  <target name="idl" depends="demo.init" >
-    <jacidl srcdir="${dirs.base}/demo/${name}"
+  <target name="all" depends="demo.init, idl" >
+    <antcall target="jacorb-javac">
+      <param name="javac-includes"
+	value="**/*.java" />
+      <param name="javac-src"
+	value="${basedir}/demo/notification" />
+    </antcall>    
+  </target>
+  
+  <target name="idl" depends="demo.init, load-taskdef" >
+    <jacidl srcdir="${basedir}/demo/notification/whiteboard"
       includepath="${idl}/omg"
       includes="*.idl"
-      destdir="${dirs.base}/demo/notification/generated" />
+      destdir="${basedir}/demo/notification/generated" />
   </target>
-
-  <target name="idl.compile" depends="demo.init" >
-        <javac 
-	  srcdir="${dirs.base}/demo/notification/generated/"
-	  debug="${compile.option.debug}"
-	  destdir="${classdir}"
-	  classpathref="demo.classpath"
-	  includes="**/*.java" />
-  </target>
-
+  
   <target name="clean">
-    <delete dir="${dirs.base}/demo/notification/generated/" />
-    <delete dir="${classdir}/demo/${name}" />
+    <delete dir="${basedir}/demo/notification/generated/" />
+    <delete dir="${basedir}/classes/demo/notification" />
   </target>
-
+  
 </project>

@@ -4,7 +4,6 @@ import java.util.Enumeration;
 import java.awt.Frame;
 
 /**
- *
  * @author
  * @version
  */

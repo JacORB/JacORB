@@ -1,8 +1,6 @@
 package demo.notification.whiteboard;
 
 import java.util.Vector;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
 import org.jacorb.notification.util.ObjectPoolBase;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
@@ -28,6 +26,8 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.*;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * Workgroup.java
@@ -40,7 +40,7 @@ import org.omg.PortableServer.*;
 public class Workgroup 
     extends IWorkgroupPOA implements WorkgroupController, WhiteboardVars {
 
-    Logger logger_ = Logger.getLogger("Workgroup");
+    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
     protected ORB orb_;
     protected POA poa_;
@@ -103,8 +103,6 @@ public class Workgroup
     }
 
     public Workgroup(ORB orb, POA poa, IFactory factory) {
-	logger_.debug("init()");
-
 	orb_ = orb;
 	poa_ = poa;
 	_this(orb);
@@ -131,10 +129,11 @@ public class Workgroup
 	myId = _info.workgroup_identifier;
 	
 	IntHolder imageListenerId_ = new IntHolder();
+
 	try {
 	    StructuredProxyPushConsumer _consumer = 
 		StructuredProxyPushConsumerHelper.narrow(_info.supplier_admin.obtain_notification_push_consumer(ClientType.STRUCTURED_EVENT,imageListenerId_));
-
+	    
 	    imageHandler_ = getImageHandler();
 	    imageHandler_.connect(_consumer);
 
@@ -227,7 +226,6 @@ public class Workgroup
     }
 
     public void updateWholeImage(int[] data) {
-	logger_.debug("updateWholeImage with " + data.length + " byte");
 	image_.setPixelBuffer(data);
 	workgroupFrame_.getDrawCanvas().repaint();
 
@@ -240,8 +238,6 @@ public class Workgroup
     }    
 
     public static void main (String[] args) {
-	BasicConfigurator.configure();
-
 	ORB _orb = ORB.init(args, null);
 	try {
 	    // CORBA stuff
@@ -275,7 +271,10 @@ class TotalImageHandler extends StructuredPushConsumerPOA implements WhiteboardV
     StructuredProxyPushSupplier mySupplier_;
     StructuredPushConsumer thisRef_;
     WorkgroupController control_;
-    Logger logger_ = Logger.getLogger("fetch total image");
+
+    Logger logger_ = 
+	Hierarchy.getDefaultHierarchy().getLoggerFor("fetch_total_image");
+
     Filter filter_;
     int filterId_;
 
@@ -308,7 +307,9 @@ class TotalImageHandler extends StructuredPushConsumerPOA implements WhiteboardV
 	connected_ = false;
     }
 
-    public void push_structured_event(StructuredEvent event) throws Disconnected {
+    public void push_structured_event(StructuredEvent event) 
+	throws Disconnected {
+
 	if (!connected_) {
 	    throw new Disconnected();
 	}
@@ -332,7 +333,10 @@ class LineHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
     StructuredProxyPushSupplier mySupplier_;
     WorkgroupController control_;
     StructuredPushConsumer ref_;
-    Logger logger_ = Logger.getLogger("UpdateHandler");
+
+    Logger logger_ = 
+	Hierarchy.getDefaultHierarchy().getLoggerFor("UpdateHandler");
+
     Filter filter_;
 
     LineHandler(WorkgroupController control) {
@@ -346,7 +350,9 @@ class LineHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
 	filter_ = filterFactory.create_filter("EXTENDED_TCL");
 	ConstraintExp[] _filter = new ConstraintExp[1];
 	_filter[0] = new ConstraintExp();
-	_filter[0].constraint_expr = "$.header.fixed_header.event_type.type_name == 'LINE'";
+	_filter[0].constraint_expr = 
+	    "$type_name == 'LINE'";
+
 	_filter[0].event_types = new EventType[1];
 	_filter[0].event_types[0] = new EventType("*", "*");
 	filter_.add_constraints(_filter);
@@ -374,6 +380,7 @@ class LineHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
 			       _lineData.green,
 			       _lineData.blue,
 			       _lineData.brushSize);
+
     }
 
     public void disconnect_structured_push_consumer() {
@@ -388,7 +395,7 @@ class ClearHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
     StructuredProxyPushSupplier mySupplier_;
     WorkgroupController control_;
     StructuredPushConsumer thisRef_;
-    Logger logger_ = Logger.getLogger("ClearHandler");
+    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor("ClearHandler");
     Filter myFilter_;
 
     ClearHandler(WorkgroupController control) {
@@ -401,7 +408,8 @@ class ClearHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
 	myFilter_ = factory.create_filter("EXTENDED_TCL");
 	ConstraintExp[] _filter = new ConstraintExp[1];
 	_filter[0] = new ConstraintExp();
-	_filter[0].constraint_expr = "$.header.fixed_header.event_type.type_name == 'CLEAR'";
+
+	_filter[0].constraint_expr = "$type_name == 'CLEAR'";
 	_filter[0].event_types = new EventType[1];
 	_filter[0].event_types[0] = new EventType("*", "*");
 	myFilter_.add_constraints(_filter);
@@ -416,6 +424,7 @@ class ClearHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
     }
 
     public void push_structured_event(StructuredEvent event) {
+
 	WhiteboardUpdate _update = 
 	    WhiteboardUpdateHelper.extract(event.remainder_of_body);
 
@@ -447,12 +456,10 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
     ObjectPoolBase updatePool_; 
 
     Vector queue_ = new Vector();
-    Logger logger_ = Logger.getLogger("ImageHandler");
+    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor("ImageHandler");
     WorkgroupController control_;
 
     public void run() {
-	logger_.debug("run()");
-
 	while(active_) {
 	    WhiteboardUpdate _update = null;
 	    synchronized(queue_) {
@@ -530,7 +537,7 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
 	    event_.header.fixed_header = new FixedEventHeader();
 	    event_.header.fixed_header.event_type = new EventType();
 	    event_.header.fixed_header.event_type.domain_name = EVENT_DOMAIN;
-	    
+
 	    event_.header.fixed_header.event_name = "";
 	    event_.header.variable_header = new Property[1];
 	    Any _any = orb_.create_any();
@@ -571,7 +578,15 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
 	}
     }
 
-    public void drawLine(int x0, int y0, int x1, int y1, int red, int green, int blue, int brushSize) {
+    public void drawLine(int x0, 
+			 int y0, 
+			 int x1, 
+			 int y1, 
+			 int red, 
+			 int green, 
+			 int blue, 
+			 int brushSize) {
+
 	if (!active_) {
 	    return;
 	}

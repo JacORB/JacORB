@@ -18,7 +18,6 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.jacorb.notification.EventChannelFactoryImpl;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.apache.log4j.BasicConfigurator;
 
 /**
  * WhiteBoardFactory.java
@@ -29,6 +28,7 @@ import org.apache.log4j.BasicConfigurator;
  */
 
 public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations {
+
     Hashtable boards;
     EventChannelFactory channelFactory_;
     POA poa_;
@@ -89,8 +89,9 @@ public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations
     }
 
     public static void main(String[] args) {
-	BasicConfigurator.configure();
 	// CORBA initialisierung
+
+
 	try {
 	    ORB _orb = ORB.init(args, null);
 
@@ -100,10 +101,17 @@ public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations
 	    NamingContext nc = 
                 NamingContextHelper.narrow(_orb.resolve_initial_references("NameService"));
 
-	    EventChannelFactory _factory = 
-		EventChannelFactoryHelper.narrow(_orb.resolve_initial_references("NotificationService"));
+	    EventChannelFactory _factory;
+	    if (args != null && args.length == 1) {
+		_factory =
+		    EventChannelFactoryHelper.narrow(_orb.string_to_object(args[0]));
+	    } else {
+		_factory = EventChannelFactoryHelper.narrow(_orb.resolve_initial_references("NotificationService"));
+	    }
 
-	    org.omg.CORBA.Object cob = _poa.servant_to_reference(new WhiteBoardFactory(_orb, _poa, _factory));
+	    org.omg.CORBA.Object cob = 
+		_poa.servant_to_reference(new WhiteBoardFactory(_orb, _poa, _factory));
+
 	    NameComponent [] name = new NameComponent[1];
             name[0] = new NameComponent( "WhiteBoard", "Factory");
 	    

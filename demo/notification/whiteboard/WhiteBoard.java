@@ -1,11 +1,8 @@
 package demo.notification.whiteboard;
 
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.Hashtable;
-import java.util.Vector;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumer;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplier;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.Property;
@@ -26,7 +23,6 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.InvalidGrammar;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.InvalidConstraint;
-import org.omg.CosNotifyComm.StructuredPushSupplier;
 import org.omg.CosNotifyComm.StructuredPushSupplierOperations;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.StructuredPushSupplierPOATie;
@@ -40,7 +36,9 @@ import org.omg.CosNotifyChannelAdmin.AdminNotFound;
  * @version $Id$
  */
 
-public class WhiteBoard extends IWhiteBoardPOA implements IWhiteBoardOperations, WhiteboardVars {
+public class WhiteBoard 
+    extends IWhiteBoardPOA 
+    implements IWhiteBoardOperations, WhiteboardVars {
 
     // zur Erzeugung einer eindeutigen Id
     static int COUNT = 0;
@@ -54,7 +52,7 @@ public class WhiteBoard extends IWhiteBoardPOA implements IWhiteBoardOperations,
     Map registrationInfo_ = new Hashtable();
 
     // bisher gesammelte Updates
-    Queue updates_;
+    //    Queue updates_;
 
     // Dispatcher Thread
     Dispatcher disp;
@@ -117,9 +115,10 @@ public class WhiteBoard extends IWhiteBoardPOA implements IWhiteBoardOperations,
 	    _filter.add_constraints(_constraints);
 
 	    SupplierAdmin _supplierAdmin = 
-		channel_.new_for_suppliers(InterFilterGroupOperator.OR_OP, _supplierAdminId);
+		channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP, _supplierAdminId);
+
 	    ConsumerAdmin _consumerAdmin = 
-		channel_.new_for_consumers(InterFilterGroupOperator.OR_OP, _consumerAdminId);
+		channel_.new_for_consumers(InterFilterGroupOperator.AND_OP, _consumerAdminId);
 	    _consumerAdmin.add_filter(_filter);
 
 	    _registrationInfo.supplier_admin = _supplierAdmin;
@@ -145,7 +144,9 @@ public class WhiteBoard extends IWhiteBoardPOA implements IWhiteBoardOperations,
 	System.out.println("Bye");
 
 	Integer _id = new Integer(workgroup);
-	LocalRegistrationInfo _info = (LocalRegistrationInfo)registrationInfo_.get(_id);
+
+	LocalRegistrationInfo _info = 
+	    (LocalRegistrationInfo)registrationInfo_.get(_id);
 
 	try {
 	    channel_.get_consumeradmin(_info.consumerAdmin_).destroy();
@@ -158,12 +159,14 @@ public class WhiteBoard extends IWhiteBoardPOA implements IWhiteBoardOperations,
     
     // Whiteboard lo"schen
     public void clear() {
-	updates_ = new Queue();
+	//	updates_ = new Queue();
     }
 
 } // WhiteBoard
 
-class Dispatcher extends Thread implements WhiteboardVars, StructuredPushSupplierOperations {
+class Dispatcher 
+    extends Thread 
+    implements WhiteboardVars, StructuredPushSupplierOperations {
 
     boolean connected_ = false;
     boolean active_ = true;
@@ -173,10 +176,14 @@ class Dispatcher extends Thread implements WhiteboardVars, StructuredPushSupplie
     IntHolder myConsumerId_ = new IntHolder();
     static long SLEEP = 10000L;
     
-    public Dispatcher(ORB orb, WhiteBoard master, SupplierAdmin supplierAdmin) throws AdminLimitExceeded {
+    public Dispatcher(ORB orb, 
+		      WhiteBoard master, 
+		      SupplierAdmin supplierAdmin) throws AdminLimitExceeded {
+
 	master_ = master;
 	orb_ = orb;
-	myConsumer_ = StructuredProxyPushConsumerHelper.narrow(supplierAdmin.obtain_notification_push_consumer(ClientType.STRUCTURED_EVENT, myConsumerId_));
+	myConsumer_ = 
+	    StructuredProxyPushConsumerHelper.narrow(supplierAdmin.obtain_notification_push_consumer(ClientType.STRUCTURED_EVENT, myConsumerId_));
 	connected_ = tryConnect();
     }
 

@@ -23,30 +23,38 @@ Usage
   jaco demo.notification.whiteboard.Workgroup
 
   the workgroup accesses the Whiteboard Factory via the NamingService.
-  You can draw in the Window by pushing the mouse button, dragging the mouse and releasing the button again.
-  If you select the Delete Button you can overpaint parts of your drawing with black colour again. If you press Clear
+  You can draw in the Window by pushing the mouse button, dragging the
+  mouse and releasing the button again. 	
+  If you select the Delete Button you can overpaint parts of your
+  drawing with black colour again. If you press Clear 	 
   the whole Drawing Area will be erased.
-  If you want to join a Remote Whiteboard select Menu->Select. You'll see the list of available whiteboards.
-  As no Whiteboard will be available yet, just type in some Name and select Join. The Whiteboard will be created.
+  If you want to join a Remote Whiteboard select Menu->Select. You'll
+  see the list of available whiteboards. 
+  As no Whiteboard will be available yet, just type in some Name and
+  select Join. The Whiteboard will be created. 
   
   Now start one (or more) Workgroup and join the Whiteboard you've created. 
   What you draw in one Window will be sent to the other Window and displayed there too.
 
-Architecture
-------------
+Implementation Notes
+--------------------
 
-For each Workgroup that joins a Whiteboard a new pair of Consumer-/SupplierAdmin is created and returned to the 
+For each Workgroup that joins a Whiteboard a new 
+Consumer-/SupplierAdmin Pair is created and returned to the  
 Workgroup. An unique Identifier is created and supplied to each
 Workgroup. 
-The Workgroup sends two Kinds of Events:
 
-* LineEvent. This Event contains Informations over a single Line: you have startpoint (x0, y0), endpoint (x1, y1), colour (r, g, b), brushsize.
+The Workgroup publishes two Kinds of Events:
+
+* LineEvent. This Event contains Informations over a single Line: you
+  have startpoint (x0, y0), endpoint (x1, y1), colour (r, g, b),
+  brushsize. 
 
 * ClearEvent. This Event contains no Data.
 
 The Events are wrapped in a StructuredEvent. The Workgroup Id is put
 in the Filterable Headers of the StructuredEvent. This is necessary
-beacause the Whiteboard preconfigures the ConsumerAdmin used by each
+because the Whiteboard preconfigures the ConsumerAdmin used by each
 Workgroup not to forward Events which derived from the connected
 Workgroup.
 
@@ -54,8 +62,11 @@ Workgroup.
 
 The Workgroup creates a StructuredProxyPushConsumer and uses it to send Events as they occur.
 
-Besides that, the Workgroup creates two StructuredProxyPushSuppliers and connects them to its DrawHandler
- and ClearHandler. The PushSuppliers are configured with a Filter to just supply LineEvents or ClearEvents
- respectively. This Way the DrawHandler just receives LineEvents and the ClearHandler just receives ClearEvents. 
-On Repeption of an Event both Handlers act accordingly.
+Besides that, the Workgroup creates two StructuredProxyPushSuppliers
+and connects them to its DrawHandler 
+and ClearHandler. The PushSuppliers are configured with a Filter to
+just supply LineEvents or ClearEvents 
+respectively. This Way the DrawHandler just receives LineEvents and
+the ClearHandler just receives ClearEvents. 
+On Repetition of an Event both Handlers act accordingly.
 
