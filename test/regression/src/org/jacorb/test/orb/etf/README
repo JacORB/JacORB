@@ -1,0 +1,6 @@
+This is the ETF regression suite.  It defines its own testing transport,
+WIOP, which is a wrapper around the standard IIOP transport.  To the ORB,
+it looks like a totally different transport.
+
+The individual test cases use both IIOP and WIOP in different configurations,
+both on the client and on the server.
