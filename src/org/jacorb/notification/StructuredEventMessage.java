@@ -66,9 +66,9 @@ class StructuredEventMessage extends AbstractMessage
 
     private String constraintKey_;
 
-    private Date startTime_;
+    private Date startTime_ = null;
 
-    private Date stopTime_;
+    private Date stopTime_ = null;
 
     private long timeout_ = 0;
 
@@ -164,7 +164,8 @@ class StructuredEventMessage extends AbstractMessage
     }
 
 
-    private void parseQosSettings(boolean startTimeSupported, boolean timeoutSupported) {
+    private void parseQosSettings(boolean startTimeSupported,
+                                  boolean timeoutSupported) {
         Property[] props = toStructuredEvent().header.variable_header;
 
         for (int x=0; x < props.length; ++x) {
