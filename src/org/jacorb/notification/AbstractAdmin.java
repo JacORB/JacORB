@@ -241,7 +241,7 @@ public abstract class AbstractAdmin
 
     public void validate_qos( Property[] aPropertySeq,
                               NamedPropertyRangeSeqHolder propertyRangeSeqHolder )
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT("The method validate_qos is not supported yet");
     }
@@ -251,7 +251,7 @@ public abstract class AbstractAdmin
         dispose();
     }
 
-    public synchronized void dispose()
+    public void dispose()
     {
         if ( !disposed_ )
         {
