@@ -60,56 +60,68 @@ public class SSLServerSocketFactory
     {
         cs = SSLSetup.getCipherSuites();
 
-        String [] trusteeFileNames = 
-            Environment.getPropertyValueList("jacorb.security.trustees");
+        String[] trusteeFileNames = 
+            Environment.getPropertyValueList( "jacorb.security.trustees" );
 
         defaultContext = new SSLServerContext();
 
-        if( ( (byte)Environment.supportedBySSL() & 0x20) != 0  ) 
-            // 32 = Establish trust in target
+        try
         {
-            try
-            {
-                CurrentImpl securityCurrent = 
-                    (CurrentImpl) orb.resolve_initial_references("SecurityCurrent");
+            if( Environment.changeSSLRoles() )
+            {	                
+                if(( (byte)Environment.supportedBySSL() & 0x20) != 0 ) 
+                    //Establish trust in target supported means
+                    //that we must have own certificates
+                {
+                    CurrentImpl securityCurrent = (CurrentImpl) 
+                        orb.resolve_initial_references( "SecurityCurrent" );
+            
+                    org.jacorb.security.level2.KeyAndCert[] kac = 
+                        securityCurrent.getSSLCredentials();
                 
-                org.jacorb.security.level2.KeyAndCert[] kac = 
-                    securityCurrent.getSSLCredentials();
-                
-
-                if( Environment.changeSSLRoles())
-                {	
                     for( int i = 0; i < kac.length; i++ )
                     { 
                         defaultContext.addClientCredentials( kac[i].chain, 
                                                              kac[i].key );
                     }                   
-                    
+
+                    //no session cache
                     ((DefaultSessionManager) 
                      defaultContext.getSessionManager()).setResumePeriod( 0 );
-                    
                 }
-                else
-                {
-                    for( int i = 0; i < kac.length; i++ )
-                    { 
-                        defaultContext.addServerCredentials( kac[i].chain, 
-                                                             kac[i].key );
-                    }                   
-                }                    
             }
-            catch( org.omg.CORBA.ORBPackage.InvalidName in )
-            {}
-        }
+            else
+            {
+                CurrentImpl securityCurrent = (CurrentImpl) 
+                    orb.resolve_initial_references("SecurityCurrent");
+                
+                org.jacorb.security.level2.KeyAndCert[] kac = 
+                    securityCurrent.getSSLCredentials();
 
+                for( int i = 0; i < kac.length; i++ )
+                { 
+                    defaultContext.addServerCredentials( kac[i].chain, 
+                                                         kac[i].key );
+                }                   
+
+                if(( (byte)Environment.requiredBySSL() & 0x20) != 0 ) 
+                    //Establish trust in target requireded means
+                    //that we must request the clients certificates
+                {
+                    defaultContext.setRequestClientCertificate( true );
+                }
+            }                    
+        }
+        catch( org.omg.CORBA.ORBPackage.InvalidName in )
+        {
+        }
+    
         for( int i = 0; i < trusteeFileNames.length; i++ )
         {
             defaultContext.addTrustedCertificate( CertUtils.readCertificate( trusteeFileNames[i] ));
         }
 
         //defaultContext.setDebugStream( System.out );
-        
-        //defaultContext.setEnabledCipherSuites( CipherSuite.CS_RSA_WITH_NULL );
     }
            
     /**
