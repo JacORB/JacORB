@@ -237,10 +237,10 @@ public class OpDecl
         ps.println( ";" );
     }
 
-
     public void printMethod( PrintWriter ps,
                              String classname,
-                             boolean is_local )
+                             boolean is_local,
+                             boolean is_abstract)
     {
         /* in some cases generated name have an underscore prepended for the
            mapped java name. On the wire, we must use the original name */
@@ -357,8 +357,16 @@ public class OpDecl
         ps.println( "\t\t\tif( _so == null )" );
         ps.println( "\t\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");" );
 
-        ps.println( "\t\t\t" + classname + "Operations _localServant = (" +
-                classname + "Operations)_so.servant;" );
+        if( is_abstract )
+        {
+            ps.println( "\t\t\t" + classname + " _localServant = (" +
+                        classname + ")_so.servant;" );
+        }
+        else
+        {
+            ps.println( "\t\t\t" + classname + "Operations _localServant = (" +
+                        classname + "Operations)_so.servant;" );
+        }
 
         if( opAttribute == 0 &&
                 !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
@@ -407,6 +415,7 @@ public class OpDecl
         ps.println( "\t\t}\n" ); // end while
         ps.println( "\t}\n" ); // end method
     }
+
 
     public void print_sendc_Method( PrintWriter ps,
                                     String classname )
