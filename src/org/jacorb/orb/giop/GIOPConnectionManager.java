@@ -35,6 +35,8 @@ public class GIOPConnectionManager
 
     private int max_server_giop_connections = 0;
 
+    private Class statistics_provider_class = null;
+
     private SelectionStrategy selection_strategy = null;
 
     private int wait_for_idle_interval = 0;
@@ -55,6 +57,27 @@ public class GIOPConnectionManager
         wait_for_idle_interval =
             Environment.getIntPropertyWithDefault( 
                 "jacorb.connection.wait_for_idle_interval", 500 );
+                
+        if( Environment.hasProperty( 
+            "jacorb.connection.statistics_provider_class" ))
+        {
+            String s = Environment.getProperty( 
+                "jacorb.connection.statistics_provider_class" );
+
+            if( s != null && s.length() > 0 )
+            {
+                try
+                {
+                    statistics_provider_class =
+                        Class.forName( s );
+                }
+                catch( Exception e )
+                {
+                    Debug.output( 1, "ERROR: Unable to create class from property >jacorb.connection.statistics_provider_class<: " + e );
+                               
+                }
+            }
+        }
 
     }
     
@@ -107,6 +130,7 @@ public class GIOPConnectionManager
             new ServerGIOPConnection( transport,
                                       request_listener,
                                       reply_listener,
+                                      getStatisticsProvider(),
                                       this);
 
         synchronized( server_giop_connections )
@@ -133,7 +157,28 @@ public class GIOPConnectionManager
     {
         return new ClientGIOPConnection( transport,
                                          request_listener,
-                                         reply_listener );
+                                         reply_listener,
+                                         null );
+    }
+
+    private StatisticsProvider getStatisticsProvider()
+    {
+        StatisticsProvider result = null;
+        if( statistics_provider_class != null )
+        {
+            try
+            {
+                result = (StatisticsProvider) 
+                    statistics_provider_class.newInstance();
+            }
+            catch( Exception e )
+            {
+                Debug.output( 1, "ERROR: Unable to create instance from Class >" +
+                              statistics_provider_class + '<');
+                
+            }
+        }
+        return result;       
     }
 
 }// GIOPConnectionManager
