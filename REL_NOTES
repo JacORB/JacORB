@@ -89,11 +89,6 @@ gerald.brose@acm.org
                           throw NO_IMPLEMENT.
                         - The create_operation_list operation is now 
                           implemented.
-                        - Fix for CDRInputStream::read_TypeCode operation to 
-                          handle recursive and repeated TypeCodes.
-                        - Fix for ORBSingleton::create_struct_tc and
-                          ORBSingleton::create_union_tc operations to 
-                          correctly construct recursive TypeCodes.
                 DynAny:
                         - Operations called on a DynAny that has been 
                           destroyed now throw an OBJECT_NOT_EXIST exception.
@@ -107,9 +102,17 @@ gerald.brose@acm.org
                         - Fixed implementation of DynUnion operations
                           set_to_no_active_member, set_to_default_member and
                           set_discriminator.
-               TypeCode:
+                TypeCode:
+                        - Fix for CDRInputStream::read_TypeCode operation to 
+                          handle recursive and repeated TypeCodes.
+                        - Fix for ORBSingleton::create_struct_tc and
+                          ORBSingleton::create_union_tc operations to 
+                          correctly construct recursive TypeCodes.
                         - Fix for TypeCode API to correctly handle recursive
                           TypeCodes.
+                        - Fix for CDRInputStream and CDROutputStream to
+                          correctly calculate the indirection offset value 
+                          for recursive and repeated TypeCodes
 
          - Portable Interceptors:
                - Adapted to CORBA 2.5 IDL (ForwardRequest exception
