@@ -51,6 +51,8 @@ import org.omg.IOP.ServiceContext;
 import org.omg.Messaging.*;
 import org.omg.PortableInterceptor.SUCCESSFUL;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.PortableServer.POAPackage.WrongAdapter;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.TimeBase.UtcT;
 
 /**
@@ -208,7 +210,7 @@ public final class Delegate
      * sent. This has the advantage, that COMM_FAILURES can only occur
      * inside of _invoke, where they get handled properly (falling
      * back, etc.)
-     *  */
+     */
     private void bind()
     {
         synchronized ( bind_sync )
@@ -594,6 +596,12 @@ public final class Delegate
 
             so = servant_preinvoke (self, "_interface", java.lang.Object.class);
 
+            // If preinvoke returns null POA spec, 11.3.4 states OBJ_ADAPTER
+            // should be thrown.
+            if (so == null )
+            {
+                throw new OBJ_ADAPTER ( "Servant from pre_invoke was null" );
+            }
             try
             {
                 servant = (org.omg.PortableServer.Servant) so.servant;
@@ -1059,7 +1067,6 @@ public final class Delegate
            type ids, so ask the object itself */
 
         // If local object call _is_a directly
-
         if (is_really_local (self))
         {
             org.omg.PortableServer.Servant servant;
@@ -1092,7 +1099,6 @@ public final class Delegate
                 Class derivedhelper = Class.forName( RepositoryID.className( pior.getTypeId(), "Helper" ) );
                 Method derivednarrow = derivedhelper.getMethod
                     ( "narrow", new Class[] { org.omg.CORBA.Object.class } );
-
                 Object narrowedhelper = derivednarrow.invoke( null, new Object[] { self } );
 
                 if( narrowedhelper != null )
@@ -1163,7 +1169,7 @@ public final class Delegate
     }
 
     /**
-     * @return true iff this object lives on a local POA
+     * @return true if this object lives on a local POA
      */
 
     private boolean is_really_local (org.omg.CORBA.Object self)
@@ -1379,12 +1385,13 @@ public final class Delegate
         if (poa != null)
         {
             poa.addLocalRequest ();
+
+            ServantObject so = new ServantObject();
+
             try
             {
-                ServantObject so = new ServantObject();
-
                 if ( ( poa.isRetain() && !poa.isUseServantManager() ) ||
-                        poa.useDefaultServant() )
+                     poa.useDefaultServant() )
                 {
                     // no ServantManagers, but AOM use
                     so.servant = poa.reference_to_servant( self );
@@ -1392,9 +1399,9 @@ public final class Delegate
                 else if ( poa.isUseServantManager() )
                 {
                     byte [] oid =
-                        POAUtil.extractOID( getParsedIOR().get_object_key() );
+                    POAUtil.extractOID( getParsedIOR().get_object_key() );
                     org.omg.PortableServer.ServantManager sm =
-                        poa.get_servant_manager();
+                    poa.get_servant_manager();
 
                     if ( poa.isRetain() )
                     {
@@ -1423,40 +1430,56 @@ public final class Delegate
                             ( org.omg.PortableServer.ServantLocator ) sm;
 
                         so.servant =
-                            sl.preinvoke( oid, poa, operation,
-                                  new org.omg.PortableServer.ServantLocatorPackage.CookieHolder() );
+                        sl.preinvoke( oid, poa, operation,
+                                      new org.omg.PortableServer.ServantLocatorPackage.CookieHolder() );
                     }
                 }
                 else
                 {
                     System.err.println ("Internal error: we should have gotten to this piece of code!");
                 }
-
-                if ( !expectedType.isInstance( so.servant ) )
-                {
-                    Debug.output(1, "Warning: expected " + expectedType +
-                                 " got " + so.servant.getClass() );
-                    return null;
-                }
-                else
-                {
-                    orb.getPOACurrent()._addContext(
-                              Thread.currentThread(),
-                              new org.jacorb.poa.LocalInvocationContext(
-                                             orb,
-                                             poa,
-                                             getObjectId(),
-                                             ( org.omg.PortableServer.Servant ) so.servant
-                                             )
-                                  );
-                }
-                return so;
             }
-            catch ( Throwable e )
+            catch( WrongAdapter e )
             {
-                Debug.output( 2, e );
+                throw new OBJ_ADAPTER( "WrongAdapter caught when converting servant to reference. " + e );
+            }
+            catch( WrongPolicy e )
+            {
+                throw new OBJ_ADAPTER( "WrongPolicy caught" + e );
+            }
+            catch( ObjectNotActive e )
+            {
+                throw new OBJ_ADAPTER( "ObjectNotActive caught when converting servant to reference. " + e );
+            }
+            catch( org.omg.PortableServer.ForwardRequest e )
+            {
+                if( Debug.isDebugEnabled() )
+                {
+                    Debug.output( "Caught forwardrequest to " + e.forward_reference + " from " + self );
+                }
+                return servant_preinvoke
+                    ( e.forward_reference, operation, expectedType );
             }
 
+            if ( !expectedType.isInstance( so.servant ) )
+            {
+                Debug.output(1, "Warning: expected " + expectedType +
+                             " got " + so.servant.getClass() );
+                return null;
+            }
+            else
+            {
+                orb.getPOACurrent()._addContext(
+                    Thread.currentThread(),
+                    new org.jacorb.poa.LocalInvocationContext(
+                        orb,
+                        poa,
+                        getObjectId(),
+                        ( org.omg.PortableServer.Servant ) so.servant
+                                                             )
+                                               );
+            }
+            return so;
         }
         Debug.output(1, "Internal Warning: no POA! servant_preinvoke returns null ");
         return null;
