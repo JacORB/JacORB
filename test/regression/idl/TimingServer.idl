@@ -1,0 +1,13 @@
+#pragma prefix "org.jacorb"
+
+#include "Tests.idl"
+
+module Tests
+{
+	interface TimingServer
+	{
+		long operation (in long id, in long delay);
+		char ex_op     (in char ch, in long delay) raises (EmptyException);
+    };
+
+};
