@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.omg.ETF.*;
 import org.omg.IOP.*;
+import org.omg.IIOP.*;
 import org.omg.SSLIOP.*;
 
 /**
@@ -11,9 +12,8 @@ import org.omg.SSLIOP.*;
  * @version $Id$
  */
 public class InternetIOPProfile extends _ProfileLocalBase
+                                implements Cloneable
 {
-    private byte[] data = null;  // raw data
-    
     private org.omg.GIOP.Version version = null;
     private IIOPAddress          primaryAddress = null; 
     private byte[]               objectKey = null;
@@ -21,8 +21,6 @@ public class InternetIOPProfile extends _ProfileLocalBase
     
     public InternetIOPProfile (byte[] data)
     {
-        this.data = data;
-        
         CDRInputStream in = new CDRInputStream (null, data);
         in.openEncapsulatedArray();
 
@@ -52,7 +50,76 @@ public class InternetIOPProfile extends _ProfileLocalBase
     public void marshal (TaggedProfileHolder tagged_profile,
                          TaggedComponentSeqHolder components)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        TaggedComponent[] allComponents = null;
+        CDROutputStream profileDataStream = null;
+        
+        if (components == null)
+        {
+            components = new TaggedComponentSeqHolder (new TaggedComponent[0]);
+        }
+
+        switch( version.minor )
+        {
+            case 2 :
+            {
+                //same as IIOP 1.1
+            }
+            case 1:
+            {
+                // create IIOP 1.1 profile
+
+                // concatenate the two component lists
+                
+                allComponents = new TaggedComponent[   this.components.size() 
+                                                     + components.value.length ];
+                System.arraycopy( this.components.asArray(), 0,
+                                  allComponents, 0, this.components.size() );
+                System.arraycopy( components.value, 0,
+                                  allComponents, this.components.size(),
+                                  components.value.length );
+
+                ProfileBody_1_1 pb1 = new ProfileBody_1_1
+                (
+                    new org.omg.IIOP.Version( version.major, version.minor ),
+                    primaryAddress.getHost(),
+                    (short)primaryAddress.getPort(),
+                    objectKey,
+                    allComponents
+                );
+
+                // serialize the profile id 1, leave idx 0 for v.1.0 profile
+                profileDataStream = new CDROutputStream();
+                profileDataStream.beginEncapsulatedArray();
+                ProfileBody_1_1Helper.write( profileDataStream, pb1 );
+
+                tagged_profile.value = new TaggedProfile
+                (
+                    TAG_INTERNET_IOP.value,
+                    profileDataStream.getBufferCopy()
+                );
+            }
+            case 0:
+            {
+                // create IIOP 1.0 profile
+                ProfileBody_1_0 pb0 = new ProfileBody_1_0
+                (
+                    new org.omg.IIOP.Version( version.major, version.minor ),
+                    primaryAddress.getHost(),
+                    (short)primaryAddress.getPort(),
+                    objectKey
+                );
+
+                profileDataStream = new CDROutputStream();
+                profileDataStream.beginEncapsulatedArray();
+                ProfileBody_1_0Helper.write( profileDataStream, pb0 );
+
+                tagged_profile.value = new TaggedProfile
+                (
+                    TAG_INTERNET_IOP.value,
+                    profileDataStream.getBufferCopy()
+                );
+            }
+        }
     }
 
     public int hash()
@@ -62,7 +129,35 @@ public class InternetIOPProfile extends _ProfileLocalBase
 
     public Profile copy()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        try
+        {
+            return (Profile)this.clone();
+        }
+        catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException ("error cloning profile: " + e);
+        }
+    }
+    
+    public Object clone() throws CloneNotSupportedException
+    {
+        InternetIOPProfile result = (InternetIOPProfile)super.clone();
+
+        result.version = new org.omg.GIOP.Version (this.version.major,
+                                                   this.version.minor);
+        if (this.objectKey != null)
+        {
+            result.objectKey = new byte [this.objectKey.length];
+            System.arraycopy (this.objectKey, 0, result.objectKey, 0,
+                              this.objectKey.length);
+        }
+        
+        if (this.components != null)
+        {
+            result.components = (TaggedComponentList)this.components.clone();   
+        }
+        
+        return result;
     }
 
     public boolean is_match(Profile prof)
@@ -116,8 +211,9 @@ public class InternetIOPProfile extends _ProfileLocalBase
     
     public TaggedProfile asTaggedProfile()
     {
-        return new TaggedProfile (TAG_INTERNET_IOP.value,
-                                  data);
+        TaggedProfileHolder result = new TaggedProfileHolder();
+        this.marshal (result, null);
+        return result.value;
     }
     
     public boolean equals (Object other)
