@@ -23,8 +23,7 @@
       property="available.regexp.jdk" />
     
     <available classname="gnu.regexp.RE"
-      property="available.regexp.gnu" 
-      classpath="${gnu.regexp.jar}" />
+      property="available.regexp.gnu" /> 
     
     <condition property="regexp.available">
       <or>
@@ -58,6 +57,10 @@
     <property name="antlr.target.package" value="org/jacorb/notification/parser" />
 
     <mkdir dir="${src}/generated/${antlr.target.package}" />
+
+    <path id="antlr.classpath">
+	<pathelement path="${basedir}/lib/antlr.jar" />
+    </path>
 
     <antcall target="whats-my-classpath" />
 
@@ -96,11 +99,13 @@
     <copy file="${grammar.dir}/CommonTokenTypes.txt"
       todir="${src}/generated/${antlr.target.package}" />
     
-    <java classname="antlr.Tool"  fork="yes" failonerror="yes" >
+    <java classname="antlr.Tool"  fork="yes" failonerror="yes" 
+          classpathref="antlr.classpath" >
       <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/tcl-lexer.g" />
     </java>
     
-    <java classname="antlr.Tool" fork="yes" failonerror="yes" >
+    <java classname="antlr.Tool" fork="yes" failonerror="yes"
+          classpathref="antlr.classpath" >
       <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/comp-lexer.g" />
     </java>
 
@@ -111,7 +116,7 @@
     <echo message="*****************************************************************" />
     <echo/>
     
-    <java classname="antlr.Tool" fork="yes" failonerror="yes" >
+    <java classname="antlr.Tool" fork="yes" failonerror="yes" classpathref="antlr.classpath" >
       <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/tcl.g" />
     </java>    
     
