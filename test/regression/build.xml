@@ -61,6 +61,7 @@
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
          <jvmarg value="-Dtestdir=${testdir}"/>
+         <classpath path="${classpath}"/>
          <formatter type="plain"/>
          <test name="${test}" todir="${dirs.output}"/>
       </junit>
