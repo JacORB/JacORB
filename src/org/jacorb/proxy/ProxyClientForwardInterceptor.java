@@ -132,7 +132,7 @@ public class ProxyClientForwardInterceptor
         throws ForwardRequest
     {
     }
-    
+
     public void destroy ()
     {
         orb = null;
@@ -172,7 +172,7 @@ public class ProxyClientForwardInterceptor
     {
         org.jacorb.proxy.Proxy proxy = null;
         boolean redirect = false;
-        ParsedIOR pior = new ParsedIOR (target.toString ());
+        ParsedIOR pior = new ParsedIOR (target.toString (), orb);
         String host = pior.getIIOPAddress().getHost ();
         long hostIP = ipToInt (host);
 
@@ -213,7 +213,7 @@ public class ProxyClientForwardInterceptor
             {
                 info = (ProxyInfo) enum.nextElement ();
 
-                // Check for default proxy 
+                // Check for default proxy
 
                 if (info.network == 0)
                 {
@@ -326,7 +326,7 @@ public class ProxyClientForwardInterceptor
 
 /**
  * Calculate network and netmask from configured properties
- */	
+ */
 
     private void getSubnet ()
         throws org.omg.CORBA.BAD_PARAM
