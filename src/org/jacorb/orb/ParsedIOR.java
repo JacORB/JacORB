@@ -549,7 +549,11 @@ public class ParsedIOR
 
         // bnv: consults SSL tagged component
         SSL ssl = getSSLTaggedComponent( pb );
-        if (sas != null) ssl.target_requires |= sas.mechanism_list[0].target_requires;
+        if( sas != null && 
+            ssl != null ) 
+        {
+            ssl.target_requires |= sas.mechanism_list[0].target_requires;
+        }
 
         // SSL usage is decided the following way: At least one side
         // must require it. Therefore, we first check if it is
