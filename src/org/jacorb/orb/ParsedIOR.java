@@ -26,17 +26,15 @@ import java.util.*;
 
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.util.CorbaLoc;
+
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
-import org.omg.CSIIOP.*;
 import org.omg.CosNaming.*;
 import org.omg.GIOP.*;
-import org.omg.IIOP.*;
 import org.omg.IOP.*;
-import org.omg.SSLIOP.*;
 import org.omg.ETF.*;
 
 /**
@@ -75,207 +73,38 @@ public class ParsedIOR
      * factory method
      */
 
-
-    public static IOR createObjectIOR( String host,
-                                       short port,
-                                       byte[] object_key,
-                                       int giop_minor )
+    public static IOR createObjectIOR(org.omg.ETF.Profile profile)
     {
         String repId = "IDL:org.omg/CORBA/Object:1.0";
-        Vector components_v = new Vector();
-        TaggedComponent[] components = null;
-
-        // set the ORB type ID component to JacORB
+        TaggedComponentList components = new TaggedComponentList();
 
         CDROutputStream orbIDComponentDataStream = new CDROutputStream();
         orbIDComponentDataStream.beginEncapsulatedArray();
-        orbIDComponentDataStream.write_long( ORBConstants.JACORB_ORB_ID );
-
-        TaggedComponent orbIDComponent = new TaggedComponent
+        orbIDComponentDataStream.write_long(ORBConstants.JACORB_ORB_ID);
+        components.addComponent
         (
-            TAG_ORB_TYPE.value,
-            orbIDComponentDataStream.getBufferCopy()
-        );
-        components_v.addElement( orbIDComponent );
-
-        // all components for the profiles must be created by now
-
-        components = new TaggedComponent[ components_v.size() ];
-        components_v.copyInto( components );
-
-        CDROutputStream profileDataStream = new CDROutputStream();
-        profileDataStream.beginEncapsulatedArray();
-
-        TaggedProfile tp = null;
-        Vector taggedProfileVector = new Vector();
-
-        if( giop_minor == 0 )
-        {
-            ProfileBody_1_0 pb1_0 = new ProfileBody_1_0
-            (
-                new org.omg.IIOP.Version( (byte) 1, (byte) 0 ),
-                host,
-                port,
-                object_key
-            );
-            ProfileBody_1_0Helper.write( profileDataStream, pb1_0 );
-
-            tp = new TaggedProfile
-            (
-                TAG_INTERNET_IOP.value,
-                profileDataStream.getBufferCopy()
-            );
-            taggedProfileVector.addElement( tp );
-
-            // now fill the last IOR profile with components
-
-            profileDataStream = new CDROutputStream();
-            profileDataStream.beginEncapsulatedArray();
-            MultipleComponentProfileHelper.write( profileDataStream, components );
-
-            tp = new TaggedProfile
-            (
-                TAG_MULTIPLE_COMPONENTS.value,
-                profileDataStream.getBufferCopy()
-            );
-            taggedProfileVector.addElement( tp );
-        }
-        else //GIOP 1.1 or 1.2
-        {
-            ProfileBody_1_1 pb1_1 = new ProfileBody_1_1
-            (
-                new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor ),
-                host,
-                port,
-                object_key,
-                components
-            );
-            ProfileBody_1_1Helper.write( profileDataStream, pb1_1 );
-
-            tp = new TaggedProfile
-            (
-                TAG_INTERNET_IOP.value,
-                profileDataStream.getBufferCopy()
-            );
-            taggedProfileVector.addElement( tp );
-        }
-
-        // copy the profiles into the IOR
-
-        TaggedProfile[] tps = new TaggedProfile[ taggedProfileVector.size() ];
-        taggedProfileVector.copyInto( tps );
-
-        return new IOR( repId, tps );
-    }
-
-    public static IOR createObjectIOR( String host,
-                                       short port,
-                                       byte[] object_key,
-                                       int giop_minor,
-                                       TaggedComponent[] components )
-    {
-        String repId = "IDL:org.omg/CORBA/Object:1.0";
-        boolean orbTypeSet = false;
-        Vector components_v = new Vector();
-        TaggedComponent[] allComponents = null;
-
-        // search for the ORB type ID component
-
-        for( int i = 0; i < components.length; i++ )
-        {
-            if( components[i].tag == TAG_ORB_TYPE.value )
-            {
-                orbTypeSet = true;
-            }
-            components_v.addElement( components[i] );
-        }
-
-        if( ! orbTypeSet )
-        {
-            // set the ORB type ID component to JacORB
-
-            CDROutputStream orbIDComponentDataStream = new CDROutputStream();
-            orbIDComponentDataStream.beginEncapsulatedArray();
-            orbIDComponentDataStream.write_long( ORBConstants.JACORB_ORB_ID );
-
-            TaggedComponent orbIDComponent = new TaggedComponent
+            new TaggedComponent
             (
                 TAG_ORB_TYPE.value,
                 orbIDComponentDataStream.getBufferCopy()
-            );
-            components_v.addElement( orbIDComponent );
-        }
+            )
+        );
 
-        // all components for the profiles must be created by now
-
-        allComponents = new TaggedComponent[ components_v.size() ];
-        components_v.copyInto( allComponents );
-
-        CDROutputStream profileDataStream = new CDROutputStream();
-        profileDataStream.beginEncapsulatedArray();
-
-        TaggedProfile tp = null;
         Vector taggedProfileVector = new Vector();
+        TaggedProfileHolder tp = new TaggedProfileHolder();
+        TaggedComponentSeqHolder tcs = new TaggedComponentSeqHolder();
+        tcs.value = components.asArray();
 
-        if( giop_minor == 0 )
-        {
-            ProfileBody_1_0 pb1_0 = new ProfileBody_1_0
-            (
-                new org.omg.IIOP.Version( (byte) 1, (byte) 0 ),
-                host,
-                port,
-                object_key
-            );
-            ProfileBody_1_0Helper.write( profileDataStream, pb1_0 );
-
-            tp = new TaggedProfile
-            (
-                TAG_INTERNET_IOP.value,
-                profileDataStream.getBufferCopy()
-            );
-            taggedProfileVector.addElement( tp );
-
-            // now fill the last IOR profile with components
-
-            profileDataStream = new CDROutputStream();
-            profileDataStream.beginEncapsulatedArray();
-            MultipleComponentProfileHelper.write( profileDataStream, allComponents );
-
-            tp = new TaggedProfile
-            (
-                TAG_MULTIPLE_COMPONENTS.value,
-                profileDataStream.getBufferCopy()
-            );
-            taggedProfileVector.addElement( tp );
-        }
-        else //GIOP 1.1 or 1.2
-        {
-            ProfileBody_1_1 pb1_1 = new ProfileBody_1_1
-            (
-                new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor ),
-                host,
-                port,
-                object_key,
-                allComponents
-            );
-            ProfileBody_1_1Helper.write( profileDataStream, pb1_1 );
-
-            tp = new TaggedProfile
-            (
-                TAG_INTERNET_IOP.value,
-                profileDataStream.getBufferCopy()
-            );
-            taggedProfileVector.addElement( tp );
-        }
+        profile.marshal(tp, tcs);
+        taggedProfileVector.addElement(tp.value);
 
         // copy the profiles into the IOR
 
-        TaggedProfile[] tps = new TaggedProfile[ taggedProfileVector.size() ];
-        taggedProfileVector.copyInto( tps );
+        TaggedProfile[] tps = new TaggedProfile[taggedProfileVector.size()];
+        taggedProfileVector.copyInto(tps);
 
-        return new IOR( repId, tps );
+        return new IOR(repId, tps);
     }
-
 
     /**
      * The TargetAddress struct provides three different ways of
@@ -421,124 +250,6 @@ public class ParsedIOR
         }
     }
 
-    /**
-     * initialize this ParsedIOR by decoding a CorbaLoc address
-     */
-
-    public void decode( CorbaLoc corbaLoc )
-    {
-        IOR ior = null;
-        CorbaLoc.ObjectAddress address = corbaLoc.objectAddressList[0];
-
-        if( address.protocol_identifier.equals("rir"))
-        {
-            try
-            {
-                org.omg.CORBA.Object obj =
-                    orb.resolve_initial_references(corbaLoc.getKeyString());
-
-                if (obj == null)
-                {
-                    throw new IllegalArgumentException
-                        ("Unable to resolve reference for " + corbaLoc.getKeyString());
-                }
-
-                ior =
-                    ((Delegate)((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate()).getIOR();
-            }
-            catch( Exception e )
-            {
-                Debug.output(2, e );
-                throw new IllegalArgumentException("Invalid corbaloc: URL");
-            }
-        }
-        else if( address.protocol_identifier.equals("iiop"))
-        {
-            ior = createObjectIOR( address.host,
-                                   (short) address.port,
-                                   orb.mapObjectKey (corbaLoc.getKey ()),
-                                   address.minor );
-        }
-        else if( address.protocol_identifier.equals("ssliop") )
-        {
-            SSL ssl = new SSL();
-            ssl.port = (short) address.port;
-
-            String supported_str =
-                Environment.getProperty( "jacorb.security.ssl.corbaloc_ssliop.supported_options" );
-
-            if( (supported_str != null) &&
-                (! supported_str.equals( "" )) )
-            {
-                try
-                {
-                    ssl.target_supports = (short)
-                        Integer.parseInt( supported_str, 16 );
-                }
-                catch( NumberFormatException nfe )
-                {
-                    Debug.output( 0, "WARNING: Unable to create int from string >>" +
-                                  supported_str + "<<" );
-                    Debug.output( 0, "Please check property \"jacorb.security.ssl.corbaloc_ssliop.supported_options\"" );
-
-                    ssl.target_supports = EstablishTrustInTarget.value;
-                }
-            }
-            else
-            {
-                //For the time being, we only uses EstablishTrustInTarget,
-                //because we don't handle any of the other options anyway.
-                ssl.target_supports = EstablishTrustInTarget.value;
-            }
-
-
-            String required_str =
-                Environment.getProperty( "jacorb.security.ssl.corbaloc_ssliop.required_options" );
-
-            if( (required_str != null) &&
-                (! required_str.equals( "" )) )
-            {
-                try
-                {
-                    ssl.target_supports = (short)
-                        Integer.parseInt( required_str, 16 );
-                }
-                catch( NumberFormatException nfe )
-                {
-                    Debug.output( 0, "WARNING: Unable to create int from string >>" +
-                                  required_str + "<<" );
-                    Debug.output( 0, "Please check property \"jacorb.security.ssl.corbaloc_ssliop.required_options\"" );
-
-                    ssl.target_supports = EstablishTrustInTarget.value;
-                }
-            }
-            else
-            {
-                //For the time being, we only uses EstablishTrustInTarget,
-                //because we don't handle any of the other options anyway
-                ssl.target_requires = EstablishTrustInTarget.value;
-            }
-
-            //create the tagged component containing the ssl struct
-            CDROutputStream out = new CDROutputStream();
-            out.beginEncapsulatedArray();
-
-            SSLHelper.write( out, ssl );
-
-            TaggedComponent ssl_c =
-                new TaggedComponent( TAG_SSL_SEC_TRANS.value,
-                                     out.getBufferCopy() );
-
-            ior =  createObjectIOR( address.host,
-                                    (short) address.port,
-                                    orb.mapObjectKey (corbaLoc.getKey ()),
-                                    address.minor,
-                                    new TaggedComponent[]{ssl_c});
-        }
-
-        decode( ior );
-    }
-
     public CodeSetComponentInfo getCodeSetComponentInfo()
     {
         return cs_info;
@@ -649,165 +360,23 @@ public class ParsedIOR
 
         if (object_reference.startsWith ("IOR:"))
         {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream ();
-            int cnt = (object_reference.length () - 4) / 2;
-            for (int j = 0; j < cnt; j++)
-            {
-                char c1 = object_reference.charAt (j*2+4);
-                char c2 = object_reference.charAt (j*2+5);
-                int i1 = (c1 >= 'a') ? (10 + c1 - 'a') :
-                    ((c1 >= 'A') ? (10 + c1 - 'A') :
-                     (c1 - '0'));
-                int i2 = (c2 >= 'a') ? (10 + c2 - 'a') :
-                    ((c2 >= 'A') ? (10 + c2 - 'A') :
-                     (c2 - '0'));
-                bos.write ((i1*16+i2));
-            }
-
-            CDRInputStream in_ = null;
-
-            if (orb == null)
-            {
-                in_ = new CDRInputStream (org.omg.CORBA.ORB.init(),
-                                          bos.toByteArray ());
-            }
-            else
-            {
-                in_ = new CDRInputStream (orb, bos.toByteArray());
-            }
-
-            endianness = in_.read_boolean ();
-            if (endianness)
-            {
-                in_.setLittleEndian (true);
-            }
-
-            IOR _ior = IORHelper.read (in_);
-            decode (_ior);
+            parse_stringified_ior (object_reference);
         }
         else if (object_reference.startsWith ("corbaloc:"))
         {
-            decode (new CorbaLoc (object_reference));
+            parse_corbaloc (object_reference);
         }
         else if (object_reference.startsWith ("corbaname:"))
         {
-            String corbaloc = "corbaloc:";
-            String name = "";
-
-            if (object_reference.indexOf('#') == -1)
-            {
-                corbaloc +=
-                    object_reference.substring (object_reference.indexOf (':') + 1);
-            }
-            else
-            {
-                corbaloc +=
-                    object_reference.substring (object_reference.indexOf (':') + 1,
-                                                object_reference.indexOf ('#'));
-                name =
-                    object_reference.substring (object_reference.indexOf ('#') + 1);
-            }
-
-            /* empty key string in corbaname becomes NameService */
-            if (corbaloc.indexOf ('/') == -1)
-            {
-                corbaloc += "/NameService";
-            }
-
-            Debug.output (4,corbaloc);
-
-            try
-            {
-                NamingContextExt n =
-                    NamingContextExtHelper.narrow (orb.string_to_object (corbaloc));
-                IOR ior = null;
-
-                // If the name hasn't been set - which is possible if we're just
-                // resolving the root context down try to use name.
-                if ( name.length() > 0 )
-                {
-                    org.omg.CORBA.Object target = n.resolve_str (name);
-                    ior = ((Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate()).getIOR();
-                }
-                else
-                {
-                    ior = ((Delegate)((org.omg.CORBA.portable.ObjectImpl)n)._get_delegate()).getIOR();
-                }
-                decode (ior);
-            }
-            catch (Exception e)
-            {
-                Debug.output (4, e);
-                throw new IllegalArgumentException ("Invalid object reference: " + object_reference);
-            }
+            parse_corbaname (object_reference);
         }
         else if (object_reference.startsWith ("resource:"))
         {
-            String resourceName = object_reference.substring (9);
-            Debug.output (2, "Trying to resolve URL/IOR from resource: " + resourceName);
-
-            ClassLoader cl = getClass().getClassLoader ();
-            if (cl == null)
-            {
-                //#ifjdk 1.2
-                    cl = ClassLoader.getSystemClassLoader ();
-                //#else
-                //# throw new RuntimeException ("couldn't find class loader");
-                //#endif
-            }
-
-            URL url = cl.getResource (resourceName);
-            if (url == null)
-            {
-                throw new IllegalArgumentException ("Failed to get resource: " + resourceName);
-            }
-
-            String content = ObjectUtil.readURL (url.toString ());
-            if (content == null)
-            {
-                throw new IllegalArgumentException ("Failed to read resource: " + resourceName);
-            }
-
-            parse (content);
+            parse_resource (object_reference.substring(9));
         }
         else if (object_reference.startsWith ("jndi:"))
         {
-            String jndiName = object_reference.substring (5);
-            Debug.output (2, "Trying to resolve JNDI/IOR from name: " + jndiName);
-
-            java.lang.Object obj = null;
-            try
-            {
-                //                javax.naming.Context initialContext = new javax.naming.InitialContext ();
-                //                obj = initialContext.lookup (jndiName);
-                //
-                // Replaced lines above with reflected equivalent so will compile under JDK < 1.3
-                // which do not include javax.naming classes. For jndi based name resolution to
-                // work obviously javax.naming classes must be in CLASSPATH.
-                //
-                Class[] types = new Class [1];
-                java.lang.Object[] params = new java.lang.Object[1];
-
-                Class cls = Class.forName ("javax.naming.InitialContext");
-                java.lang.Object initialContext = cls.newInstance ();
-
-                types[0] = String.class;
-                params[0] = jndiName;
-
-                java.lang.reflect.Method method = cls.getMethod ("lookup", types);
-                obj = method.invoke (initialContext, params);
-            }
-            catch (Exception ex)
-            {
-                throw new IllegalArgumentException ("Failed to lookup JNDI/IOR: " + ex);
-            }
-
-            if (obj == null)
-            {
-                throw new IllegalArgumentException ("Null JNDI/IOR: " + object_reference);
-            }
-
-            parse (obj.toString ());
+            parse_jndi (object_reference.substring(5));
         }
         else
         {
@@ -820,6 +389,214 @@ public class ParsedIOR
             parse (content);
         }
         ior_str = getIORString ();
+    }
+
+    // parser helper methods
+
+    private void parse_stringified_ior(String object_reference)
+    {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        int cnt = (object_reference.length() - 4) / 2;
+        for (int j = 0; j < cnt; j++)
+        {
+            char c1 = object_reference.charAt(j * 2 + 4);
+            char c2 = object_reference.charAt(j * 2 + 5);
+            int i1 =
+                (c1 >= 'a')
+                    ? (10 + c1 - 'a')
+                    : ((c1 >= 'A') ? (10 + c1 - 'A') : (c1 - '0'));
+            int i2 =
+                (c2 >= 'a')
+                    ? (10 + c2 - 'a')
+                    : ((c2 >= 'A') ? (10 + c2 - 'A') : (c2 - '0'));
+            bos.write((i1 * 16 + i2));
+        }
+
+        CDRInputStream in_ = null;
+
+        if (orb == null)
+        {
+            in_ =
+                new CDRInputStream(org.omg.CORBA.ORB.init(), bos.toByteArray());
+        }
+        else
+        {
+            in_ = new CDRInputStream(orb, bos.toByteArray());
+        }
+
+        endianness = in_.read_boolean();
+        if (endianness)
+        {
+            in_.setLittleEndian(true);
+        }
+
+        IOR _ior = IORHelper.read(in_);
+        decode(_ior);
+    }
+
+    private void parse_corbaloc(String object_reference)
+    {
+        CorbaLoc corbaLoc = new CorbaLoc(orb, object_reference);
+        IOR ior = null;
+        if (corbaLoc.rir())
+        {
+            try
+            {
+                org.omg.CORBA.Object obj =
+                    orb.resolve_initial_references(corbaLoc.getKeyString());
+
+                if (obj == null)
+                {
+                    throw new IllegalArgumentException(
+                        "Unable to resolve reference for "
+                            + corbaLoc.getKeyString());
+                }
+
+                ior =
+                    ((Delegate) ((org.omg.CORBA.portable.ObjectImpl)obj)
+                        ._get_delegate())
+                        .getIOR();
+            }
+            catch (Exception e)
+            {
+                Debug.output(2, e);
+                throw new IllegalArgumentException("Invalid corbaloc: URL");
+            }
+        }
+        else
+        {
+            Profile profile = corbaLoc.profileList[0];
+            if (profile == null)
+                return; // could not decode any address in list
+
+            profile.set_object_key(orb.mapObjectKey(corbaLoc.getKey()));
+            ior = createObjectIOR(profile);
+        }
+
+        decode(ior);
+    }
+
+    private void parse_corbaname(String object_reference)
+    {
+        String corbaloc = "corbaloc:";
+        String name = "";
+        int colon = object_reference.indexOf(':');
+        int pound = object_reference.indexOf('#');
+
+        if (pound == -1)
+            corbaloc += object_reference.substring(colon + 1);
+        else
+        {
+            corbaloc += object_reference.substring(colon + 1, pound);
+            name = object_reference.substring(pound + 1);
+        }
+
+        /* empty key string in corbaname becomes NameService */
+        if (corbaloc.indexOf('/') == -1)
+            corbaloc += "/NameService";
+        Debug.output(4, corbaloc);
+
+        try
+        {
+            NamingContextExt n =
+                NamingContextExtHelper.narrow(orb.string_to_object(corbaloc));
+            IOR ior = null;
+            // If the name hasn't been set - which is possible if we're just
+            // resolving the root context down try to use name.
+            if (name.length() > 0)
+            {
+                org.omg.CORBA.Object target = n.resolve_str(name);
+                ior =
+                    ((Delegate) ((org.omg.CORBA.portable.ObjectImpl)target)
+                        ._get_delegate())
+                        .getIOR();
+            }
+            else
+            {
+                ior =
+                    ((Delegate) ((org.omg.CORBA.portable.ObjectImpl)n)
+                        ._get_delegate())
+                        .getIOR();
+            }
+            decode(ior);
+        }
+        catch (Exception e)
+        {
+            Debug.output(4, e);
+            throw new IllegalArgumentException(
+                "Invalid object reference: " + object_reference);
+        }
+    }
+
+    private void parse_resource(String resourceName)
+    {
+        Debug.output(2, "Trying to resolve URL/IOR from resource: " 
+                        + resourceName);
+        ClassLoader cl = getClass().getClassLoader();
+        if (cl == null)
+        {
+            //#ifjdk 1.2
+                cl = ClassLoader.getSystemClassLoader();
+            //#else
+            //# throw new RuntimeException ("couldn't find class loader");
+            //#endif
+        }
+
+        URL url = cl.getResource(resourceName);
+        if (url == null)
+        {
+            throw new IllegalArgumentException(
+                "Failed to get resource: " + resourceName);
+        }
+
+        String content = ObjectUtil.readURL(url.toString());
+        if (content == null)
+        {
+            throw new IllegalArgumentException(
+                "Failed to read resource: " + resourceName);
+        }
+        parse(content);
+    }
+
+    private void parse_jndi(String jndiName)
+    {
+        Debug.output(2, "Trying to resolve JNDI/IOR from name: " + jndiName);
+
+        java.lang.Object obj = null;
+        try
+        {
+            // javax.naming.Context initialContext =
+            //     new javax.naming.InitialContext ();
+            //                obj = initialContext.lookup (jndiName);
+
+            // Replaced lines above with reflected equivalent so will compile
+            // under JDK < 1.3 which do not include javax.naming classes. For
+            // jndi based name resolution to work obviously javax.naming
+            // classes must be in CLASSPATH.
+            //
+            Class[] types = new Class[1];
+            java.lang.Object[] params = new java.lang.Object[1];
+
+            Class cls = Class.forName("javax.naming.InitialContext");
+            java.lang.Object initialContext = cls.newInstance();
+
+            types[0] = String.class;
+            params[0] = jndiName;
+
+            java.lang.reflect.Method method = cls.getMethod("lookup", types);
+            obj = method.invoke(initialContext, params);
+        }
+        catch (Exception ex)
+        {
+            throw new IllegalArgumentException(
+                "Failed to lookup JNDI/IOR: " + ex);
+        }
+
+        if (obj == null)
+        {
+            throw new IllegalArgumentException("Null JNDI/IOR: " + jndiName);
+        }
+        parse(obj.toString());
     }
 
     /**
