@@ -59,13 +59,6 @@ public interface Transport
 
     org.omg.ETF.Profile get_server_profile(); 
 
-    // Non-ETF methods below this line
-
-    /**
-     * Set the transport listener used for upcalls.
-     */
-    public void setTransportListener( TransportListener listener );
-
 }// Transport
 
 
