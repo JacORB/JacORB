@@ -29,13 +29,13 @@ import org.tanukisoftware.wrapper.WrapperManager;
  * @version $Id$
  */
 
-public class Main implements WrapperListener
+public class WrapperMain implements WrapperListener
 {
-    private EventChannelFactoryImpl application_;
+    private AbstractChannelFactory application_;
 
     ////////////////////////////////////////
 
-    private Main()
+    private WrapperMain()
     {
         super();
     }
@@ -48,7 +48,7 @@ public class Main implements WrapperListener
     {
         try
         {
-            application_ = EventChannelFactoryImpl.newFactory( args );
+            application_ = ConsoleMain.newFactory( args );
 
             application_.setDestroyMethod(new Runnable() {
                     public void run() {
@@ -98,9 +98,9 @@ public class Main implements WrapperListener
             // We are not being controlled by the Wrapper, so
             //  handle the event ourselves.
 
-            if ( ( event == WrapperManager.WRAPPER_CTRL_C_EVENT ) ||
-                 ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT ) ||
-                 ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
+            if ( (event == WrapperManager.WRAPPER_CTRL_C_EVENT )
+                 ||(event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT )
+                 ||(event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT))
             {
                 WrapperManager.stop( 0 );
             }
@@ -110,6 +110,6 @@ public class Main implements WrapperListener
 
     public static void main( String[] args )
     {
-        WrapperManager.start( new Main(), args );
+        WrapperManager.start( new WrapperMain(), args );
     }
 }

@@ -134,8 +134,8 @@
              value="org/jacorb/notification/**/*.java" />
       <param name="javac-excludes"
              value="org/jacorb/notification/util/*PatternWrapper.java,
-                    org/jacorb/notification/Main.java,
-	            org/jacorb/notification/gui/**" />
+                    org/jacorb/notification/WrapperMain.java,
+	            org/jacorb/notification/filter/bsh" />
     </antcall>
 
     <javac srcdir="${src}"
@@ -147,7 +147,7 @@
         <pathelement location="${lib}/wrapper-3.1.0.jar" />
       </classpath>
 
-      <include name="org/jacorb/notification/Main.java"/>
+      <include name="org/jacorb/notification/WrapperMain.java"/>
     </javac>
   </target>
 
