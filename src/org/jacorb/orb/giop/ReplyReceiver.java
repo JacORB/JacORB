@@ -27,16 +27,18 @@ import org.omg.GIOP.*;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ApplicationException;
+import org.omg.CORBA.portable.InvokeHandler;
+import org.omg.CORBA.portable.ResponseHandler;
 
 import java.util.*;
 
 /**
  * A special ReplyPlaceholder that is used for normal client requests,
- * which can be both synchronous and asynchronous.  A ReplyReceiver
+ * which can either both synchronous or asynchronous.  A ReplyReceiver
  * handles all ORB-internal work that needs to be done for the reply, 
  * such as checking for exceptions and invoking the interceptors.
  * The client stub can either do a blocking wait on the ReplyReceiver 
- * (via getInputStream()), or a ReplyHandler can be supplied when the 
+ * (via getReplyInputStream()), or a ReplyHandler can be supplied when the 
  * ReplyReceiver is created; then the reply is delivered to that 
  * ReplyHandler. 
  *
@@ -49,15 +51,22 @@ public class ReplyReceiver extends ReplyPlaceholder
     private ClientInterceptorHandler interceptors = null;
 
     private org.omg.Messaging.ReplyHandler replyHandler = null;
+
+    private String operation;
     
     private SystemException      systemException      = null;
     private ApplicationException applicationException = null;
 
+    private static final ResponseHandler dummyResponseHandler =
+                                                new DummyResponseHandler();
+
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
+                          String                         operation,
                           ClientInterceptorHandler       interceptors,
                           org.omg.Messaging.ReplyHandler replyHandler )
     {        
         this.delegate     = delegate;
+        this.operation    = operation;
         this.interceptors = interceptors;
         this.replyHandler = replyHandler;
     }
@@ -79,6 +88,7 @@ public class ReplyReceiver extends ReplyPlaceholder
                 // throw arrived exceptions
                 reply.checkExceptions();
             }
+            
             interceptors.handle_receive_reply ( reply );
         }
         catch ( RemarshalException re )
@@ -124,17 +134,39 @@ public class ReplyReceiver extends ReplyPlaceholder
             intercept_exception ( ae, reply );
             applicationException = ae;
         }
+
+        if ( replyHandler != null )
+        {
+            performCallback ( reply );
+        }
             
         pending_replies.remove ( this );
         ready   = true;
         notifyAll();
     }       
 
+    private void performCallback ( ReplyInputStream reply )
+    {
+        // TODO: Handle exception replies
+        (( InvokeHandler ) replyHandler)._invoke ( operation,
+                                                   reply,
+                                                   dummyResponseHandler ); 
+    }
+
+    public synchronized MessageInputStream getInputStream()
+        throws RemarshalException
+    {
+        // the fact that we need to do this shows that
+        // the inheritance hierarchy is wrong -- TODO
+        throw new RuntimeException 
+             ("getInputStream() not allowed; use getReplyInputStream()");
+    }    
+
     public synchronized ReplyInputStream getReplyInputStream()
         throws RemarshalException, ApplicationException
     {
         // Call to super implementation handles RemarshalException,
-        // COMM_FAILURE, or timeout (IMP_LIMIT).
+        // COMM_FAILURE, and timeout (IMP_LIMIT).
         MessageInputStream result = super.getInputStream();
 
         if ( systemException != null )
@@ -190,6 +222,21 @@ public class ReplyReceiver extends ReplyPlaceholder
             remarshalException = true;
         }
     }
+    
+    private static class DummyResponseHandler 
+        implements org.omg.CORBA.portable.ResponseHandler
+    {
+        public org.omg.CORBA.portable.OutputStream createReply() 
+        {
+            return null;
+        }
+        
+        public org.omg.CORBA.portable.OutputStream createExceptionReply() 
+        {
+            return null;
+        }
+    }
+
 }
 
 
