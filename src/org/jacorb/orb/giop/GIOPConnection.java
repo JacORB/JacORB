@@ -45,7 +45,6 @@ import org.jacorb.util.*;
 
 public abstract class GIOPConnection
     extends java.io.OutputStream
-    implements TransportListener
 {
     protected Transport transport = null;
 
@@ -109,8 +108,6 @@ public abstract class GIOPConnection
         this.request_listener = request_listener;
         this.reply_listener = reply_listener;
         this.statistics_provider = statistics_provider;
-
-        transport.setTransportListener( this );
 
         fragments = new Hashtable();
         buf_mg = BufferManager.getInstance();
@@ -218,6 +215,8 @@ public abstract class GIOPConnection
         }
     }
 
+    public abstract void readTimedOut();
+
     /**
      * Read a GIOP message from the stream. This will first try to
      * read in the fixed-length GIOP message header to determine the
@@ -248,12 +247,18 @@ public abstract class GIOPConnection
                             Messages.MSG_HEADER_SIZE,
                             0);
         }
+        catch (org.omg.CORBA.TRANSIENT ex)
+        {
+            return null;
+        }
         catch (org.omg.CORBA.COMM_FAILURE ex)
         {
+            this.streamClosed();
             return null;
         }
         catch (org.omg.CORBA.TIMEOUT ex)
         {
+            this.readTimedOut();
             return null;
         }
 
