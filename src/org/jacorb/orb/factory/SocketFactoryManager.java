@@ -134,6 +134,19 @@ public class SocketFactoryManager
 
        if (factory instanceof ServerSocketFactory)
        {
+          if (factory instanceof Configurable)
+          {
+             try
+             {
+                ((Configurable)factory).configure(configuration);
+             }
+             catch (ConfigurationException ce)
+             {
+               throw new RuntimeException("Configurable custom server socket factory " + 
+                                          className + 
+                                          " could not be configured !", ce);
+             }   
+          }
           return ((ServerSocketFactory) factory);
        }
        else
