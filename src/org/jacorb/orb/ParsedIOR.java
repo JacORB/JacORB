@@ -256,11 +256,13 @@ public class ParsedIOR
     /* instance part */
 
     public ParsedIOR( String object_reference )
+        throws IllegalArgumentException
     {
 	parse( object_reference );
     }
 
     public ParsedIOR( String object_reference, ORB orb )
+        throws IllegalArgumentException
     {
 	this.orb = orb;
 	parse( object_reference );
@@ -303,6 +305,7 @@ public class ParsedIOR
         // least one side. The distinction between
         // EstablishTrustInTarget and EstablishTrustInClient is
         // handled at the socket factory layer.
+
         if( ssl != null && //server knows about ssl
             Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //we support ssl
             ( ((Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ) & 0x60) != 0) || //we require ssl
@@ -437,8 +440,11 @@ public class ParsedIOR
 	{
 	    try
 	    {
-		org.omg.CORBA.Object obj = orb.resolve_initial_references(corbaLoc.getKeyString());
-		ior = ((Delegate)((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate()).getIOR();
+		org.omg.CORBA.Object obj = 
+                    orb.resolve_initial_references(corbaLoc.getKeyString());
+
+		ior = 
+                    ((Delegate)((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate()).getIOR();
 	    }
 	    catch( Exception e )
 	    {
@@ -564,9 +570,18 @@ public class ParsedIOR
 	return ( ior.type_id.equals("") && ( ior.profiles.length == 0 ));
     }
 
+    /**
+     * @throws IllegalArgumentException if object_reference is null or the 
+     * designated resource cannot be found
+     */
+
     protected void parse( String object_reference )
+        throws IllegalArgumentException
     {
-	if (object_reference.startsWith("IOR:"))
+        if( object_reference == null )
+            throw new IllegalArgumentException();
+
+	if ( object_reference.startsWith("IOR:") )
 	{
 	    ior_str = object_reference;
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -610,20 +625,25 @@ public class ParsedIOR
 	else if (object_reference.startsWith("http://") || 
                  object_reference.startsWith("file:/") )
 	{
-	    parse( ObjectUtil.readURL(object_reference));
+	    parse( ObjectUtil.readURL( object_reference ) );
 	}
-	else if(object_reference.startsWith("corbaname:") )
+	else if( object_reference.startsWith("corbaname:") )
 	{
 	    String corbaloc;
 	    String name = "";
 
 	    if( object_reference.indexOf('#') == -1 )
-		corbaloc = "corbaloc:" + object_reference.substring(object_reference.indexOf(':')+1 );
+		corbaloc = 
+                    "corbaloc:" + 
+                    object_reference.substring(object_reference.indexOf(':')+1 );
 	    else
 	    {
-		corbaloc = "corbaloc:" + object_reference.substring(object_reference.indexOf(':')+1, 
-								    object_reference.indexOf('#'));
-		name = object_reference.substring(object_reference.indexOf('#')+1);
+		corbaloc = 
+                    "corbaloc:" + 
+                    object_reference.substring(object_reference.indexOf(':')+1, 
+                                               object_reference.indexOf('#'));
+		name = 
+                    object_reference.substring(object_reference.indexOf('#')+1);
 	    }
 
 	    /* empty key string in corbaname becomes NameService */
@@ -645,11 +665,11 @@ public class ParsedIOR
 	    catch( Exception e )
 	    {
 		Debug.output(4, e );
-		throw new RuntimeException("Invalid object reference: " + object_reference);
+		throw new IllegalArgumentException("Invalid object reference: " + object_reference);
 	    }
 	}
 	else
-	    throw new RuntimeException("Invalid IOR format: " + object_reference );
+	    throw new IllegalArgumentException("Invalid IOR format: " + object_reference );
     }
 
 
