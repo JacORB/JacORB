@@ -198,12 +198,6 @@ class IdlSymbol
     {
         if( name.length() == 0 )
         {
-//              IdlSymbol enc = enclosing_symbol;
-//              lexer.emit_warn( "Empty full_name for " + this.getClass().getName() +
-//                               ( enc != null ?
-//                                 " at " + enc.get_token() :
-//                                 " in pack " + pack_name ));
-
             return null;
         }
 
@@ -264,13 +258,6 @@ class IdlSymbol
     {
         if( !pack_name.equals( "" ) )
         {
-//              for( Enumeration e = parser.import_list.elements(); e.hasMoreElements(); )
-//              {
-//                  ps.println( "import " + (String)e.nextElement() + ";" );
-//              }
-
-//              ps.println();
-
             for( Enumeration e = imports.keys(); e.hasMoreElements(); )
             {
                 String name = (String)e.nextElement();
@@ -308,6 +295,13 @@ class IdlSymbol
 
     public void addImportedName( String name )
     {
+        // Ensure that we strip [] from names.
+        if ( name != null && name.endsWith( "[]" ) )
+        {
+            name = name.substring( 0, name.length() - 2 );
+        }
+
+        // Only enter this if its an alias.
         if( name != null && name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
             addImportedName( name, null );
@@ -358,8 +352,6 @@ class IdlSymbol
                 logger.debug( "addImportedNameHolder " + name );
 
             imports.put( name, "" );
-//              imports.put( name + "Helper", "" );
-//              imports.put( name + "Holder", "" );
         }
     }
 
@@ -385,8 +377,6 @@ class IdlSymbol
 
     public void printIdMethod( PrintWriter ps )
     {
-        //System.out.println("Symbol " + full_name() + " (" + this.hashCode() + ") has prefix: " + pragmaPrefix );
-
         ps.println( "\tpublic static String id()" );
         ps.println( "\t{" );
         ps.println( "\t\treturn \"" + id() + "\";" );
@@ -401,66 +391,127 @@ class IdlSymbol
     {
         IdlSymbol enc = enclosing_symbol;
         StringBuffer sb = new StringBuffer();
+        ScopeData sd = null;
+        str_token enctoken = null;
+
+        if( logger.isDebugEnabled() )
+            logger.debug( "Id for name " + name );
 
         if( _id == null )
         {
-            //	    while( enc != null && enc.getEnclosingSymbol() != null )
-            while( enc != null )
+            do
             {
-                str_token t = enc.get_token();
-                if( t == null )
+                if (enc != null)
                 {
-                    enc = enc.getEnclosingSymbol();
-                    continue;
-                }
+                    // Get enclosing token and check idMap then, if not in
+                    // there, determine prefix manually.
+                    enctoken = enc.get_token();
 
-                if( token != null )
-                {
-                    if( t.pragma_prefix.equals( token.pragma_prefix ) )
+                    if (enc instanceof Scope)
                     {
-                        String enclosingName = enc.name;
-                        // if the enclosing symbol is a module, its name
-                        // is a package name and might have been modified
-                        // by the -i2jpackage switch. We want its unchanged
-                        // name as part of the RepositoryId, however.
-                        if( enc instanceof Module )
-                        {
-                            String enclosingModuleName =
-                                    ( (Module)enc ).originalModuleName();
-
-                            if( !enclosingModuleName.startsWith( "org" ) )
-                                enclosingName = ( (Module)enc ).originalModuleName();
-
-                            // remove leading "_" in repository Ids
-                            if( enc.isEscaped() )
-                                enclosingName = enclosingName.substring( 1 );
-                        }
-                        sb.insert( 0, enclosingName + "/" );
-                        enc = enc.getEnclosingSymbol();
+                       sd = ((Scope)enc).getScopeData ();
+                       if (sd == null)
+                       {
+                          org.jacorb.idl.parser.fatal_error
+                          (
+                             "ScopeDate null for " + name + " " +
+                             this.getClass().getName(), null
+                          );
+                       }
                     }
-                    else
+
+                    if (sd != null && sd.idMap.get (name) != null)
+                    {
+                        _id = (String)sd.idMap.get (name);
                         break;
+                    }
+                    // Not had a #pragma prefix; attempt to determine using prefix
+                    else
+                    {
+                        // Slightly horrible...this says 'if the current token prefix
+                        // is blank' then use the enclosing tokens prefix OR
+                        // if the current token has a matching prefix to the parent
+                        // then also do this (this prevents:
+                        // prefix Foo
+                        // module F {
+                        //     prefix X
+                        //     interface Y {}
+                        // }
+                        if (token != null &&
+                            (
+                               "".equals (token.pragma_prefix) ||
+                               enctoken.pragma_prefix.equals (token.pragma_prefix)
+                            ))
+                        {
+                            String enclosingName = enc.name;
+                            // if the enclosing symbol is a module, its name
+                            // is a package name and might have been modified
+                            // by the -i2jpackage switch. We want its unchanged
+                            // name as part of the RepositoryId, however.
+                            if( enc instanceof Module )
+                            {
+                                String enclosingModuleName =
+                                    ((Module)enc).originalModuleName ();
+
+                                if ( !enclosingModuleName.startsWith ("org"))
+                                {
+                                    enclosingName = ((Module)enc).originalModuleName ();
+                                }
+
+                                // remove leading "_" in repository Ids
+                                if( enc.isEscaped ())
+                                {
+                                    enclosingName = enclosingName.substring (1);
+                                }
+                            }
+                            sb.insert (0, enclosingName + "/");
+                            enc = enc.getEnclosingSymbol ();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                // Global Scope
+                else if (parser.scopes.size () == 1 &&
+                         parser.currentScopeData ().idMap.get (name) != null)
+                {
+                    _id = (String)parser.currentScopeData ().idMap.get (name);
+                    break;
                 }
                 else
                 {
+                    // This is global scope - there is no enclosing symbol and no
+                    // defining #pragma. The ID can be built simply from the name
                     break;
                 }
             }
+            while (enc != null);
 
-            if( isEscaped() )
-                sb.append( name.substring( 1 ) );
-            else
-                sb.append( name );
-
-
-            if( token != null && token.pragma_prefix.length() > 0 )
+            if (_id == null)
             {
-                _id = "IDL:" + token.pragma_prefix + "/" + sb.toString().replace( '.', '/' ) + ":" + version();
-            }
-            else
-            {
-                _id = "IDL:" + sb.toString().replace( '.', '/' ) + ":" + version();
-                //		_id = org.jacorb.orb.ir.RepositoryID.toRepositoryID( full_name());
+                // There was no #pragma.
+                if( isEscaped() )
+                {
+                    sb.append( name.substring( 1 ) );
+                }
+                else
+                {
+                    sb.append( name );
+                }
+                if( token != null && token.pragma_prefix.length() > 0 )
+                {
+                    _id =
+                    (
+                        "IDL:" + token.pragma_prefix +
+                        "/" + sb.toString().replace( '.', '/' ) + ":" + version ()
+                    );
+                }
+                else
+                {
+                    _id = "IDL:" + sb.toString().replace( '.', '/' ) + ":" + version();
+                }
             }
         }
         if( logger.isDebugEnabled() )
@@ -491,7 +542,7 @@ class IdlSymbol
                     }
                     Hashtable h = sd.versionMap;
 
-                    // check for version settings in this sope
+                    // check for version settings in this scope
                     tmp = (String)h.get( name );
                     if( tmp != null )
                     {
@@ -499,6 +550,13 @@ class IdlSymbol
                         break;
                     }
                     enc = enc.getEnclosingSymbol();
+                }
+                // Global Scope
+                else if (parser.scopes.size () == 1 &&
+                         parser.currentScopeData ().versionMap.get (name) != null)
+                {
+                    _version = (String)parser.currentScopeData ().versionMap.get (name);
+                    break;
                 }
                 else
                 {
@@ -520,7 +578,7 @@ class IdlSymbol
                 }
                 if( enc != null )
                 {
-                    // check for version settings in this sope
+                    // check for version settings in this scope
                     Hashtable h = ( (Scope)enc ).getScopeData().versionMap;
                     tmp = (String)h.get( name );
 
@@ -538,7 +596,6 @@ class IdlSymbol
                     break;
                 }
             }
-
         }
         return _version;
     }
@@ -552,8 +609,4 @@ class IdlSymbol
     {
         return parser.generateIncluded() && !( inhibitionFlag );
     }
-
-
 }
-
-
