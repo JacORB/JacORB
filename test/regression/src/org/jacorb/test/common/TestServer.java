@@ -23,7 +23,10 @@ package org.jacorb.test.common;
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
 import java.io.*;
-import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * A server program that can set up an arbitrary CORBA servant.
@@ -50,10 +53,14 @@ public class TestServer
 {
     public static void main (String[] args)
     {
+        Logger logger = null;
         try
         {
             //init ORB
             ORB orb = ORB.init( args, null );
+
+            Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
+            logger = ((org.jacorb.config.Configuration)config).getNamedLogger("TestServer");
 
             //init POA
             POA poa =
@@ -64,21 +71,26 @@ public class TestServer
             Class servantClass = Class.forName (className);
             Servant servant = ( Servant ) servantClass.newInstance();
 
+            if (servant instanceof Configurable)
+                ((Configurable)servant).configure (((org.jacorb.orb.ORB)orb).getConfiguration());
+
             // create the object reference
             org.omg.CORBA.Object obj = poa.servant_to_reference( servant );
 
             System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
             System.out.flush();
 
-            Debug.output( 1, "Entering ORB event loop" );
+            logger.debug("Entering ORB event loop" );
 
             // wait for requests
             orb.run();
         }
         catch( Exception e )
         {
-            Debug.output( 1, e );
-            Debug.output( 1, "ERROR: " + e );
+            if (logger != null)
+                logger.fatalError ("TestServer error ", e);
+            else
+                System.err.println ("TestServer error " + e);
         }
     }
 }
