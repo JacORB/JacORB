@@ -185,8 +185,10 @@ protected OTHER
      ;
 
 // these may appear within text but not within identifiers
+// according to OMG Trader Constraint Language all ASCII chars 
+// that are not ALPHA, DIGIT or SPECIAL
 protected OTHER_TEXT
-    : ('.')
+    : ('.'|'!'|'"'|'#'|'$'|'%'|'&'|'('|')'|'*'|'+'|','|'-'|';'|'<'|'>'|'='|'?'|'@'|'['|']'|'^'|'`'|'{'|'|'|'}'|'~') 
     ;
 
 protected SPECIAL
