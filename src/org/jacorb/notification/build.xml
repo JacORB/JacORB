@@ -139,7 +139,7 @@
     </antcall>
   </target> 
 
-  <target name="server" depends="notification.init, server.compile" />
+  <target name="server" depends="notification.init, server.compile, server.compile.wrapper" />
 
   <target name="server.compile" 
     depends="notification.init, 
@@ -154,9 +154,23 @@
 
       <param name="javac-excludes"
         value="org/jacorb/notification/util/GNUPatternWrapper.java, 
-               org/jacorb/notification/util/JDK14PatternWrapper.java" />
+	       org/jacorb/notification/util/JDK14PatternWrapper.java,
+	       org/jacorb/notification/Main.java" />
 
     </antcall>
+  </target>
+
+  <target name="server.compile.wrapper" depends="init">
+    <javac srcdir="${src}"
+      destdir="${classdir}" >
+
+      <classpath>
+	<pathelement location="${dirs.base}/classes"/>
+	<pathelement location="${lib}/wrapper.jar"/>
+      </classpath>
+
+      <include name="org/jacorb/notification/Main.java"/>
+    </javac>
   </target>
   
   <target name="notification.compile.regexp.gnu" if="available.regexp.gnu">

@@ -92,6 +92,10 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements Disposable
 {
 
+    interface ShutdownCallback {
+	public void needTime(int time);
+    }
+
     private static final String NOTIFICATION_SERVICE = "NotificationService";
     
     static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[ 0 ];
@@ -339,13 +343,22 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	listEventChannelCreatedEventListener_.remove(listener);
     }
 
+    public void shutdown(ShutdownCallback cb) {
+	cb.needTime(1000);
+
+	logger_.info("NotificationService is going down");
+	dispose();
+	logger_.info("NotificationService down");
+    }
+
     public void dispose() {
 	listEventChannelCreatedEventListener_.clear();
 
 	Iterator _i = allChannels_.entrySet().iterator();
 	while (_i.hasNext()) {
-	    ((EventChannelImpl)((Map.Entry)_i.next()).getValue()).dispose();
-
+	    EventChannelImpl _ec = (EventChannelImpl)((Map.Entry)_i.next()).getValue();
+	    _i.remove();
+	    _ec.dispose();
 	}
 	defaultFilterFactoryServant_.dispose();
 
@@ -549,9 +562,9 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	System.out.println("Usage: ntfy [-printIOR|-printCorbaloc|-help] [-port <oaPort>] [-channels <channels>]");
 	
 	System.exit(0);
-    }
+    }    
 
-    public static void main( String[] args ) throws Exception
+    static EventChannelFactoryImpl startFactory( String[] args ) throws Exception
     {
     	boolean doHelp = false;
     	boolean doPrintIOR = false;
@@ -561,46 +574,61 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     	
     	// process arguments
     	for (int i = 0; i < args.length; i++) {
-    		if (args[i].equals("-printIOR")) {
-    			doPrintIOR = true;
-			} else if (args[i].equals("-printCorbaloc")) {
-				doPrintCorbaloc = true;
-			} else if (args[i].equals("-help")) {
-				doHelp = true;
-			} else if (args[i].equals("-port")) {
-				oaPort = args[++i];
-			} else if (args[i].equals("-channels")) {
-				channels = Integer.parseInt(args[++i]);
-			} else {
-				System.out.println("Unknown argument: "+args[i]);
-				help();
-			}
-    		
+	    if (args[i].equals("-printIOR")) {
+		doPrintIOR = true;
+	    } else if (args[i].equals("-printCorbaloc")) {
+		doPrintCorbaloc = true;
+	    } else if (args[i].equals("-help")) {
+		doHelp = true;
+	    } else if (args[i].equals("-port")) {
+		oaPort = args[++i];
+	    } else if (args[i].equals("-channels")) {
+		channels = Integer.parseInt(args[++i]);
+	    } else {
+		System.out.println("Unknown argument: "+args[i]);
+		help();
+	    }    
     	}
     	
     	if (doHelp) {
-    		help();
-    		System.exit(0);
+	    help();
+	    System.exit(0);
     	}
     	
     	// set ORB properties
-		String standardImplName = "Notification";
-		Properties props = new Properties();
-		props.put("jacorb.implname", standardImplName);
-		props.put("jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE, standardImplName + "/" + notificationPOAName + "/" + objectName);
-		if (oaPort != null) props.put ("OAPort", oaPort);
-		final ORB _orb = ORB.init( new String[0], props );
+	String standardImplName = "Notification";
+	Properties props = new Properties();
+	props.put("jacorb.implname", standardImplName);
+	props.put("jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE, standardImplName + "/" + notificationPOAName + "/" + objectName);
 
+	if (oaPort != null) {
+	    props.put ("OAPort", oaPort);
+	}
+
+	final ORB _orb = ORB.init( new String[0], props );
+	
 	setLogLevel("org.jacorb.notification", Priority.INFO);
 
         EventChannelFactoryImpl _factory = new EventChannelFactoryImpl(_orb);
-        for (int i = 0; i < channels; i++) {
-        	IntHolder ih = new IntHolder();
-        	_factory.create_channel(new Property[0], new Property[0], ih);
-        }
 
-		if (doPrintIOR) System.out.println(_factory.getIOR());
-		if (doPrintCorbaloc) System.out.println(_factory.getCorbaLoc());
+        for (int i = 0; i < channels; i++) {
+	    IntHolder ih = new IntHolder();
+	    _factory.create_channel(new Property[0], new Property[0], ih);
+        }
+	
+	if (doPrintIOR) {
+	    System.out.println(_factory.getIOR());
+	}
+
+	if (doPrintCorbaloc) {
+	    System.out.println(_factory.getCorbaLoc());
+	}
+
+	return _factory;
+    }
+
+    public static void main(String[] args) throws Exception {
+	startFactory(args);
     }
 
 } 
