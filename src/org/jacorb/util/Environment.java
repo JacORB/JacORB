@@ -510,7 +510,7 @@ public class Environment
                 (new FileOutputStream (logFileName, append));
             if (_verbosity > 2)
             {
-                System.out.println("write output to log file \""+logFileName+"\"");
+                System.out.println("Write output to log file \""+logFileName+"\"");
             }
         }
         catch (java.io.IOException ioe)
@@ -767,7 +767,7 @@ public class Environment
             while (tok.hasMoreTokens())
                 result.add (tok.nextToken().trim());
         }
-        return result;                            
+        return result;
     }
 
     /*
