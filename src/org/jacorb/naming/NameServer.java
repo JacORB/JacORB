@@ -50,7 +50,6 @@ public class NameServer
 
     /** the specific logger for this component */
     private static Logger logger = null;
-    private static boolean imr_register = false;
 
     /** the file name int which the IOR will be stored */
     private static String fileName = null;
@@ -69,29 +68,30 @@ public class NameServer
         throws ConfigurationException
     {
         configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.naming");
+        logger = 
+            configuration.getNamedLogger("jacorb.naming");
 
         time_out = 
             configuration.getAttributeAsInteger("jacorb.naming.time_out",0);
 
         fileName = 
-            configuration.getAttribute("jacorb.naming.ior_filename");
+            configuration.getAttribute("jacorb.naming.ior_filename", "");
 
         /* which directory to store/load in? */
         String directory = 
-            configuration.getAttribute("jacorb.naming.db_dir");
+            configuration.getAttribute("jacorb.naming.db_dir", "");
         
-        if( directory != null )
+        if( !directory.equals("") )
             filePrefix = directory + File.separatorChar + filePrefix;
 
-        if ( configuration.getAttribute("jacorb.use_imr","off").equals("on") && imr_register)
+        if ( configuration.getAttribute("jacorb.use_imr","off").equals("on") )
         {
 
             // don't supply "imr_register", so a ns started by an imr_ssd
             // won't try to register himself again.
 
             String command = 
-                configuration.getAttribute("jacorb.java_exec") + commandSuffix;
+                configuration.getAttribute("jacorb.java_exec", "") + commandSuffix;
             
             ImRManager.autoRegisterServer( orb, 
                                            "StandardNS", 
@@ -264,8 +264,11 @@ public class NameServer
             /* intialize the ORB and Root POA */
             orb = org.omg.CORBA.ORB.init(args, props);
 
+            Configuration config = 
+                ((org.jacorb.orb.ORB)orb).getConfiguration();
+
             /* configure the name service using the ORB configuration */
-            configure( ((org.jacorb.orb.ORB)orb).getConfiguration());
+            configure(config);
 
             org.omg.PortableServer.POA rootPOA =
             org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -290,6 +293,7 @@ public class NameServer
             NamingContextImpl.init(orb, rootPOA);
             NameServer.NameServantActivatorImpl servantActivator =
                 new NameServer.NameServantActivatorImpl( orb );
+            servantActivator.configure(config);
 
             nsPOA.set_servant_manager( servantActivator );
             nsPOA.the_POAManager().activate();
@@ -297,16 +301,14 @@ public class NameServer
             for (int i = 0; i < policies.length; i++)
                 policies[i].destroy();
 
-
             /* export the root context's reference to a file */
-
             byte[] oid = ( new String("_root").getBytes() );
             try
             {
                 org.omg.CORBA.Object obj =
                 nsPOA.create_reference_with_id( oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
 
-                if( fileName != null )
+                if( fileName != null && fileName.length() > 0 )
                 {
                     PrintWriter out =
                     new PrintWriter( new FileOutputStream( fileName ), true );
@@ -342,6 +344,7 @@ public class NameServer
         }
         catch( ConfigurationException e )
         {
+            e.printStackTrace();
             usage();
         }
         catch( Exception e )
