@@ -1,5 +1,6 @@
 package org.jacorb.test.notification;
 
+import junit.framework.TestCase;
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.DynamicEvaluator;
@@ -7,10 +8,10 @@ import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.FilterConstraint;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.ETCLFilterConstraint;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
 import org.jacorb.notification.interfaces.Message;
-
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LongSeqHelper;
 import org.omg.CORBA.ORB;
@@ -21,8 +22,6 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
 import org.omg.DynamicAny.DynAnyFactory;
-
-import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt
@@ -213,7 +212,7 @@ public class TestUtils {
         AbstractTCLNode _root = TCLParser.parse(expr);
         AbstractTCLNode _expect = TCLParser.parse(expect);
 
-        FilterConstraint _evaluator = new FilterConstraint( _root);
+        FilterConstraint _evaluator = new ETCLFilterConstraint( _root);
         EvaluationResult _res;
         _root.acceptPostOrder(new TCLCleanUp());
 
