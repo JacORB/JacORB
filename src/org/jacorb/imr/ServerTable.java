@@ -1,3 +1,23 @@
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1997-2001  Gerald Brose.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 package org.jacorb.imr;
 
 import java.util.*;
@@ -55,19 +75,22 @@ public class ServerTable implements Serializable {
      * This method initializes all transient attributes.
      **/
     private void initTransient(){
-	// The table lock is a special case. It is used to gain exclusive access to the
-	// server table on serialization. That mains the exclusive lock is set on 
-	// serialization and, if it was not transient, would be serialized as well.
-	// On startup of the repository, if the table is deserialized, the lock is still
-	// set, und must be realeased. That means that we have to distinguish between 
-	// a new table and a deserialized one. So its cheaper to instanciate the lock
-	// on deserialization time again.
+	// The table lock is a special case. It is used to gain
+	// exclusive access to the server table on serialization. That
+	// means the exclusive lock is set on serialization and, if it
+	// was not transient, would be serialized as well.  On startup
+	// of the repository, if the table is deserialized, the lock
+	// is still set, und must be realeased. That means that we
+	// have to distinguish between a new table and a deserialized
+	// one. So its cheaper to instanciate the lock on
+	// deserialization time again.
 	table_lock = new RessourceLock();
 
-	// The locks are needed, because the hashtables have to be copied to arrays sometimes
-	// (usually on command of the user), and that is done via Enumerations.
-	// Unfortunately Enumerations get messed up when altering the underlying structure
-	// while reading from them.
+	// The locks are needed, because the hashtables have to be
+	// copied to arrays sometimes (usually on command of the
+	// user), and that is done via Enumerations.  Unfortunately
+	// Enumerations get messed up when altering the underlying
+	// structure while reading from them.
 	servers_lock = new RessourceLock();
 	poas_lock = new RessourceLock();
 	hosts_lock = new RessourceLock();
@@ -77,7 +100,8 @@ public class ServerTable implements Serializable {
      * This method tests, if a server is known.
      *
      * @param name the servers name.
-     * @return true, if a server with the specified name has already been registered.
+     * @return true, if a server with the specified name has already
+     * been registered.
      **/
     public boolean hasServer( String name )
     {
@@ -315,11 +339,5 @@ public class ServerTable implements Serializable {
 	initTransient();
     }
 } // ServerTable
-
-
-
-
-
-
 
 
