@@ -73,6 +73,13 @@ public class CDROutputStream
      */
     private Hashtable valueMap = new Hashtable();
 
+    /**
+     * Maps all repository ids that have already been written to this
+     * stream to their position within the buffer.  The position is
+     * stored as a java.lang.Integer.  
+     */
+    private Hashtable repIdMap = new Hashtable();
+
     private final static String null_ior_str = 
         "IOR:00000000000000010000000000000000";
     private final static org.omg.IOP.IOR null_ior = 
@@ -1444,17 +1451,12 @@ public class CDROutputStream
     }
 
     /**
-     * Writes the value of the valuetype instance `value' to this stream,
-     * without codebase or type information.
+     * Writes the value of the valuetype instance `value' to this stream.
      */
     public void write_value (java.io.Serializable value) 
     {
         if (!write_special_value (value))
-        {
-            valueMap.put (value, new Integer(pos));
-            write_long (0x7fffff00); // no codebase, no type information
-            ((org.omg.CORBA.portable.Streamable)value)._write (this);
-        }
+            write_value_internal (value, true);
     }
 
     public void write_value (java.io.Serializable value,
@@ -1468,10 +1470,45 @@ public class CDROutputStream
         }
     }
 
+    public void write_value (java.io.Serializable value,
+                             java.lang.Class clz) 
+    {
+        if (!write_special_value (value))
+        {
+            Class c = value.getClass();
+            if (c == clz)
+                write_value_internal (value, false);
+            else if (clz.isInstance (value))
+                write_value_internal (value, true);
+            else
+                throw new org.omg.CORBA.BAD_PARAM();
+        }
+    }
+
+    public void write_value (java.io.Serializable value,
+                             String repository_id)
+    {
+        if (!write_special_value (value))
+        {
+            
+            String name = 
+                org.jacorb.ir.RepositoryID.className (repository_id);
+            try
+            {
+                write_value (value, Class.forName (name));
+            } 
+            catch (ClassNotFoundException e)
+            {
+                throw new RuntimeException ("couldn't find class " + name +
+                                            " for RepID " + repository_id);
+            }
+        }
+    }
+
     /**
-     * If value is null, or has already been written to this stream,
-     * then this method writes the appropriate encoding and returns true,
-     * otherwise does nothing and returns false.
+     * If `value' is null, or has already been written to this stream,
+     * then this method writes that information to the stream and returns 
+     * true, otherwise does nothing and returns false.
      */
     private boolean write_special_value (java.io.Serializable value) 
     {
@@ -1494,6 +1531,40 @@ public class CDROutputStream
             else
                 return false;
         }
+    }
+
+    private void write_value_internal (java.io.Serializable value,
+                                       boolean withTypeInformation) 
+    {
+        valueMap.put (value, new Integer(pos));
+        if (withTypeInformation) 
+        {
+            write_long (0x7fffff02);
+            Class   c     = value.getClass();
+            String  repId = org.jacorb.ir.RepositoryID.repId (c);
+            Integer index = (Integer)repIdMap.get (repId);
+            if (index == null)
+            {
+                // a new repository id -- write it
+                repIdMap.put (repId, new Integer(pos));
+                write_string (repId);
+            }
+            else
+            {
+                // a previously written repository id -- make an indirection
+                write_long (0xffffffff);
+                write_long (index.intValue() - pos);
+            }
+        }
+        else
+        {
+            write_long (0x7fffff00);
+        }
+
+        if (value instanceof org.omg.CORBA.portable.StreamableValue)
+            ((org.omg.CORBA.portable.StreamableValue)value)._write (this);
+        else
+            throw new RuntimeException ("cannot marshal value " + value);
     }
 
     public void setSize(int s){
