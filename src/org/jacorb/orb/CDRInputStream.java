@@ -1912,8 +1912,24 @@ public class CDRInputStream
         int index = read_long();
         index = index + pos - 4;
         java.lang.Object value = valueMap.get (new Integer(index));
-        if (value == null)
-            throw new org.omg.CORBA.MARSHAL ("stale value indirection");
+        if (value == null) {
+
+            // Java to IDL Language Mapping, v1.1, page 1-44: 
+            //
+            // "The ValueHandler object may receive an IndirectionException
+            // from the ORB stream. The ORB input stream throws this exception
+            // when it is called to unmarshal a value encoded as an indirection
+            // that is in the process of being unmarshaled. This can occur when
+            // the ORB stream calls the ValueHandler object to unmarshal an RMI
+            // value whose state contains a recursive reference to itself. 
+            // Because the top-level ValueHandler.readValue call has not yet
+            // returned a value, the ORB stream's indirection table contains no
+            // entry for an object with the stream offset specified by the
+            // indirection tag. This stream offset is returned in the 
+            // exception's offset field."
+
+            throw new org.omg.CORBA.portable.IndirectionException (index);
+        }
         else
             return (java.io.Serializable)value;
     } 
