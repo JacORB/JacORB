@@ -20,22 +20,22 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.*;
 import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
-import org.jacorb.util.*;
-
-import org.omg.GIOP.*;
-import org.omg.Messaging.ExceptionHolder;
-import org.omg.TimeBase.UtcT;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.jacorb.util.Time;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.SystemException;
-import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.InvokeHandler;
+import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ServantObject;
-
-import java.util.*;
+import org.omg.GIOP.ReplyStatusType_1_2;
+import org.omg.Messaging.ExceptionHolder;
+import org.omg.TimeBase.UtcT;
 
 /**
  * A special ReplyPlaceholder that receives replies to normal requests,
@@ -60,9 +60,6 @@ public class ReplyReceiver extends ReplyPlaceholder
     private String operation;
     private UtcT   replyEndTime;
     private Timer  timer;
-
-    private SystemException      systemException      = null;
-    private ApplicationException applicationException = null;
 
     private boolean retry_on_failure = false;
 
