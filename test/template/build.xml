@@ -37,9 +37,9 @@
    </target>
 
    <target name="rename" depends="init">
-        <replace dir="." token="XYZ">
-                 <include name="*.java"/>
-                 <include name="*.idl"/>
+        <replace dir="." token="XYZ" value="${name}">
+                 <include name="test/${name}/*.java"/>
+                 <include name="test/${name}/*.idl"/>
         </replace>
   </target>
 
