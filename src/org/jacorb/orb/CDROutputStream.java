@@ -243,7 +243,7 @@ public class CDROutputStream
     {
         if (valueMap == null)
         {
-            valueMap = new HashMap(); // should be IdentityHashMap, will be fixed, AS.
+            valueMap = Environment.createIdentityHashMap();
         }
         return valueMap;
     }
@@ -530,7 +530,7 @@ public class CDROutputStream
 
         // set up new indirection maps for this encapsulation
 
-        valueMap = new HashMap(); // should be IdentityHashMap, will be fixed, AS.
+        valueMap = Environment.createIdentityHashMap();
         repIdMap = new HashMap();
         codebaseMap = new HashMap();
 
@@ -2025,32 +2025,21 @@ public class CDROutputStream
             }
             case TCKind._tk_value_box:
             {
-                int tag = in.read_long();
-                if (tag == 0x00000000)
+                try
                 {
-                    write_value(null);   
+                    String id = tc.id();
+                    org.omg.CORBA.portable.BoxedValueHelper helper =
+                        RepositoryID.createBoxedValueHelper(id);
+                    if (helper == null)
+                        throw new RuntimeException
+                            ("No BoxedValueHelper for id " + id);
+                    java.io.Serializable value =
+                      ((org.omg.CORBA_2_3.portable.InputStream)in).read_value(helper);
+                    write_value (value, helper);                    
                 }
-                else if (tag == 0x7fffff00)
+                catch (org.omg.CORBA.TypeCodePackage.BadKind b)
                 {
-                    write_long (0x7fffff00);
-                    try
-                    {
-                        write_value(tc.content_type(), in);
-                    }
-                    catch (org.omg.CORBA.TypeCodePackage.BadKind b)
-                    {
-                        throw new RuntimeException(b.toString());
-                    }
-                }
-                else if (tag == 0xffffffff)
-                {
-                    throw new org.omg.CORBA.NO_IMPLEMENT
-                        ("reference sharing within Anys not implemented");
-                }
-                else
-                {
-                    throw new org.omg.CORBA.NO_IMPLEMENT
-                        ("cannot handle value tag: " + tag + " within Any");
+                    b.printStackTrace();
                 }
                 break;
             }
