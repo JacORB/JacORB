@@ -1,12 +1,16 @@
 package demo.sas;
 
-import java.io.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.security.Principal;
+import java.security.PrivilegedAction;
 
-import org.omg.PortableServer.POA;
-import org.omg.Security.*;
-import org.jacorb.security.sas.*;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+
 import org.omg.CORBA.ORB;
-import org.jacorb.util.*;
+import org.omg.PortableServer.POA;
 
 /**
  * This is the server part of the sas demo. It demonstrates
@@ -19,12 +23,9 @@ import org.jacorb.util.*;
  */
 
 public class KerberosServer extends SASDemoPOA {
-
-	private ORB orb;
-
-	public KerberosServer(ORB orb) {
-		this.orb = orb;
-	}
+	private static Principal myPrincipal = null; 
+	private static Subject mySubject = null;	
+	private static ORB orb;
 
 	public void printSAS() {
 		try {
@@ -36,33 +37,63 @@ public class KerberosServer extends SASDemoPOA {
 			System.out.println("printSAS Error: " + e);
 		}
 	}
-
-	public static void main(String[] args) {
-		if (args.length != 1) {
-			System.out.println("Usage: java demo.sas.GssUpServer <ior_file>");
-			System.exit(-1);
-		}
-
+	
+	public KerberosServer(String[] args) {
 		try {
-			// set security credentials
-			GssUpContext.setUsernamePassword("Server", "");
-
 			// initialize the ORB and POA.
-			ORB orb = ORB.init(args, null);
+			orb = ORB.init(args, null);
 			POA poa = (POA) orb.resolve_initial_references("RootPOA");
 			poa.the_POAManager().activate();
 			
 			// create object and write out IOR
-			org.omg.CORBA.Object demo = poa.servant_to_reference(new KerberosServer(orb));
+			org.omg.CORBA.Object demo = poa.servant_to_reference(this);
 			PrintWriter pw = new PrintWriter(new FileWriter(args[0]));
 			pw.println(orb.object_to_string(demo));
 			pw.flush();
 			pw.close();
-			
-			// run the ORB
-			orb.run();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void main(String[] args) {
+		if (args.length != 2) {
+			System.out.println("Usage: java demo.sas.KerberosServer <ior_file> <password>");
+			System.exit(-1);
+		}
+
+		// login - with Kerberos
+		LoginContext loginContext = null;
+		try {
+			JaasTxtCalbackHandler cbHandler = new JaasTxtCalbackHandler();
+			cbHandler.setMyPassword(args[1].toCharArray());
+			loginContext = new LoginContext("KerberosService", cbHandler);
+			loginContext.login();
+		} catch (LoginException le) {
+			System.out.println("Login error: " + le);
+			System.exit(1);
+		}
+		mySubject = loginContext.getSubject();
+		myPrincipal = (Principal) mySubject.getPrincipals().iterator().next();
+		System.out.println("Found principal " + myPrincipal.getName());
+
+		// run in privileged mode
+		final String[] finalArgs = args;
+		try {
+			Subject.doAs(mySubject, new PrivilegedAction() {
+				public Object run() {
+					try {
+						// create application
+						KerberosServer app = new KerberosServer(finalArgs);
+						orb.run();
+					} catch (Exception e) {
+						System.out.println("Error running program: "+e);
+					}
+					return null;
+				}
+			});
+		} catch (Exception e) {
+			System.out.println("Error running privileged: "+e);
 		}
 	}
 }
