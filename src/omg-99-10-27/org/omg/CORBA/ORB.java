@@ -117,7 +117,9 @@ abstract public class ORB {
     abstract public TypeCode create_sequence_tc(int bound, 
                                     TypeCode element_type);
 
-    abstract public TypeCode create_recursive_sequence_tc(int bound, int offset);
+    public TypeCode create_recursive_sequence_tc(int bound, int offset) {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
 
     abstract public TypeCode create_array_tc(int length, TypeCode element_type);
 

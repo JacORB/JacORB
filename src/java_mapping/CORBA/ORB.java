@@ -194,9 +194,11 @@ new RuntimeException().printStackTrace();
     abstract public TypeCode create_sequence_tc(int bound, 
                                     TypeCode element_type);
 
-    abstract public TypeCode create_recursive_sequence_tc(int bound, int offset);
-
     abstract public TypeCode create_array_tc(int length, TypeCode element_type);
+
+    public TypeCode create_recursive_sequence_tc(int bound, int offset) {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }   
 
     public org.omg.CORBA.TypeCode create_native_tc(String id,
                                     String name) {
