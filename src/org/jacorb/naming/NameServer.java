@@ -44,11 +44,6 @@ public class NameServer
 
     private static String filePrefix = "_nsdb";
 
-    private static void usage()
-    {
-	System.err.println("Usage: java org.jacorb.naming.NameServer <ior_filename> [ <time_out> [imr_register] ]");
-	System.exit(1);
-    }
 
     /**
      * The servant manager (servant activator) for the name server POA
@@ -145,29 +140,70 @@ public class NameServer
     }
 
 
+    private static void usage()
+    {
+	System.err.println("Usage: java org.jacorb.naming.NameServer [<ior_filename>] [-p <ns_port>] [-t <time_out> [imr_register] ]");
+	System.exit(1);
+    }
+
     /** Main */
 
     public static void main( String args[] )  
     {
+        String port = null;
+        boolean imr_register = false;
+        String fileName = null;
+
 	try
 	{
 	    /* get time out value if any */
 	    int time_out = 0;
-	    if( args.length < 1)
+
+	    if( args.length > 6 )
 	    {
-		usage();
-	    }
-	    
-	    if( args.length >= 2 )
-	    {
-		try
-		{
-		    time_out = Integer.parseInt( args[1] );
-		} 
-		catch( NumberFormatException nf )
-		{
-		    usage();
-		}
+                usage();
+            }
+
+            int idx = 0;
+
+            if( args.length > 0 )
+            {
+                if( !args[0].startsWith("-p"))
+                {
+                    fileName = args[0];
+                    idx++;
+                }
+
+                if( args[idx].startsWith("-p"))
+                {
+                    if( idx+1 < args.length )
+                    {
+                        port = args[ idx+1 ];
+                        idx++;
+                    }
+                    else
+                        usage();
+                }
+
+
+                if( args[ idx ].startsWith("-t"))
+                {
+                    if( idx+1 < args.length )
+                    {
+                        try
+                        {
+                            time_out = Integer.parseInt( args[ idx+1] );
+                            idx++;
+                        } 
+                        catch( NumberFormatException nf )
+                        {
+                        }
+                        if( idx +1 < args.length && args[idx +1].equals("imr_register") )
+                            imr_register = true;
+                    }
+                    else
+                        usage();
+                }                    
 	    }
 
 	    java.util.Properties props = new java.util.Properties();
@@ -189,6 +225,9 @@ public class NameServer
              */
             props.put( "jacorb.connection.server_timeout", "10000" );
 
+            if( port !=null )
+                props.put( "OAPort", port );
+
 
 	    /* which directory to store/load in? */
 
@@ -202,9 +241,7 @@ public class NameServer
 
 	    orb = org.omg.CORBA.ORB.init(args, props);
 
-	    if ( org.jacorb.util.Environment.useImR() && 
-                 (args.length == 3) &&
-                 args[2].equals("imr_register") )
+	    if ( org.jacorb.util.Environment.useImR() && imr_register)
             {
 	      
                 // don't supply "imr_register", so a ns started by an imr_ssd
@@ -243,7 +280,7 @@ public class NameServer
 	    nsPOA.set_servant_manager( servantActivator );
 	    nsPOA.the_POAManager().activate();
 
-	    for (int i=0; i<policies.length; i++) 
+	    for (int i = 0; i < policies.length; i++) 
 		policies[i].destroy();			
 
 
@@ -255,11 +292,14 @@ public class NameServer
 		org.omg.CORBA.Object obj = 
 		    nsPOA.create_reference_with_id( oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
 						
-		PrintWriter out =
-                    new PrintWriter( new FileOutputStream( args[0] ), true );
-
-		out.println( orb.object_to_string(obj) );
-		out.close();
+                if( fileName != null )
+                {                
+                    PrintWriter out =
+                        new PrintWriter( new FileOutputStream( fileName ), true );
+                    
+                    out.println( orb.object_to_string(obj) );
+                    out.close();
+                }
 	    }
 	    catch ( Exception e )
 	    {	    
