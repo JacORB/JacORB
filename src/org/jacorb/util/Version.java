@@ -34,7 +34,7 @@ public final class Version
 {
     public static final String shortVersion = "1.4";
 
-    public static final String version = shortVersion + " beta 4";
+    public static final String version = shortVersion;
 
     public static final String date = "March 2002";
 
