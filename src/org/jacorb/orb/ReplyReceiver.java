@@ -58,7 +58,7 @@ public class ReplyReceiver extends ReplyPlaceholder
     private org.omg.Messaging.ReplyHandler replyHandler = null;
 
     private String operation;
-    private UtcT   roundtripTimeout;
+    private UtcT   replyEndTime;
     private Timer  timer;
     
     private SystemException      systemException      = null;
@@ -68,7 +68,7 @@ public class ReplyReceiver extends ReplyPlaceholder
 
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
                           String                         operation,
-                          org.omg.TimeBase.UtcT          roundtripTimeout,
+                          org.omg.TimeBase.UtcT          replyEndTime,
                           ClientInterceptorHandler       interceptors,
                           org.omg.Messaging.ReplyHandler replyHandler,
                           boolean remarshalOnCF )
@@ -77,13 +77,13 @@ public class ReplyReceiver extends ReplyPlaceholder
 
         this.delegate         = delegate;
         this.operation        = operation;
-        this.roundtripTimeout = roundtripTimeout;
+        this.replyEndTime     = replyEndTime;
         this.interceptors     = interceptors;
         this.replyHandler     = replyHandler;
         
-        if (roundtripTimeout != null)
+        if (replyEndTime != null)
         {
-            timer = new Timer (roundtripTimeout);
+            timer = new Timer (replyEndTime);
             timer.start();
         }
         else
