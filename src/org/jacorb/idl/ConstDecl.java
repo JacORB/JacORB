@@ -26,14 +26,14 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 import java.io.*;
 
 class ConstDecl 
     extends Declaration 
 {
-    private static java.util.Hashtable values = new java.util.Hashtable();
+    private static Hashtable values = new Hashtable();
+    private static Hashtable declarations = new Hashtable();
     private ScopedName t = new ScopedName( new_num() );
     private int pos_int_const = 0;
     private boolean int_const_set = false;
@@ -44,6 +44,12 @@ class ConstDecl
     public ConstDecl(int num)
     {
 	super(num);
+    }
+
+    public static void init()
+    {
+        values.clear();
+        declarations.clear();
     }
 
     public static String namedValue( ScopedName sn )
@@ -79,12 +85,20 @@ class ConstDecl
 	} 
 	catch (NameAlreadyDefined p)
 	{
-	    parser.error("Constant " + full_name() + " already defined", token );
+	    parser.error("Constant " + full_name() + 
+                         " already defined", token );
 	}
 	const_type.parse();
 	const_expr.parse();
 	t.typeName = name;
-	values.put( t.resolvedName(), const_expr.value() );
+	values.put( t.resolvedName() + ( contained() ? "" : ".value" ), 
+                    const_expr.value() );
+	declarations.put( t.resolvedName(), this );
+    }
+
+    static ConstDecl getDeclaration( String resolvedName )
+    {
+        return (ConstDecl)declarations.get( resolvedName );
     }
 
     int pos_int_const()
@@ -97,14 +111,17 @@ class ConstDecl
 	return pos_int_const;
     }
 
-    /** prints a constant declaration as part of an enclosing interface */
+    /** 
+     *  prints  a  constant  declaration  as  part  of  an  enclosing
+     *  interface 
+     */
 
     public void printContained(PrintWriter ps)
     {
         TypeSpec ts = const_type.symbol.typeSpec();
+
         if( ts instanceof AliasTypeSpec )
             ts = ((AliasTypeSpec)ts).originalType();
-
 
 	ps.print("\t" + const_type + " " + name + " = ");
 	if( ts instanceof IntType && 
@@ -124,7 +141,7 @@ class ConstDecl
 	}
 	else if( ts instanceof FixedPointConstType )
 	{
-		// float constant values have to be cast explicitly  
+		// fixed point values have to be created explicitly 
 		ps.print("new java.math.BigDecimal(");
 		const_expr.print(ps);
 		ps.println(");");	
@@ -145,6 +162,7 @@ class ConstDecl
 
     boolean contained()
     {
+
         boolean result = false;
         IdlSymbol enc = getEnclosingSymbol();
 
@@ -157,6 +175,8 @@ class ConstDecl
             }
             enc = enc.getEnclosingSymbol();
         }
+        Environment.output( 4, "ConstDecl.contained()? " +   full_name() 
+                            + " returns " + result );
         return result;
     }
 
@@ -220,7 +240,8 @@ class ConstDecl
 
 	    pw.print("\t" + const_type.toString() + " value = ");
 
-            Environment.output(2, "ConstDecl, ts " + ts.getClass() );
+            Environment.output(2, "ConstDecl, ts " + 
+                               const_type.toString()  + " " + ts.getClass() );
 
 	    if( ts instanceof  ShortType)
 	    {
@@ -237,7 +258,8 @@ class ConstDecl
 		// float constant values have to be cast explicitly  
 		pw.println("(byte)(" + const_expr.toString() + ");");
 	    }
-	    else if( ts instanceof FixedPointConstType )
+	    else if( ts instanceof FixedPointConstType ||
+                     ts instanceof FixedPointType )
 	    {
 		pw.println("new java.math.BigDecimal(" + const_expr.toString() + ");");
 	    }
