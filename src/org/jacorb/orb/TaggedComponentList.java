@@ -13,7 +13,7 @@ import org.omg.IOP.*;
  * @author Andre Spiegel
  * @version $Id$
  */
-public class TaggedComponentList
+public class TaggedComponentList implements Cloneable
 {
 	private TaggedComponent[] components = null;
 	
@@ -54,6 +54,24 @@ public class TaggedComponentList
 	{
 		return components[index];
 	}
+    
+    public Object clone() throws CloneNotSupportedException
+    {
+        TaggedComponentList result = (TaggedComponentList)super.clone();
+        result.components = new TaggedComponent[this.components.length];
+        for (int i=0; i<this.components.length; i++)
+        {
+            result.components[i] = new TaggedComponent
+            (
+                this.components[i].tag,
+                new byte [this.components[i].component_data.length]
+            );
+            System.arraycopy (this.components[i].component_data, 0,
+                              result.components[i].component_data, 0,
+                              this.components[i].component_data.length);   
+        }
+        return result;
+    }
 	
 	public TaggedComponent[] asArray()
 	{
