@@ -45,8 +45,8 @@ public class SSLServerSocketFactory
     private boolean change_roles = false;
     private boolean trusteesFromKS = false;
     private String[] cipher_suites = null;
-    private int serverSupportedOptions = 0;
-    private int serverRequiredOptions = 0;
+    private short serverSupportedOptions = 0;
+    private short serverRequiredOptions = 0;
     private String keystore_location = null;
     private String keystore_passphrase = null;
     private Logger logger;
@@ -65,15 +65,20 @@ public class SSLServerSocketFactory
 
  
         trusteesFromKS = 
-            configuration.getAttribute("jacorb.security.jsse.trustees_from_ks","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks", false);
+
 
         serverSupportedOptions = 
-            configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 16 );
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
+                16); // 16 is the base as we take the string value as hex!
 
         serverRequiredOptions = 
-            configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options", 16 );
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
+                16);
 
-	if( ( serverSupportedOptions & 0x40) != 0 )
+	if( (serverSupportedOptions & 0x40) != 0 )
 	{
 	    // would prefer to establish trust in client.  If client can support
 	    // authentication, it will, otherwise we will continue
@@ -83,7 +88,7 @@ public class SSLServerSocketFactory
 	    request_mutual_auth = true;
 	}
 
-	if( (configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 )
+	if( (serverRequiredOptions & 0x40) != 0 )
 	{
 	    //required: establish trust in client
 	    //--> force other side to authenticate
