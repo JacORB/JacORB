@@ -253,7 +253,7 @@ public class ScopedName
 
     public boolean is_pseudo()
     {
-        return NameTable.defined( resolvedName(), "pseudo interface" );
+        return NameTable.isDefined( resolvedName(), "pseudo interface" );
     }
 
     public TypeSpec resolvedTypeSpec()
@@ -286,144 +286,162 @@ public class ScopedName
 
 
     /**
-     * This is the main name resoltion algorithm. It
-     * resolves a qualified name s by replacing it by a fully
-     * qualified one, (watch out for typedef'd names!)
-     *
-     * @return a fully qualified IDL identifier
-     */
+	 * This is the main name resolution algorithm. It resolves a qualified name
+	 * s by replacing it by a fully qualified one, (watch out for typedef'd
+	 * names!)
+	 * 
+	 * @param name
+	 *            the name that is to be resolved. This may be a simple name, 
+	 *            a partially qualified name, or even a fully qualifed name. 
+	 * @param scopeOfOrigin
+	 * 			  the scope from within which the resolution starts
+	 * @return a fully qualified IDL identifier
+	 */
 
-    private String resolvedName( String pack_name, String s )
+    private String resolvedName( String scopeOfOrigin, String name )
     {
         if( logger.isInfoEnabled() )
-            logger.info( "Resolve " + pack_name + ":" + s );
+            logger.info( "Resolve " + scopeOfOrigin + ":" + name );
 
-        boolean global = false;
-
-        if( s == null )
-            throw new RuntimeException( "Parser Error: null string in ScopedName (pack_name: " + pack_name + ") !" );
+        if( name == null )
+            throw new RuntimeException( "Parser Error: null string in ScopedName (pack_name: " + scopeOfOrigin + ") !" );
 
         String result = null;
-        String suffix = "";
 
-        if( s.charAt( 0 ) == '.' )
+        // a fully qualified name starts with a '.'
+        boolean global = false;
+        if( name.charAt( 0 ) == '.' )
         {
-            s = s.substring( 1 );
+        	// strip the dot
+            name = name.substring( 1 );
             global = true;
         }
 
-        if( s.endsWith( "[]" ) )
+        // strip any "[]" but remember them for later
+        String bracketSuffix = "";
+        if( name.endsWith( "[]" ) )
         {
-            result = s.substring( 0, s.indexOf( "[" ) );
-            suffix = "[]";
+            result = name.substring( 0, name.indexOf( "[" ) );
+            bracketSuffix = "[]";
         }
         else
-            result = s;
+            result = name;
 
-        if( NameTable.defined( ( !global? pack_name + "." : "" ) + result ) )
+        // see if "scope.name" is a defined name. If so, return that 
+        // definition. First, try to form a combined name
+        if( !global && 
+        		NameTable.isDefined( scopeOfOrigin + "." + result ))
         {
-            String unmap = unMap( ( !global? pack_name + "." : "" ) + result );
+            String unmappedResult = 
+            	unMap( scopeOfOrigin + "."  + result );
 
             if( logger.isInfoEnabled() )
-                logger.info( "resolve, " +
-                             ( !global? pack_name + "." : "" ) + result +
-                             " was in name table, returning " + unmap +
-                             " suffix: " + suffix );
+                logger.info( "resolve, " + scopeOfOrigin + "."  + result +
+                             " was in name table, returning " + unmappedResult +
+                             " suffix: " + bracketSuffix );
 
-            return unmap + suffix;
+            return unmappedResult + bracketSuffix;
         }
 
+        // now, check if name is known by itself (either because it is global
+        // or it is a qualified name) 
+        if( (global || result.indexOf('.') > 0 ) 
+        		&& NameTable.isDefined(result) )
+        {
+            String unmappedResult = unMap( result );
+
+            if( logger.isInfoEnabled() )
+                logger.info( "resolve, found " + result +
+                             " in name table, returning " + unmappedResult +
+                             " suffix: " + bracketSuffix );
+
+            return unmappedResult + bracketSuffix;
+        }
+
+        
+        // split up all scopes contained in the name
         java.util.StringTokenizer strtok =
-        new java.util.StringTokenizer( s, "." );
-        String s_scopes[] = new String[ strtok.countTokens() ];
-
-        for( int i = 0; strtok.hasMoreTokens(); i++ )
-        {
-            s_scopes[ i ] = strtok.nextToken();
+        	new java.util.StringTokenizer( name, "." );
+        String nameScopes[] = new String[ strtok.countTokens() ];
+        for( int i = 0; strtok.hasMoreTokens(); i++ ) {
+            nameScopes[ i ] = strtok.nextToken();
         }
 
-        // ADDED (Don Busch )
-        if( s_scopes.length > 0 )
+        // if there are scopes in the name itself...
+        if( nameScopes.length > 0 )
         {
-            // Try to get help from the package map
-            String pack_replace = parser.pack_replace( s_scopes[ 0 ] );
-
-            if( !pack_replace.equals( s_scopes[ 0 ] ) )
+            // see if the compiler has registerd replacement names for
+        	// our scopes
+            String replacedPackageName = parser.pack_replace( nameScopes[ 0 ] );
+            if( !replacedPackageName.equals( nameScopes[ 0 ] ) )
             {
-                // rebuild the fully scoped name
-                StringBuffer t = new StringBuffer();
-                t.append( pack_replace );
-                for( int i = 1; i < s_scopes.length; ++i )
+                // okay, it has, so rebuild the fully scoped name 
+                StringBuffer tmpString = new StringBuffer();
+                tmpString.append( replacedPackageName );
+                for( int i = 1; i < nameScopes.length; ++i )
                 {
-                    t.append( "." );
-                    t.append( s_scopes[ i ] );
+                    tmpString.append( "." );
+                    tmpString.append( nameScopes[ i ] );
                 }
 
-                result = t.toString();
-                if( NameTable.defined( result ) )
+                // check if this is a defined name now
+                result = tmpString.toString();
+                if( NameTable.isDefined( result ) )
                 {
-                    String unmap2 = unMap( result );
+                    String unmappedResult = unMap( result );
 
                     if( logger.isInfoEnabled() )
-                        logger.info( "resolve b, " + result + " was in name table, returning " +  unmap2 + " suffix: " + suffix );
-                    return unmap2 + suffix;
+                        logger.info( "resolve b, " + result + " was in name table, returning " +  unmappedResult + " suffix: " + bracketSuffix );
+                    return unmappedResult + bracketSuffix;
                 }
             }
         }
-        // END ADDED
 
-        // MOVED (Don Busch)
-
+        // split up the individual scopes in the scopeOfOrigin
         java.util.StringTokenizer p_strtok =
-        new java.util.StringTokenizer( pack_name, "." );
-        String p_scopes[] = new String[ p_strtok.countTokens() ];
-
+        	new java.util.StringTokenizer( scopeOfOrigin, "." );
+        String packageScopes[] = new String[ p_strtok.countTokens() ];
         for( int i = 0; p_strtok.hasMoreTokens(); i++ )
         {
-            p_scopes[ i ] = p_strtok.nextToken();
+            packageScopes[ i ] = p_strtok.nextToken();
         }
-        // END MOVED
 
-        /* If the  simple name was not known and we  have no scopes at
-           all, try the global scope. If the name's not found, emit an
-           error message */
-
-        if( s_scopes.length == 0 || p_scopes.length == 0 )
+        // If the simple name was not known and we have no scopes at
+		// all, try the global scope. 
+        if( nameScopes.length == 0 || packageScopes.length == 0 )
         {
-            if( NameTable.defined( result ) )
+            if( NameTable.isDefined( result ) )
             {
-                return unMap( result ) + suffix;
+                return unMap( result ) + bracketSuffix;
             }
-            // else
-            parser.fatal_error( "Undefined name: " + s + " .", token );
+            // else: the name is not found, emit an error message
+            parser.fatal_error( "Undefined name: " + name + " .", token );
         }
 
-        // if package name and the name s, which is to be resolved, begin
-        // with the same scoping qualifiers, strip these from s
-
-        if( s_scopes[ 0 ].equals( p_scopes[ 0 ] ) )
+        // if package name and the name which is to be resolved begin
+        // with the same scoping qualifiers, strip these from name
+        if( nameScopes[ 0 ].equals( packageScopes[ 0 ] ) )
         {
-            StringBuffer t = new StringBuffer();
-            int i;
+            StringBuffer tmpString = new StringBuffer();
+            int minScopesLength = nameScopes.length < packageScopes.length ?
+            		nameScopes.length : packageScopes.length;
 
-            int m = s_scopes.length < p_scopes.length ?
-            s_scopes.length : p_scopes.length;
-
-            if( m > 1 )
+            if( minScopesLength > 1 )
             {
-                for( i = 1; i < m - 1; i++ )
+                int i;
+                for( i = 1; i < minScopesLength - 1; i++ )
                 {
-                    if( !( s_scopes[ i ].equals( p_scopes[ i ] ) ) )
+                    if( !( nameScopes[ i ].equals( packageScopes[ i ] ) ) )
                         break;
                 }
-                t.append( s_scopes[ i ] );
+                tmpString.append( nameScopes[ i ] );
 
-                for( int k = i + 1; k < s_scopes.length; k++ )
+                for( int k = i + 1; k < nameScopes.length; k++ )
                 {
-                    t.append( "." );
-                    t.append( s_scopes[ k ] );
+                    tmpString.append( "." );
+                    tmpString.append( nameScopes[ k ] );
                 }
-                s = t.toString();
+                name = tmpString.toString();
             }
         }
 
@@ -434,55 +452,55 @@ public class ScopedName
         {
             prefix = parser.package_prefix + ".";
             java.util.StringTokenizer prefix_strtok =
-            new java.util.StringTokenizer( prefix, "." );
+            	new java.util.StringTokenizer( prefix, "." );
             String prefix_scopes[] = new String[ prefix_strtok.countTokens() ];
 
             for( int i = 0; prefix_strtok.hasMoreTokens(); i++ )
                 prefix_scopes[ i ] = prefix_strtok.nextToken();
 
             while( start_index < prefix_scopes.length &&
-                   prefix_scopes[ start_index ].equals( p_scopes[ start_index ] ) )
+                   prefix_scopes[ start_index ].equals( packageScopes[ start_index ] ) )
                 start_index++;
         }
 
         StringBuffer buf = new StringBuffer();
-        int k = p_scopes.length - start_index;
+        int k = packageScopes.length - start_index;
 
         if( k > 0 )
-            buf.append( p_scopes[ start_index ] + "." );
+            buf.append( packageScopes[ start_index ] + "." );
 
-        for( int j = start_index + 1; j < p_scopes.length; j++ )
+        for( int j = start_index + 1; j < packageScopes.length; j++ )
         {
-            buf.append( p_scopes[ j ] );
+            buf.append( packageScopes[ j ] );
             buf.append( "." );
         }
 
-        buf.append( s );
+        buf.append( name );
 
         int sub = start_index + 1;
 
-        while( !NameTable.defined( prefix + buf.toString() ) )
+        while( !NameTable.isDefined( prefix + buf.toString() ) )
         {
-            if( sub > p_scopes.length )
+            if( sub > packageScopes.length )
             {
-                parser.fatal_error( "Undefined name: " + pack_name + "." + s, token );
+                parser.fatal_error( "Undefined name: " + scopeOfOrigin + "." + name, token );
                 return "/* unresolved name */";
             }
             buf = new StringBuffer();
-            k = p_scopes.length - sub++;
+            k = packageScopes.length - sub++;
             if( k > 0 )
             {
-                buf.append( p_scopes[ start_index ] + "." );
+                buf.append( packageScopes[ start_index ] + "." );
                 for( int j = start_index + 1; j < k + start_index; j++ )
                 {
-                    buf.append( p_scopes[ j ] );
+                    buf.append( packageScopes[ j ] );
                     buf.append( "." );
 
                 }
             }
-            buf.append( s );
+            buf.append( name );
         }
-        String res = unMap( prefix + buf.toString() ) + suffix;
+        String res = unMap( prefix + buf.toString() ) + bracketSuffix;
         if( logger.isDebugEnabled() )
             logger.debug( "ScopedName.resolve (at end) returns: " + res );
         return res;
