@@ -54,6 +54,8 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.WrongAdapter;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.TimeBase.UtcT;
+import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
+import org.omg.PortableServer.Servant;
 
 /**
  * JacORB implementation of CORBA object reference
@@ -102,6 +104,11 @@ public final class Delegate
     private Hashtable policy_overrides;
 
     private boolean doNotCheckExceptions = false; //Setting for Appligator
+
+    private CookieHolder cookie = null;
+
+    private String invokedOperation = null;
+
     /**
      * A general note on the synchronization concept
      *
@@ -1349,11 +1356,38 @@ public final class Delegate
 
     public void servant_postinvoke( org.omg.CORBA.Object self, ServantObject servant )
     {
-        orb.getPOACurrent()._removeContext( Thread.currentThread() );
         if (poa != null)
         {
-            poa.removeLocalRequest ();
+            if ( poa.isUseServantManager() )
+            {
+               if (! poa.isRetain() &&
+                   cookie != null &&
+                   invokedOperation != null )
+               {
+                  // ServantManager is a ServantLocator:
+                  // call postinvoke
+                  try
+                  {
+                     byte [] oid =
+                         POAUtil.extractOID( getParsedIOR().get_object_key() );
+                     org.omg.PortableServer.ServantLocator sl =
+                         ( org.omg.PortableServer.ServantLocator ) poa.get_servant_manager();
+
+                     sl.postinvoke( oid, poa, invokedOperation, cookie.value, (Servant)servant.servant );
+
+                     // delete stored values
+                     cookie = null;
+                     invokedOperation = null;
+                  }
+                  catch ( Throwable e )
+                  {
+                      Debug.output( 2, e );
+                  }
+               }
+            }
+           poa.removeLocalRequest ();
         }
+        orb.getPOACurrent()._removeContext( Thread.currentThread() );
     }
 
     /**
@@ -1417,9 +1451,15 @@ public final class Delegate
                         org.omg.PortableServer.ServantLocator sl =
                             ( org.omg.PortableServer.ServantLocator ) sm;
 
+                        // store this for postinvoke
+
+                        cookie =
+                           new org.omg.PortableServer.ServantLocatorPackage.CookieHolder();
+
+                        invokedOperation = operation;
+
                         so.servant =
-                        sl.preinvoke( oid, poa, operation,
-                                      new org.omg.PortableServer.ServantLocatorPackage.CookieHolder() );
+                            sl.preinvoke( oid, poa, operation, cookie );
                     }
                 }
                 else
