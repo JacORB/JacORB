@@ -140,6 +140,7 @@ parser code
         }
         catch( org.jacorb.idl.ParseException e )
         {
+            System.err.println( "Parse Error: " + e.toString() );
             return false;
         }
         catch ( java.io.IOException io )
