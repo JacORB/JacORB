@@ -117,8 +117,7 @@ public class RepositoryID
                 return "IDL:" + scopesToIR(className) + ":1.0" ;
         }
 	else    
-            return javax.rmi.CORBA.Util.createValueHandler()
-                     .getRMIRepositoryID (c);
+            return org.jacorb.util.ValueHandler.getRMIRepositoryID (c);
     }
 
     private static String scopesToIR( String s )
