@@ -264,7 +264,8 @@ public class GIOPConnectionTest extends TestCase
             new GIOPConnectionManager();
 
         ServerGIOPConnection conn = 
-            giopconn_mg.createServerGIOPConnection( transport,
+            giopconn_mg.createServerGIOPConnection( null,
+                                                    transport,
                                                     request_listener,
                                                     reply_listener );
 
@@ -334,7 +335,8 @@ public class GIOPConnectionTest extends TestCase
             new GIOPConnectionManager();
         
         GIOPConnection conn = 
-            giopconn_mg.createServerGIOPConnection( transport,
+            giopconn_mg.createServerGIOPConnection( null, 
+                                                    transport,
                                                     request_listener,
                                                     reply_listener );
 
@@ -445,7 +447,8 @@ public class GIOPConnectionTest extends TestCase
             new GIOPConnectionManager();
         
         GIOPConnection conn = 
-            giopconn_mg.createServerGIOPConnection( transport,
+            giopconn_mg.createServerGIOPConnection( null,
+                                                    transport,
                                                     request_listener,
                                                     reply_listener );
 
@@ -517,7 +520,8 @@ public class GIOPConnectionTest extends TestCase
             new GIOPConnectionManager();
         
         GIOPConnection conn = 
-            giopconn_mg.createServerGIOPConnection( transport,
+            giopconn_mg.createServerGIOPConnection( null,
+                                                    transport,
                                                     request_listener,
                                                     reply_listener );
 
