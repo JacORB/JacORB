@@ -22,7 +22,6 @@ package org.jacorb.orb;
 
 import java.util.*;
 import java.io.*;
-import java.applet.Applet;
 import java.lang.reflect.*;
 
 import org.jacorb.imr.ImRAccessImpl;
@@ -138,8 +137,6 @@ public final class ORB
 
     /** command like args */
     public String[] _args;
-
-    public java.applet.Applet applet;
 
     /* for run() and shutdown()  */
     private Object orb_synch = new java.lang.Object();
@@ -852,24 +849,6 @@ public final class ORB
         return rootpoa;
     }
 
-
-    /**
-     * @return - true if ORB is initialized by an applet and
-     * appligator use is switched on
-     */
-
-    public boolean isApplet()
-    {
-        return applet != null;
-        //return applet != null && Environment.useAppligator();
-    }
-
-
-    public Applet getApplet()
-    {
-        return applet;
-    }
-
     public String[] list_initial_services()
     {
         List l = new ArrayList();
@@ -1184,34 +1163,6 @@ public final class ORB
                     throw new org.omg.CORBA.ORBPackage.InvalidName();
                 }
             }
-            /* "special" behavior follows */
-            else if (identifier.equals("NameService") && isApplet())
-            {
-                try
-                {
-                    // try to get location of URL with ns's IOR from a file
-                    //     called NameService.ior at the applet's host
-                    String ior_str =
-                        org.jacorb.util.ObjectUtil.readURL("http://"
-                                                           + applet.getCodeBase().getHost()
-                                                           + "/"
-                                                           + "NameService.ior");
-                    obj = this.string_to_object (ior_str);
-                }
-                catch( IOException io )
-                {
-                    if (logger.isWarnEnabled())
-                        logger.warn(io.getMessage());
-                }
-
-                if (obj != null)
-                {
-                    if (! obj._is_a(org.omg.CosNaming.NamingContextHelper.id()))
-                    {
-                        obj = null;
-                        }
-                }
-            }
             else if( identifier.equals("RootPOA") )
             {
                 return (org.omg.CORBA.Object)getRootPOA();
@@ -1524,6 +1475,38 @@ public final class ORB
                 }
             }
         }
+
+        internalInit();
+    }
+
+    /**
+     * Initialization method, called from within the super class
+     * org.omg.CORBA.ORB
+     */
+
+    protected void set_parameters(java.applet.Applet app, 
+                                  java.util.Properties props)
+    {
+        _props = props;
+
+        try
+        {
+            configure( org.jacorb.config.Configuration.getConfiguration(props, this));
+        }
+        catch( ConfigurationException ce )
+        {
+            if (logger.isErrorEnabled())
+            {
+                logger.error( ce.getMessage());
+            }
+            throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
+        }
+
+        internalInit();
+    }
+
+    private void internalInit()
+    {
         policyManager = new PolicyManager( this );
 
         try
@@ -1569,75 +1552,6 @@ public final class ORB
 
         interceptorInit();
     }
-
-    /**
-     * Initialization method, called from within the super class
-     * org.omg.CORBA.ORB
-     */
-
-    protected void set_parameters(java.applet.Applet app, java.util.Properties props)
-    {
-        applet = app;
-        _props = props;
-
-        try
-        {
-            configure( org.jacorb.config.Configuration.getConfiguration(props, this));
-        }
-        catch( ConfigurationException ce )
-        {
-            if (logger.isErrorEnabled())
-            {
-                logger.error( ce.getMessage());
-            }
-            throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
-        }
-
-
-        try
-        {
-            clientConnectionManager =
-                new ClientConnectionManager( this,
-                                             getTransportManager(),
-                                             getGIOPConnectionManager() );
-            clientConnectionManager.configure(configuration);
-        }
-        catch( ConfigurationException ce )
-        {
-            if (logger.isErrorEnabled())
-                logger.error(ce.getMessage());
-        }
-
-        if( hashTableClassName == null || hashTableClassName.length() == 0 )
-        {
-            if (logger.isInfoEnabled())
-            {
-                logger.info("Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
-            }
-            knownReferences = new HashMap();
-        }
-        else
-        {
-            try
-            {
-                knownReferences =
-                    (Map)ObjectUtil.classForName( hashTableClassName ).newInstance();
-            }
-            catch( Exception e )
-            {
-                if (logger.isInfoEnabled())
-                {
-                    logger.info(e.getMessage());
-                }
-                knownReferences = new HashMap();
-            }
-        }
-
-
-        // unproxyTable = new Hashtable();
-        interceptorInit();
-    }
-
     /**
      * This method retrieves the ORBInitializer-Names from the Environment,
      * and runs them.
@@ -1947,14 +1861,6 @@ public final class ORB
         }
     }
 
-    /**
-     * forces the use of a proxy (by using a dummy applet)
-     */
-
-    public void useProxy()
-    {
-        applet = new java.applet.Applet();
-    }
 
     public String object_to_string( org.omg.CORBA.Object obj)
     {
