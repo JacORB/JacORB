@@ -28,9 +28,11 @@ import org.ietf.jgss.*;
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.ORBPackage.*;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.*;
 
 import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
+import org.jacorb.orb.*;
 import org.omg.IOP.*;
 import org.omg.GIOP.*;
 import org.omg.CSI.*;
@@ -93,20 +95,19 @@ public class TSSInvocationInterceptor
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
+        //System.out.println("receive_request_service_contexts");
         if (ri.operation().equals("_is_a")) return;
         if (ri.operation().equals("_non_existent")) return;
 
-        //System.out.println("receive_request_service_contexts");
         SASContextBody contextBody = null;
         GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
         long client_context_id = 0;
         byte[] contextToken = null;
+        GSSManager gssManager = TSSInitializer.gssManager;
 
         // parse service context
-        GSSManager gssManager = null;
         try
         {
-            gssManager = TSSInitializer.gssManager;
             ServiceContext ctx = ri.get_request_service_context(SecurityAttributeService);
             Any ctx_any = codec.decode( ctx.context_data );
             contextBody = SASContextBodyHelper.extract(ctx_any);
@@ -114,7 +115,7 @@ public class TSSInvocationInterceptor
         catch (Exception e)
         {
             Debug.output(1, "Could not parse service context for operation " + ri.operation() + ": " + e);
-            throw new org.omg.CORBA.NO_PERMISSION("Error parsing service context");
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing service context: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
 
         // process MessageInContext
@@ -130,12 +131,12 @@ public class TSSInvocationInterceptor
             catch (Exception e)
             {
                 Debug.output(1, "Could not parse service MessageInContext: " + e);
-                throw new org.omg.CORBA.NO_PERMISSION("Error parsing MessageInContext");
+                throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
             }
             if (contextToken == null)
             {
                 Debug.output(1, "Could not parse service MessageInContext: " + msg.client_context_id);
-                throw new org.omg.CORBA.NO_PERMISSION("Error parsing MessageInContext");
+                throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
             }
         }
 
@@ -158,13 +159,12 @@ public class TSSInvocationInterceptor
             catch (Exception e)
             {
                 Debug.output(1, "Could not parse service EstablishContext: " + e);
-                e.printStackTrace();
-                throw new org.omg.CORBA.NO_PERMISSION("Error parsing EstablishContext");
+                throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
             }
             if (contextToken == null)
             {
                 Debug.output(1, "Could not parse service EstablishContext: " + msg.client_context_id);
-                throw new org.omg.CORBA.NO_PERMISSION("Error parsing EstablishContext");
+                throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
             }
 
             // cache context
@@ -178,8 +178,6 @@ public class TSSInvocationInterceptor
             source_any.insert_string(new String(contextToken));
             Any msg_any = orb.create_any();
             EstablishContextHelper.insert(msg_any, connection.getSASContextMsg(client_context_id));
-            //Any tokens_any = orb.create_any();
-            //tokens_any.insert_string(new String(contextToken));
             ri.set_slot( sourceNameSlotID, source_any);
             ri.set_slot( contextMsgSlotID, msg_any);
             ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id, true));
@@ -188,22 +186,23 @@ public class TSSInvocationInterceptor
         {
             Debug.output(1, "Error insert service context into slots: " + e);
             try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
-            throw new org.omg.CORBA.NO_PERMISSION("Error insert service context into slots");
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error insert service context into slots: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
     }
 
     public void send_reply( ServerRequestInfo ri )
     {
+        //System.out.println("send_reply");
         Any slot_any = null;
         try {
             slot_any = ri.get_slot(sasReplySlotID);
         }
         catch (Exception e)
         {
+            Debug.output(2, "No SAS reply found");
         }
         if (slot_any == null) return;
 
-        //System.out.println("send_reply");
         try
         {
             ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( slot_any ) ), true);
@@ -211,6 +210,7 @@ public class TSSInvocationInterceptor
         catch (Exception e)
         {
             Debug.output(1, "Error setting reply service context:" + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error setting reply service contex: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
     }
 
@@ -225,6 +225,7 @@ public class TSSInvocationInterceptor
         catch (Exception e)
         {
             Debug.output(1, "Error setting reply service context:" + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error setting reply service context: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
     }
 
@@ -239,8 +240,6 @@ public class TSSInvocationInterceptor
         msg.client_context_id = client_context_id;
         msg.context_stateful = context_stateful;
         msg.final_context_token = new byte[0];
-        //Any any = orb.create_any();
-        //CompleteEstablishContextHelper.insert(any, msg);
         SASContextBody contextBody = new SASContextBody();
         contextBody.complete_msg(msg);
         Any any = orb.create_any();
@@ -254,8 +253,6 @@ public class TSSInvocationInterceptor
         msg.error_token = error_token;
         msg.major_status = major_status;
         msg.minor_status = minor_status;
-        //Any any = orb.create_any();
-        //ContextErrorHelper.insert(any, msg);
         SASContextBody contextBody = new SASContextBody();
         contextBody.error_msg(msg);
         Any any = orb.create_any();

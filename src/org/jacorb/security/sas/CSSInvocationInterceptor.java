@@ -122,7 +122,6 @@ public class CSSInvocationInterceptor
 
         // get ATLAS tokens
         AuthorizationElement[] authorizationList = getATLASTokens(orb, csmList);
-System.out.println("Authorized list size = " + authorizationList.length);
 
         // establish the security context
         try
@@ -143,7 +142,7 @@ System.out.println("Authorized list size = " + authorizationList.length);
         catch (Exception e)
         {
             Debug.output(1, "Could not set security service context: " + e);
-            e.printStackTrace();
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not set security service context: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
     }
 
@@ -165,6 +164,7 @@ System.out.println("Authorized list size = " + authorizationList.length);
         }
         catch (Exception e)
         {
+            Debug.output(2, "No SAS security context found");
         }
         if (ctx == null) return;
         try
@@ -175,6 +175,7 @@ System.out.println("Authorized list size = " + authorizationList.length);
         catch (Exception e)
         {
             Debug.output(1, "Could not parse SAS reply: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
 
@@ -209,6 +210,7 @@ System.out.println("Authorized list size = " + authorizationList.length);
         }
         catch (Exception e)
         {
+            Debug.output(2, "Could not find SAS reply");
         }
         if (ctx == null) return;
         try
@@ -219,6 +221,7 @@ System.out.println("Authorized list size = " + authorizationList.length);
         catch (Exception e)
         {
             Debug.output(1, "Could not parse SAS reply: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
 
@@ -277,12 +280,6 @@ System.out.println("Authorized list size = " + authorizationList.length);
         ATLASProfile atlasProfile = null;
         try
         {
-            //Any any = orb.create_any();
-            //any = codec.decode(tc.component_data);
-            //CompoundSecMechList compoundSecMechList = CompoundSecMechListHelper.extract(any);
-            //CDRInputStream is = new CDRInputStream( orb, tc.component_data);
-            //is.openEncapsulatedArray();
-            //CompoundSecMechList compoundSecMechList = CompoundSecMechListHelper.read( is );
             ServiceConfiguration authorities[] = csmList.mechanism_list[0].sas_context_mech.privilege_authorities;
             for (int i = 0; i < authorities.length; i++)
             {
@@ -294,7 +291,7 @@ System.out.println("Authorized list size = " + authorizationList.length);
         catch (Exception e)
         {
             Debug.output(1, "Error parsing ATLAS from IOR: " + e);
-            throw new org.omg.CORBA.NO_PERMISSION();
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing ATLAS from IOR: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         if (atlasProfile == null) return new AuthorizationElement[0];
         String cacheID = new String(atlasProfile.the_cache_id);
@@ -305,7 +302,6 @@ System.out.println("Authorized list size = " + authorizationList.length);
         {
             if (atlasCache.containsKey(cacheID))
             {
-System.out.println("3 found cached tokens");
                 return ((AuthTokenData)atlasCache.get(cacheID)).auth_token;
             }
         }
@@ -319,12 +315,12 @@ System.out.println("3 found cached tokens");
         catch (Exception e)
         {
             Debug.output(1, "Could not find ATLAS server " + locator + ": " + e);
-            throw new org.omg.CORBA.NO_PERMISSION();
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not find ATLAS server: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         if (dispenser == null)
         {
             Debug.output(1, "Could not find ATLAS server " + locator);
-            throw new org.omg.CORBA.NO_PERMISSION();
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not find ATLAS server", MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
 
         AuthTokenData data = null;
@@ -334,8 +330,8 @@ System.out.println("3 found cached tokens");
         }
         catch (Exception e)
         {
-            Debug.output(1, "error getting ATLAS tokens from server " + locator + ": " + e);
-            throw new org.omg.CORBA.NO_PERMISSION();
+            Debug.output(1, "Error getting ATLAS tokens from server " + locator + ": " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error getting ATLAS tokens from server: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         synchronized (atlasCache)
         {
