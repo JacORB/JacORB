@@ -12,10 +12,10 @@
 : ${JACORB_HOME:="@@@JACORB_HOME@@@"}
 export JACORB_HOME
 
-: ${JVM_FLAGS:=""}
+: ${JACORB_THREADS:="-native"}
 
 # call java interpreter
-exec ${JRE_HOME}/bin/java ${JVM_FLAGS} \
+exec ${JRE_HOME}/bin/java ${JACORB_THREADS} \
     -Xbootclasspath:${JACORB_HOME}/lib/jacorb.jar:${JRE_HOME}/lib/rt.jar:${CLASSPATH} \
     -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB \
     -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton \
