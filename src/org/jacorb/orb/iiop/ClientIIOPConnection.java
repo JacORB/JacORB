@@ -116,7 +116,7 @@ public class ClientIIOPConnection
             checkSSL();
             IIOPAddress address = target_profile.getAddress();
             
-            connection_info = address.getHost() + ":"
+            connection_info = address.getIP() + ":"
                               + (use_ssl ? ssl_port
                                          : address.getPort());
             
@@ -214,15 +214,15 @@ public class ClientIIOPConnection
                 {
                     result = getSSLSocketFactory().createSocket
                     (
-                        address.getHost(), ssl_port
+                        address.getIP(), ssl_port
                     );
-                    connection_info = address.getHost() + ":" + ssl_port;
+                    connection_info = address.getIP() + ":" + ssl_port;
                 }
                 else
                 {
                     result = getSocketFactory().createSocket
                     (
-                        address.getHost(), address.getPort()
+                        address.getIP(), address.getPort()
                     );
                     connection_info = address.toString();
                 }
