@@ -48,11 +48,20 @@ public class AttributeDef
         this.mode = mode;
         name( m.getName() );
         version( "1.0" );
-        typeCode = 
-            TypeCodeUtil.getTypeCode( m.getReturnType(), 
-                                      RepositoryImpl.loader, 
-                                      null,
-                                      attrTypeName );
+
+        try
+        {
+            typeCode = 
+                TypeCodeUtil.getTypeCode( m.getReturnType(), 
+                                          RepositoryImpl.loader, 
+                                          null,
+                                          attrTypeName );            
+        }
+        catch( ClassNotFoundException cnfe )
+        {
+            org.jacorb.util.Debug.output( 0, "Error: TypeCode for AttributeDef  could not be created!");
+            cnfe.printStackTrace();
+        }
 
         defined_in = _defined_in;
         containing_repository = _containing_repository;
