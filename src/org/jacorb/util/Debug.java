@@ -44,72 +44,11 @@ public final class Debug
     //for byte -> hexchar
     private static final char[] lookup =
     new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-    private static StringBuffer sb = new StringBuffer();
-
-    private static int _verbosity;
-    private static int _category;
-    private static boolean enabled;
+    
     private static boolean timestamp = Environment.isPropertyOn ("jacorb.log.timestamp");
-
-    /* Debug priorities, historic */
-
-    /** @deprecated */
-    public static final int QUIET = 0;
-    /** @deprecated */
-    public static final int IMPORTANT = 1;
-    /** @deprecated */
-    public static final int INFORMATION = 2;
-    /** @deprecated */
-    public static final int DEBUG1 = 3;
-
-    /* debug categories, disjoint, historic  */
-
-    /** @deprecated */
-    public static final int ORB_CONNECT = 0x0100;
-    /** @deprecated */
-    public static final int ORB_MISC = 0x0200;
-    /** @deprecated */
-    public static final int POA = 0x0400;
-    /** @deprecated */
-    public static final int IMR = 0x0800;
-    /** @deprecated */
-    public static final int DSI = 0x1000;
-    /** @deprecated */
-    public static final int DII = 0x2000;
-    /** @deprecated */
-    public static final int INTERCEPTOR = 0x4000;
-
-    /** @deprecated */
-    public static final int DOMAIN = 0x8000;
-    /** @deprecated */
-    public static final int PROXY = 0x010000;
-    /** @deprecated */
-    public static final int COMPILER = 0x020000;
-    /** @deprecated */
-    public static final int TOOLS = 0x040000;
-
-    /* unused */
-    /*
-
-       !! Please update names in CAD.java as well,
-       if you make updates here !!
-
-       public static final int UNUSED = 0x080000;
-       ...
-       public static final int ORB_CONNECT = 0x400000;
-    */
-
-    public static final int NAMING = 0x01000000;
-    public static final int TRADING = 0x02000000;
-    public static final int EVENTS = 0x04000000;
-    public static final int TRANSACTION = 0x08000000;
-    public static final int SECURITY = 0x10000000;
-
 
     /** the root logger instance */
     private static Logger logger;
-
 
     static
     {
@@ -118,30 +57,8 @@ public final class Debug
 
     public static final void initialize()
     {
-        enabled = (Environment.verbosityLevel() > 2 ? true : false);
-        _verbosity = Environment.verbosityLevel() & 0xff;
-        _category = Environment.verbosityLevel() & 0xffffff00;
-
-        if( _category == 0 )
-            _category = 0xffffff00;
-
         logger = Environment.getLogger();
     }
-
-    public static boolean canOutput(int msg_level)
-    {
-        int category = msg_level & 0xffffff00;
-        int _msg_level = msg_level & 0xff;
-
-        if( category == 0 )
-        {
-            category = 0xffffff00;
-        }
-
-        return ( (category & _category) != 0 ) &&
-            (_msg_level <= _verbosity);
-    }
-
 
     /**
      * <code>isDebugEnabled</code> allows fast efficient checking of whether
@@ -199,22 +116,19 @@ public final class Debug
 
     public static final void output (int msg_level, String msg)
     {
-        if (canOutput(msg_level))
+        if (timestamp)
         {
-            if (timestamp)
-            {
-               msg = Environment.date () + ':' +
-                     Environment.time() + "> " + msg;
-            }
-
-            if ( logger == null)
-            {
-                System.out.println (msg);
-            }
-            else
-            {
-                logger.debug(msg);
-            }
+            msg = Environment.date () + ':' +
+                Environment.time() + "> " + msg;
+        }
+        
+        if ( logger == null)
+        {
+            System.out.println (msg);
+        }
+        else
+        {
+            logger.debug(msg);
         }
     }
 
@@ -279,8 +193,9 @@ public final class Debug
                                             int start,
                                             int len)
     {
-        if (canOutput( msg_level ))
+        if (logger != null && logger.isDebugEnabled() )
         {
+
             System.out.print("\nHexdump ["+name+"] len="+len+","+bs.length);
             StringBuffer chars = new StringBuffer();
 
@@ -361,34 +276,35 @@ public final class Debug
         }
     }
 
+    /**
+     * convenience method to output stack traces
+     */
+
     public static final void output(int msg_level, Throwable e)
     {
-        if (canOutput( msg_level ))
+        if (logger == null || msg_level == 0)
         {
-            if (logger == null || msg_level == 0)
+            System.out.println("############################ StackTrace ############################");
+            e.printStackTrace(System.out);
+            System.out.println("####################################################################");
+        }
+        if (logger != null)
+        {
+            if (logger.isErrorEnabled())
             {
-                System.out.println("############################ StackTrace ############################");
-                e.printStackTrace(System.out);
-                System.out.println("####################################################################");
-            }
-            if (logger != null)
-            {
-                if (logger.isErrorEnabled())
+                try
                 {
-                    try
-                    {
-                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                        PrintStream pos = new PrintStream( bos);
-                        e.printStackTrace( pos );
-                        bos.close();
-                        pos.close();
-                        logger.error( bos.toString() );
-                    }
-                    catch (IOException io )
-                    {
-                    }
-                }               
-            }
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    PrintStream pos = new PrintStream( bos);
+                    e.printStackTrace( pos );
+                    bos.close();
+                    pos.close();
+                    logger.error( bos.toString() );
+                }
+                catch (IOException io )
+                {
+                }
+            }               
         }
     }
 
@@ -403,25 +319,15 @@ public final class Debug
         return Environment.getLoggerFactory().getNamedLogger(name);
     }
 
-
     /**
-     * convenience method to have stack trace printed
+     * Convenience method.
+     * Factory for logger instances, delegates to the actual factory
+     * set up in org.jacorb.util.Environment. 
      */
 
-    public static void printTrace(int msg_level)
+    public static Logger getNamedRootLogger(String name)
     {
-        if( canOutput( msg_level ) )
-        {
-            try
-            {
-                throw new RuntimeException();
-            }
-            catch( Exception e )
-            {
-                output( msg_level, e );
-            }
-        }
+        return Environment.getLoggerFactory().getNamedRootLogger(name);
     }
-
 
 }
