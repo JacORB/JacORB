@@ -24,7 +24,6 @@ package org.jacorb.notification;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.TimerEventConsumer;
 import org.jacorb.util.Environment;
 
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -54,8 +53,7 @@ import org.omg.TimeBase.TimeTHelper;
 public class SequenceProxyPushSupplierImpl
             extends StructuredProxyPushSupplierImpl
             implements SequenceProxyPushSupplierOperations,
-            EventConsumer,
-            TimerEventConsumer
+            EventConsumer
 {
 
     static final StructuredEvent[] STRUCTURED_EVENT_ARRAY_TEMPLATE =
