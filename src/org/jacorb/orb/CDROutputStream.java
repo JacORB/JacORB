@@ -292,7 +292,7 @@ public class CDROutputStream
         closed = true;
     }
 
-    public void release()
+    public void release ()
     {
         if( released )
 	{
@@ -305,7 +305,8 @@ public class CDROutputStream
             bufMgr.returnBuffer( buffer );
         }
 
-        deferredArrayQueue.clear();
+        deferredArrayQueue.clear ();
+        deferred_writes = 0;
         released = true;
     }
 
@@ -551,20 +552,15 @@ public class CDROutputStream
         reset();
     }
     
-    //for appligator
-    public void setBufferWithoutReset( byte[] b )
-    {
-        bufMgr.returnBuffer( buffer );
+    // For appligator
 
+    public void setBufferWithoutReset (byte[] b, int size)
+    {
+        release ();
         buffer = b;
+        pos = size;
     }
     
-    //for appligator
-    public void setSize( int size)
-    {
-		pos = size;
-    }
-
     /**************************************************
      * The following operations are from OutputStream *
      **************************************************/
