@@ -279,7 +279,7 @@ public class ValueBoxDecl
         else
         {
             ps.println("\t\t" + type + " result;");
-            ps.println("\t\t" + typeSpec.typeSpec().printReadStatement("result", "in") + ";");
+            ps.println("\t\t" + typeSpec.typeSpec().printReadStatement("result", "in"));
         }
         ps.println("\t\treturn result;");
         ps.println("\t}");

@@ -1004,7 +1004,7 @@ public class UnionType
         }
         else
         {
-            ps.println ("\t\t" + switch_type_spec.typeSpec().printWriteStatement("s.discriminator ()", "out") + ";");
+            ps.println ("\t\t" + switch_type_spec.typeSpec().printWriteStatement("s.discriminator ()", "out"));
             if (switch_is_bool)
             {
                 /* special case: booleans are no switch type in java */
