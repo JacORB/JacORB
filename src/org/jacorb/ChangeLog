@@ -1,3 +1,224 @@
+2003-09-12  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* idl/FixedPointType.java: (getIDLTypeName) added new method
+
+2003-09-12  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/Value.java: (accept) changed, now delegates the call
+
+	* idl/ValueDecl.java: class made public
+	(accept) method added for visitor pattern
+
+	* idl/ValueBoxDecl.java: class made public
+	(accept) added for visitor pattern
+
+	* idl/ValueAbsDecl.java: class made public
+	(accept) method added for visitor pattern
+
+2003-09-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/Member.java (setPackage): Safeguard against declarators
+	being null.
+
+	* idl/OpDecl.java (c'tor): Don't use setPackage() because the
+	package has already been set for all subelements (fix for bug
+	#379).
+
+2003-09-12  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/util/WildcardMap.java: removed unused member
+
+	added method hashCode to class WCEntry
+
+	these bugs have been reported by the findbugs tool
+
+	* notification/util/LogConfiguration.java: close stream after usage
+
+	this bug has been reported by the findbugs tool
+
+	* notification/evaluate/ResultExtractor.java: removed unused member
+
+	this bug has been reported by the findbugs tool
+
+	* notification/evaluate/EvaluationException.java: added ctor
+
+	* notification/engine/TaskProcessor.java: removed unused member
+
+	this bug has been reported by the findbugs tool
+
+	* notification/engine/TaskConfigurator.java:
+	added logoutput in empty catch blocks.
+
+	this bug has been reported by the findbugs tool
+
+	* notification/engine/FilterProxySupplierTask.java:
+	removed unused member
+
+	* notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/AbstractFilterTask.java: cosmetics
+
+	* notification/node/DomainNameShorthandNode.java,
+	notification/node/EvaluationResult.java,
+	notification/node/EventNameShorthandNode.java,
+	notification/node/ImplicitOperatorNode.java,
+	notification/node/PropertyShorthandNode.java,
+	notification/node/SubstrOperator.java,
+	notification/node/TCLCleanUp.java,
+	notification/node/TypeNameShorthandNode.java: added logoutput in
+	empty catch blocks.
+
+	this bug has been reported by the findbugs tool
+
+	* notification/FilterManager.java: added final to public static
+	variable.
+
+	this bug has been reported by the findbugs tool
+
+	* notification/FilterImpl.java: not implemented methods throw
+	NO_IMPLEMENT instead of doing nothing or returning null
+
+	* notification/FilterFactoryImpl.java: added final to public
+	static variable.
+
+	this bug has been reported by the findbugs tool
+
+	* notification/EventChannelImpl.java: not implemented methods
+	throw NO_IMPLEMENT instead of doing nothing or returning null
+
+	* notification/EvaluationContext.java: removed unused member
+
+	* notification/ConstraintEntry.java: inner class EventTypeWrapper
+	is static now as it does not use its reference to the outer class.
+
+	this has been reported by findbugs!
+
+	* notification/ChannelContext.java,
+	notification/MappingFilterImpl.java: cosmetics
+
+	* notification/SequenceProxyPushConsumerImpl.java: cosmetics
+
+	removed unused member
+
+	* notification/ProxyPushSupplierImpl.java: cosmetics
+
+	(init) removed unused parameter
+
+	* notification/NotificationEvent.java: renamed to AbstractMessage
+
+	* notification/Main.java, notification/ApplicationContext.java,
+	notification/AnyMessage.java: cosmetics
+
+	* notification/AbstractProxy.java: not implemented methods throw
+	NO_IMPLEMENT instead of doing nothing or returning null
+
+	* notification/AbstractMessage.java: cosmetics
+
+2003-09-12  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/AnyType.java:
+	(getIDLTypeName) added to override super class's definition
+
+2003-09-10  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/AttrDecl.java: made class public
+
+2003-09-09  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/TypeDef.java: (setEnclosingSymbol) added logger.error statement
+	a little general cosmetics
+
+	* idl/AliasTypeSpec.java:
+	(print) fixed bug #294 by making the condition for printing the
+	originalType a little more prescise.
+
+	* idl/parser.java, idl/str_token.java, idl/sym.java,
+	idl/AddExpr.java, idl/AliasTypeSpec.java, idl/AndExpr.java,
+	idl/AnyType.java, idl/ArrayDeclarator.java,
+	idl/ArraySizeMismatchException.java, idl/ArrayTypeSpec.java,
+	idl/AttrDecl.java, idl/BaseType.java, idl/BooleanType.java,
+	idl/Case.java, idl/CharType.java, idl/ConstDecl.java,
+	idl/ConstExpr.java, idl/ConstExprEvaluator.java,
+	idl/ConstType.java, idl/ConstrTypeSpec.java, idl/Declaration.java,
+	idl/Declarator.java, idl/Definition.java, idl/Definitions.java,
+	idl/DoubleType.java, idl/ElementSpec.java, idl/EnumType.java,
+	idl/Environment.java, idl/ExceptionHolderTypeSpec.java,
+	idl/FixedArraySize.java, idl/FixedPointConstType.java,
+	idl/FixedPointType.java, idl/FloatPtType.java, idl/FloatType.java,
+	idl/GlobalInputStream.java, idl/IDLTreeVisitor.java,
+	idl/IdlSymbol.java, idl/IllegalRedefinition.java,
+	idl/InitDecl.java, idl/InitParamDecl.java, idl/IntType.java,
+	idl/Interface.java, idl/InterfaceBody.java, idl/JacIDL.java,
+	idl/Literal.java, idl/LongLongType.java, idl/LongType.java,
+	idl/Member.java, idl/MemberList.java, idl/Method.java,
+	idl/Module.java, idl/MultExpr.java, idl/NameAlreadyDefined.java,
+	idl/NameTable.java, idl/NativeType.java, idl/ObjectTypeSpec.java,
+	idl/OctetType.java, idl/OpDecl.java, idl/Operation.java,
+	idl/OrExpr.java, idl/ParamDecl.java, idl/ParseException.java,
+	idl/PosIntConst.java, idl/PositionInfo.java, idl/PrimaryExpr.java,
+	idl/RaisesExpr.java, idl/ReplyHandler.java,
+	idl/ReplyHandlerTypeSpec.java, idl/Scope.java, idl/ScopeData.java,
+	idl/ScopedName.java, idl/SequenceType.java, idl/ShiftExpr.java,
+	idl/ShortType.java, idl/SimpleDeclarator.java,
+	idl/SimpleTypeSpec.java, idl/Spec.java, idl/StateMember.java,
+	idl/StringType.java, idl/StructType.java, idl/SwitchBody.java,
+	idl/SwitchTypeSpec.java, idl/SymbolList.java,
+	idl/TemplateTypeSpec.java, idl/Truncatable.java, idl/Type.java,
+	idl/TypeCodeTypeSpec.java, idl/TypeDeclaration.java,
+	idl/TypeDeclarator.java, idl/TypeDef.java, idl/TypeMap.java,
+	idl/TypeSpec.java, idl/UnaryExpr.java, idl/UnionType.java,
+	idl/Value.java, idl/ValueAbsDecl.java, idl/ValueBody.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java,
+	idl/ValueInheritanceSpec.java, idl/VectorType.java,
+	idl/VoidTypeSpec.java, idl/XorExpr.java, idl/fixed_token.java,
+	idl/lexer.java:
+	(set_package) minor change, but accross all classes: removed
+	 superflous calls to String() c'tor
+
+	* idl/ConstDecl.java: (parse) added a logger.debug() statement
+
+	* idl/PrimaryExpr.java:
+	(pos_int_const) uses new ConstExprEvaluator for expressions that
+	are scoped names, fixes bug #320
+
+	* idl/ConstExprEvaluator.java: new class to evaluate const expr
+	strings
+
+	* idl/lexer.java: undid previous changes, which did not
+	work (stupid me...)
+
+	* idl/lexer.java: remove a superflous closing bracket left behind
+	the last time....
+
+	* idl/IdlSymbol.java: no longer a subclass of java.io.Serializable
+
+	* idl/lexer.java: small improvement such as not to waste memory in
+	String()
+
+2003-09-09  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* poa/POA.java: Fix for Jac371 - synchronized generateObjectId
+
+2003-09-08  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/DoubleType.java, idl/FixedPointType.java,
+	idl/ScopedName.java, idl/parser.java, idl/sym.java: added
+	setLongDouble to DoubleType, plus cosmetics
+
+	* idl/lexer.java:
+	(real_next_token) recognize wide char literals beginning with L,
+	as in L'x'
+
+	* idl/parser.cup: added a grammar rule for "long double", together
+	with a warning that this type is not currently supported.
+
+2003-09-04  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* idl/CharType.java, idl/StringType.java:
+	added operation getIDLTypeName()
+
+	* idl/FixedPointType.java:
+	made class public for access by foreign-package visitor
+
 2003-09-03  Gerald Brose  <gerald.brose@acm.org>
 
 	* idl/parser.java, idl/sym.java: *** empty log message ***

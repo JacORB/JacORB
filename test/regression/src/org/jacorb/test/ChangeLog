@@ -1,3 +1,37 @@
+2003-09-12  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/node/TCLTest.java: adapted changes within
+	Notification Implementation
+
+	* notification/engine/PushToConsumerTest.java: test respects
+	settings from jacorb.properties
+
+	* notification/MessageUtilsTest.java,
+	notification/NotificationEventTest.java: adapted changes within
+	Notification Implementation
+
+2003-09-09  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/MiscFailureTest.java: added
+
+2003-09-08  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/FloatTest.java, idl/CharTest.java, idl/InterfaceTest.java,
+	idl/LongTest.java, idl/MiscTest.java, idl/ModuleTest.java,
+	idl/PackageTest.java, idl/PragmaTest.java, idl/TypeDefTest.java,
+	idl/UnionTest.java, idl/ValueTest.java: *** empty log message ***
+
+2003-09-05  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/MiscTest.java: *** empty log message ***
+
+2003-09-03  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/CharTest.java, idl/InterfaceTest.java, idl/LongTest.java,
+	idl/MiscTest.java, idl/ModuleTest.java, idl/PragmaTest.java,
+	idl/TypeDefTest.java, idl/UnionTest.java, idl/ValueTest.java:
+	changed compiler invocation to parser.compileAndHandle()
+
 2003-09-02  Gerald Brose  <gerald.brose@acm.org>
 
 	* Version 2.0 beta 1 released.
