@@ -54,6 +54,11 @@ jacorb.verbosity=1
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
 
+# hexdump outgoing messages
+jacorb.debug.dump_outgoing_messages=off
+
+# hexdump incoming messages
+jacorb.debug.dump_incoming_messages=off
 
 
 ##################################################
@@ -71,6 +76,9 @@ jacorb.verbosity=1
 #   Basic ORB Configuration    #
 #                              #
 ################################
+
+# the GIOP minor version number to use for newly created IORs
+jacorb.giop_minor_version=2
 
 # number of retries if connection cannot directly be established
 jacorb.retries=5

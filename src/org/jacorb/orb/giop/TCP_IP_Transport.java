@@ -24,7 +24,7 @@ import java.net.*;
 import java.io.*;
 
 import org.jacorb.orb.BufferManager;
-import org.jacorb.util.Debug;
+import org.jacorb.util.*;
 
 /**
  * TCP_IP_Transport.java
@@ -50,11 +50,29 @@ public abstract class TCP_IP_Transport
     private byte[] msg_header = null;
     private BufferManager buff_mg = null;
 
+    private ByteArrayOutputStream b_out = null;
+    private boolean dump_incoming = false;
+
     public TCP_IP_Transport()
     {
         msg_header = new byte[ Messages.MSG_HEADER_SIZE ];        
         
         buff_mg = BufferManager.getInstance();
+
+        String dump_outgoing = 
+            Environment.getProperty( "jacorb.debug.dump_outgoing_messages", 
+                                     "off" );
+        
+        if( "on".equals( dump_outgoing ))
+        {
+            b_out = new ByteArrayOutputStream();
+        }
+
+        String dump_incoming_str = 
+            Environment.getProperty( "jacorb.debug.dump_incoming_messages", 
+                                     "off" );
+        
+        dump_incoming = "on".equals( dump_incoming_str );
     }
 
     /**
@@ -95,7 +113,7 @@ public abstract class TCP_IP_Transport
     /**
      * This method tries to read in <tt>length</tt> bytes from
      * <tt>in_stream</tt> and places them into <tt>buffer</tt>
-     * beginning at <tt>start_pos</tt>. It doesn't care * about the
+     * beginning at <tt>start_pos</tt>. It doesn't care about the
      * contents of the bytes.
      *
      * @return the actual number of bytes that were read.  
@@ -220,8 +238,11 @@ public abstract class TCP_IP_Transport
                 return null;
             }
 
-            //Debug.output( 3, "Received Msg", inbuf, 0, read + Messages.MSG_HEADER_SIZE );
-            
+            if( dump_incoming )
+            {
+                Debug.output( 1, "getMessage()", inbuf, 0, read + Messages.MSG_HEADER_SIZE );
+            }
+
             return inbuf;
         }
         else
@@ -243,12 +264,26 @@ public abstract class TCP_IP_Transport
         connect();
 
         out_stream.write( message, start, size );
+        
+        if( b_out != null )
+        {
+            b_out.write( message, start, size );
+        }
     }
     
     public void sendMessages()
         throws IOException
     {
         out_stream.flush();
+
+        if( b_out != null )
+        {
+            byte[] b = b_out.toByteArray();
+
+            Debug.output( 1, "sendMessages()", b );
+
+            b_out.reset();
+        }
     }
 }// TCP_IP_Transport
 

@@ -760,7 +760,9 @@ public class ImplementationRepositoryImpl
 	private boolean run = true;
 	private boolean wait = false;
 
-        private ThreadPool pool = null;
+        private MessageReceptorPool receptor_pool = null;
+        private RequestListener request_listener = null;
+        private ReplyListener reply_listener = null;
 
 	/**
 	 * The constructor. It sets up the ServerSocket and starts the thread.
@@ -810,12 +812,9 @@ public class ImplementationRepositoryImpl
 
 	    setDaemon(true);
 
-            pool = new ThreadPool( new ConsumerFactory(){
-                public Consumer create()
-                {
-                    return new RequestReceptor( timeout );
-                }
-            });
+            receptor_pool = MessageReceptorPool.getInstance();
+            request_listener = new ImRRequestListener();
+            reply_listener = new NoBiDirServerReplyListener();
 
 	    start();
 	}
@@ -866,7 +865,18 @@ public class ImplementationRepositoryImpl
             {
 		try
                 {
-		    pool.putJob( server_socket.accept() );
+                    Socket socket = server_socket.accept();
+                    socket.setSoTimeout( timeout );
+                    
+                    Transport transport = 
+                        new Server_TCP_IP_Transport( socket, false ); //no ssl
+
+                    GIOPConnection connection = 
+                        new GIOPConnection( transport,
+                                            request_listener,
+                                            reply_listener );
+
+                    receptor_pool.connectionCreated( connection );
 		}
                 catch (Exception _e)
                 {
@@ -909,139 +919,52 @@ public class ImplementationRepositoryImpl
 
 
     /** 
-     * Inner class RequestReceptor, instantiated only by SocketListener
-     * receives messages.
+     * Inner class ImRRequestListener. Receives messages.
      */
-
-    private class RequestReceptor 
-        implements Consumer
+    private class ImRRequestListener 
+        implements RequestListener 
     {
-	private Socket client_socket;
-	private ServerConnection connection;
-	private int timeout;
-	private ReplyOutputStream out;
-	private RequestInputStream in;
-
-	public RequestReceptor( int timeout )
+	public ImRRequestListener()
         {
-	    this.timeout = timeout;
 	}
 
-	/**
-	 *	receive and dispatch requests 
-	 */
-
-	public void doWork( Object job ) 
+        public void requestReceived( byte[] request,
+                                     GIOPConnection connection )
         {
-            client_socket = (Socket) job;
+            replyNewLocation( request, connection );
+        }
+        
+        public void locateRequestReceived( byte[] request,
+                                           GIOPConnection connection )
+        {
+            replyNewLocation( request, connection );
+        }        
 
+        public void cancelRequestReceived( byte[] request,
+                                           GIOPConnection connection )
+        {
+            //ignore
+        }
+        
+        public void fragmentReceived( byte[] fragment,
+                                      GIOPConnection connection )
+        {
+            //ignore
+        }
+        
+        public void connectionClosed()
+        {
 
-	    /* set up a connection object */
-	    try 
-            {
-		connection = 
-                    new ServerConnection( orb, 
-                                          false, //no ssl
-                                          client_socket );
-
-                connection.setTimeOut( timeout );
-	    }
-	    catch(Exception _e)
-	    {
-		Debug.output(Debug.IMR | Debug.IMPORTANT, _e); 
-		Debug.output(Debug.IMR | Debug.IMPORTANT,
-                             "Fatal error in session setup.");
-		
-                return;
-	    }
-
-	    /* receive request */
-
-	    while( true )
-	    {
-		try
-		{
-		    byte[] _buf = connection.readBuffer();
-		    
-		    int _msg_type = _buf[7];
-		    
-		    switch( _msg_type )
-		    {
-		    case org.omg.GIOP.MsgType_1_1._Request:		  
-			{
-			    replyNewLocation( _buf );
-			    break;			    
-			} 
-		    case org.omg.GIOP.MsgType_1_1._CancelRequest:
-			{
-                            break;
-			}
-		    case org.omg.GIOP.MsgType_1_1._LocateRequest:
-			{
-			    replyNewLocation( _buf );
-			    break;
-			}
-		    default:
-			{
-			    Debug.output( Debug.IMR | Debug.IMPORTANT,
-					  "SessionServer, message_type " + 
-					  _msg_type + " not understood." );
-			}		    
-		    } 
-		}
-		catch( java.io.EOFException eof )
-		{
-		    Debug.output( Debug.IMR | Debug.DEBUG1,eof );
-		    
-		    break;
-		} 
-		catch( org.omg.CORBA.COMM_FAILURE cf )
-		{
-		    Debug.output(Debug.IMR | Debug.IMPORTANT,cf);
-		    
-		    break;
-		} 
-		catch( java.io.IOException i )
-		{
-		    Debug.output(Debug.IMR | Debug.DEBUG1,i);		
-		    
-		    break;
-		}
-	    }
-
-            close();
-	}	
-	
-	
-        public void close()
-        {            
-	    try
-            {
-                if( connection != null )
-                {
-                    connection.sendCloseConnection();
-                }
-	    } 
-	    catch( Exception e )
-            {
-		Debug.output(Debug.IMR | Debug.INFORMATION, e);
-		// ignore exceptions on closing sockets which would
-		// occur e.g.  when closing sockets without ever
-		// having opened one...
-	    }
-
-            client_socket = null;
-            connection = null;
-	}
+        }
 
 	/**
 	 * The actual core method of the implementation repository.
 	 * Causes servers to start, looks up new POA locations in
 	 * the server table.
 	 */
-	private void replyNewLocation( byte[] buffer )
+	private void replyNewLocation( byte[] request, GIOPConnection connection )
         {
-	    in = new RequestInputStream( orb, buffer );
+	    RequestInputStream in = new RequestInputStream( orb, request );
 	    String _poa_name = 
                 POAUtil.extractImplName(in.req_hdr.target.object_key()) +
                 "/" + POAUtil.extractPOAName(in.req_hdr.target.object_key());
@@ -1053,7 +976,10 @@ public class ImplementationRepositoryImpl
 		sendSysException( 
                    new org.omg.CORBA.OBJECT_NOT_EXIST( "POA " + 
                                                        _poa_name + 
-                                                       " unknown" ));
+                                                       " unknown" ),
+                   connection,
+                   in.req_hdr.request_id,
+                   in.getGIOPMinor() );
 		return;
 	    }
 
@@ -1069,7 +995,10 @@ public class ImplementationRepositoryImpl
 	    }
             catch( ServerStartupFailed ssf )
             {
-                sendSysException(new org.omg.CORBA.TRANSIENT(ssf.reason));
+                sendSysException( new org.omg.CORBA.TRANSIENT(ssf.reason),
+                                  connection,
+                                  in.req_hdr.request_id,
+                                  in.getGIOPMinor() );
                 return;
 	    }
 	    
@@ -1080,22 +1009,26 @@ public class ImplementationRepositoryImpl
 	    if( ! _poa.awaitActivation() )
             {
 		// timeout reached
-		sendSysException(new org.omg.CORBA.TRANSIENT("Timeout exceeded"));
+		sendSysException( new org.omg.CORBA.TRANSIENT("Timeout exceeded"),
+                                  connection,
+                                  in.req_hdr.request_id,
+                                  in.getGIOPMinor() );
 		return;
 	    }
 
 	    // profile body contains new host and port of POA
-	    // Version is just a dummy
-	    ProfileBody_1_0 _body = 
-                new ProfileBody_1_0( new Version((byte) 1, (byte) 0), 
+	    ProfileBody_1_1 _body = 
+                new ProfileBody_1_1( new Version( (byte) 1, 
+                                                  (byte) in.getGIOPMinor() ), 
                                      _poa.host,
                                      (short) _poa.port,
-                                     in.req_hdr.target.object_key() );    
+                                     in.req_hdr.target.object_key(),
+                                     new org.omg.IOP.TaggedComponent[0] );    
             
-	    out = new ReplyOutputStream( new org.omg.IOP.ServiceContext[0],
-                                         in.req_hdr.request_id,
-                                         org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
-                                         in.getGIOPMinor() );
+	    ReplyOutputStream out = 
+                new ReplyOutputStream( in.req_hdr.request_id,
+                                       org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
+                                       in.getGIOPMinor() );
 
 	    // The typecode is for org.omg.CORBA.Object, but avoiding 
             // creation of new ObjectHolder Instance.
@@ -1138,18 +1071,20 @@ public class ImplementationRepositoryImpl
             {
 		// write new location to stream
 		out.write_IOR(_ior);
-		out.close();
 
 		Debug.output( Debug.IMR | Debug.INFORMATION,
                               "ImR: Sending location forward for " + 
                               _server.name );
 
-		connection.sendReply(out);
+		connection.sendMessage( out );
 	    }
-            catch (Exception _e)
+            catch( IOException _e )
             {
 		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
-		sendSysException(new org.omg.CORBA.UNKNOWN(_e.toString()));
+		sendSysException( new org.omg.CORBA.UNKNOWN(_e.toString()),
+                                  connection,
+                                  in.req_hdr.request_id,
+                                  in.getGIOPMinor() );
 	    }
 	}
     
@@ -1159,20 +1094,23 @@ public class ImplementationRepositoryImpl
 	 *
 	 * @param the exception to send back.
 	 */
-	private void sendSysException(org.omg.CORBA.SystemException sys_ex)
+	private void sendSysException( org.omg.CORBA.SystemException sys_ex,
+                                       GIOPConnection connection,
+                                       int request_id,
+                                       int giop_minor )
         {
-	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
-                                        in.req_hdr.request_id,
-                                        org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                        in.getGIOPMinor());
+	    ReplyOutputStream out = 
+                new ReplyOutputStream( request_id,
+                                       org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                      giop_minor );
 	    
-	    SystemExceptionHelper.write(out, sys_ex);
-	    out.close();
+	    SystemExceptionHelper.write( out, sys_ex );
+
 	    try
             {
-		connection.sendReply(out);
+		connection.sendMessage( out );
 	    }
-            catch (Exception _e)
+            catch( IOException _e )
             {
 		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 	    }

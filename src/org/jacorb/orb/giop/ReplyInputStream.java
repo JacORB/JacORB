@@ -56,17 +56,15 @@ public class ReplyInputStream
             }
             case 1 : 
             {
-                /*
                 //GIOP 1.1
                 ReplyHeader_1_0 hdr = 
                     ReplyHeader_1_0Helper.read( this );
 
                 rep_hdr = 
                     new ReplyHeader_1_2( hdr.request_id,
-                                         ReplyStatusType.from_int( hdr.reply_status.value() ),
+                                         ReplyStatusType_1_2.from_int( hdr.reply_status.value() ),
                                          hdr.service_context );
                 break;
-                */
             }
             case 2 : 
             {

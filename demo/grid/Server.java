@@ -34,6 +34,10 @@ public class Server
 		NamingContextExt nc = 
                     NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
 		nc.bind( nc.to_name("grid.example"), o);
+                
+                Thread.sleep( 10000 );
+
+                nc.to_name("grid.example");
 	    }
 
             orb.run();
@@ -44,5 +48,6 @@ public class Server
 	}        
     }
 }
+
 
 

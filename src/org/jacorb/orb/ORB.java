@@ -77,10 +77,6 @@ public final class ORB
     /** command like args */
     public String[] _args;
         
-    // devik: default IIOP version used to generate IORs
-    protected org.omg.IIOP.Version IIOPVersion = 
-        new org.omg.IIOP.Version( (byte) 1, (byte) 2 );
-
     public  java.applet.Applet applet;
 
     /* for run() and shutdown()  */
@@ -358,8 +354,23 @@ public final class ORB
 
         boolean useMulti = components_multi_profile.size() > 0;
 
+        //find out GIOP minor version to use. Defaults to 2.
+        int giop_minor = 2;
+        String gm_str = 
+            Environment.getProperty( "jacorb.giop_minor_version", "2" );
+        try
+        {
+            giop_minor = Integer.parseInt( gm_str );
+        }
+        catch( NumberFormatException nfe )
+        {
+            throw new Error( "Unable to create int from string >>" +
+                             gm_str + "<<. " +
+                             "(check property \"jacorb.giop_minor_version\")" );
+        }
+
         //all components for the profiles have to be present by now.
-        switch( IIOPVersion.minor )
+        switch( giop_minor )
         {
             case 2 : 
             { 
@@ -372,9 +383,12 @@ public final class ORB
                     new TaggedComponent[ components_iiop_profile.size() ];
                 
                 components_iiop_profile.copyInto( components );
- 
+
+                org.omg.IIOP.Version version =
+                    new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor );
+
                 org.omg.IIOP.ProfileBody_1_1 pb1 = 
-                    new org.omg.IIOP.ProfileBody_1_1( IIOPVersion, 
+                    new org.omg.IIOP.ProfileBody_1_1( version, 
                                                       address, 
                                                       (short) port, 
                                                       key, 

@@ -87,7 +87,8 @@ public class RequestInputStream
                 {
                     //GIOP 1.2
                     req_hdr = RequestHeader_1_2Helper.read( this );
-                
+                    ParsedIOR.unfiyTargetAddress( req_hdr.target );
+
                     skipHeaderPadding();
 
                     break;
@@ -99,6 +100,7 @@ public class RequestInputStream
         }
         else if( Messages.getMsgType( buffer ) == MsgType_1_1._LocateRequest )
         {
+            /*
             switch( giop_minor )
             { 
                 case 0 : 
@@ -129,6 +131,7 @@ public class RequestInputStream
                     LocateRequestHeader_1_2 locate_req_hdr = 
                         LocateRequestHeader_1_2Helper.read( this );
                 
+                    ParsedIOR.unfiyTargetAddress( locate_req_hdr.target );
                     req_hdr = 
                         new RequestHeader_1_2( locate_req_hdr.request_id, 
                                                (byte) 0x03,//response_expected 
@@ -143,6 +146,7 @@ public class RequestInputStream
                     throw new Error( "Unknown GIOP minor version: " + giop_minor );
                 }
             }
+            */
         }
         else
         {

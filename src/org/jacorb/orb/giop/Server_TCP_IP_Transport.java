@@ -80,7 +80,7 @@ public class Server_TCP_IP_Transport
 
         Debug.output( 2, "Closed server-side TCP/IP transport to " +
                       connection_info );
-        
+
         throw new CloseConnectionException();
     }
     

@@ -28,6 +28,7 @@ import org.jacorb.orb.util.*;
 import org.jacorb.util.*;
 
 import org.omg.IOP.*;
+import org.omg.GIOP.*;
 import org.omg.IIOP.*;
 import org.omg.CosNaming.*;
 import org.omg.CONV_FRAME.*;
@@ -115,7 +116,7 @@ public class ParsedIOR
       
 	    // first read the version and observe if we have already
 	    // decoded newer version of IIOP IOR
-	    int minor = VersionHelper.read(in).minor;
+	    int minor = org.omg.IIOP.VersionHelper.read(in).minor;
       
 	    if( ( minor < min_minor) || (minor > 2) ) 
 		return null;
@@ -220,6 +221,34 @@ public class ParsedIOR
             }
         }
         return null;
+    }
+
+    /**
+     * The TargetAddress struct provides three different ways of
+     * transporting the object key. Since most of jacorbs structure
+     * only wants to access the object_key, we transform the original
+     * target address to the object_key type.  
+     */
+    public static void unfiyTargetAddress( TargetAddress addr )
+    {
+        if( addr.discriminator() == ProfileAddr.value )
+        {
+            TaggedProfile p = addr.profile();
+            
+            ProfileBody_1_1 body = 
+                getProfileBody( addr.profile().profile_data, 0 );
+            
+            addr.object_key( body.object_key );
+        }
+        else if( addr.discriminator() == ReferenceAddr.value )
+        {
+            IORAddressingInfo info = addr.ior();
+            
+            ParsedIOR pior = new ParsedIOR( info.ior );
+            pior.effectiveProfileBody = info.selected_profile_index;
+            
+            addr.object_key( pior.get_object_key() );
+        }
     }
 
     /* instance part */

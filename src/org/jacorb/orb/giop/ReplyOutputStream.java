@@ -62,23 +62,20 @@ public class ReplyOutputStream
             }
             case 1 :
             {
-                //this currently doesn't work because GIOP.idl only
-                //allows either ReplyStatusType_1_0 or
-                //ReplyStatusType_1_2, but not both. The only solution
-                //would be to go low-level and write directly to the
-                //stream
+                //Technically, GIOP.idl only allows either
+                //ReplyStatusType_1_0 or ReplyStatusType_1_2, but not
+                //both. We go around this by compiling GIOP.idl two
+                //times
 
-                /*
                 //GIOP 1.1
                 ReplyHeader_1_0 repl_hdr = 
-                    new ReplyHeader_1_0( ctx,
+                    new ReplyHeader_1_0( alignment_ctx,
                                          request_id,
                                          ReplyStatusType_1_0.from_int( reply_status.value() ));
 
-                ReplyHeader_1_0Helper.write( out, repl_hdr );
+                ReplyHeader_1_0Helper.write( this, repl_hdr );
                
                 break;
-                */
             }
             case 2 :
             {

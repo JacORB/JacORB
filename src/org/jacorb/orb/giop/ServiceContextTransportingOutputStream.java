@@ -90,33 +90,26 @@ public class ServiceContextTransportingOutputStream
 
         header_padding = 8 - (size() % 8); //difference to next 8 byte border
         header_padding = (header_padding == 8)? 0 : header_padding;
-        
+
         skip( header_padding );
     }
     
-    public int getHeaderEnd()
+    private int getHeaderEnd()
     {
         return header_end;
     }
     
-    public int getBodyBegin()
+    private int getBodyBegin()
     {
         return header_end + header_padding;
     }
 
-    public int getHeaderPadding()
+    private int getHeaderPadding()
     {
-        if( hasBody() )
-        {
-            return header_padding;
-        }
-        else
-        {
-            return 0;
-        }
+        return header_padding;
     }
     
-    public boolean hasBody()
+    private boolean hasBody()
     {
         return size() > getBodyBegin();
     }
@@ -147,7 +140,7 @@ public class ServiceContextTransportingOutputStream
     public void write_to( GIOPConnection conn )
         throws IOException
     {
-        if( contexts == null )
+        if( contexts == null || contexts.size() == 0 )
         {
             //no additional service contexts present, so buffer can be
             //sent as a whole
@@ -176,7 +169,7 @@ public class ServiceContextTransportingOutputStream
                     CDROutputStream ctx_out = createContextStream();
                     
                     //difference to next 8 byte border
-                    int difference = ctx_out.size() % 8; 
+                    int difference = 8 - (ctx_out.size() % 8); 
                     difference = (difference == 8)? 0 : difference;
                     
                     if( difference > 0 )
@@ -188,7 +181,7 @@ public class ServiceContextTransportingOutputStream
                         //the size and add the actual data.
                         
                         //"unwrite" the last ulong
-                        ctx_out.reduceSize( 1 );
+                        ctx_out.reduceSize( 4 );
                         
                         //write new length
                         ctx_out.write_ulong( difference );
@@ -228,7 +221,8 @@ public class ServiceContextTransportingOutputStream
                     //(omitting the empty original context array).
                     conn.addMessageFragment( getInternalBuffer(), 
                                              Messages.MSG_HEADER_SIZE + 4,
-                                             size() );
+                                             size() - 
+                                             (Messages.MSG_HEADER_SIZE + 4) );
                     break;
                 }
                 case 2 :
@@ -248,12 +242,10 @@ public class ServiceContextTransportingOutputStream
                     //length of the context array (wich contains its
                     //own length ulong)
                     int new_header_end = getHeaderEnd() - 4 + ctx_out.size();
-                    
+
                     //difference to next 8 byte border
                     int difference =  8 - (new_header_end % 8); 
-
                     difference = (difference == 8)? 0 : difference;
-                    
                     
                     if( difference > 0  && hasBody() )
                     {                        
@@ -263,7 +255,7 @@ public class ServiceContextTransportingOutputStream
                         //has to be inserted
                         ctx_out.increaseSize( difference );
                     }        
-                                       
+
                     //Then, we have to update the message size in the
                     //GIOP message header. The new size is the size of
                     //the "original" message minus the length ulong (4
@@ -284,8 +276,7 @@ public class ServiceContextTransportingOutputStream
                     //the new one has its own length attribute
                     conn.addMessageFragment( getInternalBuffer(), 
                                              0,
-                                             getHeaderEnd() 
-                                             - 4);
+                                             getHeaderEnd() - 4 );
 
                     //... then add the contexts ...
                     conn.addMessageFragment( ctx_out.getInternalBuffer(),
