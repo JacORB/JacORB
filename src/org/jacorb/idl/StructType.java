@@ -571,66 +571,94 @@ public class StructType
         ps.println( "}" );
     }
 
-    /** generate required classes */
+    /** 
+     * Generates code from this AST class 
+     *
+     * @arg ps - not used, the necessary output streams to classes
+     * that receive code (e.g., helper and holder classes for the
+     * IDL/Java mapping, are created inside this method.
+     */
 
     public void print( PrintWriter ps )
     {
         setPrintPhaseNames();
-        if( ! parsed )
-            throw new ParseException (" Unparsed Struct!");
 
-        /** no code generation for included definitions */
-        if( included && !generateIncluded() )
-            return;
-
-        /** only write once */
-
-        if( written )
-            return;
-
-        written = true;
-
-        try
+        if (!parsed)
         {
-            String className = className();
+            throw new ParseException ("Unparsed Struct!");
+        }
 
-            String path = parser.out_dir + fileSeparator +
+        // no code generation for included definitions
+        if (included && !generateIncluded())
+        {
+            return;
+        }
+
+        // only generate code once
+
+        if (!written)
+        {
+            // guard against recursive entries, which can happen due to 
+            // containments, e.g., an alias within an interface that refers
+            // back to the interface
+            written = true;
+
+            try
+            {
+                String className = className();
+
+                String path = parser.out_dir + fileSeparator +
                     pack_name.replace( '.', fileSeparator );
 
-            File dir = new File( path );
-            if( !dir.exists() )
-                if( !dir.mkdirs() )
+                File dir = new File( path );
+                if (!dir.exists())
                 {
-                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
+                    if (!dir.mkdirs())
+                    {
+                        org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
+                    }
                 }
 
-            /** print the mapped java class */
+                String fname = className + ".java";
+                File f = new File( dir, fname );
 
-            String fname = className + ".java";
-            PrintWriter decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
-            printStructClass( className, decl_ps );
-            decl_ps.close();
+                if (GlobalInputStream.isMoreRecentThan( f ))
+                {
+                    // print the mapped java class
+                    PrintWriter printWriter = new PrintWriter( new java.io.FileWriter( f ));
+                    printStructClass( className, printWriter );
+                    printWriter.close();
+                }
 
-            /** print the holder class */
+                fname = className + "Holder.java";
+                f = new File( dir, fname );
 
-            fname = className + "Holder.java";
-            decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
-            printHolderClass( className, decl_ps );
-            decl_ps.close();
+                if (GlobalInputStream.isMoreRecentThan( f ))
+                {
+                    // print the mapped holder class
+                    PrintWriter printWriter = new PrintWriter( new java.io.FileWriter( f ));
+                    printHolderClass( className, printWriter );
+                    printWriter.close();
+                }
 
-            /** print the helper class */
+                fname = className + "Helper.java";
+                f = new File( dir, fname );
 
-            fname = className + "Helper.java";
-            decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
-            printHelperClass( className, decl_ps );
-            decl_ps.close();
+                if (GlobalInputStream.isMoreRecentThan( f ))
+                {
+                    // print the mapped helper class
+                    PrintWriter printWriter = new PrintWriter( new java.io.FileWriter( f ));
+                    printHelperClass( className, printWriter );
+                    printWriter.close();
+                }
 
-            written = true;
-        }
-        catch( java.io.IOException i )
-        {
-            System.err.println( "File IO error" );
-            i.printStackTrace();
+                // written = true;
+            }
+            catch( java.io.IOException i )
+            {
+                System.err.println( "File IO error" );
+                i.printStackTrace();
+            }
         }
     }
 
