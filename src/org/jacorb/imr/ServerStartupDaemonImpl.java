@@ -149,7 +149,7 @@ public class ServerStartupDaemonImpl
         }
         catch( Exception _e )
         {
-            _e.printStackTrace();
+            Debug.output(3, _e);
         }
 
         System.exit(0);
@@ -194,7 +194,7 @@ public class ServerStartupDaemonImpl
             }
             catch( Exception _e )
             {
-                _e.printStackTrace();
+                Debug.output(3, _e);
             }
 
             Debug.output( 4,
