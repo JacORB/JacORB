@@ -97,11 +97,17 @@ tokens {
         TCLLexer _tclLexer = new TCLLexer( new StringReader( data ) );
         _tclLexer.setTokenStreamSelector( _selector );
 
-        ComponentLexer _compLexer = new ComponentLexer( _tclLexer.getInputState() );
+        ComponentLexer _compLexer = 
+            new ComponentLexer( _tclLexer.getInputState() );
+
         _compLexer.setTokenStreamSelector( _selector );
 
-        _selector.addInputStream( _tclLexer, TCLLexer.LEXER_NAME );
-        _selector.addInputStream( _compLexer, ComponentLexer.LEXER_NAME );
+        _selector.addInputStream( _tclLexer, 
+                                  TCLLexer.LEXER_NAME );
+
+        _selector.addInputStream( _compLexer, 
+                                  ComponentLexer.LEXER_NAME );
+
         _selector.select( TCLLexer.LEXER_NAME );
 
         // connect the Parser with the two Lexers
