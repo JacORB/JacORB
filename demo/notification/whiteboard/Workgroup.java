@@ -350,7 +350,7 @@ class LineHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
     void connect(StructuredProxyPushSupplier supplier,
                 FilterFactory filterFactory) throws Exception {
 
-        filter_ = filterFactory.create_filter("EXTENDED_TCL");
+       filter_ = filterFactory.create_filter("EXTENDED_TCL");
         ConstraintExp[] _filter = new ConstraintExp[1];
         _filter[0] = new ConstraintExp();
         _filter[0].constraint_expr =
@@ -427,7 +427,6 @@ class ClearHandler extends StructuredPushConsumerPOA implements WhiteboardVars {
     }
 
     public void push_structured_event(StructuredEvent event) {
-
         WhiteboardUpdate _update =
             WhiteboardUpdateHelper.extract(event.remainder_of_body);
 

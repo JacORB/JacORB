@@ -17,7 +17,7 @@ import org.omg.PortableServer.*;
 import java.util.Hashtable;
 import demo.notification.office.PrinterPackage.*;
 
-class PrinterImpl 
+class PrinterImpl
     extends PrinterPOA
     implements StructuredPushSupplierOperations
 {
@@ -69,7 +69,7 @@ class PrinterImpl
 	/**
 	 * convenience method that does the synchronization
 	 */
-	
+
 	public synchronized void tell()
 	{
 	    super.notify();
@@ -85,8 +85,8 @@ class PrinterImpl
 		    try
 		    {
 			synchronized( this )
-			{ 
-			    this.wait(); 
+			{
+			    this.wait();
 			}
 		    }
 		    catch( InterruptedException ie )
@@ -96,9 +96,9 @@ class PrinterImpl
 		// "print"
 		JobInfo job = (JobInfo)queue.remove( new Integer( printIdx ));
 		if( job != null && generateEvents() )
-		{		
+		{
 		    System.out.println("--Printing Job # " + job.jobId + " --\n" + job.text + "\n--END JOB---");
-		    // create a structured event 
+		    // create a structured event
 		    StructuredEvent printedEvent = new StructuredEvent();
 
 		    // set the event type and name
@@ -112,7 +112,7 @@ class PrinterImpl
 
 		    // set filterable event body data
 		    printedEvent.filterable_data = new Property[3];
-		    
+
 		    Any jobAny = orb.create_any();
 		    jobAny.insert_long( job.jobId );
 		    printedEvent.filterable_data[0] = new Property("job_id", jobAny );
@@ -172,10 +172,10 @@ class PrinterImpl
 
         ClientType ctype = ClientType.STRUCTURED_EVENT;
         org.omg.CORBA.IntHolder proxyIdHolder = new org.omg.CORBA.IntHolder();
-        
+
         try
         {
-            pushConsumer =  
+            pushConsumer =
 		StructuredProxyPushConsumerHelper.narrow(
                         supplierAdmin.obtain_notification_push_consumer(ctype, proxyIdHolder));
         }
@@ -196,7 +196,7 @@ class PrinterImpl
 	    e.printStackTrace();
 	}
 	// initialize "queue" and start printer thread
-	queue = new Hashtable();	
+	queue = new Hashtable();
 	printThread = new PrintThread();
     }
 
@@ -204,12 +204,12 @@ class PrinterImpl
      * Enter a job in the printer queue
      */
 
-    public synchronized int print( String text, String uid) 
+    public synchronized int print( String text, String uid)
 	throws OffLine
     {
 	if( offline )
 	    throw new OffLine();
-            
+
 	queue.put( new Integer(jobId), new JobInfo( jobId, uid, text ));
 	printThread.tell();
 	return jobId++;
@@ -219,11 +219,11 @@ class PrinterImpl
      * Remove a job in the printer queue
      */
 
-    public void cancel(int id, String uid ) 
+    public void cancel(int id, String uid )
 	throws UnknownJobID, AlreadyPrinted
     {
 
-	if( id > jobId || id < 0) 
+	if( id > jobId || id < 0)
 	    throw new UnknownJobID();
 
 	if( id < printIdx )
@@ -241,24 +241,24 @@ class PrinterImpl
 
 	    if( generateEvents() )
 	    {
-		// create a structured event 
+		// create a structured event
 		StructuredEvent cancelEvent = new StructuredEvent();
-		
+
 		// set the event type and name
 		EventType type = new EventType("Office", "Canceled");
 		FixedEventHeader fixed = new FixedEventHeader(type, "" + getEventId() );
-		
+
 		// complete header date
 		Property variable[] = new Property[0];
 		cancelEvent.header = new EventHeader(fixed, variable);
-		
+
 		// set filterable event body data
 		cancelEvent.filterable_data = new Property[3];
-		
+
 		Any jobAny = orb.create_any();
 		jobAny.insert_long( job.jobId );
 		cancelEvent.filterable_data[0] = new Property("job_id ", jobAny );
-		
+
 		Any userAny = orb.create_any();
 		userAny.insert_string( job.userId );
 		cancelEvent.filterable_data[1] = new Property("user_id ", userAny );
@@ -268,7 +268,7 @@ class PrinterImpl
 		cancelEvent.filterable_data[2] = new Property( "urgent", urgentAny );
 
 		cancelEvent.remainder_of_body = orb.create_any();
-				    
+
 		try
 		{
 		    pushConsumer.push_structured_event( cancelEvent );
@@ -293,22 +293,22 @@ class PrinterImpl
 
 	if( generateEvents() )
 	{
-	    // create a structured event 
+	    // create a structured event
 	    StructuredEvent lineEvent = new StructuredEvent();
 
-            String typeSuffix = ( offline ? "offline" : "online" );	   
-    
+            String typeSuffix = ( offline ? "offline" : "online" );
+
 	    // set the event type and name
 	    EventType type = new EventType("Office", "Printer" + typeSuffix);
             FixedEventHeader fixed = new FixedEventHeader(type, "" + getEventId() );
-	    
+
             // complete header date
             //		Any priorityAny = orb.create_any();
             //		priorityAny.insert_short( (short)4 );
 
             Property variable[] = new Property[0];
 	    lineEvent.header = new EventHeader(fixed, variable);
-	    
+
 	    // set filterable event body data
 	    lineEvent.filterable_data = new Property[1];
 
@@ -335,7 +335,7 @@ class PrinterImpl
     }
 
     /**
-     * Potentially release resources, 
+     * Potentially release resources,
      * from CosNotifyComm.NotifySubscribe
      */
 
@@ -357,6 +357,3 @@ class PrinterImpl
 
 
 }
-
-
-
