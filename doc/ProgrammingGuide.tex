@@ -62,17 +62,18 @@ an overview of the package contents.
 \section{Obtaining JacORB}
 
 JacORB can be obtained as a g-zipped tar--archive or as a zip--archive
-from the  JacORB home page  at \verb+http://jacorb.inf.fu-berlin.de/+.
+from the  JacORB home page  at {\tt www.jacorb.org}.
 It   can   also   be   downloaded   via  anonymous   ftp   from   {\tt
 ftp.inf.fu-berlin.de} from the directory {\tt pub/jacorb/}.
 
 To install JacORB, just unzip  and untar (or simply unzip) the archive
-somewhere.   This will  result in  a new  directory  {\tt JacORB1\_3}.
+somewhere.  This will result  in a new directory {\tt JacORB1\_3\_30}.
 Make   sure  your   CLASSPATH  environment   variable   contains  {\tt
-JacORB1\_3/lib/jacorb.jar}.  If you plan  to recompile all or parts of
-JacORB, you should also include {\tt JacORB1\_2/classes}.  Extend your
-search path with  {\tt JacORB1\_3/bin}, so that the  shell scripts and
-batch files for the utilities in this directory are found.
+JacORB1\_3\_30/lib/jacorb.jar}.  If you plan to recompile all or parts
+of  JacORB,  you  should  also include  {\tt  JacORB1\_3\_30/classes}.
+Extend  your search path  with {\tt  JacORB1\_3\_30/bin}, so  that the
+shell scripts and batch files  for the utilities in this directory are
+found.
 
 \section{Installation}
 \label{Sec_installation}
@@ -88,12 +89,10 @@ JacORB will run on any JavaVM,  but to rebuild JacORB (and compile the
  a {\tt ant clean} first.
 
 In order to be able to  use GUI tools such as NameManager, ImRManager,
-IRBrowser, and  the KeyStoreManager, you need  to use JDK  1.2 or have
-Sun's Swing  classes installed on  your machine.  In the  latter case,
-your CLASSPATH also needs to  contain these classes. For SSL, you must
-have  JDK 1.2.  Also, you  need to  install the  cryptography  and SSL
-libraries by  IAIK, viz.  IAIK--JCE  2.5 and iSaSiLk 3.0.   Please see
-{\tt http://jcewww.iaik.tu-graz.ac.at/}.
+IRBrowser you need to use at least  JDK 1.2. For SSL, you must have at
+least JDK  1.2.  Also,  you need to  install the cryptography  and SSL
+libraries by IAIK, viz.  IAIK--JCE 2.5 (or higher) and iSaSiLk 3.0 (or
+higher).  Please see {\tt http://jcewww.iaik.tu-graz.ac.at/}.
 
 \subsection{Configuration}
 
@@ -106,37 +105,50 @@ discussing these modules. There are three options for doing this.
 
 The most  general case is in  a properties file. JacORB  looks for and
 loads  a   file  called  either  {\tt   .jacorb\_properties}  or  {\tt
-jacorb.properties}.   It  looks for  these  files  in  both your  home
-directory  (as in  the {\tt  user.home}  system property)  and in  the
-current directory.  If  it finds multiple files, it  loads all of them
-in this  order. In case of  different settings for  the same property,
-the one loaded last takes precedence.
+jacorb.properties}. The properties files will be searched in the
+following places:
+\begin{enumerate}
+  \item in the classpath.
+  \item in the home directory of the user running JacORB. This is
+        obtained by calling {\tt System.getProperty( "user.home" )}.
+        So if in doubt where your home directory is, write a small
+        java programm that prints out this property.
+  \item in the current directory.
+  \item in the {\tt lib} directory of the JDK installation. The JDKs
+        home directory is obtained by calling 
+        {\tt System.getProperty( "java.home" )}.
+\end{enumerate}
+
+The places are searched in the order presented above. If a properties
+file is found, it is loaded and searching is terminated. 
 
 For  more  application--specific  properties,  you  can  pass  a  {\tt
-java.util.Properties}  object to  {\tt ORB.init()}  during application
-initialization,  e.g.,  like this  ({\tt  args}  is  the String  array
-containing command line arguments):
+  java.util.Properties} object to  {\tt ORB.init()} during application
+  initialization. Properties set this way will override properties set
+  by a properties file. The following code snippet demonstrates how to
+  pass in  a {\tt Properties} object  ({\tt args} is  the String array
+  containing command line arguments):
 
 \small{
 \begin{verbatim}            
     java.util.Properties props = new java.util.Properties();
-    props.setProperty("jacorb.implname","StandardNS"); // use put() under Java 1.1
+    props.setProperty("jacorb.implname","StandardNS"); 
+    // use put() under Java 1.1
+
     org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, props);
 \end{verbatim}
 }
 
-The third way  of specifying properties is by  passing them as command
-line  arguments   to  the  Java  interpreter.  This   option  has  the
-disadvantage  that  you cannot  use  {\tt  jaco}  to start  the  Java
-interpreter, which  means that  you must pass  in the  properties that
-this script sets.
+The third way  of specifying properties is by  setting the JVMs system
+properties.  These  properties  must  be  set prior  to  calling  {\tt
+ORB.init()},  and will override  both properties  that are  loaded via
+file and  an additional {\tt Proerties} object.  System properties can
+also be set using the {\tt -D<prop name>=<prop value>} comman line arg
+to the {\tt java} command.   This option has the disadvantage that you
+cannot use {\tt jaco} to  start the Java interpreter, which means that
+you must pass in the properties that this script sets.
 
 \cmdline{java -DOAPort=4711 -D... -D... jacorb.naming.NameServer ...}
-
-An option  passed like  this will override  any setting in  either the
-properties  file  or the  application  setup.  Properties  set in  the
-application code, however, will  always override any properties set in
-any other way.
 
 We are now ready to have a look at the most basic JacORB configuration
 properties.  Here is an example {\tt jacorb\_properties} file: 
@@ -317,7 +329,7 @@ The steps we will generally have to take are:
 Our example uses a simple server the definition of which should be
 clear if you know IDL. Its interface is given in {\tt server.idl}. All
 the source code for this example can be found in {\tt
-  JacORB1\_3/demo/grid}.
+  JacORB1\_3\_30/demo/grid}.
 
 \small{
 \begin{verbatim}
