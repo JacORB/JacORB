@@ -45,32 +45,33 @@ import org.omg.CosNotification.PropertySeqHelper;
 
 public class TCLTest extends NotificationTestCase
 {
-    ApplicationContext applicationContext_;
-    NotificationTestUtils testUtils_;
+    private ApplicationContext applicationContext_;
+    private NotificationTestUtils testUtils_;
 
     //////////////////////////////////////////////////
     // the testdata
 
-    Any testPerson_;
-    Any testUnion_;
-    Any testUnion1_;
-    Any testUnion2_;
-    Any testUnion3_;
-    Any testUnion4_;
-    Any testUnion5_;
+    private Any testPerson_;
+    private Any testUnion_;
+    private Any testUnion1_;
+    private Any testUnion2_;
+    private Any testUnion3_;
+    private Any testUnion4_;
+    private Any testUnion5_;
 
-    String[] visitorTestExpressions_ = new String[] {
-                                           "$.value < 1",
-                                           "$.value != 1",
-                                           "$.value <= 1",
-                                           "$.value > 1",
-                                           "$.value >= 1",
-                                           "$.value == 1",
-                                           "$.value + 1",
-                                           "$.value - 1",
-                                           "$.value * 1",
-                                           "$.value / 1",
-                                           "$.value ~ $.x"};
+    private final String[] visitorTestExpressions_ =
+        new String[] {
+            "$.value < 1",
+            "$.value != 1",
+            "$.value <= 1",
+            "$.value > 1",
+            "$.value >= 1",
+            "$.value == 1",
+            "$.value + 1",
+            "$.value - 1",
+            "$.value * 1",
+            "$.value / 1",
+            "$.value ~ $.x"};
 
     public void tearDown() throws Exception
     {
@@ -94,7 +95,8 @@ public class TCLTest extends NotificationTestCase
         _t2.string_( "String" );
 
         _t3 = new TestUnion();
-        _t3.named_value_( new NamedValue( "this is the name", "this is the value" ) );
+        _t3.named_value_( new NamedValue( "this is the name",
+                                          "this is the value" ) );
 
         _t4 = new TestUnion();
         _t4.person_( person );
@@ -162,7 +164,8 @@ public class TCLTest extends NotificationTestCase
     {
         testUtils_ = new NotificationTestUtils( getORB() );
 
-        applicationContext_ = new ApplicationContext( getORB(), getPOA() );
+        applicationContext_ =
+            new ApplicationContext( getORB(), getPOA() );
 
         applicationContext_.configure(getConfiguration());
 
@@ -179,27 +182,47 @@ public class TCLTest extends NotificationTestCase
     ////////////////////
     // Helper functions
 
-    private void runEvaluation( StructuredEvent event, String expr ) throws Exception
+    private void runEvaluation( StructuredEvent event,
+                                String expr )
+        throws Exception
     {
-        NotificationTestUtils.runEvaluation( this, applicationContext_, event, expr );
+        NotificationTestUtils.runEvaluation( this,
+                                             applicationContext_,
+                                             event,
+                                             expr );
     }
 
-    private void runEvaluation( Any any, String expr ) throws Exception
+    private void runEvaluation( Any any,
+                                String expr )
+        throws Exception
     {
-        NotificationTestUtils.runEvaluation( this, applicationContext_, any, expr );
+        NotificationTestUtils.runEvaluation( this,
+                                             applicationContext_,
+                                             any,
+                                             expr );
     }
 
-    private void runEvaluation( Any any, String expr, String expect ) throws Exception
+    private void runEvaluation( Any any,
+                                String expr,
+                                String expect )
+        throws Exception
     {
-        NotificationTestUtils.runEvaluation( this, applicationContext_, any, expr, expect );
+        NotificationTestUtils.runEvaluation( this,
+                                             applicationContext_,
+                                             any,
+                                             expr,
+                                             expect );
     }
 
-    private void runStaticTypeCheck( String expr ) throws Exception
+    private void runStaticTypeCheck( String expr )
+        throws Exception
     {
         runStaticTypeCheck( expr, true );
     }
 
-    private void runStaticTypeCheck( String expr, boolean shouldFail ) throws Exception
+    private void runStaticTypeCheck( String expr,
+                                     boolean shouldFail )
+        throws Exception
     {
         try
         {
@@ -216,7 +239,6 @@ public class TCLTest extends NotificationTestCase
         }
         catch ( StaticTypeException ste )
         {}
-
     }
 
     private void runEvaluation( String fst, String snd ) throws Exception
@@ -476,13 +498,16 @@ public class TCLTest extends NotificationTestCase
 
     public void testDefault() throws Exception
     {
-        runEvaluation( testUnion_, "default $._d and $.().first_name == 'Firstname'" );
+        runEvaluation( testUnion_,
+                       "default $._d and $.().first_name == 'Firstname'" );
     }
 
     public void testExist() throws Exception
     {
         runEvaluation( testPerson_, "exist $._type_id" );
-        runEvaluation( testPerson_, "exist $._type_id and $._type_id =='Person'" );
+        runEvaluation( testPerson_,
+                       "exist $._type_id and $._type_id =='Person'" );
+
         runEvaluation( testPerson_, "exist $._repos_id" );
 
         runEvaluation( testUnion1_, "not exist $.1" );
@@ -539,20 +564,30 @@ public class TCLTest extends NotificationTestCase
         runEvaluation( testUnion2_, "$.string_" , "'String'" );
         runEvaluation( testUnion2_, "$.(2)" , "'String'" );
 
-        runEvaluation( testUnion3_, "$.named_value_.name", "'this is the name'" );
+        runEvaluation( testUnion3_,
+                       "$.named_value_.name", "'this is the name'" );
+
         runEvaluation( testUnion3_, "$.(3).name", "'this is the name'" );
 
-        runEvaluation( testUnion4_, "$.person_.home_address.street == 'Takustr.'" );
-        runEvaluation( testUnion4_, "$.(4).home_address.street == 'Takustr.'" );
+        runEvaluation( testUnion4_,
+                       "$.person_.home_address.street == 'Takustr.'" );
+
+        runEvaluation( testUnion4_,
+                       "$.(4).home_address.street == 'Takustr.'" );
+
         runEvaluation( testUnion4_, "$.(4).3.street == 'Takustr.'" );
         runEvaluation( testUnion4_, "$.(4).3.0 == 'Takustr.'" );
         runEvaluation( testUnion4_, "$.(4).home_address.0 == 'Takustr.'" );
 
-        runEvaluation( testUnion5_, "$.named_value_array(name)", "'value'" );
+        runEvaluation( testUnion5_,
+                       "$.named_value_array(name)", "'value'" );
+
         runEvaluation( testUnion5_, "$.(5)(name)", "'value'" );
 
         runEvaluation( testUnion_, "$.().first_name", "'Firstname'" );
-        runEvaluation( testUnion_, "$.default_person.first_name", "'Firstname'" );
+
+        runEvaluation( testUnion_,
+                       "$.default_person.first_name", "'Firstname'" );
     }
 
     public void testComponent() throws Exception
@@ -561,7 +596,9 @@ public class TCLTest extends NotificationTestCase
 
         try
         {
-            runEvaluation( testPerson_, "$.third_name", "'does not exist'" );
+            runEvaluation( testPerson_,
+                           "$.third_name",
+                           "'does not exist'" );
             fail();
         }
         catch ( EvaluationException e )
@@ -571,7 +608,9 @@ public class TCLTest extends NotificationTestCase
 
         //////////
 
-        runEvaluation( testPerson_, "$.home_address.street", "'Takustr.'" );
+        runEvaluation( testPerson_,
+                       "$.home_address.street",
+                       "'Takustr.'" );
 
         runEvaluation( testPerson_, "$.3.0", "'Takustr.'" );
 
@@ -581,9 +620,11 @@ public class TCLTest extends NotificationTestCase
 
         runEvaluation( testPerson_, "$.age > 30", "FALSE" );
 
-        runEvaluation( testPerson_, "$.age > 20 and $.first_name =='Firstname'" );
+        runEvaluation( testPerson_,
+                       "$.age > 20 and $.first_name =='Firstname'" );
 
-        runEvaluation( testPerson_, "$.age < 30 or $.first_name == 'Adalbert'" );
+        runEvaluation( testPerson_,
+                       "$.age < 30 or $.first_name == 'Adalbert'" );
 
         //////////
 
@@ -667,7 +708,9 @@ public class TCLTest extends NotificationTestCase
         runEvaluation( _testData, "$type_name == 'TESTING'" );
         runEvaluation( _testData, "$event_name == 'ALARM'" );
 
-        StructuredEvent _structuredEvent = testUtils_.getStructuredEvent();
+        StructuredEvent _structuredEvent =
+            testUtils_.getStructuredEvent();
+
         runEvaluation( _structuredEvent, "$domain_name == 'TESTING'" );
         runEvaluation( _structuredEvent, "$type_name == 'TESTING'" );
         runEvaluation( _structuredEvent, "$event_name == 'ALARM'" );
@@ -675,18 +718,21 @@ public class TCLTest extends NotificationTestCase
 
     public void testShorthandVariableHeader() throws Exception
     {
-        StructuredEvent _structuredEvent = testUtils_.getStructuredEvent();
+        StructuredEvent _structuredEvent =
+            testUtils_.getStructuredEvent();
 
         Any _any = getORB().create_any();
 
         _structuredEvent.header.variable_header = new Property[ 2 ];
 
         _any.insert_long( 10 );
-        _structuredEvent.header.variable_header[ 0 ] = new Property( "long", _any );
+        _structuredEvent.header.variable_header[ 0 ] =
+            new Property( "long", _any );
 
         _any = getORB().create_any();
         _any.insert_string( "text" );
-        _structuredEvent.header.variable_header[ 1 ] = new Property( "string", _any );
+        _structuredEvent.header.variable_header[ 1 ] =
+            new Property( "string", _any );
 
         runEvaluation( _structuredEvent, "$long == 10" );
         runEvaluation( _structuredEvent, "$long == $.header.variable_header(long)" );
@@ -697,7 +743,8 @@ public class TCLTest extends NotificationTestCase
 
     public void testShorthandFilterableData() throws Exception
     {
-        StructuredEvent _structuredEvent = testUtils_.getStructuredEvent();
+        StructuredEvent _structuredEvent =
+            testUtils_.getStructuredEvent();
 
         Any _any = getORB().create_any();
 
@@ -821,6 +868,13 @@ public class TCLTest extends NotificationTestCase
         runEvaluation( _timeAny, "$.time + 1 >= $.time" );
         runEvaluation( _timeAny, "$.time - 1 <= $.time" );
     }
+
+    public void testAccessNonExistingStructMember() throws Exception
+    {
+        runEvaluation( testPerson_, "$not_exist == 3", "FALSE");
+        runEvaluation( testPerson_, "3 == $not_exist", "FALSE");
+    }
+
 
     public void testLTEforwardsVisitorBug() throws Exception
     {
