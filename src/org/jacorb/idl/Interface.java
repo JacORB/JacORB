@@ -1014,13 +1014,13 @@ public class Interface
         ps.println("\t\treturn ids;");
         ps.println("\t}\n");
 
-        if (!parser.j2me)
+        if (!parser.cldc10)
         {
             ps.print("\tpublic final static java.lang.Class _opsClass = ");
             if (!pack_name.equals(""))
             {
                 ps.print(pack_name + ".");
-            }            
+            }
             if (is_abstract)
             {
                 ps.println(name + ".class;");
@@ -1043,17 +1043,17 @@ public class Interface
             {
                 fullName = name;
             }
-            
+
             ps.println( "\tpublic static final java.lang.Class _opsClass;" );
             ps.println("\tstatic");
             ps.println("\t{");
             ps.println("\t\ttry");  //try
             ps.println("\t\t{");	//{
-            
+
             ps.print( "\t\t\t_opsClass = Class.forName(\"" );
             if( !pack_name.equals( "" ) ) ps.print( pack_name + "." );
             ps.println( name + "Operations\");" );
-            
+
             ps.println("\t\t}");	//}
             ps.println("\t\tcatch(ClassNotFoundException cnfe)");
             ps.println("\t\t{");	//{

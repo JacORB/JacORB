@@ -361,7 +361,7 @@ public class EnumType
         pw.println("\t}");
 
         pw.println("\tjava.lang.Object readResolve()");
-        if (!parser.j2me )
+        if (!parser.cldc10 )
             pw.println("\tthrows java.io.ObjectStreamException");
         pw.println("\t{");
         pw.println("\t\treturn from_int(value());");
