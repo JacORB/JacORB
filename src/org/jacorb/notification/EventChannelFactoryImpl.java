@@ -468,6 +468,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
         EventChannelFactoryImpl _factory =
             new EventChannelFactoryImpl();
 
+	System.out.println(_factory.getIOR());
     }
 
 } 
