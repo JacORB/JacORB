@@ -105,6 +105,8 @@ parser code
         generateIR = false;
         generate_skeletons = true;
 
+        strict_names = true;
+
         generateIncluded = false;
         inhibitionState = false;
         localityContraint = false;
@@ -443,8 +445,22 @@ parser code
        String idlp = mapping.substring(0,split_idx);
        String jp = mapping.substring(split_idx+1);
 
-       pack_replace.put( idlp, jp );
-       logger.debug( "Replace pack " + idlp + " with " + jp );
+       if( idlp.length() == 0 )
+       {
+           package_prefix = jp;
+           if( logger.isDebugEnabled() )
+           {
+               logger.debug( "Replace unnamed global package with " + jp );
+           }
+       }
+       else
+       {
+           pack_replace.put( idlp, jp );
+           if( logger.isDebugEnabled() )
+           {
+               logger.debug( "Replace pack " + idlp + " with " + jp );
+           }
+       }
     }
 
 
