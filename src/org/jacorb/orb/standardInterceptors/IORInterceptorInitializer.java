@@ -60,6 +60,11 @@ public class IORInterceptorInitializer
                 info.add_ior_interceptor(new SSLComponentInterceptor(orb));
             }
 
+            if( Environment.isPropertyOn( "jacorb.security.support_sas" ))
+            {
+                info.add_ior_interceptor(new SASComponentInterceptor(orb));
+            }
+
             int giop_minor = 
                 Integer.parseInt( 
                     Environment.getProperty( 
