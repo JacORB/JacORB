@@ -65,15 +65,27 @@ brose@inf.fu-berlin.de
              Compiler did not complain if oneway operations declare 
                 exceptions or return types other than void. Now it does.
 
+             Compiler did not complain about identifiers in the same
+                scope that differedonly in case, which it should according
+                to the spec. Now it correctly rejects definitions like 
+                "teST" and "TEst".
+
+             Compiler did not check the IDL 2.3 rules for redefinition of
+                interfaces etc. in nested scopes, now it does. (If that 
+                breaks your IDL files, use the new switch -sloppy_names
+                to have the compiler behave as before.)
+
              Fixed Problems in generated code
                 - String members in exceptions and structs are now initialized 
-                  to "", otherwise there can be CORBA.MARSHAL excpetions 
+                  to "", otherwise there can be CORBA.MARSHAL exceptions 
                   at runtime because of null values.
                 - generated code in multi-dimensional sequences now 
                   compiles with javac.
                 - Arrays of anys: generated code now compiles with javac.
                 - Corrected references to holder classes for out 
                   parameters for types aliased to string
+
+             Additional bug fixes...
 
         - added support for inverse DNS lookup of IP addresses, so IORs
           contain fully qualified host names instead of IP numbers. See

@@ -55,7 +55,7 @@
 	   <java classname="org.jacorb.idl.parser" 
                  fork="yes" 
                  classpath="${classpath}">
-                 <arg line="${jidlflags}"/>
+                 <arg line="${jidlflags} -sloppy_names"/>
                  <arg file="${include}/jacorb/Forwarder.idl"/>
                  <arg file="${include}/jacorb/imr.idl"/>
                  <arg file="${include}/jacorb/channel.idl"/>

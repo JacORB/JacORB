@@ -410,7 +410,7 @@
 
    <target name="secbasic" depends="init">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/Security.idl"/>
+	      <arg line="${idlflags} -noskel -sloppy_names -nostub ${include}/omg/Security.idl"/>
 	</java>
    </target>
 
@@ -422,31 +422,31 @@
 
    <target name="level1">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/SecurityLevel1.idl"/>
+	      <arg line="${idlflags} -sloppy_names -noskel  -nostub ${include}/omg/SecurityLevel1.idl"/>
 	</java>
    </target>
 
    <target name="level2">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/SecurityLevel2.idl"/>
+	      <arg line="${idlflags} -sloppy_names -noskel  -nostub ${include}/omg/SecurityLevel2.idl"/>
 	</java>
    </target>
 
    <target name="secadmin">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/SecurityAdmin.idl"/>
+	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/SecurityAdmin.idl"/>
 	</java>
    </target>
 
    <target name="replaceable">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub  ${include}/omg/SecurityReplaceable.idl"/>
+	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub  ${include}/omg/SecurityReplaceable.idl"/>
 	</java>
    </target>
 
    <target name="ssliop">
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/SSLIOP.idl"/>
+	      <arg line="${idlflags}  -sloppy_names -noskel  -nostub ${include}/omg/SSLIOP.idl"/>
 	</java>
    </target>
 

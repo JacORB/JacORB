@@ -184,7 +184,8 @@ class Interface
         } 
         catch ( IllegalRedefinition ill )
         {
-            parser.fatal_error("Illegal Redefinition of scope " + ill.oldDef + " with " + ill.newDef, token);
+            parser.fatal_error("Illegal Redefinition of  " + 
+                               ill.oldDef + " in nested scope as " + ill.newDef, token);
         }
         catch ( NameAlreadyDefined nad )
         {
