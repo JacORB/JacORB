@@ -88,7 +88,12 @@ class PrimaryExpr
         }
         else if( symbol instanceof ScopedName )
         {
-            return Integer.parseInt( ConstDecl.namedValue( (ScopedName)symbol ) );
+            ConstExprEvaluator eval = 
+                new ConstExprEvaluator( ConstDecl.namedValue( (ScopedName)symbol ));
+            if( logger.isDebugEnabled() )
+                logger.debug( "PrimaryExpr: returning value " + eval.getValue().intValue());
+
+            return eval.getValue().intValue();
         }
         else
             return Integer.parseInt( ( (Literal)symbol ).toString() );
