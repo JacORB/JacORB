@@ -20,9 +20,7 @@ package org.jacorb.util.threadpool;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import org.apache.avalon.framework.logger.Logger;
 
-import org.jacorb.util.Debug;
 import java.util.*;
 
 /**
@@ -44,8 +42,6 @@ public class ThreadPool
 
     private LinkedList job_queue = null;
     private ConsumerFactory factory = null;
-
-    private Logger logger = Debug.getNamedLogger("jacorb.util.tpool");
 
     public ThreadPool( ConsumerFactory factory )
     {
@@ -88,47 +84,25 @@ public class ThreadPool
          */
         if (idle_threads >= max_idle_threads)
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("[" + idle_threads + "/" + total_threads +
-                             "] Telling thread to exit (too many idle)");
-            }
             total_threads--;
             return null;
         }
 
         idle_threads++;
 
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("[" + idle_threads + "/" + total_threads +
-                         "] added idle thread");
-        }
-
         while( job_queue.isEmpty() )
         {
             try
             {
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug("[" + idle_threads + "/" + total_threads +
-                                 "] job queue empty");
-                }
                 wait();
             }
             catch( InterruptedException e )
             {
-                Debug.output( 3, e );
             }
         }
 
         idle_threads--;
 
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("[" + idle_threads + "/" + total_threads +
-                         "] removed idle thread (job scheduled)");
-        }
         return job_queue.removeFirst();
     }
 
@@ -146,12 +120,8 @@ public class ThreadPool
 
     private void createNewThread()
     {
-        if (logger.isDebugEnabled())
-        {
-            logger.debug("[" + idle_threads + "/" + total_threads +
-                         "] creating new thread" );
-        }
-        Thread t = new Thread( new ConsumerTie( this, factory.create() ));
+        Thread t = 
+            new Thread( new ConsumerTie( this, factory.create() ));
         t.setDaemon( true );
         t.start();
 
