@@ -87,7 +87,8 @@ class NameTable
     {
         Environment.output( 3,
                             "NameTable.define2: putting " + 
-                            name + " kind " + kind + " hash: " + name.hashCode() );
+                            name + " kind " + kind + " hash: " + 
+                            name.hashCode() );
 
         if( h.containsKey( name ) )
         {
@@ -98,7 +99,9 @@ class NameTable
 
             if( !shadows.containsKey( name ) || 
                 kind.equals("operation") || kind.equals("interface"))
-                throw new NameAlreadyDefined(name);
+            {
+                throw new NameAlreadyDefined( name );
+            }
             else 
             {
                 // redefine
@@ -111,7 +114,8 @@ class NameTable
             operationSources.put( name, name.substring( 0, name.lastIndexOf(".") ));
     }
 
-    private static void defineInheritedOperation( String name, String inheritedFrom )
+    private static void defineInheritedOperation( String name, 
+                                                  String inheritedFrom )
         throws NameAlreadyDefined 
     {
 
@@ -165,7 +169,7 @@ class NameTable
         } 
         else
         {
-            h.put( name, "operation" );
+            //h.put( name, "operation" );
             operationSources.put( name, inheritedFrom );
         }
     }
@@ -181,15 +185,19 @@ class NameTable
         for( Enumeration e = shadowEntries.keys(); e.hasMoreElements();)
         {
             String name = (String)e.nextElement();
+            String kind = (String)shadowEntries.get(name);
             if( h.containsKey( name ) )
             {
                 throw new NameAlreadyDefined(name);
             } 
             else 
             {
-                h.put( name, shadowEntries.get(name) );
+                h.put( name, kind );
+                Environment.output( 4, "Put shadow " +  name);
                 shadows.put( name, "" );
             }
+            if( kind.equals("operation"))
+                operationSources.put( name, name.substring( 0, name.lastIndexOf(".") ));
         }
     }
 
@@ -221,7 +229,7 @@ class NameTable
                                         anc +  " : key " + key + " kind " + kind);
 
                     String shadowKey = name + key.substring( key.lastIndexOf('.'));
-                    shadowNames.put( shadowKey,kind );
+                    shadowNames.put( shadowKey, kind );
 
                     // if the name we inherit is a typedef'd name, we need to
                     // to typedef the inherited name as well
@@ -243,16 +251,18 @@ class NameTable
                                 TypeMap.typedef( name + 
                                                  key.substring(key.lastIndexOf('.')),t);
                             }                        
-                        try
-                        {
-                            define( name + key.substring( key.lastIndexOf('.')), "type");
-                        } 
-                        catch ( NameAlreadyDefined nad )
-                        {
-                            // Can be ignored: it is legal to inherit multiple 
-                            // type definitions of the same name in IDL
-                            // System.err.println("Problem " + name + " inherits (multiple inh.)");
-                        }
+                            shadowNames.put( name + key.substring( key.lastIndexOf('.')), kind );
+//                          try
+//                          {
+//                              define( name + key.substring( key.lastIndexOf('.')),kind );
+//                          } 
+//                          catch ( NameAlreadyDefined nad )
+//                          {
+//                            Environment.output(3,nad);
+//                              // Can be ignored: it is legal to inherit multiple 
+//                              // type definitions of the same name in IDL
+//                              // System.err.println("Problem " + name + " inherits (multiple inh.)");
+//                          }
                     }
                     else if( kind.equals("operation"))
                     {
@@ -278,7 +288,8 @@ class NameTable
         } 
         catch ( NameAlreadyDefined nad )
         {
-            // System.err.println( nad.getMessage + " already defined, " + name + " inherits (multiple inh.)");                                 
+            Environment.output(4, nad );
+            // System.err.println( nad.getMessage + " already defined, " + name + " inherits (multiple inh.)");
         }
     }
 
@@ -334,20 +345,6 @@ class NameTable
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

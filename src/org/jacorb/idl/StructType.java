@@ -165,6 +165,7 @@ class StructType
 	} 
 	catch ( NameAlreadyDefined nad )
 	{
+            Environment.output( 4, nad );
 	    parser.error("Struct " + typeName() + " already defined", token);
 	}
 	if( memberlist != null )
@@ -504,23 +505,6 @@ class StructType
 	}
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

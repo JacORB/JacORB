@@ -22,12 +22,12 @@ interface John{
 
 };
 
-interface Bill: John {
-  void foo5(in long arg1);
-  void foo6(in long arg1);
-  void foo7(in long arg1);
-  void foo8(in long arg1);
-};
+//  interface Bill: John {
+//    void foo5(in long arg1);
+//    void foo6(in long arg1);
+//    void foo7(in long arg1);
+//    void foo8(in long arg1);
+//  };
 
 
 interface Paul : Fred, Bill {
