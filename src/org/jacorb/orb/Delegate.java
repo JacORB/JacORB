@@ -229,15 +229,14 @@ public final class Delegate
                                                        connection.getId(),
                                                        ( int ) _pior.getProfileBody().iiop_version.minor );
 
-                    ReplyPlaceholder place_holder = new ReplyPlaceholder();
+                    LocateReplyReceiver receiver = 
+                        new LocateReplyReceiver();
 
                     connection.sendRequest( lros,
-                                            place_holder,
+                                            receiver,
                                             lros.getRequestId() );
 
-
-                    LocateReplyInputStream lris =
-                        ( LocateReplyInputStream ) place_holder.getInputStream();
+                    LocateReplyInputStream lris = receiver.getReply();
 
                     switch ( lris.rep_hdr.locate_status.value() )
                     {
@@ -708,7 +707,7 @@ public final class Delegate
     /**
      * Invokes an asynchronous operation using this object reference by
      * sending the request marshalled in the OutputStream.  The reply
-     * will be directed to the ReplyHandler.
+     * will be directed to the supplied ReplyHandler.
      */
     public void invoke( org.omg.CORBA.Object self,
                         org.omg.CORBA.portable.OutputStream os,
@@ -733,6 +732,12 @@ public final class Delegate
         return invoke_internal (self, os, null, false);
     }
 
+    /**
+     * Internal implementation of both invoke() methods.  Note that
+     * the boolean argument <code>async</code> is necessary to differentiate
+     * between synchronous and asynchronous calls, because the ReplyHandler
+     * can be null even for an asynchronous call.
+     */
     private org.omg.CORBA.portable.InputStream invoke_internal
                                ( org.omg.CORBA.Object self,
                                  org.omg.CORBA.portable.OutputStream os,
@@ -802,7 +807,7 @@ public final class Delegate
         {
             // Synchronous invocation, response expected.
             // This call blocks until the reply arrives.
-            return receiver.getReplyInputStream();
+            return receiver.getReply();
         }
         else
         {
