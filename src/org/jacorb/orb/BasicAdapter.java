@@ -116,7 +116,8 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
             timeout = Integer.parseInt(prop);
         }
 
-        listener = new IIOPListener();
+        listener = transport_manager.getFactories()
+                                    .create_listener (null,(short)0,(short)0);
         listener.set_handle (this);
         listener.listen();
     }
@@ -132,33 +133,62 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
     }
 
     /**
-     * obsolete
+     * @deprecated
      */
     public int getPort()
     {
-        IIOPProfile profile = (IIOPProfile)listener.endpoint();
-        return profile.getAddress().getPort();
+        if (listener instanceof IIOPListener)
+        {
+            IIOPProfile profile = (IIOPProfile)listener.endpoint();
+            return profile.getAddress().getPort();
+        }
+        else
+        {
+            throw new RuntimeException
+                ("Cannot find server port for non-IIOP transport");
+        }
     }
 
+    /**
+     * @deprecated
+     */
     public int getSSLPort()
     {
-        IIOPProfile profile = (IIOPProfile)listener.endpoint();
-        return profile.getSSLPort();
+        if (listener instanceof IIOPListener)
+        {
+            IIOPProfile profile = (IIOPProfile)listener.endpoint();
+            return profile.getSSLPort();
+        }
+        else
+        {
+            throw new RuntimeException
+                ("Non-IIOP transport does not have an SSL port");
+        }
     }
 
+    /**
+     * @deprecated
+     */
     public boolean hasSSLListener()
     {
         return getSSLPort() != -1;
     }
 
     /**
-     * @returns the IP address we are listening on
+     * @deprecated
      */
-
     public String getAddress()
     {
-        IIOPProfile profile = (IIOPProfile)listener.endpoint();
-        return profile.getAddress().getHost();
+        if (listener instanceof IIOPListener)
+        {
+            IIOPProfile profile = (IIOPProfile)listener.endpoint();
+            return profile.getAddress().getHost();
+        }
+        else
+        {
+            throw new RuntimeException 
+                ("Cannot find server address for non-IIOP transport");
+        }
     }
 
     /**
