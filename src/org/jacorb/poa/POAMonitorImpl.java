@@ -117,16 +117,24 @@ public class POAMonitorImpl
         }
         return null;
     }
-    public synchronized void changeState(String state) {
-        if (view != null) {
-            try {
+
+
+    public synchronized void changeState(String state) 
+    {
+        if (view != null) 
+        {
+            try 
+            {
                 view._setState(state);
-            } catch (Throwable exception) {
+            } catch (Throwable exception) 
+            {
                 logTrace.printLog(0, "Exception occurred changeSate() of POAMonitor");
                 logTrace.printLog(0, exception);
             }
         }
     }
+
+
     public synchronized void closeMonitor() {
         if (view != null) {                     
             try {
