@@ -97,14 +97,18 @@ public abstract class GIOPConnection
 
     //stop listening for messages
     private boolean do_close = false;
+    
+    protected StatisticsProvider statistics_provider = null;
 
     public GIOPConnection( Transport transport,
                            RequestListener request_listener,
-                           ReplyListener reply_listener )
+                           ReplyListener reply_listener,
+                           StatisticsProvider statistics_provider )
     {
         this.transport = transport;
         this.request_listener = request_listener;
         this.reply_listener = reply_listener;
+        this.statistics_provider = statistics_provider;
 
         transport.setTransportListener( this );
 
@@ -298,12 +302,10 @@ public abstract class GIOPConnection
                                  msg_size + Messages.MSG_HEADER_SIZE );
             }
 
-            StatisticsProvider provider = transport.getStatisticsProvider();
-
-            if( provider != null )
+            if( statistics_provider != null )
             {
-                provider.messageReceived( msg_size +
-                                          Messages.MSG_HEADER_SIZE );
+                statistics_provider.messageReceived( msg_size +
+                                                     Messages.MSG_HEADER_SIZE );
             }
 
             //this is the "good" exit point. 
@@ -663,6 +665,11 @@ public abstract class GIOPConnection
             }
         }
         transport.write( false, false, fragment, start, size, 0 );
+        
+        if (getStatisticsProvider() != null)
+        {
+            getStatisticsProvider().messageChunkSent (size);
+        }
     }
 
     /* pro forma implementations of io.OutputStream methods */
@@ -714,6 +721,11 @@ public abstract class GIOPConnection
             out.write_to( this );
 
             transport.flush();
+            
+            if (getStatisticsProvider() != null)
+            {
+                getStatisticsProvider().flushed();
+            }
         }
         finally
         {
@@ -756,7 +768,7 @@ public abstract class GIOPConnection
      */
     public final StatisticsProvider getStatisticsProvider()
     {
-        return transport.getStatisticsProvider();
+        return statistics_provider;
     }
 
     /**
