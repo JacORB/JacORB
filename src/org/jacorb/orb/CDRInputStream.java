@@ -1013,8 +1013,10 @@ public class CDRInputStream
      */
     private final boolean readBOM()
     {
+        /*
         if( !use_BOM )
-            return littleEndian;
+            return false; 
+        */
 
         if( (buffer[ pos     ] == (byte) 0xFE) &&
             (buffer[ pos + 1 ] == (byte) 0xFF) )
@@ -1077,7 +1079,7 @@ public class CDRInputStream
             while( pos < endPos )
             {
                 //ignore size
-                read_wchar_size();
+                //read_wchar_size();
 
                 buf[ i++ ] = read_wchar( wchar_litte_endian );
             }

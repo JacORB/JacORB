@@ -210,7 +210,7 @@ public class CDROutputStream
             buffer[ pos + 5 ] = (byte) 0;
             buffer[ pos + 6 ] = (byte) 0;
             buffer[ pos + 7 ] = (byte) 0;
-
+            
             index += remainder;
             pos += remainder;
         }
@@ -523,10 +523,12 @@ public class CDROutputStream
 
     public final void write_wchar( char c )
     {
-        write_wchar( c, use_BOM );
+        write_wchar( c, use_BOM, true );//with length indicator
     }
 
-    private final void write_wchar( char c, boolean write_bom )
+    private final void write_wchar( char c, 
+                                    boolean write_bom, 
+                                    boolean write_length_indicator )
     {
         check(3);
 
@@ -536,7 +538,7 @@ public class CDROutputStream
             {
                 if( c <= 0x007F ) 
                 {
-                    if( giop_minor == 2 )
+                    if( giop_minor == 2 && write_length_indicator )
                     {
                         //the chars length in bytes
                         write_octet( (byte) 1 );
@@ -546,7 +548,7 @@ public class CDROutputStream
                 } 
                 else if( c > 0x07FF ) 
                 {
-                    if( giop_minor == 2 )
+                    if( giop_minor == 2 && write_length_indicator )
                     {
                         //the chars length in bytes
                         write_octet( (byte) 3 );
@@ -560,7 +562,7 @@ public class CDROutputStream
                 } 
                 else 
                 {
-                    if( giop_minor == 2 )
+                    if( giop_minor == 2 && write_length_indicator )
                     {
                         //the chars length in bytes
                         write_octet( (byte) 2 );
@@ -577,8 +579,11 @@ public class CDROutputStream
             {
                 if( giop_minor == 2 )
                 {
-                    //the chars length in bytes
-                    write_octet( (byte) 2 );
+                    if( write_length_indicator )
+                    {
+                        //the chars length in bytes
+                        write_octet( (byte) 2 );
+                    }
 
                     if( write_bom )
                     {
@@ -648,13 +653,13 @@ public class CDROutputStream
         // write characters in current wide encoding, add null terminator
         for( int i = 0; i < s.length(); i++ ) 
         {
-            write_wchar( s.charAt(i), false ); //no BOM
+            write_wchar( s.charAt(i), false, false ); //no BOM
         }
 
         if( giop_minor < 2 )
         {
             //terminating NUL char
-            write_wchar( (char)0, false ); //no BOM
+            write_wchar( (char)0, false, false ); //no BOM
         }
                         
         int size = 0;
