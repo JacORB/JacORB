@@ -3,7 +3,7 @@ package org.jacorb.idl;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -489,6 +489,7 @@ public class StructType
             ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
             ps.println("\t}");
             ps.println();
+
             if (memberlist == null)
             {
                 ps.println("\tpublic " + className + "(String value)");
@@ -516,7 +517,8 @@ public class StructType
 
             if (exc)
             {
-                // print a constructor for class member initialization with additional first string parameter
+                // print a constructor for class member initialization
+                // with additional first string parameter
 
                 ps.print("\tpublic " + className + "(");
                 ps.print("java.lang.String _reason,");
@@ -531,7 +533,7 @@ public class StructType
                 ps.println(")");
 
                 ps.println("\t{");
-                ps.println("\t\tsuper(" + fullClassName + "Helper.id()+\"\"+_reason);");
+                ps.println("\t\tsuper(" + fullClassName + "Helper.id()+ \" \" + _reason);");
                 for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
                 {
                     Member m = (Member)e.nextElement();
@@ -543,6 +545,7 @@ public class StructType
                 }
                 ps.println("\t}");
             }
+
             ps.print("\tpublic " + className + "(");
             for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
             {
@@ -554,8 +557,11 @@ public class StructType
             }
             ps.println(")");
 
-
             ps.println("\t{");
+
+            if (exc) // fixes #462
+                ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
+
             for (Enumeration e = memberlist.v.elements(); e.hasMoreElements();)
             {
                 Member m = (Member)e.nextElement();
