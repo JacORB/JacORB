@@ -401,7 +401,12 @@ class InterfaceBody
         if( ops.length <= 0 )
             return;
 
-        ps.println( "\tstatic private final java.util.Hashtable m_opsHash = new java.util.Hashtable();" );
+        String HASHTABLE = System.getProperty("java.version").startsWith ("1.1")
+                           ? "com.sun.java.util.collections.Hashtable"
+                           : "java.util.Hashtable";
+
+        ps.println( "\tstatic private final " + HASHTABLE 
+                      + " m_opsHash = new " + HASHTABLE + "();" );
         ps.println( "\tstatic" );
         ps.println( "\t{" );
 
