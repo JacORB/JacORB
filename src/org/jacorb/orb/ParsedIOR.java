@@ -402,15 +402,18 @@ public class ParsedIOR
 	ior = _ior;
 	ior_str = getIORString();
 
+        TaggedComponent[] iiop_components = 
+            profileBodies[ effectiveProfileBody ].components;
+
         //retrieve the codeset component
-        for( int i = 0; i < taggedComponents.length; i++ )
+        for( int i = 0; i < iiop_components.length; i++ )
         {
-	    if( taggedComponents[i].tag == TAG_CODE_SETS.value )
+	    if( iiop_components[i].tag == TAG_CODE_SETS.value )
             {
                 // get server cs from IOR 
                 CDRInputStream is =
                     new CDRInputStream( orb, 
-                                        taggedComponents[i].component_data);
+                                        iiop_components[i].component_data);
                 
                 is.openEncapsulatedArray();
                 

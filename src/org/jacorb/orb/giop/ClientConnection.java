@@ -153,7 +153,7 @@ public class ClientConnection
 
     public int getTCSW()
     {
-        return connection.getTCS();
+        return connection.getTCSW();
     }
     
     public String getInfo()

@@ -593,13 +593,12 @@ public class CDRInputStream
 	    return ""; // not allowed by specs, but possible :-)
 	
 	// performace, devik: the next code is one of fastest ways how
-	// to do it because String constructor which is taking byte[] as parameter
-	// will do its own conversion internaly. Only slow ops in sequence
-	// bellow are "new" and read_char. The new operations can
-	// be made faster by caching char[] buffer. The read_char might be inlined
-	// but the performance gain will not be so big expecially on Java Hotspot
-	// engine.
-
+	// to do it because String constructor which is taking byte[]
+	// as parameter will do its own conversion internaly. Only
+	// slow ops in sequence bellow are "new" and read_char. The
+	// new operations can be made faster by caching char[]
+	// buffer. The read_char might be inlined but the performance
+	// gain will not be so big expecially on Java Hotspot engine.
 	char[] buf = new char[size];
 	int i;
 	int endPos = pos + 
@@ -610,10 +609,10 @@ public class CDRInputStream
 	
 	// devik: detect optional terminating zero, it's not optional in spec.
 	// but clever orb should be able to handle missing terminator
-	if( buf[i-1] ==0 ) 
+	if( buf[i-1] == 0 ) 
 	    i--; 
 	
-	return new String( buf, 0, i);
+	return new String( buf, 0, i );
     }
 
     /**

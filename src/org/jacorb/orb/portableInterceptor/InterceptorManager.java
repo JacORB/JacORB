@@ -118,8 +118,7 @@ public class InterceptorManager
         if (ts_current == null){
             //create new client current
             //server currents have been created and set separately
-            Debug.output( Debug.INTERCEPTOR | Debug.INFORMATION, 
-                          "InterceptorManager.getCurrent() creates new empty PI current");
+;
             ts_current = getEmptyCurrent();
             currents.put(Thread.currentThread(),
                          ts_current);

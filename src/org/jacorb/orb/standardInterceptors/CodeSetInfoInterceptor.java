@@ -63,10 +63,10 @@ public class CodeSetInfoInterceptor
     {    
 
 	info.add_ior_component_to_profile( tagc, 
-                                           org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value );
+                                           org.omg.IOP.TAG_INTERNET_IOP.value );
 
-	org.jacorb.util.Debug.output( Debug.INTERCEPTOR | 3, 
-             "CodeSetInfoCreator added TaggedComponent to TAG_MULTIPLE_COMPONENTS profile");
+//  	org.jacorb.util.Debug.output( Debug.INTERCEPTOR | 3, 
+//               "CodeSetInfoCreator added TaggedComponent to TAG_MULTIPLE_COMPONENTS profile");
       
     }
 }
