@@ -79,38 +79,54 @@ public class SSLSocketFactory
     {
 	try 
 	{
-	    // set up key manager to do server authentication
-	    KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
-	    KeyStore key_store = KeyStore.getInstance( "JKS" );
+	    KeyManagerFactory kmf = null;
+	    KeyStore key_store = null;
 
-            String keystore_location = Environment.keyStore();
-            if( keystore_location == null ) 
-            {
-                System.out.print( "Please enter key store file name: " );
-                keystore_location = 
+	    //only add own credentials, if establish trust in client
+            //is supported
+            if(( (byte) Environment.supportedBySSL() & 0x40) != 0 ) 
+            {        
+		String keystore_location = Environment.keyStore();
+		if( keystore_location == null ) 
+		{
+		    System.out.print( "Please enter key store file name: " );
+		    keystore_location = 
                     (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
+		}
+		
+		String keystore_passphrase = 
+		    Environment.getProperty( "jacorb.security.keystore_password" );
+		if( keystore_passphrase == null ) 
+		{
+		    System.out.print( "Please enter store pass phrase: " );
+		    keystore_passphrase= 
+			(new BufferedReader(new InputStreamReader(System.in))).readLine();
+		}
 
-            String keystore_passphrase = 
-                Environment.getProperty( "jacorb.security.keystore_password" );
-            if( keystore_passphrase == null ) 
-            {
-                System.out.print( "Please enter store pass phrase: " );
-                keystore_passphrase= 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
+		key_store = 
+		    KeyStoreUtil.getKeyStore( keystore_location,
+					      keystore_passphrase.toCharArray() );
 
-            key_store.load( new FileInputStream( keystore_location ),
-                            keystore_passphrase.toCharArray() );
-
-            kmf.init( key_store, keystore_passphrase.toCharArray() );
+		kmf = KeyManagerFactory.getInstance( "SunX509" );
+		kmf.init( key_store, keystore_passphrase.toCharArray() );
+	    }
 
             TrustManagerFactory tmf = 
 		TrustManagerFactory.getInstance( "SunX509" );
-	    tmf.init( key_store );
+
+	    if( key_store != null &&
+		"on".equals( Environment.getProperty( "jacorb.security.jsse.trustees_from_ks",
+						      "off" )))
+	    {
+		tmf.init( key_store );
+	    }
+	    else
+	    {
+		tmf.init( null );
+	    }
 
             SSLContext ctx = SSLContext.getInstance( "TLS" );
-            ctx.init( kmf.getKeyManagers(), 
+            ctx.init( (kmf == null)? null : kmf.getKeyManagers(), 
 		      tmf.getTrustManagers(), 
 		      null );
 
