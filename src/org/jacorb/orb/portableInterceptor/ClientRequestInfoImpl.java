@@ -61,11 +61,6 @@ public class ClientRequestInfoImpl
 
     public org.jacorb.orb.giop.ClientConnection connection = null;
 
-    public ClientRequestInfoImpl()
-    {
-        super();
-    }
-
     public ClientRequestInfoImpl
                       ( org.jacorb.orb.ORB orb,
                         org.jacorb.orb.giop.RequestOutputStream ros,
