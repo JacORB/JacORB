@@ -100,6 +100,8 @@ gerald.brose@acm.org
    - IDL Compiler:
          - Flag '-nofinal' can be used to generate code where the class
            definitions are not final.
+         - Forward and multiple declaration of Unions, ValueTypes, Structs
+           and Interfaces
 
 1.4 beta 4:
 ===========
