@@ -1315,7 +1315,7 @@ public class parser extends java_cup.runtime.lr_parser {
 
     // forward declared interfaces are put into this list
 
-    public static java.util.Hashtable pending_interfaces = new java.util.Hashtable();
+    public static Hashtable pending_interfaces = new Hashtable();
 
     public static synchronized void set_pending( String name )
     {

@@ -66,8 +66,8 @@ public class JacIDL extends MatchingTask
     public JacIDL()
     {
         parser.command_line = null;
-        parser.import_list = new java.util.Vector();
-        parser.pack_replace = new java.util.Hashtable();
+        parser.import_list = new Vector();
+        parser.pack_replace = new Hashtable();
         parser.scopes = new java.util.Stack();
         parser.include_state = false;
         _destdir = new File( "." );

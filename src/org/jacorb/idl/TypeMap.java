@@ -25,11 +25,12 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
+import java.util.*;
 
 class TypeMap
 {
 
-    static java.util.Hashtable typemap = new java.util.Hashtable( 5000 );
+    static Hashtable typemap = new Hashtable( 5000 );
 
 
     public static void init()

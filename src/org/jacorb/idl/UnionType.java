@@ -340,7 +340,7 @@ class UnionType
          */
 
         int def = 0;
-        java.util.Vector allCaseLabels = new java.util.Vector();
+        Vector allCaseLabels = new Vector();
 
         for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements(); )
         {
