@@ -16,7 +16,7 @@
 	<property name="idlflags" 
                 value="-I${include}/omg -I${include}/jacorb -d
 	${src}/generated"/>
-      <available classname="org.itef.jgss.GSSManager" property="jgss.present" />       
+      <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />       
   </target>
 
    <target name="all" depends="init">

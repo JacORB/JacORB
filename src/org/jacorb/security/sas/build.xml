@@ -11,25 +11,30 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
-      <available classname="org.itef.jgss.GSSManager" property="jgss.present" />       
+      <available classname="org.ietf.jgss.GSSManager" property="jgss.present" />       
       <available classname="com.tagish.auth.Utils" property="jaas.modules.present" />       
    </target>
 
    <target name="all" depends="init,compile,jaas" />
 
-   <target name="compile" if="jgss.present">
-	<javac srcdir="${dirs.base}"
-              destdir="${classdir}"
+   <target name="compile" depends="init" if="jgss.present">
+	<javac srcdir="${src}"
+              destdir="${classdir}" 
 	        includes="org/jacorb/security/sas/*.java"
 		  excludes="org/jacorb/security/sas/NT_*.java"
 	        />
    </target>
 
-   <target name="jaas" if="jaas.modules.present">
-	<javac srcdir="${dirs.base}"
-               destdir="${classdir}"
+   <target name="jaas" depends="init" if="jaas.modules.present">
+	<javac srcdir="${src}"
+               destdir="${classdir}" 
 	       includes="org/jacorb/security/sas/NT_*.java"
 	        />
+   </target>
+
+   <target name="jgssWARN" depends="init" unless="jgss.present">
+        <echo message="GSS-API jgss packages not available!"/> 
+        <echo message="Please add the corresponding jar file to your classpath" />
    </target>
 
 </project>
