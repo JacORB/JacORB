@@ -1,3 +1,117 @@
+2003-05-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* proxy/ProxyClientForwardInterceptor.java (redirectProxy): Get
+	the host address from the IIOPProfile, and be prepared for
+	non-IIOP transports.
+
+	* imr/ImplementationRepositoryImpl.java (SocketListener.run): Pass
+	transport profile to GIOP connection.
+	(checkServerActive): Don't pass SSL arg to connection manager.
+
+	* orb/iiop/IIOPProfile.java (getSSLPort): New method.
+
+	* orb/Delegate.java (bind): No need to init() the pior. Pass just
+	the profile to GIOP, no more SSL at this level.
+	(set_policy_override): No need to init() the pior.
+	(useSSL): Method removed.
+
+	* orb/ParsedIOR.java (getIIOPAddress, init, useSAS, useSSL):
+	Removed.
+
+	* orb/BasicAdapter.java (Listener.run): Pass null profile to
+	GIOPConnection for the time being.
+
+	* orb/connection/TransportManager.java (socket_factory,
+	ssl_socket_factory): Made them public static, so that we can
+	access them from Client_TCP_IP_Transport
+	[temporary hack].
+
+	* orb/connection/TCP_IP_Transport.java (connection_info, socket):
+	Make them protected.
+	(transport_manager): Field removed.
+	(c'tor): Remove TransportManager argument.
+
+	* orb/connection/ServerGIOPConnection.java (c'tor): Add profile
+	argument.
+
+	* orb/connection/Server_TCP_IP_Transport.java (c'tor): Remove
+	TransportManager argument.
+
+	* orb/connection/GIOPConnectionManager.java
+	(createClientGIOPConnection,
+	createServerGIOPConnection): Add profile arguments.
+
+	* orb/connection/GIOPConnection.java (profile): New field.
+	(c'tor): Initialize it.
+	(write): Connect to this profile.
+
+	* orb/connection/ClientGIOPConnection.java (c'tor): Add profile
+	argument.
+
+	* orb/connection/ClientConnectionManager.java (getConnection): Use
+	an ETF profile as the only argument.  No more SSL.
+
+	* orb/connection/Client_TCP_IP_Transport.java: Connection data is
+	now received in connect() only. Removed all constructor
+	parameters. Do SSL negotiation.
+
+2003-05-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/InternetIOPProfile.java: Removed
+
+	* naming/namemanager/ContextNode.java, orb/util/PrintIOR.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	imr/ImplementationRepositoryImpl.java, orb/Delegate.java,
+	orb/ParsedIOR.java,
+	orb/connection/BiDirConnectionServerInterceptor.java,
+	orb/connection/ClientConnectionManager.java,
+	orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/TransportManager.java, orb/iiop/IIOPFactories.java,
+	orb/iiop/IIOPListener.java: Move org.jacorb.orb.InternetIOPProfile
+	to org.jacorb.orb.iiop.IIOPProfile.
+
+	* orb/iiop/IIOPProfile.java: Initial revision. This used to be
+	org.jacorb.orb.InternetIOPProfile.
+
+2003-05-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPFactories.java, orb/iiop/IIOPListener.java: Initial
+	revision.
+
+	* orb/connection/TransportListener.java: Interface removed.
+
+	* orb/TaggedComponentList.java (addComponent): Two new methods.
+
+	* orb/InternetIOPProfile.java: Add method descriptions from ETF
+	spec as Javadoc comments.
+	(addComponent): Two new methods.
+
+	* orb/BasicAdapter.java (ssl_socket_factory): Public, because we
+	need it in the IIOPListener for now.
+
+	* orb/connection/GIOPConnection.java: Don't implement
+	TransportListener.
+	(c'tor): Don't register yourself as a TransportListener.
+	(getMessage): Call streamClosed() yourself for
+	COMM_FAILURE. Return null for TRANSIENT.
+	(readTimedOut): New abstract method.
+
+	* orb/connection/TCP_IP_Transport.java (transport_listener): Field
+	removed.
+	(setTransportListener): Removed.
+	(copy c'tor): Don't copy transport_listener.
+	(read): Don't call transport_listener.streamClosed() on
+	COMM_FAILURE; this is now done at the GIOP level.  Throw a
+	TRANSIENT for interrupted I/O.
+
+	* orb/connection/Transport.java (setTransportListener): Method removed.
+
+2003-04-30  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/FilterImpl.java: * extracted Class ConstraintEntry
+	to be in its own sourcefile as it is used outside of this Class
+
 2003-04-29  Nick Cross  <nick.cross@prismtechnologies.com>
 
 	* idl/TypeMap.java, idl/lexer.java, orb/BasicAdapter.java,
