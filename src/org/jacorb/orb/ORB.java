@@ -79,7 +79,7 @@ public final class ORB
         
     // devik: default IIOP version used to generate IORs
     protected org.omg.IIOP.Version IIOPVersion = 
-        new org.omg.IIOP.Version((byte)1,(byte)1);
+        new org.omg.IIOP.Version( (byte) 1, (byte) 2 );
 
     public  java.applet.Applet applet;
 
@@ -352,71 +352,81 @@ public final class ORB
         //all components for the profiles have to be present by now.
         switch( IIOPVersion.minor )
         {
-        case 1: // create 1.1 profile  
-            components = new TaggedComponent[components_iiop_profile.size()];
-            for( int i = 0; i < components_iiop_profile.size(); i++)
-            {
-                components[i] = 
-                    (TaggedComponent)components_iiop_profile.elementAt(i);
+            case 2 : 
+            { 
+                //same as IIOP 1.1 
             }
- 
-            org.omg.IIOP.ProfileBody_1_1 pb1 = 
-                new org.omg.IIOP.ProfileBody_1_1( IIOPVersion, 
-                                                  address, 
-                                                  (short)port, 
-                                                  key, 
-                                                  components);
-                
-            // serialize the profile id 1, leave idx 0 for v.1.0 profile
-            profileDataStream = new org.jacorb.orb.CDROutputStream(this);
-            profileDataStream.write_boolean(endianness);
-            org.omg.IIOP.ProfileBody_1_1Helper.write( profileDataStream, pb1);
-            tps = new TaggedProfile[useMulti ? 3:2];
-            tps[1] = new TaggedProfile(TAG_INTERNET_IOP.value, 
-                                       profileDataStream.getBufferCopy());
-            // fall thru
-        case 0: // create 1.0 profile
-            org.omg.IIOP.ProfileBody_1_0 pb0;
-            pb0 = new org.omg.IIOP.ProfileBody_1_0(
-                               new org.omg.IIOP.Version((byte)1,(byte)0),
-                               address,
-                               (short)port,
-                               key);
-            
-            // serialize the profile id 1, leave idx 0 for v.1.0 profile
-            profileDataStream = new org.jacorb.orb.CDROutputStream(this);
-            profileDataStream.write_boolean(endianness);
-            org.omg.IIOP.ProfileBody_1_0Helper.write( profileDataStream, pb0);
-            if (tps == null) 
-                tps = new TaggedProfile[useMulti ? 2:1];
-
-            tps[0] = new TaggedProfile(TAG_INTERNET_IOP.value, 
-                                       profileDataStream.getBufferCopy());
-
-            // now optionally fill the last IOR profile with multicomponent
-            if(useMulti)
+            case 1: 
             {
+                // create IIOP 1.1 profile  
                 components = 
-                    new TaggedComponent[components_multi_profile.size()];
+                    new TaggedComponent[ components_iiop_profile.size() ];
+                
+                components_iiop_profile.copyInto( components );
+ 
+                org.omg.IIOP.ProfileBody_1_1 pb1 = 
+                    new org.omg.IIOP.ProfileBody_1_1( IIOPVersion, 
+                                                      address, 
+                                                      (short) port, 
+                                                      key, 
+                                                      components);
+                
+                // serialize the profile id 1, leave idx 0 for v.1.0 profile
+                profileDataStream = new CDROutputStream( this );
+                profileDataStream.beginEncapsulatedArray();
 
-                for( int i = 0; i < components_multi_profile.size(); i++)
+                org.omg.IIOP.ProfileBody_1_1Helper.write( profileDataStream, pb1 );
+
+                tps = new TaggedProfile[useMulti ? 3:2];
+                tps[1] = new TaggedProfile(TAG_INTERNET_IOP.value, 
+                                           profileDataStream.getBufferCopy());
+            
+                // fall thru
+            }
+            case 0: 
+            {
+                // create IIOP 1.0 profile                
+                org.omg.IIOP.ProfileBody_1_0 pb0 =
+                    new org.omg.IIOP.ProfileBody_1_0(
+                        new org.omg.IIOP.Version( (byte) 1, (byte) 0 ),
+                        address,
+                        (short) port,
+                        key );
+            
+                profileDataStream = new CDROutputStream( this );
+                profileDataStream.beginEncapsulatedArray();
+
+                org.omg.IIOP.ProfileBody_1_0Helper.write( profileDataStream, pb0 );
+
+                if (tps == null) 
+                    tps = new TaggedProfile[useMulti ? 2:1];
+
+                tps[0] = new TaggedProfile( TAG_INTERNET_IOP.value, 
+                                            profileDataStream.getBufferCopy() );
+
+                // now optionally fill the last IOR profile with multicomponent
+                if(useMulti)
                 {
-                    components[i] = 
-                        (TaggedComponent)components_multi_profile.elementAt(i);
+                    components = 
+                        new TaggedComponent[ components_multi_profile.size() ];
+
+                    components_multi_profile.copyInto( components );
                 }
 
                 profileDataStream = new org.jacorb.orb.CDROutputStream(this);
-                profileDataStream.write_boolean(endianness);
-                MultipleComponentProfileHelper.write(profileDataStream, components);
-                tps[tps.length-1] = 
-                    new TaggedProfile(TAG_MULTIPLE_COMPONENTS.value,
-                                      profileDataStream.getBufferCopy());
+                profileDataStream.beginEncapsulatedArray();
+
+                MultipleComponentProfileHelper.write( profileDataStream, components );
+
+                tps[ tps.length - 1 ] = 
+                    new TaggedProfile( TAG_MULTIPLE_COMPONENTS.value,
+                                       profileDataStream.getBufferCopy() );
             }      
         }
         
-        IOR _ior = new IOR( repId, tps);
+        IOR _ior = new IOR( repId, tps );
 
-        if ( Environment.useAppligator(isApplet()) ) 
+        if( Environment.useAppligator(isApplet()) ) 
         {
             try
             {
