@@ -727,17 +727,16 @@ public class DynAny
 
    // methods below suggested by <Philippe.Merle@lifl.fr>,
    // to allow compilation on J2SDK 1.4.2
-   
+
    public void insert_val(java.io.Serializable value)
-        throws TypeMismatch   
+        throws TypeMismatch
    {
-       throw new Error("NOT IMPLEMENTED");
+       throw new NO_IMPLEMENT("DynAny::insert_val not implemented.");
    }
-   
+
    public java.io.Serializable get_val()
         throws TypeMismatch
    {
-        throw new Error("NOT IMPLEMENTED");
+        throw new NO_IMPLEMENT("DynAny::get_val not implemented");
    }
-
 }
