@@ -2,26 +2,23 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
 import org.jacorb.notification.filter.etcl.ETCLComponentName;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
+import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 
 /**
  * @author Alphonse Bendt
  */
 public class NotificationEventTest extends NotificationTestCase {
 
-    MessageFactory factory_;
+    DefaultMessageFactory factory_;
     Any testPerson_;
     Any testUnion_;
 
@@ -29,21 +26,13 @@ public class NotificationEventTest extends NotificationTestCase {
     EvaluationContext evaluationContext_;
     NotificationTestUtils testUtils_;
 
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {    
         testUtils_ = new NotificationTestUtils(getORB());
+        
+        evaluationContext_ = new EvaluationContext(getEvaluator());
 
-        DynAnyFactory _dynAnyFactory =
-            DynAnyFactoryHelper.narrow(getORB().resolve_initial_references("DynAnyFactory"));
-
-        DynamicEvaluator _dynEval = new DynamicEvaluator(_dynAnyFactory);
-        _dynEval.configure(getConfiguration());
-
-        evaluationContext_ = new EvaluationContext();
-        evaluationContext_.setDynamicEvaluator(_dynEval);
-
-        factory_ = new MessageFactory();
-        factory_.configure( getConfiguration() );
-
+        factory_ = new DefaultMessageFactory(getConfiguration());
+       
         testPerson_ = testUtils_.getTestPersonAny();
 
         TestUnion _t1 = new TestUnion();

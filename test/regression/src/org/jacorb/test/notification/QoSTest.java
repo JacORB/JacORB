@@ -61,7 +61,7 @@ public class QoSTest extends NotificationTestCase
     Any trueAny;
     Any falseAny;
 
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
         trueAny = getORB().create_any();
         trueAny.insert_boolean(true);
 

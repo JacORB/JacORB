@@ -28,10 +28,6 @@ import junit.framework.Test;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.AbstractChannelFactory;
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.engine.DefaultTaskProcessor;
-import org.jacorb.notification.queue.EventQueueFactory;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -40,61 +36,52 @@ import org.omg.PortableServer.POAHelper;
  * @author Alphonse Bendt
  */
 
-public class NotificationTestCaseSetup extends TestSetup {
-
+public class NotificationTestCaseSetup extends TestSetup
+{
     private ORB orb_;
-    private POA poa_;
-    private Thread orbThread_;
-    private NotificationTestUtils testUtils_;
-    private AbstractChannelFactory eventChannelFactory_;
 
-    private ChannelContext channelContext_;
+    private POA poa_;
+
+    private Thread orbThread_;
+
+    private NotificationTestUtils testUtils_;
+
+    private AbstractChannelFactory eventChannelFactory_;
 
     private ORB clientORB_;
 
     ////////////////////////////////////////
 
-    public NotificationTestCaseSetup(Test suite) throws Exception {
+    public NotificationTestCaseSetup(Test suite) throws Exception
+    {
         super(suite);
     }
 
     ////////////////////////////////////////
 
-    public NotificationTestUtils getTestUtils() {
-        return(testUtils_);
+    public NotificationTestUtils getTestUtils()
+    {
+        return (testUtils_);
     }
 
-
-    public void setUp() throws Exception {
+    public void setUp() throws Exception
+    {
         super.setUp();
 
         orb_ = ORB.init(new String[0], null);
         poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
 
         testUtils_ = new NotificationTestUtils(orb_);
-
-        channelContext_ = new ChannelContext();
-
-        channelContext_.setORB(orb_);
-
-        channelContext_.setPOA(poa_);
-
-        channelContext_.setTaskProcessor(new DefaultTaskProcessor());
-
-        channelContext_.setEventQueueFactory(new EventQueueFactory());
-
-        channelContext_.setMessageFactory(new MessageFactory());
-
-        channelContext_.configure(getConfiguration());
-
+  
         poa_.the_POAManager().activate();
 
-        orbThread_ = new Thread(
-                   new Runnable() {
-                       public void run() {
-                           orb_.run();
-                       }
-                   });
+        orbThread_ = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                orb_.run();
+            }
+        });
 
         orbThread_.setDaemon(true);
 
@@ -102,62 +89,60 @@ public class NotificationTestCaseSetup extends TestSetup {
 
         clientORB_ = ORB.init(new String[] {}, null);
 
-        Thread clientOrbThread =
-            new Thread(new Runnable() {
-                    public void run() {
-                        clientORB_.run();
-                    }
-             });
+        Thread clientOrbThread = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                clientORB_.run();
+            }
+        });
 
         clientOrbThread.setDaemon(true);
 
         clientOrbThread.start();
-
     }
 
-
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception
+    {
         super.tearDown();
 
-        if (eventChannelFactory_ != null) {
+        if (eventChannelFactory_ != null)
+        {
             eventChannelFactory_.dispose();
         }
-
-        channelContext_.dispose();
 
         orb_.shutdown(true);
 
         clientORB_.shutdown(true);
     }
 
-
-    public ORB getClientORB() {
+    public ORB getClientORB()
+    {
         return clientORB_;
     }
 
-    public AbstractChannelFactory getFactoryServant() throws Exception {
-        if (eventChannelFactory_ == null) {
+    public AbstractChannelFactory getFactoryServant() throws Exception
+    {
+        if (eventChannelFactory_ == null)
+        {
             eventChannelFactory_ = AbstractChannelFactory.newFactory(new Properties());
         }
 
         return eventChannelFactory_;
     }
 
-
-    public ORB getORB() {
+    public ORB getORB()
+    {
         return orb_;
     }
 
-
-    public POA getPOA() {
+    public POA getPOA()
+    {
         return poa_;
     }
 
-    public Configuration getConfiguration() {
-        return (((org.jacorb.orb.ORB)getORB()).getConfiguration());
-    }
-
-    public ChannelContext getChannelContext() {
-        return channelContext_;
+    public Configuration getConfiguration()
+    {
+        return (((org.jacorb.orb.ORB) getORB()).getConfiguration());
     }
 }

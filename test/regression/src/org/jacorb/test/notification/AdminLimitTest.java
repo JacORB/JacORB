@@ -26,16 +26,21 @@ import java.util.List;
 
 import junit.framework.Test;
 
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.interfaces.ApplicationEvent;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.ConsumerAdminImpl;
+import org.jacorb.notification.servant.IEventChannel;
 import org.jacorb.notification.util.QoSPropertySet;
 import org.omg.CORBA.IntHolder;
-import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdminOperations;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
+import org.picocontainer.MutablePicoContainer;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
@@ -46,23 +51,67 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 public class AdminLimitTest extends NotificationTestCase
 {
-    private ConsumerAdminImpl consumerAdmin_;
+    private ConsumerAdminImpl objectUnderTest_;
 
-    public void setUp() throws Exception
+    private ConsumerAdminOperations consumerAdmin_;
+
+    public void setUpTest() throws Exception
     {
-        QoSPropertySet _qosSettings =
-            new QoSPropertySet(getConfiguration(), QoSPropertySet.ADMIN_QOS);
+        QoSPropertySet _qosSettings = new QoSPropertySet(getConfiguration(),
+                QoSPropertySet.ADMIN_QOS);
 
-        getChannelContext().setEventChannel(getDefaultChannel());
+        container_.registerComponentImplementation(OfferManager.class);
+        container_.registerComponentImplementation(SubscriptionManager.class);
 
-        consumerAdmin_ =
-            new ConsumerAdminImpl();
+        IEventChannel channel = new IEventChannel()
+        {
+            public MutablePicoContainer getContainer()
+            {
+                return container_;
+            }
 
-        getChannelContext().resolveDependencies(consumerAdmin_);
+            public EventChannel getEventChannel()
+            {
+                try
+                {
+                    return getDefaultChannel();
+                } catch (Exception e)
+                {
+                    throw new RuntimeException();
+                }
+            }
 
-        consumerAdmin_.set_qos(_qosSettings.get_qos());
+            public int getAdminID()
+            {
+                return 20;
+            }
+
+            public int getID()
+            {
+                return 10;
+            }
+            
+            public void destroy()
+            {
+            }
+        };
+
+        objectUnderTest_ = new ConsumerAdminImpl(channel, getORB(), getPOA(),
+                getConfiguration(), getMessageFactory(), (OfferManager) container_
+                        .getComponentInstance(OfferManager.class), (SubscriptionManager) container_
+                        .getComponentInstance(SubscriptionManager.class));
+
+        objectUnderTest_.set_qos(_qosSettings.get_qos());
+
+        consumerAdmin_ = objectUnderTest_;
     }
 
+    public void testBasics() throws Exception
+    {
+        assertEquals(20, consumerAdmin_.MyID());
+        
+        assertEquals(getDefaultChannel(), consumerAdmin_.MyChannel());
+    }
 
     public void testObtainNotificationPullSupplierFiresEvent() throws Exception
     {
@@ -70,111 +119,113 @@ public class AdminLimitTest extends NotificationTestCase
 
         final List _events = new ArrayList();
 
-        ProxyEventListener _listener =
-            new ProxyEventListener()
+        ProxyEventListener _listener = new ProxyEventListener()
+        {
+            public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
             {
-                public void actionProxyCreationRequest(ProxyEvent event)
-                    throws AdminLimitExceeded
-                {
-                    _events.add(event);
-                }
+                _events.add(event);
+            }
 
-                public void actionProxyCreated(ProxyEvent event) {
-                }
+            public void actionProxyCreated(ProxyEvent event)
+            {
+            }
 
-                public void actionProxyDisposed(ProxyEvent event) {}
-            };
+            public void actionProxyDisposed(ProxyEvent event)
+            {
+            }
+        };
 
-        consumerAdmin_.addProxyEventListener(_listener);
+        objectUnderTest_.addProxyEventListener(_listener);
 
-        ProxySupplier _proxySupplier =
-            consumerAdmin_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId);
+        ProxySupplier _proxySupplier = objectUnderTest_.obtain_notification_pull_supplier(
+                ClientType.STRUCTURED_EVENT, _proxyId);
+
+        assertNotNull(_proxySupplier);
 
         assertEquals(1, _events.size());
 
-        assertEquals(consumerAdmin_, ((ApplicationEvent)_events.get(0)).getSource());
+        assertEquals(objectUnderTest_, ((ApplicationEvent) _events.get(0)).getSource());
     }
-
 
     public void testDenyCreateNotificationPullSupplier() throws Exception
     {
         IntHolder _proxyId = new IntHolder();
 
-        ProxyEventListener _listener =
-            new ProxyEventListener()
+        ProxyEventListener _listener = new ProxyEventListener()
+        {
+            public void actionProxyCreationRequest(ProxyEvent e) throws AdminLimitExceeded
             {
-                public void actionProxyCreationRequest(ProxyEvent e)
-                    throws AdminLimitExceeded
-                {
-                    throw new AdminLimitExceeded();
-                }
+                throw new AdminLimitExceeded();
+            }
 
-                public void actionProxyDisposed(ProxyEvent event) {}
+            public void actionProxyDisposed(ProxyEvent event)
+            {
+            }
 
-                public void actionProxyCreated(ProxyEvent event) {}
-            };
+            public void actionProxyCreated(ProxyEvent event)
+            {
+            }
+        };
 
-        consumerAdmin_.addProxyEventListener(_listener);
+        objectUnderTest_.addProxyEventListener(_listener);
 
         try
         {
-            ProxySupplier _proxySupplier =
-                consumerAdmin_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId);
+            objectUnderTest_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT,
+                    _proxyId);
 
             fail();
+        } catch (AdminLimitExceeded e)
+        {
         }
-        catch (AdminLimitExceeded e)
-        {}
     }
-
 
     public void testEvents() throws Exception
     {
         IntHolder _proxyId = new IntHolder();
         final SynchronizedInt _counter = new SynchronizedInt(0);
 
-        ProxyEventListener _listener =
-            new ProxyEventListener()
+        ProxyEventListener _listener = new ProxyEventListener()
+        {
+            public void actionProxyCreated(ProxyEvent event)
             {
-                public void actionProxyCreated(ProxyEvent event) {}
+            }
 
-                public void actionProxyDisposed(ProxyEvent event) {}
+            public void actionProxyDisposed(ProxyEvent event)
+            {
+            }
 
-                public void actionProxyCreationRequest(ProxyEvent event)
-                    throws AdminLimitExceeded
-                {
-                    _counter.increment();
-                }
-            };
+            public void actionProxyCreationRequest(ProxyEvent event) throws AdminLimitExceeded
+            {
+                _counter.increment();
+            }
+        };
 
-        consumerAdmin_.addProxyEventListener(_listener);
+        objectUnderTest_.addProxyEventListener(_listener);
 
         ProxySupplier[] _seqProxySupplier = new ProxySupplier[3];
 
-        _seqProxySupplier[0] =
-            consumerAdmin_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId);
-        assertEquals(_seqProxySupplier[0], consumerAdmin_.get_proxy_supplier(_proxyId.value));
+        _seqProxySupplier[0] = objectUnderTest_.obtain_notification_pull_supplier(
+                ClientType.STRUCTURED_EVENT, _proxyId);
+        assertEquals(_seqProxySupplier[0], objectUnderTest_.get_proxy_supplier(_proxyId.value));
 
-        _seqProxySupplier[1] =
-            consumerAdmin_.obtain_notification_pull_supplier(ClientType.ANY_EVENT, _proxyId);
-        assertEquals(_seqProxySupplier[1], consumerAdmin_.get_proxy_supplier(_proxyId.value));
+        _seqProxySupplier[1] = objectUnderTest_.obtain_notification_pull_supplier(
+                ClientType.ANY_EVENT, _proxyId);
+        assertEquals(_seqProxySupplier[1], objectUnderTest_.get_proxy_supplier(_proxyId.value));
 
-        _seqProxySupplier[2] =
-            consumerAdmin_.obtain_notification_pull_supplier(ClientType.SEQUENCE_EVENT, _proxyId);
-        assertEquals(_seqProxySupplier[2], consumerAdmin_.get_proxy_supplier(_proxyId.value));
+        _seqProxySupplier[2] = objectUnderTest_.obtain_notification_pull_supplier(
+                ClientType.SEQUENCE_EVENT, _proxyId);
+        assertEquals(_seqProxySupplier[2], objectUnderTest_.get_proxy_supplier(_proxyId.value));
 
-        ProxyPullSupplier _p =
-            consumerAdmin_.obtain_pull_supplier();
+        objectUnderTest_.obtain_pull_supplier();
 
         assertEquals(3, _counter.get());
     }
 
-
-    public AdminLimitTest (String name, NotificationTestCaseSetup setup)
+    public AdminLimitTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
-
 
     public static Test suite() throws Exception
     {

@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import org.jacorb.notification.OfferManager;
 import org.omg.CosNotification.EventType;
@@ -33,7 +35,7 @@ import org.omg.CosNotifyComm.NotifyPublishOperations;
  * @author Alphonse Bendt
  */
 
-public class OfferManagerTest extends NotificationTestCase {
+public class OfferManagerTest extends TestCase {
 
     public static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
@@ -44,15 +46,14 @@ public class OfferManagerTest extends NotificationTestCase {
 
     ////////////////////////////////////////
 
-    public OfferManagerTest (String name, NotificationTestCaseSetup setup){
-        super(name, setup);
+    public OfferManagerTest (String name) {
+        super(name);
     }
 
     ////////////////////////////////////////
 
     public void setUp() throws Exception {
         offerManager_ = new OfferManager();
-        offerManager_.configure(getConfiguration());
 
         added_ = new ArrayList();
         removed_ = new ArrayList();
@@ -132,6 +133,6 @@ public class OfferManagerTest extends NotificationTestCase {
 
 
     public static Test suite() throws Exception {
-        return NotificationTestCase.suite(OfferManagerTest.class);
+        return new TestSuite(OfferManagerTest.class);
     }
 }

@@ -27,11 +27,17 @@ import org.omg.CosNotifyComm.PullSupplierPOA;
 public class AnyPullSender extends PullSupplierPOA implements TestClientOperations
 {
     Any event_;
+
     Any invalidAny_;
+
     ProxyPullConsumer myConsumer_;
+
     boolean connected_ = false;
+
     boolean available_ = false;
+
     SupplierAdmin myAdmin_;
+
     NotificationTestCase testCase_;
 
     public AnyPullSender(NotificationTestCase testCase, Any event)
@@ -50,9 +56,8 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         return connected_;
     }
 
-    public void connect(EventChannel channel,
-                        boolean useOrSemantic)
-    throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound
+    public void connect(EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded,
+            AlreadyConnected, TypeError, AdminNotFound
     {
 
         IntHolder _proxyId = new IntHolder();
@@ -73,11 +78,10 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
 
         Assert.assertEquals(myAdmin_, channel.get_supplieradmin(_adminId.value));
 
-        myConsumer_ =
-            ProxyPullConsumerHelper.narrow(myAdmin_.obtain_notification_pull_consumer(ClientType.ANY_EVENT, _proxyId));
+        myConsumer_ = ProxyPullConsumerHelper.narrow(myAdmin_.obtain_notification_pull_consumer(
+                ClientType.ANY_EVENT, _proxyId));
 
         Assert.assertEquals(ProxyType._PULL_ANY, myConsumer_.MyType().value());
-
 
         myConsumer_.connect_any_pull_supplier(_this(testCase_.getORB()));
         connected_ = true;
@@ -106,7 +110,8 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
     }
 
     public void subscription_change(EventType[] e1, EventType[] e2)
-    {}
+    {
+    }
 
     public Any pull() throws Disconnected
     {
@@ -129,24 +134,22 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         {
             Any _event = invalidAny_;
             success.value = false;
-            if (available_)
-            {
-                synchronized (this)
-                {
-                    if (available_)
-                    {
-                        _event = event_;
-                        event_ = null;
-                        success.value = true;
 
-                        sent_ = true;
-                        available_ = false;
-                    }
+            synchronized (this)
+            {
+                if (available_)
+                {
+                    _event = event_;
+                    event_ = null;
+                    success.value = true;
+
+                    sent_ = true;
+                    available_ = false;
                 }
             }
+
             return _event;
-        }
-        catch (Throwable t)
+        } catch (Throwable t)
         {
             t.printStackTrace();
             throw new RuntimeException();
@@ -157,5 +160,4 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
     {
         connected_ = false;
     }
-
 }

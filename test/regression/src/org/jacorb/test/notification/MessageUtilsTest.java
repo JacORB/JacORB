@@ -2,15 +2,13 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
 import org.jacorb.notification.filter.etcl.ETCLComponentName;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
+import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.Message;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 
 /**
  * @author Alphonse Bendt
@@ -22,27 +20,20 @@ public class MessageUtilsTest extends NotificationTestCase
 
     NotificationTestUtils testUtils_;
 
-    MessageFactory messageFactory_;
+    DefaultMessageFactory messageFactory_;
 
     public MessageUtilsTest( String name, NotificationTestCaseSetup setup )
     {
         super( name, setup );
     }
 
-    public void setUp() throws Exception
-    {
+    public void setUpTest() throws Exception
+    {      
         testUtils_ = new NotificationTestUtils(getORB());
 
-        context_ = new EvaluationContext();
-        DynamicEvaluator _dynEvaluator =
-            new DynamicEvaluator(DynAnyFactoryHelper.narrow( getORB().resolve_initial_references( "DynAnyFactory" ) ) );
-
-        _dynEvaluator.configure(getConfiguration());
-
-        context_.setDynamicEvaluator( _dynEvaluator );
-
-        messageFactory_ = new MessageFactory();
-        messageFactory_.configure( getConfiguration() );
+        context_ = new EvaluationContext(getEvaluator());
+        
+        messageFactory_ = new DefaultMessageFactory(getConfiguration());
     }
 
 

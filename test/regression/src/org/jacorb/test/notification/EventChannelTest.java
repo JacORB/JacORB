@@ -23,20 +23,21 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
  * @author Alphonse Bendt
  */
 
-public class EventChannelTest extends NotificationTestCase {
-    Any testPerson_;
+public class EventChannelTest extends NotificationTestCase
+{
+    private Any testPerson_;
 
-    EventChannel channel_;
+    private EventChannel channel_;
 
-    SupplierAdmin supplierAdmin_;
-    ConsumerAdmin consumerAdmin_;
+    private SupplierAdmin supplierAdmin_;
+
+    private ConsumerAdmin consumerAdmin_;
 
     /**
      * setup EventChannelFactory, FilterFactory and Any with Testdata
      */
-    public void setUp() throws Exception {
-        super.setUp();
-
+    public void setUpTest() throws Exception
+    {
         testPerson_ = getTestUtils().getTestPersonAny();
 
         channel_ = getDefaultChannel();
@@ -45,17 +46,100 @@ public class EventChannelTest extends NotificationTestCase {
         consumerAdmin_ = channel_.default_consumer_admin();
     }
 
+    public void testDefaultAdmins() throws Exception
+    {
+        assertEquals(channel_, supplierAdmin_.MyChannel());
+        assertEquals(channel_, consumerAdmin_.MyChannel());
 
-    public EventChannelTest(String name, NotificationTestCaseSetup setup) {
+        assertEquals(supplierAdmin_, channel_.default_supplier_admin());
+        assertEquals(consumerAdmin_, channel_.default_consumer_admin());
+
+        assertEquals(consumerAdmin_, channel_.get_consumeradmin(consumerAdmin_.MyID()));
+        final int adminID = supplierAdmin_.MyID();
+
+        assertEquals(supplierAdmin_, channel_.get_supplieradmin(adminID));
+
+        assertTrue(containsValue(channel_.get_all_consumeradmins(), consumerAdmin_.MyID()));
+
+        assertTrue(containsValue(channel_.get_all_supplieradmins(), supplierAdmin_.MyID()));
+    }
+
+    public void testCreateConsumerAdmin() throws Exception
+    {
+        IntHolder id = new IntHolder();
+        ConsumerAdmin admin = channel_.new_for_consumers(InterFilterGroupOperator.AND_OP, id);
+
+        assertEquals(InterFilterGroupOperator.AND_OP, admin.MyOperator());
+
+        assertEquals(id.value, admin.MyID());
+
+        assertTrue(containsValue(channel_.get_all_consumeradmins(), admin.MyID()));
+
+        assertEquals(admin, channel_.get_consumeradmin(id.value));
+    }
+
+    public void testCreateSupplierAdmin() throws Exception
+    {
+        IntHolder id = new IntHolder();
+        SupplierAdmin admin = channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP, id);
+
+        assertEquals(InterFilterGroupOperator.AND_OP, admin.MyOperator());
+
+        assertEquals(id.value, admin.MyID());
+
+        assertTrue(containsValue(channel_.get_all_supplieradmins(), admin.MyID()));
+
+        assertEquals(admin, channel_.get_supplieradmin(id.value));
+    }
+
+    public void testDestroyAdmin() throws Exception
+    {
+        IntHolder id = new IntHolder();
+        SupplierAdmin admin1 = channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP, id);
+
+        IntHolder id2 = new IntHolder();
+        SupplierAdmin admin2 = channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP, id2);
+
+        assertEquals(admin1, channel_.get_supplieradmin(id.value));
+
+        admin1.destroy();
+
+        try
+        {
+            channel_.get_supplieradmin(id.value);
+            fail();
+        } catch (AdminNotFound e)
+        {
+        }
+
+        assertEquals(admin2, channel_.get_supplieradmin(id2.value));
+    }
+
+    private boolean containsValue(final int[] array, final int value)
+    {
+        boolean seen = false;
+
+        for (int i = 0; i < array.length; i++)
+        {
+            if (array[i] == value)
+            {
+                seen = true;
+            }
+        }
+        return seen;
+    }
+
+    public EventChannelTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
-
-    public void testSetQos() throws Exception {
+    public void testSetQos() throws Exception
+    {
         IntHolder ih = new IntHolder();
 
-        ProxySupplier ps =
-            consumerAdmin_.obtain_notification_push_supplier(ClientType.STRUCTURED_EVENT, ih);
+        ProxySupplier ps = consumerAdmin_.obtain_notification_push_supplier(
+                ClientType.STRUCTURED_EVENT, ih);
 
         Property[] props = new Property[2];
 
@@ -72,21 +156,24 @@ public class EventChannelTest extends NotificationTestCase {
 
         Property[] new_props = ps.get_qos();
 
-        for (int x=0; x<new_props.length; ++x) {
-            if (new_props[x].name.equals(DiscardPolicy.value)) {
+        for (int x = 0; x < new_props.length; ++x)
+        {
+            if (new_props[x].name.equals(DiscardPolicy.value))
+            {
                 assertEquals(discardPolicy, new_props[x].value);
             }
 
-            if (new_props[x].name.equals(OrderPolicy.value)) {
+            if (new_props[x].name.equals(OrderPolicy.value))
+            {
                 assertEquals(orderPolicy, new_props[x].value);
             }
         }
     }
 
-
-    public void testGetConsumerAdmin() throws Exception {
-        ConsumerAdmin c1 = channel_.default_consumer_admin();
-        ConsumerAdmin c2 = channel_.get_consumeradmin(0);
+    public void testGetConsumerAdmin() throws Exception
+    {
+        channel_.default_consumer_admin();
+        channel_.get_consumeradmin(0);
 
         int[] _allKeys = channel_.get_all_consumeradmins();
 
@@ -98,20 +185,23 @@ public class EventChannelTest extends NotificationTestCase {
         _allKeys = channel_.get_all_consumeradmins();
         assertContains(ih.value, _allKeys);
 
-        try {
+        try
+        {
             channel_.get_consumeradmin(Integer.MIN_VALUE);
             fail();
-        } catch (AdminNotFound e) {}
+        } catch (AdminNotFound e)
+        {
+        }
 
         ConsumerAdmin c3 = channel_.get_consumeradmin(ih.value);
 
         assertEquals(ih.value, c3.MyID());
     }
 
-
-    public void testGetSupplierAdmin() throws Exception {
-        SupplierAdmin c1 = channel_.default_supplier_admin();
-        SupplierAdmin c2 = channel_.get_supplieradmin(0);
+    public void testGetSupplierAdmin() throws Exception
+    {
+        channel_.default_supplier_admin();
+        channel_.get_supplieradmin(0);
 
         int[] _allKeys = channel_.get_all_supplieradmins();
 
@@ -123,30 +213,35 @@ public class EventChannelTest extends NotificationTestCase {
         _allKeys = channel_.get_all_supplieradmins();
         assertContains(ih.value, _allKeys);
 
-        try {
+        try
+        {
             channel_.get_supplieradmin(Integer.MIN_VALUE);
             fail();
-        } catch (AdminNotFound e) {}
+        } catch (AdminNotFound e)
+        {
+        }
 
         SupplierAdmin c3 = channel_.get_supplieradmin(ih.value);
         assertEquals(ih.value, c3.MyID());
     }
 
-
-    static void assertContains(int i, int[] is) {
+    static void assertContains(int i, int[] is)
+    {
         boolean seen = false;
-        for (int x=0; x<is.length; ++x) {
-            if (is[x] == i) {
+        for (int x = 0; x < is.length; ++x)
+        {
+            if (is[x] == i)
+            {
                 seen = true;
             }
         }
         Assert.assertTrue(seen);
     }
 
-
-    public void testSendEventPushPull() throws Exception {
+    public void testSendEventPushPull() throws Exception
+    {
         AnyPullReceiver _receiver = new AnyPullReceiver(this);
-        _receiver.connect(channel_,false);
+        _receiver.connect(channel_, false);
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
         _sender.connect(channel_, false);
 
@@ -163,8 +258,8 @@ public class EventChannelTest extends NotificationTestCase {
         _sender.shutdown();
     }
 
-
-    public void testSendEventPushPush() throws Exception {
+    public void testSendEventPushPush() throws Exception
+    {
 
         // start a receiver thread
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
@@ -189,14 +284,16 @@ public class EventChannelTest extends NotificationTestCase {
         _sender.shutdown();
     }
 
-
-    public void testSendEventPushPush_MisbehavingConsumer() throws Exception {
+    public void testSendEventPushPush_MisbehavingConsumer() throws Exception
+    {
         // start a receiver thread
-        AnyPushReceiver _receiver = new AnyPushReceiver(this) {
-                public void push(Any any) {
-                    throw new TRANSIENT();
-                }
-            };
+        AnyPushReceiver _receiver = new AnyPushReceiver(this)
+        {
+            public void push(Any any)
+            {
+                throw new TRANSIENT();
+            }
+        };
         _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
@@ -217,9 +314,9 @@ public class EventChannelTest extends NotificationTestCase {
         _sender.shutdown();
     }
 
-
-    public void testSendEventPullPush() throws Exception {
-        AnyPullSender _sender = new AnyPullSender(this,testPerson_);
+    public void testSendEventPullPush() throws Exception
+    {
+        AnyPullSender _sender = new AnyPullSender(this, testPerson_);
         _sender.connect(channel_, false);
 
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
@@ -240,8 +337,9 @@ public class EventChannelTest extends NotificationTestCase {
 
     }
 
-    public void testSendEventPullPull() throws Exception {
-        AnyPullSender _sender = new AnyPullSender(this,testPerson_);
+    public void testSendEventPullPull() throws Exception
+    {
+        AnyPullSender _sender = new AnyPullSender(this, testPerson_);
         _sender.connect(channel_, false);
 
         AnyPullReceiver _receiver = new AnyPullReceiver(this);
@@ -263,10 +361,10 @@ public class EventChannelTest extends NotificationTestCase {
     }
 
     /**
-     * Test if all EventChannel Clients are disconnected when the
-     * Channel is Destroyed
+     * Test if all EventChannel Clients are disconnected when the Channel is Destroyed
      */
-    public void testDestroyChannelDisconnectsClients() throws Exception {
+    public void testDestroyChannelDisconnectsClients() throws Exception
+    {
         IntHolder _id = new IntHolder();
 
         EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
@@ -277,11 +375,16 @@ public class EventChannelTest extends NotificationTestCase {
         AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(this);
         _anyPushReceiver.connect(_channel, false);
 
-        AnyPullSender _anyPullSender = new AnyPullSender(this,testPerson_);
+        AnyPullSender _anyPullSender = new AnyPullSender(this, testPerson_);
         _anyPullSender.connect(_channel, false);
 
-        AnyPushSender _anyPushSender = new AnyPushSender(this,testPerson_);
+        AnyPushSender _anyPushSender = new AnyPushSender(this, testPerson_);
         _anyPushSender.connect(_channel, false);
+
+        assertTrue(_anyPullReceiver.isConnected());
+        assertTrue(_anyPushReceiver.isConnected());
+        assertTrue(_anyPullSender.isConnected());
+        assertTrue(_anyPushSender.isConnected());
 
         _channel.destroy();
 
@@ -292,10 +395,10 @@ public class EventChannelTest extends NotificationTestCase {
     }
 
     /**
-     * Test if all EventChannel Clients are disconnected when the
-     * Channel is Destroyed
+     * Test if all EventChannel Clients are disconnected when the Channel is Destroyed
      */
-    public void testDestroyAdminDisconnectsClients() throws Exception {
+    public void testDestroyAdminDisconnectsClients() throws Exception
+    {
         IntHolder _id = new IntHolder();
 
         EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
@@ -330,18 +433,19 @@ public class EventChannelTest extends NotificationTestCase {
         _channel.destroy();
     }
 
-    public void testCreateChannel() throws Exception {
+    public void testCreateChannel() throws Exception
+    {
         IntHolder _id = new IntHolder();
 
-        EventChannel _channel = getFactory().create_channel(new Property[0],
-                                                            new Property[0],
-                                                            _id);
+        EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
 
         // test if channel id appears within channel list
         int[] _allFactories = getFactory().get_all_channels();
         boolean _seen = false;
-        for (int x=0; x<_allFactories.length; ++x) {
-            if (_allFactories[x] == _id.value) {
+        for (int x = 0; x < _allFactories.length; ++x)
+        {
+            if (_allFactories[x] == _id.value)
+            {
                 _seen = true;
             }
         }
@@ -353,8 +457,9 @@ public class EventChannelTest extends NotificationTestCase {
         _channel.destroy();
     }
 
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         return NotificationTestCase.suite("Basic CosNotification EventChannel Tests",
-                                          EventChannelTest.class);
+                EventChannelTest.class);
     }
 }

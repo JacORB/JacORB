@@ -24,28 +24,38 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.PortableServer.POA;
 
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
-public class AnyPushReceiver
-    extends PushConsumerPOA
-    implements Runnable,
-               TestClientOperations
+public class AnyPushReceiver extends PushConsumerPOA implements Runnable, TestClientOperations
 {
     Any event_ = null;
+
     ORB orb_;
+
     POA poa_;
+
     long receiveTime_;
+
     CyclicBarrier barrier_;
 
     ProxyPushSupplier mySupplier_;
+
     PerformanceListener perfListener_;
 
     boolean connected_;
+
     int expected_ = 1;
-    int received_ = 0;
-    long TIMEOUT = 3000L;
+
+    final SynchronizedInt received_ = new SynchronizedInt(0);
+
+    long TIMEOUT = 4000L;
+
     long TIMEOUT_OFF = 0;
+
     int filterId_ = Integer.MIN_VALUE;
+
     NotificationTestCase testCase_;
+
     ConsumerAdmin myAdmin_;
 
     private Object lock_ = new Object();
@@ -55,34 +65,27 @@ public class AnyPushReceiver
         testCase_ = testCase;
     }
 
-
-    public AnyPushReceiver(NotificationTestCase testCase,
-                           PerformanceListener listener,
-                           int expected)
+    public AnyPushReceiver(NotificationTestCase testCase, PerformanceListener listener, int expected)
     {
         perfListener_ = listener;
         expected_ = expected;
         testCase_ = testCase;
     }
 
-
     public void setExpected(int e)
     {
         expected_ = e;
     }
-
 
     public void setPerformanceListener(PerformanceListener listener)
     {
         perfListener_ = listener;
     }
 
-
     public void setFilter(Filter filter)
     {
         filterId_ = mySupplier_.add_filter(filter);
     }
-
 
     public void addAdminFilter(Filter filter)
     {
@@ -90,38 +93,34 @@ public class AnyPushReceiver
         myAdmin_.add_filter(filter);
     }
 
-
     public void addProxyFilter(Filter filter)
     {
         Assert.assertNotNull(mySupplier_);
         mySupplier_.add_filter(filter);
     }
 
-
     public boolean isEventHandled()
     {
+        System.out.println("expected: " + expected_ + " received: " + received_);
+
         if (expected_ > 0)
         {
-            return received_ == expected_;
+            return received_.get() == expected_;
         }
-        else
-        {
-            return received_ > 0;
-        }
-    }
 
+        return received_.get() > 0;
+
+    }
 
     public void setTimeOut(long timeout)
     {
         TIMEOUT = timeout;
     }
 
-
     public void setBarrier(CyclicBarrier barrier)
     {
         barrier_ = barrier;
     }
-
 
     public void shutdown() throws FilterNotFound
     {
@@ -134,14 +133,9 @@ public class AnyPushReceiver
         myAdmin_.destroy();
     }
 
+    public void connect(EventChannel channel, boolean useOrSemantic)
 
-    public void connect(EventChannel channel,
-                        boolean useOrSemantic)
-
-    throws AdminLimitExceeded,
-                TypeError,
-                AlreadyConnected,
-                AdminNotFound
+    throws AdminLimitExceeded, TypeError, AlreadyConnected, AdminNotFound
     {
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
@@ -159,12 +153,10 @@ public class AnyPushReceiver
 
         Assert.assertEquals(myAdmin_, channel.get_consumeradmin(_adminId.value));
 
-        mySupplier_ =
-            ProxyPushSupplierHelper.narrow(myAdmin_.obtain_notification_push_supplier(ClientType.ANY_EVENT, _proxyId));
+        mySupplier_ = ProxyPushSupplierHelper.narrow(myAdmin_.obtain_notification_push_supplier(
+                ClientType.ANY_EVENT, _proxyId));
 
-        Assert.assertEquals(ProxyType._PUSH_ANY,
-                               mySupplier_.MyType().value());
-
+        Assert.assertEquals(ProxyType._PUSH_ANY, mySupplier_.MyType().value());
 
         mySupplier_.connect_any_push_consumer(_this(testCase_.getORB()));
 
@@ -173,7 +165,7 @@ public class AnyPushReceiver
 
     public int getReceived()
     {
-        return received_;
+        return received_.get();
     }
 
     public void run()
@@ -185,12 +177,14 @@ public class AnyPushReceiver
             {
                 synchronized (lock_)
                 {
+                    
+                    System.err.println("will wait " + TIMEOUT);
                     lock_.wait(TIMEOUT);
                 }
 
+            } catch (InterruptedException e)
+            {
             }
-            catch (InterruptedException e)
-            {}
         }
 
         if (barrier_ != null)
@@ -198,22 +192,22 @@ public class AnyPushReceiver
             try
             {
                 barrier_.barrier();
+            } catch (InterruptedException ie)
+            {
             }
-            catch (InterruptedException ie)
-            {}
         }
     }
 
     public void push(Any any) throws Disconnected
     {
-        received_++;
+        received_.increment();
 
         if (perfListener_ != null)
         {
             perfListener_.eventReceived(any, System.currentTimeMillis());
         }
 
-        if (expected_ > 0 && (received_ == expected_))
+        if (expected_ > 0 && (received_.get() == expected_))
         {
             synchronized (lock_)
             {
@@ -243,5 +237,6 @@ public class AnyPushReceiver
     }
 
     public void offer_change(EventType[] e1, EventType[] e2)
-    {}
+    {
+    }
 }

@@ -23,11 +23,11 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.AbstractFilter;
-import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.FilterFactoryImpl;
-import org.jacorb.notification.MappingFilterImpl;
+import org.jacorb.notification.filter.AbstractFilter;
+import org.jacorb.notification.filter.MappingFilterImpl;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
+import org.jacorb.notification.impl.DefaultEvaluationContextFactory;
+import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotification.EventType;
@@ -49,11 +49,7 @@ public class MappingFilterTest extends NotificationTestCase
 
     Any testPerson_;
 
-    NotificationTestUtils testUtils_;
-
     AbstractFilter filter_;
-
-    ApplicationContext appContext_;
 
     ////////////////////////////////////////
 
@@ -64,25 +60,16 @@ public class MappingFilterTest extends NotificationTestCase
 
     ////////////////////////////////////////
 
-    public void setUp() throws Exception {
-        appContext_ =
-            new ApplicationContext(getORB(), getPOA() );
+    public void setUpTest() throws Exception {
+        filter_ = new ETCLFilter(getConfiguration(), new DefaultEvaluationContextFactory(getEvaluator()), new DefaultMessageFactory(getConfiguration()), getORB(), getPOA());
 
-        appContext_.configure(getConfiguration());
-
-        filter_ = new ETCLFilter(appContext_);
-
-        FilterFactoryImpl _filterFactoryServant = new FilterFactoryImpl(appContext_);
-
-        _filterFactoryServant.configure(getConfiguration());
-
-        filterFactory_ = _filterFactoryServant.getFilterFactory();
-
+        filterFactory_ = (FilterFactory) container_.getComponentInstance(FilterFactory.class);
+        
         testPerson_ = getTestUtils().getTestPersonAny();
     }
 
 
-    public void testCreate() throws Exception {
+    public void testFilterFactory() throws Exception {
         Any _defaultValue = getORB().create_any();
 
         MappingFilter _filter = filterFactory_.create_mapping_filter("EXTENDED_TCL", _defaultValue);
@@ -91,6 +78,7 @@ public class MappingFilterTest extends NotificationTestCase
 
         try {
             filterFactory_.create_mapping_filter("SOMETHING_ELSE", _defaultValue);
+
             fail();
         } catch (InvalidGrammar e) {}
     }
@@ -99,10 +87,7 @@ public class MappingFilterTest extends NotificationTestCase
     public void testMatch() throws Exception {
         Any defaultValue = getORB().create_any();
 
-        MappingFilterOperations _mappingFilter =
-            filterFactory_.create_mapping_filter(ETCLFilter.CONSTRAINT_GRAMMAR, defaultValue);
-
-        _mappingFilter = new MappingFilterImpl(appContext_, filter_, defaultValue);
+        MappingFilterOperations _mappingFilter = new MappingFilterImpl(getConfiguration(), filter_, defaultValue);
 
         AnyHolder anyHolder = new AnyHolder();
 
@@ -137,10 +122,7 @@ public class MappingFilterTest extends NotificationTestCase
     public void testMatch2() throws Exception {
         Any defaultValue = getORB().create_any();
 
-        MappingFilterOperations _mappingFilter =
-            filterFactory_.create_mapping_filter(ETCLFilter.CONSTRAINT_GRAMMAR, defaultValue);
-
-        _mappingFilter = new MappingFilterImpl(appContext_, filter_, defaultValue);
+        MappingFilterOperations _mappingFilter = new MappingFilterImpl(getConfiguration(), filter_, defaultValue);
 
         AnyHolder anyHolder = new AnyHolder();
 
@@ -148,7 +130,6 @@ public class MappingFilterTest extends NotificationTestCase
         assertTrue(!_mappingFilter.match(testPerson_, anyHolder));
 
         // add some filter data
-
         Any resultToSet = getORB().create_any();
 
         resultToSet.insert_string("this is 10");

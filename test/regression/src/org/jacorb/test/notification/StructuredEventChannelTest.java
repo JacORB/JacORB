@@ -14,7 +14,6 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyFilter.ConstraintExp;
-import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
@@ -44,8 +43,8 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
     ////////////////////////////////////////
 
-    public void setUp() throws Exception
-    {
+    public void setUpTest() throws Exception
+    {      
         channel_ = getDefaultChannel();
 
         // set test event type and name
@@ -65,8 +64,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         // prepare filterable body data
         Person _p = getTestUtils().getTestPerson();
         Address _a = new Address();
-        NamedValue _nv = new NamedValue();
-
+    
         _p.first_name = "firstname";
         _p.last_name = "lastname";
         _p.age = 5;
@@ -94,7 +92,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         _eventType[0] = new EventType("*", "*");
 
         _constraintExp[0] = new ConstraintExp(_eventType, "true");
-        ConstraintInfo[] _info = trueFilter_.add_constraints(_constraintExp);
+        trueFilter_.add_constraints(_constraintExp);
 
         falseFilter_ = createFilter();
         
@@ -103,7 +101,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         _eventType[0] = new EventType("*", "*");
 
         _constraintExp[0] = new ConstraintExp(_eventType, "false");
-        _info = falseFilter_.add_constraints(_constraintExp);
+        falseFilter_.add_constraints(_constraintExp);
     }
 
 
@@ -309,6 +307,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
         StructuredPushReceiver _receiver = new StructuredPushReceiver(this) {
                 public void push_structured_event(StructuredEvent event) {
+                    logger_.info("push");
                     throw new TRANSIENT();
                 }
             };
@@ -325,7 +324,6 @@ public class StructuredEventChannelTest extends NotificationTestCase
         Thread.sleep(20000);
 
         assertFalse(_receiver.isConnected());
-
     }
 
 

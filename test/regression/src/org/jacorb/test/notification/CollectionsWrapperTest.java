@@ -30,7 +30,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.jacorb.notification.CollectionsWrapper;
+import org.jacorb.notification.util.CollectionsWrapper;
 
 /**
  * @author Alphonse Bendt
@@ -38,28 +38,25 @@ import org.jacorb.notification.CollectionsWrapper;
 
 public class CollectionsWrapperTest extends TestCase
 {
-
-    public void testTime() throws Exception {
-        long now = System.currentTimeMillis();
-
+    public void _testTime() throws Exception
+    {
         List[] list = new List[1000];
 
-        for (int x=0; x<list.length; ++x) {
+        for (int x = 0; x < list.length; ++x)
+        {
             list[x] = Collections.singletonList("testling");
         }
 
-        Method method = Collections.class.getMethod("singletonList", new Class[] {Object.class});
+        Method method = Collections.class.getMethod("singletonList", new Class[] { Object.class });
 
-        now = System.currentTimeMillis();
-
-        for (int x=0; x<list.length; ++x) {
-            list[x] = (List)method.invoke(null, new Object[]{"testling"});
+        for (int x = 0; x < list.length; ++x)
+        {
+            list[x] = (List) method.invoke(null, new Object[] { "testling" });
         }
-
-
     }
 
-    public void testCollectionsWrapper() throws Exception {
+    public void testCollectionsWrapper() throws Exception
+    {
         String o = "testling";
 
         List list = CollectionsWrapper.singletonList(o);
@@ -70,17 +67,40 @@ public class CollectionsWrapperTest extends TestCase
 
         Iterator i = list.iterator();
 
-        while (i.hasNext()) {
+        while (i.hasNext())
+        {
             assertEquals(o, i.next());
         }
     }
 
+    public void testModificationsFail() throws Exception
+    {
+        String o = "testling";
 
-    public CollectionsWrapperTest (String name)
+        List list = CollectionsWrapper.singletonList(o);
+        
+        try
+        {
+            list.add("another");
+            fail();
+        } catch (UnsupportedOperationException e)
+        {
+            // expected
+        }
+        
+        try {
+            list.remove(0);
+            fail();
+        } catch (UnsupportedOperationException e)
+        {
+            // expected
+        }
+    }
+
+    public CollectionsWrapperTest(String name)
     {
         super(name);
     }
-
 
     public static Test suite()
     {

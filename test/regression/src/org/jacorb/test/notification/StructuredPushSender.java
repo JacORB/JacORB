@@ -42,7 +42,7 @@ public class StructuredPushSender
     List addedSubscriptions_ = new ArrayList();
     List removedSubscriptions_ = new ArrayList();
 
-    StructuredPushSender(NotificationTestCase testCase, StructuredEvent event) {
+    public StructuredPushSender(NotificationTestCase testCase, StructuredEvent event) {
         event_ = event;
         testCase_ = testCase;
     }

@@ -25,11 +25,6 @@ import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
 
 /**
- * PerformanceListener.java
- *
- *
- * Created: Tue Jan 07 15:47:55 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */

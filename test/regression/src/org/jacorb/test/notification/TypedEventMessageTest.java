@@ -44,7 +44,8 @@ public class TypedEventMessageTest extends NotificationTestCase {
     private static String DRINKING_COFFEE_ID =
         "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
 
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {
+      
         objectUnderTest_ = new TypedEventMessage();
     }
 

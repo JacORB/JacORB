@@ -10,6 +10,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 
 import org.jacorb.notification.FilterFactoryImpl;
+import org.jacorb.notification.IContainer;
 import org.jacorb.notification.TypedEventMessage;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
@@ -18,15 +19,16 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  * @author Alphonse Bendt
  * @author John Farrell
  */
 
-public class FilterTest extends NotificationTestCase {
-
-    static Random random_ = new Random(System.currentTimeMillis());
+public class FilterTest extends NotificationTestCase
+{
+    static final Random random_ = new Random(System.currentTimeMillis());
 
     ////////////////////////////////////////
 
@@ -42,18 +44,31 @@ public class FilterTest extends NotificationTestCase {
 
     ////////////////////////////////////////
 
-    public FilterTest(String name, NotificationTestCaseSetup setup) {
+    public FilterTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
     ////////////////////////////////////////
 
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setUpTest() throws Exception
+    {
+        IContainer container = new IContainer()
+        {
+            public MutablePicoContainer getContainer()
+            {
+                return container_;
+            }
+            
+            public void destroy()
+            {
+                
+            }
+        };
 
-        factoryServant_ = new FilterFactoryImpl();
+        factoryServant_ = new FilterFactoryImpl(container, getORB(), getPOA(), getConfiguration());
 
-        factoryServant_.configure( getConfiguration() );
+        factoryServant_.activate();
 
         factory_ = factoryServant_.getFilterFactory();
 
@@ -64,94 +79,95 @@ public class FilterTest extends NotificationTestCase {
         filter_ = factory_.create_filter("EXTENDED_TCL");
     }
 
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-
+    public void tearDownTest() throws Exception
+    {
         factoryServant_.dispose();
     }
 
+    public void testFalseMatch() throws Exception
+    {
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+        EventType[] _eventType = new EventType[1];
+        _eventType[0] = new EventType("*", "*");
+        String _expression = "FALSE";
+        _constraintExp[0] = new ConstraintExp(_eventType, _expression);
+        filter_.add_constraints(_constraintExp);
+
+        assertFalse(filter_.match(testPerson_));
+    }
 
     /**
      * create remote filter object and invoke match operation on it
      */
-    public void testMatch() throws Exception {
+    public void testMatch() throws Exception
+    {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
 
         _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
-        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+        filter_.add_constraints(_constraintExp);
 
         // this should match
         assertTrue(filter_.match(testPerson_));
     }
 
-
-    public void testAccessNonExistingMember() throws Exception {
-        EventType[] _eventType = new EventType[] {
-            new EventType("*", "*")
-        };
+    public void testAccessNonExistingMember() throws Exception
+    {
+        EventType[] _eventType = new EventType[] { new EventType("*", "*") };
 
         ConstraintExp[] _constraintExp = new ConstraintExp[] {
-            new ConstraintExp(_eventType, "$not_exist == 3"),
-            new ConstraintExp(_eventType, "TRUE"),
-        };
+                new ConstraintExp(_eventType, "$not_exist == 3"),
+                new ConstraintExp(_eventType, "TRUE"), };
 
-        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+        filter_.add_constraints(_constraintExp);
 
         assertTrue(filter_.match(testPerson_));
     }
 
-
-    public void testMatchEmptyFilter() throws Exception {
+    public void testMatchEmptyFilter() throws Exception
+    {
         assertTrue(!filter_.match(testPerson_));
     }
 
-
-    public void testMatch_EventTypes_IsEmpty() throws Exception {
+    public void testMatch_EventTypes_IsEmpty() throws Exception
+    {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
         EventType[] _eventType = new EventType[0];
 
         _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
-        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+        filter_.add_constraints(_constraintExp);
 
         // this should match
         assertTrue(filter_.match(testPerson_));
     }
 
-
-    public void testMatch_EventType_IsEmptyString() throws Exception {
+    public void testMatch_EventType_IsEmptyString() throws Exception
+    {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
-        EventType[] _eventType =
-            new EventType[] {
-                new EventType("", "")
-            };
+        EventType[] _eventType = new EventType[] { new EventType("", "") };
 
         _constraintExp[0] = new ConstraintExp(_eventType, "$.first_name == 'firstname'");
-        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+        filter_.add_constraints(_constraintExp);
 
         // this should match
         assertTrue(filter_.match(testPerson_));
     }
 
-
-    public void testMatch_FilterString_IsEmpty() throws Exception {
+    public void testMatch_FilterString_IsEmpty() throws Exception
+    {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
-        EventType[] _eventType =
-            new EventType[] {
-                new EventType("*", "*")
-            };
+        EventType[] _eventType = new EventType[] { new EventType("*", "*") };
 
         _constraintExp[0] = new ConstraintExp(_eventType, "");
-        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+        filter_.add_constraints(_constraintExp);
 
         // this should match
         assertTrue(filter_.match(testPerson_));
     }
 
-
-    public void testMatchModify() throws Exception {
+    public void testMatchModify() throws Exception
+    {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
@@ -169,13 +185,13 @@ public class FilterTest extends NotificationTestCase {
         assertTrue(filter_.match(testPerson_));
     }
 
-
-    public void testConstraintGrammar() throws Exception {
+    public void testConstraintGrammar() throws Exception
+    {
         assertEquals("EXTENDED_TCL", filter_.constraint_grammar());
     }
 
-
-    public void testAddConstraints() throws Exception {
+    public void testAddConstraints() throws Exception
+    {
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
 
         EventType[] _eventType = new EventType[1];
@@ -188,12 +204,14 @@ public class FilterTest extends NotificationTestCase {
         assertTrue(_info.length == 1);
         assertTrue(_info[0].constraint_expression.event_types.length == 1);
         assertEquals(_expression, _info[0].constraint_expression.constraint_expr);
-        assertEquals(_eventType[0].domain_name, _info[0].constraint_expression.event_types[0].domain_name);
-        assertEquals(_eventType[0].type_name, _info[0].constraint_expression.event_types[0].type_name);
+        assertEquals(_eventType[0].domain_name,
+                _info[0].constraint_expression.event_types[0].domain_name);
+        assertEquals(_eventType[0].type_name,
+                _info[0].constraint_expression.event_types[0].type_name);
     }
 
-
-    public void testDeleteConstraints() throws Exception {
+    public void testDeleteConstraints() throws Exception
+    {
         ConstraintExp[] _constraintExp = new ConstraintExp[2];
 
         EventType[] _eventType = new EventType[1];
@@ -212,7 +230,7 @@ public class FilterTest extends NotificationTestCase {
 
         assertTrue(_info[1].constraint_expression.event_types.length == 1);
 
-        int[] _delete = {_info[0].constraint_id};
+        int[] _delete = { _info[0].constraint_id };
 
         filter_.modify_constraints(_delete, new ConstraintInfo[0]);
 
@@ -221,17 +239,15 @@ public class FilterTest extends NotificationTestCase {
         assertEquals(_info[1].constraint_id, _info2[0].constraint_id);
 
         assertEquals(_info[1].constraint_expression.constraint_expr,
-                     _info2[0].constraint_expression.constraint_expr);
+                _info2[0].constraint_expression.constraint_expr);
     }
 
-
     /**
-     * multithreaded test. Some Writers modify the Constraints of a
-     * Filter. Some Readers constantly access the Filter. They should
-     * always get consistent data.
-     *
+     * multithreaded test. Some Writers modify the Constraints of a Filter. Some Readers constantly
+     * access the Filter. They should always get consistent data.  
      */
-    public void testModifyConcurrent() throws Exception {
+    public void testModifyConcurrent() throws Exception
+    {
         FilterRead _fr1 = new FilterRead(this, filter_, 100);
         FilterRead _fr2 = new FilterRead(this, filter_, 100);
         FilterRead _fr3 = new FilterRead(this, filter_, 100);
@@ -257,13 +273,10 @@ public class FilterTest extends NotificationTestCase {
         _mod2.join();
     }
 
-
-    public void testMatchTyped() throws Exception {
-        Property[] _props = new Property[] {
-            new Property("operation", toAny("operationName")),
-            new Property("value1", toAny(100)),
-            new Property("value2", toAny(200))
-        };
+    public void testMatchTyped() throws Exception
+    {
+        Property[] _props = new Property[] { new Property("operation", toAny("operationName")),
+                new Property("value1", toAny(100)), new Property("value2", toAny(200)) };
 
         ConstraintExp[] _constraintExp = new ConstraintExp[1];
 
@@ -279,19 +292,15 @@ public class FilterTest extends NotificationTestCase {
         assertTrue(filter_.match_typed(_props));
     }
 
-
-    public void testFilterTypedMessageEvent() throws Exception {
+    public void testFilterTypedMessageEvent() throws Exception
+    {
         TypedEventMessage _mesg = new TypedEventMessage();
 
         String _domainName = "IDL:org.jacorb/org/jacorb/test/filter/Bla:1.0";
         String _operationName = "blaOperation";
 
-        _mesg.setTypedEvent(_domainName,
-                            _operationName,
-                            new Property[] {
-                                new Property("param1", toAny("value1")),
-                                new Property("param2", toAny(100))
-                            });
+        _mesg.setTypedEvent(_domainName, _operationName, new Property[] {
+                new Property("param1", toAny("value1")), new Property("param2", toAny(100)) });
 
         assertFalse(_mesg.match(filter_));
 
@@ -300,7 +309,8 @@ public class FilterTest extends NotificationTestCase {
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("", "%TYPED");
 
-        String _expression = "$event_type.domain_name == '" + _domainName + "' and $event_type.type_name == '" + _operationName + "' and $param2 > 50";
+        String _expression = "$event_type.domain_name == '" + _domainName
+                + "' and $event_type.type_name == '" + _operationName + "' and $param2 > 50";
 
         _constraintExp[0] = new ConstraintExp(_eventType, _expression);
 
@@ -309,122 +319,155 @@ public class FilterTest extends NotificationTestCase {
         assertTrue(_mesg.match(filter_));
     }
 
-
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         return NotificationTestCase.suite(FilterTest.class);
     }
 }
 
 //////////////////////////////////////////////////
 
-class FilterRead extends Thread {
+class FilterRead extends Thread
+{
     Filter filter_;
+
     int iterations_;
+
     boolean lengthOk_ = true;
+
     boolean countOk_ = true;
 
     TestCase testCase_;
+
     static int sCounter = 0;
 
-    FilterRead() {
+    FilterRead()
+    {
         super();
         setDaemon(true);
     }
 
-
-    FilterRead(TestCase testCase, Filter filter, int iterations) {
+    FilterRead(TestCase testCase, Filter filter, int iterations)
+    {
         super();
         testCase_ = testCase;
         filter_ = filter;
         iterations_ = iterations;
     }
 
-    public void run() {
-        try {
+    public void run()
+    {
+        try
+        {
             sleep(FilterTest.random_.nextInt(1000));
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e)
+        {
+            // ignored
+        }
 
         CounterMap _counter = new CounterMap();
-        for (int x=0; x<iterations_; x++) {
+        for (int x = 0; x < iterations_; x++)
+        {
             // constraint count should always be a multiple of 10
             ConstraintInfo[] _info = filter_.get_all_constraints();
             Assert.assertTrue(_info.length % 10 == 0);
 
-            for (int y=0; y<_info.length; y++) {
+            for (int y = 0; y < _info.length; y++)
+            {
                 _counter.incr(_info[y].constraint_expression.constraint_expr);
             }
 
             Iterator _i = _counter.allCounters();
 
             // constraint type count should always be a multiple of 10
-            while (_i.hasNext()) {
-                Counter _c = (Counter)_i.next();
+            while (_i.hasNext())
+            {
+                Counter _c = (Counter) _i.next();
                 Assert.assertTrue(_c.value() % 10 == 0);
             }
 
             _counter.reset();
 
-            try {
+            try
+            {
                 Thread.sleep(FilterTest.random_.nextInt(110));
-            } catch (InterruptedException ie) {}
+            } catch (InterruptedException ie)
+            {
+                // ignored
+            }
         }
     }
 }
 
 ////////////////////////////////////////
 
-class CounterMap {
+class CounterMap
+{
     Map counters_ = new Hashtable();
 
-    public void incr(Object t) {
-        Counter _c = (Counter)counters_.get(t);
-        if (_c == null) {
+    public void incr(Object t)
+    {
+        Counter _c = (Counter) counters_.get(t);
+        if (_c == null)
+        {
             _c = new Counter();
             counters_.put(t, _c);
         }
         _c.incr();
     }
 
-    public int value(Object t) {
-        Counter _c = (Counter)counters_.get(t);
-        if (_c == null) {
+    public int value(Object t)
+    {
+        Counter _c = (Counter) counters_.get(t);
+        if (_c == null)
+        {
             return 0;
-        } else {
-            return _c.value();
         }
+        
+            return _c.value();
+        
     }
 
-    public void reset() {
+    public void reset()
+    {
         counters_.clear();
     }
 
-    Iterator allCounters() {
+    Iterator allCounters()
+    {
         return counters_.values().iterator();
     }
 }
 
 ////////////////////////////////////////
 
-class Counter {
+class Counter
+{
     int counter_ = 0;
 
-    public void incr() {
-        ++counter_ ;
+    public void incr()
+    {
+        ++counter_;
     }
 
-    public int value() {
+    public int value()
+    {
         return counter_;
     }
 }
 
-class FilterModify extends Thread {
-
+class FilterModify extends Thread
+{
     TestCase testCase_;
+
     Filter filter_;
+
     int iterations_ = 100;
+
     ConstraintExp[] constraintExp_;
 
-    FilterModify(TestCase testCase, Filter filter, String expression, int iterations) {
+    FilterModify(TestCase testCase, Filter filter, String expression, int iterations)
+    {
         super();
 
         setDaemon(true);
@@ -438,39 +481,58 @@ class FilterModify extends Thread {
         EventType[] _eventType = new EventType[1];
         _eventType[0] = new EventType("domain", expression);
 
-        for (int x=0; x < constraintExp_.length; x++) {
+        for (int x = 0; x < constraintExp_.length; x++)
+        {
             constraintExp_[x] = new ConstraintExp(_eventType, expression);
         }
     }
 
-    public void run() {
-        try {
+    public void run()
+    {
+        try
+        {
             sleep(FilterTest.random_.nextInt(1000));
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e)
+        {
+            // ignored
+        }
 
         ConstraintInfo[] _info = null;
-        for (int x=0; x<iterations_; x++) {
-            try {
-                if (_info != null) {
+        for (int x = 0; x < iterations_; x++)
+        {
+            try
+            {
+                if (_info != null)
+                {
                     int[] _toBeDeleted = new int[_info.length];
-                    for (int y=0; y<_info.length; y++) {
+                    for (int y = 0; y < _info.length; y++)
+                    {
                         _toBeDeleted[y] = _info[y].constraint_id;
                     }
                     // delete the constraints this thread added earlier
                     filter_.modify_constraints(_toBeDeleted, new ConstraintInfo[0]);
 
-                    try {
+                    try
+                    {
                         Thread.sleep(FilterTest.random_.nextInt(20));
-                    } catch (InterruptedException ie) {}
+                    } catch (InterruptedException ie)
+                    {
+                        // ignore
+                    }
 
                 }
                 // add some constraints
                 _info = filter_.add_constraints(constraintExp_);
 
-                try {
+                try
+                {
                     Thread.sleep(FilterTest.random_.nextInt(200));
-                } catch (InterruptedException ie) {}
-            } catch (Exception e) {
+                } catch (InterruptedException ie)
+                {
+                    // ignore
+                }
+            } catch (Exception e)
+            {
                 e.printStackTrace();
                 Assert.fail();
             }

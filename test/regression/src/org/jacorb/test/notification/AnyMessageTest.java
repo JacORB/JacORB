@@ -24,33 +24,59 @@ import junit.framework.Test;
 
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.NoTranslationException;
+import org.jacorb.notification.interfaces.Message;
+import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StructuredEvent;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class AnyMessageTest extends NotificationTestCase {
+public class AnyMessageTest extends NotificationTestCase
+{
+    private AnyMessage objectUnderTest_;
 
-    AnyMessage objectUnderTest_;
-
-    public AnyMessageTest(String name, NotificationTestCaseSetup setup) {
+    public AnyMessageTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception
+    {
         objectUnderTest_ = new AnyMessage();
-
-        objectUnderTest_.configure(getConfiguration());
     }
 
-
-    public void testToTypedEvent() throws Exception {
-        Property[] _props = new Property[] {
-            new Property("operation", toAny("operationName")),
-            new Property("p1", toAny("param1")),
-            new Property("p2", toAny(10))
-        };
+    public void testType()
+    {
+        assertEquals(Message.TYPE_ANY, objectUnderTest_.getType());
+    }
+    
+    public void testToAny()
+    {
+        Any any = toAny("my precious");
+        
+        objectUnderTest_.setAny(any);
+        
+        assertEquals(any, objectUnderTest_.toAny());
+    }
+    
+    public void testToStructuredEvent()
+    {
+        Any any = toAny("value");
+        
+        objectUnderTest_.setAny(any);
+        
+        StructuredEvent event = objectUnderTest_.toStructuredEvent();
+        
+        assertEquals(any, event.remainder_of_body);
+        assertEquals("%ANY", event.header.fixed_header.event_type.type_name);
+    }
+    
+    public void testToTypedEvent() throws Exception
+    {
+        Property[] _props = new Property[] { new Property("operation", toAny("operationName")),
+                new Property("p1", toAny("param1")), new Property("p2", toAny(10)) };
 
         objectUnderTest_.setAny(toAny(_props));
 
@@ -60,35 +86,41 @@ public class AnyMessageTest extends NotificationTestCase {
         assertEquals("operationName", ps[0].value.extract_string());
     }
 
-
-    public void testNoTranslationPossible_1() throws Exception {
-        Property[] _props = new Property[] {
-            new Property("p1", toAny("param1")),
-            new Property("p2", toAny(10))
-        };
+    public void testNoTranslationPossible_1() throws Exception
+    {
+        Property[] _props = new Property[] { new Property("p1", toAny("param1")),
+                new Property("p2", toAny(10)) };
 
         objectUnderTest_.setAny(toAny(_props));
 
-        try {
+        try
+        {
             objectUnderTest_.toTypedEvent();
 
             fail();
-        } catch (NoTranslationException e) {}
+        } catch (NoTranslationException e)
+        {
+            // expected
+        }
     }
 
-
-    public void testNoTranslationPossible_2() throws Exception {
+    public void testNoTranslationPossible_2() throws Exception
+    {
         objectUnderTest_.setAny(toAny("operation"));
 
-        try {
+        try
+        {
             objectUnderTest_.toTypedEvent();
 
             fail();
-        } catch (NoTranslationException e) {}
+        } catch (NoTranslationException e)
+        {
+            // expected
+        }
     }
 
-
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         return NotificationTestCase.suite(AnyMessageTest.class);
     }
 }

@@ -24,8 +24,8 @@ public class SequenceEventChannelTest extends NotificationTestCase {
     }
 
 
-    public void setUp() throws Exception {
-        channel_ = getDefaultChannel();
+    public void setUpTest() throws Exception {
+       channel_ = getDefaultChannel();
 
         // set test event type and name
         testEvent_ = new StructuredEvent[] {getTestUtils().getStructuredEvent()};

@@ -25,7 +25,7 @@ import java.util.Date;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxyConsumerI;
@@ -48,7 +48,7 @@ import org.omg.TimeBase.UtcTHelper;
 
 public class TimeoutTest extends NotificationTestCase
 {
-    MessageFactory messageFactory_;
+    DefaultMessageFactory messageFactory_;
     StructuredEvent structuredEvent_;
     EventChannel eventChannel_;
 
@@ -58,12 +58,11 @@ public class TimeoutTest extends NotificationTestCase
     }
 
 
-    public void setUp() throws Exception
+    public void setUpTest() throws Exception
     {
         eventChannel_ = getDefaultChannel();
 
-        messageFactory_ = new MessageFactory();
-        messageFactory_.configure(getConfiguration());
+        messageFactory_ = new DefaultMessageFactory(getConfiguration());
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -80,10 +79,8 @@ public class TimeoutTest extends NotificationTestCase
         structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
-    public void tearDown() throws Exception
+    public void tearDownTest() throws Exception
     {
-        super.tearDown();
-
         messageFactory_.dispose();
     }
 

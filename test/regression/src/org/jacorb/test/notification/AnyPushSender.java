@@ -56,7 +56,7 @@ public class AnyPushSender
         runs_ = i;
     }
 
-    AnyPushSender(NotificationTestCase testCase, Any event) throws AlreadyConnected
+    AnyPushSender(NotificationTestCase testCase, Any event) 
     {
         event_ = event;
         testCase_ = testCase;

@@ -104,10 +104,10 @@ public class StructuredPullReceiver
         }
     }
 
-    public void push_structured_event(StructuredEvent event) {
-        event_ = event;
+    public void push_structured_event(StructuredEvent event) {  
         synchronized(this) {
-            notifyAll();
+            event_ = event;
+            this.notifyAll();
         }
     }
 

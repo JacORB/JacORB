@@ -21,7 +21,7 @@ public class CosEventChannelTest extends NotificationTestCase
 
     Any testData_;
 
-    public void setUp() throws Exception
+    public void setUpTest() throws Exception
     {
         channel_ = getDefaultChannel();
 

@@ -26,8 +26,8 @@ import java.util.HashSet;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
+import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
@@ -43,29 +43,28 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
-
 /**
  * @author Alphonse Bendt
  */
 
 public class StopTimeTest extends NotificationTestCase
 {
-    MessageFactory messageFactory_;
+    DefaultMessageFactory messageFactory_;
 
     StructuredEvent structuredEvent_;
 
     EventChannel eventChannel_;
 
-    public StopTimeTest (String name, NotificationTestCaseSetup setup)
+    public StopTimeTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception
+    {
         eventChannel_ = getDefaultChannel();
 
-        messageFactory_ = new MessageFactory();
-        messageFactory_.configure( getConfiguration() );
+        messageFactory_ = new DefaultMessageFactory(getConfiguration());
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -82,14 +81,13 @@ public class StopTimeTest extends NotificationTestCase
         structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
-    public void tearDown() throws Exception {
+    public void tearDownTest() throws Exception
+    {
         messageFactory_.dispose();
-
-        super.tearDown();
     }
 
-
-    public void testA_SendEvent() throws Exception {
+    public void testA_SendEvent() throws Exception
+    {
         // StartTime +1000ms, StopTime +500ms
         sendEvent(1000, 500, false);
 
@@ -100,22 +98,23 @@ public class StopTimeTest extends NotificationTestCase
         sendEvent(0, -1000, false);
     }
 
-
-    public void testDisableStopTimeSupported() throws Exception {
-        if (true) {
+    public void testDisableStopTimeSupported() throws Exception
+    {
+        if (true)
+        {
             return;
         }
 
         Any falseAny = getORB().create_any();
         falseAny.insert_boolean(false);
 
-        eventChannel_.set_qos(new Property[] {new Property(StopTimeSupported.value, falseAny)});
+        eventChannel_.set_qos(new Property[] { new Property(StopTimeSupported.value, falseAny) });
 
         sendEvent(0, 1000, false);
     }
 
-
-    public void sendEvent(long startOffset, long stopOffset, boolean expect) throws Exception {
+    public void sendEvent(long startOffset, long stopOffset, boolean expect) throws Exception
+    {
         structuredEvent_.header.variable_header = new Property[2];
 
         Date _time = new Date(System.currentTimeMillis() + startOffset);
@@ -123,8 +122,7 @@ public class StopTimeTest extends NotificationTestCase
         Any _any = getORB().create_any();
         UtcTHelper.insert(_any, Time.corbaTime(_time));
 
-        structuredEvent_.header.variable_header[0] =
-            new Property(StartTime.value, _any);
+        structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _any);
 
         _time = new Date(System.currentTimeMillis() + stopOffset);
 
@@ -145,9 +143,12 @@ public class StopTimeTest extends NotificationTestCase
 
         Thread.sleep(startOffset + 1000);
 
-        if (expect) {
+        if (expect)
+        {
             assertTrue("Receiver should have received something", _receiver.isEventHandled());
-        } else {
+        }
+        else
+        {
             assertTrue("Receiver shouldn't have received anything", !_receiver.isEventHandled());
         }
 
@@ -155,20 +156,20 @@ public class StopTimeTest extends NotificationTestCase
         _sender.shutdown();
     }
 
-
-    public void testStructuredEventWithoutStopTimeProperty() throws Exception {
+    public void testStructuredEventWithoutStopTimeProperty() throws Exception
+    {
         Message _event = messageFactory_.newMessage(structuredEvent_);
         assertTrue(!_event.hasStopTime());
     }
 
-
-    public void testAnyEventHasNoStopTime() throws Exception {
+    public void testAnyEventHasNoStopTime() throws Exception
+    {
         Message _event = messageFactory_.newMessage(getORB().create_any());
         assertTrue(!_event.hasStopTime());
     }
 
-
-    public void testStructuredEventWithStopTimeProperty() throws Exception {
+    public void testStructuredEventWithStopTimeProperty() throws Exception
+    {
         structuredEvent_.header.variable_header = new Property[1];
 
         Date _now = new Date();
@@ -181,19 +182,20 @@ public class StopTimeTest extends NotificationTestCase
 
         Message _event = messageFactory_.newMessage(structuredEvent_);
         assertTrue(_event.hasStopTime());
-        assertEquals(_now, _event.getStopTime());
+        assertEquals(_now.getTime(), _event.getStopTime());
     }
 
-
-    public void testProcessEventWithStopTime() throws Exception {
+    public void testProcessEventWithStopTime() throws Exception
+    {
         processEventWithStopTime(-10000, 5000, false);
         processEventWithStopTime(-2000, 5000, false);
         processEventWithStopTime(1000, 5000, true);
         processEventWithStopTime(5000, 10000, true);
     }
 
-
-    public void processEventWithStopTime(long offset, long timeout, boolean receive) throws Exception {
+    public void processEventWithStopTime(long offset, long timeout, boolean receive)
+            throws Exception
+    {
         structuredEvent_.header.variable_header = new Property[1];
 
         final Date _time = new Date(System.currentTimeMillis() + offset);
@@ -211,40 +213,47 @@ public class StopTimeTest extends NotificationTestCase
         final Object lock = new Object();
 
         // TODO check if MockTaskProcessor can be used here
-        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor() {
-                public void processMessageInternal(Message event) {
-                    try {
-                        long _recvTime = System.currentTimeMillis();
-                        assertEquals("unexpected event", event, _event);
-                        assertTrue("received too late", _recvTime <= _time.getTime());
-                        _received.add(event);
-                    } finally {
-                        synchronized(lock) {
-                            lock.notifyAll();
-                        }
+        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor(getConfiguration())
+        {
+            public void processMessageInternal(Message event)
+            {
+                try
+                {
+                    long _recvTime = System.currentTimeMillis();
+                    assertEquals("unexpected event", event, _event);
+                    assertTrue("received too late", _recvTime <= _time.getTime());
+                    _received.add(event);
+                } finally
+                {
+                    synchronized (lock)
+                    {
+                        lock.notifyAll();
                     }
                 }
-            };
-
-        _taskProcessor.configure( getConfiguration() );
+            }
+        };
 
         _taskProcessor.processMessage(_event);
 
-        if (!_received.contains(_event)) {
-            synchronized(lock) {
+        if (!_received.contains(_event))
+        {
+            synchronized (lock)
+            {
                 lock.wait(timeout);
             }
         }
 
-        if (receive) {
+        if (receive)
+        {
             assertTrue("should have received something", _received.contains(_event));
-        } else {
+        }
+        else
+        {
             assertTrue("shouldn't", !_received.contains(_event));
         }
 
         _taskProcessor.dispose();
     }
-
 
     public static Test suite() throws Exception
     {

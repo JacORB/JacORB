@@ -14,16 +14,14 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.QoSError_code;
 import org.omg.CosNotification.UnsupportedQoS;
 
-public class PropertyValidatorTest
-    extends NotificationTestCase
+public class PropertyValidatorTest extends NotificationTestCase
 {
-    QoSPropertySet propertyvalidator = null;
+    private QoSPropertySet objectUnderTest_;
 
     public PropertyValidatorTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
-
 
     public QoSPropertySet createInstance() throws Exception
     {
@@ -32,14 +30,10 @@ public class PropertyValidatorTest
         return _props;
     }
 
-
-    public void setUp() throws Exception
+    public void setUpTest() throws Exception
     {
-        super.setUp();
-
-        propertyvalidator = createInstance();
+        objectUnderTest_ = createInstance();
     }
-
 
     public void testValidateQoS() throws Exception
     {
@@ -49,7 +43,7 @@ public class PropertyValidatorTest
         _props[0] = new Property(ConnectionReliability.value, _bestEffortAny);
 
         Any _priorityAny = getORB().create_any();
-        _priorityAny.insert_short((short)20);
+        _priorityAny.insert_short((short) 20);
         _props[1] = new Property(Priority.value, _priorityAny);
 
         Any _discardPolicyAny = getORB().create_any();
@@ -59,18 +53,19 @@ public class PropertyValidatorTest
 
         ////////////////////////////////////////
 
-        propertyvalidator.validate_qos(_props, new NamedPropertyRangeSeqHolder());
+        objectUnderTest_.validate_qos(_props, new NamedPropertyRangeSeqHolder());
 
         ////////////////////////////////////////
 
         _props[2] = new Property("OtherPolicy", _discardPolicyAny);
         try
         {
-            propertyvalidator.validate_qos(_props, new NamedPropertyRangeSeqHolder());
+            objectUnderTest_.validate_qos(_props, new NamedPropertyRangeSeqHolder());
             fail();
+        } catch (UnsupportedQoS e)
+        {
+            // expected
         }
-        catch (UnsupportedQoS e)
-        {}
 
         ////////////////////////////////////////
 
@@ -79,19 +74,20 @@ public class PropertyValidatorTest
         _props[2] = new Property(DiscardPolicy.value, wrongType);
         try
         {
-            propertyvalidator.validate_qos(_props, new NamedPropertyRangeSeqHolder());
+            objectUnderTest_.validate_qos(_props, new NamedPropertyRangeSeqHolder());
             fail();
-        }
-        catch (UnsupportedQoS ex)
+        } catch (UnsupportedQoS ex)
         {
-            for (int x=0; x<ex.qos_err.length; ++x) {
-                if (ex.qos_err[x].name.equals(DiscardPolicy.value)) {
+            // expected. verify contents.
+            for (int x = 0; x < ex.qos_err.length; ++x)
+            {
+                if (ex.qos_err[x].name.equals(DiscardPolicy.value))
+                {
                     assertEquals(QoSError_code._BAD_TYPE, ex.qos_err[x].code.value());
                 }
             }
         }
     }
-
 
     public static Test suite() throws Exception
     {

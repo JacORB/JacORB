@@ -1,19 +1,5 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
-import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.filter.DynamicEvaluator;
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.FilterConstraint;
-import org.jacorb.notification.filter.etcl.AbstractTCLNode;
-import org.jacorb.notification.filter.etcl.ETCLFilterConstraint;
-import org.jacorb.notification.filter.etcl.TCLCleanUp;
-import org.jacorb.notification.filter.etcl.TCLParser;
-import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LongSeqHelper;
 import org.omg.CORBA.ORB;
@@ -23,7 +9,6 @@ import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
-import org.omg.DynamicAny.DynAnyFactory;
 
 /**
  * @author Alphonse Bendt
@@ -31,10 +16,8 @@ import org.omg.DynamicAny.DynAnyFactory;
 
 public class NotificationTestUtils {
 
-    ORB orb_;
-    StructuredEvent structuredEvent_;
-    Any structuredEventAny_;
-
+    private final ORB orb_;
+    
     public NotificationTestUtils(ORB orb) {
         orb_ = orb;
     }
@@ -77,7 +60,6 @@ public class NotificationTestUtils {
         // prepare test data
         Person _p = new Person();
         Address _a = new Address();
-        NamedValue _nv = new NamedValue();
 
         _p.first_name = "firstname";
         _p.last_name =  "lastname";
@@ -137,97 +119,5 @@ public class NotificationTestUtils {
             }
         }
         return invalidStructuredEvent_;
-    }
-
-    public static void runEvaluation(TestCase testCase,
-                                     ApplicationContext appContext,
-                                     Any any,
-                                     String expr) throws Exception {
-
-        runEvaluation(testCase, appContext, any, expr, "TRUE");
-    }
-
-    public static void runEvaluation(TestCase testCase,
-                                     ApplicationContext appContext,
-                                     Any any,
-                                     String expr,
-                                     String expect) throws Exception {
-
-        MessageFactory _notificationEventFactory =
-            appContext.getMessageFactory();
-
-        Message _event = null;
-        try {
-            _event = _notificationEventFactory.newMessage(any);
-            runEvaluation(testCase, appContext, _event, expr, expect);
-
-        } finally {
-            _event.dispose();
-        }
-    }
-
-
-    public static void runEvaluation(TestCase testCase,
-                                     ApplicationContext appContext,
-                                     StructuredEvent event,
-                                     String expr) throws Exception {
-
-        runEvaluation(testCase, appContext, event, expr, "TRUE");
-    }
-
-    public static void runEvaluation(TestCase testCase,
-                                     ApplicationContext appContext,
-                                     StructuredEvent event,
-                                     String expr,
-                                     String expect) throws Exception {
-
-        MessageFactory _notificationEventFactory =
-            appContext.getMessageFactory();
-
-        Message _event = null;
-        try {
-            _event = _notificationEventFactory.newMessage(event);
-            runEvaluation(testCase, appContext, _event, expr, expect);
-
-        } finally {
-            _event.dispose();
-        }
-    }
-
-
-    static void runEvaluation(TestCase testCase,
-                              ApplicationContext appContext,
-                              Message event,
-                              String expr,
-                              String expect) throws Exception {
-
-        ORB _orb = appContext.getOrb();
-
-        DynAnyFactory _dynAnyFactory =
-            appContext.getDynAnyFactory();
-
-        DynamicEvaluator _dynamicEvaluator = appContext.getDynamicEvaluator();
-
-        MessageFactory _notificationEventFactory =
-            appContext.getMessageFactory();
-
-        AbstractTCLNode _root = TCLParser.parse(expr);
-        AbstractTCLNode _expect = TCLParser.parse(expect);
-
-        FilterConstraint _evaluator = new ETCLFilterConstraint( _root);
-        EvaluationResult _res;
-        _root.acceptPostOrder(new TCLCleanUp());
-
-        EvaluationContext _context = new EvaluationContext();
-        _context.setDynamicEvaluator(_dynamicEvaluator);
-
-        _res = _evaluator.evaluate(_context, event);
-
-        Assert.assertEquals("expected "
-                              + _root.toStringTree()
-                              + " == "
-                              + _expect.toStringTree(),
-                              _expect.evaluate(null),
-                              _res);
     }
 }

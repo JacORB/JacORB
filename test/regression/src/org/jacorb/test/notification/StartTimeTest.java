@@ -25,8 +25,8 @@ import java.util.Date;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
+import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxyConsumerI;
@@ -49,37 +49,38 @@ import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 public class StartTimeTest extends NotificationTestCase
 {
-    MessageFactory notificationEventFactory_;
+    DefaultMessageFactory messageFactory_;
 
     StructuredEvent structuredEvent_;
 
-    AbstractProxyConsumerI proxyConsumerMock_ =
-        new AbstractProxyConsumerI() {
-            public boolean isStartTimeSupported() {
-                return true;
-            }
+    AbstractProxyConsumerI proxyConsumerMock_ = new AbstractProxyConsumerI()
+    {
+        public boolean isStartTimeSupported()
+        {
+            return true;
+        }
 
-            public boolean isTimeOutSupported() {
-                return true;
-            }
+        public boolean isTimeOutSupported()
+        {
+            return true;
+        }
 
-            public FilterStage getFirstStage() {
-                return null;
-            }
-        };
+        public FilterStage getFirstStage()
+        {
+            return null;
+        }
+    };
 
     ////////////////////////////////////////
 
-    public StartTimeTest (String name, NotificationTestCaseSetup setup)
+    public StartTimeTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
-
-    public void setUp() throws Exception {
-
-        notificationEventFactory_ = new MessageFactory();
-        notificationEventFactory_.configure( getConfiguration() );
+    public void setUpTest() throws Exception
+    {
+        messageFactory_ = new DefaultMessageFactory(getConfiguration());
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -96,29 +97,27 @@ public class StartTimeTest extends NotificationTestCase
         structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        notificationEventFactory_.dispose();
+    public void tearDownTest() throws Exception
+    {
+        messageFactory_.dispose();
     }
 
-
-    public void testStructuredEventWithoutStartTimeProperty() throws Exception {
-        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
+    public void testStructuredEventWithoutStartTimeProperty() throws Exception
+    {
+        Message _event = messageFactory_.newMessage(structuredEvent_);
 
         assertTrue(!_event.hasStartTime());
     }
 
-
-    public void testAnyEventHasNoStartTime() throws Exception {
-        Message _event = notificationEventFactory_.newMessage(getORB().create_any());
+    public void testAnyEventHasNoStartTime() throws Exception
+    {
+        Message _event = messageFactory_.newMessage(getORB().create_any());
 
         assertTrue(!_event.hasStartTime());
     }
 
-
-    public void testStructuredEventWithStartTimeProperty() throws Exception {
+    public void testStructuredEventWithStartTimeProperty() throws Exception
+    {
         structuredEvent_.header.variable_header = new Property[1];
 
         Date _now = new Date();
@@ -129,15 +128,14 @@ public class StartTimeTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
 
-        Message _event = notificationEventFactory_.newMessage(structuredEvent_,
-                                                              proxyConsumerMock_);
+        Message _event = messageFactory_.newMessage(structuredEvent_, proxyConsumerMock_);
 
         assertTrue(_event.hasStartTime());
-        assertEquals(_now, _event.getStartTime());
+        assertEquals(_now.getTime(), _event.getStartTime());
     }
 
-
-    public void testProcessEventWithStartTime() throws Exception {
+    public void testProcessEventWithStartTime() throws Exception
+    {
         processEventWithStartTime(0);
         processEventWithStartTime(-1000);
         processEventWithStartTime(-2000);
@@ -145,8 +143,8 @@ public class StartTimeTest extends NotificationTestCase
         processEventWithStartTime(5000);
     }
 
-
-    public void processEventWithStartTime(long offset) throws Exception {
+    public void processEventWithStartTime(long offset) throws Exception
+    {
         structuredEvent_.header.variable_header = new Property[1];
 
         final Date _startTime = new Date(System.currentTimeMillis() + offset);
@@ -156,26 +154,27 @@ public class StartTimeTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
 
-        final Message _event = notificationEventFactory_.newMessage(structuredEvent_,
-                                                                    proxyConsumerMock_);
+        final Message _event = messageFactory_.newMessage(structuredEvent_, proxyConsumerMock_);
 
         final Latch _latch = new Latch();
 
         // TODO check if MockTaskProcessor can be used here
-        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor() {
-                public void processMessageInternal(Message event) {
-                    try {
-                        long _recvTime = System.currentTimeMillis();
-                        assertEquals(event, _event);
-                        assertTrue(_recvTime >= _startTime.getTime());
-                    } finally {
-                        _latch.release();
-                    }
+        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor(getConfiguration())
+        {
+            public void processMessageInternal(Message event)
+            {
+                try
+                {
+                    long _recvTime = System.currentTimeMillis();
+                    assertEquals(event, _event);
+                    assertTrue(_recvTime >= _startTime.getTime());
+                } finally
+                {
+                    _latch.release();
                 }
+            }
 
-            };
-
-        _taskProcessor.configure( getConfiguration() );
+        };
 
         _taskProcessor.processMessage(_event);
 
@@ -183,7 +182,6 @@ public class StartTimeTest extends NotificationTestCase
 
         _taskProcessor.dispose();
     }
-
 
     public static Test suite() throws Exception
     {

@@ -2,7 +2,6 @@ package org.jacorb.test.notification;
 
 import junit.framework.Assert;
 
-import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -19,7 +18,6 @@ import org.omg.CosNotifyChannelAdmin.ProxyPullSupplier;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.PullConsumerPOA;
-import org.omg.PortableServer.POA;
 
 /**
  * @author Alphonse Bendt
@@ -30,15 +28,15 @@ public class AnyPullReceiver
             implements Runnable,
             TestClientOperations
 {
-    Any event_ = null;
+    //Any event_ = null;
     boolean received_ = false;
     boolean error_ = false;
     ORB orb_;
-    POA poa_;
+    //POA poa_;
     ProxyPullSupplier mySupplier_;
     long TIMEOUT = 5000;
     boolean connected_;
-    IntHolder adminId_;
+    
     ConsumerAdmin myAdmin_;
     NotificationTestCase testCase_;
 
@@ -50,16 +48,13 @@ public class AnyPullReceiver
     public void connect(EventChannel channel,
                         boolean useOrSemantic) throws AdminNotFound, AlreadyConnected, AdminLimitExceeded
     {
-
         orb_ = testCase_.getORB();
-        poa_ = testCase_.getPOA();
 
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
 
         if (useOrSemantic)
         {
-            adminId_ = new IntHolder();
             myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.OR_OP, _adminId);
             Assert.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
         }
@@ -98,7 +93,6 @@ public class AnyPullReceiver
     {
         error_ = false;
         received_ = false;
-        event_ = null;
     }
 
     public boolean isConnected()
@@ -126,7 +120,7 @@ public class AnyPullReceiver
         {
             while (true)
             {
-                event_ = mySupplier_.try_pull(_success);
+                mySupplier_.try_pull(_success);
 
                 if (_success.value)
                 {
@@ -159,5 +153,4 @@ public class AnyPullReceiver
     {
         connected_ = false;
     }
-
-} // AnyPullReceiver
+}

@@ -25,9 +25,7 @@ public class EventChannelFactoryTest
 
     ////////////////////////////////////////
 
-    public void setUp() throws Exception {
-        super.setUp();
-
+    public void setUpTest() throws Exception {
         factory_ = AbstractChannelFactory.newFactory(new Properties());
 
         factory_.configure(getConfiguration());
@@ -36,9 +34,7 @@ public class EventChannelFactoryTest
     }
 
 
-    public void tearDown() throws Exception {
-        super.tearDown();
-
+    public void tearDownTest() throws Exception {
         factory_.dispose();
     }
 

@@ -21,7 +21,6 @@ import org.omg.CosNotifyComm.SequencePullConsumerPOATie;
 
 class SequencePullReceiver extends Thread implements SequencePullConsumerOperations, TestClientOperations
 {
-
     StructuredEvent[] event_ = null;
     boolean connected_;
     SequenceProxyPullSupplier pullSupplier_;
@@ -73,8 +72,7 @@ class SequencePullReceiver extends Thread implements SequencePullConsumerOperati
     {
         BooleanHolder _success = new BooleanHolder();
         _success.value = false;
-        long _startTime = System.currentTimeMillis();
-
+        
         try
         {
             event_ = pullSupplier_.pull_structured_events(1);

@@ -29,15 +29,16 @@ import junit.framework.TestSuite;
  * @author Alphonse Bendt
  */
 
-public class PackageTest extends TestCase {
-
-    public PackageTest(String name) {
+public class PackageTest extends TestCase
+{
+    public PackageTest(String name)
+    {
         super(name);
     }
 
-    public static Test suite() throws Exception {
-        TestSuite _suite =
-            new TestSuite("Tests in Package org.jacorb.test.notification");
+    public static Test suite() throws Exception
+    {
+        TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification");
 
         _suite.addTest(EventChannelFactoryTest.suite());
         _suite.addTest(TimeoutTest.suite());
@@ -61,7 +62,8 @@ public class PackageTest extends TestCase {
         _suite.addTest(AnyMessageTest.suite());
         _suite.addTest(StructuredEventMessageTest.suite());
         _suite.addTest(TypedEventMessageTest.suite());
-
+        _suite.addTest(FilterManagerTest.suite());
+        
         return _suite;
     }
 }

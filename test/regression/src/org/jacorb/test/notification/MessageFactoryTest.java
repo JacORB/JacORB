@@ -2,7 +2,7 @@ package org.jacorb.test.notification;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxyConsumerI;
@@ -20,7 +20,7 @@ import org.omg.CosNotification.StructuredEventHelper;
 
 public class MessageFactoryTest extends NotificationTestCase {
 
-    MessageFactory messageFactory_;
+    DefaultMessageFactory messageFactory_;
     NotificationTestUtils testUtils_;
     Any testPerson_;
     StructuredEvent testStructured_;
@@ -28,7 +28,7 @@ public class MessageFactoryTest extends NotificationTestCase {
     ////////////////////////////////////////
 
     public void testNewEventStructured() throws Exception {
-        Message _notifyEvent = messageFactory_.newMessage(testStructured_);
+        assertNotNull(messageFactory_.newMessage(testStructured_));
     }
 
 
@@ -136,11 +136,10 @@ public class MessageFactoryTest extends NotificationTestCase {
     }
 
 
-    public void setUp() throws Exception {
+    public void setUpTest() throws Exception {       
         testUtils_ = new NotificationTestUtils(getORB());
 
-        messageFactory_ = new MessageFactory();
-        messageFactory_.configure(getConfiguration());
+        messageFactory_ = new DefaultMessageFactory(getConfiguration());
 
         testPerson_ = testUtils_.getTestPersonAny();
 

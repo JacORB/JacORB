@@ -29,7 +29,6 @@ import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.ConstraintExp;
-import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 
 /**
@@ -64,7 +63,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
     Filter trueFilter_;
     Filter falseFilter_;
 
-    public void setUp() throws Exception
+    public void setUpTest() throws Exception
     {
         testPerson_ = getTestUtils().getTestPersonAny();
 
@@ -77,15 +76,18 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         _eventType[0] = new EventType("*", "*");
         String _expression = "TRUE";
         _constraintExp[0] = new ConstraintExp(_eventType, _expression);
-        ConstraintInfo[] _info = trueFilter_.add_constraints(_constraintExp);
+        trueFilter_.add_constraints(_constraintExp);
 
         falseFilter_ = channel_.default_filter_factory().create_filter("EXTENDED_TCL");
         _constraintExp = new ConstraintExp[1];
         _eventType = new EventType[1];
         _eventType[0] = new EventType("*", "*");
-        _expression = "FALSE";
-        _constraintExp[0] = new ConstraintExp(_eventType, _expression);
-        _info = falseFilter_.add_constraints(_constraintExp);
+        
+        _constraintExp[0] = new ConstraintExp(_eventType, "FALSE");
+       falseFilter_.add_constraints(_constraintExp);
+        
+        assertTrue(trueFilter_.match(testPerson_));
+        assertFalse(falseFilter_.match(testPerson_));
     }
 
 
@@ -279,7 +281,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         _receiverThread.join();
 
         assertTrue("Error while sending", !_sender.error_);
-        assertTrue("Should have received something", !_receiver.isEventHandled());
+        assertTrue(_receiver + " should have received something", !_receiver.isEventHandled());
     }
 
 

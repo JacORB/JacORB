@@ -4,11 +4,12 @@ import java.util.Iterator;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.AbstractFilter;
-import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.ConstraintEntry;
-import org.jacorb.notification.filter.FilterUtils;
+import org.jacorb.notification.AbstractMessage;
+import org.jacorb.notification.filter.AbstractFilter;
+import org.jacorb.notification.filter.ConstraintEntry;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
+import org.jacorb.notification.impl.DefaultEvaluationContextFactory;
+import org.jacorb.notification.impl.DefaultMessageFactory;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
@@ -19,10 +20,8 @@ import org.omg.CosNotifyFilter.ConstraintInfo;
 
 public class FilterImplTest extends NotificationTestCase {
 
-    AbstractFilter filter_;
-
-    ApplicationContext appContext_;
-
+    private AbstractFilter objectUnderTest_;
+    
     ////////////////////////////////////////
 
     public FilterImplTest(String test, NotificationTestCaseSetup setup) {
@@ -31,20 +30,8 @@ public class FilterImplTest extends NotificationTestCase {
 
     ////////////////////////////////////////
 
-    public void setUp() throws Exception {
-        appContext_ =
-            new ApplicationContext(getORB(), getPOA() );
-
-        appContext_.configure(getConfiguration());
-
-        filter_ = new ETCLFilter(appContext_);
-    }
-
-
-    public void tearDown() throws Exception {
-        super.tearDown();
-
-        appContext_.dispose();
+    public void setUpTest() throws Exception {
+        objectUnderTest_ = new ETCLFilter(getConfiguration(), new DefaultEvaluationContextFactory(getEvaluator()), new DefaultMessageFactory(getConfiguration()), getORB(), getPOA());
     }
 
 
@@ -59,17 +46,17 @@ public class FilterImplTest extends NotificationTestCase {
         _eventType[0] = new EventType("*", "*");
         _eventType[1] = new EventType("domain*", "type*");
         _exp[0] = new ConstraintExp(_eventType, "1");
-        filter_.add_constraints(_exp);
+        objectUnderTest_.add_constraints(_exp);
 
         Iterator _i =
-            filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
+            objectUnderTest_.getIterator(AbstractMessage.calcConstraintKey("domain1", "type1"));
 
         int _count = 0;
         while (_i.hasNext()) {
             _count++;
             _i.next();
         }
-        assertTrue(_count == 2);
+        assertEquals(2, _count);
     }
 
 
@@ -92,10 +79,10 @@ public class FilterImplTest extends NotificationTestCase {
         _eventType[0] = new EventType("domain1", "type1");
         _eventType[1] = new EventType("domain2", "type2");
         _exp[0] = new ConstraintExp(_eventType, "1");
-        filter_.add_constraints(_exp);
+        objectUnderTest_.add_constraints(_exp);
 
         Iterator _i =
-            filter_.getIterator(FilterUtils.calcConstraintKey("domain3", "type3"));
+            objectUnderTest_.getIterator(AbstractMessage.calcConstraintKey("domain3", "type3"));
 
         while (_i.hasNext()) {
             _i.next();
@@ -103,7 +90,7 @@ public class FilterImplTest extends NotificationTestCase {
     }
 
 
-    public void testIteratorThrowsException() throws Exception {
+    public void testEmptyIteratorThrowsException() throws Exception {
         ConstraintExp[] _exp = new ConstraintExp[1];
 
         for (int x=0; x<_exp.length; ++x) {
@@ -114,10 +101,10 @@ public class FilterImplTest extends NotificationTestCase {
         _eventType[0] = new EventType("domain1", "type1");
         _eventType[1] = new EventType("domain2", "type2");
         _exp[0] = new ConstraintExp(_eventType, "1");
-        filter_.add_constraints(_exp);
+        objectUnderTest_.add_constraints(_exp);
 
         Iterator _i =
-            filter_.getIterator(FilterUtils.calcConstraintKey("domain3", "type3"));
+            objectUnderTest_.getIterator(AbstractMessage.calcConstraintKey("domain3", "type3"));
 
         try {
             _i.next();
@@ -137,16 +124,16 @@ public class FilterImplTest extends NotificationTestCase {
         _eventType[0] = new EventType("*", "*");
         _eventType[1] = new EventType("domain*", "type*");
         _exp[0] = new ConstraintExp(_eventType, "1");
-        filter_.add_constraints(_exp);
+        objectUnderTest_.add_constraints(_exp);
 
         Iterator _i =
-            filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
+            objectUnderTest_.getIterator(AbstractMessage.calcConstraintKey("domain1", "type1"));
 
         int _count = 0;
         while (_i.hasNext()) {
             _count++;
             ConstraintEntry _e = (ConstraintEntry)_i.next();
-            assertEquals("1", _e.getFilterConstraint().getConstraint());
+            assertEquals("1", _e.getConstraintInfo().constraint_expression.constraint_expr);
         }
         assertTrue(_count == 2);
 
@@ -157,18 +144,18 @@ public class FilterImplTest extends NotificationTestCase {
         _eventType2[0] = new EventType("*", "*");
         _eventType2[1] = new EventType("domain*", "type*");
         _exp2[0] = new ConstraintExp(_eventType2, "2");
-        filter_.add_constraints(_exp2);
+        objectUnderTest_.add_constraints(_exp2);
 
-        _i = filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
+        _i = objectUnderTest_.getIterator(AbstractMessage.calcConstraintKey("domain1", "type1"));
         _count = 0;
 
         while (_i.hasNext()) {
             _count++;
             ConstraintEntry _e = (ConstraintEntry)_i.next();
-            assertTrue(_e.getFilterConstraint().getConstraint().equals("1") ||
-                       _e.getFilterConstraint().getConstraint().equals("2"));
+            assertTrue(_e.getConstraintExpression().equals("1") ||
+                       _e.getConstraintExpression().equals("2"));
         }
-        assertTrue(_count == 4);
+        assertEquals(4, _count);
     }
 
 
@@ -182,7 +169,7 @@ public class FilterImplTest extends NotificationTestCase {
         _eventType[0] = new EventType("*", "*");
         _eventType[1] = new EventType("domain*", "type*");
         _exp[0] = new ConstraintExp(_eventType, "1");
-        filter_.add_constraints(_exp);
+        objectUnderTest_.add_constraints(_exp);
 
         ConstraintExp[] _exp2 = new ConstraintExp[1];
         _exp2[0] = new ConstraintExp();
@@ -192,33 +179,33 @@ public class FilterImplTest extends NotificationTestCase {
         _eventType2[1] = new EventType("domain*", "type*");
         _exp2[0] = new ConstraintExp(_eventType2, "2");
 
-        ConstraintInfo[] _info = filter_.add_constraints(_exp2);
+        ConstraintInfo[] _info = objectUnderTest_.add_constraints(_exp2);
 
-        Iterator _i = filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
+        Iterator _i = objectUnderTest_.getIterator(AbstractMessage.calcConstraintKey("domain1", "type1"));
         int _count = 0;
 
         while (_i.hasNext()) {
             _count++;
             ConstraintEntry _e = (ConstraintEntry)_i.next();
-            assertTrue(_e.getFilterConstraint().getConstraint().equals("1") ||
-                       _e.getFilterConstraint().getConstraint().equals("2"));
+            assertTrue(_e.getConstraintExpression().equals("1") ||
+                       _e.getConstraintExpression().equals("2"));
         }
-        assertTrue(_count == 4);
+        assertEquals(4, _count);
 
         int[] _delete_ids = new int[_info.length];
         for (int x=0; x<_delete_ids.length; ++x) {
             _delete_ids[x] = _info[x].constraint_id;
         }
-        filter_.modify_constraints(_delete_ids, new ConstraintInfo[0]);
+        objectUnderTest_.modify_constraints(_delete_ids, new ConstraintInfo[0]);
 
-        _i = filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
+        _i = objectUnderTest_.getIterator(AbstractMessage.calcConstraintKey("domain1", "type1"));
         _count = 0;
         while (_i.hasNext()) {
             _count++;
             ConstraintEntry _e = (ConstraintEntry)_i.next();
-            assertTrue(_e.getFilterConstraint().getConstraint().equals("1"));
+            assertTrue(_e.getConstraintExpression().equals("1"));
         }
-        assertTrue(_count == 2);
+        assertEquals(2, _count);
     }
 
 

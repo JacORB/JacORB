@@ -31,43 +31,48 @@ import junit.framework.TestSuite;
 
 public class AllTest extends TestCase
 {
-    public AllTest( String name )
+    public AllTest(String name)
     {
-        super( name );
+        super(name);
     }
 
     public static Test suite() throws Exception
     {
-        TestSuite _suite =
-            new TestSuite( "All Notification Service Tests" );
+        TestSuite _suite = new TestSuite("Notification Service Test Suite");
+        _suite.addTest(org.jacorb.test.notification.PackageTest.suite());
 
-        _suite.addTest( org.jacorb.test.notification.PackageTest.suite() );
-        _suite.addTest( org.jacorb.test.notification.node.PackageTest.suite() );
-        _suite.addTest( org.jacorb.test.notification.util.PackageTest.suite() );
-        _suite.addTest( org.jacorb.test.notification.queue.PackageTest.suite() );
-        _suite.addTest( org.jacorb.test.notification.evaluate.PackageTest.suite() );
-        _suite.addTest( org.jacorb.test.notification.engine.PackageTest.suite() );
-        _suite.addTest( org.jacorb.test.notification.bugs.PackageTest.suite() );
+        _suite.addTest(org.jacorb.test.notification.container.PackageTest.suite());
 
-        try {
-            org.omg.CORBA.Object obj =
-                org.omg.CORBA.ORB.init(new String[0], null).resolve_initial_references("InterfaceRepository");
+        _suite.addTest(org.jacorb.test.notification.node.PackageTest.suite());
+        _suite.addTest(org.jacorb.test.notification.util.PackageTest.suite());
+        _suite.addTest(org.jacorb.test.notification.queue.PackageTest.suite());
+        _suite.addTest(org.jacorb.test.notification.evaluate.PackageTest.suite());
+        _suite.addTest(org.jacorb.test.notification.engine.PackageTest.suite());
+        _suite.addTest(org.jacorb.test.notification.bugs.PackageTest.suite());
+        _suite.addTest(org.jacorb.test.notification.filter.PackageTest.suite());
+        _suite.addTest(org.jacorb.test.notification.servant.PackageTest.suite());
+        
+        try
+        {
+            org.omg.CORBA.Object obj = org.omg.CORBA.ORB.init(new String[0], null)
+                    .resolve_initial_references("InterfaceRepository");
 
             // i know non_existent is NOT a ping. however try to ping
-            // the IR
+            // the IR. if that fails skip the typed channels tests.
             obj._non_existent();
 
-            _suite.addTest( org.jacorb.test.notification.typed.PackageTest.suite() );
-        } catch (Exception e) {
-            System.err.println("TypedChannel Tests depend on accessible InterfaceRepository. Will be skipped.");
+            _suite.addTest(org.jacorb.test.notification.typed.PackageTest.suite());
+        } catch (Exception e)
+        {
+            System.err
+                    .println("TypedChannel Tests depend on accessible InterfaceRepository. Will be skipped.");
         }
-
 
         return _suite;
     }
 
-    public static void main( String[] args ) throws Exception
+    public static void main(String[] args) throws Exception
     {
-        junit.textui.TestRunner.run( suite() );
+        junit.textui.TestRunner.run(suite());
     }
 }
