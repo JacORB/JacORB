@@ -117,7 +117,13 @@ public class ClientServerSetup extends TestSetup {
             new BufferedReader
                 ( new InputStreamReader( serverProcess.getInputStream() ) );
         String ior = input.readLine();
-        if ( ior.startsWith( "ERROR:" ) )
+        if (ior == null)
+        {
+           BufferedReader error = new BufferedReader
+              ( new InputStreamReader( serverProcess.getErrorStream() ) );
+           throw new RuntimeException ( "SPAWN ERROR: " + error.readLine() );
+        } 
+        else if ( ior.startsWith ( "ERROR:" ) )
             throw new RuntimeException ( "SERVER " + ior );
         else
             serverObject = clientOrb.string_to_object( ior );
