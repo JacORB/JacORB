@@ -1,3 +1,39 @@
+2003-11-26  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AllTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/bugs/PackageTest.java: added testcase
+
+	* notification/AdminLimitTest.java:
+	changed member variable to local variable
+
+	cosmetics
+
+	* notification/AnyPushReceiver.java: cosmetics
+
+	* notification/FilterImplTest.java: removed unused members
+
+	cosmetics
+
+	* notification/QoSTest.java: cosmetics
+
+	* notification/StructuredPushReceiver.java: added log statement
+	cosmetics
+
+	* notification/StructuredPushSender.java: added log statement
+
+	* notification/TestServer.java: cosmetics
+
+	* notification/util/ObjectPoolTest.java,
+	notification/util/PackageTest.java: added new testcase
+
+	* notification/queue/BoundedFifoEventQueueTest.java: cosmetics
+
+2003-11-21  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/rmi/FixSunDelegateBug.java.14: Removed superfluous code (a
+	static field and a constructor).
+
 2003-11-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/value/ValueTest.java (test_pass_equal_boxed_long,

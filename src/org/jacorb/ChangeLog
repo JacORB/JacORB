@@ -1,3 +1,147 @@
+2003-12-04  Simon McQueen  <sm@prismtechnologies.com>
+
+	* idl/JacIDL.java, idl/parser.cup, idl/parser.java, idl/sym.java:
+	Added support for i2jpackage nested element tags under the jacidl
+	task tags. Fixed setting of logging priority when jacidl task
+	used.
+
+	This fixes bug #422. Thanks to Peter Kanis for the report and
+	suggested fix.
+
+	* util/LogKitLoggerFactory.java: Abstracted int to
+	org.apache.log.Priority conversion into a public method.
+
+2003-12-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/queue/AbstractBoundedEventQueue.java,
+	notification/queue/BoundedDeadlineEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java: removed unused
+	variables
+
+	* notification/interfaces/FilterStage.java: cosmetics
+
+2003-12-02  Simon McQueen  <sm@prismtechnologies.com>
+
+	* util/LogKitLoggerFactory.java: (constructor)
+
+	Introduced property jacorb.log.default.verbosity which will be the
+	verbosity level of all loggers that do not have a specific
+	<name>.log.verbosity property value defined.
+
+2003-11-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/giop/ReplyPlaceholder.java (c'tor): Don't parse
+	jacorb.connection.client.pending_reply_timeout from the
+	environment each time.  This change gives us a performance gain of
+	about 35% for pings on the local machine.
+	(timeout): Initialize from a new caching method in the
+	Environment.
+
+	* util/Environment.java (_client_pending_reply_timeout,
+	clientPendingReplyTimeout): New static field and access method.
+	(readValue, readValues): Handle the above.
+
+2003-11-28  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/ORB.java: Minor fix in a javadoc comment (typo and wrong
+	param names).
+
+2003-11-26  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASClientInterceptor.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: Decode
+	ATLAS URL
+
+	* security/sas/SASClientInterceptor.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: LogKit
+	logging and decode ATLAS URL
+
+2003-11-26  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/TaskProcessor.java,
+	notification/engine/PushToConsumerTask.java: cosmetics
+
+	* notification/engine/FilterSupplierAdminTask.java: as access to
+	member listOfFilterStageToBeProccessed_ is private now use
+	accessor methods.
+
+	cosmetics
+
+	BUGFIX: overriding method reset was not calling super.reset(). This
+	resulted in an instance not properly beeing recycled after return to
+	its pool and caused multiple delivery of messages to consumers.
+	(news://news.gmane.org:119/3FBE2F7D.6090503@ll.mit.edu)
+
+	* notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterProxyConsumerTask.java: as access to
+	member listOfFilterStageToBeProccessed_ is private now use
+	accessor methods.
+
+	cosmetics
+
+	* notification/engine/FilterConsumerAdminTask.java: as access to
+	member listOfFilterStageToBeProccessed_ is private now use
+	accessor methods.
+
+	* notification/engine/AbstractFilterTask.java:
+	listOfFilterStageToBeProcessed is private now
+
+	added accessor methods
+
+	* notification/SupplierAdminTieImpl.java: cosmetics
+
+	removed synchronized double check idiom as its unsafe
+
+	* notification/StructuredProxyPushSupplierImpl.java,
+	notification/StructuredProxyPullSupplierImpl.java,
+	notification/ProxyPushSupplierImpl.java: cosmetics
+
+	removed EventQueue member as its managed in a superclass
+
+	* notification/ProxyPullSupplierImpl.java: cosmetics
+
+	removed synchronized double check idiom as its unsafe
+
+	* notification/PropertyManager.java: cosmetics
+
+	* notification/FilterManager.java: added initial support for
+	filter callbacks (not active yet)
+
+	* notification/AbstractProxySupplier.java: initial checkin
+
+	* notification/AbstractProxy.java: cosmetics
+
+	* notification/AbstractMessage.java:
+	(clone) changed InterruptedException to IllegalArgumentException
+	as this makes more sense
+
+	cosmetics
+
+	* notification/AbstractAdmin.java: cosmetics
+
+	* notification/interfaces/Message.java: added method
+
+2003-11-25  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASClientInterceptor.java: Remove debug statement
+
+	* security/sas/GSSUPContextSpi.java,
+	security/sas/GSSUPCredentialSpi.java,
+	security/sas/GSSUPMechFactory.java,
+	security/sas/GSSUPNameSpi.java, security/sas/GSSUPProvider.java,
+	security/sas/GSSUPProviderInitializer.java,
+	security/sas/GssUpContextValidator.java,
+	security/sas/ISASContextValidator.java,
+	security/sas/JsseContextValidator.java,
+	security/sas/SASClientInitializer.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASTargetInitializer.java,
+	security/sas/SASTargetInterceptor.java: logkit logging
+
+2003-11-17  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/queue/EventQueue.java: fix javadoc
+
 2003-11-11  Andre Spiegel  <spiegel@gnu.org>
 
 	* ir/RepositoryID.java (createBoxedValueHelper): New method.
