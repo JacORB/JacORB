@@ -127,6 +127,8 @@ jacorb.maxManagedBufSize=18
 #
 jacorb.hashtable_class=java.util.Hashtable
 
+# use GIOP 1.2 byte order markers (since CORBA 2.4-5)
+jacorb.use_bom=off
 
 ###########################################
 #                                         #
