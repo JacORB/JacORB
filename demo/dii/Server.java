@@ -162,8 +162,9 @@ public class Server
   	} 
  	catch ( org.omg.CORBA.SystemException e )
   	{
-  	    try {
-		((jacorb.orb.dsi.ServerRequest)request).setSystemException( e );
+  	    try 
+            {
+		((org.jacorb.orb.dsi.ServerRequest)request).setSystemException( e );
   	    } 
   	    catch ( Exception sfe )
 	    {
