@@ -28,9 +28,8 @@ import java.io.PrintWriter;
  */
 
 class Literal
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public String string;
     public boolean wide;
     public java_cup.runtime.token token;
@@ -93,7 +92,7 @@ class Literal
 
     public void print( PrintWriter ps )
     {
-        ps.print( string );
+        ps.print( escapeBackslash( string  ));
     }
 
 

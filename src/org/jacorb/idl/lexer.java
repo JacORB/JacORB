@@ -98,8 +98,8 @@ public class lexer
     protected static boolean conditionalCompilation = true;
 
     /** nested #ifdefs are pushed on this stack by the "preprocessor" */
-
     private static java.util.Stack ifStack = new Stack();
+
     private static java.util.Stack tokenStack = new Stack();
 
     /** Current line number for use in error messages. */
@@ -576,12 +576,13 @@ public class lexer
         advance();
     }
 
+
     /**
      *  Preprocessor directives are handled here.
      */
 
     protected static void preprocess()
-            throws java.io.IOException
+        throws java.io.IOException
     {
         for( ; ; )
         {
@@ -972,38 +973,48 @@ public class lexer
 
 
     /**
-     * checks whether Identifier str is legal and returns it,
-     * prepends an underscore if necessary to avoid clashes with
-     * Java reserved words
+     * Checks whether Identifier str is legal and returns it. If the
+     * identifier is escaped with a leading underscore, that
+     * underscore is removed. If a the legal IDL identifier clashes
+     * with a Java reserved word, an underscore is prepended.
+     * <BR>
+     * @param str - the IDL identifier <BR>
+     * <BR>
+     * Prints an error msg if the identifier collides with an IDL
+     * keyword. 
      */
 
     public static String checkIdentifier( String str )
     {
+
         Environment.output( 3, "checking identifier " + str );
 
-        /* if it is not an escaped identifier, look it up as a keyword */
+        /* if it is an escaped identifier, look it up as a keyword,
+           otherwise remove the underscore. */
+
         if( str.charAt( 0 ) == '_' )
         {
-            return str.substring( 1 );
+            str = str.substring( 1 );
         }
-
-        String colliding_keyword =
+        else
+        {
+            String colliding_keyword =
                 (String)keywords_lower_case.get( str.toLowerCase() );
 
-        if( colliding_keyword != null )
-        {
-            emit_error( "Identifier " + str + " collides with keyword " +
-                    colliding_keyword + "." );
-            return null;
+            if( colliding_keyword != null )
+            {
+                emit_error( "Identifier " + str + " collides with keyword " +
+                            colliding_keyword + "." );
+                return null;
+            }        
         }
 
+        /* clashes with a Java reserved word? */
         if( needsJavaEscape( str ) )
         {
-            // Environment.output(4, "checking identifier " + str + " : needs _ ");
-            return "_" + str;
+            str = "_" + str;
         }
 
-        // Environment.output(4, "checking identifier " + str + " : needs no _ ");
         return str;
     }
 
@@ -1017,6 +1028,11 @@ public class lexer
     {
         return ( java_keywords.containsKey( s ) );
     }
+
+    /**
+     * called during the parse phase to catch clashes with 
+     * Java reserved words.
+     */
 
     public static boolean strictJavaEscapeCheck( String s )
     {
@@ -1065,19 +1081,29 @@ public class lexer
     }
 
     /**
-     *  The actual routine to return one token.
+     * The actual routine to return one token.
+     *
+     * @return token
+     * @throws java.io.IOException
      */
 
     protected static token real_next_token()
-            throws java.io.IOException
+        throws java.io.IOException
     {
         int sym_num;
+
+        /* if we found more than a single token last time, these
+           tokens were remembered on the tokenStack - return the first
+           one here */
 
         if( !tokenStack.empty() )
             return (token)tokenStack.pop();
 
+        /* else */
+
         for( ; ; )
         {
+            /* scan input until we return something */
             if( !in_string )
             {
                 swallow_whitespace();
@@ -1212,13 +1238,15 @@ public class lexer
                         String str = val.toString();
                         try
                         {
-                            return new int_token( sym.NUMBER, Integer.parseInt( str, radix ) );
+                            return new int_token( sym.NUMBER, 
+                                                  Integer.parseInt( str, radix ) );
                         }
                         catch( NumberFormatException ex )
                         {
                             try
                             {
-                                return new long_token( sym.LONG_NUMBER, Long.parseLong( str, radix ) );
+                                return new long_token( sym.LONG_NUMBER, 
+                                                       Long.parseLong( str, radix ) );
                             }
                             catch( NumberFormatException ex2 )
                             {
@@ -1351,6 +1379,10 @@ public class lexer
 
                 /* look for a single character symbol */
                 sym_num = find_single_char( next_char );
+
+                /* upon an opening double quote, return the
+                   sym.DBLQUOTE token and continue scanning in the
+                   in_string branch */
 
                 if( (char)next_char == '\"' )
                 {

@@ -212,20 +212,23 @@ class ScopedName
 
     public void escapeName()
     {
-        if( !name.startsWith( "_" ) &&
-                lexer.strictJavaEscapeCheck( typeName ) )
+        if( !name.startsWith( "_" ) )
         {
             // if the type name is not a simple name, then insert the escape
             // char after the last dot
             if( typeName.indexOf( '.' ) > 0 )
             {
-                typeName =
+                if( lexer.strictJavaEscapeCheck( typeName.substring( typeName.lastIndexOf( '.' ) + 1 )))
+                {
+                    typeName =
                         typeName.substring( 0, typeName.lastIndexOf( '.' ) + 1 ) +
                         "_" + typeName.substring( typeName.lastIndexOf( '.' ) + 1 );
+                }
             }
             else
             {
-                typeName = "_" + typeName;
+                if( lexer.strictJavaEscapeCheck( typeName ))
+                    typeName = "_" + typeName;
             }
             Environment.output( 3, "ScopedName.escapeName " + typeName );
         }
