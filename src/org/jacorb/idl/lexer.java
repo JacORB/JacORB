@@ -1056,8 +1056,20 @@ public class lexer
         }
         else
         {
-            String colliding_keyword =
-                (String)keywords_lower_case.get( str.toLowerCase() );
+            String colliding_keyword = null;
+
+            if (org.jacorb.idl.parser.strict_names)
+            {
+                // check for name clashes strictly (i.e. case insensitive)
+                colliding_keyword =
+                    (String)keywords_lower_case.get(str.toLowerCase());
+            }
+            else
+            {
+                // check for name clashes only loosely (i.e. case sensitive)
+                colliding_keyword = 
+                    (String)keywords.get(str);
+            }
 
             if( colliding_keyword != null )
             {
@@ -1065,6 +1077,8 @@ public class lexer
                             colliding_keyword + "." );
                 return null;
             }
+
+
         }
 
         /* clashes with a Java reserved word? */
