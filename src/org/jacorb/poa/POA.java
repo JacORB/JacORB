@@ -280,8 +280,7 @@ public class POA
     public org.jacorb.poa.POA _getChildPOA( String adapter_name ) 
         throws ParentIsHolding 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
                 
         POA child = (POA) childs.get(adapter_name);
         if (child == null || child.isDestructionApparent()) 
@@ -391,8 +390,7 @@ public class POA
 
         synchronized(poaDestructionLog) 
         {                        
-            if (isDestructionApparent()) 
-                throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+            checkDestructionApparent ();
 
             // if the request is for this poa check whether the object
             // key is generated from him
@@ -477,8 +475,7 @@ public class POA
     public byte[] activate_object(Servant servant) 
         throws ServantAlreadyActive, WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
                 
         if (!isRetain() || !isSystemId()) 
             throw new WrongPolicy();
@@ -501,8 +498,7 @@ public class POA
     public void activate_object_with_id( byte[] oid, Servant servant ) 
         throws  ServantAlreadyActive, ObjectAlreadyActive, WrongPolicy 
     {
-        if ( isDestructionApparent() ) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         if ( !isRetain() ) 
             throw new WrongPolicy();
@@ -595,28 +591,29 @@ public class POA
     }
 
 
-    public IdAssignmentPolicy create_id_assignment_policy(IdAssignmentPolicyValue value) {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        return new org.jacorb.poa.policy.IdAssignmentPolicy(value);
+    public IdAssignmentPolicy create_id_assignment_policy (IdAssignmentPolicyValue value)
+    {
+        checkDestructionApparent ();
+        return new org.jacorb.poa.policy.IdAssignmentPolicy (value);
     }
 
-    public IdUniquenessPolicy create_id_uniqueness_policy(IdUniquenessPolicyValue value) {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        return new org.jacorb.poa.policy.IdUniquenessPolicy(value);
+    public IdUniquenessPolicy create_id_uniqueness_policy (IdUniquenessPolicyValue value)
+    {
+        checkDestructionApparent ();
+        return new org.jacorb.poa.policy.IdUniquenessPolicy (value);
     }
 
-    public ImplicitActivationPolicy create_implicit_activation_policy(ImplicitActivationPolicyValue value) {
-        if (isDestructionApparent())
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        return new org.jacorb.poa.policy.ImplicitActivationPolicy(value);
+    public ImplicitActivationPolicy create_implicit_activation_policy
+        (ImplicitActivationPolicyValue value)
+    {
+        checkDestructionApparent ();
+        return new org.jacorb.poa.policy.ImplicitActivationPolicy (value);
     }
 
-    public LifespanPolicy create_lifespan_policy(LifespanPolicyValue value) {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        return new org.jacorb.poa.policy.LifespanPolicy(value);
+    public LifespanPolicy create_lifespan_policy (LifespanPolicyValue value)
+    {
+        checkDestructionApparent ();
+        return new org.jacorb.poa.policy.LifespanPolicy (value);
     }
 
     /**
@@ -629,8 +626,7 @@ public class POA
                                                  org.omg.CORBA.Policy[] policies) 
         throws AdapterAlreadyExists, InvalidPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         String poa_name = POAUtil.maskStr(adapter_name);
                 
@@ -700,16 +696,17 @@ public class POA
      * type_id of the generated object reference
      */
 
-    public org.omg.CORBA.Object create_reference(String intf_rep_id) 
-        throws WrongPolicy {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+    public org.omg.CORBA.Object create_reference (String intf_rep_id) 
+        throws WrongPolicy
+    {
+        checkDestructionApparent ();
 
-        if (!isSystemId()) 
-            throw new WrongPolicy();
+        if (!isSystemId ()) 
+        {
+            throw new WrongPolicy ();
+        }
 
-        return  getReference(generateObjectId(), intf_rep_id);
-
+        return (getReference (generateObjectId (), intf_rep_id, false));
     }
 
 
@@ -718,39 +715,42 @@ public class POA
      * type_id of the generated object reference
      */
 
-    public org.omg.CORBA.Object create_reference_with_id( byte[] oid, 
-                                                          String intf_rep_id) 
+    public org.omg.CORBA.Object create_reference_with_id
+        (byte[] oid, String intf_rep_id) 
         throws WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
-        if (isSystemId() && !previouslyGeneratedObjectId(oid)) {
-            logTrace.printLog(0, oid, "create_reference_with_id: oid not previously generated!");   
-            throw new org.omg.CORBA.BAD_PARAM();
+        if (isSystemId () && !previouslyGeneratedObjectId (oid))
+        {
+            logTrace.printLog (0, oid, "create_reference_with_id: oid not previously generated!");   
+            throw new org.omg.CORBA.BAD_PARAM ();
         }               
 
-        return getReference(oid, intf_rep_id);  
+        return getReference (oid, intf_rep_id, false);  
     }
 
 
-    public RequestProcessingPolicy create_request_processing_policy(RequestProcessingPolicyValue value) {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        return new org.jacorb.poa.policy.RequestProcessingPolicy(value);
+    public RequestProcessingPolicy create_request_processing_policy
+        (RequestProcessingPolicyValue value)
+    {
+        checkDestructionApparent ();
+        return new org.jacorb.poa.policy.RequestProcessingPolicy (value);
     }
 
 
-    public ServantRetentionPolicy create_servant_retention_policy(ServantRetentionPolicyValue value) {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        return new org.jacorb.poa.policy.ServantRetentionPolicy(value);
+    public ServantRetentionPolicy create_servant_retention_policy
+        (ServantRetentionPolicyValue value)
+    {
+        checkDestructionApparent ();
+        return new org.jacorb.poa.policy.ServantRetentionPolicy (value);
     }
 
 
-    public ThreadPolicy create_thread_policy(ThreadPolicyValue value) {
-        if (isDestructionApparent()) throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        return new org.jacorb.poa.policy.ThreadPolicy(value);
+    public ThreadPolicy create_thread_policy (ThreadPolicyValue value)
+    {
+        checkDestructionApparent ();
+        return new org.jacorb.poa.policy.ThreadPolicy (value);
     }
 
 
@@ -763,8 +763,7 @@ public class POA
     public void deactivate_object(byte[] oid) 
         throws ObjectNotActive, WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
                 
         if (!isRetain()) 
             throw new WrongPolicy();
@@ -885,8 +884,7 @@ public class POA
                                                 boolean activate_it) 
         throws AdapterNonExistent 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
                 
         String poa_name = POAUtil.maskStr(adapter_name);
                 
@@ -967,8 +965,7 @@ public class POA
     public Servant get_servant() 
         throws NoServant, WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         if (!isUseDefaultServant()) 
             throw new WrongPolicy();    
@@ -982,8 +979,7 @@ public class POA
     public org.omg.PortableServer.ServantManager get_servant_manager() 
         throws WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         if (!isUseServantManager()) 
             throw new WrongPolicy();
@@ -1030,37 +1026,35 @@ public class POA
         return poaId;
     }
 
-
-    protected org.omg.CORBA.Object getReference( byte[] oid, 
-                                                 String intf_rep_id ) 
+    protected org.omg.CORBA.Object getReference 
+       (byte[] oid, String intf_rep_id, boolean cache) 
     {               
-        byte[] object_id = POAUtil.maskId(oid);                
+        byte[] object_id = POAUtil.maskId (oid);                
         int pid_length = getPOAId().length;
         int oid_length = object_id.length;
         byte [] object_key = new byte[pid_length + oid_length + 1];         
         int offset = 0;         
-        System.arraycopy(getPOAId(), 0, object_key, offset, pid_length);
+
+        System.arraycopy (getPOAId(), 0, object_key, offset, pid_length);
         offset += pid_length;
         object_key[offset] = POAConstants.OBJECT_KEY_SEP_BYTE;
         offset++;
-        System.arraycopy(object_id, 0, object_key, offset, oid_length);
+        System.arraycopy (object_id, 0, object_key, offset, oid_length);
 
-        //        String key = new String( object_key );
-
-        ByteArrayKey key = new ByteArrayKey( oid );
+        ByteArrayKey key = new ByteArrayKey (oid);
 
         org.omg.CORBA.Object result = 
-            (org.omg.CORBA.Object)createdReferences.get( key );
+            (org.omg.CORBA.Object) createdReferences.get (key);
         
-        if( result == null )
+        if (result == null)
         {
-            result =  
-                ((org.jacorb.orb.ORB)orb).getReference( this, 
-                                                        object_key, 
-                                                        intf_rep_id, 
-                                                        !isPersistent());
+            result =  ((org.jacorb.orb.ORB)orb).getReference
+                        (this, object_key, intf_rep_id, !isPersistent());
 
-            createdReferences.put( key, result ); // ***
+            if (cache)
+            {
+               createdReferences.put (key, result);
+            }
 
 //              Debug.output(Debug.POA | Debug.DEBUG1, "Poa.getReference <" +
 //                           _getQualifiedName() + 
@@ -1087,11 +1081,10 @@ public class POA
         return poaManager.get_state();
     }
 
-    public org.omg.CORBA.Object id_to_reference(byte[] oid)
+    public org.omg.CORBA.Object id_to_reference (byte[] oid)
         throws ObjectNotActive, WrongPolicy 
     {
-        if ( isDestructionApparent() ) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
                 
         if ( !isRetain() ) 
             throw new WrongPolicy();
@@ -1104,15 +1097,14 @@ public class POA
         /* If the object with the specified ObjectId currently active,
            a reference encapsulating  the information used to activate
            the object is returned.  */
-        return getReference( oid, servant._all_interfaces(this, oid)[0]);
+        return getReference (oid, servant._all_interfaces (this, oid)[0], true);
     }
 
 
     public Servant id_to_servant(byte[] oid) 
         throws ObjectNotActive, WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
                 
         if (!isRetain() && !isUseDefaultServant()) throw new WrongPolicy();
 
@@ -1133,6 +1125,14 @@ public class POA
     {
         return poaManager.get_state().value() == 
             org.omg.PortableServer.POAManagerPackage.State._ACTIVE ? true : false;
+    }
+
+    protected void checkDestructionApparent ()
+    {
+        if (isDestructionApparent ()) 
+        {
+            throw new org.omg.CORBA.OBJECT_NOT_EXIST ("POA destroyed");
+        }
     }
 
     protected boolean isDestructionApparent() 
@@ -1387,8 +1387,7 @@ public class POA
     public byte[] reference_to_id(org.omg.CORBA.Object reference) 
         throws WrongAdapter, WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         byte[] objectId = POAUtil.extractOID(reference);
         /* not spec (isSystemId) */
@@ -1403,8 +1402,7 @@ public class POA
     public Servant reference_to_servant(org.omg.CORBA.Object reference) 
         throws ObjectNotActive, WrongAdapter, WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         if (!isRetain() && !isUseDefaultServant()) 
             throw new WrongPolicy();
@@ -1437,8 +1435,7 @@ public class POA
     public byte[] servant_to_id(Servant servant) 
         throws ServantNotActive, WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         if ((!isUseDefaultServant())            &&
             (!isRetain() || !isUniqueId())      &&
@@ -1501,8 +1498,7 @@ public class POA
     public org.omg.CORBA.Object servant_to_reference(Servant servant) 
         throws ServantNotActive, WrongPolicy 
     {
-        if ( isDestructionApparent() ) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
                 
         boolean isInInvocationContext = isInInvocationContext(servant);
                 
@@ -1524,8 +1520,7 @@ public class POA
             {
                 throw new POAInternalError("error: not in invocation context (servant_to_reference)");
             }
-            return getReference( objectId, 
-                                 servant._all_interfaces( this, objectId )[0]);
+            return getReference (objectId, servant._all_interfaces( this, objectId )[0], true);
         }
 
         if ( isRetain() ) 
@@ -1537,8 +1532,7 @@ public class POA
 
                 if( (objectId = aom.getObjectId(servant)) != null)
                 {
-                    return getReference( objectId, 
-                                         servant._all_interfaces( this, objectId )[0]);
+                    return getReference (objectId, servant._all_interfaces (this, objectId)[0], true);
                 }
             }
 
@@ -1567,8 +1561,7 @@ public class POA
 
                 orb.set_delegate(servant);
 
-                return getReference( objectId, 
-                                     servant._all_interfaces(this, objectId)[0]);
+                return getReference (objectId, servant._all_interfaces(this, objectId)[0], true);
             }
         }               
         throw new ServantNotActive();
@@ -1578,8 +1571,7 @@ public class POA
     public void set_servant(Servant _defaultServant) 
         throws WrongPolicy 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         if (!isUseDefaultServant()) 
             throw new WrongPolicy();    
@@ -1604,8 +1596,7 @@ public class POA
         //        Debug.output(Debug.POA | Debug.DEBUG1, "Poa.set_servant_manager <" +
         //           _getQualifiedName() + ">." );
 
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
 
         if (!isUseServantManager()) 
             throw new WrongPolicy();    
@@ -1635,37 +1626,33 @@ public class POA
      * activator. a newly created POA has not an adapter activator (null)
      */ 
 
-    public org.omg.PortableServer.AdapterActivator the_activator() 
+    public org.omg.PortableServer.AdapterActivator the_activator () 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
         return adapterActivator;
     }
 
-    public void the_activator(org.omg.PortableServer.AdapterActivator adapter_activator) 
+    public void the_activator (org.omg.PortableServer.AdapterActivator adapter_activator) 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
         adapterActivator = adapter_activator;
     }
 
-    public String the_name() {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
-        return POAUtil.unmaskStr(name);
+    public String the_name()
+    {
+        checkDestructionApparent ();
+        return POAUtil.unmaskStr (name);
     }
 
-    public org.omg.PortableServer.POA the_parent() 
+    public org.omg.PortableServer.POA the_parent () 
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
         return parent;
     }
 
-    public org.omg.PortableServer.POAManager the_POAManager()
+    public org.omg.PortableServer.POAManager the_POAManager ()
     {
-        if (isDestructionApparent()) 
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
+        checkDestructionApparent ();
         return poaManager;
     }
 
@@ -1956,8 +1943,3 @@ public class POA
     } // doInitialDomainMapping
 
 }
-
-
-
-
-
