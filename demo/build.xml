@@ -16,7 +16,7 @@
 
    <target name="all"
    depends="init_compile,any,arrays,grid,hello,unions,poa_monitor,benchmark,dii,mtclient,dynany,interceptors,events,outparam,policies,bank,concurrency,
-   value,imr, ami" />
+   value,imr, ami,sas" />
 
    <target name="ami" depends="init_compile">
 	   <ant dir="${basedir}" antfile="${basedir}/demo/ami/build.xml" target="${target}"/>
@@ -107,6 +107,10 @@
 	   <ant dir="${basedir}" antfile="${basedir}/demo/policies/build.xml" target="${target}"/>
    </target>
 
+   <target name="sas" depends="init_compile">
+	   <ant dir="${basedir}" antfile="${basedir}/demo/sas/build.xml" target="${target}"/>
+   </target>
+	
    <target name="clean" depends="init_compile">
            <delete dir="${classdir}/demo" />
            <delete>
