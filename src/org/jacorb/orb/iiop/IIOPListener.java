@@ -296,7 +296,7 @@ public class IIOPListener extends _ListenerLocalBase
         {
             // only an SSL acceptor exists: make a dummy primary address
             // (port number zero)
-            String host = sslAcceptor.getLocalAddress().getHost();
+            String host = sslAcceptor.getLocalAddress().getIP();
             result = new IIOPProfile (new IIOPAddress (host, 0), null);
         }
         else
