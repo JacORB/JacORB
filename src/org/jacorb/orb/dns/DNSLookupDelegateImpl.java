@@ -59,6 +59,9 @@ public class DNSLookupDelegateImpl
             Debug.output( 1, e );
         }
 
+        Debug.output( 2, "Unable to resolve " + addr + 
+                      " via DNS");
+
         return null;
     }
                     

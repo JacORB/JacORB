@@ -154,7 +154,7 @@ public class ClientConnection
 		repReceptor.stopReceptor();
 
 	    Debug.output(4,"Closing connection to " + 
-                                     connection_info + " (reply receptor closed)");
+                         connection_info + " (reply receptor closed)");
 	    try 
 	    {
 		if( mysock != null )
@@ -169,13 +169,13 @@ public class ClientConnection
 		in_stream.close();
 
 	    Debug.output(4,"Closing connection to " + 
-                                     connection_info + " (in streams closed)");
+                         connection_info + " (in streams closed)");
 
 	    if( out_stream != null )
 		out_stream.close();
 
 	    Debug.output(4,"Closing connection to " + 
-                                     connection_info + " (out streams closed)");
+                         connection_info + " (out streams closed)");
 
 	} 
 	catch ( IOException e)
@@ -190,7 +190,7 @@ public class ClientConnection
 	mysock = null;
 
 	Debug.output(3,"Closing connection to " + 
-                                 connection_info + " (sockets closed)");
+                     connection_info + " (sockets closed)");
 
 	manager.removeConnection( this );
 
@@ -205,8 +205,8 @@ public class ClientConnection
 	    catch ( org.omg.CORBA.COMM_FAILURE exe )
 	    {
 		Debug.output(1,"Could not reconnect to " + 
-					 connection_info + 
-                                         " (loss of outstanding replies)");
+                             connection_info + 
+                             " (loss of outstanding replies)");
 	    }
 	}
     }
@@ -246,7 +246,8 @@ public class ClientConnection
 	throws  EOFException
     {
 	Debug.output(3,"Connection to " + 
-                                 connection_info + " aborting...");
+                     connection_info + " aborting...");
+
 	Enumeration keys = replies.keys();
 	int lost_replies = 0;
 
@@ -264,6 +265,7 @@ public class ClientConnection
 
 	if( lost_replies > 0 )
 	    Debug.output(2,"Lost " + lost_replies + " outstanding replies");
+
 	throw new EOFException();
     }
 
@@ -528,7 +530,7 @@ public class ClientConnection
         else
         {
             Debug.output(2,"Releasing one connection to " + 
-                                     connection_info );		
+                         connection_info );		
         }
     }
 

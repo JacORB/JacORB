@@ -169,7 +169,7 @@ public class BasicAdapter
             }
         }
 
-        if ( org.jacorb.util.Environment.supportSSL()) 
+        if( Environment.supportSSL() ) 
         {
             sslListener =
                 new Listener( orb,
@@ -183,10 +183,10 @@ public class BasicAdapter
         }
 
 
-        if( org.jacorb.util.Environment.enforceSSL() )
+        if( Environment.enforceSSL() )
         {
             /* gb: sanity check: requiring SSL requires supporting it */
-            if( !org.jacorb.util.Environment.supportSSL ())
+            if( !Environment.supportSSL ())
             {
                 throw new java.lang.Error("SSL required but not supported, cannot continue!");
             }
@@ -204,7 +204,7 @@ public class BasicAdapter
                                  socket_factory );
 
         String prop = 
-            org.jacorb.util.Environment.getProperty("jacorb.connection.server_timeout");
+            Environment.getProperty("jacorb.connection.server_timeout");
 
         if( prop != null )
         {
@@ -344,11 +344,15 @@ public class BasicAdapter
         extends Thread
     {
         java.net.ServerSocket serverSocket;
-        int port = 0;
-        String address;
+
+        private int port = 0;
+        private String address_string;
+
         int timeout = 0;
+
         org.jacorb.orb.ORB orb;
         POA rootPOA;
+
         private boolean is_ssl = false;
 
         private org.jacorb.orb.factory.ServerSocketFactory factory = null;
@@ -371,24 +375,28 @@ public class BasicAdapter
 
             try
             {
-                String ip_addr = org.jacorb.util.Environment.getProperty("OAIAddr");
+                String ip_addr = Environment.getProperty("OAIAddr");
 
                 if( ip_addr == null)
                 {
                     if( oa_port != null )
-                        serverSocket = factory.createServerSocket ( Integer.parseInt( oa_port));
-                    else
-                        serverSocket = factory.createServerSocket ( 0 );
-
-                    address = java.net.InetAddress.getLocalHost().toString();
-                    if( address.indexOf("/") > 0 )
                     {
-                        address = address.substring(address.indexOf("/")+1);
+                        serverSocket = 
+                            factory.createServerSocket( 
+                                Integer.parseInt( oa_port ));
                     }
+                    else
+                    {
+                        serverSocket = factory.createServerSocket( 0 );
+                    }
+
+                    
+                    setAddress( InetAddress.getLocalHost() );
                 }
                 else
                 {
-                    InetAddress target_addr = InetAddress.getByName( ip_addr );
+                    InetAddress target_addr = 
+                        InetAddress.getByName( ip_addr );
 
                     if( target_addr == null )
                         target_addr = InetAddress.getLocalHost();
@@ -399,22 +407,28 @@ public class BasicAdapter
                                            ip_addr +" ]");
                         System.exit(1);
                     }
+
                     if( oa_port != null )
                     {
                         serverSocket = 
-                            factory.createServerSocket( Integer.parseInt( oa_port), 20, target_addr );
+                            factory.createServerSocket( Integer.parseInt( oa_port), 
+                                                        20, 
+                                                        target_addr );
                     }
                     else
                     {
-                        serverSocket = factory.createServerSocket ( 0, 20, target_addr );
+                        serverSocket = 
+                            factory.createServerSocket( 0, 20, target_addr );
                     }
-                    address = ip_addr;
+
+                    setAddress( target_addr );
                 }
-                port = serverSocket.getLocalPort();
+
+                port = serverSocket.getLocalPort();                
             } 
             catch (Exception e) 
             {
-                org.jacorb.util.Debug.output(2,e);
+                Debug.output(2,e);
                 System.err.println("[ Listener: Couldn't initialize. Illegal address configuration? ]");
                 System.exit(1);
             }
@@ -429,9 +443,44 @@ public class BasicAdapter
             return port;
         }
 
+        private void setAddress( InetAddress addr )
+        {
+            address_string = 
+                org.jacorb.orb.dns.DNSLookup.inverseLookup( addr );
+
+            if( address_string == null )
+            {
+                address_string = addr.toString();
+
+                if( address_string.indexOf( "/" ) > 0 )
+                {
+                    address_string = 
+                        address_string.substring( 
+                              address_string.indexOf( "/" ) + 1 );
+                }
+            }
+
+            Debug.output( 2, "Set BasicListener address string to " +
+                          address_string );            
+        }
+
+        private void setAddress( String ip )
+        {
+            address_string = 
+                org.jacorb.orb.dns.DNSLookup.inverseLookup( ip );
+
+            if( address_string == null )
+            {
+                address_string = ip;
+            }
+
+            Debug.output( 2, "Set BasicListener address string to " +
+                          address_string );            
+        }
+
         public String getAddress()
         {
-            return address;
+            return address_string;
         }
 
         public void setTimeout( int timeout )
@@ -569,7 +618,7 @@ public class BasicAdapter
 		} 
                 catch (IOException ioe) 
                 {
-                    org.jacorb.util.Debug.output(1, "Can not read from socket");                            
+                    Debug.output(1, "Can not read from socket");                            
                     ioe.printStackTrace();
                 
 		}
@@ -586,7 +635,7 @@ public class BasicAdapter
 
 		if (isHTTP)
                 {
-                    org.jacorb.util.Debug.output(2,"Incoming HTTP Request");
+                    Debug.output(2,"Incoming HTTP Request");
                     connection = 
                         new org.jacorb.orb.connection.http.ServerConnection( orb, 
                                                                          is_ssl,
@@ -595,7 +644,7 @@ public class BasicAdapter
 		}
                 else
                 {
-                    org.jacorb.util.Debug.output(2,"Incoming GIOP Request");
+                    Debug.output(2,"Incoming GIOP Request");
                     connection = 
                         new org.jacorb.orb.connection.ServerConnection( orb, 
                                                                     is_ssl,
@@ -618,8 +667,8 @@ public class BasicAdapter
             }
             catch(java.io.IOException ioex)
             {
-                org.jacorb.util.Debug.output(2, ioex); 
-                org.jacorb.util.Debug.output(0,"Error in " + (is_ssl? "SSL ":"") + "session setup.");
+                Debug.output(2, ioex); 
+                Debug.output(0,"Error in " + (is_ssl? "SSL ":"") + "session setup.");
                 return;
             }
 
@@ -639,7 +688,7 @@ public class BasicAdapter
                     case org.omg.GIOP.MsgType_1_0._Request:
                         {
                             // bnv: default SSL security policy
-                            if( org.jacorb.util.Environment.enforceSSL() && 
+                            if( Environment.enforceSSL() && 
                                 !connection.isSSL()) 
                             {
                                 org.jacorb.orb.dsi.ServerRequest request = 
@@ -687,7 +736,7 @@ public class BasicAdapter
                         }
                     default:
                         {
-                            org.jacorb.util.Debug.output(0,"SessionServer, message_type " + 
+                            Debug.output(0,"SessionServer, message_type " + 
                                                      msg_type + " not understood.");
                         }
                     }
@@ -695,7 +744,7 @@ public class BasicAdapter
             }
             //      catch ( java.io.InterruptedIOException eof )
             //          {
-            //              org.jacorb.util.Debug.output(2,"RequestReceptor: Connection timed out");
+            //              Debug.output(2,"RequestReceptor: Connection timed out");
 
             //              while( pendingReplies > 0 )
             //                  try{ sleep( 5 ); } catch ( Exception e ){}
@@ -703,18 +752,18 @@ public class BasicAdapter
             //          }
             catch ( java.io.EOFException eof )
             {
-                org.jacorb.util.Debug.output(4,eof);
+                Debug.output(4,eof);
 		close();
 		
             } 
             catch ( org.omg.CORBA.COMM_FAILURE cf )
             {
-                org.jacorb.util.Debug.output(1,cf);
+                Debug.output(1,cf);
                 close();
             } 
             catch ( java.io.IOException i )
             {
-                org.jacorb.util.Debug.output(4,i);
+                Debug.output(4,i);
                 close();
             }
 	   
@@ -735,7 +784,7 @@ public class BasicAdapter
             } 
             catch ( Exception e ) 
             {
-                org.jacorb.util.Debug.output(2,e);
+                Debug.output(2,e);
                 // ignore exceptions on closing sockets which would occur e.g.
                 // when closing sockets without ever having opened one...
             }
