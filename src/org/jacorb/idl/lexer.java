@@ -101,7 +101,6 @@ public class lexer
     /** nested #ifdefs are pushed on this stack by the "preprocessor" */
 
     private static java.util.Stack ifStack = new Stack();
-
     private static java.util.Stack tokenStack = new Stack();
 
     /** Current line number for use in error messages. */
@@ -113,7 +112,7 @@ public class lexer
     /** Character position in current line. */
     protected static int current_position = 1;
 
-    /** Have we already read a '"' ?. */
+    /** Have we already read a '"' ?  */
     protected static boolean in_string = false;
 
     /** Count of total errors detected so far. */
@@ -124,6 +123,21 @@ public class lexer
 
     /** currently active pragma prefix */
     public static String currentPragmaPrefix = "" ;
+
+
+    /** reset the scanner state */
+
+    public static void reset()
+    {
+        current_position = 1;
+        error_count = 0;
+        warning_count = 0;
+        currentPragmaPrefix = "" ;
+        line = new StringBuffer();
+        ifStack.clear();
+        tokenStack.clear();
+        defines.clear();
+   }
 
     /** 
      * Initialize the scanner.  This sets up the keywords and char_symbols
@@ -138,7 +152,7 @@ public class lexer
         throws java.io.IOException
     {
         /* set up standard symbols */
-        defines.put("JACORB_IDL_1_2","");
+        defines.put("JACORB_IDL_1_3","");
 
         /* set up the keyword table */
 

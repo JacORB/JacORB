@@ -91,6 +91,8 @@ parser code
     public static boolean compile( String argv[] ) 
     {
         init();
+        Hashtable tmpDefines = new Hashtable();
+        Hashtable tmpUnDefines = new Hashtable();
         try
         {
            command_line = argv;
@@ -150,12 +152,12 @@ parser code
                                 }
                                 else
                                         val = "1";
-                                lexer.define( def, val );
+                                tmpDefines.put( def, val );
                                 continue;
                         }
                         if( argv[i].startsWith("-U")) 
                         {
-                                lexer.undefine(argv[i].substring(2) );
+                                tmpUnDefines.put( argv[i].substring(2), "" );
                                 continue;
                         } 
                         if( argv[i].equals("-p")) 
@@ -226,7 +228,7 @@ parser code
                    {
                         if( argv[j].endsWith(".idl"))
                         {
-                                Environment.output(4,argv[j]);
+                                Environment.output( 4, argv[j] );
                                 GlobalInputStream.init();
                                 try
                                 {               
@@ -236,6 +238,20 @@ parser code
                                 {
                                     System.err.println("Could not find file " + argv[j]);
                                     parser.help();
+                                }
+                                /* reset tables everywhere */
+                                lexer.reset();
+                                NameTable.init();
+
+                                /* define/undefine symbols */
+                                for( Enumeration e = tmpDefines.keys(); e.hasMoreElements(); )
+                                {
+                                     String key = (String)e.nextElement();
+                                     lexer.define( key, (String)tmpDefines.get( key ));
+                                }
+                                for( Enumeration e = tmpUnDefines.keys(); e.hasMoreElements(); )
+                                {
+                                     lexer.undefine( (String)e.nextElement() );
                                 }
                                 new parser().parse();
                         }
@@ -253,7 +269,7 @@ parser code
            catch( Exception e )
            {
               System.err.println( "Error: " + e.getMessage());
-              org.jacorb.idl.Environment.output( 3, e );
+              org.jacorb.idl.Environment.output( 2, e );
               usage(argv, e.getMessage());
            }
            return true;

@@ -50,7 +50,15 @@ public class ImRModel  {
      */
     public ImRModel() {
 	m_orb = org.omg.CORBA.ORB.init(new String[0], null);
-	m_admin = AdminHelper.narrow(ImplementationRepositoryImpl.getImR(m_orb));
+        try 
+        {
+            m_admin = AdminHelper.narrow( m_orb.resolve_initial_references("ImplementationRepository"));
+        }
+        catch( org.omg.CORBA.ORBPackage.InvalidName in )
+        {
+            Debug.output(0, "WARNING: Could not contact Impl. Repository!");
+            return;
+        }
 	
 	fetchImRInfo();
 
@@ -82,8 +90,17 @@ public class ImRModel  {
      *
      * @param ior_url an url pointing to the IOR file of a remote repository.
      */
-    public void connectTo(String ior_url){
-	m_admin = AdminHelper.narrow(ImplementationRepositoryImpl.getImR(m_orb, ior_url));
+    public void connectTo(String ior_url)
+    {
+        try
+        {
+            m_admin = AdminHelper.narrow( m_orb.resolve_initial_references("ImplementationRepository"));
+        }
+        catch( org.omg.CORBA.ORBPackage.InvalidName in )
+        {
+            Debug.output(0, "WARNING: Could not contact Impl. Repository!");
+            return;
+        }
 	
 	fetchImRInfo();
 

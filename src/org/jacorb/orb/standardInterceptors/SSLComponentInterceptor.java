@@ -46,7 +46,8 @@ public class SSLComponentInterceptor
 
             if( !org.jacorb.util.Environment.enforceSSL() ) 
             {
-                // target supports unprotected messages
+                // target (we) also supports unprotected messages
+                // viz. on the other, non-SSL socket
                 ssl.target_supports |= 0x1;
             }
 

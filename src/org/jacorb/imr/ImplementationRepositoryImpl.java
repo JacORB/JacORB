@@ -471,56 +471,6 @@ public class ImplementationRepositoryImpl
 	}
     }
 
-    /**
-     * Convenience method which returns a reference to the repository.
-     *
-     * @param orb the ORB is needed for string_to_object().
-     * @param ior_url URL string referencing the IOR file of an arbitrary 
-     * ImplementationRepository.
-     * @return a reference to an implementation repository.
-     */
-    public static ImplementationRepository getImR(org.omg.CORBA.ORB orb,
-						  String ior_url){
-	try{
-	    java.net.URL _imr_ref_url = new java.net.URL(ior_url);
-	    
-	    BufferedReader _in = new BufferedReader(new InputStreamReader(_imr_ref_url.openStream())); 
-	    String _line = _in.readLine();
-	    
-	    while (_line.indexOf("IOR:") != 0) 
-		_line = _in.readLine();
-	    
-	    _in.close();
-	    
-	    ImplementationRepository _imr = 
-		ImplementationRepositoryHelper.narrow(orb.string_to_object(_line));
-	    
-	    return _imr;
-	}
-	catch (Exception _e){ 
-	    Debug.output(Debug.IMR | Debug.DEBUG1,_e);	    
-	}
-	return null;    
-    }
-
-    
-    /**
-     * Convenience method which returns a reference to the repository.
-     * Takes the url for the IOR file from properties.
-     *
-     * @param orb the ORB is needed for string_to_object().
-     * @return a reference to an implementation repository.
-     */
-    public static ImplementationRepository getImR(org.omg.CORBA.ORB orb){
-	String _url_str = Environment.getProperty("jacorb.ImplementationRepositoryURL");
-
-        if (_url_str == null)
-        {
-		_url_str = "http://localhost/ImR_Ref";
-        }
-
-	return getImR(orb, _url_str);
-    }
 
     /**
      * Prints the usage screen and exits.

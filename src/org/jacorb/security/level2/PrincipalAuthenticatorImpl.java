@@ -33,6 +33,7 @@ public class PrincipalAuthenticatorImpl
     private SecAttributeManager attrib_mgr = null;
     
     // rt: orb param removed (this simplyfies the using with java reflection)
+
     public PrincipalAuthenticatorImpl()
     {
         loginData = new LoginData();
@@ -126,9 +127,7 @@ public class PrincipalAuthenticatorImpl
 
             SecAttribute attrib = attrib_mgr.createAttribute( k_a_c,
                                                               type );
-        
-
-        
+                
             CredentialsImpl credsImpl = 
                 new CredentialsImpl( new SecAttribute[]{ attrib },
                 AuthenticationStatus.SecAuthSuccess,

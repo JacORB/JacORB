@@ -573,6 +573,7 @@ public class TypeCode
             case TCKind._tk_union:
                 {
                     tcMap.put(this.id(), this);
+            org.jacorb.util.Debug.output( 4, "resolve recursion.put : " + this.id() );
 
                     for( int i = 0; i < member_count(); i++ )
                     {

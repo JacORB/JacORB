@@ -88,7 +88,7 @@
                depends="utils,CAD,orb,poa,ir,naming,imr,security,proxy,events,concurrency,transaction,trading,WeakHashtable,tracing">
    </target>
 
-   <target name="proxy" >
+   <target name="proxy" depends="init" >
    	<javac srcdir="${jsrc}"
                destdir="${classdir}" 
 	       includes="org/jacorb/proxy/**.java"
@@ -115,11 +115,11 @@
    	<ant antfile="${jsrc}/org/jacorb/concurrency/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="orb">
+   <target name="orb" depends="init">
    	<ant antfile="${jsrc}/org/jacorb/orb/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="imr">
+   <target name="imr"  depends="init">
    	<ant antfile="${jsrc}/org/jacorb/imr/build.xml" dir="${basedir}"/>
    </target>
 
@@ -131,11 +131,11 @@
    	<ant antfile="${jsrc}/org/jacorb/security/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="events">
+   <target name="events" depends="init">
    	<ant antfile="${jsrc}/org/jacorb/events/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="trading">
+   <target name="trading" depends="init">
    	<ant antfile="${jsrc}/org/jacorb/trading/build.xml" dir="${basedir}"/>
    </target>
 

@@ -1,4 +1,3 @@
-
 package java_cup.runtime;
 
 /** This subclass of token represents symbols that need to maintain one

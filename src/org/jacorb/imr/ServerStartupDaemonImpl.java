@@ -38,8 +38,9 @@ public class ServerStartupDaemonImpl
 	throws Exception
     {
 	Registration _registration = null;
-
-	_registration = RegistrationHelper.narrow(ImplementationRepositoryImpl.getImR(orb));
+        
+	_registration = 
+            RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
 	if( _registration == null )
 	    throw new java.lang.Error("ImR not found");
 

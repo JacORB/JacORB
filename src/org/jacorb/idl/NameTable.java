@@ -58,6 +58,19 @@ class NameTable
 
     static
     {
+        init();
+    }
+
+    public static void init()
+    {
+        h.clear();
+        operationSources.clear();
+        shadows.clear();
+        ancestors.clear();
+
+        operationSources.clear();
+        parsed_interfaces.clear();
+
         h.put("char", "type");
         h.put("boolean", "type");
         h.put("long", "type");

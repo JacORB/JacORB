@@ -18,35 +18,36 @@ package java_cup.runtime;
  * @author  Scott Hudson
  */
 
-public class symbol {
+public class symbol 
+{
 
-  /** Full constructor. */
-  public symbol(int sym_num, int state)
+    /** Full constructor. */
+    public symbol(int sym_num, int state)
     {
-      sym = sym_num;
-      parse_state = state;
+        sym = sym_num;
+        parse_state = state;
     }
 
-  /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
+    /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
-  /** Constructor without a known state. */
-  public symbol(int sym_num)
+    /** Constructor without a known state. */
+    public symbol(int sym_num)
     {
-      this(sym_num, -1);
+        this(sym_num, -1);
     }
 
-  /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
+    /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
-  /** The symbol number of the terminal or non terminal being represented */
-  public int sym;
+    /** The symbol number of the terminal or non terminal being represented */
+    public int sym;
 
-  /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
+    /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
-  /** The parse state to be recorded on the parse stack with this symbol.
-   *  This field is for the convenience of the parser and shouldn't be 
-   *  modified except by the parser. 
-   */
-  public int parse_state;
+    /** The parse state to be recorded on the parse stack with this symbol.
+     *  This field is for the convenience of the parser and shouldn't be 
+     *  modified except by the parser. 
+     */
+    public int parse_state;
 };
 
 

@@ -33,7 +33,7 @@ public class ImRManager
         try
         {
             Admin admin = 
-                AdminHelper.narrow(ImplementationRepositoryImpl.getImR(orb));
+                AdminHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
 
             ServerInfo info = null;
 
@@ -88,7 +88,7 @@ public class ImRManager
         try
         {
             Admin admin = 
-                AdminHelper.narrow(ImplementationRepositoryImpl.getImR(orb));
+                AdminHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
 
             HostInfo[] hosts = admin.list_hosts();
 
@@ -107,16 +107,20 @@ public class ImRManager
 
     private static Admin getAdmin()
     {
-        Admin _admin = 
-            AdminHelper.narrow(ImplementationRepositoryImpl.getImR(m_orb));
 
+        Admin _admin = null;
+        try
+        {
+            _admin = 
+                AdminHelper.narrow( m_orb.resolve_initial_references("ImplementationRepository"));
+        }
+        catch( org.omg.CORBA.ORBPackage.InvalidName in )
+        {
+            Debug.output(0, "WARNING: Could not contact Impl. Repository!");
+        }
         if (_admin == null)
         {
             System.out.println("Unable to connect to repository process!");
-            System.out.println("Please check, if the URL and the IOR file path point to the same file.");
-            System.out.println("Properties org.jacorb.imr.ior_file and");
-            System.out.println("jacorb.ImplementationRepositoryURL");
-
             System.exit(-1);
         }
 

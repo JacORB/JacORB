@@ -9,15 +9,16 @@ package java_cup.runtime;
  * @version last updated: 11/25/95
  * @author  Scott Hudson
  */
+
 public class token 
     extends symbol 
 {
 
-  /* Simple constructor -- just delegates to the super class. */
-  public token(int term_num)
+    /* Simple constructor -- just delegates to the super class. */
+    public token(int term_num)
     {
-      /* super class does all the work */
-      super(term_num);
+        /* super class does all the work */
+        super(term_num);
     }
 };
 

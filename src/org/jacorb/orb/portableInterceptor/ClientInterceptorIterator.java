@@ -61,7 +61,7 @@ public class ClientInterceptorIterator
 
 	try
         {
-	    Debug.output( Debug.INFORMATION | Debug.INTERCEPTOR, 
+	    Debug.output( Debug.DEBUG1 | Debug.INTERCEPTOR, 
                           "Invoking CI " + interceptor.name());
 	    
             switch (op) 

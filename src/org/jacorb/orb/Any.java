@@ -344,15 +344,13 @@ public final class Any
     public void insert_string(String s)
     { 
         value = s;
-        // if( typeCode.kind().value() == org.omg.CORBA.TCKind._tk_null )
-            typeCode = orb.create_string_tc( s.length() );
+        typeCode = orb.create_string_tc(0);
     }
 
     public void insert_wstring(String s)
     {
         value = s;
-        // if( typeCode.kind().value() == org.omg.CORBA.TCKind._tk_null )
-            typeCode = orb.create_wstring_tc( s.length() );
+        typeCode = orb.create_wstring_tc(0);
     }
 
     public String extract_wstring() 

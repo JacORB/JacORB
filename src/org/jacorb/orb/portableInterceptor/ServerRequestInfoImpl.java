@@ -36,17 +36,19 @@ public class ServerRequestInfoImpl
 
     public Any sending_exception = null;
     
-    public ServerRequestInfoImpl(org.jacorb.orb.ORB orb, ServerRequest request,
-                                 Servant servant) {
+    public ServerRequestInfoImpl( org.jacorb.orb.ORB orb, 
+                                  ServerRequest request,
+                                  Servant servant) 
+    {
         super();
     
         this.orb = orb;
         this.request = request;
-        this.servant = servant;
+//          this.servant = servant;
 
-        if (servant != null){
-            setServant(servant);
-        }
+//          if (servant != null){
+//              setServant(servant);
+//          }
 
         setRequestServiceContexts(request.getServiceContext());
 
@@ -58,7 +60,9 @@ public class ServerRequestInfoImpl
      * receive_request_service_contexts (e.g. in case of
      * ServantLocators or ServantActivators).
      */
-    public void setServant(Servant servant){
+
+    public void setServant(Servant servant)
+    {
         this.servant = servant;
 
         adapter_id = ((org.jacorb.poa.POA) servant._poa()).getPOAId();   
@@ -69,8 +73,11 @@ public class ServerRequestInfoImpl
     /**
      * Set the sending_exception attribute.
      */
-    public void update(){
-        if (! request.streamBased()){
+
+    public void update()
+    {
+        if (! request.streamBased())
+        {
             Any user_ex = request.except();
             if (user_ex != null)
                 sending_exception = user_ex;
@@ -88,7 +95,9 @@ public class ServerRequestInfoImpl
      * The last ServiceContext is a dummy object for
      * data aligning purposes.
      */
-    public ServiceContext[] getReplyServiceContexts(){
+
+    public ServiceContext[] getReplyServiceContexts()
+    {
         //copying manually for jdk1.1 compatibility
         ServiceContext[] _ctx = new ServiceContext[reply_ctx.size() + 1];
         Enumeration _enum = reply_ctx.elements(); 
@@ -104,13 +113,16 @@ public class ServerRequestInfoImpl
     /**
      * returns a reference to the calls target.
      */
+
     public org.omg.CORBA.Object target()
     {
         return servant._this_object();
     }
 
     // implementation of RequestInfoOperations interface
-    public Parameter[] arguments() {
+
+    public Parameter[] arguments() 
+    {
         if (!(caller_op == ServerInterceptorIterator.RECEIVE_REQUEST) &&
             !(caller_op == ServerInterceptorIterator.SEND_REPLY))
             throw new BAD_INV_ORDER("The attribute \"arguments\" is currently invalid!", 
@@ -123,12 +135,14 @@ public class ServerRequestInfoImpl
             return arguments;
     }
 
-    public TypeCode[] exceptions() {
+    public TypeCode[] exceptions() 
+    {
         throw new NO_RESOURCES("This feature is not supported on the server side", 
                                1, CompletionStatus.COMPLETED_MAYBE);
     }
 
-    public Any result() {
+    public Any result() 
+    {
         if (caller_op != ServerInterceptorIterator.SEND_REPLY)
             throw new BAD_INV_ORDER("The attribute \"result\" is currently invalid!", 
                                     10, CompletionStatus.COMPLETED_MAYBE);
