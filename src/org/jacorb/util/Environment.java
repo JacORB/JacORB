@@ -628,9 +628,13 @@ public class Environment
         java.util.Calendar cal = java.util.Calendar.getInstance();
         return cal.get(Calendar.HOUR_OF_DAY) +
             ":" +
-            ((cal.get(Calendar.MINUTE)<10) ? "0"+cal.get(Calendar.MINUTE) : ""+cal.get(Calendar.MINUTE)) +
+            ( (cal.get(Calendar.MINUTE)<10) ? 
+              "0"+cal.get(Calendar.MINUTE) : 
+              ""+cal.get(Calendar.MINUTE) ) +
             ":" +
-            ((cal.get(Calendar.SECOND)<10) ? "0"+cal.get(Calendar.SECOND) : ""+cal.get(Calendar.SECOND));
+            ( (cal.get(Calendar.SECOND)<10) ? 
+              "0"+cal.get(Calendar.SECOND) : 
+              ""+cal.get(Calendar.SECOND) );
     }
 
     public static final void readFromURL(java.net.URL _url)
@@ -644,7 +648,8 @@ public class Environment
         }
         catch(Exception e)
         {
-            System.out.println("Could not read properties from URL, reason: "+e.toString());
+            System.out.println("Could not read properties from URL, reason: "+
+                               e.toString());
         }
         readValues();
         // _props.list( System.out );
@@ -668,7 +673,8 @@ public class Environment
     {
         Enumeration prop_names = _props.propertyNames();
         Vector orb_initializers = new Vector();
-        String initializer_prefix = "org.omg.PortableInterceptor.ORBInitializerClass.";
+        String initializer_prefix = 
+            "org.omg.PortableInterceptor.ORBInitializerClass.";
         
         //Test EVERY property if prefix matches.
         //I'm open to suggestions for more efficient ways (noffke)

@@ -58,6 +58,15 @@ brose@inf.fu-berlin.de
 
 1.3.20
         - internal redesign: all package names now begin with "org.jacorb"
+          NOTE: You MUST change existing jacorb.properties files to 
+          reflect these changes where property values point to JacORB
+          classes, e.g. the value for property:
+
+              org.omg.PortableInterceptor.ORBInitializerClass.standard_init
+
+          must be changed to:
+
+              org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
         - IDL compiler:
                 . added the -nostub switch to suppress generation of client stubs

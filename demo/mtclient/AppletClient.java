@@ -19,8 +19,10 @@ public class AppletClient extends java.applet.Applet
     public void init()
     {
 	    java.util.Properties props = new java.util.Properties();
-	    props.put("org.omg.CORBA.ORBClass","jacorb.orb.ORB");
-	    props.put("org.omg.CORBA.ORBSingletonClass","jacorb.orb.ORBSingleton");
+	    props.put("org.omg.CORBA.ORBClass",
+                      "org.jacorb.orb.ORB");
+	    props.put("org.omg.CORBA.ORBSingletonClass",
+                      "org.jacorb.orb.ORBSingleton");
 
 	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(this,props);
 

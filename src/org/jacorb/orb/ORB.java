@@ -47,6 +47,9 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener
 {
+    private static final String versionString = "1.3.20";
+    private static final String dateString = "27 March 2001";
+
     /** "initial" references */
     private Hashtable initial_references = new Hashtable();
 
@@ -1098,6 +1101,12 @@ public final class ORB
         _args = args;
         _props = props;
         Environment.addProperties( props );
+
+        if( Environment.getProperty("jacorb.orb.print_version").equals("on"))
+        {
+            System.out.println("\tJacORB V " + versionString + ", www.jacorb.org");
+            System.out.println("\t(C) Gerald Brose, FU Berlin, " + dateString );
+        }
 
         initialReferencesInit();
         interceptorInit();

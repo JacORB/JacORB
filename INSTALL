@@ -64,6 +64,19 @@ Installation:
    means no output,  level 1 emits basic connection information, 
    and levels 2 and above are debug levels.
 
+   NOTE: If you are updating from an existing JacORB installation
+   you MUST change existing jacorb.properties files to reflect the
+   changes in package names (the leading "org.") where property 
+   values point to JacORB classes. E.g., the value for property:
+
+      org.omg.PortableInterceptor.ORBInitializerClass.standard_init
+
+   must be changed to:
+
+      org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
+
+
+
 5. Generate or edit the start scripts jaco and jaco.bat:
    (This step is carried out automatically by the build
     process, so it is only required if you are not rebuilding

@@ -8,6 +8,8 @@ typedef sequence<qz> ra;
 
 interface rc
 {
+  exception ex {};
+
     exception rd
     { 
 	long re;

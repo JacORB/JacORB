@@ -28,6 +28,15 @@ jacorb.ImplementationRepositoryURL=http://www.x.y.z/~user/ImR_Ref
 jacorb.ProxyServerURL=http://www.x.y.z/~user/Appligator_Ref
 
 
+##################################
+#                                #
+#   ORB version number output    #
+#                                #
+##################################
+
+# if on, the ORB's version number is printed
+# any time the ORB is initialized
+jacorb.orb.print_version=on
 
 ##################################
 #                                #
