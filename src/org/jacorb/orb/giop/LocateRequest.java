@@ -93,7 +93,7 @@ public class LocateRequest
 	    }
 	    else if( status == org.omg.GIOP.ReplyStatusType_1_0._SYSTEM_EXCEPTION )
 	    {
-		jacorb.orb.SystemExceptionHelper.write( out, sys_ex );
+		org.jacorb.orb.SystemExceptionHelper.write( out, sys_ex );
 	    }
 	    
 	    /* everything is written to out by now, be it results or exceptions */
@@ -120,6 +120,12 @@ public class LocateRequest
 	}
     }
 }
+
+
+
+
+
+
 
 
 

@@ -45,3 +45,9 @@ public class ClientInitializer
   public void pre_init(ORBInitInfo info) {    
   }
 } // ClientInitializer
+
+
+
+
+
+

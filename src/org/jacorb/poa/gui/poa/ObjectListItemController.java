@@ -29,3 +29,9 @@ void _actionDeactivateObject(String oidStr);
 void _inspectServantClass(String oidStr);
 }
 
+
+
+
+
+
+

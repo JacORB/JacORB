@@ -61,7 +61,7 @@ public final class ServerConnection
 	String ssl = isSSL() ? "SSL " : ""; //bnv
 	connection_info = host_and_port;
 	client_count = 1;
-	jacorb.util.Debug.output(1,"Accepted HTTP connection from " + host_and_port);
+	org.jacorb.util.Debug.output(1,"Accepted HTTP connection from " + host_and_port);
 
     }
   
@@ -147,7 +147,7 @@ public final class ServerConnection
 	    } 
 	    catch ( Exception e )
 	    {
-		jacorb.util.Debug.output(2,e);
+		org.jacorb.util.Debug.output(2,e);
 		throw new org.omg.CORBA.COMM_FAILURE();
 	    }
 	}
@@ -181,7 +181,7 @@ public final class ServerConnection
                     byte[] dummy={0};
                     realCon.answerRequest(dummy);
                 }
-                //jacorb.util.Debug.output(1,"sendReply",os.getBuffer(true));
+                //org.jacorb.util.Debug.output(1,"sendReply",os.getBuffer(true));
 
                 //	}
 		// org.jacorb.util.Debug.output(3,"bypassing any message-level interceptors");
@@ -189,7 +189,7 @@ public final class ServerConnection
 	    } 
 	    catch ( Exception e )
 	    {
-		jacorb.util.Debug.output(2,e);
+		org.jacorb.util.Debug.output(2,e);
 		throw new org.omg.CORBA.COMM_FAILURE();
 	    }
 	}
@@ -202,3 +202,9 @@ public final class ServerConnection
 	//do nothing here
     }
 }
+
+
+
+
+
+

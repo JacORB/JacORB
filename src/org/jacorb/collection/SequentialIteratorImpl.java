@@ -65,3 +65,9 @@ class SequentialIteratorImpl extends OrderedIteratorImpl
 //        }
     };
 /* ------------------------------------------------------------------------- */
+
+
+
+
+
+

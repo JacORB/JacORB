@@ -73,3 +73,9 @@ public class  SequenceFactoryImpl extends SequenceFactoryPOA implements Iterator
         return new SequentialIteratorImpl( (SequentialCollectionImpl)collection, read_only, reverse );
     };
 }
+
+
+
+
+
+

@@ -62,3 +62,9 @@ public class IORInfoImpl extends org.jacorb.orb.LocalityConstrainedObject
     return poa.getPolicy(type);
   }
 } // IORInfoImpl
+
+
+
+
+
+

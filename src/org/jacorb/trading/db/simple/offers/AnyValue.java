@@ -102,7 +102,7 @@ public class AnyValue implements Serializable
 	    org.jacorb.util.Debug.output(4, e );
 	    // ignore
 	}
-	jacorb.util.Debug.output(4, "AnyValue, tc_kind " + type.kind() + (result? " " : " not" ) + " supported");
+	org.jacorb.util.Debug.output(4, "AnyValue, tc_kind " + type.kind() + (result? " " : " not" ) + " supported");
 	return result;
     }
 
@@ -555,6 +555,12 @@ public class AnyValue implements Serializable
 
 
 }
+
+
+
+
+
+
 
 
 

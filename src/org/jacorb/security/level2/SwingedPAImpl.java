@@ -63,7 +63,7 @@ public class SwingedPAImpl
                                              OpaqueHolder auth_specific_data
                                              )
     {
-	jacorb.util.Debug.output(3,"starting authentication");
+	org.jacorb.util.Debug.output(3,"starting authentication");
 	try 
 	{	
 	    registerProvider();
@@ -374,6 +374,12 @@ public class SwingedPAImpl
 
     }
 }
+
+
+
+
+
+
 
 
 

@@ -7,7 +7,7 @@ package org.jacorb.util;
  * set of system properties. <br>
  *
  * WARNING: This class replaces the system properties by the
- * class <code>jacorb.util.ThreadSystemProperties</code>,
+ * class <code>org.jacorb.util.ThreadSystemProperties</code>,
  * which behaves slightly different from the standard properties
  * class.
  *
@@ -144,3 +144,9 @@ public class CapsuleThread
         }
     }
 } // CapsuleThread
+
+
+
+
+
+

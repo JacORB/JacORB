@@ -28,3 +28,9 @@ public class ScrollableTextPane extends JScrollPane
 
   public String getText() { return _textPane.getText(); }
 }
+
+
+
+
+
+

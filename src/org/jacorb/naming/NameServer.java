@@ -97,7 +97,7 @@ public class NameServer
 	    }
 	    catch( IOException io )
 	    {
-		jacorb.util.Debug.output(2,"File seems corrupt, starting empty");
+		org.jacorb.util.Debug.output(2,"File seems corrupt, starting empty");
 	    }
 	    catch( java.lang.ClassNotFoundException c )
 	    {
@@ -133,7 +133,7 @@ public class NameServer
 
 		/* save state */
                 out.writeObject((NamingContextImpl)servant);
-		jacorb.util.Debug.output(2,"Saved state for servant " + oidStr);
+		org.jacorb.util.Debug.output(2,"Saved state for servant " + oidStr);
 	    }
 	    catch( IOException io )
 	    {
@@ -277,6 +277,12 @@ public class NameServer
 
 
 }
+
+
+
+
+
+
 
 
 

@@ -302,7 +302,7 @@ public class RemoteTypeSystem extends TypeSystem
                 }	
 	}	// else (obj war kein IRObject)
         
-	jacorb.util.Debug.output( 2, result.getInstanceNodeTypeName()+" "+
+	org.jacorb.util.Debug.output( 2, result.getInstanceNodeTypeName()+" "+
                                   result.getAbsoluteName());
 	return result;
     }
@@ -388,6 +388,12 @@ public class RemoteTypeSystem extends TypeSystem
     }
 
 }
+
+
+
+
+
+
 
 
 

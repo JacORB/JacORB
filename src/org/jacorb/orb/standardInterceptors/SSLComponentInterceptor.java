@@ -44,7 +44,7 @@ public class SSLComponentInterceptor
                                          Environment.requiredBySSL(),
                                          (short) orb.getBasicAdapter().getSSLPort());
 
-            if( !jacorb.util.Environment.enforceSSL() ) 
+            if( !org.jacorb.util.Environment.enforceSSL() ) 
             {
                 // target supports unprotected messages
                 ssl.target_supports |= 0x1;
@@ -71,3 +71,9 @@ public class SSLComponentInterceptor
         }
     }
 } // SSLComponentInterceptor
+
+
+
+
+
+

@@ -290,7 +290,7 @@ public class ConnectionManager
         String host_and_port = null;
 
 	if( proxyConnectDirectly ||
-            !jacorb.util.Environment.useAppligator(orb.getApplet() != null) )
+            !org.jacorb.util.Environment.useAppligator(orb.getApplet() != null) )
         {
             host_and_port = delegate.get_adport();
         }
@@ -349,7 +349,7 @@ public class ConnectionManager
     public ClientConnection getConnection( org.jacorb.orb.Delegate delegate )
     {
         if(  proxyConnectDirectly ||
-             !jacorb.util.Environment.useAppligator(orb.getApplet() != null) )
+             !org.jacorb.util.Environment.useAppligator(orb.getApplet() != null) )
         {         
             return _getConnection( delegate );
         }
@@ -454,7 +454,7 @@ public class ConnectionManager
                                                     "jacorb.properties"));
                         applet_properties_read = true;
                         // reinitialize
-                        //jacorb.util.Debug.initialize( new org.jacorb.util.Environment() );
+                        //org.jacorb.util.Debug.initialize( new org.jacorb.util.Environment() );
                         org.jacorb.util.Debug.initialize( );
                     }
                 }
@@ -694,3 +694,9 @@ public class ConnectionManager
     }
 
 }
+
+
+
+
+
+

@@ -34,3 +34,9 @@ protected IRArray(org.omg.CORBA.IRObject irObject) {
 
 
 
+
+
+
+
+
+

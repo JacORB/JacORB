@@ -45,3 +45,9 @@ public class Cach{
     public void clear(){
         data.removeAllElements();
     };
+
+
+
+
+
+

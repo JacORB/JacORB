@@ -235,7 +235,7 @@ public class ServantDelegate
 	{
 	    try 
 	    { 
-		jacorb.util.Debug.output
+		org.jacorb.util.Debug.output
 		    (Debug.DOMAIN | Debug.DEBUG1, "ServantDelegate._domainService: fetching local domain service reference from orb");
 		check();
 		_domainService= org.jacorb.orb.domain.DomainHelper.narrow
@@ -244,7 +244,7 @@ public class ServantDelegate
 	    }
 	    catch (Exception e) 
 	    {
-		jacorb.util.Debug.output(Debug.DOMAIN | Debug.IMPORTANT, e);
+		org.jacorb.util.Debug.output(Debug.DOMAIN | Debug.IMPORTANT, e);
 	    }
 	}
 	return _domainService;
@@ -317,5 +317,11 @@ public class ServantDelegate
 
 
 }
+
+
+
+
+
+
 
 

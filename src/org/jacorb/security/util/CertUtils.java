@@ -312,7 +312,7 @@ public class CertUtils
 	    chain[ len - 1 ].verify( chain [ len - 1 ].getPublicKey ());
 
 	    for ( int i = len - 1; i > 0; i-- ) {
-		jacorb.util.Debug.output( 3, "verifying chain[ " + (i-1) + " ]");
+		org.jacorb.util.Debug.output( 3, "verifying chain[ " + (i-1) + " ]");
 		chain[ i - 1 ].verify( chain[ i ].getPublicKey ());
 	    }
 
@@ -349,3 +349,9 @@ public class CertUtils
 
 
 }
+
+
+
+
+
+

@@ -39,7 +39,7 @@ public class TimerListNode{
       try{
 	wait();
       }catch(Exception _e){
-	jacorb.util.Debug.output(2, _e);
+	org.jacorb.util.Debug.output(2, _e);
       }
 	
     return next;
@@ -75,9 +75,15 @@ public class TimerListNode{
     else
       try{
 	wait(); //wait for interrupt to come
-	jacorb.util.Debug.output(2, "waiting for interrupt " + interruptee.toString());
+	org.jacorb.util.Debug.output(2, "waiting for interrupt " + interruptee.toString());
       }catch(Exception _e){
-	jacorb.util.Debug.output(2, _e);
+	org.jacorb.util.Debug.output(2, _e);
       }	
   }
 } // TimerListNode
+
+
+
+
+
+

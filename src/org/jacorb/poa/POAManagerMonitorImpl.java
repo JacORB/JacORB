@@ -139,8 +139,8 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 				view = null;
 				tmp._destroy();
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitorLightImpl");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitorLightImpl");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 		}
 	}
@@ -157,8 +157,8 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 			view = new org.jacorb.poa.gui.pm.POAManagerFrame(this);
 			view._setVisible(true);
 		} catch (Throwable exception) {
-			jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitor");
-			jacorb.util.Debug.output(0, exception);
+			org.jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitor");
+			org.jacorb.util.Debug.output(0, exception);
 		}
 	}
 	synchronized public void printMessage(String str) {
@@ -166,8 +166,8 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 			try {
 				view._printMessage(Environment.time()+"> "+str);
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in printMessage() of POAManagerMonitor");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in printMessage() of POAManagerMonitor");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 		}
 	}
@@ -179,8 +179,8 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 			try {
 				view._removePOA(expandPOAName(name));
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in removePOA() of POAManagerMonitor");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in removePOA() of POAManagerMonitor");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 			printMessage("unregister POA "+name);
 		}
@@ -190,8 +190,8 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 			try {
 				view._resetState();
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in resetState() of POAManagerMonitor");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in resetState() of POAManagerMonitor");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 		}
 	}
@@ -200,8 +200,8 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 			try {
 				view._setToActive();
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in setToActive() of POAManagerMonitor");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in setToActive() of POAManagerMonitor");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 			printMessage("POAManager is set to \"active\"");
 		}
@@ -211,8 +211,8 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 			try {
 				view._setToDiscarding(wait);
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in setToDiscarding() of POAManagerMonitor");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in setToDiscarding() of POAManagerMonitor");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 			printMessage("POAManager is set to \"discarding\"");
 		}
@@ -222,8 +222,8 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 			try {
 				view._setToHolding(wait);
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in setToHolding() of POAManagerMonitor");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in setToHolding() of POAManagerMonitor");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 			printMessage("POAManager is set to \"holding\"");
 		}
@@ -233,11 +233,17 @@ public class POAManagerMonitorImpl implements POAManagerMonitor, POAManagerMonit
 			try {
 				view._setToInactive(wait, etherialize);
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in setToInactive() of POAManagerMonitor");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in setToInactive() of POAManagerMonitor");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 			printMessage("POAManager is set to \"inactive\"");
 		}
 	}
 }
+
+
+
+
+
+
 

@@ -61,3 +61,9 @@ class SequenceComparator implements ObjectComparator {
             throw new ObjectInvalid();
         }
     };
+
+
+
+
+
+

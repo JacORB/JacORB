@@ -32,3 +32,9 @@ package org.jacorb.poa.except;
 public final class CompletionRequestedException 
     extends java.lang.Exception {
 }
+
+
+
+
+
+

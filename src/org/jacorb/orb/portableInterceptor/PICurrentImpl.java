@@ -61,3 +61,9 @@ public class PICurrentImpl extends org.jacorb.orb.LocalityConstrainedObject
     m_slots[id] = data;
   }
 } // PICurrentImpl
+
+
+
+
+
+

@@ -49,7 +49,7 @@ public class PrincipalAuthenticatorImpl
     {
         java.security.Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
 
-	jacorb.util.Debug.output(3,"starting authentication");
+	org.jacorb.util.Debug.output(3,"starting authentication");
 	try 
 	{	
             String keystore_location = Environment.keyStore();
@@ -167,6 +167,12 @@ public class PrincipalAuthenticatorImpl
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 }
+
+
+
+
+
+
 
 
 

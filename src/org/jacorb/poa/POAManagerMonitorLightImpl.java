@@ -47,8 +47,8 @@ public class POAManagerMonitorLightImpl implements POAManagerMonitor {
 				model.setMonitor(newMonitor);
 				newMonitor.openMonitor();
 			} catch (Throwable exception) {
-				jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitorLightImpl");
-				jacorb.util.Debug.output(0, exception);
+				org.jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitorLightImpl");
+				org.jacorb.util.Debug.output(0, exception);
 			}
 		}
 	}
@@ -65,4 +65,10 @@ public class POAManagerMonitorLightImpl implements POAManagerMonitor {
 	public void setToInactive(boolean wait, boolean etherialize) {
 	}
 }
+
+
+
+
+
+
 

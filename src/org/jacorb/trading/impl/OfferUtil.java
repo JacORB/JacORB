@@ -79,7 +79,7 @@ public class OfferUtil
 
 	    if (!db.isTypeSupported(exportProps[i].value))
 	    {
-		jacorb.util.Debug.output(3, " Type not supported: " + exportProps[i].name );
+		org.jacorb.util.Debug.output(3, " Type not supported: " + exportProps[i].name );
 		throw new PropertyTypeMismatch(typeName, exportProps[i]);
 	    }
 	}
@@ -173,6 +173,12 @@ public class OfferUtil
 	}
     }
 }
+
+
+
+
+
+
 
 
 

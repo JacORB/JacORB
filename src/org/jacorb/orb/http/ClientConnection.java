@@ -65,7 +65,7 @@ public final class ClientConnection
 	throws  java.io.EOFException
     {
 	
-	jacorb.util.Debug.output(3,"HTTPClient Connection "+mycounter+" to " + 
+	org.jacorb.util.Debug.output(3,"HTTPClient Connection "+mycounter+" to " + 
                                  connection_info + " aborting...->Ex");
 	
 	Enumeration keys = replies.keys();
@@ -148,7 +148,7 @@ public final class ClientConnection
     public synchronized void reconnect()
 	throws org.omg.CORBA.COMM_FAILURE
     {	
-	jacorb.util.Debug.output(1,"Trying to reconnect to " + connection_info);
+	org.jacorb.util.Debug.output(1,"Trying to reconnect to " + connection_info);
 	//send waiting buffers
 	
     }
@@ -181,7 +181,7 @@ public final class ClientConnection
             } 
 	    catch ( Exception e )
 	    {
-		jacorb.util.Debug.output(2,e);
+		org.jacorb.util.Debug.output(2,e);
 		throw new org.omg.CORBA.COMM_FAILURE();
 	    }		
 	    return rep;
@@ -239,7 +239,7 @@ public final class ClientConnection
 	    }
 	    catch ( Exception e )
 	    {		    
-		jacorb.util.Debug.output(2,e);
+		org.jacorb.util.Debug.output(2,e);
 		throw new org.omg.CORBA.COMM_FAILURE();
 	    }		
 	    
@@ -282,15 +282,21 @@ public final class ClientConnection
 		}
 				
 
-		//jacorb.util.Debug.output(5,"sendreq",buf,size);
+		//org.jacorb.util.Debug.output(5,"sendreq",buf,size);
 	    
 	        
 	    }
 	    catch ( Exception e )
 	    {		    
-		jacorb.util.Debug.output(2,e);
+		org.jacorb.util.Debug.output(2,e);
 		throw new org.omg.CORBA.COMM_FAILURE();
 	    }			    		  
         }
     }
 }
+
+
+
+
+
+

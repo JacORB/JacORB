@@ -39,3 +39,9 @@ public class CodecFactoryImpl extends org.jacorb.orb.LocalityConstrainedObject
       throw new UnknownEncoding();
   }  
 } // CodecFactoryImpl
+
+
+
+
+
+

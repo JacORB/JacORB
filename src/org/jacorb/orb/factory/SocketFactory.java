@@ -48,3 +48,9 @@ public interface SocketFactory
 
     public boolean isSSL( Socket socket );
 }
+
+
+
+
+
+

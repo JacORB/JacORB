@@ -698,7 +698,7 @@ public class DomainImpl
 
 	// first main step
 	Domain domains[]= getDomains(obj);
-	jacorb.util.Debug.assert(2, domains != null," Domain.getPolicy: "
+	org.jacorb.util.Debug.assert(2, domains != null," Domain.getPolicy: "
 				 +"result of getDomains is null");
 
 	for (int i= 0; i < domains.length; i++) 
@@ -706,7 +706,7 @@ public class DomainImpl
 	    try 
             { 
 		// try to get policy from domain: second main step
-		jacorb.util.Debug.assert(2, 
+		org.jacorb.util.Debug.assert(2, 
                                          domains[i] != null,
                                          "Domain.getPolicy:"
 					 +" array entry is null");
@@ -1304,10 +1304,10 @@ public class DomainImpl
     //      while ( domainList.hasMoreElements() ) 
     //        {
     //  	ds= (Domain) domainList.nextElement();
-    //  	jacorb.util.Debug.output(2, "Domain(" + _name +  ").getRootDomain: calling getRootDomain"
+    //  	org.jacorb.util.Debug.output(2, "Domain(" + _name +  ").getRootDomain: calling getRootDomain"
     //  				 +", parent is " + ds.name());
     //  	foundRoot= ds.getRootDomain();
-    //  	jacorb.util.Debug.assert(1, foundRoot != null,"DMImpl.getRootDomain:"
+    //  	org.jacorb.util.Debug.assert(1, foundRoot != null,"DMImpl.getRootDomain:"
     //  				 + " found root is null");
     //  	if (oldfoundRoot == null) oldfoundRoot= foundRoot;       // first step
     //  	else 
@@ -2449,6 +2449,12 @@ public class DomainImpl
     }
 
 } // DomainImpl
+
+
+
+
+
+
 
 
 

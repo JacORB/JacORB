@@ -11,6 +11,9 @@ import java.awt.*;
  * @author Nicolas Noffke
  *
  * $Log$
+ * Revision 1.2  2001/03/17 18:44:02  brose
+ * *** empty log message ***
+ *
  * Revision 1.3  1999/11/25 16:05:49  brose
  * cosmetics
  *
@@ -106,5 +109,11 @@ public class RefreshWindow  extends JFrame implements ActionListener{
 	}
     }  
 } // RefreshWindow
+
+
+
+
+
+
 
 

@@ -41,7 +41,7 @@ public class TimeoutThread extends Thread {
 	}	
 
       }catch (Exception e){
-	jacorb.util.Debug.output(2, e);
+	org.jacorb.util.Debug.output(2, e);
       }
     }    
   }
@@ -71,3 +71,9 @@ public class TimeoutThread extends Thread {
     current_nodes.put(interruptee, _new);
   }
 } // TimeoutThread
+
+
+
+
+
+

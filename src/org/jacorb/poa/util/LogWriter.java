@@ -126,3 +126,9 @@ public class LogWriter
         delegate = _delegate;
     }
 }
+
+
+
+
+
+

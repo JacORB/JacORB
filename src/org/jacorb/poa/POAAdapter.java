@@ -61,3 +61,9 @@ abstract public class POAAdapter
 	}
 }
 
+
+
+
+
+
+

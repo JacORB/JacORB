@@ -100,7 +100,7 @@ public class TransactionService
             System.exit(1);
         }
         initialized = true;
-	jacorb.util.Debug.output(1,"TransactionService up");
+	org.jacorb.util.Debug.output(1,"TransactionService up");
     }
 
 
@@ -141,3 +141,9 @@ public class TransactionService
     }
 
 }
+
+
+
+
+
+

@@ -57,7 +57,7 @@ public class PrincipalAuthenticatorImpl
                                              OpaqueHolder auth_specific_data
                                              )
     {
-	jacorb.util.Debug.output(3,"starting authentication");
+	org.jacorb.util.Debug.output(3,"starting authentication");
 	try 
 	{	
 	    registerProvider();
@@ -173,6 +173,12 @@ public class PrincipalAuthenticatorImpl
         org.jacorb.util.Debug.output(3, "added Provider IAIK" );
     }
 }
+
+
+
+
+
+
 
 
 

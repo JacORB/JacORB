@@ -31,3 +31,9 @@ public interface RPPoolManagerListener extends EventListener {
 	void processorRemovedFromPool(RequestProcessor processor, int pool_count, int pool_size);
 }
 
+
+
+
+
+
+

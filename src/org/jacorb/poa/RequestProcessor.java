@@ -359,7 +359,7 @@ public class RequestProcessor
             manager.setTSCurrent(info.current);
         }
 
-        //jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre invoke");
+        //org.jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre invoke");
 
         if (servantManager != null)
         {
@@ -397,7 +397,7 @@ public class RequestProcessor
                     request.setServerRequestInfo(info);
 
             }
-            //jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre invoke");
+            //org.jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre invoke");
 
             invokeOperation();  
         }
@@ -407,7 +407,7 @@ public class RequestProcessor
 
         if (cookieHolder != null) 
         {
-            //jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre post invoke");
+            //org.jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre post invoke");
             invokePostInvoke();
         }
    
@@ -448,7 +448,7 @@ public class RequestProcessor
             request.get_out().setServiceContexts(info.getReplyServiceContexts());
             manager.removeTSCurrent();
         }
-        //jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req end");
+        //org.jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req end");
     }
 
     private boolean invokeInterceptors( ServerRequestInfoImpl info,
@@ -530,6 +530,12 @@ public class RequestProcessor
     }
 
 }
+
+
+
+
+
+
 
 
 

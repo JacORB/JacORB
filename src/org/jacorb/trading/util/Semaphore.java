@@ -37,7 +37,7 @@ public class Semaphore {
 	    try{
 		wait();
 	    } catch (InterruptedException e){
-		jacorb.util.Debug.output(0, e);
+		org.jacorb.util.Debug.output(0, e);
 	    }
 	}
 	count = 0;
@@ -53,6 +53,12 @@ public class Semaphore {
 	notifyAll();
     }
 }
+
+
+
+
+
+
 
 
 

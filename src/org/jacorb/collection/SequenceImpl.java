@@ -19,3 +19,9 @@ class SequenceImpl extends SequentialCollectionImpl
         throw new org.omg.CORBA.NO_IMPLEMENT();
     };
 };
+
+
+
+
+
+

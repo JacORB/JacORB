@@ -25,6 +25,9 @@ package org.jacorb.naming;
  * @author Gerald Brose
  * @version $Id$
  * $Log$
+ * Revision 1.2  2001/03/17 18:44:12  brose
+ * *** empty log message ***
+ *
  * Revision 1.4  2000/12/04 16:22:38  brose
  * *** empty log message ***
  *
@@ -110,6 +113,12 @@ public class BindingIteratorImpl
 	}
     }
 }
+
+
+
+
+
+
 
 
 

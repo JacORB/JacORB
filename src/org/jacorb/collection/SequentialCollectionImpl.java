@@ -116,3 +116,9 @@ class SequentialCollectionImpl extends OrderedCollectionImpl
         throw new org.omg.CORBA.NO_IMPLEMENT();
     };
 /* ========================================================================= */
+
+
+
+
+
+

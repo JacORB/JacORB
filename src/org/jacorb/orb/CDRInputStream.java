@@ -169,7 +169,7 @@ public class CDRInputStream
 
 	index = ei.index + size;
 
-	jacorb.util.Debug.output(8,"Closing Encapsulation at pos: " + pos  + " littleEndian now: " + littleEndian + ",  index now " + index );
+	org.jacorb.util.Debug.output(8,"Closing Encapsulation at pos: " + pos  + " littleEndian now: " + littleEndian + ",  index now " + index );
 	//+ "\nnext bytes: " + buffer[pos] + " " + buffer[pos+1] + " " + buffer[pos+2]);
     }
 
@@ -612,7 +612,7 @@ public class CDRInputStream
     {
 	int start_pos = pos;
 	int kind = read_long();
-	jacorb.util.Debug.output(4,"Read Type code of kind " + kind + " at pos: " + start_pos );
+	org.jacorb.util.Debug.output(4,"Read Type code of kind " + kind + " at pos: " + start_pos );
 
 	String id, name;
 	String [] member_names;
@@ -692,7 +692,7 @@ public class CDRInputStream
 	    return orb.create_enum_tc(id, name, member_names);
 	case TCKind._tk_union:
 	    {
-		jacorb.util.Debug.output(4, "TC Union at pos" + 
+		org.jacorb.util.Debug.output(4, "TC Union at pos" + 
                                          pos, buffer, pos, buffer.length );
 
 		openEncapsulation();
@@ -700,16 +700,16 @@ public class CDRInputStream
                 tcMap.put( new Integer(start_pos), id ); // remember this TC's id and start_pos
 
 		name = read_string();
-		jacorb.util.Debug.output(4, "TC Union has name " + name + " at pos" + pos );
+		org.jacorb.util.Debug.output(4, "TC Union has name " + name + " at pos" + pos );
 		org.omg.CORBA.TypeCode discriminator_type = read_TypeCode(tcMap);
 
 		int default_index = read_long();
-		jacorb.util.Debug.output(4, "TC Union has default idx: " +  
+		org.jacorb.util.Debug.output(4, "TC Union has default idx: " +  
                                          default_index +  "  (at pos " + pos );
 
 		member_count = read_long();
 
-		jacorb.util.Debug.output(4, "TC Union has " + member_count + 
+		org.jacorb.util.Debug.output(4, "TC Union has " + member_count + 
                                          " members  (at pos " + pos );
 		UnionMember [] union_members = new UnionMember[member_count];
 		for( int i = 0; i < member_count; i++)
@@ -720,14 +720,14 @@ public class CDRInputStream
 		    
 		    if( i == default_index )
 		    {
-			//jacorb.util.Debug.output(4, "Default discr.");
+			//org.jacorb.util.Debug.output(4, "Default discr.");
 			    label.insert_octet( read_octet());
 		    } 
 		    else 
 		    {
 			label.read_value( this,discriminator_type  );
 
-			jacorb.util.Debug.output(4, "non-default discr.: " + 
+			org.jacorb.util.Debug.output(4, "non-default discr.: " + 
                                                  ((org.jacorb.orb.Any)label).type().kind().value() + 
                                                  " " + ((org.jacorb.orb.Any)label).value() );
 		    }
@@ -742,7 +742,7 @@ public class CDRInputStream
 		}		
 		closeEncapsulation();
 		result_tc = orb.create_union_tc( id, name, discriminator_type, union_members );
-		jacorb.util.Debug.output(4, "Done with union " + id + " at pos " + pos ); 
+		org.jacorb.util.Debug.output(4, "Done with union " + id + " at pos " + pos ); 
 		return result_tc;
 	    }
 	case TCKind._tk_string: 
@@ -1013,7 +1013,7 @@ public class CDRInputStream
 	    {
 		org.omg.CORBA.TypeCode disc = tc.discriminator_type();
 		int def_idx = tc.default_index();
-		jacorb.util.Debug.output(4, "Union Default index " + def_idx ); 
+		org.jacorb.util.Debug.output(4, "Union Default index " + def_idx ); 
 		int member_idx = -1;
 		switch( disc.kind().value() )
 		{
@@ -1150,7 +1150,7 @@ public class CDRInputStream
 			    {
 				int label = tc.member_label(i).create_input_stream().read_long();
 
-				jacorb.util.Debug.output(10, "Input label: " +label + " switch: " + s );
+				org.jacorb.util.Debug.output(10, "Input label: " +label + " switch: " + s );
 
 				if(s == label)
 				{
@@ -1197,6 +1197,12 @@ public class CDRInputStream
     }
 
 }
+
+
+
+
+
+
 
 
 

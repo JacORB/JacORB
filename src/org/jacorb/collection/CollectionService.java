@@ -10,3 +10,9 @@ public interface CollectionService {
     final public String  OPERATIONS_CLASS = "operaions_class";
     final public String  EXP_SIZE   = "expected_size";
 };
+
+
+
+
+
+

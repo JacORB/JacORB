@@ -83,7 +83,7 @@ public class ReplyReceptor
         {
 	    onceOnly = new Boolean(one);
         }
-	//	jacorb.util.Debug.output(4,"Reply Receptor thread flagged to end!");
+	//	org.jacorb.util.Debug.output(4,"Reply Receptor thread flagged to end!");
     }
 
     public boolean isStopped() 
@@ -101,7 +101,7 @@ public class ReplyReceptor
 	    }
             catch ( CloseConnectionException c ) 
             {
-	    	jacorb.util.Debug.output(3, "ReplyReceptor: CloseConnectionException");
+	    	org.jacorb.util.Debug.output(3, "ReplyReceptor: CloseConnectionException");
 	    	master.closeConnection();
                 break;
 	    }
@@ -130,5 +130,11 @@ public class ReplyReceptor
         }
     }
 }
+
+
+
+
+
+
 
 

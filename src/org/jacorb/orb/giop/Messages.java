@@ -142,7 +142,7 @@ public class Messages
                 ((buf[offset]& 0xff));
         }
 
-//  	jacorb.util.Debug.output(3, "Skipping a sequence of " + 
+//  	org.jacorb.util.Debug.output(3, "Skipping a sequence of " + 
 //                                   length + " elements of size " + 
 //                                   elementSize);
 
@@ -212,4 +212,10 @@ public class Messages
 	    throw new RuntimeException("Cannot deal with reply message type " + msg_type + " !");
     }
 }
+
+
+
+
+
+
 

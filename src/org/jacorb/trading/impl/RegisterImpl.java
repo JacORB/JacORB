@@ -541,3 +541,9 @@ public class RegisterImpl extends org.omg.CosTrading.RegisterPOA
 
 
 
+
+
+
+
+
+

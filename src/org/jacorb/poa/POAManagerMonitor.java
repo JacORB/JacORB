@@ -39,3 +39,9 @@ public interface POAManagerMonitor {
 	void setToInactive(boolean wait, boolean etherialize);
 }
 
+
+
+
+
+
+

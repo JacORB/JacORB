@@ -60,3 +60,9 @@ public class OfferProperty implements Serializable
 
 
 
+
+
+
+
+
+

@@ -232,3 +232,9 @@ public class POAManager extends org.jacorb.orb.LocalityConstrainedObject impleme
 	}
 }
 
+
+
+
+
+
+

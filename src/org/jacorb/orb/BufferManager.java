@@ -107,7 +107,7 @@ public class BufferManager
 
     public synchronized byte[] getBuffer(int initial)
     {
-      //jacorb.util.Debug.output( 2, "get buffer: " + initial + " bytes");
+      //org.jacorb.util.Debug.output( 2, "get buffer: " + initial + " bytes");
 	
 	calls++;
 
@@ -135,7 +135,7 @@ public class BufferManager
     {
 	int log_curr = log2down(current.length);
 
-	jacorb.util.Debug.output( 4, "return buffer: " + current.length + " bytes, log2: " + log_curr );
+	org.jacorb.util.Debug.output( 4, "return buffer: " + current.length + " bytes, log2: " + log_curr );
 
 	if( log_curr >= MIN_OFFSET+MIN_OFFSET )
 	{
@@ -187,3 +187,9 @@ public class BufferManager
 
 
 }
+
+
+
+
+
+

@@ -56,7 +56,7 @@ public org.omg.CORBA.Policy resolveConflict(Domain[] overlappingDMs,
       {
 
 	distance = ((Integer) distances.get(overlappingDMs[i])).intValue();
-	jacorb.util.Debug.output(4, "ChildRules.resolveConflict: distance of " 
+	org.jacorb.util.Debug.output(4, "ChildRules.resolveConflict: distance of " 
 				 + overlappingDMs[i].name() + " to root "
 				 + root.name() + " is " + distance);
 	if ( distance > max ) 
@@ -97,3 +97,9 @@ public org.omg.CORBA.Policy resolveConflict(Domain[] overlappingDMs,
   }
   
 } // ChildRulesPolicy
+
+
+
+
+
+

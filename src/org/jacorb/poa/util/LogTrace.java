@@ -37,3 +37,9 @@ public interface LogTrace
 	void printLog(int mode, Throwable e);
 	void setLogTrace(LogTrace _delegate);
 }
+
+
+
+
+
+

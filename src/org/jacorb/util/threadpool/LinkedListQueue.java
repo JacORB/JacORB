@@ -72,3 +72,9 @@ public class LinkedListQueue
         return first == null;
     }
 } // LinkedListQueue
+
+
+
+
+
+

@@ -33,3 +33,9 @@ class LockCoordinatorImpl extends LockCoordinatorPOA{
     public void drop_locks(){
         ls.transaction_finished( tc );
     };
+
+
+
+
+
+

@@ -186,7 +186,7 @@ public class BasicAdapter
         if( org.jacorb.util.Environment.enforceSSL() )
         {
             /* gb: sanity check: requiring SSL requires supporting it */
-            if( !jacorb.util.Environment.supportSSL ())
+            if( !org.jacorb.util.Environment.supportSSL ())
             {
                 throw new java.lang.Error("SSL required but not supported, cannot continue!");
             }
@@ -854,3 +854,9 @@ public class BasicAdapter
 
 
 }
+
+
+
+
+
+

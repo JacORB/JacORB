@@ -376,3 +376,9 @@ class PositionalIteratorImpl
         return is_valid() && collection.number_of_elements()-1 > get_pos();
     };
 };
+
+
+
+
+
+

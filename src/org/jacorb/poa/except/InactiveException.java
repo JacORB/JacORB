@@ -4,3 +4,9 @@ public final class InactiveException
     extends java.lang.Exception 
 {
 }
+
+
+
+
+
+

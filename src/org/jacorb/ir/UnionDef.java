@@ -174,7 +174,7 @@ public class UnionDef
 
     public void define()
     {
-		jacorb.util.Debug.output(2, "Union " + name +  " defining...");
+		org.jacorb.util.Debug.output(2, "Union " + name +  " defining...");
 
         discriminator_type_def = 
             IDLType.create( discriminator_type, containing_repository );
@@ -477,6 +477,12 @@ public class UnionDef
 
 
 }
+
+
+
+
+
+
 
 
 

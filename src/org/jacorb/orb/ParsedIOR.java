@@ -234,7 +234,7 @@ public class ParsedIOR
 	    switch( _ior.profiles[i].tag ) 
 	    {
 	    case TAG_MULTIPLE_COMPONENTS.value:
-		jacorb.util.Debug.output(4,"TAG_MULTIPLE_COMPONENTS found in IOR");
+		org.jacorb.util.Debug.output(4,"TAG_MULTIPLE_COMPONENTS found in IOR");
 		CDRInputStream in2 = 
                     new CDRInputStream( (org.omg.CORBA.ORB)null,
                                         _ior.profiles[i].profile_data );
@@ -242,7 +242,7 @@ public class ParsedIOR
 		taggedComponents = MultipleComponentProfileHelper.read(in2);
 		break;	
 	    case TAG_INTERNET_IOP.value: //TAG_INTERNET_IOP
-		jacorb.util.Debug.output(4, "TAG_INTERNET_IOP found in IOR");
+		org.jacorb.util.Debug.output(4, "TAG_INTERNET_IOP found in IOR");
                 // decode Internet IOP profile
 
                 org.omg.IIOP.ProfileBody_1_1 body = 
@@ -300,7 +300,7 @@ public class ParsedIOR
 	    }
 	    catch( Exception e )
 	    {
-		jacorb.util.Debug.output(2, e );
+		org.jacorb.util.Debug.output(2, e );
 		throw new IllegalArgumentException("Invalid corbaloc: URL");
 	    }
 	}
@@ -354,7 +354,7 @@ public class ParsedIOR
 	    } 
 	    catch (Exception e) 
 	    { 
-		jacorb.util.Debug.output(2,e); 
+		org.jacorb.util.Debug.output(2,e); 
 		throw new org.omg.CORBA.UNKNOWN("Error in building IIOP-IOR");
 	    }
 	}
@@ -471,7 +471,7 @@ public class ParsedIOR
 	    }
 	    catch( Exception e )
 	    {
-		jacorb.util.Debug.output(4, e );
+		org.jacorb.util.Debug.output(4, e );
 		throw new RuntimeException("Invalid object reference: " + object_reference);
 	    }
 	}
@@ -483,5 +483,11 @@ public class ParsedIOR
 
 
 }
+
+
+
+
+
+
 
 

@@ -44,7 +44,7 @@ public class QueryPropagator {
 	 */
 	public void run(){
 	    if (m_debug) 
-	    	jacorb.util.Debug.output(m_debug_verbosity, "Thread started (" + no + ")");
+	    	org.jacorb.util.Debug.output(m_debug_verbosity, "Thread started (" + no + ")");
 	    do {
 		m_idle_threads++;
 		getWork();
@@ -84,7 +84,7 @@ public class QueryPropagator {
 	    }
 	    catch (Exception e)
 	    {
-		jacorb.util.Debug.output(2, e);
+		org.jacorb.util.Debug.output(2, e);
 		
 		// initializing anyway, for safety reasons
 		m_query.m_offers.value = new org.omg.CosTrading.Offer[0];
@@ -103,7 +103,7 @@ public class QueryPropagator {
 	 */
 	private void getWork(){
 	    if (m_debug) 
-		jacorb.util.Debug.output(m_debug_verbosity, "++Thread waiting for work: (" + no + ")");
+		org.jacorb.util.Debug.output(m_debug_verbosity, "++Thread waiting for work: (" + no + ")");
 	    m_query_cons.P();
 	    m_query = m_new_query; // get new QueryContainer
 
@@ -111,7 +111,7 @@ public class QueryPropagator {
 	    m_query_prod.V();
 
 	    if (m_debug) 
-		jacorb.util.Debug.output(m_debug_verbosity, "++Thread got work: (T: " + no + ") (Q:" + m_query.no + ")");
+		org.jacorb.util.Debug.output(m_debug_verbosity, "++Thread got work: (T: " + no + ") (Q:" + m_query.no + ")");
 	}
     } // QueryThread
 
@@ -153,7 +153,7 @@ public class QueryPropagator {
 		m_max_threads = Integer.parseInt(_tmp);
 	    }catch (Exception _e){
 		// possibly invalid number
-		jacorb.util.Debug.output(2, _e);
+		org.jacorb.util.Debug.output(2, _e);
 	    }
 	}
 
@@ -163,7 +163,7 @@ public class QueryPropagator {
 		m_min_threads = Integer.parseInt(_tmp);
 	    }catch (Exception _e){
 		// possibly invalid number
-		jacorb.util.Debug.output(2, _e);
+		org.jacorb.util.Debug.output(2, _e);
 	    }
 	}
 
@@ -173,7 +173,7 @@ public class QueryPropagator {
 		m_query_timeout = Integer.parseInt(_tmp);
 	    }catch (Exception _e){
 		// possibly invalid number
-		jacorb.util.Debug.output(2, _e);
+		org.jacorb.util.Debug.output(2, _e);
 	    }
 	}
 
@@ -183,7 +183,7 @@ public class QueryPropagator {
 		m_debug = (Boolean.valueOf(_tmp)).booleanValue();
 	    }catch (Exception _e){
 		// possibly invalid number
-		jacorb.util.Debug.output(2, _e);
+		org.jacorb.util.Debug.output(2, _e);
 	    }
 	}
 
@@ -193,7 +193,7 @@ public class QueryPropagator {
 		m_debug_verbosity = Integer.parseInt(_tmp);
 	    }catch (Exception _e){
 		// possibly invalid number
-		jacorb.util.Debug.output(2, _e);
+		org.jacorb.util.Debug.output(2, _e);
 	    }
 	}
 
@@ -225,12 +225,18 @@ public class QueryPropagator {
  	if (_none_idle){ 
 	    // no threads idle and maximum thread count not reached, so start new one
 	    if (m_debug) 
-		jacorb.util.Debug.output(m_debug_verbosity, "Not enough Threads: " + m_idle_threads);
+		org.jacorb.util.Debug.output(m_debug_verbosity, "Not enough Threads: " + m_idle_threads);
 	    QueryThread _thread = new QueryThread(m_timer);
 	    // new thread will call getWork() as first action
  	}
     }
 } // QueryPropagator
+
+
+
+
+
+
 
 
 

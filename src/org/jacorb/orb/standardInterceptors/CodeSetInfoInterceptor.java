@@ -66,8 +66,14 @@ public class CodeSetInfoInterceptor
 	os.close();
 
 	info.add_ior_component_to_profile (tagc, org.omg.IOP.TAG_INTERNET_IOP.value);
-	jacorb.util.Debug.output( Debug.INTERCEPTOR | 3, 
+	org.jacorb.util.Debug.output( Debug.INTERCEPTOR | 3, 
                                  "CodeSetInfoCreator added TaggedComponent to TAG_INTERNET_IOP profile");
       
     }
 }
+
+
+
+
+
+

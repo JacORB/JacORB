@@ -149,7 +149,7 @@ class IRBrowser
     private void handleException(Throwable exception) 
     {
 	/* Uncomment the following lines to print uncaught exceptions to stdout */
-	jacorb.util.Debug.output(2,exception);
+	org.jacorb.util.Debug.output(2,exception);
     }
 
     /**
@@ -427,7 +427,7 @@ class IRBrowser
     public void valueChanged (TreeSelectionEvent e ) 
     {
 	// contentTable nur bei einfacher Selection ändern
-	jacorb.util.Debug.output(4, "IRBrowser: valueChanged (Tree...)");
+	org.jacorb.util.Debug.output(4, "IRBrowser: valueChanged (Tree...)");
         //	if (e.getPaths().length == 1) { // funktioniert nicht
         DefaultMutableTreeNode treeNode = 
             (DefaultMutableTreeNode)e.getPath().getLastPathComponent();
@@ -546,3 +546,9 @@ class IRBrowser
 	// user code end
     }
 }
+
+
+
+
+
+

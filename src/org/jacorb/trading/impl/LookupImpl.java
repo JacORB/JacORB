@@ -80,7 +80,7 @@ public class LookupImpl
 		m_query_cache_max = Integer.parseInt(_m_cache_max);
 	    }catch (Exception _e){
 		//possibly wrong number
-		jacorb.util.Debug.output(2, _e);
+		org.jacorb.util.Debug.output(2, _e);
 	    }
 	}
 
@@ -98,7 +98,7 @@ public class LookupImpl
 		m_debug = (Boolean.valueOf(_tmp)).booleanValue();
 	    }catch (Exception _e){
 		// possibly invalid number
-		jacorb.util.Debug.output(2, _e);
+		org.jacorb.util.Debug.output(2, _e);
 	    }
 	}
 	//m_debug = false;
@@ -110,7 +110,7 @@ public class LookupImpl
 		m_debug_verbosity = Integer.parseInt(_tmp);
 	    }catch (Exception _e){
 		// possibly invalid number
-		jacorb.util.Debug.output(2, _e);
+		org.jacorb.util.Debug.output(2, _e);
 	    }
 	}
 	//////////////////////////////////////////////////////////////// new!
@@ -327,9 +327,9 @@ public class LookupImpl
 	    offers.value = new Offer[0];
 	    limits_applied.value = new String[0];
 	    if (m_debug) 
-		jacorb.util.Debug.output(m_debug_verbosity, "### Refused query request. Reason: Query was already executed");
+		org.jacorb.util.Debug.output(m_debug_verbosity, "### Refused query request. Reason: Query was already executed");
 	    if (m_debug) 
-		jacorb.util.Debug.output(m_debug_verbosity, "### Returned from query " + no);
+		org.jacorb.util.Debug.output(m_debug_verbosity, "### Returned from query " + no);
 	    return;
 	}
 	if (m_debug) 
@@ -571,10 +571,10 @@ public class LookupImpl
 		QueryContainer _distrib_query = (QueryContainer) _results.nextElement();
 		try{
 		    if (m_debug) 
-			jacorb.util.Debug.output(m_debug_verbosity, "+++++++++++++++Lookup, going to wait for " + _distrib_query.no);
+			org.jacorb.util.Debug.output(m_debug_verbosity, "+++++++++++++++Lookup, going to wait for " + _distrib_query.no);
 		    _distrib_query.resultReady(); //blocks until remote query returned
 		    if (m_debug) 
-			jacorb.util.Debug.output(m_debug_verbosity, "+++++++++++++++Lookup, finished waiting for " + _distrib_query.no);
+			org.jacorb.util.Debug.output(m_debug_verbosity, "+++++++++++++++Lookup, finished waiting for " + _distrib_query.no);
 		}catch(Exception _e){
 		    org.jacorb.util.Debug.output(2, _e);
 		    continue; // possibly InterruptedException, dropping this result
@@ -725,9 +725,9 @@ public class LookupImpl
 
 
 	    if (m_debug) 
-		jacorb.util.Debug.output(m_debug_verbosity, "Returned " + offers.value.length + " offers");
+		org.jacorb.util.Debug.output(m_debug_verbosity, "Returned " + offers.value.length + " offers");
 	    if (m_debug) 
-		jacorb.util.Debug.output(m_debug_verbosity, "### Returned from query " + no);
+		org.jacorb.util.Debug.output(m_debug_verbosity, "### Returned from query " + no);
 	    //////////////////////////////////////////////////////////////// new! 
 
 	}	
@@ -1000,6 +1000,12 @@ public class LookupImpl
 	return true;
     }
 }
+
+
+
+
+
+
 
 
 
