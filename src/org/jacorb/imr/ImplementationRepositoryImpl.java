@@ -1084,7 +1084,6 @@ public class ImplementationRepositoryImpl
          */
         public SocketListener()
         {
-            receptor_pool = MessageReceptorPool.getInstance();
             request_listener = new ImRRequestListener();
             reply_listener = new NoBiDirServerReplyListener();
         }
@@ -1092,6 +1091,9 @@ public class ImplementationRepositoryImpl
         public void configure(Configuration myConfiguration)
             throws ConfigurationException
         {
+            // Moved from the constructor to facilitate logging.
+            receptor_pool = MessageReceptorPool.getInstance(myConfiguration);
+
             try
             {
                 int endpoint_port = 
