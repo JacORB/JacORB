@@ -20,6 +20,7 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
@@ -30,10 +31,12 @@ import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TaggedComponent;
-import org.omg.PortableInterceptor.ClientRequestInfo; 
+import org.omg.PortableInterceptor.ClientRequestInfo;
 
 public class KerberosContextCreator implements ISASContextCreator
 {
+	/** the logger used by the naming service implementation */
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
 
 	public byte[] create(ClientRequestInfo ri) {
 		byte[] contextToken = new byte[0];
@@ -51,7 +54,7 @@ public class KerberosContextCreator implements ISASContextCreator
 			GSSContext myContext = gssManager.createContext(myPeer, krb5Oid, null, GSSContext.DEFAULT_LIFETIME);
 			contextToken = myContext.initSecContext(contextToken, 0, contextToken.length);
 		} catch (Exception e) {
-			Debug.output("Error creating Kerberos context: "+e);
+			logger.error("Error creating Kerberos context: "+e);
 		}
 		return contextToken;
     }

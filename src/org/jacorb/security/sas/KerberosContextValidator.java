@@ -20,6 +20,7 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
@@ -29,6 +30,7 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class KerberosContextValidator implements ISASContextValidator
 {
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
 	private GSSManager manager = GSSManager.getInstance(); 
 	private GSSContext context = null;
 
@@ -39,10 +41,10 @@ public class KerberosContextValidator implements ISASContextValidator
 			context = manager.createContext((GSSCredential)null);
 			token = context.acceptSecContext(contextToken, 0, contextToken.length);
 		} catch (GSSException e) {
-			Debug.output("Error accepting Kerberos context: "+e);
+			logger.error("Error accepting Kerberos context: "+e);
 		}
 		if (token == null) {
-			Debug.output("Could not accept token");
+			logger.warn("Could not accept token");
 			return false;
 		} 
 
@@ -54,7 +56,7 @@ public class KerberosContextValidator implements ISASContextValidator
 		try {
         	return context.getSrcName().toString();
 		} catch (GSSException e) {
-			Debug.output("Error getting name: "+e);
+			logger.error("Error getting name: "+e);
 		}
 		return null;
     }

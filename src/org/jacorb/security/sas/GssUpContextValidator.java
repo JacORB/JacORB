@@ -20,11 +20,13 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.Logger;
 import org.omg.GSSUP.InitialContextToken;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class GssUpContextValidator implements ISASContextValidator
 {
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
     private InitialContextToken initialContextToken = null;
 
     public boolean validate(ServerRequestInfo ri, byte[] contextToken) {
