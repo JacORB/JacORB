@@ -2,9 +2,17 @@ module test
 {
     module maxConnectionEnforcement {
 
+        interface CallbackIf {
+
+            void opOnCallback();
+
+        };
+
         interface TestIf {
             
             void op();
+
+            void doCallback( in CallbackIf callback );
         };
                
     };

@@ -3,14 +3,24 @@ package test.maxConnectionEnforcement;
 import java.io.*;
 import java.util.*;
 import org.omg.CORBA.*;
+import org.omg.PortableServer.*;
+import org.omg.BiDirPolicy.*;
 
 import org.jacorb.util.*;
 
 public class Client 
+    extends CallbackIfPOA
 {
     static TestIf remoteObj = null;
     static long callInterval = 0;
     static Random rnd = new Random();
+
+    static CallbackIf myself = null;
+
+    public void opOnCallback()
+    {
+        System.out.println( "opOnCallback called" );
+    }
 
     public static void main( String args[] ) 
     {
@@ -42,8 +52,41 @@ public class Client
                 System.exit( -1 );
             }
 
-            // initialize the ORB.
-            ORB orb = ORB.init( args, null );
+            Properties props = new Properties();
+
+            props.put( "org.omg.PortableInterceptor.ORBInitializerClass.bidir_init",
+                       "org.jacorb.orb.connection.BiDirConnectionInitializer" );
+
+
+            //init ORB
+            ORB orb = ORB.init( args, props );
+
+            //init POA
+            POA root_poa = 
+                POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
+
+            Any any = orb.create_any();
+            BidirectionalPolicyValueHelper.insert( any, BOTH.value );
+
+            Policy[] policies = new Policy[4];
+            policies[0] = 
+                root_poa.create_lifespan_policy(LifespanPolicyValue.TRANSIENT);
+
+            policies[1] = 
+                root_poa.create_id_assignment_policy(IdAssignmentPolicyValue.SYSTEM_ID);
+
+            policies[2] = 
+                root_poa.create_implicit_activation_policy( ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION );
+
+            policies[3] = orb.create_policy( BIDIRECTIONAL_POLICY_TYPE.value,
+                                             any );
+        
+            POA bidir_poa = root_poa.create_POA( "BiDirPOA",
+                                                 root_poa.the_POAManager(),
+                                                 policies );
+            bidir_poa.the_POAManager().activate();
+
+            myself = CallbackIfHelper.narrow( bidir_poa.servant_to_reference( new Client() ));
 
             BufferedReader br =
                 new BufferedReader( new FileReader( f ));
@@ -69,14 +112,25 @@ public class Client
                             try
                             {                                
                                 while( true )
-                                {                                   
-                                    //call remote op
-                                    remoteObj.op();
-                                    System.out.println(
-                                        "Thread " + 
-                                        Thread.currentThread().getName() + 
-                                        " made call" );
-                                    
+                                {                     
+                                    if( Math.abs( rnd.nextInt() ) % 3 > 0 )
+                                    {
+                                        //call remote op
+                                        remoteObj.op();
+                                        System.out.println(
+                                            "Thread " + 
+                                            Thread.currentThread().getName() + 
+                                            " made normal call" );
+                                    }
+                                    else
+                                    {
+                                        remoteObj.doCallback( myself );
+                                        System.out.println(
+                                            "Thread " + 
+                                            Thread.currentThread().getName() + 
+                                            " made bidir call" );
+                                    }
+
                                     Thread.sleep( Math.abs( rnd.nextLong() ) % callInterval );
                                 }
                             }
