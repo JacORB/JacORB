@@ -98,7 +98,7 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
             {
 
                 _filterForCurrentFilterStageMatched =
-                    event_.match( arrayCurrentFilterStage_[ x ] );
+                    message_.match( arrayCurrentFilterStage_[ x ] );
 
             }
 

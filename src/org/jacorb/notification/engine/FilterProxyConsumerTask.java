@@ -72,12 +72,12 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
             AnyHolder newPriority = new AnyHolder();
 
             boolean priorityMatch =
-                event_.match( arrayCurrentFilterStage_[ 0 ].getPriorityFilter(),
+                message_.match( arrayCurrentFilterStage_[ 0 ].getPriorityFilter(),
                               newPriority );
 
             if ( priorityMatch )
             {
-                event_.setPriority( newPriority.value.extract_long() );
+                message_.setPriority( newPriority.value.extract_long() );
             }
         }
         catch ( UnsupportedFilterableData e )
@@ -93,12 +93,12 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
             AnyHolder newLifetime = new AnyHolder();
 
             boolean lifetimeMatch =
-                event_.match( arrayCurrentFilterStage_[ 0 ].getLifetimeFilter(),
+                message_.match( arrayCurrentFilterStage_[ 0 ].getLifetimeFilter(),
                               newLifetime );
 
             if ( lifetimeMatch )
             {
-                event_.setTimeout( newLifetime.value.extract_long() );
+                message_.setTimeout( newLifetime.value.extract_long() );
             }
         }
         catch ( UnsupportedFilterableData e )
@@ -161,7 +161,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
         // as an Event passes only 1 ProxyConsumer we can assume
         // constant array size here
 
-        _forward = event_.match( arrayCurrentFilterStage_[ 0 ] );
+        _forward = message_.match( arrayCurrentFilterStage_[ 0 ] );
 
         if ( _forward )
         {

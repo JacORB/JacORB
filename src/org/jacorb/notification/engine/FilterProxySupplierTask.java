@@ -91,6 +91,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         arrayCurrentFilterStage_ = other.getFilterStageToBeProcessed();
     }
 
+
     public void reset() {
         super.reset();
         arrayCurrentFilterStage_ = null;
@@ -120,7 +121,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
                              _priorityFilterResult);
 
             if (priorityMatch) {
-                _currentEvent = (Message)event_.clone();
+                _currentEvent = (Message)message_.clone();
 
                 _currentEvent.setPriority(_priorityFilterResult.value.extract_long());
 
@@ -144,8 +145,8 @@ public class FilterProxySupplierTask extends AbstractFilterTask
                 _currentEvent.match(arrayCurrentFilterStage_[indexOfCurrentFilterStage].getLifetimeFilter(),
                              _lifetimeFilterResult);
 
-            if (lifetimeMatch && (_currentEvent == event_)) {
-                _currentEvent = (Message)event_.clone();
+            if (lifetimeMatch && (_currentEvent == message_)) {
+                _currentEvent = (Message)message_.clone();
 
                 _currentEvent.setTimeout(_lifetimeFilterResult.value.extract_long());
 
@@ -165,7 +166,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
             if (!arrayCurrentFilterStage_[x].isDisposed()) {
 
-                Message _currentEvent = event_;
+                Message _currentEvent = message_;
 
                 if (arrayCurrentFilterStage_[x].hasPriorityFilter()) {
                     _currentEvent = updatePriority(x, _currentEvent);
@@ -175,7 +176,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
                     _currentEvent = updateTimeout(x, _currentEvent);
                 }
 
-                if (_currentEvent != event_) {
+                if (_currentEvent != message_) {
                     changedMessages_.
                         putAlternateMessage(arrayCurrentFilterStage_[x],
                                                       _currentEvent);

@@ -40,7 +40,7 @@ public abstract class AbstractTask extends AbstractPoolable implements Task
 
     private TaskFinishHandler coordinator_;
     private TaskErrorHandler errorHandler_;
-    protected Message event_;
+    protected Message message_;
     protected int status_;
 
     AbstractTask()
@@ -82,25 +82,25 @@ public abstract class AbstractTask extends AbstractPoolable implements Task
      */
     public void setMessage( Message event )
     {
-        if ( event_ != null )
+        if ( message_ != null )
         {
             throw new RuntimeException( "remove old first" );
         }
 
-        event_ = event;
+        message_ = event;
     }
 
     public Message removeMessage()
     {
-        Message _event = event_;
-        event_ = null;
+        Message _event = message_;
+        message_ = null;
         return _event;
     }
 
 
     public Message copyMessage()
     {
-        return ( Message ) event_.clone();
+        return ( Message ) message_.clone();
     }
 
     /**
@@ -120,8 +120,7 @@ public abstract class AbstractTask extends AbstractPoolable implements Task
     {
         try
         {
-
-            if ( event_ == null || !isEventDisposed() )
+            if ( message_ == null || !isEventDisposed() )
             {
                 doWork();
             }
@@ -144,18 +143,18 @@ public abstract class AbstractTask extends AbstractPoolable implements Task
     public void reset()
     {
         coordinator_ = null;
-        event_ = null;
+        message_ = null;
         status_ = NEW;
     }
 
     private boolean isEventDisposed()
     {
-        return event_ != null && event_.isInvalid();
+        return message_ != null && message_.isInvalid();
     }
 
     protected void checkInterrupt() throws InterruptedException
     {
-        if ( Thread.currentThread().isInterrupted() || event_.isInvalid() )
+        if ( Thread.currentThread().isInterrupted() || message_.isInvalid() )
         {
             logger_.debug( "Worker Thread has been interrupted" );
             throw new InterruptedException();

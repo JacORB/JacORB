@@ -68,7 +68,7 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
 
         if ( !skip_ )
         {
-            _forward = event_.match( arrayCurrentFilterStage_[ 0 ] );
+            _forward = message_.match( arrayCurrentFilterStage_[ 0 ] );
         }
         else
         {
