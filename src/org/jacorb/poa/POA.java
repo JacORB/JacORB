@@ -123,7 +123,7 @@ public class POA
     {
     }
 
-    private POA(jacorb.orb.ORB _orb, 
+    private POA(org.jacorb.orb.ORB _orb, 
                 String _name, 
                 POA _parent, 
                 POAManager _poaManager, 
@@ -182,7 +182,7 @@ public class POA
         }
         
         org.omg.CORBA.Policy pol = 
-            this.getPolicy(jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value);
+            this.getPolicy(org.jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value);
 
         if (pol == null)
         { 
@@ -196,7 +196,7 @@ public class POA
             //defaultDomain= "/";
             
             all_policies.put(
-                 new Integer(jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value), 
+                 new Integer(org.jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value), 
                  new org.jacorb.poa.policy.MapToDefaultDomainsPolicy(defaultDomains)
                      );
    
@@ -425,7 +425,7 @@ public class POA
      * called from orb to obtain the RootPOA
      */
 
-    static public POA _POA_init(jacorb.orb.ORB orb) 
+    static public POA _POA_init(org.jacorb.orb.ORB orb) 
     {
         POAManager poaMgr = new POAManager(orb);
 
@@ -482,7 +482,7 @@ public class POA
         {
             aom.add(objectId, servant);
             orb.set_delegate( servant );
-            ((jacorb.orb.ServantDelegate)servant._get_delegate()).setPOA(this);
+            ((org.jacorb.orb.ServantDelegate)servant._get_delegate()).setPOA(this);
         } 
         catch (ObjectAlreadyActive e) 
         {
@@ -509,7 +509,7 @@ public class POA
 
         aom.add( oid, servant );        
         orb.set_delegate( servant );
-        ((jacorb.orb.ServantDelegate)servant._get_delegate()).setPOA(this);
+        ((org.jacorb.orb.ServantDelegate)servant._get_delegate()).setPOA(this);
     }
 
     protected synchronized void addPOAListener( POAListener listener ) 
@@ -1004,7 +1004,7 @@ public class POA
             new org.omg.CORBA.BooleanHolder();
 
         org.omg.CORBA.Object result =  
-            ((jacorb.orb.ORB)orb).getReference( this, 
+            ((org.jacorb.orb.ORB)orb).getReference( this, 
                                                 object_key, 
                                                 intf_rep_id, 
                                                 !isPersistent(), 
@@ -1740,7 +1740,7 @@ public class POA
         try
         {
             mapper= InitialMapPolicyHelper.narrow
-                ( this.getPolicy(jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value) );
+                ( this.getPolicy(org.jacorb.orb.domain.INITIAL_MAP_POLICY_ID.value) );
         }
         catch( org.omg.CORBA.BAD_PARAM bp )
         {

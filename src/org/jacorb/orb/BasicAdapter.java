@@ -87,7 +87,7 @@ public class BasicAdapter
      * supports it also
      */
 
-    public BasicAdapter(jacorb.orb.ORB orb, POA rootPOA)
+    public BasicAdapter( org.jacorb.orb.ORB orb, POA rootPOA)
     {
         this.orb = orb;
         this.rootPOA = rootPOA;
@@ -254,7 +254,7 @@ public class BasicAdapter
     public synchronized void deliverRequest( org.jacorb.orb.dsi.ServerRequest request, 
                                              org.omg.PortableServer.POA poa )
     {
-        org.jacorb.poa.POA tmp_poa = (jacorb.poa.POA)poa;
+        org.jacorb.poa.POA tmp_poa = ( org.jacorb.poa.POA)poa;
         String scopes[] = request.remainingPOAName();
 
         try
@@ -293,7 +293,7 @@ public class BasicAdapter
             else
             {
                 /* hand over to the POA */
-                ((jacorb.poa.POA)tmp_poa)._invoke( request );
+                (( org.jacorb.poa.POA)tmp_poa)._invoke( request );
             }
               
         }
@@ -320,7 +320,7 @@ public class BasicAdapter
      * to be called from the POA
      */
 
-    public synchronized void return_result(jacorb.orb.dsi.ServerRequest request)
+    public synchronized void return_result( org.jacorb.orb.dsi.ServerRequest request)
     {
         pendingReplies--;
         request.reply();
@@ -634,7 +634,7 @@ public class BasicAdapter
 
                     int msg_type = buf[7];
                     //if( Environment.serverInterceptMessages())
-                    //buf = ((jacorb.orb.ORB)orb).server_messageIntercept_pre( buf );
+                    //buf = (( org.jacorb.orb.ORB)orb).server_messageIntercept_pre( buf );
                     
                     switch( msg_type )
                     {
@@ -749,7 +749,7 @@ public class BasicAdapter
 
         private void deliverRequest( org.jacorb.orb.dsi.ServerRequest request )
         {
-            org.jacorb.poa.POA tmp_poa = (jacorb.poa.POA)rootPOA;
+            org.jacorb.poa.POA tmp_poa = ( org.jacorb.poa.POA)rootPOA;
         
             try
             {
@@ -760,11 +760,11 @@ public class BasicAdapter
                  *  will be empty for the root poa
                  */
                 /*
-                  if( !(obj_key.startsWith(jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR+
+                  if( !(obj_key.startsWith( org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR+
                   org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR)))
                   {
                   poa_name = obj_key.substring(0,
-                  obj_key.indexOf(jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR+
+                  obj_key.indexOf( org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR+
                   org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR) );
                   }
                 */
@@ -822,7 +822,7 @@ public class BasicAdapter
                 else
                 {
                     /* hand over to the POA */
-                    ((jacorb.poa.POA)tmp_poa)._invoke( request );
+                    (( org.jacorb.poa.POA)tmp_poa)._invoke( request );
                 }
               
             }

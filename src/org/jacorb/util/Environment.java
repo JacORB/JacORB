@@ -59,8 +59,8 @@ public class Environment
     private static String propertiesFile1       = ".jacorb_properties";
     private static String propertiesFile2       = "jacorb.properties";
     private static java.util.Vector propertiesFiles = new java.util.Vector();
-    private static String org.jacorbPrefix          = "jacorb.";
-    private static String poaPrefix             = org.jacorbPrefix + "poa.";
+    private static String jacorbPrefix          = "jacorb.";
+    private static String poaPrefix             = jacorbPrefix + "poa.";
         
     private static Properties   _props;
         
@@ -453,13 +453,13 @@ public class Environment
         readValue("_monitoring_on","monitoring",poaPrefix+"monitoring");
         readValue("_use_imr","use_imr",jacorbPrefix+"use_imr");
         readValue("_use_domain","use_domain",jacorbPrefix+"use_domain");
-        readValue("_mount_orb_domain","_mount_orb_domain", org.jacorbPrefix+"orb_domain.mount");
+        readValue("_mount_orb_domain","_mount_orb_domain", jacorbPrefix+"orb_domain.mount");
         readValue("_thread_pool_max","thread_pool_max",poaPrefix+"thread_pool_max");
         readValue("_thread_pool_min","thread_pool_min",poaPrefix+"thread_pool_min");
         readValue("_queue_max","queue_max",poaPrefix+"queue_max");
         readValue("_proxy_server","proxy",jacorbPrefix+"ProxyServerURL");
-        readValue("_use_appligator_for_applets", org.jacorbPrefix+"use_appligator_for_applets", null);
-        readValue("_use_appligator_for_applications", org.jacorbPrefix+"use_appligator_for_applications", null);
+        readValue("_use_appligator_for_applets", jacorbPrefix+"use_appligator_for_applets", null);
+        readValue("_use_appligator_for_applications", jacorbPrefix+"use_appligator_for_applications", null);
         readValue("_use_httptunneling_for",jacorbPrefix+"use_httptunneling_for", null);
 
         // devik: load charset_flags, bits have this meaning:
@@ -472,13 +472,13 @@ public class Environment
         readValue("_impl_name","implname",jacorbPrefix+"implname");
 
         // bnv: read SSL policy and default user alias and passphrase for accessing the key store
-        readValue("_enforce_ssl", org.jacorbPrefix + "security.enforce_ssl",null);
-        readValue("_supported_options", org.jacorbPrefix + "security.ssl.supported_options",null);
-        readValue("_required_options", org.jacorbPrefix + "security.ssl.required_options",null);
-        readValue("_support_ssl", org.jacorbPrefix + "security.support_ssl",null);
+        readValue("_enforce_ssl", jacorbPrefix + "security.enforce_ssl",null);
+        readValue("_supported_options", jacorbPrefix + "security.ssl.supported_options",null);
+        readValue("_required_options", jacorbPrefix + "security.ssl.required_options",null);
+        readValue("_support_ssl", jacorbPrefix + "security.support_ssl",null);
         readValue("_default_user",jacorbPrefix+"security.default_user",null);
         readValue("_default_password",jacorbPrefix+"security.default_password",null);
-        readValue("_change_ssl_roles", org.jacorbPrefix + "security.change_ssl_roles",null); // rt
+        readValue("_change_ssl_roles", jacorbPrefix + "security.change_ssl_roles",null); // rt
         // the name of the Java keystore file
         readValue("_keyStore",jacorbPrefix+"security.keystore",null);
 
@@ -491,7 +491,7 @@ public class Environment
     public static final boolean charsetScanCtx() { return (_charset_flags & 8)!=0;  }
 
     public static final  boolean isMonitoringOn() { return _monitoring_on;   }
-    public static final  Properties org.jacorbProperties() { return _props;   }
+    public static final  Properties jacorbProperties() { return _props;   }
     public static final  PrintWriter logFileOut() {     return _log_file_out;  }
     public static final int noOfRetries() { return _retries;   }
     public static final  int outBufSize() { return _outbuf_size; }

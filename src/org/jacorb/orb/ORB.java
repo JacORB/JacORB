@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2000  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -144,7 +144,7 @@ public final class ORB
         if( o != null )
         {
             Debug.output(5,"Found a reference for key " + key + " in cache ");
-            org.jacorb.orb.Delegate del = (jacorb.orb.Delegate) o._get_delegate();
+            org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate) o._get_delegate();
             if (del != null)
             {
                 ParsedIOR delpior= del.getParsedIOR();
@@ -184,7 +184,7 @@ public final class ORB
 
     //      void _release( org.omg.CORBA.Object o )
     //      {
-    //          String key = ((jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)o)._get_delegate()).pior.getIORString() ;
+    //          String key = ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)o)._get_delegate()).pior.getIORString() ;
     //          knownReferences.remove( key );
     //      }
 
@@ -522,7 +522,7 @@ public final class ORB
      * @param rep_id
      */
 
-    public org.omg.CORBA.Object getReference(jacorb.poa.POA poa, 
+    public org.omg.CORBA.Object getReference(org.jacorb.poa.POA poa, 
                                              byte[] object_key, 
                                              String rep_id, 
                                              boolean _transient,
@@ -609,7 +609,7 @@ public final class ORB
      * created, the ORB is notified. 
      */
 
-    public void poaCreated(jacorb.poa.POA poa)
+    public void poaCreated(org.jacorb.poa.POA poa)
     {
         /* 
          * Add this orb as the child poa's event listener. This means that the
@@ -676,7 +676,7 @@ public final class ORB
 
 
 
-    public void poaStateChanged(jacorb.poa.POA poa, int new_state)
+    public void poaStateChanged(org.jacorb.poa.POA poa, int new_state)
     {
         if( ( new_state == org.jacorb.poa.POAConstants.DESTROYED ||
               new_state == org.jacorb.poa.POAConstants.INACTIVE )  && 
@@ -865,7 +865,7 @@ public final class ORB
                     // create policies by the help of the policy factory
                     org.omg.CORBA.Policy policies[]= new org.omg.CORBA.Policy[1];
                     policies[0]= polFactory.createConflictResolutionPolicy
-                        (jacorb.orb.domain.ConflictResolutionPolicy.PARENT_RULES);
+                        (org.jacorb.orb.domain.ConflictResolutionPolicy.PARENT_RULES);
               
 
                     // create domain with the above policies
@@ -1405,11 +1405,11 @@ public final class ORB
         {
             Debug.output(1, inv);
         }
-	catch (jacorb.orb.domain.NameAlreadyDefined def)
+	catch (org.jacorb.orb.domain.NameAlreadyDefined def)
         { 
             return; 
         }
-	catch (jacorb.orb.domain.InvalidName invalid)
+	catch (org.jacorb.orb.domain.InvalidName invalid)
         { 
             return; 
         }
@@ -1422,12 +1422,12 @@ public final class ORB
 		domainServer.insertChild(orb_domain);
 		return;
             } 
-	    catch (jacorb.orb.domain.GraphNodePackage.ClosesCycle cc) 
+	    catch (org.jacorb.orb.domain.GraphNodePackage.ClosesCycle cc) 
             {
 		Debug.output(1, cc);
 		return;
             }
-	    catch (jacorb.orb.domain.NameAlreadyDefined already)
+	    catch (org.jacorb.orb.domain.NameAlreadyDefined already)
             {
 		Debug.output(1, "ORB.mountORBDomain: name "
                              + already.name +  " already used in domain server scope");
