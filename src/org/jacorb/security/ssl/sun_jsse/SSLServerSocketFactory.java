@@ -9,7 +9,7 @@ import org.jacorb.util.*;
 import org.jacorb.security.util.*;
 import org.jacorb.security.level2.*;
 
-import com.sun.net.ssl.*;
+//import com.sun.net.ssl.*;
 
 import java.net.*;
 import java.io.*;
@@ -26,7 +26,7 @@ public class SSLServerSocketFactory
 
     public SSLServerSocketFactory( org.jacorb.orb.ORB orb )
     {
-        Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+        //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
 
 	factory = createServerSocketFactory();
 
@@ -138,7 +138,7 @@ public class SSLServerSocketFactory
 		}
 		else
 		{
-		    tmf.init( null );
+		    tmf.init( (KeyStore) null );
 		}
 	    }
 		

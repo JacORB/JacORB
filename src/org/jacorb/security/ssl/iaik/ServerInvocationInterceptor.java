@@ -79,6 +79,10 @@ public class ServerInvocationInterceptor
         return name;
     }
 
+    public void destroy()
+    {
+    } 
+
     public void receive_request( ServerRequestInfo ri )
         throws ForwardRequest
     {

@@ -60,6 +60,10 @@ public class ServerAccessDecisionInterceptor
         return name;
     }
 
+    public void destroy()
+    {
+    } 
+
     /**
      * Put the propagation context from the service context
      * into the PICurrent.
