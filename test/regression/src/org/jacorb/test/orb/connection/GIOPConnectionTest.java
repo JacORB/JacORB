@@ -97,6 +97,12 @@ public class GIOPConnectionTest
         {
             return false;
         }
+        
+        public StatisticsProvider getStatisticsProvider()
+        {
+            return null;
+        }
+
     }
 
     private class DummyRequestListener
