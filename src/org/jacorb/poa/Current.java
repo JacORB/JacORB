@@ -3,7 +3,7 @@ package org.jacorb.poa;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -34,58 +34,60 @@ import java.util.Vector;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.03, 21/01/00, RT
  */
-public class Current extends org.jacorb.orb.LocalityConstrainedObject implements org.omg.PortableServer.Current {
-	private Vector contextVector = new Vector();          // stores InvocationContext elements
-	private Hashtable contextTable = new Hashtable();     // InvocationContext -> Thread
-	private Current() {
-	}
-	synchronized public void _addContext(InvocationContext context, Thread t) {
-		contextVector.insertElementAt(context, 0);
-		contextTable.put(context, t);
-	}
-	public static Current _Current_init() {
-		return new Current();
-	}
-	synchronized public void _removeContext(InvocationContext c) {
-		contextVector.removeElement(c);
-		contextTable.remove(c);
-	}
-	public byte[] get_object_id() throws NoContext {
-		return getInvocationContext().getObjectId();
-	}
-	public org.omg.PortableServer.POA get_POA() throws NoContext {
-		return getInvocationContext().getPOA();
-	}
-
+public class Current 
+    extends org.jacorb.orb.LocalityConstrainedObject 
+    implements org.omg.PortableServer.Current 
+{
+    private Vector contextVector = new Vector();          // stores InvocationContext elements
+    private Hashtable contextTable = new Hashtable();     // InvocationContext -> Thread
+    private Current() {
+    }
+    synchronized public void _addContext(InvocationContext context, Thread t) {
+        contextVector.insertElementAt(context, 0);
+        contextTable.put(context, t);
+    }
+    public static Current _Current_init() {
+        return new Current();
+    }
+    synchronized public void _removeContext(InvocationContext c) {
+        contextVector.removeElement(c);
+        contextTable.remove(c);
+    }
+    public byte[] get_object_id() throws NoContext {
+        return getInvocationContext().getObjectId();
+    }
+    public org.omg.PortableServer.POA get_POA() 
+      throws NoContext 
+    {
+        return getInvocationContext().getPOA();
+    }
+    
     synchronized private InvocationContext getInvocationContext() throws NoContext {
-		java.lang.Object context;
-		Thread ct = Thread.currentThread();
-		java.util.Enumeration e = contextVector.elements();
-		while (e.hasMoreElements()) {
-			context = e.nextElement();
-			if (ct == contextTable.get(context)) return (InvocationContext) context;
-		}
-		throw new NoContext();
-	}
-
-	protected org.omg.CORBA.ORB getORB() throws NoContext {
-		return getInvocationContext().getORB();
-	}
-	protected org.omg.PortableServer.Servant getServant() throws NoContext {
-		return getInvocationContext().getServant();
-	}
-
-
+        java.lang.Object context;
+        Thread ct = Thread.currentThread();
+        java.util.Enumeration e = contextVector.elements();
+        while (e.hasMoreElements()) {
+            context = e.nextElement();
+            if (ct == contextTable.get(context)) return (InvocationContext) context;
+        }
+        throw new NoContext();
+    }
+    
+    protected org.omg.CORBA.ORB getORB() throws NoContext {
+        return getInvocationContext().getORB();
+    }
+    protected org.omg.PortableServer.Servant getServant() throws NoContext {
+        return getInvocationContext().getServant();
+    }
+    
+    
     public org.jacorb.orb.connection.ServerConnection getConnection()
 	throws NoContext
     {
 	return ((RequestProcessor)getInvocationContext()).getConnection();
     }
-
+    
 }
-
-
-
 
 
 
