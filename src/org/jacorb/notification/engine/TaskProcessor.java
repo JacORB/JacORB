@@ -447,15 +447,19 @@ public class TaskProcessor implements Disposable
      * deliverPendingEvents on the specified MessageConsumer
      */
     public void scheduleTimedPushTask( MessageConsumer consumer )
-    throws InterruptedException
+        throws InterruptedException
     {
-        TimerDeliverTask _task = new TimerDeliverTask(this,
-                                 taskFactory_);
+        if (!consumer.isDisposed()) {
+            TimerDeliverTask _task = new TimerDeliverTask(this,
+                                                      taskFactory_);
 
-        _task.setMessageConsumer( consumer );
+            _task.setMessageConsumer( consumer );
 
 
-        _task.schedule();
+            _task.schedule();
+        } else {
+            logger_.info("MessageConsumer is disposed");
+        }
     }
 
 
