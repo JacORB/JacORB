@@ -172,18 +172,20 @@ public class Client_TCP_IP_Transport
     protected synchronized void close( int reason )
         throws IOException
     {
-        if( connected && socket != null )
+        if (connected && socket != null)
         {
-            // Close socket output stream to avoid deadlock in some cases (Bug #81)
-
-            try
-            {
-               socket.getOutputStream().close ();
-            }
-            catch (IOException ex)
-            {
-                // Ignore
-            }
+             // Try and invoke socket.shutdownOutput via reflection (bug #81)
+ 
+             try
+             {
+                 java.lang.reflect.Method method 
+                     = (socket.getClass().getMethod ("shutdownOutput", new Class [0]));
+                 method.invoke (socket, new java.lang.Object[0]);
+             }
+             catch (Throwable ex)
+             {
+                 // If Socket does not support shutdownOutput method (i.e JDK < 1.3)
+             }
 
             socket.close ();
             
