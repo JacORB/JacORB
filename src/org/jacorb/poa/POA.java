@@ -1650,6 +1650,28 @@ public class POA
         return parent;
     }
 
+    public org.omg.PortableServer.POA[] the_children ()
+    {
+        checkDestructionApparent ();
+
+        int i = 0;
+        Enumeration enum;
+        org.omg.PortableServer.POA[] children;
+
+        synchronized (poaCreationLog)
+        {
+            children = new org.omg.PortableServer.POA[childs.size ()];
+            enum = childs.elements ();
+            while (enum.hasMoreElements ())
+            {
+                children[i] = (org.omg.PortableServer.POA) enum.nextElement ();
+                i++;
+            }
+        }
+
+        return children;
+    }
+
     public org.omg.PortableServer.POAManager the_POAManager ()
     {
         checkDestructionApparent ();
@@ -1660,12 +1682,12 @@ public class POA
      * notified the completion of a child destruction
      */         
 
-    protected void unregisterChild(String name) 
+    protected void unregisterChild (String name) 
     {
         synchronized (poaCreationLog) 
         {
-            childs.remove(name);
-            poaCreationLog.notifyAll();
+            childs.remove (name);
+            poaCreationLog.notifyAll ();
         }
     }
 
