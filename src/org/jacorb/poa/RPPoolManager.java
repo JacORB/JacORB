@@ -71,7 +71,6 @@ public class RPPoolManager
     }
 
     private void addProcessor()
-        throws IllegalAccessException, InstantiationException
     {
         RequestProcessor rp = new RequestProcessor(this);
         current._addContext(rp, rp);
@@ -146,14 +145,7 @@ public class RPPoolManager
 
         if (pool.size() == 0 && unused_size < max_pool_size)
         {
-            try
-            {
-                addProcessor();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            addProcessor();
         }
 
         while (pool.size() == 0)
@@ -179,14 +171,7 @@ public class RPPoolManager
         pool = new Vector(max_pool_size);
         for (int i = 0; i < min_pool_size; i++)
         {
-            try
-            {
-                addProcessor();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            addProcessor();
         }
     }
 
