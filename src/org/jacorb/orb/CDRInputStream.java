@@ -553,12 +553,16 @@ public class CDRInputStream
 
     public org.omg.CORBA.Object read_Object (final java.lang.Class clz)
     {
-        if (clz.isInterface() && java.rmi.Remote.class.isAssignableFrom(clz))
-            return (org.omg.CORBA.Object)
-                org.jacorb.util.ValueHandler
-                .portableRemoteObject_narrow(read_Object(), clz);
+        if (clz.isInterface () && java.rmi.Remote.class.isAssignableFrom (clz))
+        {
+            return ((org.omg.CORBA.Object)
+                org.jacorb.util.ValueHandler.portableRemoteObject_narrow
+                    (read_Object (), clz));
+        }
         else
-            return read_Object();
+        {
+            return (read_Object ());
+        }
     }
 
     public final byte read_octet ()
