@@ -326,11 +326,11 @@ public class AOM
         thread.start();
     }
 
-    synchronized private void _remove( byte[] oid,
-                           RequestController requestController,
-                           ServantActivator servantActivator,
-                           POA poa,
-                           boolean cleanupInProgress)
+    private void _remove( byte[] oid,
+			  RequestController requestController,
+			  ServantActivator servantActivator,
+			  POA poa,
+			  boolean cleanupInProgress)
     {
         ByteArrayKey oidbak = new ByteArrayKey( oid );
         Servant servant = null;
@@ -346,89 +346,92 @@ public class AOM
         if ( requestController != null)
              requestController.waitForObjectCompletion(oid);
 
-        deactivationList.removeElement(oidbak);
+	synchronized(this) {
 
-        if ((servant = (Servant)objectMap.get(oidbak)) == null) {
+	    deactivationList.removeElement(oidbak);
+
+	    if ((servant = (Servant)objectMap.get(oidbak)) == null) {
         	return;
-        }
+	    }
 
-        /* object deactivation */
+	    /* object deactivation */
 
-        objectMap.remove(oidbak);
+	    objectMap.remove(oidbak);
 
-        if (unique)
-        {
-            servantMap.remove(servant);
-        }
+	    if (unique)
+	    {
+		servantMap.remove(servant);
+	    }
 
-        if (logTrace.test(2))
+	    if (logTrace.test(2))
         	logTrace.printLog(oid, "object is deactivated");
 
-        // notify an aom listener
-        if (aomListener != null)
-            aomListener.objectDeactivated(oid, servant, objectMap.size());
+	    // notify an aom listener
+	    if (aomListener != null)
+		aomListener.objectDeactivated(oid, servant, objectMap.size());
 
-        if (servantActivator == null)
-        {
-            requestController.freeObject(oid);
-            return;
-        }
+	    if (servantActivator == null)
+	    {
+		requestController.freeObject(oid);
+		return;
+	    }
 
-        /* servant etherealization */
+	    /* servant etherealization */
 
-        /* all invocations of incarnate on the servant manager are
-           serialized,  all  invocations   of  etherealize  on  the
-           servant manager are serialized, invocations of incarnate
-           and etherialize are mutually exclusive */
+	    /* all invocations of incarnate on the servant manager are
+	       serialized,  all  invocations   of  etherealize  on  the
+	       servant manager are serialized, invocations of incarnate
+	       and etherialize are mutually exclusive */
 
-        while (!incarnationList.isEmpty() || !etherealisationList.isEmpty())
-        {
-            try
-            {
-                wait();
-            }
-            catch (InterruptedException e)
-            {
-            }
-        }
-        etherealisationList.addElement(oidbak);
+	    while (!incarnationList.isEmpty() || !etherealisationList.isEmpty())
+	    {
+		try
+		{
+		    wait();
+		}
+		catch (InterruptedException e)
+		{
+	        }
+	    }
+	    etherealisationList.addElement(oidbak);
 
-        try
-        {
-            servantActivator.etherealize
-            (
-                 oid,
-                 poa,
-                 servant,
-                 cleanupInProgress,
-                 contains(servant)
-            );
+	    try
+	    {
+		servantActivator.etherealize
+		    (
+		     oid,
+		     poa,
+		     servant,
+		     cleanupInProgress,
+		     contains(servant)
+		     );
 
-            if (logTrace.test(2))
+		if (logTrace.test(2))
 	            logTrace.printLog(oid, "servant is etherealized");
 
-            // notify an aom listener
+		// notify an aom listener
 
-            if (aomListener != null)
-                aomListener.servantEtherialized(oid, servant);
+		if (aomListener != null)
+		    aomListener.servantEtherialized(oid, servant);
 
-        }
-        catch (org.omg.CORBA.SystemException e)
-        {
+	    }
+	    catch (org.omg.CORBA.SystemException e)
+	    {
         	if (logTrace.test(1))
-                logTrace.printLog(
-                	oid, "exception occurred during servant etherialisation: "+e
-                );
-        }
-        finally
-        {
-            etherealisationList.removeElement(oidbak);
-            notifyAll();
-        }
+		    logTrace.printLog(
+		        oid, "exception occurred during servant etherialisation: "+e
+		    );
+	    }
+	    finally
+	    {
+		etherealisationList.removeElement(oidbak);
+		notifyAll();
+	    }
 
-        // unregister the object from deactivation list
-        if (requestController != null)
-            requestController.freeObject(oid);
+	    // unregister the object from deactivation list
+	    if (requestController != null)
+		requestController.freeObject(oid);
+	}
     }
 
     protected void removeAll( ServantActivator servant_activator,
