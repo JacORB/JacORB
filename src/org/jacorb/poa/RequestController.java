@@ -229,14 +229,17 @@ public final class RequestController
                 if (singletonPoolManager == null)
                 {
                     singletonPoolManager =
-                        new RPPoolManager(orb.getPOACurrent(), 1, 1, logger);
+                        new RPPoolManager(orb.getPOACurrent(), 1, 1,
+                                          logger, configuration);
                 }
                 poolManager = singletonPoolManager;
             }
             else
             {
                 poolManager =
-                    new RPPoolManager(orb.getPOACurrent(),threadPoolMin, threadPoolMax, logger);
+                    new RPPoolManager(orb.getPOACurrent(),
+                                      threadPoolMin, threadPoolMax,
+                                      logger, configuration);
             }
         }
         return poolManager;
