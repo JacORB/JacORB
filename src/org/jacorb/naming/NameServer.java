@@ -107,7 +107,7 @@ public class NameServer
                 n = new NamingContextImpl();
             }
 
-            n.init( orb, adapter);
+            n.init(adapter);
             return n;
         }
 
@@ -305,8 +305,9 @@ public class NameServer
                                            rootPOA.the_POAManager(),
                                            policies);
 
+            NamingContextImpl.init(orb, rootPOA);
             NameServer.NameServantActivatorImpl servantActivator =
-            new NameServer.NameServantActivatorImpl( orb );
+                new NameServer.NameServantActivatorImpl( orb );
 
             nsPOA.set_servant_manager( servantActivator );
             nsPOA.the_POAManager().activate();

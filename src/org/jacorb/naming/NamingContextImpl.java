@@ -52,8 +52,8 @@ public class NamingContextImpl
 
     /** the POAs used */
     transient private org.omg.PortableServer.POA poa;
-    transient private org.omg.PortableServer.POA rootPoa;
-    transient private org.omg.CORBA.ORB orb;
+    private static org.omg.PortableServer.POA rootPoa;
+    private static org.omg.CORBA.ORB orb;
 
     private int child_count;
     private boolean destroyed = false;
@@ -650,26 +650,27 @@ public class NamingContextImpl
     }
 
     /**
-     *   This method needs to be called for each newly created
-     *   or re-read naming context to set its orb an poa.
+     *   This method needs to be called once to initialize 
+     *   the static fields orb and rootPoa.
      *
      */
 
-    void init(org.omg.CORBA.ORB orb, org.omg.PortableServer.POA poa )
+    public static void init(org.omg.CORBA.ORB orb, 
+                            org.omg.PortableServer.POA rootPoa)
+    {
+        NamingContextImpl.orb = orb;
+        NamingContextImpl.rootPoa = rootPoa;
+    }
+
+    /**
+     *   This method needs to be called for each newly created
+     *   or re-read naming context to set its poa.
+     *
+     */
+
+    void init(org.omg.PortableServer.POA poa)
     {
         this.poa = poa;
-        this.orb = orb;
-
-        try
-        {
-            this.rootPoa = 
-                org.omg.PortableServer.POAHelper.narrow(
-                          orb.resolve_initial_references("RootPOA"));
-        }
-        catch ( org.omg.CORBA.ORBPackage.InvalidName in ) 
-        {
-            in.printStackTrace();
-        }
         
         /** 
          * Recreate tables. For serialization, object references 
