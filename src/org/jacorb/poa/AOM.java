@@ -330,9 +330,14 @@ public class AOM
                 
             try 
             {
-                servant_activator.etherealize( oid, poa, 
-                                               servant, contains(servant), 
-                                               cleanup_in_progress);
+                servant_activator.etherealize
+                (
+                     oid,
+                     poa, 
+                     servant,
+                     cleanup_in_progress,
+                     contains (servant)
+                );
                                 
                 logTrace.printLog(2, oid, "servant is etherealized");
                           
