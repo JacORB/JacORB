@@ -41,16 +41,16 @@ public class AliasTypeSpec
      * @param ts - the TypeSpec for which to create a new alias
      */
 
-    public AliasTypeSpec( TypeSpec ts )
+    public AliasTypeSpec(TypeSpec ts )
     {
-        super( IdlSymbol.new_num() );
+        super(IdlSymbol.new_num());
         originalType = ts;
     }
 
     public Object clone()
     {
         AliasTypeSpec alias =
-            new AliasTypeSpec( (TypeSpec)type_spec.clone() );
+            new AliasTypeSpec((TypeSpec)type_spec.clone());
         alias.name = name;
         alias.pack_name = pack_name;
         return alias;
@@ -58,12 +58,12 @@ public class AliasTypeSpec
 
     public String full_name()
     {
-        if( pack_name.length() > 0 )
+        if (pack_name.length() > 0)
         {
             String s =
-                ScopedName.unPseudoName( pack_name + "." + name );
+                ScopedName.unPseudoName(pack_name + "." + name);
 
-            if( !s.startsWith( "org.omg" ) )
+            if (!s.startsWith("org.omg"))
             {
                 return omg_package_prefix + s;
             }
@@ -71,7 +71,7 @@ public class AliasTypeSpec
                 return s;
         }
         else
-            return ScopedName.unPseudoName( name );
+            return ScopedName.unPseudoName(name);
     }
 
     /**
@@ -102,20 +102,20 @@ public class AliasTypeSpec
         return originalType;
     }
 
-    public void setPackage( String s )
+    public void setPackage(String s)
     {
         //s = parser.pack_replace(s);
-        if( pack_name.length() > 0 )
+        if (pack_name.length() > 0)
             pack_name = s + "." + pack_name;
         else
             pack_name = s;
-        pack_name = parser.pack_replace( pack_name );
+        pack_name = parser.pack_replace(pack_name);
     }
 
-    public void setEnclosingSymbol( IdlSymbol s )
+    public void setEnclosingSymbol(IdlSymbol s)
     {
-        if( enclosing_symbol != null && enclosing_symbol != s )
-            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+        if (enclosing_symbol != null && enclosing_symbol != s)
+            throw new RuntimeException("Compiler Error: trying to reassign container for " + name);
         enclosing_symbol = s;
     }
 
@@ -136,49 +136,49 @@ public class AliasTypeSpec
 
     public void parse()
     {
-        if( originalType instanceof TemplateTypeSpec )
+        if (originalType instanceof TemplateTypeSpec)
         {
-            ( (TemplateTypeSpec)originalType ).markTypeDefd();
+            ((TemplateTypeSpec)originalType).markTypeDefd();
         }
 
-        if( originalType instanceof ConstrTypeSpec ||
+        if (originalType instanceof ConstrTypeSpec ||
             originalType instanceof FixedPointType ||
             originalType instanceof SequenceType ||
-            originalType instanceof ArrayTypeSpec )
+            originalType instanceof ArrayTypeSpec)
         {
             originalType.parse();
-            if( originalType.typeName().indexOf( '.' ) < 0 )
+            if (originalType.typeName().indexOf('.') < 0)
             {
                 String tName = null;
-                if( originalType instanceof VectorType )
+                if (originalType instanceof VectorType)
                 {
                     tName =
-                        originalType.typeName().substring( 0,
-                              originalType.typeName().indexOf( '[' ) );
+                        originalType.typeName().substring(0,
+                              originalType.typeName().indexOf('['));
                 }
                 else
                 {
                     tName = originalType.typeName();
                 }
 
-                addImportedName( tName );
+                addImportedName(tName);
             }
         }
 
-        if( originalType instanceof ScopedName )
+        if (originalType instanceof ScopedName)
         {
-            if( logger.isDebugEnabled() )
+            if (logger.isDebugEnabled())
                 logger.debug(" Alias " + name + 
                              " has scoped name orig Type : " + 
-                             ( (ScopedName)originalType ).toString() );
+                             ((ScopedName)originalType).toString());
 
-            originalType = ( (ScopedName)originalType ).resolvedTypeSpec();
+            originalType = ((ScopedName)originalType).resolvedTypeSpec();
             originalTypeWasScopedName = true;
 
-            if( originalType instanceof AliasTypeSpec )
-                addImportedAlias( originalType.full_name() );
+            if (originalType instanceof AliasTypeSpec)
+                addImportedAlias(originalType.full_name());
             else
-                addImportedName( originalType.typeName() );
+                addImportedName(originalType.typeName());
         }
     }
 
@@ -206,10 +206,10 @@ public class AliasTypeSpec
     {
         String fullName = full_name();
         String cName;
-        if( fullName.indexOf( '.' ) > 0 )
+        if (fullName.indexOf('.') > 0)
         {
-            pack_name = fullName.substring( 0, fullName.lastIndexOf( '.' ) );
-            cName = fullName.substring( fullName.lastIndexOf( '.' ) + 1 );
+            pack_name = fullName.substring(0, fullName.lastIndexOf('.'));
+            cName = fullName.substring(fullName.lastIndexOf('.') + 1);
         }
         else
         {
@@ -225,15 +225,15 @@ public class AliasTypeSpec
      * are only generated for array and sequence types.
      */
 
-    public void print( PrintWriter ps )
+    public void print(PrintWriter ps)
     {
         setPrintPhaseNames();
 
         // no code generation for included definitions
-        if( included && !generateIncluded() )
+        if (included && !generateIncluded())
             return;
 
-        if( !written )
+        if (!written)
         {
             // guard against recursive entries, which can happen due to 
             // containments, e.g., an alias within an interface that refers
@@ -242,79 +242,79 @@ public class AliasTypeSpec
 
             try
             {                
-                if( !( originalType.typeSpec() instanceof StringType ) && 
-                    !( originalType.typeSpec() instanceof SequenceType ) &&
+                if (!(originalType.typeSpec() instanceof StringType) && 
+                    !(originalType.typeSpec() instanceof SequenceType) &&
                     ! originalTypeWasScopedName &&
-                    !( originalType instanceof ConstrTypeSpec &&  
-                       ((ConstrTypeSpec)originalType).declaration() instanceof Interface  )
-                    )
+                    !(originalType instanceof ConstrTypeSpec &&  
+                       ((ConstrTypeSpec)originalType).declaration() instanceof Interface )
+                   )
                 {
                     // only print local type definitions, not just 
                     // scoped names (references to other defs), which would
                     // lead to loops!
-                    originalType.print( ps );
+                    originalType.print(ps);
                 }
 
                 String className = className();
 
                 String path =
                     parser.out_dir + fileSeparator +
-                    pack_name.replace( '.', fileSeparator );
+                    pack_name.replace('.', fileSeparator);
 
-                File dir = new File( path );
-                if( !dir.exists() )
+                File dir = new File(path);
+                if (!dir.exists())
                 {
-                    if( !dir.mkdirs() )
+                    if (!dir.mkdirs())
                     {
-                        org.jacorb.idl.parser.fatal_error( "Unable to create " + path,
-                                                           null );
+                        org.jacorb.idl.parser.fatal_error("Unable to create " + path,
+                                                           null);
                     }
                 }
 
                 String fname = null;
                 PrintWriter decl_ps = null;
                 
-                if (  originalType instanceof TemplateTypeSpec 
-                      && !( originalType instanceof StringType ) )
+                if ( originalType instanceof TemplateTypeSpec 
+                      && !(originalType instanceof StringType))
                 {
                     // print the holder class 
 
                     fname = className + "Holder.java";
-                    File f = new File( dir, fname );
+                    File f = new File(dir, fname);
             
-                    if (GlobalInputStream.isMoreRecentThan( f ))
+                    if (GlobalInputStream.isMoreRecentThan(f))
                     {
-                        decl_ps = new PrintWriter( new java.io.FileWriter( f ) );
-                        printHolderClass( className, decl_ps );
+                        decl_ps = new PrintWriter(new java.io.FileWriter(f));
+                        printHolderClass(className, decl_ps);
                         decl_ps.close();
                     }
                 }
 
                 fname = className + "Helper.java";
-                File f = new File( dir, fname );
+                File f = new File(dir, fname);
             
-                if (GlobalInputStream.isMoreRecentThan( f ))
+                if (GlobalInputStream.isMoreRecentThan(f))
                 {
                     // print the helper class
-                    decl_ps = new PrintWriter( new java.io.FileWriter( f ) );
-                    printHelperClass( className, decl_ps );
+                    decl_ps = new PrintWriter(new java.io.FileWriter(f));
+                    printHelperClass(className, decl_ps);
                     decl_ps.close();
                 }
                 // written = true;
             }
-            catch( java.io.IOException i )
+            catch(java.io.IOException i)
             {
-                System.err.println( "File IO error" );
+                System.err.println("File IO error");
                 i.printStackTrace();
             }
         }
     }
 
-    public String printReadStatement( String varname, String streamname )
+    public String printReadStatement(String varname, String streamname)
     {
-        if( doUnwind() )
+        if (doUnwind())
         {
-            return originalType.printReadStatement( varname, streamname );
+            return originalType.printReadStatement(varname, streamname);
         }
         else
         {
@@ -322,11 +322,11 @@ public class AliasTypeSpec
         }
     }
 
-    public String printReadExpression( String streamname )
+    public String printReadExpression(String streamname)
     {
-        if( doUnwind() )
+        if (doUnwind())
         {
-            return originalType.printReadExpression( streamname );
+            return originalType.printReadExpression(streamname);
         }
         else
         {
@@ -334,11 +334,11 @@ public class AliasTypeSpec
         }
     }
 
-    public String printWriteStatement( String var_name, String streamname )
+    public String printWriteStatement(String var_name, String streamname)
     {
-        if( doUnwind() )
+        if (doUnwind())
         {
-            return originalType.printWriteStatement( var_name, streamname );
+            return originalType.printWriteStatement(var_name, streamname);
         }
         else
         {
@@ -346,13 +346,13 @@ public class AliasTypeSpec
         }
     }
 
-    private void printClassComment( String className, PrintWriter ps )
+    private void printClassComment(String className, PrintWriter ps)
     {
-        ps.println( "/**" );
-        ps.println( " *\tGenerated from IDL definition of alias " +
-                "\"" + className + "\"" );
-        ps.println( " *\t@author JacORB IDL compiler " );
-        ps.println( " */\n" );
+        ps.println("/**");
+        ps.println(" *\tGenerated from IDL definition of alias " +
+                "\"" + className + "\"");
+        ps.println(" *\t@author JacORB IDL compiler ");
+        ps.println(" */\n");
     }
 
     /**
@@ -367,10 +367,10 @@ public class AliasTypeSpec
             (
              originalType.basic() &&
              (
-              !( originalType instanceof TemplateTypeSpec )
+              !(originalType instanceof TemplateTypeSpec)
               || originalType instanceof StringType
-              )
              )
+            )
         || originalType instanceof AliasTypeSpec
         || originalType instanceof ConstrTypeSpec
         || originalType instanceof AnyType
@@ -380,7 +380,7 @@ public class AliasTypeSpec
 
     public String holderName()
     {
-        if( doUnwind() )
+        if (doUnwind())
         {
             return originalType.holderName();
         }
@@ -394,121 +394,121 @@ public class AliasTypeSpec
      * generates the holder class for this alias type
      */
 
-    private void printHolderClass( String className, PrintWriter ps )
+    private void printHolderClass(String className, PrintWriter ps)
     {
-        if( parser.checkJdk14 && pack_name.equals( "" ) )
+        if (parser.checkJdk14 && pack_name.equals(""))
             parser.fatal_error
-                ( "No package defined for " + className + " - illegal in JDK1.4", token );
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";" );
+                ("No package defined for " + className + " - illegal in JDK1.4", token);
+        if (!pack_name.equals(""))
+            ps.println("package " + pack_name + ";");
 
-        printImport( ps );
+        printImport(ps);
 
-        printClassComment( className, ps );
+        printClassComment(className, ps);
 
-        ps.println( "public" + parser.getFinalString() + " class " + className + "Holder" );
-        ps.println( "\timplements org.omg.CORBA.portable.Streamable" );
-        ps.println( "{" );
+        ps.println("public" + parser.getFinalString() + " class " + className + "Holder");
+        ps.println("\timplements org.omg.CORBA.portable.Streamable");
+        ps.println("{");
 
-        ps.println( "\tpublic " + originalType.typeName() + " value;\n" );
+        ps.println("\tpublic " + originalType.typeName() + " value;\n");
 
-        ps.println( "\tpublic " + className + "Holder ()" );
-        ps.println( "\t{" );
-        ps.println( "\t}" );
+        ps.println("\tpublic " + className + "Holder ()");
+        ps.println("\t{");
+        ps.println("\t}");
 
-        ps.println( "\tpublic " + className + "Holder (final " + originalType.typeName() + " initial)" );
-        ps.println( "\t{" );
-        ps.println( "\t\tvalue = initial;" );
-        ps.println( "\t}" );
+        ps.println("\tpublic " + className + "Holder (final " + originalType.typeName() + " initial)");
+        ps.println("\t{");
+        ps.println("\t\tvalue = initial;");
+        ps.println("\t}");
 
-        ps.println( "\tpublic org.omg.CORBA.TypeCode _type ()" );
-        ps.println( "\t{" );
-        ps.println( "\t\treturn " + className + "Helper.type ();" );
-        ps.println( "\t}" );
+        ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
+        ps.println("\t{");
+        ps.println("\t\treturn " + className + "Helper.type ();");
+        ps.println("\t}");
 
-        ps.println( "\tpublic void _read (final org.omg.CORBA.portable.InputStream in)" );
-        ps.println( "\t{" );
-        ps.println( "\t\tvalue = " + className + "Helper.read (in);" );
-        ps.println( "\t}" );
+        ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream in)");
+        ps.println("\t{");
+        ps.println("\t\tvalue = " + className + "Helper.read (in);");
+        ps.println("\t}");
 
-        ps.println( "\tpublic void _write (final org.omg.CORBA.portable.OutputStream out)" );
-        ps.println( "\t{" );
-        ps.println( "\t\t" + className + "Helper.write (out,value);" );
-        ps.println( "\t}" );
+        ps.println("\tpublic void _write (final org.omg.CORBA.portable.OutputStream out)");
+        ps.println("\t{");
+        ps.println("\t\t" + className + "Helper.write (out,value);");
+        ps.println("\t}");
 
-        ps.println( "}" );
+        ps.println("}");
     }
 
     /**
      * generates the holder class for this alias type
      */
 
-    private void printHelperClass( String className, PrintWriter ps )
+    private void printHelperClass(String className, PrintWriter ps)
     {
-        if( parser.checkJdk14 && pack_name.equals( "" ) )
+        if (parser.checkJdk14 && pack_name.equals(""))
             parser.fatal_error
-                ( "No package defined for " + className + " - illegal in JDK1.4", token );
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";" );
+                ("No package defined for " + className + " - illegal in JDK1.4", token);
+        if (!pack_name.equals(""))
+            ps.println("package " + pack_name + ";");
 
-        printImport( ps );
+        printImport(ps);
 
-        printClassComment( className, ps );
+        printClassComment(className, ps);
 
-        ps.println( "public" + parser.getFinalString() + " class " +
-                    className + "Helper" );
-        ps.println( "{" );
+        ps.println("public" + parser.getFinalString() + " class " +
+                    className + "Helper");
+        ps.println("{");
 
-        ps.println( "\tprivate static org.omg.CORBA.TypeCode _type = null;\n");
+        ps.println("\tprivate static org.omg.CORBA.TypeCode _type = null;\n");
         String type = originalType.typeName();
 
-        ps.println( "\tpublic static void insert (org.omg.CORBA.Any any, " +
-                    type + " s)" );
-        ps.println( "\t{" );
-        ps.println( "\t\tany.type (type ());" );
-        ps.println( "\t\twrite (any.create_output_stream (), s);" );
-        ps.println( "\t}\n" );
+        ps.println("\tpublic static void insert (org.omg.CORBA.Any any, " +
+                    type + " s)");
+        ps.println("\t{");
+        ps.println("\t\tany.type (type ());");
+        ps.println("\t\twrite (any.create_output_stream (), s);");
+        ps.println("\t}\n");
 
-        ps.println( "\tpublic static " + type + " extract (final org.omg.CORBA.Any any)" );
-        ps.println( "\t{" );
-        ps.println( "\t\treturn read (any.create_input_stream ());" );
-        ps.println( "\t}\n" );
+        ps.println("\tpublic static " + type + " extract (final org.omg.CORBA.Any any)");
+        ps.println("\t{");
+        ps.println("\t\treturn read (any.create_input_stream ());");
+        ps.println("\t}\n");
 
-        ps.println( "\tpublic static org.omg.CORBA.TypeCode type ()" );
-        ps.println( "\t{" );
-        ps.println( "\t\tif( _type == null )" );
-        ps.println( "\t\t{" );
+        ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
+        ps.println("\t{");
+        ps.println("\t\tif (_type == null)");
+        ps.println("\t\t{");
 
-        ps.println( "\t\t\t_type = org.omg.CORBA.ORB.init().create_alias_tc(" +
+        ps.println("\t\t\t_type = org.omg.CORBA.ORB.init().create_alias_tc(" +
                     full_name() + "Helper.id(), \"" + name + "\"," +
-                    originalType.typeSpec().getTypeCodeExpression() + " );" );
+                    originalType.typeSpec().getTypeCodeExpression() + ");");
 
-        ps.println( "\t\t}" );
-        ps.println( "\t\treturn _type;" );
-        ps.println( "\t}\n" );
+        ps.println("\t\t}");
+        ps.println("\t\treturn _type;");
+        ps.println("\t}\n");
 
-        printIdMethod( ps ); // inherited from IdlSymbol
+        printIdMethod(ps); // inherited from IdlSymbol
 
         /* read */
-        ps.println( "\tpublic static " + type +
-                    " read (final org.omg.CORBA.portable.InputStream _in)" );
-        ps.println( "\t{" );
-        ps.println( "\t\t" + type + " _result;" );
-        ps.println( "\t\t" + originalType.printReadStatement( "_result", "_in" ) );
-        ps.println( "\t\treturn _result;" );
-        ps.println( "\t}\n" );
+        ps.println("\tpublic static " + type +
+                    " read (final org.omg.CORBA.portable.InputStream _in)");
+        ps.println("\t{");
+        ps.println("\t\t" + type + " _result;");
+        ps.println("\t\t" + originalType.printReadStatement("_result", "_in"));
+        ps.println("\t\treturn _result;");
+        ps.println("\t}\n");
 
         /* write */
-        ps.println( "\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, " + type + " _s)" );
-        ps.println( "\t{" );
-        ps.println( "\t\t" + originalType.printWriteStatement( "_s", "_out" ) );
-        ps.println( "\t}" );
-        ps.println( "}" );
+        ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");
+        ps.println("\t{");
+        ps.println("\t\t" + originalType.printWriteStatement("_s", "_out"));
+        ps.println("\t}");
+        ps.println("}");
     }
 
-    public void accept( IDLTreeVisitor visitor )
+    public void accept(IDLTreeVisitor visitor)
     {
-        visitor.visitAlias( this );
+        visitor.visitAlias(this);
     }
 
 
