@@ -54,7 +54,7 @@ class ScopedName
         pseudoScopes.put( name, "" );
     }
 
-    private static boolean isPseudoScope( String name )
+    public static boolean isPseudoScope( String name )
     {
         return ( pseudoScopes.containsKey( name ) );
     }
@@ -698,5 +698,3 @@ class ScopedName
                 ( (SwitchTypeSpec)t ).isSwitchable() );
     }
 }
-
-
