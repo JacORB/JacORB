@@ -48,18 +48,14 @@ public class RepositoryID
      */
     public static String className (String repId, String suffix)
     {
-        int    firstColon = repId.indexOf (':');
-        int    lastColon  = repId.lastIndexOf (':');
-        String formatName = repId.substring (0, firstColon);
-        
-        if (formatName.equals ("RMI"))
+        if (repId.startsWith ("RMI:"))
         {
-            return repId.substring (4, lastColon) 
+            return repId.substring (4, repId.indexOf (':', 4)) 
                    + ( suffix != null ? suffix : "" );
         }
-        else if (formatName.equals ("IDL"))
+        else if (repId.startsWith ("IDL:"))
         {
-            String id = repId.substring (firstColon + 1, lastColon)
+            String id = repId.substring (4, repId.lastIndexOf(':'))
                         + ( suffix != null ? suffix : "" );
             if (id.equals ("omg.org/CORBA/WStringValue"))
                 return "java.lang.String";
