@@ -221,7 +221,7 @@ public class GlobalInputStream
     }
 
     public static int read()
-            throws IOException
+        throws IOException
     {
         int ch = 0;
 
@@ -244,7 +244,7 @@ public class GlobalInputStream
         }
         else
         {
-            ch = stream.read();
+            ch = currentStream().read();
 
             /*
              * if eof is reached, see whether we were reading
@@ -254,9 +254,9 @@ public class GlobalInputStream
 
             if (ch == -1)
             {
+                currentStream().close();
                 if (included)
                 {
-                    stream.close();
 
                     // undo effects of inhibition pragma
                     parser.setInhibitionState(false);
