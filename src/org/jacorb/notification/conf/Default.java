@@ -88,4 +88,11 @@ public interface Default
     String WILDCARDMAP_DEFAULT = WeakCacheWildcardMap.class.getName();
 
     String DEFAULT_RETRY_STRATEGY_FACTORY = TaskProcessorRetryStrategyFactory.class.getName();
+
+    /**
+     * 0 means no limit
+     */
+    long DEFAULT_DEAD_FILTER_INTERVAL = 0;
+
+    boolean DEFAULT_USE_GC = false;
 }

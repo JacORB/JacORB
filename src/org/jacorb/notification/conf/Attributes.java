@@ -109,10 +109,14 @@ public interface Attributes
     String ENABLE_TYPED_CHANNEL =
         "jacorb.notification.enable_typed_channel";
 
+    String USE_GC = "jacorb.notification.enable_gc";
+
     String FILTER_PLUGIN_PREFIX =
         "jacorb.notification.filter.plugin";
 
     String WILDCARDMAP_CLASS = "jacorb.notification.wildcardmap.implementation";
 
     String RETRY_STRATEGY_FACTORY = "jacorb.notification.retrystrategy.factory";
+
+    String DEAD_FILTER_INTERVAL = "jacorb.notification.filter.dead_interval";
 }
