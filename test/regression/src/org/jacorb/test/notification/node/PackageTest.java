@@ -26,6 +26,10 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**
+ * PackageTest.java
+ *
+ *
+ *
  * @author Alphonse Bendt
  * @version $Id$
  */
