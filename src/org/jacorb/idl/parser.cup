@@ -73,6 +73,7 @@ parser code
     protected static boolean inhibitionState = false;
     protected static boolean localityContraint = false;
     protected static boolean useUncheckedNarrow = false;
+    protected static boolean j2me = false;
 
     protected static boolean forceOverwrite;
 
@@ -314,6 +315,11 @@ parser code
                         package_prefix = "org.omg";
                         continue;
                 }
+                if( argv[i].equals("-j2me"))
+                {
+                        j2me = true;
+                        continue;
+                }
                 if( argv[i].equals("-i2jpackage"))
                 {
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
@@ -441,7 +447,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i <import_package][-i2jpackage x:y][-i2jpackagefile <filename>][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i <import_package][-i2jpackage x:y][-i2jpackagefile <filename>][-j2me][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax] <filelist>");
     }
 
 
