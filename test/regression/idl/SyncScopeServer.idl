@@ -1,0 +1,13 @@
+#pragma prefix "org.jacorb"
+
+#include "Tests.idl"
+
+module Tests
+{
+	interface SyncScopeServer
+	{
+                oneway void oneway_op (in long delay);
+                void operation (in long delay);
+        };
+
+};
