@@ -1,14 +1,9 @@
-module demo
+module test
 {
-module hello 
+module recursiveTC 
 {
-    interface GoodDay 
+    interface Test 
     {
-	string hello_simple();
-
-	wstring hello_wide(in wstring msg);
-        wchar getwchar(in wchar x);
-
 
         /* Enumeration of value types for ParmValue's. 
          * They may be strings or nested repeating groups. 

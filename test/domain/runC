@@ -1,0 +1,3 @@
+# shell script to run the domain tester client
+# $Id$
+jaco org.jacorb.orb.domain.test.DomainTesterClient $*

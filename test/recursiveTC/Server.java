@@ -1,4 +1,4 @@
-package demo.hello;
+package test.recursiveTC;
 
 import java.io.*;
 
@@ -10,10 +10,10 @@ public class Server
 {
     public static void main(String[] args) 
     {
-        if( args.length != 2 ) 
+        if( args.length != 1 ) 
 	{
             System.out.println(
-                "Usage: java demo.hello.Server <ior_file> <location>");
+                "Usage: java demo.hello.Server <ior_file> ");
             System.exit( 1 );
         }
 
@@ -29,11 +29,11 @@ public class Server
 	    poa.the_POAManager().activate();
 
             // create a GoodDay object
-            GoodDayImpl goodDayImpl = new GoodDayImpl( args[1] );	
+            TestImpl testImpl = new TestImpl();	
     
             // create the object reference
             org.omg.CORBA.Object obj = 
-                poa.servant_to_reference( goodDayImpl );
+                poa.servant_to_reference( testImpl  );
 
             PrintWriter pw = 
                 new PrintWriter( new FileWriter( args[ 0 ] ));

@@ -1,0 +1,10 @@
+# shell script to run the domain server
+# $Id$
+
+# TODO: adapt to your settings
+# setenv DSURL ${HOME}/public_html/DS_Ref
+DSURL=${HOME}/jac/DS_Ref
+
+echo org.jaco org.jacorb.orb.domain.DomainServer ${DSURL}
+
+jaco org.jacorb.orb.domain.DomainServer ${DSURL}

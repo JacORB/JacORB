@@ -36,9 +36,9 @@ public class Client
             {
                 x = grid.height();
             }
-            catch (Exception e) 
+            catch (org.omg.CORBA.IMP_LIMIT e) 
             {
-                //e.printStackTrace();
+                e.printStackTrace();
             }
 
             System.out.println("Height = " + x);
@@ -46,9 +46,9 @@ public class Client
             {	    
                 y = grid.width();
             }
-            catch (Exception e) 
+            catch (org.omg.CORBA.IMP_LIMIT e) 
             {
-                // e.printStackTrace();
+                e.printStackTrace();
             }
 
 	    System.out.println("Width = " + y);

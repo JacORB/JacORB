@@ -1,0 +1,10 @@
+#!/bin/sh
+# kills all processes which have $* in its name
+# $Id$
+PIDS=`ps -xa | grep $* | awk '{print $1}'`
+for pid in ${PIDS} 
+do
+	echo killing pid $pid
+	kill -9 $pid
+done
+

@@ -1,8 +1,8 @@
-package demo.hello;
+package test.recursiveTC;
 
 import java.io.*;
-import demo.hello.GoodDayPackage.*;
-import demo.hello.GoodDayPackage.ParmPackage.*;
+import test.recursiveTC.TestPackage.*;
+import test.recursiveTC.TestPackage.ParmPackage.*;
 
 import org.omg.CORBA.*;
 
@@ -12,7 +12,7 @@ public class Client
     {
         if( args.length != 1 ) 
 	{
-            System.out.println( "Usage: java demo.hello.Client <ior_file>" );
+            System.out.println( "Usage: java test.recursiveTC.Client <ior_file>" );
             System.exit( 1 );
         }
 
@@ -50,27 +50,8 @@ public class Client
 
             br.close();
 
-            // and narrow it to HelloWorld.GoodDay
             // if this fails, a BAD_PARAM will be thrown
-            GoodDay goodDay = GoodDayHelper.narrow( obj );
-
-
-            // invoke the operation and print the result
-            System.out.println( goodDay.hello() );
-
-            // invoke the operation again and print the wide string result
-            System.out.println( "wide string: " + 
-                                goodDay.hello_wide( "Hello Wörld, from ö 1 2 3 0 *&^%$#@!@"));
-
-            char X = 'X';
-            char Y = goodDay.getwchar(X);
-            if (Y != 'Y') 
-            {
-                System.out.println("test failed");
-                System.out.println("Y = " + Y);
-            }
-            else 
-                System.out.println("test succeed");
+            Test goodDay = TestHelper.narrow( obj );
 
             ParmValue pv = new ParmValue();
             pv.string_value("inner");
