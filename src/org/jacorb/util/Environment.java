@@ -714,25 +714,45 @@ public class Environment
     /**
      * Collects all properties with a given prefix 
      *
-     * @return a Vector of strings (propery values)
+     * @return a hash table with  key/value pairs where
+     * key has the given prefix
      */
 
-    public static Hashtable getProperties(String prefix)
+    public static Hashtable getProperties( String prefix )
+    {
+        return getProperties( prefix, false );
+    }
+
+    /**
+     * Collects all properties with a given prefix. The prefix
+     * will be removed from the hash key if trim is trie
+     *
+     * @return a hash table with  key/value pairs 
+     */
+
+    public static Hashtable getProperties( String prefix, boolean trim )
     {
         Enumeration prop_names = _props.propertyNames();
-        Hashtable _properties = new Hashtable();
+        Hashtable properties = new Hashtable();
         
         // Test EVERY property if prefix matches.
-        while(prop_names.hasMoreElements())
+        while( prop_names.hasMoreElements() )
         {
             String name = (String) prop_names.nextElement();
             if ( name.startsWith( prefix ))
             {
-                _properties.put(name, _props.getProperty(name));
+                if( trim )
+                {
+                    properties.put( name.substring( prefix.length() + 1) , _props.getProperty(name) );
+                }
+                else
+                {
+                    properties.put( name , _props.getProperty(name));
+                }
             }
         }
         
-        return _properties;
+        return properties;
     }
   
 
