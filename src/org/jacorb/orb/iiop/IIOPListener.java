@@ -449,7 +449,6 @@ public class IIOPListener
                 {
                     Socket socket = serverSocket.accept();
                     setup (socket);
-                    System.out.println("Socket port: " + socket.getLocalPort());
                     deliverConnection (socket);
                 }
                 catch (Exception e)

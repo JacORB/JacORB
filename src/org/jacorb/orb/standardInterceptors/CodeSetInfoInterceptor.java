@@ -40,7 +40,6 @@ public class CodeSetInfoInterceptor
 
     public CodeSetInfoInterceptor(ORB orb)
     {
-        System.out.println ("In CSInfoInt ctor");
         // create the info
         org.omg.CONV_FRAME.CodeSetComponentInfo cs_info =
             new org.omg.CONV_FRAME.CodeSetComponentInfo();
@@ -85,8 +84,6 @@ public class CodeSetInfoInterceptor
 
     public void establish_components( IORInfo info, int [] tags )
     {
-        System.out.println ("In CSInfoInt establish_components, with tags");
-
         if (tags == null)
             {
                 info.add_ior_component_to_profile( tagc,
@@ -101,7 +98,6 @@ public class CodeSetInfoInterceptor
 
     public void establish_components( IORInfo info )
     {
-        System.out.println ("In CSInfoInt establish_components, no tags");
         info.add_ior_component_to_profile( tagc,
                                            org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value );
         info.add_ior_component_to_profile( tagc,
