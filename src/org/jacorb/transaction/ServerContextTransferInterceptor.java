@@ -11,7 +11,19 @@ import org.omg.IOP.Codec;
  * in the PICurrent.
  *
  * @author Nicolas Noffke
+ * @author Vladimir Mencl
  * @version $Id$
+ *
+ * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/05/01)
+ *
+ *   * set transaction context in receive_request into internal structures of 
+ *     Current (TransactionCurrentImpl) using resume()
+ *
+ *   * reset transaction context when a request terminates (either through 
+ *     send_reply, send_exception or send_other) using suspend()
+ *
+ *   * accesses Current only through CosTransactions::Current interface
+ *     (without typecasting to TransactionCurrentImpl)
  */
 
 public class ServerContextTransferInterceptor 
@@ -20,10 +32,15 @@ public class ServerContextTransferInterceptor
 
     private Codec codec = null;
     private int slot_id = -1;
+    private org.omg.CosTransactions.Current ts_current;
+    private org.omg.CORBA.ORB orb;
   
-    public ServerContextTransferInterceptor(Codec codec, int slot_id) {
+    public ServerContextTransferInterceptor(Codec codec, int slot_id, 
+           org.omg.CosTransactions.Current ts_current, org.omg.CORBA.ORB orb) {
         this.codec = codec;
         this.slot_id = slot_id;
+        this.ts_current=ts_current;
+        this.orb = orb;
     }
 
     // implementation of org.omg.PortableInterceptor.InterceptorOperations interface
@@ -53,22 +70,34 @@ public class ServerContextTransferInterceptor
 
     public void receive_request(ServerRequestInfo ri)
         throws ForwardRequest{
+        try{
+            org.omg.PortableInterceptor.Current pi_current =
+                (org.omg.PortableInterceptor.Current) 
+		orb.resolve_initial_references("PICurrent");
+
+            PropagationContext context = PropagationContextHelper.extract
+                (pi_current.get_slot(slot_id));
+
+            Control control = ControlHelper.extract(context.implementation_specific_data);
+            ts_current.resume(control);
+        }catch(Exception e){
+            org.jacorb.util.Debug.output(2, e);
+        }
     }
 
     public void send_reply(ServerRequestInfo ri){
+      ts_current.suspend();
     }
 
     public void send_exception(ServerRequestInfo ri)
         throws ForwardRequest{
+      ts_current.suspend();
     }
 
     public void send_other(ServerRequestInfo ri) 
         throws ForwardRequest{
+      ts_current.suspend();
     }
 } // ServerContextTransferInterceptor
-
-
-
-
 
 

@@ -1,3 +1,17 @@
+2002-05-01  Vladimir Mencl <vladimir.mencl@mff.cuni.cz>
+	* TransactionService:
+	  * ServerContextTransferInterceptor sets (and resets) the
+	    transaction context for the thread handling a request
+	  * TransactionCurrentImpl: suspend() and resume() implemented
+	    (and used by ServerContextTransferInterceptor for handling
+	    the transaction context)
+	  * merged org.jacorb.transaction.ClientInitializer
+	    and org.jacorb.transaction.ServerInitializer into
+	    org.jacorb.transaction.TransactionInitializer
+	  * bug-fix: Timer.java: check for a null reference in kill_channel
+	* demo/bank/transaction/implicit: adjusted to the changes made
+	  in the TransactionService
+
 2002-04-02  Heather Drury  <drury_h@ociweb.com>
 
 	* orb/CDROutputStream.java:

@@ -20,8 +20,8 @@ public class BankImpl
         this.poa = poa;
 
         try{
-            ts_current =  (org.omg.CosTransactions.Current)
-                orb.resolve_initial_references("TransactionCurrent");
+            ts_current =  org.omg.CosTransactions.CurrentHelper.narrow(
+                orb.resolve_initial_references("TransactionCurrent"));
         }catch (Exception e){
             org.jacorb.util.Debug.output(2, e);
         }

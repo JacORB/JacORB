@@ -37,7 +37,7 @@ public class Client
             java.util.Properties props = 
                 new java.util.Properties();
             props.put("org.omg.PortableInterceptor.ORBInitializerClass.TSServerInit",
-                               "org.jacorb.transaction.ServerInitializer");
+                               "org.jacorb.transaction.TransactionInitializer");
 
             ORB orb = ORB.init(args,props);
 		

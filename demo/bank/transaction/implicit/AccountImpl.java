@@ -62,7 +62,9 @@ public class AccountImpl
             lock.lock();
 
             Control control = 
-                org.jacorb.transaction.TransactionCurrentImpl.getControl(orb);
+                org.omg.CosTransactions.CurrentHelper.narrow(
+		orb.resolve_initial_references("TransactionCurrent")).
+		get_control();
 
             // memorize current activitity
             this.amount = amount;
@@ -84,6 +86,7 @@ public class AccountImpl
         catch( Exception ex ) 
         {
             System.err.println("Account " + name + "::credit: exception: " + ex );
+	    throw new org.omg.CORBA.TRANSACTION_ROLLEDBACK();
         };
     }
 
@@ -110,7 +113,9 @@ public class AccountImpl
             lock.lock();
 
             Control control = 
-                org.jacorb.transaction.TransactionCurrentImpl.getControl(orb);
+                org.omg.CosTransactions.CurrentHelper.narrow(
+		orb.resolve_initial_references("TransactionCurrent")).
+		get_control();
 
             // memorize current activitity
             this.amount = amount;
@@ -138,14 +143,21 @@ public class AccountImpl
             System.out.println(" new balance is $" + newBalance );
 
         }
+        catch( org.omg.CORBA.ORBPackage.InvalidName in ) {
+            System.err.println("Account " + name + "::debit: exception: " +in);
+	    throw new org.omg.CORBA.TRANSACTION_ROLLEDBACK();
+        }
         catch( Unavailable u ) {
             System.err.println("Account " + name + "::debit: exception: " + u );
+	    throw new org.omg.CORBA.TRANSACTION_ROLLEDBACK();
         }
         catch( Inactive i ) {
             System.err.println("Account " + name + "::debit: exception: " + i );
+	    throw new org.omg.CORBA.TRANSACTION_ROLLEDBACK();
         }
         catch( SystemException se ) {
             System.err.println("Account " + name + "::debit: exception: " + se );
+	    throw new org.omg.CORBA.TRANSACTION_ROLLEDBACK();
         }
     }
 

@@ -13,7 +13,19 @@ import java.util.Hashtable;
  * maps to the methods in the control. 
  *
  * @author Nicolas Noffke
+ * @author Vladimir Mencl
  * @version $Id$
+ *
+ * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/05/01)
+ *
+ *   * implemented suspend() and resume()
+ *
+ *   * added setCurrentThreadContext() used by suspend()
+ *
+ *   * made slot_id static so that it can be used from getControl
+ *
+ *   * extra dependency: suspend() and resume() used by 
+ *     ServerContextTransferInterceptor to set/rest context
  */
 
 public class TransactionCurrentImpl 
@@ -25,7 +37,7 @@ public class TransactionCurrentImpl
     private Hashtable contexts = null;
     private Hashtable timeouts = null;
     private ORB orb = null;
-    private int slot_id = -1;
+    private static int slot_id = -1; /* used from static getControl */
 
     private TransactionFactory factory = null;
   
@@ -72,7 +84,7 @@ public class TransactionCurrentImpl
                 (org.omg.PortableInterceptor.Current) orb.resolve_initial_references("PICurrent");
 
             PropagationContext context = PropagationContextHelper.extract
-                (pi_current.get_slot(ServerInitializer.slot_id));
+                (pi_current.get_slot(slot_id));
 
             return ControlHelper.extract(context.implementation_specific_data);
         }catch(Exception e){
@@ -183,7 +195,7 @@ public class TransactionCurrentImpl
     }
 
     public void resume(Control which) throws InvalidControl {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+	setCurrentThreadContext(which);
     }
 
     public void rollback() throws NoTransaction {
@@ -225,8 +237,43 @@ public class TransactionCurrentImpl
     }
 
     public Control suspend() {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        Control result = get_control();
+        removeContext(Thread.currentThread());
+        return result;
     }
+
+    public void setCurrentThreadContext(Control control) {
+        Thread thread = Thread.currentThread();
+
+        contexts.put(thread, control);
+    
+        try{
+            org.omg.PortableInterceptor.Current pi_current =
+                (org.omg.PortableInterceptor.Current) orb.resolve_initial_references("PICurrent");
+
+            // the info inserted here is actually never needed and mostly a waste of
+            // space/bandwidth, since the control itself is transfered also.
+            TransIdentity id = new TransIdentity(control.get_coordinator(), 
+                                                 control.get_terminator(),
+                                                 new otid_t(0, 0, new byte[0]));
+      
+            Any control_any = orb.create_any();
+            ControlHelper.insert(control_any, control);
+
+            int timeout = (timeouts.containsKey(thread))? 
+               ((Integer) timeouts.get(thread)).intValue() : DEFAULT_TIMEOUT;
+
+            PropagationContext context = new PropagationContext(timeout,
+                                                                id, new TransIdentity[0],
+                                                                control_any);
+            Any context_any = orb.create_any();
+            PropagationContextHelper.insert(context_any, context);
+
+            pi_current.set_slot(slot_id, context_any);
+        }catch (Exception e){
+            org.jacorb.util.Debug.output(2, e);
+        }
+    } 
 
     private void removeContext(Thread current){
         //remove control from Hashtable

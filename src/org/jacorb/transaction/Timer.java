@@ -18,6 +18,11 @@ package org.jacorb.transaction;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/05/01)
+ *
+ *    bug-fix: check for a null reference in kill_channel.
+ *
  */
 
 
@@ -111,9 +116,11 @@ public class Timer extends Thread{
     void kill_channel(Sleeper slp){
         synchronized(channels){
             for (int i = 0;i < top;i++){
-                if (channels[i].slp == slp){
-                    destroy_channel(i);
-                    return;
+                if (channels[i] != null){
+		  if (channels[i].slp == slp){
+		      destroy_channel(i);
+		      return;
+		  }
                 }
             }
         }
