@@ -280,7 +280,10 @@ public class SASTargetInterceptor
         {
             logger.warn("Could not parse service context for operation " + ri.operation() + ": " + e);
         }
-        if (contextBody == null && (sasValues.targetRequires & org.omg.CSIIOP.EstablishTrustInClient.value) != 0) {
+        if (contextBody == null && 
+           (sasValues.targetRequires & org.omg.CSIIOP.EstablishTrustInClient.value) != 0 &&
+           !ri.operation().equals("_non_existent") &&
+           !ri.operation().equals("_is_a")) {
             logger.error("Did not parse service context for operation " + ri.operation());
             throw new org.omg.CORBA.NO_PERMISSION("No SAS service context found", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
