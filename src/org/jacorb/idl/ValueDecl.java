@@ -92,6 +92,20 @@ class ValueDecl
             ((IdlSymbol)i.next()).parse();
         for (Iterator i = exports.iterator(); i.hasNext();)
             ((IdlSymbol)i.next()).parse();
+
+	try
+	{
+	    ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
+	    ctspec.c_type_spec = this;
+
+	    NameTable.define( full_name(), "type" );
+	    TypeMap.typedef( full_name(), ctspec );
+	} 
+	catch ( NameAlreadyDefined nad )
+	{
+            Environment.output( 4, nad );
+	    parser.error("Valuetype " + typeName() + " already defined", token);
+	}
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -124,16 +138,21 @@ class ValueDecl
         return javaName() + "Holder";
     }
 
+    public String typeName()
+    {
+        return full_name();
+    }
+
     public String getTypeCodeExpression()
     {
         StringBuffer result = new StringBuffer 
-            ("new org.omg.CORBA.ORB.init().create_value_tc (" + 
+            ("org.omg.CORBA.ORB.init().create_value_tc (" + 
              // id
              "\"" + id() + "\", " + 
              // name
              "\"" + name + "\", " +
              // type modifier
-             + "(short)" +
+             "(short)" +
              (this.isCustomMarshalled() ? org.omg.CORBA.VM_CUSTOM.value
                                         : org.omg.CORBA.VM_NONE.value) + ", " +
              // concrete base type
@@ -161,7 +180,7 @@ class ValueDecl
                "\"" + m.name + "\", \"" + typeSpec.id() +
                "\", \"" + name + "\", \"1.0\", " + 
                typeSpec.getTypeCodeExpression() + ", null, " + 
-               + "(short)" + access + ")";
+               "(short)" + access + ")";
     }
                
     public void print (PrintWriter ps)
@@ -193,14 +212,14 @@ class ValueDecl
     public String printWriteStatement (String var_name, String streamname)
     {
         return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname + ")"
-             + ".write_value (" + var_name + ", " + javaName() + ".class);";
+             + ".write_value (" + var_name + ", \"" + id() + "\");";
     }
 
     public String printReadExpression (String streamname)
     {
-        return "((" + javaName() + ")" + 
-               "((org.omg.CORBA_2_3.portable.InputStream)" + streamname +"))"+ 
-               ".read_value (" + javaName() + ".class);";
+        return "(" + javaName() + ")" + 
+               "((org.omg.CORBA_2_3.portable.InputStream)" + streamname +")"+ 
+               ".read_value (\"" + id() + "\")";
     }
 
     public String printReadStatement (String var_name, String streamname)
@@ -305,7 +324,7 @@ class ValueDecl
         out.println ("public abstract class " + name + "Helper");
         out.println ("{");
 
-        out.println ("\tprivate org.omg.CORBA.TypeCode type = null;");
+        out.println ("\tprivate static org.omg.CORBA.TypeCode type = null;");
 
         // insert() / extract()
 
@@ -339,7 +358,10 @@ class ValueDecl
                      "(org.omg.CORBA.portable.InputStream is)");
         out.println ("\t{");
         out.println ("\t\torg.omg.CORBA.portable.ValueFactory f = ");
-        out.println ("\t\t\tnew org.jacorb.orb.ORB().lookup_value_factory (id());");
+        out.println ("\t\t\t((org.omg.CORBA_2_3.ORB)org.omg.CORBA.ORB.init()).lookup_value_factory (\"" + id() + "\");");
+        out.println ("\t\tif (f == null)");
+        out.println ("\t\t\tthrow new org.omg.CORBA.MARSHAL " +
+                     "(\"could not find value factory for " + id() + "\");");
         out.println ("\t\treturn (" + javaName() + ")f.read_value " +
                      "((org.omg.CORBA_2_3.portable.InputStream)is);");
         out.println ("\t}");
