@@ -144,9 +144,11 @@ public final class Delegate
     }
 
     //special constructor for appligator
-    public Delegate (org.jacorb.orb.ORB orb, String object_reference, boolean _donotcheckexceptions)
+    public Delegate( org.jacorb.orb.ORB orb, 
+                     String object_reference, 
+                     boolean _donotcheckexceptions)
     {
-        this(orb, object_reference);
+        this( orb, object_reference );
         doNotCheckExceptions = _donotcheckexceptions; 
     }
 
