@@ -1140,7 +1140,6 @@ public class POA
         } 
         catch (org.omg.PortableServer.CurrentPackage.NoContext e) 
         {
-            Debug.output(2, e );
         }
         return false;
     }
