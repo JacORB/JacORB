@@ -197,7 +197,7 @@ jacorb.bufferManagerMaxFlush=-1
 #jacorb.connection.client.idle_timeout=0
 
 # max time (msecs) a server keeps a connection open if nothing happens
-#jacorb.connection.server_timeout=10000
+#jacorb.connection.server.timeout=10000
 
 # Max no of accepted connections on the server.
 #jacorb.connection.max_server_connections=
