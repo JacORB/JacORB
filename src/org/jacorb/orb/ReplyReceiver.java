@@ -39,12 +39,12 @@ import java.util.*;
 /**
  * A special ReplyPlaceholder that receives replies to normal requests,
  * either synchronously or asynchronously.  A ReplyReceiver
- * handles all ORB-internal work that needs to be done for the reply, 
+ * handles all ORB-internal work that needs to be done for the reply,
  * such as checking for exceptions and invoking the interceptors.
- * The client stub can either do a blocking wait on the ReplyReceiver 
- * (via getReply()), or a ReplyHandler can be supplied when the 
- * ReplyReceiver is created; then the reply is delivered to that 
- * ReplyHandler. 
+ * The client stub can either do a blocking wait on the ReplyReceiver
+ * (via getReply()), or a ReplyHandler can be supplied when the
+ * ReplyReceiver is created; then the reply is delivered to that
+ * ReplyHandler.
  *
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
@@ -59,18 +59,18 @@ public class ReplyReceiver extends ReplyPlaceholder
     private String operation;
     private UtcT   replyEndTime;
     private Timer  timer;
-    
+
     private SystemException      systemException      = null;
     private ApplicationException applicationException = null;
 
-    
+
 
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
                           String                         operation,
                           org.omg.TimeBase.UtcT          replyEndTime,
                           ClientInterceptorHandler       interceptors,
                           org.omg.Messaging.ReplyHandler replyHandler )
-    {        
+    {
         super();
 
         this.delegate         = delegate;
@@ -78,7 +78,7 @@ public class ReplyReceiver extends ReplyPlaceholder
         this.replyEndTime     = replyEndTime;
         this.interceptors     = interceptors;
         this.replyHandler     = replyHandler;
-        
+
         if (replyEndTime != null)
         {
             timer = new Timer (replyEndTime);
@@ -96,7 +96,7 @@ public class ReplyReceiver extends ReplyPlaceholder
             return; // discard reply
         if (timer != null)
             timer.wakeup();
-            
+
         this.in = in;
         delegate.replyDone (this);
 
@@ -112,16 +112,16 @@ public class ReplyReceiver extends ReplyPlaceholder
             notifyAll();
         }
     }
-    
+
     private void performCallback ( ReplyInputStream reply )
     {
         // TODO: Call interceptors.
 
-        org.omg.CORBA.portable.Delegate replyHandlerDelegate = 
+        org.omg.CORBA.portable.Delegate replyHandlerDelegate =
             ( ( org.omg.CORBA.portable.ObjectImpl ) replyHandler )
                                                          ._get_delegate();
-        
-        ServantObject so = 
+
+        ServantObject so =
             replyHandlerDelegate.servant_preinvoke( replyHandler,
                                                     operation,
                                                     InvokeHandler.class );
@@ -130,7 +130,7 @@ public class ReplyReceiver extends ReplyPlaceholder
             switch ( reply.getStatus().value() )
             {
                 case ReplyStatusType_1_2._NO_EXCEPTION:
-                {                                                    
+                {
                     ((InvokeHandler)so.servant)
                         ._invoke( operation,
                                   reply,
@@ -140,30 +140,30 @@ public class ReplyReceiver extends ReplyPlaceholder
                 case ReplyStatusType_1_2._USER_EXCEPTION:
                 case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
                 {
-                    ExceptionHolderImpl holder = 
+                    ExceptionHolderImpl holder =
                         new ExceptionHolderImpl( reply );
 
-                    org.omg.CORBA_2_3.ORB orb = 
+                    org.omg.CORBA_2_3.ORB orb =
                         ( org.omg.CORBA_2_3.ORB )replyHandlerDelegate
                                                               .orb( null );
                     orb.register_value_factory
                         ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
                           new ExceptionHolderFactory() );
 
-                    CDRInputStream input = 
+                    CDRInputStream input =
                         new CDRInputStream( orb, holder.marshal() );
 
                     ((InvokeHandler)so.servant)
                         ._invoke( operation + "_excep",
                                   input,
                                   new DummyResponseHandler() );
-                    break;                
+                    break;
                 }
             }
         }
         catch ( Exception e )
         {
-            Debug.output( Debug.IMPORTANT, 
+            Debug.output( Debug.IMPORTANT,
                           "Exception during callback: " + e );
         }
         finally
@@ -180,24 +180,24 @@ public class ReplyReceiver extends ReplyPlaceholder
     {
         // TODO: Call interceptors.
 
-        org.omg.CORBA.portable.Delegate replyHandlerDelegate = 
+        org.omg.CORBA.portable.Delegate replyHandlerDelegate =
             ( ( org.omg.CORBA.portable.ObjectImpl ) replyHandler )
                                                          ._get_delegate();
-        
-        ServantObject so = 
+
+        ServantObject so =
             replyHandlerDelegate.servant_preinvoke( replyHandler,
                                                     operation,
                                                     InvokeHandler.class );
         try
         {
-            org.omg.CORBA_2_3.ORB orb = 
+            org.omg.CORBA_2_3.ORB orb =
                     ( org.omg.CORBA_2_3.ORB )replyHandlerDelegate
                                                               .orb( null );
             orb.register_value_factory
                 ( "IDL:omg.org/Messaging/ExceptionHolder:1.0",
                   new ExceptionHolderFactory() );
 
-            CDRInputStream input = 
+            CDRInputStream input =
                 new CDRInputStream( orb, holder.marshal() );
 
             ((InvokeHandler)so.servant)
@@ -207,7 +207,7 @@ public class ReplyReceiver extends ReplyPlaceholder
         }
         catch ( Exception e )
         {
-            Debug.output( Debug.IMPORTANT, 
+            Debug.output( Debug.IMPORTANT,
                           "Exception during callback: " + e );
         }
         finally
@@ -239,15 +239,15 @@ public class ReplyReceiver extends ReplyPlaceholder
             // Wait until the thread that received the actual
             // forward request rebound the Delegate
             delegate.waitOnBarrier();
-            throw new RemarshalException();   
+            throw new RemarshalException();
         }
 
         ReplyInputStream reply = ( ReplyInputStream ) in;
-        
+
         ReplyStatusType_1_2 status = delegate.doNotCheckExceptions()
                                      ? ReplyStatusType_1_2.NO_EXCEPTION
                                      : reply.getStatus();
-                                       
+
         switch ( status.value() )
         {
             case ReplyStatusType_1_2._NO_EXCEPTION:
@@ -273,11 +273,11 @@ public class ReplyReceiver extends ReplyPlaceholder
                 org.omg.CORBA.Object forward_reference = reply.read_Object();
                 interceptors.handle_location_forward( reply, forward_reference );
                 doRebind( forward_reference );
-                throw new RemarshalException();               
+                throw new RemarshalException();
             }
             case ReplyStatusType_1_2._NEEDS_ADDRESSING_MODE:
             {
-                throw new org.omg.CORBA.NO_IMPLEMENT( 
+                throw new org.omg.CORBA.NO_IMPLEMENT(
                             "WARNING: Got reply status NEEDS_ADDRESSING_MODE "
                           + "(not implemented)." );
             }
@@ -285,7 +285,7 @@ public class ReplyReceiver extends ReplyPlaceholder
             {
                 throw new Error( "Received unexpected reply status: " +
                                  status.value() );
-            }                
+            }
         }
     }
 
@@ -305,19 +305,19 @@ public class ReplyReceiver extends ReplyPlaceholder
                 p.retry();
             }
         }
-            
+
         // do the actual rebind
         delegate.rebind ( forward_reference );
-            
+
         // now other threads can safely remarshal
         delegate.openBarrier();
     }
 
     private ApplicationException getApplicationException ( ReplyInputStream reply )
     {
-        reply.mark( 0 ); 
+        reply.mark( 0 );
         String id = reply.read_string();
-                
+
         try
         {
             reply.reset();
@@ -330,7 +330,7 @@ public class ReplyReceiver extends ReplyPlaceholder
 
         return new ApplicationException( id, reply );
     }
-    
+
     /**
      * A ResponseHandler that is passed to the ReplyHandler's POA
      * when we invoke it.  Since ReplyHandler operations never generate
@@ -339,22 +339,22 @@ public class ReplyReceiver extends ReplyPlaceholder
      * is called before control goes to the ReplyHandler servant,
      * so we use it to check for timing constraints.
      */
-    private class DummyResponseHandler 
+    private class DummyResponseHandler
         implements org.omg.CORBA.portable.ResponseHandler
     {
-        public org.omg.CORBA.portable.OutputStream createReply() 
+        public org.omg.CORBA.portable.OutputStream createReply()
         {
             // the latest possible time at which we can do this
             Time.waitFor (delegate.getReplyStartTime());
             return null;
         }
-        
-        public org.omg.CORBA.portable.OutputStream createExceptionReply() 
+
+        public org.omg.CORBA.portable.OutputStream createExceptionReply()
         {
             return null;
         }
     }
-    
+
     private static class ExceptionHolderFactory
         implements org.omg.CORBA.portable.ValueFactory
     {
@@ -376,22 +376,22 @@ public class ReplyReceiver extends ReplyPlaceholder
      * that the enclosing ReplyReceiver is deactivated, and that
      * everybody associated with it is notified appropriately.
      * The timeout can be cancelled by calling wakeup() on a Timer.
-     */    
+     */
     private class Timer extends Thread
     {
         private boolean awakened = false;
         private UtcT    endTime;
-        
+
         public Timer (UtcT endTime)
         {
             this.endTime = endTime;
         }
-        
+
         public void run()
         {
             synchronized (this)
             {
-                timeoutException = false;
+                ReplyReceiver.this.timeoutException = false;
                 if (!awakened)
                 {
                     long time = org.jacorb.util.Time.millisTo (endTime);
@@ -405,50 +405,36 @@ public class ReplyReceiver extends ReplyPlaceholder
                         {
                             Debug.output (Debug.ORB_MISC | Debug.IMPORTANT,
                                           "interrupted while waiting for timeout");
-                        }  
+                        }
                     }
-                    if (!awakened) 
+                    if (!awakened)
                     {
                         synchronized (ReplyReceiver.this)
                         {
-                            timeoutException = true;
-                            
+                            ReplyReceiver.this.timeoutException = true;
+
                             if (replyHandler != null)
                             {
-                                performExceptionCallback 
+                                performExceptionCallback
                                     (new ExceptionHolderImpl
                                         (new org.omg.CORBA.TIMEOUT()));
                             }
-                            ready = true;
+                            ReplyReceiver.this.ready = true;
                             ReplyReceiver.this.notifyAll();
                         }
                     }
-                }            
+                }
             }
         }
-        
+
         public void wakeup()
         {
             synchronized (this)
             {
                 awakened         = true;
-                timeoutException = false;
+                ReplyReceiver.this.timeoutException = false;
                 this.notifyAll();
             }
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
