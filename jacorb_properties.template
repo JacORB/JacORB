@@ -174,19 +174,10 @@ jacorb.maxManagedBufSize=18
 #jacorb.client.pending_reply_timeout=0
 
 # client-side connection idle timeout, set no non-zero to stop
-# blocking after so many msecs.
-#
-# WARNING: This is independent of pending replies, i.e. the connection
-# can also close, if the timeout is exceeded, but there are unanswered
-# requests.
+# close the connection after so many msecs.
 #jacorb.connection.client_idle_timeout=0
 
 # max time a server keeps a connection open if nothing happens
-#
-# WARNING: This is independent of the requests currently being
-# processed, i.e. the connection can also close, if the timeout is
-# exceeded, but there are unanswered requests.
-#
 #jacorb.connection.server_timeout=10000
 
 # Max no of accepted connections on the server. 
