@@ -24,6 +24,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
 import org.jacorb.orb.giop.TransportManager;
@@ -53,6 +55,9 @@ public class ClientIIOPConnection
     private boolean use_ssl  = false;
     private int     ssl_port = -1;
 
+    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.iiop.conn");
+
+
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
     public static int openTransports = 0;
@@ -73,9 +78,11 @@ public class ClientIIOPConnection
             }
             catch( NumberFormatException nfe )
             {
-                Debug.output( 1, "Unable to create int from string >" +
-                              prop + '<' );
-                Debug.output( 1, "Please check property \"jacorb.connection.client.idle_timeout\"" );
+                if (logger.isErrorEnabled())
+                {
+                    logger.error("Unable to create int from string >" + prop + "< \n" + 
+                                 "Please check property \"jacorb.connection.client.idle_timeout\"" );
+                }
             }
         }
     }
@@ -120,7 +127,10 @@ public class ClientIIOPConnection
                               + (use_ssl ? ssl_port
                                          : address.getPort());
             
-            Debug.output(3, "Trying to connect to " + connection_info);
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Trying to connect to " + connection_info);
+            }
 
             int retries = Environment.noOfRetries();
 
@@ -142,11 +152,13 @@ public class ClientIIOPConnection
                     out_stream =
                         new BufferedOutputStream( socket.getOutputStream());
 
-                    Debug.output( 1, "Connected to " +
-                                  connection_info +
-                                  " from local port " +
-                                  socket.getLocalPort() +
-                                  ( this.isSSL() ? " via SSL" : "" ));
+                    if (logger.isInfoEnabled())
+                    {
+                        logger.info("Connected to " + connection_info +
+                                    " from local port " +
+                                    socket.getLocalPort() +
+                                    ( this.isSSL() ? " via SSL" : "" ));
+                    }
 
                     connected = true;
 
@@ -278,8 +290,11 @@ public class ClientIIOPConnection
             throw to_COMM_FAILURE (ex);
         }
 
-        Debug.output( 2, "Closed client-side TCP/IP transport to " +
-                      connection_info + " terminally");
+        if (logger.isInfoEnabled())
+        {
+            logger.info("Client-side TCP transport to " +
+                        connection_info + " closed.");
+        }
     }
     
     public boolean isSSL()
@@ -353,7 +368,11 @@ public class ClientIIOPConnection
             ( ((ssl.target_requires & minimum_options) != 0) || //server ...
               ((client_required & minimum_options) != 0))) //...or client require it
         {
-            Debug.output( 1, "Selecting SSL for connection");
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("Selecting SSL for connection");
+            }
+
             use_ssl  = true;
             ssl_port = ssl.port;
             if (ssl_port < 0)
