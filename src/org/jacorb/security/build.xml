@@ -16,7 +16,6 @@
 	<available classname="javax.swing.JTree" property="swing.present" />
 	<available classname="java.util.Collection"
 	property="java2.present"/>
-	   <echo message="security.build: src ${src}"/>
    </target>
 
    <target name="all" depends="init,leveltwo,ssl,util">
