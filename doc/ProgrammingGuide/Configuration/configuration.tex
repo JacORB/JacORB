@@ -1,45 +1,51 @@
-This chapter explains the general mechanism how JacORB is configured,
+%
+% $Id$
+%
+
+This chapter explains the general mechanism for configuring JacORB 
 and lists all configuration properties. Note that ORB configuration
 has changed from version 2.1 to 2.2, in particular the names and
-locations of the standard configuration files have changed.
+locations of the standard configuration files. However, JacORB will
+still work with the old files.
 
 \section{Properties}
 
 JacORB has a number of configuration options which can be set as Java
-properties. There are three options for setting properties: 
+properties. There are three options for setting properties:
 
 \begin{itemize}
-\item properties files
-\item command line properties, and 
-\item properties passed as arguments to ORB.init() in the code of your
+\item in properties files
+\item as command line properties, and 
+\item as properties passed as arguments to ORB.init() in the code of your
   applications.
 \end{itemize}
 
-In the case of a process with multiple ORB instances, it may be
-required either to share options between ORBs, or to separate
-individual configurations from each other. We explain below how
+In the case of a single JVM with multiple ORB instances, it may be
+required to either share configuration options between ORBs, or to
+separate the individual configurations from each other. We explain how
 properties can be set for sharing or for individual ORB instances.
 
 \subsection{Properties files}
 
-JacORB looks for and loads a two standard properties files, a common
-file called {\tt common.orb.properties}, and an ORB-specific file one
-called {\tt <orbid>.orb.properties}, where  {\tt <orbid>} is the name
-of an ORB instance. Also, it can load custom properties files from
-arbitrary locations. We explain these files in turn.
+JacORB looks for a few standard properties files, a common file called
+{\tt orb.properties}, and an ORB-specific file called {\tt
+  <orbid>.properties}, where {\tt <orbid>} is the name of an ORB
+instance that was explicitly configured. Moreover, JacORB can load
+custom properties files from arbitrary locations. We explain each of
+these files in turn.
 
 \subsubsection{The common properties file}
 
 The reason for having a common properties file is that a single JacORB
 installation may be shared by a number of users with a set of common
-default, properties. These may be refined by users in their own
+default properties. These may be refined by users in their own
 properties files but still provide reasonable defaults for the
 environment. Note that it is not required to have a common properties
-file as all configuration options can also be set in other files, or
-on the commandline or in the code.
+file as all configuration options can also be set in other files, on
+the commandline or in the code.
 
-JacORB looks for the common properties file {\tt
-  common.orb.properties} in these places:
+JacORB looks for the common properties file {\tt orb.properties} in
+the following places:
 
 \begin{enumerate}
 \item in the {\tt lib} directory of the JDK installation. (The JDK's
@@ -54,11 +60,10 @@ JacORB looks for the common properties file {\tt
 
 The common properties file is searched in the order presented above,
 so you may actually be loading multiple files of this name. If a
-properties file is found, it is loaded, and any property values 
-will override values of the same property that were loaded earlier.
-
-Loading properties files from the classpath is useful when
-distributing applications packaged in JAR files.
+properties file is found it is loaded, and any property values defined
+in this file will override values of the same property that were
+loaded earlier. Loading properties files from the classpath is useful
+when distributing applications packaged in JAR files.
 
 \subsubsection{The ORB properties file}
 
@@ -66,39 +71,51 @@ Having ORB-specific properties files is necessary when multiple ORB
 instances live in the same process, but need to have separate
 configurations, e.g., some ORBs use SSL and others don't, or some ORBs
 need to listen on separate but predefined ports. To let colocated ORBs
-use and retrieve separate configurations, JacORB provides an
-ORB-specific lookup mechanisms based on a specific property, the {\tt
-  ORBid}. (The default value for the ORBid is {\tt jacorb}). To use
-different configurations, simply pass different ORBid values to your ORBs.
+use and retrieve separate configurations, JacORB provides a lookup
+mechanisms based on a specific property, the {\tt ORBid} property. The
+default value for the ORBid is {\tt jacorb}, ie. is the ORBid is not
+explicitly set anywhere, it defaults to {\tt jacorb}. Note that this
+ORBid is reserved, ie., you cannot explicitly set your ORBid to this
+value. To use different configurations for different ORBs, you simply
+pass different ORBid values to your ORBs.
 
 JacORB looks for ORB properties files in these places:
 
 \begin{enumerate}
-\item {\tt jacorb.config.dir/etc/orbid.orb.properties.}, if that exists, or
-\item {\tt jacorb.home/etc/orbid.orb.properties.}, or 
-\item the current directory ({\tt './orbid.orb.properties.'})
+\item {\tt jacorb.config.dir/etc/orbid.properties.}, if that exists, or
+\item {\tt jacorb.home/etc/orbid.properties.}, or 
+\item the current directory ({\tt './orbid.properties.'})
 \item on the class path.
 \end{enumerate}
 
 The {\tt jacorb.config.dir} and {\tt jacorb.home} properties must be
 set for JacORB to be able to use a preconfigured configuration
-directory. This can be done in the {\tt common.orb.properties} file,
-or by passing a property in on the commandline, like this:
+directory. The {\tt jacorb.home} property defaults to {\tt ``.''}, if
+unset. Setting these properties can be done in the {\tt
+  orb.properties} file, or by passing a property in on the
+commandline, like this:
 
 \cmdline{jaco -Djacorb.config.dir=c:/ -DORBid=example test.Example}
 
-The commandline above causes JacORB to look for a file called {\tt
-  example.orb.properties} in {\tt c:/etc}. If the {\tt
-  -DORBid=example} had been ommitted, the name of the ORB properties
-file that JacORB would try to load would have been {\tt
-  jacorb.orb.properties}, because that is the default value for the
-ORBid. A good starting point is to have a common properties file that
-sets the {\tt jacorb.config.dir} property, and then have put a {\tt
-  jacorb.orb.properties} file in that directory. Note, however, that
-the added flexibility of using multiple configuration files may lead
-to individual properties defined in multiple files. You must
-know the order in which your configuration files are loaded to avoid
-  confusion over property settings not having the expected effect!
+This commandline causes JacORB to look for a file called {\tt
+  example.properties} in {\tt c:/etc}. If the {\tt -DORBid=example}
+had been ommitted, the name of the ORB properties file that JacORB
+would try to load would have been {\tt jacorb.properties}, because
+that is the default value for the ORBid. A good starting point is to
+have a common properties file that sets the {\tt jacorb.config.dir}
+property, and then have put a {\tt jacorb.properties} file in that
+directory. 
+
+Note, however, that the added flexibility of using multiple
+configuration files may lead to individual properties defined in
+multiple files. You must know the order in which your configuration
+files are loaded to avoid confusion over property settings not having
+the expected effect! For this reason, JacORB outputs log messages to
+the terminal that show the names of the properties files as they are
+loaded. This log message always goes to the terminal because the
+actual JacORB logging is not yet configured at this stage. It can be
+suppressed by setting the {\tt jacorb.config.log.verbosity} property
+to a value below 3.
 
 \subsubsection{Custom properties files}
 
@@ -106,7 +123,7 @@ In addition to the standard JacORB properties files, a {\em custom
   properties file} can be loaded by passing the name of that
 properties files the {\tt custom.props} property to JacORB. This can
 be handy for application-specific settings that you want to distribute
-with your code, e.g.
+with your code.
 
 The value of this property is the path to a properties file, which
 contains the properties you want to load. As an example, imagine that
@@ -138,14 +155,14 @@ thus take precedence over earlier settings.
 
 In the same way as the {\tt custom.props} property in the example
 above, arbitrary other Java properties can be passed to JacORB
-programs using the {\tt -D<prop name>=<prop value>} command line syntax
-for the {\tt java} interpreter, but can be used in the same way with
-the {\tt jaco} script. Note that in any case the properties must
-precede the class name on the command line.
+programs using the {\tt -D<prop name>=<prop value>} command line
+syntax for the {\tt java} interpreter, but can be used in the same way
+with the {\tt jaco} script. Note that the properties must precede the
+class name on the command line.
 
-The ORB configuration mechanism will
-give configuration properties passed in this way precedence over
-property values found in configuration files.
+The ORB configuration mechanism will give configuration properties
+passed in this way precedence over property values found in
+configuration files.
 
 \subsection{Arguments to ORB.init()}
 
@@ -160,8 +177,6 @@ containing command line arguments):
 \begin{verbatim}
     java.util.Properties props = new java.util.Properties();
     props.setProperty("jacorb.implname","StandardNS");
-    // use put() under Java 1.1
-
     org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, props);
 \end{verbatim}
 }
