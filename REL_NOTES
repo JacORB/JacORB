@@ -77,6 +77,8 @@ gerald.brose@acm.org
                           throws a MARSHAL exception.
                         - Current and Principal deprecated. Use of any
                           operations for these types will throw NO_IMPLEMENT.
+                        - DII support operations on singleton ORB now correctly
+                          throw NO_IMPLEMENT.
                 DynAnys:
                         - Operations called on a DynAny that has been 
                           destroyed now throw an OBJECT_NOT_EXIST exception
