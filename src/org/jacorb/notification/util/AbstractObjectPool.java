@@ -21,16 +21,19 @@ package org.jacorb.notification.util;
  *
  */
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
-import org.apache.avalon.framework.logger.Logger;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import java.util.Set;
-import java.util.Collections;
+import org.apache.avalon.framework.logger.Logger;
+import java.util.ArrayList;
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must
@@ -61,78 +64,93 @@ public abstract class AbstractObjectPool
 
     public static final int MAXIMUM_WATERMARK_DEFAULT = 1000;
 
+    /**
+     * non synchronized as accessing methods are synchronized.
+     */
     private static List sPoolsToLookAfter = new LinkedList();
 
     private static Thread sCleanerThread;
 
     private static ListCleaner sListCleaner;
 
-    private static synchronized void registerPool( AbstractObjectPool pool )
+    private static void registerPool( AbstractObjectPool pool )
     {
-        sPoolsToLookAfter.add( pool );
-        startListCleaner();
+        synchronized(sPoolsToLookAfter) {
+            sPoolsToLookAfter.add( pool );
+
+            startListCleaner();
+        }
     }
 
 
-    private static synchronized void deregisterPool( AbstractObjectPool pool )
+    private static void deregisterPool( AbstractObjectPool pool )
     {
-        sPoolsToLookAfter.remove( pool );
+        synchronized(sPoolsToLookAfter) {
+            sPoolsToLookAfter.remove( pool );
 
-        if ( sPoolsToLookAfter.isEmpty() )
-        {
-            stopListCleaner();
+            if ( sPoolsToLookAfter.isEmpty() )
+                {
+                    stopListCleaner();
+                }
         }
     }
 
 
     private static class ListCleaner extends Thread
     {
-        boolean active_ = true;
+        private SynchronizedBoolean active_ = new SynchronizedBoolean(true);
 
         public void setInactive()
         {
-            active_ = false;
+            active_.set(false);
 
             interrupt();
+        }
 
-            synchronized ( AbstractObjectPool.class )
-            {
-                sCleanerThread = null;
-            }
+        private void ensureIsActive() throws InterruptedException {
+            if ( !active_.get() )
+                {
+                    throw new InterruptedException();
+                }
         }
 
         public void run()
         {
-            while ( active_ )
-            {
-                try
-                {
+            try {
+                while ( active_.get() ) {
+                    try {
+                        runLoop();
+                    } catch (Exception e) {}
+                }
+            } finally {
+                synchronized(AbstractObjectPool.class) {
+                    sCleanerThread = null;
+                }
+            }
+        }
+
+        private void runLoop() throws InterruptedException {
+            while(true) {
+                try {
                     sleep( SLEEP );
                 }
-                catch ( InterruptedException ie )
-                {
-                    if ( !active_ )
-                    {
-                        return ;
-                    }
-                }
+                catch ( InterruptedException ie ) {}
 
-                try
-                {
-                    for ( int x = sPoolsToLookAfter.size(); x <= 0; x-- )
-                    {
-                        if ( !active_ )
-                        {
-                            return ;
+                ensureIsActive();
+
+                synchronized(sPoolsToLookAfter) {
+                    Iterator i = sPoolsToLookAfter.iterator();
+
+                    while(i.hasNext()) {
+
+                        try {
+                            ( ( Runnable ) i.next() ).run();
+                        } catch ( Throwable t ) {
+                            t.printStackTrace();
+
+                            i.remove();
                         }
-
-                        ( ( Runnable ) sPoolsToLookAfter.get( x ) ).run();
-
                     }
-                }
-                catch ( Throwable t )
-                {
-//                     logger_.fatalError( "Error while cleaning Pool", t );
                 }
             }
         }
@@ -140,41 +158,35 @@ public abstract class AbstractObjectPool
 
     private static ListCleaner getListCleaner()
     {
-        synchronized ( AbstractObjectPool.class )
-            {
-                if ( sListCleaner == null )
-                    {
-                        sListCleaner = new ListCleaner();
-                    }
+        synchronized ( AbstractObjectPool.class ) {
+            if ( sListCleaner == null ) {
+                sListCleaner = new ListCleaner();
             }
-
-        return sListCleaner;
+            return sListCleaner;
+        }
     }
 
     private static void stopListCleaner()
     {
         synchronized(AbstractObjectPool.class) {
-            if ( sCleanerThread != null )
-                {
-                    sListCleaner.setInactive();
-                }
+            if ( sCleanerThread != null ) {
+                sListCleaner.setInactive();
+            }
         }
     }
 
     private static void startListCleaner()
     {
-        synchronized ( AbstractObjectPool.class )
-            {
-                if ( sCleanerThread == null )
-                    {
-                        sCleanerThread = new Thread( getListCleaner() );
+        synchronized ( AbstractObjectPool.class ) {
+            if ( sCleanerThread == null ) {
+                sCleanerThread = new Thread( getListCleaner() );
 
-                        sCleanerThread.setName( "ObjectPoolCleaner" );
-                        sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
-                        sCleanerThread.setDaemon( true );
-                        sCleanerThread.start();
-                    }
+                sCleanerThread.setName( "ObjectPoolCleaner" );
+                sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
+                sCleanerThread.setDaemon( true );
+                sCleanerThread.start();
             }
+        }
     }
 
     private String name_;
@@ -186,10 +198,6 @@ public abstract class AbstractObjectPool
      * @see news://news.gmane.org:119/200406041629.48096.Farrell_John_W@cat.com
      */
     private Set active_ = Collections.synchronizedSet(new HashSet());
-
-    private int instanceCount_;
-    private int lendCount_;
-    private int returnCount_;
 
     /**
      * lower watermark. if pool size is below that value, create
@@ -215,16 +223,15 @@ public abstract class AbstractObjectPool
      */
     private int initialSize_;
 
-
     protected Logger logger_;
+
     protected Configuration config_;
 
     public void configure (Configuration conf)
     {
-        this.config_ = conf;
-        logger_ =  ((org.jacorb.config.Configuration)conf).
-            getNamedLogger( getClass().getName() );
-        this.init();
+        config_ = conf;
+        logger_ =  ((org.jacorb.config.Configuration)conf).getNamedLogger( getClass().getName() );
+        init();
     }
 
 
@@ -254,22 +261,34 @@ public abstract class AbstractObjectPool
 
     public void run()
     {
-        if ( pool_.size() < lowerWatermark_ )
-        {
-            for ( int x = 0; x < sizeIncrease_; ++x )
-            {
-                Object _i = newInstance();
-                try {
-                    ((Configurable)_i).configure (this.config_);
-                } catch (ClassCastException cce) {
-                    // no worries, just don't configure
-                } catch (ConfigurationException ce) {
-                }
-                ++instanceCount_;
-
-                pool_.add( _i );
+        synchronized(pool_) {
+            if (pool_.size() > lowerWatermark_) {
+                return;
             }
         }
+
+        List os = new ArrayList(sizeIncrease_);
+
+        for ( int x = 0; x < sizeIncrease_; ++x ) {
+            Object _i = createInstance();
+
+            os.add(_i);
+        }
+
+        synchronized(pool_) {
+            pool_.addAll(os);
+        }
+    }
+
+    private Object createInstance() {
+        Object _i = newInstance();
+        try {
+            ((Configurable)_i).configure (this.config_);
+        } catch (ClassCastException cce) {
+            // no worries, just don't configure
+        } catch (ConfigurationException ce) {
+        }
+        return _i;
     }
 
     /**
@@ -278,21 +297,15 @@ public abstract class AbstractObjectPool
      */
     public void init()
     {
-        for ( int x = 0; x < initialSize_; ++x )
-        {
-            Object _i = newInstance();
-            try {
-                ((Configurable)_i).configure (this.config_);
-            } catch (ClassCastException cce) {
-                // no worries, just don't configure
-            } catch (ConfigurationException ce) {
+        synchronized(pool_) {
+            for ( int x = 0; x < initialSize_; ++x ) {
+                    Object _i = createInstance();
+
+                    pool_.add( _i );
             }
-
-            ++instanceCount_;
-
-            pool_.add( _i );
         }
     }
+
 
     /**
      * Release this Pool.
@@ -300,7 +313,10 @@ public abstract class AbstractObjectPool
     public void dispose()
     {
         deregisterPool( this );
+        pool_.clear();
+        active_.clear();
     }
+
 
     /**
      * lend an object from the pool.
@@ -316,15 +332,11 @@ public abstract class AbstractObjectPool
         }
 
         if ( _ret == null ) {
-            ++instanceCount_;
-
-            _ret = newInstance();
+            _ret = createInstance();
         }
 
         activateObject( _ret );
         active_.add( _ret );
-
-        ++lendCount_;
 
         //        logger_.debug("lendObject " + _ret);
 
@@ -337,8 +349,6 @@ public abstract class AbstractObjectPool
     public void returnObject( Object o )
     {
         //logger_.debug("returnObject " + o);
-
-        ++returnCount_;
 
         if ( active_.remove( o ) )
             {
@@ -386,7 +396,7 @@ public abstract class AbstractObjectPool
     {}
 
     /**
-     * Is called if Pool is full and Object is discarded. No Op.
+     * Is called if Pool is full and returned Object is discarded. No Op.
      */
     public void destroyObject( Object o )
     {}
