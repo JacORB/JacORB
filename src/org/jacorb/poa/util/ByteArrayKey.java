@@ -31,8 +31,9 @@ package org.jacorb.poa.util;
 
 public class ByteArrayKey
 {
-    private int cache = 0;
+    private int cacheH = 0;
     private byte[] bytes = null;
+    private String cacheS = null;
 
     public ByteArrayKey (byte[] array)
     {
@@ -41,7 +42,8 @@ public class ByteArrayKey
 
     public ByteArrayKey (ByteArrayKey bak)
     {
-       cache = bak.cache;
+       cacheH = bak.cacheH;
+       cacheS = bak.cacheS;
        bytes = bak.bytes;
     }
 
@@ -55,7 +57,7 @@ public class ByteArrayKey
      */
     public int hashCode ()
     {
-        if( cache == 0 )
+        if( cacheH == 0 )
         {
             long h = 1234;
 
@@ -65,10 +67,10 @@ public class ByteArrayKey
                 {
                     h ^= bytes[i] * (i + 1);
                 }
-                cache = (int)((h >> 32) ^ h);
+                cacheH = (int)((h >> 32) ^ h);
             }
         }
-        return cache;
+        return cacheH;
     }
 
     /**
@@ -106,7 +108,19 @@ public class ByteArrayKey
         return result;
     }
 
-    public String toString() {
-    	return new String(bytes);
+    public String toString()
+    {
+        if( cacheS == null )
+        {
+            if( bytes == null )
+            {
+                cacheS = "";
+            }
+            else
+            {
+                cacheS = new String(bytes);
+            }
+        }
+        return cacheS;
     }
 }
