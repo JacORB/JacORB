@@ -183,7 +183,21 @@ public class CurrentImpl
         {
             Debug.output(Debug.SECURITY | Debug.IMPORTANT,
                          "WARNING: Unable to create custom PA. Will use default authenticator. Please check property \"jacorb.security.principal_authenticator\"" );
-            authenticators.add( new PrincipalAuthenticatorImpl() );
+
+            PrincipalAuthenticator pa = 
+                createAuthenticator( "org.jacorb.security.level2.PrincipalAuthenticatorImpl" );
+                
+            if( pa != null )
+            {
+                authenticators.add( pa );
+            }
+            else
+            {
+                Debug.output(Debug.SECURITY | Debug.IMPORTANT,
+                             "WARNING: Unable to create default PA" );
+                
+                return;
+            }
         }
 
         principalAuthenticator = 
