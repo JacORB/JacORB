@@ -104,10 +104,6 @@ class Interface
         enclosing_symbol = s;
     }
 
-    public String signature()
-    {
-        return "L" + typeName() + ";";
-    }
 
     public void set_locality( boolean locality_constraint )
     {
