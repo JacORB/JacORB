@@ -230,8 +230,8 @@ jacorb.use_bom=off
 # add additional IIOP 1.0 profiles even if we are using IIOP 1.2
 jacorb.giop.add_1_0_profiles=off
 
-# Enable DNS if built with DNS support
-jacorb.dns.enable=on
+# Use DNS names in IORs
+jacorb.dns.enable=off
 
 # Compact Typecodes (0 - off, 1 - partial (not member_names), 2 - all)
 jacorb.compactTypecodes=0
@@ -560,6 +560,31 @@ jacorb.poa.thread_pool_min=5
 jacorb.poa.queue_wait=off
 jacorb.poa.queue_max=100
 jacorb.poa.queue_min=10
+
+
+###################################
+#                                 #
+#  Transport Layer Configuration  #
+#                                 #
+###################################
+
+# Names of the factories classes for all installed transport plug-ins
+# (comma-separated list).
+
+#jacorb.transport.factories=org.jacorb.orb.iiop.IIOPFactories
+
+# ProfileId tags of all installed transports that should actually
+# listen on the server side.  This is a comma-separated list of numbers,
+# each number must correspond to one ProfileId tag from a factory in
+# jacorb.transport.factories.  In IORs produced by the server, the transport
+# profiles will appear in the order indicated by this list.
+
+#jacorb.transport.server.listeners=0
+
+# Name of a class that selects the transport profile to use on the 
+# client side.
+
+#jacorb.transport.client.selector=org.jacorb.orb.ProfileSelector
 
 
 ##################################
