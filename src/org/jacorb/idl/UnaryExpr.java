@@ -86,6 +86,10 @@ class UnaryExpr
         return unary_op.toString() + primary_expr.toString();
     }
 
+    public str_token get_token()
+    {
+	return primary_expr.get_token();
+    }
 
 
 }

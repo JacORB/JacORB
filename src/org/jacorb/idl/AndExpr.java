@@ -105,6 +105,11 @@ class AndExpr
         return x + shift_expr;
     }
 
+    public str_token get_token()
+    {
+	return shift_expr.get_token();
+    }
+
 }
 
 

@@ -112,6 +112,10 @@ class AddExpr
         return x + mult_expr;
     }
 
+    public str_token get_token()
+    {
+	return mult_expr.get_token();
+    }
 }
 
 

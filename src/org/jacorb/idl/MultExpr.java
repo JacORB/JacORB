@@ -110,6 +110,12 @@ class MultExpr
         }
         return x + unary_expr.toString();
     }
+
+    public str_token get_token()
+    {
+	return unary_expr.get_token();
+    }
+
 }
 
 

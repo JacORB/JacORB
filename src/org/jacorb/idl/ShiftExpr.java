@@ -98,6 +98,11 @@ class ShiftExpr
         }
         return x + add_expr;
     }
+
+    public str_token get_token()
+    {
+	return add_expr.get_token();
+    }
 }
 
 

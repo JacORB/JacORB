@@ -97,6 +97,11 @@ class XorExpr
         }
         return x + and_expr;
     }
+
+    public str_token get_token()
+    {
+	return and_expr.get_token();
+    }
 }
 
 

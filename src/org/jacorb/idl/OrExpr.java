@@ -99,6 +99,12 @@ class OrExpr
 	}
 	return x + xor_expr;
     }
+
+    public str_token get_token()
+    {
+	return xor_expr.get_token();
+    }
+
 }
 
 

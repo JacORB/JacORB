@@ -124,6 +124,11 @@ class PrimaryExpr
         }
     }
 
+    public str_token get_token()
+    {
+	return symbol.get_token();
+    }
+
 
 }
 

@@ -61,8 +61,13 @@ class ConstExpr
     {
         //        return value();
         return or_expr.toString();
-
     }
+    
+    public str_token get_token()
+    {
+	return or_expr.get_token();
+    }
+
 
     public String value() 
     {
