@@ -32,7 +32,7 @@ import org.apache.avalon.framework.configuration.Configurable;
  * @since JacORB 2.0 beta 3
  */
 
-interface LoggerFactory extends Configurable
+public interface LoggerFactory extends Configurable
 {
     /**
      * @return the name of the actual logging mechanism, e.g., "logkit"
