@@ -43,6 +43,7 @@ public class PackageTest extends TestCase {
         suite.addTest(TypedProxyPullConsumerImplTest.suite());
         suite.addTest(TypedConsumerAdminImplTest.suite());
         suite.addTest(TypedSupplierAdminImplTest.suite());
+        suite.addTest(org.jacorb.test.notification.TypedNotificationChannelTest.suite());
 
         return suite;
     }
