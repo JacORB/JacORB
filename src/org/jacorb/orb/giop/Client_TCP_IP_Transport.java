@@ -98,6 +98,16 @@ public class Client_TCP_IP_Transport
             }
         }
     }
+    
+    public Client_TCP_IP_Transport (Client_TCP_IP_Transport other)
+    {
+        super (other);
+        this.target_profile = other.target_profile;
+        this.use_ssl = other.use_ssl;
+        this.socket_factory = other.socket_factory;
+        this.timeout = other.timeout;
+        this.sslPort = other.sslPort;
+    }
 
     public synchronized boolean waitUntilConnected()
     {
@@ -235,10 +245,16 @@ public class Client_TCP_IP_Transport
                         ("connection failure without exception");        
     }
 
-    public synchronized void closeCompletely()
-        throws IOException
+    public synchronized void close()
     {
-        closeSocket();
+        try
+        {
+            closeSocket();
+        }
+        catch (IOException ex)
+        {
+            throw to_COMM_FAILURE (ex);
+        }
 
         Debug.output( 2, "Closed client-side TCP/IP transport to " +
                       connection_info + " terminally");
@@ -248,15 +264,6 @@ public class Client_TCP_IP_Transport
         notifyAll();
     }
     
-    public synchronized void closeAllowReopen()
-        throws IOException
-    {
-        closeSocket();
-
-        Debug.output( 2, "Closed client-side TCP/IP transport to " +
-                      connection_info + " non-terminally (can be reopened)");
-    }
-
     /**
      * Close socket layer down.
      */
