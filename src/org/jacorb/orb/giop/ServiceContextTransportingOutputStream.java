@@ -38,11 +38,11 @@ import org.jacorb.util.Debug;
  * Created: Sat Aug 18 12:12:22 2002
  *
  * @author Nicolas Noffke
- * @version $Id$ 
+ * @version $Id$
  */
 
-public class ServiceContextTransportingOutputStream 
-    extends MessageOutputStream 
+public class ServiceContextTransportingOutputStream
+    extends MessageOutputStream
 {
     //The purpose of this array is to align the data following this
     //array on an 8 byte boundary.  This allows for adding service
@@ -59,10 +59,10 @@ public class ServiceContextTransportingOutputStream
     // byte boundary.
     protected static ServiceContext[] service_context = new ServiceContext[0];
 
-    //The end of the GIOP message header. Only valid if 
+    //The end of the GIOP message header. Only valid if
     //header_padding != 0
     private int header_end = -1;
-    
+
     //no. of bytes used for padding between header and body
     private int header_padding = 0;
 
@@ -85,7 +85,7 @@ public class ServiceContextTransportingOutputStream
      * GIOP 1.2 requires the message body to start on an 8 byte
      * border, while 1.0/1.1 does not. Additionally, this padding shall
      * only be performed, if the body is not empty (which we don't
-     * know at this stage.  
+     * know at this stage.
      */
     protected void markHeaderEnd()
     {
@@ -96,12 +96,12 @@ public class ServiceContextTransportingOutputStream
 
         skip( header_padding );
     }
-    
+
     private int getHeaderEnd()
     {
         return header_end;
     }
-    
+
     private int getBodyBegin()
     {
         return header_end + header_padding;
@@ -112,7 +112,7 @@ public class ServiceContextTransportingOutputStream
     {
         return header_padding;
     }
-    
+
     private boolean hasBody()
     {
         return size() > getBodyBegin();
@@ -136,7 +136,7 @@ public class ServiceContextTransportingOutputStream
             {
                 //no body written, so remove padding
                 insertMsgSize( size() - header_padding - Messages.MSG_HEADER_SIZE );
-                
+
                 reduceSize( header_padding );
             }
         }
@@ -145,6 +145,8 @@ public class ServiceContextTransportingOutputStream
     public void write_to( GIOPConnection conn )
         throws IOException
     {
+        CDROutputStream ctx_out = null;
+
         if( contexts == null || contexts.size() == 0 )
         {
             //no additional service contexts present, so buffer can be
@@ -157,7 +159,7 @@ public class ServiceContextTransportingOutputStream
             switch( giop_minor )
             {
                 case 0 :
-                { 
+                {
                     // GIOP 1.0 (== GIOP 1.1, fall through)
                 }
                 case 1 :
@@ -170,12 +172,18 @@ public class ServiceContextTransportingOutputStream
                     //For GIOP 1.1, we have to add a padding context
                     contexts.addElement( padding_ctx );
 
-                    CDROutputStream ctx_out = createContextStream();
-                    
+                    ctx_out = createContextStream();
+
                     //difference to next 8 byte border
-                    int difference = 8 - (ctx_out.size() % 8); 
+
+                    // Need to calculate whether the service context needs any
+                    // padding. This is the difference. To calculate this need
+                    // to add the new CDRStream and the header size - this
+                    // should end on an 8 byte boundary.
+                    int difference =
+                        (8 - ((Messages.MSG_HEADER_SIZE + ctx_out.size ()) % 8));
                     difference = (difference == 8)? 0 : difference;
-                    
+
                     if( difference > 0 )
                     {
                         //the last padding context has a 0 length data
@@ -183,45 +191,44 @@ public class ServiceContextTransportingOutputStream
                         //with value 0 (the length of the array). To
                         //increase the data part, we have to increase
                         //the size and add the actual data.
-                        
+
                         //"unwrite" the last ulong
                         ctx_out.reduceSize( 4 );
-                        
+
                         //write new length
                         ctx_out.write_ulong( difference );
-                        
+
                         //add "new" data (by just increasing the size
                         //of the stream and not actually writing
                         //anything).
                         ctx_out.increaseSize( difference );
-                    }        
-                                       
+                    }
+
                     //Then, we have to update the message size in the GIOP
                     //message header. The new size is the size of the
                     //"original" message minus the length ulong (4 bytes) of
                     //the original empty ServiceContext array plus the length
                     //of the new service context array
-                    insertMsgSize( size() 
-                                   - Messages.MSG_HEADER_SIZE 
-                                   - 4 
+                    insertMsgSize( size()
+                                   - Messages.MSG_HEADER_SIZE
+                                   - 4
                                    + ctx_out.size() );
 
 
                     //The ServiceContexts are the first attribute in
                     //the RequestHeader struct. Therefore firstly, we
                     //have to write the GIOP message header...
-                    write( conn, 0, Messages.MSG_HEADER_SIZE );                            
-                    
-                    
+                    write( conn, 0, Messages.MSG_HEADER_SIZE );
+
                     //... then add the contexts ...
                     ctx_out.write( conn, 0, ctx_out.size() );
 
                     //... and finally the rest of the message
                     //(omitting the empty original context array).
 
-                    write( conn, 
+                    write( conn,
                            Messages.MSG_HEADER_SIZE + 4,
-                           size() - 
+                           size() -
                            (Messages.MSG_HEADER_SIZE + 4) );
                     break;
                 }
@@ -235,8 +242,8 @@ public class ServiceContextTransportingOutputStream
                     //For GIOP 1.2, the header is padded per spec, so
                     //no additional context is needed
 
-                    CDROutputStream ctx_out = createContextStream();
-                                      
+                    ctx_out = createContextStream();
+
                     //the new header end is the old header end minus
                     //the length ulong of the context array plus the
                     //length of the context array (wich contains its
@@ -244,17 +251,17 @@ public class ServiceContextTransportingOutputStream
                     int new_header_end = getHeaderEnd() - 4 + ctx_out.size();
 
                     //difference to next 8 byte border
-                    int difference =  8 - (new_header_end % 8); 
+                    int difference =  8 - (new_header_end % 8);
                     difference = (difference == 8)? 0 : difference;
-                    
+
                     if( difference > 0  && hasBody() )
-                    {                        
+                    {
                         //add padding bytes (by just increasing the
                         //size of the stream and not actually writing
                         //anything). If no body is present, no padding
                         //has to be inserted
                         ctx_out.increaseSize( difference );
-                    }        
+                    }
 
                     //Then, we have to update the message size in the
                     //GIOP message header. The new size is the size of
@@ -265,7 +272,7 @@ public class ServiceContextTransportingOutputStream
                     //(containing the new padding)
                     insertMsgSize( size()
                                    - Messages.MSG_HEADER_SIZE
-                                   - 4 
+                                   - 4
                                    - getHeaderPadding()
                                    + ctx_out.size() );
 
@@ -274,29 +281,35 @@ public class ServiceContextTransportingOutputStream
                     //have to remove the length ulong of the
                     //"original" empty service context array, because
                     //the new one has its own length attribute
-                    write( conn, 
+                    write( conn,
                            0,
                            getHeaderEnd() - 4 );
 
                     //... then add the contexts ...
 
                     ctx_out.write( conn, 0, ctx_out.size());
-                    
+
                     //... and finally the rest of the message
                     //(omitting the empty original context array).
 
-                    write( conn, 
+                    write( conn,
                            getBodyBegin(),
                            size() - getBodyBegin() );
-                    
+
                     break;
                 }
                 default :
                 {
                     throw new Error( "Unknown GIOP minor: " + giop_minor );
                 }
-            }               
-        }            
+            }
+        }
+        release();
+        if ( ctx_out != null )
+        {
+            ctx_out.release();
+            ctx_out = null;
+        }
     }
 
     public void addServiceContext( ServiceContext ctx )
@@ -305,7 +318,7 @@ public class ServiceContextTransportingOutputStream
         {
             contexts = new Vector();
         }
-        
+
         contexts.add( ctx );
     }
 
@@ -316,7 +329,7 @@ public class ServiceContextTransportingOutputStream
 
     public byte[] getBody()
     {
-        byte [] result = 
+        byte [] result =
             org.jacorb.orb.BufferManager.getInstance().getBuffer( size() - getBodyBegin());
 
         System.arraycopy( getBufferCopy(), getBodyBegin(), result, 0, result.length );
@@ -328,13 +341,13 @@ public class ServiceContextTransportingOutputStream
     private CDROutputStream createContextStream()
     {
         CDROutputStream out = new CDROutputStream( (org.omg.CORBA.ORB) null );
-        
-        //write the length of the service context array. 
+
+        //write the length of the service context array.
         out.write_ulong( contexts.size() );
 
         for( int i = 0; i < contexts.size(); i++ )
         {
-            ServiceContextHelper.write( out, 
+            ServiceContextHelper.write( out,
                                         (ServiceContext) contexts.elementAt( i ));
         }
 
