@@ -21,28 +21,24 @@ package org.jacorb.test.notification.engine;
  *
  */
 
+import java.util.Collections;
+import java.util.List;
+
+import junit.framework.Test;
 import org.jacorb.notification.EventChannelFactoryImpl;
 import org.jacorb.notification.EventChannelImpl;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.notification.MockMessage;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.jacorb.test.notification.StructuredPullReceiver;
 import org.jacorb.test.notification.StructuredPushReceiver;
-
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.CosNotifyFilter.MappingFilter;
-
-import java.util.Collections;
-import java.util.List;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
