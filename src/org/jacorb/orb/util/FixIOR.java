@@ -20,7 +20,7 @@
 
 package org.jacorb.orb.util;
 
-import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.*;
 

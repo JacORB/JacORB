@@ -22,7 +22,7 @@ package org.jacorb.orb.standardInterceptors;
 
 import org.omg.PortableInterceptor.*;
 import org.jacorb.orb.*;
-import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.util.Debug;
 
 /**

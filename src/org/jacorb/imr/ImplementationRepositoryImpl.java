@@ -26,7 +26,7 @@ import org.jacorb.imr.RegistrationPackage.*;
 import org.jacorb.imr.AdminPackage.*;
 
 import org.jacorb.orb.*;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.orb.iiop.*;
 
 import org.jacorb.poa.util.POAUtil;

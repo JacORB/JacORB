@@ -29,6 +29,7 @@ import iaik.security.ssl.*;
 
 import java.net.*;
 import java.io.IOException;
+import java.security.ProviderException;
 import java.security.cert.X509Certificate;
 
 public class SSLServerSocketFactory

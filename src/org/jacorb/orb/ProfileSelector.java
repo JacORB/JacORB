@@ -24,7 +24,7 @@ import java.util.*;
 
 import org.omg.ETF.Profile;
 
-import org.jacorb.orb.connection.ClientConnectionManager;
+import org.jacorb.orb.giop.ClientConnectionManager;
 
 /**
  * A ProfileSelector decides, on the client side, which Profile from

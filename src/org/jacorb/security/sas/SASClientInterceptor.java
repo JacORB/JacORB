@@ -31,7 +31,7 @@ import org.omg.CORBA.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.*;
-import org.jacorb.orb.connection.ClientConnection;
+import org.jacorb.orb.giop.ClientConnection;
 import org.omg.IOP.CodecFactoryPackage.*;
 
 import org.omg.IOP.*;

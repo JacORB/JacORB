@@ -21,8 +21,8 @@ package org.jacorb.orb;
  */
 
 import org.jacorb.orb.*;
-import org.jacorb.orb.connection.MessageInputStream;
-import org.jacorb.orb.connection.LocateReplyInputStream;
+import org.jacorb.orb.giop.MessageInputStream;
+import org.jacorb.orb.giop.LocateReplyInputStream;
 import org.jacorb.util.*;
 
 import org.omg.GIOP.*;
@@ -35,7 +35,7 @@ import org.omg.CORBA.portable.RemarshalException;
  * @version $Id$
  */
 public class LocateReplyReceiver
-    extends org.jacorb.orb.connection.ReplyPlaceholder
+    extends org.jacorb.orb.giop.ReplyPlaceholder
 {
     public LocateReplyReceiver()
     {

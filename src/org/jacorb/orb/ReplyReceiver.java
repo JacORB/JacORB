@@ -20,9 +20,9 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.orb.connection.MessageInputStream;
-import org.jacorb.orb.connection.ReplyInputStream;
-import org.jacorb.orb.connection.ReplyPlaceholder;
+import org.jacorb.orb.giop.MessageInputStream;
+import org.jacorb.orb.giop.ReplyInputStream;
+import org.jacorb.orb.giop.ReplyPlaceholder;
 import org.jacorb.util.*;
 
 import org.omg.GIOP.*;

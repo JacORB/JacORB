@@ -22,7 +22,7 @@ package org.jacorb.orb;
 
 import java.io.IOException;
 import java.util.*;
-import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 import org.jacorb.util.ValueHandler;

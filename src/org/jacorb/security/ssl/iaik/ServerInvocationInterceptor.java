@@ -33,7 +33,7 @@ import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.security.level2.*;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.iiop.*;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 
 import iaik.security.ssl.SSLSocket;
 

@@ -32,7 +32,7 @@ import org.omg.CORBA.UserException;
 
 import org.jacorb.ir.*;
 import org.jacorb.util.*;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 
 /**
  * JacORB-specific implementation of 

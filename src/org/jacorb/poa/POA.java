@@ -184,8 +184,8 @@ public class POA
         //whole ORB)
         if( bidirectionalPolicy != null )
         {
-            org.jacorb.orb.connection.BiDirPolicy bdp =
-                (org.jacorb.orb.connection.BiDirPolicy) bidirectionalPolicy;
+            org.jacorb.orb.giop.BiDirPolicy bdp =
+                (org.jacorb.orb.giop.BiDirPolicy) bidirectionalPolicy;
 
             if( bdp.useBiDirGIOP() )
             {

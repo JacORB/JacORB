@@ -26,7 +26,7 @@ import org.jacorb.util.*;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.portableInterceptor.*;
-import org.jacorb.orb.connection.ReplyOutputStream;
+import org.jacorb.orb.giop.ReplyOutputStream;
 
 
 import java.util.*;

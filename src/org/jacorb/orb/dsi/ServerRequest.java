@@ -23,7 +23,7 @@ package org.jacorb.orb.dsi;
 import java.util.Vector;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.poa.util.POAUtil;

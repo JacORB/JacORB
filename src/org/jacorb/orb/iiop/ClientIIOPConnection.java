@@ -26,7 +26,7 @@ import java.util.*;
 
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
-import org.jacorb.orb.connection.TransportManager;
+import org.jacorb.orb.giop.TransportManager;
 import org.jacorb.orb.factory.*;
 import org.jacorb.orb.iiop.*;
 

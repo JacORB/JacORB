@@ -53,10 +53,10 @@ public class ClientRequestInfoImpl
     public org.jacorb.orb.Delegate delegate = null;
     public org.jacorb.orb.ORB orb = null;
 
-    public org.jacorb.orb.connection.RequestOutputStream request_os = null;
-    public org.jacorb.orb.connection.ReplyInputStream reply_is = null;
+    public org.jacorb.orb.giop.RequestOutputStream request_os = null;
+    public org.jacorb.orb.giop.ReplyInputStream reply_is = null;
 
-    public org.jacorb.orb.connection.ClientConnection connection = null;
+    public org.jacorb.orb.giop.ClientConnection connection = null;
 
     public ClientRequestInfoImpl() 
     {
@@ -65,11 +65,11 @@ public class ClientRequestInfoImpl
 
     public ClientRequestInfoImpl
                       ( org.jacorb.orb.ORB orb,
-                        org.jacorb.orb.connection.RequestOutputStream ros,
+                        org.jacorb.orb.giop.RequestOutputStream ros,
                         org.omg.CORBA.Object self,
                         org.jacorb.orb.Delegate delegate,
                         org.jacorb.orb.ParsedIOR piorOriginal,
-                        org.jacorb.orb.connection.ClientConnection connection )
+                        org.jacorb.orb.giop.ClientConnection connection )
     {
          this.orb = orb;
          this.operation = ros.operation();

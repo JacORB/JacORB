@@ -25,7 +25,7 @@ import org.omg.PortableInterceptor.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.omg.GSSUP.*;
 
 public class GssUpContextValidator implements ISASContextValidator

@@ -27,7 +27,7 @@ import org.omg.CORBA.portable.*;
 
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.ParsedIOR;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.orb.*;
 import org.jacorb.util.Debug;
 import java.util.Enumeration;

@@ -30,7 +30,7 @@ import org.jacorb.util.*;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.policies.*;
 import org.jacorb.orb.dii.Request;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.poa.util.POAUtil;
 

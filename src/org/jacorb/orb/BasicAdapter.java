@@ -23,7 +23,7 @@ package org.jacorb.orb;
 import java.lang.reflect.Constructor;
 import java.net.*;
 import java.util.*;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.factory.SSLServerSocketFactory;
 import org.jacorb.orb.factory.ServerSocketFactory;

@@ -25,7 +25,7 @@ import org.omg.PortableServer.*;
 import org.omg.CORBA.ORB;
 import org.omg.CosNaming.*;
 
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
 

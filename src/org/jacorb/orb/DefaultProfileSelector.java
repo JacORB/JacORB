@@ -23,7 +23,7 @@ package org.jacorb.orb;
 
 import java.util.*;
 import org.omg.ETF.Profile;
-import org.jacorb.orb.connection.ClientConnectionManager;
+import org.jacorb.orb.giop.ClientConnectionManager;
 
 /**
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>

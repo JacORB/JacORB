@@ -23,7 +23,7 @@ package org.jacorb.orb;
 import java.io.*;
 import java.util.*;
 import org.jacorb.ir.RepositoryID;
-import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 import org.jacorb.util.ValueHandler;

@@ -22,7 +22,7 @@ package org.jacorb.orb;
 
 import java.util.Enumeration;
 
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.util.Debug;
 
@@ -52,11 +52,11 @@ public class ClientInterceptorHandler
      */
     public ClientInterceptorHandler 
                       ( org.jacorb.orb.ORB orb,
-                        org.jacorb.orb.connection.RequestOutputStream ros,
+                        org.jacorb.orb.giop.RequestOutputStream ros,
                         org.omg.CORBA.Object self,
                         org.jacorb.orb.Delegate delegate,
                         org.jacorb.orb.ParsedIOR piorOriginal,
-                        org.jacorb.orb.connection.ClientConnection connection )
+                        org.jacorb.orb.giop.ClientConnection connection )
     {
         if ( orb.hasClientRequestInterceptors() )
         {

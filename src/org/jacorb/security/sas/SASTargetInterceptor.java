@@ -37,7 +37,7 @@ import org.jacorb.orb.*;
 import org.omg.IOP.*;
 import org.omg.GIOP.*;
 import org.omg.CSI.*;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.omg.IOP.CodecFactoryPackage.*;
 
@@ -73,7 +73,7 @@ public class SASTargetInterceptor
         //sourceNameSlotID = info.allocate_slot_id();
         //contextMsgSlotID = info.allocate_slot_id();
         sasReplySlotID = info.allocate_slot_id();
-        sasContextsCubby = org.jacorb.orb.connection.GIOPConnection.allocate_cubby_id();
+        sasContextsCubby = org.jacorb.orb.giop.GIOPConnection.allocate_cubby_id();
         Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
         codec = info.codec_factory().create_codec(encoding);
         orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
