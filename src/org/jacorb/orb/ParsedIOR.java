@@ -65,7 +65,7 @@ public class ParsedIOR
 
     private ORB orb = null;
 
-    private String adport = null;
+	private IIOPAddress iiopAddress = null;
     private boolean use_ssl = false;
     private boolean use_sas = false;
 
@@ -612,12 +612,7 @@ public class ParsedIOR
         if( port < 0 )
             port += 65536;
 
-        adport = pb.host + ":" + port;
-    }
-
-    public String getAdPort()
-    {
-        return adport;
+		iiopAddress = new IIOPAddress (pb.host, port);
     }
 
     public boolean useSSL()
@@ -987,25 +982,10 @@ public class ParsedIOR
         }
     }
 
-    public String getAddress ()
-    {
-        return (getHost () + ":" + getPort ());
-    }
-
-    public String getPort ()
-    {
-        int port = profileBodies[effectiveProfileBody].port;
-        if (port < 0)
-        {
-            port += 65536;
-        }
-        return (Integer.toString (port));
-    }
-
-    public String getHost ()
-    {
-        return (profileBodies[effectiveProfileBody].host);
-    }
+	public IIOPAddress getIIOPAddress()
+	{
+		return iiopAddress;
+	}
 
     public String getTypeId()
     {
