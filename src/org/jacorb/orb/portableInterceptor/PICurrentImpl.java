@@ -14,7 +14,7 @@ import java.util.Vector;
  * @version $Id$
  */
 
-public class PICurrentImpl extends org.jacorb.orb.LocalityConstrainedObject
+public class PICurrentImpl extends org.omg.CORBA.LocalObject
   implements org.omg.PortableInterceptor.Current{
 
   private Any[] m_slots = null;

@@ -37,7 +37,7 @@ import java.math.BigInteger;
  */
 
 public class CredentialsImpl
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements org.omg.SecurityLevel2.Credentials, 
                Serializable //for making a deep copy
 {

@@ -28,7 +28,7 @@ package org.jacorb.poa.policy;
  */
 
 public class IdUniquenessPolicy 
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements org.omg.PortableServer.IdUniquenessPolicy 
 {
     private org.omg.PortableServer.IdUniquenessPolicyValue value;

@@ -12,7 +12,7 @@ import org.omg.CosNaming.*;
  */
 
 public class ClientInitializer 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ORBInitializer
 {
 

@@ -40,7 +40,7 @@ import org.jacorb.util.Debug;
  */
 
 public class ORBInitInfoImpl 
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements ORBInitInfo
 {
     private int slot_count = 0;

@@ -44,7 +44,7 @@ import iaik.security.ssl.SSLSocket;
  */
 
 public class ServerInvocationInterceptor
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ServerRequestInterceptor
 {
     public static final String DEFAULT_NAME = "ServerInvocationInterceptor";

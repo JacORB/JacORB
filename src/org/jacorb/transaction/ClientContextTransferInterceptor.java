@@ -15,7 +15,7 @@ import org.omg.IOP.TransactionService;
  */
 
 public class ClientContextTransferInterceptor
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ClientRequestInterceptor
 {
 

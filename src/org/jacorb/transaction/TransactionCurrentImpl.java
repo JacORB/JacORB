@@ -17,7 +17,7 @@ import java.util.Hashtable;
  */
 
 public class TransactionCurrentImpl 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements Current
 {
     private static final int DEFAULT_TIMEOUT = 30;

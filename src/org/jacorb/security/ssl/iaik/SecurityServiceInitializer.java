@@ -3,7 +3,7 @@ package org.jacorb.security.ssl.iaik;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 2000  Benvenuti André.
+ *   Copyright (C) 2000  Benvenuti Andrý.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -32,12 +32,12 @@ import org.jacorb.util.Environment;
  * The SecurityServiceInitializer class is responsible for setting up
  * the secure access interceptors and reserving slots in PICurrent.
  *
- * @author André Benvenuti
+ * @author Andrý Benvenuti
  *
  */
 
 public class SecurityServiceInitializer
-        extends org.jacorb.orb.LocalityConstrainedObject 
+        extends org.omg.CORBA.LocalObject 
         implements ORBInitializer
 {    
     /**

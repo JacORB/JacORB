@@ -15,7 +15,7 @@ import org.omg.IOP.ServiceContext;
  */
 
 public class ServerInterceptor 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ServerRequestInterceptor
 {
     private int slot_id = -1;

@@ -29,7 +29,7 @@ import org.omg.Security.*;
 import org.jacorb.util.Environment;
 
 public class SecurityServiceInitializer
-        extends org.jacorb.orb.LocalityConstrainedObject 
+        extends org.omg.CORBA.LocalObject 
         implements ORBInitializer
 {    
     /**

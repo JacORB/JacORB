@@ -27,7 +27,7 @@ package org.jacorb.poa.policy;
  * @version 1.0, 05/03/99, RT
  */
 public class ImplicitActivationPolicy 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements org.omg.PortableServer.ImplicitActivationPolicy 
 {
     private org.omg.PortableServer.ImplicitActivationPolicyValue value;

@@ -35,7 +35,7 @@ import java.lang.Thread;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.09, 12/08/99, RT
  */
-public class POAManager extends org.jacorb.orb.LocalityConstrainedObject implements org.omg.PortableServer.POAManager {
+public class POAManager extends org.omg.CORBA.LocalObject implements org.omg.PortableServer.POAManager {
 	public State state = State.HOLDING;
 	private org.jacorb.orb.ORB orb;
 	private Vector poas = new Vector();

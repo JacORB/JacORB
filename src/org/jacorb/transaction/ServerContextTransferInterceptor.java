@@ -15,7 +15,7 @@ import org.omg.IOP.Codec;
  */
 
 public class ServerContextTransferInterceptor 
-  extends org.jacorb.orb.LocalityConstrainedObject 
+  extends org.omg.CORBA.LocalObject 
     implements ServerRequestInterceptor{
 
     private Codec codec = null;

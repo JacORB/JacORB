@@ -13,7 +13,7 @@ import org.omg.CORBA.*;
  */
 
 public class InvocationCredentialsPolicyImpl
-    extends org.jacorb.orb.LocalityConstrainedObject  
+    extends org.omg.CORBA.LocalObject  
     implements InvocationCredentialsPolicy
 {
     private Credentials[] creds = null;

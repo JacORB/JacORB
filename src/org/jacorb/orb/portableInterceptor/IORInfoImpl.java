@@ -15,7 +15,7 @@ import java.util.Vector;
  * @version $Id$
  */
 
-public class IORInfoImpl extends org.jacorb.orb.LocalityConstrainedObject 
+public class IORInfoImpl extends org.omg.CORBA.LocalObject 
   implements IORInfo{
 
   Vector components_iiop_profile = null;

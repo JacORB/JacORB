@@ -13,7 +13,7 @@ import org.omg.CORBA.*;
  */
 
 public class DelegationDirectivePolicyImpl 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements DelegationDirectivePolicy
 {
   

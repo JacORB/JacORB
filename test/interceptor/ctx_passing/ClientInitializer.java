@@ -14,7 +14,7 @@ import org.omg.IOP.*;
  */
 
 public class ClientInitializer 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ORBInitializer  
 {
     public static int slot_id = -1;

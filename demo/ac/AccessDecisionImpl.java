@@ -22,7 +22,7 @@ import jacorb.security.level2.*;
  */
 
 public class AccessDecisionImpl
-  extends jacorb.orb.LocalityConstrainedObject
+  extends jacorb.orb.org.omg.CORBA.LocalObject
   implements AccessDecision
 {
     private static final int RESOLVER_POLICY = 200;

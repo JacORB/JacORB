@@ -3,10 +3,10 @@ package org.jacorb.orb.portableInterceptor;
 import org.omg.PortableInterceptor.*;
 
 import java.util.*;
-import org.jacorb.orb.LocalityConstrainedObject;
+import org.omg.CORBA.LocalObject;
 
 public abstract class RecursionAwareCI
-    extends LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ClientRequestInterceptor
 {
     private Hashtable thread_stacks = null;

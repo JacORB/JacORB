@@ -5,14 +5,14 @@ import org.omg.PortableInterceptor.*;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.*;
 import org.omg.IOP.*;
 
-import org.jacorb.orb.LocalityConstrainedObject;
+import org.omg.CORBA.LocalObject;
 
 /**
  * This class registers the trace interceptors
  */
 
 public class TraceInitializer 
-    extends LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ORBInitializer 
 {
     public TraceInitializer() 

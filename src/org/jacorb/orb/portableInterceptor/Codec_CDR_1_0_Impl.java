@@ -17,7 +17,7 @@ import org.jacorb.util.Debug;
  */
 
 public class Codec_CDR_1_0_Impl 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements Codec 
 {
 

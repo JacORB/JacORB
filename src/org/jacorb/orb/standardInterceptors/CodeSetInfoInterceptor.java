@@ -13,7 +13,7 @@ import org.jacorb.util.Debug;
  */
 
 public class CodeSetInfoInterceptor 
-    extends LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements IORInterceptor 
 {
     private org.omg.IOP.TaggedComponent tagc = null;

@@ -20,7 +20,7 @@ import java.lang.reflect.*;
  */
 
 public class AccessDecisionImpl
-  extends org.jacorb.orb.LocalityConstrainedObject
+  extends org.omg.CORBA.LocalObject
   implements AccessDecision
 {
 

@@ -12,7 +12,7 @@ import org.omg.PortableInterceptor.*;
  */
 
 public abstract class DefaultServerInterceptor
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ServerRequestInterceptor
 {
 

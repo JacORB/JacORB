@@ -39,6 +39,13 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+        - Local Objects: 
+                The org.jacorb.orb.LocalityConstrainedObject class has
+                been superseded by org.omg.CORBA.LocalObject class as
+                defined in the CORBA 2.4 IDL to Java mapping specification.
+                Locally constrained objects, such as portable interceptors,
+                should now extend this class.
+
 1.4 beta 2:
 =================
 

@@ -16,7 +16,7 @@ import org.omg.CORBA.ORB;
  * @version $Id$
  */
 
-public class CodecFactoryImpl extends org.jacorb.orb.LocalityConstrainedObject 
+public class CodecFactoryImpl extends org.omg.CORBA.LocalObject 
   implements CodecFactory {
 
   private ORB orb = null;

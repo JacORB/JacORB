@@ -33,7 +33,7 @@ import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
  */
 
 public class BiDirConnectionInitializer 
-  extends LocalityConstrainedObject 
+  extends org.omg.CORBA.LocalObject 
   implements ORBInitializer
 {
     public void post_init(ORBInitInfo info) 

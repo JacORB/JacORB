@@ -24,7 +24,7 @@ import org.jacorb.security.util.*;
  */
 
 public class PrincipalAuthenticatorImpl
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements org.omg.SecurityLevel2.PrincipalAuthenticator
 {  
     public PrincipalAuthenticatorImpl()

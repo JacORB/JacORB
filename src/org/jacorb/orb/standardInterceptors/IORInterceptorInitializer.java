@@ -12,7 +12,7 @@ import org.jacorb.util.Environment;
  */
 
 public class IORInterceptorInitializer 
-    extends LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ORBInitializer
 {
   

@@ -13,7 +13,7 @@ import org.omg.Security.*;
  */
 
 public class QOPPolicyImpl 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements QOPPolicy
 {
 

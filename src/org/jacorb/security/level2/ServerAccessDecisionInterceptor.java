@@ -17,7 +17,7 @@ import java.util.Hashtable;
  */
 
 public class ServerAccessDecisionInterceptor 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ServerRequestInterceptor
 {
     public static final String DEFAULT_NAME = 

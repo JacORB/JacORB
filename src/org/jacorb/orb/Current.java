@@ -25,7 +25,7 @@ package org.jacorb.orb;
  */
 
 public class Current
-    extends LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements org.omg.CORBA.Current
 {
     private org.omg.CORBA.Principal currentPrincipal;

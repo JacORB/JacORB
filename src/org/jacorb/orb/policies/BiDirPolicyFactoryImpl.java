@@ -5,7 +5,7 @@ import org.omg.BiDirPolicy.*;
 import org.omg.CORBA.*;
 
 public class BiDirPolicyFactoryImpl
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements PolicyFactory
 {
  

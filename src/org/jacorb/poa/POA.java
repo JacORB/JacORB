@@ -45,7 +45,7 @@ import java.util.*;
  */
 
 public class POA 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements org.omg.PortableServer.POA 
 {
     // my orb instance

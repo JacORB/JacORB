@@ -9,7 +9,7 @@ import org.jacorb.util.Debug;
  */
 
 public class ServerInitializer 
-  extends org.jacorb.orb.LocalityConstrainedObject 
+  extends org.omg.CORBA.LocalObject 
     implements org.omg.PortableInterceptor.ORBInitializer
 {
 

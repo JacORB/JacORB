@@ -28,7 +28,7 @@ import org.omg.PortableInterceptor.PolicyFactory;
 
 import org.omg.BiDirPolicy.*;
 
-import org.jacorb.orb.LocalityConstrainedObject;
+import org.omg.CORBA.LocalObject;
 import org.jacorb.util.Debug;
 
 /**
@@ -42,7 +42,7 @@ import org.jacorb.util.Debug;
  */
 
 public class BiDirPolicyFactory 
-    extends LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements PolicyFactory
 {
     public BiDirPolicyFactory ()

@@ -15,7 +15,7 @@ import org.jacorb.util.*;
  */
 
 public class SSLComponentInterceptor 
-    extends LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements IORInterceptor
 {
     private ORB orb = null;

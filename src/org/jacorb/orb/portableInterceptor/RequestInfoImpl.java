@@ -17,7 +17,7 @@ import java.util.*;
  */
 
 public abstract class RequestInfoImpl 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements RequestInfo
 {
 

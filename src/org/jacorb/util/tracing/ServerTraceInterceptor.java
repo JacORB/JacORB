@@ -7,10 +7,10 @@ import org.omg.CORBA.*;
 import org.omg.CORBA.portable.*;
 import org.omg.PortableInterceptor.*;
 
-import org.jacorb.orb.LocalityConstrainedObject;
+import org.omg.CORBA.LocalObject;
 
 public class ServerTraceInterceptor 
-    extends LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ServerRequestInterceptor
 {
 

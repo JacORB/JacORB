@@ -12,7 +12,7 @@ import org.omg.Security.*;
  */
 
 public class RequiredRightsImpl 
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements RequiredRights
 {
   

@@ -830,7 +830,7 @@ public class CDROutputStream
         }
         else
         {
-            if( value instanceof LocalityConstrainedObject )
+            if( value instanceof org.omg.CORBA.LocalObject )
                 throw new org.omg.CORBA.MARSHAL("Attempt to serialize a locality-constrained object.");     
             org.omg.CORBA.portable.ObjectImpl obj = 
                 (org.omg.CORBA.portable.ObjectImpl)value;

@@ -36,7 +36,7 @@ import java.util.Vector;
  */
 
 public class Current 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements org.omg.PortableServer.Current 
 {
     private Hashtable threadTable = new Hashtable(); 

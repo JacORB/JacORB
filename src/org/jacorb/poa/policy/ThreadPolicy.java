@@ -27,7 +27,7 @@ package org.jacorb.poa.policy;
  * @version 1.0, 05/03/99, RT
  */
 public class ThreadPolicy 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements org.omg.PortableServer.ThreadPolicy 
 {
     private org.omg.PortableServer.ThreadPolicyValue value;

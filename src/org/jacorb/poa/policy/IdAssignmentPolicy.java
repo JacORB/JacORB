@@ -27,7 +27,7 @@ package org.jacorb.poa.policy;
  * @version 1.0, 05/03/99, RT
  */
 public class IdAssignmentPolicy 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements org.omg.PortableServer.IdAssignmentPolicy
 {
     private org.omg.PortableServer.IdAssignmentPolicyValue value;

@@ -14,7 +14,7 @@ import org.omg.IOP.*;
  */
 
 public class ServerInitializer 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ORBInitializer
 {
 

@@ -8,7 +8,7 @@ import org.omg.CORBA.*;
 import java.util.*;
 import java.io.*;
 
-import org.jacorb.orb.LocalityConstrainedObject;
+import org.omg.CORBA.LocalObject;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.domain.*;
 

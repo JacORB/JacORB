@@ -19,7 +19,7 @@ import org.jacorb.util.Debug;
  */
 
 public class MapToDefaultDomainsPolicy
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements org.jacorb.orb.domain.InitialMapToDefaultDomainPolicy
 {
   

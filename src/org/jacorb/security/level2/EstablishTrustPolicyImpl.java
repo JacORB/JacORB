@@ -13,7 +13,7 @@ import org.omg.CORBA.*;
  */
 
 public class EstablishTrustPolicyImpl 
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements EstablishTrustPolicy
 {
   

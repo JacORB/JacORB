@@ -34,7 +34,7 @@ import org.omg.DynamicAny.DynAnyPackage.*;
 
 
 public class DynAny
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements org.omg.DynamicAny.DynAny
 {
     protected org.omg.DynamicAny.DynAnyFactory dynFactory;

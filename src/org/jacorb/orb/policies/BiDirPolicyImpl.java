@@ -3,7 +3,7 @@ package org.jacorb.orb.policies;
 import org.omg.PortableInterceptor.*;
 
 public class BiDirPolicyImpl
-    extends org.jacorb.orb.LocalityConstrainedObject
+    extends org.omg.CORBA.LocalObject
     implements org.omg.BiDirPolicy.BidirectionalPolicy
 {
     short value;

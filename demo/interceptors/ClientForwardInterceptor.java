@@ -13,7 +13,7 @@ import org.omg.CORBA.Any;
  */
 
 public class ClientForwardInterceptor
-    extends org.jacorb.orb.LocalityConstrainedObject 
+    extends org.omg.CORBA.LocalObject 
     implements ClientRequestInterceptor
 {
     private MyServer grid = null;
