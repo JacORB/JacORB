@@ -261,7 +261,7 @@ public class IIOPProfile extends _ProfileLocalBase
 		                                IIOPAddress.class);
 	}
 
-    public byte[] getObjectKey()
+    public byte[] get_object_key()
     {
         return objectKey;
     }
