@@ -46,9 +46,9 @@ public class DynAny
     /* our representation of a primitive type any is the any itself */
     private org.omg.CORBA.Any anyRepresentation;
 
+
     protected DynAny()
     {}
-
 
     DynAny( org.omg.DynamicAny.DynAnyFactory dynFactory,  
             org.omg.CORBA.TypeCode _type)
@@ -62,12 +62,14 @@ public class DynAny
 
     public org.omg.CORBA.TypeCode type()
     {
-        return type;
+       checkDestroyed ();
+       return type;       
     }
 
     public void assign(org.omg.DynamicAny.DynAny dyn_any) 
         throws TypeMismatch
     {
+        checkDestroyed ();
         if( dyn_any.type().equivalent( this.type()))
         {
             try
@@ -85,13 +87,15 @@ public class DynAny
 
     public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
     {
-        org.jacorb.util.Debug.myAssert( anyRepresentation != null, "anyRepresentation not initialized");
+       checkDestroyed ();
+       org.jacorb.util.Debug.myAssert( anyRepresentation != null, "anyRepresentation not initialized");
         return dyn_any.to_any().equal( anyRepresentation );
     }
 
     public void from_any(org.omg.CORBA.Any value) 
         throws InvalidValue, TypeMismatch
     {
+        checkDestroyed ();
         if( ! value.type().equivalent( type()) )
             throw new TypeMismatch();
 
@@ -111,6 +115,7 @@ public class DynAny
     
     public org.omg.CORBA.Any to_any() 
     {
+        checkDestroyed ();
         org.jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
         out_any.type( type());
         out_any.read_value( anyRepresentation.create_input_stream(), type());
@@ -118,12 +123,15 @@ public class DynAny
     }
 
     public void destroy()
-    {
-        anyRepresentation = null;
+   {
+      checkDestroyed ();
+      anyRepresentation = null;
+      type = null;
     }    
 
     public org.omg.DynamicAny.DynAny copy()
     {
+        checkDestroyed ();
         try
         {
             return dynFactory.create_dyn_any( to_any() );
@@ -143,221 +151,204 @@ public class DynAny
 
     protected org.omg.CORBA.Any getRepresentation()
     {
-        return anyRepresentation;
+       return anyRepresentation;
     }
 
 
     public void insert_boolean( boolean value ) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_boolean)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_boolean(value);
     }
 
 
     public void insert_octet( byte value ) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_octet)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_octet(value);
     }
 
 
     public void insert_char(char value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_char)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_char(value);
     }
 
 
     public void insert_short(short value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_short)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_short(value);
     }
 
 
     public void insert_ushort(short value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_ushort)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_ushort(value);
     }
 
 
     public void insert_long(int value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_long)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_long(value);
     }
 
 
     public void insert_ulong(int value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_ulong)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_ulong(value);
     }
 
 
     public void insert_float(float value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_float)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_float(value);
     }
 
 
     public void insert_double(double value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_double)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_double(value);
     }
 
 
     public void insert_string(java.lang.String value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_string)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_string(value);
     }
 
 
     public void insert_reference(org.omg.CORBA.Object value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
-        if( any == null || any.type().kind() != org.omg.CORBA.TCKind.tk_objref)
-            throw new InvalidValue();
+        if( any.type().kind() != org.omg.CORBA.TCKind.tk_objref)
+            throw new TypeMismatch ();
         any.insert_Object(value);
     }
 
 
     public void insert_typecode(org.omg.CORBA.TypeCode value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_TypeCode)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_TypeCode(value);
     }
 
     public void insert_longlong(long value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_longlong)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_longlong(value);
     }
 
     public void insert_ulonglong(long value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_ulonglong)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_ulonglong(value);
     }
 
     public void insert_wchar(char value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_wchar)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_wchar(value);
     }
 
     public void insert_wstring(java.lang.String value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_wstring)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_wstring(value);
     }
 
     public void insert_any(org.omg.CORBA.Any value) 
-        throws InvalidValue, TypeMismatch
+        throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_any)
-            throw new InvalidValue();
+            throw new TypeMismatch ();
         any.insert_any(value);
     }
     
 
     public void insert_dyn_any(org.omg.DynamicAny.DynAny value) 
-        throws TypeMismatch, InvalidValue
+        throws TypeMismatch
     {
-        throw new InvalidValue();
+        checkDestroyed ();
+        insert_any (value.to_any ());
     }
 
 
     public boolean get_boolean() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {           
             return any.extract_boolean();
@@ -370,9 +361,8 @@ public class DynAny
 
     public byte get_octet() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_octet();
@@ -385,9 +375,8 @@ public class DynAny
 
     public char get_char() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_char();
@@ -400,9 +389,8 @@ public class DynAny
 
     public short get_short() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_short();
@@ -415,9 +403,8 @@ public class DynAny
 
     public short get_ushort() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_ushort();
@@ -430,9 +417,8 @@ public class DynAny
 
     public int get_long() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_long();
@@ -445,9 +431,8 @@ public class DynAny
 
     public int get_ulong() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_ulong();
@@ -459,9 +444,8 @@ public class DynAny
     }
     public float get_float() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_float();
@@ -474,9 +458,8 @@ public class DynAny
 
     public double get_double() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_double();
@@ -489,9 +472,8 @@ public class DynAny
 
     public java.lang.String get_string() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_string();
@@ -504,9 +486,8 @@ public class DynAny
 
     public org.omg.CORBA.Object get_reference() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {   
             return any.extract_Object();
@@ -519,9 +500,8 @@ public class DynAny
 
     public org.omg.CORBA.TypeCode get_typecode() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_TypeCode();
@@ -534,9 +514,8 @@ public class DynAny
 
     public long get_longlong() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_longlong();
@@ -549,9 +528,8 @@ public class DynAny
 
     public long get_ulonglong() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_ulonglong();
@@ -564,9 +542,8 @@ public class DynAny
 
     public char get_wchar() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_wchar();
@@ -579,9 +556,8 @@ public class DynAny
 
     public java.lang.String get_wstring() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_wstring();
@@ -594,9 +570,8 @@ public class DynAny
 
     public org.omg.CORBA.Any get_any() throws TypeMismatch
     {
+        checkDestroyed ();
         org.omg.CORBA.Any any = getRepresentation();
-        if( any == null )
-            throw new TypeMismatch();
         try
         {
             return any.extract_any();
@@ -607,26 +582,36 @@ public class DynAny
         }
     }
 
-    public org.omg.DynamicAny.DynAny get_dyn_any()
-        throws TypeMismatch, InvalidValue
+    public org.omg.DynamicAny.DynAny get_dyn_any() throws TypeMismatch
     {
-        // ????
-        return copy();
+        checkDestroyed ();
+        try
+        {
+            return dynFactory.create_dyn_any( get_any () );
+        } 
+        catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode tm )
+        {
+            tm.printStackTrace();
+        }       
+        return null;
     }
 
     public int component_count()
     {
+        checkDestroyed ();
         return limit;
     }
 
     public org.omg.DynamicAny.DynAny current_component()
         throws TypeMismatch
     {
+        checkDestroyed ();
         throw new TypeMismatch();
     }
 
     public boolean next()
     {
+        checkDestroyed ();
         if( pos < limit-1 )
         {
             pos++;
@@ -638,7 +623,7 @@ public class DynAny
 
     public boolean seek(int index)    
     {
-
+        checkDestroyed ();
         if( index < 0 )
         {
             pos = -1;
@@ -656,10 +641,20 @@ public class DynAny
 
     public void rewind()
     {
+        checkDestroyed ();
         seek(0);
     }
 
-    private org.omg.CORBA.Any defaultValue(org.omg.CORBA.TypeCode tc)
+
+   private void checkDestroyed ()
+   {
+      if (anyRepresentation == null && type == null)
+      {
+         throw new OBJECT_NOT_EXIST ();
+      }
+   }
+
+   private org.omg.CORBA.Any defaultValue(org.omg.CORBA.TypeCode tc)
         throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch
     {
         org.omg.CORBA.Any _any = orb.create_any();
@@ -721,14 +716,5 @@ public class DynAny
         }
         return _any;
     }
-    
 
 }
-
-
-
-
-
-
-
-
