@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -17,7 +17,6 @@
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */	
-
 
 package org.jacorb.idl;
 
@@ -319,21 +318,6 @@ class Method
 
 
 } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -48,7 +48,7 @@ class Literal
 
     public void parse()
     {
-        // const expressions containign literals can be declared
+        // const expressions containing literals can be declared
         // outside cons declarations (e.g, in sequence bounds), 
         // but care only for const declarations here.
         if( declared_in != null )
@@ -60,10 +60,15 @@ class Literal
 
             if( ts instanceof FloatPtType && 
                 !(token instanceof java_cup.runtime.float_token  ))
+            {
                 parser.error("Expecting float/double constant!" );    
-            else if(  ts instanceof FixedPointConstType && 
-                      !( token instanceof fixed_token  ) )
+            }
+            else if( ts instanceof FixedPointConstType && 
+                     !( token instanceof fixed_token  ) )
+            {
                 parser.error("Expecting fixed point constant (perhaps a missing \"d\")!" );    
+            }
+
         }
     }
 

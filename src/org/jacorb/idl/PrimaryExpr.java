@@ -116,12 +116,12 @@ class PrimaryExpr
         } 
         else if( symbol instanceof ScopedName)
         {
-            //            return ConstDecl.namedValue( (ScopedName)symbol);
-            return ((ScopedName)symbol).resolvedName() + 
-                ( declared_in.contained() ? "" : ".value" );
+            return ((ScopedName)symbol).resolvedName();
         } 
         else 
+        {
             return ((Literal)symbol).string;
+        }
     }
 
 

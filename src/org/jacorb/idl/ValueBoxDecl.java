@@ -93,21 +93,25 @@ class ValueBoxDecl
     {
 	if( enclosing_symbol != null && enclosing_symbol != s )
 	{
-	    System.err.println("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName());
+	    System.err.println("was " + enclosing_symbol.getClass().getName() + 
+                               " now: " + s.getClass().getName());
 	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
 	}
 	enclosing_symbol = s;	
     }
+
 
     public String toString()
     {
 	return typeName();
     }
 
+
     public void parse() 	
     {
 	if( parsed )
 	    throw new RuntimeException("Compiler error: Struct already parsed!");
+
         escapeName();
 
         typeSpec.parse();
@@ -129,6 +133,7 @@ class ValueBoxDecl
 	parsed = true;
     }
 
+
     public String className()
     {
 	String fullName = typeName();
@@ -144,13 +149,11 @@ class ValueBoxDecl
 
     public String printReadExpression(String Streamname)
     {
-	//	return typeName() + "Helper.read(" + Streamname +")" ;
 	return toString() + "Helper.read(" + Streamname +")" ;
     }
 
     public String printWriteStatement(String var_name, String streamname)
     {
-	//return typeName()+"Helper.write(" + streamname +"," + var_name +");";
 	return toString()+"Helper.write(" + streamname +"," + var_name +");";
     }
 
