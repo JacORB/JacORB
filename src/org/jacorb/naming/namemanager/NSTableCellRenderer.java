@@ -17,7 +17,7 @@ public class NSTableCellRenderer
                             int row, int column) 
     {
         super.getTableCellRendererComponent(table, color, isSelected, hasFocus, row, column);
-        setForeground(Color.BLUE);
+        setForeground(Color.blue);
         return this;
     }
 }
