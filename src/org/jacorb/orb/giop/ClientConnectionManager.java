@@ -150,7 +150,7 @@ public class ClientConnectionManager
             GIOPConnection connection = 
                 giop_connection_manager.createClientGIOPConnection( 
                     profile,
-                    transport_manager.createClientTransport(),
+                    transport_manager.getFactories().create_connection (null),
                     request_listener,
                     null );
             
