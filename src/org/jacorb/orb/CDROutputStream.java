@@ -1063,6 +1063,7 @@ public class CDROutputStream
         buffer[pos++] = value;
     }
 
+/*
       public final void write_octet_array
           (final byte[] value, final int offset, final int length)
       {
@@ -1074,18 +1075,19 @@ public class CDROutputStream
               pos += length;
           }
       }
+*/
 
-//    public final void write_octet_array( final byte[] value, 
-//                                         final int offset, 
-//                                         final int length)
-//    {
-//        if( value != null )
-//        {
-//            deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
-//            index += length;
-//            deferred_writes += length;
-//        }
-//    }
+    public final void write_octet_array( final byte[] value, 
+                                         final int offset, 
+                                         final int length)
+    {
+        if( value != null )
+        {
+            deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
+            index += length;
+            deferred_writes += length;
+        }
+    }
 
     public final void write_Principal (final org.omg.CORBA.Principal value)
     {

@@ -130,7 +130,7 @@ public class ServerRequestListener
         deliverRequest( server_request );
     }
 
-    public void locateRequestReceived( byte[] request,
+    public void locateRequestReceived ( byte[] request,
                                        GIOPConnection connection )
     {
         /*

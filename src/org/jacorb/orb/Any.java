@@ -450,7 +450,7 @@ public final class Any
         {
            return create_input_stream().read_TypeCode ();
         }
-        return (TypeCode)value;
+        return (org.omg.CORBA.TypeCode)value;
     }
 
     // string

@@ -1071,8 +1071,9 @@ public final class Delegate
 
         if (self != obj)
         {
-            ParsedIOR pior = new ParsedIOR (obj.toString ());
-            result = getIDString().equals (pior.getIDString ());
+            ParsedIOR pior1 = new ParsedIOR (obj.toString ());
+            ParsedIOR pior2 = new ParsedIOR (self.toString ());
+            result = pior2.getIDString().equals (pior1.getIDString ());
         }
 
         return result;
