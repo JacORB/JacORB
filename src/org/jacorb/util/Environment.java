@@ -275,7 +275,7 @@ public class Environment
             {
                 System.err.println( "#####################################################################" );
 
-                System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets. A file file called \"jacorb.properties\" or \n\".jacorb_properties\" should be present in the classpath, \nthe home directory (" + home + "), the current directory (.) or \nin Javas lib directory (" + lib + ')'  );
+                System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets or suppressed by setting jacorb.suppress_no_props_warning\nto on. A file called \"jacorb.properties\" or \".jacorb_properties\"\nshould be present in the classpath, the home directory (" + home + "), \nthe current directory (.) or in Javas lib directory (" + lib + ')'  );
 
                 System.err.println( "#####################################################################\n" );
             }
@@ -450,7 +450,7 @@ public class Environment
             {
                 _log_file_out = new PrintWriter
                     (new FileOutputStream (logFileName, append));
-                if (_verbosity > 0)
+                if (_verbosity > 2)
                 {
                     System.out.println("Write output to log file \""+logFileName+"\"");
                 }
@@ -482,6 +482,7 @@ public class Environment
 
         readValue("_monitoring_on","monitoring",poaPrefix+"monitoring");
         readValue("_use_imr","use_imr",jacorbPrefix+"use_imr");
+        readValue("_impl_name","implname",jacorbPrefix+"implname");
         readValue("_use_imr_endpoint","use_imr_endpoint",jacorbPrefix+"use_imr_endpoint");
         readValue("_use_domain","use_domain",jacorbPrefix+"use_domain");
         readValue("_mount_orb_domain","_mount_orb_domain", jacorbPrefix+"orb_domain.mount");
@@ -507,7 +508,7 @@ public class Environment
         {
             _log_file_out = new PrintWriter
                 (new FileOutputStream (logFileName, append));
-            if (_verbosity > 0)
+            if (_verbosity > 2)
             {
                 System.out.println("write output to log file \""+logFileName+"\"");
             }
@@ -590,32 +591,32 @@ public class Environment
 
     public static String imrProxyHost()
     {
-        return _props.getProperty (jacorbPrefix + "imr.ior_proxy_host");   
+        return _props.getProperty (jacorbPrefix + "imr.ior_proxy_host");
     }
-    
+
     public static int imrProxyPort()
     {
         return getIntPropertyWithDefault (jacorbPrefix + "imr.ior_proxy_port",
                                           -1);
     }
-    
+
     public static String iorProxyHost()
     {
         return _props.getProperty (jacorbPrefix + "ior_proxy_host");
     }
-    
+
     public static int iorProxyPort()
     {
         return getIntPropertyWithDefault (jacorbPrefix + "ior_proxy_port",
                                           -1);
     }
-    
+
     public static int giopMinorVersion()
     {
         return getIntPropertyWithDefault (jacorbPrefix + "giop_minor_version",
                                           2);
     }
-    
+
     public static boolean giopAdd_1_0_Profiles()
     {
         return isPropertyOn (jacorbPrefix + "giop.add_1_0_profiles");
