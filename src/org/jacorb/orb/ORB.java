@@ -27,6 +27,7 @@ import java.lang.reflect.*;
 
 import org.jacorb.util.*;
 import org.jacorb.orb.policies.*;
+import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.connection.*;
 import org.jacorb.orb.domain.DomainFactory;
 import org.jacorb.orb.portableInterceptor.*;
@@ -109,6 +110,11 @@ public final class ORB
     private int persistentPOACount;
 
     public static String orb_id = "jacorb:1.0";
+
+    /* outstanding dii requests awaiting completion */
+    private Set requests = Collections.synchronizedSet( new HashSet() );
+    /* most recently completed dii request found during poll */
+    private Request request = null;
 
     /* policy factories, from portable interceptor spec */
     private Hashtable policy_factories = null;
@@ -395,10 +401,10 @@ public final class ORB
      */
 
     org.omg.IOP.IOR createIOR( String repId, 
-			       byte[] key, 
-			       boolean _transient, 
-			       org.jacorb.poa.POA poa,
-			       Hashtable policy_overrides)
+                byte[] key, 
+                boolean _transient, 
+                org.jacorb.poa.POA poa,
+                Hashtable policy_overrides)
     {
         String address = Environment.getProperty( "jacorb.ior_proxy_host" );
         if( address == null )
@@ -620,11 +626,6 @@ public final class ORB
         throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
-    public org.omg.CORBA.Request get_next_response ()
-    {
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
-    }
-
     /**
      * used from the POA
      * @returns the basic adapter used by this ORB instance
@@ -806,11 +807,6 @@ public final class ORB
         }
     }
 
-    public boolean poll_next_response()
-    {
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
-    }
-
 
     public void referenceCreated(org.omg.CORBA.Object o) {}
 
@@ -854,21 +850,21 @@ public final class ORB
 
             if( url != null )
             {
-		try
-		{
-		    obj = this.string_to_object( url );
-		}
-		catch( Exception e )
-		{
-		    Debug.output( 1, "ERROR: Could not create initial reference for \"" +
-				  identifier + '\"' );
-		    Debug.output( 1, "Please check property \"ORBInitRef." + 
-				  identifier + '\"' );
+      try
+      {
+          obj = this.string_to_object( url );
+      }
+      catch( Exception e )
+      {
+          Debug.output( 1, "ERROR: Could not create initial reference for \"" +
+              identifier + '\"' );
+          Debug.output( 1, "Please check property \"ORBInitRef." + 
+              identifier + '\"' );
 
-		    Debug.output( 3, e );
+          Debug.output( 3, e );
 
-		    throw new org.omg.CORBA.ORBPackage.InvalidName();
-		}
+          throw new org.omg.CORBA.ORBPackage.InvalidName();
+      }
             }
             /* "special" behavior follows */
             else if (identifier.equals ("NameService") && isApplet ())
@@ -1132,16 +1128,95 @@ public final class ORB
         Debug.output(4,"ORB run, exit");
     }
 
-    public void send_multiple_requests_deferred(org.omg.CORBA.Request[] req)
+
+    public void send_multiple_requests_oneway( org.omg.CORBA.Request[] req )
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
+        for( int i = 0; i < req.length; i++ )
+        {
+            req[i].send_oneway();
+        }
     }
 
-    public void send_multiple_requests_oneway(org.omg.CORBA.Request[] req)
+    public void send_multiple_requests_deferred( org.omg.CORBA.Request[] req )
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
+        for( int i = 0; i < req.length; i++ )
+        {
+            req[i].send_deferred();
+        }
     }
 
+    public boolean poll_next_response()
+    {
+        if( requests.size () == 0 )
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 11, org.omg.CORBA.CompletionStatus.COMPLETED_NO );          
+        }
+       
+        synchronized( requests )
+        {
+            Request req;
+            Iterator iter = requests.iterator();
+            while( iter.hasNext() )
+            {
+                req = (Request)iter.next();
+                if( req.poll_response() )
+                {
+                    request = req;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public org.omg.CORBA.Request get_next_response ()
+    {
+        if( requests.size () == 0 )
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                ( 11, org.omg.CORBA.CompletionStatus.COMPLETED_NO );          
+        }
+
+        synchronized( requests )
+        {
+            Request req = null;
+            if( request != null )
+            {
+                request.get_response();
+                req = request;
+                request = null;
+                return req;
+            }
+
+            Iterator iter;
+            while( true )
+            {
+                iter = requests.iterator();
+                while( iter.hasNext() )
+                {
+                    req = (Request)iter.next();
+                    if( req.poll_response() )
+                    {
+                        req.get_response();
+                        return req;
+                    }
+                }
+            }
+        }
+    }
+
+    public void addRequest( org.omg.CORBA.Request req )
+    {
+        requests.add( req );
+    }
+
+       public void removeRequest( org.omg.CORBA.Request req )
+    {
+        requests.remove( req );
+    }
+
+   
     /**
      * called from ORB.init()
      */
@@ -1208,7 +1283,7 @@ public final class ORB
 
 
         connectionManager = new ConnectionManager(this);
-	
+   
         String s = Environment.getProperty( "jacorb.hashtable_class" );
         if( s == null || s.length() == 0 )
         {
@@ -1276,7 +1351,7 @@ public final class ORB
         Environment.addProperties( props );
 
         connectionManager = new ConnectionManager(this);
-	
+   
         String s = Environment.getProperty( "jacorb.hashtable_class" );
         if( s == null || s.length() == 0 )
         {
