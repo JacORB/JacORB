@@ -57,7 +57,9 @@ gerald.brose@acm.org
                 JNDI and as resources. This can be done using 'jndi:' or
                 'resource:' based URLs. Unrecognised URL types are now passed 
                 down to the underlying JDK for processing ('https:', 'ftp:' 
-                etc.).
+                etc.). Note that the javax.naming package required for JNDI
+                support is not included in the JDK 1.2 and this package must be
+                added explicitly to the CLASSPATH.
 
         - Local Objects: 
                 The org.jacorb.orb.LocalityConstrainedObject class has

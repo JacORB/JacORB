@@ -1,4 +1,4 @@
-JacORB 1.3.30
+JacORB 1.4 Beta 3
 
 		Installing and Building JacORB
 
@@ -6,11 +6,7 @@ _____________________________________________________________________
 
 Required: 
 
-	- JDK 1.1 or later
-
-	- if your are using JDK 1.1 and want to use any GUI features
-	  at all, you need to install the swing classes (aka Java 
-	  Foundations Classes JFC) downloadable from http://java.sun.com
+	- JDK 1.2 or later
 
 	- for IIOP over SSL: 
           JDK 1.4 or IAIK crytography provider and SSL implementation, 
@@ -24,8 +20,14 @@ Required:
           dnsjava 1.1.6 (or above) available from 
           http://www.xbill.org/dnsjava. See step 7. for instructions.
 
-	[ This release was tested on Linux (JDK 1.2.2, 1.3.1, 1.4-beta3), Solaris 
-	(JDK 1.3.0) and Win2k Sp1 (JDK1.3). ]
+        This release has been tested on:
+
+        Linux JDK 1.2.2, 1.3.1, 1.4.0
+        Solaris JDK 1.2.2, 1.3.1, 1.4.0
+        Windows 2000 JDK 1.2.2, 1.3.1, 1.4.0
+        Windows NT JDK 1.2.2, 1.3.1, 1.4.0
+        HP-UX JDK 1.2.2, 1.3.1
+        AIX JDK 1.3.1
 
 Installation:
 =============
@@ -111,6 +113,10 @@ Installation:
 Building JacORB (Optional)
 ==========================
 
+   Ensure ant and java are in your PATH and JAVA_HOME is defined.
+   Ensure that the JDK rt.jar and tools.jar are in your CLASSPATH.
+   Ensure the JacORB classes subdirectory is in your CLASSPATH.
+
    To build JacORB you need to call "ant" in 
    the installation directory as shown below.
 
@@ -138,5 +144,3 @@ Building JacORB (Optional)
         set ANT_OPTS=-mx48m
    on Windows, or on Unix:
         export ANT_OPTS=-mx48m
-_____________________________________________________________________
-Gerald Brose, June 2001
