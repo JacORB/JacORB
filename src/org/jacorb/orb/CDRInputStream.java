@@ -2197,6 +2197,7 @@ public class CDRInputStream
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
         chunkedValue = ((tag & 8) != 0);
 
+        int theTag = tag;
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
@@ -2210,7 +2211,9 @@ public class CDRInputStream
             return read_multi_typed_value( start_offset, codebase );
         }
         else
-            throw new MARSHAL("unknown value tag: " + Integer.toHexString(tag));
+            throw new MARSHAL("unknown value tag: 0x" + 
+                              Integer.toHexString(theTag) + " (offset=0x" + 
+                              Integer.toHexString(start_offset) + ")");
     }
 
     /**
@@ -2237,6 +2240,7 @@ public class CDRInputStream
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
         chunkedValue = ((tag & 8) != 0);
 
+        int theTag = tag;
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
@@ -2253,7 +2257,9 @@ public class CDRInputStream
         }
         else
         {
-            throw new MARSHAL("unknown value tag: " + Integer.toHexString(tag));
+            throw new MARSHAL("unknown value tag: 0x" + 
+                              Integer.toHexString(theTag) + " (offset=0x" + 
+                              Integer.toHexString(start_offset) + ")");
         }
     }
 
@@ -2308,6 +2314,7 @@ public class CDRInputStream
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
         chunkedValue = ((tag & 8) != 0);
 
+        int theTag = tag;
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
@@ -2325,7 +2332,9 @@ public class CDRInputStream
         }
         else
         {
-            throw new MARSHAL("unknown value tag: " + Integer.toHexString(tag));
+            throw new MARSHAL("unknown value tag: 0x" + 
+                              Integer.toHexString(theTag) + " (offset=0x" + 
+                              Integer.toHexString(start_offset) + ")");
         }
     }
 
@@ -2355,6 +2364,7 @@ public class CDRInputStream
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
         chunkedValue = ((tag & 8) != 0);
 
+        int theTag = tag;
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
@@ -2377,7 +2387,9 @@ public class CDRInputStream
             return read_typed_value(start_offset, codebase);
         }
         else
-            throw new MARSHAL("unknown value tag: " + Integer.toHexString(tag));
+            throw new MARSHAL("unknown value tag: 0x" + 
+                              Integer.toHexString(theTag) + " (offset=0x" + 
+                              Integer.toHexString(start_offset) + ")");
     }
 
     /**
@@ -2639,9 +2651,10 @@ public class CDRInputStream
         {
             // a new codebase string
             pos -= 4;
-            int index = pos;
+            index -= 4;
+            int start_offset = pos;
             String codebase = read_string();
-            getCodebaseMap ().put (new Integer(index), codebase);
+            getCodebaseMap ().put (new Integer(start_offset), codebase);
             return codebase;
         }
     }
