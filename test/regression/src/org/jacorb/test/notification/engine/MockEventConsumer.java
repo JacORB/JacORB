@@ -105,6 +105,11 @@ class MockEventConsumer implements MessageConsumer {
     }
 
 
+    public boolean isDisposed() {
+        return disposeCalled > 0;
+    }
+
+
     public void deliverPendingMessages() {
         logger_.debug("deliverPendingEvents");
 

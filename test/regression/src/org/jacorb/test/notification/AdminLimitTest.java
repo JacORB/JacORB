@@ -44,6 +44,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import java.util.ArrayList;
+import org.jacorb.notification.util.QoSPropertySet;
 
 /**
  * @author Alphonse Bendt
@@ -52,7 +53,6 @@ import java.util.ArrayList;
 
 public class AdminLimitTest extends TestCase
 {
-
     ConsumerAdminTieImpl consumerAdmin_;
     ChannelContext channelContext_;
     int counter_;
@@ -71,6 +71,11 @@ public class AdminLimitTest extends TestCase
 
         consumerAdmin_ =
             new ConsumerAdminTieImpl(channelContext_);
+
+        QoSPropertySet qosSettings_ =
+            new QoSPropertySet(QoSPropertySet.ADMIN_QOS);
+
+        consumerAdmin_.set_qos(qosSettings_.get_qos());
     }
 
     public void tearDown() throws Exception
@@ -197,5 +202,4 @@ public class AdminLimitTest extends TestCase
     {
         junit.textui.TestRunner.run(suite());
     }
-
 }

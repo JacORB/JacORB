@@ -48,7 +48,6 @@ import junit.framework.TestSuite;
 
 public class PushToConsumerTest extends TestCase
 {
-
     TaskProcessor taskProcessor_;
 
     ORB orb = ORB.init();

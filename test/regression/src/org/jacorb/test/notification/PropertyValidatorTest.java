@@ -1,6 +1,6 @@
 package org.jacorb.test.notification;
 
-import org.jacorb.notification.servant.QoSPropertySet;
+import org.jacorb.notification.util.QoSPropertySet;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
