@@ -462,14 +462,14 @@ public final class ORB
     {
         List profiles     = new ArrayList();
         Map  componentMap = new HashMap();
-        
+
         for (Iterator i = basicAdapter.getEndpointProfiles().iterator();
              i.hasNext();)
         {
             Profile profile = (Profile)i.next();
             profile.set_object_key (objectKey);
             profiles.add (profile);
-        
+
             TaggedComponentList profileComponents = new TaggedComponentList();
             profileComponents.addComponent (create_ORB_TYPE_ID());
             componentMap.put (new Integer (profile.tag()), profileComponents);
@@ -477,7 +477,7 @@ public final class ORB
             // use proxy or ImR address if necessary
             if (profile instanceof IIOPProfile)
             {
-                patchAddress ((IIOPProfile)profile, repId, _transient);   
+                patchAddress ((IIOPProfile)profile, repId, _transient);
             }
         }
 
@@ -489,8 +489,8 @@ public final class ORB
         if ((interceptor_manager != null) &&
             interceptor_manager.hasIORInterceptors())
         {
-            IORInfoImpl info = new IORInfoImpl (this, poa, 
-                                                componentMap, 
+            IORInfoImpl info = new IORInfoImpl (this, poa,
+                                                componentMap,
                                                 policy_overrides);
             try
             {
@@ -504,26 +504,26 @@ public final class ORB
 
         // add GIOP 1.0 profile if necessary
         IIOPProfile iiopProfile = findIIOPProfile (profiles);
-        if (   (iiopProfile != null) 
+        if (   (iiopProfile != null)
             && (   Environment.giopMinorVersion() == 0
                 || Environment.giopAdd_1_0_Profiles()))
         {
             Profile profile_1_0 = iiopProfile.to_GIOP_1_0();
             profiles.add (profile_1_0);
-            
+
             // shuffle all components over into the multiple components profile
             TaggedComponentList iiopComponents =
-                (TaggedComponentList)componentMap.get 
+                (TaggedComponentList)componentMap.get
                                        (new Integer (TAG_INTERNET_IOP.value));
 
             multipleComponents.addAll (iiopProfile.getComponents());
             multipleComponents.addAll (iiopComponents);
 
             // if we only want GIOP 1.0, remove the other profile
-            if (Environment.giopMinorVersion() == 0) 
+            if (Environment.giopMinorVersion() == 0)
             {
                 profiles.remove (iiopProfile);
-            }           
+            }
         }
 
         // marshal the profiles into the IOR and return
@@ -535,7 +535,7 @@ public final class ORB
         else
         {
             tps = new TaggedProfile [profiles.size() + 1];
-            tps[tps.length-1] = 
+            tps[tps.length-1] =
                 createMultipleComponentsProfile (multipleComponents);
         }
 
@@ -544,7 +544,7 @@ public final class ORB
         for (int i=0; i<profiles.size(); i++)
         {
             Profile p = (Profile)profiles.get(i);
-            TaggedComponentList c = 
+            TaggedComponentList c =
                 (TaggedComponentList)componentMap.get (new Integer (p.tag()));
             tc.value = c.asArray();
             p.marshal (tp, tc);
@@ -554,7 +554,7 @@ public final class ORB
         return new IOR (repId, tps);
     }
 
-    private TaggedProfile createMultipleComponentsProfile 
+    private TaggedProfile createMultipleComponentsProfile
                                   (TaggedComponentList components)
     {
         CDROutputStream out = new CDROutputStream (this);
@@ -571,7 +571,7 @@ public final class ORB
      * Finds the first IIOPProfile in the given List of Profiles,
      * and returns it.  If no such profile is found, this method
      * returns null.
-     */    
+     */
     private IIOPProfile findIIOPProfile (List profiles)
     {
         for (Iterator i = profiles.iterator(); i.hasNext();)
@@ -581,7 +581,7 @@ public final class ORB
                 return (IIOPProfile)p;
         }
         return null;
-    }   
+    }
 
     public org.omg.CORBA.Context get_default_context ()
     {
@@ -591,9 +591,8 @@ public final class ORB
 
     /**
      * used from the POA
-     * @returns the basic adapter used by this ORB instance
+     * @return the basic adapter used by this ORB instance
      */
-
     public org.jacorb.orb.BasicAdapter getBasicAdapter()
     {
         if( basicAdapter == null )
@@ -624,28 +623,20 @@ public final class ORB
      * @param _transient is the new reference transient or persistent
      * @return a new CORBA Object reference
      */
-
     public org.omg.CORBA.Object getReference( org.jacorb.poa.POA poa,
                                               byte[] object_key,
                                               String rep_id,
                                               boolean _transient )
     {
-        try
-        {
-            if( rep_id == null )
-                rep_id = "IDL:org.omg/CORBA/Object:1.0";
+        if( rep_id == null )
+            rep_id = "IDL:org.omg/CORBA/Object:1.0";
 
-            org.omg.IOP.IOR ior =
-                createIOR( rep_id, object_key, _transient, poa, null );
+        org.omg.IOP.IOR ior =
+        createIOR( rep_id, object_key, _transient, poa, null );
 
-            Delegate d = new Delegate( this, ior );
-            return d.getReference( poa );
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
-        return null;
+        Delegate d = new Delegate( this, ior );
+
+        return d.getReference( poa );
     }
 
     public org.jacorb.poa.POA getRootPOA()
@@ -667,7 +658,7 @@ public final class ORB
 
 
     /**
-     * @returns - true if ORB is initialized by an applet and
+     * @return - true if ORB is initialized by an applet and
      * appligator use is switched on
      */
 
@@ -770,7 +761,7 @@ public final class ORB
     /**
      * Replace the server address in profile with a proxy address if necessary.
      */
-    private void patchAddress (IIOPProfile profile, 
+    private void patchAddress (IIOPProfile profile,
                                String repId,
                                boolean _transient)
     {
@@ -784,7 +775,7 @@ public final class ORB
                  && Environment.useImREndpoint())
         {
             getImR();
-            
+
             profile.patchPrimaryAddress (imr.getImRHost(), imr.getImRPort());
             profile.patchPrimaryAddress (Environment.imrProxyHost(),
                                          Environment.imrProxyPort());
@@ -812,15 +803,15 @@ public final class ORB
         );
     }
 
-    /*
-     * Return the address to use to locate the server.  Note that this
-     * address will be overwritten by the ImR address in the IOR of
-     * persistent servers if the use_imr and use_imr_endpoint properties
-     * are switched on.
-     *
-     * @return the address for the server
-     */
 
+    /**
+     * <code>getServerAddress</code> returns the address to use to locate the
+     * server.  Note that this address will be overwritten by the ImR address in
+     * the IOR of persistent servers if the use_imr and use_imr_endpoint
+     * properties are switched on
+     *
+     * @return a <code>String</code>, the address for the server.
+     */
     private String getServerAddress()
     {
         String address = Environment.getProperty( "jacorb.ior_proxy_host" );
@@ -828,7 +819,7 @@ public final class ORB
         if( address == null )
         {
             //property not set
-            address = basicAdapter.getAddress();
+            address = getBasicAdapter().getAddress();
         }
         else
         {
@@ -839,15 +830,15 @@ public final class ORB
         return address;
     }
 
-    /*
-     * Return the port to use to locate the server.  Note that this
-     * port will be overwritten by the ImR port in the IOR of
-     * persistent servers if the use_imr and use_imr_endpoint properties
-     * are switched on.
-     *
-     * @return the port for the server
-     */
 
+    /**
+     * <code>getServerPort</code> returns the port to use to locate the server.
+     * Note that this port will be overwritten by the ImR port in the IOR of
+     * persistent servers if the use_imr and use_imr_endpoint properties are
+     * switched on.
+     *
+     * @return an <code>int</code>, the port for the server.
+     */
     private int getServerPort()
     {
         String port_str = Environment.getProperty( "jacorb.ior_proxy_port" );
@@ -878,7 +869,7 @@ public final class ORB
         else
         {
             //property not set
-            port = basicAdapter.getPort();
+            port = getBasicAdapter().getPort();
         }
 
         return port;
