@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
+
 import org.apache.log.Hierarchy;
 import org.apache.log.LogTarget;
 import org.apache.log.Logger;
@@ -55,19 +57,15 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryPOA;
 import org.omg.CosNotifyFilter.FilterFactory;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import org.omg.PortableServer.IdAssignmentPolicyValue;
-import org.omg.PortableServer.RequestProcessingPolicyValue;
-import java.util.Properties;
-import org.omg.PortableServer.IdUniquenessPolicyValue;
-import org.omg.PortableServer.ImplicitActivationPolicyValue;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
-import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -97,6 +95,8 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     private static final String NOTIFICATION_SERVICE = "NotificationService";
     
     static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[ 0 ];
+	static final String notificationPOAName = "NotificationPOA";
+	static final String objectName = "_factory";
 
     protected EventChannelFactory thisFactory_;
     protected FilterFactory defaultFilterFactory_;
@@ -211,8 +211,8 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
         propertyValidator_.checkAdminPropertySeq( administrativeProperties );
         propertyValidator_.checkQoSPropertySeq( qualitiyOfServiceProperties );
 
-        Map _uniqueAdminProperties = propertyValidator_.getUniqueProperties( administrativeProperties );
-        Map _uniqueQoSProperties = propertyValidator_.getUniqueProperties( qualitiyOfServiceProperties );
+        Map _uniqueAdminProperties = PropertyValidator.getUniqueProperties( administrativeProperties );
+        Map _uniqueQoSProperties = PropertyValidator.getUniqueProperties( qualitiyOfServiceProperties );
 
         if ( _uniqueQoSProperties.containsKey( EventReliability.value ) )
         {
@@ -410,18 +410,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	return buffer.toString();
     }
 
-    public EventChannelFactoryImpl() throws Exception {
-	String standardImplName = "Notification";
-	String notificationPOAName = "NotificationPOA";
-	String objectName = "_factory";
-
-	Properties props = new Properties();
-	props.put("jacorb.implname", standardImplName);
-	props.put("jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE,
-		  standardImplName + "/" + notificationPOAName + "/" + objectName);
-
-
-        final ORB _orb = ORB.init( new String[0], props );
+    public EventChannelFactoryImpl(final ORB _orb) throws Exception {
 
         POA _rootPOA = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
 
@@ -557,50 +546,61 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     }
 
     private static void help() {
-	System.out.println("Usage: ntfy [-printIOR|-printCorbaloc|-help]");
+	System.out.println("Usage: ntfy [-printIOR|-printCorbaloc|-help] [-port <oaPort>] [-channels <channels>]");
 	
 	System.exit(0);
     }
 
-    private static void checkArgs(String[] args) {
-	if (args != null) {
-	    if (args.length == 0) {
-		return;
-	    }
-
-	    if (args.length > 1) {
-		help();
-	    }
-
-	    if (args[0].equals("-printIOR")) {
-	    } else if (args[0].equals("-printCorbaloc")) {
-	    } else {
-		help();
-	    }
-
-	}
-    }
-
     public static void main( String[] args ) throws Exception
     {
-	checkArgs(args);
+    	boolean doHelp = false;
+    	boolean doPrintIOR = false;
+    	boolean doPrintCorbaloc = false;
+    	String oaPort = null;
+    	int channels = 0;
+    	
+    	// process arguments
+    	for (int i = 0; i < args.length; i++) {
+    		if (args[i].equals("-printIOR")) {
+    			doPrintIOR = true;
+			} else if (args[i].equals("-printCorbaloc")) {
+				doPrintCorbaloc = true;
+			} else if (args[i].equals("-help")) {
+				doHelp = true;
+			} else if (args[i].equals("-port")) {
+				oaPort = args[++i];
+			} else if (args[i].equals("-channels")) {
+				channels = Integer.parseInt(args[++i]);
+			} else {
+				System.out.println("Unknown argument: "+args[i]);
+				help();
+			}
+    		
+    	}
+    	
+    	if (doHelp) {
+    		help();
+    		System.exit(0);
+    	}
+    	
+    	// set ORB properties
+		String standardImplName = "Notification";
+		Properties props = new Properties();
+		props.put("jacorb.implname", standardImplName);
+		props.put("jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE, standardImplName + "/" + notificationPOAName + "/" + objectName);
+		if (oaPort != null) props.put ("OAPort", oaPort);
+		final ORB _orb = ORB.init( new String[0], props );
 
-	if (args.length == 1 && args[0].equals("-help")) {
-	    help();
-	}
+	setLogLevel("org.jacorb.notification", Priority.INFO);
 
-	setLogLevel("org.jacorb.notification", Priority.NONE);
+        EventChannelFactoryImpl _factory = new EventChannelFactoryImpl(_orb);
+        for (int i = 0; i < channels; i++) {
+        	IntHolder ih = new IntHolder();
+        	_factory.create_channel(new Property[0], new Property[0], ih);
+        }
 
-        EventChannelFactoryImpl _factory =
-            new EventChannelFactoryImpl();
-
-	if (args.length > 0) {
-	    if (args[0].equals("-printIOR")) {
-		System.out.println(_factory.getIOR());
-	    } else if (args[0].equals("-printCorbaloc")) {
-		System.out.println(_factory.getCorbaLoc());
-	    }	    
-	}
+		if (doPrintIOR) System.out.println(_factory.getIOR());
+		if (doPrintCorbaloc) System.out.println(_factory.getCorbaLoc());
     }
 
 } 
