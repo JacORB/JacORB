@@ -490,7 +490,14 @@ public class ORBSingleton
                                                                String name)
     {
        checkTCRepositoryId( id );
-       checkTCName (name, true);
+
+       // Please do not uncomment the line below:
+       //checkTCName (name, true)
+       //
+       // Reason: Sun's ValueHandler calls create_abstract_interface_tc()
+       // passing an empty string as the name parameter. checkTCName()
+       // then throws `org.omg.CORBA.BAD_PARAM: Illegal blank IDL name'.
+
        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_abstract_interface,
                                            id,
                                            name);
