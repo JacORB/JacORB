@@ -21,23 +21,33 @@ package org.jacorb.poa;
  */
 
 import java.util.*;
+
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.except.ResourceLimitReachedException;
 import org.jacorb.poa.util.StringPair;
-import org.jacorb.util.Environment;
 
 /**
- * This class will manage a queue of ServerRequest objects.
+ * This class manages a queue of ServerRequest objects.
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version $Id$
  */
 public class RequestQueue
+    implements Configurable
 {
     private RequestQueueListener queueListener;
     private RequestController controller;
+
+    /** the configuration object for this queue */
+    private org.jacorb.config.Configuration configuration = null;
     private Logger logger;
+    private int queueMin;
+    private int queueMax;
+    private boolean queueWait;
+
     private List queue =
         new ArrayList (POAConstants.QUEUE_CAPACITY_INI);
                     // POAConstants.QUEUE_CAPACITY_INC);
@@ -46,10 +56,19 @@ public class RequestQueue
     {
     }
 
-    protected RequestQueue(RequestController controller, Logger logger)
+    protected RequestQueue(RequestController controller)
     {
         this.controller = controller;
-        this.logger = logger;
+    }
+   
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.poa.queue");
+        queueMax = configuration.getAttributeAsInteger("jacorb.poa.queue_max", 100);
+        queueMin = configuration.getAttributeAsInteger("jacorb.poa.queue_min", 10);
+        queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait");
     }
 
     /**
@@ -63,14 +82,15 @@ public class RequestQueue
      * <code>queue_min</code> requests are in the queue; it then adds the
      * request, and returns.
      */
+
     protected synchronized void add(ServerRequest request)
         throws ResourceLimitReachedException
     {
-        if (queue.size() >= Environment.queueMax())
+        if (queue.size() >= queueMax )
         {
-            if (Environment.queueWait())
+            if ( queueWait )
             {
-                while (queue.size() > Environment.queueMin())
+                while (queue.size() > queueMin )
                 {
                     try
                     {

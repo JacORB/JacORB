@@ -21,10 +21,11 @@ package org.jacorb.poa;
  */
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.poa.util.*;
+import org.jacorb.util.ObjectUtil;
 
-import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
 
 
@@ -42,7 +43,12 @@ public class POAMonitorLightImpl
     private AOM aomModel;
     private RequestQueue queueModel;
     private RPPoolManager pmModel;
+
+    /** the configuration object for this POA instance */
+    private org.jacorb.config.Configuration configuration = null;
     private Logger logger;
+    private boolean doMonitor;
+
     private String prefix;
 
     public void changeState(String state) 
@@ -55,26 +61,34 @@ public class POAMonitorLightImpl
 
 
     public void init(POA poa, AOM aom, RequestQueue queue, RPPoolManager pm,
-                     String _prefix, Logger logger) 
+                     String _prefix) 
     {
         poaModel = poa;
         aomModel = aom;
         queueModel = queue;
         pmModel = pm;
         prefix = prefix;
-        this.logger = logger;
     }
 
+    
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.poa.monitor");
+        doMonitor = 
+            configuration.getAttributeAsBoolean("jacorb.poa.monitoring",false);
+    }
 
     public void openMonitor() 
     {
-        if (Environment.isMonitoringOn()) 
+        if ( doMonitor ) 
         {
             try 
             {
                 POAMonitor newMonitor = 
-                    (POAMonitor)Environment.classForName("org.jacorb.poa.POAMonitorImpl").newInstance();
-                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, logger);
+                    (POAMonitor)ObjectUtil.classForName("org.jacorb.poa.POAMonitorImpl").newInstance();
+                newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix );
                 poaModel.setMonitor(newMonitor);
                 newMonitor.openMonitor();
             } 

@@ -19,10 +19,13 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
-import org.jacorb.poa.gui.*;
 
-import org.jacorb.util.Environment;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
+import org.jacorb.poa.gui.*;
+import org.jacorb.util.ObjectUtil;
+
 
 /**
  * A lightweight implementation of a POAManager monitor
@@ -32,26 +35,51 @@ import org.jacorb.util.Environment;
  */
 
 public class POAManagerMonitorLightImpl 
-    implements POAManagerMonitor 
+    implements POAManagerMonitor, Configurable
 {
     private POAManager model = null;
-    public void addPOA(String name) {
+
+    private org.jacorb.config.Configuration configuration = null;
+    private Logger logger;
+    private boolean doMonitor;
+
+    public void addPOA(String name) 
+    {
     }
+
     public void closeMonitor() {
     }
-    public void init(POAManager poaManager) {
+
+    public void init(POAManager poaManager) 
+    {
         model = poaManager;
     }
-    public void openMonitor() {
-        if (Environment.isMonitoringOn()) {
-            try {
-                POAManagerMonitor newMonitor = (POAManagerMonitor)Class.forName("org.jacorb.poa.POAManagerMonitorImpl").newInstance();
+       
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.poa.manager_monitor");
+        doMonitor = 
+            configuration.getAttributeAsBoolean("jacorb.poa.monitoring",false);
+    }
+
+    public void openMonitor() 
+    {
+        if ( doMonitor ) 
+        {
+            try 
+            {
+                POAManagerMonitor newMonitor = 
+                    (POAManagerMonitor)ObjectUtil.classForName("org.jacorb.poa.POAManagerMonitorImpl").newInstance();
                 newMonitor.init(model);                         
                 model.setMonitor(newMonitor);
                 newMonitor.openMonitor();
-            } catch (Throwable exception) {
-                org.jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitorLightImpl");
-                org.jacorb.util.Debug.output(0, exception);
+            } 
+            catch (Throwable exception) 
+            {
+                if (logger.isErrorEnabled())
+                    logger.error( "Exception in closeMonitor(): " + exception.getMessage());
             }
         }
     }
