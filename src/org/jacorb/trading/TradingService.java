@@ -50,7 +50,8 @@ public class TradingService
 	{
 	    obj =  orb.resolve_initial_references("InterfaceRepository");
 	}
-	catch (org.omg.CORBA.ORBPackage.InvalidName e) {
+	catch ( Exception e ) 
+        {
 	    // ignore - no interface repository available
 	}
 
