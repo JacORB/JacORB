@@ -53,7 +53,6 @@ import org.jacorb.notification.filter.EvaluationContext;
 
 public class ApplicationContext implements Disposable
 {
-
     private ORB orb_;
     private POA poa_;
     private TaskProcessor taskProcessor_;
@@ -62,8 +61,7 @@ public class ApplicationContext implements Disposable
     private MessageFactory notificationEventFactory_;
     private DynAnyFactory dynAnyFactory_;
     private DynamicEvaluator dynamicEvaluator_;
-    private PropertyManager defaultAdminProperties_;
-    private PropertyManager defaultQoSProperties_;
+
     Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private void setup( ORB orb, POA poa, boolean init ) throws InvalidName
@@ -113,23 +111,10 @@ public class ApplicationContext implements Disposable
                 }
             };
 
-        evaluationResultPool_.init();
+        //        evaluationResultPool_.init();
 
         notificationEventFactory_ = new MessageFactory();
         notificationEventFactory_.init();
-
-        defaultQoSProperties_ = new PropertyManager( this );
-        defaultAdminProperties_ = new PropertyManager( this );
-
-        Any _maxBatchSize = orb_.create_any();
-        _maxBatchSize.insert_long( 1 );
-        defaultQoSProperties_.setProperty( MaximumBatchSize.value,
-                                           _maxBatchSize );
-
-        Any _pacingInterval = orb_.create_any();
-        TimeTHelper.insert( _pacingInterval, 0 );
-        defaultQoSProperties_.setProperty( PacingInterval.value,
-                                           _pacingInterval );
 
         if ( init )
         {
@@ -171,7 +156,7 @@ public class ApplicationContext implements Disposable
             taskProcessor_ = null;
         }
 
-        evaluationResultPool_.dispose();
+        //        evaluationResultPool_.dispose();
         evaluationContextPool_.dispose();
         notificationEventFactory_.dispose();
 
@@ -214,7 +199,7 @@ public class ApplicationContext implements Disposable
         poa_ = newPoa;
     }
 
-    public EvaluationResult newEvaluationResult()
+    private EvaluationResult newEvaluationResult()
     {
         return ( EvaluationResult ) evaluationResultPool_.lendObject();
     }
@@ -235,18 +220,6 @@ public class ApplicationContext implements Disposable
     }
 
 
-    public PropertyManager getDefaultAdminProperties()
-    {
-        return defaultAdminProperties_;
-    }
-
-
-    public PropertyManager getDefaultQoSProperties()
-    {
-        return defaultQoSProperties_;
-    }
-
-
     public DynamicEvaluator getDynamicEvaluator()
     {
         return dynamicEvaluator_;
@@ -258,11 +231,4 @@ public class ApplicationContext implements Disposable
         return taskProcessor_;
     }
 
-
-    public EventQueue newEventQueue( PropertyManager qosProperties )
-        throws UnsupportedQoS
-    {
-        return EventQueueFactory.newEventQueue( qosProperties );
-    }
-
-} // ApplicationContext
+}
