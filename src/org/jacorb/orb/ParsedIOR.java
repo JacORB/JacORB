@@ -107,29 +107,35 @@ public class ParsedIOR
     }
 
     /**
-     * The TargetAddress struct provides three different ways of
-     * transporting the object key. Since most of jacorbs structure
-     * only wants to access the object_key, we transform the original
-     * target address to the object_key type.
-     */
-    public static void unfiyTargetAddress( TargetAddress addr )
+    * This method replaces the unfiyTargetAddress method.
+    * <P>
+    * It will extract an object key from any given GIOP::TargetAddress
+    * assuming an appropriate ETF::Factories implementation is availble
+    * for the profile in use. 
+    */
+    public static byte[] extractObjectKey(TargetAddress addr, ORB orb)
     {
-        if( addr.discriminator() == ProfileAddr.value )
+        TaggedProfile tp = null;
+        switch (addr.discriminator())
         {
-            IIOPProfile p =
-                new IIOPProfile (addr.profile().profile_data);
-            addr.object_key( p.get_object_key() );
+            case KeyAddr.value:
+                return addr.object_key();
+            case ProfileAddr.value:
+                tp = new TaggedProfile(addr.profile().tag, addr.profile().profile_data);
+                break;
+            case ReferenceAddr.value:
+                IORAddressingInfo info = addr.ior();
+                tp = new TaggedProfile(info.ior.profiles[info.selected_profile_index].tag, 
+                                       info.ior.profiles[info.selected_profile_index].profile_data);
+                break;
         }
-        else if( addr.discriminator() == ReferenceAddr.value )
+        TaggedProfileHolder profile = new TaggedProfileHolder(tp);
+        org.omg.ETF.Factories profileFactory = orb.getTransportManager().getFactories(tp.tag);        
+        if (profileFactory != null)
         {
-            IORAddressingInfo info = addr.ior();
-
-            ParsedIOR pior = new ParsedIOR( info.ior, null );
-            pior.effectiveProfile =
-              (IIOPProfile)pior.profiles.get (info.selected_profile_index);
-
-            addr.object_key( pior.get_object_key() );
+            return profileFactory.demarshal_profile(profile, new TaggedComponentSeqHolder()).get_object_key();
         }
+        return null;
     }
 
     /**
