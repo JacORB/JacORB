@@ -26,6 +26,8 @@ import java.io.*;
 /**
  * @author Gerald Brose
  * @version $Id$
+ *
+ * directly known subclasses: ValueBody
  */
 
 class InterfaceBody 
@@ -304,7 +306,7 @@ class InterfaceBody
 	}
     }
 
-    Operation[] getMethods()
+    protected Operation[] getMethods()
     {
 	if( methods == null )
 	{

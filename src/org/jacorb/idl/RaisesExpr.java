@@ -121,7 +121,7 @@ class RaisesExpr
         h.clear();
         String[] classes = getExceptionClassNames();
 
-        Interface myInterface = (Interface)enclosing_symbol;
+        IdlSymbol myInterface = enclosing_symbol;
 
         for( int i = 0; i < classes.length; i++ )
         {

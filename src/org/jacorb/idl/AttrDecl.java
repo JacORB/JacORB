@@ -55,7 +55,7 @@ class AttrDecl
 
     public void parse() 
     {
-        Interface myInterface = (Interface)enclosing_symbol;
+        IdlSymbol myInterface = enclosing_symbol;
 
 	if( param_type_spec.typeSpec() instanceof ScopedName )
 	{

@@ -36,7 +36,7 @@ class OpDecl
     public TypeSpec opTypeSpec;
     public Vector paramDecls;
     public RaisesExpr raisesExpr;
-    public Interface myInterface;
+    public IdlSymbol myInterface;
 
     public OpDecl(int num)
     {
@@ -73,7 +73,7 @@ class OpDecl
 
     public void parse()
     {
-        myInterface = (Interface)enclosing_symbol;
+        myInterface = enclosing_symbol;
 
         //        escapeName();
         if( opAttribute == 1 )

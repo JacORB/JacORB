@@ -599,14 +599,14 @@ non terminal ScopedName scopename;
 non terminal Value        value;
 non terminal ValueBoxDecl value_box_dcl;
 non terminal ValueDecl    value_dcl;
-//non terminal ValueAbsDecl value_abs_dcl;
-non terminal IdlSymbol    value_body;
-non terminal IdlSymbol    value_inheritance_spec;
+non terminal ValueAbsDecl value_abs_dcl;
+non terminal ValueBody    value_body;
+non terminal ValueInheritanceSpec   value_inheritance_spec;
 non terminal Definitions  value_elements;
 non terminal Definition   value_element;
 non terminal StateMember  state_member;
-non terminal IdlSymbol    init_param_decls;
-non terminal IdlSymbol    init_param_decl;
+non terminal InitDecl     init_dcl;
+non terminal InitParamDecl init_param_decl;
 
 non terminal ConstDecl const_dcl;
 non terminal ConstType const_type;
@@ -666,7 +666,7 @@ non terminal AttrDecl attr_dcl;
 
 non terminal MemberList member_list;
 
-non terminal SymbolList case_label_list,param_dcls, parameter_dcls, scopename_list;
+non terminal SymbolList case_label_list, param_dcls, init_param_decls, parameter_dcls, scopename_list;
 non terminal SymbolList simple_declarator_list, declarators;
 non terminal SymbolList inheritance_spec, enumerator_list, fixed_array_size_list;
 
@@ -919,6 +919,8 @@ interface ::=
 
 
 // # 8
+//      multiple interface_bodies allowed to realize export*
+
 interface_body ::=
           export:e interface_body:i
                 {: 
@@ -948,7 +950,9 @@ export ::=
 // # 10
 inheritance_spec ::=
           COLON scopename_list:sl
-                {: RESULT.v = (Vector)sl.v.clone(); :}
+                {: 
+                        RESULT.v = (Vector)sl.v.clone(); 
+                :}
         | empty
         ;
 
@@ -991,10 +995,10 @@ value ::=
                {: 
                         RESULT.setValue (vd);
                 :}
-//        | value_abs_dcl:vad
-//               {: 
-//                        RESULT.setValue (vad);
-//                :}
+        | value_abs_dcl:vad
+               {: 
+                        RESULT.setValue (vad);
+                :}
         | value_box_dcl:vbx
                {: 
                         RESULT.setValue (vbx);
@@ -1012,17 +1016,30 @@ value_box_dcl ::=
                 :}
         ;
 
-/*
 value_abs_dcl ::=
           ABSTRACT VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_body:b RCBRACE
-        |  ABSTRACT VALUETYPE ID:i value_inheritance_spec:is LCBRACE RCBRACE
+                {:
+                        RESULT.name = i.str_val;
+                        RESULT.inheritanceSpec = is;
+                        RESULT.body = b;
+                        b.set_name(i.str_val);  
+                        b.myAbsValue = RESULT;
+                        b.setEnclosingSymbol(RESULT);
+                :}
         ;
-*/
+
 
 value_body ::=
           export:e value_body:vb
-        | export:e
+                {: 
+                        RESULT.v = (Vector)vb.v.clone();
+                        RESULT.v.insertElementAt(e,0);
+                :}
+        | empty
+                {: RESULT.commit(); :} 
+                // so that the i_body knows its vector is complete
         ;
+
 
 value_dcl ::= 
           CUSTOM VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
@@ -1043,8 +1060,20 @@ value_dcl ::=
 
 value_inheritance_spec ::= 
           COLON truncatable:t scopename_list:vn 
+                {:
+                        RESULT.truncatable = t.int_val;      
+                        RESULT.v = (Vector)vn.v.clone(); 
+                :}
         | SUPPORTS scopename_list:interface_names
+                {:
+                        RESULT.supports = (Vector)interface_names.v.clone(); 
+                :}
         | COLON truncatable:t scopename_list:vn SUPPORTS scopename_list:interface_names
+                {:      
+                        RESULT.truncatable = t.int_val;              
+                        RESULT.v = (Vector)vn.v.clone(); 
+                        RESULT.supports = (Vector)interface_names.v.clone(); 
+                :}
         | empty
         ;      
 
@@ -1077,9 +1106,12 @@ value_element ::=
                 {:
                         RESULT.set_declaration (sm);
                 :}
-        | FACTORY ID:i LPAREN init_param_decls:ipd RPAREN SEMI
-        | FACTORY ID:i LPAREN RPAREN SEMI
+        | init_dcl:id
+                {:
+                        RESULT.set_declaration (id);
+                :}
         ;
+
 
 state_member ::=
           PUBLIC type_spec:ts declarators:ds SEMI
@@ -1097,13 +1129,37 @@ state_member ::=
                   :}
         ;
         
+init_dcl ::=
+          FACTORY ID:i LPAREN init_param_decls:ipd RPAREN SEMI
+                {:
+                        RESULT.name = i.str_val;
+                        RESULT.paramDecls = (Vector)ipd.v.clone();
+                :}
+        | FACTORY ID:i LPAREN RPAREN SEMI
+                {:
+                        RESULT.name = i.str_val;
+                :}
+        ;
+
 init_param_decls ::=
           init_param_decl:ip
+                {: 
+                        RESULT.v.insertElementAt( ip, 0); 
+                :}
         | init_param_decl:ip COMMA init_param_decls:ipdcls
+                {: 
+                        RESULT.v = (Vector)ipdcls.v.clone(); 
+                        RESULT.v.insertElementAt( ip, 0); 
+                :}
         ; 
+
 
 init_param_decl ::=
           IN param_type_spec:ts simple_declarator:sd
+                  {:
+                        RESULT.paramTypeSpec = ts;
+                        RESULT.simple_declarator = sd;
+                  :}
         ;
 
 // #12
