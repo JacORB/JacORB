@@ -31,12 +31,12 @@ module Messaging {
 	//
 	// Rebind Policy (default = TRANSPARENT)
 	const CORBA::PolicyType REBIND_POLICY_TYPE = 23;
-	interface RebindPolicy : CORBA::Policy {
+	local interface RebindPolicy : CORBA::Policy {
 		readonly attribute RebindMode rebind_mode;
 	};
 	// Synchronization Policy (default = SYNC_WITH_TRANSPORT)
 	const CORBA::PolicyType SYNC_SCOPE_POLICY_TYPE = 24;
-	interface SyncScopePolicy : CORBA::Policy {
+	local interface SyncScopePolicy : CORBA::Policy {
 		readonly attribute SyncScope synchronization;
 	};
 	// Priority Policies
@@ -48,37 +48,37 @@ module Messaging {
 		Priority min;
 		Priority max;
 	};
-	interface RequestPriorityPolicy : CORBA::Policy {
+	local interface RequestPriorityPolicy : CORBA::Policy {
 		readonly attribute PriorityRange priority_range;
 	};
 	const CORBA::PolicyType REPLY_PRIORITY_POLICY_TYPE = 26;
-	interface ReplyPriorityPolicy : CORBA::Policy {
+	local interface ReplyPriorityPolicy : CORBA::Policy {
 		readonly attribute PriorityRange priority_range;
 	};
 	// Timeout Policies
 	const CORBA::PolicyType REQUEST_START_TIME_POLICY_TYPE = 27;
-	interface RequestStartTimePolicy : CORBA::Policy {
+	local interface RequestStartTimePolicy : CORBA::Policy {
 		readonly attribute TimeBase::UtcT start_time;
 	};
 	const CORBA::PolicyType REQUEST_END_TIME_POLICY_TYPE = 28;
-	interface RequestEndTimePolicy : CORBA::Policy {
+	local interface RequestEndTimePolicy : CORBA::Policy {
 		readonly attribute TimeBase::UtcT end_time;
 	};
 	const CORBA::PolicyType REPLY_START_TIME_POLICY_TYPE = 29;
-	interface ReplyStartTimePolicy : CORBA::Policy {
+	local interface ReplyStartTimePolicy : CORBA::Policy {
 		readonly attribute TimeBase::UtcT start_time;
 	};
 	const CORBA::PolicyType REPLY_END_TIME_POLICY_TYPE = 30;
-	interface ReplyEndTimePolicy : CORBA::Policy {
+	local interface ReplyEndTimePolicy : CORBA::Policy {
 		readonly attribute TimeBase::UtcT end_time;
 	};
 	const CORBA::PolicyType RELATIVE_REQ_TIMEOUT_POLICY_TYPE =
 		31;
-	interface RelativeRequestTimeoutPolicy : CORBA::Policy {
+	local interface RelativeRequestTimeoutPolicy : CORBA::Policy {
 		readonly attribute TimeBase::TimeT relative_expiry;
 	};
 	const CORBA::PolicyType RELATIVE_RT_TIMEOUT_POLICY_TYPE = 32;
-	interface RelativeRoundtripTimeoutPolicy : CORBA::Policy {
+	local interface RelativeRoundtripTimeoutPolicy : CORBA::Policy {
 		readonly attribute TimeBase::TimeT relative_expiry;
 	};
 	const CORBA::PolicyType ROUTING_POLICY_TYPE = 33;
@@ -86,18 +86,18 @@ module Messaging {
 		RoutingType min;
 		RoutingType max;
 	};
-	interface RoutingPolicy : CORBA::Policy {
+	local interface RoutingPolicy : CORBA::Policy {
 		readonly attribute RoutingTypeRange routing_range;
 	};
 
 
 	const CORBA::PolicyType MAX_HOPS_POLICY_TYPE = 34;
-	interface MaxHopsPolicy : CORBA::Policy {
+	local interface MaxHopsPolicy : CORBA::Policy {
 		readonly attribute unsigned short max_hops;
 	};
 	// Router Delivery-ordering Policy (default = ORDER_TEMPORAL)
 	const CORBA::PolicyType QUEUE_ORDER_POLICY_TYPE = 35;
-	interface QueueOrderPolicy : CORBA::Policy {
+	local interface QueueOrderPolicy : CORBA::Policy {
 		readonly attribute Ordering allowed_orders;
 	};
 	//
