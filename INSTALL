@@ -38,33 +38,29 @@ Installation:
 1.  For rebuilding, extend your CLASSPATH environment variable to 
     include the following paths, where <jacorb_home> denotes your 
     JacORB installation directory and <ant_home> the Ant installation 
-    directory.:
+    directory:
 
-	1) <jacorb>/classes
+	1) <jacorb_home>/classes
 	2) <ant_home>/lib/ant.jar
 
-2. Extend your search path to include the <jacorb>/bin subdirectory
+2. Extend your search path to include the <jacorb_home>/bin subdirectory
    of the installation directory so that the JacORB utilities can be
    found. (For rebuilding, ant's /bin directory must also be included.)
 
-3. Copy orb.properties to JAVA_HOME/lib or edit the existing
+3. If you can't or don't want to use the jaco[.bat] start scripts,
+   copy orb.properties to JAVA_HOME/lib or edit the existing
    orb.properties file.
 
 4. Edit jacorb.properties and copy them to your "home" directory.
-   Please use jacorb_properties.template as a template.
-   Most options need no configuration, but you must adjust the  
-   URL strings
-
-        ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
-        ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
-        ORBInitRef.ImplementationRepository=http://www.x.y.z/~user/ImR_Ref
-        jacorb.ProxyServerURL=http://www.x.y.z/~user/Appligator_Ref
-
-   to match your domain's web server or local file system structure.
-   Please consult the programming guide's section on  setting up the
-   name server for details. The trader and the Appligator are located 
-   using the same mechanism. If you don't need these services, just
-   comment out the coorresponding line in the properties file..
+   Please use jacorb_properties.template as a template.  Most options
+   need no configuration, but make sure you adjust at last the URL
+   strings for the services you plan to use (e.g. NameService and so
+   on) to match your domain's web server or local file system
+   structure.  Please consult the programming guide's section on
+   setting up the name server for details. The trader and the
+   implementation repository are located using the same mechanism. If
+   you don't need these services, just comment out the corresponding
+   line in the properties file.
 
    Also, you can configure how much diagnostic information JacORB
    emits by setting the jacorb.verbosity property. A value of 0
@@ -92,55 +88,55 @@ Installation:
         a) If you have ant installed, simply call 
             "ant jaco"
 
-        b) If you don't have ant, you need to adapt the jaco(.bat)
-           script in bin/ yourself to update the classpath.
+        b) If you don't have ant, you need to create and adapt the
+           jaco[.bat] script in bin/ yourself to update the
+           classpath. You can use the file jacotemplate[.bat] as a
+           template and replace the @@@XYZ_HOME@@@ placeholders by
+           your actual pathes.
 
-
-6. If you intend to use Appligator with appletviewer, please edit
-   bin/jacapplet(.bat) to reflect your local system configuration.
-
-7. If you like to have host names instead of IP adresses in your
-   IORs you  have to  install dnsjava (make  its classes  present) 
-   and recompile src/org/jacorb/orb/dns. To recompile, do an "ant" 
-   in that dir, and an "ant libs" in the JacORB root dir. If 
-   you're absolutely sure that you're not using the jacorb.jar, 
-   you can omit rebuilding the libs.
+6. If you like to have host names instead of IP adresses in your IORs
+   you have to install dnsjava (make its classes present) and
+   recompile src/org/jacorb/orb/dns. To recompile, do an "ant" in that
+   dir, and an "ant libs" in the JacORB root dir. If you're absolutely
+   sure that you're not using the jacorb.jar, you can omit rebuilding
+   the libs.
    
    If the IP addresses aren't resolved properly / at all, see the
-   dnsjava docs on how to set properties to tell dnsjava where to look 
+   dnsjava docs on how to set properties to tell dnsjava where to look
    for the DNS servers.
 
 Building JacORB (Optional)
 ==========================
 
    Ensure ant and java are in your PATH and JAVA_HOME is defined.
-   Ensure that the JDK rt.jar and tools.jar are in your CLASSPATH.
    Ensure the JacORB classes subdirectory is in your CLASSPATH.
 
-   To build JacORB you need to call "ant" in 
-   the installation directory as shown below.
+   To build JacORB you need to call "ant" in the installation
+   directory as shown below.
 
 	$> ant 
  
    NOTE: 
 
-   The build process may bail out, claiming that javac 
-   does not have enough memory. This can happen when trying to
-   compile a large number or files at one time. To avoid this
-   on Unix, copy the file "antrc" to your home directory renaming it to
-   ".antrc". If you are building on a Windows platform copy the 
-   antrc_pre.bat file to your home directory (as denoted by %HOME%). 
-   ant will consult these files and use a larger Java maximum heap size.
-   If this is not applicable in your setting you need to edit 
-   ANT_HOME/bin/ant(.bat) such that the java interpreter is passed the 
-   -mx48m (or whatever) switch. 
-   For Windows add the following line after calling antrc_pre.bat
-        set ANT_OPTS=-mx48m %ANT_OPTS%
-   For Unix add the following line after sourcing .antrc
-        ANT_OPTS=-mx48m $ANT_OPTS
+   The build process may bail out, claiming that javac does not have
+   enough memory. This can happen when trying to compile a large
+   number or files at one time. To avoid this on Unix, copy the file
+   "ANTRC" to your home directory renaming it to ".antrc". If you are
+   building on a Windows platform copy the antrc_pre.bat file to your
+   home directory (as denoted by %HOME%).  ant will consult these
+   files and use a larger Java maximum heap size.  If this is not
+   applicable in your setting you need to edit ANT_HOME/bin/ant(.bat)
+   such that the java interpreter is passed the -mx48m (or whatever)
+   switch.  For Windows add the following line after calling
+   antrc_pre.bat 
+		set ANT_OPTS=-mx48m %ANT_OPTS% 
+
+   For Unix add the following line after sourcing .antrc 
+		ANT_OPTS=-mx48m $ANT_OPTS
 
    Yet another way of achieving the same is by setting the 
    ANT_OPTS environment variable:
         set ANT_OPTS=-mx48m
    on Windows, or on Unix:
         export ANT_OPTS=-mx48m
+
