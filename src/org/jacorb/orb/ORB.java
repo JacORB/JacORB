@@ -750,7 +750,21 @@ public final class ORB
 
             if( url != null )
             {
-                obj = this.string_to_object( url );
+		try
+		{
+		    obj = this.string_to_object( url );
+		}
+		catch( Exception e )
+		{
+		    Debug.output( 1, "ERROR: Could not create initial reference for \"" +
+				  identifier + '\"' );
+		    Debug.output( 1, "Please check property \"ORBInitRef." + 
+				  identifier + '\"' );
+
+		    Debug.output( 3, e );
+
+		    throw new org.omg.CORBA.ORBPackage.InvalidName();
+		}
             }
             /* "special" behavior follows */
             else if( identifier.equals("NameService") && isApplet() )

@@ -52,9 +52,10 @@ public  class ObjectUtil
 	}
 	catch ( Exception e )
 	{ 
-            org.jacorb.util.Debug.output(2, "Could not read from URL " + url );
-	    org.jacorb.util.Debug.output(3,e);	    
+            org.jacorb.util.Debug.output( 1, "ERROR: Could not read from URL " + url );
+	    org.jacorb.util.Debug.output( 3, e );	    
 	}
+
 	return null;
     }
 
