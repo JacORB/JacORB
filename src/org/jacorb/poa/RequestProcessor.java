@@ -425,9 +425,7 @@ public class RequestProcessor
         }
 
         //org.jacorb.util.Debug.output(2, ">>>>>>>>>>>> process req pre invoke");
-
-        Time.waitFor (request.getRequestStartTime());
-        
+  
         // TODO: The exception replies below should also trigger interceptors.
         // Requires some re-arranging of the entire method.
         if (Time.hasPassed (request.getRequestEndTime()))
@@ -444,7 +442,8 @@ public class RequestProcessor
                                             0, CompletionStatus.COMPLETED_NO));
             return;
         }
-                                                
+
+        Time.waitFor (request.getRequestStartTime());
 
         if (servantManager != null)
         {
@@ -625,13 +624,23 @@ public class RequestProcessor
             
             if (controller.getLogTrace().test(2))
                 controller.getLogTrace().printLog(request, "process request");
+
+            if (request.syncScope() == org.omg.Messaging.SYNC_WITH_SERVER.value)
+            {
+                controller.returnResult (request);
+                process();
+            }
+            else
+            {
+                process();
+                controller.returnResult (request);
+            }
                         
-            process();
-                    
             // return the request to the request controller
             if (controller.getLogTrace().test(3))
                 controller.getLogTrace().printLog(request, "ends with request processing");
-            controller.returnResult(request);
+
+            controller.finish  (request);
                         
             start = false;
             clear();
