@@ -291,7 +291,7 @@ public class Client_TCP_IP_Transport
         return socket_factory.isSSL( socket );
     }
     
-    public InternetIOPProfile get_server_profile()
+    public org.omg.ETF.Profile get_server_profile()
     {
         return target_profile;
     }
