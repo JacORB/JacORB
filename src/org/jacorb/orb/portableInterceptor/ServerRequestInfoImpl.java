@@ -179,7 +179,7 @@ public class ServerRequestInfoImpl
             throw new BAD_INV_ORDER("The attribute \"reply_status\" is currently invalid!",
                                     10, CompletionStatus.COMPLETED_MAYBE);
 
-        return (short) request.status().value();
+        return reply_status;
     }
 
     public org.omg.CORBA.Object forward_reference() {
