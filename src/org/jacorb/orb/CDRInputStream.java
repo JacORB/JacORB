@@ -1976,7 +1976,7 @@ public class CDRInputStream
                     }
                     catch (org.omg.CORBA.TypeCodePackage.BadKind b)
                     {
-                        throw new RuntimeException(b);
+                        throw new RuntimeException(b.toString());
                     }
                 }
                 else if (tag == 0xffffffff)
