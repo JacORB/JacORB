@@ -267,15 +267,6 @@ public class ORBSingleton
         return new org.jacorb.orb.TypeCode( id );
     }  
  
-    /**
-     * @deprecated Deprecated by CORBA 2.3 
-     */
-
-    public TypeCode create_recursive_sequence_tc( int bound, int offset)
-    {
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
-    }
-
     public TypeCode create_sequence_tc( int bound, TypeCode element_type)
     {
         checkTCMemberType( element_type );
