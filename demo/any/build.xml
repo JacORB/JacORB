@@ -1,22 +1,26 @@
 <?xml version="1.0"?>
 
-<project name="demo" default="all" basedir="../..">
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../common.xml"> ]>
+
+<project name="any" default="all" basedir="../..">
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
+   &common;
+
+   <target name="myinit" depends="init">
 	<property name="name" value="any"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg -p demo.any -d ${dirs.base}/demo/${name}/generated"/>
+        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
+	<property name="include" value="${dirs.base}/idl/omg"/>
    </target>
 
-   <target name="all" depends="init,idl">
-	<javac srcdir="${dirs.base}/demo/${name}/generated"
+   <target name="all" depends="myinit,idl">
+	<javac srcdir="${dest}"
                destdir="${classdir}"
 	       includes="demo/${name}/**/*.java"
                />
@@ -26,20 +30,18 @@
                 />
    </target>
 
-   <target name="idl" depends="init">
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
-              classpath="${lib}/idl.jar;${java.class.path}">
-
-	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/server.idl"/>
-         </java>
+   <target name="idl" depends="myinit,load-taskdef">
+        <mkdir dir="${dest}" />
+        <jacidl srcdir="demo/${name}"
+                destdir="${dest}"
+                includepath="${include}"
+	        includes="*.idl"/>
    </target>
 
 
-   <target name="clean" depends="init">
+   <target name="clean" depends="myinit">
 	   <delete dir="${classdir}/demo/${name}"/>
-	   <delete dir="${dirs.base}/demo/${name}/generated"/>
+	   <delete dir="${dest}"/>
    </target>
 
 </project>

@@ -1,22 +1,29 @@
-
-    struct Node {
-	string name;
-	sequence<Node> next;
-    };
-
-    union Nums	switch (char)
+module demo
+{
+    module _any
     {
-        case 'f': float f;
-        case 'l': long l;
-        default: short s;
+
+        struct Node {
+            string name;
+            sequence<Node> next;
+        };
+        
+        union Nums	switch (char)
+        {
+            case 'f': float f;
+            case 'l': long l;
+            default: short s;
+        };
+        
+        typedef string strings[3];
+        typedef wstring myWString;
+        
+        typedef sequence< string > MyStringSeq;
+        
+        interface AnyServer 
+            {
+                string generic(in any a);
+            };
+
     };
-
-    typedef string strings[3];
-    typedef wstring myWString;
-
-    typedef sequence< string > MyStringSeq;
-
-    interface AnyServer 
-    {
-	string generic(in any a);
-    };
+};
