@@ -42,26 +42,23 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
- * EventQueueFactory.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class EventQueueFactory
 {
-    static Logger sLogger = Debug.getNamedLogger( EventQueueFactory.class.getName() );
+    private static Logger sLogger = Debug.getNamedLogger( EventQueueFactory.class.getName() );
 
-    private final static short UNKNOWN_POLICY = Short.MIN_VALUE;
+    private static final short UNKNOWN_POLICY = Short.MIN_VALUE;
 
-    private final static Hashtable mapOrderPolicyNameToValue = new Hashtable();
+    private static final Hashtable mapOrderPolicyNameToValue = new Hashtable();
 
-    private final static Hashtable mapDiscardPolicyNameToValue = new Hashtable();
+    private static final Hashtable mapDiscardPolicyNameToValue = new Hashtable();
 
-    private final static String[] mapOrderPolicyValueToName;
+    private static final String[] mapOrderPolicyValueToName;
 
-    private final static String[] mapDiscardPolicyValueToName;
+    private static final String[] mapDiscardPolicyValueToName;
 
     static {
         mapOrderPolicyNameToValue.put( "AnyOrder", new Short( AnyOrder.value ) );
@@ -91,9 +88,17 @@ public class EventQueueFactory
                                       };
     }
 
+    ////////////////////////////////////////
+
+    /**
+     * Utility class shouldn't have public constructor.
+     */
+    private EventQueueFactory() {}
+
+    ////////////////////////////////////////
+
     public static EventQueue newEventQueue( PropertyManager qosProperties ) throws UnsupportedQoS
     {
-
         int maxEventsPerConsumer =
             Environment.getIntPropertyWithDefault( ConfigurableProperties.MAX_EVENTS_PER_CONSUMER,
                                                    Constants.DEFAULT_MAX_EVENTS_PER_CONSUMER );
@@ -142,7 +147,6 @@ public class EventQueueFactory
 
         switch ( shortOrderPolicy )
         {
-
             case AnyOrder.value:
                 // fallthrough
 
@@ -168,7 +172,6 @@ public class EventQueueFactory
 
         switch ( shortDiscardPolicy )
         {
-
             case AnyOrder.value:
                 // fallthrough
 
@@ -195,9 +198,9 @@ public class EventQueueFactory
                                                     + shortDiscardPolicy
                                                     + " unknown" );
         }
-
         return queue;
     }
+
 
     public static short orderPolicyNameToValue( String orderPolicyName )
     {
@@ -210,6 +213,7 @@ public class EventQueueFactory
             return UNKNOWN_POLICY;
         }
     }
+
 
     public static short discardPolicyNameToValue( String discardPolicyName )
     {
