@@ -23,7 +23,7 @@ package org.jacorb.idl;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  * @author Andre Spiegel, Gerald Brose
@@ -224,26 +224,43 @@ class ValueAbsDecl
 
     public String getTypeCodeExpression()
     {
-        return "org.omg.CORBA.ORB.init().create_value_tc(\"" + id() + 
-            "\", \"" + name + 
-            "\", org.omg.CORBA.VM_ABSTRACT.value " + 
+        return this.getTypeCodeExpression( new HashSet() );
+    }
+
+    public String getTypeCodeExpression( Set knownTypes )
+    {
+        if( knownTypes.contains( this ) )
+        {
+            return this.getRecursiveTypeCodeExpression();
+        }
+        else
+        {
+            knownTypes.add( this );
+
+            return "org.omg.CORBA.ORB.init().create_value_tc(\"" + id() +
+            "\", \"" + name +
+            "\", org.omg.CORBA.VM_ABSTRACT.value " +
             ", null, null )";
+        }
     }
 
 
     public String printReadExpression( String streamname )
     {
-        return "null /* no read expression for abstract value */";
+        return "(" + javaName() + ")"
+                + "((org.omg.CORBA_2_3.portable.InputStream)" + streamname + ")"
+                + ".read_value (\"" + id() + "\")";
     }
 
     public String printReadStatement( String var_name, String streamname )
     {
-        return "throw new org.omg.CORBA.NO_IMPLEMENT();";
+        return var_name + " = " + printReadExpression( streamname );
     }
 
     public String printWriteStatement( String var_name, String streamname )
     {
-        return "throw new org.omg.CORBA.NO_IMPLEMENT();";
+        return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname + ")"
+                + ".write_value (" + var_name + " );";
     }
 
 
@@ -337,8 +354,3 @@ class ValueAbsDecl
         }
     }
 }
-
-
-
-
-

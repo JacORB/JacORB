@@ -43,6 +43,7 @@ class ValueDecl
     // some flags...
     private boolean isCustomMarshalled = false;
     private boolean hasStatefulBases = false;
+    private boolean hasBody = false;
 
     /** public c'tor, called by parser */
 
@@ -57,6 +58,8 @@ class ValueDecl
 
     public void setValueElements( Definitions d )
     {
+        hasBody = true;
+
         for( Iterator i = d.v.iterator(); i.hasNext(); )
         {
             Declaration dec = ( (Definition)( i.next() ) ).get_declaration();
@@ -167,7 +170,7 @@ class ValueDecl
                 {
                     justAnotherOne = true;
                 }
-                if( ! full_name().equals( "org.omg.CORBA.TypeCode" ) && 
+                if( ! full_name().equals( "org.omg.CORBA.TypeCode" ) &&
                     stateMembers.size () != 0 )
                 {
                     TypeMap.replaceForwardDeclaration( full_name(), ctspec );
@@ -179,7 +182,7 @@ class ValueDecl
             }
         }
 
-        if (stateMembers.size () != 0)
+        if (hasBody)
         {
             ScopedName.addRecursionScope( typeName() );
             stateMembers.parse();
@@ -215,13 +218,13 @@ class ValueDecl
             }
 
             // parse factories
-            iter = factories.iterator(); 
+            iter = factories.iterator();
             while( iter.hasNext() )
             {
                 IdlSymbol sym = (IdlSymbol)iter.next();
                 sym.parse();
             }
-            
+
             // check inheritance rules
 
             if( inheritanceSpec != null )
@@ -344,7 +347,7 @@ class ValueDecl
                     ( this.isCustomMarshalled()
                       // symbolic constants might not be defined under jdk 1.1
                       ? 1 // org.omg.CORBA.VM_CUSTOM.value
-                      : 0 // org.omg.CORBA.VM_NONE.value 
+                      : 0 // org.omg.CORBA.VM_NONE.value
                     ) + ", " +
                     // concrete base type
                     "null, " +
@@ -434,7 +437,7 @@ class ValueDecl
      * Prints the abstract Java class to which this valuetype is mapped.
      */
 
-    private void printClass( File dir ) 
+    private void printClass( File dir )
         throws IOException
     {
         File outfile = new File( dir, name + ".java" );
@@ -792,5 +795,3 @@ class ValueDecl
     }
 
 }
-
-
