@@ -695,7 +695,10 @@ public abstract class GIOPConnection
 
     public final boolean isSSL()
     {
-        return transport.isSSL();
+        if (transport instanceof TCP_IP_Transport)
+            return ((TCP_IP_Transport)transport).isSSL();
+        else
+            return false;
     }
 
     public void close()
