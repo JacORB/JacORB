@@ -217,7 +217,8 @@ class StructType
     public String getTypeCodeExpression()
     {
 	StringBuffer sb = new StringBuffer();
-	sb.append("org.omg.CORBA.ORB.init().create_struct_tc(" + 
+	sb.append("org.omg.CORBA.ORB.init().create_" + 
+                  (exc ? "exception" : "struct") + "_tc( " + 
                   typeName() + "Helper.id(),\"" + className()+ "\",");
 
 	if( memberlist != null )
