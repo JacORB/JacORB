@@ -5,14 +5,15 @@
 # do not invoke directly
 
 if [ -z "$WRAPPER_HOME" -o ! -d "$WRAPPER_HOME" ] ; then
-    # try to find wrapper
+    # WRAPPER_HOME is not set
 
+    # try to locate wrapper executable
     if [ -z "$WRAPPER_CMD" -o ! -x "$WRAPPER_CMD" ] ; then
 	WRAPPER_CMD=`which wrapper 2> /dev/null`
     fi
 
     if [ -z "$WRAPPER_CMD" ] ; then
-	echo "Error: WRAPPER_HOME not set and wrapper is not available in PATH."
+	echo "Error: Unable to locate wrapper executable"
 	exit 1
     fi
     
@@ -26,11 +27,20 @@ if [ -z "$WRAPPER_HOME" -o ! -d "$WRAPPER_HOME" ] ; then
 	    WRAPPER_CMD=`dirname "$PRG"`"/$link"
 	fi
     done
+
+    WRAPPER_HOME=`dirname "$WRAPPER_CMD"`/..
 fi
 
-WRAPPER_HOME=`dirname "$WRAPPER_CMD"`/..
+# make path full qualified
 WRAPPER_HOME=`cd "$WRAPPER_HOME" && pwd`
+
 WRAPPER_LIB="$WRAPPER_HOME"/lib
+
+if [ ! -d "$WRAPPER_LIB" ] ; then
+    echo "Error: unable to locate wrapper library"
+    exit 1
+fi
+
 WRAPPER_ARGS=wrapper.java.library.path.1="$WRAPPER_LIB"
 WRAPPER_ARGS="$WRAPPER_ARGS wrapper.java.classpath.1=""$WRAPPER_LIB""/wrapper.jar"
 
