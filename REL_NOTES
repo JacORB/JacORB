@@ -116,7 +116,10 @@ gerald.brose@acm.org
                           TypeCodes.
                         - Fix for CDRInputStream and CDROutputStream to
                           correctly calculate the indirection offset value 
-                          for recursive and repeated TypeCodes
+                          for recursive and repeated TypeCodes.
+                        - The create_abstract_interface_tc and
+                          create_native_tc operations are now implemented.
+                        - Many small bug fixes to TypeCode operations.
 
          - Portable Interceptors:
                - Adapted to CORBA 2.5 IDL (ForwardRequest exception
