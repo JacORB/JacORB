@@ -21,8 +21,8 @@ package org.jacorb.notification.queue;
  *
  */
 
-import org.jacorb.notification.PropertyManager;
 import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.servant.QoSPropertySet;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
@@ -98,7 +98,7 @@ public class EventQueueFactory
 
     ////////////////////////////////////////
 
-    public static EventQueue newEventQueue( PropertyManager qosProperties ) throws UnsupportedQoS
+    public static EventQueue newEventQueue( QoSPropertySet qosProperties ) throws UnsupportedQoS
     {
         int maxEventsPerConsumer =
             Environment.getIntPropertyWithDefault( Configuration.MAX_EVENTS_PER_CONSUMER,
@@ -115,21 +115,21 @@ public class EventQueueFactory
 
         short shortDiscardPolicy = discardPolicyNameToValue( discardPolicy );
 
-        if ( qosProperties.hasProperty( MaxEventsPerConsumer.value ) )
+        if ( qosProperties.containsKey( MaxEventsPerConsumer.value ) )
         {
             maxEventsPerConsumer =
-                qosProperties.getProperty( MaxEventsPerConsumer.value ).extract_long();
+                qosProperties.get( MaxEventsPerConsumer.value ).extract_long();
         }
 
-        if ( qosProperties.hasProperty( OrderPolicy.value ) )
+        if ( qosProperties.containsKey( OrderPolicy.value ) )
         {
             shortOrderPolicy =
-                qosProperties.getProperty( OrderPolicy.value ).extract_short();
+                qosProperties.get( OrderPolicy.value ).extract_short();
         }
 
-        if ( qosProperties.hasProperty( DiscardPolicy.value ) )
+        if ( qosProperties.containsKey( DiscardPolicy.value ) )
         {
-            shortDiscardPolicy = qosProperties.getProperty( DiscardPolicy.value ).extract_short();
+            shortDiscardPolicy = qosProperties.get( DiscardPolicy.value ).extract_short();
         }
 
         if (sLogger.isInfoEnabled()) {
