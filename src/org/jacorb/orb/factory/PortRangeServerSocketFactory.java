@@ -48,9 +48,9 @@ public class PortRangeServerSocketFactory
         portMax = getPortProperty(MAX_PROP);
 
         // Check min < max
-        if (portMin >= portMax)
+        if (portMin > portMax)
         {
-            throw new ConfigurationException("PortRangeFactory: minimum port number not less than maximum");
+            throw new ConfigurationException("PortRangeFactory: minimum port number not less than or equal to maximum");
         }
     }
 
