@@ -369,8 +369,6 @@ public class ClientConnection
             //the underlying connection closed.
 
             conn_mg.removeConnection( this );
-            
-            //System.out.println( "Removed, profile: " + get_server_profile() + "; info: " + connection.connection_info );
         }
 
         streamClosed();
