@@ -86,7 +86,8 @@ public class TypeCode
         // Sun we provide the following bogus TypeCode objects so that
         // we can return something in these cases.
         primitive_tcs [TCKind._tk_objref] 
-            = new TypeCode( "IDL:omg.org/CORBA/Object:1.0", 
+            = new TypeCode( TCKind._tk_objref,
+                            "IDL:omg.org/CORBA/Object:1.0", 
                             "Object" );
         primitive_tcs [TCKind._tk_value] 
             = new TypeCode( "IDL:omg.org/CORBA/portable/ValueBase:1.0",
@@ -258,13 +259,14 @@ public class TypeCode
     }
 
     /**
-     * Constructor for tk_objref
+     * Constructor for tk_objref, tk_abstract_interface
      */  
 
-    public TypeCode (java.lang.String _id, 
+    public TypeCode (int _kind, 
+              java.lang.String _id, 
               java.lang.String _name)
     { 
-        kind = TCKind._tk_objref;
+        kind = _kind;
         id   = _id;
         name = _name.replace('.','_'); // for orbixWeb Interop
     }
@@ -321,7 +323,7 @@ public class TypeCode
         value_modifier = type_modifier;
         content_type = (TypeCode)concrete_base;
 
-        member_count = members.length;
+        member_count = (members != null) ? members.length : 0;
         member_name = new String[member_count];
         member_type = new TypeCode[member_count];
         member_visibility = new short[member_count];
@@ -912,7 +914,7 @@ public class TypeCode
                                  0, create_tc (clz.getComponentType(),
                                                knownClasses));
         else if (java.rmi.Remote.class.isAssignableFrom (clz))
-            return new TypeCode (RepositoryID.repId (clz),
+            return new TypeCode (TCKind._tk_objref, RepositoryID.repId (clz),
                                  clz.getName());
         else if (java.io.Serializable.class.isAssignableFrom (clz))
         {
