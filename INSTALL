@@ -82,8 +82,22 @@ Installation:
            classpath. You can use the file jacotemplate[.bat] as a
            template and replace the @@@XYZ_HOME@@@ placeholders by
            your actual paths.
+      
+5. Generate or edit the IDL compiler scripts idl and idl.bat if you 
+   plan to use the IDL compiler.
+   (This step is carried out automatically by the build process, so
+    it is only required if you are not rebuilding JacORB.)
 
-5. If you like to have host names instead of IP adresses in your IORs
+        a) If you have Ant installed, simply call
+           "ant idlcmd"
+
+        b) If you don't have Ant, you need to create and adapt the
+           idl[.bat] script in bin yourself to update the
+           classpath. You can use the file idltemplate[.bat] as a
+           template and replace the @@@XYZ_HOME@@@ placeholders by
+           your actual paths.
+
+6. If you like to have host names instead of IP adresses in your IORs
    you have to install dnsjava (make its classes present) and
    recompile src/org/jacorb/orb/dns. To recompile, do an "ant" in that
    dir, and an "ant libs" in the JacORB root dir. If you're absolutely
