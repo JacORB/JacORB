@@ -46,10 +46,11 @@ gerald.brose@acm.org
           are timestamped or not.
 
       - ORB:
-        - Added property 'jacorb.interop.indirection_encoding_disable' to turn off
-          indirection encoding for repeated typecodes.
+        - Added property 'jacorb.interop.indirection_encoding_disable' to turn
+          off indirection encoding for repeated typecodes.
         - Added property 'jacorb.dns.enable' to control use of DNS when support
           is included.
+        - Fix for ClientRequestInfo target field value.
 
       - IMR:
         - Added property 'jacorb.imr.endpoint_port_number' for port IMR runs on.
