@@ -82,10 +82,11 @@ class NameTable
 
     /**
      * check IDL scoping rules
+     * @throws NameAlreadyDefined, or the derived IllegalRedefinition
      */
 
     private static void checkScopingRules( String name, String kind )
-            throws NameAlreadyDefined
+        throws NameAlreadyDefined
     {
         if( logger.isDebugEnabled() )
 		 logger.debug(
@@ -98,7 +99,7 @@ class NameTable
         }
 
         StringTokenizer strtok =
-                new StringTokenizer( name.toUpperCase(), "." );
+            new StringTokenizer( name.toUpperCase(), "." );
 
         String scopes[] = new String[ strtok.countTokens() ];
 
@@ -108,12 +109,12 @@ class NameTable
         }
 
         if( logger.isDebugEnabled() )
-		 logger.debug(
-                "NameTable.checkScopingRules2:  " +
-                name + " kind: " + kind );
+            logger.debug(
+                         "NameTable.checkScopingRules2:  " +
+                         name + " kind: " + kind );
 
         if( scopes.length > 1 &&
-                scopes[ scopes.length - 2 ].equals( scopes[ scopes.length - 1 ] ) )
+            scopes[ scopes.length - 2 ].equals( scopes[ scopes.length - 1 ] ) )
         {
             throw new IllegalRedefinition( name );
         }
@@ -130,20 +131,19 @@ class NameTable
      */
 
     public static void define( String name, String kind )
-            throws NameAlreadyDefined
+        throws NameAlreadyDefined
     {
         if( logger.isInfoEnabled() )
-		 logger.info(
-                "NameTable.define2: putting " +
-                name + " kind " + kind + " hash: " +
-                name.hashCode() );
+            logger.info( "NameTable.define2: putting " +
+                        name + " kind " + kind + " hash: " +
+                        name.hashCode() );
 
         /* check also for the all uppercase version of this name,
            (which is also reserved to block identifiers that
            only differ in case) */
 
         if( h.containsKey( name ) ||
-                h.containsKey( name.toUpperCase() ) )
+            h.containsKey( name.toUpperCase() ) )
         {
             // if this name has been inherited, it is "shadowed"
             // in this case, it is redefined if it is not an operation
@@ -156,16 +156,24 @@ class NameTable
                 return;
             }
             else if( !shadows.containsKey( name ) ||
-                    kind.equals( "operation" ) ||
-                    kind.equals( "interface" ) )
+                     kind.equals( "operation" ) ||
+                     kind.equals( "interface" ) )
             {
                 throw new NameAlreadyDefined( name );
             }
             else
             {
                 // redefine
+                if( logger.isInfoEnabled() )
+                    logger.info( "NameTable.define2: redefining  " + name  );
+
                 shadows.remove( name );
                 h.remove( name );
+
+                // remove the inherited type definition, a new one will be
+                // added soon under this name! Addition of this line fixes
+                // bug #345
+                TypeMap.removeDefinition( name );
             }
         }
 
@@ -302,8 +310,10 @@ class NameTable
                 {
                     String kind = (String)h.get( key );
                     if( logger.isDebugEnabled() )
-                        logger.debug( "NameTable.inheritFrom ancestor " +
-                                                       anc + " : key " + key + " kind " + kind );
+                    {
+                        logger.debug( "NameTable.inheritFrom ancestor " + anc + 
+                                       " : key " + key + " kind " + kind );
+                    }
 
                     String shadowKey = name + key.substring( key.lastIndexOf( '.' ) );
                     shadowNames.put( shadowKey, kind );
@@ -316,9 +326,8 @@ class NameTable
                         if( logger.isDebugEnabled() )
                             logger.debug( "- NameTable.inherit type from:  " + key );
 
-
                         TypeSpec t =
-                                TypeMap.map( anc + key.substring( key.lastIndexOf( '.' ) ) );
+                            TypeMap.map( anc + key.substring( key.lastIndexOf( '.' ) ) );
 
                         // t can be null for some cases where we had to put
                         // Java type names (e.g. for sequence s) into the
