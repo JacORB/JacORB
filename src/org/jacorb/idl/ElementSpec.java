@@ -21,13 +21,13 @@ package org.jacorb.idl;
  */
 
 /**
+ * 
  * @version $Id$
  */
 
 class ElementSpec
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public TypeSpec t = new TypeSpec( new_num() );
     public Declarator d = null;
     private UnionType containingUnion;
@@ -77,8 +77,14 @@ class ElementSpec
 
     public void parse()
     {
+
+        if( logger.isDebugEnabled() )
+        {
+            logger.debug("EelementSpec.parse(): element_spec is " +  t.typeSpec().getClass().getName());
+        }
+
         if( t.typeSpec() instanceof TemplateTypeSpec ||
-                t.typeSpec() instanceof ConstrTypeSpec )
+            t.typeSpec() instanceof ConstrTypeSpec )
         {
             t.parse();
             if( t.typeSpec() instanceof SequenceType )
@@ -90,8 +96,7 @@ class ElementSpec
                     seqTs = (SequenceType)ts;
                     ts = ( (SequenceType)ts.typeSpec() ).elementTypeSpec().typeSpec();
                 }
-
-
+                
                 //                if( ts.typeName().equals( containingUnion.typeName() ) ||
                 if( ScopedName.isRecursionScope( ts.typeName() ) )
                 {
@@ -109,8 +114,15 @@ class ElementSpec
 
             containingUnion.addImportedName( ts.typeName() );
 
-            if( ts != null )
+            // if( ts != null )
+
+            // fix for bug#115: only set the element spec's type spec to the resolved
+            // type if it is not an Interface! Otherwise the compile may loop!
+            if( ! ( ts instanceof ConstrTypeSpec && 
+                    ((ConstrTypeSpec)ts).declaration() instanceof Interface) )
+            {
                 t = ts;
+            }
         }
 
         try
@@ -123,6 +135,14 @@ class ElementSpec
                     " already defined in union " + containingUnion.full_name(), token );
         }
         //        d.parse();
+
+
+        if( logger.isDebugEnabled() )
+        {
+            logger.debug("ElementSpec.parse-end(): element_spec is " +  t.typeSpec().getClass().getName());
+        }
+
+
     }
 
     public void print( java.io.PrintWriter ps )
