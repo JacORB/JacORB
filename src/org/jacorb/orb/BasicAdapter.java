@@ -54,7 +54,7 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
     private org.jacorb.orb.ORB orb;
     private POA rootPOA;
 
-    private List listeners = null;
+    private List listeners = new ArrayList();
 
     private MessageReceptorPool receptor_pool = null;
     private RequestListener request_listener = null;
@@ -118,9 +118,9 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
             timeout = Integer.parseInt(prop);
         }
 
-        listeners = new ArrayList();
-
-        for (Iterator i = transport_manager.getFactoriesList().iterator(); 
+        // create all Listeners
+        
+        for (Iterator i = getListenerFactories().iterator(); 
              i.hasNext();)
         {
              Factories f = (Factories)i.next();
@@ -128,11 +128,51 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
              l.set_handle (this);
              listeners.add (l);
         }
+        
+        // activate them
              
         for (Iterator i = listeners.iterator(); i.hasNext();)
         {
             ((Listener)i.next()).listen();
         }
+    }
+
+    /**
+     * Returns a List of Factories for all transport plugins that
+     * should listen for incoming connections.
+     */
+    private List getListenerFactories()
+    {
+        List result = new ArrayList();
+        List tags = Environment.getListProperty 
+                                    ("jacorb.transport.server.listeners");
+        if (tags.isEmpty())
+            result.addAll (transport_manager.getFactoriesList());
+        else
+        {
+            for (Iterator i=tags.iterator(); i.hasNext();)
+            {
+                String s = ((String)i.next());
+                int tag = -1;
+                try
+                {
+                    tag = Integer.parseInt (s);
+                }
+                catch (NumberFormatException ex)
+                {
+                    throw new RuntimeException
+                        ("could not parse profile tag for listener: " + s
+                         + " (should have been a number)");
+                }
+                Factories f = transport_manager.getFactories (tag);
+                if (f == null)
+                    throw new RuntimeException
+                        ("could not find Factories for profile tag: " + tag);
+                else
+                    result.add (f);
+            }
+        }
+        return result;
     }
 
     public RequestListener getRequestListener()
@@ -141,10 +181,10 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
     }
 
     /**
-     * Returns a List of endpoint profiles for all transports we are
-     * listening for.  Each individual profile is a copy and can safely
-     * be modified by the caller (e.g. add an object key, patch the address,
-     * stuff it into an IOR, etc.). 
+     * Returns a List of endpoint profiles for all transports that listen
+     * for incoming connections.  Each individual profile is a copy and can 
+     * safely be modified by the caller (e.g. add an object key, patch the 
+     * address, stuff it into an IOR, etc.). 
      */
     public List getEndpointProfiles()
     {
