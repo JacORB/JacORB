@@ -91,12 +91,9 @@ public class ServerGIOPConnection
         {
             getWriteLock();
 
-            transport.write( false,
-                             false,
-                             CLOSE_CONNECTION_MESSAGE,
-                             0,
-                             CLOSE_CONNECTION_MESSAGE.length,
-                             0 );
+            write( CLOSE_CONNECTION_MESSAGE,
+                   0,
+                   CLOSE_CONNECTION_MESSAGE.length );
             transport.flush();
 
             if( delayClose )
