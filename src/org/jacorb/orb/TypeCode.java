@@ -21,7 +21,13 @@ package org.jacorb.orb;
  */
 
 import org.omg.CORBA.TCKind;
-import java.util.Hashtable;
+import org.omg.CORBA.ValueMember;
+
+import org.jacorb.ir.RepositoryID;
+
+import java.util.*;
+import java.lang.reflect.*;
+
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -58,6 +64,12 @@ public class TypeCode
     private static boolean class_init = false;
     private static TypeCode[] primitive_tcs = new TypeCode[33];
 
+    /**
+     * Maps the java.lang.Class objects for primitive types to
+     * their corresponding TypeCode objects.
+     */
+    private static Map primitive_tcs_map = new HashMap(); 
+
     static
     {
         /** statically create primitive TypeCodes for fast lookup */
@@ -69,6 +81,22 @@ public class TypeCode
         {
             primitive_tcs[i] = new TypeCode(i);
         }
+        put_primitive_tcs (Boolean.TYPE,   TCKind._tk_boolean);
+        put_primitive_tcs (Character.TYPE, TCKind._tk_wchar);
+        put_primitive_tcs (Byte.TYPE,      TCKind._tk_octet);
+        put_primitive_tcs (Short.TYPE,     TCKind._tk_short);
+        put_primitive_tcs (Integer.TYPE,   TCKind._tk_long);
+        put_primitive_tcs (Long.TYPE,      TCKind._tk_longlong);
+        put_primitive_tcs (Float.TYPE,     TCKind._tk_float);
+        put_primitive_tcs (Double.TYPE,    TCKind._tk_double);
+    }
+
+    /**
+     * Internal method for populating `primitive_tcs_map'. 
+     */
+    private static void put_primitive_tcs (Class clz, int kind)
+    {
+        primitive_tcs_map.put (clz, primitive_tcs[kind]);
     }
 
     /**
@@ -274,7 +302,6 @@ public class TypeCode
             member_visibility[i] = members[i].access;
         }        
     }
-
 
     /**
      * check TypeCodes for structural equality
@@ -774,12 +801,68 @@ public class TypeCode
         }
         return sb.toString();
     }
+
+    /**
+     * Creates a TypeCode for an arbitrary Java class.
+     * Right now, this only covers RMI classes, not those derived from IDL.
+     */
+    public static TypeCode create_tc (Class clz)
+    {
+        if (clz.isPrimitive())
+        {
+            return (TypeCode)primitive_tcs_map.get (clz);
+        }
+        else if (clz.isArray())
+        {
+            return new TypeCode (TCKind._tk_sequence,
+                                 0, create_tc (clz.getComponentType()));
+        }
+        else if (java.rmi.Remote.class.isAssignableFrom (clz))
+        {
+            return new TypeCode (RepositoryID.repId (clz),
+                                 clz.getName());
+        }
+        else if (java.io.Serializable.class.isAssignableFrom (clz))
+        {
+            Class    superClass    = clz.getSuperclass();
+            TypeCode superTypeCode = null;
+            if (superClass != null && superClass != java.lang.Object.class)
+                superTypeCode = create_tc (superClass);
+
+            return new TypeCode (RepositoryID.repId (clz),
+                                 clz.getName(),
+                                 org.omg.CORBA.VM_NONE.value,
+                                 superTypeCode,
+                                 getValueMembers (clz));
+        }
+        else
+            throw new RuntimeException 
+                                ("cannot create TypeCode for class: " + clz);
+    }
+
+    private static ValueMember[] getValueMembers (Class clz)
+    {
+        List    result = new ArrayList();
+        Field[] fields = clz.getDeclaredFields();
+        for (int i=0; i < fields.length; i++)
+        {
+            if ((fields[i].getModifiers()
+                 & (Modifier.STATIC | Modifier.FINAL | Modifier.TRANSIENT))
+                == 0)
+                result.add (createValueMember (fields[i]));
+        }
+        return (ValueMember[])result.toArray (new ValueMember[0]);
+    }
+
+    private static ValueMember createValueMember (Field f)
+    {
+        Class    type   = f.getType();
+        String   id     = RepositoryID.repId (type);
+        TypeCode tc     = create_tc (type);
+        short    access = ((f.getModifiers() & Modifier.PUBLIC) != 0)
+                              ? org.omg.CORBA.PUBLIC_MEMBER.value
+                              : org.omg.CORBA.PRIVATE_MEMBER.value; 
+        return new ValueMember (f.getName(), id, "", "1.0", tc, null, access);
+    }
+
 }
-
-
-
-
-
-
-
-
