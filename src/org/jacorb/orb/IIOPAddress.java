@@ -138,9 +138,6 @@ public class IIOPAddress
      */    
     public String getIP()
     {
-        if (!configured)
-            throw new Error("unconfigured IIOPAddress!");
-
         if (ip == null)
         {
             try
@@ -163,9 +160,14 @@ public class IIOPAddress
      * reverse DNS lookup on the IP address.
      */
     public String getHostname()
-    {
+    {    
         if (hostname == null)
         {
+            if (!configured)
+            {
+                throw new Error("Unconfigured IIOPAddress!");
+            }
+            
             hostname = lookup.inverseLookup(ip);
             if (hostname == null) 
                 hostname = ip;
