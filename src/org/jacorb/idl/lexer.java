@@ -985,7 +985,7 @@ public class lexer
         if( text != null )
         {
             char[] next = {(char)next_char, (char)next_char2};
-            GlobalInputStream.insert( text +  next ) );
+            GlobalInputStream.insert( text +  next );
             advance(); // restore lookahead
             advance(); // restore lookahead
             return null;
