@@ -129,9 +129,11 @@ public class POA
     private java.lang.Object      unknownAdapterLog = new java.lang.Object();
     private boolean               unknownAdapterCalled;
 
-    private POA()
-    {
-    }
+    private boolean configured = false;
+
+//     private POA()
+//     {
+//     }
 
     private POA(org.jacorb.orb.ORB _orb,
                 String _name,
@@ -262,7 +264,7 @@ public class POA
         {
             logger.debug("POA " + name + " ready");
         }
-  
+        configured = true;
     }
 
 
@@ -274,6 +276,9 @@ public class POA
 
     public void _addPOAEventListener(EventListener listener)
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         if (listener instanceof POAListener)
             addPOAListener((POAListener)listener);
 
@@ -296,7 +301,10 @@ public class POA
     public org.jacorb.poa.POA _getChildPOA( String adapter_name )
         throws ParentIsHolding
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
+
+        checkDestructionApparent();
 
         POA child = (POA) childs.get(adapter_name);
 
@@ -404,6 +412,9 @@ public class POA
     public void _invoke(ServerRequest request)
         throws WrongAdapter
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         synchronized(poaDestructionLog)
         {
             checkDestructionApparent ();
@@ -514,6 +525,9 @@ public class POA
     public byte[] activate_object(Servant servant)
         throws ServantAlreadyActive, WrongPolicy
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         checkDestructionApparent ();
 
         if (!isRetain() || !isSystemId())
@@ -538,6 +552,9 @@ public class POA
     public void activate_object_with_id( byte[] oid, Servant servant )
         throws  ServantAlreadyActive, ObjectAlreadyActive, WrongPolicy
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         checkDestructionApparent ();
 
         if( oid == null )
@@ -686,7 +703,10 @@ public class POA
                                                   org.omg.CORBA.Policy[] policies)
         throws AdapterAlreadyExists, InvalidPolicy
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
+
+        checkDestructionApparent();
 
         String poa_name = POAUtil.maskStr(adapter_name);
 
@@ -718,7 +738,8 @@ public class POA
         synchronized (poaCreationLog)
         {
             if ((child = (POA)childs.get(poa_name)) != null &&
-                !child.isDestructionApparent()) {
+                !child.isDestructionApparent()) 
+            {
                 throw new AdapterAlreadyExists();
             }
             // wait for completion of a concurrent destruction process
@@ -783,11 +804,14 @@ public class POA
     public org.omg.CORBA.Object create_reference (String intf_rep_id)
         throws WrongPolicy
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
 
-        if (!isSystemId ())
+        checkDestructionApparent();
+
+        if (!isSystemId())
         {
-            throw new WrongPolicy ();
+            throw new WrongPolicy();
         }
 
         return (getReference (generateObjectId (), intf_rep_id, false));
@@ -803,6 +827,9 @@ public class POA
                                                          String intf_rep_id)
         throws WrongPolicy
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         checkDestructionApparent();
 
         if (isSystemId() && !previouslyGeneratedObjectId (oid))
@@ -850,6 +877,9 @@ public class POA
     public synchronized void deactivate_object(byte[] oid)
         throws ObjectNotActive, WrongPolicy
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
+
         if (!isRetain())
             throw new WrongPolicy();
 
@@ -868,6 +898,8 @@ public class POA
     public void destroy( boolean etherealize_objects,
                          boolean wait_for_completion )
     {
+        if (!configured)
+            throw new Error("POA: not configured!");
 
         if (wait_for_completion && isInInvocationContext())
             throw new org.omg.CORBA.BAD_INV_ORDER();
@@ -944,12 +976,14 @@ public class POA
                                                 boolean activate_it)
         throws AdapterNonExistent
     {
-        checkDestructionApparent ();
+        checkDestructionApparent();
 
         String poa_name = POAUtil.maskStr(adapter_name);
 
-        POA child = (POA) childs.get(poa_name);
-        if (child == null || child.isDestructionApparent()) {
+        POA child = (POA)childs.get(poa_name);
+
+        if (child == null || child.isDestructionApparent()) 
+        {
 
             boolean successful = false;
 
@@ -1034,7 +1068,10 @@ public class POA
     public Servant get_servant()
         throws NoServant, WrongPolicy
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
+
+        checkDestructionApparent();
 
         if (!isUseDefaultServant())
             throw new WrongPolicy();
@@ -1048,7 +1085,10 @@ public class POA
     public org.omg.PortableServer.ServantManager get_servant_manager()
         throws WrongPolicy
     {
-        checkDestructionApparent ();
+        if (!configured)
+            throw new Error("POA: not configured!");
+
+        checkDestructionApparent();
 
         if (!isUseServantManager())
             throw new WrongPolicy();
@@ -1192,15 +1232,15 @@ public class POA
         org.omg.PortableServer.POAManagerPackage.State._ACTIVE ? true : false;
     }
 
-    protected void checkDestructionApparent ()
+    protected void checkDestructionApparent()
     {
-        if (isDestructionApparent ())
+        if (isDestructionApparent())
         {
             throw new org.omg.CORBA.OBJECT_NOT_EXIST ("POA destroyed");
         }
     }
 
-    protected static void checkNotLocal (org.omg.CORBA.Object obj)
+    protected static void checkNotLocal(org.omg.CORBA.Object obj)
         throws WrongAdapter
     {
         if (obj instanceof org.omg.CORBA.LocalObject)
@@ -1221,19 +1261,26 @@ public class POA
 
     protected boolean isDiscarding()
     {
-        return poaManager.get_state().value() == org.omg.PortableServer.POAManagerPackage.State._DISCARDING ? true : false;
+        return poaManager.get_state().value() == 
+            org.omg.PortableServer.POAManagerPackage.State._DISCARDING ? true : false;
     }
 
-    protected boolean isHolding() {
-        return poaManager.get_state().value() == org.omg.PortableServer.POAManagerPackage.State._HOLDING ? true : false;
+    protected boolean isHolding() 
+    {
+        return poaManager.get_state().value() == 
+            org.omg.PortableServer.POAManagerPackage.State._HOLDING ? true : false;
     }
 
-    protected boolean isImplicitActivation() {
-        return implicitActivationPolicy != null && implicitActivationPolicy.value() == ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION;
+    protected boolean isImplicitActivation() 
+    {
+        return implicitActivationPolicy != null && 
+            implicitActivationPolicy.value() == ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION;
     }
 
-    protected boolean isInactive() {
-        return poaManager.get_state().value() == org.omg.PortableServer.POAManagerPackage.State._INACTIVE ? true : false;
+    protected boolean isInactive() 
+    {
+        return poaManager.get_state().value() == 
+            org.omg.PortableServer.POAManagerPackage.State._INACTIVE ? true : false;
 
     }
 
