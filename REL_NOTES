@@ -45,6 +45,8 @@ gerald.brose@acm.org
          - ORB:
                - Reverted to old (1.3) IOR format to maintain backwards
                  compatability.
+         - IDL Compiler:
+               - Fix for long long constant assignment from constant.
 
 1.4.0
 =====
