@@ -355,7 +355,7 @@ public class JacIDL
         }
 
         // Set the logging priority
-        parser.getLogger().setPriority(org.jacorb.util.LogKitLoggerFactory.intToPriority(_debuglevel));
+        parser.getLogger().setPriority(Environment.intToPriority(_debuglevel));
 
         // setup input file lists
         resetFileLists();
@@ -488,4 +488,3 @@ public class JacIDL
         }
     }
 }
-
