@@ -35,18 +35,12 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 public class FilterProxyConsumerTask extends AbstractFilterTask
 {
 
-    static int nr = 0;
-    int myNr;
-
-    FilterProxyConsumerTask()
-    {
-        super();
-        myNr = nr++;
-    }
+    private static int COUNT = 0;
+    private int id_ = ++COUNT;
 
     public String toString()
     {
-        return "FilterProxyConsumerTask#" + myNr;
+        return "[FilterProxyConsumerTask#" + id_ + "]";
     }
 
     private boolean orSemantic_ = false;
@@ -139,11 +133,10 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
             // have to continue processing because the Filters
             // attached to the SupplierAdmin still may match.
 
-            listOfFilterStageToBeProcessed_
-            .addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+            addFilterStage( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
         }
 
-        if ( listOfFilterStageToBeProcessed_.isEmpty() )
+        if ( isFilterStageListEmpty() )
         {
             setStatus( DISPOSABLE );
         }
@@ -165,8 +158,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
         if ( _forward )
         {
-            listOfFilterStageToBeProcessed_
-            .addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+            addFilterStage( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
         }
 
         // check if this destination has OR enabled

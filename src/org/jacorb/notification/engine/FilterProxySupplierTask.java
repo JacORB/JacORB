@@ -81,6 +81,14 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
     AlternateMessageMap changedMessages_ = new AlternateMessageMap();
 
+    private static int COUNT = 0;
+    private int id_ = ++COUNT;
+
+    public String toString()
+    {
+        return "[FilterProxySupplierTask#" + id_ + "]";
+    }
+
     /**
      * Initialize this FilterOutgoingTask with the Configuration of
      * another FilterTask.
@@ -189,8 +197,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
                     // the subsequent destination filters need to be eval'd
 
-                listOfFilterStageToBeProcessed_.
-                    addAll(arrayCurrentFilterStage_[x].getSubsequentFilterStages());
+                addFilterStage(arrayCurrentFilterStage_[x].getSubsequentFilterStages());
 
             }
         }
