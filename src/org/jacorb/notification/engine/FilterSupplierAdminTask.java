@@ -65,7 +65,7 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
         boolean _forward = filter();
 
         if (_forward) {
-            taskFactory_.newFilterConsumerAdminTask( this ).schedule();
+            getTaskFactory().newFilterConsumerAdminTask( this ).schedule();
         }
 
         dispose();
@@ -94,5 +94,4 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
 
         return _forward;
     }
-
 }

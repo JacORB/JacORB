@@ -64,8 +64,6 @@ public class StructuredProxyPullConsumerImpl
 
     protected long pollInterval_;
 
-    protected boolean active_ = true;
-
     private StructuredPullSupplier pullSupplier_;
 
     private Object taskId_;
@@ -84,8 +82,6 @@ public class StructuredProxyPullConsumerImpl
 
         configurePollIntervall();
 
-        setProxyType( ProxyType.PULL_STRUCTURED );
-
         engine_ = channelContext.getTaskProcessor();
 
         runQueueThis_ = new Runnable()
@@ -103,6 +99,11 @@ public class StructuredProxyPullConsumerImpl
     }
 
     ////////////////////////////////////////
+
+    public ProxyType MyType() {
+        return ProxyType.PULL_STRUCTURED;
+    }
+
 
     private void configurePollIntervall() {
         pollInterval_ = Default.DEFAULT_PROXY_POLL_INTERVALL;
@@ -135,8 +136,6 @@ public class StructuredProxyPullConsumerImpl
     {
         assertNotConnected();
 
-        active_ = true;
-
         pullSupplier_ = pullSupplier;
 
         connectClient(pullSupplier);
@@ -145,36 +144,14 @@ public class StructuredProxyPullConsumerImpl
     }
 
 
-    public synchronized void suspend_connection()
-        throws NotConnected,
-               ConnectionAlreadyInactive
+    protected void connectionSuspended()
     {
-        assertConnected();
-
-        if ( !active_ )
-        {
-            throw new ConnectionAlreadyInactive();
-        }
-
-        active_ = false;
-
         stopTask();
     }
 
 
-    public synchronized void resume_connection()
-        throws ConnectionAlreadyActive,
-               NotConnected
+    public void connectionResumed()
     {
-        assertConnected();
-
-        if ( active_ )
-        {
-            throw new ConnectionAlreadyActive();
-        }
-
-        active_ = true;
-
         startTask();
     }
 
@@ -187,17 +164,15 @@ public class StructuredProxyPullConsumerImpl
 
     public void runPullMessage() throws Disconnected
     {
-        if (!isConnected()) {
+        if (!isConnected())
+            {
             return;
-        }
+            }
 
-        synchronized ( this )
-        {
-            if (!active_)
+        if (isSuspended())
             {
                 return;
             }
-        }
 
         try
         {

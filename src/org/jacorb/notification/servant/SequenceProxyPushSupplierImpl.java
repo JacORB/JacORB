@@ -22,11 +22,8 @@ package org.jacorb.notification.servant;
  */
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.conf.Configuration;
-import org.jacorb.notification.conf.Default;
-import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.PushSequenceOperation;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.util.Environment;
 
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -85,9 +82,7 @@ public class SequenceProxyPushSupplierImpl
      * does not do the actual delivery. Instead a
      * DeliverTask is scheduled for this Supplier.
      */
-    private Runnable timerCallback_;
-
-    final TaskProcessor engine_;
+    //    private Runnable timerCallback_;
 
     ////////////////////////////////////////
 
@@ -96,28 +91,14 @@ public class SequenceProxyPushSupplierImpl
     {
         super( myAdminServant,
                channelContext);
-
-        setProxyType( ProxyType.PUSH_SEQUENCE );
-
-        engine_ = channelContext.getTaskProcessor();
-
-        // configure the callback
-        timerCallback_ =
-            new Runnable()
-            {
-                public void run()
-                {
-                    try
-                    {
-                        engine_.scheduleTimedPushTask( SequenceProxyPushSupplierImpl.this );
-                    }
-                    catch ( InterruptedException e )
-                    {}
-                }
-            };
     }
 
     ////////////////////////////////////////
+
+    public ProxyType MyType() {
+        return ProxyType.PUSH_SEQUENCE;
+    }
+
 
     public void preActivate() throws UnsupportedQoS
     {
@@ -130,14 +111,14 @@ public class SequenceProxyPushSupplierImpl
 
 
     // overwrite
-    public void deliverMessage( Message event ) throws Disconnected
+    public void deliverMessage( Message event )
     {
         if (logger_.isDebugEnabled())
         {
             logger_.debug( "deliverEvent connected="
                            + isConnected()
-                           + " active="
-                           + active_
+                           + " suspended="
+                           + isSuspended()
                            + " enabled="
                            + isEnabled() );
         }
@@ -146,9 +127,9 @@ public class SequenceProxyPushSupplierImpl
             {
                 enqueue(event);
 
-                if ( active_ && isEnabled()) // && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
+                if ( !isSuspended() && isEnabled() && ( getPendingMessagesCount() >= maxBatchSize_ ) )
                     {
-                        deliverPendingEvents(false);
+                        deliverPendingMessages(false);
                     }
 
             }
@@ -162,19 +143,14 @@ public class SequenceProxyPushSupplierImpl
     /**
      * overrides the superclass version.
      */
-    public void deliverPendingMessages() throws Disconnected
+    public void deliverPendingData()
     {
-        deliverPendingEvents(true);
+        deliverPendingMessages(true);
     }
 
 
-    /**
-     * TODO check what happens when push fails
-     */
-    private void deliverPendingEvents(boolean force) throws Disconnected
+    private void deliverPendingMessages(boolean force)
     {
-        logger_.debug( "deliverPendingEvents()" );
-
         Message[] _messages;
 
         if (force)
@@ -186,26 +162,31 @@ public class SequenceProxyPushSupplierImpl
             _messages = getAtLeastMessages(maxBatchSize_);
         }
 
-        if (_messages != null && _messages.length != 0)
+        if (_messages != null && _messages.length > 0)
         {
-            StructuredEvent[] _eventsToDeliver =
+            final StructuredEvent[] _structuredEvents =
                 new StructuredEvent[ _messages.length ];
 
             for ( int x = 0; x < _messages.length; ++x )
-            {
-                _eventsToDeliver[ x ] =
-                    _messages[x].toStructuredEvent();
+                {
+                    _structuredEvents[ x ] =
+                        _messages[x].toStructuredEvent();
 
-                _messages[x].dispose();
-                _messages[x] = null;
+                    _messages[x].dispose();
+                }
+
+            try {
+                sequencePushConsumer_.push_structured_events( _structuredEvents );
+            } catch (Throwable e) {
+                PushSequenceOperation _failedOperation =
+                    new PushSequenceOperation(sequencePushConsumer_, _structuredEvents);
+
+                handleFailedPushOperation(_failedOperation, e);
             }
-
-            sequencePushConsumer_.push_structured_events( _eventsToDeliver );
         }
     }
 
 
-    // new
     public void connect_sequence_push_consumer( SequencePushConsumer consumer )
         throws AlreadyConnected,
                TypeError
@@ -218,43 +199,21 @@ public class SequenceProxyPushSupplierImpl
 
         connectClient(consumer);
 
-        active_ = true;
+        startCronJob();
+    }
+
+
+
+    protected void connectionResumed()
+    {
+        scheduleDeliverPendingMessagesOperation_.run();
 
         startCronJob();
     }
 
 
-    // overwrite
-    public void resume_connection()
-        throws NotConnected,
-               ConnectionAlreadyActive
+    protected void connectionSuspended()
     {
-        assertConnected();
-
-        if ( active_ )
-        {
-            throw new ConnectionAlreadyActive();
-        }
-
-        try {
-            deliverPendingMessages();
-
-            active_ = true;
-
-            startCronJob();
-        } catch (Disconnected e) {
-            logger_.error("Illegal State: PushConsumer thinks it is disconnected. SequenceProxyPushSupplier thinks it is connected", e);
-
-            dispose();
-        }
-    }
-
-
-    public void suspend_connection()
-        throws NotConnected,
-               ConnectionAlreadyInactive
-    {
-        super.suspend_connection();
         stopCronJob();
     }
 
@@ -279,9 +238,9 @@ public class SequenceProxyPushSupplierImpl
         if ( pacingInterval_ > 0 )
         {
             taskId_ = getTaskProcessor().
-                      executeTaskPeriodically( pacingInterval_,
-                                               timerCallback_,
-                                               true );
+                executeTaskPeriodically( pacingInterval_,
+                                         scheduleDeliverPendingMessagesOperation_,
+                                         true );
         }
     }
 

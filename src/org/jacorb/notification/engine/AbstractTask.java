@@ -41,18 +41,14 @@ public abstract class AbstractTask
 
     protected Message message_;
 
-    protected TaskProcessor taskProcessor_;
-
-    protected TaskFactory taskFactory_;
+    private TaskProcessor taskProcessor_;
 
     private TaskExecutor executor_;
 
     ////////////////////
 
-    protected AbstractTask(TaskExecutor ex, TaskProcessor tp, TaskFactory tf) {
-        executor_ = ex;
+    protected AbstractTask(TaskProcessor tp) {
         taskProcessor_ = tp;
-        taskFactory_ = tf;
     }
 
     ////////////////////
@@ -61,6 +57,15 @@ public abstract class AbstractTask
         return executor_;
     }
 
+
+    protected void setTaskExecutor(TaskExecutor taskExecutor) {
+        executor_ = taskExecutor;
+    }
+
+
+    protected TaskProcessor getTaskProcessor() {
+        return taskProcessor_;
+    }
 
     /**
      * set the Message for this Task to use.

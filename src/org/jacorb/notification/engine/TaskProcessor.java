@@ -41,6 +41,7 @@ import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.avalon.framework.logger.Logger;
 
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
@@ -142,30 +143,6 @@ public class TaskProcessor implements Disposable
 
     ////////////////////
 
-    class EnableMessageConsumer implements Runnable
-    {
-        MessageConsumer messageConsumer_;
-
-        EnableMessageConsumer(MessageConsumer mc)
-        {
-            messageConsumer_ = mc;
-        }
-
-
-        public void run()
-        {
-            try
-            {
-                messageConsumer_.enableDelivery();
-
-                scheduleTimedPushTask(messageConsumer_);
-            }
-            catch (InterruptedException e)
-            {
-                logger_.error("Interrupted", e);
-            }
-        }
-    }
 
     ////////////////////
 
@@ -202,7 +179,7 @@ public class TaskProcessor implements Disposable
      * specify how long a ProxySupplier should be disabled in case
      * delivering messages to its Consumer fails.
      */
-    private long backoutInterval_;
+    //    private long backoutInterval_;
 
     ////////////////////////////////////////
 
@@ -242,9 +219,9 @@ public class TaskProcessor implements Disposable
         configureDeliverTaskExecutor();
 
 
-        backoutInterval_ =
-            Environment.getIntPropertyWithDefault( Configuration.BACKOUT_INTERVAL,
-                                                   Default.DEFAULT_BACKOUT_INTERVAL );
+//         backoutInterval_ =
+//             Environment.getIntPropertyWithDefault( Configuration.BACKOUT_INTERVAL,
+//                                                    Default.DEFAULT_BACKOUT_INTERVAL );
 
         taskFactory_ = new TaskFactory( this );
 
@@ -452,20 +429,15 @@ public class TaskProcessor implements Disposable
         throws InterruptedException
     {
         if (!consumer.isDisposed()) {
-            TimerDeliverTask _task = new TimerDeliverTask(this,
-                                                      taskFactory_);
+            TimerDeliverTask _task = new TimerDeliverTask(this);
 
             _task.setMessageConsumer( consumer );
-
 
             _task.schedule();
         } else {
             logger_.info("MessageConsumer is disposed");
         }
     }
-
-
-    ////////////////////////////////////////
 
     ////////////////////////////////////////
     // Timer Operations
@@ -484,9 +456,11 @@ public class TaskProcessor implements Disposable
                                            Runnable task,
                                            boolean startImmediately )
     {
+        logger_.debug("executeTaskPeriodically");
+
         return getClockDaemon().executePeriodically( intervall,
-                task,
-                startImmediately );
+                                                     task,
+                                                     startImmediately );
     }
 
 
@@ -496,31 +470,18 @@ public class TaskProcessor implements Disposable
     }
 
 
-    private Object executeTaskAfterDelay( long delay, Runnable task )
+    Object executeTaskAfterDelay( long delay, Runnable task )
     {
         return clockDaemon_.executeAfterDelay( delay, task );
     }
 
 
-    private Object executeTaskAt( Date startTime, Runnable task )
+    Object executeTaskAt( Date startTime, Runnable task )
     {
         return clockDaemon_.executeAt( startTime, task );
     }
 
     ////////////////////////////////////////
-
-    void backoutMessageConsumer(MessageConsumer mc)
-    {
-        if (logger_.isDebugEnabled())
-        {
-            logger_.debug("back out MessageConsumer " + mc);
-        }
-
-        Runnable runEnableTask = new EnableMessageConsumer(mc);
-
-        executeTaskAfterDelay(backoutInterval_, runEnableTask);
-    }
-
 
     private void fireEventDiscarded( Message event )
     {

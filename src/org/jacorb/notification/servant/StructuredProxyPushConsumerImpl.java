@@ -52,14 +52,17 @@ public class StructuredProxyPushConsumerImpl
                                            ChannelContext channelContext) {
         super(supplierAdminServant,
               channelContext);
-
-        setProxyType(ProxyType.PUSH_STRUCTURED);
     }
 
     ////////////////////////////////////////
 
+    public ProxyType MyType() {
+        return ProxyType.PUSH_STRUCTURED;
+    }
+
+
     public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
-        assertConnectedOrThrowDisconnected();
+        checkStillConnected();
 
         Message _mesg =
             messageFactory_.newMessage(structuredEvent, this);
@@ -76,6 +79,8 @@ public class StructuredProxyPushConsumerImpl
 
 
     protected void disconnectClient() {
+        logger_.info("disconnect structured_push_supplier");
+
         pushSupplier_.disconnect_structured_push_supplier();
 
         pushSupplier_ = null;
@@ -87,9 +92,11 @@ public class StructuredProxyPushConsumerImpl
     {
         assertNotConnected();
 
+        connectClient(supplier);
+
         pushSupplier_ = supplier;
 
-        connectClient(supplier);
+        logger_.info("connect structured_push_supplier");
     }
 
 

@@ -23,16 +23,21 @@ package org.jacorb.notification.servant;
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.conf.Configuration;
 import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.engine.PushOperation;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueFactory;
+import org.jacorb.notification.util.PropertySet;
+import org.jacorb.notification.util.PropertySetListener;
 import org.jacorb.notification.util.TaskExecutor;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosNotification.DiscardPolicy;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.OrderPolicy;
@@ -42,15 +47,23 @@ import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdminHelper;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotifyComm.NotifyPublish;
 import org.omg.CosNotifyComm.NotifyPublishHelper;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import org.omg.CosNotifyComm.NotifyPublish;
-import org.jacorb.notification.util.PropertySet;
-import org.jacorb.notification.util.PropertySetListener;
+
+import EDU.oswego.cs.dl.util.concurrent.Callable;
+import org.omg.CosEventComm.Disconnected;
+import org.jacorb.notification.engine.RetryStrategy;
+import org.jacorb.notification.engine.WaitRetryStrategy;
+import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
+import org.jacorb.notification.engine.RetryException;
 
 /**
  * Abstract base class for ProxySuppliers.
@@ -69,11 +82,19 @@ public abstract class AbstractProxySupplier
     extends AbstractProxy
     implements MessageConsumer,
                NotifySubscribeOperations
-
 {
     private static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
     ////////////////////////////////////////
+
+    /**
+     * Check if there are
+     * pending Messages and deliver them to the Consumer.
+     * the operation is not executed immediately. instead it is
+     * scheduled to the Push Thread Pool.
+     * only initialized for ProxyPushSuppliers.
+     */
+    protected Runnable scheduleDeliverPendingMessagesOperation_;
 
     private TaskExecutor taskExecutor_;
 
@@ -83,9 +104,12 @@ public abstract class AbstractProxySupplier
 
     private int errorThreshold_;
 
+    private TaskProcessor taskProcessor_;
+
     /**
      * lock variable used to control access to the reference to the
-     * pending messages queue.
+     * pending messages queue. calls to set_qos may cause the
+     * MessageQueue instance to be changed.
      */
     private Object pendingMessagesRefLock_ = new Object();
 
@@ -106,6 +130,28 @@ public abstract class AbstractProxySupplier
     {
         super(admin,
               channelContext);
+
+        taskProcessor_ = channelContext.getTaskProcessor();
+
+        if (isPushSupplier()) {
+            final TaskProcessor _engine = channelContext.getTaskProcessor();
+
+            scheduleDeliverPendingMessagesOperation_ =
+                new Runnable()
+                {
+                    public void run()
+                    {
+                        try
+                            {
+                                _engine.scheduleTimedPushTask( AbstractProxySupplier.this );
+                            }
+                        catch ( InterruptedException e )
+                            {
+                                logger_.fatalError("scheduleTimedPushTask failed", e);
+                            }
+                    }
+                };
+        }
     }
 
     ////////////////////////////////////////
@@ -194,7 +240,7 @@ public abstract class AbstractProxySupplier
         }
         else
         {
-            throw new IllegalArgumentException("set only once");
+            throw new IllegalArgumentException("TaskExecutor should be set only once!");
         }
     }
 
@@ -207,11 +253,24 @@ public abstract class AbstractProxySupplier
     }
 
 
-    public boolean hasPendingMessages()
+    public int getPendingMessagesCount()
+    {
+        synchronized(pendingMessagesRefLock_)
+            {
+                return pendingMessages_.getSize();
+            }
+    }
+
+
+    public boolean hasPendingData()
     {
         synchronized (pendingMessagesRefLock_)
         {
-            return !pendingMessages_.isEmpty();
+            if (!pendingMessages_.isEmpty()) {
+                return true;
+            }
+
+            return false;
         }
     }
 
@@ -525,5 +584,54 @@ public abstract class AbstractProxySupplier
                 throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
         }
         return _servant;
+    }
+
+
+    public boolean isPushSupplier()
+    {
+        switch (MyType().value()) {
+        case ProxyType._PUSH_ANY:
+            // fallthrough
+        case ProxyType._PUSH_STRUCTURED:
+            // fallthrough
+        case ProxyType._PUSH_SEQUENCE:
+            // fallthrough
+        case ProxyType._PUSH_TYPED:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+
+    protected void handleFailedPushOperation(PushOperation operation, Throwable error) {
+        if (RetryStrategy.isFatalException(error)) {
+            // push operation caused a fatal exception
+            // destroy the ProxySupplier
+            if ( logger_.isErrorEnabled() )
+            {
+                logger_.error( "push raised "
+                               + error
+                               + ": will destroy ProxySupplier, disconnect Consumer", error );
+            }
+
+            operation.dispose();
+            dispose();
+
+            return;
+        }
+
+        RetryStrategy _retry = getRetryStrategy(this, operation);
+
+        try {
+            _retry.retry();
+        } catch (RetryException e) {
+            logger_.error("retry failed", e);
+        }
+    }
+
+
+    private RetryStrategy getRetryStrategy(MessageConsumer mc, PushOperation op) {
+        return new TaskProcessorRetryStrategy(mc, op, taskProcessor_);
     }
 }

@@ -26,9 +26,9 @@ import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.engine.PushAnyOperation;
 
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushConsumer;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
@@ -50,8 +50,6 @@ public class ProxyPushSupplierImpl
 {
     private PushConsumer pushConsumer_;
 
-    private boolean active_;
-
     ////////////////////////////////////////
 
     ProxyPushSupplierImpl(AbstractAdmin myAdminServant,
@@ -59,11 +57,14 @@ public class ProxyPushSupplierImpl
     {
         super(myAdminServant,
               channelContext);
-
-        setProxyType(ProxyType.PUSH_ANY);
     }
 
     ////////////////////////////////////////
+
+    public ProxyType MyType() {
+        return ProxyType.PUSH_ANY;
+    }
+
 
     public void disconnect_push_supplier()
     {
@@ -79,22 +80,28 @@ public class ProxyPushSupplierImpl
     }
 
 
-    /**
-     * TODO check error handling when push fails
-     */
-    public void deliverMessage(Message event) throws Disconnected
+    public void deliverMessage(final Message message)
     {
         if (isConnected())
         {
-            if (active_ && isEnabled())
+            if (!isSuspended() && isEnabled())
                 {
-                    pushConsumer_.push(event.toAny());
+                    try {
+                        logger_.debug("pushConsumer.push(Any)");
 
-                    event.dispose();
+                        pushConsumer_.push(message.toAny());
+
+                        message.dispose();
+                    } catch (Throwable e) {
+                        PushAnyOperation _failedOperation =
+                            new PushAnyOperation(pushConsumer_, message);
+
+                        handleFailedPushOperation(_failedOperation, e);
+                    }
                 }
             else
                 {
-                    enqueue(event);
+                    enqueue(message);
                 }
         }
         else
@@ -112,8 +119,6 @@ public class ProxyPushSupplierImpl
         pushConsumer_ = pushConsumer;
 
         connectClient(pushConsumer);
-
-        active_ = true;
     }
 
 
@@ -135,30 +140,14 @@ public class ProxyPushSupplierImpl
     }
 
 
-    synchronized public void suspend_connection()
-        throws NotConnected,
-               ConnectionAlreadyInactive
-    {
-        assertConnected();
-
-        if (!active_)
-        {
-            throw new ConnectionAlreadyInactive();
-        }
-
-        active_ = false;
-    }
-
-
-    public void deliverPendingMessages()
-        throws Disconnected
+    public void deliverPendingData()
     {
         Message[] _events = getAllMessages();
 
         try {
             for (int x = 0; x < _events.length; ++x)
                 {
-                    pushConsumer_.push(_events[x].toAny());
+                    deliverMessage(_events[x]);
                 }
         }
         finally {
@@ -170,27 +159,9 @@ public class ProxyPushSupplierImpl
 
 
 
-    public void resume_connection()
-        throws NotConnected,
-               ConnectionAlreadyActive
+    protected void connectionResumed()
     {
-        assertConnected();
-
-        synchronized (this)
-        {
-            if (active_)
-            {
-                throw new ConnectionAlreadyActive();
-            }
-
-            active_ = true;
-        }
-
-        try {
-            deliverPendingMessages();
-        } catch (Disconnected e) {
-            handleDisconnected(e);
-        }
+        scheduleDeliverPendingMessagesOperation_.run();
     }
 
 

@@ -32,15 +32,10 @@ import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PullSupplier;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotifyComm.NotifySubscribeHelper;
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
@@ -56,18 +51,18 @@ public class ProxyPullConsumerImpl
     implements ProxyPullConsumerOperations,
                MessageSupplier
 {
-    private Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
+    /**
+     * this sync is accessed during a pull operation. therby the
+     * maximal number of concurrent pull operations per pull supplier
+     * can be controlled conveniently.
+     */
+    private Sync pullSync_ =
+        new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
 
     /**
      * the connected PullSupplier
      */
     private PullSupplier pullSupplier_;
-
-    /**
-     * flag to indicate if the connection from this PullConsumer to
-     * its PullSupplier is active.
-     */
-    private boolean isConnectionActive_ = false;
 
     private long pollInterval_;
 
@@ -104,14 +99,17 @@ public class ProxyPullConsumerImpl
         super( adminServant,
                channelContext);
 
-        setProxyType(ProxyType.PULL_ANY);
-
         configurePullIntervall();
 
         configureTimerCallback();
     }
 
     ////////////////////////////////////////
+
+    public ProxyType MyType() {
+        return ProxyType.PULL_ANY;
+    }
+
 
     private void configurePullIntervall() {
         pollInterval_ = Default.DEFAULT_PROXY_POLL_INTERVALL;
@@ -160,34 +158,14 @@ public class ProxyPullConsumerImpl
     }
 
 
-    synchronized public void suspend_connection()
-        throws NotConnected,
-               ConnectionAlreadyInactive
+    protected void connectionSuspended()
     {
-        assertConnected();
-
-        if ( !isConnectionActive_ )
-        {
-            throw new ConnectionAlreadyInactive();
-        }
-
-        isConnectionActive_ = false;
-
         stopTask();
     }
 
 
-    synchronized public void resume_connection()
-        throws ConnectionAlreadyActive,
-               NotConnected
+    protected void connectionResumed()
     {
-        assertConnected();
-
-        if ( isConnectionActive_ )
-        {
-            throw new ConnectionAlreadyActive();
-        }
-
         startTask();
     }
 
@@ -247,8 +225,6 @@ public class ProxyPullConsumerImpl
         throws AlreadyConnected
     {
         assertNotConnected();
-
-        isConnectionActive_ = true;
 
         pullSupplier_ = pullSupplier;
 

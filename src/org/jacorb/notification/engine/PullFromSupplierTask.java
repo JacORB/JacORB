@@ -37,8 +37,10 @@ public class PullFromSupplierTask extends AbstractTask
 
     ////////////////////////////////////////
 
-    PullFromSupplierTask(TaskExecutor te) {
-        super(te, null, null);
+    PullFromSupplierTask(TaskExecutor executor) {
+        super(null);
+
+        setTaskExecutor(executor);
     }
 
     ////////////////////////////////////////

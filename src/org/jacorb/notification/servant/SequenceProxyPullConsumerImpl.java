@@ -52,11 +52,14 @@ public class SequenceProxyPullConsumerImpl
     {
         super( admin,
                channelContext);
-
-        setProxyType( ProxyType.PULL_SEQUENCE );
     }
 
     ////////////////////////////////////////
+
+    public ProxyType MyType() {
+        return ProxyType.PULL_SEQUENCE;
+    }
+
 
     public void disconnect_sequence_pull_consumer()
     {
@@ -68,8 +71,6 @@ public class SequenceProxyPullConsumerImpl
         throws AlreadyConnected
     {
         assertNotConnected();
-
-        active_ = true;
 
         sequencePullSupplier_ = sequencePullSupplier;
 

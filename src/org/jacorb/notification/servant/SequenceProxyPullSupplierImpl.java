@@ -69,41 +69,48 @@ public class SequenceProxyPullSupplierImpl
     {
         super( myAdminServant,
                channelContext );
-
-        setProxyType( ProxyType.PULL_SEQUENCE );
     }
 
     ////////////////////////////////////////
+
+    public ProxyType MyType() {
+        return ProxyType.PULL_SEQUENCE;
+    }
+
 
     public void connect_sequence_pull_consumer( SequencePullConsumer consumer )
         throws AlreadyConnected
     {
         assertNotConnected();
 
+        connectClient(consumer);
+
         sequencePullConsumer_ = consumer;
 
-        connectClient(consumer);
+        logger_.info("connect sequence_pull_consumer");
     }
 
 
-    public StructuredEvent[] pull_structured_events( int number ) throws Disconnected
+    public StructuredEvent[] pull_structured_events( int number )
+        throws Disconnected
     {
-        assertConnectedOrThrowDisconnected();
+        checkStillConnected();
 
-        StructuredEvent[] _event = null;
-        BooleanHolder _hasEvent = new BooleanHolder();
-        StructuredEvent _ret[] = sUndefinedSequence;
+        StructuredEvent _structuredEvents[] = sUndefinedSequence;
 
-        Message[] _events = getUpToMessages(number);
-        _ret = new StructuredEvent[_events.length];
+        Message[] _messages = getUpToMessages(number);
 
-        for (int x = 0; x < _events.length; ++x)
-        {
-            _ret[x] = _events[x].toStructuredEvent();
-            _events[x].dispose();
+        if (_messages != null) {
+            _structuredEvents = new StructuredEvent[_messages.length];
+
+            for (int x = 0; x < _messages.length; ++x)
+                {
+                    _structuredEvents[x] = _messages[x].toStructuredEvent();
+                    _messages[x].dispose();
+                }
         }
 
-        return _ret;
+        return _structuredEvents;
     }
 
 
@@ -111,21 +118,22 @@ public class SequenceProxyPullSupplierImpl
                                                          BooleanHolder success )
         throws Disconnected
     {
-        assertConnectedOrThrowDisconnected();
+        checkStillConnected();
 
-        Message[] _events = getUpToMessages(number);
+        Message[] _messages = getUpToMessages(number);
 
-        if (_events != null)
+        if (_messages != null)
         {
-            StructuredEvent[] _ret = new StructuredEvent[_events.length];
+            StructuredEvent[] _ret = new StructuredEvent[_messages.length];
 
-            for (int x = 0; x < _events.length; ++x)
+            for (int x = 0; x < _messages.length; ++x)
             {
-                _ret[x] = _events[x].toStructuredEvent();
+                _ret[x] = _messages[x].toStructuredEvent();
 
-                _events[x].dispose();
+                _messages[x].dispose();
             }
             success.value = true;
+
             return _ret;
         }
         success.value = false;
@@ -155,7 +163,10 @@ public class SequenceProxyPullSupplierImpl
     protected void disconnectClient()
     {
         sequencePullConsumer_.disconnect_sequence_pull_consumer();
+
         sequencePullConsumer_ = null;
+
+        logger_.info("disconnect sequence_pull_consumer");
     }
 
 

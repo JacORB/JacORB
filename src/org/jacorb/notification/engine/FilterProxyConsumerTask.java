@@ -162,7 +162,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
         if ( !isFilterStageListEmpty() )
         {
-            taskFactory_.newFilterSupplierAdminTask( this ).schedule();
+            getTaskFactory().newFilterSupplierAdminTask( this ).schedule();
         }
 
         dispose();

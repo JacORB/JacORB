@@ -121,7 +121,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
     {
         filter();
 
-        AbstractDeliverTask.scheduleTasks(taskFactory_.newPushToConsumerTask( this ) );
+        AbstractDeliverTask.scheduleTasks(getTaskFactory().newPushToConsumerTask( this ) );
 
         dispose();
     }

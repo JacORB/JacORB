@@ -37,7 +37,7 @@ import org.jacorb.notification.util.TaskExecutor;
 
 abstract class AbstractFilterTask extends AbstractTask
 {
-    //    private boolean disposed_ = false;
+    private TaskFactory taskFactory_;
 
     /**
      * for debugging purpose.
@@ -70,10 +70,19 @@ abstract class AbstractFilterTask extends AbstractTask
 
     AbstractFilterTask(TaskExecutor executor, TaskProcessor tp, TaskFactory tc)
     {
-        super(executor, tp, tc);
+        super(tp);
+
+        setTaskExecutor(executor);
+
+        taskFactory_ = tc;
     }
 
     ////////////////////
+
+    protected TaskFactory getTaskFactory() {
+        return taskFactory_;
+    }
+
 
     protected boolean isFilterStageListEmpty()
     {

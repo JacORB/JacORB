@@ -38,9 +38,7 @@ public class TaskFactory implements Disposable
 {
     private final Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
-
     private TaskProcessor taskProcessor_;
-
 
     private AbstractTaskPool filterProxyConsumerTaskPool_ =
         new AbstractTaskPool("FilterProxyConsumerTaskPool")
@@ -95,8 +93,7 @@ public class TaskFactory implements Disposable
         {
             public Object newInstance()
             {
-                PushToConsumerTask _task = new PushToConsumerTask(taskProcessor_,
-                                                                  TaskFactory.this);
+                PushToConsumerTask _task = new PushToConsumerTask(taskProcessor_);
 
                 return _task;
             }

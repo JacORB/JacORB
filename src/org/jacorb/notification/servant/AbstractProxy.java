@@ -45,19 +45,21 @@ import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.QoSAdminOperations;
 import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
+import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
+import org.omg.CosNotifyFilter.MappingFilterHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
-import org.omg.CosNotifyFilter.MappingFilterHelper;
 
 /**
  * @author Alphonse Bendt
@@ -113,13 +115,13 @@ public abstract class AbstractProxy
 
     private TaskProcessor taskProcessor_;
 
-    private ProxyType proxyType_;
-
     private boolean isInterFilterGroupOperatorOR_;
 
     private boolean disposedProxyDisconnectsClient_;
 
     private org.omg.CORBA.Object client_;
+
+    private SynchronizedBoolean active_ = new SynchronizedBoolean(true);
 
     ////////////////////////////////////////
 
@@ -167,6 +169,7 @@ public abstract class AbstractProxy
     public void setID(Integer id, boolean isIDPublic)
     {
         id_ = id;
+
         isIDPublic_ = isIDPublic;
     }
 
@@ -411,16 +414,7 @@ public abstract class AbstractProxy
     }
 
 
-    protected void setProxyType(ProxyType proxyType)
-    {
-        proxyType_ = proxyType;
-    }
-
-
-    public final ProxyType MyType()
-    {
-        return proxyType_;
-    }
+    public abstract ProxyType MyType();
 
 
     void setInterFilterGroupOperatorOR(boolean b)
@@ -483,6 +477,51 @@ public abstract class AbstractProxy
     }
 
 
+    protected boolean isSuspended() {
+        return !active_.get();
+    }
+
+
+    public final void suspend_connection()
+        throws NotConnected,
+               ConnectionAlreadyInactive
+    {
+        assertConnected();
+
+        if (!active_.commit(true, false)) {
+            throw new ConnectionAlreadyInactive();
+        }
+
+        connectionSuspended();
+    }
+
+
+    protected void connectionSuspended() {
+    }
+
+
+    public final void resume_connection()
+        throws NotConnected,
+               ConnectionAlreadyActive
+    {
+        assertConnected();
+
+        if (!active_.commit(false, true)) {
+            throw new ConnectionAlreadyActive();
+        }
+
+        connectionResumed();
+    }
+
+
+    /**
+     * invoked when resume_connection was called successfully.
+     */
+    protected void connectionResumed() {
+        // NO OP
+    }
+
+
     protected void assertConnected() throws NotConnected
     {
         if ( !connected_.get() )
@@ -501,7 +540,7 @@ public abstract class AbstractProxy
     }
 
 
-    protected void assertConnectedOrThrowDisconnected() throws Disconnected
+    protected void checkStillConnected() throws Disconnected
     {
         if (!connected_.get()) {
             logger_.fatalError("access on a not connected proxy");

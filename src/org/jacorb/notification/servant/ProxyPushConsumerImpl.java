@@ -55,11 +55,13 @@ public class ProxyPushConsumerImpl
 
         super( myAdminServant,
                channelContext);
-
-        setProxyType( ProxyType.PUSH_ANY );
     }
 
     ////////////////////////////////////////
+
+    public ProxyType MyType() {
+        return ProxyType.PUSH_ANY;
+    }
 
 
     public void disconnect_push_consumer()
@@ -84,7 +86,7 @@ public class ProxyPushConsumerImpl
      */
     public void push( Any event ) throws Disconnected
     {
-        assertConnectedOrThrowDisconnected();
+        checkStillConnected();
 
         logger_.debug("push Any into the Channel");
 

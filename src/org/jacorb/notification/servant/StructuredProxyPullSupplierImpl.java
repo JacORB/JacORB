@@ -83,27 +83,33 @@ public class StructuredProxyPullSupplierImpl
     {
         super( myAdminServant,
                channelContext );
-
-        setProxyType( ProxyType.PULL_STRUCTURED );
     }
 
     ////////////////////////////////////////
+
+
+    public ProxyType MyType() {
+        return ProxyType.PULL_STRUCTURED;
+    }
+
 
     public void connect_structured_pull_consumer( StructuredPullConsumer consumer )
         throws AlreadyConnected
     {
         assertNotConnected();
 
+        connectClient(consumer);
+
         structuredPullConsumer_ = consumer;
 
-        connectClient(consumer);
+        logger_.info("connect structured_pull_consumer");
     }
 
 
     public StructuredEvent pull_structured_event()
         throws Disconnected
     {
-        assertConnectedOrThrowDisconnected();
+        checkStillConnected();
 
         Message _message = null;
 
@@ -130,22 +136,22 @@ public class StructuredProxyPullSupplierImpl
     public StructuredEvent try_pull_structured_event( BooleanHolder hasEvent )
         throws Disconnected
     {
-        assertConnectedOrThrowDisconnected();
+        checkStillConnected();
 
-        Message _notificationEvent =
+        Message _message =
             getMessageNoBlock();
 
-        if (_notificationEvent != null)
+        if (_message != null)
         {
             try
             {
                 hasEvent.value = true;
 
-                return _notificationEvent.toStructuredEvent();
+                return _message.toStructuredEvent();
             }
             finally
             {
-                _notificationEvent.dispose();
+                _message.dispose();
             }
         }
         else
@@ -165,7 +171,10 @@ public class StructuredProxyPullSupplierImpl
 
     protected void disconnectClient()
     {
+        logger_.info("disconnect structured_pull_consumer");
+
         structuredPullConsumer_.disconnect_structured_pull_consumer();
+
         structuredPullConsumer_ = null;
     }
 
@@ -209,7 +218,7 @@ public class StructuredProxyPullSupplierImpl
     }
 
 
-    public void deliverPendingMessages()
+    public void deliverPendingData()
     {
         // as no active deliveries are made this can be ignored
     }

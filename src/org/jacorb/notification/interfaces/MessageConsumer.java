@@ -23,17 +23,17 @@ package org.jacorb.notification.interfaces;
 
 import org.jacorb.notification.util.TaskExecutor;
 
-import org.omg.CosEventComm.Disconnected;
-
 /**
  * The interface MessageConsumer provides an abstraction of an
  * ProxySupplier.
+ * <br>
  * The MessageConsumer is responsible
  * to maintain the Connection to the real Consumer. To deliver a
  * Message
  * the MessageConsumer converts the Message to the
  * appropiate Format (Any, StructuredEvent, Sequence of
  * StructuredEvent) required by its Consumer and delivers it.
+ * <br>
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -43,43 +43,74 @@ public interface MessageConsumer extends Disposable {
 
     /**
      * @return the <code>TaskExecutor</code> that should be used to
-     * deliver Messages to the associated Consumer.
+     * push Messages to the connected Consumer.
      */
     TaskExecutor getExecutor();
 
+
     /**
-     * Deliver Pending Messages. If this MessageConsumer has some
-     * Messages queued
-     * for a Consumer, a call to this method causes it to
-     * deliver them.
+     * process pending work. push events to its connected
+     * (Push)Consumer.
      */
-    void deliverPendingMessages() throws Disconnected;
+    void deliverPendingData();
 
-    boolean hasPendingMessages();
 
     /**
-     * activate deliveries.
+     * check if this MessageConsumer has pending work to do. pending
+     * work is to push events
+     * to its connected (Push)Consumer.
+     */
+    boolean hasPendingData();
+
+
+    /**
+     * activate deliveries. this MessageConsumer may invoke remote
+     * operations again.
      */
     void enableDelivery();
 
+
     /**
-     * Disable Deliveries. a disabled MessageConsumer enqueues
-     * Messages instead of delivering them.
+     * Disable Deliveries. this MessageConsumer may not invoke remote
+     * operations. events are enqueued instead.
      */
     void disableDelivery();
+
 
     /**
      * Deliver a Message to the associated Consumer.
      */
-    void deliverMessage(Message m) throws Disconnected;
+    void deliverMessage(Message m);
 
+
+    /**
+     * reset the error counter for this MessageConsumer to zero.
+     */
     void resetErrorCounter();
 
+
+    /**
+     * access the current error count for this MessageConsumer.
+     */
     int getErrorCounter();
 
+
+    /**
+     * increment the current error count by one for this MessageConsumer.
+     */
     int incErrorCounter();
 
+
+    /**
+     * access the error threshold for this MessageConsumer. if the
+     * error count exeeds the threshold the MessageConsumer will be
+     * disconnected.
+     */
     int getErrorThreshold();
 
+
+    /**
+     * check if this MessageConsumer is still valid.
+     */
     boolean isDisposed();
 }
