@@ -168,6 +168,10 @@ jacorb.outbuf_size=2048
 # buffers immediately rather than keeping them for later
 # reuse.
 jacorb.maxManagedBufSize=18
+# If this value is 0 an extra unlimited size buffer cache is created
+# for the CDROutputStreams. If this value is > 0 then the cache will
+# be purged every x msecs.
+jacorb.bufferManagerMaxFlush=-1
 
 # Normally, a jacorb server will close the TCP/IP connection right
 # after sending a CloseConnection message. However, it may
@@ -178,17 +182,17 @@ jacorb.maxManagedBufSize=18
 #jacorb.connection.timeout_after_closeconnection=20000
 
 # Wait the specified number of msecs for a reply to a request. If
-# exceeded, a org.omg.CORBA.IMP_LIMIT exception will be thrown
+# exceeded, a org.omg.CORBA.TIMEOUT exception will be thrown
 #jacorb.client.pending_reply_timeout=0
 
 # client-side connection idle timeout, set no non-zero to stop
 # close the connection after so many msecs.
 #jacorb.connection.client_idle_timeout=0
 
-# max time a server keeps a connection open if nothing happens
+# max time (msecs) a server keeps a connection open if nothing happens
 #jacorb.connection.server_timeout=10000
 
-# Max no of accepted connections on the server. 
+# Max no of accepted connections on the server.
 #jacorb.connection.max_server_connections=
 
 # The number of msecs that are waited until the next attempt to find
@@ -236,6 +240,16 @@ jacorb.dns.enable=on
 # Turn off indirection encoding for repeated typecodes. This fixes
 # interoperability with certain broken ORB's eg. Orbix2000
 jacorb.interop.indirection_encoding_disable=off
+
+# Iona Comet CORBA/COM bridge can incorrectly encode buffer lengths.
+# Enabling this property adds additional length checking and adjustment
+# for interoperability with Comet.
+jacorb.interop.comet=off
+
+# Some ORBs do not set a byte value of 1 as a CDR encoded boolean true
+# value. Enabling this property interprets any non zero CDR encoded
+# boolean value as true.
+jacorb.interop.lax_boolean_encoding=off
 
 ###########################################
 #                                         #
@@ -348,6 +362,7 @@ ORBInitRef.ImplementationRepository=http://www.x.y.z/~user/ImR_Ref
 jacorb.imr.table_file=Z:\table.dat
 jacorb.imr.backup_file=z:\backup.dat
 jacorb.imr.ior_file=/home/bwana/brose/public_html/ImR_Ref
+# Time (msecs) that the implementation will wait for a started server to register.
 jacorb.imr.timeout=
 jacorb.imr.no_of_poas=
 jacorb.imr.no_of_servers=
@@ -356,7 +371,7 @@ jacorb.imr.port_number=
 # Port number for IMR endpoint (for IMR IOR)
 jacorb.imr.endpoint_port_number=
 
-# how many millis should the imr wait, until a connection from an
+# how many millisecs should the imr wait, until a connection from an
 # application client is terminated. Default is 2000.
 jacorb.imr.connection_timeout=2000
 
@@ -370,6 +385,16 @@ jacorb.implname=StandardImplName
 #
 jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton
 
+# with these two properties it is possible to
+# tell the ORB what IP / hostname  and port the IMR IOR and IMRified server IORs should
+# contain,  if the ServerSockets IP/port can't be used
+# (e.g. for traffic through a firewall).
+#
+# WARNING: this is just "dumb" replacement, so you
+# have to take care of your configuration!
+#
+#jacorb.imr.ior_proxy_host=1.2.3.4
+#jacorb.imr.ior_proxy_port=4711
 
 
 #########################
