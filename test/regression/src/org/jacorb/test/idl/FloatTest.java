@@ -32,13 +32,13 @@ import org.jacorb.idl.ParseException;
  *
  */
 
-public class FloatTest 
+public class FloatTest
     extends TestCase
 {
-    private static  String outdir = 
+    private static  String outdir =
     ((String)System.getProperty ("testdir")).concat("/src/generated");
-    
-    private static  String testdir = 
+
+    private static  String testdir =
     ((String)System.getProperty ("testdir")).concat("/idl/compiler/");
 
 
@@ -67,7 +67,7 @@ public class FloatTest
       file[1] = outdir;
       file[2] = testdir.concat( "succeed/Floats.idl");
 
-      assertTrue( "Compiled succeed/Floats.idl", 
+      assertTrue( "Compiled succeed/Floats.idl",
                   org.jacorb.idl.parser.compileAndHandle( file ) );
    }
 
@@ -93,9 +93,9 @@ public class FloatTest
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = outdir;
-      file[2] = testdir.concat ("fail/Floats2.idl");
+      file[2] = testdir.concat ("fail/Floats.idl");
 
-      assertFalse( "Compiled fail/Floats2.idl", 
+      assertFalse( "Compiled fail/Floats.idl",
                    org.jacorb.idl.parser.compileAndHandle(file) );
    }
 }
