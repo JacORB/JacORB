@@ -82,7 +82,10 @@ public final class ORB
      */
     protected Map valueFactories = new HashMap();
 
-    /** properties */
+    private Map objectKeyMap = new HashMap();
+
+    /** properties */ 
+
     private java.util.Properties _props;
 
     /** command like args */
@@ -1207,7 +1210,10 @@ public final class ORB
             }
         }
 
-        String versionProperty =
+         objectKeyMap = 
+            Environment.getProperties("jacorb.orb.objectKeyMap", true );
+        
+        String versionProperty = 
             Environment.getProperty("jacorb.orb.print_version");
 
         if( versionProperty != null &&
@@ -1215,7 +1221,8 @@ public final class ORB
         {
             System.out.println("\tJacORB V " + versionString +
                                ", www.jacorb.org");
-            System.out.println("\t(C) Gerald Brose, FU Berlin, " + dateString);
+            System.out.println("\t(C) Gerald Brose, FU Berlin/Xtradyne Technologies, " + 
+                               dateString);
         }
 
 //          Hashtable initrefs = Environment.getProperties("ORBInitRef");
@@ -1230,6 +1237,8 @@ public final class ORB
 
         always_add_1_0_Profile =
             Environment.isPropertyOn( "jacorb.giop.add_1_0_profiles" );
+
+        
 
         interceptorInit();
 
@@ -1803,4 +1812,29 @@ public final class ORB
 
         return list;
     }
+
+    /**
+     * Map an object key to another, as defined by the value
+     * of a corresponding configuration property in the properties
+     * file, e.g. map "NameService" to "StandardNS/NameServer-POA/_root"
+     *
+     * @returns the mapped key, if a mapping is defined, originalKey otherwise
+     */
+
+    public byte[] mapObjectKey( byte[] originalKey )
+    {
+        if( Environment.doMapObjectKeys() )
+        {
+            String s = new String( originalKey );
+            Object o = objectKeyMap.get( s );
+            if( o != null )
+            {
+                return ((String)o).getBytes();
+            }
+        }
+        // else:
+        return originalKey;
+                            
+    }
+
 }
