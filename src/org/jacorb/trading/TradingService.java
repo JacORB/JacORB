@@ -69,7 +69,7 @@ public class TradingService
 		intRep = org.omg.CORBA.RepositoryHelper.narrow(obj);
 	}
 	catch (org.omg.CORBA.ORBPackage.InvalidName e) {
-	    // ignore - no interface repository available
+	    // ignore 
 	}
 	catch (org.omg.CORBA.SystemException e) {
 	    // ignore
@@ -78,17 +78,13 @@ public class TradingService
 	    // ignore
 	}
 
-
 	// retrieve the database objects
-
 	OfferDatabase offerDb = dbMgr.getOfferDatabase();
 	TypeDatabase typeDb = dbMgr.getTypeDatabase();
 
 	// create the service type repository implementation
-
 	RepositoryImpl typeRepos = new RepositoryImpl(typeDb, intRep);
 	typeRepos._this_object( orb );
-	// GB:    orb.connect(typeRepos);
 
 	// create and initialize the attributes objects
 	SupportAttrib supportAttrib = new SupportAttrib();
@@ -174,8 +170,9 @@ public class TradingService
 	}
     }
 
-
-
+    /**
+     * main
+     */
 
     public static void main(String[] args)
     {
