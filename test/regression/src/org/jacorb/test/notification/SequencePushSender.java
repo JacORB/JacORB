@@ -106,7 +106,7 @@ class SequencePushSender
         testCase_.assertEquals(ProxyType._PUSH_SEQUENCE,
                            pushConsumer_.MyType().value());
 
-        pushConsumer_.connect_sequence_push_supplier(SequencePushSupplierHelper.narrow(senderTie._this(testCase_.getSetup().getORB())));
+        pushConsumer_.connect_sequence_push_supplier(SequencePushSupplierHelper.narrow(senderTie._this(testCase_.getORB())));
 
         connected_ = true;
     }

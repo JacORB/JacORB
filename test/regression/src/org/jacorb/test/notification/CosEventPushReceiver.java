@@ -88,7 +88,7 @@ public class CosEventPushReceiver extends PushConsumerPOA implements Runnable, T
         mySupplier_ = _admin.obtain_push_supplier();
         currentTest_.assertNotNull(mySupplier_);
 
-        mySupplier_.connect_push_consumer(_this(currentTest_.getSetup().getORB()));
+        mySupplier_.connect_push_consumer(_this(currentTest_.getORB()));
         connected_ = true;
     }
 

@@ -58,7 +58,7 @@ class SequencePullReceiver extends Thread implements SequencePullConsumerOperati
                                pullSupplier_.MyType().value());
 
 
-        pullSupplier_.connect_sequence_pull_consumer(SequencePullConsumerHelper.narrow(_receiverTie._this(testCase_.getSetup().getORB())));
+        pullSupplier_.connect_sequence_pull_consumer(SequencePullConsumerHelper.narrow(_receiverTie._this(testCase_.getORB())));
 
         connected_ = true;
     }

@@ -57,8 +57,8 @@ public class AnyPullReceiver
                         boolean useOrSemantic) throws AdminNotFound, AlreadyConnected, AdminLimitExceeded
     {
 
-        orb_ = testCase_.getSetup().getORB();
-        poa_ = testCase_.getSetup().getPOA();
+        orb_ = testCase_.getORB();
+        poa_ = testCase_.getPOA();
 
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
@@ -80,8 +80,8 @@ public class AnyPullReceiver
             ProxyPullSupplierHelper.narrow(myAdmin_.
                                            obtain_notification_pull_supplier(ClientType.ANY_EVENT, _proxyId));
 
-        testCase_.getSetup().assertEquals(ProxyType._PULL_ANY,
-                                          mySupplier_.MyType().value());
+        testCase_.assertEquals(ProxyType._PULL_ANY,
+                               mySupplier_.MyType().value());
 
 
         mySupplier_.connect_any_pull_consumer(_this(orb_));

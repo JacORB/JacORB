@@ -71,7 +71,7 @@ public class CosEventPullReceiver extends PullConsumerPOA implements Runnable, T
         EventChannel _channel = EventChannelHelper.narrow(channel);
         ConsumerAdmin _admin = _channel.for_consumers();
         mySupplier_ = _admin.obtain_pull_supplier();
-        mySupplier_.connect_pull_consumer(_this(testCase_.getSetup().getORB()));
+        mySupplier_.connect_pull_consumer(_this(testCase_.getORB()));
         connected_ = true;
     }
 

@@ -65,7 +65,7 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
 
-        invalidAny_ = testCase_.getSetup().getORB().create_any();
+        invalidAny_ = testCase_.getORB().create_any();
 
         if (useOrSemantic)
         {
@@ -86,7 +86,7 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         testCase_.assertEquals(ProxyType._PULL_ANY, myConsumer_.MyType().value());
 
 
-        myConsumer_.connect_any_pull_supplier(_this(testCase_.getSetup().getORB()));
+        myConsumer_.connect_any_pull_supplier(_this(testCase_.getORB()));
         connected_ = true;
     }
 

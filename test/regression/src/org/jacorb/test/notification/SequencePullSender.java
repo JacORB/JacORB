@@ -122,7 +122,7 @@ public class SequencePullSender
                AlreadyConnected,
                TypeError
     {
-        orb_ = testCase_.getSetup().getORB();
+        orb_ = testCase_.getORB();
         SequencePullSupplierPOATie _senderTie = new SequencePullSupplierPOATie(this);
         SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
         IntHolder _proxyId = new IntHolder();

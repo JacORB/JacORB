@@ -160,7 +160,7 @@ public class StructuredPushReceiver extends Thread
         testCase_.assertNotNull(pushSupplier_.MyType());
         testCase_.assertEquals(pushSupplier_.MyType(), ProxyType.PUSH_STRUCTURED);
 
-        pushSupplier_.connect_structured_push_consumer(StructuredPushConsumerHelper.narrow(receiverTie._this(testCase_.getSetup().getORB())));
+        pushSupplier_.connect_structured_push_consumer(StructuredPushConsumerHelper.narrow(receiverTie._this(testCase_.getORB())));
 
         connected_ = true;
     }

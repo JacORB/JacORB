@@ -62,7 +62,7 @@ public class StructuredPullReceiver
 
         testCase_.assertEquals(pullSupplier_.MyType(), ProxyType.PULL_STRUCTURED);
 
-        pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(testCase_.getSetup().getORB())));
+        pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(testCase_.getORB())));
         connected_ = true;
     }
 

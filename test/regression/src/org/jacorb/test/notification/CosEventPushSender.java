@@ -63,7 +63,7 @@ public class CosEventPushSender extends PushSupplierPOA implements TestClientOpe
         myConsumer_ = _admin.obtain_push_consumer();
         testCase_.assertNotNull(myConsumer_);
 
-        myConsumer_.connect_push_supplier(_this(testCase_.getSetup().getORB()));
+        myConsumer_.connect_push_supplier(_this(testCase_.getORB()));
 
         connected_ = true;
     }

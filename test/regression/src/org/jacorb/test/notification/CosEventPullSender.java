@@ -94,12 +94,12 @@ public class CosEventPullSender extends PullSupplierPOA implements TestClientOpe
 
         throws AlreadyConnected, TypeError {
 
-        invalidAny_ = testCase_.getSetup().getORB().create_any();
+        invalidAny_ = testCase_.getORB().create_any();
         EventChannel _channel = EventChannelHelper.narrow(channel);
         SupplierAdmin _admin = _channel.for_suppliers();
         myConsumer_ = _admin.obtain_pull_consumer();
 
-        myConsumer_.connect_pull_supplier(_this(testCase_.getSetup().getORB()));
+        myConsumer_.connect_pull_supplier(_this(testCase_.getORB()));
         connected_ = true;
     }
 

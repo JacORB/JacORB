@@ -41,7 +41,6 @@ import junit.framework.TestCase;
 public class NotificationTestCase extends TestCase {
 
     private NotificationTestCaseSetup setup_;
-    private EventChannelFactoryImpl factoryServant_;
     private EventChannel defaultChannel_;
 
     ////////////////////////////////////////
@@ -54,50 +53,51 @@ public class NotificationTestCase extends TestCase {
 
     ////////////////////////////////////////
 
-    public void tearDown() {
-        if (factoryServant_ != null) {
-            factoryServant_.dispose();
-        }
+    public void tearDown() throws Exception {
+        super.tearDown();
 
         if (defaultChannel_ != null) {
             defaultChannel_.destroy();
         }
     }
 
+
     public EventChannel getDefaultChannel() throws Exception {
         if (defaultChannel_ == null) {
             defaultChannel_ = getFactory().create_channel(new Property[0],
-                                                                      new Property[0],
-                                                                      new IntHolder() );
+                                                          new Property[0],
+                                                          new IntHolder() );
         }
 
         return defaultChannel_;
     }
 
+
     public ORB getORB() {
         return setup_.getORB();
     }
+
 
     public POA getPOA() {
         return setup_.getPOA();
     }
 
+
     public NotificationTestUtils getTestUtils() {
         return setup_.getTestUtils();
     }
 
+
     public EventChannelFactory getFactory() {
-        return setup_.getFactoryServant().getEventChannelFactory();
+        try {
+            return setup_.getFactoryServant().getEventChannelFactory();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
-    private EventChannelFactory getLocalEventChannelFactory() throws Exception {
-        factoryServant_ = EventChannelFactoryImpl.newFactory();
 
-        return EventChannelFactoryHelper.narrow(factoryServant_._this(getORB()));
-    }
-
-    public NotificationTestCaseSetup getSetup() {
+    private NotificationTestCaseSetup getSetup() {
         return setup_;
     }
-
 }

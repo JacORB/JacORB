@@ -207,9 +207,9 @@ public class AnyPushSender
 
         myConsumer_ = ProxyPushConsumerHelper.narrow(myAdmin_.obtain_notification_push_consumer(ClientType.ANY_EVENT, _proxyId));
 
-        testCase_.getSetup().assertEquals(ProxyType._PUSH_ANY, myConsumer_.MyType().value());
+        testCase_.assertEquals(ProxyType._PUSH_ANY, myConsumer_.MyType().value());
 
-        myConsumer_.connect_any_push_supplier(_this(testCase_.getSetup().getORB()));
+        myConsumer_.connect_any_push_supplier(_this(testCase_.getORB()));
         connected_ = true;
     }
 

@@ -163,7 +163,7 @@ public class AnyPushReceiver
                                mySupplier_.MyType().value());
 
 
-        mySupplier_.connect_any_push_consumer(_this(testCase_.getSetup().getORB()));
+        mySupplier_.connect_any_push_consumer(_this(testCase_.getORB()));
 
         connected_ = true;
     }

@@ -86,7 +86,7 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
                            pushSupplier_.MyType().value());
 
 
-        pushSupplier_.connect_sequence_push_consumer(SequencePushConsumerHelper.narrow(receiverTie._this(testCase_.getSetup().getORB())));
+        pushSupplier_.connect_sequence_push_consumer(SequencePushConsumerHelper.narrow(receiverTie._this(testCase_.getORB())));
 
         connected_ = true;
     }
