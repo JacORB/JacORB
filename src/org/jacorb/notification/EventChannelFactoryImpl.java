@@ -265,7 +265,7 @@ public class EventChannelFactoryImpl
             _channel = EventChannelHelper.narrow(_channelServant.activate());
 
             if (logger_.isInfoEnabled()) {
-                logger_.info( "created EventChannel id=" + _identifier );
+                logger_.info( "created EventChannel with ID: " + _identifier );
             }
 
             allChannels_.put( _key, _channelServant );
