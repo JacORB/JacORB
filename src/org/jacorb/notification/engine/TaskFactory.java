@@ -27,6 +27,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
+import java.util.List;
 
 /**
  * @author Alphonse Bendt
@@ -135,7 +136,6 @@ public class TaskFactory implements Disposable
 
     ////////////////////////////////////////
     // Factory methods for FilterProxyConsumerTasks
-    ////////////////////////////////////////
 
     private FilterProxyConsumerTask newFilterProxyConsumerTask() {
         return (FilterProxyConsumerTask)filterProxyConsumerTaskPool_.lendObject();
@@ -212,15 +212,17 @@ public class TaskFactory implements Disposable
         return (FilterProxySupplierTask)filterProxySupplierTaskPool_.lendObject();
     }
 
-    FilterProxySupplierTask newFilterProxySupplierTask( FilterConsumerAdminTask t )
+    FilterProxySupplierTask newFilterProxySupplierTask( FilterConsumerAdminTask task )
     {
-        FilterProxySupplierTask task = newFilterProxySupplierTask();
+        FilterProxySupplierTask _newTask = newFilterProxySupplierTask();
 
-        task.setMessage(t.removeMessage());
+        _newTask.setMessage(task.removeMessage());
 
-        task.setCurrentFilterStage( t.getFilterStageToBeProcessed() );
+        FilterStage[] _filterStageList = task.getFilterStageToBeProcessed();
 
-        return task;
+        _newTask.setCurrentFilterStage( _filterStageList );
+
+        return _newTask;
     }
 
     ////////////////////////////////////////
@@ -229,7 +231,8 @@ public class TaskFactory implements Disposable
     // Factory methods for AbstractDeliverTasks
     ////////////////////////////////////////
 
-    AbstractDeliverTask[] newPushToConsumerTask(FilterStage[] nodes, Message event) {
+    AbstractDeliverTask[] newPushToConsumerTask(FilterStage[] nodes,
+                                                Message event) {
 
         return newPushToConsumerTask(nodes, event, FilterProxySupplierTask.EMPTY_MAP);
 
