@@ -3076,6 +3076,94 @@ and asynchronous invocations, we describe them in a separate section
 
 \chapter{\label{qos}Quality of Service}
 
+JacORB implements a subset of the QoS policies defined in chapter
+22.2 of the CORBA 3.0 specification.  In the following, we describe
+each of the policies we have currently implemented, along with notes
+on particular JacORB issues concerning each policy.  Policies not
+listed in the following are not yet implemented.
+
+As of yet, all the policies in this chapter are \emph{client-side
+override policies}.  That means that you must specify them for
+individual objects, always using the same mechanism:
+
+\begin{description}
+\item[Step 1.] Get an Any from the ORB and put the value for the
+           policy into it.
+\item[Step 2.] Get a Policy object from the ORB which encapsulates the
+           desired value (the Any value from the previous step).
+\item[Step 3.] Apply the policy to a particular object using
+           \emph{\_set\_policy\_override()}.
+\end{description}
+
+Here is the code for this, using the \emph{SyncScopePolicy}
+(described in the following section) as an example:
+
+\begin{verbatim}
+SomeCorbaType     server = ...
+org.omg.CORBA.ORB orb    = ...
+org.omg.CORBA.Any a      = orb.create_any();
+a.insert_short (SYNC_WITH_SERVER.value); // policy value
+try
+{
+    Policy p =
+        orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
+    server._set_policy_override (new Policy[]{ p }, 
+                                 SetOverrideType.ADD_OVERRIDE);   
+}
+catch (PolicyError e)
+{
+    throw new RuntimeException ("policy error: " + e);
+}        
+\end{verbatim}
+
+Because this is somewhat cumbersome to write, JacORB allows you to
+simplify it by creating the Policy object directly via its
+constructor:
+
+\newpage
+
+\begin{verbatim}
+SomeCorbaType server  = ...
+
+Policy p = new org.jacorb.orb.policies.SyncScopePolicy
+                                  (SYNC_WITH_TARGET.value);
+server._set_policy_override (new Policy[]{ p },
+                             SetOverrideType.ADD_OVERRIDE);
+\end{verbatim}
+
+See the package org.jacorb.orb.policies to find out which
+constructors are defined for the individual policy types.
+
+\section{Sync Scope}
+
+The \emph{SyncScopePolicy} specifies at which point a oneway
+invocation returns to the caller.  (The policy is ignored for
+non-oneway invocations.)  There are four possible
+values:
+
+\begin{description}
+\item[SYNC\_NONE] The invocation returns immediately.
+\item[SYNC\_WITH\_TRANSPORT] The invocation returns after the request
+  has been passed to the transport layer.
+\item[SYNC\_WITH\_SERVER] The server sends an
+  acknowledgement back to the client when it has received the
+  request, but \emph{before} actually invoking the target.  The
+  client-side call blocks until this acknowledgement has been
+  received.
+\item[SYNC\_WITH\_TARGET] An ordinary reply is sent back by the
+  server, \emph{after} the target invocation has completed.  The
+  client-side call blocks until this reply has been received.
+\end{description}
+
+The default mechanism in JacORB is \emph{SYNC\_WITH\_TRANSPORT},
+since the call to the socket layer is a synchronous one.  In order to
+implement \emph{SYNC\_NONE}, an additional thread is created on the
+fly which in turn calls the socket layer, while the client-side
+invocation returns after this thread has been created.  Given this
+additional overhead, it is unlikely that \emph{SYNC\_NONE} yields a
+significant performance gain for the client, not even on a
+multiprocessor machine.
+
 \section{Timing Policies}
 
 For each CORBA request four different points in time can be specified:
@@ -3192,12 +3280,10 @@ UtcT time = org.jacorb.util.corbaFuture (10000 * n);
 100~ns; we multiply $n$ by 10000 here to convert it from Java time
 units (milliseconds).)
 
-The standard mechanism for specifying a timing policy for an object
-is quite verbose: We need to stuff the time value into a CORBA Any,
-let the ORB create a Policy object from that, and supply that as an
-argument to {\tt \_set\_policy\_override()}.  As an example, if we
-want to set a \emph{ReplyEndTimePolicy} that lies one second in the
-future, this looks as follows:
+The following shows how to set a timing policy for an object using the
+standard mechanism (see the beginning of this chapter for an
+explanation).  In this example, we set a \emph{Reply End Time} that
+lies one second in the future:
 
 \begin{verbatim}
 import org.omg.CORBA.*;
@@ -3225,10 +3311,8 @@ catch (PolicyError e)
 }
 \end{verbatim}
 
-To make this a little less verbose, JacORB's implementations of
-policy values have constructors that allow you to create them right
-away, without calling the ORB, and without going via an Any.  Thus,
-the above becomes:
+Using the constructors of JacORB's implementations of policy values,
+this becomes less verbose:
 
 \begin{verbatim}
 SomeCorbaType server  = ...
