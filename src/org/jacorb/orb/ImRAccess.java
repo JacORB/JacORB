@@ -30,21 +30,14 @@ package org.jacorb.orb;
  * @version $Id$
  */
 
-public interface ImRAccess 
+public interface ImRAccess
 {
-    public void connect( org.omg.CORBA.ORB orb )
-        throws org.omg.CORBA.INTERNAL;
-
     public String getImRHost();
     public int getImRPort();
-
-    public void registerPOA( String name, 
+    public void registerPOA( String name,
                              String server,
-                             String host, 
+                             String host,
                              int port)
         throws org.omg.CORBA.INTERNAL;
-
     public void setServerDown( String name )
-        throws org.omg.CORBA.INTERNAL;
-    
 }// ImRAccess
