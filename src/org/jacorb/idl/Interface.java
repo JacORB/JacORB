@@ -50,7 +50,7 @@ public class Interface
     /** <code>abstractInterfaces</code> is to keep a record of those interfaces
      * that are abstract so any inheriting interface know what to inherit from.
      */
-    private static HashSet abstractInterfaces;
+    protected static HashSet abstractInterfaces;
 
 
     public Interface(int num)
