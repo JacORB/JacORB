@@ -991,7 +991,7 @@ public class InterfaceDef
 
         String def_in = null;
 
-        if( myContainer != null )
+        if( myContainer == null )
             def_in = "Global";
         else
             def_in = myContainer.id();
