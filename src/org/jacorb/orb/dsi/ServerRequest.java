@@ -467,8 +467,26 @@ public class ServerRequest
                                     ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                     in.getGIOPMinor(),
                                     in.isLocateRequest(),
-                                    logger );
+                                    logger);
+
+        String msg = s.getMessage();
+        if (msg != null)
+            out.addServiceContext (createExceptionDetailMessage (msg));
+
         sys_ex = s;
+    }
+
+    /**
+     * Creates a ServiceContext for transmitting an exception detail message,
+     * as per section 1.15.2 of the Java Mapping.
+     */
+    private ServiceContext createExceptionDetailMessage (String message)
+    {
+        CDROutputStream out = new CDROutputStream();
+        out.beginEncapsulatedArray();
+        out.write_wstring(message);
+        return new ServiceContext (org.omg.IOP.ExceptionDetailMessage.value,
+                				   out.getBufferCopy());
     }
 
     public void setLocationForward(org.omg.PortableServer.ForwardRequest r)
