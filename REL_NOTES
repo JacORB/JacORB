@@ -41,14 +41,22 @@ gerald.brose@acm.org
 
 1.4
 
-   - DynAny
+   - bug fixes:
+         - ORB:
+               - Fix for delegate to stop infinite loop of calling from ImR
+                 to server and back again if server is down.
+               - Fix to TypeCode::equal and TypeCode::equivalent operations
+                 for handling recursive TypeCodes.
+
+   - DynAny:
          - Implemented DynFixed interface.
 
-   - build
+   - Build:
          - JacORB classes directory no longer needed in CLASSPATH to
            build JacORB.
 
-   - GIOP: Added missing functionality to handle LocateRequests and
+   - GIOP:
+         - Added missing functionality to handle LocateRequests and
            LocateReplies.
 
 1.4 beta 4:
@@ -61,6 +69,7 @@ gerald.brose@acm.org
 
 
         The following just didn't make it into the beta 3 release
+
         notes:
 
 	- SSL/JSSE
