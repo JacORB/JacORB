@@ -7,9 +7,13 @@ to download the library gnu.regexp from
 http://www.cacas.org/java/gnu/regexp
 and make it available in the classpath
 
-to start the Notification Service run bin/ntfy or bin/ntfy.bat. This
-script starts a EventChannelFactory and prints the IOR to the
-console. 
+to start the Notification Service run bin/ntfy or bin/ntfy.bat.
+
+ntfy[.bat] [-printIOR|-printCorbaloc|-help]
+	
+The script starts a EventChannelFactory
+By specifying one of the Arguments -printIOR or -printCorbaloc the IOR
+resp. corbaloc of the Service is printed out to the Console
 
 any comments/suggestions to the JacORB Developer Mailing List
 

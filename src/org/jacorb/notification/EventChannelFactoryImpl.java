@@ -42,8 +42,6 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNotification.BestEffort;
 import org.omg.CosNotification.ConnectionReliability;
 import org.omg.CosNotification.EventReliability;
@@ -61,6 +59,15 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactoryPOA;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.RequestProcessingPolicyValue;
+import java.util.Properties;
+import org.omg.PortableServer.IdUniquenessPolicyValue;
+import org.omg.PortableServer.ImplicitActivationPolicyValue;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -87,6 +94,8 @@ import org.omg.PortableServer.POAHelper;
 public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements Disposable
 {
 
+    private static final String NOTIFICATION_SERVICE = "NotificationService";
+    
     static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[ 0 ];
 
     protected EventChannelFactory thisFactory_;
@@ -97,9 +106,11 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     protected int counter_ = 0;
     protected Map allChannels_;
     protected PropertyValidator propertyValidator_;
-    protected Logger logger_;
+    protected Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );;
     protected String ior_;
     protected Vector listEventChannelCreatedEventListener_ = new Vector();
+    protected String corbaLoc_;
+    private POA notificationPOA_;
 
     /**
      * The <code>create_channel</code> operation is invoked to create
@@ -146,26 +157,35 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
                                         IntHolder channelIdentifier ) 
 	throws UnsupportedAdmin, UnsupportedQoS
     {
-        EventChannel _channel = null;
+	try {
+	    EventChannel _channel = null;
 
-        // create identifier
-        int _identifier = createChannelIdentifier();
-        channelIdentifier.value = _identifier;
-        Integer _key = new Integer( _identifier );
-
-        EventChannelImpl _channelServant = create_channel_servant( _identifier,
-								   qualitiyOfServiceProperties,
-								   administrativeProperties );
-
-	eventChannelServantCreated(_channelServant);
-
-        _channel = _channelServant.getEventChannel();
-
-        logger_.info( "created new EventChannel with id: " + _identifier );
-
-        allChannels_.put( _key, _channelServant );
-
-        return _channel;
+	    // create identifier
+	    int _identifier = createChannelIdentifier();
+	    channelIdentifier.value = _identifier;
+	    Integer _key = new Integer( _identifier );
+	    
+	    EventChannelImpl _channelServant = create_channel_servant( _identifier,
+								       qualitiyOfServiceProperties,
+								       administrativeProperties );
+	    
+	    eventChannelServantCreated(_channelServant);
+	    
+	    _channel = _channelServant.getEventChannel();
+	    
+	    logger_.info( "created new EventChannel with id: " + _identifier );
+	    
+	    allChannels_.put( _key, _channelServant );
+	    
+	    return _channel;
+	} catch (WrongPolicy e) {
+	    logger_.fatalError("create_channel()", e);
+	} catch (ObjectNotActive e) {
+	    logger_.fatalError("create_channel()", e);
+	} catch (ServantAlreadyActive e) {
+	    logger_.fatalError("create_channel()", e);
+	}
+	throw new RuntimeException();
     }
 
     protected void eventChannelServantCreated(EventChannelImpl servant) {
@@ -182,8 +202,11 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 					     Property[] qualitiyOfServiceProperties,
 					     Property[] administrativeProperties )
 
-    throws UnsupportedAdmin,
-                UnsupportedQoS
+	throws UnsupportedAdmin,
+	       UnsupportedQoS,
+	       ObjectNotActive,
+	       WrongPolicy,
+	       ServantAlreadyActive
     {
         propertyValidator_.checkAdminPropertySeq( administrativeProperties );
         propertyValidator_.checkQoSPropertySeq( qualitiyOfServiceProperties );
@@ -325,17 +348,18 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 
 	}
 	defaultFilterFactoryServant_.dispose();
+
 	applicationContext_.dispose();
+
+	applicationContext_.getOrb().shutdown(true);
     }
 
     private void initialize() throws InvalidName {
-        logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
-
         allChannels_ = new Hashtable();
-        thisFactory_ = this._this( applicationContext_.getOrb() );
 
         defaultFilterFactoryServant_ = new FilterFactoryImpl( applicationContext_ );
 
+	logger_.info("create Default Filter Factory");
         defaultFilterFactory_ = defaultFilterFactoryServant_._this( applicationContext_.getOrb() );
 
         channelContextTemplate_ = new ChannelContext();
@@ -346,23 +370,85 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
         propertyValidator_ = applicationContext_.getPropertyValidator();
     }
 
+    public String getCorbaLoc() {
+	return corbaLoc_;
+    }
+
+    private String getCorbaLoc(String poaName, byte[] id) {
+	StringBuffer _corbaLoc = new StringBuffer("corbaloc::");
+
+	_corbaLoc.append(getLocalAddress());
+	_corbaLoc.append(":");
+
+	_corbaLoc.append(getLocalPort());
+	_corbaLoc.append("/");
+	_corbaLoc.append(NOTIFICATION_SERVICE);
+
+	return _corbaLoc.toString();
+    }
+
+    private int getLocalPort() {	
+	return ((org.jacorb.orb.ORB)applicationContext_.getOrb()).getBasicAdapter().getPort();
+    }
+
+    private String getLocalAddress() {
+	return ((org.jacorb.orb.ORB)applicationContext_.getOrb()).getBasicAdapter().getAddress();
+    }
+
+    private String objectIdToHexString(byte[] objectId) {
+	StringBuffer buffer = new StringBuffer();
+
+	for (int x=0; x<objectId.length; ++x) {
+	    buffer.append("%");
+	    String hexString = Integer.toHexString(objectId[x]).toUpperCase();
+	    if (hexString.length() == 1) {
+		buffer.append("0");
+	    }
+	    buffer.append(hexString);
+	}
+
+	return buffer.toString();
+    }
+
     public EventChannelFactoryImpl() throws Exception {
-	setLogLevel("org.jacorb.notification", Priority.NONE);
+	String standardImplName = "Notification";
+	String notificationPOAName = "NotificationPOA";
+	String objectName = "_factory";
 
-        final ORB _orb = ORB.init( new String[0], null );
-        POA _poa = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+	Properties props = new Properties();
+	props.put("jacorb.implname", standardImplName);
+	props.put("jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE,
+		  standardImplName + "/" + notificationPOAName + "/" + objectName);
 
-        applicationContext_ = new ApplicationContext( _orb, _poa, true );
+
+        final ORB _orb = ORB.init( new String[0], props );
+
+        POA _rootPOA = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+
+        applicationContext_ = new ApplicationContext( _orb, _rootPOA, true );
+
+	org.omg.CORBA.Policy[] _policies = 
+	    new org.omg.CORBA.Policy [] {
+		_rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID)
+	    };
+
+	notificationPOA_ = _rootPOA.create_POA(notificationPOAName,
+					       _rootPOA.the_POAManager(),
+					       _policies);
+
+	for (int x=0; x<_policies.length; ++x) {
+	    _policies[x].destroy();
+	}
+
+	byte[] oid = (objectName.getBytes());
+
+	notificationPOA_.activate_object_with_id(oid, this);
+	thisFactory_ = EventChannelFactoryHelper.narrow(notificationPOA_.id_to_reference(oid));
 
 	initialize();
 
-	logger_.debug("activate the POAManager");
-
-        _poa.the_POAManager().activate();
-
-	ior_ = _orb.object_to_string(_poa.servant_to_reference( this ));
-
-	logger_.info("Using IOR: " + ior_ );
+        _rootPOA.the_POAManager().activate();
+	notificationPOA_.the_POAManager().activate();
 
 	Thread t = new Thread(
 			      new Runnable() {
@@ -372,6 +458,11 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	
 	t.setDaemon(true);
 	t.start();
+
+	ior_ = _orb.object_to_string( notificationPOA_.id_to_reference( oid ) );
+	corbaLoc_ = getCorbaLoc(notificationPOA_.the_name(), oid);
+
+	logger_.info("EventChannelFactory - ready");
     }
 
     public String getIOR() {
@@ -461,14 +552,55 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
         _logger.setPriority( priority );
     }
 
+    public POA _default_POA() {
+	return applicationContext_.getPoa();
+    }
+
+    private static void help() {
+	System.out.println("Usage: ntfy [-printIOR|-printCorbaloc|-help]");
+	
+	System.exit(0);
+    }
+
+    private static void checkArgs(String[] args) {
+	if (args != null) {
+	    if (args.length == 0) {
+		return;
+	    }
+
+	    if (args.length > 1) {
+		help();
+	    }
+
+	    if (args[0].equals("-printIOR")) {
+	    } else if (args[0].equals("-printCorbaloc")) {
+	    } else {
+		help();
+	    }
+
+	}
+    }
+
     public static void main( String[] args ) throws Exception
     {
+	checkArgs(args);
+
+	if (args.length == 1 && args[0].equals("-help")) {
+	    help();
+	}
+
 	setLogLevel("org.jacorb.notification", Priority.NONE);
 
         EventChannelFactoryImpl _factory =
             new EventChannelFactoryImpl();
 
-	System.out.println(_factory.getIOR());
+	if (args.length > 0) {
+	    if (args[0].equals("-printIOR")) {
+		System.out.println(_factory.getIOR());
+	    } else if (args[0].equals("-printCorbaloc")) {
+		System.out.println(_factory.getCorbaLoc());
+	    }	    
+	}
     }
 
 } 

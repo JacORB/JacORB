@@ -142,6 +142,8 @@ public class ApplicationContext implements Disposable {
 	evaluationResultPool_.dispose();
 	evaluationContextPool_.dispose();
 	notificationEventFactory_.dispose();
+
+	orb_.shutdown(true);
     }
 
     /**

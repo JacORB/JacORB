@@ -126,4 +126,8 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
 	return thisRef_;
     }
 
+    public POA _default_POA() {
+	return applicationContext_.getPoa();
+    }
+
 }

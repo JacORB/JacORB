@@ -55,6 +55,10 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
 import java.util.ArrayList;
+import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
+import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
 
 /**
  * @author Alphonse Bendt
@@ -63,7 +67,7 @@ import java.util.ArrayList;
 
 public class EventChannelImpl extends EventChannelPOA implements Disposable
 {
-    private Logger logger_;
+    private Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );;
 
     private ORB myOrb_ = null;
     private POA myPoa_ = null;
@@ -576,8 +580,12 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 		      ApplicationContext appContext,
                       ChannelContext channelContext,
                       Map qosProperties,
-                      Map adminProperties )
+                      Map adminProperties ) throws ServantAlreadyActive,
+						   WrongPolicy,
+						   ObjectNotActive
     {
+	super();
+
 	myKey_ = key;
 
         if ( adminProperties.containsKey( MaxConsumers.value ) )
@@ -608,31 +616,19 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
         defaultFilterFactory_ = channelContext.getDefaultFilterFactory();
 
         channelContext.setEventChannelServant( this );
-        channelContext_.setEventChannel( _this( myOrb_ ) );
+
+	byte[] oid = myPoa_.activate_object(this);	
+	thisRef_ = EventChannelHelper.narrow(myPoa_.id_to_reference(oid));
+	ior_ = myOrb_.object_to_string(myPoa_.id_to_reference(oid));
+        channelContext_.setEventChannel( thisRef_ );
 
         channelContext_.setProxySupplierDisposedEventListener( proxySupplierDisposedListener_ );
         channelContext_.setProxyConsumerDisposedEventListener( proxyConsumerDisposedListener_ );
 
-        logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
-
         supplierAdminServants_ = new Hashtable();
         consumerAdminServants_ = new Hashtable();
 
-        _this_object( myOrb_ );
-
         channelContext.setTaskProcessor( appContext.getTaskProcessor() );
-
-        try
-        {
-            myPoa_ = applicationContext_.getPoa();
-            myPoa_.the_POAManager().activate();
-
-	    ior_ = myOrb_.object_to_string(myPoa_.servant_to_reference(this));
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -776,6 +772,7 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
      */
     public POA _default_POA()
     {
+	logger_.debug("DefaultPOA: " + myPoa_.the_name());
         return myPoa_;
     }
 
@@ -850,7 +847,6 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 	    synchronized(this) {
 		if (thisRef_ == null) {
 		    thisRef_ = _this( applicationContext_.getOrb() );
-
 		}
 	    }
 	}
