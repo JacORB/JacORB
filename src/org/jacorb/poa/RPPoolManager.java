@@ -20,6 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.poa.except.*;
 
@@ -61,22 +62,32 @@ public class RPPoolManager
     // a flag for delay the pool initialization
     private boolean inUse = false;
 
+    private Configuration configuration;
     private Logger logger;
 
     private RPPoolManager() {
     }
 
-    protected RPPoolManager(Current _current, int min, int max, Logger _logger)
+    protected RPPoolManager(Current _current, int min, int max,
+                            Logger _logger, Configuration _configuration)
     {
         current = _current;
         max_pool_size = max;
         min_pool_size = min;
         logger = _logger;
+        configuration = _configuration;
     }
 
     private void addProcessor()
     {
         RequestProcessor rp = new RequestProcessor(this);
+        try 
+        {
+            rp.configure(this.configuration);
+        } catch (ConfigurationException ex)
+        {
+            throw new RuntimeException (ex);
+        }
         current._addContext(rp, rp);
         rp.setDaemon(true);
         pool.addElement(rp);
