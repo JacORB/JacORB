@@ -149,7 +149,7 @@ public class CDRInputStream
 
     public org.omg.CORBA.ORB orb ()
     {
-        if (orb == null) orb = org.omg.CORBA.ORB.init();
+        if (orb == null) orb = org.omg.CORBA.ORB.init(new String[]{}, null);
         return orb;
     }
 
@@ -1876,7 +1876,7 @@ public class CDRInputStream
             else if( repository_ids[r].startsWith ("IDL:"))
             {
                 org.omg.CORBA.portable.ValueFactory factory =
-                    ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory (repository_ids[r]);
+                    ((org.omg.CORBA_2_3.ORB)orb()).lookup_value_factory (repository_ids[r]);
 
                 if (factory != null)
                 {
