@@ -131,11 +131,17 @@ jacorb.hashtable_class=java.util.Hashtable
 jacorb.use_bom=off
 
 # add additional IIOP 1.0 profiles even if we are using IIOP 1.2
-jacorb.giop.add_1_0_profiles=on
+jacorb.giop.add_1_0_profiles=off
 
-# if set to on, JacORB will be enabled to use BiDirectional GIOP. You
-# still have to set the appropriate POA policies.
-jacorb.use_bidir_giop=off
+###########################################
+#                                         #
+#         BiDirectional GIOP              #
+#                                         #
+###########################################
+
+# uncomment this initializer if you want to use BiDirectional GIOP
+
+#org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=org.jacorb.orb.connection.BiDirConnectionInitializer
 
 
 ###########################################
