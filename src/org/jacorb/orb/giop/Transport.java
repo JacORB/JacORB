@@ -51,7 +51,11 @@ public interface Transport
                
     void flush();
 
+    void connect (org.omg.ETF.Profile server_profile, long time_out);
+    
     void close();
+    
+    boolean is_connected();
 
     org.omg.ETF.Profile get_server_profile(); 
 
