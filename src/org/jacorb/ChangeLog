@@ -1,3 +1,248 @@
+2003-08-22  Francisco Reverbel  <reverbel@ime.usp.br>
+
+	* ir/IDLType.java, ir/IdlWriter.java, ir/OperationDef.java,
+	ir/PrimitiveDef.java, ir/StructDef.java, ir/TypeCodeUtil.java,
+	orb/Any.java, orb/CDRInputStream.java, orb/CDROutputStream.java,
+	orb/ORBSingleton.java, orb/TypeCode.java, orb/dynany/DynAny.java,
+	orb/dynany/DynAnyFactoryImpl.java, orb/dynany/DynArray.java,
+	orb/dynany/DynEnum.java, orb/dynany/DynFixed.java,
+	orb/dynany/DynSequence.java, orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java:
+
+	Changes aiming at typecode interoperability:
+
+	   - Removed poteentially unsafe casts to org.jacorb.orb.TypeCode.
+
+	   - Casts to org.jacorb.orb.TypeCode are performed only when they
+	     are guaranteed to succeed (instanceof checks were added to
+	     ensure this).
+
+	   - A JacORB typecode can now refer to foreign typecodes. It
+	     should be possible to create a JacORB typecode describing,
+	     say, a struct whose field types are described by foreign
+	     typecodes. All but one typecode-valued fields of
+	     org.jacorb.orb.TypeCode had the field type changed from
+	     org.jacorb.orb.TypeCode to org.omg.CORBA.TypeCode.
+
+	   - The single typecode-valued TypeCode field whose type remained
+	     JacORB-specific is actualTypecode, used by recursive
+	     typecodes.  Therefore a recursive typecode created by JacORB
+	     cannot be used to build a foreign typecode.
+
+2003-08-20  Francisco Reverbel  <reverbel@ime.usp.br>
+
+	* orb/iiop/IIOPListener.java: Create server sockets with a
+	non-null binding address if (and only if) the property "OAIAddr"
+	has been set. No "OAIAddr" setting means that the listener should
+	accept connections on any/all local addresses.
+
+2003-08-20  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/UnionType.java: (printUnionClass) fixed bug #373 by
+	prepending "_" in the right place
+
+2003-08-20  Francisco Reverbel  <reverbel@ime.usp.br>
+
+	* ir/ConstantDef.java, ir/Contained.java, ir/ExceptionDef.java,
+	ir/IRFilenameFilter.java, ir/IRObject.java, ir/RepositoryID.java,
+	ir/RepositoryImpl.java: Removed superfluous "import
+	org.jacorb.orb.TypeCode" statements.
+	(None of these classes was actually using
+	org.jacorb.orb.TypeCode.)
+
+2003-08-19  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/StructType.java:
+	(printStructClass) added code to print a toString() method (bug
+	#336)
+
+2003-08-19  Andre Spiegel  <spiegel@gnu.org>
+
+	TypeCode interop patch <mrobinson@towertech.com>
+	
+	* orb/CDROutputStream.java:
+	(write_value(TypeCode,OutputStream): Replace JacORB's
+	TypeCode._kind() with standard TypeCode.kind().value().
+
+	* orb/CDRInputStream.java:
+	(read_value(TypeCode,OutputStream): Replace JacORB's
+	TypeCode._kind() with standard TypeCode.kind().value().
+
+	* orb/Any.java:
+	(originalType): Implement locally, rather than relying on JacORB's
+	specific TypeCode implementation.
+
+2003-08-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ParsedIOR.java (getComponent): Search the effective profile
+	first, then MULTIPLE_COMPONENTS.
+	(getLongComponent): Use the above.
+	(getStringComponent): New method, also uses the above.
+	(getCodebaseComponent): Delegate to getStringComponent().
+	(StringHelper): New private class.
+
+2003-08-18  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/iiop/IIOPListener.java: Use getHostName instead of
+	getHostAddress so an address patched in by OAIAddr is returned
+	correctly.
+
+	* idl/JacIDL.java, idl/ScopedName.java, idl/parser.cup,
+	idl/parser.java, idl/sym.java: Remove -i option from compiler as
+	not needed. Fixes Jac#347
+
+2003-08-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ParsedIOR.java (getCodebaseComponent): Override prev change,
+	search effective profile first, then MULTIPLE_COMPONENTS.  Add
+	comment.
+
+	* orb/ORB.java (createIOR): Fix bug which didn't put the
+	MULTIPLE_COMPONENTS list into the componentMap used by IOR
+	interceptors.
+
+2003-08-18  Francisco Reverbel  <reverbel@ime.usp.br>
+
+	* naming/NameServer.java, naming/NamingContextImpl.java: Minor
+	changes in NamingContextImpl: fields orb and rootPoa are now
+	static, added static init method to initialize these fields.
+
+	* poa/POA.java: Fixed NPE in calls to reference_to_servant() on a
+	POA with NON_RETAIN and USE_SERVANT_MANAGER: check if aom is non
+	null before calling isDeactivating() on it.
+
+	* orb/ParsedIOR.java: getCodebaseComponent() looks for the
+	codebase component in the top-level components, then in the
+	effective profile.
+
+2003-08-17  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/RequestQueue.java (add): Handle new properties queue_wait
+	and queue_min.
+	(getElementAndRemove, removeFirst, removeLast): Call
+	this.notifyAll().
+
+	* util/Environment.java (queue_min, queue_wait): New POA
+	properties.
+
+	* orb/iiop/IIOPListener.java (createEndPointProfile): Put the
+	configured host address into the profile, not necessarily the real
+	one.
+
+2003-08-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* naming/NameServer.java: server_timeout first uses property
+	system then defaults to 10000
+
+	* naming/NameServer.java: Tab removal
+
+	* idl/Interface.java, idl/InterfaceBody.java, idl/Method.java,
+	idl/OpDecl.java, idl/Operation.java: Fix for Jac286 abstract
+	interface helper/holder
+
+	* notification/build.xml: Don't abort entire compilation if JDK13
+	& regexp package isn't available; just output message
+
+	* build.xml, orb/build.xml, util/build.xml: Correct deletion
+	paths, do template copying first.
+
+	* collection/build.xml, concurrency/build.xml,
+	orb/portableInterceptor/build.xml,
+	orb/standardInterceptors/build.xml, poa/build.xml,
+	transaction/build.xml: Remove empty targets
+
+2003-08-15  Simon McQueen  <sm@prismtechnologies.com>
+
+	* build.xml: Moved 'utils' in front of 'orb' in subdir - orb
+	depends on it.
+
+2003-08-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* util/build.xml: Correct delete for clean task
+
+2003-08-15  Simon McQueen  <sm@prismtechnologies.com>
+
+	* build.xml: Moved 'util' in front of 'orb' in subdir - orb
+	depends on it.
+
+	* build.xml: Moved 'utils' in front of 'orb' in subdir - orb
+	depends on it.
+
+2003-08-15  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/build.xml (compile): Change connection package to
+	org.jacorb.orb.giop.
+
+2003-08-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* poa/AOM.java: Fix for Jac344/RT964 POA activate/deactivate
+	object (AOM plus test)
+
+2003-08-15  Andre Spiegel  <spiegel@gnu.org>
+
+	* security/ssl/sun_jsse/ServerInvocationInterceptor.java,
+	security/ssl/iaik/ServerInvocationInterceptor.java,
+	security/ssl/iaik/SSLSocketFactory.java,
+	security/ssl/iaik/SSLServerSocketFactory.java,
+	security/sas/SASTargetInterceptor.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/JsseContextValidator.java,
+	security/sas/GssUpContextValidator.java, proxy/ProxyImpl.java,
+	poa/RequestProcessor.java, poa/POA.java, orb/util/PrintIOR.java,
+	orb/util/FixIOR.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/iiop/ClientIIOPConnection.java, orb/dsi/ServerRequest.java,
+	orb/dii/Request.java, orb/ReplyReceiver.java,
+	orb/ProfileSelector.java, orb/ORB.java,
+	orb/LocateReplyReceiver.java, orb/ExceptionHolderImpl.java,
+	orb/Delegate.java, orb/DefaultProfileSelector.java,
+	orb/ClientInterceptorHandler.java, orb/CDROutputStream.java,
+	orb/CDRInputStream.java, orb/BasicAdapter.java,
+	imr/ImplementationRepositoryImpl.java: Use org.jacorb.orb.giop
+	instead of org.jacorb.orb.connection.
+
+	* orb/http/ClientConnection.java, orb/http/ServerConnection.java,
+	orb/http/httpserver/ServeConnection.java,
+	orb/http/httpserver/ServeInputStream.java,
+	orb/http/httpserver/ServeOutputStream.java: Repackaged from
+	org.jacorb.orb.connection.http into org.jacorb.orb.http.
+
+	* orb/giop/BiDirConnectionClientInterceptor.java,
+	orb/giop/BiDirConnectionInitializer.java,
+	orb/giop/BiDirConnectionServerInterceptor.java,
+	orb/giop/BiDirPolicy.java, orb/giop/BiDirPolicyFactory.java,
+	orb/giop/ClientConnection.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/ClientGIOPConnection.java, orb/giop/CodeSet.java,
+	orb/giop/ConnectionListener.java, orb/giop/GIOPConnection.java,
+	orb/giop/GIOPConnectionManager.java,
+	orb/giop/LFUSelectionStrategyImpl.java,
+	orb/giop/LFUStatisticsProviderImpl.java,
+	orb/giop/LRUSelectionStrategyImpl.java,
+	orb/giop/LRUStatisticsProviderImpl.java,
+	orb/giop/LocateReplyInputStream.java,
+	orb/giop/LocateReplyOutputStream.java,
+	orb/giop/LocateRequestInputStream.java,
+	orb/giop/LocateRequestOutputStream.java,
+	orb/giop/MessageInputStream.java,
+	orb/giop/MessageOutputStream.java, orb/giop/MessageReceptor.java,
+	orb/giop/MessageReceptorPool.java, orb/giop/Messages.java,
+	orb/giop/NoBiDirClientRequestListener.java,
+	orb/giop/NoBiDirServerReplyListener.java,
+	orb/giop/ReplyInputStream.java, orb/giop/ReplyListener.java,
+	orb/giop/ReplyOutputStream.java, orb/giop/ReplyPlaceholder.java,
+	orb/giop/RequestInputStream.java, orb/giop/RequestListener.java,
+	orb/giop/RequestOutputStream.java,
+	orb/giop/SelectionStrategy.java,
+	orb/giop/ServerGIOPConnection.java,
+	orb/giop/ServerRequestListener.java,
+	orb/giop/ServiceContextTransportingInputStream.java,
+	orb/giop/ServiceContextTransportingOutputStream.java,
+	orb/giop/StatisticsProvider.java, orb/giop/TransportManager.java:
+	Repackage org.jacorb.orb.connection into org.jacorb.orb.giop.  All
+	callers updated.
+
 2003-08-13  Nick Cross  <nick.cross@prismtechnologies.com>
 
 	* idl/VectorType.java: RT1010 Fix for JDK122 ObjectHelper (OMG 1536)
