@@ -14,3 +14,5 @@ jacorb.security.keystore=jsse_client_ks
 
 # Read trusted certificates from the keystore
 jacorb.security.jsse.trustees_from_ks=on
+
+jacorb.security.jsse.log.verbosity=4
