@@ -1,0 +1,17 @@
+/**
+ * WARNING: THIS IS A COMPATIBILITY DUMMY NEEDED UNTIL SOMEONE FINDS
+ * THE OFFICIAL IDL FILE
+ *
+ *  $Id$ */
+
+
+#ifndef __SENDING_CONTEXT_IDL
+#define __SENDING_CONTEXT_IDL
+
+#pragma prefix "omg.org"
+
+module SendingContext {
+    interface RunTime{};
+};
+
+#endif
