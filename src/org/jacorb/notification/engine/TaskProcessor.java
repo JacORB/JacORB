@@ -27,7 +27,6 @@ import org.jacorb.notification.ConfigurableProperties;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.TimerEventConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.notification.util.ThreadPool;
 import org.jacorb.util.Environment;
@@ -38,6 +37,7 @@ import org.omg.CosNotification.StructuredEvent;
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
+import org.jacorb.notification.Constants;
 
 /**
  *
@@ -47,9 +47,6 @@ import org.apache.log.Logger;
 
 public class TaskProcessor implements Disposable
 {
-
-    static final int DEFAULT_FILTER_POOL_WORKERS = 2;
-    static final int DEFAULT_DELIVER_POOL_WORKERS = 4;
 
     private Logger logger_ =
         Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
@@ -130,6 +127,8 @@ public class TaskProcessor implements Disposable
         EventConsumer eventConsumer_;
 
         EnableEventConsumer(EventConsumer ec) {
+            logger_.debug("new EnableEventConsumer(" + ec + ")");
+
             eventConsumer_ = ec;
         }
 
@@ -167,6 +166,8 @@ public class TaskProcessor implements Disposable
     private ClockDaemon clockDaemon_;
     private TaskConfigurator taskConfigurator_;
 
+    private long backoutInterval_;
+
 
     ////////////////////////////////////////
 
@@ -184,36 +185,23 @@ public class TaskProcessor implements Disposable
 
         filterPool_ =
             new ThreadPool( "FilterThread",
-                            getNumberFromProperty( ConfigurableProperties.FILTER_POOL_WORKERS,
-                                                   DEFAULT_FILTER_POOL_WORKERS ) );
+                            Environment.getIntPropertyWithDefault( ConfigurableProperties.FILTER_POOL_WORKERS,
+                                                                   Constants.DEFAULT_FILTER_POOL_SIZE ) );
 
         deliverPool_ =
             new ThreadPool( "DeliverThread",
-                            getNumberFromProperty( ConfigurableProperties.DELIVER_POOL_WORKERS,
-                                                   DEFAULT_DELIVER_POOL_WORKERS ) );
+                            Environment.getIntPropertyWithDefault( ConfigurableProperties.DELIVER_POOL_WORKERS,
+                                                                   Constants.DEFAULT_DELIVER_POOL_SIZE ) );
+
+        backoutInterval_ =
+            Environment.getIntPropertyWithDefault( ConfigurableProperties.BACKOUT_INTERVAL,
+                                                   Constants.DEFAULT_BACKOUT_INTERVAL );
 
         taskConfigurator_ = new TaskConfigurator( this );
         taskConfigurator_.init();
     }
 
     ////////////////////////////////////////
-
-    private int getNumberFromProperty( String propertyName, int defaultValue )
-    {
-        if ( Environment.getProperty( propertyName ) == null )
-        {
-            return defaultValue;
-        }
-
-        try
-        {
-            return Integer.parseInt( Environment.getProperty( propertyName ) );
-        }
-        catch ( NumberFormatException e )
-        {
-            return defaultValue;
-        }
-    }
 
     boolean isFilterTaskQueued()
     {
@@ -297,7 +285,7 @@ public class TaskProcessor implements Disposable
     /**
      * Schedule a FilterTask for execution.
      */
-    void scheduleFilterTask( AbstractFilterTask task )
+    public void scheduleFilterTask( AbstractFilterTask task )
         throws InterruptedException
     {
         filterPool_.execute( task );
@@ -328,7 +316,7 @@ public class TaskProcessor implements Disposable
      * Schedule or Execute PushToConsumerTask for execution. Bypass
      * Scheduling if possible.
      */
-    public void scheduleOrExecutePushToConsumerTask( PushToConsumerTask task )
+    public void scheduleOrExecutePushToConsumerTask( AbstractDeliverTask task )
         throws InterruptedException
     {
 
@@ -346,7 +334,7 @@ public class TaskProcessor implements Disposable
     /**
      * Schedule a PushToConsumerTask for execution.
      */
-    public void schedulePushToConsumerTask( PushToConsumerTask task )
+    public void schedulePushToConsumerTask( AbstractDeliverTask task )
         throws InterruptedException
     {
         deliverPool_.execute( task );
@@ -356,7 +344,7 @@ public class TaskProcessor implements Disposable
     /**
      * Schedule an array of PushToConsumerTask for execution.
      */
-    void schedulePushToConsumerTask( PushToConsumerTask[] tasks )
+    void schedulePushToConsumerTask( AbstractDeliverTask[] tasks )
         throws InterruptedException
     {
 
@@ -375,7 +363,7 @@ public class TaskProcessor implements Disposable
      * TimerEventSupplier
      */
     public void scheduleTimedPullTask( TimerEventSupplier dest )
-    throws InterruptedException
+        throws InterruptedException
     {
 
         PullFromSupplierTask _task = new PullFromSupplierTask();
@@ -392,17 +380,17 @@ public class TaskProcessor implements Disposable
      * Schedule ProxyPushSupplier for push-Operation.
      * A SequenceProxyPushSuppliers need to push Events regularely to its
      * connected Consumer. This method allows to queue a Task to call
-     * deliverPendingEvents on the specified TimerEventConsumer
+     * deliverPendingEvents on the specified EventConsumer
      */
-    public void scheduleTimedPushTask( TimerEventConsumer d )
+    public void scheduleTimedPushTask( EventConsumer consumer )
         throws InterruptedException
     {
 
         TimerDeliverTask _task = new TimerDeliverTask();
 
-        _task.setTimedDeliverTarget( d );
-        _task.setTaskFinishHandler( nullFinishHandler_ );
-        _task.setTaskErrorHandler( nullErrorHandler_ );
+        _task.setEventConsumer( consumer );
+        _task.setTaskFinishHandler( taskConfigurator_.deliverTaskFinishHandler_ );
+        _task.setTaskErrorHandler( taskConfigurator_.deliverTaskErrorHandler_ );
 
         deliverPool_.execute( _task );
     }
@@ -466,8 +454,7 @@ public class TaskProcessor implements Disposable
 
         Runnable runEnableTask = new EnableEventConsumer(ec);
 
-        executeTaskAfterDelay(2000, runEnableTask);
-
+        executeTaskAfterDelay(backoutInterval_, runEnableTask);
     }
 
     public TaskConfigurator getTaskConfigurator() {
