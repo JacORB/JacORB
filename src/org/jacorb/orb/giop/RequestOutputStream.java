@@ -46,7 +46,10 @@ public class RequestOutputStream
 
     private org.jacorb.orb.dii.Request request = null;
 
-    public RequestOutputStream( int request_id,
+    private ClientConnection connection = null;
+
+    public RequestOutputStream( ClientConnection connection,
+                                int request_id,
                                 String operation, 
                                 boolean response_expected,
                                 byte[] object_key,
@@ -60,6 +63,7 @@ public class RequestOutputStream
         this.request_id = request_id;
         this.response_expected = response_expected;
         this.operation = operation;
+        this.connection = connection;
 
         writeGIOPMsgHeader( MsgType_1_1._Request,
                             giop_minor );
@@ -146,6 +150,11 @@ public class RequestOutputStream
     public org.jacorb.orb.dii.Request getRequest()
     {
         return request;
+    }
+    
+    public ClientConnection getConnection()
+    {
+        return connection;
     }
 }
 

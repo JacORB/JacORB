@@ -172,26 +172,6 @@ public class ClientConnection
         return id;
     }
 
-    public synchronized void setMinId( int min_id )
-    {
-        if( (id_count % 2) == 0 )
-        {
-            if( (min_id % 2) == 1 )
-            {
-                min_id += 1;//make it even
-            }
-        }
-        else
-        {
-            if( (min_id % 2) == 0 )
-            {
-                min_id += 1; //make it odd
-            }
-        }
-
-        id_count = Math.max( id_count, min_id );
-    }
-
     public void incClients()
     {
         client_count++;

@@ -142,8 +142,7 @@ public class ConnectionManager
      * @return <code>Connection</code> */
 
     public synchronized ClientConnection getConnection( String host_and_port, 
-                                                        boolean use_ssl,
-                                                        int initial_id )
+                                                        boolean use_ssl )
     {
         host_and_port = unifyTargetAddress( host_and_port );
         
@@ -214,8 +213,6 @@ public class ConnectionManager
         }
 
         c.incClients();
-
-        c.setMinId( initial_id );
 
         return c;
     }

@@ -154,7 +154,7 @@ public final class Delegate
      * inside of _invoke, where they get handled properly (falling
      * back, etc.)
      *  */
-    private void bind( int initial_request_id ) 
+    private void bind() 
     { 
         synchronized( bind_sync )
         {
@@ -164,8 +164,7 @@ public final class Delegate
             _pior.init();
     
             connection = conn_mg.getConnection( _pior.getAdPort(),
-                                                _pior.useSSL(),
-                                                initial_request_id );
+                                                _pior.useSSL() );
             bound = true;
             
             /* The delegate could query the server for the object
@@ -233,11 +232,6 @@ public final class Delegate
             bind_sync.notifyAll();
         }
     }
-    
-    private void bind()
-    {
-        bind( 0 );
-    }
 
     private void rebind( String object_reference ) 
     {
@@ -270,12 +264,8 @@ public final class Delegate
             
             _pior = p;
 
-            int initial_request_id = 0;
-
             if( connection != null )
             {
-                initial_request_id = connection.getId();
-
                 conn_mg.releaseConnection( connection );
                 connection = null;
             }
@@ -283,7 +273,7 @@ public final class Delegate
             //to tell bind() that it has to take action
             bound = false;
 
-            bind( initial_request_id );
+            bind();
         }
     }    
         
@@ -461,7 +451,8 @@ public final class Delegate
             ParsedIOR p = getParsedIOR();
 
             _os = 
-                new RequestOutputStream( connection.getId(),
+                new RequestOutputStream( connection,
+                                         connection.getId(),
                                          "_get_policy", 
                                          true, 
                                          p.get_object_key(),
@@ -741,9 +732,20 @@ public final class Delegate
 
                 synchronized( bind_sync )
                 {
-                    connection.sendRequest( ros,
-                                            placeholder,
-                                            ros.requestId() );
+                    if( ros.getConnection() == connection )
+                    {
+                        //RequestOutputStream has been created for
+                        //exactly this connection
+                        connection.sendRequest( ros,
+                                                placeholder,
+                                                ros.requestId() );
+                    }
+                    else
+                    {
+                        //RequestOutputStream has been created for
+                        //other connection, so try again.
+                        throw new RemarshalException();
+                    }
                 }
             }
             else
@@ -1170,7 +1172,8 @@ public final class Delegate
             ParsedIOR p = getParsedIOR();
 
             RequestOutputStream ros = 
-                new RequestOutputStream( connection.getId(),
+                new RequestOutputStream( connection,  
+                                         connection.getId(),
                                          operation, 
                                          responseExpected, 
                                          p.get_object_key(),
