@@ -47,8 +47,8 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener
 {
-    private static final String versionString = "1.3.30";
-    private static final String dateString = "13 June 2001";
+    private static final String versionString = "1.3.40";
+    private static final String dateString = "7 Sept 2001";
 
     /** "initial" references */
     private Hashtable initial_references = new Hashtable();
@@ -106,6 +106,11 @@ public final class ORB
 
     private static org.omg.CORBA.TCKind kind;
 
+    private static final String [] services  = 
+    {"NameService", "TradingService","RootPOA","POACurrent",
+     "DynAnyFactory", "DomainService", "LocalDomainService", 
+     "PICurrent", "CodecFactory", "TransactionCurrent"};
+
     public ORB()
     {
     }
@@ -116,7 +121,7 @@ public final class ORB
      *  removes stale cache entries 
      */
 
-    synchronized org.omg.CORBA.Object _getObject(ParsedIOR pior)
+    synchronized org.omg.CORBA.Object _getObject( ParsedIOR pior )
     {
         String key = pior.getIORString();
         org.omg.CORBA.portable.ObjectImpl o = 
@@ -148,7 +153,7 @@ public final class ORB
         }
         
         org.jacorb.orb.Delegate d = new Delegate(this, pior );
-        o = d.getReference(null);
+        o = d.getReference();
         if( Environment.cacheReferences() )
         {
             Debug.output(5,"Caching reference for key " + key);
@@ -156,6 +161,89 @@ public final class ORB
         }
         return o;
     }
+
+    /**
+     * Find a local POA for a delegate (called from is_local())
+     * returns non-null only if a root POA is already activated
+     * and all POAs along the path on the poa name are active, i.e.
+     * returns null for POAs in the holding state
+     */
+
+    org.jacorb.poa.POA findPOA( org.jacorb.orb.Delegate d, org.omg.CORBA.Object ref )
+    {
+        // if no POAs activated, we don't look further
+        if( rootpoa == null || basicAdapter == null )
+            return null;
+
+        if( ! (basicAdapter.getAddress() +":"+ basicAdapter.getPort()).equals( d.get_adport() ))
+            return null;
+
+        String implName = new String( Environment.implName());
+        if( implName.length() > 0 && 
+            !(implName.equals( org.jacorb.poa.util.POAUtil.extractImplName(d.getObjectKey())))
+              )
+        {
+            return null;
+        }
+
+        try
+        {
+            org.jacorb.poa.POA tmp_poa = (org.jacorb.poa.POA)rootpoa;       
+            String poa_name = org.jacorb.poa.util.POAUtil.extractPOAName(d.getObjectKey());
+
+            /** strip scoped poa name (first part of the object key before "::",
+             *  will be empty for the root poa
+             */
+
+            java.util.StringTokenizer strtok = 
+                new java.util.StringTokenizer( poa_name, org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR );
+
+            String scopes[] = new String[strtok.countTokens()];
+
+            for( int i = 0; strtok.hasMoreTokens(); scopes[i++] = strtok.nextToken() );
+
+            for( int i = 0; i < scopes.length; i++)
+            {
+                if( scopes[i].equals(""))
+                    break;
+                
+                /* the following is a  call to a method in the private
+                   interface between the ORB  and the POA. It does the
+                   necessary    synchronization    between   incoming,
+                   potentially concurrent  requests to activate  a POA
+                   using its  adapter activator. This  call will block
+                   until  the correct  POA is  activated and  ready to
+                   service    requests.    Thus,    concurrent   calls
+                   originating  from a  single,  multi-threaded client
+                   will be serialized  because the thread that accepts
+                   incoming  requests  from   the  client  process  is
+                   blocked.  Concurrent  calls from other destinations
+                   are not  serialized unless they  involve activating
+                   the same adapter.  */
+                
+                try
+                {
+                    tmp_poa = tmp_poa._getChildPOA( scopes[i] );
+                }
+                catch ( org.jacorb.poa.except.ParentIsHolding p )
+                {
+                    return null;
+                }           
+            }
+
+            if( ! tmp_poa.previouslyGeneratedObjectKey(d.getObjectKey()))
+                return null;
+
+            return tmp_poa;
+        }
+        catch( Exception e )
+        {
+            Debug.output( 2, e); // TODO
+        }        
+
+        return null;
+    }
+
 
     public ConnectionManager getConnectionManager()
     {
@@ -590,10 +678,20 @@ public final class ORB
 
     public String[] list_initial_services()
     {
-        String s[] = {"NameService", "TradingService","RootPOA","POACurrent",
-                      "DynAnyFactory", "DomainService", "LocalDomainService", 
-                      "PICurrent", "CodecFactory", "TransactionCurrent"};
-        return s;
+        Vector v = new Vector();
+
+        for( Enumeration e = initial_references.keys(); e.hasMoreElements(); v.add( e.nextElement()))
+            ;
+
+        String [] initial_services = 
+            new String[ services.length + v.size()];
+
+        v.copyInto( initial_services );
+
+        System.arraycopy( services, 0, initial_services, v.size(), services.length );
+        
+
+        return initial_services;
     }
 
     /** 
@@ -741,7 +839,7 @@ public final class ORB
 
         if ( initial_references.containsKey(identifier) )
         {
-            return (org.omg.CORBA.Object) initial_references.get(identifier);
+            return (org.omg.CORBA.Object)initial_references.get(identifier);
         }
         else
         {
@@ -922,7 +1020,7 @@ public final class ORB
             }
             else if( identifier.equals("DynAnyFactory") )
             {
-                obj = (new org.jacorb.orb.dynany.DynAnyFactoryImpl( this ))._this();
+                obj = new org.jacorb.orb.dynany.DynAnyFactoryImpl( this );
             }
             else if( identifier.equals("PICurrent") )
             {
@@ -987,15 +1085,17 @@ public final class ORB
      * @exception InvalidName A reference with id has already been registered.
      */
 
-    public void register_initial_reference(String id, org.omg.CORBA.Object obj) 
+    public void register_initial_reference( String id, org.omg.CORBA.Object obj ) 
         throws InvalidName 
     {
-        if (id == null || id.length() == 0 || initial_references.containsKey(id) )
+        if (id == null || id.length() == 0 || 
+            initial_references.containsKey(id) )
         {
             throw new InvalidName();
         }
         else
         {
+            Debug.output( 4, "Registering initial ref " + id );
             initial_references.put(id, obj);
         }
     }
@@ -1070,8 +1170,18 @@ public final class ORB
                                dateString );
         }
 
+        Hashtable initrefs = Environment.getProperties("ORBInitRef");
+
+        for( Enumeration e = initrefs.keys(); e.hasMoreElements(); )
+        {
+            String key = (String)e.nextElement();
+            initial_references.put( key.substring( key.indexOf('.')+1), 
+                                    string_to_object( (String)initrefs.get( key ) ));
+        }
+
         interceptorInit();
     }
+
 
     protected void set_parameters( java.applet.Applet app, 
 				   java.util.Properties  props )
