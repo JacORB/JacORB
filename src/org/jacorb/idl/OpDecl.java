@@ -395,6 +395,10 @@ class OpDecl
 	{
 	    ParamDecl p = (ParamDecl)e.nextElement();
 	    TypeSpec ts = p.paramTypeSpec.typeSpec();
+
+            boolean is_wstring = ((ts instanceof StringType) && (((StringType)ts).isWide ()));
+            boolean is_wchar = ((ts instanceof CharType) && (((CharType)ts).isWide ()));
+
 	    if( p.paramAttribute == 1 ) // in params
 	    {
 		ps.println("\t\t\t\t" + ts.toString() + " _arg" + (argc++) + 
@@ -407,7 +411,23 @@ class OpDecl
                            "= new " + ts.holderName() + "();");
 		if( p.paramAttribute == 3 ) // inout
 		{
-		    ps.println("\t\t\t\t_arg" + (argc-1) + "._read(_input);");
+                    // wchars and wstrings are contained in CharHolder and
+                    // StringHolder and so cannot be inserted via _read operation
+                    // on holder. Instead value of holder needs to be set directly
+                    // from correct type explicitly read from stream.
+
+                    if (is_wchar)
+                    {
+		        ps.println("\t\t\t\t_arg" + (argc-1) + ".value = _input.read_wchar ();");
+                    }
+                    else if (is_wstring)
+                    {
+		        ps.println("\t\t\t\t_arg" + (argc-1) + ".value = _input.read_wstring ();");
+                    }
+                    else
+                    {
+		        ps.println("\t\t\t\t_arg" + (argc-1) + "._read (_input);");
+                    }
 		}
 	    }
 	}
