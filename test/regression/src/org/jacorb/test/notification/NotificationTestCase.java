@@ -41,6 +41,7 @@ import junit.framework.TestCase;
 public class NotificationTestCase extends TestCase {
 
     private NotificationTestCaseSetup setup_;
+
     private EventChannel defaultChannel_;
 
     ////////////////////////////////////////
