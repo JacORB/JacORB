@@ -1,3 +1,74 @@
+2003-10-28  Simon McQueen  <sm@prismtechnologies.com>
+
+	* security/util/KeyStoreManager.java, trading/impl/LinkImpl.java,
+	trading/impl/LookupImpl.java, trading/impl/OfferIteratorImpl.java,
+	trading/util/QueryContainer.java,
+	trading/util/QueryPropagator.java, trading/util/Semaphore.java:
+	Javadoc fixes only. @author can only be used at class level.
+
+	* idl/AliasTypeSpec.java, idl/ArrayTypeSpec.java,
+	idl/ConstrTypeSpec.java, idl/ExceptionHolderTypeSpec.java,
+	idl/IdlSymbol.java, idl/Module.java, idl/ObjectTypeSpec.java,
+	idl/ReplyHandlerTypeSpec.java, idl/ScopedName.java,
+	idl/SequenceType.java, idl/StructType.java,
+	idl/TypeCodeTypeSpec.java, idl/TypeDeclaration.java,
+	idl/TypeSpec.java, idl/UnionType.java, idl/Value.java,
+	idl/ValueBoxDecl.java, idl/VectorType.java, idl/VoidTypeSpec.java,
+	idl/javamapping/JavaMappingGeneratingVisitor.java,
+	ir/InterfaceDef.java, naming/Name.java, naming/NameServer.java,
+	naming/NamingContextImpl.java, naming/namemanager/NSTable.java,
+	orb/dsi/ServerRequest.java, orb/dynany/DynUnion.java,
+	security/ssl/iaik/SSLSocketFactory.java,
+	security/ssl/sun_jsse/KeyStoreUtil.java,
+	security/util/CertUtils.java, security/util/KSEntryTree.java,
+	security/util/KeyNode.java, security/util/KeyStoreManager.java,
+	security/util/KeyStoreUtil.java, util/Environment.java,
+	util/ObjectUtil.java, util/tracing/Timer.java: Javadoc fixes
+	only. @returns replaced by @return.
+
+2003-10-28  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/iiop/IIOPConnection.java: Sync access to connected
+
+	* orb/giop/ClientGIOPConnection.java,
+	orb/giop/GIOPConnection.java, orb/giop/ServerGIOPConnection.java:
+	GIOPConnection synchronization.
+
+	* orb/giop/Messages.java, orb/giop/ReplyOutputStream.java,
+	orb/giop/RequestInputStream.java,
+	orb/giop/RequestOutputStream.java,
+	orb/giop/ServiceContextTransportingOutputStream.java: Normalise
+	service_context constant use
+
+	* orb/giop/ClientConnection.java,
+	orb/giop/ClientConnectionManager.java: Synchronize inc/dec clients
+	to fix data races
+
+	* orb/Delegate.java: Finalize signature and call super. Change
+	orb._release signature to fix data race.
+
+	* orb/ORB.java: Finalize signature and call super. Change
+	orb._release signature to fix data race. RT1200 Error checking in
+	ORBInitRef
+
+	* imr/ImplementationRepositoryImpl.java: RT1030 fix for tru64
+	passing space as parameter. Change ClientGIOPConnection to
+	ServerGIOPConnection
+
+	* notification/build.xml: Modify test build so it still builds if
+	regexp jars for notification aren't available.
+
+	* poa/RequestController.java: Class final
+
+	* poa/RPPoolManager.java: Add sync to getPoolSize and change
+	deprecated thread.stop to .end
+
+	* poa/util/ByteArrayKey.java: RT1045 - cache the string
+
+	* poa/POA.java: RT1045 - add null check, removed commented out lines
+
+	* poa/AOM.java: RT1045 - add null check. Removed unused method
+
 2003-10-28  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/CDRInputStream.java:
