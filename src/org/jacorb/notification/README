@@ -11,8 +11,15 @@ compile with
 ant -Dnotification.build.jdk12=true to build a JDK1.2 compliant
 version.
 
+to start the Notification Service run bin/ntfy or bin/ntfy.bat. This
+script starts a EventChannelFactory and prints the IOR to the
+console. 
 
-any comments/suggestions to:
-Alphonse Bendt <bendt(at)inf.fu-berlin.de>
+any comments/suggestions to the JacORB Developer Mailing List
+
+jacorb-developer@lists.spline.inf.fu-berlin.de
+http://lists.spline.inf.fu-berlin.de/mailman/listinfo/jacorb-developer
+
+Alphonse Bendt
 
 $Id$
