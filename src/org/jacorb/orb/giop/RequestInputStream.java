@@ -18,9 +18,9 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package jacorb.orb.connection;
+package org.jacorb.orb.connection;
 
-import jacorb.orb.*;
+import org.jacorb.orb.*;
 
 /**
  * 
@@ -30,7 +30,7 @@ import jacorb.orb.*;
  */
 
 public class RequestInputStream
-    extends jacorb.orb.CDRInputStream
+    extends org.jacorb.orb.CDRInputStream
 {
     public org.omg.GIOP.RequestHeader_1_0 req_hdr;
     public org.omg.GIOP.MessageHeader_1_0 msg_hdr=null;
@@ -65,6 +65,8 @@ public class RequestInputStream
 	req_hdr = org.omg.GIOP.RequestHeader_1_0Helper.read(this);	   
     }
 }
+
+
 
 
 

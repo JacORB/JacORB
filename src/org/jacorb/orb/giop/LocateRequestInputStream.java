@@ -18,7 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package jacorb.orb.connection;
+package org.jacorb.orb.connection;
 
 /**
  * 
@@ -60,6 +60,8 @@ public class LocateRequestInputStream
                                                 null ); 
     }
 }
+
+
 
 
 
