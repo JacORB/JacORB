@@ -43,7 +43,7 @@ public class ServerRequest
     implements org.omg.CORBA.portable.ResponseHandler
 {
     private RequestInputStream in;
-    private ReplyOutputStream out;	
+    private ReplyOutputStream out;      
     private GIOPConnection connection;
     
     private UtcT requestStartTime = null, 
@@ -75,15 +75,15 @@ public class ServerRequest
                           RequestInputStream in, 
                           GIOPConnection _connection )
     {
-	this.orb = orb;
-	this.in = in;
-	connection = _connection;
+        this.orb = orb;
+        this.in = in;
+        connection = _connection;
 
         getTimingPolicies();
 
         object_key = orb.mapObjectKey( in.req_hdr.target.object_key() );
 
-	oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
+        oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
     }
 
     /* 
@@ -97,17 +97,17 @@ public class ServerRequest
 
     public void setRemainingPOAName(String [] rest_of_name)
     {
-	this.rest_of_name = rest_of_name;
+        this.rest_of_name = rest_of_name;
     }
 
     public String[] remainingPOAName()
     {
-	return rest_of_name;
+        return rest_of_name;
     }
-	
+        
     public String operation()
     {
-	return in.req_hdr.operation;
+        return in.req_hdr.operation;
     }
 
     /**
@@ -117,7 +117,7 @@ public class ServerRequest
 
     public org.omg.CORBA.Any result()
     {
-	if( stream_based )
+        if( stream_based )
         {
             org.omg.CORBA.Any any = orb.create_any();
 
@@ -134,105 +134,105 @@ public class ServerRequest
             _out.skip( result_buf.length );
             return any;
         }
-	return result;
+        return result;
     }
 
     public org.omg.CORBA.NVList arguments()
     {
-	if( stream_based )
-	    throw new RuntimeException("This ServerRequest is stream-based!");
-	return args;
+        if( stream_based )
+            throw new RuntimeException("This ServerRequest is stream-based!");
+        return args;
     }
 
     public org.omg.CORBA.Any except()
     {
-	if( stream_based )
-	    throw new RuntimeException("This ServerRequest is stream-based!");
-	return ex;
+        if( stream_based )
+            throw new RuntimeException("This ServerRequest is stream-based!");
+        return ex;
     }
 
     public ReplyStatusType_1_2 status()
     {
-	return ReplyStatusType_1_2.from_int( status );
+        return ReplyStatusType_1_2.from_int( status );
     }
 
     public org.omg.CORBA.Context ctx()
     {
-	return null;
+        return null;
     }
 
     public void arguments(org.omg.CORBA.NVList p)
     {
-	args = (org.jacorb.orb.NVList)p;
-	// unmarshal
+        args = (org.jacorb.orb.NVList)p;
+        // unmarshal
 
-	if( args != null )
-	{
-	    in.mark(0);
-	    for( java.util.Enumeration e = args.enumerate(); 
-		 e.hasMoreElements(); )
-	    {
-		org.omg.CORBA.NamedValue nv = 
-		    (org.omg.CORBA.NamedValue)e.nextElement();
-			
-		if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
-		{ 
-		    // out parameters are not received
-		    try
-		    { 
-			nv.value().read_value( in, nv.value().type() );
-		    } 
-		    catch (Exception ex)
-		    {
-			throw new org.omg.CORBA.MARSHAL("Couldn't unmarshal object of type "
-							+ nv.value().type() + " in ServerRequest.");
-		    }
-		}
-	    }
-	    try
-	    { 
-		in.reset();
-	    }
-	    catch (Exception ex)
-	    {
-		throw new org.omg.CORBA.UNKNOWN("Could not reset input stream");
-	    }
-	    
-	    if (info != null)
+        if( args != null )
+        {
+            in.mark(0);
+            for( java.util.Enumeration e = args.enumerate(); 
+                 e.hasMoreElements(); )
             {
-		//invoke interceptors
-		org.omg.Dynamic.Parameter[] params = new org.omg.Dynamic.Parameter[args.count()];
-		for (int i = 0; i < params.length; i++)
-                {
-		    try
+                org.omg.CORBA.NamedValue nv = 
+                    (org.omg.CORBA.NamedValue)e.nextElement();
+                        
+                if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
+                { 
+                    // out parameters are not received
+                    try
+                    { 
+                        nv.value().read_value( in, nv.value().type() );
+                    } 
+                    catch (Exception ex)
                     {
-			org.omg.CORBA.NamedValue value = args.item(i);
+                        throw new org.omg.CORBA.MARSHAL("Couldn't unmarshal object of type "
+                                                        + nv.value().type() + " in ServerRequest.");
+                    }
+                }
+            }
+            try
+            { 
+                in.reset();
+            }
+            catch (Exception ex)
+            {
+                throw new org.omg.CORBA.UNKNOWN("Could not reset input stream");
+            }
+            
+            if (info != null)
+            {
+                //invoke interceptors
+                org.omg.Dynamic.Parameter[] params = new org.omg.Dynamic.Parameter[args.count()];
+                for (int i = 0; i < params.length; i++)
+                {
+                    try
+                    {
+                        org.omg.CORBA.NamedValue value = args.item(i);
 
-			org.omg.CORBA.ParameterMode mode = null;
-			if (value.flags() == org.omg.CORBA.ARG_IN.value)
-			    mode = org.omg.CORBA.ParameterMode.PARAM_IN;
-			else if (value.flags() == org.omg.CORBA.ARG_OUT.value)
-			    mode = org.omg.CORBA.ParameterMode.PARAM_OUT;
-			else if (value.flags() == org.omg.CORBA.ARG_INOUT.value)
-			    mode = org.omg.CORBA.ParameterMode.PARAM_INOUT;
-		  
-			params[i] = new org.omg.Dynamic.Parameter(value.value(), mode);
-		    }
+                        org.omg.CORBA.ParameterMode mode = null;
+                        if (value.flags() == org.omg.CORBA.ARG_IN.value)
+                            mode = org.omg.CORBA.ParameterMode.PARAM_IN;
+                        else if (value.flags() == org.omg.CORBA.ARG_OUT.value)
+                            mode = org.omg.CORBA.ParameterMode.PARAM_OUT;
+                        else if (value.flags() == org.omg.CORBA.ARG_INOUT.value)
+                            mode = org.omg.CORBA.ParameterMode.PARAM_INOUT;
+                  
+                        params[i] = new org.omg.Dynamic.Parameter(value.value(), mode);
+                    }
                     catch (Exception e)
                     {
-			Debug.output(2, e);
-		    }
-		}
+                        Debug.output(2, e);
+                    }
+                }
 
-		info.arguments = params;
+                info.arguments = params;
 
-		ServerInterceptorIterator intercept_iter = 
-		    orb.getInterceptorManager().getServerIterator();      
-	      
-		try
+                ServerInterceptorIterator intercept_iter = 
+                    orb.getInterceptorManager().getServerIterator();      
+              
+                try
                 {
-		    intercept_iter.iterate(info, ServerInterceptorIterator.RECEIVE_REQUEST);
-		} 
+                    intercept_iter.iterate(info, ServerInterceptorIterator.RECEIVE_REQUEST);
+                } 
                 catch(org.omg.CORBA.UserException ue)
                 {
                     if (ue instanceof org.omg.PortableInterceptor.
@@ -245,37 +245,37 @@ public class ServerRequest
                         setLocationForward(new org.omg.PortableServer.
                             ForwardRequest(fwd.forward));
                     }    
-		} 
+                } 
                 catch (org.omg.CORBA.SystemException _sys_ex) 
                 {
-		    setSystemException(_sys_ex);
-		}
-	      
-		info = null;
-	    }	
-	}
+                    setSystemException(_sys_ex);
+                }
+              
+                info = null;
+            }   
+        }
     }
 
     public void set_result(org.omg.CORBA.Any res)
     {
-	if( stream_based )
-	    throw new RuntimeException("This ServerRequest is stream-based!");
-	result = res;
+        if( stream_based )
+            throw new RuntimeException("This ServerRequest is stream-based!");
+        result = res;
     }
 
     public void set_exception(org.omg.CORBA.Any ex)
     {
-	if( stream_based )
-	    throw new RuntimeException("This ServerRequest is stream-based!");
-	this.ex = ex;
-	status = ReplyStatusType_1_2._USER_EXCEPTION;
+        if( stream_based )
+            throw new RuntimeException("This ServerRequest is stream-based!");
+        this.ex = ex;
+        status = ReplyStatusType_1_2._USER_EXCEPTION;
     }
 
 
     public void reply()
     {
-	if( responseExpected() )
-	{
+        if( responseExpected() )
+        {
             //shortcut for appligator
             if (usePreconstructedReply)
             {
@@ -290,157 +290,157 @@ public class ServerRequest
                 
                 return;
             }
-	
-	    Debug.output(6,"ServerRequest: reply to " + operation());
+        
+            Debug.output(6,"ServerRequest: reply to " + operation());
 
-	    try 
-	    { 
-		if( out == null )
-		{ 
-		    out = 
+            try 
+            { 
+                if( out == null )
+                { 
+                    out = 
                         new ReplyOutputStream(
                                  requestId(), 
                                  ReplyStatusType_1_2.from_int(status),
                                  in.getGIOPMinor(),
-				 in.isLocateRequest());
-		}
+                                 in.isLocateRequest());
+                }
 
-		/* 
+                /* 
                  * DSI-based servers set results and user exceptions
                  * using anys, so we have to treat this differently 
                  */
-		if( !stream_based )
-		{
-		    if( status == ReplyStatusType_1_2._USER_EXCEPTION )
-		    {
-			out.write_string( ex.type().id() );
-			ex.write_value( out );
-		    }
-		    else if( status == ReplyStatusType_1_2._NO_EXCEPTION )
-		    {
+                if( !stream_based )
+                {
+                    if( status == ReplyStatusType_1_2._USER_EXCEPTION )
+                    {
+                        out.write_string( ex.type().id() );
+                        ex.write_value( out );
+                    }
+                    else if( status == ReplyStatusType_1_2._NO_EXCEPTION )
+                    {
                         if( result != null )
                             result.write_value( out );
 
-			if( args != null )
-			{
-			    for( java.util.Enumeration e = args.enumerate(); 
-				 e.hasMoreElements(); )
-			    {
-				org.jacorb.orb.NamedValue nv = 
-				    (org.jacorb.orb.NamedValue)e.nextElement();
-				
-				if( nv.flags() != org.omg.CORBA.ARG_IN.value )
-				{ 
+                        if( args != null )
+                        {
+                            for( java.util.Enumeration e = args.enumerate(); 
+                                 e.hasMoreElements(); )
+                            {
+                                org.jacorb.orb.NamedValue nv = 
+                                    (org.jacorb.orb.NamedValue)e.nextElement();
+                                
+                                if( nv.flags() != org.omg.CORBA.ARG_IN.value )
+                                { 
                                     // in parameters are not returnd
-				    try
-				    { 
-					nv.send( out );
-				    } 
-				    catch (Exception ex)
-				    {
-					throw new org.omg.CORBA.MARSHAL("Couldn't return (in)out arg of type "
-									+ nv.value().type() + " in ServerRequest.");
-				    }
-				}
-			    }
-			}
-		    }
-		}
+                                    try
+                                    { 
+                                        nv.send( out );
+                                    } 
+                                    catch (Exception ex)
+                                    {
+                                        throw new org.omg.CORBA.MARSHAL("Couldn't return (in)out arg of type "
+                                                                        + nv.value().type() + " in ServerRequest.");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
-		/* 
+                /* 
                  * these two exceptions are set in the same way for
                  * both stream-based and DSI-based servers 
                  */
-		if( status == ReplyStatusType_1_2._LOCATION_FORWARD )
-		{
-		    out.write_Object( location_forward.forward_reference );
-		}
-		else if( status == ReplyStatusType_1_2._SYSTEM_EXCEPTION )
-		{
-		    org.jacorb.orb.SystemExceptionHelper.write( out, sys_ex );
-		}
+                if( status == ReplyStatusType_1_2._LOCATION_FORWARD )
+                {
+                    out.write_Object( location_forward.forward_reference );
+                }
+                else if( status == ReplyStatusType_1_2._SYSTEM_EXCEPTION )
+                {
+                    org.jacorb.orb.SystemExceptionHelper.write( out, sys_ex );
+                }
 
-		/* 
+                /* 
                  * everything is written to out by now, be it results
                  * or exceptions. 
                  */
 
-		connection.sendReply( out );
-	    }
-	    catch ( Exception ioe )
-	    {
-		Debug.output(2,ioe);
-	    }
-	}
+                connection.sendReply( out );
+            }
+            catch ( Exception ioe )
+            {
+                Debug.output(2,ioe);
+            }
+        }
     }
 
     /* ResponseHandler */
 
     public org.omg.CORBA.portable.OutputStream createReply()
     {
-	stream_based = true;
+        stream_based = true;
 
-	if( out != null )
-	    throw new Error("Internal: reply already created!");
+        if( out != null )
+            throw new Error("Internal: reply already created!");
 
-	if( !stream_based )
-	    throw new Error("Internal: ServerRequest not stream-based!");
+        if( !stream_based )
+            throw new Error("Internal: ServerRequest not stream-based!");
 
-	out = 
+        out = 
             new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.NO_EXCEPTION,
                                   in.getGIOPMinor(),
-				  in.isLocateRequest() );
+                                  in.isLocateRequest() );
 
-	return out;
+        return out;
     }
 
     public org.omg.CORBA.portable.OutputStream createExceptionReply()
     {
-	stream_based = true;
+        stream_based = true;
 
-	status = ReplyStatusType_1_2._USER_EXCEPTION;
+        status = ReplyStatusType_1_2._USER_EXCEPTION;
 
-	out = 
+        out = 
             new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.USER_EXCEPTION,
                                   in.getGIOPMinor(),
-				  in.isLocateRequest() );
+                                  in.isLocateRequest() );
 
-	return out;
+        return out;
     }
 
     /** our own: */
 
     public void setSystemException(org.omg.CORBA.SystemException s)
     {
-	Debug.output(2, s);
+        Debug.output(2, s);
 
-	status = ReplyStatusType_1_2._SYSTEM_EXCEPTION;
+        status = ReplyStatusType_1_2._SYSTEM_EXCEPTION;
 
-	/* we need to create a new output stream here because a system exception may
-	   have occurred *after* a no_exception request header was written onto the
-	   original output stream*/
+        /* we need to create a new output stream here because a system exception may
+           have occurred *after* a no_exception request header was written onto the
+           original output stream*/
 
 
-	out = new ReplyOutputStream(requestId(),
+        out = new ReplyOutputStream(requestId(),
                                     ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                     in.getGIOPMinor(),
-				    in.isLocateRequest() );
-	sys_ex = s;
+                                    in.isLocateRequest() );
+        sys_ex = s;
     }
 
     public void setLocationForward(org.omg.PortableServer.ForwardRequest r)
     {
-	Debug.output(2,"Location Forward");
+        Debug.output(2,"Location Forward");
 
-	status = ReplyStatusType_1_2._LOCATION_FORWARD;
+        status = ReplyStatusType_1_2._LOCATION_FORWARD;
 
-	out = new ReplyOutputStream(requestId(),
+        out = new ReplyOutputStream(requestId(),
                                     ReplyStatusType_1_2.LOCATION_FORWARD,
                                     in.getGIOPMinor(),
-				    in.isLocateRequest() );
-	location_forward = r;
+                                    in.isLocateRequest() );
+        location_forward = r;
     }
 
     /**
@@ -453,85 +453,85 @@ public class ServerRequest
 
     public org.jacorb.orb.CDRInputStream getInputStream()
     {
-	stream_based = true;
-	return in;
+        stream_based = true;
+        return in;
     }
   
     public ReplyOutputStream getReplyOutputStream()
     {
-	if (out == null)
-	    createReply();
+        if (out == null)
+            createReply();
         
-	stream_based = true;
-	return out;
+        stream_based = true;
+        return out;
     }
 
     public boolean responseExpected()
     {
-	return Messages.responseExpected(in.req_hdr.response_flags);
+        return Messages.responseExpected(in.req_hdr.response_flags);
     }
 
     public org.omg.CORBA.SystemException getSystemException()
     {
-	return sys_ex;
+        return sys_ex;
     }
 
     public int requestId()
     {
-	return in.req_hdr.request_id;
+        return in.req_hdr.request_id;
     }
 
     public byte[] objectKey()
     {        
-	return object_key;
+        return object_key;
     }
 
     public org.omg.IOP.ServiceContext[] getServiceContext()
     {
-	return in.req_hdr.service_context;
+        return in.req_hdr.service_context;
     }
 
     public byte[] objectId()
     {
-	return oid;
+        return oid;
     }
 
     public boolean streamBased()
     {
-	return stream_based;
+        return stream_based;
     }
 
 
     public void setReference(org.omg.CORBA.Object o)
     {
-	reference = o;
+        reference = o;
     }
 
     public org.omg.CORBA.Object getReference()
     {
-	return reference;
+        return reference;
     }
 
     /*
     public byte[] getBuffer()
     {
-	return in.getBuffer();
+        return in.getBuffer();
     }
 
     public void updateBuffer( byte[] _buf )
     {
-	RequestInputStream rin = 
+        RequestInputStream rin = 
             new RequestInputStream( orb,_buf);
-	//  	byte[] n_oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key);
-	//  	if( oid != n_oid )
-	//  	    throw new org.omg.CORBA.UNKNOWN("Invalid message buffer update");
-	in = rin;
+        //      byte[] n_oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key);
+        //      if( oid != n_oid )
+        //          throw new org.omg.CORBA.UNKNOWN("Invalid message buffer update");
+        in = rin;
     }
     */
 
     public RequestInputStream get_in()
     {
-	return in;
+        return in;
     }
 
     /**
@@ -546,68 +546,68 @@ public class ServerRequest
                 new ReplyOutputStream(requestId(),
                                       ReplyStatusType_1_2.NO_EXCEPTION,
                                       in.getGIOPMinor(),
-				      in.isLocateRequest() );
+                                      in.isLocateRequest() );
 
         return out;
     }
 
     public void setServerRequestInfo(ServerRequestInfoImpl info)
     {
-	this.info = info;
+        this.info = info;
     }
 
     public org.omg.CORBA.Object getForwardReference()
     {
-	if (location_forward != null)
-	    return location_forward.forward_reference;
-	else
-	    return null;
+        if (location_forward != null)
+            return location_forward.forward_reference;
+        else
+            return null;
     }
 
     /*
     public void reply(byte[] buf)
     {
-	reply(buf, buf.length);
+        reply(buf, buf.length);
     }
 
     public void reply( byte[] buf, int len )
     {
-	if( out == null )
-	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
+        if( out == null )
+            out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                         requestId(), 
                                         ReplyStatusType_1_2.from_int(status),
                                         in.getGIOPMinor() );
         out.setCodeSet( connection.TCS, connection.TCSW );
     
 
-	out.setBuffer(buf);
-	//correct the requestId (unsigned long)
-	out.setGIOPRequestId(requestId());
-	out.setSize(len);
-	//	out.insertMsgSize(); stream copied.. not needed
-	try
+        out.setBuffer(buf);
+        //correct the requestId (unsigned long)
+        out.setGIOPRequestId(requestId());
+        out.setSize(len);
+        //      out.insertMsgSize(); stream copied.. not needed
+        try
         {
-	    connection.sendReply( out );
-	}
+            connection.sendReply( out );
+        }
         catch (Exception ioe)
         {
-	    Debug.output(2,ioe);
-	    ioe.printStackTrace();
-	    System.out.println("ServerRequest: Error replying to request!");
-	}
-	in.req_hdr.response_flags = 0; 
+            Debug.output(2,ioe);
+            ioe.printStackTrace();
+            System.out.println("ServerRequest: Error replying to request!");
+        }
+        in.req_hdr.response_flags = 0; 
         // make sure that no
-	// other reply is send
+        // other reply is send
     }    
    */
     public GIOPConnection getConnection()
     {
-	return connection;
+        return connection;
     }
     
     public void setUsePreconstructedReply(boolean use)
     {
-	usePreconstructedReply = use; 
+        usePreconstructedReply = use; 
     }
 
     /**
@@ -664,8 +664,3 @@ public class ServerRequest
     }
 
 }
-
-
-
-
-
