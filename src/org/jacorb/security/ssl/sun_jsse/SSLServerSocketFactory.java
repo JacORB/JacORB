@@ -42,7 +42,6 @@ public class SSLServerSocketFactory
     private ServerSocketFactory factory = null;
     private boolean require_mutual_auth = false;
     private boolean request_mutual_auth = false;
-    private boolean change_roles = false;
     private boolean trusteesFromKS = false;
     private String[] cipher_suites = null;
     private short serverSupportedOptions = 0;
@@ -95,9 +94,6 @@ public class SSLServerSocketFactory
             if (logger.isInfoEnabled())
                 logger.info("Will create SSL sockets that require client authentication" );
         }
-
-        change_roles = 
-            configuration.getAttribute("jacorb.security.change_ssl_roles","off").equals("on");
 
         keystore_location = 
             configuration.getAttribute("jacorb.security.keystore","UNSET");
@@ -238,14 +234,6 @@ public class SSLServerSocketFactory
         return (s instanceof SSLServerSocket); 
     }
 
-    public void switchToClientMode( java.net.Socket socket )
-    {
-        if( change_roles )
-        {	
-            ((SSLSocket) socket).setUseClientMode( true );
-        }
-    }
-    
     private ServerSocketFactory createServerSocketFactory() 
         throws IOException, java.security.GeneralSecurityException
     {
