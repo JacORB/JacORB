@@ -28,7 +28,6 @@ package org.jacorb.idl;
 
 public interface Scope
 {
-
     public void setScopeData( ScopeData data );
 
     public ScopeData getScopeData();
@@ -37,23 +36,3 @@ public interface Scope
 
     public String name();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
