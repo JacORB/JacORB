@@ -1,0 +1,62 @@
+% $Id$
+
+This section describes how to use the Java Management Extention API along with JacORB to
+instrument both the orb and application that use JacORB.
+
+\section{MX4J and JMX over IIOP}
+
+This section describes how to instrument a JacORB application using the MX4J JMX implementation.
+MX4J is an open source JMX implementation available at http://mx4j.sourceforge.net. This section
+also shows how to use JMX over IIOP. This allows JMX to use an existing JacORB ORB for RMI
+communications and the JacORB Naming Service to register you JMX MBeanServer.
+
+To setup the JVM environment, three system defines are neccessary:
+
+\begin{scriptsize}
+\begin{verbatim}
+-Djava.naming.factory.initial=com.sun.jndi.cosnaming.CNCtxFactory
+-Djava.naming.provider.url=corbaloc:iiop:localhost:9101/StandardNS/NameServer-POA/_root
+-Djavax.rmi.CORBA.PortableRemoteObjectClass=org.jacorb.orb.rmi.PortableRemoteObjectDelegateImpl
+\end{verbatim}
+\end{scriptsize}
+
+The first system property tells the Java JNDI subsystem to use the CORBA Naming Service for its
+naming repository. The second property is a pointer to the JacORB Naming Service instance. The
+third property tells the Java Remote object system to use JacORB's Portable Remote Object implementation. This is required so that JacORB can associate an RMI object with a CORBA object on one of its POAs.
+
+The sample code for creating a MBeanServer is shown below
+
+\begin{scriptsize}
+\begin{verbatim}
+// The MBeanServer to which the JMXConnectorServer will be registered in
+jmxServer = MBeanServerFactory.createMBeanServer();
+            
+// The address of the connector
+HashMap environment = new HashMap();
+org.jacorb.orb.rmi.PortableRemoteObjectDelegateImpl.setORB(orb);
+JMXServiceURL address = new JMXServiceURL("service:jmx:iiop://localhost/jndi/jmxSnmpTrapNotify");
+JMXConnectorServer cntorServer = JMXConnectorServerFactory.newJMXConnectorServer(address,                                             environment, jmxServer);
+            
+// Add MBeans
+jmxServer.registerMBean(trapReceiver, new ObjectName("TrapReceiver:counts=default"));
+            
+// Start the JMXConnectorServer
+cntorServer.start();
+\end{verbatim}
+\end{scriptsize}
+
+The first line creates the MBeanServer.
+
+The next 4 lines creates the remote JMX connection. The "`setORB()"' call assignes a previously
+initialized ORB to the Remote Object delegate. All RMI over IIOP communications will occure
+via this ORB. The "`address"' is the name of the MBeanServer as known in the Naming service.
+The portion after "`/jndi/"' is the Naming Service name.
+
+The next line registers a MBean with the MBeanServer.
+
+The last line starts the MBeanServer.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 
