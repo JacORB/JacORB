@@ -54,9 +54,15 @@ public interface Default
 
     String DEFAULT_FILTER_FACTORY = "builtin";
 
-    int DEFAULT_MAX_NUMBER_SUPPLIERS = Integer.MAX_VALUE;
+    /**
+     * 0 means no limit
+     */
+    int DEFAULT_MAX_NUMBER_SUPPLIERS = 0;
 
-    int DEFAULT_MAX_NUMBER_CONSUMERS = Integer.MAX_VALUE;
+    /**
+     * 0 means no limit
+     */
+    int DEFAULT_MAX_NUMBER_CONSUMERS = 0;
 
     String DEFAULT_START_TIME_SUPPORTED = "on";
 
@@ -68,4 +74,13 @@ public interface Default
     int DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED = 1;
 
     String DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT = "on";
+
+    String DEFAULT_LAZY_DEFAULT_ADMIN_INIT = "on";
+
+    String DEFAULT_REJECT_NEW_EVENTS = "off";
+
+    /**
+     * 0 means no limit
+     */
+    int DEFAULT_MAX_QUEUE_LENGTH = 0;
 }

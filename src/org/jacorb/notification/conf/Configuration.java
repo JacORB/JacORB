@@ -79,5 +79,13 @@ public interface Configuration
     String DISPOSE_PROXY_CALLS_DISCONNECT =
         "jacorb.notification.proxy.destroy_causes_disconnect";
 
+    String LAZY_DEFAULT_ADMIN_INIT =
+        "jacorb.notification.admin.lazy_initialization";
+
+    String REJECT_NEW_EVENTS =
+        "jacorb.notification.admin.reject_new_events";
+
+    String MAX_QUEUE_LENGTH =
+        "jacorb.notification.admin.max_queue_length";
 }
 
