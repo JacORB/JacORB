@@ -25,6 +25,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.swingui.TestRunner;
+import org.omg.CORBA.ORBPackage.InvalidName;
 
 /**
  * @author Alphonse Bendt
@@ -49,7 +50,15 @@ public class AllTest extends TestCase
         _suite.addTest( org.jacorb.test.notification.evaluate.PackageTest.suite() );
         _suite.addTest( org.jacorb.test.notification.engine.PackageTest.suite() );
         _suite.addTest( org.jacorb.test.notification.bugs.PackageTest.suite() );
-        _suite.addTest( org.jacorb.test.notification.typed.PackageTest.suite() );
+
+        try {
+            org.omg.CORBA.ORB.init(new String[0], null).resolve_initial_references("InterfaceRepository");
+
+            _suite.addTest( org.jacorb.test.notification.typed.PackageTest.suite() );
+        } catch (InvalidName n) {
+            System.err.println("TypedChannel Tests depend on accessible InterfaceRepository");
+        }
+
 
         return _suite;
     }

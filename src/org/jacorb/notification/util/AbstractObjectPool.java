@@ -29,6 +29,8 @@ import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
+import java.util.Set;
+import java.util.Collections;
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must
@@ -59,20 +61,20 @@ public abstract class AbstractObjectPool
 
     public static final int MAXIMUM_WATERMARK_DEFAULT = 1000;
 
-    static List sPoolsToLookAfter = new LinkedList();
+    private static List sPoolsToLookAfter = new LinkedList();
 
-    static Thread sCleanerThread;
+    private static Thread sCleanerThread;
 
-    static ListCleaner sListCleaner;
+    private static ListCleaner sListCleaner;
 
-    static synchronized void registerPool( AbstractObjectPool pool )
+    private static synchronized void registerPool( AbstractObjectPool pool )
     {
         sPoolsToLookAfter.add( pool );
         startListCleaner();
     }
 
 
-    public static synchronized void deregisterPool( AbstractObjectPool pool )
+    private static synchronized void deregisterPool( AbstractObjectPool pool )
     {
         sPoolsToLookAfter.remove( pool );
 
@@ -83,7 +85,7 @@ public abstract class AbstractObjectPool
     }
 
 
-    static class ListCleaner extends Thread
+    private static class ListCleaner extends Thread
     {
         boolean active_ = true;
 
@@ -136,85 +138,86 @@ public abstract class AbstractObjectPool
         }
     }
 
-    static ListCleaner getListCleaner()
+    private static ListCleaner getListCleaner()
     {
-        if ( sListCleaner == null )
-        {
-            synchronized ( AbstractObjectPool.class )
+        synchronized ( AbstractObjectPool.class )
             {
                 if ( sListCleaner == null )
-                {
-                    sListCleaner = new ListCleaner();
-                }
+                    {
+                        sListCleaner = new ListCleaner();
+                    }
             }
-        }
 
         return sListCleaner;
     }
 
-    static void stopListCleaner()
+    private static void stopListCleaner()
     {
-        if ( sCleanerThread != null )
-        {
-            sListCleaner.setInactive();
+        synchronized(AbstractObjectPool.class) {
+            if ( sCleanerThread != null )
+                {
+                    sListCleaner.setInactive();
+                }
         }
     }
 
-    static void startListCleaner()
+    private static void startListCleaner()
     {
-        if ( sCleanerThread == null )
-        {
-            synchronized ( AbstractObjectPool.class )
+        synchronized ( AbstractObjectPool.class )
             {
                 if ( sCleanerThread == null )
-                {
-                    sCleanerThread = new Thread( getListCleaner() );
+                    {
+                        sCleanerThread = new Thread( getListCleaner() );
 
-                    sCleanerThread.setName( "ObjectPoolCleaner" );
-                    sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
-                    sCleanerThread.setDaemon( true );
-                    sCleanerThread.start();
-                }
+                        sCleanerThread.setName( "ObjectPoolCleaner" );
+                        sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
+                        sCleanerThread.setDaemon( true );
+                        sCleanerThread.start();
+                    }
             }
-        }
     }
 
-    String name_;
+    private String name_;
 
-    LinkedList pool_;
-    HashSet active_ = new HashSet();
+    private LinkedList pool_;
 
-    int instanceCount_;
-    int lendCount_;
-    int returnCount_;
+    /**
+     * @todo check synchronization
+     * @see news://news.gmane.org:119/200406041629.48096.Farrell_John_W@cat.com
+     */
+    private Set active_ = Collections.synchronizedSet(new HashSet());
+
+    private int instanceCount_;
+    private int lendCount_;
+    private int returnCount_;
 
     /**
      * lower watermark. if pool size is below that value, create
      * sizeIncrease_ new elements.
      */
-    int lowerWatermark_;
+    private int lowerWatermark_;
 
     /**
      * how many instances should the pool maximal keep. instances that
      * are returned to a pool which size is greater than
      * maxWatermark_ are discarded and left for the Garbage Collector.
      */
-    int maxWatermark_;
+    private int maxWatermark_;
 
     /**
      * how many instances should be created if pool size falls below
      * lowerWatermark_.
      */
-    int sizeIncrease_;
+    private int sizeIncrease_;
 
     /**
      * how many instances should be created at startup of the pool.
      */
-    int initialSize_;
+    private int initialSize_;
 
 
     protected Logger logger_;
-    private Configuration config_;
+    protected Configuration config_;
 
     public void configure (Configuration conf)
     {
@@ -306,19 +309,13 @@ public abstract class AbstractObjectPool
     {
         Object _ret = null;
 
-        if ( !pool_.isEmpty() )
-        {
-            synchronized ( pool_ )
-            {
-                if ( !pool_.isEmpty() )
-                {
-                    _ret = pool_.removeFirst();
-                }
+        synchronized ( pool_ ) {
+            if ( !pool_.isEmpty() ) {
+                _ret = pool_.removeFirst();
             }
         }
 
-        if ( _ret == null )
-        {
+        if ( _ret == null ) {
             ++instanceCount_;
 
             _ret = newInstance();
