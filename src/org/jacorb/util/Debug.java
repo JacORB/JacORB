@@ -238,6 +238,12 @@ public final class Debug
     }
 
 
+    /**
+     * <code>toHex</code> converts a byte into a readable string.
+     *
+     * @param b a <code>byte</code> value
+     * @return a <code>String</code> value
+     */
     public static final String toHex( byte b )
     {
         StringBuffer sb = new StringBuffer();
