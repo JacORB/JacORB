@@ -97,6 +97,6 @@ public class MessageOutputStream
 
         write( conn, 0, size() );
 
-        release();
+        close();
     }
 }// MessageOutputStream

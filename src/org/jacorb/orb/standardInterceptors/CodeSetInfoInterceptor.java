@@ -65,7 +65,6 @@ public class CodeSetInfoInterceptor
                                              os.getBufferCopy());
 
         os.close ();
-        os.release ();
         os = null;
         cs_info = null;
     }

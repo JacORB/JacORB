@@ -112,7 +112,7 @@ public class SSLComponentInterceptor
                 tc = new TaggedComponent( TAG_SSL_SEC_TRANS.value,
                                           sslDataStream.getBufferCopy() );
 
-                sslDataStream.release ();
+                sslDataStream.close ();
                 sslDataStream = null;
             }
 

@@ -319,20 +319,16 @@ public class CDRInputStream
     public void close()
         throws java.io.IOException
     {
+        // Don't need to call super.close as super is noop.
         if( closed )
         {
             return;
         }
 
-        if (encaps_stack != null)
-        {
-            encaps_stack.removeAllElements();
-        }
-        if (recursiveTCMap != null)
-        {
-            recursiveTCMap.clear();
-        }
         BufferManager.getInstance().returnBuffer(buffer);
+
+        encaps_stack = null;
+        recursiveTCMap = null;
         closed = true;
     }
 

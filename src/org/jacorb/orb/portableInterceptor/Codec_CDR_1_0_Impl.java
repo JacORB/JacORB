@@ -36,9 +36,9 @@ import org.jacorb.util.Debug;
  * @version $Id$
  */
 
-public class Codec_CDR_1_0_Impl 
-    extends org.omg.CORBA.LocalObject 
-    implements Codec 
+public class Codec_CDR_1_0_Impl
+    extends org.omg.CORBA.LocalObject
+    implements Codec
 {
 
     private ORB orb = null;
@@ -49,13 +49,13 @@ public class Codec_CDR_1_0_Impl
 
     // implementation of org.omg.IOP.CodecOperations interface
 
-    public Any decode(byte[] data) throws FormatMismatch 
+    public Any decode(byte[] data) throws FormatMismatch
     {
         CDRInputStream in = new CDRInputStream(orb, data);
 
         in.openEncapsulatedArray();
         Any result = in.read_any();
-    
+
         //not necessary, since stream is never used again
         //in.closeEncapsulation();
 
@@ -63,26 +63,26 @@ public class Codec_CDR_1_0_Impl
     }
 
 
-    public Any decode_value(byte[] data, TypeCode tc) 
-        throws FormatMismatch, TypeMismatch 
+    public Any decode_value(byte[] data, TypeCode tc)
+        throws FormatMismatch, TypeMismatch
     {
         CDRInputStream in = new CDRInputStream(orb, data);
 
         in.openEncapsulatedArray();
         Any result = orb.create_any();
         result.read_value(in, tc);
-   
+
         //not necessary, since stream is never used again
-        //in.closeEncasupaltion(); 
+        //in.closeEncasupaltion();
 
         return result;
     }
 
-    public byte[] encode(Any data) 
-        throws InvalidTypeForEncoding 
+    public byte[] encode(Any data)
+        throws InvalidTypeForEncoding
     {
         CDROutputStream out = new CDROutputStream(orb);
-    
+
         out.beginEncapsulatedArray();
         out.write_any(data);
 
@@ -104,24 +104,24 @@ public class Codec_CDR_1_0_Impl
          * Closing afterwards, to return buffer to BufferManager.
          */
         byte[] result = out.getBufferCopy();
-        out.release();
+        out.close();
 
         return result;
     }
 
-    public byte[] encode_value(Any data) 
-        throws InvalidTypeForEncoding 
+    public byte[] encode_value(Any data)
+        throws InvalidTypeForEncoding
     {
-  
+
         CDROutputStream out = new CDROutputStream(orb);
-    
+
         out.beginEncapsulatedArray();
         data.write_value(out);
 
         /*
           closing must not be done, since it will patch the
           array with a size!
-    
+
         try
         {
             out.endEncapsulation();
@@ -137,15 +137,9 @@ public class Codec_CDR_1_0_Impl
          * Closing afterwards, to return buffer to BufferManager.
          */
         byte[] result = out.getBufferCopy();
-        out.release();
+        out.close();
 
         return result;
     }
 
 } // Codec_CDR_1_0_Impl
-
-
-
-
-
-

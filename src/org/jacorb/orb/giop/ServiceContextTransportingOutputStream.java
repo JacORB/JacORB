@@ -292,10 +292,10 @@ public class ServiceContextTransportingOutputStream
                 }
             }
         }
-        release();
+        close();
         if ( ctx_out != null )
         {
-            ctx_out.release();
+            ctx_out.close();
             ctx_out = null;
         }
     }
