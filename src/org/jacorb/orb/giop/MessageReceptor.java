@@ -59,7 +59,7 @@ public class MessageReceptor
         }
         catch( Exception e )
         {
-            Debug.output( 1, e );
+            Debug.output( 3, e );
         }
     }    
 }// MessageReceptor
