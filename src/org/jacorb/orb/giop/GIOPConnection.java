@@ -40,7 +40,8 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class GIOPConnection 
+public final class GIOPConnection 
+    extends java.io.OutputStream
 {
     private Transport transport = null;
     
@@ -69,7 +70,7 @@ public class GIOPConnection
         this.reply_listener = reply_listener;
     }
     
-    public void setCodeSets( int TCS, int TCSW )
+    public final void setCodeSets( int TCS, int TCSW )
     {
         this.TCS = TCS;
         this.TCSW = TCSW;
@@ -77,22 +78,22 @@ public class GIOPConnection
         tcs_negotiated = true;
     }
 
-    public int getTCS()
+    public  final int getTCS()
     {
         return TCS;
     }
 
-    public int getTCSW()
+    public  final int getTCSW()
     {
         return TCSW;
     }
 
-    public void markTCSNegotiated()
+    public  final void markTCSNegotiated()
     {
         tcs_negotiated = true;
     }
     
-    public boolean isTCSNegotiated()
+    public  final boolean isTCSNegotiated()
     {
         return tcs_negotiated;
     }
@@ -101,7 +102,7 @@ public class GIOPConnection
      * Get the value of request_listener.
      * @return value of request_listener.
      */
-    private synchronized RequestListener getRequestListener() 
+    private  final synchronized RequestListener getRequestListener() 
     {
         return request_listener;
     }
@@ -110,7 +111,7 @@ public class GIOPConnection
      * Set the value of request_listener.
      * @param v  Value to assign to request_listener.
      */
-    public synchronized void setRequestListener( RequestListener  v ) 
+    public  final synchronized void setRequestListener( RequestListener  v ) 
     {
         this.request_listener = v;
     }
@@ -119,7 +120,7 @@ public class GIOPConnection
      * Get the value of reply_listener.
      * @return value of reply_listener.
      */
-    private synchronized ReplyListener getReplyListener() 
+    private  final synchronized ReplyListener getReplyListener() 
     {
         return reply_listener;
     }
@@ -128,22 +129,22 @@ public class GIOPConnection
      * Set the value of reply_listener.
      * @param v  Value to assign to reply_listener.
      */
-    public synchronized void setReplyListener( ReplyListener  v ) 
+    public  final synchronized void setReplyListener( ReplyListener  v ) 
     {
         this.reply_listener = v;
     }
 
-    public void setConnectionListener( ConnectionListener connection_listener )
+    public  final void setConnectionListener( ConnectionListener connection_listener )
     {
         this.connection_listener = connection_listener;
     }
 
-    public Transport getTransport()
+    public  final Transport getTransport()
     {
         return transport;
     }
     
-    public void receiveMessages()
+    public  final void receiveMessages()
         throws IOException
     {
         while( true )
@@ -274,7 +275,7 @@ public class GIOPConnection
         }
     }        
                                         
-    private void getWriteLock()
+    private  final void getWriteLock()
     {
         synchronized( write_sync )
         {
@@ -293,7 +294,7 @@ public class GIOPConnection
         }
     }
 
-    private void releaseWriteLock()
+    private  final void releaseWriteLock()
     {
         synchronized( write_sync )
         {            
@@ -303,13 +304,37 @@ public class GIOPConnection
         }
     }
 
-    public void addMessageFragment( byte[] message, int start, int size )
+    /**
+     * write (a fragment of) the message (passes it on to the wire)
+     */
+
+    public  final void write( byte[] fragment, int start, int size )
         throws IOException
     {
-        transport.addOutgoingMessage( message, start, size );
+        transport.write( fragment, start, size );
     }
+
+    /* pro forma implementations of io.OutputStream methods */
+
+    public  final void write(int i) 
+        throws java.io.IOException
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
+    public final void write(byte[] b) throws java.io.IOException
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    } 
+
+
+    public final void flush() throws java.io.IOException
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
     
-    public void sendMessage( MessageOutputStream out )
+    public final void sendMessage( MessageOutputStream out )
         throws IOException
     {
         try
@@ -318,7 +343,7 @@ public class GIOPConnection
             
             out.write_to( this );
             
-            transport.sendMessages();
+            transport.flush();
         }
         finally
         {
@@ -326,12 +351,12 @@ public class GIOPConnection
         }
     }
 
-    public boolean isSSL()
+    public  final boolean isSSL()
     {
         return transport.isSSL();
     }
     
-    public void close()
+    public  final void close()
     {
         try
         {
