@@ -244,7 +244,9 @@ public class Environment
             //read prop values to set fields ov this class
             readValues();
 
-            if( _verbosity > 0 && ! loaded ) // rt
+            if( _verbosity > 0 && 
+                ! loaded && 
+                ! _props.getProperty( "jacorb.suppress_no_props_warning", "off" ).equals( "on" )) // rt
             {
                 System.err.println( "#####################################################################" );
 
