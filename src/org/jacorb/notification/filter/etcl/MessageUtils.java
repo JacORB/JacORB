@@ -105,8 +105,6 @@ public class MessageUtils
                                 break;
 
                             case AbstractTCLNode.IDENTIFIER:
-//                                 logger_.debug( "evaluate struct by identifier" );
-
                                 String _identifer = ((IdentValue) _currentOperator).getIdentifier();
 
                                 _result =
@@ -117,8 +115,6 @@ public class MessageUtils
                                 break;
 
                             case AbstractTCLNode.NUMBER:
-//                                 logger_.debug( "evaluate struct by position" );
-
                                 int _pos = ((NumberValue) _currentOperator).getNumber().intValue();
 
                                 _result =
