@@ -26,6 +26,7 @@ import java.util.*;
 import org.omg.GIOP.*;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.CompletionStatus;
+import org.omg.ETF.*;
 
 import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.BufferManager;
@@ -68,6 +69,12 @@ public abstract class GIOPConnection
     private BufferManager buf_mg = null;
     
     private boolean dump_incoming = false;
+    
+    private BufferHolder msg_header 
+        = new BufferHolder (new byte[Messages.MSG_HEADER_SIZE]); 
+
+    private BufferHolder inbuf = new BufferHolder();
+    
 
     //// support for SAS Stateful contexts
     //private Hashtable sasContexts = null;
@@ -197,11 +204,9 @@ public abstract class GIOPConnection
      * @return a GIOP message or null.
      * @exception IOException passed through from the underlying IO layer.
      */
-    public byte[] getMessage()
+    private byte[] getMessage()
         throws IOException
     {
-        TCP_IP_Transport transport = (TCP_IP_Transport)this.transport;
-        
         //Wait until the actual socket connection is established. This
         //is necessary for the client side, so opening up a new
         //connection can be delayed until the first message is to be
@@ -211,79 +216,65 @@ public abstract class GIOPConnection
             return null;
         }
 
-        byte[] msg_header = new byte[ Messages.MSG_HEADER_SIZE ];
-
-        int read = transport.readToBuffer( msg_header, 0, Messages.MSG_HEADER_SIZE );
-
-        if( read == -1 )
+        try
+        {
+            transport.read (msg_header, 0, 
+                            Messages.MSG_HEADER_SIZE,
+                            Messages.MSG_HEADER_SIZE,
+                            0);
+        }
+        catch (org.omg.CORBA.COMM_FAILURE ex)
+        {
+            return null;
+        }
+        catch (org.omg.CORBA.TIMEOUT ex)
         {
             return null;
         }
 
-        if( read != Messages.MSG_HEADER_SIZE )
-        {
-            //TODO: resynching?
-
-            // Debug.output( 1, "ERROR: Failed to read GIOP message header" );
-            // Debug.output( 1, (Messages.MSG_HEADER_SIZE - read) +
-            //                   " Bytes less than the expected " +
-            //                   Messages.MSG_HEADER_SIZE + " Bytes" );
-            // Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-            //                  msg_header, 0, read );
-
-            return null;
-        }
+        byte[] header = msg_header.value;
         
         //(minimally) decode GIOP message header. Main checks should
         //be done one layer above.
 
-        if( (char) msg_header[0] == 'G' && (char) msg_header[1] == 'I' &&
-            (char) msg_header[2] == 'O' && (char) msg_header[3] == 'P')
+        if( (char) header[0] == 'G' && (char) header[1] == 'I' &&
+            (char) header[2] == 'O' && (char) header[3] == 'P')
         {
             //determine message size
-            int msg_size = Messages.getMsgSize( msg_header );
+            int msg_size = Messages.getMsgSize( header );
 
             if( msg_size < 0 )
             {
                 Debug.output( 1, "ERROR: Negative GIOP message size: " + 
                               msg_size );
                 Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-                              msg_header, 0, read );
+                              header, 0, Messages.MSG_HEADER_SIZE );
 
                 return null;
             }
 
             //get a large enough buffer from the pool
-            byte[] inbuf = buf_mg.getBuffer( msg_size +
-                                             Messages.MSG_HEADER_SIZE );
+            inbuf.value = buf_mg.getBuffer( msg_size +
+                                            Messages.MSG_HEADER_SIZE );
 
             //copy header
-            System.arraycopy( msg_header, 0, inbuf, 0, Messages.MSG_HEADER_SIZE );
+            System.arraycopy( header, 0, inbuf.value, 0, Messages.MSG_HEADER_SIZE );
 
-            //read "body"
-            read = transport.readToBuffer( inbuf, Messages.MSG_HEADER_SIZE, msg_size );
-
-            if( read == -1 )
+            try
             {
-                //stream ended too early
-                return null;
+                transport.read (inbuf, Messages.MSG_HEADER_SIZE,
+                                msg_size, msg_size, 0);
             }
-
-            if( read != msg_size )
+            catch (org.omg.CORBA.COMM_FAILURE ex)
             {
                 Debug.output( 1, "ERROR: Failed to read GIOP message" );
-                Debug.output( 1, (msg_size - read) +
-                              " Bytes less than the expected " +
-                              msg_size + " Bytes" );
-                Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-                              inbuf, 0, read );
-
-                return null;
+                return null;                
             }
 
             if( dump_incoming )
             {
-                Debug.output( 1, "getMessage()", inbuf, 0, read + Messages.MSG_HEADER_SIZE );
+                Debug.output( 1, "getMessage()", inbuf.value, 0, 
+                                 msg_size + Messages.MSG_HEADER_SIZE );
             }
 
             StatisticsProvider provider = transport.getStatisticsProvider();
@@ -295,14 +286,14 @@ public abstract class GIOPConnection
             }
 
             //this is the "good" exit point. 
-            return inbuf;
+            return inbuf.value;
         }
         else
         {
             Debug.output( 1, "ERROR: Failed to read GIOP message" );
             Debug.output( 1, "Magic start doesn't match" );
             Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-                          msg_header );
+                          msg_header.value );
 
             return null;
         }
@@ -643,7 +634,7 @@ public abstract class GIOPConnection
     public final void write( byte[] fragment, int start, int size )
         throws IOException
     {
-        transport.write( fragment, start, size );
+        transport.write( false, false, fragment, start, size, 0 );
     }
 
     /* pro forma implementations of io.OutputStream methods */
