@@ -29,12 +29,13 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class ServerGIOPConnection 
-    extends GIOPConnection 
+public class ServerGIOPConnection
+    extends GIOPConnection
 {
     private static final byte[] CLOSE_CONNECTION_MESSAGE =
-    new byte[] { 
-        'G', 'I', 'O', 'P', //magic start
+    new byte[] {
+        // Byte casts are for JDK1.2 compatibility.
+        (byte )'G', (byte )'I', (byte )'O', (byte )'P', //magic start
         1, //GIOP major
         0, //GIOP minor
         0, //endianess, big-endian
@@ -55,13 +56,13 @@ public class ServerGIOPConnection
                                  GIOPConnectionManager manager )
     {
         super( transport, request_listener, reply_listener );
-        
+
         this.manager = manager;
 
-        delayClose = 
+        delayClose =
             Environment.isPropertyOn( "jacorb.connection.delay_close" );
     }
-    
+
 
     public boolean tryClose()
     {
@@ -75,7 +76,7 @@ public class ServerGIOPConnection
             {
                 connection_listener.connectionClosed();
             }
-            
+
             return true;
         }
         else
@@ -112,11 +113,11 @@ public class ServerGIOPConnection
             Debug.output( 1, e );
         }
 
-        releaseWriteLock();        
+        releaseWriteLock();
         manager.unregisterServerGIOPConnection( this );
     }
 
-    
+
     public void readTimedOut()
     {
         if( closeOnReadTimeout )
@@ -127,7 +128,7 @@ public class ServerGIOPConnection
         {
             /**
              * If we don't have any more pending messages, we'll send a
-             * GIOP CloseConnection message (done by tryClose() ).  
+             * GIOP CloseConnection message (done by tryClose() ).
              */
             tryClose();
         }
@@ -135,17 +136,14 @@ public class ServerGIOPConnection
 
     /**
      * We're server side and can't reopen, therefore close completely
-     * if stream closed.  
+     * if stream closed.
      */
     public void streamClosed()
     {
         /**
          * We're server side and can't reopen, therefore close completely
-         * if stream closed.  
+         * if stream closed.
          */
         closeCompletely();
     }
 }// ServerGIOPConnection
-
-
-
