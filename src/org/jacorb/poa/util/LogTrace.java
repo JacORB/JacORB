@@ -30,17 +30,13 @@ package org.jacorb.poa.util;
  */
 public interface LogTrace 
 {
-	public boolean test(int logLevel);
-	public void printLog(byte[] objectId, String message);
-	public void printLog(org.jacorb.orb.dsi.ServerRequest request, String message);
-	public void printLog(org.jacorb.orb.dsi.ServerRequest request, org.omg.PortableServer.POAManagerPackage.State state, String message);
-	public void printLog(String message);
-	void printLog(Throwable e);
-	void setLogTrace(LogTrace _delegate);
+    public boolean test(int logLevel);
+    public void printLog(byte[] objectId, String message);
+    public void printLog(org.jacorb.orb.dsi.ServerRequest request, String message);
+    public void printLog(org.jacorb.orb.dsi.ServerRequest request, org.omg.PortableServer.POAManagerPackage.State state, String message);
+    public void printLog(String message);
+    void printLog(Throwable e);
+    void setLogTrace(LogTrace _delegate);
+
 }
-
-
-
-
-
 
