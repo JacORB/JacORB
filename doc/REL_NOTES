@@ -34,7 +34,7 @@
                 - Transaction, collection and concurrency services
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft
                     Ltd., Ukraine,taras@deka.kp.km.ua)
-               
+
 
 
    H I S T O R Y      O F     C H A N G E S
@@ -43,18 +43,19 @@
 2.1
 ====
 
-      - new: 
+      - new:
 
          * Implementation of the ORB PolicyManager interface to
            set QoSS policies ORB-wide
          * CDR 1.2 Portable Interceptor codec
 
-         * "-cdlc10" IDL compiler option to generate J2ME/CLDC1.0 
+         * "-cdlc10" IDL compiler option to generate J2ME/CLDC1.0
            compatible stub code
+         * Removed deprecated option -i on the IDL Compiler
 
       - fixed:
 
-         * connection management problem that resulted in hanging 
+         * connection management problem that resulted in hanging
            clients
          * server-side memory leaks
 
@@ -75,7 +76,7 @@
       - added property
         "jacorb.connection.client.timeout_ignores_pending_messages"
         which controls if client-side idle timeouts take care of
-        pending messages or not. 
+        pending messages or not.
 
       - added property "jacorb.connection.client.retry_on_failure"
         which controls if network failures on existing connections
@@ -88,7 +89,7 @@
 
       - ORB performance improvements
 
-      - more logging clean up        
+      - more logging clean up
 
 
 2.0 beta 3
@@ -102,7 +103,7 @@
         to Logkit
       - Synchronization fixes.
       - ORB:
-        - Added proprietary call ORB::addObjectKey. 
+        - Added proprietary call ORB::addObjectKey.
 
 2.0 beta 2
 ==========
@@ -113,10 +114,10 @@
 ==========
 
       - Logging:
-        - Added property 'jacorb.logfile.append' to support appending to 
+        - Added property 'jacorb.logfile.append' to support appending to
           rather than overwriting an existing log file.
         - Added property 'jacorb.logfile.maxLogSize' to support rolling logs.
-        - Added property 'jacorb.log.timestamp' to control whether log 
+        - Added property 'jacorb.log.timestamp' to control whether log
           messages are timestamped or not.
 
       - ORB:
@@ -131,7 +132,7 @@
         - The transport layer now conforms to the draft of the
           Extensible Transport Framework (ETF, mars/2003-02-01)
           (see Programming Guide for details).
-        - Two new properties, jacorb.poa.queue_wait and 
+        - Two new properties, jacorb.poa.queue_wait and
           jacorb.poa.queue_min allow the server to block when the
           request queue is full.
         - Fix for ClientRequestInfo target field value.
@@ -148,10 +149,10 @@
         - Added port range server socket factory support.
 
       - IMR:
-        - Added property 'jacorb.imr.endpoint_port_number' for port IMR 
+        - Added property 'jacorb.imr.endpoint_port_number' for port IMR
           runs on.
 
-      - IDL Compiler: 
+      - IDL Compiler:
                 - fixed inheritance error (bug #345)
                 - now using the Aoachae logkit loggin API
 
