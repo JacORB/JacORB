@@ -45,8 +45,7 @@ public class FilterImplTest extends TestCase {
 	appContext_ = 
 	    new ApplicationContext(orb_, POAHelper.narrow(orb_.resolve_initial_references("RootPOA")));
 
-	filter_ = new FilterImpl(FilterFactoryImpl.CONSTRAINT_GRAMMAR, 
-				 appContext_);
+	filter_ = new FilterImpl(appContext_, FilterFactoryImpl.CONSTRAINT_GRAMMAR);
     }
 
     public void tearDown() {

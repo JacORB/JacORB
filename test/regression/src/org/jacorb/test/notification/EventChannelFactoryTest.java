@@ -19,7 +19,8 @@ import org.jacorb.orb.util.CorbaLoc;
  * @version $Id$
  */
 
-public class EventChannelFactoryTest extends TestCase {
+public class EventChannelFactoryTest 
+    extends TestCase {
 
     EventChannelFactoryImpl factory_;
     ORB orb;
@@ -38,10 +39,13 @@ public class EventChannelFactoryTest extends TestCase {
 	String _corbaLoc = factory_.getCorbaLoc();
 	assertNotNull(_corbaLoc);
 
-	org.omg.CORBA.Object obj = orb.string_to_object(_corbaLoc);
+	org.omg.CORBA.Object obj = 
+	    orb.string_to_object(_corbaLoc);
+
 	assertNotNull(obj);
 
-	EventChannelFactory factory = EventChannelFactoryHelper.narrow(obj);
+	EventChannelFactory factory = 
+	    EventChannelFactoryHelper.narrow(obj);
 
 	assertFalse(factory._non_existent());
     }
@@ -51,10 +55,13 @@ public class EventChannelFactoryTest extends TestCase {
 
 	assertNotNull(ior);
 
-	org.omg.CORBA.Object obj = orb.string_to_object(ior);
+	org.omg.CORBA.Object obj = 
+	    orb.string_to_object(ior);
+
 	assertNotNull(obj);
 
-	EventChannelFactory factory = EventChannelFactoryHelper.narrow(obj);
+	EventChannelFactory factory = 
+	    EventChannelFactoryHelper.narrow(obj);
 
 	assertFalse(factory._non_existent());
     }
@@ -72,7 +79,8 @@ public class EventChannelFactoryTest extends TestCase {
      * @return a <code>TestSuite</code>
      */
     public static TestSuite suite(){
-	TestSuite suite = new TestSuite(EventChannelFactoryTest.class);
+	TestSuite suite = 
+	    new TestSuite(EventChannelFactoryTest.class);
 	
 	return suite;
     }
@@ -83,5 +91,4 @@ public class EventChannelFactoryTest extends TestCase {
     public static void main(String[] args) {
 	junit.textui.TestRunner.run(suite());
     }
-
 }

@@ -144,10 +144,7 @@ public class NotificationEventTest extends TestCase {
     public static Test suite(){
 	TestSuite suite;
 
-	//suite = new TestSuite(NotificationEventTest.class);
-	suite = new TestSuite();
-
-	suite.addTest(new NotificationEventTest("testEvaluate_Structured"));
+	suite = new TestSuite(NotificationEventTest.class);
 
 	return suite;
     }

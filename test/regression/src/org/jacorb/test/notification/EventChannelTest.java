@@ -12,6 +12,9 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.apache.log.Logger;
 import org.apache.log.Hierarchy;
+import org.apache.log.Priority;
+import org.jacorb.test.common.TestUtils;
+import org.jacorb.notification.util.LogConfiguration;
 
 /**
  * EventChannelTest.java
@@ -48,6 +51,7 @@ public class EventChannelTest extends NotificationTestCase {
     }
 
     public void tearDown() {
+	super.tearDown();
 	channel_.destroy();
     }
 
@@ -77,7 +81,7 @@ public class EventChannelTest extends NotificationTestCase {
 	logger_.debug("testSendEventPushPush");
 	// start a receiver thread
  	AnyPushReceiver _receiver = new AnyPushReceiver(this);
-	_receiver.connect(getSetup(),  channel_, false);
+	_receiver.connect(getSetup(), channel_, false);
 
 	logger_.debug("Connected");
 
@@ -86,12 +90,14 @@ public class EventChannelTest extends NotificationTestCase {
 	logger_.debug("Receiver started");
 
 	// start a sender
-	AnyPushSender _sender = new AnyPushSender(this,testPerson_);
+	AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+
 	_sender.connect(getSetup(),  channel_, false);
 
 	_receiverThread.start();
 
 	_sender.run();
+
 	logger_.debug("Sender started");	
 
 	_receiverThread.join();
@@ -100,7 +106,6 @@ public class EventChannelTest extends NotificationTestCase {
 
 	_receiver.shutdown();
 	_sender.shutdown();
-
     }
 
     public void testSendEventPullPush() throws Exception {
@@ -248,7 +253,7 @@ public class EventChannelTest extends NotificationTestCase {
 	NotificationTestCaseSetup _setup =
 	    new NotificationTestCaseSetup(_suite);
 
-	String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(EventChannelTest.class);
+	String[] methodNames = TestUtils.getTestMethods( EventChannelTest.class);
 
 	for (int x=0; x<methodNames.length; ++x) {
 	    _suite.addTest(new EventChannelTest(methodNames[x], _setup));
@@ -258,6 +263,8 @@ public class EventChannelTest extends NotificationTestCase {
     }
 
     public static void main(String[] args) throws Exception {
+	LogConfiguration.getInstance().configure();
+
 	junit.textui.TestRunner.run(suite());
     }    
 }

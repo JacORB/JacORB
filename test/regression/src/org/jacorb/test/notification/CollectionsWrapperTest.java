@@ -27,6 +27,8 @@ import junit.framework.TestSuite;
 import org.jacorb.notification.CollectionsWrapper;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Collections;
+import java.lang.reflect.Method;
 
 /**
  * @author Alphonse Bendt
@@ -35,6 +37,28 @@ import java.util.Iterator;
 
 public class CollectionsWrapperTest extends TestCase 
 {
+
+    public void testTime() throws Exception {
+	long now = System.currentTimeMillis();
+
+	List[] list = new List[1000];	
+
+	for (int x=0; x<list.length; ++x) {
+	    list[x] = Collections.singletonList("testling");
+	}
+
+	//	System.out.println(System.currentTimeMillis() - now);
+
+	Method method = Collections.class.getMethod("singletonList", new Class[] {Object.class});
+
+	now = System.currentTimeMillis();
+
+	for (int x=0; x<list.length; ++x) {
+	    list[x] = (List)method.invoke(null, new Object[]{"testling"});
+	}
+	//	System.out.println(System.currentTimeMillis() - now);
+
+    }
 
     public void testCollectionsWrapper() throws Exception {
 	String o = "testling";

@@ -40,7 +40,8 @@ public class CosEventChannelTest extends NotificationTestCase {
 	testData_ = getTestUtils().getTestPersonAny();
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() {
+	super.tearDown();
 	channel_.destroy();
     }
 

@@ -51,17 +51,17 @@ public class AnyPushReceiver
 
     private Object lock_ = new Object();
 
-    AnyPushReceiver(TestCase testCase) {
+    public AnyPushReceiver(TestCase testCase) {
 	testCase_ = testCase;
     }
 
-    AnyPushReceiver(TestCase testCase, PerformanceListener listener, int expected) {
+    public AnyPushReceiver(TestCase testCase, PerformanceListener listener, int expected) {
 	perfListener_=listener;
 	expected_ = expected;
 	testCase_ = testCase;
     }
 
-    void setExpected(int e) {
+    public void setExpected(int e) {
 	expected_ = e;
     }
 

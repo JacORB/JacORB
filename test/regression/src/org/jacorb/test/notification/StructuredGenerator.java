@@ -7,10 +7,10 @@ import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.Property;
 
-class StructuredGenerator {
+public class StructuredGenerator {
     AnyGenerator anyGenerator_;
 
-    StructuredGenerator(ORB orb) {
+    public StructuredGenerator(ORB orb) {
 	anyGenerator_ = new AnyGenerator(orb);
     }
 

@@ -32,12 +32,12 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 	super(name, setup);
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() {
+	super.tearDown();
 	channel_.destroy();
     }
 
     public void setUp() throws Exception {
-
 	channelFactory_ = getEventChannelFactory();
 
 	Property[] qos = new Property[0];

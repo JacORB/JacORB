@@ -6,8 +6,6 @@ import junit.framework.TestSuite;
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.NotificationEvent;
 import org.jacorb.notification.NotificationEventFactory;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.ResultExtractor;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
@@ -16,8 +14,6 @@ import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
@@ -111,11 +107,8 @@ public class NotificationEventFactoryTest extends TestCase {
 	POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
 	testUtils_ = new TestUtils(orb_);
 
-	appContext_ = new ApplicationContext(orb_, _poa, true);
+	appContext_ = new ApplicationContext(orb_, _poa, false);
 
-	DynAnyFactory _d = DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
-	ResultExtractor _r = new ResultExtractor(_d);
-	DynamicEvaluator _de = new DynamicEvaluator(orb_, _d);
 	notificationEventFactory_ = new DerivedNotificationEventFactory(appContext_);
 	notificationEventFactory_.init();
 
@@ -148,9 +141,6 @@ public class NotificationEventFactoryTest extends TestCase {
 	TestSuite suite;
 
 	suite = new TestSuite(NotificationEventFactoryTest.class);
-
-// 	suite = new TestSuite();
-// 	suite.addTest(new NotificationEventFactoryTest("testStructuredToAny"));
 
 	return suite;
     }

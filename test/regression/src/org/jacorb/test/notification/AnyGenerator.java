@@ -36,12 +36,12 @@ import org.jacorb.test.notification.TimingTestHelper;
  * @version $Id$
  */
 
-class AnyGenerator implements TestEventGenerator {
+public class AnyGenerator implements TestEventGenerator {
 
     ORB orb_;
     int counter_ = 0;
 
-    AnyGenerator(ORB orb) {
+    public AnyGenerator(ORB orb) {
 	orb_ = orb;
     }
 

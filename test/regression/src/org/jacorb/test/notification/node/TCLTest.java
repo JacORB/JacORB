@@ -18,6 +18,7 @@ import org.jacorb.notification.node.StaticTypeException;
 import org.jacorb.notification.node.TCLCleanUp;
 import org.jacorb.notification.node.TCLNode;
 import org.jacorb.notification.parser.TCLParser;
+import org.jacorb.notification.util.LogConfiguration;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.NamedValue;
 import org.jacorb.test.notification.NamedValueSeqHelper;
@@ -48,7 +49,6 @@ import org.omg.TimeBase.UtcTHelper;
  */
 
 public class TCLTest extends TestCase {
-
 
     ApplicationContext applicationContext_;
     ORB orb_;
@@ -244,7 +244,7 @@ public class TCLTest extends TestCase {
     //////////////////////////////////////////////////
     // and now some testing
 
-    public void testPlus() throws Exception {
+    public void testPLUS() throws Exception {
 	runEvaluation("2", "1 + 1");
 	runEvaluation("0", "1 + -1");
 	runEvaluation("0", "-1 + 1");
@@ -252,7 +252,7 @@ public class TCLTest extends TestCase {
 	runEvaluation("2.0", "1 + 1");
     }
 
-    public void testMinus() throws Exception {
+    public void testMINUS() throws Exception {
 	runEvaluation("0", "1 - 1");
 	runEvaluation("2", "1 - -1");
 	runEvaluation("-2", "-1 - 1");
@@ -260,13 +260,13 @@ public class TCLTest extends TestCase {
 	runEvaluation("0.0", "1 - 1");
     }
 
-    public void testDiv() throws Exception{
+    public void testDIV() throws Exception{
 	runEvaluation("5", "10/2");
 	runEvaluation("1/3", "10/30");
 	runEvaluation("0.25", "1.0/4");
     }
 
-    public void testMult() throws Exception{
+    public void testMULT() throws Exception{
 	runEvaluation("100", "10*10");
 	runEvaluation("1", "1 * 1");
 	runEvaluation("1", "0.25 * 4");
@@ -284,7 +284,7 @@ public class TCLTest extends TestCase {
 	runEvaluation("-0.1" , "-.1");
     }
 
-    public void testFloat() throws Exception {
+    public void testFloatNumbers() throws Exception {
 	runEvaluation("1000", "10e+2");
 	runEvaluation("100", "10e+1");
 	runEvaluation("10", "10e+0");
@@ -310,7 +310,7 @@ public class TCLTest extends TestCase {
 	runEvaluation("1*(2*(3*(4*5)))", "(((1*2)*3)*4)*5");
     }
 
-    public void testGt() throws Exception{
+    public void testGT() throws Exception{
 	runEvaluation("TRUE", "1>0");
 	runEvaluation("FALSE", "0>1");
 
@@ -321,7 +321,7 @@ public class TCLTest extends TestCase {
 	runEvaluation("FALSE", "'bbb' > 'ccc'");
     }
 
-    public void testLt() throws Exception{
+    public void testLT() throws Exception{
 	runEvaluation("FALSE", "1<0");
 	runEvaluation("TRUE", "0<1");
 
@@ -332,7 +332,7 @@ public class TCLTest extends TestCase {
 	runEvaluation("TRUE", "'bbb' < 'ccc'");
     }
 
-    public void testLte() throws Exception{
+    public void testLTE() throws Exception{
 	runEvaluation("TRUE", "0<=1");
 	runEvaluation("TRUE", "0<=0");
 	runEvaluation("FALSE", "1<=0");
@@ -341,7 +341,7 @@ public class TCLTest extends TestCase {
 	runEvaluation("FALSE", "'bbc'<='abc'");
     }
 
-    public void testGte() throws Exception{
+    public void testGTE() throws Exception{
  	runEvaluation("FALSE", "0>=1");
  	runEvaluation("TRUE", "0>=0");
  	runEvaluation("TRUE", "1>=0");
@@ -350,14 +350,14 @@ public class TCLTest extends TestCase {
 	runEvaluation("TRUE", "'bbc'>='abc'");
     }
 
-    public void testEq() throws Exception{
+    public void testEQ() throws Exception{
 	runEvaluation("TRUE", "TRUE == TRUE");
 	runEvaluation("TRUE", "FALSE == FALSE");
 	runEvaluation("FALSE", "FALSE == TRUE");
 	runEvaluation("FALSE", "TRUE == FALSE");
     }
 
-    public void testNeq() throws Exception {
+    public void testNEQ() throws Exception {
 	runEvaluation("TRUE", "0!=1");
 	runEvaluation("FALSE", "1!=1");
 
@@ -370,21 +370,21 @@ public class TCLTest extends TestCase {
 	runEvaluation("FALSE", "FALSE!=FALSE");
     }
 
-    public void testAnd() throws Exception {
+    public void testAND() throws Exception {
 	runEvaluation("TRUE", "TRUE and TRUE");
 	runEvaluation("FALSE", "TRUE and FALSE");
 	runEvaluation("FALSE", "FALSE and TRUE");
 	runEvaluation("FALSE", "FALSE and FALSE");
     }
 
-    public void testOr() throws Exception {
+    public void testOR() throws Exception {
 	runEvaluation("TRUE", "TRUE or TRUE");
 	runEvaluation("TRUE", "TRUE or FALSE");
 	runEvaluation("TRUE", "FALSE or TRUE");
 	runEvaluation("FALSE", "FALSE or FALSE");
     }
 
-    public void testNot() throws Exception {
+    public void testNOT() throws Exception {
 	runEvaluation("TRUE", "not FALSE");
 	runEvaluation("FALSE", "not TRUE");
     }
@@ -436,7 +436,7 @@ public class TCLTest extends TestCase {
  	try {
  	    runEvaluation(testPerson_, "$.first_name._length == 2");
  	    fail();
- 	} catch (Throwable e) {}
+ 	} catch (EvaluationException e) {}
 
 	runEvaluation(testPerson_, "$.phone_numbers._length == 2");
 	runEvaluation(testPerson_, "$.4._length == 2");
@@ -575,7 +575,7 @@ public class TCLTest extends TestCase {
  	try {
 	    runEvaluation(testPerson_, "$.first_name + 1 == 10");
  	    fail();
- 	} catch (org.jacorb.notification.node.DynamicTypeException e) {}
+ 	} catch (DynamicTypeException e) {}
 
 	try {
 	    runEvaluation(testPerson_, "$.age == '29'");
@@ -807,7 +807,6 @@ public class TCLTest extends TestCase {
     }
 
     ////////////////////////////////////////
-    // 
 
     public static Test suite() {
 	TestSuite suite;
@@ -820,7 +819,7 @@ public class TCLTest extends TestCase {
     }
 
     public static void main(String[] args) {
-	junit.textui.TestRunner.run(suite());	
+	junit.textui.TestRunner.run(suite());
     }
 }
 

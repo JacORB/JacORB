@@ -21,7 +21,7 @@ import org.omg.CosNotifyComm.PushSupplierPOA;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.PortableServer.POA;
 
-class AnyPushSender 
+public class AnyPushSender 
     extends PushSupplierPOA 
     implements TestClientOperations, Runnable {
 
@@ -60,7 +60,7 @@ class AnyPushSender
 	testCase_ = testCase;
     }
 
-    AnyPushSender(TestCase testCase,
+    public AnyPushSender(TestCase testCase,
 		  PerformanceListener perfListener, 
 		  TestEventGenerator generator, 
 		  int runs, 

@@ -35,12 +35,11 @@ import org.jacorb.test.common.ClientServerTestCase;
 import org.omg.PortableServer.POA;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+import org.jacorb.notification.EventChannelFactoryImpl;
+import java.lang.Process;
 
 /**
  *  Unit Test for class NotificationTestCase.java
- *
- *
- * Created: Thu Mar 27 15:29:42 2003
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -50,12 +49,24 @@ public class NotificationTestCase extends TestCase {
 
     NotificationTestCaseSetup setup_;
 
+    private EventChannelFactoryImpl factoryServant_;
+
+    public void tearDown() {
+	if (factoryServant_ != null) {
+	    factoryServant_.dispose();
+	}
+    }
+
     public ORB getORB() {
+
 	return setup_.getClientOrb();
+
     }
 
     public POA getPOA() {
+
 	return setup_.poa_;
+
     }
 
     public TestUtils getTestUtils() {
@@ -64,6 +75,12 @@ public class NotificationTestCase extends TestCase {
 
     public EventChannelFactory getEventChannelFactory() {
 	return setup_.getServant().getEventChannelFactory();
+    }
+
+    public EventChannelFactory getLocalEventChannelFactory() throws Exception {
+	factoryServant_ = new EventChannelFactoryImpl();
+
+	return EventChannelFactoryHelper.narrow(factoryServant_._this(getORB()));
     }
 
     public NotificationTestCaseSetup getSetup() {
@@ -79,5 +96,4 @@ public class NotificationTestCase extends TestCase {
 	super(name);
 	setup_ = setup;
     }
-
 }

@@ -24,7 +24,7 @@ import org.omg.CosNotifyFilter.Filter;
 import junit.framework.TestCase;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 
-class StructuredPushReceiver extends Thread 
+public class StructuredPushReceiver extends Thread 
     implements StructuredPushConsumerOperations, 
 	       TestClientOperations {
 
@@ -32,7 +32,7 @@ class StructuredPushReceiver extends Thread
 
     int received_ = 0;
     int expected_ = 1;
-    int filterId_;
+    int filterId_ = Integer.MIN_VALUE;
 
     long timeout_ = 2000;
 
@@ -47,7 +47,7 @@ class StructuredPushReceiver extends Thread
 	testCase_ = testCase;
     }
 
-    StructuredPushReceiver(TestCase testCase, PerformanceListener perfListener, int expected) {
+    public StructuredPushReceiver(TestCase testCase, PerformanceListener perfListener, int expected) {
 	perfListener_ = perfListener;
 	expected_ = expected;
 	testCase_ = testCase;
@@ -147,7 +147,7 @@ class StructuredPushReceiver extends Thread
 	}
 	testCase_.assertTrue(!pushSupplier_._non_existent());
 	pushSupplier_.disconnect_structured_push_supplier();
-	testCase_.assertTrue(pushSupplier_._non_existent());
+	//	testCase_.assertTrue(pushSupplier_._non_existent());
 
 	if (filter_ != null) {
 	    filter_.destroy();

@@ -25,7 +25,9 @@ import junit.framework.TestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.swingui.TestRunner;
+import org.apache.log.Priority;
 import org.jacorb.notification.util.LogConfiguration;
+
 
 /**
  * AllTest.java
@@ -57,5 +59,4 @@ public class AllTest extends TestCase {
 
 	junit.textui.TestRunner.run(suite());
     }
-
 } 

@@ -3,6 +3,7 @@ package org.jacorb.test.notification;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jacorb.notification.util.LogConfiguration;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.NamedValue;
 import org.jacorb.test.notification.Person;
@@ -37,7 +38,6 @@ import org.apache.log.Priority;
 
 public class StructuredEventChannelTest extends NotificationTestCase {
 
-
     Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
     EventChannel channel_;
@@ -52,7 +52,8 @@ public class StructuredEventChannelTest extends NotificationTestCase {
 	super(name, setup);
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() {
+	super.tearDown();
 	channel_.destroy();
     }
 
@@ -241,6 +242,8 @@ public class StructuredEventChannelTest extends NotificationTestCase {
     }
 
     public static void main(String[] args) throws Exception {
+	LogConfiguration.getInstance().configure();
+
 	junit.textui.TestRunner.run(suite());
     }
 }
