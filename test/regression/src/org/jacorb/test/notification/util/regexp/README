@@ -1,0 +1,6 @@
+The tests in this directory partially depend on non-standard JDK
+classes which are *not* part of the JacORB distribution.
+
+* gnu-regexp		http://www.cacas.org/java/gnu/regexp/
+* jakarta-regexp	http://jakarta.apache.org/regexp
+
