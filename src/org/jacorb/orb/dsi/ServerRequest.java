@@ -61,13 +61,16 @@ public class ServerRequest
 
     /** only to be called implicitly by subclasses (LocateRequest) */
 
-    protected ServerRequest( org.jacorb.orb.ORB orb, ServerConnection _connection )
+    protected ServerRequest( org.jacorb.orb.ORB orb, 
+                             ServerConnection _connection )
     {
 	this.orb = orb;
 	connection = _connection;
     }
 
-    public ServerRequest( org.jacorb.orb.ORB orb, byte[] _buf, ServerConnection _connection )
+    public ServerRequest( org.jacorb.orb.ORB orb, 
+                          byte[] _buf, 
+                          ServerConnection _connection )
     {
 	this.orb = orb;
 	in = new RequestInputStream( orb,_buf);
