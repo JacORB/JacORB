@@ -42,10 +42,9 @@ public class Messages
      * @returns a buffer containing a locate reply message ready for writing
      * called through Connection by servers only.
      */
-
-    public static byte [] locateReplyMessage( int request_id, 
-                                              int status, 
-                                              org.omg.CORBA.Object arg ) 
+    public static byte[] locateReplyMessage( int request_id, 
+                                             int status, 
+                                             org.omg.CORBA.Object arg ) 
 	throws org.omg.CORBA.COMM_FAILURE
     {
 	try 
@@ -62,7 +61,7 @@ public class Messages
 	}
     }
 
-    public static byte [] closeConnectionMessage() 
+    public static byte[] closeConnectionMessage() 
     {
 	byte [] buffer = new byte[MSG_HEADER_SIZE];
 	buffer[0] = (byte)'G';
@@ -72,7 +71,7 @@ public class Messages
 	buffer[4] = (byte)((char)1);
 	buffer[5] = (byte)((char)0);
 	buffer[6] = 0;
-	buffer[7] = (byte)org.omg.GIOP.MsgType_1_0._CloseConnection;
+	buffer[7] = (byte)org.omg.GIOP.MsgType_1_1._CloseConnection;
 	return buffer;
     }
 
@@ -152,7 +151,7 @@ public class Messages
 
     public static int getRequestId( byte[] buf, int msg_type )
     {
-	if( msg_type == org.omg.GIOP.MsgType_1_0._Reply )
+	if( msg_type == org.omg.GIOP.MsgType_1_1._Reply )
 	{
 	    if( buf[6] == 0 ) //big endian
 	    {
@@ -190,7 +189,7 @@ public class Messages
 		    ((buf[pos]& 0xff));
 	    }
 	}
-	else if( msg_type == org.omg.GIOP.MsgType_1_0._LocateReply )
+	else if( msg_type == org.omg.GIOP.MsgType_1_1._LocateReply )
 	{
 	    if( buf[6] == 0 ) //big endian
 	    {
@@ -210,5 +209,38 @@ public class Messages
 	else
 	    throw new RuntimeException("Cannot deal with reply message type " + msg_type + " !");
     }
+
+    public static int getMsgSize( byte[] buf )
+    {
+        int msg_size = -1;
+
+        if( isBigEndian( buf )) // big-endian
+        {
+            msg_size =  ((0xff & buf[8]) << 24) + 
+                ((0xff & buf[9]) << 16) + 
+                ((0xff & buf[10])<< 8) + 
+                ((0xff & buf[11]));
+        }
+        else	// little-endian
+        {
+            msg_size =  ((0xff & buf[11]) << 24) + 
+                ((0xff & buf[10]) << 16) + 
+                ((0xff & buf[9])  << 8) + 
+                ((0xff & buf[8]));
+        }
+        
+        return msg_size;
+    }   
+    
+    public static boolean isBigEndian( byte[] buf )
+    {
+        //this is new for GIOP 1.1/1.2
+        return (0x01 & buf[6]) == 0;
+    }
 }
+
+
+
+
+
 

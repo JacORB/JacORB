@@ -685,14 +685,15 @@ public class BasicAdapter
                     
                     switch( msg_type )
                     {
-                    case org.omg.GIOP.MsgType_1_0._Request:
+                    case org.omg.GIOP.MsgType_1_1._Request:
                         {
+                            org.jacorb.orb.dsi.ServerRequest request = 
+                                new org.jacorb.orb.dsi.ServerRequest( orb, buf, connection );
+
                             // bnv: default SSL security policy
                             if( Environment.enforceSSL() && 
                                 !connection.isSSL()) 
                             {
-                                org.jacorb.orb.dsi.ServerRequest request = 
-                                    new org.jacorb.orb.dsi.ServerRequest( orb, buf, connection );
                                 request.setSystemException (
                                       new org.omg.CORBA.NO_PERMISSION ( 
                                              "Connection should be SSL, but isn't",
@@ -701,13 +702,11 @@ public class BasicAdapter
                                              org.omg.CORBA.CompletionStatus.COMPLETED_NO
                                              )
                                           );
+
                                 request.reply();
                             } 
                             else 
                             {
-                                // bnv: as before
-                                org.jacorb.orb.dsi.ServerRequest request = 
-                                    new org.jacorb.orb.dsi.ServerRequest(orb, buf, connection );
                                 orb.getBasicAdapter().replyPending();
                                 
                                 // devik: look for codeset context if not negotiated yet
@@ -721,43 +720,56 @@ public class BasicAdapter
                             }
                             break;
                         } 
-                    case org.omg.GIOP.MsgType_1_0._CancelRequest:
+                        /*
+                    case org.omg.GIOP.MsgType_1_1._Reply:
                         {
-                            //  org.omg.GIOP.CancelRequestHeader cancel_req_hdr =
-                            //  org.omg.GIOP.CancelRequestHeaderHelper.read( ois );                     
+                            //ignore for the moment...
+                        }
+                        */
+                    case org.omg.GIOP.MsgType_1_1._CancelRequest:
+                        {
                             break;
                         }
-                    case org.omg.GIOP.MsgType_1_0._LocateRequest:
+                    case org.omg.GIOP.MsgType_1_1._LocateRequest:
                         {
                             org.jacorb.orb.connection.LocateRequest request = 
                                 new org.jacorb.orb.connection.LocateRequest(orb, buf, connection );
                             deliverRequest( request );
                             break;
                         }
-                    case org.omg.GIOP.MsgType_1_0._MessageError:
+                        /*
+                    case org.omg.GIOP.MsgType_1_1._LocateReply:
                         {
-                            //  org.omg.GIOP.CancelRequestHeader cancel_req_hdr =
-                            //  org.omg.GIOP.CancelRequestHeaderHelper.read( ois );
-                            Debug.output( 0,
-                                          "Message Error! (Sender announces it received an ill.-formed GIOP msg.)");
+                        //ignore for the moment...
+                        }
+                        */
+                    case org.omg.GIOP.MsgType_1_1._CloseConnection:
+                        {
                             break;
+                        }
+                    case org.omg.GIOP.MsgType_1_1._MessageError:
+                        {
+                            Debug.output( 0, "Message Error! (Sender announces it received an ill.-formed GIOP msg.)");
+                            break;
+                        }
+                    case org.omg.GIOP.MsgType_1_1._Fragment:
+                        {
+                            org.jacorb.orb.dsi.ServerRequest request = 
+                                new org.jacorb.orb.dsi.ServerRequest( orb, buf, connection );
+
+                            request.setSystemException (
+                                new org.omg.CORBA.NO_IMPLEMENT() );
+
+                            request.reply();
                         }
                     default:
                         {
-                            Debug.output(0,"SessionServer, message_type " + 
-                                                     msg_type + " not understood.");
+                            Debug.output(0, "SessionServer, message_type " + 
+                                         msg_type + " not understood.");
                         }
                     }
                 } 
             }
-            //      catch ( java.io.InterruptedIOException eof )
-            //          {
-            //              Debug.output(2,"RequestReceptor: Connection timed out");
-
-            //              while( pendingReplies > 0 )
-            //                  try{ sleep( 5 ); } catch ( Exception e ){}
-            //              connection.sendCloseConnection();
-            //          }
             catch ( java.io.EOFException eof )
             {
                 Debug.output(4,eof);

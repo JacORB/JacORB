@@ -55,7 +55,7 @@ public class ServerConnection
     protected boolean littleEndian;
     protected boolean isSSL;
     protected Socket mysock = null;
-    private byte [] header = new byte[ Messages.MSG_HEADER_SIZE ];
+    private byte[] header = new byte[ Messages.MSG_HEADER_SIZE ];
     
     /** 
      * dummy constructor
@@ -216,18 +216,16 @@ public class ServerConnection
      * called to notify all waiting threads that the connection is
      * broken
      */
-
     private void abort()
 	throws  EOFException
     {
-	Debug.output(3,"Connection to " + 
-                                 connection_info + " aborting...");
+	Debug.output(3,"Connection to " + connection_info + " aborting...");
 	throw new EOFException();
     }
 
     /**
-     * low-level input routine, not MT-safe, used by the ReplyReceptor object
-     * for this connection
+     * low-level input routine, not MT-safe, used by the
+     * RequestReceptor thread for this connection 
      */
 
     public byte[] readBuffer() 
@@ -243,45 +241,37 @@ public class ServerConnection
 	    } 
 	    catch( java.io.InterruptedIOException ioint )
 	    {
-		/* if a client-side time out has been set we have to
-		   abort. NOTE: outstanding replies are lost! */
-		
-		Debug.output(3,"Connection timed out");
+		/* if a time out has been set we have to abort. NOTE:
+		   outstanding replies are lost! */
+                Debug.output(3,"Connection timed out");
 	    }
 	    catch( Exception e )
 	    {
 		Debug.output(3,e);
 	    }
+
 	    if( input < 0 )		
 	    {
+                //stream has been closed
 		abort();
 	    }
-	    header[i]=(byte)input;
+
+            header[i] = (byte) input;
 	}       
 
 	/* check for SECIOP vs. GIOP headers */
-
+        /*
 	if( (char)header[0] == 'S' && (char)header[1] == 'E' && 
 	    (char)header[2] =='C' && (char)header[3] == 'P' )
 	{
 	    throw new IOException("Cannot handle SECIOP messages yet...");
 	}
-	else if( (char)header[0] == 'G' && (char)header[1] == 'I' && 
-		 (char)header[2] =='O' && (char)header[3] == 'P')
+	else
+        */ 
+        if( (char)header[0] == 'G' && (char)header[1] == 'I' && 
+            (char)header[2] =='O' && (char)header[3] == 'P')
 	{
-	    /* determine message size, but respect byte order! */
-	    int msg_size = 0;
-	    
-	    if( header[6] == 0 ) // big-endian
-		msg_size =  ((0xff & header[8]) << 24) + 
-		    ((0xff & header[9]) << 16) + 
-		    ((0xff & header[10])<< 8) + 
-		    ((0xff & header[11]));
-	    else	// little-endian
-		msg_size =  ((0xff & header[11]) << 24) + 
-		    ((0xff & header[10]) << 16) + 
-		    ((0xff & header[9])  << 8) + 
-		    ((0xff & header[8]));
+	    int msg_size = Messages.getMsgSize( header );
 	    
 	    if( msg_size < 0 )
 	    {
@@ -290,17 +280,13 @@ public class ServerConnection
 	    
 	    int bufSize = msg_size + Messages.MSG_HEADER_SIZE;
 	    byte[] inbuf = BufferManager.getInstance().getBuffer(bufSize);
-	    
+
 	    /* copy header */
-	    
-	    for( int ii = 0; ii < Messages.MSG_HEADER_SIZE; ii++ )
-	    {
-		inbuf[ii] = (byte)header[ii];
-	    }
+	    System.arraycopy( header, 0, inbuf, 0, Messages.MSG_HEADER_SIZE );
 
 	    int read = Messages.MSG_HEADER_SIZE;
 
-	    //	    while( read < inbuf.length )
+            //read message from socket stream
 	    while( read < bufSize )
 	    {
 		int n = -1;
@@ -313,28 +299,26 @@ public class ServerConnection
 		    Debug.output(4,ie);
 		}
 
-		if( n<0 )
+		if( n < 0 )
 		{
 		    abort();
 		}  
-		read += n;
+                else
+                {
+                    read += n;
+                }
 	    }
+
 	    return inbuf;
 	}
 	else 
 	{
 	    Debug.output( 0, "Unknown message header type detected by " + 
-				      Thread.currentThread().getName() + 
-                                      ", discarding ", header );
-	    return readBuffer();
-	    //	    throw new IOException("Unknown message header type!");
+                          Thread.currentThread().getName() + 
+                          ", discarding ", header );
+	    return null;
 	}
     }
-
-
-    /**
-     *
-     */
 
     public String getInfo()
     {
@@ -352,7 +336,7 @@ public class ServerConnection
 
 	try
 	{
-	    out_stream.write( Messages.closeConnectionMessage());
+	    out_stream.write( Messages.closeConnectionMessage() );
 	    out_stream.flush();
 	    closeConnection();
 	} 
@@ -367,7 +351,9 @@ public class ServerConnection
      *
      */
 
-    public void sendLocateReply( int request_id, int status, org.omg.CORBA.Object arg ) 
+    public void sendLocateReply( int request_id, 
+                                 int status, 
+                                 org.omg.CORBA.Object arg ) 
 	throws org.omg.CORBA.COMM_FAILURE 
     {
 	synchronized( writeLock )
@@ -388,8 +374,6 @@ public class ServerConnection
     /**
      * called from dsi/ServerRequest
      */
-
-
     public void sendReply( ReplyOutputStream os ) 
 	throws IOException 
     {
@@ -432,9 +416,6 @@ public class ServerConnection
 	get_out_stream().write(buffer,0, len);
 	get_out_stream().flush();
     }
-
-
-
 }
 
 

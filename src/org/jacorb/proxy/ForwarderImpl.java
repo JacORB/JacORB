@@ -278,7 +278,7 @@ class ForwarderImpl
                     new RequestOutputStream( orb,
                                              realCon.getId(),
                                              inrequest.operation(),
-                                             inrequest.get_in().req_hdr.response_expected,
+                                             (0x03 & inrequest.get_in().req_hdr.response_flags) == 0x03,
                                              ior.get_object_key(),
                                              inrequest.getServiceContext());
                 //data

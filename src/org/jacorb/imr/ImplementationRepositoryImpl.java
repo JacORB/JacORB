@@ -967,16 +967,16 @@ public class ImplementationRepositoryImpl
 		    
 		    switch( _msg_type )
 		    {
-		    case org.omg.GIOP.MsgType_1_0._Request:		  
+		    case org.omg.GIOP.MsgType_1_1._Request:		  
 			{
 			    replyNewLocation( _buf );
 			    break;			    
 			} 
-		    case org.omg.GIOP.MsgType_1_0._CancelRequest:
+		    case org.omg.GIOP.MsgType_1_1._CancelRequest:
 			{
                             break;
 			}
-		    case org.omg.GIOP.MsgType_1_0._LocateRequest:
+		    case org.omg.GIOP.MsgType_1_1._LocateRequest:
 			{
 			    replyNewLocation( _buf );
 			    break;
@@ -1043,8 +1043,8 @@ public class ImplementationRepositoryImpl
         {
 	    in = new RequestInputStream( orb, buffer );
 	    String _poa_name = 
-                POAUtil.extractImplName(in.req_hdr.object_key) +
-                "/" + POAUtil.extractPOAName(in.req_hdr.object_key);
+                POAUtil.extractImplName(in.req_hdr.target.object_key()) +
+                "/" + POAUtil.extractPOAName(in.req_hdr.target.object_key());
 
 	    // look up POA in table
 	    ImRPOAInfo _poa = server_table.getPOA( _poa_name );
@@ -1090,7 +1090,7 @@ public class ImplementationRepositoryImpl
                 new ProfileBody_1_0( new Version((byte) 1, (byte) 0), 
                                      _poa.host,
                                      (short) _poa.port,
-                                     in.req_hdr.object_key );    
+                                     in.req_hdr.target.object_key() );    
             
 	    out = new ReplyOutputStream( new org.omg.IOP.ServiceContext[0],
                                          in.req_hdr.request_id,

@@ -38,7 +38,7 @@ public class LocateRequest
     {
 	super( orb, _connection );
 	in = new LocateRequestInputStream( orb, _buf);
-	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key);
+	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.target.object_key());
     }
 
     public java.lang.String operation()

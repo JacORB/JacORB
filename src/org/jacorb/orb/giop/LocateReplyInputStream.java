@@ -56,7 +56,7 @@ public class LocateReplyInputStream
 	    littleEndian = true;
 	    setLittleEndian(true);
 	}
-	if( buf[7] != (byte)org.omg.GIOP.MsgType_1_0._LocateReply )
+	if( buf[7] != (byte)org.omg.GIOP.MsgType_1_1._LocateReply )
 	    throw new RuntimeException("Trying to initialize ReplyInputStream from non-reply msg.!");
 
 	skip(12);

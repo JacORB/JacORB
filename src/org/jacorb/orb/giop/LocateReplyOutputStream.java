@@ -42,7 +42,7 @@ public class LocateReplyOutputStream
             new org.omg.GIOP.LocateReplyHeader_1_0( request_id, 
                                                     org.omg.GIOP.LocateStatusType_1_0.from_int(status));
 
-        writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_0._LocateReply );
+        writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_1._LocateReply );
 	org.omg.GIOP.LocateReplyHeader_1_0Helper.write(this, locate_rep_hdr);
         
 	if( status == org.omg.GIOP.LocateStatusType_1_0._OBJECT_FORWARD )

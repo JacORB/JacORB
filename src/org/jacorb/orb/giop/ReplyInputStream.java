@@ -77,7 +77,7 @@ public class ReplyInputStream
 	    littleEndian = true;
 	    setLittleEndian(true);
 	}
-	if( buffer[7] != (byte)org.omg.GIOP.MsgType_1_0._Reply )
+	if( buffer[7] != (byte)org.omg.GIOP.MsgType_1_1._Reply )
 	    throw new RuntimeException("Trying to initialize ReplyInputStream from non-reply msg.!");
 
 	if (buffer[5]==1){

@@ -43,7 +43,7 @@ public class LocateRequestOutputStream
 
     private void writeHeader()
     {
-        writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_0._LocateRequest );
+        writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_1._LocateRequest );
         org.omg.GIOP.LocateRequestHeader_1_0Helper.write( this, req_hdr );
         insertMsgSize();
     }

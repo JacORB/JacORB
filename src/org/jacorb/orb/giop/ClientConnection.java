@@ -38,35 +38,35 @@ import org.jacorb.orb.factory.SocketFactory;
 public class ClientConnection
     extends AbstractConnection
 {
-    private int id_count = 0;
-    private String connection_info = null;
-    private InputStream in_stream;
-    private BufferedOutputStream out_stream;
+    protected int id_count = 0;
+    protected String connection_info = null;
+    protected InputStream in_stream;
+    protected BufferedOutputStream out_stream;
 
     /** client-side socket timeout */
-    private int timeout = 0;
+    protected int timeout = 0;
 
-    private ConnectionManager manager;
+    protected ConnectionManager manager;
 
     /** write lock */
     public Object writeLock = new Object();
 
     //contains RequestOutputStreams instead of byte[]
-    private Hashtable buffers = new Hashtable();
+    protected Hashtable buffers = new Hashtable();
 
-    private Hashtable replies = new Hashtable();
-    private boolean littleEndian;
+    protected Hashtable replies = new Hashtable();
+    protected boolean littleEndian;
 
     /* how many clients use this connection? */
-    private int client_count = 0;
+    protected int client_count = 0;
 
-    private Socket mysock = null;
-    private ReplyReceptor repReceptor;
-    private byte[] header = new byte[ Messages.MSG_HEADER_SIZE ];
-    private SocketFactory socket_factory = null;
+    protected Socket mysock = null;
+    protected ReplyReceptor repReceptor;
+    protected byte[] header = new byte[ Messages.MSG_HEADER_SIZE ];
+    protected SocketFactory socket_factory = null;
     
-    private String target_host = null;
-    private int target_port = -1;
+    protected String target_host = null;
+    protected int target_port = -1;
 
     
     /** 
@@ -118,54 +118,7 @@ public class ClientConnection
             }
         }
     }
-/*        this( mgr, 
-              s, 
-              new BufferedInputStream( s.getInputStream()),
-              socket_factory );
-    }
 
-
-    public ClientConnection ( ConnectionManager mgr,
-                              java.net.Socket s, 
-                              InputStream in,
-                              SocketFactory socket_factory )
-        throws IOException
-    {
-        this.socket_factory = socket_factory;
-        manager = mgr;
-        this.orb = mgr.getORB();
-        mysock = s;
-
-        in_stream = in;
-        out_stream = 
-            new BufferedOutputStream( mysock.getOutputStream(), 
-                                      Environment.outBufSize() );
-
-        String ip = mysock.getInetAddress().getHostAddress();
-        if ( ip.indexOf('/') > 0 ) 
-            ip = ip.substring( ip.indexOf('/') + 1 );
-
-        String host_and_port = ip + ":"+ mysock.getPort();
-        String ssl = isSSL() ? "SSL " : ""; //bnv
-        connection_info = host_and_port;
-
-        //Client count is incremented by the Delegate
-        //client_count = 1;
-        
-        Debug.output(1, "New " + ssl + "connection to " + host_and_port);
-        repReceptor = new ReplyReceptor( this );
-
-        //get the client-side timeout property value
-
-        String prop = 
-            Environment.getProperty("jacorb.connection.client_timeout");
-        
-        if( prop != null )
-        {
-            timeout = Integer.parseInt(prop);
-        }
-    }
-*/
     ORB getORB()
     {
         return orb;
@@ -571,7 +524,7 @@ public class ClientConnection
 	if( !connected() )
 	    throw new EOFException();
 
-	byte [] buf = readBuffer();
+	byte[] buf = readBuffer();
 	int giop_version = buf[5];
 	int msg_type = buf[7];
 
@@ -579,7 +532,7 @@ public class ClientConnection
 
 	switch ( msg_type )
 	{
-	case  org.omg.GIOP.MsgType_1_0._Reply: 
+	case  org.omg.GIOP.MsgType_1_1._Reply: 
 	    {
 		Debug.output( 8, "receiveReply", buf );
 		Integer key = new Integer(Messages.getRequestId( buf, msg_type ));
@@ -595,7 +548,7 @@ public class ClientConnection
                                        key );
 		break;
 	    }
-	case org.omg.GIOP.MsgType_1_0._LocateReply:
+	case org.omg.GIOP.MsgType_1_1._LocateReply:
 	    { 
 		Integer key = new Integer(Messages.getRequestId( buf, msg_type ));
 
@@ -613,11 +566,11 @@ public class ClientConnection
                                        key );
 		break;
 	    }
-	case org.omg.GIOP.MsgType_1_0._MessageError:
+	case org.omg.GIOP.MsgType_1_1._MessageError:
             {
 		Debug.output(1,"Got <MessageError> from server, something went wrong!");
             }
-	case org.omg.GIOP.MsgType_1_0._CloseConnection:
+	case org.omg.GIOP.MsgType_1_1._CloseConnection:
 	    {
 		Debug.output(3,"got close connection message");
 		throw new CloseConnectionException("Received <CloseConnection> from Server");

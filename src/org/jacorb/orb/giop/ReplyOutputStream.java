@@ -82,7 +82,7 @@ public class ReplyOutputStream
 
     private void writeHeader(CDROutputStream out)
     {
-        out.writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_0._Reply );
+        out.writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_1._Reply );
         org.omg.GIOP.ReplyHeader_1_0Helper.write(out, rep_hdr);
     }
 

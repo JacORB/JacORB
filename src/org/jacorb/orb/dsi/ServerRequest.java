@@ -79,7 +79,7 @@ public class ServerRequest
         if( connection.isTCSNegotiated() )
             in.setCodeSet( connection.TCS, connection.TCSW );
 
-	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key );
+	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.target.object_key() );
     }
 
     /** if this request could not be delivered directly to the
@@ -259,7 +259,7 @@ public class ServerRequest
 
     public void reply()
     {
-	if( in.req_hdr.response_expected )
+	if( (0x03 & in.req_hdr.response_flags) == 0x03 )
 	{
 	    org.jacorb.util.Debug.output(6,"ServerRequest: reply to " + operation());
 	    try 
@@ -467,7 +467,7 @@ public class ServerRequest
 
     public boolean responseExpected()
     {
-	return in.req_hdr.response_expected;
+	return (0x03 & in.req_hdr.response_flags) == 0x03;
     }
 
     public org.omg.CORBA.SystemException getSystemException()
@@ -482,7 +482,7 @@ public class ServerRequest
 
     public byte[] objectKey()
     {
-	return in.req_hdr.object_key;
+	return in.req_hdr.target.object_key();
     }
 
     public org.omg.IOP.ServiceContext[] getServiceContext()
@@ -590,7 +590,7 @@ public class ServerRequest
 	    ioe.printStackTrace();
 	    System.out.println("ServerRequest: Error replying to request!");
 	}
-	in.req_hdr.response_expected = false; 
+	in.req_hdr.response_flags = 0; 
         // make sure that no
 	// other reply is send
     }    

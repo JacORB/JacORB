@@ -92,7 +92,7 @@ public class RequestOutputStream
 
     private void writeHeader(CDROutputStream out)
     {
-        out.writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_0._Request );
+        out.writeGIOPMsgHeader( (byte)org.omg.GIOP.MsgType_1_1._Request );
         org.omg.GIOP.RequestHeader_1_0Helper.write(out, req_hdr);
     }
 
