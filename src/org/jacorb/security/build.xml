@@ -3,7 +3,7 @@
 <project name="security" default="all" basedir="../../..">
 
   <!-- ==================================================== -->
-  <!--             ORB build file                         -->
+  <!--             security build file                         -->
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
@@ -26,7 +26,7 @@
 	   <echo message="original ssl setup"/>
 	   <javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/security/ssl/*.java"
+	       includes="org/jacorb/security/ssl/*.java"
         />
    </target>
 
@@ -35,7 +35,7 @@
    <target name="leveltwo">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/security/level2/*.java"
+	       includes="org/jacorb/security/level2/*.java"
         />
    </target>
 
@@ -48,11 +48,12 @@
         <echo message="generating util"/>
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/security/util/*.java"
+	       includes="org/jacorb/security/util/*.java"
         />
    </target>
 
-   <target name="clean">
+   <target name="clean" depends="init">
+      <delete dir="${classdir}/org/jacorb/security"/>
    </target>
 
 </project>
