@@ -109,11 +109,6 @@ class ValueDecl
 	included = i;
     }
 
-    public String getTypeCodeExpression()
-    {
-	return null; // FIXME
-    }
-
     public boolean basic()
     {
         return true;
@@ -129,6 +124,46 @@ class ValueDecl
         return javaName() + "Holder";
     }
 
+    public String getTypeCodeExpression()
+    {
+        StringBuffer result = new StringBuffer 
+            ("new org.omg.CORBA.ORB.init().create_value_tc (" + 
+             // id
+             "\"" + id() + "\", " + 
+             // name
+             "\"" + name + "\", " +
+             // type modifier
+             + "(short)" +
+             (this.isCustomMarshalled() ? org.omg.CORBA.VM_CUSTOM.value
+                                        : org.omg.CORBA.VM_NONE.value) + ", " +
+             // concrete base type
+             "null, " +
+             // value members
+             "new org.omg.CORBA.ValueMember[] {");
+        
+        for (Iterator i = stateMembers.v.iterator(); i.hasNext();)
+        {
+            StateMember m = (StateMember)i.next();
+            result.append (getValueMemberExpression (m));
+            if (i.hasNext()) result.append (", ");
+        }
+        result.append ("})");
+        return result.toString();
+    }
+
+    private String getValueMemberExpression (StateMember m)
+    {
+        TypeSpec typeSpec = m.typeSpec();
+        short    access   = m.isPublic
+                                 ? org.omg.CORBA.PUBLIC_MEMBER.value
+                                 : org.omg.CORBA.PRIVATE_MEMBER.value; 
+        return "new org.omg.CORBA.ValueMember (" +
+               "\"" + m.name + "\", \"" + typeSpec.id() +
+               "\", \"" + name + "\", \"1.0\", " + 
+               typeSpec.getTypeCodeExpression() + ", null, " + 
+               + "(short)" + access + ")";
+    }
+               
     public void print (PrintWriter ps)
     {
         try 
@@ -222,7 +257,7 @@ class ValueDecl
 
         out.println ("\tpublic org.omg.CORBA.TypeCode _type()");
         out.println ("\t{");
-        out.println ("\t\treturn null;"); // FIXME
+        out.println ("\t\treturn " + javaName() + "Helper.type();");
         out.println ("\t}");
 
         out.println ("}");
@@ -270,6 +305,8 @@ class ValueDecl
         out.println ("public abstract class " + name + "Helper");
         out.println ("{");
 
+        out.println ("\tprivate org.omg.CORBA.TypeCode type = null;");
+
         // insert() / extract()
 
         out.println ("\tpublic static void insert " + 
@@ -287,12 +324,13 @@ class ValueDecl
 
         out.println ("\tpublic static org.omg.CORBA.TypeCode type()");
         out.println ("\t{");
-        out.println ("\t\treturn null;"); // FIXME
+        out.println ("\t\tif (type == null)");
+        out.println ("\t\t\ttype = " + getTypeCodeExpression() + ";");
+        out.println ("\t\treturn type;");
         out.println ("\t}");
         out.println ("\tpublic static String id()");
         out.println ("\t{");
-        out.println ("return org.jacorb.ir.RepositoryID.repId " +
-                     "(" + javaName() + ".class);");
+        out.println ("\t\treturn \"" + id() + "\";");
         out.println ("\t}");
 
         // read() / write()
