@@ -36,8 +36,9 @@ import java.util.Vector;
  */
 
 public class Current 
-    extends org.omg.CORBA.LocalObject 
-    implements org.omg.PortableServer.Current 
+    extends org.omg.PortableServer._CurrentLocalBase
+  //    extends org.omg.CORBA.LocalObject 
+  //    implements org.omg.PortableServer.Current 
 {
     private Hashtable threadTable = new Hashtable(); 
     // Thread -> vector of InvocationContext elements (Stack)

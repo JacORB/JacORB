@@ -34,7 +34,7 @@ import java.io.*;
  * after that the logs will passed to the second LogTrace object.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.00, 06/11/99, RT
+ * @version $Id$
  */
 
 public class LogWriter 
@@ -56,9 +56,10 @@ public class LogWriter
             isLogFileOut = true;
     }
 
-	public boolean test(int logLevel) {
-		return Environment.verbosityLevel() >= (Debug.POA | logLevel);	
-	}
+    public boolean test(int logLevel) {
+        return Environment.verbosityLevel() >= ( logLevel);	
+        // return Environment.verbosityLevel() >= (Debug.POA | logLevel);	
+    }
 
     public void printLog(byte[] oid, String message) 
     {
@@ -87,7 +88,7 @@ public class LogWriter
 
     public void printLog(Throwable e) 
     {
-       printLog_(e);
+        printLog_(e);
     }
 
     private void printLog_(String message) 
@@ -118,9 +119,4 @@ public class LogWriter
         delegate = _delegate;
     }
 }
-
-
-
-
-
 

@@ -16,7 +16,7 @@ module SecurityLevel2
 
     interface PrincipalAuthenticator 
     {
-	#pragma local
+	
 	// Locality Constrained
 
 	Security::AuthenticationMethodList get_supported_authen_methods(
@@ -46,7 +46,7 @@ module SecurityLevel2
     interface Credentials 
     {
 	// Locality Constrained
-	#pragma local
+	
 
 	Credentials copy ();
 
@@ -88,7 +88,7 @@ module SecurityLevel2
     interface ReceivedCredentials : Credentials 
     {
 	// Locality Constrained
-	#pragma local
+	
 
 	readonly attribute Credentials  accepting_credentials;
 	readonly attribute Security::AssociationOptions association_options_used;
@@ -120,7 +120,7 @@ module SecurityLevel2
     interface AuditChannel 
     {
 	// Locality Constrained
-	#pragma local
+	
 
 	void audit_write (
 		in     Security::AuditEventType                               event_type,
@@ -138,7 +138,7 @@ module SecurityLevel2
     interface AuditDecision 
     {
 	// Locality Constrained
-	#pragma local
+	
 
 	boolean audit_needed (
 		in Security::AuditEventType                                   event_type,
@@ -151,7 +151,7 @@ module SecurityLevel2
     interface AccessDecision 
     {
 	// Locality Constrained
-	#pragma local
+	
 
 	boolean access_allowed (
 		in     SecurityLevel2::CredentialsList cred_list,
@@ -166,7 +166,7 @@ module SecurityLevel2
     interface QOPPolicy : CORBA::Policy 
     {
 	// Locality Constrained
-	#pragma local
+	
 	readonly attribute Security::QOP                 qop;
     };
 
@@ -174,28 +174,28 @@ module SecurityLevel2
     interface MechanismPolicy : CORBA::Policy 
     {
 	// Locality Constrained
-	#pragma local
+	
 	readonly attribute Security::MechanismTypeList mechanisms;
     };
 
     interface InvocationCredentialsPolicy : CORBA::Policy 
     {
 	// Locality Constrained
-	#pragma local
+	
 	readonly attribute CredentialsList                          creds;
     };
 
     interface EstablishTrustPolicy : CORBA::Policy 
     {
 	// Locality Constrained
-	#pragma local
+	
 	readonly attribute Security::EstablishTrust                 trust;
     };
 
     interface DelegationDirectivePolicy : CORBA::Policy 
     { 
 	// Locality Constrained
-	#pragma local
+	
 	readonly attribute Security::DelegationDirective  delegation_directive;
     };
 
@@ -209,7 +209,7 @@ module SecurityLevel2
     interface Current : SecurityLevel1::Current 
     {
 	// Locality Constrained
-	#pragma local
+	
 	   
 	// Thread specific
 

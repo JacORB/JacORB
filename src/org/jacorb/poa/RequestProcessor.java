@@ -184,8 +184,8 @@ public class RequestProcessor
         {
                                 
             servant = controller.getAOM().incarnate( request.objectId(), 
-                                                    (ServantActivator) servantManager,
-                                                    controller.getPOA());
+                                                     (ServantActivator) servantManager,
+                                                     controller.getPOA());
             if (servant == null) 
             {
             	if (controller.getLogTrace().test(0))
@@ -198,23 +198,23 @@ public class RequestProcessor
         } 
         catch (org.omg.CORBA.SystemException e) 
         {
-        	if (controller.getLogTrace().test(0))
+            if (controller.getLogTrace().test(0))
                 controller.getLogTrace().printLog(request, "incarnate: system exception was thrown ("+e+")");
             request.setSystemException(e);
 
         } 
         catch (org.omg.PortableServer.ForwardRequest e) 
         {
-        	if (controller.getLogTrace().test(0))
+            if (controller.getLogTrace().test(0))
                 controller.getLogTrace().printLog(request, "incarnate: forward exception was thrown ("+e+")");
             request.setLocationForward(e);
                                 
         } 
         catch (Throwable e) { /* not spec. */
-        	if (controller.getLogTrace().test(0)) {
+            if (controller.getLogTrace().test(0)) {
                 controller.getLogTrace().printLog(request, "incarnate: throwable was thrown");
                 controller.getLogTrace().printLog(e);
-        	}
+            }
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage())); 
             /* which system exception I should raise? */                        
         }
@@ -236,9 +236,9 @@ public class RequestProcessor
                 if( specialOperations.containsKey(request.operation()))
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(servant, 
-                                                                                  request.operation(), 
-                                                                                  request.getInputStream(), 
-                                                                                  request);
+                                                                                      request.operation(), 
+                                                                                      request.getInputStream(), 
+                                                                                      request);
                 }
                 else
                 {
@@ -252,15 +252,15 @@ public class RequestProcessor
             {          
             	if (controller.getLogTrace().test(3))               
                     controller.getLogTrace().printLog(request, 
-                                                  "invoke operation on servant (dsi based)");
+                                                      "invoke operation on servant (dsi based)");
                 if( specialOperations.containsKey(request.operation()) && 
                     !(servant instanceof org.jacorb.orb.Forwarder) )
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(
-                                                             servant, 
-                                                             request.operation(), 
-                                                             request.getInputStream(),
-                                                             request);
+                                                                                      servant, 
+                                                                                      request.operation(), 
+                                                                                      request.getInputStream(),
+                                                                                      request);
                 }
                 else
                 {
@@ -278,16 +278,16 @@ public class RequestProcessor
         } 
         catch (org.omg.CORBA.SystemException e) 
         {
-        	if (controller.getLogTrace().test(1))
+            if (controller.getLogTrace().test(1))
                 controller.getLogTrace().printLog(request, "invocation: system exception was thrown ("+e+")");
             request.setSystemException(e);
         } 
         catch (Throwable e)             
         {         /* not spec. */
-        	if (controller.getLogTrace().test(0)) {
+            if (controller.getLogTrace().test(0)) {
                 controller.getLogTrace().printLog(request, "invocation: throwable was thrown");
                 controller.getLogTrace().printLog(e);
-        	}
+            }
             request.setSystemException(new org.omg.CORBA.UNKNOWN()); /* which system exception I should raise? */
         }
     }
@@ -301,7 +301,7 @@ public class RequestProcessor
     {
         try 
         {
-        	if (controller.getLogTrace().test(3))
+            if (controller.getLogTrace().test(3))
                 controller.getLogTrace().printLog(request, 
                                                   "invoke postinvoke on servant locator");
 
@@ -313,16 +313,16 @@ public class RequestProcessor
         } 
         catch (org.omg.CORBA.SystemException e) 
         {
-        	if (controller.getLogTrace().test(1))
+            if (controller.getLogTrace().test(1))
                 controller.getLogTrace().printLog(request, "postinvoke: system exception was thrown ("+e+")");
             request.setSystemException(e);
                         
         } 
         catch (Throwable e) {         /* not spec. */
-        	if (controller.getLogTrace().test(0)) {
+            if (controller.getLogTrace().test(0)) {
                 controller.getLogTrace().printLog(request, "postinvoke: throwable was thrown");
                 controller.getLogTrace().printLog(e);
-        	}
+            }
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER()); 
             /* which system exception I should raise? */
         }
@@ -355,23 +355,23 @@ public class RequestProcessor
         } 
         catch (org.omg.CORBA.SystemException e) 
         {
-        	if (controller.getLogTrace().test(1))
+            if (controller.getLogTrace().test(1))
                 controller.getLogTrace().printLog(request, "preinvoke: system exception was thrown ("+e+")");
             request.setSystemException(e);
 
         } 
         catch (org.omg.PortableServer.ForwardRequest e) 
         {
-        	if (controller.getLogTrace().test(1))
+            if (controller.getLogTrace().test(1))
                 controller.getLogTrace().printLog(request, "preinvoke: forward exception was thrown ("+e+")");
             request.setLocationForward(e);
                                                 
         } 
         catch (Throwable e) {         /* not spec. */
-        	if (controller.getLogTrace().test(0)) {
+            if (controller.getLogTrace().test(0)) {
                 controller.getLogTrace().printLog(request, "preinvoke: throwable was thrown");
                 controller.getLogTrace().printLog(e);
-        	}
+            }
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage())); 
             /* which system exception I should raise? */
         }
@@ -493,29 +493,29 @@ public class RequestProcessor
             short op = 0;
             switch(request.status().value())
             {
-            case ReplyStatusType_1_2._NO_EXCEPTION :
-                op = ServerInterceptorIterator.SEND_REPLY;
-                info.reply_status = SUCCESSFUL.value;
-                break;
+                case ReplyStatusType_1_2._NO_EXCEPTION :
+                    op = ServerInterceptorIterator.SEND_REPLY;
+                    info.reply_status = SUCCESSFUL.value;
+                    break;
 
-            case ReplyStatusType_1_2._USER_EXCEPTION :
-                info.reply_status = USER_EXCEPTION.value;
-                SystemExceptionHelper.insert(info.sending_exception, 
-                                             new org.omg.CORBA.UNKNOWN("Stream-based UserExceptions are not available!"));
-                op = ServerInterceptorIterator.SEND_EXCEPTION;
-                break;
+                case ReplyStatusType_1_2._USER_EXCEPTION :
+                    info.reply_status = USER_EXCEPTION.value;
+                    SystemExceptionHelper.insert(info.sending_exception, 
+                                                 new org.omg.CORBA.UNKNOWN("Stream-based UserExceptions are not available!"));
+                    op = ServerInterceptorIterator.SEND_EXCEPTION;
+                    break;
 
-            case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
-                info.reply_status = SYSTEM_EXCEPTION.value;
-                SystemExceptionHelper.insert(info.sending_exception, 
-                                             request.getSystemException());
-                op = ServerInterceptorIterator.SEND_EXCEPTION;
-                break;
+                case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
+                    info.reply_status = SYSTEM_EXCEPTION.value;
+                    SystemExceptionHelper.insert(info.sending_exception, 
+                                                 request.getSystemException());
+                    op = ServerInterceptorIterator.SEND_EXCEPTION;
+                    break;
 
-            case ReplyStatusType_1_2._LOCATION_FORWARD :
-                info.reply_status = LOCATION_FORWARD.value;
-                op = ServerInterceptorIterator.SEND_OTHER;
-                break;
+                case ReplyStatusType_1_2._LOCATION_FORWARD :
+                    info.reply_status = LOCATION_FORWARD.value;
+                    op = ServerInterceptorIterator.SEND_OTHER;
+                    break;
             }
       
             invokeInterceptors(info, op);
@@ -554,7 +554,7 @@ public class RequestProcessor
                     (org.omg.PortableInterceptor.ForwardRequest) ue;
 
                 request.setLocationForward( new org.omg.PortableServer.
-                                            ForwardRequest(fwd.forward) );
+                    ForwardRequest(fwd.forward) );
             }
             return false;
 
@@ -618,10 +618,10 @@ public class RequestProcessor
     //      }
 
     /*
-    org.jacorb.orb.connection.ServerConnection getConnection()
-    {
-        return request.getConnection();
-    }
+      org.jacorb.orb.connection.ServerConnection getConnection()
+      {
+      return request.getConnection();
+      }
     */
 }
 

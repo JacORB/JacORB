@@ -28,6 +28,7 @@ package org.jacorb.poa.util;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.00, 06/11/99, RT
  */
+
 public interface LogTrace 
 {
     public boolean test(int logLevel);

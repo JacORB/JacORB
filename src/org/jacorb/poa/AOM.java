@@ -88,8 +88,9 @@ public class AOM
     {
         ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);
 
-        /* an incarnation and activation with the same oid has priority */
-        /* a reactivation for the same oid blocks until etherealization is complete */
+        /* an inCarnation and activation with the same oid has
+           priority, a reactivation for the same oid blocks until
+           etherealization is complete */
 
         while (incarnationList.contains(oidbak) || 
                etherealisationList.contains(oidbak)) 

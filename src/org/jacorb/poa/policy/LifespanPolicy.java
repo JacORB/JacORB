@@ -24,28 +24,34 @@ package org.jacorb.poa.policy;
  * This class implements the lifespan policy.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.0, 05/03/99, RT
+ * @version $Id$
  */
-public class LifespanPolicy 
-    extends org.omg.CORBA.LocalObject 
-    implements org.omg.PortableServer.LifespanPolicy 
-{
 
+public class LifespanPolicy 
+    extends org.omg.PortableServer._LifespanPolicyLocalBase
+{
     private org.omg.PortableServer.LifespanPolicyValue value;
+
     private LifespanPolicy() {
     }
+
     public LifespanPolicy(org.omg.PortableServer.LifespanPolicyValue _value) {
         value = _value;
     }
+
     public org.omg.CORBA.Policy copy() {
         return new LifespanPolicy(value());
     }
+
     public void destroy() {
     }
+
     public int policy_type() {
         return org.omg.PortableServer.LIFESPAN_POLICY_ID.value;
     }
-    public org.omg.PortableServer.LifespanPolicyValue value() {
+
+    public org.omg.PortableServer.LifespanPolicyValue value() 
+    {
         return value;
     }
 }

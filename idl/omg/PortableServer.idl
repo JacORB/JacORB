@@ -160,9 +160,9 @@ module PortableServer
     //
     // **************************************************
 	
-     interface ServantManager {};
+    local interface ServantManager {};
 	
-     interface ServantActivator : ServantManager 
+    local interface ServantActivator : ServantManager 
     {
 	Servant incarnate (in ObjectId oid,
 			   in POA adapter)
@@ -175,9 +175,7 @@ module PortableServer
 			  in boolean remaining_activations);
     };
 	
-
-    /*  We don't generate code from the follwing definitions
-	as the language mapping defines the classes explicitly
+    /* not compiled, mapping classes provided separately
 
     local interface ServantLocator : ServantManager 
     {
@@ -193,11 +191,10 @@ module PortableServer
 			in POA			adapter,
 			in CORBA::Identifier	operation,
 			in Cookie    	       	the_cookie,
-			in Servant	       	the_servant	);
+			in Servant	       	the_servant	)
 	    raises (ForwardRequest); // this exception is only in the Java mapping!
     };
     */
-	
 	
     // **************************************************
     //
@@ -205,8 +202,6 @@ module PortableServer
     //
     // **************************************************
 	
-    // not pseudo, because it must be returned as a subtype
-    // of CORBA::Object in resolve_initial_references()
 
     local interface POA
     {

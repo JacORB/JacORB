@@ -24,11 +24,11 @@ package org.jacorb.poa.policy;
  * This class implements the implicit activation policy.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.0, 05/03/99, RT
+ * @version $Id$
  */
+
 public class ImplicitActivationPolicy 
-    extends org.omg.CORBA.LocalObject 
-    implements org.omg.PortableServer.ImplicitActivationPolicy 
+    extends org.omg.PortableServer._ImplicitActivationPolicyLocalBase
 {
     private org.omg.PortableServer.ImplicitActivationPolicyValue value;
 
@@ -38,14 +38,18 @@ public class ImplicitActivationPolicy
     public ImplicitActivationPolicy(org.omg.PortableServer.ImplicitActivationPolicyValue _value) {
         value = _value;
     }
+
     public org.omg.CORBA.Policy copy() {
         return new ImplicitActivationPolicy(value());
     }
+
     public void destroy() {
     }
+
     public int policy_type() {
         return org.omg.PortableServer.IMPLICIT_ACTIVATION_POLICY_ID.value;
     }
+
     public org.omg.PortableServer.ImplicitActivationPolicyValue value() {
         return value;
     }

@@ -1244,14 +1244,16 @@ public final class Delegate
                     if( poa.isRetain() )
                     {
                         org.omg.PortableServer.ServantActivator sa = 
-                            org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
+                            (org.omg.PortableServer.ServantActivator) sm ;
+                        //  org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
                         so.servant = sa.incarnate( oid, poa );
 
                     }
                     else
                     {
                         org.omg.PortableServer.ServantLocator sl = 
-                            org.omg.PortableServer.ServantLocatorHelper.narrow( sm );
+                            (org.omg.PortableServer.ServantLocator) sm;
+                        //org.omg.PortableServer.ServantLocatorHelper.narrow( sm );
                         so.servant = 
                             sl.preinvoke( oid, poa, operation, 
                                           new org.omg.PortableServer.ServantLocatorPackage.CookieHolder() );

@@ -24,26 +24,31 @@ package org.jacorb.poa.policy;
  * This class implements the thread policy.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.0, 05/03/99, RT
+ * @version $Id4
  */
+
 public class ThreadPolicy 
-    extends org.omg.CORBA.LocalObject 
-    implements org.omg.PortableServer.ThreadPolicy 
+    extends org.omg.PortableServer._ThreadPolicyLocalBase
 {
     private org.omg.PortableServer.ThreadPolicyValue value;
+
     private ThreadPolicy() {
     }
     public ThreadPolicy(org.omg.PortableServer.ThreadPolicyValue _value) {
         value = _value;
     }
+
     public org.omg.CORBA.Policy copy() {
         return new ThreadPolicy(value());
     }
+
     public void destroy() {
     }
+
     public int policy_type() {
 	return org.omg.PortableServer.THREAD_POLICY_ID.value;
     }
+
     public org.omg.PortableServer.ThreadPolicyValue value() {
         return value;
     }

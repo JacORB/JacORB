@@ -44,7 +44,7 @@ public class CDROutputStream
     static int instances = 0;
 
     /** for statistics */
-    private int copies = 0;
+    //    private int copies = 0;
 
     /** needed for alignment purposes */
     private int index = 0;
@@ -317,7 +317,7 @@ public class CDROutputStream
         deferredArrayQueue.clear ();
         deferred_writes = 0;
         released = true;
-        Debug.output(1,"Outbuf copies " + copies );
+        //        Debug.output(1,"Outbuf copies " + copies );
     }
 
     /**
@@ -377,7 +377,7 @@ public class CDROutputStream
             {
                 new_buf = bufMgr.getBuffer( pos+i+2 );
                 System.arraycopy( buffer, 0, new_buf, 0, pos );
-                copies++;
+                // copies++;
 
                 bufMgr.returnBuffer( buffer );
             }
