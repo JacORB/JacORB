@@ -6,7 +6,7 @@
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
+   <target name="init" depends="check-jsse,check-iaik">
 	<property name="name" value="ssl"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
@@ -14,20 +14,25 @@
 	<property name="include" value="${dirs.base}/idl"/>
 	<property name="idlflags" value="-I${include}/omg -ir
                   -d ${dirs.base}/demo/${name}/generated"/>
-
-        <available classname="iaik.x509.X509Certificate" 
-                   property="iaik.present" />       
+   </target>
+   
+   <target name="check-jsse" unless="ssl.present">
+        <available classname="com.sun.net.ssl.SSLContext" property="ssl.present" />
+   </target>
+   
+   <target name="check-iaik" unless="ssl.present">
+        <available classname="iaik.x509.X509Certificate" property="ssl.present" />       
    </target>
 
    <target name="all" depends="compile,error" />
 
-   <target name="error" unless="iaik.present">
-        <echo message="IAIK JCE classes are not present!"/> 
-        <echo message="Please add the corresponding jar file to your classpath" />
+   <target name="error" unless="ssl.present">
+        <echo message="IAIK JCE or Sun JSSE classes are not present!"/> 
+        <echo message="Please add the corresponding IAIK jar file to your classpath or use Java SDK 1.4+" />
    </target>
 
 
-   <target name="compile" depends="idl" if="iaik.present">
+   <target name="compile" depends="idl" if="ssl.present">
 	<javac srcdir="${dirs.base}/demo/${name}/generated"
                destdir="${classdir}"
 	       includes="demo/${name}/**/*.java"
@@ -38,7 +43,7 @@
 	        />
    </target>
 
-   <target name="idl" depends="init" if="iaik.present">
+   <target name="idl" depends="init" if="ssl.present">
         <java classname="org.jacorb.idl.parser" 
               fork="yes" 
               classpath="${lib}/idl.jar;${java.class.path}">
@@ -54,8 +59,4 @@
    </target>
 
 </project>
-
-
-
-
 
