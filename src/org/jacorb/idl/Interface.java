@@ -909,7 +909,7 @@ class Interface
         PrintWriter ps = openOutput( "_" + name + "LocalBase" );
         printPackage( ps );
         ps.println( "\n/**" );
-        ps.println( " * Abstract base class for implenentations of local interface " + name );
+        ps.println( " * Abstract base class for implementations of local interface " + name );
         ps.println( " * @author JacORB IDL compiler." );
         ps.println( " */" );
 
