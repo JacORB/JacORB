@@ -41,6 +41,14 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+2.0 beta 3
+==========
+
+      - loads of bug fixes
+      - more ETF work
+      - remorphing of logging, now using Apache Avalon interfaces to go
+        to Logkit
+
 2.0 beta 2
 ==========
 
