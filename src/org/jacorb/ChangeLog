@@ -1,3 +1,2420 @@
+2003-04-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* imr/ImplementationRepositoryImpl.java (checkServerActive): Make
+	a profile and pass it to the connection manager, rather than host
+	and port.
+
+	* orb/Delegate.java (bind): Pass profile to ConnectionManager,
+	rather than host and port.
+
+	* orb/ORB.java (_get_object): Compare effective profiles rather
+	than addresses.
+
+	* orb/TaggedComponentList.java (getComponents): Improve comment.
+
+	* orb/InternetIOPProfile.java (InternetIOPProfile): New
+	constructor for address and object_key.
+	(equals): Implemented.
+	(getAlternateAddresses, getSSL): New methods.
+	(hashCode): Implemented.
+	(hash): Implement in terms of hashCode.
+	(is_match): Compare primary and alternate addresses.
+
+	* orb/IIOPAddress.java (hashCode): Implemented.
+	(rawIP): New method, not yet used.
+	(toCDR): New method.
+
+	* orb/connection/TransportManager.java (createClientTransport):
+	Take an InternetIOPProfile, rather than a host and a port, as
+	argument.
+
+	* orb/connection/BiDirConnectionServerInterceptor.java 
+	(receive_request_service_contexts): Drop second arg in call to 
+	ClientConnectionManager.addConnection().
+
+	* orb/connection/ClientConnectionManager.java (getConnection):
+	Take an InternetIOPProfile, rather than just an address.
+	(connections): Use a Map rather than a Hashtable. Use profiles as
+	keys rather than addresses.
+	(addConnection): Drop second arg info.
+	(releaseConnection, removeConnection, shutdown): Adapted to new
+	connections table.
+
+	* orb/connection/ClientConnection.java (get_server_profile): New
+	method.
+
+	* orb/connection/Client_TCP_IP_Transport.java (target_host,
+	target_port): Replaced with target_profile.
+	(use_ssl, sslPort): New attributes.
+	(createSocket): New method that tries all alternative addresses in
+	turn.
+	(connect): Use it.
+	(get_server_profile): New method.
+
+2003-04-08  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/Any.java: Code tidy
+
+	* idl/parser.cup, idl/parser.java, idl/sym.java: Improve message
+	and mark deprecated for sloppy_names
+
+	* util/ObjectUtil.java: Change debug level
+
+	* poa/util/POAUtil.java: Add extractScopedPOANames
+
+2003-04-07  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/connection/MessageOutputStream.java,
+	orb/connection/RequestOutputStream.java,
+	orb/connection/ServiceContextTransportingOutputStream.java: Code
+	tidy (javadoc/remove commented out code)
+
+2003-04-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/TaggedComponentList.java (getComponentData): Use
+	InvocationTargetException.getTargetException(), rather than
+	getCause(), which is a JDK 1.4 addition.
+
+2003-04-04  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/ORBSingleton.java: Added property
+	jacorb.interop.strict_check_on_tc_creation to control whether the
+	method create_abstract_interface_tc performs a validity check on
+	the name parameter or not. Turning this check off circumvents a
+	bug in Sun's ValueHander, which occasionally passes an invalid
+	name (an empty string) to create_abstract_interface_tc.
+
+2003-04-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java: Correct
+	indentation.
+
+	* orb/InternetIOPProfile.java: Untabify.
+
+	* orb/Delegate.java: Correct indentation.
+
+	* naming/namemanager/ContextNode.java (update): Adapt to new
+	methods in ParsedIOR.
+
+	* orb/util/PrintIOR.java: Adapt to new methods in ParsedIOR.
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java: Untabify.
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java
+	(ClientRequestInfoImpl): Adapt to new methods in ParsedIOR, 
+	for setting effective_profile and effective_components.
+
+	* orb/connection/ClientConnection.java (setCodeSet): Adapt to new
+	methods of ParsedIOR.
+
+	* orb/Delegate.java: Untabify.
+
+	* orb/Delegate.java (bind, request): Adapt to new methods in
+	ParsedIOR.
+
+	* orb/ParsedIOR.java: Reorganized to use ETF profiles, and the
+	corresponding JacORB classes
+	(InternetIOPProfile, TaggedComponentList).  Lots of code removed.
+
+	* orb/IIOPAddress.java (IIOPAddress): Wrap sign of large port
+	numbers.
+	(read): New static method.
+
+	* orb/InternetIOPProfile.java, orb/TaggedComponentList.java:
+	Initial revision.
+
+2003-04-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/Interface.java (printLocalBase): Fix typo in generated
+	comment.
+
+2003-04-02  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java, orb/ORB.java,
+	orb/ParsedIOR.java: Allow mapObjectKey to work with IMR. Give it
+	more options for resolving target key. Correct parsing of
+	corbaname. (RT#754)
+
+2003-04-02  Reimo Tiedemann  <tie@xtradyne.com>
+
+	* poa/AOM.java: fixed synchronisation bug in _remove (a remove
+	call prevents other clients from processing requests)
+
+2003-04-02  Steve Osselton  <steve@prismtechnologies.com>
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java: Update from
+	alex_ranous@hp.com
+
+2003-04-01  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/JacIDL.java: Remove commented out code
+
+	* orb/ORB.java: Normalise imr retrieval (RT#594). Remove commented
+	out code.
+
+	* imr/ImRAccessImpl.java: Remove debug statement
+
+	* orb/ImRAccess.java: Add missing ;
+
+	* imr/ImRAccessImpl.java: static connect and tidy (originally from
+	create_poa nullpointer with imr failure RT#594)
+
+	* orb/ImRAccess.java: Remove connect (now static)
+
+	* imr/ImplementationRepositoryImpl.java: Allow list_servers to
+	check_object_liveness (RT#580)
+
+	* idl/AddExpr.java, idl/AliasTypeSpec.java, idl/ConstDecl.java,
+	idl/Literal.java, idl/Member.java, idl/MultExpr.java: Fixes for
+	long constants (Jac#260), dealias typedef (Jac#270)
+
+	* idl/lexer.java: Fixes for long constants (Jac#260), dealias
+	typedef (Jac#270), #if 0 processing (RT#627), -ve numbers
+
+	* idl/parser.java, idl/sym.java, idl/parser.cup: Fixes for scoped
+	recursive structs and unions (RT#457). System.exit removal for
+	calling from ant script (RT#367). LongLong + Negative numbers
+	fixes (Jac#260). i2jpackagefile flag (RT#414)
+
+	* idl/ConstExpr.java: Remove commented out code
+
+	* idl/ValueDecl.java, idl/ValueAbsDecl.java: Fixes for
+	Jac#249 (null pointer with some ValueType IDL), Jac#302 (empty and
+	forward declarations for ValueTypes), Jac#303 (stub interface
+	generation with ValueType parameters)
+
+	* idl/ScopeData.java: Fix for #pragma (Jac#201/RT#367)
+
+	* idl/Scope.java: Removed whitespace
+
+	* idl/IdlSymbol.java: Removed commented out code. Fix for
+	#pragma (Jac#201/RT#367)
+
+	* idl/BaseType.java: Fix for Jac#259
+
+	* idl/ConstrTypeSpec.java: Removed unused code & commented out code
+
+	* idl/UnionType.java: Public/Private
+
+	* idl/ElementSpec.java, idl/ScopedName.java: Fix for packages for
+	nested types (RT#459)
+
+	* orb/BufferManager.java, orb/CDRInputStream.java,
+	orb/CDROutputStream.java, orb/connection/MessageOutputStream.java:
+	Fix for buffer memory allocation. (Jac#142/RT#554)
+
+	* orb/connection/ServiceContextTransportingOutputStream.java: Fix
+	for alignment of long longs (interop with eORB) (RT#663). Fix for
+	buffer memory management. (RT#554/Jac#142)
+
+	* orb/connection/MessageReceptorPool.java: Costructor private
+
+	* orb/ApplicationExceptionHelper.java: Fix for calling method by
+	reflection
+
+	* util/Environment.java: Fix for unreadable characters in log
+	file (RT#532)
+
+	* poa/AOM.java, poa/POA.java, poa/POAMonitor.java,
+	poa/POAMonitorImpl.java, poa/POAMonitorLightImpl.java,
+	poa/RequestController.java, poa/RequestQueue.java,
+	poa/gui/poa/POAFrame.java, poa/util/LogWriter.java,
+	poa/util/POAUtil.java: Cleanup use of ByteArrayKey. Cleanup of
+	LogWriter printing & unreadable characters in logfile.
+	Jac#248/RT#424. RT#532
+
+	* poa/util/ByteArrayKey.java: Cache hash value
+
+	* proxy/ProxyClientForwardInterceptor.java: Fix for NullPtr in
+	ParsedIOR (RT#571)
+
+	* orb/ORB.java: Remove commented out code
+
+	* orb/Delegate.java: Fix for NullPtr in ParsedIOR & ImrAccessImpl
+	cleanup (RT#571,594)
+
+	* orb/ParsedIOR.java: Prevent NullPointer Exception (now always
+	construct ParsedIOR with ORB) (RT#571)
+
+	* orb/util/FixIOR.java, orb/util/PrintIOR.java: Fix for
+	NullPointer exception (RT#571)
+
+	* orb/ORBConstants.java: Added VPVID comment
+
+	* orb/BasicAdapter.java: Removed commented out code
+
+	* security/ssl/iaik/SSLServerSocketFactory.java,
+	security/ssl/iaik/SSLSocketFactory.java: Replace System.exit
+	calls (RT#526)
+
+	* util/Debug.java: Add comment
+
+	* ir/InterfaceDef.java: Fix for #332 NullPointerException
+
+	* naming/NameServer.java: Fix for #243 default key
+
+	* util/CapsuleThread.java, util/Propla.java,
+	util/ThreadSystemProperties.java, util/WeakHashtable.java: Remove
+	unused code
+
+	* orb/util/CorbaLoc.java: Fix to prevent Hex digit out of range
+	exception for certain bytes. (RT487)
+
+2003-03-31  Andre Spiegel  <spiegel@gnu.org>
+
+	* proxy/ProxyClientForwardInterceptor.java (redirectProxy):
+	Replace PIOR.getHost() with a call to the returned IIOPAddress
+	object.
+
+	* orb/IIOPAddress.java (equals): New method.
+
+	* orb/ORB.java (_getObject): Use PIOR.getIIOPAddress() rather than
+	getAddress() to compare addresses.
+
+	* orb/Delegate.java (bind): Use the new address format in
+	ParsedIOR.
+	(get_adport): Removed, was unused.
+
+	* orb/ParsedIOR.java (adport, getAdPost, getAddress, getHost,
+	getPort): Removed.
+	(iiopAddress, getIIOPAddress): New field and accessor to replace
+	the above.
+	(init): Handle the new way to store the address.
+
+	* orb/IIOPAddress.java: Initial revision.
+
+2003-03-31  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/JacIDL.java, idl/parser.cup, idl/parser.java, idl/sym.java:
+	Renamed the "-p pack" switch to -omg, without parameters, changed
+	the JacIDL ant task accordingly
+
+2003-03-29  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/CDRInputStream.java: - Removed superfluous checks for a
+	   zero-lenght array at the beginning of some read array
+	   methods. (The ones that remain are indeed needed to fix bug
+	   #327.)  - read_double_array changed to deal with chunking and
+	   alignment only once. It now calls the new auxiliary method
+	   _read_longlong.
+
+2003-03-25  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/util/PrintIOR.java:
+	(main) moved orb.shutdown() here from printIOR() (bug #331)
+
+	* orb/ORB.java:
+	(getRootPOA) changed exception handling for BasicAdapter
+	creation (bug #319)
+
+	* orb/BasicAdapter.java: changed exceptions to INITIALIZE in a
+	couple of places (bug #319)
+
+2003-03-22  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/CDRInputStream.java: - Fixed bug in handle_chunking().  -
+	   Buffer alignment is now performed before obtaining the start
+	   position of a value is start_offset.  - Added tests to ensure
+	   that reading a zero-lenght array does not cause buffer
+	   realignment.
+
+	* orb/CDROutputStream.java: Buffer alignment should be performed
+	before entering into the value map the starting position of a
+	value (or else the position entered into the map may not be the
+	actual starting position of the value).
+
+	* orb/ORBSingleton.java: Commented out call to checkTCName()
+	within create_abstract_interface_tc().  Reason: Sun's ValueHandler
+	calls create_abstract_interface_tc() passing an empty string as
+	the name parameter. checkTCName() then throws
+	`org.omg.CORBA.BAD_PARAM: Illegal blank IDL name'.
+
+2003-03-11  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/ServantDelegate.java, orb/factory/PortRangeFactory.java,
+	orb/factory/PortRangeServerSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java: Port range server socket
+	factory support added
+
+2003-03-04  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/IdlSymbol.java, idl/OpDecl.java, idl/ScopedName.java,
+	idl/parser.cup, idl/parser.java, idl/sym.java: adjusted a few
+	logging priorities
+
+	* idl/AddExpr.java, idl/AliasTypeSpec.java, idl/AndExpr.java,
+	idl/AnyType.java, idl/ArrayDeclarator.java,
+	idl/ArraySizeMismatchException.java, idl/ArrayTypeSpec.java,
+	idl/AttrDecl.java, idl/BaseType.java, idl/BooleanType.java,
+	idl/Case.java, idl/CharType.java, idl/ConstDecl.java,
+	idl/ConstExpr.java, idl/ConstType.java, idl/ConstrTypeSpec.java,
+	idl/Declaration.java, idl/Declarator.java, idl/Definition.java,
+	idl/Definitions.java, idl/DoubleType.java, idl/ElementSpec.java,
+	idl/EnumType.java, idl/Environment.java,
+	idl/ExceptionHolderTypeSpec.java, idl/FixedArraySize.java,
+	idl/FixedPointConstType.java, idl/FixedPointType.java,
+	idl/FloatPtType.java, idl/FloatType.java,
+	idl/GlobalInputStream.java, idl/IdlSymbol.java,
+	idl/IllegalRedefinition.java, idl/InitDecl.java,
+	idl/InitParamDecl.java, idl/IntType.java, idl/Interface.java,
+	idl/InterfaceBody.java, idl/JacIDL.java, idl/Literal.java,
+	idl/LongLongType.java, idl/LongType.java, idl/Member.java,
+	idl/MemberList.java, idl/Method.java, idl/Module.java,
+	idl/MultExpr.java, idl/NameAlreadyDefined.java,
+	idl/NameTable.java, idl/NativeType.java, idl/ObjectTypeSpec.java,
+	idl/OctetType.java, idl/OpDecl.java, idl/Operation.java,
+	idl/OrExpr.java, idl/ParamDecl.java, idl/ParseException.java,
+	idl/PosIntConst.java, idl/PositionInfo.java, idl/PrimaryExpr.java,
+	idl/RaisesExpr.java, idl/ReplyHandler.java,
+	idl/ReplyHandlerTypeSpec.java, idl/Scope.java, idl/ScopeData.java,
+	idl/ScopedName.java, idl/SequenceType.java, idl/ShiftExpr.java,
+	idl/ShortType.java, idl/SimpleDeclarator.java,
+	idl/SimpleTypeSpec.java, idl/Spec.java, idl/StateMember.java,
+	idl/StringType.java, idl/StructType.java, idl/SwitchBody.java,
+	idl/SwitchTypeSpec.java, idl/SymbolList.java,
+	idl/TemplateTypeSpec.java, idl/Truncatable.java, idl/Type.java,
+	idl/TypeCodeTypeSpec.java, idl/TypeDeclaration.java,
+	idl/TypeDeclarator.java, idl/TypeDef.java, idl/TypeMap.java,
+	idl/TypeSpec.java, idl/UnaryExpr.java, idl/UnionType.java,
+	idl/Value.java, idl/ValueAbsDecl.java, idl/ValueBody.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java,
+	idl/ValueInheritanceSpec.java, idl/VectorType.java,
+	idl/VoidTypeSpec.java, idl/XorExpr.java, idl/fixed_token.java,
+	idl/lexer.java, idl/parser.cup, idl/parser.java,
+	idl/str_token.java, idl/sym.java: changed logging interfaces, now
+	uses Apache Avalon's logkit
+
+2003-03-03  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/ArrayDeclarator.java, idl/ArrayTypeSpec.java, idl/Case.java,
+	idl/ConstDecl.java, idl/ConstExpr.java, idl/Environment.java,
+	idl/ParamDecl.java, idl/PosIntConst.java, idl/PrimaryExpr.java,
+	idl/ScopedName.java: *** empty log message ***
+
+2003-02-27  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (invoke_internal): Don't forget to add the
+	ReplyReceiver to pending_replies.
+
+2003-02-26  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/util/PrintIOR.java (printTaggedComponents):
+	Fix name of TAG_ALTERNATE_IIOP_ADDRESS.
+
+2003-02-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/RequestProcessor.java (process): Wait for request start time
+	*after* checking other timing constraints (conformance to JacORB
+	documentation).
+	(run): Send the reply before or after request processing,
+	depending on SyncScope.
+
+	* poa/RequestController.java (returnResult): Only return the
+	result, don't finish the request off.
+	(finish): New method, removes the request from the active request
+	table.
+
+	* orb/dsi/ServerRequest.java (syncScope): New method.
+
+	* orb/connection/Messages.java (responseExpected): Adapt to
+	SyncScope.
+
+	* orb/connection/GIOPConnection.java, orb/ReplyReceiver.java:
+	Remove superfluous import.
+
+	* orb/Delegate.java (invoke_oneway, passToTransport): New methods.
+	(invoke_internal): Use them.
+
+2003-02-21  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/Case.java, idl/ParamDecl.java, idl/parser.cup,
+	idl/parser.java, idl/sym.java, ir/AliasDef.java, ir/ArrayDef.java,
+	ir/AttributeDef.java, ir/ConstantDef.java, ir/Contained.java,
+	ir/Container.java, ir/ExceptionDef.java, ir/IRObject.java,
+	ir/InterfaceDef.java, ir/ModuleDef.java, ir/OperationDef.java,
+	ir/PrimitiveDef.java, ir/RepositoryID.java, ir/SequenceDef.java,
+	ir/StringDef.java, ir/StructDef.java, ir/UnionDef.java,
+	ir/WstringDef.java,
+	ir/gui/typesystem/remote/RemoteTypeSystem.java,
+	orb/CDRInputStream.java, orb/CDROutputStream.java,
+	orb/TypeCode.java, orb/dynany/DynAny.java,
+	orb/dynany/DynSequence.java, util/Assertion.java,
+	util/AssertionViolation.java, util/Debug.java: Removed myAssert,
+	Assertion.
+
+	* build.xml, imr/build.xml: Simplify/use common.xml
+
+	* idl/IdlSymbol.java: Change escape name to only prevent escaping
+	of org.omg.Messaging
+
+2003-02-21  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/dsi/ServerRequest.java: Untabified.
+
+2003-02-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (getSyncScope): New method.
+	(request): Use it to pass the SYNC_SCOPE to the
+	RequestOutputStream.
+
+	* orb/connection/RequestOutputStream.java (syncScope): New field
+	and accessor method.
+	(<init>): New argument syncScope; handle appropriately for GIOP
+	1.2.
+
+2003-01-13  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASTargetInitializer.java,
+	security/sas/SASTargetInterceptor.java: Moved
+	SecurityAttributeService to initializer
+
+2003-01-13  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* imr/ImplementationRepositoryImpl.java: adapted to changes in
+	orb/connection
+
+	* orb/connection/ClientConnection.java,
+	orb/connection/ClientGIOPConnection.java,
+	orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/CloseConnectionException.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/GIOPConnectionManager.java,
+	orb/connection/MessageReceptor.java,
+	orb/connection/ServerGIOPConnection.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/StreamClosedException.java,
+	orb/connection/TCP_IP_Transport.java,
+	orb/connection/Transport.java,
+	orb/connection/TransportListener.java: enhanced support for
+	CloseConnection messages
+
+2003-01-11  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/Literal.java, idl/ScopedName.java, idl/lexer.java, idl/parser.cup:
+	Fixes for bugs #304/306 and #231 (ScopdeName)
+
+2003-01-10  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/CDRInputStream.java:
+	   - CDRInputStream now handles chunking. Chunk boundaries may appear
+	     anywhere in the input stream, except within primitive types or
+	     arrays of primitive types, as mandated by the GIOP spec.
+	   - The methods read_value(), read_value(java.lang.Class clz), and
+	     read_value(java.io.Serializable value) now deal with IDLEntities
+	     marshaled as valueboxes.
+
+	* orb/CDROutputStream.java:
+	   - CDROutputStream now performs chunking of valuetypes whenever
+	     chunking is mandated by the GIOP spec.
+	   - The methods
+	         write_value(java.io.Serializable value)
+	     and
+	         write_value(java.io.Serializable value, java.lang.Class clz)
+	     now handle IDLEntities correctly. Passing an IDLEntity to one of
+	     these methods causes the IDLEntity to be marshaled as a valuebox.
+	     The valuebox has an "RMI:" repository id, in conformance to the
+	     Java to IDL mapping.
+
+	* util/ValueHandler.dummy, util/ValueHandler.real:
+	Added ValueHandler methods isCustomMarshaled and writeReplace.
+
+2003-01-10  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* imr/ImplementationRepositoryImpl.java: renamed ConnectionManager
+	to ClientConnectionManager
+
+2003-01-07  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/BasicAdapter.java, orb/ORB.java,
+	orb/connection/AbstractConnection.java,
+	orb/connection/BiDirConnectionServerInterceptor.java,
+	orb/connection/ClientConnection.java,
+	orb/connection/ClientConnectionManager.java,
+	orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/ConnectionManager.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/GIOPConnectionManager.java,
+	orb/connection/LFUSelectionStrategyImpl.java,
+	orb/connection/LRUSelectionStrategyImpl.java,
+	orb/connection/SelectionStrategy.java,
+	orb/connection/ServerGIOPConnection.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/TCP_IP_Transport.java,
+	orb/connection/Transport.java,
+	orb/connection/TransportManager.java: restructured for support of
+	CloseConnection messages
+
+	* orb/Delegate.java, orb/ReplyReceiver.java,
+	orb/connection/ReplyPlaceholder.java: removed "retries on
+	commfailure" feature
+
+2003-01-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/RequestProcessor.java (process): Check timing policies.
+
+	* orb/Delegate.java (ensureReplyStartTime): Removed.
+	(releaseReply): Use Time.waitFor(), rather than the above.
+
+	* orb/ReplyReceiver.java (DummyResponseHandler.createReply): Use
+	Time.waitFor(), rather than Delegate.ensureReplyStartTime().
+
+	* orb/dsi/ServerRequest.java (requestStartTime, requestEndTime,
+	replyEndTime): New attributes & getters.
+	(getTimingPolicies): New method, called from constructor.
+
+	* util/Time.java (toCDR): Fix buffer handling.
+	(fromCDR, waitFor): New methods.
+
+2003-01-07  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* idl/Interface.java: added unchecked_narrow
+
+2003-01-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/Time.java (toCDR): New method.
+
+	* orb/connection/ClientConnection.java: *** empty log message ***
+
+	* orb/connection/RequestOutputStream.java (createInvocationPolicies,
+	getTimingPolicyValues): New methods.
+	(<init>): Use them to create an INVOCATION_POLICIES service
+	context for propagating the timing policies.
+
+2003-01-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ReplyReceiver.java (roundtripTimeout): Rename to
+	replyEndTime.
+
+	* util/Time.java (corbaFuture): Return null if argument is
+	negative.
+	(earliest): New method.
+
+	* orb/Delegate.java (invoke_internal): Adapt to new constructor of
+	RequestOutputStream.
+	(request): Handle the interaction between relative and absolute
+	timeouts.
+
+	* orb/connection/RequestOutputStream.java (requestStartTime,
+	requestEndTime, replyEndTime): New attributes, set in constructor.
+	(roundtripTimeout): Renamed to replyEndTime, see above.
+
+2003-01-03  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* security/level2/CredentialsImpl.java,
+	security/level2/ReceivedCredentialsImpl.java: is_valid(): changed
+	package of parameter UtcTHolder from Security to
+	TimeBase (consequence of a change in the IDL compiler which
+	results in a different inwinding of typedef'd out parameters).
+
+	* idl/Interface.java, idl/InterfaceBody.java: syntactic clean up,
+	minor: moved two print statements from Interface.java to
+	InterfaceBody.java
+
+	* idl/AliasTypeSpec.java: fixed bug #309 in holderName(),
+	introduced new method doUnwind() in the course.
+
+2002-12-20  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* Updated Copyright year to 2003
+
+	* orb/policies/MaxHopsPolicy.java,
+	orb/policies/QueueOrderPolicy.java,
+	orb/policies/RebindPolicy.java,
+	orb/policies/RelativeRequestTimeoutPolicy.java,
+	orb/policies/RelativeRoundtripTimeoutPolicy.java,
+	orb/policies/ReplyEndTimePolicy.java,
+	orb/policies/ReplyPriorityPolicy.java,
+	orb/policies/ReplyStartTimePolicy.java,
+	orb/policies/RequestEndTimePolicy.java,
+	orb/policies/RequestPriorityPolicy.java,
+	orb/policies/RequestStartTimePolicy.java,
+	orb/policies/RoutingPolicy.java,
+	orb/policies/SyncScopePolicy.java: added LGPL copyright header
+
+2002-12-12  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/CSSInitializer.java,
+	security/sas/CSSInvocationInterceptor.java,
+	security/sas/NT_GSSUPContextSpi.java,
+	security/sas/NT_GSSUPMechFactory.java,
+	security/sas/NT_GSSUPProvider.java,
+	security/sas/TSSInitializer.java,
+	security/sas/TSSInvocationInterceptor.java,
+	security/sas/GSSUPProviderInitializer.java,
+	security/sas/GssUpContextValidator.java,
+	security/sas/ISASContextValidator.java,
+	security/sas/JsseContextValidator.java,
+	security/sas/SASClientInitializer.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASTargetInterceptor.java: New SAS Interceptors
+
+2002-12-11  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/CSSInvocationInterceptor.java,
+	security/sas/ISASContextValidator.java,
+	security/sas/JsseContextValidator.java,
+	security/sas/SASClientInitializer.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASTargetInitializer.java,
+	security/sas/SASTargetInterceptor.java: New SAS Interceptors
+
+	* security/level2/SunJssePrincipalAuthenticatorImpl.java:
+	Authenticate on a Sun JSSE SSL socket
+
+	* orb/standardInterceptors/SASComponentInterceptor.java: support
+	no mechanism
+
+	* orb/connection/GIOPConnection.java: Debug code
+
+	* orb/standardInterceptors/SASComponentInterceptor.java: Fixed the
+	setting of the use_stateful flag
+
+2002-12-11  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/ReplyPlaceholder.java: added a default constructor
+
+2002-12-05  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/Server_TCP_IP_Transport.java: removed
+	"shudown[In|Out]put" calls - they seem to be unsafe
+
+	* orb/Delegate.java, orb/ReplyReceiver.java,
+	orb/connection/ReplyPlaceholder.java: added "remarshal on
+	COMM_FAILURE" feature
+
+2002-12-02  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/ConnectionManager.java,
+	orb/connection/TransportManager.java: re-added ssl support (was
+	lost when adding TransportManager)
+
+	* orb/connection/Client_TCP_IP_Transport.java: added some more
+	debug info
+
+2002-11-27  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/LFUSelectionStrategyImpl.java: minor performance
+	improvement
+
+	* orb/connection/SelectionStrategy.java,
+	orb/connection/TransportManager.java,
+	orb/connection/StatisticsProvider.java: added some comments
+
+	* orb/connection/TCP_IP_Transport.java: restructured is_readin
+	usage
+
+	* orb/connection/TransportManager.java: restructured
+	synchronization
+
+	* imr/ImplementationRepositoryImpl.java: adapted to new transport
+	layer interfaces
+
+2002-11-26  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/ConnectionManager.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/LFUSelectionStrategyImpl.java,
+	orb/connection/LFUStatisticsProviderImpl.java,
+	orb/connection/LRUSelectionStrategyImpl.java,
+	orb/connection/LRUStatisticsProviderImpl.java,
+	orb/connection/SelectionStrategy.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/StatisticsProvider.java,
+	orb/connection/TCP_IP_Transport.java,
+	orb/connection/Transport.java,
+	orb/connection/TransportManager.java, orb/BasicAdapter.java,
+	orb/ORB.java, orb/connection/Client_TCP_IP_Transport.java: various
+	modifications for transport management
+
+	* util/Environment.java: added methods getObjectProperty and
+	getIntPropertyWithDefault
+
+	* orb/ParsedIOR.java:
+	(init) check for sas object needed check for ssl object as well
+
+2002-11-24  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/lexer.java, idl/parser.cup, idl/parser.java, idl/sym.java:
+	Fix for bug #293. int not being treated as normal reserved word
+
+	* idl/lexer.java: notifyAll added to list of reserved words
+
+2002-11-24  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/Version.java: Set version to 1.4.50 (CVS).
+
+2002-11-22  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/OpDecl.java (print_sendc_Method): Convert parameters to mode
+	'in'.
+
+	* idl/ParamDecl.java (asIn): New method.
+
+2002-11-21  Andre Spiegel  <spiegel@gnu.org>
+
+	*
+	orb/portableInterceptor/ClientRequestInfoImpl.java (get_request_policy):
+	Use delegate.get_policy() rather than
+	delegate.get_policy_no_interceptors().  The latter is now removed,
+	since it would not have avoided to call interceptors anyway.
+
+	* util/Time.java: Initial revision.
+
+	* orb/policies/RelativeRoundtripTimeoutPolicy.java
+	(RelativeRoundtripTimeoutPolicy): With an Any parameter, make sure
+	to extract a ulonglong.
+
+	* orb/policies/RelativeRequestTimeoutPolicy.java 
+	(RelativeRequestTimeoutPolicy):
+	With an Any parameter, make sure to extract a ulonglong.
+
+	* orb/connection/RequestOutputStream.java (roundtripTimeout): New
+	instance var.  Set in constructor, provide accessor method.
+
+	* orb/connection/ReplyPlaceholder.java (getInputStream): Throw
+	org.omg.CORBA.TIMEOUT rather than IMP_LIMIT for a timeout.
+
+	* orb/ORB.java (hasPolicyFactoryForType): Clarify comment.
+
+	* orb/ExceptionHolderImpl.java (ExceptionHolderImpl): New
+	constructor for passing a SystemException directly.
+
+	* orb/ReplyReceiver.java (Timer): New inner class.
+	(DummyResponseHandler): Check for ReplyStartTime in createReply().
+	(roundtripTimeout, timer): New instance vars, set in constructor.
+	(replyReceived): If a timer is running, stop it.
+	(performCallback): Create DummyResponseHandler on the fly.
+
+	* orb/Delegate.java (get_policy): Check for client policies before
+	asking the server.
+	(get_policy_no_intercept): Removed, this was no longer needed.
+	(ensureReplyStartTime, get_client_policy,
+	getRelativeRequestTimeout, getRelativeRoundtripTimeout,
+	getReplyEndTime, getReplyStartTime, getRequestEndTime,
+	getRequestStartTime, replyDone): New methods.
+	(set_policy_override): Don't check for factories, we don't need
+	them for QoS policies.
+	(request): Check end times and compute absolute timeouts.
+	(releaseReply): Ensure that the ReplyStartTime has been reached.
+	(invoke_internal): Pass roundtrip time to the ReplyReceiver.
+
+2002-11-17  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* ir/RepositoryID.java: Fixed a bug in method className():
+
+	- lastIndexOf(':') cannot be used to extract the class name from an
+	  RMI repository id, because the RMI repository id may have an optional
+	  serialization version UID string after the hash code string (e.g:
+	  "RMI:java.util.Hashtable:C03324C0EA357270:13BB0F25214AE4B8")
+
+2002-11-16  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/OpDecl.java, idl/Value.java, idl/IdlSymbol.java: minor
+	cosmetics
+
+	* idl/ValueDecl.java: *** empty log message ***
+
+2002-11-15  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ExceptionHolderImpl.java (exceptionFromHelper): Use
+	RepositoryID.className().
+
+	* orb/ApplicationExceptionHelper.java (insert): Use
+	RepositoryID.className().
+
+	* util/ObjectUtil.java (reposIdToClassName): Removed.  This
+	algorithm is now part of RepositoryID.className().
+
+	* ir/RepositoryID.java (className): Rewritten to handle reversed
+	prefixes.  Add a second variant that takes a suffix to append to
+	the class name.
+	(reversePrefix): New method.
+
+2002-11-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ORB.java (create_policy): Handle all policies from the
+	messaging spec.
+
+	* orb/policies/MaxHopsPolicy.java,
+	orb/policies/QueueOrderPolicy.java,
+	orb/policies/RebindPolicy.java,
+	orb/policies/RelativeRequestTimeoutPolicy.java,
+	orb/policies/RelativeRoundtripTimeoutPolicy.java,
+	orb/policies/ReplyEndTimePolicy.java,
+	orb/policies/ReplyPriorityPolicy.java,
+	orb/policies/ReplyStartTimePolicy.java,
+	orb/policies/RequestEndTimePolicy.java,
+	orb/policies/RequestPriorityPolicy.java,
+	orb/policies/RequestStartTimePolicy.java,
+	orb/policies/RoutingPolicy.java,
+	orb/policies/SyncScopePolicy.java: Initial revision.
+
+2002-11-13  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/ClientConnection.java,
+	orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/ConnectionListener.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/ServerRequestListener.java,
+	orb/connection/TCP_IP_Transport.java,
+	orb/connection/TimeOutException.java: some more updates/fixes for
+	idle timeouts
+
+2002-11-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* ir/RepositoryID.java (className): Swap "jacorb.org" if needed.
+
+2002-11-12  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/ApplicationExceptionHelper.java: Fix for bug #287
+
+	* util/ObjectUtil.java: New reposIdToClassName operation added
+
+2002-11-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ReplyReceiver.java (performCallback): Use the ReplyHandler's
+	delegate, not that of the calling stub.
+
+2002-11-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/JacIDL.java (_ami_callback, setAmi_callback): New field and
+	accessor method.
+	(execute): Pass it to the compiler.
+
+2002-11-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDROutputStream.java (write_char): When the char is out of
+	range, throw DATA_CONVERSION rather than MARSHAL.  Fix for bug
+	#290.
+
+2002-11-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ExceptionHolderImpl.java: Fix typo in imports.
+
+2002-11-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/IdlSymbol.java (escapeName): Don't escape org.omg names.
+
+	* orb/Delegate.java (pending_replies): Use a HashSet instead of a
+	Hashtable.
+	(doNotCheckExceptions): New accessor method.
+	(bind): Use a LocateReplyReceiver instead of a ReplyPlaceholder.
+	(rebind): Made it public.  Add new variant for
+	org.omg.CORBA.Object.
+	(invoke): Rename the original method to invoke_internal and
+	rewrite, adding callbacks.  Add two new invoke() methods that call
+	it.
+	(try_rebind): New method.
+	(get_pending_replies, lockBarrier, waitOnBarrier, openBarrier):
+	New methods.
+
+	* imr/ImplementationRepositoryImpl.java (checkServerActive): Use a
+	LocateReplyReceiver instead of a ReplyPlaceholder.
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java: New
+	constructor that takes all the data in one go.
+
+	* orb/connection/ReplyPlaceholder.java: Now an abstract class.
+	Made various things protected.
+
+	* orb/connection/ReplyInputStream.java (body_start): New field,
+	set in constructor.
+	(checkExceptions): Removed.
+	(getStatus, getException): New methods.
+
+	* orb/ReplyReceiver.java: Initial revision.
+
+	* orb/ORB.java (_getObject): Made public.
+
+	* orb/LocateReplyReceiver.java, orb/ExceptionHolderImpl.java,
+	orb/ClientInterceptorHandler.java: Initial revision.
+
+	* orb/CDRInputStream.java (orb): Initialize with a real ORB, not
+	the Singleton.
+	(read_untyped_value): Use the above method to get the orb, not
+	just the field.
+
+	* idl/InterfaceBody.java (addDefinition): New method.  A few
+	simplifications.
+
+	* idl/Interface.java (replyHandler): New field.
+	(parse): Generate a ReplyHandler if compiler option is set.
+	Output mechanism restructured.
+
+	* idl/parser.java, idl/sym.java: Merge AMI changes.
+
+	* idl/OpDecl.java (NO_ATTRIBUTE, ONEWAY): New symbolic constants.
+	Update usage.
+	(OpDecl): New constructors for in-memory usage.
+	(print_sendc_method): New method.
+
+	* idl/parser.cup (generate_ami_callback, generate_ami_polling):
+	New public fields, set by command line options.
+	(op_attribute, param_attribute): Use new symbolic constants.
+
+	* idl/ReplyHandlerTypeSpec.java, idl/ReplyHandler.java: Initial
+	revision.
+
+	* idl/ParamDecl.java (MODE_IN, MODE_INOUT, MODE_OUT): New
+	constants.  Update usage.
+	(ParamDecl): Two new constructors for in-memory use.
+
+	* idl/Operation.java (print_sendc_method): New method.
+
+	* idl/Method.java (print_sendc_method): New method.
+	(printMethod): Add linefeed.
+
+	* idl/ExceptionHolderTypeSpec.java: Initial revision.
+
+	* idl/Definition.java: Add new constructor with Declaration arg.
+
+	* orb/connection/ReplyInputStream.java,
+	orb/ExceptionHolderImpl.java, orb/ReplyReceiver.java,
+	orb/LocateReplyReceiver.java, idl/ExceptionHolderTypeSpec.java:
+	Comment changes.
+
+2002-10-31  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/ReplyInputStream.java (body_start): New field,
+	set in constructor.
+	(getBody): New method.
+
+	* orb/ReplyReceiver.java (performCallback): Handle both
+	exceptional and non-exceptional replies.
+
+	* orb/ExceptionHolderImpl.java: First working implementation.
+
+	* orb/CDRInputStream.java (orb): Initialize with a real ORB, not
+	the Singleton.
+	(read_untyped_value): Use the above method to get the orb, not
+	just the field.
+
+2002-10-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/ReplyInputStream.java (checkExceptions): Removed.
+	(getStatus): New method.
+
+	* orb/ReplyReceiver.java (getReply): Rewritten to analyze reply
+	status, rather than intercepting exceptions.
+	(doRebind, getApplicationException): New methods.
+	(intercept_exception, intercept_location_forward): Removed.
+
+2002-10-28  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/TSSInitializer.java,
+	security/sas/TSSInvocationInterceptor.java,
+	orb/connection/GIOPConnection.java: Cubbyholes
+
+2002-10-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ReplyReceiver.java (replyReceived, getReply): Move exception
+	handling from the former to the latter.
+
+2002-10-27  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ExceptionHolderImpl.java: Initial revision.
+
+	* orb/ExceptionHolderImpl.java: New file.
+
+	* idl/ReplyHandler.java (createOperationsFor): Uncomment exception
+	methods.
+
+	* idl/ExceptionHolderTypeSpec.java (printReadExpression,
+	printWriteStatement): Use proper code for a valuetype.
+	(getTypeCodeExpression): Return the correct expression.
+	(id): Overridden to return the correct value without much fuss.
+
+2002-10-26  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/IdlSymbol.java (escapeName): Don't escape org.omg names.
+
+2002-10-25  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/TypeMap.java, idl/NameTable.java (init): Don't make the
+	ReplyHandler definition here.
+
+	* idl/ReplyHandler.java (parse): Make dummy definitions for
+	org.omg.Messaging.ReplyHandler on demand.
+
+	* idl/Interface.java (printLocalBase): Fix file name.
+
+	* imr/ImplementationRepositoryImpl.java (checkServerActive): Use a
+	LocateReplyReceiver instead of a ReplyPlaceholder.
+
+	* orb/LocateReplyReceiver.java: Initial revision.
+
+	* orb/LocateReplyReceiver.java: New file.
+
+	* orb/ReplyReceiver.java: Moved here from connection.
+
+	* orb/ReplyReceiver.java: New file.
+
+	* orb/connection/ReplyReceiver.java: Removed.
+
+	* orb/connection/ReplyPlaceholder.java: Now an abstract class.
+	(getInputStream): Now protected: it should only be used by
+	subclasses.
+
+	* orb/Delegate.java (bind): Use a LocateReplyReceiver instead of a
+	ReplyPlaceholder.
+	(invoke_internal): Use ReplyReceiver.getReply().
+
+2002-10-23  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* imr/ImplementationRepositoryImpl.java: adapted to new interface
+	of GIOPConnection
+
+2002-10-22  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/InterfaceBody.java (printStubMethods): If we're in callback
+	mode, generate sendc methods as well.
+
+	* idl/Method.java, idl/OpDecl.java,
+	idl/Operation.java (print_sendc_Method): New method.
+
+	* idl/ReplyHandler.java: Fix naming. Comment out exception methods
+	for now.  Generate stub and helper.
+
+	* orb/Delegate.java (invoke_internal): New parameter async.
+	(invoke): Use it.
+
+	* orb/connection/ReplyReceiver.java (performCallback): Do it on
+	the servant.
+	(replyReceived): Synchronize properly.
+
+2002-10-21  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (invoke_internal): Pass operation to
+	constructor of ReplyReceiver.
+
+	* orb/connection/ReplyReceiver.java (operation): New field. Set in
+	constructor.
+	(DummyResponseHandler): New inner class and static field.
+	(performCallback): New method.
+	(replyReceived): Use it.
+	(getInputStream): Overridden to throw a RuntimeException.
+
+2002-10-21  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java: removed
+	unneccessary import statements
+
+2002-10-21  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java (invoke_internal): Replaced with new
+	implementation; remove old implementation.
+
+2002-10-21  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/BasicAdapter.java, orb/Delegate.java,
+	orb/connection/ClientConnection.java,
+	orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/NoBiDirClientRequestListener.java,
+	orb/connection/ServerRequestListener.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/TCP_IP_Transport.java,
+	orb/connection/Transport.java, orb/dsi/ServerRequest.java: added
+	support for timing out connections only if there are no pending
+	messages
+
+2002-10-20  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/ReplyReceiver.java: New file.
+
+	* orb/ClientInterceptorHandler.java (handle_receive_exception,
+	handle_receive_reply,handle_location_forward): New methods.
+
+	* orb/Delegate.java (invoke_internal): Use original
+	ReplyPlaceholder again.
+	(invoke_new): Use ReplyReceiver.
+	(doNotCheckExceptions, lockBarrier, waitOnBarrier, openBarrier,
+	get_pending_replies, rebind (Object)): New methods.
+
+	* orb/connection/ReplyPlaceholder.java: Made fields protected to
+	allow subclassing. Removed ReplyHandler; this will be done in the
+	subclass.
+
+2002-10-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ClientInterceptorHandler.java: Initial revision.
+
+	* orb/ClientInterceptorHandler.java: New file.
+
+	* orb/Delegate.java (pending_replies): Use a Set instead of a
+	Hashtable.
+	(invoke_internal): Reflect this.
+	(invoke_new): Rewrite of invoke_internal, not quite done yet.
+	(rebind): Public rather than private (can be called from
+	ClientInterceptorHandler).
+	(try_rebind): New method.
+
+2002-10-17  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GSSUPNameSpi.java,
+	security/sas/TSSInvocationInterceptor.java: enforce SSL
+
+	* orb/ParsedIOR.java: Parse SAS before SSL. Use SAS to determine
+	SSL.
+
+	* orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: Fixes to
+	SASComponentInterceptor
+
+2002-10-17  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java: Add new
+	constructor that does the initialization work itself.
+
+	* orb/connection/ReplyPlaceholder.java (replyHandler): New field.
+	Add new constructor that takes a ReplyHandler argument.
+
+	* orb/ORB.java (_getObject): Make it public, since it is called
+	from portableInterceptors as well.
+
+	* orb/Delegate.java (invoke): Replace with two overloaded methods,
+	one for the synchronous case and one for the asynchronous case.
+	(invoke_internal): This is where the actual implementation is.
+
+2002-10-16  Steve Osselton  <steve@prismtechnologies.com>
+
+	* util/Environment.java: Fix for processing of maxManagedBufSize
+	property
+
+2002-10-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java,
+	orb/ORBSingleton.java, orb/TypeCode.java: Fix for 266
+
+	* orb/ParsedIOR.java: Fix for #277
+
+	* orb/ORB.java: Fix bug 265
+
+2002-10-15  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/UnionType.java: Union code generation fix for bugs 242, 275
+
+	* util/Environment.java: JDK1.2 fix refit. Ooops
+
+2002-10-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* build.xml, collection/build.xml, concurrency/build.xml,
+	events/build.xml, idl/build.xml, ir/build.xml, naming/build.xml,
+	orb/build.xml, orb/dns/build.xml,
+	orb/portableInterceptor/build.xml,
+	orb/standardInterceptors/build.xml, poa/build.xml,
+	security/build.xml, security/sas/build.xml,
+	security/ssl/build.xml, security/ssl/iaik/build.xml,
+	security/ssl/sun_jsse/build.xml, trading/build.xml,
+	trading/client/build.xml, trading/db/build.xml,
+	transaction/build.xml, util/build.xml, util/tracing/build.xml: Fix
+	#274
+
+2002-10-15  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java: Fix for bug #276. Incorrect traget field set
+	in ClientRequestInfo
+
+	* orb/dns/DNSLookup.java: Enhancement #269. DNS support
+	configuration property added
+
+2002-10-14  Steve Osselton  <steve@prismtechnologies.com>
+
+	* util/Debug.java, util/Environment.java: Enhancement #268. More
+	logging configuration options
+
+	* orb/CDROutputStream.java: Environment usage optimisation
+
+2002-10-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/Environment.java: Add //#ifjdk blocks.
+	(copyProps): New method, for jdk 1.1 compatibility.  Use it
+	instead of Properties.addAll().
+
+	* orb/portableInterceptor/InterceptorManager.java,
+	orb/ParsedIOR.java, orb/ORB.java, orb/CDROutputStream.java,
+	orb/CDRInputStream.java, naming/NameServer.java,
+	ir/TypeCodeUtil.java, ir/RepositoryImpl.java,
+	ir/RepositoryID.java, ir/IRServer.java: Add //#ifjdk blocks.
+
+	* idl/ValueDecl.java (getTypeCodeExpression,
+	getValueMemberExpression): For compatibility reasons, don't use
+	symbolic constants.
+
+2002-10-09  Steve Osselton  <steve@prismtechnologies.com>
+
+	* proxy/ProxyServerForwardInterceptor.java, util/Environment.java:
+	Fix for inconsistent ProxyServer URL property
+
+2002-10-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ApplicationExceptionHelper.java (insert): Don't use
+	StringBuffer.delete().
+
+	* concurrency/LockSetFactoryImpl.java,
+	concurrency/TransactionCoordinator.java,
+	concurrency/TransactionalLockSetImpl.java, ir/ExceptionDef.java,
+	ir/InterfaceDef.java, ir/StructDef.java, ir/TypeCodeUtil.java,
+	ir/UnionDef.java, ir/gui/typesystem/TypeSystem.java,
+	ir/gui/typesystem/remote/IRInterface.java,
+	ir/gui/typesystem/remote/IRModule.java,
+	ir/gui/typesystem/remote/IRRepository.java,
+	ir/gui/typesystem/remote/IRTypedef.java,
+	ir/gui/typesystem/remote/IRValue.java,
+	ir/gui/typesystem/remote/RemoteTypeSystem.java,
+	naming/ContextLister.java, naming/namemanager/ContextNode.java,
+	naming/namemanager/NSTable.java,
+	naming/namemanager/NSTableModel.java, orb/NVList.java,
+	orb/dii/ExceptionList.java, security/util/KeyStoreUtil.java,
+	transaction/Timer.java, util/CAD.java, util/Environment.java,
+	util/WeakHashtable.java: Remove all qualified references to
+	collection classes.
+
+	* collection/CollectionImpl.java,
+	collection/KeySortedCollectionImpl.java,
+	collection/OrderedIteratorImpl.java,
+	collection/PositionalIteratorImpl.java,
+	collection/SortedRelationImpl.java, collection/util/DynArray.java:
+	Intentional white space change.
+
+	* idl/ConstrTypeSpec.java, idl/JacIDL.java, idl/TypeMap.java,
+	idl/UnionType.java, idl/parser.cup, idl/parser.java: Remove all
+	qualified uses of collection classes.
+
+2002-10-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* Import collections as java.util.*, so that we can change it
+	automatically.
+
+	* idl/InterfaceBody.java (printOperationsHash): Use
+	com.sun.java.util.collections.Hashtable under jdk 1.1.
+
+	* idl/Interface.java (printIRHelper): Use
+	com.sun.java.util.collections.Hashtable under jdk 1.1.
+
+2002-10-01  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ExceptionHolderTypeSpec.java: Initial revision.
+
+	* idl/ExceptionHolderTypeSpec.java: New file.
+
+	* idl/ReplyHandler.java (createOperationsFor): Completed and
+	simplified.
+	(parameterList, excepParameterList): New methods.
+	(id): Overridden to bypass the usual mechanism for creating a
+	RepositoryId.
+	(print): Print anything that seems to make sense.
+
+	* idl/InterfaceBody.java (addDefinition): New method.
+	(getMethods): Rewritten to handle ReplyHandlers properly.
+
+	* idl/Interface.java (get_ids): Rewritten to handle ReplyHandlers
+	properly.
+
+2002-09-27  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* build.xml, events/build.xml, util/build.xml: Clean up
+	compilation so src/generated/CosEventChannelAdmin,
+	src/generated/CosEventComm doesn't get built.
+
+	* orb/build.xml,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/build.xml: Prevent SASInterceptor being
+	built under 1.3
+
+2002-09-26  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ReplyHandlerTypeSpec.java: Initial revision.
+
+	* idl/ReplyHandlerTypeSpec.java: New file.
+
+	* idl/ReplyHandler.java (createInheritanceSpec): Slightly reworked.
+	(createOperations, createOperationsFor): New methods.
+	(parse): Overridden to only parse the body.
+	(print): Print Operations interface.
+
+	* idl/TypeMap.java (init): Add entry for
+	org.omg.Messaging.ReplyHandler.
+
+	* idl/ParamDecl.java (MODE_IN, MODE_OUT, MODE_INOUT): New constant
+	values for paramAttribute.  Update all uses.
+	(ParamDecl): Two new constructors for creating ParamDecls within
+	the parser.
+
+	* idl/OpDecl.java (NO_ATTRIBUTE, ONEWAY): New constants.  Update
+	all uses.
+	(OpDecl): Two new constructors for creating OpDecls within the
+	parser.
+
+	* idl/NameTable.java (init): Add entry for
+	org.omg.Messaging.ReplyHandler.
+
+	* idl/Definition.java: New constructor that takes a declaration
+	argument.
+
+	* idl/parser.cup (op_attribute, param_attribute): Use symbolic
+	names for attribute values.
+
+	* idl/Interface.java (replyHandler): New attribute.
+
+2002-09-24  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/CDROutputStream.java: Fix for bug #267. Repeated enumerated
+	TypeCode's in type marshalled incorrectly
+
+2002-09-23  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/CSSInvocationInterceptor.java,
+	security/sas/TSSInvocationInterceptor.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: renamed
+	properties
+
+	* security/sas/CSSInvocationInterceptor.java,
+	security/sas/TSSInvocationInterceptor.java: NO_PERMISSION
+
+	* orb/MinorCodes.java, orb/ORBConstants.java: VMCID
+
+2002-09-23  Steve Osselton  <steve@prismtechnologies.com>
+
+	* util/Environment.java: EHR #254. Support added for appending to
+	log files
+
+2002-09-20  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/CSSInvocationInterceptor.java, orb/MinorCodes.java:
+	Standard exceptions minor codes
+
+	* orb/connection/GIOPConnection.java,
+	security/sas/CSSInvocationInterceptor.java,
+	security/sas/TSSInitializer.java,
+	security/sas/TSSInvocationInterceptor.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: ATLAS server
+
+2002-09-19  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: 256/257
+
+	* util/Environment.java: Fix for 257
+
+	* orb/CDROutputStream.java: Fix for
+	257 ('jacorb.interop.indirection_encoding_disable')
+
+	* poa/POA.java, poa/POAManager.java: Fix for 234 (Implementation
+	Repository incorrectly sets a server to inactive)
+
+	* poa/POAManager.java: Whitespace tab cleanup
+
+2002-09-19  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/ORB.java:
+	(mapObjectKey) small performance fix: using local Hashtable to
+	check if mapping exist rather that calling Environment
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: fix for bug #
+	264: wstring marshalling would read/write a BOM even if the
+	strings length is 0
+
+2002-09-17  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ReplyHandler.java: New file.
+
+	* idl/Interface.java: Make it subclassable.
+
+	* collection/CollectionFactoriesImpl.java: Removed
+
+	* idl/parser.cup, idl/parser.java,
+	idl/sym.java (generate_ami_callback, generate_ami_polling): New
+	flags, settable via command line options.
+
+	* idl/Interface.java: Restructure printing methods.
+
+2002-09-16  Steve Osselton  <steve@prismtechnologies.com>
+
+	* poa/POA.java: Fix for bug #258. WrongAdapter exception not being
+	thrown for local objects
+
+2002-09-13  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* orb/ParsedIOR.java, security/sas/CSSInvocationInterceptor.java,
+	security/sas/TSSInitializer.java,
+	security/sas/TSSInvocationInterceptor.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: Support
+	ATLAS
+
+2002-09-12  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/CSSInvocationInterceptor.java,
+	security/sas/TSSInvocationInterceptor.java,
+	orb/connection/ClientConnection.java,
+	orb/connection/GIOPConnection.java: Stateful SAS contexts
+
+	* security/sas/NT_GSSUPProvider.java,
+	security/sas/CSSInvocationInterceptor.java,
+	security/sas/TSSInvocationInterceptor.java: Stateful contexts
+
+	* security/sas/build.xml, orb/standardInterceptors/build.xml:
+	Check for jgss
+
+	* security/sas/build.xml, orb/standardInterceptors/build.xml:
+	Check for org.itef.jgss.GSSManager
+
+2002-09-12  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/ORB.java, util/Version.java: Fix for bug #251. Version info
+	simplified
+
+2002-09-11  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GSSUPProvider.java,
+	security/sas/NT_GSSUPContextSpi.java,
+	security/sas/NT_GSSUPMechFactory.java,
+	security/sas/NT_GSSUPProvider.java, security/sas/build.xml: NT JAAS
+
+	* security/sas/CSSInitializer.java,
+	security/sas/CSSInvocationInterceptor.java,
+	security/sas/GSSUPContextSpi.java,
+	security/sas/GSSUPCredentialSpi.java,
+	security/sas/GSSUPMechFactory.java,
+	security/sas/GSSUPNameSpi.java, security/sas/GSSUPProvider.java,
+	security/sas/GSSUPProviderInitializer.java,
+	security/sas/TSSInitializer.java,
+	security/sas/TSSInvocationInterceptor.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: Stateless
+
+2002-09-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDRInputStream.java (read_repository_id): Update both pos
+	and index.
+
+2002-09-10  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GSSUPContextSpi.java,
+	security/sas/GSSUPMechFactory.java,
+	security/sas/GSSUPProvider.java, security/sas/TSSInitializer.java,
+	security/sas/TSSInvocationInterceptor.java: Updates
+
+	* orb/util/PrintIOR.java: Support the SAS tag TAG_NULL_TAG also
+	write mechanism Oid as hex
+
+	* orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: Generate
+	the SAS tags in the IOR
+
+	* orb/ParsedIOR.java: Parses the SAS tags in the IOR
+
+	* security/build.xml: Now compiles the sas sub-directory
+
+	* security/sas/CSSInitializer.java,
+	security/sas/CSSInvocationInterceptor.java,
+	security/sas/GSSUPContextSpi.java,
+	security/sas/GSSUPCredentialSpi.java,
+	security/sas/GSSUPMechFactory.java,
+	security/sas/GSSUPNameSpi.java, security/sas/GSSUPProvider.java,
+	security/sas/TSSInitializer.java,
+	security/sas/TSSInvocationInterceptor.java,
+	security/sas/build.xml: SAS Code
+
+2002-08-22  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/UnionType.java: Fix for bug #238. Union type members added
+	in reverse order
+
+2002-08-13  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/CDROutputStream.java: Fix for bug #241. Negative fixed
+	values not encoded correctly
+
+	* orb/portableInterceptor/ServerRequestInfoImpl.java: Fix for bug
+	#245
+
+2002-08-13  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* naming/NameServer.java: fix for bug # 243: removed leading %01
+	from object key mapping
+
+2002-08-06  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/CDROutputStream.java: More efficient pad clearing added
+
+	* orb/CDROutputStream.java: Fix for buffer pad clear overrun in
+	some circumstances
+
+2002-08-02  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/Client_TCP_IP_Transport.java:
+	(connect) fix for bug # 235: now retires can be 0 and *one*
+	connection attempt will be made
+
+	* orb/ParsedIOR.java:
+	(init) fix for bug # 236: won only trying to read properties
+	jacorb.security.ssl.client.required_options and
+	jacorb.security.ssl.client.supported_options if ssl is really
+	supported
+
+	* events/EventChannelImpl.java, idl/Declaration.java,
+	idl/EnumType.java, idl/FloatPtType.java, idl/FloatType.java,
+	idl/InitDecl.java, idl/Interface.java, idl/Member.java,
+	idl/OpDecl.java, idl/ParamDecl.java, idl/StateMember.java,
+	idl/StructType.java, idl/TypeDef.java, idl/UnionType.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java, orb/Any.java,
+	orb/CDROutputStream.java, orb/Delegate.java, orb/ORB.java,
+	orb/ParsedIOR.java, orb/build.xml,
+	orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/GIOPConnection.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/TCP_IP_Transport.java, poa/AOM.java, poa/POA.java,
+	transaction/CoordinatorImpl.java,
+	transaction/TransactionCurrentImpl.java: merged in RELEASE_1_4_1
+
+2002-07-29  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* events/EventChannelImpl.java (push_event): changed order in
+	which suppliers vectors are traversed
+
+	* orb/build.xml: removed domain stuff
+
+	* events/EventChannelImpl.java: fix for bug # 232: fixed boundary
+	condition in for loops, removing from wrong suppliers verctor
+
+	* orb/CDROutputStream.java: fix for bug # 233: now always checking
+	in write_xy_array(), that there has to be something written prior
+	to doing alignment
+
+2002-07-24  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/ORB.java: resolve_initial_references() now returns a
+	PICurrent with thread-dependant behaviour. It returns an instance
+	of an inner class that implements
+	org.omg.PortableInterceptor.Current by forwarding each invocation
+	to a thread-dependent target.
+
+2002-07-23  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/ParsedIOR.java:
+	(init) updated decision finding mechanism for ssl usage: now only
+	using ssl if at least one side requires it, and thrown
+	NO_PERMISSION if client requires ssl, but server doesn't support it
+
+2002-07-19  Steve Osselton  <steve@prismtechnologies.com>
+
+	* poa/POA.java: Enhancement #216 added. Operation to get object
+	count
+
+2002-07-19  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/TCP_IP_Transport.java: Added missing
+	shutdownOutput/Input. Rationalised socket/connection_info into
+	TCP_IP_Transport. Added debug message if socket timeout is hit
+
+2002-07-19  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Any.java: Fix for bug #229. CDRInputStream created from
+	singleton ORB
+
+2002-07-18  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/GIOPConnection.java: merged in bugfix made in
+	head revision
+
+2002-07-18  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java: Fix update to ensure delegate is set for
+	local servant call
+
+2002-07-18  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/EnumType.java, idl/Interface.java, idl/Member.java,
+	idl/StateMember.java, idl/TypeDef.java, idl/UnionType.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java: *** empty log message
+	***
+
+	* idl/StructType.java:
+	(getTypeCodeExpression( Set knownTypes )) added to override method
+	in superclass (get npe's without it)
+
+	* orb/ParsedIOR.java:
+	(init) added check for null object reference
+
+2002-07-17  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java: Fix for DII calls calling onto local object
+	calls so separate threaded request is not invoked
+
+	* orb/Delegate.java: Local call optimisation fix for non active
+	servants
+
+2002-07-17  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/GIOPConnection.java: fixed (rather stupid
+	copy&paste, but non-obvious nonetheless) bug where the Fragments
+	would be hashed in by their giop minor number
+	(!). This will only show up if multiple concurrent fragmented
+	requests are involved.
+
+2002-07-17  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java: Fix for DII calls calling onto local object
+	calls so separate threaded request is not invoked
+
+2002-07-17  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/ParamDecl.java, idl/ValueDecl.java, idl/Declaration.java,
+	idl/FloatPtType.java, idl/FloatType.java, idl/InitDecl.java,
+	idl/Interface.java: cosmetics
+
+	* idl/ValueDecl.java:
+	(parse) added missing call to parse factories
+
+2002-07-17  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java: Fix so base object calls are invoked directly
+	on server objects
+
+2002-07-16  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java: DII concurrency fix update to allow for
+	portable interceptors
+
+	* orb/Delegate.java: DII concurrency fix
+
+2002-07-16  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/OpDecl.java:
+	(parse) fix parameters for call to myInterface.addImportedName,
+	need to use param.paramTypeSpec.typeSpec()
+
+	* idl/ValueDecl.java:
+	(setValueElements) call dec.setPackage( name ); on all members of
+	the value type, fixes bug #225
+
+	* poa/AOM.java: joined in (remove) fix from the RC_141 branch
+
+	* poa/AOM.java:
+	(remove) no longer globally synchronized, which led to a deadlock
+	(cf. Bug #226). Only a small part of the method is synchronized
+	now, and it uses a separate lock object.
+
+2002-07-15  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* transaction/CoordinatorImpl.java,
+	transaction/TransactionCurrentImpl.java:
+	[back-porting from CVS head] 2 bug-fixes to TransactionService:
+
+	   * handle TRANSACTION_ROLLEDBACK raised by commit_one_phase()
+	     called from commit()
+
+	   * Current.commit() catches and rethrows TRANSACTION_ROLLEDBACK
+	     (and removes the association of the transaction with the
+	     current thread)
+
+	Modified Files:
+	        src/org/jacorb/transaction/CoordinatorImpl.java
+	        src/org/jacorb/transaction/TransactionCurrentImpl.java
+
+	* transaction/CoordinatorImpl.java,
+	transaction/TransactionCurrentImpl.java: 2 bug-fixes to
+	TransactionService:
+
+	   * handle TRANSACTION_ROLLEDBACK raised by commit_one_phase()
+	     called from commit()
+
+	   * Current.commit() catches and rethrows TRANSACTION_ROLLEDBACK
+	     (and removes the association of the transaction with the
+	     current thread)
+
+	Modified Files: src/org/jacorb/transaction/CoordinatorImpl.java
+		src/org/jacorb/transaction/TransactionCurrentImpl.java
+
+2002-07-10  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/dns/DNSLookup.java, orb/dns/DNSLookupDelegate.java,
+	orb/dns/DNSLookupDelegateImpl.java: Copyright update
+
+	* orb/dns/DNSLookup.java, orb/dns/DNSLookupDelegate.java,
+	orb/dns/DNSLookupDelegateImpl.java: Update so delegate only
+	created if DNS support classes available
+
+2002-07-09  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Fix for 223 & pinging
+	objects to prevent 'non-jacorb object' warning & multiple pings in
+	replyNewLocation
+
+2002-07-09  Steve Osselton  <steve@prismtechnologies.com>
+
+	* events/build.xml: Fix for bug #224. Missing package prefix in
+	idl target
+
+2002-07-08  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/ReplyPlaceholder.java: fix for bug #219: replaced
+	property jacorb.connection.client_timeout by properties
+	jacorb.connection.client_idle_timeout and
+	jacorb.client.pending_reply_timeout. Also modified method close()
+	in Client_TCP_IP_Transport, so that connection tiemouts don't lead
+	to a terminal close of the whole transport.
+
+2002-07-08  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/BasicAdapter.java, orb/ORB.java, util/Version.java: removed
+	calls to System.exit, updated Version string
+
+	* ir/AttributeDef.java: removed call to system.exit()
+
+	* ir/ConstantDef.java: added class comment andd removed calls to
+	System.exit()
+
+	* naming/NamingContextImpl.java:
+	(list) removed call to System.exit()
+
+	* ir/TypeCodeUtil.java: throw Exception rather than call
+	System.exit()
+
+	* idl/AliasTypeSpec.java, idl/BaseType.java, idl/IdlSymbol.java,
+	idl/Interface.java, idl/JacIDL.java, idl/NameTable.java,
+	idl/ParamDecl.java, idl/parser.java, idl/sym.java: changes in
+	global name imports
+
+	* idl/OpDecl.java:
+	(parse) changed import of global holder name
+
+	* idl/parser.cup: removed parser-global table for importinmg
+	global type names, this is now done in the individual subclasses
+	of IdlSymbol for names that actually get used
+
+2002-07-05  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/ApplicationExceptionHelper.java:
+	(insert) fix for bug # 221: code for creating class name of user
+	exception helper was broken
+
+	* imr/ImplementationRepositoryImpl.java:
+	(SocketListener.<init>) fix for bug # 220: Wrongly assuming that
+	hostname must always have at least one char
+
+	* orb/BasicAdapter.java:
+	(Listener.setAddress( InetAddress )) fix for bug # 220: if-clause
+	was erroneously assuming that hostname must alsways have at least
+	one char
+
+2002-07-05  Steve Osselton  <steve@prismtechnologies.com>
+
+	* poa/RequestController.java, poa/RequestProcessor.java:
+	Enhancement #217. Thread naming added
+
+	* naming/NameServer.java: Update so name service can be configured
+	to run on fixed port
+
+	* naming/NamingContextImpl.java: Fix for bug #218. Object purging
+	in name service made configurable
+
+2002-07-01  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	updated or inserted Copyright notice
+
+2002-06-28  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	inserted or updated Copyright
+
+	* orb/Reference.java: this file is generated by the build from
+	Reference.template
+
+2002-06-25  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/Interface.java, orb/BasicAdapter.java,
+	orb/connection/MessageReceptor.java,
+	orb/connection/Server_TCP_IP_Transport.java,
+	util/threadpool/ConsumerTie.java: cosmetics (minor)
+
+	* naming/namemanager/BindNode.java,
+	naming/namemanager/ContextNode.java,
+	naming/namemanager/Handler.java,
+	naming/namemanager/NameManager.java,
+	naming/namemanager/Updater.java: cosmetics
+
+	* orb/dynany/DynUnion.java: removed debug output in c'tor
+
+	* poa/AOM.java: cosmetics
+
+2002-06-25  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/ClientConnection.java,
+	orb/connection/GIOPConnection.java, orb/connection/Messages.java,
+	orb/connection/NoBiDirClientRequestListener.java,
+	orb/connection/NoBiDirServerReplyListener.java,
+	orb/connection/ReplyListener.java,
+	orb/connection/RequestListener.java,
+	orb/connection/ServerRequestListener.java,
+	orb/connection/Transport.java: added support for GIOP 1.2 Fragments
+
+2002-06-24  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* poa/RequestController.java:
+	(<init> fix for bug # 215 : second if case tested for
+	threadPriority > Thread.MIN_PRIORITY, but should have been
+	MAX_PRIORITY
+
+2002-06-23  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/CDROutputStream.java, orb/EncapsInfo.java: Changes to save
+	and reset the indirection maps at the beginning of an
+	encapsulation and to restore them at the end of the encapsulation.
+	(CORBA says that "indirections may not cross encapsulation
+	boundaries".)
+
+	* orb/ORBSingleton.java: Change in create_value_tc() for
+	interoperability with the ORB in Sun's JDK 1.4: we now skip the
+	name check for RMI valuetypes, because Sun's ORB sends dotted
+	names ("some.package.SomeClass") over the wire.
+
+2002-06-21  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java, poa/POA.java, poa/RequestController.java: Fix
+	for bug #132. Delayed POA shutdown ignores local calls
+
+	* orb/Delegate.java: Fix for bug #200. Interceptors not invoked on
+	local calls
+
+2002-06-21  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: ServerStartupDaemon fix
+	to detect crashed server
+
+2002-06-20  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/util/PrintIOR.java: Fix for bug #214. PrintIOR not
+	recognising TAG_ORB_TYPE tagged component
+
+	* orb/ORB.java: New utility method added
+
+2002-06-18  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/ConstDecl.java, idl/LongLongType.java: Fix for bug #209. 'L'
+	appended to long long constant references
+
+	* orb/ServantDelegate.java: Fix for bug #211. _default_POA not
+	called
+
+2002-06-18  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/GIOPConnection.java,
+	orb/connection/Messages.java: added support for GIOP 1.2
+	Fragmentation
+
+	* util/Debug.java: fixed small bug in output of byte arrays: for
+	loop started with index 'start' and ran to 'len', but this must
+	actually be 'start + len'
+
+2002-06-17  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java, poa/POA.java, poa/POAConstants.java,
+	poa/util/POAUtil.java: Fix for bug #205. Reversion to old IOR
+	format
+
+	* orb/Delegate.java: Missing semi-colon added
+
+2002-06-13  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/Delegate.java:
+	(servant_preinvoke) fixed bug #207: only incarnate local objects
+	that are not already active
+
+2002-06-12  Reimo Tiedemann  <tie@xtradyne.com>
+
+	* poa/AOM.java, poa/POA.java, poa/RequestController.java: fixed
+	object deactivation bug (id=204)
+
+2002-06-10  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/connection/Messages.java:
+	(getRequestId) added type fragment to GIOP 1.2
+
+2002-06-07  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/sym.java, idl/parser.java: *** empty log message ***
+
+	* idl/parser.cup: slight update to version/copyright string
+
+	* orb/ORB.java: slight update to copyright string
+
+	* util/Version.java: updated date string
+
+2002-06-06  Steve Osselton  <steve@prismtechnologies.com>
+
+	* util/Version.java: Version update
+
+2002-06-05  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/lexer.java: Fix for bug #202. Duplicate, varying pragma
+	version
+
+	* orb/util/FixIOR.java: Command simplification
+
+2002-06-03  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/ValueDecl.java, idl/TypeDeclaration.java, idl/TypeSpec.java,
+	idl/UnionType.java, idl/ValueAbsDecl.java, idl/ValueBoxDecl.java,
+	idl/ArrayTypeSpec.java, idl/CharType.java, idl/EnumType.java,
+	idl/SequenceType.java, idl/StructType.java,
+	idl/AliasTypeSpec.java: getTypeCodeExpression() fixes
+
+	* idl/VectorType.java, idl/SequenceType.java, idl/StructType.java,
+	idl/UnionType.java, idl/AliasTypeSpec.java, idl/Member.java: fixed
+	generation of type code creation with erroneously recursive
+	sequences
+
+2002-05-31  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/AliasTypeSpec.java: unfixed buggy fix :-)
+
+2002-05-31  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/util/FixIOR.java: Usage update to match script
+
+2002-05-31  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/AliasTypeSpec.java, idl/ObjectTypeSpec.java,
+	idl/SequenceType.java: TypeCode fixes
+
+2002-05-30  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/AliasTypeSpec.java:
+	(getTypeCodeExpression) change type code generation in Helper for
+	ObjectTypeSpec
+
+	* orb/Delegate.java:
+	(servant_preinvoke) fixed
+
+2002-05-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/ValueInheritanceSpec.java, idl/ConstType.java,
+	idl/SymbolList.java, idl/Truncatable.java,
+	idl/TypeDeclaration.java, idl/ValueDecl.java: Code cleanups
+
+2002-05-29  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/ParsedIOR.java: now putting into and searching for the codeset
+	tagged component in the effective TAG_INTERNET_IOP profile
+
+2002-05-29  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* poa/AOM.java:
+	(remove) commented out servant._set_delegate(null) which should
+	not be there, presumably...
+
+	* poa/RequestController.java:
+	(deactivationInProgress, waitForDeactivationStart) added to let
+	the POA synchronize with the start of the deactivation
+
+	* poa/POA.java:
+	(deactivate_object) added extry synchronization to ensure that a
+	second deactivation of the same object will throw an
+	ObjectNotActive exception
+
+2002-05-29  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/util/PrintIOR.java: printCodeSetComponent() changed tu use
+	print() instead of println() to print out the commas
+
+2002-05-29  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/ORB.java:
+	(mapObjectKey) do proper String/byte array conversion according to
+	corbaloc grammar
+
+	* orb/util/CorbaLoc.java:
+	(parseKey) made public static for use by ORB
+
+	* naming/NameServer.java: fixed mapped object key
+
+2002-05-28  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/ParsedIOR.java: added op getMultipleComponents() to allow
+	access to MULTIPLE_COMPONENTS components
+
+	* orb/util/PrintIOR.java: added output for tagged components in
+	MULTIPLE_COMPONENTS profile, added the AssociationOption names
+	when dumping the ssl component
+
+2002-05-28  Steve Osselton  <steve@prismtechnologies.com>
+
+	* proxy/ProxyImpl.java: Code tidy
+
+2002-05-28  Jason Courage
+
+	* orb/ORB.java: Now the ORB registers the ior_proxy_host and
+	ior_proxy_port with the ImR using the registerPOA operation if
+	these properties are set.  Also, the ImR is set to not use these
+	properties when constructing its own IOR.
+
+	* orb/Delegate.java: Fixed syntax error in servant_preinvoke
+	method.
+
+2002-05-28  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/standardInterceptors/CodeSetInfoInterceptor.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/connection/ClientConnection.java, orb/connection/CodeSet.java,
+	orb/connection/ServerRequestListener.java, orb/ORB.java: made
+	codeset handling more conformant to the spec: CodeSets are now
+	only negotiated, if GIOP > 1.0 is used.
+
+	* orb/CDROutputStream.java, orb/CDRInputStream.java: fix for bug
+	#197: reimplemented UTF-8 for chars/strings
+
+2002-05-28  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/Delegate.java: code cosmetics (tested formatter "astyle")
+
+	* orb/Delegate.java: code cosmetics
+
+	* orb/Reference.java: cosmetics
+
+	* orb/CDROutputStream.java:
+	(write_end_tag, start_chunk, end_chunk) added, but code is still
+	unused
+
+	* naming/NameServer.java: Fixed problem parsing command line
+	arguments and updated the object key mapping to include the
+	leading "persistence" byte
+
+2002-05-27  Jason Courage
+
+	* orb/ORB.java: Readded multi-components profile to IOR regardless
+	of GIOP version.
+
+	* orb/Delegate.java: Minor fix to string handling in invoke method.
+
+	* orb/Delegate.java: Changed mechanism used to get ImR host and
+	port to be the same as that used in ORB.java, ie, to use the
+	ImRAccess interface.
+
+	* util/Environment.java: Added the property
+	'jacorb.use_imr_endpoint' that when switched off will write the
+	server endpoint into the IOR instead of the ImR endpoint.
+
+	* poa/util/POAUtil.java: Added methods to extract a flag from the
+	object key a determine the flag's value.
+
+	* poa/POAConstants.java: Added a constant used as a flag in the
+	object key to indicate a persistent object.
+
+	* poa/POA.java: Added an extra byte to object keys that contains a
+	flag to indicate the Lifespan Policy of the POA managing the
+	object.
+
+	* orb/ParsedIOR.java: Added the TAG_ORB_TYPE component to IORs to
+	indicate that they are generated by JacORB.
+
+	* orb/ORB.java: Added the TAG_ORB_TYPE component to IORs to
+	indicate that they are generated by JacORB; added the property
+	'jacorb.use_imr_endpoint' that when switched off will write the
+	server endpoint into the IOR instead of the ImR endpoint.
+
+	* orb/Delegate.java: Implemented a failover mechanism whereby the
+	Delegate is able to find the ImR if the ImR goes down and comes
+	back up at a new address.
+
+2002-05-27  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/connection/Client_TCP_IP_Transport.java: modified debug
+	output on connecting
+
+	* orb/ServantDelegate.java, orb/Reference.java, orb/Delegate.java,
+	orb/CDROutputStream.java: cosmetics
+
+	* naming/NameServer.java: modified command line args, new switch
+	-p to set port number, new switch -t required to set time out and
+	imr_register. The IOR file is now optional
+
+	* util/Environment.java:
+	(doMapObjectKeys) added
+
+	* orb/ORB.java:
+	(mapObjectKey) added
+
+	* orb/dsi/ServerRequest.java:
+	(c'tor) added call to orb.mapObjectKey() so that the object key
+	can be mapped to a string given in the objectKeyMap environment
+	property
+
+	* util/Environment.java:
+	(getProperties) added overloaded variant with a "trim" argument
+
+	* naming/NameServer.java:
+	(main) define the objectKeyMap property so this name service is
+	accessible using the shortcut object key "NameService"
+
+2002-05-23  Simon McQueen
+
+	* util/Version.java, idl/sym.java, orb/ORB.java, idl/parser.cup,
+	idl/parser.java: Tidied up the JacORB version identification
+	stuff. The version of the ORB now needs only be set in
+	org.jacorb.util.Version. There will be no runtime dependency on
+	this class for any that uses it.
+
+2002-05-22  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/ValueInheritanceSpec.java, idl/lexer.java,
+	idl/ScopedName.java, idl/Truncatable.java, idl/ValueAbsDecl.java:
+	more value type updates
+
+	* idl/ValueDecl.java: inheritance-related fixes, e.g., truncatable
+	ids
+
+2002-05-22  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/ValueDecl.java: Added null checks
+
+2002-05-21  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* orb/ParsedIOR.java,
+	orb/standardInterceptors/CodeSetInfoInterceptor.java: fixed bug
+	#189: the COdeSetInfo struct is now correctly placed into and
+	searched for in the MULTIPLE_COMPONENTS profile of the IOR
+
+2002-05-21  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/UnionType.java: Fix for 188
+
+2002-05-20  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/util/FixIOR.java: Parameter handling simplification
+
+2002-05-17  Simon McQueen
+
+	* idl/sym.java, idl/parser.java, idl/UnionType.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java, idl/parser.cup,
+	idl/FixedPointType.java, idl/Interface.java, idl/JacIDL.java,
+	idl/SequenceType.java, idl/StructType.java,
+	idl/AliasTypeSpec.java, idl/ArrayTypeSpec.java, idl/EnumType.java:
+	Fix to bug ID# 186 Amended IDL Compiler to accept -nofinal option
+	and generate class definitions that are not final.  JacIDL ant
+	task, and docs updated accordingly.
+
+2002-05-16  Steve Osselton  <steve@prismtechnologies.com>
+
+	* proxy/ProxyImpl.java: Update to allow both fixed and dynamic id
+	assignment. Also id and name service name made configurable
+
+2002-05-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/sym.java, idl/parser.cup, idl/parser.java,
+	idl/Interface.java, idl/StructType.java, idl/SymbolList.java,
+	idl/ValueDecl.java: Fixes for bugs 178 and 185
+
+2002-05-14  Francisco Reverbel <reverbel@ime.usp.br>
+
+	* orb/ParsedIOR.java, orb/util/PrintIOR.java: We now assume that
+	IOR codebase components are CDR encapsulations encoded by a Codec
+	such as org.jacorb.orb.portableInterceptor.Codec_CDR_1_0_Impl.
+
+	* orb/CDROutputStream.java: Dealing with the case of a null
+	repository_id in write_value_internal().
+
+2002-05-14  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/AddExpr.java: *** empty log message ***
+
+	* idl/Interface.java, idl/ValueDecl.java: Updated to generate also
+	the LocalTie class for local interfaces
+
+2002-05-13  Nicolas Noffke  <nicolas.noffke@xtradyne.com>
+
+	* util/Environment.java: added property
+	"jacorb.suppress_no_props_warning" to allow for suppressing the
+	output that warns that no props file can be found
+
+2002-05-13  Steve Osselton  <steve@prismtechnologies.com>
+
+	* proxy/ProxyServerForwardInterceptor.java: Server interceptor now
+	silently ignores requests not containing service context
+
+	* orb/util/FixIOR.java: Encapsulation fix
+
+2002-05-13  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/CDROutputStream.java, orb/Reference.java,
+	orb/CDRInputStream.java: OBV-related changes: implement sending
+	*list* of truncatable ids, also fixed a bug in the indirection
+	calculation (padding was not taken into account)
+
+	* orb/ORBSingleton.java, orb/ORB.java: implement CORBA_2_5 ORB
+	interface
+
+2002-05-12  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/Truncatable.java, idl/ValueDecl.java,
+	idl/ValueInheritanceSpec.java, idl/Interface.java: OBV inheritance
+	progress...
+
+2002-05-10  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/JacIDL.java: Remove commented out code. Call init on parser
+	and simplify setting parser up.
+
+	* idl/Member.java, idl/StructType.java: Forward decl of
+	structs (62)
+
+	* idl/sym.java, idl/parser.cup, idl/parser.java: Forward decl of
+	structs, removed commented out code, changed some code from
+	private to protected
+
+	* orb/.cvsignore, util/.cvsignore: Add ignore
+
+	* imr/build.xml, util/tracing/build.xml, events/build.xml: Use
+	JacIDL ant task
+
+	* build.xml: Use jacidl
+
+2002-05-09  Jason Courage
+
+	* orb/connection/LocateRequestInputStream.java: Assigned value in
+	case 2 to class variable req_hdr instead of creating req_hdr as a
+	local variable.
+
+2002-05-09  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* naming/NameServer.java, naming/NamingContextImpl.java: updated
+	for local interface semantics
+
+2002-05-08  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/Delegate.java, orb/ServantDelegate.java,
+	orb/CDROutputStream.java: updated for local interface semantics
+
+	* orb/Reference.java: *** empty log message ***
+
+	* poa/policy/RequestProcessingPolicy.java,
+	poa/policy/ServantRetentionPolicy.java,
+	poa/policy/ThreadPolicy.java, poa/util/LogTrace.java,
+	poa/util/LogWriter.java, poa/POAManager.java,
+	poa/RequestProcessor.java, poa/policy/IdAssignmentPolicy.java,
+	poa/policy/IdUniquenessPolicy.java,
+	poa/policy/ImplicitActivationPolicy.java,
+	poa/policy/LifespanPolicy.java, poa/AOM.java, poa/Current.java,
+	poa/POA.java: updated for local interface semantics
+
+	* idl/parser.cup, idl/Value.java, idl/ValueBoxDecl.java,
+	idl/lexer.java, idl/ConstrTypeSpec.java, idl/Interface.java,
+	idl/TypeDeclaration.java: *** empty log message ***
+
+2002-05-08  Jason Courage
+
+	* orb/ContextID.java, orb/ORBConstants.java: Renamed ContextID to
+	ORBConstants.
+
+	* proxy/ProxyClientForwardInterceptor.java,
+	proxy/ProxyServerForwardInterceptor.java,
+	orb/connection/ServiceContextTransportingOutputStream.java:
+	Renamed ContextId to ORBConstants.
+
+	* orb/Reference.java: This file is generated during the build
+	process so doesn't need to be committed.
+
+2002-05-07  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* orb/connection/ServiceContextTransportingOutputStream.java,
+	idl/MemberList.java, idl/StructType.java,
+	idl/TypeDeclaration.java, idl/ValueDecl.java, orb/Reference.java,
+	idl/Member.java: *** empty log message ***
+
+	* orb/BufferManager.java:
+	(release) remove call to printStatistics()
+
+	* ir/InterfaceDef.java: fixed call to FullInterfaceDescription()
+	c'tor
+
+2002-05-06  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* poa/policy/MapToDefaultDomainsPolicy.java: *** empty log message
+	***
+
+	* build.xml: removed IDL compilation of DomainManagement.idl
+
+	* naming/Name.java, naming/NameServer.java,
+	naming/NamingContextImpl.java: *** empty log message ***
+
+	* ir/InterfaceDef.java: fixed parameters for calling new
+	FullInterfaceDescription c'tor
+
+	* poa/build.xml, orb/Reference.java, orb/build.xml,
+	orb/Delegate.java, orb/ORB.java: *** empty log message ***
+
+	* orb/dynany/DynFixed.java:
+	(set_value) added tc parameter to insert_fixed( fixed_value, tc )
+
+	* orb/ServantDelegate.java:
+	(get_interface_def) added
+
+	* poa/util/LogTrace.java: cosmetics
+
+	* util/tracing/ClientTraceInterceptor.java: removed references to
+	domain service
+
+	* poa/RequestProcessor.java: removed last traces of the domain
+	service
+
+	* poa/POA.java: removed references to the domain service
+
+	* orb/dsi/ServerRequest.java: added check for null result
+
+	* orb/ORBSingleton.java: *** empty log message ***
+
+	* orb/ORB.java: cosmetics
+
+	* orb/BufferManager.java:
+	(getPreferredNetworkBuffer) added
+	(getPreferredMemoryBuffer) added
+
+	* orb/connection/Server_TCP_IP_Transport.java,
+	orb/connection/ServiceContextTransportingOutputStream.java,
+	orb/connection/TCP_IP_Transport.java,
+	orb/connection/Client_TCP_IP_Transport.java,
+	orb/connection/MessageOutputStream.java,
+	orb/connection/ReplyOutputStream.java,
+	orb/connection/RequestOutputStream.java: some inlining for
+	performance reasons
+
+2002-05-03  Gerald Brose  <gerald.brose@xtradyne.com>
+
+	* idl/ValueBoxDecl.java, idl/VectorType.java,
+	idl/SequenceType.java: more OBV fixes
+
+	* orb/CDROutputStream.java: cosmetics
+
+2002-05-03  Steve Osselton  <steve@prismtechnologies.com>
+
+	* poa/POA.java: Commented out code removed, we are using CVS
+
+	* proxy/Proxy.java: Unused file removed
+
+2002-05-02  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/util/FixIOR.java: Port value handling fix
+
+	* proxy/ProxyClientForwardInterceptor.java: Fixes for resolution
+	of remote appligators
+
+	* orb/util/FixIOR.java: Comment update
+
+	* orb/util/FixIOR.java: Utility added to patch host/port into
+	IOR. Enhancement #183
+
+2002-05-02  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Add fix for 182 POA/Impl
+	name problem. Add fix for 181 config port number.
+
+2002-05-02  Steve Osselton  <steve@prismtechnologies.com>
+
+	* proxy/ProxyImpl.java: Status setting update
+
 2002-05-01  Vladimir Mencl <vladimir.mencl@mff.cuni.cz>
 	* TransactionService:
 	  * ServerContextTransferInterceptor sets (and resets) the
