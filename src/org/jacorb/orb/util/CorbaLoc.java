@@ -102,8 +102,8 @@ public class CorbaLoc
                 objectAddressList[i] = parseObjectAddress(tokenizer.nextToken());
         }
         else
-            objectAddressList = new ObjectAddress[]{ parseObjectAddress(sb) };      
-   
+            objectAddressList = new ObjectAddress[]{ parseObjectAddress(sb) };
+
         bodyString = sb;
     }
 
@@ -122,7 +122,7 @@ public class CorbaLoc
         }
         else if ( addr.indexOf(':') == 0 ||
                   addr.startsWith("iiop:") ||
-                  addr.startsWith("ssliop:")) 
+                  addr.startsWith("ssliop:"))
         {
             if( addr.indexOf(':') != 0 )
             {
@@ -137,8 +137,8 @@ public class CorbaLoc
 
             /* IIOP */
             String host;
-            if( version_and_host.indexOf( '@' ) != -1 ) 
-            {    
+            if( version_and_host.indexOf( '@' ) != -1 )
+            {
                 String version = version_and_host.substring(0, version_and_host.indexOf( '@' ));
                 if( version.indexOf('.') != -1 )
                 {
@@ -170,7 +170,7 @@ public class CorbaLoc
             }
             else
                 result.host = host;
-            return result;  
+            return result;
         }
         else
             throw new IllegalArgumentException("Illegal protocol in object address format: " + addr);
@@ -179,7 +179,7 @@ public class CorbaLoc
     private static boolean legalChar(char c)
     {
         if(( c >= '0' && c <= '9') ||
-           ( c >= 'a' && c <= 'z') || 
+           ( c >= 'a' && c <= 'z') ||
            ( c >= 'A' && c <= 'Z' ))
             return true;
         else
@@ -204,7 +204,7 @@ public class CorbaLoc
 
         return (char)( b < 10 ? '0' + (char)b :  'A' + (char)b - 10 ) ;
     }
-   
+
     private static boolean isHex(char c)
     {
         return ( ( c >= '0' && c <= '9') ||
@@ -235,7 +235,7 @@ public class CorbaLoc
                     throw new IllegalArgumentException("URL character out of range: " + tmp[i]);
             }
         }
-   
+
         byte[] result = new byte[count];
         int idx = 0;
 
@@ -261,7 +261,9 @@ public class CorbaLoc
             if( !legalChar((char)key[i]) )
             {
                 sb.append( '%' );
-                sb.append( hexDigit(  (byte)(key[i] >> 4 )));
+                // Mask the bytes before shift to ensure 10001001 doesn't get
+                // shifted to 11111000 but 00001000 (linden java faq).
+                sb.append( hexDigit( (byte)((key[i] & 0xff) >> 4 )));
                 sb.append( hexDigit( (byte)( key[i] & 0x0f )));
             }
             else
@@ -314,12 +316,12 @@ public class CorbaLoc
     {
         if( getKeyString() == null )
             defaultKeyString("NameService");
-       
+
         if( str_name != null && str_name.length() > 0 )
         {
             try
             {
-                return "corbaname:" + 
+                return "corbaname:" +
                     body() + "#" + str_name;
             }
             catch( Exception e)
@@ -328,7 +330,7 @@ public class CorbaLoc
             }
         }
         else
-            return "corbaname:" + body();   
+            return "corbaname:" + body();
 
     }
 
@@ -338,7 +340,7 @@ public class CorbaLoc
         {
             System.out.println( new CorbaLoc( args[i] ).toString());
         }
-   
+
     }
 
 
