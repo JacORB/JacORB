@@ -150,7 +150,17 @@ class Method
 
             ps.println( "\t\tif( _so == null )" );
             ps.println( "\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");" );
-            ps.println( "\t\t" + classname + "Operations _localServant = (" + classname + "Operations)_so.servant;" );
+            if( is_abstract )
+            {
+                ps.println( "\t\t\t" + classname + " _localServant = (" +
+                            classname + ")_so.servant;" );
+            }
+            else
+            {
+                ps.println( "\t\t\t" + classname + "Operations _localServant = (" +
+                            classname + "Operations)_so.servant;" );
+            }
+
             ps.println( "\t\t\t" + resultType + " _result;" );
 
             ps.println( "\t\ttry" );

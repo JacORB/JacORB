@@ -628,38 +628,52 @@ class Interface
         // Generate insert (handle either CORBA.Object or Serializable case)
         ps.println( "\tpublic static void insert (final org.omg.CORBA.Any any, final " + typeName() + " s)" );
         ps.println( "\t{" );
-        ps.println( "\t\tif( s instanceof org.omg.CORBA.Object )" );
-        ps.println( "\t\t{" );
-        ps.println( "\t\t\tany.insert_Object( (org.omg.CORBA.Object)s );" );
-        ps.println( "\t\t}" );
-        ps.println( "\t\telse if( s instanceof java.io.Serializable )" );
-        ps.println( "\t\t{" );
-        ps.println( "\t\t\tany.insert_Value( (java.io.Serializable)s );" );
-        ps.println( "\t\t}" );
-        ps.println( "\t\telse" );
-        ps.println( "\t\t{" );
-        ps.println( "\t\t\tthrow new org.omg.CORBA.BAD_PARAM();" );
-        ps.println( "\t\t}" );
+        if( is_abstract )
+        {
+            ps.println( "\t\tif( s instanceof org.omg.CORBA.Object )" );
+            ps.println( "\t\t{" );
+            ps.println( "\t\t\tany.insert_Object( (org.omg.CORBA.Object)s );" );
+            ps.println( "\t\t}" );
+            ps.println( "\t\telse if( s instanceof java.io.Serializable )" );
+            ps.println( "\t\t{" );
+            ps.println( "\t\t\tany.insert_Value( (java.io.Serializable)s );" );
+            ps.println( "\t\t}" );
+            ps.println( "\t\telse" );
+            ps.println( "\t\t{" );
+            ps.println( "\t\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Failed to insert in helper\");" );
+            ps.println( "\t\t}" );
+        }
+        else
+        {
+            ps.println( "\t\t\tany.insert_Object( s );" );
+        }
         ps.println( "\t}" );
 
         // Generate extract
         ps.println( "\tpublic static " + typeName() + " extract (final org.omg.CORBA.Any any)" );
         ps.println( "\t{" );
-        ps.println( "\t\ttry" );
-        ps.println( "\t\t{" );
-        ps.println( "\t\t\treturn narrow (any.extract_Object ());" );
-        ps.println( "\t\t}" );
-        ps.println( "\t\tcatch( org.omg.CORBA.BAD_OPERATION ex)" );
-        ps.println( "\t\t{" );
-        ps.println( "\t\t\ttry" );
-        ps.println( "\t\t\t{" );
-        ps.println( "\t\t\t\treturn (" + typeName() + ")any.extract_Value();" );
-        ps.println( "\t\t\t}" );
-        ps.println( "\t\t\tcatch( ClassCastException e)" );
-        ps.println( "\t\t\t{" );
-        ps.println( "\t\t\t\tthrow new org.omg.CORBA.MARSHAL(e.getMessage());" );
-        ps.println( "\t\t\t}" );
-        ps.println( "\t\t}" );
+        if( is_abstract )
+        {
+            ps.println( "\t\ttry" );
+            ps.println( "\t\t{" );
+            ps.println( "\t\t\treturn narrow (any.extract_Object ());" );
+            ps.println( "\t\t}" );
+            ps.println( "\t\tcatch( org.omg.CORBA.BAD_OPERATION ex)" );
+            ps.println( "\t\t{" );
+            ps.println( "\t\t\ttry" );
+            ps.println( "\t\t\t{" );
+            ps.println( "\t\t\t\treturn (" + typeName() + ")any.extract_Value();" );
+            ps.println( "\t\t\t}" );
+            ps.println( "\t\t\tcatch( ClassCastException e)" );
+            ps.println( "\t\t\t{" );
+            ps.println( "\t\t\t\tthrow new org.omg.CORBA.MARSHAL(e.getMessage());" );
+            ps.println( "\t\t\t}" );
+            ps.println( "\t\t}" );
+        }
+        else
+        {
+            ps.println( "\t\treturn narrow (any.extract_Object ());" );
+        }
         ps.println( "\t}" );
 
         // Generate the typecode
@@ -721,7 +735,7 @@ class Interface
         ps.println( "\t\t{" );
         ps.println( "\t\t\treturn narrow((org.omg.CORBA.Object)obj);" );
         ps.println( "\t\t}" );
-        ps.println( "\t\tthrow new org.omg.CORBA.BAD_PARAM();" );
+        ps.println( "\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Failed to narrow in helper\");" );
         ps.println( "\t}" );
 
 
