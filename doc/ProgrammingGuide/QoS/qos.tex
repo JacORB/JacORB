@@ -5,33 +5,49 @@ each of the policies we have currently implemented, along with notes
 on particular JacORB issues concerning each policy.  Policies not
 listed in the following are not yet implemented.
 
-As of yet, all the policies in this chapter are \emph{client-side
-override policies}.  That means that you must specify them for
-individual objects, always using the same mechanism:
+As of yet, all policies described in this chapter are
+\emph{client-side override policies}. The CORBA specification uses the
+term for any policy that is explicitly set and thus overrides system
+defaults. Policies can be set at different scopes: per object, per
+thread, or per ORB. The current JacORB implementation only supports
+object and ORB scopes. In general, the following steps are necessary: 
 
 \begin{description}
-\item[Step 1.] Get an Any from the ORB and put the value for the
+\item[Step 1.] Get an {\tt any} from the ORB and put the value for the
            policy into it.
 \item[Step 2.] Get a Policy object from the ORB which encapsulates the
-           desired value (the Any value from the previous step).
-\item[Step 3.] Apply the policy to a particular object using
-           \emph{\_set\_policy\_override()}.
+           desired value (the {\tt any} value from the previous step).
+\item[Step 3.]  Apply the policy to a particular object using the 
+           {\tt \_set\_policy\_override()} operation on the object
+           reference. 
+\item[Step 3.] alternatively: set the policy ORB-wide using the {\tt
+           set\_policy\_overrides()} operation on the ORB's
+           {\tt PolicyManager} object.
 \end{description}
 
-Here is the code for this, using the \emph{SyncScopePolicy}
-(described in the following section) as an example:
+Below is the code that corresponds to the steps listed above, using the
+\emph{SyncScopePolicy} (described in the following section) as an
+example. Also, have a look at the demo program in {\tt demo/policies}:
 
 \begin{verbatim}
 SomeCorbaType     server = ...
 org.omg.CORBA.ORB orb    = ...
 org.omg.CORBA.Any a      = orb.create_any();
-a.insert_short (SYNC_WITH_SERVER.value); // policy value
+a.insert_short(SYNC_WITH_SERVER.value); // the value for that policy
 try
 {
-    Policy p =
-        orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
+    Policy p = orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
     server._set_policy_override (new Policy[]{ p },
                                  SetOverrideType.ADD_OVERRIDE);
+    
+    // get the ORB's policy manager
+    PolicyManager policyManager = 
+        PolicyManagerHelper.narrow( 
+            orb.resolve_initial_references("ORBPolicyManager"));
+    
+    // set an ORB-wide policy
+    policyManager.set_policy_overrides( new Policy[]{ p }, 
+                                        SetOverrideType.ADD_OVERRIDE);
 }
 catch (PolicyError e)
 {
@@ -39,11 +55,11 @@ catch (PolicyError e)
 }
 \end{verbatim}
 
-Because this is somewhat cumbersome to write, JacORB allows you to
-simplify it by creating the Policy object directly via its
-constructor:
-
-\newpage
+The above is portable code that relies only on standardized CORBA APIs
+to create and set policies.  Because this code is somewhat cumbersome
+to write, JacORB alsp allows you to simplify it by creating the Policy
+object directly via its constructor, as shown below. Note that this is
+non-portable code:
 
 \begin{verbatim}
 SomeCorbaType server  = ...
