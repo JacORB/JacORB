@@ -94,6 +94,14 @@ class ConstDecl extends Declaration
         values.put( t.resolvedName() +
                     ( contained() ? "" : ".value" ),
                     const_expr.value() );
+
+        if( logger.isDebugEnabled() )
+        {
+            logger.debug("ConstDecl.parse, put value: " + t.resolvedName() +
+                         ( contained() ? "" : ".value" ) + " , " + 
+                         const_expr.value() );
+        }
+
         declarations.put( t.resolvedName(), this );
     }
 
