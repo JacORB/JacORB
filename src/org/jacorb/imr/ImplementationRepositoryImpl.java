@@ -1013,7 +1013,7 @@ public class ImplementationRepositoryImpl
 
 		address = InetAddress.getLocalHost().toString();
 
-		if( address.indexOf("/") > 0 )
+		if( address.indexOf("/") >= 0 )
 		    address = address.substring(address.indexOf("/") + 1);
 
 		port = server_socket.getLocalPort();
