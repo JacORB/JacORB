@@ -39,8 +39,8 @@ public class Current
   //    extends org.omg.CORBA.LocalObject
   //    implements org.omg.PortableServer.Current
 {
-    private Hashtable threadTable = new Hashtable();
-    // Thread -> vector of InvocationContext elements (Stack)
+    private Map threadTable = new HashMap();
+    // Thread -> list of InvocationContext elements (Stack)
 
     private Current()
     {
