@@ -518,10 +518,18 @@ public class ParsedIOR
             EstablishTrustInTarget.value |
             EstablishTrustInClient.value;
 
-        int client_required = 
-            Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 );
-        int client_supported = 
-            Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 );
+        int client_required = 0;
+        int client_supported = 0;
+
+        //only read in the properties if ssl is really supported.
+        if(  Environment.isPropertyOn( "jacorb.security.support_ssl" ))
+        {
+            client_required = 
+                Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 );
+
+            client_supported = 
+                Environment.getIntProperty( "jacorb.security.ssl.client.supported_options", 16 );
+        }
 
         if( ssl != null && // server knows about ssl...
             ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
