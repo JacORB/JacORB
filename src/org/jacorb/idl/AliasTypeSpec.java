@@ -87,11 +87,12 @@ public class AliasTypeSpec
 
     public void setPackage( String s )
     {
-        s = parser.pack_replace(s);
+        //s = parser.pack_replace(s);
 	if( pack_name.length() > 0 )
 	    pack_name = new String( s + "." + pack_name );
 	else
 	    pack_name = s;
+        pack_name = parser.pack_replace(pack_name);
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -302,9 +303,11 @@ public class AliasTypeSpec
 
     public String holderName()
     {
-	if( originalType.basic() && 
+	if( ( originalType.basic() && 
            (  !(originalType instanceof TemplateTypeSpec) ||
               originalType instanceof StringType )
+              )
+            || originalType instanceof AliasTypeSpec
               )
 	{
 	    return originalType.holderName();
@@ -381,12 +384,13 @@ public class AliasTypeSpec
 	ps.println("\tpublic static void insert(org.omg.CORBA.Any any, " + type + " s)");
 	ps.println("\t{");
 
-        if( originalType instanceof BaseType && !(originalType instanceof AnyType) || 
-            originalType instanceof StringType  )
-        {
-            ps.println("\t\tany." + originalType.printInsertExpression() + "(s);");
-        }
-        else if( originalType instanceof AliasTypeSpec )
+//          if( originalType instanceof BaseType && !(originalType instanceof AnyType) || 
+//              originalType instanceof StringType  )
+//          {
+//              ps.println("\t\tany." + originalType.printInsertExpression() + "(s);");
+//          }
+//          else 
+            if( originalType instanceof AliasTypeSpec )
         {
             ps.println("\t\t" + originalType.full_name() + "Helper.insert(any,s);");
         }
@@ -399,12 +403,13 @@ public class AliasTypeSpec
 
 	ps.println("\tpublic static " + type + " extract(org.omg.CORBA.Any any)");
 	ps.println("\t{");
-        if( originalType instanceof BaseType && !(originalType instanceof AnyType) || 
-            originalType instanceof StringType )
-        {
-            ps.println("\t\treturn any." + originalType.printExtractExpression() + "();");
-        }
-        else if( originalType instanceof AliasTypeSpec )
+//          if( originalType instanceof BaseType && !(originalType instanceof AnyType) || 
+//              originalType instanceof StringType )
+//          {
+//              ps.println("\t\treturn any." + originalType.printExtractExpression() + "();");
+//          }
+//          else 
+        if( originalType instanceof AliasTypeSpec )
         {
             ps.println("\t\treturn " + originalType.full_name() + "Helper.extract(any);");
         }
