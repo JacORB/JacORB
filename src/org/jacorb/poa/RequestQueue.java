@@ -20,8 +20,7 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.*;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.poa.except.ResourceLimitReachedException;
@@ -32,15 +31,16 @@ import org.jacorb.util.Environment;
  * This class will manage a queue of ServerRequest objects.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.03, 06/09/99, RT
+ * @version $Id$
  */
 public class RequestQueue
 {
     private RequestQueueListener queueListener;
     private RequestController controller;
     private Logger logger;
-    private Vector queue =
-        new Vector(POAConstants.QUEUE_CAPACITY_INI, POAConstants.QUEUE_CAPACITY_INC);
+    private List queue =
+        new ArrayList (POAConstants.QUEUE_CAPACITY_INI); 
+                    // POAConstants.QUEUE_CAPACITY_INC);
 
     private RequestQueue()
     {
@@ -87,7 +87,7 @@ public class RequestQueue
                 throw new ResourceLimitReachedException();
             }
         }
-        queue.addElement(request);
+        queue.add(request);
 
         if (queue.size() == 1)
         {
@@ -114,11 +114,11 @@ public class RequestQueue
     protected synchronized StringPair[] deliverContent()
     {
         StringPair[] result = new StringPair[queue.size()];
-        Enumeration en = queue.elements();
+        Iterator en = queue.iterator();
         ServerRequest sr;
         for (int i=0; i<result.length; i++)
         {
-            sr = (ServerRequest) en.nextElement();
+            sr = (ServerRequest) en.next();
             result[i] = new StringPair(sr.requestId()+"", new String( sr.objectId() ) );
         }
         return result;
@@ -128,14 +128,14 @@ public class RequestQueue
     {
         if (!queue.isEmpty())
         {
-            Enumeration en = queue.elements();
+            Iterator en = queue.iterator();
             ServerRequest result;
-            while (en.hasMoreElements())
+            while (en.hasNext())
             {
-                result = (ServerRequest) en.nextElement();
+                result = (ServerRequest) en.next();
                 if (result.requestId() == rid)
                 {
-                    queue.removeElement(result);
+                    en.remove();
                     this.notifyAll();
                     // notify a queue listener
                     if (queueListener != null)
@@ -151,7 +151,7 @@ public class RequestQueue
     {
         if (!queue.isEmpty())
         {
-            return (ServerRequest) queue.firstElement();
+            return (ServerRequest) queue.get(0);
         }
         return null;
     }
@@ -165,8 +165,8 @@ public class RequestQueue
     {
         if (!queue.isEmpty())
         {
-            ServerRequest result = (ServerRequest) queue.elementAt(0);
-            queue.removeElementAt(0);
+            ServerRequest result = (ServerRequest) queue.get(0);
+            queue.remove(0);
             this.notifyAll();
             // notify a queue listener
 
@@ -181,8 +181,9 @@ public class RequestQueue
     {
         if (!queue.isEmpty())
         {
-            ServerRequest result = (ServerRequest) queue.lastElement();
-            queue.removeElementAt(queue.size()-1);
+            int index = queue.size() - 1;
+            ServerRequest result = (ServerRequest) queue.get(index);
+            queue.remove(index);
             this.notifyAll();
             // notify a queue listener
             if (queueListener != null)
