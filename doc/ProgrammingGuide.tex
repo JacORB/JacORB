@@ -107,6 +107,7 @@ protocol. We currently support:
 \end{enumerate}
 
 \subsection{Configuration}
+\label{configuration}
 
 JacORB has a number of configuration  options which can be set as Java
 properties.  Before we will go about explaining some of the more basic
@@ -2150,6 +2151,109 @@ This enforces SSL to be used.
 \end{verbatim}
 This enforces SSL to be used, and will request the client to authenticate. It
 also will load trusted certificates for the authentication process.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{BiDirectional GIOP}
+
+BiDirectional GIOP has its main use in configurations involving callbacks with
+applets or firewalls where it sometimes isn't possible to open a direct
+connection to the desired target. As a small example, imagine that you want to
+monitor the activities of a server via an applet. This would normally be done
+via a callback object that the applet registers at the server, so the applet
+doesn't have to poll the server for events. To accomplish this without
+BiDirectional GIOP, the server would have to open a new connection to the
+client which will not work because applets usually arent allowed to act as
+servers, i.e. open ServerSockets. At this point BiDirectional GIOP can help
+because it allows to reuse the connection the applet opened to the server for
+GIOP requests from the server to the applet (which isn't allowed in
+``standard'' GIOP).
+
+\section{Setting up Bidirectional GIOP}
+
+Setting up BiDirectional GIOP consists of two parts:
+\begin{enumerate}
+\item Setting an ORBInitializer property.
+\item Creating the BiDir policy
+\item Adding this policy to the servants POA.
+\end{enumerate}
+
+\subsection{Setting the ORBInitializer property}
+
+The first thing that is necessary for BiDirectional GIOP to be available is
+the presence of the following property, which can be added by the usual ways
+(see section \ref{configuration}):
+
+\begin{verbatim}
+   org.omg.PortableInterceptor.ORBInitializerClass.bidir_init= 
+       org.jacorb.orb.connection.BiDirConnectionInitializer
+\end{verbatim}
+
+If this property is present on ORB startup, the corresponding policy factory
+and interceptors will be loaded. 
+
+
+\subsection{Creating the BiDir Policy}
+Creating the necessary BiDir Policy is done via a policy factory hidden in the
+ORB. 
+
+\begin{verbatim}
+import org.omg.BiDirPolicy.*;
+import org.omg.CORBA.*;
+
+[...]
+
+Any any = orb.create_any();
+BidirectionalPolicyValueHelper.insert( any, BOTH.value );
+
+Policy p  = orb.create_policy( BIDIRECTIONAL_POLICY_TYPE.value,
+                               any );
+\end{verbatim}
+
+The value of the new policy is passed to the factory inside of an any. The ORB
+is the told to create a policy of the specified type with the specified
+value. The newly created policy is then used to create a user POA. Please note
+that if {\em any} POA of has this policy set, {\em all} connections will be
+enabled for BiDirectional GIOP, that is even those targeted at object of POAs
+that don't have this policy set. For the full source code, please have a look
+at the bidir demo in the {\tt demo} directory.
+
+
+\section{Verifying that BiDirectional GIOP is used}
+From inside of your application, it is impossible to tell whether requests
+arrived over a unidirectional or BiDirectional connection. Therefore, to check
+if connections are used in both directions, you can either use a network
+monitoring tool or take a look at JacORBs output to tell you if your server
+created a new connection to the client, or if the existing one is being
+reused.
+
+If the debug level is set to 2 or larger, the following output on the server
+side will tell you that a connection is being reused:
+
+\begin{verbatim}
+[ ConnectionManager: found conn to target <my IP>:<my port> ]
+\end{verbatim}
+
+If, on the other hand, the connection is not being reused, the client will
+show the following output:
+\begin{verbatim}
+[ Opened new server-side TCP/IP transport to <my host>:<my port> ]
+\end{verbatim}
+
+
+\section{TAO interoperability}
+There is one problem that may prevent TAO and JacORB to interoperate using
+BiDirectional GIOP: If JacORB uses IP addresses as host names (JacORBs
+default) and TAO uses DNS names ast host names (TAOs default), connections
+from JacORB clients to TAO servers will not be reused. If, on the other hand,
+both use the same ``format'' for host addresses, interoperability will be
+successful. There are two ways to solve this problem:
+\begin{enumerate}
+\item Use {\tt ``-ORBdotteddecimaladdresses 1''} as an command line argument
+  to the TAO server.
+\item Recompile JacORB with DNS support (See the INSTALL file for more
+  information). 
+\end{enumerate}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
