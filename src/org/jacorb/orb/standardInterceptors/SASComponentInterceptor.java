@@ -164,7 +164,7 @@ public class SASComponentInterceptor
                 } else {
                 	targetName = Environment.getProperty( "jacorb.security.sas.tss.target_name").getBytes();
                 }
-                
+
                 short asTargetSupports = targetSupports;
                 short asTargetRequires = targetRequires;
 
@@ -215,7 +215,7 @@ public class SASComponentInterceptor
                 CompoundSecMechListHelper.write( sasDataStream , compoundSecMechList );
                 tc = new TaggedComponent( TAG_CSI_SEC_MECH_LIST.value, sasDataStream.getBufferCopy() );
 
-                sasDataStream.release ();
+                sasDataStream.close ();
                 sasDataStream = null;
             }
 
