@@ -238,7 +238,7 @@ public final class POAUtil
 
 
     /**
-     * <code>extractScopedPOANames</code> returns a vector contained the
+     * <code>extractScopedPOANames</code> returns a list containing the
      * poa_names. This method is faster than using a StringTokenizer.
      *
      * @param poa_name is a <code>String</code> value which may contain
@@ -246,13 +246,13 @@ public final class POAUtil
      * {@link POAConstants#OBJECT_KEY_SEPARATOR OBJECT_KEY_SEPARATOR}
      * @return a <code>Vector</code> value
      */
-    public static Vector extractScopedPOANames (String poa_name)
+    public static List extractScopedPOANames (String poa_name)
     {
-        Vector scopes = new Vector ();
+        List scopes = new ArrayList();
 
         if (poa_name.length () > 0)
         {
-            // Fill in the vector with the poa_names.
+            // Fill in the list with the poa_names.
             int previous = 0, current=0;
 
             for ( ; current < poa_name.length (); current++)
