@@ -42,13 +42,13 @@ public class ClientGIOPConnection
                                  StatisticsProvider statistics_provider )
     {
         super( profile, transport, request_listener, reply_listener, statistics_provider );
-        
+
         //default to "off" is handled internally by Environment.isPropertyOn()
         ignore_pending_messages_on_timeout =
             Environment.isPropertyOn("jacorb.connection.client.timeout_ignores_pending_messages");
     }
 
-    public void readTimedOut()
+    protected void readTimedOut()
     {
         synchronized( pendingUndecidedSync )
         {
@@ -63,10 +63,14 @@ public class ClientGIOPConnection
         }
     }
 
-    public void streamClosed()
+    protected void streamClosed()
     {
         closeAllowReopen();
-        super.streamClosed();
+
+        if( connection_listener != null )
+        {
+            connection_listener.streamClosed();
+        }
     }
 
     public void closeAllowReopen()

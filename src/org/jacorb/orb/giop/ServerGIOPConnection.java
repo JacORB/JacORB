@@ -67,7 +67,11 @@ public class ServerGIOPConnection
     }
 
 
-    public boolean tryClose()
+    /*
+     * <code>tryClose</close> called by GIOPConnectionManager::createServerGIOPConnection
+     * if there are too many GIOP connections or if we have timed out with nothing pending.
+     */
+    boolean tryClose()
     {
         if( tryDiscard() )
         {
@@ -90,10 +94,35 @@ public class ServerGIOPConnection
 
 
     /**
+     * Atomically try to set this connection into discarding mode, if
+     * it doesn't have any pending messages.
+     *
+     * @return true, if the connection has been idle and discarding
+     * has been set
+     */
+    private boolean tryDiscard()
+    {
+        if( ! hasPendingMessages() )
+        {
+            synchronized( pendingUndecidedSync )
+            {
+                discard_messages = true;
+            }
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+
+    /**
      * <code>sendCloseConnection</code> sends a close connection message
      * flushing the transport.
      */
-    public void sendCloseConnection()
+    private void sendCloseConnection()
     {
         try
         {
@@ -139,7 +168,7 @@ public class ServerGIOPConnection
     }
 
 
-    public void readTimedOut()
+    protected void readTimedOut()
     {
         if( closeOnReadTimeout )
         {
@@ -159,12 +188,12 @@ public class ServerGIOPConnection
      * We're server side and can't reopen, therefore close completely
      * if stream closed.
      */
-    public void streamClosed()
+    protected void streamClosed()
     {
         /**
          * We're server side and can't reopen, therefore close completely
          * if stream closed.
          */
-        closeCompletely();
+        close();
     }
 }// ServerGIOPConnection

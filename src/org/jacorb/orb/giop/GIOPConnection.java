@@ -89,7 +89,7 @@ public abstract class GIOPConnection
     // the no. of outstanding messages (requests/replies)
     private int pending_messages = 0;
 
-    private boolean discard_messages = false;
+    protected boolean discard_messages = false;
 
     //used to lock the section where we got a message, but it isn't
     //yet decided, if this might need a reply, i.e. set the transport
@@ -222,7 +222,10 @@ public abstract class GIOPConnection
          }
     }
 
-    public abstract void readTimedOut();
+
+    protected abstract void readTimedOut();
+    protected abstract void streamClosed();
+
 
     /**
      * Read a GIOP message from the stream. This will first try to
@@ -755,11 +758,6 @@ public abstract class GIOPConnection
 
     public void close()
     {
-        closeCompletely();
-    }
-
-    public void closeCompletely()
-    {
          synchronized (connect_sync)
          {
             if( connection_listener != null )
@@ -775,44 +773,13 @@ public abstract class GIOPConnection
         Debug.output( 2, "GIOPConnection closed completely" );
     }
 
+
     /**
      * Get the statistics provider for transport usage statistics.
      */
     public final StatisticsProvider getStatisticsProvider()
     {
         return statistics_provider;
-    }
-
-    /**
-     * Atomically try to set this connection into discarding mode, if
-     * it doesn't have any pending messages.
-     *
-     * @return true, if the connection has been idle and discarding
-     * has been set
-     */
-    public boolean tryDiscard()
-    {
-        if( ! hasPendingMessages() )
-        {
-            synchronized( pendingUndecidedSync )
-            {
-                discard_messages = true;
-            }
-
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    public void streamClosed()
-    {
-        if( connection_listener != null )
-        {
-            connection_listener.streamClosed();
-        }
     }
 
 
