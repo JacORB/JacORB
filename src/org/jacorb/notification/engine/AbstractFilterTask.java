@@ -155,7 +155,7 @@ abstract class AbstractFilterTask extends AbstractTask
      * Schedule this Task on its default Executor for execution.
      */
     public void schedule() throws InterruptedException{
-        // as all FilterTasks share their Executor queuing of this
+        // as all FilterTasks share their Executor, queuing of this
         // Task can be avoided if there are no other Tasks to run.
         // in this case this Task will be run immediately.
         schedule(!getTaskExecutor().isTaskQueued());
