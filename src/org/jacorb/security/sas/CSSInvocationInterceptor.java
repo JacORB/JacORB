@@ -152,7 +152,14 @@ System.out.println("Authorized list size = " + authorizationList.length);
 
         // get SAS message
         SASContextBody contextBody = null;
-        ServiceContext ctx = ri.get_request_service_context(SecurityAttributeService);
+        ServiceContext ctx = null;
+        try
+        {
+            ctx = ri.get_request_service_context(SecurityAttributeService);
+        }
+        catch (Exception e)
+        {
+        }
         if (ctx == null) return;
         try
         {
@@ -189,7 +196,14 @@ System.out.println("Authorized list size = " + authorizationList.length);
 
         // get SAS message
         SASContextBody contextBody = null;
-        ServiceContext ctx = ri.get_request_service_context(SecurityAttributeService);
+        ServiceContext ctx = null;
+        try
+        {
+            ctx = ri.get_request_service_context(SecurityAttributeService);
+        }
+        catch (Exception e)
+        {
+        }
         if (ctx == null) return;
         try
         {

@@ -57,13 +57,15 @@ public class TSSInvocationInterceptor
     private org.jacorb.orb.ORB orb = null;
     private Codec codec = null;
     private int sourceNameSlotID = -1;
+    private int contextMsgSlotID = -1;
     private int sasReplySlotID = -1;
 
-    public TSSInvocationInterceptor(org.jacorb.orb.ORB orb, Codec codec, int sourceNameSlotID, int sasReplySlotID)
+    public TSSInvocationInterceptor(org.jacorb.orb.ORB orb, Codec codec, int sourceNameSlotID, int contextMsgSlotID, int sasReplySlotID)
     {
         this.orb = orb;
         this.codec = codec;
         this.sourceNameSlotID = sourceNameSlotID;
+        this.contextMsgSlotID = contextMsgSlotID;
         this.sasReplySlotID = sasReplySlotID;
         name = DEFAULT_NAME;
     }
@@ -91,6 +93,9 @@ public class TSSInvocationInterceptor
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
+        if (ri.operation().equals("_is_a")) return;
+        if (ri.operation().equals("_non_existent")) return;
+
         //System.out.println("receive_request_service_contexts");
         SASContextBody contextBody = null;
         GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
@@ -108,7 +113,7 @@ public class TSSInvocationInterceptor
         }
         catch (Exception e)
         {
-            Debug.output(1, "Could not parse service context: " + e);
+            Debug.output(1, "Could not parse service context for operation " + ri.operation() + ": " + e);
             throw new org.omg.CORBA.NO_PERMISSION("Error parsing service context");
         }
 
@@ -163,7 +168,7 @@ public class TSSInvocationInterceptor
             }
 
             // cache context
-            connection.cacheSASContext(msg.client_context_id, contextToken);
+            connection.cacheSASContext(msg.client_context_id, contextToken, msg);
         }
 
         // set slots
@@ -171,10 +176,12 @@ public class TSSInvocationInterceptor
         {
             Any source_any = orb.create_any();
             source_any.insert_string(new String(contextToken));
+            Any msg_any = orb.create_any();
+            EstablishContextHelper.insert(msg_any, connection.getSASContextMsg(client_context_id));
             //Any tokens_any = orb.create_any();
             //tokens_any.insert_string(new String(contextToken));
             ri.set_slot( sourceNameSlotID, source_any);
-            //ri.set_slot( authTokensSlotID, source_any);
+            ri.set_slot( contextMsgSlotID, msg_any);
             ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id, true));
         }
         catch (Exception e)
@@ -187,10 +194,19 @@ public class TSSInvocationInterceptor
 
     public void send_reply( ServerRequestInfo ri )
     {
+        Any slot_any = null;
+        try {
+            slot_any = ri.get_slot(sasReplySlotID);
+        }
+        catch (Exception e)
+        {
+        }
+        if (slot_any == null) return;
+
         //System.out.println("send_reply");
         try
         {
-            ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( ri.get_slot(sasReplySlotID) ) ), true);
+            ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( slot_any ) ), true);
         }
         catch (Exception e)
         {

@@ -110,6 +110,7 @@ public class SASComponentInterceptor
                 short asTargetRequires = targetRequires;
 
                 // the SAS_ContextSec
+                //String atlasLocator = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.locator", "URL");
                 String atlasURL = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.url");
                 String atlasCache = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.cacheid");
                 ServiceConfiguration[] serviceConfiguration = null;
@@ -121,7 +122,16 @@ public class SASComponentInterceptor
                 {
                     if (atlasCache == null) atlasCache = "";
                     ATLASLocator atlasLoc = new ATLASLocator();
-                    atlasLoc.the_url(atlasURL);
+                    //String atlasLocator = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.URL");
+                    //if (atlasLocator != null)
+                    //{
+                        atlasLoc.the_url(atlasURL);
+                    //}
+                    //atlasLocator = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.Naming");
+                    //if (atlasLocator != null)
+                    //{
+                    //    atlasLoc.naming_locator(atlasLocator);
+                    //}
                     ATLASProfile profile = new ATLASProfile();
                     profile.the_cache_id = atlasCache.getBytes();
                     profile.the_locator = atlasLoc;

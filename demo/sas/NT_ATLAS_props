@@ -43,3 +43,4 @@ jacorb.security.sas.mechanism.1.oid=2.23.130.1.1.1
 jacorb.security.sas.mechanism.1.provider=org.jacorb.security.sas.NT_GSSUPProvider
 jacorb.security.sas.server.target_requires=Integrity,Confidentiality,EstablishTrustInClient
 jacorb.security.sas.server.target_name=ATLAS
+jacorb.ATLASServer.Name=ATLAS
