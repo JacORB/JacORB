@@ -139,6 +139,8 @@ public class JAASClient
 
             //call single operation
             demo.printSAS();
+            demo.printSAS();
+            demo.printSAS();
 
             System.out.println( "Call to server succeeded" );
         }
