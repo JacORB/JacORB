@@ -47,8 +47,8 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener
 {
-    private static final String versionString = "1.3.21";
-    private static final String dateString = "28 March 2001";
+    private static final String versionString = "1.3.22";
+    private static final String dateString = "10 April 2001";
 
     /** "initial" references */
     private Hashtable initial_references = new Hashtable();
@@ -535,13 +535,6 @@ public final class ORB
         return basicAdapter;
     }
 
-    public String getDefaultContextURLString()
-    {
-        if( applet == null )
-            return Environment.rootNsURL();
-        else
-            return applet.getCodeBase().toString() + "_JacORB_NS";
-    }
 
     /** 
      * getPOACurrent
@@ -750,8 +743,8 @@ public final class ORB
     public void referenceCreated(org.omg.CORBA.Object o)
     {}
 
-    public boolean get_service_information(short service_type,
-                                           org.omg.CORBA.ServiceInformationHolder service_information) 
+    public boolean get_service_information( short service_type,
+                                            org.omg.CORBA.ServiceInformationHolder service_information) 
     {
         //          if (( service_type == org.omg.CORBA.Security.value ) && Environment.supportSSL ())
         //          {
@@ -790,81 +783,36 @@ public final class ORB
         }
         else
         {
-            //Debug.output(2, ">>" + identifier + "<< not set yet");
             org.omg.CORBA.Object obj = null;
+            String url = Environment.getProperty("ORBInitRef." + identifier);
 
-            if( identifier.equals("InterfaceRepository") )
+            if( url != null )
             {
-                String url = org.jacorb.util.Environment.interfaceRepositoryURL();
-                if( url == null )
-                    return null;
-                String ior;
-                if( url.startsWith("http:"))
-                    ior = org.jacorb.util.ObjectUtil.readURL(url);
-                else
-                    ior = url;
-                                
-                obj = this.string_to_object( ior );
+                obj = this.string_to_object( url );
             }
-            else if( identifier.equals("NameService") )
+            /* "special" behavior follows */
+            else if( identifier.equals("NameService") && isApplet() )
             {
-                String ior_str = null;
-                String nsURL   = org.jacorb.util.Environment.rootNsURL();
+                // try to get location of URL with ns's IOR from a file
+                //     called NameService.ior at the applet's host
+                String ior_str = 
+                    org.jacorb.util.ObjectUtil.readURL("http://"
+                                                       + applet.getCodeBase().getHost()
+                                                       + "/"
+                                                       + "NameService.ior");
+                
+                obj = this.string_to_object(ior_str);
 
-                if (nsURL == null) 
-                {
-                    // try to get location of URL with ns's IOR from a file
-                    //     called NameService.ior at the applet's host
-                    ior_str = org.jacorb.util.ObjectUtil.readURL("http://"
-                                                             + applet.getCodeBase().getHost()
-                                                             + "/"
-                                                             + "NameService.ior");
-                }
-                else if (nsURL.indexOf(":",4) < 0) 
-                {
-                    // no http: nor file:
-                    // try to get location of URL with proxy's IOR from a file
-                    // at applet's host
-                    ior_str = org.jacorb.util.ObjectUtil.readURL("http://"
-                                                             + applet.getCodeBase().getHost()
-                                                             + "/"
-                                                             + nsURL);
-                }
-                else 
-                {
-                    // use defined nsURL
-                    ior_str = org.jacorb.util.ObjectUtil.readURL(nsURL);
-                }
-                obj = org.omg.CosNaming.NamingContextHelper.narrow(this.string_to_object(ior_str));
+                if( ! obj._is_a( org.omg.CosNaming.NamingContextHelper.id()))
+                    obj = null;
             }
-            else if( identifier.equals("TradingService") )
-            {
-                String trader_ior = ObjectUtil.
-                    readURL(Environment.tradingServiceURL());
-                obj = org.omg.CosTrading.TraderComponentsHelper.
-                    narrow(this.string_to_object(trader_ior));
-            } 
             else if( identifier.equals("RootPOA") )
+            {
                 return (org.omg.CORBA.Object)getRootPOA();
-
+            }
             else if( identifier.equals("POACurrent") )
+            {
                 return (org.omg.CORBA.Object)getPOACurrent();
-      
-            else if( identifier.equals("DomainService") )
-            { 
-                if ( ! Environment.useDomain() ) 
-                    throw new org.omg.CORBA.ORBPackage.InvalidName
-                        ("domain service is not configured for usage. To configure domain service"
-                         +" set property \"jacorb.use_domain\" to \"on\".");
-
-                // retrieve reference to global domain server
-                String ds_ior = 
-                    ObjectUtil.readURL( Environment.DomainServiceURL() );
-
-                obj = 
-                    org.jacorb.orb.domain.DomainHelper.narrow(
-                         this.string_to_object( ds_ior ));
-
             }
             else if( identifier.equals("LocalDomainService") )
             { 
@@ -1026,67 +974,30 @@ public final class ORB
         }
     }
 
-    private void initialReferencesInit()
-    {
-        if( !Environment.useAppligator(isApplet()) && _args != null )
-        {
-            for( int i = 0; i < _args.length; i++ )
-            {
-                if( _args[i].equals("-ORBInitRef"))
-                {                                    
-                    if( (i + 1) < _args.length && 
-                        _args[i+1].indexOf("=") == -1 )
-                    {
-                        continue;
-                        //throw new InvalidName();
-                    }
-                    
-                    String refName = _args[i+1].substring(0,_args[i+1].indexOf("="));
-                    String ior = _args[i+1].substring(_args[i+1].indexOf("=")+1);
-                    try
-                    {
-                        org.omg.CORBA.Object obj = string_to_object(ior);
-                        if( obj != null )
-                        {
-                            register_initial_reference( refName, obj );
-                        }
-                        else
-                        {
-                            Debug.output( 1, "Illegal URL : " + ior );
-                        }
-                    }
-                    catch( Exception e )
-                    {
-                        Debug.output( 1, "Unable to create initial reference from " +
-                                      _args[i] );
-                        Debug.output( 3, e );
-                    }
-                    i++;
-                }
-            }
-        }
-        Hashtable props = Environment.getProperties( "ORBInitRef." );
+//      private void initialReferencesInit()
+//      {
+//          Hashtable props = Environment.getProperties( "ORBInitRef." );
             
-        for( Enumeration names = props.keys(); names.hasMoreElements(); )
-        {
-            String name = (String) names.nextElement();
-            String key = name.substring( name.indexOf('.')+1);
-            try
-            {
-                register_initial_reference( key, 
-                           string_to_object( (String) props.get( name )));
+//          for( Enumeration names = props.keys(); names.hasMoreElements(); )
+//          {
+//              String name = (String) names.nextElement();
+//              String key = name.substring( name.indexOf('.')+1);
+//              try
+//              {
+//                  register_initial_reference( key, 
+//                             string_to_object( (String) props.get( name )));
 
-                Debug.output(3, "ORBInitRef " + key + " string: " + 
-                             (String) props.get( name ));
-            }
-            catch( Exception e )
-            {
-                Debug.output( 1, "Unable to create initial reference from " +
-                              name + "=" + props.get( name ) );
-                Debug.output( 3, e );
-            }
-        }                
-    }
+//                  Debug.output(3, "ORBInitRef " + key + " string: " + 
+//                               (String) props.get( name ));
+//              }
+//              catch( Exception e )
+//              {
+//                  Debug.output( 1, "Unable to create initial reference from " +
+//                                name + "=" + props.get( name ) );
+//                  Debug.output( 3, e );
+//              }
+//          }                
+//      }
 
 
     /**
@@ -1159,7 +1070,6 @@ public final class ORB
                                dateString );
         }
 
-        initialReferencesInit();
         interceptorInit();
     }
 
@@ -1170,7 +1080,6 @@ public final class ORB
         Environment.addProperties( props );
         // unproxyTable = new Hashtable();
 
-        initialReferencesInit();
         interceptorInit();
     }
 
