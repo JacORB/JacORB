@@ -40,6 +40,8 @@ public class TestCase
 {
     private org.omg.CORBA.Object testObject;
     private org.omg.CORBA.Object localTestObject;
+    private POA poa;
+    private org.omg.CORBA.ORB orb;
 
     public TestCase( String name, ClientServerSetup setup )
     {
@@ -49,11 +51,10 @@ public class TestCase
     public void setUp()
     {
         testObject = setup.getServerObject();
-        org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( new String[0], null);
+        orb = org.omg.CORBA.ORB.init( new String[0], null);
 	try
 	{
-	    POA poa = 
-		POAHelper.narrow( orb.resolve_initial_references("RootPOA"));
+	    poa = POAHelper.narrow( orb.resolve_initial_references("RootPOA"));
 	
 	    poa.the_POAManager().activate();
 
@@ -106,6 +107,14 @@ public class TestCase
         assertFalse( "Is_a incorrectly returns true for non-local object",
                     localTestObject._is_a( "IDL:omg.org/CosNaming/NamingContext:1.0" ));
     }
+
+
+    public void tearDown() throws Exception
+    {
+        super.tearDown();
+        orb.shutdown( true );
+    }
+
 
     public static void main( String[] args )
     {
