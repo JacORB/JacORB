@@ -142,13 +142,13 @@ public class ReplyInputStream
 	catch ( java.lang.InterruptedException e )
 	{}
 
-	if( communicationException )
-	{
-	    throw new org.omg.CORBA.COMM_FAILURE();
-	}
-	else if( remarshalException )
+        if( remarshalException )
 	{
 	    throw new org.omg.CORBA.portable.RemarshalException();
+	}	
+        else if( communicationException )
+	{
+	    throw new org.omg.CORBA.COMM_FAILURE();
 	}
 
 	wakeup();
