@@ -65,7 +65,7 @@ public class OpDecl
         this.paramDecls  = new Vector (paramDecls);
         this.raisesExpr  = raisesExpr;
         setEnclosingSymbol (myInterface);
-        this.pack_name   = myInterface.pack_name;
+        this.pack_name   = myInterface.full_name();
     }
 
     /**
@@ -129,7 +129,7 @@ public class OpDecl
         {
             if( !raisesExpr.empty() )
                 parser.error( "Oneway operation " + full_name() +
-                        " may not define a raises clases.", token );
+                        " may not define a raises clause.", token );
 
             if( !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
                 parser.error( "Oneway operation " + full_name() +
