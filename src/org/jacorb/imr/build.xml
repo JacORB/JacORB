@@ -17,7 +17,7 @@
 	<property name="idlflags" 
                 value="-I${include}/omg -I${include}/jacorb -d
 	${src}/generated"/>
-	<available classname="javax.swing.JTree" property="swing.present" />
+	<available classname="java.lang.ref.WeakReference" property="java2.present" />
    </target>
 
    <target name="all" depends="init,idl,util">
@@ -45,7 +45,7 @@
       </java>
    </target>
 
-   <target name="util" if="swing.present">
+   <target name="util" if="java2.present">
 	   <echo message="util"/>
 	<javac srcdir="${src}"
                destdir="${classdir}"
@@ -54,8 +54,8 @@
    </target>
 
    <target name="clean" depends="init">
-       <deltree dir="${classdir}/org/jacorb/imr" />
-       <deltree dir="${src}/generated/org/jacorb/imr" />
+       <delete dir="${classdir}/org/jacorb/imr" />
+       <delete dir="${src}/generated/org/jacorb/imr" />
    </target>
 
 </project>
