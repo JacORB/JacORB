@@ -20,11 +20,12 @@ import org.omg.CORBA.Any;
 import demo.notification.office.PrinterPackage.*;
 
 import org.omg.PortableServer.*;
+import org.omg.CORBA.NO_IMPLEMENT;
 
 public class PrintClient
     extends StructuredPullConsumerPOA
 {
-    /** 
+    /**
      * releases any resources, none in this case
      */
     public void disconnect_structured_pull_consumer()
@@ -36,9 +37,9 @@ public class PrintClient
     {
     }
 
-    /** 
-     *    main  
-     */ 
+    /**
+     *    main
+     */
 
     static public void main( String argv[] )
     {
@@ -59,37 +60,37 @@ public class PrintClient
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init( argv, null);
         POA poa = null;
 
-        try 
+        try
         {
             // inititialize POA
-            poa = 
+            poa =
                 POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
             // get naming service reference
-            NamingContextExt nc = 
-                NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));   
+            NamingContextExt nc =
+                NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
 
             // find the event channel reference and the Printer
-            channel = 
+            channel =
                 EventChannelHelper.narrow(nc.resolve(nc.to_name("office_event.channel")));
 
             printer = PrinterHelper.narrow( nc.resolve(nc.to_name("Printer")));
 
             poa.the_POAManager().activate();
 
-            // create and implicitly activate the client 
-            structuredPullConsumer = 
+            // create and implicitly activate the client
+            structuredPullConsumer =
                 (StructuredPullConsumer)new PrintClient()._this(orb);
-                
+
             // get the admin interface and the supplier proxy
             consumerAdmin  = channel.default_consumer_admin();
 
-            proxyPullSupplier = 
+            proxyPullSupplier =
                 StructuredProxyPullSupplierHelper.narrow(
                     consumerAdmin.obtain_notification_pull_supplier(
-                                 ClientType.STRUCTURED_EVENT, 
+                                 ClientType.STRUCTURED_EVENT,
                                  new org.omg.CORBA.IntHolder() ) );
-            
+
             // connect ourselves to the event channel
             proxyPullSupplier.connect_structured_pull_consumer( structuredPullConsumer );
 
@@ -102,13 +103,13 @@ public class PrintClient
             else
             {
                 filter = filterFactory.create_filter("EXTENDED_TCL");
-                EventType [] eventTypes = 
-                    new EventType[] { new EventType("Office", "Printed"), 
+                EventType [] eventTypes =
+                    new EventType[] { new EventType("Office", "Printed"),
                                       new EventType("Office", "Canceled") };
-                
-                ConstraintExp constraint = 
+
+                ConstraintExp constraint =
                     new ConstraintExp ( eventTypes, "TRUE" );
-                               
+
                 filter.add_constraints( new ConstraintExp[]{ constraint } );
                 proxyPullSupplier.add_filter(filter);
             }
@@ -117,7 +118,7 @@ public class PrintClient
             org.omg.CORBA.Any data = org.omg.CORBA.ORB.init().create_any();
             data.insert_short( PriorityOrder.value );
             qos[0] = new Property( OrderPolicy.value, data);
-			
+
             try
             {
                 consumerAdmin.set_qos(qos);
@@ -125,15 +126,17 @@ public class PrintClient
             catch (UnsupportedQoS ex)
             {
                 System.err.println("Unsupported QoS");
-                System.exit(1);			   	
-            } 
-			
+            }
+            catch (NO_IMPLEMENT e) {
+                // this method is not supported yet
+            }
+
         }
-        catch (Exception e) 
+        catch (Exception e)
         {
             e.printStackTrace();
             System.exit(1);
-        }         
+        }
 
         // print a couple of jobs
 
@@ -141,7 +144,7 @@ public class PrintClient
         {
             try
             {
-                System.out.println("Sending job, ID #" + 
+                System.out.println("Sending job, ID #" +
                                    printer.print("A test job", userid));
             }
             catch( OffLine ol )
@@ -151,7 +154,7 @@ public class PrintClient
         }
 
         // wait a sec...
-        
+
         try
         {
             System.out.println("Sleep...");
@@ -185,14 +188,14 @@ public class PrintClient
 
         for( int i = 0; i < 5; i++ )
         {
-            org.omg.CORBA.BooleanHolder bh = 
+            org.omg.CORBA.BooleanHolder bh =
                 new org.omg.CORBA.BooleanHolder();
 
-            try 
+            try
             {
                 System.out.println("Looking for structured events....");
                 // try to pull an event
-                StructuredEvent event =  
+                StructuredEvent event =
                     proxyPullSupplier.try_pull_structured_event(bh);
 
                 if( bh.value )
@@ -200,22 +203,22 @@ public class PrintClient
                     System.out.println("got structured event.");
                     FixedEventHeader fixed_header = event.header.fixed_header;
                     System.out.println("\t" + fixed_header.event_type.domain_name + "." +
-                                       fixed_header.event_type.type_name + "#" + 
+                                       fixed_header.event_type.type_name + "#" +
                                        fixed_header.event_name  );
-                    
+
                     Property properties [] = event.filterable_data;
-                    System.out.println("\t" + properties[0].name + 
+                    System.out.println("\t" + properties[0].name +
                                        " : " + properties[0].value.extract_long() );
                     System.out.println("\t" + properties[1].name +
                                        " : " + properties[1].value.extract_string() );
                 }
                 Thread.currentThread().sleep(2000);
-            } 
-            catch( Exception e ) 
+            }
+            catch( Exception e )
             {
                 e.printStackTrace();
             }
-        }       
+        }
         // disconnect and shutdown
         proxyPullSupplier.disconnect_structured_pull_supplier();
         orb.shutdown(true);
