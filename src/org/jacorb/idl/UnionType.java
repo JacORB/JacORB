@@ -969,22 +969,36 @@ class UnionType
 	int mi = 0;
 
 	TypeSpec label_t = switch_type_spec.typeSpec();
-	if( label_t instanceof ScopedName )
-	    label_t = ((ScopedName)label_t).resolvedTypeSpec();
+
+        while( label_t instanceof ScopedName || label_t instanceof AliasTypeSpec )
+        {
+            if( label_t instanceof ScopedName )
+                label_t = ((ScopedName)label_t).resolvedTypeSpec();
+            if( label_t instanceof AliasTypeSpec )          
+                label_t = ((AliasTypeSpec)label_t).originalType();
+        }
+
 	label_t = label_t.typeSpec();
 
 	for( Enumeration e = switch_body.caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
  	    TypeSpec t = c.element_spec.t;
- 	    if( t instanceof ScopedName )
- 		t = ((ScopedName)t).resolvedTypeSpec();
+
+            while( t instanceof ScopedName || t instanceof AliasTypeSpec )
+            {
+                if( t instanceof ScopedName )
+                    t = ((ScopedName)t).resolvedTypeSpec();
+                if( t instanceof AliasTypeSpec )          
+                    t = ((AliasTypeSpec)t).originalType();
+            }
+
 
  	    t = t.typeSpec();	    
             Declarator d = c.element_spec.d;
 
 	    int caseLabelNum = c.case_label_list.v.size();
-	    for( int i=0; i < caseLabelNum;i++) 
+	    for( int i = 0; i < caseLabelNum; i++) 
 	    {
 		Object o = c.case_label_list.v.elementAt(i);
 
@@ -1011,7 +1025,7 @@ class UnionType
 		    
 		    ps.println( ((ConstExpr)o).value() + ");");
 		}
-		else if(switch_is_enum)
+		else if( switch_is_enum )
 		{
 		    String _t = ((ScopedName)o).typeName();
 		    ps.println("\t\t\t" + _t.substring(0, _t.lastIndexOf('.')) + "Helper.insert( label_any, " + _t + " );");	
@@ -1019,6 +1033,11 @@ class UnionType
                     //		    ps.println("\t\t\tlabel_any.insert_long(" + _t.substring(0, _t.lastIndexOf('.')+1) 
                     //       + "_" + _t.substring( _t.lastIndexOf('.')+1) + ");");	
 		}
+                else
+                {
+                    throw new Error("Compiler error: unrecognized label type: " + label_t.typeName() );
+                }
+
 		ps.print("\t\t\tmembers[" + (mi++) + "] = new org.omg.CORBA.UnionMember(\""+d.name()+"\",label_any,");
 
 		if( t instanceof ConstrTypeSpec  )
