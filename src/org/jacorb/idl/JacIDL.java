@@ -40,7 +40,7 @@ import java.io.IOException;
  * @version $Id$
  */
 
-public class JacIDL 
+public class JacIDL
     extends MatchingTask
 {
     private File _destdir;
@@ -75,7 +75,6 @@ public class JacIDL
         _destdir = new File( "." );
         _srcdir = new File( "." );
         _parseonly = false;
-        //        _globalimport = false;
         _generateir = false;
         _noskel = false;
         _nostub = false;
@@ -169,15 +168,6 @@ public class JacIDL
         _parseonly = flag;
     }
 
-    /**
-     * Set the flag to use global imports.
-     * @param flag the flag
-     */
-//      public void setGlobalimport( boolean flag )
-//      {
-
-//          _globalimport = flag;
-//      }
 
     /**
      * Set the flag to leave out skeleton generation.
@@ -280,9 +270,6 @@ public class JacIDL
         // generate interface repository
         parser.generateIR = _generateir;
 
-        // global import
-        //        parser.global_import = _globalimport;
-
         // parse only
         parser.parse_only = _parseonly;
 
@@ -300,7 +287,7 @@ public class JacIDL
 
         // nofinal
         parser.setGenerateFinalCode(!_nofinal);
-        
+
         // AMI callback model
         parser.generate_ami_callback = _ami_callback;
 
@@ -462,5 +449,3 @@ public class JacIDL
         }
     }
 }
-
-
