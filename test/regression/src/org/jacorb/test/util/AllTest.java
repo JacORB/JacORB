@@ -1,4 +1,4 @@
-package org.jacorb.test;
+package org.jacorb.test.util;
 
 /*
  *        JacORB  - a free Java ORB
@@ -31,15 +31,10 @@ public class AllTest extends TestCase
 
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("All jacorb");
+        TestSuite suite = new TestSuite ("All Util Tests");
 
-      suite.addTest (org.jacorb.test.idl.AllTest.suite ());
-      suite.addTest (org.jacorb.test.orb.AllTest.suite ());
-      suite.addTest (org.jacorb.test.poa.AllTest.suite ());
-      suite.addTest (org.jacorb.test.naming.AllTest.suite ());
-      suite.addTest (org.jacorb.test.bugs.AllTest.suite());
-      suite.addTest (org.jacorb.test.util.AllTest.suite());
+        suite.addTest (LogKitLoggerFactoryTest.suite());
 
-      return suite;
+        return suite;
    }
 }
