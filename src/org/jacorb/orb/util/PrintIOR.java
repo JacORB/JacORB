@@ -92,7 +92,7 @@ public class PrintIOR
 
         if( iorString.startsWith( "IOR:" ))
         {
-            ParsedIOR pior = new ParsedIOR( iorString );
+            ParsedIOR pior = new ParsedIOR( iorString, orb );
             printIOR(pior, orb);
         }
         else
@@ -563,4 +563,3 @@ public class PrintIOR
         }
     }
 }
-

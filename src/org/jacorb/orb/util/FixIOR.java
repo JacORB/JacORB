@@ -39,7 +39,7 @@ import java.io.*;
  * @author Steve Osselton
  */
 
-public class FixIOR 
+public class FixIOR
 {
     public static void main (String args[])
         throws Exception
@@ -59,7 +59,7 @@ public class FixIOR
         ProfileBody_1_1 body11;
         short port;
         int iport;
-    
+
         if (args.length != 3)
         {
             System.err.println ("Usage: fixior host port ior_file");
@@ -73,7 +73,7 @@ public class FixIOR
         br = new BufferedReader (new FileReader (iorFile));
         iorString = br.readLine ();
         br.close ();
-    
+
         if (! iorString.startsWith ("IOR:"))
         {
             System.err.println ("IOR must be in the standard IOR URL format");
@@ -89,9 +89,9 @@ public class FixIOR
 
         orb = org.omg.CORBA.ORB.init (args, null);
 
-        // Parse IOR 
+        // Parse IOR
 
-        pior = new ParsedIOR (iorString);
+        pior = new ParsedIOR (iorString, orb);
         ior = pior.getIOR ();
 
         // Iterate through IIOP profiles setting host and port
@@ -108,7 +108,7 @@ public class FixIOR
 
                 os = new CDROutputStream ();
                 os.beginEncapsulatedArray ();
-                
+
                 if (body10.iiop_version.minor > 0)
                 {
                     is = new CDRInputStream (orb, profiles[i].profile_data);
@@ -133,9 +133,9 @@ public class FixIOR
         }
 
         pior = new ParsedIOR (ior);
-        
+
         // Write out new IOR to file
-        
+
         bw = new BufferedWriter (new OutputStreamWriter (new FileOutputStream (iorFile)));
         bw.write (pior.getIORString ());
         bw.close ();
