@@ -44,34 +44,28 @@ public abstract class PatternWrapper
     static Class sDefaultInstance;
 
     static {
-        try
-        {
-            Class.forName( "gnu.regexp.RE" );
-
-            sDefaultInstance =
-                Class.forName( "org.jacorb.notification.util.GNUPatternWrapper" );
-
-            sGnuRegexpAvailable = true;
-        }
-        catch ( Exception e )
-        {
-            // ignore
-        }
-
-        if ( !sGnuRegexpAvailable )
-        {
-            try
-            {
-                Class.forName( "java.util.regex.Pattern" );
-
-                sDefaultInstance =
-                    Class.forName( "org.jacorb.notification.util.JDK14PatternWrapper" );
-            }
-            catch ( Exception e )
-            {
-                throw REGEXP_NOT_AVAILABLE;
-            }
-        }
+	
+	if (isClassAvailable("java.util.regex.Pattern")) {
+	    
+	    try {
+		sDefaultInstance =
+		    Class.forName( "org.jacorb.notification.util.JDK14PatternWrapper" );
+	    } catch (ClassNotFoundException e) {
+		throw new RuntimeException(e.getMessage());
+	    }
+	    
+	} else if (isClassAvailable("gnu.regexp.RE")) {
+	    
+	    try {
+		sDefaultInstance =
+		    Class.forName( "org.jacorb.notification.util.GNUPatternWrapper" );
+	    } catch (ClassNotFoundException e) {
+		throw new RuntimeException(e.getMessage());
+	    }
+	    
+	} else {
+	    throw REGEXP_NOT_AVAILABLE;
+	}
     }
 
     static PatternWrapper init( String patternString )
@@ -98,4 +92,15 @@ public abstract class PatternWrapper
     public abstract void compile( String pattern );
 
     public abstract int match( String text );
+
+    private static boolean isClassAvailable(String name) {
+	try {
+	    Class.forName(name);
+
+	    return true;
+	} catch (ClassNotFoundException e) {
+	}
+
+	return false;
+    }
 }

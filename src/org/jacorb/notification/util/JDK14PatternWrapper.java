@@ -21,10 +21,17 @@ package org.jacorb.notification.util;
  *
  */
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+/**
+ * @version $Id$
+ */
+
 class JDK14PatternWrapper extends PatternWrapper
 {
 
-    private java.util.regex.Pattern pattern_;
+    private Pattern pattern_;
 
     public void compile( String patternString )
     {
@@ -33,7 +40,7 @@ class JDK14PatternWrapper extends PatternWrapper
 
     public int match( String text )
     {
-        java.util.regex.Matcher _m = pattern_.matcher( text );
+        Matcher _m = pattern_.matcher( text );
 
         if ( _m.find() )
         {

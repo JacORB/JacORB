@@ -62,6 +62,9 @@ import java.io.PrintWriter;
 import java.io.FileWriter;
 import org.jacorb.notification.util.PatternWrapper;
 import org.jacorb.notification.util.LogConfiguration;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextHelper;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -87,24 +90,16 @@ import org.jacorb.notification.util.LogConfiguration;
 
 public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements Disposable
 {
-
-    static {
-	// force Classloader to load Class PatternWrapper.
-	// PatternWrapper may cause a ClassNotFoundException if
-	// running on < JDK1.4 and gnu.regexp is NOT installed.
-	// Therefor the Error should occur as early as possible.
-	PatternWrapper.class.getName();
-    }
-
     interface ShutdownCallback {
 	public void needTime(int time);
+	public void shutdownComplete();
     }
 
+    static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[0];
+
     private static final String NOTIFICATION_SERVICE = "NotificationService";
-    
-    static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[ 0 ];
-	static final String notificationPOAName = "NotificationPOA";
-	static final String objectName = "_factory";
+    static final String notificationPOAName = "NotificationPOA";
+    static final String objectName = "_factory";
 
     protected EventChannelFactory thisFactory_;
     protected FilterFactory defaultFilterFactory_;
@@ -348,11 +343,16 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     }
 
     public void shutdown(ShutdownCallback cb) {
-	cb.needTime(1000);
+	int numberOfChannels = allChannels_.size();
+
+	// estimate 1000ms shutdowntime per channel
+	cb.needTime(numberOfChannels * 1000);
 
 	logger_.info("NotificationService is going down");
 	dispose();
 	logger_.info("NotificationService down");
+
+	cb.shutdownComplete();
     }
 
     public void dispose() {
@@ -514,7 +514,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     }
 
     private static void help() {
-	System.out.println("Usage: ntfy [-printIOR] [-printCorbaloc] [-writeIOR <filename>] [-port <oaPort>] [-channels <channels>] [-help]");
+	System.out.println("Usage: ntfy [-printIOR] [-printCorbaloc] [-writeIOR <filename>] [-registerName <nameId>[.<nameKind>]] [-port <oaPort>] [-channels <channels>] [-help]");
 	
 	System.exit(0);
     }    
@@ -531,29 +531,57 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	String iorFileName = null;
     	String oaPort = null;
     	int channels = 0;
-    	
+	String nameId = null;
+	String nameKind = "";
+
+
 	LogConfiguration.getInstance().configure();
 
-    	// process arguments
-    	for (int i = 0; i < args.length; i++) {
-	    if (args[i].equals("-printIOR")) {
-		doPrintIOR = true;
-	    } else if (args[i].equals("-printCorbaloc")) {
-		doPrintCorbaloc = true;
-	    } else if (args[i].equals("-help")) {
-		doHelp = true;
-	    } else if (args[i].equals("-port")) {
-		oaPort = args[++i];
-	    } else if (args[i].equals("-channels")) {
-		channels = Integer.parseInt(args[++i]);
-	    } else if (args[i].equals("-writeIOR")) {
-		iorFileName = args[++i];
-	    } else {
-		System.out.println("Unknown argument: "+args[i]);
-		help();
-	    }    
-    	}
-    	
+
+	// force Classloader to load Class PatternWrapper.
+	// PatternWrapper may cause a ClassNotFoundException if
+	// running on < JDK1.4 and gnu.regexp is NOT installed.
+	// Therefor the Error should occur as early as possible.
+	PatternWrapper.class.getName();
+
+
+	try {
+	    // process arguments
+	    for (int i = 0; i < args.length; i++) {
+		if (args[i].equals("-printIOR")) {
+		    doPrintIOR = true;
+		} else if (args[i].equals("-printCorbaloc")) {
+		    doPrintCorbaloc = true;
+		} else if (args[i].equals("-help")) {
+		    doHelp = true;
+		} else if (args[i].equals("-port")) {
+		    oaPort = args[++i];
+		} else if (args[i].equals("-channels")) {
+		    channels = Integer.parseInt(args[++i]);
+		} else if (args[i].equals("-writeIOR")) {
+		    iorFileName = args[++i];
+		} else if (args[i].equals("-registerName")) {
+		    String name = args[++i];
+		
+		    int index = name.indexOf(".");
+		    if (name.lastIndexOf(".") != index) {
+			throw new IllegalArgumentException(name + ": argument to -registerName should be <nameId> or <nameId>.<nameKind>");
+		    }
+		    if (index != -1) {
+			nameId = name.substring(0, index);
+			nameKind = name.substring(index+1);
+		    } else {
+			nameId = name;
+		    }
+		} else {
+		    System.out.println("Unknown argument: "+args[i]);
+		    help();
+		}    
+	    }
+    	} catch (ArrayIndexOutOfBoundsException e) {
+	    doHelp = true;
+	}
+	
     	if (doHelp) {
 	    help();
 	    System.exit(0);
@@ -588,6 +616,20 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	    out.flush();
 	    out.close();
 	}
+
+	if (nameId != null) {
+	    NamingContext namingContext =
+		NamingContextHelper.narrow(_orb.resolve_initial_references("NameService"));
+
+	    NameComponent[] name = new NameComponent[] {
+		new NameComponent(nameId, nameKind)
+	    };
+
+	    System.out.println("namingContext.rebind("+ name + " => " + _factory);
+	    
+	    namingContext.rebind(name, _factory.getEventChannelFactory());
+	}
+
 
 	if (doPrintCorbaloc) {
 	    System.out.println(_factory.getCorbaLoc());
