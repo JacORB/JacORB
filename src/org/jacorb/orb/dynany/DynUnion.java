@@ -326,7 +326,8 @@ public final class DynUnion
          throw new TypeMismatch();
       }
       discriminator = d.to_any();
-
+      pos = 1;
+      
       /* check if the new discriminator is consistent with the 
          currently active member. If not, select a new one */
 
@@ -359,7 +360,13 @@ public final class DynUnion
       catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
       {
          bk.printStackTrace();
-      }	
+      }
+
+      // set the current position to zero if there is no active member
+      if (has_no_active_member ())
+      {
+         pos = 0;
+      }      
    }
 
    /**
@@ -487,6 +494,7 @@ public final class DynUnion
          /* if there is a default index, we do have active members */
          if( type().default_index() != -1 )
             throw new TypeMismatch();
+         pos = 0;
 
          // do nothing if discriminator is already set to no active member
          if (!has_no_active_member ())
@@ -758,7 +766,7 @@ public final class DynUnion
 
          for( int i = 0; i < type.member_count(); i++ )
          {
-            if( discriminator.equal( type.member_label(i)  ))
+            if( discriminator.equal( type.member_label(i) ))
             {
                return false;
             }
