@@ -20,6 +20,8 @@ package org.jacorb.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.*;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
@@ -88,7 +90,6 @@ public class Environment
     private static boolean              _use_imr = false;
     private static boolean              _use_imr_endpoint = true;
     private static boolean              _cache_references = false;
-    private static PrintWriter          _log_file_out = null;
     private static String               logFileName = null;
 
     private static long                  _max_log_size = 0;
@@ -140,6 +141,11 @@ public class Environment
 
     private static boolean strict_check_on_tc_creation;
 
+    /** root logger instance for JacORB */
+    private static LoggerFactory loggerFactory = null;
+    private static org.apache.avalon.framework.logger.Logger logger = null;
+    private static String loggerFactoryClzName = "org.jacorb.util.LogKitLoggerFactory";
+
     static
     {
         _init();
@@ -152,11 +158,11 @@ public class Environment
             _props = new Properties();
 
             String customPropertyFileNames =
-            System.getProperty( "custom.props" );
+                System.getProperty("custom.props");
 
-            String home = System.getProperty( "user.home" );
-            String sep = System.getProperty( "file.separator" );
-            String lib = System.getProperty( "java.home" );
+            String home = System.getProperty("user.home");
+            String sep = System.getProperty("file.separator");
+            String lib = System.getProperty("java.home");
 
             /* look for home directory config files first */
 
@@ -190,13 +196,13 @@ public class Environment
 
                 //try first file name
                 url =
-                ClassLoader.getSystemResource( propertiesFile1 );
+                    ClassLoader.getSystemResource( propertiesFile1 );
 
                 if( url == null )
                 {
                     //first is not found, so try second
                     url =
-                    ClassLoader.getSystemResource( propertiesFile2 );
+                        ClassLoader.getSystemResource( propertiesFile2 );
                 }
 
                 if( url != null )
@@ -249,7 +255,7 @@ public class Environment
                 try
                 {
                     StringTokenizer strtok =
-                    new StringTokenizer(customPropertyFileNames, ",");
+                        new StringTokenizer(customPropertyFileNames, ",");
 
                     while( strtok.hasMoreTokens() )
                     {
@@ -271,9 +277,15 @@ public class Environment
             //read prop values to set fields ov this class
             readValues();
 
+            // initialize default logger factory and create a logger:
+            initLogging();
+
+            if( logger == null )
+                throw new Error("Logger is null!");
+
             if( _verbosity > 0 &&
-                ! loaded &&
-                ! _props.getProperty( "jacorb.suppress_no_props_warning", "off" ).equals( "on" )) // rt
+                    ! loaded &&
+                    ! _props.getProperty( "jacorb.suppress_no_props_warning", "off" ).equals( "on" )) // rt
             {
                 System.err.println( "#####################################################################" );
 
@@ -291,6 +303,8 @@ public class Environment
         {
             System.out.println("Could not read local jacorb properties.");
         }
+
+
     }
 
 
@@ -407,7 +421,7 @@ public class Environment
                 _use_httptunneling_for.put(s,new Object());
             }
         }
-        else    if( varName.equals("_impl_name"))
+        else  if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
         else if( varName.equals("strict_check_on_tc_creation"))
             strict_check_on_tc_creation = (o.equalsIgnoreCase("on")? true : false);
@@ -415,65 +429,7 @@ public class Environment
 
     private static void readValues()
     {
-        append = isPropertyOn ("jacorb.logfile.append");
-        if (_props.getProperty("logfile") != null)
-            logFileName = _props.getProperty("logfile");
-        else if (_props.getProperty(jacorbPrefix+"logfile") != null)
-            logFileName = _props.getProperty(jacorbPrefix+"logfile");
-
-        readValue("_verbosity","verbosity",jacorbPrefix+"verbosity");
-
-        if (logFileName != null && !logFileName.equals (""))
-        {
-            // Comvert $implname postfix to implementation name
-
-            if (logFileName.endsWith ("$implname"))
-            {
-                logFileName = logFileName.substring (0, logFileName.length () - 9);
-
-                if (_props.getProperty ("implname") != null)
-                {
-                    logFileName += _props.getProperty ("implname");
-                }
-                else if (_props.getProperty (jacorbPrefix + "implname") != null)
-                {
-                    logFileName += _props.getProperty (jacorbPrefix + "implname");
-                }
-                else
-                {
-                    // Just in case implename has not been set
-                    logFileName += "log";
-                }
-            }
-
-            // If log file already set force append (prevent file corruption)
-            if (_log_file_out != null)
-            {
-                append = true;
-            }
-
-            try
-            {
-                _log_file_out = new PrintWriter
-                    (new FileOutputStream (logFileName, append));
-                if (_verbosity > 2)
-                {
-                    System.out.println("Write output to log file \""+logFileName+"\"");
-                }
-            }
-            catch (java.io.IOException ioe)
-            {
-                System.out.println("Cannot access log file \""+logFileName+"\"");
-            }
-
-            // Only get a max log size if we are not overwriting the current log
-            if (append)
-            {
-               _current_log_size = (new File (logFileName)).length ();
-               _max_log_size = getLongProperty ("jacorb.logfile.maxLogSize", 10, 0);
-            }
-        }
-
+        readValue("_verbosity", "verbosity", jacorbPrefix + "verbosity");
         readValue("_retries","retries",jacorbPrefix+"retries");
         readValue("_retry_interval","retry_interval",jacorbPrefix+"retry_interval");
         readValue("_cache_entry_lifetime","_cache_entry_lifetime",jacorbPrefix+"domain.cache_entry.lifetime");
@@ -482,10 +438,8 @@ public class Environment
         readValue("_compactTypecodes","compactTypecodes",jacorbPrefix+"compactTypecodes");
         readValue("_orb_domain_filename","ds",jacorbPrefix+"orb_domain.filename");
         readValue("_default_domains","ds",jacorbPrefix+"poa.default_domains");
-
         readValue("_locate_on_bind","locate_on_bind",jacorbPrefix+"locate_on_bind");
         readValue("_cache_references","reference_caching",jacorbPrefix+"reference_caching");
-
         readValue("_monitoring_on","monitoring",poaPrefix+"monitoring");
         readValue("_use_imr","use_imr",jacorbPrefix+"use_imr");
         readValue("_impl_name","implname",jacorbPrefix+"implname");
@@ -500,41 +454,156 @@ public class Environment
         readValue("_use_appligator_for_applets", jacorbPrefix+"use_appligator_for_applets", null);
         readValue("_use_appligator_for_applications", jacorbPrefix+"use_appligator_for_applications", null);
         readValue("_use_httptunneling_for",jacorbPrefix+"use_httptunneling_for", null);
-
         readValue("strict_check_on_tc_creation","strict_check_on_tc_creation",jacorbPrefix+"interop.strict_check_on_tc_creation");
     }
 
-    public static void rollLog ()
-    {
-        _log_file_out.close ();
+    /**
+     * set up the root logger etc.
+     */
 
-        File old = new File (logFileName);
-        File reNamed = new File (logFileName + "_" + date () + "_" + time ());
-        old.renameTo (reNamed);
+    private static void initLogging()
+    {
+        append = isPropertyOn("jacorb.logfile.append");
+
+        if ( _props.getProperty("logfile") != null)
+        {
+            logFileName = _props.getProperty("logfile");
+        }
+        else if (_props.getProperty( jacorbPrefix+"logfile") != null)
+        {
+            logFileName = _props.getProperty(jacorbPrefix+"logfile");
+        }
+
+        String size = _props.getProperty( jacorbPrefix + "logfile.maxLogSize" );
+        if( size != null )
+        {
+            _max_log_size = Integer.parseInt( size );
+        }
+
+        if (logFileName != null && !logFileName.equals (""))
+        {
+            // Convert $implname postfix to implementation name
+            if (logFileName.endsWith ("$implname"))
+            {
+                logFileName = logFileName.substring (0, logFileName.length () - 9);
+
+                if (_props.getProperty ("implname") != null)
+                {
+                    logFileName += _props.getProperty ("implname");
+                }
+                else if (_props.getProperty (jacorbPrefix + "implname") != null)
+                {
+                    logFileName += _props.getProperty (jacorbPrefix + "implname");
+                }
+                else
+                {
+                    // Just in case implname has not been set
+                    logFileName += "log";
+                }
+            }
+        }
+
+        // If log file already set force append (prevent file corruption)
+        if ( logger != null)
+        {
+            append = true;
+        }
+
+        String clzName = getProperty("jacorb.log.loggerFactory");
+        Class loggerFactoryClz = null;
 
         try
         {
-            _log_file_out = new PrintWriter
-                (new FileOutputStream (logFileName, append));
-            if (_verbosity > 2)
+            if ( clzName != null)
             {
-                System.out.println("Write output to log file \""+logFileName+"\"");
+                loggerFactoryClz = classForName(clzName);
+            }
+            else
+            {
+                loggerFactoryClz = classForName(loggerFactoryClzName);
+            }
+            loggerFactory = (LoggerFactory)loggerFactoryClz.newInstance();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+        if (loggerFactory == null)
+        {
+            System.err.println("Configuration Error, could not create logger!"); 
+        }
+        
+        if (logFileName != null)
+        {
+            try
+            {
+                logger = loggerFactory.getNamedLogger("jacorb",logFileName,_max_log_size);
+            }
+            catch (IOException e)
+            {
+                logger = loggerFactory.getNamedRootLogger("jacorb");
+                if( logger.isErrorEnabled())
+                {
+                    logger.error("Could not create logger with file target: " + logFileName + 
+                                 ", falling back to console log!");
+                }
             }
         }
-        catch (java.io.IOException ioe)
+        else
         {
-            System.out.println("Cannot access log file \""+logFileName+"\"");
+            logger = loggerFactory.getNamedRootLogger("jacorb" );
         }
-
     }
 
     // value getters
-    public static final  boolean getStrictCheckOnTypecodeCreation() { return strict_check_on_tc_creation; }
-    public static final  boolean isMonitoringOn() { return _monitoring_on;   }
-    public static final  Properties jacorbProperties() { return _props;   }
-    public static final  PrintWriter logFileOut() {     return _log_file_out;  }
+    public static final  boolean getStrictCheckOnTypecodeCreation()
+    {
+        return strict_check_on_tc_creation; 
+    }
+
+    public static final  boolean isMonitoringOn() 
+    {
+        return _monitoring_on;   
+    }
+
+    public static final  Properties jacorbProperties() 
+    { 
+        return _props;   
+    }
+
+    /**
+     * @return the root logger object for JacORB
+     */
+
+    public static final Logger getLogger()
+    {
+        return logger;
+    }
+
+    /**
+     * @return the root logger object for JacORB
+     * @deprecated
+     */
+
+    public static final Logger logFileOut()
+    {
+        return getLogger();
+    }
+
     /*    public static final  String logFileName() { return logFileName; }*/
-    public static final  long maxLogSize() { return _max_log_size; }
+
+
+    /**
+     * @return the max size of the log file in kilo bytes. A size of 0 
+     * means no limit, any other size requires log file rotation.
+     */
+
+    public static final  long maxLogSize()
+    {
+        return _max_log_size;
+    }
+
     public static final  long currentLogSize () { return _current_log_size; }
 
     public static final int noOfRetries() { return _retries;   }
@@ -629,7 +698,7 @@ public class Environment
 
     public static boolean giopAdd_1_0_Profiles()
     {
-        return isPropertyOn (jacorbPrefix + "giop.add_1_0_profiles");
+        return isPropertyOn(jacorbPrefix + "giop.add_1_0_profiles");
     }
 
     /**
@@ -652,18 +721,18 @@ public class Environment
      * is returned.
      */
 
-    public static boolean isPropertyOn (String key)
+    public static boolean isPropertyOn(String key)
     {
         String s = _props.getProperty (key, "off");
         return "on".equals (s);
     }
 
-    public static boolean isPropertyOff (String key)
+    public static boolean isPropertyOff(String key)
     {
-       return (!isPropertyOn (key));
+        return (!isPropertyOn (key));
     }
 
-    public static long getLongProperty (String key, int base, long def)
+    public static long getLongProperty(String key, int base, long def)
     {
         String s = _props.getProperty (key);
 
@@ -673,7 +742,7 @@ public class Environment
         }
         catch (NumberFormatException nfe)
         {
-           return def;
+            return def;
         }
     }
 
@@ -747,7 +816,7 @@ public class Environment
         {
             try
             {
-                Class c = Class.forName( s );
+                Class c = classForName( s );
                 return c.newInstance();
             }
             catch( Exception e )
@@ -887,7 +956,7 @@ public class Environment
         Vector orb_initializers = new Vector();
 
         String initializer_prefix =
-        "org.omg.PortableInterceptor.ORBInitializerClass.";
+            "org.omg.PortableInterceptor.ORBInitializerClass.";
 
         //Test EVERY property if prefix matches.
         //I'm open to suggestions for more efficient ways (noffke)
@@ -898,12 +967,12 @@ public class Environment
             {
                 String name = _props.getProperty( prop );
                 if( name == null ||
-                    name.length() == 0 )
+                        name.length() == 0 )
                 {
                     if( prop.length() > initializer_prefix.length() )
                     {
                         name =
-                        prop.substring( initializer_prefix.length() );
+                            prop.substring( initializer_prefix.length() );
                     }
                 }
 
@@ -916,7 +985,7 @@ public class Environment
                 {
                     //#ifjdk 1.2
                     ClassLoader cl =
-                    Thread.currentThread().getContextClassLoader();
+                        Thread.currentThread().getContextClassLoader();
                     if (cl == null)
                         cl = ClassLoader.getSystemClassLoader();
                     orb_initializers.addElement(cl.loadClass(name).newInstance());
@@ -925,13 +994,12 @@ public class Environment
                     //#     (Class.forName(name).newInstance());
                     //#endif
 
-                    Debug.output(Debug.INTERCEPTOR | Debug.DEBUG1,
-                                 "Build: " + name);
+                    if( logger.isDebugEnabled())
+                        logger.debug("Build: " + name);
                 }
                 catch (Exception e)
                 {
                     Debug.output(1, e);
-
                     Debug.output( 1, "Unable to build ORBInitializer from >>" +
                                   name + "<<" );
                 }
@@ -998,4 +1066,25 @@ public class Environment
             return properties;
         }
     }
+
+    public static Class classForName(String name) 
+        throws ClassNotFoundException, IllegalArgumentException
+    {
+        if (name == null)
+            throw new IllegalArgumentException("Class name must not be null!");
+        try 
+        {
+            return Thread.currentThread().getContextClassLoader().loadClass(name);
+        }
+        catch (Exception e) 
+        {
+            return Class.forName(name);
+        }
+    }
+
+    public static LoggerFactory getLoggerFactory()
+    {
+        return loggerFactory;
+    }
+
 }

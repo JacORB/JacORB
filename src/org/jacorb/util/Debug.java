@@ -20,13 +20,22 @@ package org.jacorb.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.logger.*;
+
 import java.util.*;
 import java.io.*;
 
 /**
+ * Central anchor class to retrieve loggers, or to log messages
+ * directly. This class acts as a facde and shields clients from the
+ * actual log mechanisms. In its current state of evolution, it
+ * returns Apache Avalong loggers, which permit still other log
+ * backends, such as Apache logkit, which is the current default. The
+ * actual creation of logger instances based on configuration
+ * parameters is done in Environment, however.
  *
  * @author Gerald Brose
- * @version $Id$
+ * @version $Id$ 
  */
 
 public final class Debug
@@ -41,35 +50,43 @@ public final class Debug
     private static int _verbosity;
     private static int _category;
     private static boolean enabled;
-    private static PrintWriter _log_file_out = Environment.logFileOut();
-    // the length of a String is given by the number of 16 bit unicode
-    // characters it contains. The maxLogSize is given in kBytes.
-    // This conversion gives us the max number of characters in a
-    // single log.
-    private static long maxLogSize;
-    private static long currentLogSize;
     private static boolean timestamp = Environment.isPropertyOn ("jacorb.log.timestamp");
 
-    /* Debug priorities */
+    /* Debug priorities, historic */
 
+    /** @deprecated */
     public static final int QUIET = 0;
+    /** @deprecated */
     public static final int IMPORTANT = 1;
+    /** @deprecated */
     public static final int INFORMATION = 2;
+    /** @deprecated */
     public static final int DEBUG1 = 3;
 
-    /* debug categories, disjoint */
+    /* debug categories, disjoint, historic  */
 
+    /** @deprecated */
     public static final int ORB_CONNECT = 0x0100;
+    /** @deprecated */
     public static final int ORB_MISC = 0x0200;
+    /** @deprecated */
     public static final int POA = 0x0400;
+    /** @deprecated */
     public static final int IMR = 0x0800;
+    /** @deprecated */
     public static final int DSI = 0x1000;
+    /** @deprecated */
     public static final int DII = 0x2000;
+    /** @deprecated */
     public static final int INTERCEPTOR = 0x4000;
 
+    /** @deprecated */
     public static final int DOMAIN = 0x8000;
+    /** @deprecated */
     public static final int PROXY = 0x010000;
+    /** @deprecated */
     public static final int COMPILER = 0x020000;
+    /** @deprecated */
     public static final int TOOLS = 0x040000;
 
     /* unused */
@@ -89,15 +106,10 @@ public final class Debug
     public static final int TRANSACTION = 0x08000000;
     public static final int SECURITY = 0x10000000;
 
-    /* unused */
-    /*
-      !! Please update names in CAD.java as well,
-      if you make updates here !!
 
-      public static final int ORB_CONNECT = 0x20000000;
-      public static final int ORB_CONNECT = 0x30000000;
-      public static final int RESERVED = 0x40000000;
-    */
+    /** the root logger instance */
+    private static Logger logger;
+
 
     static
     {
@@ -109,14 +121,14 @@ public final class Debug
         enabled = (Environment.verbosityLevel() > 2 ? true : false);
         _verbosity = Environment.verbosityLevel() & 0xff;
         _category = Environment.verbosityLevel() & 0xffffff00;
+
         if( _category == 0 )
             _category = 0xffffff00;
-        _log_file_out = Environment.logFileOut();
-         maxLogSize = (Environment.maxLogSize ()) * 1024;
-         currentLogSize = Environment.currentLogSize ()/2;
+
+        logger = Environment.getLogger();
     }
 
-    public static boolean canOutput( int msg_level )
+    public static boolean canOutput(int msg_level)
     {
         int category = msg_level & 0xffffff00;
         int _msg_level = msg_level & 0xff;
@@ -138,9 +150,10 @@ public final class Debug
      *
      * @return a <code>boolean</code> value
      */
+
     public static boolean isDebugEnabled()
     {
-        return enabled;
+        return logger.isDebugEnabled();
     }
 
 
@@ -150,34 +163,22 @@ public final class Debug
      *
      * @param message a <code>String</code> value
      */
+
     public static void output (String msg)
     {
         if (timestamp)
         {
-            msg = "[ " + Environment.date () + ':' +
-            Environment.time() + "> " + msg + " ]";
+            msg = 
+                Environment.date() + ':' + Environment.time() + "> " + msg;
+        }
+
+        if (logger == null)
+        {
+            System.out.println(msg);
         }
         else
         {
-            msg = "[ " + msg + " ]";
-        }
-
-        if (_log_file_out == null)
-        {
-            System.out.println (msg);
-        }
-        else
-        {
-            if (maxLogSize > 0)
-            {
-                if (exceedsMaxLogSize (msg.length ()))
-                {
-                    _log_file_out = Environment.logFileOut ();
-                }
-            }
-
-            _log_file_out.println (msg);
-            _log_file_out.flush ();
+            logger.debug(msg);
         }
     }
 
@@ -195,36 +196,24 @@ public final class Debug
      *                Debug.output ("<text>" + value);
      *             }
      */
+
     public static final void output (int msg_level, String msg)
     {
-        if (canOutput (msg_level))
+        if (canOutput(msg_level))
         {
             if (timestamp)
             {
-               msg = "[ " + Environment.date () + ':' +
-                     Environment.time() + "> " + msg + " ]";
-            }
-            else
-            {
-               msg = "[ " + msg + " ]";
+               msg = Environment.date () + ':' +
+                     Environment.time() + "> " + msg;
             }
 
-            if (_log_file_out == null)
+            if ( logger == null)
             {
                 System.out.println (msg);
             }
             else
             {
-                if (maxLogSize > 0)
-                {
-                    if (exceedsMaxLogSize (msg.length ()))
-                    {
-                        _log_file_out = Environment.logFileOut ();
-                    }
-                }
-
-                _log_file_out.println (msg);
-                _log_file_out.flush ();
+                logger.debug(msg);
             }
         }
     }
@@ -244,7 +233,7 @@ public final class Debug
      */
     public static synchronized void output(int msg_level,String name,byte bs[])
     {
-        output(msg_level,name,bs, 0, bs.length);
+        output(msg_level, name, bs, 0, bs.length);
     }
 
 
@@ -257,16 +246,18 @@ public final class Debug
      * @param bs a <code>byte[]</code> value
      */
 
-    public static synchronized void output (String name,byte bs[])
+    public static synchronized void output(String name,byte bs[])
     {
-        output (3, name, bs, 0, bs.length);
+        output(3, name, bs, 0, bs.length);
     }
 
 
     /**
-     * Output a buffer in hex format. Note that output synchronizes
-     * the calling threads in order to avoid garbled debug output.
+     * Output a buffer in hex format to System.out. Note that output
+     * synchronizes the calling threads in order to avoid garbled
+     * debug output.  
      */
+
     public static synchronized void output(int msg_level,
                                            String name,
                                            byte bs[],
@@ -275,13 +266,20 @@ public final class Debug
         output( msg_level,name,bs,0,len );
     }
 
-    public static synchronized void output(int msg_level,
-                                           String name,
-                                           byte bs[],
-                                           int start,
-                                           int len)
+
+    /**
+     * Output a buffer in hex format to System.out. Note that output
+     * synchronizes the calling threads in order to avoid garbled
+     * debug output.  
+     */
+
+    public static synchronized void output( int msg_level,
+                                            String name,
+                                            byte bs[],
+                                            int start,
+                                            int len)
     {
-        if( canOutput( msg_level ) )
+        if (canOutput( msg_level ))
         {
             System.out.print("\nHexdump ["+name+"] len="+len+","+bs.length);
             StringBuffer chars = new StringBuffer();
@@ -334,6 +332,7 @@ public final class Debug
      * @param b a <code>byte</code> value
      * @return a <code>String</code> value
      */
+
     public static final String toHex( byte b )
     {
         StringBuffer sb = new StringBuffer();
@@ -364,26 +363,50 @@ public final class Debug
 
     public static final void output(int msg_level, Throwable e)
     {
-        if( canOutput( msg_level ) )
+        if (canOutput( msg_level ))
         {
-            if (_log_file_out == null || msg_level == 0)
+            if (logger == null || msg_level == 0)
             {
                 System.out.println("############################ StackTrace ############################");
                 e.printStackTrace(System.out);
                 System.out.println("####################################################################");
             }
-            if (_log_file_out != null)
+            if (logger != null)
             {
-                //Assumption made that will want events prior to exception in
-                //same log, no call to exceedsMaxLogSize
-                _log_file_out.println("############################ StackTrace ############################");
-                e.printStackTrace(_log_file_out);
-                _log_file_out.println("####################################################################");
-                _log_file_out.flush();
+                if (logger.isErrorEnabled())
+                {
+                    try
+                    {
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        PrintStream pos = new PrintStream( bos);
+                        e.printStackTrace( pos );
+                        bos.close();
+                        pos.close();
+                        logger.error( bos.toString() );
+                    }
+                    catch (IOException io )
+                    {
+                    }
+                }               
             }
         }
     }
 
+    /**
+     * Convenience method.
+     * Factory for logger instances, delegates to the actual factory
+     * set up in org.jacorb.util.Environment. 
+     */
+
+    public static Logger getNamedLogger(String name)
+    {
+        return Environment.getLoggerFactory().getNamedLogger(name);
+    }
+
+
+    /**
+     * convenience method to have stack trace printed
+     */
 
     public static void printTrace(int msg_level)
     {
@@ -395,28 +418,10 @@ public final class Debug
             }
             catch( Exception e )
             {
-                e.printStackTrace(_log_file_out);
+                output( msg_level, e );
             }
         }
     }
 
-    private static boolean exceedsMaxLogSize (int length)
-    {
-        if ((length + currentLogSize) >= maxLogSize)
-        {
 
-        // if to big, call onto Environment.rollLog () - which will copy
-        // existing log to a new (backup) file, with date/time appended to name
-            Environment.rollLog ();
-            //will write this msg to a new log, so reset the currentLogSize
-            currentLogSize = length;
-            return true;
-        }
-        else
-        {
-            //will append (or otherwise) to existing log.
-            currentLogSize += length;
-            return false;
-        }
-    }
 }
