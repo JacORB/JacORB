@@ -25,13 +25,11 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.ServerSocket;
-import java.util.*;
 
 import org.omg.ETF.*;
 import org.omg.CSIIOP.*;
 import org.omg.SSLIOP.*;
 
-import org.apache.avalon.framework.logger.*;
 import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.orb.factory.*;
@@ -42,8 +40,7 @@ import org.jacorb.orb.*;
  * @version $Id$
  */
 public class IIOPListener 
-    extends _ListenerLocalBase
-    implements Configurable
+    extends org.jacorb.orb.etf.ListenerBase
 {
     /** the maximum set of security options supported by the SSL mechanism */
     private static final int MAX_SSL_OPTIONS = Integrity.value |         
@@ -60,18 +57,13 @@ public class IIOPListener
                                                DetectReplay.value |
                                                DetectMisordering.value;
 
-    private ORB orb = null;
+    
     private SocketFactoryManager socketFactoryManager = null;
     private ServerSocketFactory    serverSocketFactory    = null;
     private SSLServerSocketFactory sslServerSocketFactory = null;
 
-    private Acceptor    acceptor    = null;
     private SSLAcceptor sslAcceptor = null;
 
-    private IIOPProfile endpoint = null;
-
-    private org.jacorb.config.Configuration configuration;
-    private Logger logger = null;
     private boolean supportSSL = false;
     private boolean dnsEnabled = false;
     private int serverTimeout = 0;
@@ -80,26 +72,16 @@ public class IIOPListener
     private int target_supports = 0;
     private int target_requires = 0;
 
-
+    public IIOPListener()
+    {
+    }
+    
     /**
-     * Reference to the ORB, for delivering
-     * incoming connections via upcalls.
-     */
-    private org.omg.ETF.Handle up = null;
-
-    /**
-     * Queue of incoming connections, which will be
-     * delivered via calls to the accept() method.
-     * Connections will only be put into this list
-     * if no Handle has been set.
-     */
-    private List incoming_connections = new ArrayList();
-
-    private boolean terminated = false;
-
+    * @deprecated Use no-args version and then configure(). 
+    */
     public IIOPListener(ORB orb)
     {
-        this.orb = orb;
+        super(orb);
         socketFactoryManager = new SocketFactoryManager(orb);
     }
 
@@ -108,6 +90,14 @@ public class IIOPListener
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)configuration;
+        
+        if (orb == null)
+        {
+            // c.f. with the constructor taking an ORB param.
+            this.orb = this.configuration.getORB();
+            socketFactoryManager = new SocketFactoryManager(this.orb);
+        }
+        
         logger = this.configuration.getNamedLogger("jacorb.iiop.listener");
  
         socketFactoryManager.configure(configuration);
@@ -142,7 +132,7 @@ public class IIOPListener
             configuration.getAttributeAsBoolean("jacorb.security.ssl.always_open_unsecured_endpoint"))
         {
             acceptor = new Acceptor();
-            acceptor.init();
+            ((Acceptor)acceptor).init();
         }
 
         if (supportSSL)
@@ -155,55 +145,7 @@ public class IIOPListener
 
     }
 
-    /**
-     * This call establishes the link between the ORB (i.e. the Handle
-     * instance) and a server endpoint of the plugged-in transport.
-     * All calls upwards into the ORB shall use the given instance.
-     */
-    public void set_handle (Handle up)
-    {
-        this.up = up;
-    }
-
-    /**
-     * This call is an alternative to using set_handle() to initiate the
-     * callback-style of accepting new connections. This call blocks until
-     * a client connects to the server. Then a new Connection instance is
-     * returned. The transport plug-in must ensure that a thread blocked
-     * in accept() returns when destroy() is called with a null object
-     * reference. The transport plug-in must raise the CORBA::BAD_INV_ORDER
-     * with minor code {TBD} if the ORB calls this operation and set_handle()
-     * has ever been called previously on the same listener instance.
-     */
-    public Connection accept()
-    {
-        if (up != null)
-            throw new org.omg.CORBA.BAD_INV_ORDER
-                ("Must not call accept() when a Handle has been set");
-        else
-        {
-            synchronized (incoming_connections)
-            {
-                while (!terminated &&
-                       incoming_connections.isEmpty())
-                {
-                    try
-                    {
-                        incoming_connections.wait();
-                    }
-                    catch (InterruptedException ex)
-                    {
-                        // ignore
-                    }
-                }
-                if (!terminated)
-                    return (Connection)incoming_connections.remove (0);
-                else
-                    return null;
-            }
-        }
-    }
-
+    
     /**
      * It is possible that connection requests arrive <i>after</i> the
      * initial creation of the Listener instance but <i>before</i> the
@@ -217,9 +159,8 @@ public class IIOPListener
      */
     public void listen()
     {
-        if (acceptor != null)
-            acceptor.start();
-
+        super.listen();
+        
         if (sslAcceptor != null)
             sslAcceptor.start();
     }
@@ -230,34 +171,11 @@ public class IIOPListener
      * connections opened by it.
      */
     public void destroy()
-    {
-        if (acceptor != null)
-            acceptor.terminate();
-
+    {        
         if (sslAcceptor != null)
             sslAcceptor.terminate();
 
-        this.terminated = true;
-        if (up == null)
-            incoming_connections.notifyAll();
-    }
-
-    /**
-     * The connection instance is returned to the Listener. It now shall
-     * signal any incoming data to the Handle.
-     */
-    public void completed_data (Connection conn)
-    {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
-    }
-
-    /**
-     * Returns a copy of the profile describing the endpoint
-     * of this instance.
-     */
-    public Profile endpoint()
-    {
-        return endpoint.copy();
+        super.destroy();
     }
 
     // internal methods below this line
@@ -333,7 +251,7 @@ public class IIOPListener
         {
             port = getConfiguredPort();
             if (port == 0)
-                port = acceptor.getLocalAddress().getPort();
+                port = ((Acceptor)acceptor).getLocalAddress().getPort();
         } 
         else if (sslAcceptor == null)
             throw new org.omg.CORBA.INITIALIZE
@@ -469,18 +387,7 @@ public class IIOPListener
             return;
         }
 
-        if (up != null)
-        {
-            up.add_input (result);
-        }
-        else
-        {
-            synchronized (incoming_connections)
-            {
-                incoming_connections.add (result);
-                incoming_connections.notifyAll();
-            }
-        }
+        deliverConnection(result);
     }
 
     /**
@@ -506,12 +413,13 @@ public class IIOPListener
 
     // Acceptor classes below this line
 
-    private class Acceptor 
-        extends Thread
+    protected class Acceptor 
+        extends org.jacorb.orb.etf.ListenerBase.Acceptor
     {
         protected ServerSocket serverSocket;
-        private   boolean      terminated = false;
-
+        
+        protected boolean terminated = false;
+        
         public Acceptor()
         {
             // initialization deferred to init() method due to JDK bug
@@ -536,6 +444,7 @@ public class IIOPListener
                 {
                     Socket socket = serverSocket.accept();
                     setup (socket);
+                    System.out.println("Socket port: " + socket.getLocalPort());
                     deliverConnection (socket);
                 }
                 catch (Exception e)

@@ -631,17 +631,17 @@ public class ParsedIOR
 
     /**
      * Returns the component with the given tag, searching the effective
-     * profile's components first (this is only possible with IIOPProfiles),
+     * profile's components first (this is only possible with org.jacorb.orb.etf.ProfileBase implementations),
      * and then the MULTIPLE_COMPONENTS profile, if one exists.  If no 
      * component with the given tag exists, this method returns null.
      */
     private Object getComponent (int tag, Class helper)
     {
         Object result = null;
-        if (effectiveProfile instanceof IIOPProfile)
+        if (effectiveProfile instanceof org.jacorb.orb.etf.ProfileBase)
             // TODO Should there be a component access mechanism for all
             //      ETF profiles?  Clarify with OMG.
-            result = ((IIOPProfile)effectiveProfile).getComponent (tag, helper);
+            result = ((org.jacorb.orb.etf.ProfileBase)effectiveProfile).getComponent (tag, helper);
 
         if (result != null)
             return result;

@@ -94,10 +94,10 @@ public class ClientRequestInfoImpl
              this.target = self;
 
          Profile profile = pior.getEffectiveProfile();
-         if (profile instanceof IIOPProfile)
+         if (profile instanceof org.jacorb.orb.etf.ProfileBase)
          {
-             this.effective_profile    = ((IIOPProfile)profile).asTaggedProfile();
-             this.effective_components = ((IIOPProfile)profile).getComponents().asArray();
+             this.effective_profile    = ((org.jacorb.orb.etf.ProfileBase)profile).asTaggedProfile();
+             this.effective_components = ((org.jacorb.orb.etf.ProfileBase)profile).getComponents().asArray();
          }
 
          if ( this.effective_components == null )

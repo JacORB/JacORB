@@ -499,6 +499,15 @@ public class Configuration
         return loggerFactory.getNamedLogger(name);
     }
     
+    public static final String getLoggerName(Class clz)
+    {
+        String packageName = clz.getPackage().getName();
+        if (packageName != null && packageName.startsWith("org.jacorb"))
+        {
+            return packageName.substring(4);
+        }
+        return packageName;
+    }
 
     /**
      * For a property that has a list of comma-separated values,

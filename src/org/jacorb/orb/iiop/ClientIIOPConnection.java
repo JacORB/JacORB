@@ -22,12 +22,10 @@ package org.jacorb.orb.iiop;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.*;
 
 import org.jacorb.orb.CDRInputStream;
@@ -36,12 +34,8 @@ import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
 
 import org.omg.CSIIOP.*;
-import org.omg.SSLIOP.SSL;
-import org.omg.SSLIOP.SSLHelper;
-import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
-import org.omg.CORBA.COMM_FAILURE;
-import org.omg.CORBA.TIMEOUT;
-import org.omg.CORBA.TRANSIENT;
+import org.omg.SSLIOP.*;
+import org.omg.CORBA.*;
 
 
 /**
@@ -58,10 +52,9 @@ public class ClientIIOPConnection
     extends IIOPConnection
     implements Configurable
 {
-    private IIOPProfile target_profile;
+    //private IIOPProfile target_profile;
     private int timeout = 0;
 
-    private boolean use_ssl  = false;
     private int     ssl_port = -1;
     private int noOfRetries  = 5;
     private int retryInterval = 0;
@@ -76,7 +69,9 @@ public class ClientIIOPConnection
     private Exception exception = null;
 
     public ClientIIOPConnection()
-    {}
+    {
+        use_ssl = false;
+    }
 
     public void configure(Configuration configuration)
         throws ConfigurationException
@@ -100,9 +95,7 @@ public class ClientIIOPConnection
     public ClientIIOPConnection (ClientIIOPConnection other)
     {
         super (other);
-        this.target_profile = other.target_profile;
         this.timeout = other.timeout;
-        this.use_ssl = other.use_ssl;
         this.ssl_port = other.ssl_port;
     }
 
@@ -121,7 +114,7 @@ public class ClientIIOPConnection
         {
             if (server_profile instanceof IIOPProfile)
             {
-                this.target_profile = (IIOPProfile)server_profile;
+                this.profile = (IIOPProfile) server_profile;
             }
             else
             {
@@ -191,7 +184,7 @@ public class ClientIIOPConnection
                 catch (TIMEOUT e)
                 {
                    //thrown if timeout is expired
-                   target_profile = null;
+                   profile = null;
                    use_ssl = false;
                    ssl_port = -1;
                    throw e;
@@ -201,7 +194,7 @@ public class ClientIIOPConnection
 
             if( retries < 0 )
             {
-                target_profile = null;
+                profile = null;
                 use_ssl = false;
                 ssl_port = -1;
                 throw new org.omg.CORBA.TRANSIENT
@@ -220,8 +213,8 @@ public class ClientIIOPConnection
         throws IOException
     {
         List addressList = new ArrayList();
-        addressList.add    (target_profile.getAddress());
-        addressList.addAll (target_profile.getAlternateAddresses());
+        addressList.add(((IIOPProfile)profile).getAddress());
+        addressList.addAll(((IIOPProfile)profile).getAlternateAddresses());
 
         Iterator addressIterator = addressList.iterator();
 
@@ -381,25 +374,18 @@ public class ClientIIOPConnection
         }
     }
 
-    public boolean isSSL()
-    {
-        return use_ssl;
-    }
 
-    public org.omg.ETF.Profile get_server_profile()
-    {
-        return target_profile;
-    }
+    
 
     /**
      * Check if this client should use SSL when connecting to
-     * the server described by the target_profile.  The result
+     * the server described by the 'profile'.  The result
      * is stored in the private fields use_ssl and ssl_port.
      */
     private void checkSSL()
     {
         CompoundSecMechList sas
-            = (CompoundSecMechList)target_profile.getComponent
+            = (CompoundSecMechList)((IIOPProfile)profile).getComponent
                                            (TAG_CSI_SEC_MECH_LIST.value,
                                             CompoundSecMechListHelper.class);
 
@@ -418,7 +404,7 @@ public class ClientIIOPConnection
             }
         }
 
-        SSL ssl = (SSL)target_profile.getComponent
+        SSL ssl = (SSL)((IIOPProfile)profile).getComponent
                                            (TAG_SSL_SEC_TRANS.value,
                                             SSLHelper.class);
         //if( sas != null &&
@@ -503,5 +489,4 @@ public class ClientIIOPConnection
             ssl_port = -1;
         }
     }
-
-}// Client_TCP_IP_Transport
+}

@@ -25,60 +25,22 @@ import org.apache.avalon.framework.configuration.*;
 
 import org.omg.IOP.*;
 import org.omg.ETF.*;
-import org.omg.RTCORBA.ProtocolProperties;
 
 /**
  * @author Andre Spiegel
  * @version $Id$
  */
 public class IIOPFactories 
-    extends org.omg.ETF._FactoriesLocalBase
-    implements Configurable
+    extends org.jacorb.orb.etf.FactoriesBase
 {
-    org.jacorb.config.Configuration configuration;
-
-    public void configure(Configuration configuration)
-        throws ConfigurationException
+    static
     {
-        this.configuration = (org.jacorb.config.Configuration)configuration;
+        connectionClz = ClientIIOPConnection.class;
+        listenerClz = IIOPListener.class;
+        profileClz = IIOPProfile.class;   
     }
 
-
-    public Connection create_connection(ProtocolProperties props)
-    {
-        ClientIIOPConnection connection = new ClientIIOPConnection();
-        try
-        {
-            connection.configure(configuration);
-        }
-        catch( ConfigurationException ce )
-        {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
-        }
-        return connection;
-    }
-
-    /**
-     * Creates and configures a new IIOP listener
-     */
-
-    public Listener create_listener(ProtocolProperties props,
-                                    int stacksize,
-                                    short base_priority)
-    {
-        IIOPListener result = new IIOPListener(configuration.getORB());
-        try
-        {
-            result.configure(configuration);
-        }
-        catch( ConfigurationException ce )
-        {
-            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
-        }
-        return result;
-    }
-
-    public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
+/*    public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
                                       TaggedComponentSeqHolder components)
     {
         if (tagged_profile.value.tag != TAG_INTERNET_IOP.value)
@@ -103,7 +65,7 @@ public class IIOPFactories
             components.value = result.getComponents().asArray();
             return result;
         }
-    }
+    }*/
 
     public int profile_tag()
     {
@@ -133,5 +95,4 @@ public class IIOPFactories
         else
             return null;
     }
-
 }

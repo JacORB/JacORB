@@ -1,3 +1,22 @@
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1997-2004 Gerald Brose.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
 package org.jacorb.orb.iiop;
 
 import java.util.*;
@@ -12,7 +31,6 @@ import org.jacorb.orb.TaggedComponentList;
 
 import org.omg.ETF.*;
 import org.omg.IOP.*;
-import org.omg.IIOP.*;
 import org.omg.SSLIOP.*;
 import org.omg.CSIIOP.*;
 
@@ -21,37 +39,21 @@ import org.omg.CSIIOP.*;
  * @version $Id$
  */
 public class IIOPProfile
-    extends _ProfileLocalBase
-    implements Cloneable, Configurable
+    extends org.jacorb.orb.etf.ProfileBase
 {
-    private org.omg.GIOP.Version version = null;
     private IIOPAddress          primaryAddress = null;
-    private byte[]               objectKey = null;
-    private TaggedComponentList  components = null;
 
-    private org.jacorb.config.Configuration configuration;
     private boolean dnsEnabled = false;
-    private String corbalocStr = null;
     private Logger logger;
-
+    
+    public IIOPProfile()
+    {
+        super();
+    }
+    
     public IIOPProfile(byte[] data)
     {
-        CDRInputStream in = new CDRInputStream(null, data);
-        in.openEncapsulatedArray();
-
-        org.omg.IIOP.Version iiopVersion =
-            org.omg.IIOP.VersionHelper.read(in);
-        this.version = new org.omg.GIOP.Version(iiopVersion.major,
-                                                 iiopVersion.minor);
-
-        this.primaryAddress = IIOPAddress.read(in);
-
-        int length = in.read_ulong();
-        objectKey = new byte[length];
-        in.read_octet_array(objectKey, 0, length);
-
-        components = (version.minor > 0) ? new TaggedComponentList(in)
-                                         : new TaggedComponentList();
+        initFromProfileData(data);
     }
 
     public IIOPProfile(IIOPAddress address, byte[] objectKey)
@@ -216,7 +218,7 @@ public class IIOPProfile
      * transport into the tagged profile.  ORBs will typically need
      * to call the IOR interception points before calling marshal().
      */
-    public void marshal(TaggedProfileHolder tagged_profile,
+/*    public void marshal(TaggedProfileHolder tagged_profile,
                          TaggedComponentSeqHolder components)
     {
         TaggedComponent[] allComponents = null;
@@ -290,6 +292,45 @@ public class IIOPProfile
                 );
             }
         }
+    }*/
+    
+    /**
+    * Writes the bytes that would make up the ETF::AddressProfile bytes (new spec)
+    * to a stream.
+    * <p>
+    * Writes GIOP version, host string, and port.
+    */
+    public void writeAddressProfile(CDROutputStream addressProfileStream)
+    {
+        org.omg.GIOP.VersionHelper.write( addressProfileStream, version);
+        addressProfileStream.write_string(dnsEnabled
+                                          ? primaryAddress.getHostname()
+                                          : primaryAddress.getIP());
+        addressProfileStream.write_ushort( (short) primaryAddress.getPort());
+    }
+    
+    /**
+    * Reads the bytes that make up the ETF::AddressProfile bytes (new spec)
+    * from a stream.
+    * <p>
+    * Writes GIOP version, host string, and port.
+    */
+    public void readAddressProfile(CDRInputStream addressProfileStream)
+    {
+        this.version = org.omg.GIOP.VersionHelper.read(addressProfileStream);
+        this.primaryAddress = IIOPAddress.read(addressProfileStream);
+        if (configuration != null)
+        {
+            try
+            {
+                primaryAddress.configure(configuration);
+            }
+            catch( ConfigurationException ce)
+            {
+                if (logger.isWarnEnabled())
+                    logger.warn("ConfigurationException", ce );
+            }
+        }
     }
 
     /**
@@ -301,22 +342,6 @@ public class IIOPProfile
     public int hash()
     {
         return hashCode();
-    }
-
-    /**
-     * This function shall return an equivalent, deep-copy of the profile
-     * on the free store.
-     */
-    public Profile copy()
-    {
-        try
-        {
-            return (Profile)this.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
-            throw new RuntimeException("error cloning profile: " + e);
-        }
     }
 
     public Object clone() throws CloneNotSupportedException
@@ -368,21 +393,6 @@ public class IIOPProfile
             return false;
     }
 
-    /**
-     * This attribute shall contain the GIOP version number that this
-     * profile supports. It is initialized each time an instance is
-     * created.
-     */
-    public org.omg.GIOP.Version version()
-    {
-        return version;
-    }
-
-    public void set_object_key(byte[] key)
-    {
-        this.objectKey = key;
-    }
-
     public int tag()
     {
         return TAG_INTERNET_IOP.value;
@@ -431,11 +441,6 @@ public class IIOPProfile
                                         IIOPAddress.class);
     }
 
-    public byte[] get_object_key()
-    {
-        return objectKey;
-    }
-
     public SSL getSSL()
     {
         return (SSL)components.getComponent( TAG_SSL_SEC_TRANS.value,
@@ -459,33 +464,6 @@ public class IIOPProfile
         }
     }
 
-    public TaggedComponentList getComponents()
-    {
-        return components;
-    }
-
-    public Object getComponent(int tag, Class helper)
-    {
-        return components.getComponent(tag, helper);
-    }
-
-    public void addComponent(int tag, Object data, Class helper)
-    {
-        components.addComponent(tag, data, helper);
-    }
-
-    public void addComponent(int tag, byte[] data)
-    {
-        components.addComponent(tag, data);
-    }
-
-    public TaggedProfile asTaggedProfile()
-    {
-        TaggedProfileHolder result = new TaggedProfileHolder();
-        this.marshal(result, null);
-        return result.value;
-    }
-
     /**
      * Returns a copy of this profile that is compatible with GIOP 1.0.
      */
@@ -500,7 +478,7 @@ public class IIOPProfile
     public boolean equals(Object other)
     {
         if (other instanceof org.omg.ETF.Profile)
-            return this.primaryAddress.equals( ((org.jacorb.orb.iiop.IIOPProfile)other).primaryAddress);
+            return this.is_match((org.omg.ETF.Profile)other);
         else
             return false;
     }
