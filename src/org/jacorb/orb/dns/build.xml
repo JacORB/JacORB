@@ -11,23 +11,24 @@
 
    &common;
 
-   <target name="dns-test">
-      <available classname="org.xbill.DNS.dns" property="dns.available" />
+   <target name="xbill-test">
+      <available classname="org.xbill.DNS.dns" property="xbill.available" />
    </target>
 
-   <target name="all" depends="init,dns-test,dns,dns-delegate"/>
+   <target name="all" depends="init,xbill-test,dns,xbill-delegate"/>
 
 
    <target name="dns">
       <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/orb/dns/DNSLookup.java,org/jacorb/orb/dns/DNSLookupDelegate.java"/>
+         <param name="javac-includes" 
+                value="org/jacorb/orb/dns/DNSLookup.java,org/jacorb/orb/dns/DNSLookupDelegate.java,org/jacorb/orb/dns/JdkDelegateImpl.java"/>
       </antcall>
    </target>
 
 
-   <target name="dns-delegate" if="dns.available">
+   <target name="xbill-delegate" if="xbill.available">
       <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/orb/dns/DNSLookupDelegateImpl.java"/>
+         <param name="javac-includes" value="org/jacorb/orb/dns/XbillDelegateImpl.java"/>
       </antcall>
    </target>
 
