@@ -279,11 +279,6 @@ public final class Delegate
                         {
                             //_OBJECT_FORWARD_PERM is actually more or
                             //less deprecated
-                            if ( logger.isDebugEnabled() )
-                            {
-                                logger.debug("Locate Reply: Forward");
-                            }
-
                             rebind( orb.object_to_string( lris.read_Object() ) );
                             break;
                         }
@@ -880,9 +875,6 @@ public final class Delegate
 
         if ( !async && receiver != null )
         {
-            if (logger.isDebugEnabled())
-                logger.debug("invoke: getReply()");
-
             // Synchronous invocation, response expected.
             // This call blocks until the reply arrives.
             org.omg.CORBA.portable.InputStream is = receiver.getReply();
