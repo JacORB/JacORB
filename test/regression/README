@@ -1,11 +1,4 @@
-This is a repository for the JacORB test suite.
-
-Currently tested functionality
-------------------------------
-
-  - DynAny (by Jason Courage)
-  - Naming (by Gerald Brose)
-  - GIOP Fragmentation (by Nicolas Noffke)
+This is the JacORB Regression Test Suite.
 
 Building and running the tests
 ------------------------------
@@ -56,9 +49,9 @@ the JacORB test suite.
 
    For example, the DynAny source is in the package 'org.jacorb.orb.dynany'.
    Therefore, the JUnit tests that test the DynAny source are in the package
-   'org.jacorb.test.orb.dynany'.  All tests in the orb package and its
-   subpackages will use the ORBSetup class so this class is put in the package
-   'org.jacorb.test.common'.
+   'org.jacorb.test.orb.dynany'.  Many tests in the orb package and elsewhere
+   use a special client/server setup; this can be found under
+   org.jacorb.test.common.
 
 
 2. Create a Java source file named 'PackageTest.java' that will run all JUnit
