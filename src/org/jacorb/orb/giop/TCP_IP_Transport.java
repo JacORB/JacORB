@@ -83,68 +83,60 @@ public abstract class TCP_IP_Transport
      */
     protected abstract void connect();
 
-    /**
-     * Wait until the connection is established. This is called from
-     * getMessage() so the connection may be opened up not until the
-     * first message is sent (instead of opening it up when the
-     * transport is created).
-     *
-     * @return true if connection ready, false if connection closed.
-     */
-    protected abstract boolean waitUntilConnected();
 
-    /**
-     * This method tries to read in <tt>length</tt> bytes from
-     * <tt>in_stream</tt> and places them into <tt>buffer</tt>
-     * beginning at <tt>start_pos</tt>. It doesn't care about the
-     * contents of the bytes.
-     *
-     * @return the actual number of bytes that were read.
-     */
-
-    public final int readToBuffer( byte[] buffer,
-                                    int start_pos,
-                                    int length )
-        throws IOException
+    public void read (org.omg.ETF.BufferHolder data, 
+                      int offset, 
+                      int min_length, 
+                      int max_length, 
+                      long time_out)
     {
         int read = 0;
 
-        while( read < length )
+        while( read < min_length )
         {
             int n = 0;
 
             try
             {
-                n = in_stream.read( buffer,
-                                    start_pos + read,
-                                    length - read );
+                n = in_stream.read( data.value,
+                                    offset + read,
+                                    min_length - read );
             }
             catch( InterruptedIOException e )
             {
-                if (socket.getSoTimeout () != 0)
+                int soTimeout = 0;
+                try
+                {
+                    soTimeout = socket.getSoTimeout();
+                }
+                catch (SocketException ex)
+                {
+                    throw to_COMM_FAILURE (ex);
+                }
+
+                if (soTimeout != 0)
                 {
                     Debug.output
                         (
                          2,
                          "Socket timed out with timeout period of " +
-                         socket.getSoTimeout ()
-                         );
-
+                         soTimeout
+                        ); 
                     transport_listener.readTimedOut();
-                    return -1;
+                    throw new org.omg.CORBA.TIMEOUT();
                 }
                 else
                 {
-                    throw e;
+                    throw to_COMM_FAILURE (e);
                 }
             }
-            catch( SocketException se )
+            catch( IOException se )
             {
                 Debug.output( 2, "Transport to " + connection_info +
                               ": stream closed" );
 
                 transport_listener.streamClosed();
-                return -1;
+                throw to_COMM_FAILURE (se);
             }
 
             if( n < 0 )
@@ -153,52 +145,61 @@ public abstract class TCP_IP_Transport
                               ": stream closed" );
 
                 transport_listener.streamClosed();
-                return -1;
+                throw new org.omg.CORBA.COMM_FAILURE ("read() did not return any data");
             }
 
             read += n;
         }
-
-        return read;
     }
 
     // implementation of org.jacorb.orb.connection.Transport interface
 
 
-    public void write( byte[] message,
-                       int start,
-                       int size )
-        throws IOException
+    public void write (boolean is_first,
+                       boolean is_last, 
+                       byte[] data,
+                       int offset,
+                       int length,
+                       long time_out )
     {
         connect();
         
-        out_stream.write( message, start, size );
-
-        if( b_out != null )
+        try
         {
-            b_out.write( message, start, size );
+            out_stream.write( data, offset, length );
+            if( b_out != null )
+            {
+                b_out.write( data, offset, length );
+            }
+        }
+        catch (IOException ex)
+        {
+            throw to_COMM_FAILURE (ex);
         }
 
         if( statistics_provider != null )
         {
-            statistics_provider.messageChunkSent( size );
+            statistics_provider.messageChunkSent( length );
         }
     }
 
 
     public void flush()
-        throws IOException
     {
-        if( b_out != null )
+        try
         {
-            byte[] b = b_out.toByteArray();
-
-            Debug.output( 1, "sendMessages()", b );
-
-            b_out.reset();
+            if( b_out != null )
+            {
+                byte[] b = b_out.toByteArray();
+                Debug.output( 1, "sendMessages()", b );
+                b_out.reset();
+            }
+            out_stream.flush();
         }
-
-        out_stream.flush();
+        catch (IOException ex)
+        {
+            throw to_COMM_FAILURE (ex);
+        }
 
         if( statistics_provider != null )
         {
@@ -241,6 +242,12 @@ public abstract class TCP_IP_Transport
                 Debug.output( 2, se );
             }
         }
+    }
+    
+    protected org.omg.CORBA.COMM_FAILURE to_COMM_FAILURE (IOException ex)
+    {
+        return new org.omg.CORBA.COMM_FAILURE ("IOException: "
+                                               + ex.toString());
     }
 
 }
