@@ -112,8 +112,10 @@ Installation:
 Building JacORB (Optional)
 ==========================
 
-   Ensure Ant (See version requirements above) is installed on your system
-   and that you are starting with a clean environment.
+   Ensure that Ant (See version requirements above) is installed on your 
+   system and that you are starting with a clean environment. The
+   easiest way to start is with your CLASSPATH unset. If CLASSPATH
+   is set to anything, it must contain ${installdir}/lib/logkit.jar!
 
    To build JacORB you need to call "ant" in the installation
    directory:
