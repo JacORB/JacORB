@@ -48,9 +48,6 @@ public class GIOPConnectionTest extends TestCase
             new IIOPAddress ("127.0.0.1", 4711),
             null
         );
-            
-
-        private TransportListener listener = null;
 
         public DummyTransport( List messages )
         {
@@ -112,11 +109,6 @@ public class GIOPConnectionTest extends TestCase
         {
             return false;
         }
-        
-        public void setTransportListener(TransportListener listener)
-        {
-            this.listener = listener;
-        }
 
         public void turnOnFinalTimeout()
         {
@@ -132,7 +124,6 @@ public class GIOPConnectionTest extends TestCase
         {
             if (this.index + min_length > this.data.length)
             {
-                listener.streamClosed();
                 throw new org.omg.CORBA.COMM_FAILURE ("end of stream");
             }
             else
