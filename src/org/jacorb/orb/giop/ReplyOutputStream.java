@@ -31,10 +31,12 @@ import org.jacorb.orb.*;
  */
 
 public class ReplyOutputStream
-    extends GIOPOutputStream
+    extends ServiceContextTransportingOutputStream
 {
-    private int request_id = -1;
-    private ReplyStatusType_1_2 reply_status = null;
+    /*
+      private int request_id = -1;
+      private ReplyStatusType_1_2 reply_status = null;
+    */
 
     public ReplyOutputStream ( int request_id,
                                ReplyStatusType_1_2 reply_status,
@@ -42,8 +44,10 @@ public class ReplyOutputStream
     {
         super();
 
+        /*
         this.request_id = request_id;
         this.reply_status = reply_status;
+        */
 
         setGIOPMinor( giop_minor );
  
@@ -100,11 +104,21 @@ public class ReplyOutputStream
         }        
     }
 
+    /*
     public int requestId()
     {
         return request_id;
     }
+    */
 }
+
+
+
+
+
+
+
+
 
 
 

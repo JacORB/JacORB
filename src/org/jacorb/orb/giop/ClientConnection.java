@@ -88,43 +88,35 @@ public class ClientConnection
         return client_count == 0;
     }
 
-    public ReplyPlaceholder sendRequest( RequestOutputStream os )
+    /**
+     * The request_id parameter is only used, if response_expected.
+     */
+    public ReplyPlaceholder sendRequest( MessageOutputStream os,
+                                         boolean response_expected,
+                                         int request_id )
     {        
-        if( os.response_expected() )
+        ReplyPlaceholder placeholder = null;
+
+        if( response_expected )
         {
-            Integer key = new Integer( os.requestId() );
+            Integer key = new Integer( request_id );
             
-            ReplyPlaceholder placeholder =
-                new ReplyPlaceholder();
+            placeholder = new ReplyPlaceholder();
             
             replies.put( key, placeholder );
-            
-            try
-            {
-                connection.sendMessage( os );
-            }
-            catch( Exception e )
-            {
-                Debug.output(2,e);
-                throw new org.omg.CORBA.COMM_FAILURE();
-            }		
-            
-            return placeholder;
         }
-        else
-        {
-            try
-            {
-                connection.sendMessage( os );
-            }
-            catch( Exception e )
-            {
-                Debug.output(2,e);
-                throw new org.omg.CORBA.COMM_FAILURE();
-            }		
 
-	    return null;
-	}
+        try
+        {
+            connection.sendMessage( os );
+        }
+        catch( Exception e )
+        {
+            Debug.output(2,e);
+            throw new org.omg.CORBA.COMM_FAILURE();
+        }		
+        
+        return placeholder;
     }
 
     public void closeConnection()
@@ -146,9 +138,8 @@ public class ClientConnection
 
         if( placeholder != null )
         {
-            //this will create the ReplyInputStream and unblock the
-            //waiting thread
-            placeholder.replyReceived( orb, reply );
+            //this will unblock the waiting thread
+            placeholder.replyReceived( new ReplyInputStream( orb, reply ));
         }
         else
         {
@@ -160,7 +151,21 @@ public class ClientConnection
     public void locateReplyReceived( byte[] reply,
                                      GIOPConnection connection )
     {
+        Integer key = new Integer( Messages.getRequestId( reply ));
         
+        ReplyPlaceholder placeholder = 
+            (ReplyPlaceholder) replies.remove( key );
+
+        if( placeholder != null )
+        {
+            //this will unblock the waiting thread
+            placeholder.replyReceived( new LocateReplyInputStream( orb, 
+                                                                   reply ));
+        }
+        else
+        {
+            Debug.output( 1, "WARNING: Received an unknown reply" );
+        }        
     }
 
 

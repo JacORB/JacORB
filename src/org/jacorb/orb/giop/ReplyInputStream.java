@@ -34,7 +34,7 @@ import org.omg.PortableServer.ForwardRequest;
  */
 
 public class ReplyInputStream
-    extends GIOPInputStream
+    extends ServiceContextTransportingInputStream
 {
     public ReplyHeader_1_2 rep_hdr = null;
 
@@ -154,4 +154,13 @@ public class ReplyInputStream
 	}
     }
 }
+
+
+
+
+
+
+
+
+
 

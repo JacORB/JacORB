@@ -60,15 +60,15 @@ public class ConnectionManager
                 public Socket createSocket( String host,
                                             int port )
                     throws IOException, UnknownHostException
-                    {
-                        return new Socket( host, port );
-                    }
+                {
+                    return new Socket( host, port );
+                }
                 
                 public boolean isSSL( Socket socket )
-                    {
-                        //this factory doesn't know about ssl
-                        return false;
-                    }
+                {
+                    //this factory doesn't know about ssl
+                    return false;
+                }
             };
         
         if( Environment.supportSSL() )
@@ -103,24 +103,17 @@ public class ConnectionManager
         receptor_pool = MessageReceptorPool.getInstance();
     }
 
-    /**
-     * Low-level lookup operation for existing connections to
-     * destinations, <br> opens a new one if no connection exists.
-     *
-     * @param <code>String host_and_port</code> - in "host:xxx" notation
-     * @return <code>Connection</code> */
-
-    public synchronized ClientConnection getConnection( String host_and_port, 
-                                                        boolean target_ssl )
+    public static String unifyTargetAddress( String host_and_port )
     {
-        if( host_and_port.indexOf('/') > 0)
+        int separator_index = host_and_port.indexOf( ":" );
+
+        if( separator_index < 0 )
         {
-            host_and_port = 
-                host_and_port.substring( host_and_port.indexOf('/') + 1 );
+            throw new org.omg.CORBA.BAD_PARAM( "Missing port in host_and_port string: >" + host_and_port + '<' );
         }
-        
-        String host = host_and_port.substring(0,host_and_port.indexOf(":"));
-        String port = host_and_port.substring(host_and_port.indexOf(":")+1);
+
+        String host = host_and_port.substring( 0, separator_index );
+        String port = host_and_port.substring( separator_index + 1 );
 
         try
         {
@@ -128,15 +121,35 @@ public class ConnectionManager
             InetAddress inet_addr = 
                 InetAddress.getByName( host );
             
-            host_and_port = inet_addr.getHostAddress() + ":" + port;
-            
-            host = host_and_port.substring( 0, 
-                                            host_and_port.indexOf(":") );
+            host_and_port = inet_addr.getHostAddress() + ':' + port;
         }
         catch( UnknownHostException uhe )
         {
             throw new org.omg.CORBA.TRANSIENT("Unknown host " + host);
         }
+
+        return host_and_port;
+    }
+
+
+    public void setRequestListener( RequestListener listener )
+    {
+        request_listener = listener;
+    }
+
+    /**
+     * @param <code>String host_and_port</code> - in "host:xxx" notation
+     * @return <code>Connection</code> */
+
+    public synchronized ClientConnection getConnection( String host_and_port, 
+                                                        boolean target_ssl )
+    {
+        host_and_port = unifyTargetAddress( host_and_port );
+        
+        int separator_index = host_and_port.indexOf( ":" );
+
+        String host = host_and_port.substring( 0, separator_index );
+        String port = host_and_port.substring( separator_index + 1 );
         
         /* look for an existing connection */
         
@@ -159,7 +172,9 @@ public class ConnectionManager
             }
             
             if( _port < 0)
+            {
                 _port += 65536;
+            }
 
             SocketFactory sf = null;
 
@@ -183,12 +198,20 @@ public class ConnectionManager
                                     null );
             
             c = new ClientConnection( connection, orb, host_and_port );
+
+            Debug.output( 2, "ConnectionManager: created new conn to target " +
+                          c.getInfo() );
             
             connections.put( c.getInfo(), c );
 
             receptor_pool.connectionCreated( connection );
         }
-        
+        else
+        {
+            Debug.output( 2, "ConnectionManager: found conn to target " +
+                          c.getInfo() );
+        }
+
         c.incClients();
         
         return c;
@@ -206,7 +229,21 @@ public class ConnectionManager
         }
     }
 
-
+    public synchronized void addConnection( ClientConnection c )
+    {
+        if( ! connections.containsKey( c.getInfo() ))
+        {
+            //this is a bit of a hack: the bidirectional client
+            //connections have to persist until their underlying GIOP
+            //connection is closed. Therefore, we set the initial
+            //client count to 1, so the connection will be kept even
+            //if there are currently no associated Delegates.
+        
+            c.incClients();
+        
+            connections.put( c.getInfo(), c );
+        }
+    }
 
     public void shutdown()
     {

@@ -30,7 +30,7 @@ import org.jacorb.orb.*;
  */
 
 public class LocateReplyOutputStream
-    extends ReplyOutputStream
+    extends MessageOutputStream
 {
     public LocateReplyOutputStream ( int request_id, 
 				     int status, 
@@ -38,6 +38,7 @@ public class LocateReplyOutputStream
                                      int giop_minor )
     {
         super();
+        setGIOPMinor( giop_minor );
         
         writeGIOPMsgHeader( MsgType_1_1._LocateReply, giop_minor );
 

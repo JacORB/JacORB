@@ -52,7 +52,8 @@ public abstract class TCP_IP_Transport
         buff_mg = BufferManager.getInstance();
     }
 
-    protected abstract void transportClosed();
+    protected abstract void transportClosed()
+        throws IOException;
 
     protected abstract void connect();
     protected abstract void waitUntilConnected()
@@ -140,7 +141,7 @@ public abstract class TCP_IP_Transport
 	{
 	    //determine message size
 	    int msg_size = Messages.getMsgSize( msg_header );
-	        
+   
 	    if( msg_size < 0 )
 	    {
                 Debug.output( 1, "ERROR: Negative GIOP message size: " + msg_size );
@@ -168,6 +169,8 @@ public abstract class TCP_IP_Transport
 
                 return null;
             }
+
+            //Debug.output( 3, "Received Msg", inbuf, 0, read + Messages.MSG_HEADER_SIZE );
             
             return inbuf;
         }
@@ -194,7 +197,7 @@ public abstract class TCP_IP_Transport
         throws IOException 
     {
         connect();
-        
+
         out_stream.write( message, start, size );
     }
     

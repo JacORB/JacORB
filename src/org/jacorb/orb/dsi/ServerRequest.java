@@ -38,58 +38,47 @@ public class ServerRequest
     extends org.omg.CORBA.ServerRequest 
     implements org.omg.CORBA.portable.ResponseHandler
 {
-    protected RequestInputStream in;
-    protected ReplyOutputStream out;	
-    protected GIOPConnection connection;
+    private RequestInputStream in;
+    private ReplyOutputStream out;	
+    private GIOPConnection connection;
     
-    protected int status = ReplyStatusType_1_2._NO_EXCEPTION;
-    protected byte[] oid;
-    protected org.omg.CORBA.Object reference = null;
-    protected String[] rest_of_name = null;
+    private int status = ReplyStatusType_1_2._NO_EXCEPTION;
+    private byte[] oid;
+    private org.omg.CORBA.Object reference = null;
+    private String[] rest_of_name = null;
 
     /* is this request stream or DSI-based ? */
-    protected boolean stream_based; 
-    protected org.omg.CORBA.SystemException sys_ex;
-    protected org.omg.PortableServer.ForwardRequest location_forward;
-    protected org.omg.CORBA.Any  ex;
-    protected org.omg.CORBA.Any result;
-    protected org.jacorb.orb.NVList args;
+    private boolean stream_based; 
+
+    private org.omg.CORBA.SystemException sys_ex;
+    private org.omg.PortableServer.ForwardRequest location_forward;
+    private org.omg.CORBA.Any  ex;
+    private org.omg.CORBA.Any result;
+    private org.jacorb.orb.NVList args;
 
     private org.jacorb.orb.ORB orb;
 
     private ServerRequestInfoImpl info = null;
 
-    /** only to be called implicitly by subclasses */
-    protected ServerRequest(){}
-
-    /** only to be called implicitly by subclasses (LocateRequest) */
-
-    protected ServerRequest( org.jacorb.orb.ORB orb, 
-                             GIOPConnection _connection )
-    {
-	this.orb = orb;
-	connection = _connection;
-    }
-
     public ServerRequest( org.jacorb.orb.ORB orb, 
-                          byte[] _buf, 
+                          RequestInputStream in, 
                           GIOPConnection _connection )
     {
 	this.orb = orb;
-	in = new RequestInputStream( orb, _buf );
+	this.in = in;
 	connection = _connection;
 
 	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.target.object_key() );
     }
 
-    /** if this request could not be delivered directly to the
-	correct POA because the POA's adapter activator could
-	not be called when the parent POA was in holding state,
-	the parent will queue the request and later return it
-	to the adapter layer. In order to be able to find the right
-	POA when trying to deliver again, we have to remember the
-	target POA's name 
-    */
+    /* 
+     * if this request could not be delivered directly to the correct
+     * POA because the POA's adapter activator could not be called
+     * when the parent POA was in holding state, the parent will queue
+     * the request and later return it to the adapter layer. In order
+     * to be able to find the right POA when trying to deliver again,
+     * we have to remember the target POA's name 
+     */
 
     public void setRemainingPOAName(String [] r_o_n)
     {
@@ -274,9 +263,10 @@ public class ServerRequest
                                  in.getGIOPMinor() );
 		}
 
-		/* DSI-based servers set results and user exceptions using anys, so 
-		   we have to treat this differently */
-
+		/* 
+                 * DSI-based servers set results and user exceptions
+                 * using anys, so we have to treat this differently 
+                 */
 		if( !stream_based )
 		{
 		    if( status == ReplyStatusType_1_2._USER_EXCEPTION )
@@ -310,13 +300,13 @@ public class ServerRequest
 				}
 			    }
 			}
-			//result.write_value( out );
 		    }
 		}
 
-		/* these two exceptions are set in the same way for
-		   both stream-based and DSI-based servers */
-
+		/* 
+                 * these two exceptions are set in the same way for
+                 * both stream-based and DSI-based servers 
+                 */
 		if( status == ReplyStatusType_1_2._LOCATION_FORWARD )
 		{
 		    out.write_Object( location_forward.forward_reference );
@@ -326,11 +316,12 @@ public class ServerRequest
 		    org.jacorb.orb.SystemExceptionHelper.write( out, sys_ex );
 		}
 
-		/* everything is written to out by now, be it results or exceptions */
+		/* 
+                 * everything is written to out by now, be it results
+                 * or exceptions. 
+                 */
 
-		out.close();
 		connection.sendMessage( out );
-		    
 	    }
 	    catch ( Exception ioe )
 	    {

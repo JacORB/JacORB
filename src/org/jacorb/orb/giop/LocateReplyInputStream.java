@@ -35,43 +35,19 @@ import org.omg.CORBA.portable.RemarshalException;
  */
 
 public class LocateReplyInputStream
-    extends CDRInputStream
+    extends MessageInputStream
 {
-    private LocateReplyHeader_1_2 rep_hdr;
-    private int _request_id;
-    private boolean ready = false;
+    public LocateReplyHeader_1_2 rep_hdr = null;
 
-    private int giop_minor = -1;
-
-    public LocateReplyInputStream( org.omg.CORBA.ORB orb,  int request_id )
+    public LocateReplyInputStream( org.omg.CORBA.ORB orb,  byte[] buf )
     {
-	super( orb );
-	this._request_id = request_id;
-    }
+	super( orb, buf );
 
-    public synchronized void init( byte[] buf )
-    {
-	super.buffer = buf;
         //check message type
 	if( buffer[7] != (byte) MsgType_1_1._LocateReply )
         {
 	    throw new Error( "Error: not a reply!" );
         }
-
-        //check major version
-        if( buffer[4] != 1 )
-	{
-            throw new Error( "Unknown GIOP major version: " + buffer[4] );
-        }
-
-        //although the attribute is renamed, this should work for 1.0
-        //and 1.1/1.2
-        setLittleEndian( Messages.isLittleEndian( buffer ));
-
-        //skip the message header. Its attributes are read directly
-        skip( Messages.MSG_HEADER_SIZE );	    
-
-        giop_minor = buffer[5];
         
         switch( giop_minor )
         { 
@@ -99,45 +75,11 @@ public class LocateReplyInputStream
 
                 break;
             }
-            default : {
+            default : 
+            {
                 throw new Error( "Unknown GIOP minor version: " + giop_minor );
             }
         }
-
-
-	if( this._request_id != rep_hdr.request_id )
-        {
-	    throw new Error("Fatal, request ids don\'t match");
-        }
-
-	ready = true;
-	this.notify();
-    }
-
-    public int requestId()
-    {
-	return _request_id;
-    }
-
-
-    /** 
-     *  called from within Connection. The result is returned to
-     *  the waiting client.
-     */
-
-    public synchronized LocateStatusType_1_2 status() 
-    {
-	try
-	{
-	    while( !ready ) 
-	    {
-		wait();
-	    }
-	} 
-	catch ( java.lang.InterruptedException e )
-	{}
-
-	return rep_hdr.locate_status;
     }
 }
 

@@ -31,16 +31,20 @@ import org.jacorb.orb.*;
  */
 
 public class LocateRequestOutputStream
-    extends org.jacorb.orb.CDROutputStream
+    extends MessageOutputStream
 {
     private int request_id = -1;
-
+    
     public LocateRequestOutputStream( byte[] object_key, 
                                       int request_id,
                                       int giop_minor )
     {
+        super();
+
         this.request_id = request_id;
-        
+
+        setGIOPMinor( giop_minor );
+
         writeGIOPMsgHeader( MsgType_1_1._LocateRequest, giop_minor );
 
         switch( giop_minor )
@@ -53,7 +57,7 @@ public class LocateRequestOutputStream
             {
                 //GIOP 1.1
                 LocateRequestHeader_1_0 req_hdr = 
-                    new LocateRequestHeader_1_0( request_id, object_key );               
+                    new LocateRequestHeader_1_0( request_id, object_key );
                 
                 LocateRequestHeader_1_0Helper.write( this, req_hdr );
 
@@ -78,10 +82,10 @@ public class LocateRequestOutputStream
             }
         }
     }
-
-    public int requestId()
+    
+    public int getRequestId()
     {
-	return request_id;
+        return request_id;
     }
 }
 

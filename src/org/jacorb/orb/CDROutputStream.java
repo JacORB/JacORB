@@ -122,6 +122,11 @@ public class CDROutputStream
         this.giop_minor = giop_minor;
     }
 
+    public int getGIOPMinor()
+    {
+        return giop_minor;
+    }
+
     public void close() 
     {
         if( closed )

@@ -85,7 +85,7 @@ public class BasicAdapter
     private RequestListener request_listener = null;
     private ReplyListener reply_listener = null;
     private int timeout = 0;
-    
+
     public BasicAdapter(org.jacorb.orb.ORB orb, POA rootPOA)
     {
         this.orb = orb;
@@ -194,9 +194,9 @@ public class BasicAdapter
         reply_listener = new NoBiDirServerReplyListener();
 
         /*
-         * we always create a plain socket listener as well,
-         * if SSL is required, we do not accept requests on this port, however
-         * (see below)
+         * We always create a plain socket listener as well. If SSL is
+         * required, we do not accept requests on this port, however
+         * (see below). 
          */
 
         listener = new Listener( Environment.getProperty( "OAPort" ),
@@ -209,6 +209,11 @@ public class BasicAdapter
         {
             timeout = Integer.parseInt(prop);
         } 
+    }
+
+    public RequestListener getRequestListener()
+    {
+        return request_listener;
     }
 
     public void replyPending()
@@ -226,6 +231,11 @@ public class BasicAdapter
         return sslListener.getPort();
     }
 
+    public boolean hasSSLListener()
+    {
+        return sslListener != null;
+    }
+
     /**
      * @returns the IP address we are listening on
      */
@@ -236,10 +246,10 @@ public class BasicAdapter
     }
     
     /**
-     * to be called from the POA, code duplicated for performance reasons to avoid
-     * synchronization in the private version of this method.
+     * to be called from the POA, code duplicated for performance
+     * reasons to avoid synchronization in the private version of this
+     * method.  
      */
-
     public synchronized void deliverRequest( org.jacorb.orb.dsi.ServerRequest request, 
                                              org.omg.PortableServer.POA poa )
     {
@@ -261,13 +271,16 @@ public class BasicAdapter
                 }
                 catch ( org.jacorb.poa.except.ParentIsHolding p )
                 {
-                    /* if one of the POAs is in holding state, we simply deliver 
-                       deliver the request to this POA. It will forward the request
-                       to its child POAs if necessary when changing back to active
-                       For the POA to be able to forward this request to its child POAa,
-                       we need to supply the remaining part of the child's POA name */
-
-                    String [] rest_of_name = new String[scopes.length - i];
+                    /* 
+                     * if one of the POAs is in holding state, we
+                     * simply deliver deliver the request to this
+                     * POA. It will forward the request to its child
+                     * POAs if necessary when changing back to active
+                     * For the POA to be able to forward this request
+                     * to its child POAa, we need to supply the
+                     * remaining part of the child's POA name 
+                     */
+                    String[] rest_of_name = new String[scopes.length - i];
                     for( int j = 0; j < i; j++ )
                         rest_of_name[j] = scopes[j+i];
                     request.setRemainingPOAName(rest_of_name);

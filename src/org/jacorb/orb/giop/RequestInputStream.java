@@ -22,6 +22,7 @@ package org.jacorb.orb.connection;
 
 import org.jacorb.orb.*;
 import org.omg.GIOP.*;
+import org.omg.IOP.ServiceContext;
 
 /**
  * 
@@ -31,85 +32,122 @@ import org.omg.GIOP.*;
  */
 
 public class RequestInputStream
-    extends GIOPInputStream
+    extends ServiceContextTransportingInputStream
 {
     private static byte[] reserved = new byte[3];
+    private static ServiceContext[] ctx = new ServiceContext[0];
 
     public RequestHeader_1_2 req_hdr = null;
 
-    /**
-     * used by subclass, flag is a dummy
-     */
-    /*
-    protected RequestInputStream( org.omg.CORBA.ORB orb, 
-                                  byte [] buf, 
-                                  boolean flag )
-    {
-	super( orb, buf );
-    }
-    */
     public RequestInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
 	super( orb,  buf );
 
-        //check message type
-	if( Messages.getMsgType( buffer ) != MsgType_1_1._Request )
+	if( Messages.getMsgType( buffer ) == MsgType_1_1._Request )
+        {
+            switch( giop_minor )
+            { 
+                case 0 : 
+                {
+                    //GIOP 1.0
+                    RequestHeader_1_0 hdr = 
+                        RequestHeader_1_0Helper.read( this );
+
+                    TargetAddress addr = new TargetAddress();
+                    addr.object_key( hdr.object_key );
+
+                    req_hdr = 
+                        new RequestHeader_1_2( hdr.request_id,
+                                               Messages.responseFlags( hdr.response_expected ),
+                                               reserved,
+                                               addr, //target
+                                               hdr.operation, 
+                                               hdr.service_context );
+                    break;
+                }
+                case 1 : 
+                {
+                    //GIOP 1.1
+                    RequestHeader_1_1 hdr = 
+                        RequestHeader_1_1Helper.read( this );
+
+                    TargetAddress addr = new TargetAddress();
+                    addr.object_key( hdr.object_key );
+
+                    req_hdr = 
+                        new RequestHeader_1_2( hdr.request_id,
+                                               Messages.responseFlags( hdr.response_expected ),
+                                               reserved,
+                                               addr, //target
+                                               hdr.operation, 
+                                               hdr.service_context );
+                    break;
+                }
+                case 2 : 
+                {
+                    //GIOP 1.2
+                    req_hdr = RequestHeader_1_2Helper.read( this );
+                
+                    skipHeaderPadding();
+
+                    break;
+                }
+                default : {
+                    throw new Error( "Unknown GIOP minor version: " + giop_minor );
+                }
+            }
+        }
+        else if( Messages.getMsgType( buffer ) == MsgType_1_1._LocateRequest )
+        {
+            switch( giop_minor )
+            { 
+                case 0 : 
+                {
+                    //GIOP 1.0 = GIOP 1.1, fall through
+                }
+                case 1 : 
+                {
+                    //GIOP 1.1
+                    LocateRequestHeader_1_0 locate_req_hdr = 
+                        LocateRequestHeader_1_0Helper.read( this );
+
+                    TargetAddress addr = new TargetAddress();
+                    addr.object_key( locate_req_hdr.object_key );
+
+                    req_hdr = 
+                        new RequestHeader_1_2( locate_req_hdr.request_id, 
+                                               (byte) 0x03,//response_expected 
+                                               reserved,
+                                               addr, 
+                                               "_non_existent", 
+                                               ctx ); 
+                    break;
+                }
+                case 2 : 
+                {
+                    //GIOP 1.2
+                    LocateRequestHeader_1_2 locate_req_hdr = 
+                        LocateRequestHeader_1_2Helper.read( this );
+                
+                    req_hdr = 
+                        new RequestHeader_1_2( locate_req_hdr.request_id, 
+                                               (byte) 0x03,//response_expected 
+                                               reserved,
+                                               locate_req_hdr.target, 
+                                               "_non_existent", 
+                                               ctx ); 
+                    break;
+                }
+                default : 
+                {
+                    throw new Error( "Unknown GIOP minor version: " + giop_minor );
+                }
+            }
+        }
+        else
         {
 	    throw new Error( "Error: not a request!" );
         }
-
-        switch( giop_minor )
-        { 
-            case 0 : 
-            {
-                //GIOP 1.0
-                RequestHeader_1_0 hdr = 
-                    RequestHeader_1_0Helper.read( this );
-
-                TargetAddress addr = new TargetAddress();
-                addr.object_key( hdr.object_key );
-
-                req_hdr = 
-                    new RequestHeader_1_2( hdr.request_id,
-                                           (byte) ((hdr.response_expected)? 0x03 : 0x00),//flags
-                                           reserved,
-                                           addr, //target
-                                           hdr.operation, 
-                                           hdr.service_context );
-                break;
-            }
-            case 1 : 
-            {
-                //GIOP 1.1
-                RequestHeader_1_1 hdr = 
-                    RequestHeader_1_1Helper.read( this );
-
-                TargetAddress addr = new TargetAddress();
-                addr.object_key( hdr.object_key );
-
-                req_hdr = 
-                    new RequestHeader_1_2( hdr.request_id,
-                                           Messages.responseFlags( hdr.response_expected ),
-                                           reserved,
-                                           addr, //target
-                                           hdr.operation, 
-                                           hdr.service_context );
-                break;
-            }
-            case 2 : 
-            {
-                //GIOP 1.2
-                req_hdr = RequestHeader_1_2Helper.read( this );
-                
-                skipHeaderPadding();
-
-                break;
-            }
-            default : {
-                throw new Error( "Unknown GIOP minor version: " + giop_minor );
-            }
-        }
-        
         System.out.println(">>>>>>>>>received request for op " + 
                            req_hdr.operation + 
                            " with GIOP 1." + 
@@ -117,18 +155,18 @@ public class RequestInputStream
         
     }
 
-    public int getGIOPMinor()
+    public ServiceContext getServiceContext( int id )
     {
-        return giop_minor;
+        for( int i = 0; i < req_hdr.service_context.length; i++ )
+        {
+            if( req_hdr.service_context[i].context_id == id )
+            {
+                return req_hdr.service_context[i];
+            }
+        }
+        
+        return null;
     }
-    
-    //needed for Appligator
-    /*
-    public int getMsgSize()
-    {
-        return msg_size;
-    }
-    */
 
     public void finalize()
     {

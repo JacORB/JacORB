@@ -217,38 +217,61 @@ public final class Delegate
              *  first call will get through without redirections
              *  (provided the server's answer is definite): 
              */
-            /*
             if( (! locate_on_bind_performed) &&
                 Environment.locateOnBind() )
             {  
                 //only locate once, because bind is called from the
-                //swith statement below again.
+                //switch statement below again.
                 locate_on_bind_performed = true;
 
-                LocateRequestOutputStream lros = 
-                    new LocateRequestOutputStream( object_key, 
-                                                   connection.getId(),
-                                                   (int) _pior.getProfileBody().iiop_version.minor );
-                LocateReplyInputStream lris = 
-                    connection.sendLocateRequest( lros );
-    
-                switch( lris.status().value() )
+                try
                 {
-                    case LocateStatusType_1_2._OBJECT_HERE:
-                        Debug.output(3,"object here");
-                        break;
-                    case LocateStatusType_1_2._OBJECT_FORWARD:
-                        Debug.output(3,"Locate Reply: Forward");
-                        rebind( orb.object_to_string( lris.read_Object()) );
-                        // ignore this for the moment...
-                        break;
-                    case LocateStatusType_1_2._UNKNOWN_OBJECT :
-                        throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
-                    default:
-                        throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.status().value());
+                    LocateRequestOutputStream lros = 
+                        new LocateRequestOutputStream( object_key, 
+                                                       connection.getId(),
+                                                       (int) _pior.getProfileBody().iiop_version.minor );
+                    
+                    ReplyPlaceholder place_holder = 
+                        connection.sendRequest( lros,
+                                                true, //response expected
+                                                lros.getRequestId() );
+                    
+                    
+                    LocateReplyInputStream lris =
+                        (LocateReplyInputStream) place_holder.getInputStream();
+                    
+                    switch( lris.rep_hdr.locate_status.value() )
+                    {
+                        case LocateStatusType_1_2._OBJECT_HERE :
+                        {
+                            Debug.output(3,"object here");
+                            
+                            break;
+                        }
+                        case LocateStatusType_1_2._OBJECT_FORWARD :
+                        {
+                            Debug.output(3,"Locate Reply: Forward");
+                            
+                            rebind( orb.object_to_string( lris.read_Object()) );
+                            
+                            break;
+                        }
+                        case LocateStatusType_1_2._UNKNOWN_OBJECT :
+                        {
+                            throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
+                        }
+                        default :
+                        {
+                            throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.rep_hdr.locate_status.value());
+                        }
+                    }
+                }
+                catch( Exception e )
+                {
+                    Debug.output( 1, e );
                 }
             }
-            */
+
             //wake up threads waiting for the pior
             bind_sync.notifyAll();
         }
@@ -737,7 +760,9 @@ public final class Delegate
         ReplyPlaceholder placeholder = null;
         try
         {          
-            placeholder = connection.sendRequest( ros );
+            placeholder = connection.sendRequest( ros,
+                                                  ros.response_expected(),
+                                                  ros.requestId() );
  
             // devik: if tcs was not negotiated yet, in every context
             // we will send tcs wanted. After first such request was
@@ -797,7 +822,7 @@ public final class Delegate
             try
             {
                 //this blocks until the reply arrives
-                rep = placeholder.getInputStream();
+                rep = (ReplyInputStream) placeholder.getInputStream();
                 
                 //this will check the reply status and throw arrived
                 //exceptions

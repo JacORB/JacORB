@@ -235,7 +235,7 @@ public class GIOPConnection
         transport.addOutgoingMessage( message, start, size );
     }
     
-    public void sendMessage( GIOPOutputStream out )
+    public void sendMessage( MessageOutputStream out )
         throws IOException
     {
         try

@@ -106,8 +106,25 @@ public final class ORB
 
     private static org.omg.CORBA.TCKind kind;
 
+    private boolean bidir_giop = false;
+
     public ORB()
     {
+    }
+
+    public boolean useBiDirGIOP()
+    {
+        return bidir_giop;
+    }
+    
+    public void turnOnBiDirGIOP()
+    {
+        if( ! bidir_giop )
+        {
+            bidir_giop = true;
+            
+            connectionManager.setRequestListener( basicAdapter.getRequestListener() );
+        }
     }
 
     /** 
@@ -1133,6 +1150,7 @@ public final class ORB
             // add PolicyFactories to ORB
             policy_factories = info.getPolicyFactories(); 
 
+            /*
             // add policy factories that are always present
             try
             {
@@ -1146,6 +1164,7 @@ public final class ORB
             {
                 e.printStackTrace();
             }
+            */
         }
     }
 

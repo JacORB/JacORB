@@ -274,7 +274,7 @@ public class RequestProcessor
             controller.getLogTrace().printLog(1, request, "invocation: system exception was thrown ("+e+")");
             request.setSystemException(e);
         } 
-        catch (Throwable e) 
+        catch (Throwable e)             
         {         /* not spec. */
             controller.getLogTrace().printLog(0, request, "invocation: throwable was thrown");
             controller.getLogTrace().printLog(0, e);

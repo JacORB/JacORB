@@ -85,8 +85,11 @@ public class ServerRequestListener
             return;
         } 
 
+        RequestInputStream in = 
+            new RequestInputStream( orb, request );
+
         ServerRequest server_request = 
-            new ServerRequest( orb, request, connection );
+            new ServerRequest( orb, in, connection );
 
         orb.getBasicAdapter().replyPending();
 
@@ -229,6 +232,15 @@ public class ServerRequestListener
         }                       
     }
 }// ServerRequestListener
+
+
+
+
+
+
+
+
+
 
 
 
