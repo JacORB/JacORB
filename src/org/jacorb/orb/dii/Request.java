@@ -29,6 +29,7 @@ import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.connection.*;
 import org.jacorb.orb.*;
+import org.jacorb.util.Debug;
 import java.util.Enumeration;
 
 /**
@@ -259,21 +260,48 @@ public class Request
                     }
                 }
             }
-            catch(RemarshalException rem)
+            catch (RemarshalException rem)
             {
-                //try again
+                // Try again
                 continue;
             }
-            catch( ApplicationException ae )
+            catch (ApplicationException ae)
             {
-                env.exception(new RuntimeException(ae.getId()));
+                org.omg.CORBA.Any any;
+                org.omg.CORBA.TypeCode tc;
+                String id = ae.getId ();
+                int count = (exceptions == null) ? 0 : exceptions.count ();
+
+                for (int i = 0; i < count; i++)
+                {
+                    try
+                    {
+                        tc = exceptions.item (i);
+                        if (id.equals (tc.id ()))
+                        {
+                            any = orb.create_any ();
+                            any.read_value (ae.getInputStream (), tc);
+                            env.exception (new org.omg.CORBA.UnknownUserException (any));
+                            break;
+                        }
+                    }
+                    catch (org.omg.CORBA.TypeCodePackage.BadKind ex)
+                    {
+                       Debug.output (Debug.INFORMATION | Debug.DII, "Unexpected BadKind exception");
+                    }
+                    catch (org.omg.CORBA.Bounds ex)
+                    {
+                       Debug.output (Debug.INFORMATION | Debug.DII, "Unexpected Bounds exception");
+                       break;
+                    }
+                }
+
                 break;
             }
             catch (Exception e)
             {
-                env.exception(e);
+                env.exception (e);
                 break;
-                // throw new ApplicationException(e.getMessage(), null);
             }
       
             break;
@@ -334,15 +362,8 @@ public class Request
             return false;
     }
 
-    public void setInfo(ClientRequestInfoImpl info){
+    public void setInfo(ClientRequestInfoImpl info)
+    {
         this.info = info;
     }
 }
-
-
-
-
-
-
-
-
