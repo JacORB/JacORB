@@ -25,19 +25,19 @@ import org.jacorb.imr.AdminPackage.*;
 
 import org.jacorb.orb.*;
 import org.jacorb.orb.connection.*;
-import org.jacorb.orb.factory.SocketFactory;
 
-import org.jacorb.poa.util.*;
+import org.jacorb.poa.util.POAUtil;
 
 import org.jacorb.util.Environment;
 import org.jacorb.util.Debug;
-import org.jacorb.util.threadpool.*;
 
-import org.omg.IIOP.*;
 import org.omg.PortableServer.*;
 
 import java.io.*;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.InetAddress;
+import java.lang.reflect.Method;
 
 /**
  * This is the main class of the JacORB implementation repository.
@@ -46,14 +46,14 @@ import java.net.*;
  * the POAS servers.
  *
  * @author Nicolas Noffke
- * 
+ *
  * $Id$
  */
 
-public class ImplementationRepositoryImpl 
+public class ImplementationRepositoryImpl
     extends ImplementationRepositoryPOA
 {
-    private static int default_port = 0;
+    private static int default_port;
     private static org.omg.CORBA.ORB orb;
 
     private File table_file;
@@ -67,18 +67,23 @@ public class ImplementationRepositoryImpl
     private boolean allow_auto_register = false;
     private boolean check_object_liveness = false;
 
+    private WriteThread wt;
+    private boolean updatePending;
+    private Shutdown shutdownThread;
+
+
     /**
      * The constructor.
      * It builds up the server table and starts up the SocketListener thread.
      *
-     * @param table_file the file containing the serialized server table. Also 
+     * @param table_file the file containing the serialized server table. Also
      * used for writing the table to on shutdown. If null, an empty table is created.
      * @param table_backup the file where backups are written to.
      * @param new_table set to true, if an empty server table should be created
      */
-    public ImplementationRepositoryImpl(File table_file, 
+    public ImplementationRepositoryImpl(File table_file,
                                         File table_backup,
-					boolean new_table) 
+					boolean new_table)
     {
 	this.table_file = table_file;
 	table_file_backup = table_backup;
@@ -106,33 +111,43 @@ public class ImplementationRepositoryImpl
                     server_table = new ServerTable ();
                     save_server_table (table_file);
                 }
-            }
-        }
+	    }
+	}
         catch (FileOpFailed ex)
         {
             Debug.output (Debug.IMR | Debug.INFORMATION, ex);
         }
-	
-	//read in properties from Environment.
+
+        shutdownThread = new Shutdown ();
+        shutdownThread.setDaemon (true);
+        shutdownThread.setName ("Shutdown Thread");
+        addShutdownHook (shutdownThread);
+
+        wt = new WriteThread ();
+        wt.setName ("IMR Write Thread");
+        wt.setDaemon (true);
+        wt.start ();
+
+        // Read in properties from Environment.
 	try
         {
-	    String _tmp = 
-                Environment.getProperty("jacorb.imr.object_activation_retries");
-            
+	    String _tmp =
+            Environment.getProperty("jacorb.imr.object_activation_retries");
+
             if( _tmp != null )
             {
                 object_activation_retries = Integer.parseInt(_tmp);
             }
 	}
         catch( NumberFormatException nfe )
-        {            
+        {
         }
-    
+
 	try
         {
-	    String _tmp = 
-                Environment.getProperty("jacorb.imr.object_activation_sleep");
-            
+	    String _tmp =
+                (Environment.getProperty("jacorb.imr.object_activation_sleep"));
+
             if( _tmp != null )
             {
                 object_activation_sleep = Integer.parseInt(_tmp);
@@ -142,26 +157,26 @@ public class ImplementationRepositoryImpl
         {
         }
 
-        String _tmp = 
-            Environment.getProperty("jacorb.imr.allow_auto_register");
-            
+        String _tmp =
+            (Environment.getProperty("jacorb.imr.allow_auto_register"));
+
         if( _tmp != null )
         {
-            _tmp = _tmp.toLowerCase();            
+            _tmp = _tmp.toLowerCase();
 
             allow_auto_register = "on".equals( _tmp );
         }
 
-        _tmp = 
-            Environment.getProperty("jacorb.imr.check_object_liveness");
-        
+        _tmp =
+            (Environment.getProperty("jacorb.imr.check_object_liveness"));
+
         if( _tmp != null )
         {
-            _tmp = _tmp.toLowerCase();            
-            
+            _tmp = _tmp.toLowerCase();
+
             check_object_liveness = "on".equals( _tmp );
         }
-    
+
 	listener = new SocketListener();
     }
 
@@ -172,10 +187,10 @@ public class ImplementationRepositoryImpl
      * that server is encountered, the server is tried to be restarted.
      *
      * @param server the servers name.
-     * @exception org.jacorb.imr.UnknownServerName No server with name 
+     * @exception org.jacorb.imr.UnknownServerName No server with name
      * <code>server</code> has been registered.
      */
-    public void set_server_down(String server) 
+    public void set_server_down(String server)
 	throws UnknownServerName {
 	Debug.output(Debug.IMR | Debug.INFORMATION,
                      "ImR: server " + server + " is going down... ");
@@ -188,7 +203,7 @@ public class ImplementationRepositoryImpl
     /**
      * This method registers a POA. It has actually two functions:
      * <ul>
-     * <li> Register a POA that has not yet been registered. It is the added to the 
+     * <li> Register a POA that has not yet been registered. It is the added to the
      * server table. </li>
      * <li> Reactivating a POA that is not active, but has already an entry
      * in the server table</li> </ul>
@@ -205,20 +220,21 @@ public class ImplementationRepositoryImpl
      * <code>name</code> is currently registered.
      * @exception org.jacorb.imr.UnknownServerName The server has not been registered.
      */
-    public void register_poa(String name, String server, String host, int port) 
-	throws IllegalPOAName, DuplicatePOAName, UnknownServerName 
+    public void register_poa(String name, String server, String host, int port)
+	throws IllegalPOAName, DuplicatePOAName, UnknownServerName
     {
-	
+        updatePending = true;
+
 	Debug.output(Debug.IMR | Debug.INFORMATION,
-                     "ImR: registering poa " + name + " for server: " + 
+                     "ImR: registering poa " + name + " for server: " +
                      server + " on " + host );
-	
+
         if( allow_auto_register &&
             ! server_table.hasServer( server ))
         {
             try
             {
-                register_server( server, "", "" );            
+                register_server( server, "", "" );
             }
             catch( IllegalServerName isn )
             {
@@ -244,33 +260,44 @@ public class ImplementationRepositoryImpl
                          "ImR: new poa registered");
 
 	}
-	else 
+	else
         {
 	    //Existing POA is reactivated
             if ((_poa.active) ||  (! server.equals(_poa.server.name)))
-                throw new DuplicatePOAName("POA " + name + 
+                throw new DuplicatePOAName("POA " + name +
                                            " has already been registered " +
                                            "for server " + _poa.server.name);
-	    
+
 	    _poa.reactivate(host, port);
 	    Debug.output(Debug.IMR | Debug.INFORMATION,
                          "ImR: register_poa, reactivated");
 	}
+        try
+        {
+            synchronized (wt)
+            {
+                wt.notify ();
+            }
+        }
+        catch (IllegalMonitorStateException e)
+        {
+            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+        }
     }
- 
+
 
     /**
      * Register a new host with a server startup daemon.
      * @param host a HostInfo object containing the hosts name and a reference to its
      * ServerStartupDaemon object.
-     * 
+     *
      * @exception org.jacorb.imr.RegistrationPackage.IllegalHostName <code>name</code> is not valid.
-     * @exception org.jacorb.imr.RegistrationPackage.InvalidSSDRef It was impossible to connect 
+     * @exception org.jacorb.imr.RegistrationPackage.InvalidSSDRef It was impossible to connect
      * to the daemon.
      */
-    public void register_host(HostInfo host) 
+    public void register_host(HostInfo host)
 	throws IllegalHostName, InvalidSSDRef {
-	
+
 	if (host.name == null || host.name.length() == 0)
 	    throw new IllegalHostName(host.name);
 
@@ -280,10 +307,23 @@ public class ImplementationRepositoryImpl
 	    Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 	    throw new InvalidSSDRef();
 	}
-	
+        updatePending = true;
+
 	server_table.putHost(host.name, new ImRHostInfo(host));
+
+        try
+        {
+            synchronized (wt)
+            {
+                wt.notify ();
+            }
+        }
+        catch (IllegalMonitorStateException e)
+        {
+            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+        }
     }
-    
+
 
     /**
      * Get host and port (wrapped inside an ImRInfo object) of this repository.
@@ -292,7 +332,7 @@ public class ImplementationRepositoryImpl
     public ImRInfo get_imr_info(){
 	return new ImRInfo(listener.getAddress(), listener.getPort());
     }
-    
+
 
     // implementation of org.jacorb.imr.AdminOperations interface
 
@@ -306,7 +346,7 @@ public class ImplementationRepositoryImpl
     public HostInfo[] list_hosts() {
 	return server_table.getHosts();
     }
-    
+
     /**
      * List all registered server. The ServerInfo objects contain also
      * a list of the associated POAs.
@@ -328,7 +368,7 @@ public class ImplementationRepositoryImpl
 	throws UnknownServerName{
 	return server_table.getServer(server).toServerInfo();
     }
-   
+
     /**
      * Register a logical server. The logical server corresponds to a process
      * which has a number of POAs.
@@ -343,12 +383,27 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.AdminPackage.DuplicateServerName a server with <code>name</code>
      * has already been registered.
      */
-    public void register_server(String name, String command, String host) 
-	throws IllegalServerName, DuplicateServerName {
-	ImRServerInfo _server = new ImRServerInfo(name, host, command);
-	server_table.putServer(name, _server);
-	Debug.output(Debug.IMR | Debug.INFORMATION,
+    public void register_server(String name, String command, String host)
+	throws IllegalServerName, DuplicateServerName
+    {
+        updatePending = true;
+
+        ImRServerInfo _server = new ImRServerInfo(name, host, command);
+        server_table.putServer(name, _server);
+
+        Debug.output(Debug.IMR | Debug.INFORMATION,
                      "ImR: server " + name + " on " + host + " registered");
+        try
+        {
+            synchronized (wt)
+            {
+                wt.notify ();
+            }
+        }
+        catch (IllegalMonitorStateException e)
+        {
+            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+        }
     }
 
 
@@ -359,8 +414,11 @@ public class ImplementationRepositoryImpl
      * @param name the servers name.
      * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> has not been registered.
      */
-    public void unregister_server(String name) throws UnknownServerName {
-	ImRServerInfo _server = server_table.getServer(name);
+    public void unregister_server(String name) throws UnknownServerName
+    {
+        updatePending = true;
+
+        ImRServerInfo _server = server_table.getServer(name);
 	String[] _poas = _server.getPOANames();
 
 	// remove POAs
@@ -370,6 +428,17 @@ public class ImplementationRepositoryImpl
 	server_table.removeServer(name);
 	Debug.output(Debug.IMR | Debug.INFORMATION,
                      "ImR: server " + name + " unregistered");
+        try
+        {
+            synchronized (wt)
+            {
+                wt.notify ();
+            }
+        }
+        catch (IllegalMonitorStateException e)
+        {
+            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+        }
     }
 
     /**
@@ -381,15 +450,28 @@ public class ImplementationRepositoryImpl
      * @exception org.jacorb.imr.AdminPackage.UnknownServerName a server with <code>name</code>
      * has not been registered.
      */
-    public void edit_server(String name, String command, String host) 
-	throws UnknownServerName {
-	ImRServerInfo _server = server_table.getServer(name);
+    public void edit_server(String name, String command, String host) throws UnknownServerName
+    {
+        updatePending = true;
+
+        ImRServerInfo _server = server_table.getServer(name);
 
 	_server.command = command;
 	_server.host = host;
 
 	Debug.output(Debug.IMR | Debug.INFORMATION,
                      "ImR: server " + name + " edited");
+        try
+        {
+            synchronized (wt)
+            {
+                wt.notify ();
+            }
+        }
+        catch (IllegalMonitorStateException e)
+        {
+            Debug.output(Debug.IMR | Debug.INFORMATION, e);
+        }
     }
 
 
@@ -417,15 +499,15 @@ public class ImplementationRepositoryImpl
 	ImRServerInfo _server = server_table.getServer(name);
 	_server.release();
     }
-    
+
     /**
      * Start a server.
      *
      * @param name the servers name.
-     * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code> 
+     * @exception org.jacorb.imr.UnknownServerName a server with <code>name</code>
      * has not been registered.
      */
-    public void start_server(String name) 
+    public void start_server(String name)
         throws UnknownServerName, ServerStartupFailed{
         restartServer(server_table.getServer(name));
     }
@@ -437,7 +519,7 @@ public class ImplementationRepositoryImpl
     public void save_server_table() throws FileOpFailed {
 	save_server_table(table_file_backup);
     }
-    
+
     /**
      * Shut the repository down orderly, i.e. with saving of the server table.
      * The actual shutdown is done in the SocketListener thread because, if
@@ -447,14 +529,14 @@ public class ImplementationRepositoryImpl
      * @param wait wait_for_completion (from ORB.shutdown()). If false, then the ORB
      * is forced down, ignoring any open connection.
      */
-    public void shutdown(boolean wait) {
-	try{
-	    save_server_table(table_file);
-	}catch (Exception _e){
-	    Debug.output(Debug.IMR | Debug.INFORMATION, _e);
-	}
-
-	listener.stopListening(wait);
+    public void shutdown(boolean wait)
+    {
+        synchronized (wt)
+        {
+            wt.shutdown ();
+            wt.notify ();
+        }
+        listener.stopListening(wait);
     }
 
     /**
@@ -477,7 +559,7 @@ public class ImplementationRepositoryImpl
      * @exception sth went wrong.
      */
     private void save_server_table(File save_to) throws FileOpFailed {
-	try{
+      	try{
 	    ObjectOutputStream _out = new ObjectOutputStream(new FileOutputStream(save_to));
 
 	    server_table.table_lock.gainExclusiveLock();
@@ -490,6 +572,7 @@ public class ImplementationRepositoryImpl
 	    Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 	    throw new FileOpFailed();
 	}
+        updatePending = false;
     }
 
 
@@ -506,7 +589,7 @@ public class ImplementationRepositoryImpl
 	System.out.println("\t -b <backupfile> Put server table in this file");
 	System.out.println("\t -a Allow auto-registering of servers");
 	System.out.println("\t -h Print this help");
- 
+
 	System.exit(0);
     }
 
@@ -530,41 +613,41 @@ public class ImplementationRepositoryImpl
 	try{
 	    for (int i = 0; i < args.length ; i++){
 		switch (args[i].charAt(1)){
-		case 'h' : {
-		    usage();
-		}
-		case 'p' : {
-		    default_port = Integer.parseInt(args[++i]);
-		    break;
-		}
-		case 'f' : {
-		    if (_new_table)
-			// -f and -n together not allowed
-			usage();
-		    _table_file_str = args[++i];
-		    break;
-		}
-		case 'n' : {
-		    if (_table_file_str != null)
-			usage();
-		    _new_table = true;
-		    break;
-		}
-		case 'i' :{
-		    _ior_file_str = args[++i];
-		    break;
-		}
-		case 'b' :{
-		    _backup_file_str = args[++i];
-		    break;
-		}
-		case 'a' :{
-		    Environment.setProperty( "jacorb.imr.allow_auto_register",
-                                             "on" );
-		    break;
-		}
-                
-		default:
+                    case 'h' : {
+                        usage();
+                    }
+                    case 'p' : {
+                        default_port = Integer.parseInt(args[++i]);
+                        break;
+                    }
+                    case 'f' : {
+                        if (_new_table)
+                            // -f and -n together not allowed
+                            usage();
+                        _table_file_str = args[++i];
+                        break;
+                    }
+                    case 'n' : {
+                        if (_table_file_str != null)
+                            usage();
+                        _new_table = true;
+                        break;
+                    }
+                    case 'i' :{
+                        _ior_file_str = args[++i];
+                        break;
+                    }
+                    case 'b' :{
+                        _backup_file_str = args[++i];
+                        break;
+                    }
+                    case 'a' :{
+                        Environment.setProperty( "jacorb.imr.allow_auto_register",
+                                                 "on" );
+                        break;
+                    }
+
+                    default:
 		    usage();
 		}
 	    }
@@ -572,7 +655,7 @@ public class ImplementationRepositoryImpl
 	    _e.printStackTrace();
 	    usage();
 	}
-	
+
 	// table file not specified, try via property
 	if (_table_file_str == null){
 	    _table_file_str = Environment.getProperty("jacorb.imr.table_file");
@@ -584,12 +667,12 @@ public class ImplementationRepositoryImpl
 		_table_file_str = "table.dat";
 	    }
 	}
-	
+
 	File _table_file = new File(_table_file_str);
-	
+
 	// try to open table file
 	if (! _new_table){
-	    if (!_table_file.exists()){ 	
+	    if (!_table_file.exists()){
 		System.out.println("ERROR: The table file does not exist!");
 		System.out.println("Please check " + _table_file.getAbsolutePath());
 		System.out.println("Property jacorb.imr.table_file or use the -n or -f switch");
@@ -602,7 +685,7 @@ public class ImplementationRepositoryImpl
 		System.out.println("Property jacorb.imr.table_file or use the -n or -f switch");
 		System.exit(-1);
 	    }
-	
+
 	    if (! _table_file.canRead()){
 		System.out.println("ERROR: The table file is not readable!");
 		System.out.println("Please check " + _table_file.getAbsolutePath());
@@ -621,7 +704,7 @@ public class ImplementationRepositoryImpl
 		FileOutputStream _out = new FileOutputStream(_table_file);
 		_out.close();
 		_table_file.delete(); //don't leave empty files lying around
-	    
+
 	    }catch (Exception _e){
 		System.out.println("WARNING: Unable to create table file!");
 		System.out.println("Please check " + _table_file.getAbsolutePath());
@@ -640,7 +723,7 @@ public class ImplementationRepositoryImpl
 
 	//set up server table backup file
 	if (_backup_file_str == null){
-	    _backup_file_str = Environment.getProperty("jacorb.imr.backup_file");      
+	    _backup_file_str = Environment.getProperty("jacorb.imr.backup_file");
 	    if (_backup_file_str == null){
 		System.out.println("WARNING: No backup file specified!\n" +
 				   "Will create \"backup.dat\" in current directory, if necessary");
@@ -675,24 +758,24 @@ public class ImplementationRepositoryImpl
 	orb = org.omg.CORBA.ORB.init( args, null );
 
 	//Write IOR to file
-	try{	  
+	try{
 	    POA root_poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 	    root_poa.the_POAManager().activate();
 
             org.omg.CORBA.Policy[] policies = new org.omg.CORBA.Policy[2];
 
-	    policies[0] = 
-                root_poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
-	    policies[1] = 
-                root_poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+	    policies[0] =
+            root_poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+	    policies[1] =
+            root_poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
 
-	    POA imr_poa = root_poa.create_POA( "ImRPOA", 
-                                               root_poa.the_POAManager(), 
+	    POA imr_poa = root_poa.create_POA( "ImRPOA",
+                                               root_poa.the_POAManager(),
                                                policies );
 
-	    for (int i=0; i<policies.length; i++) 
+	    for (int i=0; i<policies.length; i++)
             {
-		policies[i].destroy();			
+		policies[i].destroy();
             }
 
             byte[] id = "ImR".getBytes();
@@ -701,7 +784,7 @@ public class ImplementationRepositoryImpl
                 (_table_file, _backup_file, _new_table);
 
             imr_poa.activate_object_with_id( id, _imr );
-	
+
 	    PrintWriter _out = new PrintWriter
                 (new FileOutputStream(new File(_ior_file_str)));
 
@@ -729,13 +812,13 @@ public class ImplementationRepositoryImpl
 
         if(! server.active )
         {
-            Debug.output(Debug.IMR | Debug.INFORMATION, 
+            Debug.output(Debug.IMR | Debug.INFORMATION,
                          "ImR: server " + server.name + " is down");
 
             //server is down;
             if (server.command.length() == 0){
                 //server can't be restartet, send exception
-                throw new ServerStartupFailed("Server " + server.name + 
+                throw new ServerStartupFailed("Server " + server.name +
                                               " can't be restarted because" +
                                               " of missing startup command");
             }
@@ -761,55 +844,100 @@ public class ImplementationRepositoryImpl
                                                            server.host + "<<" );
                         }
 
-                        Debug.output(Debug.IMR | Debug.INFORMATION, 
+                        Debug.output(Debug.IMR | Debug.INFORMATION,
                                      "ImR: will restart " + server.name);
 
                         _host.startServer(server.command, orb);
-                    } 
+                    }
                     catch (ServerStartupFailed ssf)
                     {
                         server.setNotRestarting();
 
-                        throw ssf;	
-                    } 
+                        throw ssf;
+                    }
                     catch (Exception _e)
                     {
                         server.setNotRestarting();
 
                         Debug.output(Debug.IMR | Debug.INFORMATION, _e);
-			    
+
                         // sth wrong with daemon, remove from table
                         server_table.removeHost(server.host);
-			    
+
                         throw new ServerStartupFailed("Failed to connect to host!");
-                    }			
+                    }
                 }
                 else
-                    Debug.output(Debug.IMR | Debug.INFORMATION, 
-                                 "ImR: somebody else is restarting " + 
+                    Debug.output(Debug.IMR | Debug.INFORMATION,
+                                 "ImR: somebody else is restarting " +
                                  server.name);
-		      
+
             }
         }
         else
-            Debug.output(Debug.IMR | Debug.INFORMATION, 
+            Debug.output(Debug.IMR | Debug.INFORMATION,
                          "ImR: server " + server.name + " is active");
     }
-    
+
+
+    // Shutdown hook methods are done via reflection as these were
+    // not supported prior to the JDK 1.3.
+
+    private void addShutdownHook (Thread thread)
+    {
+        Method method = getHookMethod ("addShutdownHook");
+
+        if (method != null)
+        {
+            invokeHookMethod (method, thread);
+        }
+    }
+
+    private Method getHookMethod (String name)
+    {
+        Method method = null;
+        Class[] params = new Class[1];
+
+        params[0] = Thread.class;
+        try
+        {
+            method = Runtime.class.getMethod (name, params);
+        }
+        catch (Throwable ex) {}
+
+        return method;
+    }
+
+    private void invokeHookMethod (Method method, Thread thread)
+    {
+        Object[] args = new Object[1];
+
+        args[0] = thread;
+        try
+        {
+            method.invoke (Runtime.getRuntime (), args);
+        }
+        catch (Throwable ex)
+        {
+            Debug.output (Debug.IMR | Debug.INFORMATION, "Failed to invoke Runtime." + method.getName () + " and exception " + ex);
+        }
+    }
+
+
     /**
      * Inner class SocketListener, responsible for accepting
      * connection requests.  *Very* close to inner class Listener in
-     * orb/BasicAdapter.java.  
+     * orb/BasicAdapter.java.
      * <br> When a connection is accepted a
-     * new RequestReceptor thread is started.  
+     * new RequestReceptor thread is started.
      */
-    private class SocketListener 
-	extends Thread 
+    private class SocketListener
+	extends Thread
     {
 	private ServerSocket server_socket;
 	private int port = 0;
 	private String address;
-	private int timeout = 0; 
+	private int timeout = 0;
 	private boolean run = true;
 	private boolean wait = false;
 
@@ -822,24 +950,24 @@ public class ImplementationRepositoryImpl
 	 */
 	public SocketListener()
         {
-	    try 
+	    try
             {
-		server_socket = 
-                    new ServerSocket( default_port );
+		server_socket =
+                new ServerSocket( default_port );
 
 		address = InetAddress.getLocalHost().toString();
 
 		if( address.indexOf("/") > 0 )
 		    address = address.substring(address.indexOf("/") + 1);
-		
+
 		port = server_socket.getLocalPort();
 
 		Debug.output(Debug.IMR | Debug.INFORMATION,
                              "ImR Listener at " + port + ", " + address );
-		
-                String s = 
-                    Environment.getProperty( "jacorb.imr.connection_timeout",
-                                             "2000" ); //default: 2 secs
+
+                String s =
+                Environment.getProperty( "jacorb.imr.connection_timeout",
+                                         "2000" ); //default: 2 secs
 
                 try
                 {
@@ -848,16 +976,16 @@ public class ImplementationRepositoryImpl
                 catch( NumberFormatException nfe )
                 {
                     Debug.output( Debug.IMR | Debug.IMPORTANT,
-                                  "ERROR: Unable to build timeout int from string >>" + 
+                                  "ERROR: Unable to build timeout int from string >>" +
                                   s + "<<" );
                     Debug.output( Debug.IMR | Debug.IMPORTANT,
                                   "Please check property \"jacorb.imr.connection_timeout\"" );
-                }	                  
-	    } 
+                }
+	    }
 	    catch (Exception e)
             {
 		Debug.output(Debug.IMR | Debug.IMPORTANT, e);
-		Debug.output(Debug.IMR | Debug.IMPORTANT, 
+		Debug.output(Debug.IMR | Debug.IMPORTANT,
                              "Listener: Couldn't init");
 
 		System.exit(1);
@@ -871,12 +999,12 @@ public class ImplementationRepositoryImpl
 
 	    start();
 	}
-	   
+
 	/**
 	 * Get the port this SocketListener is listening on.
 	 *
 	 * @return the port
-	 */ 
+	 */
 	public int getPort()
 	{
 	    Debug.output(Debug.IMR | Debug.INFORMATION,
@@ -904,14 +1032,14 @@ public class ImplementationRepositoryImpl
 	{
 	    this.timeout = timeout;
 	}
-     
+
 	/**
 	 * The threads main event loop. Listenes on the socket
 	 * and starts new RequestReceptor threads on accepting.
-	 * <br> On termination does the actual shutdown of the 
+	 * <br> On termination does the actual shutdown of the
 	 * repository.
 	 */
-	public void run() 
+	public void run()
 	{
 	    Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 	    while( run )
@@ -920,14 +1048,14 @@ public class ImplementationRepositoryImpl
                 {
                     Socket socket = server_socket.accept();
                     socket.setSoTimeout( timeout );
-                    
-                    Transport transport = 
-                        new Server_TCP_IP_Transport( socket, false ); //no ssl
 
-                    GIOPConnection connection = 
-                        new GIOPConnection( transport,
-                                            request_listener,
-                                            reply_listener );
+                    Transport transport =
+                    new Server_TCP_IP_Transport( socket, false ); //no ssl
+
+                    GIOPConnection connection =
+                    new GIOPConnection( transport,
+                                        request_listener,
+                                        reply_listener );
 
                     receptor_pool.connectionCreated( connection );
 		}
@@ -942,11 +1070,11 @@ public class ImplementationRepositoryImpl
 			Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 		}
 	    }
-	    
+
 	    // doing the actual shutdown of the implementation
 	    // repository here
 	    orb.shutdown(wait);
-	    System.exit(0);	    
+	    System.exit(0);
 	}
 
 	/**
@@ -966,23 +1094,23 @@ public class ImplementationRepositoryImpl
             catch (Exception _e)
             {
 		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
-	    }	   
+	    }
 	}
     }
 
 
-    /** 
+    /**
      * Inner class ImRRequestListener. Receives messages.
      */
-    private class ImRRequestListener 
-        implements RequestListener 
+    private class ImRRequestListener
+        implements RequestListener
     {
 	public ImRRequestListener()
         {
 	}
 
 	/**
-	 *	receive and dispatch requests 
+	 *	receive and dispatch requests
 	 */
 
         public void requestReceived( byte[] request,
@@ -990,36 +1118,36 @@ public class ImplementationRepositoryImpl
         {
             RequestInputStream in = new RequestInputStream( orb, request );
 
-            replyNewLocation( in.req_hdr.target.object_key(), 
+            replyNewLocation( in.req_hdr.target.object_key(),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
                               connection );
         }
-        
+
         public void locateRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
-            LocateRequestInputStream in = 
-                new LocateRequestInputStream( orb, request );
+            LocateRequestInputStream in =
+            new LocateRequestInputStream( orb, request );
 
-            replyNewLocation( in.req_hdr.target.object_key(),  
+            replyNewLocation( in.req_hdr.target.object_key(),
                               in.req_hdr.request_id,
-                              in.getGIOPMinor(), 
+                              in.getGIOPMinor(),
                               connection );
-        }        
+        }
 
         public void cancelRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
             //ignore
         }
-        
+
         public void fragmentReceived( byte[] fragment,
                                       GIOPConnection connection )
         {
             //ignore
         }
-        
+
         public void connectionClosed()
         {
 
@@ -1035,28 +1163,28 @@ public class ImplementationRepositoryImpl
                                        int giop_minor,
                                        GIOPConnection connection )
         {
-	    String _poa_name = 
-                POAUtil.extractImplName( object_key ) + '/' + 
-                POAUtil.extractPOAName( object_key );
+	    String _poa_name =
+            POAUtil.extractImplName( object_key ) + '/' +
+            POAUtil.extractPOAName( object_key );
 
 	    // look up POA in table
 	    ImRPOAInfo _poa = server_table.getPOA( _poa_name );
 	    if (_poa == null)
             {
-		sendSysException( 
-                   new org.omg.CORBA.OBJECT_NOT_EXIST( "POA " + 
-                                                       _poa_name + 
-                                                       " unknown" ),
-                   connection,
-                   request_id,
-                   giop_minor );
+		sendSysException(
+                    new org.omg.CORBA.OBJECT_NOT_EXIST( "POA " +
+                                                        _poa_name +
+                                                        " unknown" ),
+                    connection,
+                    request_id,
+                    giop_minor );
 		return;
 	    }
 
 	    // get server of POA
 	    ImRServerInfo _server = _poa.server;
 
-	    Debug.output( Debug.IMR | Debug.INFORMATION, 
+	    Debug.output( Debug.IMR | Debug.INFORMATION,
                           "ImR: Looking up: " + _server.name );
 
 	    try
@@ -1071,7 +1199,7 @@ public class ImplementationRepositoryImpl
                                   giop_minor );
                 return;
 	    }
-	    
+
 	    // POA might not be active
 	    boolean _old_poa_state = _poa.active;
 
@@ -1085,20 +1213,20 @@ public class ImplementationRepositoryImpl
                                   giop_minor );
 		return;
 	    }
-            
-	    ReplyOutputStream out = 
-                new ReplyOutputStream( request_id,
-                                       org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
-                                       giop_minor,
-				       false );
 
-	    // The typecode is for org.omg.CORBA.Object, but avoiding 
+	    ReplyOutputStream out =
+            new ReplyOutputStream( request_id,
+                                   org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
+                                   giop_minor,
+                                   false );
+
+	    // The typecode is for org.omg.CORBA.Object, but avoiding
             // creation of new ObjectHolder Instance.
-	    org.omg.IOP.IOR _ior = 
-                ParsedIOR.createObjectIOR( _poa.host,
-                                           (short) _poa.port,
-                                           object_key,
-                                           giop_minor );
+	    org.omg.IOP.IOR _ior =
+            ParsedIOR.createObjectIOR( _poa.host,
+                                       (short) _poa.port,
+                                       object_key,
+                                       giop_minor );
 
 	    if( !_old_poa_state )
             {
@@ -1108,9 +1236,9 @@ public class ImplementationRepositoryImpl
 		// OBJECT_NOT_EXIST exceptions which they might get
 		// when trying to contact the server too early.
 
-		org.omg.CORBA.Object _object = 
-                    orb.string_to_object(
-                        (new ParsedIOR( _ior )).getIORString());
+		org.omg.CORBA.Object _object =
+                orb.string_to_object(
+                    (new ParsedIOR( _ior )).getIORString());
 
 		// Sort of busy waiting here, no other way possible
 		for( int _i = 0; _i < object_activation_retries; _i++ )
@@ -1122,25 +1250,25 @@ public class ImplementationRepositoryImpl
 			// This will usually throw an OBJECT_NOT_EXIST
 			if( ! _object._non_existent() ) // "CORBA ping"
                         {
-			    break; 
+			    break;
                         }
 		    }
                     catch(Exception _e)
                     {
 			Debug.output(Debug.IMR | Debug.DEBUG1, _e);
 		    }
-		}		
+		}
 	    }
-            
+
             //test, if the object is alive
             if( check_object_liveness )
             {
                 try
                 {
-                    org.omg.CORBA.Object _object = 
-                        orb.string_to_object(
-                            (new ParsedIOR( _ior )).getIORString());
-                    
+                    org.omg.CORBA.Object _object =
+                    orb.string_to_object(
+                        (new ParsedIOR( _ior )).getIORString());
+
                     if( _object._non_existent() )
                     {
 
@@ -1158,7 +1286,7 @@ public class ImplementationRepositoryImpl
                                      connection,
                                      request_id,
                                      giop_minor );
-                    return;                
+                    return;
                 }
             }
 
@@ -1168,7 +1296,7 @@ public class ImplementationRepositoryImpl
 		out.write_IOR(_ior);
 
 		Debug.output( Debug.IMR | Debug.INFORMATION,
-                              "ImR: Sending location forward for " + 
+                              "ImR: Sending location forward for " +
                               _server.name );
 
 		connection.sendMessage( out );
@@ -1182,7 +1310,7 @@ public class ImplementationRepositoryImpl
                                   giop_minor );
 	    }
 	}
-    
+
 	/**
 	 * Convenience method for sending a CORBA System Exception back to
 	 * the client.
@@ -1194,12 +1322,12 @@ public class ImplementationRepositoryImpl
                                        int request_id,
                                        int giop_minor )
         {
-	    ReplyOutputStream out = 
-                new ReplyOutputStream( request_id,
-                                       org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-				       giop_minor,
-				       false );
-	    
+	    ReplyOutputStream out =
+            new ReplyOutputStream( request_id,
+                                   org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                   giop_minor,
+                                   false );
+
 	    SystemExceptionHelper.write( out, sys_ex );
 
 	    try
@@ -1211,6 +1339,83 @@ public class ImplementationRepositoryImpl
 		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 	    }
 	}
+    }
+
+
+    /**
+     * <code>WriteThread</code> runs as a background thread which will write the
+     * server table out whenever any modifications are made.
+     */
+    private class WriteThread extends Thread
+    {
+        boolean done;
+
+        public WriteThread ()
+        {
+        }
+
+        /**
+         * <code>run</code> continiously loops until the shutdown is called.
+         */
+        public void run ()
+        {
+            while (true)
+            {
+                try
+                {
+                    save_server_table (table_file);
+                }
+                catch (FileOpFailed ex)
+                {
+                    Debug.output(Debug.IMR | Debug.INFORMATION, ex);
+                }
+                if (done)
+                {
+                    break;
+                }
+
+                // If by the time we have written the server table another request has arrived
+                // which requires an update don't bother entering the wait state.
+                if ( ! updatePending)
+                {
+                    try
+                    {
+                        synchronized (this)
+                        {
+                            this.wait ();
+                        }
+                    }
+                    catch (InterruptedException ex) {}
+                    Debug.output
+                    (
+                        Debug.IMR | Debug.INFORMATION,
+                        "ImR: IMR write thread waking up to save server table... "
+                    );
+                }
+            }
+        }
+
+        /**
+         * <code>shutdown</code> toggles the thread to shut itself down.
+         */
+        public void shutdown ()
+        {
+            done = true;
+        }
+    }
+
+
+    /**
+     * <code>Shutdown</code> is a thread that is run the Java 1.3 (and greater)
+     * virtual machine upon receiving a Ctrl-C or kill -INT.
+     */
+    private class Shutdown extends Thread
+    {
+        public synchronized void run ()
+        {
+            Debug.output (Debug.IMR | Debug.INFORMATION, "Shutting down IMR");
+            shutdown (true);
+        }
     }
 
 } // ImplementationRepositoryImpl
