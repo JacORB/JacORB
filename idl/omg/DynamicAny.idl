@@ -162,7 +162,7 @@ module DynamicAny
 
     interface DynFixed : DynAny {
 	string get_value();
-	void set_value( in string val ) 
+	boolean set_value( in string val ) 
 	    raises (TypeMismatch, InvalidValue );
     };
 
