@@ -92,7 +92,7 @@ public class RequestProcessor
 
     synchronized void begin() 
     {
-        start = true;
+        start = true;        
         notify();
     }
 
@@ -561,16 +561,21 @@ public class RequestProcessor
             {
                 try 
                 {
-                    if (!start) 
+                    while( ! start )
+                    {
                         wait(); /* waits for the next task */
-          
-                } 
+                        
+                        if(terminate) 
+                        {
+                            return;
+                        }
+                    } 
+                }
                 catch (InterruptedException e) 
                 {
+                    e.printStackTrace();
                 }
-                if (terminate) return;
             }
-                                
             controller.getLogTrace().printLog(Debug.POA | 2, request, "process request");
                         
             process();
