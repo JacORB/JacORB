@@ -23,6 +23,8 @@ package org.jacorb.test.orb.etf.wiop;
 import java.io.*;
 import java.net.*;
 
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.ETF.*;
 import org.omg.IOP.*;
 import org.omg.RTCORBA.ProtocolProperties;
@@ -38,20 +40,21 @@ import org.apache.avalon.framework.configuration.*;
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
-public class WIOPFactories extends _FactoriesLocalBase
+public class WIOPFactories 
+    extends _FactoriesLocalBase
     implements Configurable
 {
+    public static boolean transportInUse = false;
+    private final int tag = 7;
     org.jacorb.config.Configuration configuration;
+    org.jacorb.orb.ORB orb;
 
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)configuration;
+        this.orb = this.configuration.getORB();
     }
-
-    public static boolean transportInUse = false;
-
-    private final int tag = 7;
 
     public Connection create_connection (ProtocolProperties props)
     {
@@ -63,7 +66,7 @@ public class WIOPFactories extends _FactoriesLocalBase
                                      int stacksize,
                                      short base_priority)
     {
-        IIOPListener delegate = new IIOPListener(configuration.getORB())
+        IIOPListener delegate = new IIOPListener(orb)
         {
             protected Connection createServerConnection (Socket socket,
                                                          boolean is_ssl)
