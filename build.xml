@@ -142,7 +142,7 @@
       </fileset>
     </chmod>
 
-    <fixcrlf srcdir="bin" eol="dos" includes="**/*.bat" />
+    <fixcrlf srcdir="bin" eol="crlf" includes="**/*.bat" />
    </target>
 
    <!-- This target creates a jar file that contains the -->
