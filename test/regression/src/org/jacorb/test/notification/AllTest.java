@@ -52,11 +52,16 @@ public class AllTest extends TestCase
         _suite.addTest( org.jacorb.test.notification.bugs.PackageTest.suite() );
 
         try {
-            org.omg.CORBA.ORB.init(new String[0], null).resolve_initial_references("InterfaceRepository");
+            org.omg.CORBA.Object obj =
+                org.omg.CORBA.ORB.init(new String[0], null).resolve_initial_references("InterfaceRepository");
+
+            // i know non_existent is NOT a ping. however try to ping
+            // the IR
+            obj._non_existent();
 
             _suite.addTest( org.jacorb.test.notification.typed.PackageTest.suite() );
-        } catch (InvalidName n) {
-            System.err.println("TypedChannel Tests depend on accessible InterfaceRepository");
+        } catch (Exception e) {
+            System.err.println("TypedChannel Tests depend on accessible InterfaceRepository. Will be skipped.");
         }
 
 

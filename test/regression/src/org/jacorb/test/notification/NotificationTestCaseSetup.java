@@ -34,6 +34,8 @@ import org.omg.PortableServer.POAHelper;
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.AbstractChannelFactory;
+import java.util.Properties;
 
 /**
  * @author Alphonse Bendt
@@ -45,7 +47,7 @@ public class NotificationTestCaseSetup extends TestSetup {
     private POA poa_;
     private Thread orbThread_;
     private NotificationTestUtils testUtils_;
-    private EventChannelFactoryImpl eventChannelFactory_;
+    private AbstractChannelFactory eventChannelFactory_;
 
     private ChannelContext channelContext_;
 
@@ -101,11 +103,16 @@ public class NotificationTestCaseSetup extends TestSetup {
 
         clientORB_ = ORB.init(new String[] {}, null);
 
-//         new Thread(new Runnable() {
-//                 public void run() {
-//                     clientORB_.run();
-//                 }
-//             }).start();
+        Thread clientOrbThread =
+            new Thread(new Runnable() {
+                    public void run() {
+                        clientORB_.run();
+                    }
+             });
+
+        clientOrbThread.setDaemon(true);
+
+        clientOrbThread.start();
 
     }
 
@@ -129,9 +136,9 @@ public class NotificationTestCaseSetup extends TestSetup {
         return clientORB_;
     }
 
-    public EventChannelFactoryImpl getFactoryServant() throws Exception {
+    public AbstractChannelFactory getFactoryServant() throws Exception {
         if (eventChannelFactory_ == null) {
-            eventChannelFactory_ = EventChannelFactoryImpl.newFactory();
+            eventChannelFactory_ = AbstractChannelFactory.newFactory(new Properties());
         }
 
         return eventChannelFactory_;

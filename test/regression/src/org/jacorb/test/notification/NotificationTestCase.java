@@ -40,6 +40,7 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
 
 /**
@@ -130,7 +131,7 @@ public class NotificationTestCase extends TestCase
     {
         try
         {
-            return setup_.getFactoryServant().getEventChannelFactory();
+            return EventChannelFactoryHelper.narrow(setup_.getFactoryServant().activate());
         }
         catch (Exception e)
         {

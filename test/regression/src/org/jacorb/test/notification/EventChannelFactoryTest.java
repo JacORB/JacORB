@@ -1,9 +1,11 @@
 package org.jacorb.test.notification;
 
-import org.jacorb.notification.EventChannelFactoryImpl;
+import org.jacorb.notification.AbstractChannelFactory;
 
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+
+import java.util.Properties;
 
 import junit.framework.Test;
 
@@ -14,7 +16,7 @@ import junit.framework.Test;
 public class EventChannelFactoryTest
     extends NotificationTestCase {
 
-    EventChannelFactoryImpl factory_;
+    AbstractChannelFactory factory_;
 
     ////////////////////////////////////////
 
@@ -27,8 +29,11 @@ public class EventChannelFactoryTest
     public void setUp() throws Exception {
         super.setUp();
 
-        factory_ = EventChannelFactoryImpl.newFactory();
-        factory_.getEventChannelFactory();
+        factory_ = AbstractChannelFactory.newFactory(new Properties());
+
+        factory_.configure(getConfiguration());
+
+        factory_.activate();
     }
 
 

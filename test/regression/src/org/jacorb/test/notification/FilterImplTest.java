@@ -7,7 +7,8 @@ import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.ConstraintEntry;
 import org.jacorb.notification.FilterFactoryImpl;
-import org.jacorb.notification.FilterImpl;
+import org.jacorb.notification.AbstractFilter;
+import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.filter.FilterUtils;
 
 import java.util.Iterator;
@@ -20,7 +21,7 @@ import junit.framework.Test;
 
 public class FilterImplTest extends NotificationTestCase {
 
-    FilterImpl filter_;
+    AbstractFilter filter_;
 
     ApplicationContext appContext_;
 
@@ -38,7 +39,7 @@ public class FilterImplTest extends NotificationTestCase {
 
         appContext_.configure(getConfiguration());
 
-        filter_ = new FilterImpl(appContext_, FilterFactoryImpl.CONSTRAINT_GRAMMAR);
+        filter_ = new ETCLFilter(appContext_);
     }
 
 

@@ -89,6 +89,23 @@ public class FilterTest extends NotificationTestCase {
     }
 
 
+    /**
+     * @todo Spec checken was hier passieren soll.
+     */
+    public void _testEQOperatorBug() throws Exception {
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+        EventType[] _eventType = new EventType[1];
+        _eventType[0] = new EventType("*", "*");
+
+        _constraintExp[0] = new ConstraintExp(_eventType, "$not_exist == 3");
+        ConstraintInfo[] _info = filter_.add_constraints(_constraintExp);
+
+        // this should match
+        assertTrue(filter_.match(testPerson_));
+    }
+
+
+
     public void testMatchEmptyFilter() throws Exception {
         assertTrue(!filter_.match(testPerson_));
     }

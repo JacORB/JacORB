@@ -70,6 +70,21 @@ public class OfferManagerTest extends NotificationTestCase {
             };
     }
 
+    /**
+     * @todo should this fail?
+     */
+    public void _testRemoveNonExistent() throws Exception {
+        offerManager_.addListener(listener_);
+
+        offerManager_.offer_change(EMPTY_EVENT_TYPE_ARRAY,
+                                   new EventType[] { new EventType("domain1", "type1") });
+
+        assertEquals(0, added_.size());
+        assertEquals(1, removed_.size());
+        assertEquals("domain1", ((EventType)removed_.get(0)).domain_name);
+        assertEquals("type1", ((EventType)removed_.get(0)).type_name);
+    }
+
 
     public void testRemoveNotifies() throws Exception {
         EventType[] _toBeAdded = new EventType[] {new EventType("domain1", "type1")};

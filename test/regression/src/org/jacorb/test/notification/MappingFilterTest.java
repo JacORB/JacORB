@@ -34,7 +34,9 @@ import org.omg.CosNotifyFilter.MappingFilterOperations;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.FilterFactoryImpl;
-import org.jacorb.notification.FilterImpl;
+
+import org.jacorb.notification.AbstractFilter;
+import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.MappingFilterImpl;
 
 import junit.framework.Test;
@@ -52,7 +54,7 @@ public class MappingFilterTest extends NotificationTestCase
 
     NotificationTestUtils testUtils_;
 
-    FilterImpl filter_;
+    AbstractFilter filter_;
 
     ApplicationContext appContext_;
 
@@ -71,7 +73,7 @@ public class MappingFilterTest extends NotificationTestCase
 
         appContext_.configure(getConfiguration());
 
-        filter_ = new FilterImpl(appContext_, FilterFactoryImpl.CONSTRAINT_GRAMMAR);
+        filter_ = new ETCLFilter(appContext_);
 
         FilterFactoryImpl _filterFactoryServant = new FilterFactoryImpl(appContext_);
 
@@ -101,7 +103,7 @@ public class MappingFilterTest extends NotificationTestCase
         Any defaultValue = getORB().create_any();
 
         MappingFilterOperations _mappingFilter =
-            filterFactory_.create_mapping_filter(FilterFactoryImpl.CONSTRAINT_GRAMMAR, defaultValue);
+            filterFactory_.create_mapping_filter(ETCLFilter.CONSTRAINT_GRAMMAR, defaultValue);
 
         _mappingFilter = new MappingFilterImpl(appContext_, filter_, defaultValue);
 
@@ -139,7 +141,7 @@ public class MappingFilterTest extends NotificationTestCase
         Any defaultValue = getORB().create_any();
 
         MappingFilterOperations _mappingFilter =
-            filterFactory_.create_mapping_filter(FilterFactoryImpl.CONSTRAINT_GRAMMAR, defaultValue);
+            filterFactory_.create_mapping_filter(ETCLFilter.CONSTRAINT_GRAMMAR, defaultValue);
 
         _mappingFilter = new MappingFilterImpl(appContext_, filter_, defaultValue);
 

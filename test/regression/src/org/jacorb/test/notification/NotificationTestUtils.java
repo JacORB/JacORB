@@ -7,6 +7,7 @@ import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.FilterConstraint;
+import org.jacorb.notification.filter.etcl.ETCLFilterConstraint;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
@@ -211,7 +212,7 @@ public class NotificationTestUtils {
         AbstractTCLNode _root = TCLParser.parse(expr);
         AbstractTCLNode _expect = TCLParser.parse(expect);
 
-        FilterConstraint _evaluator = new FilterConstraint( _root);
+        FilterConstraint _evaluator = new ETCLFilterConstraint( _root);
         EvaluationResult _res;
         _root.acceptPostOrder(new TCLCleanUp());
 
