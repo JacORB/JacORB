@@ -1,3 +1,293 @@
+2005-03-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ReplyReceiver.java (replyReceived): Grab pending_replies
+	lock early.  Suggested by Brian Olson, fixing bug #574.
+
+2005-02-20  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/DefaultTaskProcessor.java,
+	notification/engine/TimerDeliverTask.java: fixed wrong inheritance
+	for TimerDeliverTask
+
+	* notification/conf/Attributes.java,
+	notification/conf/Default.java: new attributes
+
+	* notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java: changed
+	ProxySuppliers to *always* enqueue message to avoid that
+	TaskExecutors grow without limit (ignoring maxeventsperconsumer
+	setting). problem and suggested fix reported by John Farrell and
+	Darryl Collins (cat.com).
+
+	* notification/servant/AbstractProxySupplier.java:
+	(getRetryStrategy) renamed to newRetryStrategy and use Factory to
+	create RetryStrategy.
+	(enqueue) copy Message before its put into queue
+	(deliverMessage) always enqueue
+
+	* notification/engine/AbstractRetryStrategy.java,
+	notification/engine/AlwaysDisposeRetryStrategy.java,
+	notification/engine/AlwaysDisposeRetryStrategyFactory.java,
+	notification/engine/RetryStrategy.java,
+	notification/engine/RetryStrategyFactory.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/engine/TaskProcessorRetryStrategyFactory.java,
+	notification/engine/WaitRetryStrategy.java,
+	notification/engine/WaitRetryStrategyFactory.java: created
+	Interfaces RetryStrategy and RetryStrategyFactory.  adapted
+	existing Retry Code to new Structure.
+
+	* notification/queue/BasicMessageQueueAdapter.java: removed
+	exception from method declaration
+
+2005-02-14  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/util/AbstractObjectPool.java,
+	notification/util/AbstractPoolable.java,
+	notification/util/AdminPropertySet.java,
+	notification/util/CachingWildcardMap.java,
+	notification/util/CollectionsWrapper.java,
+	notification/util/DefaultWildcardMap.java,
+	notification/util/DisposableManager.java,
+	notification/util/EventTypeUtil.java,
+	notification/util/GNUPatternWrapper.java,
+	notification/util/JDK14PatternWrapper.java,
+	notification/util/JakartaRegexpPatternWrapper.java,
+	notification/util/LogUtil.java,
+	notification/util/PatternWrapper.java,
+	notification/util/PropertySet.java,
+	notification/util/QoSPropertySet.java,
+	notification/util/WeakCacheWildcardMap.java,
+	notification/util/WeakHashSet.java,
+	notification/util/WildcardMap.java: new class WeakHashSet. code
+	cleanup
+
+	* notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/AbstractSupplierAdmin.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/FilterStageListManager.java,
+	notification/servant/IAdmin.java,
+	notification/servant/IEventChannel.java,
+	notification/servant/ISupplierAdmin.java,
+	notification/servant/ITypedAdmin.java,
+	notification/servant/ITypedEventChannel.java,
+	notification/servant/ITypedProxy.java,
+	notification/servant/ManageableServant.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java: refactoring:
+	replaced selfwritten object configuration code with
+	picocontainer. bugfixing.
+
+	* notification/queue/AbstractBoundedEventQueue.java,
+	notification/queue/BasicMessageQueueAdapter.java,
+	notification/queue/BoundedDeadlineEventQueue.java,
+	notification/queue/BoundedFifoEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/EventQueue.java,
+	notification/queue/EventQueueFactory.java,
+	notification/queue/EventQueueFactoryDependency.java,
+	notification/queue/EventQueueOverflowStrategy.java,
+	notification/queue/HeapEntry.java,
+	notification/queue/MessageQueue.java,
+	notification/queue/MessageQueueAdapter.java,
+	notification/queue/QueueUtil.java,
+	notification/queue/RWLockEventQueueDecorator.java: refactored
+	queue package. renamed some classes. fix of bug #544
+
+	* notification/interfaces/AbstractPoolable.java,
+	notification/interfaces/AdminEvent.java,
+	notification/interfaces/AdminEventListener.java,
+	notification/interfaces/CallbackingDisposable.java,
+	notification/interfaces/Controllable.java,
+	notification/interfaces/Disposable.java,
+	notification/interfaces/EvaluationContextFactory.java,
+	notification/interfaces/Message.java,
+	notification/interfaces/MessageConsumer.java,
+	notification/interfaces/ProxyCreationRequestEvent.java,
+	notification/interfaces/ProxyDisposedEvent.java: updated internal
+	interfaces
+
+	* notification/impl/DefaultEvaluationContextFactory.java,
+	notification/impl/DefaultMessageFactory.java,
+	notification/impl/PoolingEvaluationContextFactory.java: moved
+	default service implementation into own package
+
+	* notification/filter/impl/DefaultETCLEvaluator.java,
+	notification/filter/etcl/AbstractTCLNode.java,
+	notification/filter/etcl/AbstractTCLVisitor.java,
+	notification/filter/etcl/AndOperator.java,
+	notification/filter/etcl/ArrayOperator.java,
+	notification/filter/etcl/AssocOperator.java,
+	notification/filter/etcl/BinaryOperator.java,
+	notification/filter/etcl/BoolValue.java,
+	notification/filter/etcl/ComponentPositionOperator.java,
+	notification/filter/etcl/CurrentTimeNode.java,
+	notification/filter/etcl/DivOperator.java,
+	notification/filter/etcl/DomainNameShorthandNode.java,
+	notification/filter/etcl/DotOperator.java,
+	notification/filter/etcl/ETCLComponentName.java,
+	notification/filter/etcl/ETCLFilter.java,
+	notification/filter/etcl/ETCLFilterConstraint.java,
+	notification/filter/etcl/EqOperator.java,
+	notification/filter/etcl/EventNameShorthandNode.java,
+	notification/filter/etcl/GtOperator.java,
+	notification/filter/etcl/GteOperator.java,
+	notification/filter/etcl/IdentValue.java,
+	notification/filter/etcl/ImmutableEvaluationResult.java,
+	notification/filter/etcl/ImplicitOperator.java,
+	notification/filter/etcl/ImplicitOperatorNode.java,
+	notification/filter/etcl/InOperator.java,
+	notification/filter/etcl/LtOperator.java,
+	notification/filter/etcl/LteOperator.java,
+	notification/filter/etcl/MessageUtils.java,
+	notification/filter/etcl/MinusOperator.java,
+	notification/filter/etcl/MultOperator.java,
+	notification/filter/etcl/NeqOperator.java,
+	notification/filter/etcl/NotOperator.java,
+	notification/filter/etcl/NumberValue.java,
+	notification/filter/etcl/OrOperator.java,
+	notification/filter/etcl/PlusOperator.java,
+	notification/filter/etcl/PropertyShorthandNode.java,
+	notification/filter/etcl/StaticTypeChecker.java,
+	notification/filter/etcl/StaticTypeException.java,
+	notification/filter/etcl/StringValue.java,
+	notification/filter/etcl/SubstrOperator.java,
+	notification/filter/etcl/TCLCleanUp.java,
+	notification/filter/etcl/TypeNameShorthandNode.java,
+	notification/filter/etcl/UnaryOperator.java,
+	notification/filter/etcl/VisitorException.java,
+	notification/filter/bsh/BSHFilter.java,
+	notification/filter/bsh/build.xml,
+	notification/filter/AbstractFilter.java,
+	notification/filter/CallbackManager.java,
+	notification/filter/ConstraintEntry.java,
+	notification/filter/DynamicEvaluator.java,
+	notification/filter/ETCLEvaluator.java,
+	notification/filter/EvaluationContext.java,
+	notification/filter/EvaluationResult.java,
+	notification/filter/EventTypeIdentifier.java,
+	notification/filter/FilterConstraint.java,
+	notification/filter/FilterUtils.java,
+	notification/filter/MappingFilterImpl.java,
+	notification/filter/ParseException.java: moved etcl filter stuff
+	into own package. replaced old configuration mechanism with
+	picocontainer
+
+	* notification/engine/AbstractDeliverTask.java,
+	notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractMessageTask.java,
+	notification/engine/AbstractPoolablePool.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/AbstractTaskPool.java,
+	notification/engine/DefaultTaskExecutor.java,
+	notification/engine/DefaultTaskFactory.java,
+	notification/engine/DefaultTaskProcessor.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/MessagePushOperation.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushAnyOperation.java,
+	notification/engine/PushSequenceOperation.java,
+	notification/engine/PushStructuredOperation.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/engine/PushTypedOperation.java,
+	notification/engine/RetryStrategy.java,
+	notification/engine/Schedulable.java,
+	notification/engine/TaskExecutor.java,
+	notification/engine/TaskFactory.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TaskProcessorDependency.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/engine/TimerDeliverTask.java,
+	notification/engine/WaitRetryStrategy.java: created interface
+	classes for TaskExecutor and TaskProcessor. made member variables
+	final where possible.
+
+2005-02-13  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/container/CORBAObjectComponentAdapter.java,
+	notification/container/ConfigurationComponentAdapter.java,
+	notification/container/DisposeLifecycleVisitor.java,
+	notification/container/DynAnyFactoryComponentAdapter.java,
+	notification/container/FilterFactoryComponentAdapter.java,
+	notification/container/NonCachingRememberingComponentAdapter.java,
+	notification/container/POAComponentAdapter.java,
+	notification/container/PerProxyPushTaskExecutorComponentAdapter.java,
+	notification/container/PicoContainerFactory.java,
+	notification/container/RepositoryComponentAdapter.java,
+	notification/container/ThreadPoolTaskExecutorComponentAdapter.java:
+	new picocontainer configuration mechanism
+
+	* notification/conf/Attributes.java, notification/conf/Default.java:
+	new property
+
+	* notification/AbstractChannelFactory.java,
+	notification/AbstractEventChannel.java,
+	notification/AbstractFilter.java,
+	notification/AbstractMessage.java, notification/AnyMessage.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java,
+	notification/ChannelContextDependency.java,
+	notification/ChannelManager.java,
+	notification/CollectionsWrapper.java,
+	notification/ConsoleMain.java, notification/ConstraintEntry.java,
+	notification/Dependant.java,
+	notification/EventChannelDependency.java,
+	notification/EventChannelFactoryDependency.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/EventTypeIdentifier.java,
+	notification/EventTypeSet.java,
+	notification/EventTypeWrapper.java,
+	notification/FilterFactoryImpl.java,
+	notification/FilterManager.java, notification/IContainer.java,
+	notification/IFactory.java, notification/MappingFilterImpl.java,
+	notification/MessageFactory.java,
+	notification/MessageFactoryDependency.java,
+	notification/NoTranslationException.java,
+	notification/OfferManager.java,
+	notification/StructuredEventMessage.java,
+	notification/SubscriptionManager.java, notification/TODO.txt,
+	notification/TypedEventChannelFactoryImpl.java,
+	notification/TypedEventChannelImpl.java,
+	notification/TypedEventMessage.java, notification/build.xml:
+	refactoring: replaced selfwritten object configuration code with
+	picocontainer. bugfixing.
+
 2005-02-09  Andre Spiegel  <spiegel@gnu.org>
 
 	Patch by Jimmy Wilson to make the MessageReceptorPool size
