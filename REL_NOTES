@@ -68,11 +68,12 @@ gerald.brose@acm.org
                 IDL Compiler:
                         - Fix for unions with long long discriminator type.
                         - Fix for unions with anonymous arrays.
-                        - Fix for interface with operations using wcahr or
+                        - Fix for interface with operations using wchar or
                           wstring inout parameters.
                         - Fix for typedef'd any holder class.
                         - Fix for long long constant values.
                         - Fix for large fixed constant values.
+                        - Fix for constant enum values.
                 Any:
                         - Fix for equal operation on aliased types.
                         - Fix for insertion and extraction of basic types when
