@@ -26,8 +26,8 @@ Required:
         Solaris JDK 1.2.2, 1.3.1, 1.4.0
         Windows 2000 JDK 1.2.2, 1.3.1, 1.4.0
         Windows NT JDK 1.2.2, 1.3.1, 1.4.0
-        HP-UX JDK 1.2.2, 1.3.1
-        AIX JDK 1.3.1
+        HP-UX JDK 1.2.2, 1.3.1, 1.4.0
+        AIX JDK 1.3.0, 1.3.1
 
 
 Installation:
