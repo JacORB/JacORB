@@ -644,10 +644,10 @@ public class FilterImpl extends FilterPOA implements Disposable
                                 try
                                     {
                                         boolean _result =
-                                            _entry.
-                                            getConstraintEvaluator().
-                                            evaluate( evaluationContext, event ).
-                                            getBool();
+                                            _entry
+                                            .getFilterConstraint()
+                                            .evaluate( evaluationContext, event )
+                                            .getBool();
 
                                         if ( _result )
                                             {

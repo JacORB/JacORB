@@ -45,8 +45,6 @@ import org.omg.TimeBase.TimeTHelper;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 
 /**
- * SequenceProxyPushSupplierImpl.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -92,6 +90,8 @@ public class SequenceProxyPushSupplierImpl
 
     final TaskProcessor engine_;
 
+    ////////////////////////////////////////
+
     public SequenceProxyPushSupplierImpl( ConsumerAdminTieImpl myAdminServant,
                                           ApplicationContext appContext,
                                           ChannelContext channelContext,
@@ -129,10 +129,19 @@ public class SequenceProxyPushSupplierImpl
             };
     }
 
+    ////////////////////////////////////////
+
     // overwrite
     public void deliverMessage( Message event )
     {
-        logger_.debug( "deliverEvent(...)" );
+        if (logger_.isDebugEnabled()) {
+            logger_.debug( "deliverEvent connected="
+                           + connected_
+                           + " active="
+                           + active_
+                           + " enabled="
+                           + enabled_ );
+        }
 
         if ( connected_ )
         {
@@ -140,7 +149,7 @@ public class SequenceProxyPushSupplierImpl
             {
                 enqueue(event);
 
-                if ( active_ ) // && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
+                if ( active_ && enabled_) // && ( pendingEvents_.getSize() >= maxBatchSize_ ) )
                     {
                         deliverPendingEvents(false);
                     }
@@ -247,6 +256,7 @@ public class SequenceProxyPushSupplierImpl
         startCronJob();
     }
 
+
     public void suspend_connection()
         throws NotConnected,
                ConnectionAlreadyInactive
@@ -255,10 +265,12 @@ public class SequenceProxyPushSupplierImpl
         stopCronJob();
     }
 
+
     public void disconnect_sequence_push_supplier()
     {
         dispose();
     }
+
 
     // overwrite
     protected void disconnectClient()
@@ -275,6 +287,7 @@ public class SequenceProxyPushSupplierImpl
         }
     }
 
+
     private void startCronJob()
     {
         if ( pacingInterval_ > 0 )
@@ -286,6 +299,7 @@ public class SequenceProxyPushSupplierImpl
         }
     }
 
+
     synchronized private void stopCronJob()
     {
         if ( taskId_ != null )
@@ -294,6 +308,7 @@ public class SequenceProxyPushSupplierImpl
             taskId_ = null;
         }
     }
+
 
     private boolean configurePacingInterval()
     {
@@ -309,6 +324,7 @@ public class SequenceProxyPushSupplierImpl
         }
         return false;
     }
+
 
     private boolean configureMaxBatchSize()
     {
@@ -333,15 +349,18 @@ public class SequenceProxyPushSupplierImpl
         return false;
     }
 
+
     public void enableDelivery()
     {
-        // TODO: soll hier wirklich nix stehen?
+        enabled_ = true;
     }
+
 
     public void disableDelivery()
     {
-        // TODO: soll hier wirklich nix stehen?
+        enabled_ = false;
     }
+
 
     public synchronized Servant getServant()
     {

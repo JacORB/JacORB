@@ -22,23 +22,21 @@ package org.jacorb.notification;
  */
 
 import org.jacorb.notification.evaluate.FilterConstraint;
+
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 
 /**
- * ConstraintEntry.java
- *
- *
- * Created: Sun Apr 27 15:08:42 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ConstraintEntry
 {
-    private FilterConstraint constraintEvaluator_;
+    private FilterConstraint filterConstraint_;
+
     private ConstraintInfo constraintInfo_;
+
     private int constraintId_;
 
     ////////////////////////////////////////
@@ -47,9 +45,8 @@ public class ConstraintEntry
                      FilterConstraint constraintEvaluator,
                      ConstraintInfo constraintInfo )
     {
-
         constraintId_ = constraintId;
-        constraintEvaluator_ = constraintEvaluator;
+        filterConstraint_ = constraintEvaluator;
         constraintInfo_ = constraintInfo;
     }
 
@@ -96,8 +93,8 @@ public class ConstraintEntry
         return constraintInfo_;
     }
 
-    public FilterConstraint getConstraintEvaluator()
+    public FilterConstraint getFilterConstraint()
     {
-        return constraintEvaluator_;
+        return filterConstraint_;
     }
 }

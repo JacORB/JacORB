@@ -90,6 +90,7 @@ public class StructuredProxyPushSupplierImpl
                 if ( active_ && enabled_ )
                 {
                     pushConsumer_.push_structured_event( event.toStructuredEvent() );
+
                     event.dispose();
                 }
                 else
