@@ -1,9 +1,7 @@
-package org.jacorb.test.notification.util;
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,38 +19,30 @@ package org.jacorb.test.notification.util;
  *
  */
 
+package org.jacorb.test.notification.node;
+
+import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.TCLParser;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * PackageTest.java
- * 
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class PackageTest extends TestCase
+public class IdentValueTest extends TestCase
 {
-    public PackageTest(String name)
+    public void testIsStatic() throws Exception
     {
-        super(name);
+        AbstractTCLNode node = TCLParser.parse("'identifier'");
+
+        assertTrue(node.isStatic());
     }
 
-    public static Test suite() throws Exception
+    public static Test suite()
     {
-        TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.util");
-
-        _suite.addTest(WeakCacheWildcardMapTest.suite());
-        _suite.addTest(DefaultWildcardMapTest.suite());
-        _suite.addTest(CachingWildcardMapTest.suite());
-        _suite.addTest(ThreadPoolTest.suite());
-        _suite.addTest(ObjectPoolTest.suite());
-        _suite.addTest(EventTypeUtilTest.suite());
-        _suite.addTest(WeakHashSetTest.suite());
-        _suite.addTest(LogUtilTest.suite());
-        _suite.addTest(DisposableManagerTest.suite());
-        
-        return _suite;
+        return new TestSuite(IdentValueTest.class);
     }
 }

@@ -20,14 +20,15 @@
 
 package org.jacorb.test.notification.util;
 
-import org.jacorb.notification.util.AbstractObjectPool;
-
 import java.util.HashSet;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.jacorb.notification.util.AbstractObjectPool;
+
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 /**
  * @author Alphonse Bendt
@@ -39,7 +40,6 @@ public class ObjectPoolTest extends TestCase
     {
         super(name);
     }
-
 
     public static Test suite()
     {
@@ -72,6 +72,5 @@ public class ObjectPoolTest extends TestCase
             assertFalse(unique.contains(i));
             unique.add(i);
         }
-
     }
 }

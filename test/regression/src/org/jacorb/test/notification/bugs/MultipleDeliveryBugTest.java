@@ -45,7 +45,7 @@ import junit.framework.Test;
 
 public class MultipleDeliveryBugTest extends NotificationTestCase
 {
-    EventChannel channel_;
+    private EventChannel channel_;
 
     public MultipleDeliveryBugTest (String name, NotificationTestCaseSetup setup)
     {
@@ -53,15 +53,15 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
     }
 
 
-    public void setUp() throws Exception
-    {
+    public void setUpTest() throws Exception
+    {     
         channel_ = getDefaultChannel();
     }
 
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite("Test of Structured EventChannel", MultipleDeliveryBugTest.class);
+        return NotificationTestCase.suite("Test to reveal a Bug", MultipleDeliveryBugTest.class);
     }
 
 

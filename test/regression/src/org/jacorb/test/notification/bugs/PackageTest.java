@@ -43,7 +43,8 @@ public class PackageTest extends TestCase {
             new TestSuite("Tests in Package org.jacorb.test.notification.bugs");
 
         _suite.addTest(MultipleDeliveryBugTest.suite());
-
+        _suite.addTest(DeadlockBugTest.suite());
+        
         return _suite;
     }
 

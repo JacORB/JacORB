@@ -23,51 +23,69 @@ package org.jacorb.test.notification.engine;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.easymock.MockControl;
 import org.jacorb.notification.engine.MessagePushOperation;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.test.notification.MockMessage;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class PushOperationTest extends TestCase {
+public class PushOperationTest extends TestCase
+{
 
-    class MockPushOperation extends MessagePushOperation {
+    static class MockPushOperation extends MessagePushOperation
+    {
         int pushInvoked = 0;
 
-        public MockPushOperation(Message m) {
+        public MockPushOperation(Message m)
+        {
             super(m);
         }
 
-        public void invokePush() {
+        public void invokePush()
+        {
             ++pushInvoked;
         }
     }
 
-    public PushOperationTest(String name){
+    public PushOperationTest(String name)
+    {
         super(name);
     }
 
-    public void testCreateDispose() {
-        MockMessage mockMessage = new MockMessage();
-        mockMessage.setMaxRef(2);
-        mockMessage.setExpectedRef(2);
-        Message message = mockMessage.getHandle();
-        MockPushOperation operation = new MockPushOperation(message);
-        message.dispose();
+    public void testCreateDispose()
+    {
+        MockControl controlMessage = MockControl.createControl(Message.class);
+        Message mockMessage = (Message) controlMessage.getMock();
+
+        MockControl controlMessage2 = MockControl.createControl(Message.class);
+        Message mockMessage2 = (Message) controlMessage.getMock();
+
+        mockMessage.clone();
+        controlMessage.setReturnValue(mockMessage2);
+
+        mockMessage2.dispose();
+
+        controlMessage2.replay();
+        controlMessage.replay();
+
+        MockPushOperation operation = new MockPushOperation(mockMessage);
         operation.dispose();
 
-        mockMessage.validateRefCounter();
+        controlMessage2.verify();
+        controlMessage.verify();
     }
 
-    public static TestSuite suite(){
+    public static TestSuite suite()
+    {
         TestSuite suite = new TestSuite(PushOperationTest.class);
 
         return suite;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         junit.textui.TestRunner.run(suite());
     }
 }

@@ -1,14 +1,7 @@
-package org.jacorb.test.notification.mocks;
-
-import junit.framework.Assert;
-import org.jacorb.notification.interfaces.Message;
-
-
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -23,26 +16,15 @@ import org.jacorb.notification.interfaces.Message;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
-/**
- * @author Alphonse Bendt
- * @version $Id$
- */
-public class MockTaskProcessor extends NullTaskProcessor {
+package org.jacorb.test.notification.container;
 
-    int processMessageInvoked_;
-    int processMessageExpected_;
+import org.jacorb.notification.interfaces.CallbackingDisposable;
 
-    public void processMessage(Message message) {
-        ++processMessageInvoked_;
-    }
 
-    public void expectProcessMessage(int x) {
-        processMessageExpected_ = x;
-    }
-
-    public void verify() {
-        Assert.assertEquals(processMessageExpected_, processMessageInvoked_);
-    }
+interface Service extends CallbackingDisposable
+{
+    void invoke();
 }

@@ -35,7 +35,7 @@ public class PackageTest extends TestCase {
     }
 
     public static TestSuite suite() throws Exception {
-        TestSuite suite = new TestSuite();
+        TestSuite suite = new TestSuite("TypedEventChannel Tests");
 
         suite.addTest(TypedProxyPushConsumerImplTest.suite());
         suite.addTest(TypedProxyPushSupplierImplTest.suite());

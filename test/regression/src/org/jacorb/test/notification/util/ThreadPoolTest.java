@@ -21,14 +21,14 @@ package org.jacorb.test.notification.util;
  *
  */
 
-import org.jacorb.notification.engine.TaskExecutor;
-
-import java.util.HashSet;
-
-import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.easymock.MockControl;
+import org.jacorb.notification.engine.DefaultTaskExecutor;
+
+import EDU.oswego.cs.dl.util.concurrent.Latch;
 
 /**
  * @author Alphonse Bendt
@@ -36,118 +36,121 @@ import junit.framework.TestSuite;
 
 public class ThreadPoolTest extends TestCase
 {
-    TaskExecutor threadPool_;
+    private DefaultTaskExecutor objectUnderTest_;
 
     public void setUp() throws Exception
     {
-        threadPool_ = new TaskExecutor("Testing", 2);
+        objectUnderTest_ = new DefaultTaskExecutor("Testing", 2);
     }
 
     public void tearDown() throws Exception
     {
-        threadPool_.dispose();
+        objectUnderTest_.dispose();
     }
 
     public void testExceute() throws Exception
     {
-        final HashSet s = new HashSet();
+        MockControl controlTask = MockControl.createControl(Runnable.class);
+        Runnable mockTask = (Runnable) controlTask.getMock();
 
-        threadPool_.execute(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    s.add("passed");
-                                }
-                            }
-                           );
+        mockTask.run();
+        controlTask.replay();
+
+        objectUnderTest_.execute(mockTask);
 
         Thread.sleep(100);
 
-        assertTrue(s.contains("passed"));
+        controlTask.verify();
     }
 
     public void testDirectExceute() throws Exception
     {
-        threadPool_.dispose();
-        threadPool_ = new TaskExecutor("Testing", 0);
+        objectUnderTest_.dispose();
+        objectUnderTest_ = new DefaultTaskExecutor("Testing", 0);
 
-        final HashSet s = new HashSet();
+        MockControl controlTask = MockControl.createControl(Runnable.class);
+        Runnable mockTask = (Runnable) controlTask.getMock();
 
-        threadPool_.execute(new Runnable()
-                            {
-                                public void run()
-                                {
-                                    s.add("passed");
-                                }
-                            }
-                           );
+        mockTask.run();
+        controlTask.replay();
 
-        assertTrue(s.contains("passed"));
+        objectUnderTest_.execute(mockTask);
+
+        controlTask.verify();
     }
 
     public void testNegativeNumberOfThreadsIsInvalid() throws Exception
     {
         try
         {
-            new TaskExecutor("Testing", -1);
+            new DefaultTaskExecutor("Testing", -1);
             fail();
+        } catch (IllegalArgumentException e)
+        {
         }
-        catch (IllegalArgumentException e)
-        {}
     }
 
     public void testIsTaskQueued() throws Exception
     {
-        assertTrue(!threadPool_.isTaskQueued());
+        assertTrue(!objectUnderTest_.isTaskQueued());
 
-        Latch _l1 = new Latch();
-        Latch _l2 = new Latch();
+        final Latch _latch1 = new Latch();
+        final Latch _latch2 = new Latch();
 
-        BlockingRunnable r1, r2, r3;
+        objectUnderTest_.execute(new Runnable()
+        {
+            public void run()
+            {
+                try
+                {
+                    _latch1.acquire();
+                } catch (InterruptedException e)
+                {
+                }
+            }
+        });
 
-        threadPool_.execute(r1 = new BlockingRunnable(_l1));
-        threadPool_.execute(r2 = new BlockingRunnable(_l2));
-        threadPool_.execute(r3 = new BlockingRunnable(_l2));
+        objectUnderTest_.execute(new Runnable()
+        {
+            public void run()
+            {
+                try
+                {
+                    _latch2.acquire();
+                } catch (InterruptedException e)
+                {
+                }
+            }
+        });
 
-        assertTrue(threadPool_.isTaskQueued());
-        _l1.release();
+        objectUnderTest_.execute(new Runnable()
+        {
+            public void run()
+            {
+                try
+                {
+                    _latch2.acquire();
+                } catch (InterruptedException e)
+                {
+                }
+            }
+        });
+
+        assertTrue(objectUnderTest_.isTaskQueued());
+        _latch1.release();
         Thread.sleep(100);
-        assertTrue(!threadPool_.isTaskQueued());
+        assertTrue(!objectUnderTest_.isTaskQueued());
     }
 
-
-    public ThreadPoolTest (String name)
+    public ThreadPoolTest(String name)
     {
         super(name);
     }
 
-
     public static Test suite()
     {
-        TestSuite suite =
-            new TestSuite(ThreadPoolTest.class, "Tests for Class ThreadPool");
+        TestSuite suite = new TestSuite(ThreadPoolTest.class, "Tests for Class ThreadPool");
 
         return suite;
-    }
-}
-
-
-class BlockingRunnable implements Runnable
-{
-    private final Latch signal_;
-
-    BlockingRunnable(Latch l)
-    {
-        signal_ = l;
-    }
-
-    public void run()
-    {
-        try
-        {
-            signal_.acquire();
-        }
-        catch (InterruptedException e)
-        {}
     }
 }

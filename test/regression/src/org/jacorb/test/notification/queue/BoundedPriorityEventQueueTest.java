@@ -21,111 +21,86 @@ package org.jacorb.test.notification.queue;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.easymock.MockControl;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.queue.AbstractBoundedEventQueue;
 import org.jacorb.notification.queue.BoundedPriorityEventQueue;
-import org.jacorb.notification.queue.EventQueue;
+import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
-import org.jacorb.test.notification.MockMessage;
-import org.jacorb.test.notification.NotificationTestCase;
-import org.jacorb.test.notification.NotificationTestCaseSetup;
-
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import junit.framework.Test;
-import java.util.ArrayList;
 
 /**
  * @author Alphonse Bendt
  */
 
-public class BoundedPriorityEventQueueTest extends NotificationTestCase
+public class BoundedPriorityEventQueueTest extends TestCase
 {
-    public BoundedPriorityEventQueueTest(String name, NotificationTestCaseSetup setup)
+    public BoundedPriorityEventQueueTest(String name)
     {
-        super(name, setup);
+        super(name);
     }
-
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.suite(BoundedPriorityEventQueueTest.class);
+        return new TestSuite(BoundedPriorityEventQueueTest.class);
     }
 
+    public void testPriorityOrder_ascendingInsert() throws Exception
+    {
+        BoundedPriorityEventQueue _queue = new BoundedPriorityEventQueue(20,
+                EventQueueOverflowStrategy.FIFO);
 
-    public void testPriorityOrder_ascendingInsert() throws Exception {
-        BoundedPriorityEventQueue _queue =
-            new BoundedPriorityEventQueue(20, EventQueueOverflowStrategy.FIFO);
-
-        for (int x=0; x<10; ++x) {
-            Message _event =
-                new MockMessage( "Prio:" + x).getHandle();
-
-            _event.setPriority(x);
-            _queue.put(_event);
+        for (int x = 0; x < 10; ++x)
+        {
+            Message mockMessage = newMessage(x);
+            _queue.put(mockMessage);
         }
 
-        for (int x=9; x>=0; x--) {
-            Message _event = _queue.getEvent(false);
+        for (int x = 9; x >= 0; --x)
+        {
+            Message _event = _queue.getMessage(false);
             assertEquals(x, _event.getPriority());
         }
     }
 
-
-    public void testPriorityOrder_descendingInsert() throws Exception {
-        EventQueue _queue =
-            new BoundedPriorityEventQueue(20, EventQueueOverflowStrategy.FIFO);
-
-        for (int x=0; x<10; ++x) {
+    public void testPriorityOrder_descendingInsert() throws Exception
+    {
+        MessageQueue _queue = new BoundedPriorityEventQueue(20, EventQueueOverflowStrategy.FIFO);
+        
+        for (int x = 0; x < 10; ++x)
+        {
             int prio = 10 - x;
 
-            MockMessage _mockMessage = new MockMessage( "Prio: " + prio);
-
-            _mockMessage.configure(getConfiguration());
-
-            Message _event = _mockMessage.getHandle();
-
-            _event.setPriority(prio);
-            _queue.put(_event);
+            Message mockMessage = newMessage(prio);
+            _queue.put(mockMessage);
         }
 
-        for (int x=0; x<10; ++x) {
-            Message _event = _queue.getEvent(false);
+        for (int x = 0; x < 10; ++x)
+        {
+            Message _event = _queue.getMessage(false);
             assertEquals(10 - x, _event.getPriority());
         }
+
     }
 
-
-
-    public void testFIFOOverflow() throws Exception {
-
-        final SynchronizedInt called = new SynchronizedInt(0);
-
-        final List removedEvents = new ArrayList();
-
-        EventQueueOverflowStrategy strategy = new
-            EventQueueOverflowStrategy() {
-                public Message removeElementFromQueue(AbstractBoundedEventQueue queue) {
-                    called.increment();
-
-                    Message e =
-                        EventQueueOverflowStrategy.FIFO.removeElementFromQueue(queue);
-
-                    removedEvents.add(e);
-
-                    return e;
-                }
-            };
+    public void testFIFOOverflow() throws Exception
+    {
+        DelegatingOverflowStrategy strategy = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.FIFO);
 
         List _events = new ArrayList();
 
-        Message e1 = new MockMessage().getHandle();
-        Message e2 = new MockMessage().getHandle();
-        Message e3 = new MockMessage().getHandle();
-        Message e4 = new MockMessage().getHandle();
-        Message e5 = new MockMessage().getHandle();
+        Message e1 = newMessage();
+        Message e2 = newMessage();
+        Message e3 = newMessage();
+        Message e4 = newMessage();
+        Message e5 = newMessage();
 
         _events.add(e1);
 
@@ -139,72 +114,67 @@ public class BoundedPriorityEventQueueTest extends NotificationTestCase
 
         addEventsToEventQueue(strategy, _events);
 
-        assertEquals(1, called.get());
+        assertEquals(1, strategy.getRemovedElements().size());
 
-        assertEquals(1, removedEvents.size());
-
-        assertTrue(removedEvents.contains(e1));
+        assertTrue(strategy.getRemovedElements().contains(e1));
     }
 
-    public void testLIFOOverflow() throws Exception {
-
-        final SynchronizedInt called = new SynchronizedInt(0);
-
-        final List removedEvents = new ArrayList();
-
-        EventQueueOverflowStrategy strategy = new
-            EventQueueOverflowStrategy() {
-                public Message removeElementFromQueue(AbstractBoundedEventQueue queue) {
-                    called.increment();
-
-                    Message e =
-                        EventQueueOverflowStrategy.LIFO.removeElementFromQueue(queue);
-
-                    removedEvents.add(e);
-
-                    return e;
-                }
-            };
-
+    public void testLIFOOverflow() throws Exception
+    {
+        DelegatingOverflowStrategy strategy = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.LIFO);
+        
         List _events = new ArrayList();
 
-        _events.add(new MockMessage( "#1").getHandle());
+        _events.add(newMessage());
 
-        _events.add(new MockMessage( "#2").getHandle());
+        _events.add(newMessage());
 
-        _events.add(new MockMessage( "#3").getHandle());
+        _events.add(newMessage());
 
-        Message e1 = new MockMessage( "#4").getHandle();
+        Message e1 = newMessage();
 
-        Message e2 = new MockMessage("#5").getHandle();
+        Message e2 = newMessage();
 
         _events.add(e1);
 
         _events.add(e2);
 
-        _events.add(new MockMessage( "#6").getHandle());
+        _events.add(newMessage());
 
         addEventsToEventQueue(strategy, _events);
 
-        assertEquals(2, called.get());
+        assertEquals(2, strategy.getRemovedElements().size());
 
-        assertEquals(2, removedEvents.size());
+        assertTrue(strategy.getRemovedElements().contains(e1));
 
-        assertTrue(removedEvents.contains(e1));
-
-        assertTrue(removedEvents.contains(e2));
+        assertTrue(strategy.getRemovedElements().contains(e2));
     }
 
-
-    private void addEventsToEventQueue(EventQueueOverflowStrategy strategy,
-                                       List events) {
-
+    private void addEventsToEventQueue(EventQueueOverflowStrategy strategy, List events)
+    {
         AbstractBoundedEventQueue queue = new BoundedPriorityEventQueue(4, strategy);
 
         Iterator i = events.iterator();
 
-        while (i.hasNext()) {
-            queue.put((Message)i.next());
+        while (i.hasNext())
+        {
+            queue.put((Message) i.next());
         }
+    }
+
+    private Message newMessage()
+    {
+        return newMessage(0);
+    }
+    
+    private Message newMessage(int priority)
+    {
+        MockControl controlMessage = MockControl.createControl(Message.class);
+        Message mockMessage = (Message) controlMessage.getMock();
+        mockMessage.getPriority();
+        controlMessage.setDefaultReturnValue(priority);
+        controlMessage.replay();
+        
+        return mockMessage;
     }
 }

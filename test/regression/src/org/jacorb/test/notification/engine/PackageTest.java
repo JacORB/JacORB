@@ -27,32 +27,41 @@ import junit.framework.TestSuite;
 
 /**
  * PackageTest.java
- *
- *
- * Created: Mon Apr  7 15:20:03 2003
- *
+ * 
+ * 
+ * Created: Mon Apr 7 15:20:03 2003
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class PackageTest extends TestCase {
-
-    public PackageTest(String name) {
+public class PackageTest extends TestCase
+{
+    public PackageTest(String name)
+    {
         super(name);
     }
 
-    public static Test suite() throws Exception {
-        TestSuite _suite =
-            new TestSuite("Tests in Package org.jacorb.test.notification.engine");
+    public static Test suite() throws Exception
+    {
+        TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.engine");
 
         _suite.addTest(PushToConsumerTest.suite());
         _suite.addTest(PushOperationTest.suite());
         _suite.addTest(WaitRetryStrategyTest.suite());
+        _suite.addTest(FilterProxyConsumerTaskTest.suite());
+
+        _suite.addTest(FilterProxySupplierTaskTest.suite());
+
+        _suite.addTest(FilterConsumerAdminTaskTest.suite());
+
+        _suite.addTest(FilterSupplierAdminTaskTest.suite());
 
         return _suite;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception
+    {
         junit.textui.TestRunner.run(suite());
     }
 }

@@ -47,6 +47,7 @@ public class PackageTest extends TestCase
 
         _suite.addTest( EvaluationResultTest.suite() );
         _suite.addTest( TCLTest.suite() );
+        _suite.addTest( IdentValueTest.suite() );
 
         return _suite;
     }

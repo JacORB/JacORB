@@ -30,33 +30,42 @@ import org.jacorb.notification.util.PatternWrapper;
 
 public abstract class AbstractPatternWrapperTest extends TestCase {
 
-    private PatternWrapper pattern_;
+    protected PatternWrapper objectUnderTest_;
 
     public AbstractPatternWrapperTest(String name) {
         super(name);
     }
 
     public final void setUp() {
-        pattern_ = newPattern();
+        objectUnderTest_ = newPattern();
     }
 
     protected abstract PatternWrapper newPattern();
 
     public void testNoMatch() {
-        pattern_.compile("abc*d");
+        objectUnderTest_.compile("abc*d");
 
         String test = "xyzdef";
 
-        assertEquals(0, pattern_.match(test));
+        assertEquals(0, objectUnderTest_.match(test));
     }
 
     public void testMatch() {
-        pattern_.compile("abc*d");
+        objectUnderTest_.compile("abc*d");
 
         String test = "abcccccccd";
 
-        int i = pattern_.match(test);
+        int i = objectUnderTest_.match(test);
 
         assertEquals(10, i);
+    }
+    
+    public void testToString()
+    {
+        String pattern = "a*b*d";
+        
+        objectUnderTest_.compile(pattern);
+        
+        assertEquals(pattern, objectUnderTest_.toString());
     }
 }

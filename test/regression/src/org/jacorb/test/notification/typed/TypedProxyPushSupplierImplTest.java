@@ -26,9 +26,14 @@ import java.util.Map;
 import junit.framework.Assert;
 import junit.framework.Test;
 
+import org.easymock.MockControl;
 import org.jacorb.notification.AnyMessage;
+import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.StructuredEventMessage;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.TypedEventMessage;
+import org.jacorb.notification.engine.DefaultTaskExecutor;
+import org.jacorb.notification.servant.ITypedAdmin;
 import org.jacorb.notification.servant.TypedProxyPushSupplierImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
@@ -39,6 +44,7 @@ import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
@@ -49,104 +55,148 @@ import org.omg.CosTypedNotifyComm.TypedPushConsumerPOA;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TypedProxyPushSupplierImplTest extends NotificationTestCase {
+public class TypedProxyPushSupplierImplTest extends NotificationTestCase
+{
+    private TypedProxyPushSupplierImpl objectUnderTest_;
 
-    TypedProxyPushSupplierImpl objectUnderTest_;
+    private TypedProxyPushSupplier proxyPushSupplier_;
 
-    TypedProxyPushSupplier supplier_;
+    private static final String DRINKING_COFFEE_ID = "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
 
-    private static String DRINKING_COFFEE_ID =
-        "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
+    private MockControl controlAdmin_;
 
-    public TypedProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup) {
+    private ITypedAdmin mockAdmin_;
+
+    private MockControl controlConsumerAdmin_;
+
+    private ConsumerAdmin mockConsumerAdmin_;
+
+    public TypedProxyPushSupplierImplTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
+    public void setUpTest() throws Exception
+    {
+        controlAdmin_ = MockControl.createNiceControl(ITypedAdmin.class);
+        mockAdmin_ = (ITypedAdmin) controlAdmin_.getMock();
+        mockAdmin_.getProxyID();
+        controlAdmin_.setReturnValue(10);
 
-    public void setUp() throws Exception {
-        objectUnderTest_ = new TypedProxyPushSupplierImpl(CoffeeHelper.id());
+        mockAdmin_.isIDPublic();
+        controlAdmin_.setReturnValue(true);
 
-        getChannelContext().resolveDependencies(objectUnderTest_);
+        mockAdmin_.getContainer();
+        controlAdmin_.setReturnValue(getContainer());
+
+        mockAdmin_.getSupportedInterface();
+        controlAdmin_.setReturnValue(CoffeeHelper.id());
+
+        controlAdmin_.replay();
+
+        controlConsumerAdmin_ = MockControl.createControl(ConsumerAdmin.class);
+        mockConsumerAdmin_ = (ConsumerAdmin) controlConsumerAdmin_.getMock();
+        
+        objectUnderTest_ = new TypedProxyPushSupplierImpl(mockAdmin_, mockConsumerAdmin_, getORB(), getPOA(),
+                getConfiguration(), getTaskProcessor(), DefaultTaskExecutor.getDefaultExecutor(),
+                new OfferManager(), new SubscriptionManager());
 
         objectUnderTest_.preActivate();
 
-        supplier_ = TypedProxyPushSupplierHelper.narrow(objectUnderTest_.activate());
+        proxyPushSupplier_ = TypedProxyPushSupplierHelper.narrow(objectUnderTest_.activate());
     }
 
-
-    public void testConnect() throws Exception {
+    public void testID()
+    {
+        assertEquals(new Integer(10), objectUnderTest_.getID());
+        assertTrue(objectUnderTest_.isIDPublic());
+    }
+    
+    public void testMyAdmin()
+    {
+        assertEquals(mockConsumerAdmin_, proxyPushSupplier_.MyAdmin());
+    }
+    
+    public void testConnect() throws Exception
+    {
         MockCoffee _mockCoffee = new MockCoffee();
 
         final Coffee _coffee = _mockCoffee._this(getORB());
 
-        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer() {
-                public org.omg.CORBA.Object get_typed_consumer() {
-                    return _coffee;
-                }
-            };
+        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
+        {
+            public org.omg.CORBA.Object get_typed_consumer()
+            {
+                return _coffee;
+            }
+        };
 
         TypedPushConsumer _consumer = _mockConsumer._this(getORB());
 
-        supplier_.connect_typed_push_consumer(_consumer);
+        proxyPushSupplier_.connect_typed_push_consumer(_consumer);
     }
 
-
-    public void testConnectWrongTypeThrowsException() throws Exception {
+    public void testConnectWrongTypeThrowsException() throws Exception
+    {
         final Map _map = new HashMap();
 
-        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer() {
-                public org.omg.CORBA.Object get_typed_consumer() {
-                    return (org.omg.CORBA.Object)_map.get("object");
-                }
-            };
+        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
+        {
+            public org.omg.CORBA.Object get_typed_consumer()
+            {
+                return (org.omg.CORBA.Object) _map.get("object");
+            }
+        };
 
         final TypedPushConsumer _consumer = _mockConsumer._this(getORB());
 
         _map.put("object", _consumer);
 
-        try {
-            supplier_.connect_typed_push_consumer(_consumer);
+        try
+        {
+            proxyPushSupplier_.connect_typed_push_consumer(_consumer);
             fail();
-        } catch (TypeError e) {}
+        } catch (TypeError e)
+        {
+        }
     }
 
-
-    public void testPushPulledEvent() throws Exception {
+    public void testPushPulledEvent() throws Exception
+    {
         // setup test data
         TypedEventMessage _event = new TypedEventMessage();
 
-        _event.setTypedEvent(PullCoffeeHelper.id(),
-                             DRINKING_COFFEE_ID,
-                             new Property[] {
-                                 new Property("name", toAny("alphonse")),
-                                 new Property("minutes", toAny(10))
-                             });
-
+        _event.setTypedEvent(PullCoffeeHelper.id(), DRINKING_COFFEE_ID, new Property[] {
+                new Property("name", toAny("alphonse")), new Property("minutes", toAny(10)) });
 
         // setup mock
-        MockCoffee _mockCoffee = new MockCoffee() {
-                public void drinking_coffee(String name, int minutes) {
-                    super.drinking_coffee(name, minutes);
+        MockCoffee _mockCoffee = new MockCoffee()
+        {
+            public void drinking_coffee(String name, int minutes)
+            {
+                super.drinking_coffee(name, minutes);
 
-                    assertEquals("alphonse", name);
-                    assertEquals(10, minutes);
-                }
-            };
+                assertEquals("alphonse", name);
+                assertEquals(10, minutes);
+            }
+        };
 
         _mockCoffee.drinking_coffee_expect = 1;
 
         // setup and connect consumer
         final Coffee _coffee = _mockCoffee._this(getORB());
 
-        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer() {
-                public org.omg.CORBA.Object get_typed_consumer() {
-                    return _coffee;
-                }
-            };
+        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
+        {
+            public org.omg.CORBA.Object get_typed_consumer()
+            {
+                return _coffee;
+            }
+        };
 
         TypedPushConsumer _consumer = _mockConsumer._this(getORB());
 
-        supplier_.connect_typed_push_consumer(_consumer);
+        proxyPushSupplier_.connect_typed_push_consumer(_consumer);
 
         // run test
         objectUnderTest_.getMessageConsumer().deliverMessage(_event.getHandle());
@@ -155,43 +205,42 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase {
         _mockCoffee.verify();
     }
 
-
-    public void testPushTyped() throws Exception {
+    public void testPushTyped() throws Exception
+    {
         // setup test data
         TypedEventMessage _event = new TypedEventMessage();
 
-        _event.setTypedEvent(CoffeeHelper.id(),
-                             DRINKING_COFFEE_ID,
-                             new Property[] {
-                                 new Property("name", toAny("alphonse")),
-                                 new Property("minutes", toAny(10))
-                             });
-
+        _event.setTypedEvent(CoffeeHelper.id(), DRINKING_COFFEE_ID, new Property[] {
+                new Property("name", toAny("alphonse")), new Property("minutes", toAny(10)) });
 
         // setup mock
-        MockCoffee _mockCoffee = new MockCoffee() {
-                public void drinking_coffee(String name, int minutes) {
-                    super.drinking_coffee(name, minutes);
+        MockCoffee _mockCoffee = new MockCoffee()
+        {
+            public void drinking_coffee(String name, int minutes)
+            {
+                super.drinking_coffee(name, minutes);
 
-                    assertEquals("alphonse", name);
-                    assertEquals(10, minutes);
-                }
-            };
+                assertEquals("alphonse", name);
+                assertEquals(10, minutes);
+            }
+        };
 
         _mockCoffee.drinking_coffee_expect = 1;
 
         // setup and connect consumer
         final Coffee _coffee = _mockCoffee._this(getORB());
 
-        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer() {
-                public org.omg.CORBA.Object get_typed_consumer() {
-                    return _coffee;
-                }
-            };
+        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
+        {
+            public org.omg.CORBA.Object get_typed_consumer()
+            {
+                return _coffee;
+            }
+        };
 
         TypedPushConsumer _consumer = _mockConsumer._this(getORB());
 
-        supplier_.connect_typed_push_consumer(_consumer);
+        proxyPushSupplier_.connect_typed_push_consumer(_consumer);
 
         // run test
         objectUnderTest_.getMessageConsumer().deliverMessage(_event.getHandle());
@@ -200,46 +249,47 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase {
         _mockCoffee.verify();
     }
 
-
-    public void testPushStructured() throws Exception {
-
+    public void testPushStructured() throws Exception
+    {
         // setup test data
         StructuredEventMessage _event = new StructuredEventMessage();
 
         StructuredEvent _data = getTestUtils().getEmptyStructuredEvent();
 
         _data.filterable_data = new Property[] {
-            new Property("operation", toAny(DRINKING_COFFEE_ID)),
-            new Property("name", toAny("alphonse")),
-            new Property("minutes", toAny(10))
-        };
+                new Property("operation", toAny(DRINKING_COFFEE_ID)),
+                new Property("name", toAny("alphonse")), new Property("minutes", toAny(10)) };
 
         _event.setStructuredEvent(_data, false, false);
 
         // setup mock
-        MockCoffee _mockCoffee = new MockCoffee() {
-                public void drinking_coffee(String name, int minutes) {
-                    super.drinking_coffee(name, minutes);
+        MockCoffee _mockCoffee = new MockCoffee()
+        {
+            public void drinking_coffee(String name, int minutes)
+            {
+                super.drinking_coffee(name, minutes);
 
-                    assertEquals("alphonse", name);
-                    assertEquals(10, minutes);
-                }
-            };
+                assertEquals("alphonse", name);
+                assertEquals(10, minutes);
+            }
+        };
 
         _mockCoffee.drinking_coffee_expect = 1;
 
         // setup and connect consumer
         final Coffee _coffee = _mockCoffee._this(getORB());
 
-        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer() {
-                public org.omg.CORBA.Object get_typed_consumer() {
-                    return _coffee;
-                }
-            };
+        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
+        {
+            public org.omg.CORBA.Object get_typed_consumer()
+            {
+                return _coffee;
+            }
+        };
 
         TypedPushConsumer _consumer = _mockConsumer._this(getORB());
 
-        supplier_.connect_typed_push_consumer(_consumer);
+        proxyPushSupplier_.connect_typed_push_consumer(_consumer);
 
         // run test
         objectUnderTest_.getMessageConsumer().deliverMessage(_event.getHandle());
@@ -248,48 +298,47 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase {
         _mockCoffee.verify();
     }
 
-
-    public void testPushAny() throws Exception {
-
+    public void testPushAny() throws Exception
+    {
         // setup test data
         AnyMessage _event = new AnyMessage();
 
         Any _any = getORB().create_any();
 
-        PropertySeqHelper.insert(_any,
-                                 new Property[] {
-                                     new Property("operation", toAny(DRINKING_COFFEE_ID)),
-                                     new Property("name", toAny("alphonse")),
-                                     new Property("minutes", toAny(10))
-                                 });
+        PropertySeqHelper.insert(_any, new Property[] {
+                new Property("operation", toAny(DRINKING_COFFEE_ID)),
+                new Property("name", toAny("alphonse")), new Property("minutes", toAny(10)) });
 
         _event.setAny(_any);
 
         // setup mock
-        MockCoffee _mockCoffee = new MockCoffee() {
-                public void drinking_coffee(String name, int minutes) {
-                    super.drinking_coffee(name, minutes);
+        MockCoffee _mockCoffee = new MockCoffee()
+        {
+            public void drinking_coffee(String name, int minutes)
+            {
+                super.drinking_coffee(name, minutes);
 
-                    assertEquals("alphonse", name);
-                    assertEquals(10, minutes);
-                }
-            };
+                assertEquals("alphonse", name);
+                assertEquals(10, minutes);
+            }
+        };
 
         _mockCoffee.drinking_coffee_expect = 1;
-
 
         // setup and connect consumer
         final Coffee _coffee = _mockCoffee._this(getORB());
 
-        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer() {
-                public org.omg.CORBA.Object get_typed_consumer() {
-                    return _coffee;
-                }
-            };
+        MockTypedPushConsumer _mockConsumer = new MockTypedPushConsumer()
+        {
+            public org.omg.CORBA.Object get_typed_consumer()
+            {
+                return _coffee;
+            }
+        };
 
         TypedPushConsumer _consumer = _mockConsumer._this(getORB());
 
-        supplier_.connect_typed_push_consumer(_consumer);
+        proxyPushSupplier_.connect_typed_push_consumer(_consumer);
 
         // run test
         objectUnderTest_.getMessageConsumer().deliverMessage(_event.getHandle());
@@ -298,46 +347,55 @@ public class TypedProxyPushSupplierImplTest extends NotificationTestCase {
         _mockCoffee.verify();
     }
 
-
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         return NotificationTestCase.suite(TypedProxyPushSupplierImplTest.class);
     }
 }
 
-class MockTypedPushConsumer extends TypedPushConsumerPOA {
-
-    public org.omg.CORBA.Object get_typed_consumer() {
+class MockTypedPushConsumer extends TypedPushConsumerPOA
+{
+    public org.omg.CORBA.Object get_typed_consumer()
+    {
         return null;
     }
 
-    public void push(Any any) throws Disconnected {
+    public void push(Any any) throws Disconnected
+    {
     }
 
-    public void disconnect_push_consumer() {
+    public void disconnect_push_consumer()
+    {
     }
 
-    public void offer_change(EventType[] eventTypeArray,
-                             EventType[] eventTypeArray1) throws InvalidEventType {
+    public void offer_change(EventType[] eventTypeArray, EventType[] eventTypeArray1)
+            throws InvalidEventType
+    {
     }
 }
 
-
-class MockCoffee extends CoffeePOA {
-
+class MockCoffee extends CoffeePOA
+{
     int drinking_coffee_expect;
+
     int drinking_coffee_called;
+
     int cancel_coffee_expect;
+
     int cancel_coffee_called;
 
-    public void drinking_coffee(String string, int n) {
+    public void drinking_coffee(String string, int n)
+    {
         drinking_coffee_called++;
     }
 
-    public void cancel_coffee(String string) {
+    public void cancel_coffee(String string)
+    {
         cancel_coffee_called++;
     }
 
-    public void verify() {
+    public void verify()
+    {
         Assert.assertEquals(drinking_coffee_expect, drinking_coffee_called);
         Assert.assertEquals(cancel_coffee_expect, cancel_coffee_called);
     }

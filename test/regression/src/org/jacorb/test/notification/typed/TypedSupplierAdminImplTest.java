@@ -20,69 +20,103 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import junit.framework.Test;
+
+import org.easymock.MockControl;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.container.PicoContainerFactory;
+import org.jacorb.notification.servant.IEventChannel;
+import org.jacorb.notification.servant.TypedSupplierAdminImpl;
+import org.jacorb.test.notification.NotificationTestCase;
+import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdminHelper;
-
-import org.jacorb.notification.servant.TypedSupplierAdminImpl;
-import org.jacorb.test.notification.NotificationTestCase;
-import org.jacorb.test.notification.NotificationTestCaseSetup;
-
-import junit.framework.Test;
+import org.picocontainer.MutablePicoContainer;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TypedSupplierAdminImplTest extends NotificationTestCase {
+public class TypedSupplierAdminImplTest extends NotificationTestCase
+{
+    private TypedSupplierAdminImpl objectUnderTest_;
 
-    TypedSupplierAdminImpl objectUnderTest_;
+    private TypedSupplierAdmin supplierAdmin_;
 
-    TypedSupplierAdmin supplierAdmin_;
+    private MutablePicoContainer container_;
 
-    public TypedSupplierAdminImplTest(String name, NotificationTestCaseSetup setup) {
+    public TypedSupplierAdminImplTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
-    public void setUp() throws Exception {
-        objectUnderTest_ = new TypedSupplierAdminImpl();
+    public void setUpTest() throws Exception
+    {
+        container_ = PicoContainerFactory.createChildContainer(getContainer());
 
-        getChannelContext().setEventChannel(getDefaultChannel());
+        container_.registerComponentInstance(new OfferManager());
 
-        getChannelContext().resolveDependencies(objectUnderTest_);
+        container_.registerComponentInstance(new SubscriptionManager());
+
+        MockControl controlChannel = MockControl.createControl(IEventChannel.class);
+        IEventChannel mockChannel = (IEventChannel) controlChannel.getMock();
+
+        mockChannel.getEventChannel();
+        controlChannel.setReturnValue(getDefaultChannel());
+
+        mockChannel.getContainer();
+        controlChannel.setReturnValue(container_);
+
+        mockChannel.getAdminID();
+        controlChannel.setReturnValue(10);
+
+        mockChannel.getID();
+        controlChannel.setReturnValue(20);
+
+        controlChannel.replay();
+
+        objectUnderTest_ = new TypedSupplierAdminImpl(mockChannel, getORB(), getPOA(),
+                getConfiguration(), getMessageFactory(), (OfferManager) container_
+                        .getComponentInstance(OfferManager.class), (SubscriptionManager) container_
+                        .getComponentInstance(SubscriptionManager.class));
 
         objectUnderTest_.preActivate();
 
         supplierAdmin_ = TypedSupplierAdminHelper.narrow(objectUnderTest_.activate());
     }
 
-    public void testMyChannel() throws Exception {
+    public void testMyChannel() throws Exception
+    {
         assertEquals(getDefaultChannel(), supplierAdmin_.MyChannel());
     }
 
-    public void testCreatePushConsumer() throws Exception {
+    public void testCreatePushConsumer() throws Exception
+    {
         IntHolder id = new IntHolder();
 
-        TypedProxyPushConsumer consumer =
-            supplierAdmin_.obtain_typed_notification_push_consumer(CoffeeHelper.id(), id);
+        TypedProxyPushConsumer consumer = supplierAdmin_.obtain_typed_notification_push_consumer(
+                CoffeeHelper.id(), id);
 
         assertEquals(consumer, supplierAdmin_.get_proxy_consumer(id.value));
     }
 
-
-    public void testCreatePullConsumer() throws Exception {
+    public void testCreatePullConsumer() throws Exception
+    {
         IntHolder id = new IntHolder();
 
-        TypedProxyPullConsumer consumer =
-            supplierAdmin_.obtain_typed_notification_pull_consumer(PullCoffeeHelper.id(), id);
+        TypedProxyPullConsumer consumer = supplierAdmin_.obtain_typed_notification_pull_consumer(
+                PullCoffeeHelper.id(), id);
 
         assertEquals(consumer, supplierAdmin_.get_proxy_consumer(id.value));
     }
 
-
-    public static Test suite() throws Exception {
-        return NotificationTestCase.suite(TypedSupplierAdminImplTest.class);
+    public static Test suite() throws Exception
+    {
+        return NotificationTestCase.suite("TypedSupplierAdminImpl Tests",
+                TypedSupplierAdminImplTest.class);
     }
 }

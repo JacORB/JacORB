@@ -23,7 +23,7 @@ package org.jacorb.test.notification.evaluate;
 
 import junit.framework.Test;
 
-import org.jacorb.notification.filter.DynamicEvaluator;
+import org.jacorb.notification.filter.impl.DefaultETCLEvaluator;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
@@ -36,27 +36,25 @@ import org.omg.DynamicAny.DynAnyFactoryHelper;
 /**
  * @author Alphonse Bendt
  */
+
 public class DynamicEvaluatorTest extends NotificationTestCase {
 
-    DynamicEvaluator evaluator_;
+    private DefaultETCLEvaluator objectUnderTest_;
 
     public DynamicEvaluatorTest (String name, NotificationTestCaseSetup setup){
         super(name, setup);
     }
-
 
     public static Test suite() throws Exception {
         return NotificationTestCase.suite(DynamicEvaluatorTest.class);
     }
 
 
-    public void setUp() throws Exception {
-        DynAnyFactory _dynAnyFactory =
+    public void setUpTest() throws Exception {
+    DynAnyFactory _dynAnyFactory =
             DynAnyFactoryHelper.narrow(getORB().resolve_initial_references("DynAnyFactory"));
 
-        evaluator_ = new DynamicEvaluator(_dynAnyFactory);
-
-        evaluator_.configure(getConfiguration());
+        objectUnderTest_ = new DefaultETCLEvaluator(getConfiguration(), _dynAnyFactory);
     }
 
 
@@ -66,7 +64,7 @@ public class DynamicEvaluatorTest extends NotificationTestCase {
         Property p = new Property("number", _any);
         Any _testData = getORB().create_any();
         PropertyHelper.insert(_testData, p);
-        Any a = evaluator_.evaluateIdentifier(_testData, "name");
+        Any a = objectUnderTest_.evaluateIdentifier(_testData, "name");
         assertEquals("number", a.extract_string());
     }
 
@@ -78,7 +76,7 @@ public class DynamicEvaluatorTest extends NotificationTestCase {
         p[0] = new Property("number", _any);
         Any _testData = getORB().create_any();
         PropertySeqHelper.insert(_testData, p);
-        Any _result = evaluator_.evaluateNamedValueList(_testData, "number");
+        Any _result = objectUnderTest_.evaluateNamedValueList(_testData, "number");
         Any _second = _result.extract_any();
         assertTrue(_second.extract_long() == 10);
     }

@@ -21,26 +21,37 @@ package org.jacorb.test.notification.util;
  *
  */
 
-import org.jacorb.notification.util.CachingWildcardMap;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
+import org.jacorb.notification.util.CachingWildcardMap;
+import org.jacorb.notification.util.WildcardMap;
 
 /**
  * @author Alphonse Bendt
  */
 
-public class CachingWildcardMapTest extends WildcardMapTest {
-
-    public void setUp() throws Exception {
-        map_ = new CachingWildcardMap(4);
+public class CachingWildcardMapTest extends AbstractWildcardMapTest
+{
+    public WildcardMap newWildcardMap()
+    {
+        return new CachingWildcardMap();
     }
 
-    public CachingWildcardMapTest(String name) {
+    public CachingWildcardMapTest(String name)
+    {
         super(name);
     }
 
-    public static Test suite() {
+    public static Test suite()
+    {
         return new TestSuite(CachingWildcardMapTest.class);
+    }
+    
+    public void testCache()
+    {
+        objectUnderTest_.put("key1", "value1");
+        assertEquals("value1", objectUnderTest_.getWithExpansion("key1")[0]);
+        assertEquals("value1", objectUnderTest_.getWithExpansion("key1")[0]);        
     }
 }

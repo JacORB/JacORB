@@ -1,9 +1,7 @@
-package org.jacorb.test.notification.evaluate;
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,28 +19,44 @@ package org.jacorb.test.notification.evaluate;
  *
  */
 
+package org.jacorb.test.notification.typed;
+
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.jacorb.test.common.IFRTestSetup;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Repository;
+import org.omg.CORBA.RepositoryHelper;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class PackageTest extends TestCase
+public class NotifyIFRTestSetup extends IFRTestSetup
 {
-    public PackageTest(String name)
+    private final static ORB orb = ORB.init(new String[0], null);
+    
+    public NotifyIFRTestSetup(Test test)
     {
-        super(name);
+        super(test);
     }
     
-    public static Test suite() throws Exception
+    public void setUp() throws Exception
     {
-        TestSuite _suite = new TestSuite("Tests in Package org.jacorb.test.notification.evaluate");
-
-        _suite.addTest(DynamicEvaluatorTest.suite());
-
-        return _suite;
+        super.setUp();
+        
+        Thread.sleep(1000);
+        
+        feedToIFR("~/JacORB/test/regression/idl/TypedNotification.idl");
+    }
+    
+    public Repository getRepository() throws Exception
+    {
+        return RepositoryHelper.narrow(orb.string_to_object(getIFRRef()));
+    }
+    
+    public void tearDown() throws Exception
+    {
+        super.tearDown();
     }
 }

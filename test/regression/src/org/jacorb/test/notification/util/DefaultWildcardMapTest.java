@@ -1,15 +1,7 @@
-package org.jacorb.test.notification.mocks;
-
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.PushSupplierPOA;
-
-
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -24,25 +16,35 @@ import org.omg.CosNotifyComm.PushSupplierPOA;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
+
+package org.jacorb.test.notification.util;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+import org.jacorb.notification.util.DefaultWildcardMap;
+import org.jacorb.notification.util.WildcardMap;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class MockPushSupplier extends PushSupplierPOA {
-
-    // Implementation of org.omg.CosNotifyComm.NotifySubscribeOperations
-    public void subscription_change(EventType[] eventTypeArray,
-                                    EventType[] eventTypeArray1)
-        throws InvalidEventType {
-
+public class DefaultWildcardMapTest extends AbstractWildcardMapTest
+{
+    public DefaultWildcardMapTest(String name)
+    {
+        super(name);
     }
 
-    // Implementation of org.omg.CosEventComm.PushSupplierOperations
-    public void disconnect_push_supplier() {
-
+    WildcardMap newWildcardMap()
+    {
+        return new DefaultWildcardMap();
     }
 
+    public static Test suite()
+    {
+        return new TestSuite(DefaultWildcardMapTest.class);
+    }
 }

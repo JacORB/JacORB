@@ -24,108 +24,102 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.easymock.MockControl;
 import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.RetryException;
 import org.jacorb.notification.engine.WaitRetryStrategy;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt
  */
-public class WaitRetryStrategyTest extends TestCase {
+public class WaitRetryStrategyTest extends TestCase
+{
+    private MessageConsumer mockConsumer_;
 
-    MockEventConsumer messageConsumer = new MockEventConsumer();
+    private MockControl controlConsumer_;
 
-    PushOperation pushOperation_;
+    private PushOperation mockPushOperation_;
 
-    boolean pushAllowed;
+    private MockControl controlPushOperation_;
 
-    int pushInvoked_;
-
-    public WaitRetryStrategyTest(String name){
+    public WaitRetryStrategyTest(String name)
+    {
         super(name);
     }
 
+    public void setUp() throws Exception
+    {
+        controlConsumer_ = MockControl.createControl(MessageConsumer.class);
+        mockConsumer_ = (MessageConsumer) controlConsumer_.getMock();
 
-    public void setUp() throws Exception {
-        pushAllowed = true;
-
-        pushOperation_ = new PushOperation() {
-                public void invokePush()  {
-                    if (pushAllowed) {
-                        ++pushInvoked_;
-                    } else {
-                        throw new TRANSIENT();
-                    }
-                }
-
-                public void dispose() {}
-            };
+        controlPushOperation_ = MockControl.createControl(PushOperation.class);
+        mockPushOperation_ = (PushOperation) controlPushOperation_.getMock();
     }
 
+    public void testRetryTerminates() throws Exception
+    {
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setReturnValue(true);
 
-    public void testRetryTerminates() throws Exception {
-        try {
-            WaitRetryStrategy retry =
-                new WaitRetryStrategy(messageConsumer, pushOperation_);
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setReturnValue(true);
 
-            pushAllowed = false;
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setDefaultReturnValue(false);
+
+        mockConsumer_.incErrorCounter();
+        controlConsumer_.setReturnValue(0);
+
+        mockConsumer_.dispose();
+
+        controlConsumer_.replay();
+
+        mockPushOperation_.invokePush();
+        controlPushOperation_.setThrowable(new TRANSIENT());
+
+        mockPushOperation_.dispose();
+
+        controlPushOperation_.replay();
+
+        try
+        {
+            WaitRetryStrategy retry = new WaitRetryStrategy(mockConsumer_, mockPushOperation_);
 
             retry.retry();
 
             fail();
-        } catch (RetryException e) {}
-
-        assertEquals(0, pushInvoked_);
-        assertEquals(1, messageConsumer.disposeCalled);
-    }
-
-
-    public void testRetrySucceeds() throws Exception {
-        try {
-            WaitRetryStrategy retry =
-                new WaitRetryStrategy(messageConsumer, pushOperation_);
-
-            retry.retry();
-        } catch (RetryException e) {}
-
-        assertEquals(1, pushInvoked_);
-    }
-
-
-    public void testRetryRetries() throws Exception {
-        final WaitRetryStrategy retry =
-            new WaitRetryStrategy(messageConsumer, pushOperation_);
-
-        final Object notify = new Object();
-
-        pushAllowed = false;
-
-        new Thread() {
-            public void run() {
-                try {
-                    retry.retry();
-                    synchronized(notify) {
-                        notify.notifyAll();
-                    }
-                } catch (RetryException e) {
-                }
-            }
-        }.start();
-
-        Thread.sleep(1000);
-
-        pushAllowed = true;
-
-        synchronized(notify) {
-            notify.wait(5000);
+        } catch (RetryException e)
+        {
         }
 
-        assertEquals(1, pushInvoked_);
+        controlPushOperation_.verify();
+        controlConsumer_.verify();
+    }
+
+    public void testRetrySucceeds() throws Exception
+    {
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setDefaultReturnValue(true);
+
+        mockPushOperation_.invokePush();
+        mockPushOperation_.dispose();
+        controlPushOperation_.replay();
+
+        controlConsumer_.replay();
+
+        WaitRetryStrategy retry = new WaitRetryStrategy(mockConsumer_, mockPushOperation_);
+
+        retry.retry();
+
+        controlConsumer_.verify();
+        controlPushOperation_.verify();
     }
 
 
-    public static Test suite(){
+    public static Test suite()
+    {
         TestSuite suite = new TestSuite(WaitRetryStrategyTest.class);
 
         return suite;

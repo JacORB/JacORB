@@ -23,13 +23,14 @@ package org.jacorb.test.notification.engine;
 
 import junit.framework.Test;
 
+import org.easymock.MockControl;
+import org.jacorb.notification.engine.DefaultTaskExecutor;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.engine.PushToConsumerTask;
-import org.jacorb.test.notification.MockMessage;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
-import org.omg.CORBA.Any;
-
 
 /**
  * @author Alphonse Bendt
@@ -37,61 +38,57 @@ import org.omg.CORBA.Any;
 
 public class PushToConsumerTest extends NotificationTestCase
 {
-    DefaultTaskProcessor taskProcessor_;
+    private DefaultTaskProcessor taskProcessor_;
 
-    public void setUp() throws Exception
+    public void setUpTest() throws Exception
     {
-        taskProcessor_ = new DefaultTaskProcessor();
-
-        taskProcessor_.configure( getConfiguration() );
+        taskProcessor_ = new DefaultTaskProcessor(getConfiguration());
     }
 
-
-    public void tearDown() throws Exception
+    public void tearDownTest() throws Exception
     {
         taskProcessor_.dispose();
     }
 
-
     public void testPush() throws Exception
     {
-        PushToConsumerTask task =
-            new PushToConsumerTask(taskProcessor_);
+        PushToConsumerTask _pushToConsumerTask = new PushToConsumerTask(taskProcessor_);
 
-        task.configure(getConfiguration());
+        _pushToConsumerTask.configure(getConfiguration());
 
-        MockMessage event =
-            new MockMessage("testEvent");
+        MockControl controlMessage = MockControl.createControl(Message.class);
+        Message mockMessage = (Message) controlMessage.getMock();
 
-        event.configure(getConfiguration());
+        MockControl controlMessageConsumer = MockControl.createControl(MessageConsumer.class);
+        MessageConsumer mockMessageConsumer = (MessageConsumer) controlMessageConsumer.getMock();
+        
+        mockMessage.isInvalid();
+        controlMessage.setReturnValue(false);
+        
+        mockMessage.dispose();
+        
+        controlMessage.replay();
+        
+        mockMessageConsumer.getExecutor();
+        controlMessageConsumer.setReturnValue(DefaultTaskExecutor.getDefaultExecutor(), 2);
 
-        Any any = getORB().create_any();
+        mockMessageConsumer.deliverMessage(mockMessage);
+        
+        controlMessageConsumer.replay();
+        
+        _pushToConsumerTask.setMessage(mockMessage);
 
-        any.insert_string("test");
+        _pushToConsumerTask.setMessageConsumer(mockMessageConsumer);
 
-        event.setAny(any);
+        _pushToConsumerTask.schedule();
 
-        task.setMessage(event.getHandle());
-
-        MockEventConsumer eventConsumer = new MockEventConsumer();
-
-        eventConsumer.addToExcepectedEvents(any);
-
-        task.setMessageConsumer(eventConsumer);
-
-        task.schedule();
-
-        Thread.sleep(1000);
-
-        eventConsumer.check();
+        controlMessageConsumer.verify();
     }
-
 
     public PushToConsumerTest(String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
-
 
     public static Test suite() throws Exception
     {

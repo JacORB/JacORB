@@ -33,36 +33,40 @@ import junit.framework.Test;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class FilterFactoryTest extends NotificationTestCase {
+public class FilterFactoryTest extends NotificationTestCase
+{
+    private FilterFactory objectUnderTest_;
 
-    FilterFactory filterFactory_;
-
-    public void setUp() throws Exception {
-        filterFactory_ = getDefaultChannel().default_filter_factory();
+    public void setUpTest() throws Exception
+    {
+        objectUnderTest_ = getDefaultChannel().default_filter_factory();
     }
 
-
-    public FilterFactoryTest(String name, NotificationTestCaseSetup setup) {
+    public FilterFactoryTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
-
-    public void testCreateBSHFilter() throws Exception {
-        Filter _filter = filterFactory_.create_filter(BSHFilter.CONSTRAINT_GRAMMAR);
+    public void testCreateBSHFilter() throws Exception
+    {
+        Filter _filter = objectUnderTest_.create_filter(BSHFilter.CONSTRAINT_GRAMMAR);
 
         assertEquals(BSHFilter.CONSTRAINT_GRAMMAR, _filter.constraint_grammar());
     }
 
-
-    public void testCreateNonExisting() throws Exception {
-        try {
-            filterFactory_.create_filter("ACME");
+    public void testCreateNonExisting() throws Exception
+    {
+        try
+        {
+            objectUnderTest_.create_filter("ACME");
             fail();
-        } catch (Exception e) {}
+        } catch (Exception e)
+        {
+        }
     }
 
-
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         return NotificationTestCase.suite(FilterFactoryTest.class);
     }
 }

@@ -27,21 +27,23 @@ import junit.framework.TestSuite;
 import org.jacorb.notification.filter.EvaluationResult;
 
 /**
- *  Unit Test for class EvaluationResult
- *
+ * Unit Test for class EvaluationResult
+ * 
  * @author Alphonse Bendt
  */
 
-public class EvaluationResultTest extends TestCase {
+public class EvaluationResultTest extends TestCase
+{
 
-    private EvaluationResult evaluationResult_;
+    private EvaluationResult objectUnderTest_;
 
-    public void setUp() throws Exception {
-        evaluationResult_ = new EvaluationResult();
+    public void setUp() throws Exception
+    {
+        objectUnderTest_ = new EvaluationResult();
     }
 
-
-    public void testPlus() throws Exception {
+    public void testPlus() throws Exception
+    {
         EvaluationResult a, b;
         a = new EvaluationResult();
         b = new EvaluationResult();
@@ -49,7 +51,7 @@ public class EvaluationResultTest extends TestCase {
         a.setLong(10);
         b.setLong(10);
 
-        EvaluationResult c = EvaluationResult.plus(a,b);
+        EvaluationResult c = EvaluationResult.plus(a, b);
         assertTrue(20 == c.getLong());
 
         a.setFloat(10);
@@ -58,49 +60,49 @@ public class EvaluationResultTest extends TestCase {
         assertTrue(a.isFloat());
         assertTrue(b.isFloat());
 
-        c = EvaluationResult.plus(a,b);
+        c = EvaluationResult.plus(a, b);
         assertTrue(20 == c.getFloat());
         assertTrue(c.isFloat());
     }
 
-
-    public void testSetString() throws Exception {
-        evaluationResult_.setString("hallo");
-        assertEquals("hallo", evaluationResult_.getString());
+    public void testSetString() throws Exception
+    {
+        objectUnderTest_.setString("hallo");
+        assertEquals("hallo", objectUnderTest_.getString());
     }
 
-
-    public void testSetInt() throws Exception {
-        evaluationResult_.setLong(1);
-        assertTrue(evaluationResult_.getLong() == 1);
+    public void testSetInt() throws Exception
+    {
+        objectUnderTest_.setLong(1);
+        assertTrue(objectUnderTest_.getLong() == 1);
     }
 
-
-    public void testSetFloat() throws Exception {
-        evaluationResult_.setFloat(2f);
-        assertTrue(evaluationResult_.getFloat() == 2f);
+    public void testSetFloat() throws Exception
+    {
+        objectUnderTest_.setFloat(2f);
+        assertTrue(objectUnderTest_.getFloat() == 2f);
     }
 
+    public void testSetBoolean() throws Exception
+    {
+        objectUnderTest_ = EvaluationResult.BOOL_TRUE;
+        assertTrue(objectUnderTest_.getLong() == 1);
+        assertTrue(objectUnderTest_.getFloat() == 1f);
+        assertTrue(objectUnderTest_.getBool());
 
-    public void testSetBoolean() throws Exception {
-        evaluationResult_ = EvaluationResult.BOOL_TRUE;
-        assertTrue(evaluationResult_.getLong() == 1);
-        assertTrue(evaluationResult_.getFloat() == 1f);
-        assertTrue(evaluationResult_.getBool());
-
-        evaluationResult_ = EvaluationResult.BOOL_FALSE;
-        assertTrue(evaluationResult_.getLong() == 0);
-        assertTrue(evaluationResult_.getFloat() == 0f);
-        assertTrue(!evaluationResult_.getBool());
+        objectUnderTest_ = EvaluationResult.BOOL_FALSE;
+        assertTrue(objectUnderTest_.getLong() == 0);
+        assertTrue(objectUnderTest_.getFloat() == 0f);
+        assertTrue(!objectUnderTest_.getBool());
     }
 
-
-    public EvaluationResultTest(String name){
+    public EvaluationResultTest(String name)
+    {
         super(name);
     }
 
-
-    public static Test suite(){
+    public static Test suite()
+    {
         TestSuite suite = new TestSuite(EvaluationResultTest.class);
 
         return suite;

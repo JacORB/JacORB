@@ -20,70 +20,114 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import junit.framework.Test;
+
+import org.easymock.MockControl;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.TypedEventMessage;
+import org.jacorb.notification.servant.ITypedAdmin;
 import org.jacorb.notification.servant.TypedProxyPullSupplierImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
-
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.StringHolder;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.PullConsumerPOA;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierHelper;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TypedProxyPullSupplierImplTest extends NotificationTestCase {
+public class TypedProxyPullSupplierImplTest extends NotificationTestCase
+{
+    private TypedProxyPullSupplierImpl objectUnderTest_;
 
-    TypedProxyPullSupplierImpl objectUnderTest_;
+    private TypedProxyPullSupplier proxyPullSupplier_;
 
-    TypedProxyPullSupplier supplier_;
+    private static String DRINKING_COFFEE_ID = "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
 
-    private static String DRINKING_COFFEE_ID =
-        "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
+    private MockControl controlAdmin_;
 
+    private ITypedAdmin mockAdmin_;
 
-    public void setUp() throws Exception {
-        objectUnderTest_ = new TypedProxyPullSupplierImpl(PullCoffeeHelper.id());
+    private ConsumerAdmin mockConsumerAdmin_;
 
-        getChannelContext().resolveDependencies(objectUnderTest_);
+    private MockControl controlConsumerAdmin_;
+    
+    public void setUpTest() throws Exception
+    {
+        controlAdmin_ = MockControl.createNiceControl(ITypedAdmin.class);
+        mockAdmin_ = (ITypedAdmin) controlAdmin_.getMock();
+        mockAdmin_.getProxyID();
+        controlAdmin_.setReturnValue(10);
 
-        objectUnderTest_.preActivate();
+        mockAdmin_.isIDPublic();
+        controlAdmin_.setReturnValue(true);
 
-        supplier_ = TypedProxyPullSupplierHelper.narrow(objectUnderTest_.activate());
+        mockAdmin_.getContainer();
+        controlAdmin_.setReturnValue(getContainer());
+
+        mockAdmin_.getSupportedInterface();
+        controlAdmin_.setReturnValue(PullCoffeeHelper.id());
+
+        controlAdmin_.replay();
+
+        controlConsumerAdmin_ = MockControl.createControl(ConsumerAdmin.class);
+        mockConsumerAdmin_ = (ConsumerAdmin) controlConsumerAdmin_.getMock();
+
+        controlConsumerAdmin_.replay();
+
+        objectUnderTest_ = new TypedProxyPullSupplierImpl(mockAdmin_, mockConsumerAdmin_, getORB(),
+                getPOA(), getConfiguration(), getTaskProcessor(), new OfferManager(),
+                new SubscriptionManager(), getDynAnyFactory(), getRepository());
+
+        proxyPullSupplier_ = TypedProxyPullSupplierHelper.narrow(objectUnderTest_.activate());
     }
 
-
-    public TypedProxyPullSupplierImplTest(String name, NotificationTestCaseSetup setup) {
+    
+    public TypedProxyPullSupplierImplTest(String name, NotificationTestCaseSetup setup)
+    {
         super(name, setup);
     }
 
-
-    public void testConnect() throws Exception {
-        NullPullConsumer _pullConsumer = new NullPullConsumer();
-
-        supplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+    public void testID()
+    {
+        assertEquals(new Integer(10), objectUnderTest_.getID());
+        assertTrue(objectUnderTest_.isIDPublic());
     }
 
+    public void testMyAdmin()
+    {
+        assertEquals(mockConsumerAdmin_, proxyPullSupplier_.MyAdmin());
+    }
 
-    public void testEmptyPull() throws Exception {
+    public void testConnect() throws Exception
+    {
         NullPullConsumer _pullConsumer = new NullPullConsumer();
 
-        supplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+    }
 
-        org.omg.CORBA.Object _object = supplier_.get_typed_supplier();
+    public void testEmptyPull() throws Exception
+    {
+        NullPullConsumer _pullConsumer = new NullPullConsumer();
+
+        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+
+        org.omg.CORBA.Object _object = proxyPullSupplier_.get_typed_supplier();
 
         String _objectAsString = _object.toString();
 
-        PullCoffee _pullCoffee = PullCoffeeHelper.narrow(getClientORB().string_to_object(_objectAsString));
+        PullCoffee _pullCoffee = PullCoffeeHelper.narrow(getClientORB().string_to_object(
+                _objectAsString));
 
         StringHolder _name = new StringHolder();
         IntHolder _minutes = new IntHolder();
@@ -91,27 +135,23 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase {
         assertFalse(_pullCoffee.try_drinking_coffee(_name, _minutes));
     }
 
-
-    public void testTryPullDrinkingCoffee() throws Exception {
+    public void testTryPullDrinkingCoffee() throws Exception
+    {
         TypedEventMessage _mesg = new TypedEventMessage();
 
-        _mesg.setTypedEvent(PullCoffeeHelper.id(),
-                            DRINKING_COFFEE_ID,
-                            new Property[] {
-                                new Property("name", toAny("jacorb")),
-                                new Property("minutes", toAny(10))
-                            });
+        _mesg.setTypedEvent(PullCoffeeHelper.id(), DRINKING_COFFEE_ID, new Property[] {
+                new Property("name", toAny("jacorb")), new Property("minutes", toAny(10)) });
 
         NullPullConsumer _pullConsumer = new NullPullConsumer();
 
-        supplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
 
-        org.omg.CORBA.Object _object = supplier_.get_typed_supplier();
+        org.omg.CORBA.Object _object = proxyPullSupplier_.get_typed_supplier();
 
         String _objectAsString = _object.toString();
 
-        PullCoffee _pullCoffee =
-            PullCoffeeHelper.narrow(getClientORB().string_to_object(_objectAsString));
+        PullCoffee _pullCoffee = PullCoffeeHelper.narrow(getClientORB().string_to_object(
+                _objectAsString));
 
         StringHolder _name = new StringHolder();
         IntHolder _minutes = new IntHolder();
@@ -124,35 +164,33 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase {
         assertEquals(10, _minutes.value);
     }
 
-
-    public void testPullDrinkingCoffee() throws Exception {
+    public void testPullDrinkingCoffee() throws Exception
+    {
         TypedEventMessage _mesg = new TypedEventMessage();
 
-        _mesg.setTypedEvent(PullCoffeeHelper.id(),
-                            DRINKING_COFFEE_ID,
-                            new Property[] {
-                                new Property("name", toAny("jacorb")),
-                                new Property("minutes", toAny(10))
-                            });
+        _mesg.setTypedEvent(PullCoffeeHelper.id(), DRINKING_COFFEE_ID, new Property[] {
+                new Property("name", toAny("jacorb")), new Property("minutes", toAny(10)) });
 
         NullPullConsumer _pullConsumer = new NullPullConsumer();
 
-        supplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
+        proxyPullSupplier_.connect_typed_pull_consumer(_pullConsumer._this(getORB()));
 
-        org.omg.CORBA.Object _object = supplier_.get_typed_supplier();
+        org.omg.CORBA.Object _object = proxyPullSupplier_.get_typed_supplier();
 
         String _objectAsString = _object.toString();
 
-        final PullCoffee _pullCoffee =
-            PullCoffeeHelper.narrow(getClientORB().string_to_object(_objectAsString));
+        final PullCoffee _pullCoffee = PullCoffeeHelper.narrow(getClientORB().string_to_object(
+                _objectAsString));
 
         final StringHolder _name = new StringHolder();
         final IntHolder _minutes = new IntHolder();
 
         final Latch _latch = new Latch();
 
-        new Thread() {
-            public void run() {
+        new Thread()
+        {
+            public void run()
+            {
                 _pullCoffee.drinking_coffee(_name, _minutes);
                 _latch.release();
             }
@@ -166,20 +204,20 @@ public class TypedProxyPullSupplierImplTest extends NotificationTestCase {
         assertEquals(10, _minutes.value);
     }
 
-
-    public static Test suite() throws Exception {
+    public static Test suite() throws Exception
+    {
         return NotificationTestCase.suite(TypedProxyPullSupplierImplTest.class);
     }
 }
 
-class NullPullConsumer extends PullConsumerPOA {
-
-    public void offer_change(EventType[] eventTypeArray,
-                             EventType[] eventTypeArray1) throws InvalidEventType {
-
+class NullPullConsumer extends PullConsumerPOA
+{
+    public void offer_change(EventType[] eventTypeArray, EventType[] eventTypeArray1)
+            throws InvalidEventType
+    {
     }
 
-    public void disconnect_pull_consumer() {
-
+    public void disconnect_pull_consumer()
+    {
     }
 }

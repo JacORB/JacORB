@@ -21,20 +21,18 @@ package org.jacorb.test.notification.queue;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.queue.AbstractBoundedEventQueue;
-import org.jacorb.notification.queue.BoundedFifoEventQueue;
-import org.jacorb.notification.queue.EventQueueOverflowStrategy;
-import org.jacorb.test.notification.MockMessage;
-
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import java.util.ArrayList;
+
+import org.easymock.MockControl;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.queue.BoundedFifoEventQueue;
+import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 
 /**
  * @author Alphonse Bendt
@@ -42,122 +40,92 @@ import java.util.ArrayList;
 
 public class BoundedFifoEventQueueTest extends TestCase
 {
-    public BoundedFifoEventQueueTest (String name)
+    public BoundedFifoEventQueueTest(String name)
     {
         super(name);
     }
 
-    private void addEventsToEventQueue(EventQueueOverflowStrategy strategy,
-                                       List events) {
-
+    private void addEventsToEventQueue(EventQueueOverflowStrategy strategy, List events)
+    {
         BoundedFifoEventQueue queue = new BoundedFifoEventQueue(4, strategy);
 
         Iterator i = events.iterator();
 
-        while (i.hasNext()) {
-            queue.put((Message)i.next());
+        while (i.hasNext())
+        {
+            queue.put((Message) i.next());
         }
     }
 
-
-    public void testFIFOOverflow() throws Exception {
-
-        final SynchronizedInt called = new SynchronizedInt(0);
-
-        final List removedEvents = new ArrayList();
-
-        EventQueueOverflowStrategy strategy = new
-            EventQueueOverflowStrategy() {
-                public Message removeElementFromQueue(AbstractBoundedEventQueue queue) {
-                    called.increment();
-
-                    Message e =
-                        EventQueueOverflowStrategy.FIFO.removeElementFromQueue(queue);
-
-                    removedEvents.add(e);
-
-                    return e;
-                }
-            };
-
+    public void testFIFOOverflow() throws Exception
+    {
+        DelegatingOverflowStrategy strategy = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.FIFO);
+        
         List _events = new ArrayList();
 
-        Message e1 = new MockMessage().getHandle();
-        Message e2 = new MockMessage().getHandle();
+        Message mockMessage1 = newMessage();
+
+        Message mockMessage2 = newMessage();
+
+        _events.add(mockMessage1);
+
+        _events.add(mockMessage2);
+
+        _events.add(newMessage());
+
+        _events.add(newMessage());
+
+        _events.add(newMessage());
+
+        _events.add(newMessage());
+
+        addEventsToEventQueue(strategy, _events);
+
+        assertEquals(2, strategy.getRemovedElements().size());
+
+        assertTrue(strategy.getRemovedElements().contains(mockMessage1));
+
+        assertTrue(strategy.getRemovedElements().contains(mockMessage2));
+    }
+
+    public void testLIFOOverflow() throws Exception
+    {
+        DelegatingOverflowStrategy strategy = new DelegatingOverflowStrategy(EventQueueOverflowStrategy.LIFO);
+        
+        List _events = new ArrayList();
+
+        _events.add(newMessage());
+
+        _events.add(newMessage());
+
+        _events.add(newMessage());
+
+        Message e1 = newMessage();
+
+        Message e2 = newMessage();
 
         _events.add(e1);
 
         _events.add(e2);
 
-        _events.add(new MockMessage().getHandle());
-
-        _events.add(new MockMessage().getHandle());
-
-        _events.add(new MockMessage().getHandle());
-
-        _events.add(new MockMessage().getHandle());
+        _events.add(newMessage());
 
         addEventsToEventQueue(strategy, _events);
 
-        assertEquals(2, called.get());
+        assertEquals(2, strategy.getRemovedElements().size());
 
-        assertEquals(2, removedEvents.size());
+        assertTrue(strategy.getRemovedElements().contains(e1));
 
-        assertTrue(removedEvents.contains(e1));
-
-        assertTrue(removedEvents.contains(e2));
+        assertTrue(strategy.getRemovedElements().contains(e2));
     }
 
-    public void testLIFOOverflow() throws Exception {
-
-        final SynchronizedInt called = new SynchronizedInt(0);
-
-        final List removedEvents = new ArrayList();
-
-        EventQueueOverflowStrategy strategy = new
-            EventQueueOverflowStrategy() {
-                public Message removeElementFromQueue(AbstractBoundedEventQueue queue) {
-                    called.increment();
-
-                    Message e =
-                        EventQueueOverflowStrategy.LIFO.removeElementFromQueue(queue);
-
-                    removedEvents.add(e);
-
-                    return e;
-                }
-            };
-
-        List _events = new ArrayList();
-
-        _events.add(new MockMessage("#1").getHandle());
-
-        _events.add(new MockMessage("#2").getHandle());
-
-        _events.add(new MockMessage("#3").getHandle());
-
-        Message e1 = new MockMessage("#4").getHandle();
-
-        Message e2 = new MockMessage("#5").getHandle();
-
-        _events.add(e1);
-
-        _events.add(e2);
-
-        _events.add(new MockMessage("#6").getHandle());
-
-        addEventsToEventQueue(strategy, _events);
-
-        assertEquals(2, called.get());
-
-        assertEquals(2, removedEvents.size());
-
-        assertTrue(removedEvents.contains(e1));
-
-        assertTrue(removedEvents.contains(e2));
-
+    private Message newMessage()
+    {
+        MockControl controlMessage = MockControl.createControl(Message.class);
+        Message mockMessage = (Message) controlMessage.getMock();
+        controlMessage.replay();
+        return mockMessage;
     }
-
 
     public static Test suite()
     {
