@@ -1713,12 +1713,12 @@ public final class ORB
         implements org.omg.CORBA.portable.ValueFactory
     {
         private Class implementationClass;
-    
+
         public JacORBValueFactory (Class c)
         {
             implementationClass = c;
         }
-    
+
         public java.io.Serializable read_value
           (org.omg.CORBA_2_3.portable.InputStream is)
         {
@@ -1726,7 +1726,7 @@ public final class ORB
                 (StreamableValue)instantiate (implementationClass);
             return is.read_value(value);
         }
-    
+
     }
 
     /**
@@ -1901,6 +1901,22 @@ public final class ORB
         return list;
     }
 
+
+    /**
+     * <code>addObjectKey </code> is a proprietary method that allows the internal
+     * objectKeyMap to be altered programmatically. The objectKeyMap allows more
+     * readable corbaloc URLs by mapping the actual object key to an arbitary string.
+     * See the jacorb.properties file for mroe information.
+     *
+     * @param id a <code>String</code> value e.g. NameService
+     * @param result an <code>String</code> value e.g. file:/home/rnc/NameSingleton.ior
+     */
+    public void addObjectKey(String key_name, String full_path)
+    {
+        objectKeyMap.put(key_name, full_path);
+    }
+
+
     /**
      * Map an object key to another, as defined by the value
      * of a corresponding configuration property in the properties
@@ -1911,7 +1927,6 @@ public final class ORB
      * @return a <code>byte[]</code> value containing the mapped key, if a
      * mapping is defined, originalKey otherwise.
      */
-
     public byte[] mapObjectKey( byte[] originalKey )
     {
         BufferedReader br        = null;

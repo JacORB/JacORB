@@ -31,12 +31,15 @@ ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 ########################################
 
 # allow for more readable corbaloc URLs by mapping the
-# actual object key to an arbitrary string the mapping
+# actual object key to an arbitrary string. The mapping
 # below would permit clients of a name service to
 # access it using corbaloc::ipaddress:portnum/NameService
 # Note: it is NOT necessary to define this property for
 # the name service here because this is done already in the
-# code of the ns implementation
+# code of the ns implementation.
+# This mapping can be altered programatically by the proprietary
+# function ORB::addObjectKey(NameService, file:/home/rnc/NameSingleton.ior)
+#
 # The property also accepts the following mappings:
 # IOR, resource, jndi, URL (e.g. file, http)
 # examples:
