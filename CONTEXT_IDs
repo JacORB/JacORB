@@ -1,17 +1,14 @@
-#
-# List of Service Context IDs used in JacORB
-# (OMG-assigned range for JacORB: 
-#
-#   1 VMCID           0x4A430xxx               ("JC\x00\x00" - "JC\x0f\xff")
-#  16 ORB type IDs    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
-#  16 profile tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
-#  16 service tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
-#  16 component IDs   0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
-#
+List of Service Context IDs used in JacORB
+(OMG-assigned range for JacORB: 
+
+   1 VMCID           0x4A430xxx               ("JC\x00\x00" - "JC\x0f\xff")
+  16 ORB type IDs    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
+  16 profile tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
+  16 service tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
+  16 component IDs   0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
+
+These values are defined in class org.jacaorb.orb.ContextID
 
 0x4A414301 - Padding Context (assigned by Nicolas, used in 
              org.jacorb.orb.connection.ServiceContextTransportingOutputStream)
 0x4A414302 - Target IOR Context (assigned by Sebastian, used in org.jacorb.proxy.*)
-
-
-
