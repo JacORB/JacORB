@@ -51,6 +51,7 @@ import java.util.*;
 
 public class lexer
 {
+    private static org.apache.log.Logger logger = parser.getLogger();
 
     /** First and second character of lookahead. */
     protected static int next_char;
@@ -343,15 +344,15 @@ public class lexer
 
     public static void define( String symbol, String value )
     {
-        if( parser.getLogger().isDebugEnabled() )
-            parser.getLogger().debug( "Defining: " + symbol + " as " + value );
+        if( logger.isDebugEnabled() )
+            logger.debug( "Defining: " + symbol + " as " + value );
         defines.put( symbol, value );
     }
 
     public static void undefine( String symbol )
     {
-        if( parser.getLogger().isDebugEnabled() )
-            parser.getLogger().debug( "Un-defining: " + symbol );
+        if( logger.isDebugEnabled() )
+            logger.debug( "Un-defining: " + symbol );
         defines.remove( symbol );
     }
 
@@ -415,7 +416,9 @@ public class lexer
             current_position = 1;
             line = new StringBuffer();
         }
-        //System.out.println("advance. next_char is " + next_char + " (" + (char)next_char + ")");
+
+        if( logger.isDebugEnabled() )
+            logger.debug("Lexer.advance() next_char is " + next_char + " (" + (char)next_char + ")");
     }
 
 
@@ -453,10 +456,12 @@ public class lexer
     }
 
 
-    /** Emit a warning message.  The message will be marked with both the
+    /** 
+     *  Emit a warning message.  The message will be marked with both the
      *  current line number and the position in the line.  Messages are
      *  printed on standard error (System.err).
-     * @param message the message to print.
+     *  
+     *  @param message the message to print.
      */
 
     public static void emit_warn( String message )
@@ -721,8 +726,8 @@ public class lexer
                     if( brackets )
                     {
                         swallow_whitespace();
-                        if( parser.getLogger().isDebugEnabled() )
-                            parser.getLogger().debug( "next char: " + next_char );
+                        if( logger.isDebugEnabled() )
+                            logger.debug( "next char: " + next_char );
 
                         if( ')' != next_char )
                         {
@@ -987,8 +992,8 @@ public class lexer
         }
 
         // check if it's a keyword
-//          if( parser.getLogger().isInfoEnabled() )
-//              parser.getLogger().info( "Advancing after symbol " + result_str );
+//          if( logger.isInfoEnabled() )
+//              logger.info( "Advancing after symbol " + result_str );
 
         keyword_num = (Integer)keywords.get( result_str );
         if( keyword_num != null )
@@ -1039,8 +1044,8 @@ public class lexer
     public static String checkIdentifier( String str )
     {
 
-        if( parser.getLogger().isInfoEnabled() )
-            parser.getLogger().info( "checking identifier " + str );
+        if( logger.isInfoEnabled() )
+            logger.info( "checking identifier " + str );
 
         /* if it is an escaped identifier, look it up as a keyword,
            otherwise remove the underscore. */
@@ -1100,8 +1105,8 @@ public class lexer
     public static boolean needsJavaEscape( Module m )
     {
         String s = m.pack_name;
-        if( parser.getLogger().isDebugEnabled() )
-            parser.getLogger().debug( "checking module name " + s );
+        if( logger.isDebugEnabled() )
+            logger.debug( "checking module name " + s );
         return ( strictJavaEscapeCheck( s ) );
     }
 
@@ -1206,13 +1211,18 @@ public class lexer
                 }
 
                 /* leading L for wide strings */
-                if( next_char == 'L' && next_char2 == '\"' )
+                if( next_char == 'L' && ( next_char2 =='\"' || next_char2 =='\'') )
                 {
-                    advance();
-                    advance();
                     wide = true;
-                    in_string = true;
-                    return new token( sym.LDBLQUOTE );
+                    advance();
+                    if( next_char2 == '\"' )
+                    {
+                        advance();
+                        in_string = true;
+                        return new token( sym.LDBLQUOTE );
+                    }
+                    // wide char literal may follow, but detecting that
+                    // is done below.
                 }
 
                 /* look for Shifts  */
