@@ -56,7 +56,7 @@ public class Client
                 new AMI_AsyncServerHandlerImpl()._this(orb);
 
             System.out.println ("* sending async...");
-            ((_AsyncServerStub)s).sendc_operation (h, 2, 3);
+            ((_AsyncServerStub)s).sendc_op2 (h, 2);
             System.out.println ("* ...done.  Waiting for reply...");
             
             try
