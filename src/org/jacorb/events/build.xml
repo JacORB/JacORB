@@ -14,7 +14,7 @@
 	<property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
 	<property name="src" value="${dirs.base}/src"/>
 	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
+	<property name="idl" value="${dirs.base}/idl"/>
         <taskdef name="jacidl"
                  classname="org.jacorb.idl.JacIDL"
                  classpath="${basedir}/classes"/>
@@ -40,7 +40,7 @@
 
     <target name="com">
         <jacidl generateir="true"
-                srcdir="${include}/omg"
+                srcdir="${idl}/omg"
                 packageprefix="org.omg"
                 destdir="${src}/generated"
                 includes="CosEventComm.idl"/>
@@ -48,16 +48,17 @@
 
     <target name="admin">
         <jacidl generateir="true"
-                srcdir="${include}/omg"
+                srcdir="${idl}/omg"
+                packageprefix="org.omg"
                 destdir="${src}/generated"
-                includepath="${include}/omg"
+                includepath="${idl}/omg"
                 includes="CosEventChannelAdmin.idl"/>
     </target>
 
    <target name="jacorbeventidl">
-        <jacidl srcdir="${include}/jacorb"
+        <jacidl srcdir="${idl}/jacorb"
                 destdir="${src}/generated"
-                includepath="${include}/omg"
+                includepath="${idl}/omg"
                 includes="channel.idl"/>
    </target>
 
