@@ -93,9 +93,17 @@ public class CDROutputStream
      */
     private Map codebaseMap = new HashMap();
 
-    /** remember the starting position of a chunk. Since chunks are not nested,
-        only one variable is needed */
-    private int chunk_start = -1;
+    /** Remembers the starting position of the current chunk. */
+    private int chunk_size_tag_pos = -1;   // -1 means we're not within a chunk
+    private int chunk_size_tag_index;
+    private int chunk_octets_pos;
+
+    /** Nesting level of chunked valuetypes */
+    private int valueNestingLevel = 0;
+
+    /** The chunking flag is either 0 (no chunking) or 0x00000008 (chunking),
+        to be bitwise or'ed into value tags. */
+    private int chunkingFlag = 0; 
 
     private static boolean useBOM = false;
     private static boolean useIndirection = true;
@@ -986,7 +994,7 @@ public class CDROutputStream
 
     public final void write_float (final float value)
     {
-        write_long (Float.floatToIntBits(value));
+        write_long(Float.floatToIntBits(value));
     }
 
     public final void write_float_array
@@ -1915,7 +1923,7 @@ public class CDROutputStream
     {
         if (!write_special_value (value))
             write_value_internal (value,
-                                  RepositoryID.repId (value.getClass()));
+                                  ValueHandler.getRMIRepositoryID (value.getClass()));
     }
 
     public void write_value (final java.io.Serializable value,
@@ -1924,16 +1932,19 @@ public class CDROutputStream
         if (!write_special_value (value))
         {
             valueMap.put (value, new Integer(pos));
+            write_previous_chunk_size();
             if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
                 (value instanceof java.lang.String))
-                write_long (0x7fffff00);
+                write_long (0x7fffff00 | chunkingFlag);
             else
             {
                 // repository id is required for RMI: types
-                write_long (0x7fffff02);
+                write_long (0x7fffff02 | chunkingFlag);
                 write_repository_id (RepositoryID.repId (value.getClass()));
             }
+            start_chunk();
             factory.write_value (this, value);
+            end_chunk();
         }
     }
 
@@ -1943,7 +1954,7 @@ public class CDROutputStream
         if (!write_special_value (value))
         {
             Class c = value.getClass();
-	    String repId = RepositoryID.repId (c);
+	    String repId = ValueHandler.getRMIRepositoryID(c);
             if (c == clz && !repId.startsWith("RMI:"))
 		// the repository id is required for "RMI:" valuetypes
                 write_value_internal (value, null);
@@ -2056,28 +2067,29 @@ public class CDROutputStream
      */
     private void write_value_header (final String[] repository_ids)
     {
+        write_previous_chunk_size();
         if (repository_ids != null)
         {
             if( repository_ids.length > 1 )
             {
                 // truncatable value type, must use chunking!
 
-                write_long (0x7fffff06); // | 0x7fffff08 );
+                chunkingFlag = 0x00000008;
+                write_long (0x7fffff06 | chunkingFlag);
                 write_long( repository_ids.length );
                 for( int i = 0; i < repository_ids.length; i++ )
                 {
                     write_repository_id (repository_ids[i]);
                 }
-                // start_chunk();
             }
             else
             {
-                write_long (0x7fffff02);
+                write_long (0x7fffff02 | chunkingFlag);
                 write_repository_id (repository_ids[0]);
             }
         }
         else
-            write_long (0x7fffff00);
+            write_long (0x7fffff00 | chunkingFlag);
     }
 
     /**
@@ -2090,13 +2102,15 @@ public class CDROutputStream
     {
 	if (codebase != null)
 	{
+            write_previous_chunk_size();
 	    if ( repository_ids != null )
 	    {
                 if( repository_ids.length > 1 )
                 {
                     // truncatable value type, must use chunking!
 
-                    write_long ( 0x7fffff07 ); // | 0x7fffff08 );
+                    chunkingFlag = 0x00000008;
+                    write_long (0x7fffff07 | chunkingFlag);
                     write_codebase(codebase);
                     write_long( repository_ids.length );
 
@@ -2104,18 +2118,17 @@ public class CDROutputStream
                     {
                         write_repository_id (repository_ids[i]);
                     }
-                    // start_chunk();
                 }
                 else
                 {
-                    write_long (0x7fffff03);
+                    write_long (0x7fffff03 | chunkingFlag);
                     write_codebase(codebase);
                     write_repository_id (repository_ids[0]);
                 }
 	    }
 	    else
 	    {
-		write_long (0x7fffff01);
+                write_long (0x7fffff01 | chunkingFlag);
 		write_codebase(codebase);
 	    }
 	}
@@ -2138,43 +2151,96 @@ public class CDROutputStream
         valueMap.put (value, new Integer(pos));
 
         if (value.getClass() == String.class)
-	{
+        {
             // special handling for strings required according to spec
-	    String[] repository_ids =
-		(repository_id == null) ? null : new String[]{ repository_id };
-	    write_value_header( repository_ids );
-	    write_wstring((String)value);
-	}
+            String[] repository_ids =
+                (repository_id == null) ? null : new String[]{ repository_id };
+            write_value_header( repository_ids );
+            start_chunk();
+            write_wstring((String)value);
+            end_chunk();
+        }
         else if (value instanceof org.omg.CORBA.portable.StreamableValue)
-	{
+        {
             org.omg.CORBA.portable.StreamableValue streamable =
                 (org.omg.CORBA.portable.StreamableValue)value;
 
-	    write_value_header( streamable._truncatable_ids() );
+            write_value_header( streamable._truncatable_ids() );
+            start_chunk();
             ((org.omg.CORBA.portable.StreamableValue)value)._write(this);
-
-//              if( streamable._truncatable_ids().length() > 1 ) // truncatable -> chunked
-//                  end_chunk();
-	}
+            end_chunk();
+        }
         else
         {
-	    String[] repository_ids =
-		(repository_id == null) ? null : new String[]{ repository_id };
-	    String codebase =
-		ValueHandler.getCodebase(value.getClass());
-	    write_value_header( repository_ids, codebase );
-            ValueHandler.writeValue (this, value);
-	}
-    }
-
-    /**
-     * writes a value end tag to the marshalling stream, required
-     * after chunking was used.
-     */
-
-    private void write_end_tag( final java.io.Serializable value )
-    {
-        ;
+            String[] repository_ids =
+                (repository_id == null) ? null : new String[]{ repository_id };
+            Class cls = value.getClass();
+            String codebase = ValueHandler.getCodebase(cls);
+            if (value instanceof org.omg.CORBA.portable.IDLEntity)
+            {
+                java.lang.reflect.Method writeMethod = null;
+                if (cls != org.omg.CORBA.Any.class) 
+                {
+                    String helperClassName = cls.getName() + "Helper";
+                    
+                    try 
+                    {
+                        Class helperClass = 
+                            cls.getClassLoader().loadClass(helperClassName);
+                        Class[] paramTypes = 
+                            { org.omg.CORBA.portable.OutputStream.class, cls };
+                        writeMethod = helperClass.getMethod("write", paramTypes);
+                    }
+                    catch (ClassNotFoundException e) 
+                    {
+                        throw new org.omg.CORBA.MARSHAL(
+                                "Error loading class " + helperClassName 
+                                + ": " + e);
+                    }
+                    catch (NoSuchMethodException e) 
+                    {
+                        throw new org.omg.CORBA.MARSHAL(
+                                "No write method in helper class " 
+                                + helperClassName + ": " + e);
+                    }
+                }
+                write_value_header( repository_ids, codebase );
+                start_chunk();
+                if (writeMethod == null) 
+                {
+                    write_any((org.omg.CORBA.Any)value);
+                }
+                else 
+                {
+                    try 
+                    {
+                        writeMethod.invoke(null, new Object[] { this, value });
+                    }
+                    catch (IllegalAccessException e) 
+                    {
+                        throw new org.omg.CORBA.MARSHAL("Internal error: " + e);
+                    }
+                    catch (java.lang.reflect.InvocationTargetException e) 
+                    {
+                        throw new org.omg.CORBA.MARSHAL(
+                                "Exception marshaling IDLEntity: " 
+                                + e.getTargetException());
+                    }
+                }
+                end_chunk();
+                
+            }
+            else
+            {
+                if (ValueHandler.isCustomMarshaled(cls))
+                    chunkingFlag = 0x00000008;
+                write_value_header( repository_ids, codebase );
+                start_chunk();
+                ValueHandler.writeValue (this, 
+                                         ValueHandler.writeReplace(value));
+                end_chunk();
+            }
+        }
     }
 
     /**
@@ -2183,43 +2249,80 @@ public class CDROutputStream
 
     private void start_chunk()
     {
-        // end any previous chunk that may still be open
-        if( chunk_start != -1 )
+        if (chunkingFlag > 0) 
         {
-            end_chunk();
+            write_previous_chunk_size();
+            valueNestingLevel++;
+            skip_chunk_size_tag();
         }
-
-        // remeber where we are right now,
-        chunk_start = pos;
-        write_long( 0 ); // insert four bytes here as a place-holder
-                                 // need to go back later and insert size
     }
-
-    /**
-     * ends the current chunk, writes the chunk size to the chunk
-     * header
-     */
 
     private void end_chunk()
     {
-        if( chunk_start != -1 )
+        if (chunkingFlag > 0) 
         {
-            int current_pos = pos;
-            int current_idx = index;
-
-            // go to the beginning of the chunk and insert the chunk size
-            pos = chunk_start;
-            write_long( current_pos - chunk_start );
-
-            pos = current_pos;
-            index = current_idx;
-
-            chunk_start = -1;
+            write_previous_chunk_size();
+            write_long(-valueNestingLevel); 
+            if ( --valueNestingLevel == 0 ) 
+            {
+                // ending chunk for outermost value
+                chunkingFlag = 0;
+            }
+            else 
+            {
+                // start continuation chunk for outer value
+                skip_chunk_size_tag();
+            }
         }
- //         else
-//              throw new java.lang.RuntimeError( "Internal error, trying to end a chunk without there being one!");
     }
 
+
+    /**
+     * writes the chunk size to the header of the previous chunk
+     */
+    private void write_previous_chunk_size()
+    {
+        if( chunk_size_tag_pos != -1 )
+        {
+            if ( pos == chunk_octets_pos)
+            {
+                // empty chunk: erase chunk size tag
+                pos = chunk_size_tag_pos;      // the tag will be overwritten
+                index = chunk_size_tag_index;  //            by subsequent data
+            }
+            else 
+            {
+                // go to the beginning of the chunk and write the size tag
+
+                // check(7, 4); // DO NOT align to a 4-byte boundary
+
+                int current_pos = pos;
+                int current_idx = index;
+                
+                pos = chunk_size_tag_pos;
+                index = chunk_size_tag_index;
+                write_long( current_pos - chunk_octets_pos );
+                
+                pos = current_pos;
+                index = current_idx;
+                
+            }
+            chunk_size_tag_pos = -1; // no chunk is currently open
+        }
+    }
+
+    private void skip_chunk_size_tag()
+    {
+        // remember where we are right now, 
+        chunk_size_tag_pos = pos;
+        chunk_size_tag_index = index;
+
+        // insert four bytes here as a place-holder
+        write_long( 0 ); // need to go back later and write the actual size
+
+        // remember starting position of chunk data
+        chunk_octets_pos = pos;
+    }
 
     /**
      * Writes an abstract interface to this stream. The abstract interface is
