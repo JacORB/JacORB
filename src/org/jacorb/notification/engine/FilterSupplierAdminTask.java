@@ -31,10 +31,13 @@ package org.jacorb.notification.engine;
 
 public class FilterSupplierAdminTask extends AbstractFilterTask
 {
+    private static int COUNT = 0;
+    private int id_ = ++COUNT;
+
     boolean skip_ = false;
 
-    public FilterSupplierAdminTask()
-    {
+    public String toString() {
+        return "[FilterSupplierAdminTask#" + id_ + "]";
     }
 
     public void setSkip( boolean skip )
@@ -44,6 +47,8 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
 
     public void reset()
     {
+        super.reset();
+
         skip_ = false;
     }
 
@@ -77,9 +82,8 @@ public class FilterSupplierAdminTask extends AbstractFilterTask
 
         if ( _forward )
         {
-            listOfFilterStageToBeProcessed_.addAll( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
+            addFilterStage( arrayCurrentFilterStage_[ 0 ].getSubsequentFilterStages() );
         }
-
 
         return _forward;
     }
