@@ -648,7 +648,7 @@ public class CDROutputStream
 
         if( (c & too_large_mask) != 0 )//Are there any 1s in the MSB?
         {
-            throw new org.omg.CORBA.MARSHAL(
+            throw new org.omg.CORBA.DATA_CONVERSION(
                 "char (" + c +
                 ") out of range for " +
                 CodeSet.csName( codeSet) );
