@@ -1255,7 +1255,8 @@ public class ImplementationRepositoryImpl
                                                              false ); //no ssl
 
                 GIOPConnection connection =
-                    new ClientGIOPConnection( transport,
+                    new ClientGIOPConnection( transport.get_server_profile(),
+                                              transport,
                                               request_listener,
                                               reply_listener,
                                               null);
@@ -1314,11 +1315,7 @@ public class ImplementationRepositoryImpl
 
         cm = ((org.jacorb.orb.ORB)orb).getClientConnectionManager ();
         address = new IIOPAddress (host, port);
-        connection = cm.getConnection
-        (
-            new IIOPProfile (address, object_key),
-            false
-        );
+        connection = cm.getConnection (new IIOPProfile (address, object_key));
 
         Debug.output(Debug.IMR | Debug.DEBUG1,
                      "Pinging " + host + " / " + port);
