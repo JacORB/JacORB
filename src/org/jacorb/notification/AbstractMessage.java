@@ -524,6 +524,9 @@ public abstract class AbstractMessage
             context.storeResult( _completePath, _ret);
         }
 
+        if (_ret == null) {
+            throw new EvaluationException("Could not resolve " + _completePath);
+        }
         return _ret;
     }
 
@@ -582,6 +585,10 @@ public abstract class AbstractMessage
             }
         }
 
+        if (_ret == null) {
+            throw new EvaluationException("Could not resolve " + _completeExpr);
+        }
+        
         return _ret;
     }
 
