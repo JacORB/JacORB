@@ -1,3 +1,5 @@
+package org.jacorb.util.threadpool;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,10 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.util.threadpool;
+
+import org.jacorb.util.Debug;
+import java.util.*;
+
 /**
  * ThreadPool.java
  *
@@ -28,8 +33,6 @@ package org.jacorb.util.threadpool;
  * @author Nicolas Noffke
  * $Id$
  */
-import org.jacorb.util.Debug;
-
 public class ThreadPool
 {
     private int max_threads = 0;
@@ -38,68 +41,87 @@ public class ThreadPool
     private int total_threads = 0;
     private int idle_threads = 0;
 
-    private ThreadPoolQueue job_queue = null;
+    private LinkedList job_queue = null;
     private ConsumerFactory factory = null;
 
-    public ThreadPool( ConsumerFactory factory ) 
+    public ThreadPool( ConsumerFactory factory )
     {
-        this( new LinkedListQueue(),
-              factory, 
+        this( new LinkedList (),
+              factory,
               10,
               10 );
     }
 
     public ThreadPool( ConsumerFactory factory,
                        int max_threads,
-                       int max_idle_threads) 
+                       int max_idle_threads)
     {
-        this.job_queue = new LinkedListQueue();
-        this.factory = factory;
-        this.max_threads = max_threads;
-        this.max_idle_threads = max_idle_threads;        
+        this
+        (
+            new LinkedList (),
+            factory,
+            max_threads,
+            max_idle_threads
+        );
     }
 
-    public ThreadPool( ThreadPoolQueue job_queue,
-                       ConsumerFactory factory,
-                       int max_threads,
-                       int max_idle_threads) 
+    private ThreadPool( LinkedList job_queue,
+                        ConsumerFactory factory,
+                        int max_threads,
+                        int max_idle_threads)
     {
         this.job_queue = job_queue;
         this.factory = factory;
         this.max_threads = max_threads;
-        this.max_idle_threads = max_idle_threads;        
+        this.max_idle_threads = max_idle_threads;
     }
 
     protected synchronized Object getJob()
     {
         /*
          * This tells the newly idle thread to exit,
-         * because there are already too much idle 
+         * because there are already too much idle
          * threads.
          */
         if (idle_threads >= max_idle_threads)
         {
-            Debug.output( Debug.DEBUG1 | Debug.TOOLS,
-                          "(Pool)[" + idle_threads + "/" + total_threads + 
-                          "] Telling thread to exit (too many idle)" );
-            
+            if( Debug.isDebugEnabled() )
+            {
+                Debug.output
+                (
+                    2,
+                    "(Pool)[" + idle_threads + "/" + total_threads +
+                    "] Telling thread to exit (too many idle)"
+                );
+            }
             total_threads--;
             return null;
         }
-    
+
         idle_threads++;
-    
-        Debug.output( Debug.DEBUG1 | Debug.TOOLS,
-                      "(Pool)[" + idle_threads + "/" + total_threads + 
-                      "] added idle thread" );
+
+        if( Debug.isDebugEnabled() )
+        {
+            Debug.output
+            (
+                2,
+                "(Pool)[" + idle_threads + "/" + total_threads + "] added idle thread"
+            );
+        }
 
         while( job_queue.isEmpty() )
         {
             try
             {
-                Debug.output( Debug.DEBUG1 | Debug.TOOLS,
-                              "(Pool)[" + idle_threads + "/" + total_threads + 
-                              "] job queue empty" );
+                if( Debug.isDebugEnabled() )
+                {
+                    Debug.output
+                    (
+                        2,
+                        "(Pool)[" + idle_threads + "/" + total_threads +
+                        "] job queue empty"
+                    );
+                }
                 wait();
             }
             catch( InterruptedException e )
@@ -110,10 +132,15 @@ public class ThreadPool
 
         idle_threads--;
 
-        Debug.output( Debug.DEBUG1 | Debug.TOOLS,
-                      "(Pool)[" + idle_threads + "/" + total_threads + 
-                      "] removed idle thread (job scheduled)" );
-
+        if( Debug.isDebugEnabled() )
+        {
+            Debug.output
+            (
+                2,
+                "(Pool)[" + idle_threads + "/" + total_threads +
+                "] removed idle thread (job scheduled)"
+            );
+        }
         return job_queue.removeFirst();
     }
 
@@ -121,8 +148,8 @@ public class ThreadPool
     {
         job_queue.add(job);
         notifyAll();
-    
-        if ((idle_threads == 0) && 
+
+        if ((idle_threads == 0) &&
             (total_threads < max_threads))
         {
             createNewThread();
@@ -131,10 +158,15 @@ public class ThreadPool
 
     private void createNewThread()
     {
-        Debug.output( Debug.DEBUG1 | Debug.TOOLS,
-                      "(Pool)[" + idle_threads + "/" + total_threads + 
-                      "] creating new thread" );
-
+        if( Debug.isDebugEnabled() )
+        {
+            Debug.output
+            (
+                2,
+                "(Pool)[" + idle_threads + "/" + total_threads +
+                "] creating new thread"
+            );
+        }
         Thread t = new Thread( new ConsumerTie( this, factory.create() ));
         t.setDaemon( true );
         t.start();
@@ -142,9 +174,3 @@ public class ThreadPool
         total_threads++;
     }
 } // ThreadPool
-
-
-
-
-
-
