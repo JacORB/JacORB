@@ -66,7 +66,7 @@ module CORBA
     // Note: this used to be 'completion_status' but was renamed to
     // CompletionStatus in the Java mapping
 
-    enum CompletionStatus {COMPLETED_YES, COMPLETED_NO, COMPLETED_MAYBE } ;
+    enum CompletionStatus {COMPLETED_YES, COMPLETED_NO, COMPLETED_MAYBE} ;
 
 #define ex_body { unsigned long minor; CompletionStatus completed;}
 	
@@ -97,7 +97,7 @@ module CORBA
     exception DATA_CONVERSION  ex_body;
     exception OBJECT_NOT_EXIST  ex_body;
     exception TRANSACTION_REQUIRED  ex_body;
-    exception TRANSACTION_ROLLBACK  ex_body;
+    exception TRANSACTION_ROLLEDBACK  ex_body;
     exception INVALID_TRANSACTION ex_body;
     exception INV_POLICY ex_body;
     exception CODESET_INCOMPATIBLE ex_body;
