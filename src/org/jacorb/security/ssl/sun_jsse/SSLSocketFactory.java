@@ -157,8 +157,6 @@ public class SSLSocketFactory
         throws IOException, UnknownHostException
     {       
         SSLSocket s = (SSLSocket)factory.createSocket( host, port );
-        String[] v3 = {"SSLv3"};
-	     s.setEnabledProtocols(v3);
         // Andrew T. Finnell
         // We need a way to enable the cipher suites that we would like to use
         // We should obtain these from the properties file
@@ -171,7 +169,7 @@ public class SSLSocketFactory
         {
             s.setEnabledProtocols(enabledProtocols);
         }
-
+        
         return s;
     }
 
@@ -232,7 +230,7 @@ public class SSLSocketFactory
             trustManagers = new TrustManager[] { trustManager };
         }
         
-        SSLContext ctx = SSLContext.getInstance( "SSLv3" );
+        SSLContext ctx = SSLContext.getInstance( "TLS" );
 
         ctx.init( (kmf == null)? null : kmf.getKeyManagers(), 
                   trustManagers, 
