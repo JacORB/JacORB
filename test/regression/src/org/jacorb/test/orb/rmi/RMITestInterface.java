@@ -74,4 +74,10 @@ public interface RMITestInterface
     public Object getZooValue()
             throws java.rmi.RemoteException;
 
+    public Object[] testReferenceSharingWithinArray(Object[] a)
+            throws java.rmi.RemoteException;
+
+    public java.util.Collection testReferenceSharingWithinCollection(
+            java.util.Collection c) throws java.rmi.RemoteException;
+
 }

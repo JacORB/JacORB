@@ -163,4 +163,26 @@ public class RMITestImpl
                        new Zoo("inner_zoo", "inner"));
     }
 
+    public Object[] testReferenceSharingWithinArray(Object[] a)
+        throws java.rmi.RemoteException
+    {
+        int n = a.length;
+        Object[] b = new Object[2 * n];
+        for (int i = 0; i < n; i++)
+            b[i + n] = b[i] = a[i];
+        return b;
+    }
+
+    public java.util.Collection testReferenceSharingWithinCollection(
+            java.util.Collection cin) throws java.rmi.RemoteException
+    {
+        java.util.Collection cout = new java.util.ArrayList(cin);
+        java.util.Iterator i = cin.iterator();
+        while (i.hasNext())
+        {
+            cout.add(i.next());
+        }
+        return cout;
+    }
+    
 }

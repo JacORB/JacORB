@@ -81,7 +81,10 @@ public class RMITest extends ClientServerTestCase
         suite.addTest( new RMITest( "test_vectorToValueArray", setup ));
         suite.addTest( new RMITest( "test_getException", setup ));
         suite.addTest( new RMITest( "test_getZooValue", setup ));
-
+        suite.addTest( new RMITest( "test_referenceSharingWithinArray",
+                                     setup ));
+        suite.addTest( new RMITest( "test_referenceSharingWithinCollection",
+                                     setup ));
         return setup;
     }
 
@@ -280,7 +283,7 @@ public class RMITest extends ClientServerTestCase
             assertEquals("#2", server.testException(2));
             try
             {
-                String boom = server.testException(-2);
+                server.testException(-2);
                 fail("NegativeArgumentException expected but not thrown.");
             }
             catch (NegativeArgumentException na)
@@ -290,7 +293,7 @@ public class RMITest extends ClientServerTestCase
             }
             try
             {
-                String boom = server.testException(-1);
+                server.testException(-1);
                 fail("NegativeArgumentException expected but not thrown.");
             }
             catch (NegativeArgumentException na)
@@ -423,6 +426,69 @@ public class RMITest extends ClientServerTestCase
                                  "returned by getZooValue",
                                  new Zoo("inner_zoo!", "inner")),
                          obj);
+        }
+        catch (java.rmi.RemoteException re)
+        {
+            throw new RuntimeException(re.toString());
+        }
+    }
+
+    public void test_referenceSharingWithinArray()
+    {
+        try
+        {
+            //System.out.println("testRefSharingWithinArray" + " -----------");
+            int n = 100;
+            Object[] original = new Object[n];
+            for (int i = 0; i < n; i++)
+            {
+                //original[i] = new Foo(100 + i, "foo array test");
+                original[i] = new Boo("t" + i, "boo array test");
+            }
+            Object[] echoedBack =
+                    server.testReferenceSharingWithinArray(original);
+            assertEquals(2 * n, echoedBack.length);
+
+            for (int i = 0; i < n; i++)
+            {
+                assertEquals(original[i], echoedBack[i]);
+                assertEquals(original[i], echoedBack[i + n]);
+                assertSame(echoedBack[i], echoedBack[i + n]);
+            }
+        }
+        catch (java.rmi.RemoteException re)
+        {
+            throw new RuntimeException(re.toString());
+        }
+    }
+
+    public void test_referenceSharingWithinCollection()
+    {
+        try
+        {
+            //System.out.println("testRefSharingWithinCollection" + " ------");
+            java.util.Collection original = new java.util.ArrayList();
+            int n = 10;
+            for (int i = 0; i < n; i++)
+            {
+                original.add(new Foo(100 + i, "foo collection test"));
+                //original.add(new Boo("t" + i, "boo collection test"));
+            }
+            java.util.Collection echoedBack =
+                    server.testReferenceSharingWithinCollection(original);
+            assertEquals(2 * n, echoedBack.size());
+
+            java.util.ArrayList originalList = (java.util.ArrayList)original;
+            java.util.ArrayList echoedList = (java.util.ArrayList)echoedBack;
+
+
+            for (int i = 0; i < n; i++)
+            {
+                //System.out.println(echoedList.get(i).toString());
+                assertEquals(originalList.get(i), echoedList.get(i));
+                assertEquals(originalList.get(i), echoedList.get(i + n));
+                assertSame(echoedList.get(i), echoedList.get(i + n));
+            }
         }
         catch (java.rmi.RemoteException re)
         {
