@@ -69,11 +69,6 @@ public interface Transport
         throws IOException;
     
     /**
-     * Test, if the transport is using SSL.
-     */
-    public boolean isSSL();
-
-    /**
      * Get the statistics provider for transport usage statistics.
      */
     public StatisticsProvider getStatisticsProvider();
