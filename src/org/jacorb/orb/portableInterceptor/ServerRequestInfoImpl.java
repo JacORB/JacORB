@@ -184,8 +184,7 @@ public class ServerRequestInfoImpl
 
     public org.omg.CORBA.Object forward_reference() {
         if (! (caller_op != ServerInterceptorIterator.SEND_OTHER) ||
-            ((reply_status != LOCATION_FORWARD_PERMANENT.value) && 
-             (reply_status != LOCATION_FORWARD.value)))
+            (reply_status != LOCATION_FORWARD.value))
             throw new BAD_INV_ORDER("The attribute \"forward_reference\" is currently " +
                                     "invalid!", 10, CompletionStatus.COMPLETED_MAYBE);
 

@@ -28,12 +28,12 @@ module PortableInterceptor {
   typedef short ReplyStatus;
 
   // Valid reply_status values:
+
   const ReplyStatus SUCCESSFUL = 0;
   const ReplyStatus SYSTEM_EXCEPTION = 1;
   const ReplyStatus USER_EXCEPTION = 2;
   const ReplyStatus LOCATION_FORWARD = 3;
-  const ReplyStatus LOCATION_FORWARD_PERMANENT = 4;
-  const ReplyStatus TRANSPORT_RETRY = 5;
+  const ReplyStatus TRANSPORT_RETRY = 4;
 
   typedef unsigned long SlotId;
 
