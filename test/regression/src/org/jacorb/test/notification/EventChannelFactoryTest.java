@@ -1,20 +1,16 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jacorb.notification.EventChannelFactoryImpl;
+
 import org.omg.CORBA.ORB;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
-import org.jacorb.orb.util.CorbaLoc;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
- *  Unit Test for class EventChannelFactory
- *
- *
- * Created: Thu Jul 17 14:16:43 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -23,19 +19,33 @@ public class EventChannelFactoryTest
     extends TestCase {
 
     EventChannelFactoryImpl factory_;
+
     ORB orb;
 
+    ////////////////////////////////////////
+
+    public EventChannelFactoryTest (String name){
+        super(name);
+    }
+
+    ////////////////////////////////////////
+
     public void setUp() throws Exception {
+        super.setUp();
+
         factory_ = EventChannelFactoryImpl.newFactory();
         factory_.getEventChannelFactory();
         orb = ORB.init(new String[0], null);
     }
 
+
     public void tearDown() throws Exception {
         super.tearDown();
+
         factory_.dispose();
         orb.shutdown(true);
     }
+
 
     public void testGetCorbaLoc() throws Exception {
         String _corbaLoc = factory_.getCorbaLoc();
@@ -53,6 +63,7 @@ public class EventChannelFactoryTest
         assertFalse(factory._non_existent());
     }
 
+
     public void testGetIOR() throws Exception {
         String ior = factory_.getIOR();
 
@@ -69,18 +80,7 @@ public class EventChannelFactoryTest
         assertFalse(factory._non_existent());
     }
 
-    /**
-     * Creates a new <code>EventChannelFactoryTest</code> instance.
-     *
-     * @param name test name
-     */
-    public EventChannelFactoryTest (String name){
-        super(name);
-    }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
     public static TestSuite suite(){
         TestSuite suite =
             new TestSuite(EventChannelFactoryTest.class);
@@ -88,9 +88,7 @@ public class EventChannelFactoryTest
         return suite;
     }
 
-    /**
-     * Entry point
-     */
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(suite());
     }
