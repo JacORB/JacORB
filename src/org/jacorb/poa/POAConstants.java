@@ -55,5 +55,8 @@ public class POAConstants {
 	public static int DISCARDING = 2;
 	public static int INACTIVE = 3;
 	public static int DESTROYED = 4;
+
+   /* object key bit flags */
+   public static byte PERSISTENT = 0x01;
 }
 
