@@ -1205,7 +1205,9 @@ public final class Delegate
             {
                 // Retrieve the local stub for the object in question. Then call the _ids method
                 // and see if any match the logical_type_id otherwise fall back to remote.
-                String classname = RepositoryID.className( ids[0], "Stub", null );
+
+                String classname = RepositoryID.className( ids[0], "_Stub", null );
+                
                 int lastDot = classname.lastIndexOf( '.' );
                 StringBuffer scn = new StringBuffer( classname.substring( 0, lastDot + 1) );
                 scn.append( '_' );
@@ -1214,7 +1216,17 @@ public final class Delegate
                 // This will only work if there is a correspondence between the Java class
                 // name and the Repository ID. If prefixes have been using then this mapping
                 // may have been lost.
-                Class stub = ObjectUtil.classForName( scn.toString());
+
+                // First, search with stub name
+                // if not found, try with the 'org.omg.stub' prefix to support package
+                // with javax prefix
+                Class stub=null;
+                try {
+                    stub = ObjectUtil.classForName( scn.toString());
+                } catch (ClassNotFoundException e) {
+                    stub = ObjectUtil.classForName("org.omg.stub."+scn.toString());
+                }
+                
                 Method idm = stub.getMethod ( "_ids", (Class[]) null );
                 String newids[] = (String[] )idm.invoke( stub.newInstance(), (java.lang.Object[]) null );
 
