@@ -80,6 +80,7 @@ public class ClientServerSetup extends TestSetup {
     protected File                       ior;
     protected String                     servantName;
     protected Process                    serverProcess;
+    protected StreamListener             outListener, errListener;
     protected org.omg.CORBA.Object       serverObject;
     protected org.omg.CORBA.ORB          clientOrb;
     protected org.omg.PortableServer.POA clientRootPOA;
@@ -139,52 +140,19 @@ public class ClientServerSetup extends TestSetup {
 
         serverProcess = Runtime.getRuntime().exec( serverexec.toString() );
 
-        ior = new File
-        (
-            System.getProperty( "user.home" ) +
-            File.separatorChar +
-            "jacorbJunit.ior"
-        );
-        long finish = System.currentTimeMillis() + 20000;
-
-        // Wait till server is up (but with timeout of 20 seconds)
-        while ( !ior.exists() || System.currentTimeMillis() < finish )
-        {
-            Thread.sleep( 2000 );
-        }
-        if ( ! ior.exists() )
-        {
-            // Must have timed out
-            throw new RuntimeException ( "Spawn error - could not find ior" );
-        }
-        else
-        {
-            // Get the server ior.
-            BufferedReader br = new BufferedReader ( new FileReader( ior ) );
-
-            serverObject = clientOrb.string_to_object( br.readLine() );
-            br.close();
-        }
+        outListener = new StreamListener (serverProcess.getInputStream(),
+                                          "OUT");
+        errListener = new StreamListener (serverProcess.getErrorStream(),
+                                          "ERR");
+        outListener.start();
+        errListener.start();
+        String ior = outListener.getIOR();
+        serverObject = clientOrb.string_to_object(ior);         
     }
 
     public void tearDown() throws Exception
     {
-        InputStream serverErr = serverProcess.getErrorStream();
-        if (serverErr.available() > 0)
-        {
-            System.err.println("*** Server err: ***");
-            while (serverErr.available() > 0)
-                System.err.write(serverErr.read());
-        }
-        InputStream serverOut = serverProcess.getInputStream();
-        if (serverOut.available() > 0)
-        {
-            System.err.println("*** Server out: ***");
-            while (serverOut.available() > 0)
-                System.err.write(serverOut.read());
-        }
         serverProcess.destroy();
-        ior.delete();
     }
 
     public String getTestServerMain()
