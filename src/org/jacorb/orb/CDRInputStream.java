@@ -2287,7 +2287,12 @@ public class CDRInputStream
 
     public java.io.Serializable read_value(java.io.Serializable value)
     {
-        return read_value( value.getClass()); // GB: is that okay?
+        if (value instanceof org.omg.CORBA.portable.Streamable)
+        {
+            ((org.omg.CORBA.portable.Streamable)value)._read(this);
+            return value;
+        }
+        return read_value(value.getClass()); // GB: is that okay?
     }
 
     /**
@@ -2298,7 +2303,7 @@ public class CDRInputStream
     public java.io.Serializable read_value (final java.lang.Class clz)
     {
         int tag = read_long();
-	int start_offset = pos - 4;
+        int start_offset = pos - 4;
 
         if (tag == 0xffffffff)
         {
