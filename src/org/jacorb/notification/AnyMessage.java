@@ -210,4 +210,9 @@ public class AnyMessage extends AbstractMessage
     {
         throw new UnsupportedOperationException();
     }
+
+
+    public String toString() {
+        return anyValue_.toString();
+    }
 }
