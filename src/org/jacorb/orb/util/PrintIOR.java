@@ -22,6 +22,14 @@ package org.jacorb.orb.util;
 
 import org.jacorb.orb.connection.CodeSet;
 import org.jacorb.orb.ParsedIOR;
+import org.jacorb.orb.*;
+
+import org.omg.IOP.*;
+import org.omg.GIOP.*;
+import org.omg.IIOP.*;
+import org.omg.SSLIOP.*;
+import org.omg.CSIIOP.*;
+import org.omg.CONV_FRAME.*;
 
 import java.io.*;
 
@@ -32,6 +40,10 @@ import java.io.*;
 
 public class PrintIOR 
 {
+    /** 
+     * entry point from the command line
+     */
+
     public static void main(String args[])
     {
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
@@ -86,7 +98,12 @@ public class PrintIOR
 
     }
 
-    public static void printIOR(ParsedIOR pior, org.omg.CORBA.ORB orb)
+
+    /** 
+     * top-level 
+     */
+
+    public static void printIOR( ParsedIOR pior, org.omg.CORBA.ORB orb)
     {
         org.omg.IOP.IOR ior = pior.getIOR();
 
@@ -123,59 +140,169 @@ public class PrintIOR
             System.out.print("\tObject key (hex):    0x" );
             dumpHex( pior.get_object_key() );
             System.out.println();
+
             if ( pb.iiop_version.minor >= ( char ) 1 )
             {
-                org.omg.SSLIOP.SSL ssl =
-                    ParsedIOR.getSSLTaggedComponent ( pb );
-                if ( ssl != null )
-                {
-                    System.out.println("\tSSL Tagged Component :  " );
-                    int ssl_port = ssl.port;
-                    if( ssl_port < 0 ) 
-                        ssl_port += 65536;
+                if( pb.components.length > 0 )
+                    System.out.println("\t-- Found " + 
+                                       pb.components.length + 
+                                       " Tagged Components--" );
 
-                    System.out.print   ( "\t\ttarget_supports\t:\t" );
-                    dump               ( ssl.target_supports );
-                    java.lang.System.out.println();
-                    System.out.print   ( "\t\ttarget_requires\t:\t" );
-                    dump               ( ssl.target_requires );
-                    java.lang.System.out.println();
-                    System.out.println ( "\t\tSSL Port\t:\t" + ssl_port );
-                }
-                System.out.println("TAG_MULTIPLE_COMPONENTS Profiles:");
-                org.omg.CONV_FRAME.CodeSetComponentInfo codeSet = 
-                    pior.getCodeSetComponentInfo();
-                if( codeSet != null )
+                printTaggedComponents( pb.components );
+                String codebase = pior.getCodebaseComponent();
+                if( codebase != null )
                 {
-                    System.out.println("\tCodeSet Component Info:  " );
-                    System.out.println("\t\tForChar native code set Id: " +
-                                     CodeSet.csName(codeSet.ForCharData.native_code_set ));
-                    System.out.print("\t\tChar Conversion Code Sets: ");
-                    for( int ji = 0; ji < codeSet.ForCharData.conversion_code_sets.length; ji++ )
-                    {
-                        System.out.println( CodeSet.csName( 
-                                                codeSet.ForCharData.conversion_code_sets[ji] )+ ",");
-                       
-                    }
-                    System.out.println("\t\tForWChar native code set Id: " +
-                                     CodeSet.csName(codeSet.ForWcharData.native_code_set ));
-                    System.out.print("\t\tWChar Conversion Code Sets: ");
-                    for( int ji = 0; ji < codeSet.ForWcharData.conversion_code_sets.length; ji++ )
-                    {
-                        System.out.println( CodeSet.csName( 
-                                                codeSet.ForWcharData.conversion_code_sets[ji] ) + ",");
-                    } 
+                    System.out.println("\tJava Codebase Component:\n\t\t" + codebase);		
                 }
+                System.out.print("\n");
+
             }
-	    String codebase = pior.getCodebaseComponent();
-	    if( codebase != null )
-            {
-		System.out.println("\tJava Codebase Component:\n\t\t" + codebase);		
-	    }
             System.out.print("\n");
         }
-         orb.shutdown(true);
+        orb.shutdown(true);
     }
+
+    /**
+     * Iterates over a tagged IOP components and prints those that are
+     * recognized.
+     */
+
+    private static void printTaggedComponents( TaggedComponent[] taggedComponents )
+    {
+        for( int i = 0; i < taggedComponents.length; i++ )
+        {            
+            switch( taggedComponents[i].tag )
+            {
+                case TAG_SSL_SEC_TRANS.value:
+                    System.out.println("\t#"+ i + ": TAG_SSL_SEC_TRANS");
+                    printSSLTaggedComponent( taggedComponents[i] );
+                    break;
+                case TAG_CSI_SEC_MECH_LIST.value: 
+                    System.out.println("\t#"+ i + ": TAG_CSI_SEC_MECH_LIST");
+                    printCSIMechComponent( taggedComponents[i] );
+                    break;
+                case TAG_SECIOP_SEC_TRANS.value: 
+                    System.out.println("\t#"+ i + ": TAG_SECIOP_SEC_TRANS");
+                    break;
+                case TAG_ALTERNATIVE_IIOP_ADDRESS.value: 
+                    System.out.println("\t#"+ i + ": TAG_ALTERNATIVE_IIOP_ADDRESS");
+                    break;
+                case TAG_CODE_SETS.value:
+                    System.out.println("\t#"+ i + ": TAG_CODE_SETS");
+                    printCodeSetComponent( taggedComponents[i] );
+                    break;
+                default:             
+                    System.out.println("\tUnknown tag : " + 
+                                       taggedComponents[i].tag);
+            }
+        }
+    }
+
+    private static void printCSIMechComponent( TaggedComponent taggedComponent )
+    {
+        CDRInputStream is =
+            new CDRInputStream( (org.omg.CORBA.ORB)null, 
+                                taggedComponent.component_data);
+                
+        is.openEncapsulatedArray();
+        CompoundSecMechList csmList = CompoundSecMechListHelper.read( is ); 
+
+        if( csmList!= null )
+        {
+            System.out.println("\t\tis stateful: " + csmList.stateful );
+            for( int i = 0; i < csmList.mechanism_list.length; i++ )
+            {
+                System.out.println("\t\tCompoundSecMech #" + i);
+                System.out.println("\t\t\ttarget_requires: " + 
+                                   csmList.mechanism_list[i].target_requires );
+                System.out.print("\t\t\ttransport mechanism tag: ");
+                switch( csmList.mechanism_list[i].transport_mech.tag )
+                {
+                    case TAG_TLS_SEC_TRANS.value:
+                        System.out.println("TAG_TLS_SEC_TRANS");
+                        break;
+                    default:
+                        System.out.println("Unknown tag : " + 
+                                           csmList.mechanism_list[i].transport_mech.tag );
+                }
+                if( csmList.mechanism_list[i].as_context_mech.target_supports == 0 )
+                    System.out.println("\t\t\tNo AS_ContextSec Mechanism.: ");
+                else
+                    System.out.println("\t\t\tAS_ContextSec mech: " + 
+                                       new String( csmList.mechanism_list[i].as_context_mech.client_authentication_mech ));
+
+                        
+            }
+        }
+    }
+
+    private static void printCodeSetComponent( TaggedComponent taggedComponent )
+    {
+        CDRInputStream is =
+            new CDRInputStream( (org.omg.CORBA.ORB)null, 
+                                taggedComponent.component_data);
+                
+        is.openEncapsulatedArray();
+                
+        org.omg.CONV_FRAME.CodeSetComponentInfo codeSet = 
+            CodeSetComponentInfoHelper.read( is );           
+        
+        if( codeSet != null )
+        {
+            System.out.println("\t\tForChar native code set Id: " +
+                               CodeSet.csName(codeSet.ForCharData.native_code_set ));
+            System.out.print("\t\tChar Conversion Code Sets: ");
+            for( int ji = 0; ji < codeSet.ForCharData.conversion_code_sets.length; ji++ )
+            {
+                System.out.println( CodeSet.csName( 
+                                                   codeSet.ForCharData.conversion_code_sets[ji] )+ ",");
+                
+            }
+
+            System.out.println("\t\tForWChar native code set Id: " +
+                               CodeSet.csName(codeSet.ForWcharData.native_code_set ));
+            System.out.print("\t\tWChar Conversion Code Sets: ");
+            for( int ji = 0; ji < codeSet.ForWcharData.conversion_code_sets.length; ji++ )
+            {
+                System.out.println( CodeSet.csName( 
+                                                   codeSet.ForWcharData.conversion_code_sets[ji] ) + ",");
+            } 
+        }
+    }
+
+    private static void printSSLTaggedComponent( TaggedComponent taggedComponent )
+    {
+        org.omg.SSLIOP.SSL  ssl = null;
+        if( taggedComponent.tag == 20 ) 
+        {
+            CDRInputStream in =
+                new CDRInputStream( (org.omg.CORBA.ORB)null, 
+                                    taggedComponent.component_data );
+            try
+            {
+                in.openEncapsulatedArray();
+                ssl =  org.omg.SSLIOP.SSLHelper.read( in );
+            } 
+            catch ( Exception ex ) 
+            { 
+                return; 
+            }
+            int ssl_port = ssl.port;
+            if( ssl_port < 0 ) 
+                ssl_port += 65536;
+            
+            System.out.print   ( "\t\ttarget_supports\t:\t" );
+            dump               ( ssl.target_supports );
+            java.lang.System.out.println();
+            System.out.print   ( "\t\ttarget_requires\t:\t" );
+            dump               ( ssl.target_requires );
+            java.lang.System.out.println();
+            System.out.println ( "\t\tSSL Port\t:\t" + ssl_port );
+
+        }
+        
+    }
+
     
     public static void dumpHex(byte bs[])
     {
