@@ -1,3 +1,15 @@
+2005-03-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/UnionType.java, idl/ValueBoxDecl.java (printHelperClass):
+	Drop a superfluous semicolon, fixing bug #550.
+
+2005-03-04  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASClientInterceptor.java,
+	security/sas/SASTargetInterceptor.java: If Context Id not found in
+	ContextInMessage, send a ContextError with Major error code of 2
+	then Client will throw a ForwardRequest back to the object
+
 2005-03-02  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/ReplyReceiver.java (replyReceived): Grab pending_replies
