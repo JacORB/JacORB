@@ -37,7 +37,7 @@ public class BufferManager
     private static BufferManager singleton = new BufferManager();
 
     /** the buffer pool */
-    private Vector[] bufferPool;
+    private Stack[] bufferPool;
 
     /** the maximal buffer size managed since the buffer
 	pool is ordered by buffer size in log2 steps */
@@ -61,10 +61,12 @@ public class BufferManager
     private BufferManager()
     {
         MAX = Environment.getMaxManagedBufSize();
-	bufferPool = new Vector[ MAX ];
+	bufferPool = new Stack[ MAX ];
 
-	for( int i= MAX; i > 0; )
-	    bufferPool[--i]=new Vector();	
+	for( int i = 0; i < MAX; i++)
+        {
+	    bufferPool[ i ] = new Stack();	
+        }
     }
 
     public static BufferManager getInstance()
@@ -118,17 +120,13 @@ public class BufferManager
 	if( log >= MAX+MIN_OFFSET  )
 	    return new byte[initial];
 
-	Vector v = bufferPool[log > MIN_OFFSET ? log-MIN_OFFSET : 0 ];
+	Stack s = bufferPool[log > MIN_OFFSET ? log-MIN_OFFSET : 0 ];
 
-	if( ! v.isEmpty() )
+	if( ! s.isEmpty() )
 	{
 	    hits++;
-	    Object o = v.firstElement();
-	    v.removeElementAt(0);
-
+	    Object o = s.pop();
             byte[] result = (byte [])o;
-            // clear buffer contents
-            java.util.Arrays.fill( result, (byte)0 );
 	    return result;
 	}
 	else
@@ -154,10 +152,10 @@ public class BufferManager
 		return; // we don't keep anything bigger than 2**MAX
 	    }
 
-	    Vector v = bufferPool[ log_curr-MIN_OFFSET ];
-	    if( v.size() < THREASHOLD )
+	    Stack s = bufferPool[ log_curr-MIN_OFFSET ];
+	    if( s.size() < THREASHOLD )
 	    {
-		v.addElement( current );
+		s.push( current );
 	    }
 	}
     }
@@ -196,8 +194,5 @@ public class BufferManager
 	    System.out.println("log2down(" + l + "): " + log2down(l));
 	}
     }
-
-
 }
-
 
