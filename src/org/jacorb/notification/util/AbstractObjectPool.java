@@ -272,16 +272,6 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
     public void dispose()
     {
         deregisterPool( this );
-
-        if (logger_.isInfoEnabled() ) {
-            logger_.info(name_
-                         + " Stats: instanceCount="
-                         + instanceCount_
-                         + ", lend="
-                         + lendCount_
-                         + ", return="
-                         + returnCount_ );
-        }
     }
 
     /**
