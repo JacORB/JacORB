@@ -627,16 +627,11 @@ public class BasicAdapter
             {           
                 while( !done ) 
                 {
-                    byte [] buf = connection.readBuffer();
-                    
-                    // debug:
-                    //System.out.println("BasicAdapter: got Buffer");
-                    
-                    /* let the message-level interceptors do their job */
+                    byte[] buf = connection.readBuffer();
+
+                    Debug.output( 10, "Receive Request", buf );
 
                     int msg_type = buf[7];
-                    //if( Environment.serverInterceptMessages())
-                    //buf = ((org.jacorb.orb.ORB)orb).server_messageIntercept_pre( buf );
                     
                     switch( msg_type )
                     {
