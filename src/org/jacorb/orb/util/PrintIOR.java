@@ -25,8 +25,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
-import org.ietf.jgss.GSSManager;
-import org.ietf.jgss.GSSName;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.ORBConstants;
@@ -267,18 +265,12 @@ public class PrintIOR
                 System.out.print("\t\t\tAS_ContextSec mech: " );
                 dumpHex(csmList.mechanism_list[i].as_context_mech.client_authentication_mech);
                 System.out.println();
-                try {
-                    GSSManager gssManager = GSSManager.getInstance();
-                    GSSName myTarget = gssManager.createName(csmList.mechanism_list[i].as_context_mech.target_name, GSSName.NT_EXPORT_NAME);
-                    System.out.println("\t\t\tAS_ContextSec target_name: " + myTarget);
-                } catch (Exception e) {
-                    System.out.print("\t\t\tAS_ContextSec target_name: " );
-                    dumpHex(csmList.mechanism_list[i].as_context_mech.target_name);
-                    System.out.println();
-                }
-                //}
-                System.out.println("\t\t\tSAS_ContextSec target_supports: " + csmList.mechanism_list[i].sas_context_mech.target_supports );
-                System.out.println("\t\t\tSAS_ContextSec target_requires: " + csmList.mechanism_list[i].sas_context_mech.target_requires );
+				System.out.print("\t\t\tAS_ContextSec target_name: " );
+				dumpHex(csmList.mechanism_list[i].as_context_mech.target_name);
+				System.out.println();
+               //}
+				System.out.println("\t\t\tSAS_ContextSec target_supports: " + csmList.mechanism_list[i].sas_context_mech.target_supports );
+				System.out.println("\t\t\tSAS_ContextSec target_requires: " + csmList.mechanism_list[i].sas_context_mech.target_requires );
 
                 for (int j = 0; j < csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms.length; j++) {
                     System.out.print("\t\t\tSAS_ContextSec Naming mech: " );
