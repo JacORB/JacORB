@@ -29,6 +29,7 @@
 	<javac srcdir="${dirs.base}/demo/${name}/src"
                destdir="${classdir}"
 	       includes="**/*.java"
+	excludes="**/List*.java"
 	        />
    </target>
 
