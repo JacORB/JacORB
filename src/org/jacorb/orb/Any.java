@@ -487,17 +487,54 @@ public final class Any
         typeCode = (new org.omg.CORBA.FixedHolder(_value))._type();
     }
 
-    public void insert_fixed(java.math.BigDecimal _value, org.omg.CORBA.TypeCode type) 
-    // ??       throws org.omg.CORBA.BAD_INV_ORDER 
-    {
-        org.omg.CORBA.TypeCode tc = (new org.omg.CORBA.FixedHolder(_value))._type();
-        if ( ! type.equal( tc ) )
-        {
-           throw new BAD_TYPECODE("The TypeCode does not describe the fixed point type");
-        }
-        value = _value;
-        typeCode = type;
-    }
+   public void insert_fixed(java.math.BigDecimal _value,
+                            org.omg.CORBA.TypeCode type) 
+   // ??       throws org.omg.CORBA.BAD_INV_ORDER 
+   {
+       try
+       {
+          String val = _value.toString();
+          int extra = _value.scale() - type.fixed_scale();
+          if ( extra > 0 )
+          {
+             // truncate the value to fit the scale of the typecode
+             val = val.substring( 0, val.length() - extra );
+          }
+          else if ( extra < 0 )
+          {
+             StringBuffer sb = new StringBuffer (val);
+             
+             // add the decimal point if necessary
+             if ( val.indexOf('.') == -1 )
+             {
+                sb.append(".");
+             }
+             
+             // pad the value with zeros to fit the scale of the typecode
+             for ( int i = extra; i < 0; i++ )
+             {
+                sb.append("0");
+             }
+             val = sb.toString();
+          }
+          _value = new java.math.BigDecimal( val );
+          
+          org.omg.CORBA.FixedHolder holder =
+             new org.omg.CORBA.FixedHolder( _value );
+          org.omg.CORBA.TypeCode tc = holder._type();
+          
+          if ( tc.fixed_digits() > type.fixed_digits() )
+          {
+             throw new org.omg.CORBA.BAD_TYPECODE();
+          }
+       }
+       catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+       {
+          throw new org.omg.CORBA.BAD_TYPECODE();
+       }        
+       value = _value;
+       typeCode = type;
+   }
 
     public java.math.BigDecimal extract_fixed () 
     {
