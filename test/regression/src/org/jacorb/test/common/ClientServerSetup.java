@@ -104,6 +104,11 @@ public class ClientServerSetup extends TestSetup {
     {
         super ( test );
         this.servantName = servantName;
+        clientOrbProperties = new Properties();
+        clientOrbProperties.put ("org.omg.CORBA.ORBClass",
+                                 "org.jacorb.orb.ORB");
+        clientOrbProperties.put ("org.omg.CORBA.ORBSingletonClass",
+                                 "org.jacorb.orb.ORBSingleton");
     }
 
     public ClientServerSetup( Test test,
@@ -112,44 +117,30 @@ public class ClientServerSetup extends TestSetup {
                               Properties serverOrbProperties )
     {
         this( test, servantName );
-
-        this.clientOrbProperties = clientOrbProperties;
+        if (clientOrbProperties != null)
+            this.clientOrbProperties.putAll (clientOrbProperties);
         this.serverOrbProperties = serverOrbProperties;
     }
 
     public void setUp() throws Exception
     {
-        // Environment needs to be reset because subsequent tests
-        // reuse the same "instance" of the static Environment class.
-
-        //        org.jacorb.util.Environment.init();
-
         clientOrb = ORB.init (new String[0], clientOrbProperties );
         clientRootPOA = POAHelper.narrow
                           ( clientOrb.resolve_initial_references( "RootPOA" ) );
         clientRootPOA.the_POAManager().activate();
         
-        // Execing 'jaco' rather than 'jaco.bat' got file not found on win32.
-        // Running tests on win32 using the jaco.bat script orphans dozens 
-        // of java processes that don't get torn down when the test run completes.
-        StringBuffer serverexec;
-        if (System.getProperty("os.name").toLowerCase().indexOf("windows") == -1)
-        {
-            // Not windows. Continue to use jaco I guess.
-            serverexec = new StringBuffer( "jaco -Djacorb.implname=");
-            serverexec.append( servantName );
-            serverexec.append( " -classpath " );            
+        String jacorb_home = System.getProperty("jacorb.home");
+        boolean coverage = Boolean.valueOf(System.getProperty("jacorb.test.coverage", "false")).booleanValue();
+        
+        StringBuffer serverexec = new StringBuffer( "java -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton "); 
+        serverexec.append("-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB ");
+        if (coverage) {
+          serverexec.append ("-Demma.coverage.out.file=" + jacorb_home + "/test/regression/coverage/server.ec ");
         }
-        else
-        {
-            // Windows - use java.exe
-            serverexec = new StringBuffer( "java -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton "); 
-            serverexec.append("-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB ");
-            serverexec.append("-Djacorb.home=" + System.getProperty("jacorb.home") + " ");
-            serverexec.append("-Djacorb.implname=");
-            serverexec.append( servantName );
-            serverexec.append( " -Xbootclasspath:" );          
-        }
+        serverexec.append("-Djacorb.home=" + jacorb_home + " ");
+        serverexec.append("-Djacorb.implname=");
+        serverexec.append( servantName );
+        serverexec.append( " -Xbootclasspath/p:" );          
         serverexec.append( System.getProperty ("java.class.path") );
         serverexec.append( ' ' );
         serverexec.append( propsToCommandLineArgs( serverOrbProperties ) );
