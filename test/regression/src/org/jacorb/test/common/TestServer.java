@@ -83,7 +83,7 @@ public class TestServer
         catch( Exception e )
         {
             Debug.output( 1, e );
-            System.out.println( "ERROR: " + e );
+            Debug.output( 1, "ERROR: " + e );
         }
     }
 }
