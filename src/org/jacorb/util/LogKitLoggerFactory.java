@@ -289,10 +289,12 @@ public class LogKitLoggerFactory
         while (!prefix.equals(""))
         {
             String priorityString =
-            Environment.getProperty( prefix + ".log.verbosity");
+                Environment.getProperty( prefix + ".log.verbosity");
 
             if (priorityString != null)
             {
+                priorityString = priorityString.trim();
+
                 if (priorityString != null &&
                     priorityString.toUpperCase().equals("DEBUG"))
                 {
@@ -313,6 +315,7 @@ public class LogKitLoggerFactory
                 {
                     priorityString = "1";
                 }
+
                 return Integer.parseInt(priorityString);
             }
 
@@ -353,7 +356,7 @@ public class LogKitLoggerFactory
                 return org.apache.log.Priority.FATAL_ERROR;
         }
     }
-    
+
     public void setDefaultLogFile(String fileName, long maxLogSize) throws java.io.IOException
     {
         FileOutputStream logStream =
@@ -373,6 +376,6 @@ public class LogKitLoggerFactory
                                        logFormatter,
                                        new RotateStrategyBySize(maxLogSize * 1000),
                                        new RevolvingFileStrategy(new File(fileName), 10000));
-        }      
+        }
     }
 }
