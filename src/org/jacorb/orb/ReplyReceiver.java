@@ -82,6 +82,7 @@ public class ReplyReceiver extends ReplyPlaceholder
         if (replyEndTime != null)
         {
             timer = new Timer (replyEndTime);
+            timer.setName( "ReplyReceiver Timer" );
             timer.start();
         }
         else
