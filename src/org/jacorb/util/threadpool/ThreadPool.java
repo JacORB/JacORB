@@ -3,7 +3,7 @@ package org.jacorb.util.threadpool;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,6 +20,7 @@ package org.jacorb.util.threadpool;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+import org.apache.avalon.framework.logger.Logger;
 
 import org.jacorb.util.Debug;
 import java.util.*;
@@ -43,6 +44,8 @@ public class ThreadPool
 
     private LinkedList job_queue = null;
     private ConsumerFactory factory = null;
+
+    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.util.tpool");
 
     public ThreadPool( ConsumerFactory factory )
     {
@@ -85,14 +88,10 @@ public class ThreadPool
          */
         if (idle_threads >= max_idle_threads)
         {
-            if( Debug.isDebugEnabled() )
+            if (logger.isDebugEnabled())
             {
-                Debug.output
-                (
-                    2,
-                    "(Pool)[" + idle_threads + "/" + total_threads +
-                    "] Telling thread to exit (too many idle)"
-                );
+                logger.debug("[" + idle_threads + "/" + total_threads +
+                             "] Telling thread to exit (too many idle)");
             }
             total_threads--;
             return null;
@@ -100,27 +99,20 @@ public class ThreadPool
 
         idle_threads++;
 
-        if( Debug.isDebugEnabled() )
+        if (logger.isDebugEnabled())
         {
-            Debug.output
-            (
-                2,
-                "(Pool)[" + idle_threads + "/" + total_threads + "] added idle thread"
-            );
+            logger.debug("[" + idle_threads + "/" + total_threads + 
+                         "] added idle thread");
         }
 
         while( job_queue.isEmpty() )
         {
             try
             {
-                if( Debug.isDebugEnabled() )
+                if (logger.isDebugEnabled())
                 {
-                    Debug.output
-                    (
-                        2,
-                        "(Pool)[" + idle_threads + "/" + total_threads +
-                        "] job queue empty"
-                    );
+                    logger.debug("[" + idle_threads + "/" + total_threads +
+                                 "] job queue empty");
                 }
                 wait();
             }
@@ -132,14 +124,10 @@ public class ThreadPool
 
         idle_threads--;
 
-        if( Debug.isDebugEnabled() )
+        if (logger.isDebugEnabled())
         {
-            Debug.output
-            (
-                2,
-                "(Pool)[" + idle_threads + "/" + total_threads +
-                "] removed idle thread (job scheduled)"
-            );
+            logger.debug("[" + idle_threads + "/" + total_threads +
+                         "] removed idle thread (job scheduled)");
         }
         return job_queue.removeFirst();
     }
@@ -158,14 +146,10 @@ public class ThreadPool
 
     private void createNewThread()
     {
-        if( Debug.isDebugEnabled() )
+        if (logger.isDebugEnabled())
         {
-            Debug.output
-            (
-                2,
-                "(Pool)[" + idle_threads + "/" + total_threads +
-                "] creating new thread"
-            );
+            logger.debug("[" + idle_threads + "/" + total_threads +
+                         "] creating new thread" );
         }
         Thread t = new Thread( new ConsumerTie( this, factory.create() ));
         t.setDaemon( true );

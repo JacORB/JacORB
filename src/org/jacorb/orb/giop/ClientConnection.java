@@ -22,6 +22,8 @@ package org.jacorb.orb.giop;
 
 import java.util.*;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.util.Debug;
@@ -72,6 +74,9 @@ public class ClientConnection
     //ClientConnectionManager. In case of BiDirIIOP it is NOT equal to
     //the transports profile.
     private org.omg.ETF.Profile registeredProfile = null;
+
+    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.giop");
+
 
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
@@ -138,7 +143,8 @@ public class ClientConnection
 
         if( info == null )
         {
-            Debug.output( 2, "No CodeSetComponentInfo present in IOR. Will use default CodeSets" );
+            if (logger.isDebugEnabled())
+                logger.debug("No CodeSetComponentInfo in IOR. Will use default CodeSets" );
 
             //If we can't find matching codesets, we still mark the
             //GIOPConnection as negotiated, so the following requests
@@ -164,9 +170,12 @@ public class ClientConnection
         //this also marks tcs as negotiated.
         connection.setCodeSets( tcs, tcsw );
 
-        Debug.output( 3, "Successfully negotiated Codesets. Using " +
-                      CodeSet.csName( tcs ) + " as TCS and " +
-                      CodeSet.csName( tcsw ) + " as TCSW" );
+        if (logger.isDebugEnabled())
+        {
+            logger.debug( "Successfully negotiated Codesets. Using " +
+                          CodeSet.csName( tcs ) + " as TCS and " +
+                          CodeSet.csName( tcsw ) + " as TCSW" );
+        }
 
         // encapsulate context
         CDROutputStream os = new CDROutputStream( orb );
@@ -302,7 +311,10 @@ public class ClientConnection
         }
         else
         {
-            Debug.output( 1, "WARNING: Received an unknown reply" );
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("Received an unknown reply");
+            }
         }
     }
 
@@ -330,7 +342,10 @@ public class ClientConnection
         }
         else
         {
-            Debug.output( 1, "WARNING: Received an unknown reply" );
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("Received an unknown reply");
+            }
         }
     }
 
@@ -343,7 +358,10 @@ public class ClientConnection
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection )
     {
-        Debug.output( 2, "Received a CloseConnection message" );
+        if (logger.isInfoEnabled())
+        {
+            logger.info("Received CloseConnection message");
+        }
 
         if( client_initiated )
         {
@@ -386,13 +404,19 @@ public class ClientConnection
             {
                 if( gracefulStreamClose )
                 {
-                    Debug.output( 2, "Stream closed. Will remarshal " +
-                                  replies.size() + " messages" );
+                    if (logger.isDebugEnabled())
+                    {
+                        logger.debug("Stream closed. Will remarshal " +
+                                     replies.size() + " messages" );
+                    }
                 }
                 else
                 {
-                    Debug.output( 1, "ERROR: Abnormal connection termination. Lost " +
-                                  replies.size() + " outstanding replie(s)!");
+                    if (logger.isWarnEnabled())
+                    {
+                        logger.warn("Abnormal connection termination. Lost " +
+                                     replies.size() + " outstanding replie(s)!");
+                    }
                 }
 
                 Iterator entries = replies.values().iterator();
