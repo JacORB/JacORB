@@ -46,6 +46,8 @@ gerald.brose@acm.org
 
       - loads of bug fixes
       - more ETF work
+      - IDL compiler now generated code only if the IDL file is more recent
+        than any previously generated code.
       - remorphing of logging, now using Apache Avalon interfaces to go
         to Logkit
       - Synchronization fixes.
