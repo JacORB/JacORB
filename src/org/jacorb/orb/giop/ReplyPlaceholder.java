@@ -45,8 +45,12 @@ public abstract class ReplyPlaceholder
 
     protected int timeout = -1;
 
-    public ReplyPlaceholder()
+    protected boolean remarshalOnCF = false;
+
+    public ReplyPlaceholder( boolean remarshalOnCF )
     {        
+        this.remarshalOnCF = remarshalOnCF;
+
         //get the client-side timeout property value
         String prop = 
             Environment.getProperty( "jacorb.client.pending_reply_timeout" );
@@ -81,9 +85,12 @@ public abstract class ReplyPlaceholder
         
     public synchronized void cancel()
     {
-	communicationException = true;
-	ready = true;
-	this.notify();
+        if( in == null )
+        {
+            communicationException = true;
+            ready = true;
+            this.notify();
+        }
     }
 
 
@@ -142,8 +149,15 @@ public abstract class ReplyPlaceholder
 
         if( communicationException )
 	{
+        if( remarshalOnCF )
+        {
+            throw new org.omg.CORBA.portable.RemarshalException();
+        }
+        else
+        {
             throw new org.omg.CORBA.COMM_FAILURE
                 (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+        }
 	}
 
         if( timeoutException )

@@ -109,6 +109,10 @@ public final class Delegate
      * have a look at the comment for opration bind().  
      */
 
+
+    private ThreadLocal retryCounter = null; 
+    private int maxRetries = 0;
+
     /* constructors: */
 
 
@@ -123,6 +127,23 @@ public final class Delegate
         checkIfImR( _pior.getTypeId() );
 
         conn_mg = orb.getConnectionManager();
+
+        maxRetries = 
+            Environment.getIntPropertyWithDefault( 
+                "jacorb.connection.comm_failure_retries",
+                0 );
+
+        if( maxRetries > 0 )
+        {
+            retryCounter =  
+                new ThreadLocal() {
+                        protected Object initialValue()
+                        {
+                            return new Integer( maxRetries );
+                        }
+                    };
+        }
+
     }
 
     public Delegate ( org.jacorb.orb.ORB orb, String object_reference )
@@ -141,6 +162,22 @@ public final class Delegate
 
         checkIfImR( _pior.getTypeId() );
         conn_mg = orb.getConnectionManager();
+
+        maxRetries = 
+            Environment.getIntPropertyWithDefault( 
+                "jacorb.connection.comm_failure_retries",
+                0 );
+
+        if( maxRetries > 0 )
+        {
+            retryCounter =  
+                new ThreadLocal() {
+                        protected Object initialValue()
+                        {
+                            return new Integer( maxRetries );
+                        }
+                    };
+        }
     }
 
     public Delegate ( org.jacorb.orb.ORB orb, org.omg.IOP.IOR _ior )
@@ -150,6 +187,22 @@ public final class Delegate
         checkIfImR( _pior.getTypeId() );
 
         conn_mg = orb.getConnectionManager();
+
+        maxRetries = 
+            Environment.getIntPropertyWithDefault( 
+                "jacorb.connection.comm_failure_retries",
+                0 );
+
+        if( maxRetries > 0 )
+        {
+            retryCounter =  
+                new ThreadLocal() {
+                        protected Object initialValue()
+                        {
+                            return new Integer( maxRetries );
+                        }
+                    };
+        }
     }
 
     //special constructor for appligator
@@ -159,6 +212,22 @@ public final class Delegate
     {
         this( orb, object_reference );
         doNotCheckExceptions = _donotcheckexceptions;
+
+        maxRetries = 
+            Environment.getIntPropertyWithDefault( 
+                "jacorb.connection.comm_failure_retries",
+                0 );
+
+        if( maxRetries > 0 )
+        {
+            retryCounter =  
+                new ThreadLocal() {
+                        protected Object initialValue()
+                        {
+                            return new Integer( maxRetries );
+                        }
+                    };
+        }
     }
 
     public boolean doNotCheckExceptions()
@@ -775,6 +844,13 @@ public final class Delegate
         RequestOutputStream ros      = ( RequestOutputStream ) os;
         ReplyReceiver       receiver = null;
 
+        int retries = 0;
+        if( maxRetries > 0 )
+        {
+            retries = ((Integer) retryCounter.get()).intValue();
+            retryCounter.set( new Integer( retries - 1 ));
+        }
+
         ClientInterceptorHandler interceptors = 
             new ClientInterceptorHandler ( orb, ros, self, this, 
                                            piorOriginal, connection );
@@ -785,7 +861,24 @@ public final class Delegate
         {
             if ( !ros.response_expected() )  // oneway op
             {
-                connection.sendRequest ( ros, false );
+                try
+                {
+                    connection.sendRequest ( ros, false );
+                }
+                catch( org.omg.CORBA.COMM_FAILURE cfe )
+                {
+                    Debug.output( 2, "WARNING: caught a " + cfe );
+
+                    if( retries == 0 )
+                    {
+                        throw cfe;
+                    }
+                    else
+                    {
+                        throw new RemarshalException();
+                    }
+                }
+
                 interceptors.handle_receive_other ( SUCCESSFUL.value );
                 return null;
             }
@@ -795,17 +888,34 @@ public final class Delegate
                                                ros.operation(),
                                                ros.getRoundtripTimeout(),
                                                interceptors,
-                                               replyHandler );
+                                               replyHandler,
+                                               retries > 0);
                 synchronized ( bind_sync )
                 {
                     if ( ros.getConnection() == connection )
                     {
-                        //RequestOutputStream has been created for
-                        //exactly this connection
-                        connection.sendRequest( ros,
-                                                receiver,
-                                                ros.requestId(),
-                                                true ); // response expected
+                        try
+                        {
+                            //RequestOutputStream has been created for
+                            //exactly this connection
+                            connection.sendRequest( ros,
+                                                    receiver,
+                                                    ros.requestId(),
+                                                    true ); // response expected
+                        }
+                        catch( org.omg.CORBA.COMM_FAILURE cfe )
+                        {
+                            Debug.output( 2, "WARNING: caught a " + cfe );
+                            
+                            if( retries == 0 )
+                            {
+                                throw cfe;
+                            }
+                            else
+                            {
+                                throw new RemarshalException();
+                            }
+                        }
                     }
                     else
                     {
@@ -836,7 +946,14 @@ public final class Delegate
         {
             // Synchronous invocation, response expected.
             // This call blocks until the reply arrives.
-            return receiver.getReply();
+            org.omg.CORBA.portable.InputStream is = receiver.getReply();
+
+            if( maxRetries > 0 )
+            {
+                retryCounter.set( new Integer( maxRetries ));
+            }
+
+            return is;
         }
         else
         {

@@ -64,12 +64,17 @@ public class ReplyReceiver extends ReplyPlaceholder
     private SystemException      systemException      = null;
     private ApplicationException applicationException = null;
 
+    
+
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
                           String                         operation,
                           org.omg.TimeBase.UtcT          roundtripTimeout,
                           ClientInterceptorHandler       interceptors,
-                          org.omg.Messaging.ReplyHandler replyHandler )
+                          org.omg.Messaging.ReplyHandler replyHandler,
+                          boolean remarshalOnCF )
     {        
+        super( remarshalOnCF );
+
         this.delegate         = delegate;
         this.operation        = operation;
         this.roundtripTimeout = roundtripTimeout;
