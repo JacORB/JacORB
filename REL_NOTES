@@ -70,6 +70,8 @@ brose@inf.fu-berlin.de
 
         - IDL compiler:
                 . added the -nostub switch to suppress generation of client stubs
+                . added the -sloppy_forward switch for forward declared interfaces
+                  without definitions
                 . name resolution bug fixed
                 . stricter checks in lots of places (thanks to Paul Locke)
                 . minor bug fixes
