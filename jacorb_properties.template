@@ -191,6 +191,10 @@ jacorb.imr.timeout=
 jacorb.imr.no_of_poas=
 jacorb.imr.no_of_servers=
 
+# how many millis should the imr wait, until a connection from an
+# application client is terminated. Default is 2000.
+jacorb.imr.connection_timeout=2000
+
 # the implementation name, should be set to a different 
 # name in the code of persistent servers
 jacorb.implname=StandardImplName
