@@ -311,19 +311,7 @@ public class ParsedIOR
      */
     public String getCodebaseComponent()
     {
-        String result = null;
-        if (effectiveProfile instanceof IIOPProfile)
-        {
-            // TODO Should there be a component access mechanism for all
-            //      ETF profiles?  Clarify with OMG.
-            TaggedComponentList l =
-                ((IIOPProfile)effectiveProfile).getComponents();
-            result = l.getStringComponent (TAG_JAVA_CODEBASE.value);
-        }
-        if (result != null)
-            return result;
-        else
-            return components.getStringComponent (TAG_JAVA_CODEBASE.value);
+        return getStringComponent (TAG_JAVA_CODEBASE.value);
     }
 
     /**
@@ -835,22 +823,23 @@ public class ParsedIOR
     }
 
     /**
-     * Returns the component with the given tag, searching
-     * in the top level components first, then in the
-     * components of the effective profile.  If no component
-     * with the given tag exists, return null.
+     * Returns the component with the given tag, searching the effective
+     * profile's components first (this is only possible with IIOPProfiles),
+     * and then the MULTIPLE_COMPONENTS profile, if one exists.  If no 
+     * component with the given tag exists, this method returns null.
      */
     private Object getComponent (int tag, Class helper)
     {
-        Object result = components.getComponent (tag, helper);
-        if (result != null)
-            return result;
-        else if (effectiveProfile instanceof IIOPProfile)
-            return ((IIOPProfile)effectiveProfile).getComponent (tag, helper);
-        else
+        Object result = null;
+        if (effectiveProfile instanceof IIOPProfile)
             // TODO Should there be a component access mechanism for all
             //      ETF profiles?  Clarify with OMG.
-            return null;
+            result = ((IIOPProfile)effectiveProfile).getComponent (tag, helper);
+
+        if (result != null)
+            return result;
+        else
+            return components.getComponent (tag, helper);    
     }
 
     private static class LongHelper
@@ -861,20 +850,28 @@ public class ParsedIOR
         }
     }
 
+    /**
+     * Works like getComponent(), but for component values of CORBA type long.
+     */
     private Integer getLongComponent (int tag)
     {
-        Object result = components.getComponent (tag, LongHelper.class);
-        if (result != null)
-            return (Integer)result;
-        else if (effectiveProfile instanceof IIOPProfile)
+        return (Integer)getComponent (tag, LongHelper.class);
+    }
+
+    private static class StringHelper
+    {
+        public static String read (org.omg.CORBA.portable.InputStream in)
         {
-            IIOPProfile p = (IIOPProfile)effectiveProfile;
-            return (Integer)p.getComponent (tag, LongHelper.class);
+            return new String (in.read_string());
         }
-        else
-            // TODO Should there be a component access mechanism for all
-            //      ETF profiles?  Clarify with OMG.
-            return null;
+    }
+    
+    /**
+     * Works like getComponent(), but for component values of type string.
+     */    
+    private String getStringComponent (int tag)
+    {
+        return (String)getComponent (tag, StringHelper.class);
     }
 
     /**
