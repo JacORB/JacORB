@@ -55,11 +55,14 @@ public class SSLComponentInterceptor
         throws ConfigurationException
     {
         supported = 
-            (short)configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 16 );
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
+                16); // 16 is the base as we take the string value as hex!
 
         required = 
-            (short)configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options", 16 );
-
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
+                16);
 
     }
 
