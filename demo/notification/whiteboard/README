@@ -1,7 +1,19 @@
 Usage
 -----
 
-* Start the Notificationservice first.  
+* Ensure your environment is set up properly so that jaco is included in the path
+
+  e.g.:
+  > setenv PATH ~/JacORB/bin:$PATH (csh)
+
+  > export PATH=~/JacORB/bin:$PATH (sh)
+
+* Start the Naming Service
+
+  refer to the documentation how to configure the naming service
+  properly so that it can be accessed via ORB.resolve_initial_reference("NameService")
+
+* Start the Notification Service
 
   e.g.:
   > cd $JACORB_HOME/bin
@@ -12,11 +24,11 @@ Usage
   > cd $JACORB_HOME/demo/notification/whiteboard
   > start-factory.sh  
 
-  The current implementation tries to use ORB.resolve_initial_references("NotificationService") to 
-  access the NotificationService. Just put a ORBInitRef entry into your .jacorb_properties file
+  The whiteboard factory uses ORB.resolve_initial_references("NotificationService") to 
+  access the NotificationService. Add a ORBInitRef entry to your .jacorb_properties file
 
   e.g.:
-  ORBInitRef.NotificationService=corbaname::magellan:12456#NotificationService
+  ORBInitRef.NotificationService=corbaname::<yourhost>:12456#NotificationService
 
   alternatively you can specify the Reference to the Notification Service as a parameter
 
@@ -24,7 +36,9 @@ Usage
   > cd $JACORB_HOME/demo/notification/whiteboard
   > start-factory.sh corbaloc::magellan:32861/NotificationService
 
-  The Whiteboard Factory registers at the NamingService
+  (Start the notification service with the option -printCorbaloc to get the initial reference)
+
+  The Whiteboard Factory registers itself with the Naming Service.
 
 * Start Workgroup
 
@@ -79,3 +93,5 @@ respectively. This Way the DrawHandler just receives LineEvents and
 the ClearHandler just receives ClearEvents. 
 On Repetition of an Event both Handlers act accordingly.
 
+
+$Id$
