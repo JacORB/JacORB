@@ -35,7 +35,6 @@ import org.apache.log.*;
 
 public class IdlSymbol
     extends java_cup.runtime.symbol
-    implements java.io.Serializable
 {
     private static int num = 10000;
     public String pack_name = "";
