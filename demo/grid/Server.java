@@ -36,8 +36,6 @@ public class Server
 		nc.bind( nc.to_name("grid.example"), o);
 	    }
 
-            System.out.println( "** " + new org.omg.CosNaming.NameComponent("x", "y") );
-
             orb.run();
 	} 
 	catch ( Exception e )
