@@ -123,8 +123,8 @@ public class Environment
     // bnv: security setup information for SSL
     //
     private static boolean _enforce_ssl             = false;
-    private static short   _supported_options       = 0x0067;
-    private static short   _required_options        = 0x0066;
+    private static short   _supported_options       = 0;
+    private static short   _required_options        = 0;
     private static boolean _support_ssl             = false;
     private static String  _default_user            = null;
     private static String  _default_password        = null;
