@@ -12,8 +12,8 @@ import org.omg.CosEventChannelAdmin.ProxyPushConsumer;
 import org.omg.CORBA.Any;
 import org.omg.CosEventComm.Disconnected;
 import junit.framework.TestCase;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  * CosEventPushSender.java
@@ -27,7 +27,7 @@ import org.apache.log.Hierarchy;
 
 public class CosEventPushSender extends PushSupplierPOA implements TestClientOperations, Runnable {
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     boolean connected_;
     boolean sent_;
@@ -37,46 +37,46 @@ public class CosEventPushSender extends PushSupplierPOA implements TestClientOpe
     TestCase testCase_;
 
     CosEventPushSender(TestCase testCase, Any event) {
-	event_ = event;
-	testCase_ = testCase;
+        event_ = event;
+        testCase_ = testCase;
     }
 
     public void disconnect_push_supplier() {
-	connected_ = false;
+        connected_ = false;
     }
 
     public boolean isConnected() {
-	return connected_;
+        return connected_;
     }
 
     public boolean isEventHandled() {
-	return sent_;
+        return sent_;
     }
 
     public boolean isError() {
-	return error_;
+        return error_;
     }
 
     public void connect(NotificationTestCaseSetup setup,
-			org.omg.CosNotifyChannelAdmin.EventChannel channel,
-			boolean useOrSemantic) throws AlreadyConnected {
+                        org.omg.CosNotifyChannelAdmin.EventChannel channel,
+                        boolean useOrSemantic) throws AlreadyConnected {
 
-	testCase_.assertNotNull(channel);
-	EventChannel _channel = EventChannelHelper.narrow(channel);
-	testCase_.assertNotNull(_channel);
+        testCase_.assertNotNull(channel);
+        EventChannel _channel = EventChannelHelper.narrow(channel);
+        testCase_.assertNotNull(_channel);
 
-	SupplierAdmin _admin = _channel.for_suppliers();
-	testCase_.assertNotNull(_admin);
+        SupplierAdmin _admin = _channel.for_suppliers();
+        testCase_.assertNotNull(_admin);
 
-	myConsumer_ = _admin.obtain_push_consumer();
-	testCase_.assertNotNull(myConsumer_);
+        myConsumer_ = _admin.obtain_push_consumer();
+        testCase_.assertNotNull(myConsumer_);
 
-	myConsumer_.connect_push_supplier(_this(setup.getClientOrb()));
+        myConsumer_.connect_push_supplier(_this(setup.getClientOrb()));
 
-	connected_ = true;
+        connected_ = true;
     }
     public void shutdown() {
-	myConsumer_.disconnect_push_consumer();
+        myConsumer_.disconnect_push_consumer();
     }
 
     // Implementation of java.lang.Runnable
@@ -86,15 +86,15 @@ public class CosEventPushSender extends PushSupplierPOA implements TestClientOpe
      *
      */
     public void run() {
-	try {
-	    myConsumer_.push(event_);
+        try {
+            myConsumer_.push(event_);
 
-	    event_ = null;
-	    sent_ = true;
-	} catch (Throwable t) {
-	    error_ = true;
-	    logger_.fatalError("while push", t);
-	}
+            event_ = null;
+            sent_ = true;
+        } catch (Throwable t) {
+            error_ = true;
+            logger_.fatalError("while push", t);
+        }
     }
 
 }// CosEventPushSender

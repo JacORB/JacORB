@@ -27,8 +27,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.evaluate.FilterConstraint;
@@ -38,7 +36,10 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.node.DynamicTypeException;
 import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
+import org.jacorb.util.Debug;
+
 import org.omg.CORBA.Any;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
@@ -57,7 +58,8 @@ import org.omg.PortableServer.POAPackage.WrongPolicy;
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
-import org.omg.CORBA.NO_IMPLEMENT;
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * FilterImpl.java
@@ -136,8 +138,7 @@ import org.omg.CORBA.NO_IMPLEMENT;
 public class FilterImpl extends FilterPOA implements Disposable
 {
 
-    static Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( FilterImpl.class.getName() );
+    static Logger logger_ = Debug.getNamedLogger( FilterImpl.class.getName() );
 
     final static RuntimeException NOT_SUPPORTED =
         new UnsupportedOperationException();
@@ -338,8 +339,8 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     public void modify_constraints( int[] deleteIds,
                                     ConstraintInfo[] constraintInfo )
-    throws ConstraintNotFound,
-                InvalidConstraint
+        throws ConstraintNotFound,
+               InvalidConstraint
     {
 
         try
@@ -378,7 +379,7 @@ public class FilterImpl extends FilterPOA implements Disposable
                     {
                         _arrayConstraintEvaluator[ _x ] =
                             new FilterConstraint(
-                                                     constraintInfo[ _x ].constraint_expression );
+                                constraintInfo[ _x ].constraint_expression );
                     }
                     else
                     {
@@ -695,7 +696,8 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 
-    public boolean match( Any anyEvent ) throws UnsupportedFilterableData {
+    public boolean match( Any anyEvent ) throws UnsupportedFilterableData
+    {
         return match_internal( anyEvent ) != NO_CONSTRAINT;
     }
 
@@ -717,18 +719,25 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
         finally
         {
-            try {
+            try
+            {
                 _event.dispose();
-            } catch (Exception e) {}
+            }
+            catch (Exception e)
+            {}
 
-            try {
+            try
+            {
                 _evaluationContext.release();
-            } catch (Exception e) {}
+            }
+            catch (Exception e)
+            {}
         }
     }
 
     public boolean match_structured( StructuredEvent structuredevent)
-        throws UnsupportedFilterableData {
+        throws UnsupportedFilterableData
+    {
         return match_structured_internal(structuredevent) != NO_CONSTRAINT;
     }
 
@@ -752,13 +761,19 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
         finally
         {
-            try {
+            try
+            {
                 _event.dispose();
-            } catch (Exception e) {}
+            }
+            catch (Exception e)
+            {}
 
-            try {
+            try
+            {
                 _evaluationContext.release();
-            } catch (Exception e) {}
+            }
+            catch (Exception e)
+            {}
         }
     }
 

@@ -21,10 +21,11 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.AbstractPoolable;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * TaskBase.java
@@ -35,8 +36,7 @@ import org.jacorb.notification.interfaces.AbstractPoolable;
 
 public abstract class AbstractTask extends AbstractPoolable implements Task
 {
-    protected Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    protected Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private TaskFinishHandler coordinator_;
     private TaskErrorHandler errorHandler_;

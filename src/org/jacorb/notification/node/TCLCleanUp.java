@@ -22,10 +22,10 @@ package org.jacorb.notification.node;
  */
 
 import org.jacorb.notification.parser.TCLParserTokenTypes;
+import org.jacorb.util.Debug;
 
 import antlr.collections.AST;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * Visitor for TCL Trees. Does some Restructuration of a TCL Tree.
@@ -38,7 +38,7 @@ import org.apache.log.Logger;
 
 public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenTypes
 {
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     public void fix( AbstractTCLNode node )
     {
@@ -54,13 +54,13 @@ public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenType
     }
 
     public void visitComponentPosition( ComponentPositionOperator componentPositionOperator )
-        throws VisitorException
+    throws VisitorException
     {
         // fixCompPos(componentPositionOperator);
     }
 
     public void visitComponent( ComponentName component )
-        throws VisitorException
+    throws VisitorException
     {
         // component.left().acceptInOrder(this);
 
@@ -68,7 +68,7 @@ public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenType
     }
 
     public void visitUnionPosition( UnionPositionOperator op )
-        throws VisitorException
+    throws VisitorException
     {
         fixUnionPosition( op );
         // fixCompPos(op);
@@ -108,23 +108,23 @@ public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenType
             switch ( _nextSibling.getType() )
             {
 
-            case NUMBER:
+                case NUMBER:
 
-                Double _position = ( ( NumberValue ) _nextSibling ).getNumber();
-                node.setPosition( _position );
-                node.setNextSibling( _nextSibling.getNextSibling() );
+                    Double _position = ( ( NumberValue ) _nextSibling ).getNumber();
+                    node.setPosition( _position );
+                    node.setNextSibling( _nextSibling.getNextSibling() );
 
-                // fallthrough
-            case PLUS:
-                // fallthrough
-            case MINUS:
-                // fallthrough
-            case STRING:
-                break;
+                    // fallthrough
+                case PLUS:
+                    // fallthrough
+                case MINUS:
+                    // fallthrough
+                case STRING:
+                    break;
 
-            default:
-                node.setDefault();
-                break;
+                default:
+                    node.setDefault();
+                    break;
             }
         }
     }

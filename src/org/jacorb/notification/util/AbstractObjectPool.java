@@ -21,12 +21,14 @@ package org.jacorb.notification.util;
  *
  */
 
-import java.util.LinkedList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * Abstract Base Class for Simple Pooling Mechanism. Subclasses must
@@ -73,9 +75,9 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
         sPoolsToLookAfter.remove( pool );
 
         if ( sPoolsToLookAfter.isEmpty() )
-            {
-                stopListCleaner();
-            }
+        {
+            stopListCleaner();
+        }
     }
 
     static class ListCleaner extends Thread
@@ -89,60 +91,60 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
             interrupt();
 
             synchronized ( AbstractObjectPool.class )
-                {
-                    sCleanerThread = null;
-                }
+            {
+                sCleanerThread = null;
+            }
         }
 
         public void run()
         {
             while ( active_ )
+            {
+                try
                 {
-                    try
-                        {
-                            sleep( SLEEP );
-                        }
-                    catch ( InterruptedException ie )
-                        {
-                            if ( !active_ )
-                                {
-                                    return ;
-                                }
-                        }
-
-                    try
-                        {
-                            for ( int x = sPoolsToLookAfter.size(); x <= 0; x-- )
-                                {
-                                    if ( !active_ )
-                                        {
-                                            return ;
-                                        }
-
-                                    ( ( Runnable ) sPoolsToLookAfter.get( x ) ).run();
-
-                                }
-                        }
-                    catch ( Throwable t )
-                        {
-                            logger_.fatalError( "Error while cleaning Pool", t );
-                        }
+                    sleep( SLEEP );
                 }
+                catch ( InterruptedException ie )
+                {
+                    if ( !active_ )
+                    {
+                        return ;
+                    }
+                }
+
+                try
+                {
+                    for ( int x = sPoolsToLookAfter.size(); x <= 0; x-- )
+                    {
+                        if ( !active_ )
+                        {
+                            return ;
+                        }
+
+                        ( ( Runnable ) sPoolsToLookAfter.get( x ) ).run();
+
+                    }
+                }
+                catch ( Throwable t )
+                {
+                    logger_.fatalError( "Error while cleaning Pool", t );
+                }
+            }
         }
     }
 
     static ListCleaner getListCleaner()
     {
         if ( sListCleaner == null )
+        {
+            synchronized ( AbstractObjectPool.class )
             {
-                synchronized ( AbstractObjectPool.class )
-                    {
-                        if ( sListCleaner == null )
-                            {
-                                sListCleaner = new ListCleaner();
-                            }
-                    }
+                if ( sListCleaner == null )
+                {
+                    sListCleaner = new ListCleaner();
+                }
             }
+        }
 
         return sListCleaner;
     }
@@ -150,32 +152,31 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
     static void stopListCleaner()
     {
         if ( sCleanerThread != null )
-            {
-                sListCleaner.setInactive();
-            }
+        {
+            sListCleaner.setInactive();
+        }
     }
 
     static void startListCleaner()
     {
         if ( sCleanerThread == null )
+        {
+            synchronized ( AbstractObjectPool.class )
             {
-                synchronized ( AbstractObjectPool.class )
-                    {
-                        if ( sCleanerThread == null )
-                            {
-                                sCleanerThread = new Thread( getListCleaner() );
+                if ( sCleanerThread == null )
+                {
+                    sCleanerThread = new Thread( getListCleaner() );
 
-                                sCleanerThread.setName( "ObjectPoolCleaner" );
-                                sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
-                                sCleanerThread.setDaemon( true );
-                                sCleanerThread.start();
-                            }
-                    }
+                    sCleanerThread.setName( "ObjectPoolCleaner" );
+                    sCleanerThread.setPriority( Thread.MIN_PRIORITY + 1 );
+                    sCleanerThread.setDaemon( true );
+                    sCleanerThread.start();
+                }
             }
+        }
     }
 
-    static Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( AbstractObjectPool.class.getName() );
+    static Logger logger_ = Debug.getNamedLogger( AbstractObjectPool.class.getName() );
 
     LinkedList pool_;
     HashSet active_ = new HashSet();
@@ -228,13 +229,13 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
     public void run()
     {
         if ( pool_.size() < lowerWatermark_ )
+        {
+            for ( int x = 0; x < sizeIncrease_; ++x )
             {
-                for ( int x = 0; x < sizeIncrease_; ++x )
-                    {
-                        Object _i = newInstance();
-                        pool_.add( _i );
-                    }
+                Object _i = newInstance();
+                pool_.add( _i );
             }
+        }
     }
 
     /**
@@ -244,11 +245,11 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
     public void init()
     {
         for ( int x = 0; x < initialSize_; ++x )
-            {
-                Object _i = newInstance();
+        {
+            Object _i = newInstance();
 
-                pool_.add( _i );
-            }
+            pool_.add( _i );
+        }
     }
 
     /**
@@ -267,20 +268,20 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
         Object _ret = null;
 
         if ( !pool_.isEmpty() )
+        {
+            synchronized ( pool_ )
             {
-                synchronized ( pool_ )
-                    {
-                        if ( !pool_.isEmpty() )
-                            {
-                                _ret = pool_.removeFirst();
-                            }
-                    }
+                if ( !pool_.isEmpty() )
+                {
+                    _ret = pool_.removeFirst();
+                }
             }
+        }
 
         if ( _ret == null )
-            {
-                _ret = newInstance();
-            }
+        {
+            _ret = newInstance();
+        }
 
         activateObject( _ret );
         active_.add( _ret );
@@ -292,37 +293,37 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
      * return an Object to the pool.
      */
     public void returnObject( Object o )
-    {
-        if ( active_.remove( o ) )
-            {
-                passivateObject( o );
+                      {
+                          if ( active_.remove( o ) )
+                          {
+                              passivateObject( o );
 
-                if ( pool_.size() < maxWatermark_ )
-                    {
-                        synchronized ( pool_ )
-                            {
-                                pool_.add( o );
-                                pool_.notifyAll();
-                            }
-                    }
-                else
-                    {
-                        destroyObject( o );
-                    }
-            }
-        else
-            {
-                // ignore
-                logger_.warn( "Object " + o + " was not in pool. multiple release?" );
-                //                throw new RuntimeException();
-            }
-    }
+                              if ( pool_.size() < maxWatermark_ )
+                              {
+                                  synchronized ( pool_ )
+                                  {
+                                      pool_.add( o );
+                                      pool_.notifyAll();
+                                  }
+                              }
+                              else
+                              {
+                                  destroyObject( o );
+                              }
+                          }
+                          else
+                          {
+                              // ignore
+                              logger_.warn( "Object " + o + " was not in pool. multiple release?" );
+                              //                throw new RuntimeException();
+                          }
+                      }
 
-    /**
-     * This method is called by the Pool to create a new
-     * Instance. Subclasses must override appropiately .
-     */
-    public abstract Object newInstance();
+                      /**
+                       * This method is called by the Pool to create a new
+                       * Instance. Subclasses must override appropiately .
+                       */
+                      public abstract Object newInstance();
 
     /**
      * Is called after Object is returned to pool. No Op.

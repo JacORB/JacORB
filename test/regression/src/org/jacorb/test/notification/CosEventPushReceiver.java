@@ -13,8 +13,8 @@ import org.omg.CosEventChannelAdmin.ProxyPushSupplier;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import junit.framework.TestCase;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  * CosEventPushReceiver.java
@@ -33,74 +33,74 @@ public class CosEventPushReceiver extends PushConsumerPOA implements Runnable, T
     boolean received_ = false;
     boolean connected_;
     ProxyPushSupplier mySupplier_;
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     TestCase currentTest_;
 
     public CosEventPushReceiver(TestCase testCase) {
-	currentTest_ = testCase;
+        currentTest_ = testCase;
     }
 
     public void setTimeOut(long t) {
-	timeout_ = t;
+        timeout_ = t;
     }
-    
+
     public void push(Any event) throws Disconnected {
-	synchronized(this) {
-	    event_ = event;
-	    notifyAll();
-	}
+        synchronized(this) {
+            event_ = event;
+            notifyAll();
+        }
     }
 
     public void disconnect_push_consumer() {
-	connected_ = false;
+        connected_ = false;
     }
 
     public void run() {
-	if (event_ == null) {
-	    synchronized(this) {
-		try {
-		    wait(timeout_);
-		} catch (InterruptedException e) {}
-	    }
-	}
+        if (event_ == null) {
+            synchronized(this) {
+                try {
+                    wait(timeout_);
+                } catch (InterruptedException e) {}
+            }
+        }
 
-	if (event_ != null) {
-	    received_ = true;
-	} else {
-	    logger_.info("Timout !!!");
-	}
+        if (event_ != null) {
+            received_ = true;
+        } else {
+            logger_.info("Timout !!!");
+        }
     }
 
     public boolean isEventHandled() {
-	return received_;
+        return received_;
     }
 
     public boolean isConnected() {
-	return connected_;
+        return connected_;
     }
 
     public boolean isError() {
-	return false;
+        return false;
     }
 
     public void connect(NotificationTestCaseSetup setup,
-			org.omg.CosNotifyChannelAdmin.EventChannel channel,
-			boolean useOrSemantic) throws AlreadyConnected, TypeError {
+                        org.omg.CosNotifyChannelAdmin.EventChannel channel,
+                        boolean useOrSemantic) throws AlreadyConnected, TypeError {
 
-	EventChannel _channel = EventChannelHelper.narrow(channel);
-	currentTest_.assertNotNull(_channel);
+        EventChannel _channel = EventChannelHelper.narrow(channel);
+        currentTest_.assertNotNull(_channel);
 
-	ConsumerAdmin _admin = _channel.for_consumers();
-	currentTest_.assertNotNull(_admin);
+        ConsumerAdmin _admin = _channel.for_consumers();
+        currentTest_.assertNotNull(_admin);
 
-	mySupplier_ = _admin.obtain_push_supplier();
-	currentTest_.assertNotNull(mySupplier_);
+        mySupplier_ = _admin.obtain_push_supplier();
+        currentTest_.assertNotNull(mySupplier_);
 
-	mySupplier_.connect_push_consumer(_this(setup.getClientOrb()));
-	connected_ = true;
+        mySupplier_.connect_push_consumer(_this(setup.getClientOrb()));
+        connected_ = true;
     }
 
     public void shutdown() {
-	mySupplier_.disconnect_push_supplier();
+        mySupplier_.disconnect_push_supplier();
     }
 }// CosEventPushReceiver

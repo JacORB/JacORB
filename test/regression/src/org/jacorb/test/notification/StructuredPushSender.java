@@ -1,8 +1,7 @@
 package org.jacorb.test.notification;
 
 import junit.framework.TestCase;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.EventType;
@@ -23,12 +22,14 @@ import org.omg.CosNotifyComm.StructuredPushSupplier;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POA;
 import org.omg.CORBA.ORB;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 public class StructuredPushSender
     extends Thread
     implements StructuredPushSupplierOperations, TestClientOperations {
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     PerformanceListener perfListener_;
     StructuredGenerator generator_;
     StructuredProxyPushConsumer pushConsumer_;

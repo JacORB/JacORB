@@ -3,8 +3,6 @@ package org.jacorb.test.notification;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.interfaces.Message;
@@ -24,6 +22,8 @@ import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.apache.log.Priority;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  *  Unit Test for class NotificationEvent
@@ -38,7 +38,7 @@ public class NotificationEventTest extends TestCase {
     Any testPerson_;
     Any testUnion_;
     ORB orb_;
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     StructuredEvent testStructured_;
     EvaluationContext evaluationContext_;

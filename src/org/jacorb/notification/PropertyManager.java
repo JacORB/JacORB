@@ -25,13 +25,15 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
 import org.omg.DynamicAny.DynAny;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+
+import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * PropertyManager.java
@@ -43,10 +45,10 @@ import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
  * @version $Id$
  */
 
-public class PropertyManager implements Cloneable {
+public class PropertyManager implements Cloneable
+{
 
-    Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     private boolean dirty_ = true;
     private Property[] asArray_;
@@ -55,47 +57,62 @@ public class PropertyManager implements Cloneable {
     DynAnyFactory dynAnyFactory_;
     ApplicationContext appContext_;
 
-    public PropertyManager(ApplicationContext appContext) {
+    public PropertyManager(ApplicationContext appContext)
+    {
         this(appContext, new Hashtable());
     }
 
-    public PropertyManager(ApplicationContext appContext, Map props) {
+    public PropertyManager(ApplicationContext appContext, Map props)
+    {
         properties_ = props;
         appContext_ = appContext;
         dynAnyFactory_ = appContext.getDynAnyFactory();
     }
 
-    public void setProperty(String name, Any value) {
-        synchronized(this) {
+    public void setProperty(String name, Any value)
+    {
+        synchronized (this)
+        {
             properties_.put(name, value);
             dirty_ = true;
         }
     }
 
-    public Any getProperty(String name) {
-        if (properties_.containsKey(name)) {
+    public Any getProperty(String name)
+    {
+        if (properties_.containsKey(name))
+        {
             return (Any)properties_.get(name);
-        } else {
+        }
+        else
+        {
             return null;
         }
     }
 
-    public boolean hasProperty(String name) {
-        if (properties_.containsKey(name)) {
+    public boolean hasProperty(String name)
+    {
+        if (properties_.containsKey(name))
+        {
             return true;
         }
         return false;
     }
 
-    public Property[] toArray() {
-        if (dirty_) {
-            synchronized(properties_) {
-                if (dirty_) {
+    public Property[] toArray()
+    {
+        if (dirty_)
+        {
+            synchronized (properties_)
+            {
+                if (dirty_)
+                {
                     asArray_ = new Property[properties_.size()];
 
                     Iterator _i = properties_.keySet().iterator();
                     int x = 0;
-                    while (_i.hasNext()) {
+                    while (_i.hasNext())
+                    {
                         String _key = (String)_i.next();
                         asArray_[x++] = new Property(_key, (Any)properties_.get(_key));
                     }
@@ -106,14 +123,17 @@ public class PropertyManager implements Cloneable {
         return asArray_;
     }
 
-    public Object clone() {
-        try {
+    public Object clone()
+    {
+        try
+        {
             PropertyManager _r = new PropertyManager(appContext_);
 
             Property[] _arr;
 
             _arr = toArray();
-            for (int x=0; x<_arr.length; ++x) {
+            for (int x = 0; x < _arr.length; ++x)
+            {
                 Any _orig = _arr[x].value;
                 DynAny _dynAny = dynAnyFactory_.create_dyn_any(_orig);
                 DynAny _dynCopy = _dynAny.copy();
@@ -122,13 +142,16 @@ public class PropertyManager implements Cloneable {
             }
 
             return _r;
-        } catch (InconsistentTypeCode e) {
+        }
+        catch (InconsistentTypeCode e)
+        {
             throw new RuntimeException();
         }
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "PropertyManager//" + properties_.toString();
     }
 
-}// PropertyManager
+} // PropertyManager

@@ -28,14 +28,14 @@ import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.parser.TCLParserTokenTypes;
 import org.jacorb.notification.util.AbstractObjectPool;
+import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * EvaluationResult.java
@@ -59,8 +59,7 @@ public class EvaluationResult implements TCLParserTokenTypes
         BOOL_FALSE = wrapImmutable( _r );
     }
 
-    static Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( EvaluationResult.class.getName() );
+    static Logger logger_ = Debug.getNamedLogger( EvaluationResult.class.getName() );
 
     private int typeCode_;
 
@@ -382,13 +381,14 @@ public class EvaluationResult implements TCLParserTokenTypes
         return super.equals( o );
     }
 
-    public int hashCode() {
+    public int hashCode()
+    {
         return getValue().hashCode();
     }
 
     public int compareTo( EvaluationResult other )
-        throws DynamicTypeException,
-               EvaluationException
+    throws DynamicTypeException,
+                EvaluationException
     {
 
         int _ret = Integer.MAX_VALUE;
@@ -687,8 +687,8 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
 
     public int compareTo( EvaluationContext evaluationContext,
                           EvaluationResult evaluationResult )
-        throws DynamicTypeException,
-               EvaluationException
+    throws DynamicTypeException,
+                EvaluationException
     {
 
         return delegate_.compareTo( evaluationResult );

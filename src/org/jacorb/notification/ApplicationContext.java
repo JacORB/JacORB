@@ -24,12 +24,13 @@ package org.jacorb.notification;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.AbstractPoolable;
+import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.AbstractObjectPool;
+import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
@@ -43,8 +44,7 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.TimeTHelper;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * ApplicationContext.java
@@ -70,8 +70,7 @@ public class ApplicationContext implements Disposable
     private DynamicEvaluator dynamicEvaluator_;
     private PropertyManager defaultAdminProperties_;
     private PropertyManager defaultQoSProperties_;
-    Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private void setup( ORB orb, POA poa, boolean init ) throws InvalidName
     {

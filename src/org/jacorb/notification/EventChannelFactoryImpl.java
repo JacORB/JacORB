@@ -32,8 +32,8 @@ import java.util.Vector;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventChannelEvent;
 import org.jacorb.notification.interfaces.EventChannelEventListener;
-import org.jacorb.notification.util.LogConfiguration;
 import org.jacorb.notification.util.PatternWrapper;
+import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
@@ -65,8 +65,7 @@ import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -88,8 +87,8 @@ import org.apache.log.Logger;
  */
 
 public class EventChannelFactoryImpl
-    extends EventChannelFactoryPOA
-    implements Disposable
+            extends EventChannelFactoryPOA
+            implements Disposable
 {
     interface ShutdownCallback
     {
@@ -114,10 +113,7 @@ public class EventChannelFactoryImpl
     protected ChannelContext channelContextTemplate_;
     protected int counter_ = 0;
     protected Map allChannels_;
-
-    protected Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
-
+    protected Logger logger_ = Debug.getNamedLogger(getClass().getName() );
     protected String ior_;
     protected Vector listEventChannelEventListener_ = new Vector();
     protected String corbaLoc_;
@@ -278,11 +274,11 @@ public class EventChannelFactoryImpl
             Property[] qualitiyOfServiceProperties,
             Property[] administrativeProperties )
 
-        throws UnsupportedAdmin,
-               UnsupportedQoS,
-               ObjectNotActive,
-               WrongPolicy,
-               ServantAlreadyActive
+    throws UnsupportedAdmin,
+                UnsupportedQoS,
+                ObjectNotActive,
+                WrongPolicy,
+                ServantAlreadyActive
     {
         logger_.debug( "create_channel_servant " + key );
 
@@ -308,14 +304,14 @@ public class EventChannelFactoryImpl
             switch ( _eventReliabilty )
             {
 
-            case BestEffort.value:
-                break;
+                case BestEffort.value:
+                    break;
 
-            case Persistent.value:
-                throwPersistentNotSupported( EventReliability.value );
+                case Persistent.value:
+                    throwPersistentNotSupported( EventReliability.value );
 
-            default:
-                throwBadValue( EventReliability.value );
+                default:
+                    throwBadValue( EventReliability.value );
 
             }
         }
@@ -329,14 +325,14 @@ public class EventChannelFactoryImpl
             switch ( _connectionReliability )
             {
 
-            case BestEffort.value:
-                break;
+                case BestEffort.value:
+                    break;
 
-            case Persistent.value:
-                throwPersistentNotSupported( ConnectionReliability.value );
+                case Persistent.value:
+                    throwPersistentNotSupported( ConnectionReliability.value );
 
-            default:
-                throwBadValue( ConnectionReliability.value );
+                default:
+                    throwBadValue( ConnectionReliability.value );
 
             }
         }
@@ -360,16 +356,17 @@ public class EventChannelFactoryImpl
         EventChannelImpl _channel =
             ( EventChannelImpl ) allChannels_.remove( new Integer( id ) );
 
-        if (!listEventChannelEventListener_.isEmpty()) {
+        if (!listEventChannelEventListener_.isEmpty())
+        {
             EventChannelEvent _event =
                 new EventChannelEvent( _channel );
 
             Iterator i = listEventChannelEventListener_.iterator();
 
             while ( i.hasNext() )
-                {
-                    ( ( EventChannelEventListener ) i.next() ).actionEventChannelDestroyed( _event );
-                }
+            {
+                ( ( EventChannelEventListener ) i.next() ).actionEventChannelDestroyed( _event );
+            }
         }
     }
 
@@ -585,7 +582,10 @@ public class EventChannelFactoryImpl
 
     private static void help()
     {
-        System.out.println( "Usage: ntfy [-printIOR] [-printCorbaloc] [-writeIOR <filename>] [-registerName <nameId>[.<nameKind>]] [-port <oaPort>] [-channels <channels>] [-help]" );
+        System.out.println( "Usage: ntfy [-printIOR] [-printCorbaloc] " +
+                            "[-writeIOR <filename>] " +
+                            "[-registerName <nameId>[.<nameKind>]] " +
+                            "[-port <oaPort>] [-channels <channels>] [-help]" );
 
         System.exit( 0 );
     }
@@ -606,17 +606,13 @@ public class EventChannelFactoryImpl
         String nameId = null;
         String nameKind = "";
 
-        Logger _logger = Hierarchy.getDefaultHierarchy().getLoggerFor( EventChannelFactoryImpl.class.getName() + ".init" );
-
-        LogConfiguration.getInstance().configure();
-
+        Logger _logger = Debug.getNamedLogger( EventChannelFactoryImpl.class.getName() + ".init" );
 
         // force Classloader to load Class PatternWrapper.
         // PatternWrapper may cause a ClassNotFoundException if
         // running on < JDK1.4 and gnu.regexp is NOT installed.
         // Therefor the Error should occur as early as possible.
         PatternWrapper.class.getName();
-
 
         try
         {
@@ -656,7 +652,9 @@ public class EventChannelFactoryImpl
 
                     if ( name.lastIndexOf( "." ) != index )
                     {
-                        throw new IllegalArgumentException( name + ": argument to -registerName should be <nameId> or <nameId>.<nameKind>" );
+                        throw new IllegalArgumentException( name +
+                                                            ": argument to -registerName should be " +
+                                                            "<nameId> or <nameId>.<nameKind>" );
                     }
 
                     if ( index != -1 )

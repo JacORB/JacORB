@@ -1,14 +1,11 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.jacorb.notification.util.LogConfiguration;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.NamedValue;
 import org.jacorb.test.notification.Person;
 import org.jacorb.test.notification.PersonHelper;
 import org.jacorb.test.notification.Profession;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -19,15 +16,18 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyFilter.ConstraintExp;
+import org.omg.CosNotifyFilter.ConstraintInfo;
+import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.ConstraintExp;
-import org.omg.CosNotifyFilter.ConstraintInfo;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
-import org.apache.log.Priority;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  * StructuredEventChannelTest.java
@@ -38,7 +38,7 @@ import org.apache.log.Priority;
 
 public class StructuredEventChannelTest extends NotificationTestCase {
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     EventChannel channel_;
     EventChannelFactory channelFactory_;
@@ -242,8 +242,6 @@ public class StructuredEventChannelTest extends NotificationTestCase {
     }
 
     public static void main(String[] args) throws Exception {
-        LogConfiguration.getInstance().configure();
-
         junit.textui.TestRunner.run(suite());
     }
 }

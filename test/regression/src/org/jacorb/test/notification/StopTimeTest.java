@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.HashSet;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
@@ -45,6 +43,8 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
+import org.jacorb.util.Debug;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -53,7 +53,7 @@ import org.omg.TimeBase.UtcTHelper;
 
 public class StopTimeTest extends NotificationTestCase
 {
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     MessageFactory notificationEventFactory_;
     ApplicationContext applicationContext_;

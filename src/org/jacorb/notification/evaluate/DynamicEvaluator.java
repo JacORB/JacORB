@@ -21,17 +21,18 @@ package org.jacorb.notification.evaluate;
  *
  */
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.node.DynamicTypeException;
 import org.jacorb.notification.node.EvaluationResult;
+import org.jacorb.util.Debug;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
+import org.omg.CosNotification.Property;
 import org.omg.DynamicAny.DynAny;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -43,7 +44,8 @@ import org.omg.DynamicAny.DynStruct;
 import org.omg.DynamicAny.DynStructHelper;
 import org.omg.DynamicAny.DynUnion;
 import org.omg.DynamicAny.DynUnionHelper;
-import org.omg.CosNotification.Property;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * IdentifierEvaluator.java
@@ -63,8 +65,7 @@ public class DynamicEvaluator
 
     ////////////////////////////////////////
 
-    private Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private ORB orb_;
     private DynAnyFactory dynAnyFactory_;
@@ -100,7 +101,7 @@ public class DynamicEvaluator
 
     public Any evaluateExistIdentifier( Any value,
                                         String identifier )
-        throws EvaluationException
+    throws EvaluationException
     {
         try
         {
@@ -174,18 +175,18 @@ public class DynamicEvaluator
         switch ( value.type().kind().value() )
         {
 
-        case TCKind._tk_array:
-            DynAny _dynAny = toDynAny( value );
-            _length = _dynAny.component_count();
-            break;
+            case TCKind._tk_array:
+                DynAny _dynAny = toDynAny( value );
+                _length = _dynAny.component_count();
+                break;
 
-        case TCKind._tk_sequence:
-            DynSequence _dynSequence = toDynSequence( value );
-            _length = _dynSequence.get_length();
-            break;
+            case TCKind._tk_sequence:
+                DynSequence _dynSequence = toDynSequence( value );
+                _length = _dynSequence.get_length();
+                break;
 
-        default:
-            throw new EvaluationException( "Neither array nor sequence" );
+            default:
+                throw new EvaluationException( "Neither array nor sequence" );
         }
 
         Any _any = orb_.create_any();
@@ -229,25 +230,25 @@ public class DynamicEvaluator
             switch ( unionTypeCode.discriminator_type().kind().value() )
             {
 
-            case TCKind._tk_long:
-                _any.insert_long( discriminator );
-                break;
+                case TCKind._tk_long:
+                    _any.insert_long( discriminator );
+                    break;
 
-            case TCKind._tk_ulong:
-                _any.insert_ulong( discriminator );
-                break;
+                case TCKind._tk_ulong:
+                    _any.insert_ulong( discriminator );
+                    break;
 
-            case TCKind._tk_short:
-                _any.insert_short( ( short ) discriminator );
-                break;
+                case TCKind._tk_short:
+                    _any.insert_short( ( short ) discriminator );
+                    break;
 
-            case TCKind._tk_double:
-                _any.insert_double( discriminator );
-                break;
+                case TCKind._tk_double:
+                    _any.insert_double( discriminator );
+                    break;
 
-            case TCKind._tk_ushort:
-                _any.insert_ushort( ( short ) discriminator );
-                break;
+                case TCKind._tk_ushort:
+                    _any.insert_ushort( ( short ) discriminator );
+                    break;
             }
 
             int _memberCount = unionTypeCode.member_count();
@@ -464,13 +465,13 @@ public class DynamicEvaluator
             switch ( any.type().kind().value() )
             {
 
-            case TCKind._tk_struct:
-                any.seek( position );
-                _cursor = any.current_component();
-                break;
+                case TCKind._tk_struct:
+                    any.seek( position );
+                    _cursor = any.current_component();
+                    break;
 
-            default:
-                throw new EvaluationException( "attempt to access member on non-struct" );
+                default:
+                    throw new EvaluationException( "attempt to access member on non-struct" );
             }
 
             return _cursor.to_any();
@@ -505,20 +506,20 @@ public class DynamicEvaluator
         switch ( any.type().kind().value() )
         {
 
-        case TCKind._tk_union:
-            DynUnion _dynUnion = toDynUnion( any );
-            return _dynUnion.get_discriminator().to_any();
+            case TCKind._tk_union:
+                DynUnion _dynUnion = toDynUnion( any );
+                return _dynUnion.get_discriminator().to_any();
 
-        default:
-            throw new EvaluationException( "any does not contain member _d" );
+            default:
+                throw new EvaluationException( "any does not contain member _d" );
         }
     }
 
     public EvaluationResult evaluateElementInSequence( EvaluationContext context,
-            EvaluationResult element,
-            Any sequence )
-    throws DynamicTypeException,
-                EvaluationException
+                                                       EvaluationResult element,
+                                                       Any sequence )
+        throws DynamicTypeException,
+               EvaluationException
     {
         try
         {
@@ -556,7 +557,7 @@ public class DynamicEvaluator
      * expensive
      */
     public Any evaluateIdentifier( Any any, String identifier )
-    throws EvaluationException
+        throws EvaluationException
     {
 
         // expensive call
@@ -570,7 +571,7 @@ public class DynamicEvaluator
      *
      */
     Any evaluateIdentifier( DynAny any, String identifier )
-    throws EvaluationException
+        throws EvaluationException
     {
         try
         {
@@ -589,77 +590,77 @@ public class DynamicEvaluator
             switch ( any.type().kind().value() )
             {
 
-            case TCKind._tk_struct:
+                case TCKind._tk_struct:
 
-                logger_.debug( "Any is a struct" );
+                    logger_.debug( "Any is a struct" );
 
-                DynStruct _dynStruct = DynStructHelper.narrow( any );
-                String _currentName;
+                    DynStruct _dynStruct = DynStructHelper.narrow( any );
+                    String _currentName;
 
-                _dynStruct.rewind();
+                    _dynStruct.rewind();
 
-                while ( true )
-                {
-                    _currentName = _dynStruct.current_member_name();
+                    while ( true )
+                    {
+                        _currentName = _dynStruct.current_member_name();
+
+                        if ( logger_.isDebugEnabled() )
+                        {
+                            logger_.debug( " => " + _currentName );
+                        }
+
+                        if ( _currentName.equals( _strippedIdentifier ) )
+                        {
+                            // expensive operation
+                            _cursor = _dynStruct.current_component();
+                            break;
+                        }
+
+                        boolean _hasNext = _dynStruct.next();
+
+                        if ( !_hasNext )
+                        {
+                            throw new EvaluationException( "struct has no member " + _strippedIdentifier );
+                        }
+                    }
+
+                    break;
+
+                case TCKind._tk_union:
 
                     if ( logger_.isDebugEnabled() )
                     {
-                        logger_.debug( " => " + _currentName );
+                        logger_.debug( "Any is a Union" );
                     }
 
-                    if ( _currentName.equals( _strippedIdentifier ) )
+                    DynUnion _dynUnion = toDynUnion( any );
+
+                    if ( _dynUnion.member_name().equals( _strippedIdentifier ) )
                     {
-                        // expensive operation
-                        _cursor = _dynStruct.current_component();
-                        break;
+                        _cursor = _dynUnion.member();
                     }
-
-                    boolean _hasNext = _dynStruct.next();
-
-                    if ( !_hasNext )
+                    else
                     {
-                        throw new EvaluationException( "struct has no member " + _strippedIdentifier );
-                    }
-                }
+                        if ( logger_.isDebugEnabled() )
+                        {
+                            logger_.debug( _dynUnion.member_name() + " != " + _strippedIdentifier );
+                        }
 
-                break;
-
-            case TCKind._tk_union:
-
-                if ( logger_.isDebugEnabled() )
-                {
-                    logger_.debug( "Any is a Union" );
-                }
-
-                DynUnion _dynUnion = toDynUnion( any );
-
-                if ( _dynUnion.member_name().equals( _strippedIdentifier ) )
-                {
-                    _cursor = _dynUnion.member();
-                }
-                else
-                {
-                    if ( logger_.isDebugEnabled() )
-                    {
-                        logger_.debug( _dynUnion.member_name() + " != " + _strippedIdentifier );
+                        throw new EvaluationException( "member " +
+                                                       _strippedIdentifier +
+                                                       " is not active on struct" );
                     }
 
-                    throw new EvaluationException( "member " +
-                                                   _strippedIdentifier +
-                                                   " is not active on struct" );
-                }
+                    break;
 
-                break;
+                case TCKind._tk_any:
+                    logger_.debug( "encapsulated any" );
 
-            case TCKind._tk_any:
-                logger_.debug( "encapsulated any" );
+                    return evaluateIdentifier( any.get_any(), _strippedIdentifier );
 
-                return evaluateIdentifier( any.get_any(), _strippedIdentifier );
-
-            default:
-                logger_.debug( "unknown " + any.type() );
-                return null;
-                //            throw new RuntimeException();
+                default:
+                    logger_.debug( "unknown " + any.type() );
+                    return null;
+                    //            throw new RuntimeException();
             }
 
             if ( logger_.isDebugEnabled() )

@@ -23,16 +23,17 @@ package org.jacorb.notification.node;
 
 import java.lang.reflect.Field;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.parser.TCLParserTokenTypes;
+import org.jacorb.util.Debug;
+
 import org.omg.CORBA.TCKind;
 
 import antlr.BaseAST;
 import antlr.Token;
 import antlr.collections.AST;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * Base Class for TCLTree Nodes.
@@ -48,9 +49,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
     private TCKind tcKind_;
     private String name_;
 
-    protected Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
-
+    protected Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     ////////////////////////////////////////////////////////////
     // Constructor
@@ -83,7 +82,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
      */
     public EvaluationResult evaluate( EvaluationContext context )
     throws DynamicTypeException,
-           EvaluationException
+                EvaluationException
     {
         return null;
     }
@@ -94,7 +93,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
      * @param visitor
      */
     public abstract void acceptInOrder( AbstractTCLVisitor visitor )
-        throws VisitorException;
+    throws VisitorException;
 
     /**
      * accept a visitor for traversal in Preorder. the root node is
@@ -103,7 +102,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
      * @param visitor
      */
     public abstract void acceptPreOrder( AbstractTCLVisitor visitor )
-        throws VisitorException;
+    throws VisitorException;
 
     /**
      * accept a visitor for traversal in Postorder. the right and left
@@ -112,7 +111,7 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
      * @param visitor
      */
     public abstract void acceptPostOrder( AbstractTCLVisitor visitor )
-        throws VisitorException;
+    throws VisitorException;
 
     ////////////////////////////////////////////////////////////
 

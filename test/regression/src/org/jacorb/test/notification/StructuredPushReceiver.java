@@ -5,8 +5,7 @@ import java.util.Vector;
 
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 import junit.framework.TestCase;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -26,12 +25,14 @@ import org.omg.CosNotifyComm.StructuredPushConsumerOperations;
 import org.omg.CosNotifyComm.StructuredPushConsumerPOATie;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 public class StructuredPushReceiver extends Thread
     implements StructuredPushConsumerOperations,
                TestClientOperations {
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
 
     StructuredProxyPushSupplier pushSupplier_;

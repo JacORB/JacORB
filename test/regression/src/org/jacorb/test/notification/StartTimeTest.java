@@ -43,8 +43,8 @@ import org.omg.CosNotification.StartTime;
 import java.util.Date;
 import org.jacorb.notification.engine.TaskProcessor;
 import EDU.oswego.cs.dl.util.concurrent.Latch;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  *  Unit Test for class StartTime
@@ -58,7 +58,7 @@ import org.apache.log.Hierarchy;
 
 public class StartTimeTest extends TestCase
 {
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     MessageFactory notificationEventFactory_;
     ApplicationContext applicationContext_;

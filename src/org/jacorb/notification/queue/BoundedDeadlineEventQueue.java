@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Vector;
 
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.util.Debug;
 
 import EDU.oswego.cs.dl.util.concurrent.Heap;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -40,7 +40,7 @@ import org.apache.log.Logger;
 public class BoundedDeadlineEventQueue extends AbstractBoundedEventQueue
 {
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private Heap heap_;
     private long counter_ = 0;

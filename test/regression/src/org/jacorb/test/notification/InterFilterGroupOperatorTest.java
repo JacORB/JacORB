@@ -39,8 +39,8 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintInfo;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  *  Unit Test for class InterFilterGroupOperator
@@ -62,7 +62,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase {
     Filter trueFilter_;
     Filter falseFilter_;
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     public void setUp() throws Exception {
         factory_ = getEventChannelFactory();

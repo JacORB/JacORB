@@ -22,9 +22,9 @@ package org.jacorb.notification.node;
  */
 
 import org.jacorb.notification.parser.TCLParserTokenTypes;
+import org.jacorb.util.Debug;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * StaticTypeChecker.java
@@ -36,95 +36,117 @@ import org.apache.log.Logger;
  * @version $Id$
  */
 
-public class StaticTypeChecker extends AbstractTCLVisitor implements TCLParserTokenTypes {
+public class StaticTypeChecker extends AbstractTCLVisitor implements TCLParserTokenTypes
+{
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
-    public void check(AbstractTCLNode rootNode) throws StaticTypeException {
-        try {
+    public void check(AbstractTCLNode rootNode) throws StaticTypeException
+    {
+        try
+        {
             rootNode.acceptPostOrder(this);
-        } catch (VisitorException e) {
+        }
+        catch (VisitorException e)
+        {
             throw new StaticTypeException(e.getMessage());
         }
     }
 
     static void checkBinaryNumaryOperatorNode(AbstractTCLNode node)
-        throws StaticTypeException {
+    throws StaticTypeException
+    {
 
-        if (node.isStatic()) {
-            if (node.left().isNumber() && node.right().isNumber()) {
-                return;
+        if (node.isStatic())
+        {
+            if (node.left().isNumber() && node.right().isNumber())
+            {
+                return ;
             }
             throw new StaticTypeException("num or float or identifier (or bool) excepted)");
-        } else {
-            return;
+        }
+        else
+        {
+            return ;
         }
     }
 
-    static void checkCMPNode(AbstractTCLNode node) throws StaticTypeException {
+    static void checkCMPNode(AbstractTCLNode node) throws StaticTypeException
+    {
 
 
 
-//      if (_leftKind.equals(TCKind.tk_boolean) &&
-//          _rightKind.equals(TCKind.tk_boolean)) {
-//          return;
-//      }
+        //      if (_leftKind.equals(TCKind.tk_boolean) &&
+        //          _rightKind.equals(TCKind.tk_boolean)) {
+        //          return;
+        //      }
 
-//      if (_leftKind.equals(TCKind.tk_string) &&
-//          _rightKind.equals(TCKind.tk_string)) {
-//          return;
-//      }
+        //      if (_leftKind.equals(TCKind.tk_string) &&
+        //          _rightKind.equals(TCKind.tk_string)) {
+        //          return;
+        //      }
 
-//      if ((_leftKind.equals(TCKind.tk_float) ||
-//           _leftKind.equals(TCKind.tk_long) ||
-//           _leftKind.equals(TCKind.tk_boolean))
-//          &&
-//          (_rightKind.equals(TCKind.tk_float) ||
-//           _rightKind.equals(TCKind.tk_long) ||
-//           _rightKind.equals(TCKind.tk_boolean))) {
-//          return;
-//      }
+        //      if ((_leftKind.equals(TCKind.tk_float) ||
+        //           _leftKind.equals(TCKind.tk_long) ||
+        //           _leftKind.equals(TCKind.tk_boolean))
+        //          &&
+        //          (_rightKind.equals(TCKind.tk_float) ||
+        //           _rightKind.equals(TCKind.tk_long) ||
+        //           _rightKind.equals(TCKind.tk_boolean))) {
+        //          return;
+        //      }
 
-//      throw new StaticTypeException("incompatible operands");
+        //      throw new StaticTypeException("incompatible operands");
     }
 
-    public void visitGt(GtOperator n) throws VisitorException {
+    public void visitGt(GtOperator n) throws VisitorException
+    {
         checkCMPNode(n);
     }
 
-    public void visitPlus(PlusOperator n) throws VisitorException {
+    public void visitPlus(PlusOperator n) throws VisitorException
+    {
         checkBinaryNumaryOperatorNode(n);
     }
 
-    public void visitMinus(MinusOperator node) throws VisitorException {
+    public void visitMinus(MinusOperator node) throws VisitorException
+    {
         checkBinaryNumaryOperatorNode(node);
     }
 
-    public void visitDiv(DivOperator node) throws VisitorException {
+    public void visitDiv(DivOperator node) throws VisitorException
+    {
         checkBinaryNumaryOperatorNode(node);
     }
 
-    public void visitMult(MultOperator node) throws VisitorException {
+    public void visitMult(MultOperator node) throws VisitorException
+    {
         checkBinaryNumaryOperatorNode(node);
     }
 
-    public void visitSubstr(SubstrOperator node) throws VisitorException {
+    public void visitSubstr(SubstrOperator node) throws VisitorException
+    {
 
-        if (node.isStatic()) {
-            if (node.left().isString() && node.right().isString()) {
-                return;
+        if (node.isStatic())
+        {
+            if (node.left().isString() && node.right().isString())
+            {
+                return ;
             }
             throw new StaticTypeException("~ Operator expects 2 Strings");
         }
     }
 
-    public void visitAnd(AndOperator and) throws VisitorException {
-        if (and.isStatic()) {
-            if (and.left().isBoolean() && and.right().isBoolean()) {
-                return;
+    public void visitAnd(AndOperator and) throws VisitorException
+    {
+        if (and.isStatic())
+        {
+            if (and.left().isBoolean() && and.right().isBoolean())
+            {
+                return ;
             }
             throw new StaticTypeException("bool value expected");
         }
     }
 
-}// StaticTypeChecker
+} // StaticTypeChecker

@@ -21,20 +21,20 @@ package org.jacorb.notification.engine;
  *
  */
 
+import org.jacorb.notification.ConfigurableProperties;
+import org.jacorb.notification.Constants;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
 
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.TRANSIENT;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import org.jacorb.notification.ConfigurableProperties;
-import org.jacorb.util.Environment;
-import org.jacorb.notification.Constants;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * TaskConfigurator.java
@@ -46,8 +46,7 @@ import org.jacorb.notification.Constants;
 public class TaskConfigurator implements Disposable
 {
 
-    final Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    final Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private TaskProcessor taskProcessor_;
 
@@ -492,8 +491,8 @@ public class TaskConfigurator implements Disposable
      * @return a <code>PushToConsumerTask[]</code> value
      */
     AbstractDeliverTask[] newPushToConsumerTask(FilterStage [] seqFilterStageWithEventConsumer,
-                                                      Message defaultMessage,
-                                                      FilterProxySupplierTask.AlternateMessageMap map) {
+                                                Message defaultMessage,
+                                                FilterProxySupplierTask.AlternateMessageMap map) {
 
         AbstractDeliverTask[] _seqPushToConsumerTask =
             new AbstractDeliverTask[ seqFilterStageWithEventConsumer.length ];

@@ -19,8 +19,9 @@ import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import junit.framework.TestCase;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
+
 
 public class StructuredPullReceiver extends Thread implements StructuredPullConsumerOperations, TestClientOperations {
 
@@ -29,7 +30,7 @@ public class StructuredPullReceiver extends Thread implements StructuredPullCons
     POA poa_;
     boolean connected_;
     StructuredProxyPullSupplier pullSupplier_;
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
     boolean received_;
     long TIMEOUT = 2000;
     boolean error_;

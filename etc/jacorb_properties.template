@@ -677,7 +677,7 @@ jtrader.max_link_follow_policy=
 
 ########################################################
 #                                                      #
-#   Notification configuration, please see             #
+#   Notification Service configuration, please see     #
 #   src/org/jacorb/notification/README.PROPERTIES for  #
 #   explanation                                        #
 #                                                      #
@@ -701,13 +701,17 @@ jacorb.notification.backout_interval = 5000
 
 jacorb.notification.eventconsumer_error_threshold = 3
 
-jacorb.logging.NOTIFY = console
-jacorb.logging.NOTIFY.priority = WARN
-jacorb.logging.NOTIFY.category = org.jacorb.notification
 
-jacorb.logging.NOTIFY_TEST = console
-jacorb.logging.NOTIFY_TEST.priority = NONE
-jacorb.logging.NOTIFY_TEST.category = org.jacorb.test.notification
+# Notification Service log levels:
+# 0 = fatal errors only = "almost off" (FATAL ERRORS)
+# 1 = non-fatal errors and exceptions (ERROR)
+# 2 = important messages (WARN)
+# 3 = informational messages and exceptions (INFO)
+# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
+
+org.jacorb.notification.log.verbosity = 3
+org.jacorb.test.notification.log.verbosity = 3
+
 
 # any other custom properties can be added here.
 # These are available through the API (call

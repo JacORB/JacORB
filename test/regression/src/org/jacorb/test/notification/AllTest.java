@@ -21,8 +21,6 @@ package org.jacorb.test.notification;
  *
  */
 
-import org.jacorb.notification.util.LogConfiguration;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -37,11 +35,6 @@ import junit.swingui.TestRunner;
 
 public class AllTest extends TestCase
 {
-
-    static
-    {
-        LogConfiguration.getInstance().configure();
-    }
 
     public AllTest( String name )
     {

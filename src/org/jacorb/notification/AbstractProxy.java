@@ -29,7 +29,9 @@ import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.jacorb.util.Debug;
 
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
@@ -47,10 +49,8 @@ import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import org.omg.CORBA.NO_IMPLEMENT;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * ProxyBase.java
@@ -60,17 +60,17 @@ import org.omg.CORBA.NO_IMPLEMENT;
  */
 
 public abstract class AbstractProxy implements FilterAdminOperations,
-                                           NotifyPublishOperations,
-                                           QoSAdminOperations,
-                                           FilterStage,
-                                           Disposable {
+            NotifyPublishOperations,
+            QoSAdminOperations,
+            FilterStage,
+            Disposable
+{
 
     private SynchronizedInt errorCounter_ = new SynchronizedInt(0);
 
     protected final static Integer NO_KEY = null;
 
-    protected Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     protected List proxyDisposedEventListener_;
     protected MessageFactory notificationEventFactory_;
@@ -90,10 +90,10 @@ public abstract class AbstractProxy implements FilterAdminOperations,
     protected MappingFilter priorityFilter_;
 
     protected AbstractProxy(AbstractAdmin admin,
-                        ApplicationContext appContext,
-                        ChannelContext channelContext,
-                        PropertyManager adminProperties,
-                        PropertyManager qosProperties)
+                            ApplicationContext appContext,
+                            ChannelContext channelContext,
+                            PropertyManager adminProperties,
+                            PropertyManager qosProperties)
     {
         this(admin,
              appContext,
@@ -104,11 +104,11 @@ public abstract class AbstractProxy implements FilterAdminOperations,
     }
 
     protected AbstractProxy(AbstractAdmin admin,
-                        ApplicationContext appContext,
-                        ChannelContext channelContext,
-                        PropertyManager adminProperties,
-                        PropertyManager qosProperties,
-                        Integer key)
+                            ApplicationContext appContext,
+                            ChannelContext channelContext,
+                            PropertyManager adminProperties,
+                            PropertyManager qosProperties,
+                            Integer key)
     {
         myAdmin_ = admin;
         key_ = key;
@@ -128,9 +128,12 @@ public abstract class AbstractProxy implements FilterAdminOperations,
 
     public void addProxyDisposedEventListener(ProxyEventListener listener)
     {
-        if (proxyDisposedEventListener_ == null) {
-            synchronized(this) {
-                if (proxyDisposedEventListener_ == null) {
+        if (proxyDisposedEventListener_ == null)
+        {
+            synchronized (this)
+            {
+                if (proxyDisposedEventListener_ == null)
+                {
                     proxyDisposedEventListener_ = new Vector();
                 }
             }
@@ -141,7 +144,8 @@ public abstract class AbstractProxy implements FilterAdminOperations,
 
     public void removeProxyDisposedEventListener(ProxyEventListener listener)
     {
-        if (proxyDisposedEventListener_ != null) {
+        if (proxyDisposedEventListener_ != null)
+        {
             proxyDisposedEventListener_.remove(listener);
         }
     }
@@ -178,14 +182,14 @@ public abstract class AbstractProxy implements FilterAdminOperations,
 
     public void validate_event_qos(Property[] qosProps,
                                    NamedPropertyRangeSeqHolder propSeqHolder)
-        throws UnsupportedQoS
+    throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT();
     }
 
     public void validate_qos(Property[] qosProps,
                              NamedPropertyRangeSeqHolder propSeqHolder)
-        throws UnsupportedQoS
+    throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT();
     }
@@ -202,14 +206,14 @@ public abstract class AbstractProxy implements FilterAdminOperations,
 
     public void offer_change(EventType[] eventTypes,
                              EventType[] eventTypes2)
-        throws InvalidEventType
+    throws InvalidEventType
     {
         throw new NO_IMPLEMENT();
     }
 
     public void subscription_change(EventType[] eventType,
                                     EventType[] eventType2)
-        throws InvalidEventType
+    throws InvalidEventType
     {
         throw new NO_IMPLEMENT();
     }
@@ -267,19 +271,23 @@ public abstract class AbstractProxy implements FilterAdminOperations,
 
     synchronized public void dispose()
     {
-        if (logger_.isDebugEnabled()) {
+        if (logger_.isDebugEnabled())
+        {
             logger_.debug("dispose()");
         }
 
-        if (!disposed_) {
+        if (!disposed_)
+        {
             remove_all_filters();
             disposed_ = true;
             Iterator _i;
 
-            if (proxyDisposedEventListener_ != null) {
+            if (proxyDisposedEventListener_ != null)
+            {
                 _i = proxyDisposedEventListener_.iterator();
                 ProxyEvent _event = new ProxyEvent(this);
-                while(_i.hasNext()) {
+                while (_i.hasNext())
+                {
 
                     ProxyEventListener _listener =
                         (ProxyEventListener)_i.next();
@@ -287,10 +295,13 @@ public abstract class AbstractProxy implements FilterAdminOperations,
                     _listener.actionProxyDisposed(_event);
                 }
             }
-            try {
+            try
+            {
                 byte[] _oid = applicationContext_.getPoa().servant_to_id(getServant());
                 applicationContext_.getPoa().deactivate_object(_oid);
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 logger_.fatalError("Couldnt deactivate Object", e);
             }
         }
@@ -321,35 +332,43 @@ public abstract class AbstractProxy implements FilterAdminOperations,
         return disposed_;
     }
 
-    public boolean isConnected() {
+    public boolean isConnected()
+    {
         return connected_;
     }
 
-    public boolean hasLifetimeFilter() {
+    public boolean hasLifetimeFilter()
+    {
         return lifetimeFilter_ != null;
     }
 
-    public boolean hasPriorityFilter() {
+    public boolean hasPriorityFilter()
+    {
         return priorityFilter_ != null;
     }
 
-    public MappingFilter getLifetimeFilter() {
+    public MappingFilter getLifetimeFilter()
+    {
         return lifetimeFilter_;
     }
 
-    public MappingFilter getPriorityFilter() {
+    public MappingFilter getPriorityFilter()
+    {
         return priorityFilter_;
     }
 
-    public void resetErrorCounter() {
+    public void resetErrorCounter()
+    {
         errorCounter_.set(0);
     }
 
-    public int getErrorCounter() {
+    public int getErrorCounter()
+    {
         return errorCounter_.get();
     }
 
-    public int incErrorCounter() {
+    public int incErrorCounter()
+    {
         return errorCounter_.increment();
     }
 

@@ -53,8 +53,8 @@ import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.Servant;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  * Abstract Baseclass for Adminobjects.
@@ -65,15 +65,15 @@ import org.apache.log.Logger;
  */
 
 public abstract class AbstractAdmin
-    implements QoSAdminOperations,
-               FilterAdminOperations,
-               FilterStage
+            implements QoSAdminOperations,
+            FilterAdminOperations,
+            FilterStage
 {
     /**
      * the default InterFilterGroupOperator used.
      */
     protected static final InterFilterGroupOperator
-        DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
+    DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
 
     protected static final int NO_ID = Integer.MIN_VALUE;
 
@@ -94,8 +94,7 @@ public abstract class AbstractAdmin
     protected Map allProxies_;
     private Map servantCache_ = Collections.EMPTY_MAP;
 
-    protected Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    protected Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     protected PropertyManager qosProperties_;
     protected PropertyManager adminProperties_;
@@ -135,11 +134,11 @@ public abstract class AbstractAdmin
     }
 
     protected AbstractAdmin( ApplicationContext aApplicationContext,
-                         ChannelContext aChannelContext,
-                         PropertyManager aAdminPropertyManager,
-                         PropertyManager aQoSPropertyManager,
-                         int aId,
-                         InterFilterGroupOperator aInterFilterGroupOperator )
+                             ChannelContext aChannelContext,
+                             PropertyManager aAdminPropertyManager,
+                             PropertyManager aQoSPropertyManager,
+                             int aId,
+                             InterFilterGroupOperator aInterFilterGroupOperator )
     {
 
         qosProperties_ = aQoSPropertyManager;
@@ -160,9 +159,9 @@ public abstract class AbstractAdmin
     }
 
     protected AbstractAdmin( ApplicationContext aApplicationContext,
-                         ChannelContext aChannelContext,
-                         PropertyManager aAdminPropertyManager,
-                         PropertyManager aQoSPropertyManager )
+                             ChannelContext aChannelContext,
+                             PropertyManager aAdminPropertyManager,
+                             PropertyManager aQoSPropertyManager )
     {
 
         this( aApplicationContext,
@@ -240,7 +239,7 @@ public abstract class AbstractAdmin
 
     public void validate_qos( Property[] aPropertySeq,
                               NamedPropertyRangeSeqHolder propertyRangeSeqHolder )
-        throws UnsupportedQoS
+    throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT("The method validate_qos is not supported yet");
     }
@@ -338,7 +337,8 @@ public abstract class AbstractAdmin
         return key_;
     }
 
-    public void remove( AbstractProxy aProxy )
+    public void remove
+        ( AbstractProxy aProxy )
     {
         Servant _servant = ( Servant ) servantCache_.remove( aProxy );
 

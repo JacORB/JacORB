@@ -22,8 +22,8 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
 import org.omg.DynamicAny.DynAnyFactory;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /**
  * TestUtils.java
@@ -41,7 +41,7 @@ public class NotificationTestUtils {
     StructuredEvent structuredEvent_;
     Any structuredEventAny_;
 
-    static Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(NotificationTestUtils.class.getName());
+    static Logger logger_ = Debug.getNamedLogger(NotificationTestUtils.class.getName());
 
     public NotificationTestUtils(ORB orb) {
         orb_ = orb;

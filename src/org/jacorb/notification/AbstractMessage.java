@@ -24,14 +24,15 @@ package org.jacorb.notification;
 import java.util.Date;
 
 import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.DynamicTypeException;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.node.RuntimeVariableNode;
+import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
@@ -43,8 +44,7 @@ import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -59,19 +59,23 @@ public abstract class AbstractMessage extends AbstractPoolable
      * AbstractMessage is kept only once. MessageHandle realizes
      * reference counting. As the last reference is disposed the
      * instance of AbstractMessage can be disposed.
-     * MessageHandle also allows its priority and timeout to be
-     * changed (Note: The real Message isn't modified by this).
+     * MessageHandle also allows the priority and timeout to be
+     * changed on a per handle base (the underlying AbstractMessage
+     * isn't affected by this)
      */
-    class MessageHandle implements Message, Disposable {
+    class MessageHandle implements Message, Disposable
+    {
 
-        MessageHandle() {
+        MessageHandle()
+        {
             addReference();
         }
 
         private MessageHandle(int priority,
                               boolean priorityOverride,
                               long timeout,
-                              boolean timeoutOverride) {
+                              boolean timeoutOverride)
+        {
 
             // i would like to write this() here to call the no-args
             // construtor.
@@ -94,27 +98,33 @@ public abstract class AbstractMessage extends AbstractPoolable
         private boolean timeoutOverride_ = false;
         private long timeOut_;
 
-        public void setInitialFilterStage(FilterStage s) {
+        public void setInitialFilterStage(FilterStage s)
+        {
             AbstractMessage.this.setFilterStage(s);
         }
 
-        public String getConstraintKey() {
+        public String getConstraintKey()
+        {
             return AbstractMessage.this.getConstraintKey();
         }
 
-        public Any toAny() {
+        public Any toAny()
+        {
             return AbstractMessage.this.toAny();
         }
 
-        public StructuredEvent toStructuredEvent() {
+        public StructuredEvent toStructuredEvent()
+        {
             return AbstractMessage.this.toStructuredEvent();
         }
 
-        public int getType() {
+        public int getType()
+        {
             return AbstractMessage.this.getType();
         }
 
-        public FilterStage getInitialFilterStage() {
+        public FilterStage getInitialFilterStage()
+        {
             return AbstractMessage.this.getFilterStage();
         }
 
@@ -125,8 +135,8 @@ public abstract class AbstractMessage extends AbstractPoolable
                    DynamicTypeException
         {
             return AbstractMessage.this.extractValue(context,
-                                                           componentName,
-                                                           runtimeVariable);
+                    componentName,
+                    runtimeVariable);
         }
 
         public EvaluationResult extractValue( EvaluationContext context,
@@ -136,120 +146,153 @@ public abstract class AbstractMessage extends AbstractPoolable
             return AbstractMessage.this.extractValue(context, componentName);
         }
 
-        public  EvaluationResult extractFilterableData( EvaluationContext context,
-                                                        ComponentName componentRootNode,
-                                                        String variable)
-            throws EvaluationException {
+        public EvaluationResult extractFilterableData( EvaluationContext context,
+                                                       ComponentName componentRootNode,
+                                                       String variable)
+            throws EvaluationException
+        {
 
-            return AbstractMessage.this.extractFilterableData(context,
-                                                                    componentRootNode,
-                                                                    variable);
+            return
+                AbstractMessage.this.extractFilterableData(context,
+                        componentRootNode,
+                        variable);
         }
 
         public EvaluationResult extractVariableHeader( EvaluationContext context,
                                                        ComponentName componentName,
-                                                       String s ) throws EvaluationException {
+                                                       String s )
+            throws EvaluationException
+        {
 
             return AbstractMessage.this.extractVariableHeader(context,
-                                                               componentName,
-                                                               s);
+                                                              componentName,
+                                                              s);
         }
 
 
-        public boolean hasStartTime() {
+        public boolean hasStartTime()
+        {
             return AbstractMessage.this.hasStartTime();
         }
 
-        public Date getStartTime() {
+        public Date getStartTime()
+        {
             return AbstractMessage.this.getStartTime();
         }
 
-        public boolean hasStopTime() {
+        public boolean hasStopTime()
+        {
             return AbstractMessage.this.hasStopTime();
         }
 
-        public Date getStopTime() {
+        public Date getStopTime()
+        {
             return AbstractMessage.this.getStopTime();
         }
 
-        public boolean hasTimeout() {
+        public boolean hasTimeout()
+        {
             return AbstractMessage.this.hasTimeout();
         }
 
-        public long getTimeout() {
-            if (timeoutOverride_) {
+        public long getTimeout()
+        {
+            if (timeoutOverride_)
+            {
                 return timeOut_;
-            } else {
+            }
+            else
+            {
                 return AbstractMessage.this.getTimeout();
             }
         }
 
-        public void setTimeout(long timeout) {
+        public void setTimeout(long timeout)
+        {
             timeOut_ = timeout;
 
-            if (eventStateListener_ != null) {
+            if (eventStateListener_ != null)
+            {
                 eventStateListener_.actionLifetimeChanged(timeout);
             }
         }
 
-        public void setPriority(int priority) {
+        public void setPriority(int priority)
+        {
             priorityOverride_ = true;
             priority_ = priority;
         }
 
-        public int getPriority() {
-            if (priorityOverride_) {
+        public int getPriority()
+        {
+            if (priorityOverride_)
+            {
                 return priority_;
-            } else {
+            }
+            else
+            {
                 return AbstractMessage.this.getPriority();
             }
         }
 
-        public boolean match(FilterStage s) {
+        public boolean match(FilterStage s)
+        {
             return AbstractMessage.this.match(s);
         }
 
         public boolean match(MappingFilter m,
-                             AnyHolder r) throws UnsupportedFilterableData {
+                             AnyHolder r) throws UnsupportedFilterableData
+        {
 
             return AbstractMessage.this.match(m, r);
         }
 
-        public Object clone() {
-            try {
+        public Object clone()
+        {
+            try
+            {
                 checkInvalid();
 
                 return new MessageHandle(priority_,
-                                              priorityOverride_,
-                                              timeOut_,
-                                              timeoutOverride_);
-            } catch (InterruptedException e) {
+                                         priorityOverride_,
+                                         timeOut_,
+                                         timeoutOverride_);
+            }
+            catch (InterruptedException e)
+            {
                 return null;
             }
         }
 
-        public void dispose() {
+        public void dispose()
+        {
             removeReference();
         }
 
-        public synchronized boolean isInvalid() {
+        public synchronized boolean isInvalid()
+        {
             return inValid_;
         }
 
-        public void setMessageStateListener(Message.MessageStateListener l) {
+        public void setMessageStateListener(Message.MessageStateListener l)
+        {
             eventStateListener_ = l;
         }
 
-        public synchronized void actionTimeout() {
+        public synchronized void actionTimeout()
+        {
             inValid_ = true;
         }
 
-        public String toString() {
+        public String toString()
+        {
             return "-->" + AbstractMessage.this.toString();
         }
 
-        private void checkInvalid() throws InterruptedException {
-            if (isInvalid()) {
+        private void checkInvalid() throws InterruptedException
+        {
+            if (isInvalid())
+            {
                 throw new InterruptedException("This Notification has been invalidated");
             }
         }
@@ -258,7 +301,7 @@ public abstract class AbstractMessage extends AbstractPoolable
     ////////////////////////////////////////
 
     protected Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+        Debug.getNamedLogger(getClass().getName());
 
     final static ORB sOrb = ORB.init();
 
@@ -269,7 +312,6 @@ public abstract class AbstractMessage extends AbstractPoolable
     private FilterStage currentFilterStage_;
 
     ////////////////////////////////////////
-
 
     /**
      * get the Constraint Key for this Event. The Constraint Key is
@@ -301,7 +343,7 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     /**
      * get the Type of this NotificationEvent. The value is one of
-     * {@link org.jacorb.notification.interfaces.Message#TYPE_ANY TYPE_ANY}, 
+     * {@link org.jacorb.notification.interfaces.Message#TYPE_ANY TYPE_ANY},
      * {@link org.jacorb.notification.interfaces.Message#TYPE_STRUCTURED TYPE_STRUCTURED},
      *  or {@link org.jacorb.notification.interfaces.Message#TYPE_TYPED TYPE_TYPED}.
      *
@@ -360,13 +402,14 @@ public abstract class AbstractMessage extends AbstractPoolable
     public EvaluationResult extractValue(EvaluationContext context,
                                          ComponentName componentRootNode,
                                          RuntimeVariableNode runtimeVariable )
-        throws EvaluationException,
-               DynamicTypeException
+    throws EvaluationException,
+                DynamicTypeException
     {
         EvaluationResult _ret = null;
         String _completePath = componentRootNode.getComponentName();
 
-        if (logger_.isDebugEnabled()) {
+        if (logger_.isDebugEnabled())
+        {
             logger_.debug("Extract " + _completePath);
         }
 
@@ -376,11 +419,12 @@ public abstract class AbstractMessage extends AbstractPoolable
         {
             _ret = runtimeVariable.evaluate(context);
 
-            if (componentRootNode.right() != null) {
+            if (componentRootNode.right() != null)
+            {
                 _ret = MessageUtils.extractFromAny(componentRootNode.right(),
-                                                             _ret.getAny(),
-                                                             context,
-                                                             runtimeVariable.toString());
+                                                   _ret.getAny(),
+                                                   context,
+                                                   runtimeVariable.toString());
             }
             context.storeResult( _completePath, _ret);
         }
@@ -389,19 +433,19 @@ public abstract class AbstractMessage extends AbstractPoolable
     }
 
     public abstract EvaluationResult extractFilterableData(EvaluationContext context,
-                                                           ComponentName componentRootNode,
-                                                           String variable)
-        throws EvaluationException;
+            ComponentName componentRootNode,
+            String variable)
+    throws EvaluationException;
 
     public abstract EvaluationResult extractVariableHeader(EvaluationContext context,
-                                                           ComponentName componentRootNode,
-                                                           String variable)
-        throws EvaluationException;
+            ComponentName componentRootNode,
+            String variable)
+    throws EvaluationException;
 
 
     public EvaluationResult extractValue( EvaluationContext evaluationContext,
                                           ComponentName componentRootNode )
-        throws EvaluationException
+    throws EvaluationException
 
     {
         EvaluationResult _ret = null;
@@ -409,8 +453,11 @@ public abstract class AbstractMessage extends AbstractPoolable
 
         if ( logger_.isDebugEnabled() )
         {
-            logger_.debug( "extractValue path: " + componentRootNode.toStringTree() );
-            logger_.debug( "complete path is: " + _completePath );
+            logger_.debug( "extractValue path: "
+                           + componentRootNode.toStringTree() );
+
+            logger_.debug( "complete path is: "
+                           + _completePath );
         }
 
         _ret = evaluationContext.lookupResult( _completePath );
@@ -420,16 +467,19 @@ public abstract class AbstractMessage extends AbstractPoolable
         if ( _ret == null )
         {
             _ret = MessageUtils.extractFromAny(componentRootNode.left(),
-                                                         toAny(),
-                                                         evaluationContext,
-                                                         componentRootNode.toString());
+                                               toAny(),
+                                               evaluationContext,
+                                               componentRootNode.toString());
 
             // Cache the EvaluationResult
             if ( _ret != null )
             {
                 if ( logger_.isDebugEnabled() )
                 {
-                    logger_.debug( "Cache Result: " + _completePath + " => " + _ret );
+                    logger_.debug( "Cache Result: "
+                                   + _completePath
+                                   + " => "
+                                   + _ret );
                 }
 
                 evaluationContext.storeResult( _completePath, _ret );
@@ -443,7 +493,8 @@ public abstract class AbstractMessage extends AbstractPoolable
         return _ret;
     }
 
-    public Message getHandle() {
+    public Message getHandle()
+    {
         return new MessageHandle();
     }
 
@@ -464,5 +515,6 @@ public abstract class AbstractMessage extends AbstractPoolable
     public abstract boolean match(FilterStage filterStage);
 
     public abstract boolean match(MappingFilter filter,
-                                  AnyHolder value) throws UnsupportedFilterableData;
+                                  AnyHolder value)
+    throws UnsupportedFilterableData;
 }

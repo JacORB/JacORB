@@ -22,8 +22,9 @@ package org.jacorb.notification;
  */
 
 import java.io.IOException;
+
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.util.LogConfiguration;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
@@ -59,13 +60,13 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
     {
         super();
 
-        LogConfiguration.getInstance().configure();
-
         final ORB _orb = ORB.init( new String[ 0 ], null );
+
         POA _poa =
             POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
 
         applicationContext_ = new ApplicationContext( _orb, _poa, true );
+
         isApplicationContextCreatedHere_ = true;
 
         getFilterFactory();
@@ -74,12 +75,13 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
 
         Thread t =
             new Thread( new Runnable()
-                {
-                    public void run()
-                    {
-                        _orb.run();
-                    }
-                });
+                        {
+                            public void run()
+                            {
+                                _orb.run();
+                            }
+                        }
+                      );
 
         t.setDaemon( true );
         t.start();
@@ -95,7 +97,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
     }
 
     public Filter create_filter( String grammar )
-    throws InvalidGrammar
+        throws InvalidGrammar
     {
 
         FilterImpl _servant = create_filter_servant( grammar );
@@ -106,7 +108,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
     }
 
     FilterImpl create_filter_servant( String grammar )
-    throws InvalidGrammar
+        throws InvalidGrammar
     {
 
         if ( CONSTRAINT_GRAMMAR.equals( grammar ) )
@@ -128,7 +130,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
     }
 
     public MappingFilter create_mapping_filter( String grammar,
-            Any any ) throws InvalidGrammar
+                                                Any any ) throws InvalidGrammar
     {
 
         FilterImpl _filterImpl = create_filter_servant( grammar );

@@ -22,14 +22,14 @@ package org.jacorb.notification.util;
  */
 
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.util.Debug;
 
 import EDU.oswego.cs.dl.util.concurrent.DirectExecutor;
 import EDU.oswego.cs.dl.util.concurrent.Executor;
 import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * ThreadPool.java
@@ -41,8 +41,7 @@ import org.apache.log.Logger;
 
 public class ThreadPool implements Executor, Disposable
 {
-    Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private Executor executor_;
     private LinkedQueue channel_;

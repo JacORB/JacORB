@@ -1,4 +1,4 @@
-package org.jacorb.test.notification.engine; // Generated package name
+package org.jacorb.test.notification.engine;
 
 import java.util.Iterator;
 import java.util.Vector;
@@ -11,13 +11,14 @@ import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Assert;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+
 import org.omg.CORBA.TRANSIENT;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 class MockEventConsumer implements EventConsumer {
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     EventQueue eventQueue =
         new BoundedPriorityEventQueue(10,

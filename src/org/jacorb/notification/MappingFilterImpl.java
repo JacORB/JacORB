@@ -40,8 +40,9 @@ import org.omg.CosNotifyFilter.MappingConstraintPair;
 import org.omg.CosNotifyFilter.MappingFilterPOA;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * MappingFilterImpl.java
@@ -81,8 +82,7 @@ public class MappingFilterImpl extends MappingFilterPOA
 
     ////////////////////////////////////////
 
-    Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private FilterImpl filterImpl_;
     private Any defaultValue_;
@@ -90,10 +90,10 @@ public class MappingFilterImpl extends MappingFilterPOA
 
     public MappingFilterImpl( ApplicationContext context,
                               FilterImpl filterImpl,
-                              Any any )
+                              Any defaultValue )
     {
         filterImpl_ = filterImpl;
-        defaultValue_ = any;
+        defaultValue_ = defaultValue;
     }
 
     // Implementation of org.omg.CosNotifyFilter.MappingFilterOperations
@@ -139,7 +139,7 @@ public class MappingFilterImpl extends MappingFilterPOA
     }
 
     public MappingConstraintInfo[] add_mapping_constraints( MappingConstraintPair[] mappingConstraintPairArray )
-    throws InvalidValue, InvalidConstraint
+        throws InvalidValue, InvalidConstraint
     {
         ConstraintExp[] _constraintExpArray =
             new ConstraintExp[ mappingConstraintPairArray.length ];

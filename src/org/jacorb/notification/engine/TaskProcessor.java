@@ -30,14 +30,14 @@ import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.notification.util.ThreadPool;
+import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  *
@@ -48,12 +48,11 @@ import org.apache.log.Logger;
 public class TaskProcessor implements Disposable
 {
 
-    private Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     class TimeoutTask
-        implements Runnable,
-                   Message.MessageStateListener
+                implements Runnable,
+                Message.MessageStateListener
     {
         Object timerRegistration_;
         Message event_;
@@ -108,7 +107,8 @@ public class TaskProcessor implements Disposable
 
         DeferedStartTask( Message event )
         {
-            if ( logger_.isDebugEnabled() ) {
+            if ( logger_.isDebugEnabled() )
+            {
                 logger_.debug("Message has StartTime and will be run at" + event.getStartTime());
             }
 
@@ -122,22 +122,28 @@ public class TaskProcessor implements Disposable
         }
     }
 
-    class EnableEventConsumer implements Runnable {
+    class EnableEventConsumer implements Runnable
+    {
         EventConsumer eventConsumer_;
 
-        EnableEventConsumer(EventConsumer ec) {
+        EnableEventConsumer(EventConsumer ec)
+        {
             logger_.debug("new EnableEventConsumer(" + ec + ")");
 
             eventConsumer_ = ec;
         }
 
-        public void run() {
+        public void run()
+        {
             logger_.debug("run enableEventConsumer");
 
-            try {
+            try
+            {
                 eventConsumer_.enableDelivery();
                 scheduleTimedPushTask(eventConsumer_);
-            } catch (InterruptedException e) {}
+            }
+            catch (InterruptedException e)
+            {}
         }
     }
 
@@ -285,7 +291,7 @@ public class TaskProcessor implements Disposable
      * Schedule a FilterTask for execution.
      */
     public void scheduleFilterTask( AbstractFilterTask task )
-        throws InterruptedException
+    throws InterruptedException
     {
         filterPool_.execute( task );
     }
@@ -298,7 +304,7 @@ public class TaskProcessor implements Disposable
      * FilterTask for execution
      */
     void scheduleOrExecuteFilterTask( AbstractFilterTask task )
-        throws InterruptedException
+    throws InterruptedException
     {
 
         if ( isFilterTaskQueued() )
@@ -316,7 +322,7 @@ public class TaskProcessor implements Disposable
      * Scheduling if possible.
      */
     public void scheduleOrExecutePushToConsumerTask( AbstractDeliverTask task )
-        throws InterruptedException
+    throws InterruptedException
     {
 
         if ( isDeliverTaskQueued() )
@@ -334,7 +340,7 @@ public class TaskProcessor implements Disposable
      * Schedule a PushToConsumerTask for execution.
      */
     public void schedulePushToConsumerTask( AbstractDeliverTask task )
-        throws InterruptedException
+    throws InterruptedException
     {
         deliverPool_.execute( task );
     }
@@ -344,7 +350,7 @@ public class TaskProcessor implements Disposable
      * Schedule an array of PushToConsumerTask for execution.
      */
     void schedulePushToConsumerTask( AbstractDeliverTask[] tasks )
-        throws InterruptedException
+    throws InterruptedException
     {
 
         for ( int x = 0; x < tasks.length; ++x )
@@ -362,7 +368,7 @@ public class TaskProcessor implements Disposable
      * TimerEventSupplier
      */
     public void scheduleTimedPullTask( TimerEventSupplier dest )
-        throws InterruptedException
+    throws InterruptedException
     {
 
         PullFromSupplierTask _task = new PullFromSupplierTask();
@@ -382,7 +388,7 @@ public class TaskProcessor implements Disposable
      * deliverPendingEvents on the specified EventConsumer
      */
     public void scheduleTimedPushTask( EventConsumer consumer )
-        throws InterruptedException
+    throws InterruptedException
     {
 
         TimerDeliverTask _task = new TimerDeliverTask();
@@ -409,8 +415,8 @@ public class TaskProcessor implements Disposable
     {
 
         return getClockDaemon().executePeriodically( intervall,
-                                                     task,
-                                                     startImmediately );
+                task,
+                startImmediately );
     }
 
     public void cancelTask( Object id )
@@ -434,22 +440,23 @@ public class TaskProcessor implements Disposable
         switch ( event.getType() )
         {
 
-        case Message.TYPE_ANY:
-            fireEventDiscarded( event.toAny() );
-            break;
+            case Message.TYPE_ANY:
+                fireEventDiscarded( event.toAny() );
+                break;
 
-        case Message.TYPE_STRUCTURED:
-            fireEventDiscarded( event.toStructuredEvent() );
-            break;
+            case Message.TYPE_STRUCTURED:
+                fireEventDiscarded( event.toStructuredEvent() );
+                break;
 
-        default:
-            throw new RuntimeException();
+            default:
+                throw new RuntimeException();
         }
 
         event.dispose();
     }
 
-    void backoffEventConsumer(EventConsumer ec) {
+    void backoffEventConsumer(EventConsumer ec)
+    {
         logger_.debug("backoffEventConsumer " + ec);
 
         Runnable runEnableTask = new EnableEventConsumer(ec);
@@ -457,16 +464,15 @@ public class TaskProcessor implements Disposable
         executeTaskAfterDelay(backoutInterval_, runEnableTask);
     }
 
-    public TaskConfigurator getTaskConfigurator() {
+    public TaskConfigurator getTaskConfigurator()
+    {
         return taskConfigurator_;
     }
 
     void fireEventDiscarded( Any a )
-    {
-    }
+    {}
 
     void fireEventDiscarded( StructuredEvent e )
-    {
-    }
+    {}
 
 }

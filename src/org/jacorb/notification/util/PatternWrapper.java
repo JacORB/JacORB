@@ -21,8 +21,9 @@ package org.jacorb.notification.util;
  *
  */
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * This is a Wrapper around a PatternMatcher.
@@ -35,10 +36,10 @@ public abstract class PatternWrapper
         new RuntimeException( "Neither java.util.regex.Pattern nor gnu.regexp available. " +
                               "The package java.util.regex is part of the JDK since v1.4 " +
                               "if you are running an older JDK you'll have to install gnu.regexp " +
-                              "to run this NotificationService. Refer to the documentation for details" );
+                              "to run this NotificationService. Please refer to the documentation " +
+                              "for details." );
 
-    static Logger sLogger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( PatternWrapper.class.getName() );
+    static Logger sLogger_ = Debug.getNamedLogger( PatternWrapper.class.getName() );
 
     static boolean sGnuRegexpAvailable = false;
     static Class sDefaultInstance;

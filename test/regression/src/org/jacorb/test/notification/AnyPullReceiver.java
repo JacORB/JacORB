@@ -18,8 +18,8 @@ import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import junit.framework.TestCase;
 import org.omg.CosNotifyChannelAdmin.AdminNotFound;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 
 /*
  *        JacORB - a free Java ORB
@@ -37,7 +37,7 @@ import org.apache.log.Hierarchy;
 
 public class AnyPullReceiver extends PullConsumerPOA implements Runnable, TestClientOperations {
 
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     Any event_ = null;
     boolean received_ = false;
@@ -52,100 +52,100 @@ public class AnyPullReceiver extends PullConsumerPOA implements Runnable, TestCl
     TestCase testCase_;
 
     public AnyPullReceiver(TestCase testCase) {
-	testCase_ = testCase;
+        testCase_ = testCase;
     }
 
     public void connect(NotificationTestCaseSetup setup,
-			EventChannel channel,
-			boolean useOrSemantic) throws AdminNotFound, AlreadyConnected, AdminLimitExceeded {
+                        EventChannel channel,
+                        boolean useOrSemantic) throws AdminNotFound, AlreadyConnected, AdminLimitExceeded {
 
-	orb_ = setup.getClientOrb();
-	poa_ = setup.getClientRootPOA();
+        orb_ = setup.getClientOrb();
+        poa_ = setup.getClientRootPOA();
 
-	IntHolder _proxyId = new IntHolder();
-	IntHolder _adminId = new IntHolder();
+        IntHolder _proxyId = new IntHolder();
+        IntHolder _adminId = new IntHolder();
 
-	if (useOrSemantic) {
-	    adminId_ = new IntHolder();
-	    myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.OR_OP, _adminId);
-	    testCase_.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
-	} else {
-	    myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.AND_OP, _adminId);
-	    testCase_.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
-	}
-	testCase_.assertEquals(myAdmin_, channel.get_consumeradmin(_adminId.value));
+        if (useOrSemantic) {
+            adminId_ = new IntHolder();
+            myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.OR_OP, _adminId);
+            testCase_.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
+        } else {
+            myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.AND_OP, _adminId);
+            testCase_.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
+        }
+        testCase_.assertEquals(myAdmin_, channel.get_consumeradmin(_adminId.value));
 
-	mySupplier_ = 
-	    ProxyPullSupplierHelper.narrow(myAdmin_.
-					   obtain_notification_pull_supplier(ClientType.ANY_EVENT, _proxyId));
+        mySupplier_ =
+            ProxyPullSupplierHelper.narrow(myAdmin_.
+                                           obtain_notification_pull_supplier(ClientType.ANY_EVENT, _proxyId));
 
-	mySupplier_.connect_any_pull_consumer(_this(orb_));
-	connected_ = true;
+        mySupplier_.connect_any_pull_consumer(_this(orb_));
+        connected_ = true;
     }
 
     public void shutdown() {
-	mySupplier_.disconnect_pull_supplier();
-	mySupplier_ = null;
+        mySupplier_.disconnect_pull_supplier();
+        mySupplier_ = null;
 
-	if (myAdmin_ != null) {
-	    myAdmin_.destroy();
-	    myAdmin_ = null;
-	}
+        if (myAdmin_ != null) {
+            myAdmin_.destroy();
+            myAdmin_ = null;
+        }
     }
 
     void reset() {
-	error_ = false;
-	received_ = false;
-	event_ = null;
+        error_ = false;
+        received_ = false;
+        event_ = null;
     }
-    
+
     public boolean isConnected() {
-	return connected_;
+        return connected_;
     }
 
     public boolean isEventHandled() {
-	return received_;
+        return received_;
     }
 
     public boolean isError() {
-	return error_;
+        return error_;
     }
 
     public void run() {
-	BooleanHolder _success = new BooleanHolder();
-	_success.value = false;
-	long _startTime = System.currentTimeMillis();
-	logger_.info("start receiver");
+        BooleanHolder _success = new BooleanHolder();
+        _success.value = false;
+        long _startTime = System.currentTimeMillis();
+        logger_.info("start receiver");
 
-	try {
-	    while (true) {
-		event_ = mySupplier_.try_pull(_success);
-	    
-		if (_success.value) {
-		    logger_.debug("Received Event");
-		    received_ = true;
-		    break;
-		} 
+        try {
+            while (true) {
+                event_ = mySupplier_.try_pull(_success);
 
-		if (System.currentTimeMillis() < _startTime + TIMEOUT) {
-		    Thread.yield();
-		} else {
-		    logger_.debug("Timeout");
-		    received_ = false;
-		    break;
-		}
-	    }
-	} catch (Disconnected d) {
-	    d.printStackTrace();
-	    error_ = true;
-	}
+                if (_success.value) {
+                    logger_.debug("Received Event");
+                    received_ = true;
+                    break;
+                }
+
+                if (System.currentTimeMillis() < _startTime + TIMEOUT) {
+                    Thread.yield();
+                } else {
+                    logger_.debug("Timeout");
+                    received_ = false;
+                    break;
+                }
+            }
+        } catch (Disconnected d) {
+            d.printStackTrace();
+            error_ = true;
+        }
     }
 
     public void offer_change(EventType[] e1, EventType[] e2) {
     }
 
     public void disconnect_pull_consumer() {
-	connected_ = false;
+        connected_ = false;
     }
 
 }// AnyPullReceiver

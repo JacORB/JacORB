@@ -22,6 +22,7 @@ package org.jacorb.notification.evaluate;
  */
 
 import org.jacorb.notification.node.EvaluationResult;
+import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
@@ -30,8 +31,7 @@ import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * ResultExtractor.java
@@ -44,8 +44,7 @@ import org.apache.log.Logger;
 public class ResultExtractor
 {
 
-    private Logger logger_ =
-        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+    private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     public EvaluationResult extractFromAny( Any any )
     {
