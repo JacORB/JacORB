@@ -26,11 +26,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 /**
- * PackageTest.java
- *
- *
- * Created: Mon Apr  7 15:20:03 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
