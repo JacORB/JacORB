@@ -209,7 +209,10 @@ public class CDRInputStream
 
     private final void handle_chunking()
     {
-        if (pos == chunk_end_pos)
+        int remainder = 4 - (index % 4);
+        int aligned_pos = (remainder != 4) ? pos + remainder : pos;
+
+        if (chunk_end_pos >= pos && chunk_end_pos <= aligned_pos)
         {
             chunk_end_pos = -1;
             int saved_pos = pos;
@@ -231,6 +234,12 @@ public class CDRInputStream
                 }
                 valueNestingLevel = - tag;
                 valueNestingLevel--;
+
+                if (valueNestingLevel > 0)
+                {
+                    chunk_end_pos = pos;
+                    handle_chunking();
+                }
             }
             else if (tag < 0x7fffff00)
             {
@@ -393,6 +402,9 @@ public class CDRInputStream
     public final void read_boolean_array
     (final boolean[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
         byte bb;
         for (int j = offset; j < offset + length; j++)
@@ -426,6 +438,9 @@ public class CDRInputStream
     public final void read_char_array
     (final char[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
         for (int j = offset; j < offset + length; j++)
         {
@@ -442,6 +457,9 @@ public class CDRInputStream
     public final void read_double_array
     (final double[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         for (int j = offset; j < offset + length; j++)
         {
             value[j] = Double.longBitsToDouble (read_longlong ());
@@ -488,6 +506,9 @@ public class CDRInputStream
     public final void read_float_array
     (final float[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 
 	int remainder = 4 - (index % 4);
@@ -526,6 +547,9 @@ public class CDRInputStream
     public final void read_long_array
     (final int[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 
 	int remainder = 4 - (index % 4);
@@ -569,6 +593,9 @@ public class CDRInputStream
     public final void read_longlong_array
     (final long[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 
  	int remainder = 8 - (index % 8);
@@ -600,6 +627,8 @@ public class CDRInputStream
 
     public final org.omg.CORBA.Object read_Object()
     {
+        handle_chunking();
+
         org.omg.IOP.IOR ior = org.omg.IOP.IORHelper.read(this);
         ParsedIOR pior = new ParsedIOR( ior );
 
@@ -644,6 +673,9 @@ public class CDRInputStream
     public final void read_octet_array
     (final byte[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 	System.arraycopy (buffer,pos,value,offset,length);
 	index += length;
@@ -680,6 +712,9 @@ public class CDRInputStream
     public final void read_short_array
     (final short[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 
         int remainder = 2 - (index % 2);
@@ -1088,6 +1123,9 @@ public class CDRInputStream
     public final void read_ulong_array
     (final int[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 
 	int remainder = 4 - (index % 4);
@@ -1130,6 +1168,9 @@ public class CDRInputStream
     public final void read_ulonglong_array
     (final long[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 
  	int remainder = 8 - (index % 8);
@@ -1179,6 +1220,9 @@ public class CDRInputStream
     public final void read_ushort_array
     (final short[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 
         int remainder = 2 - (index % 2);
@@ -1333,6 +1377,9 @@ public class CDRInputStream
     public final void read_wchar_array
     (final char[] value, final int offset, final int length)
     {
+        if (length == 0)
+            return;
+
         handle_chunking();
 	for(int j=offset; j < offset+length; j++)
 	    value[j] = read_wchar(); // inlining later...
@@ -1792,8 +1839,8 @@ public class CDRInputStream
 
     public java.io.Serializable read_value()
     {
-	int start_offset = pos;
         int tag = read_long();
+	int start_offset = pos - 4;
 
         if (tag == 0xffffffff)
             // indirection
@@ -1829,8 +1876,9 @@ public class CDRInputStream
 
     public java.io.Serializable read_value (final String rep_id)
     {
-	int start_offset = pos;
         int tag = read_long();
+	int start_offset = pos - 4;
+
         if (tag == 0xffffffff)
         {
             // indirection
@@ -1883,8 +1931,8 @@ public class CDRInputStream
 
     public java.io.Serializable read_value (final java.lang.Class clz)
     {
-	int start_offset = pos;
         int tag = read_long();
+	int start_offset = pos - 4;
 
         if (tag == 0xffffffff)
         {
@@ -1932,8 +1980,8 @@ public class CDRInputStream
     public java.io.Serializable read_value
     (final org.omg.CORBA.portable.BoxedValueHelper factory)
     {
-	int start_offset = pos;
         int tag = read_long();
+	int start_offset = pos - 4;
 
         if (tag == 0xffffffff)
         {
