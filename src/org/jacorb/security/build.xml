@@ -30,11 +30,8 @@
         />
    </target>
 
-   <target name="jsse" if="jsse.present">
-	   <javac srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/security/jsse/*.java"
-        />
+   <target name="jsse">
+           <ant antfile="${src}/org/jacorb/security/jsse/build.xml" dir="${basedir}"/>
    </target>
 
 
@@ -65,6 +62,10 @@
    </target>
 
 </project>
+
+
+
+
 
 
 
