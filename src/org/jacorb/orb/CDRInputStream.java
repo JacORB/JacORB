@@ -1088,16 +1088,16 @@ public class CDRInputStream
 
         index += size;
 
-//         if( (size > 0) &&
-//             (buf[ size - 1 ] == 0) )
-//         {
+        if ((size > 0) &&
+            (buf[ size - 1 ] == 0))
+        {
             //omit terminating NULL char
             result = new String( buf, 0, size - 1 );
-//         }
-//         else
-//         {
-//             result = new String( buf );
-//         }
+        }
+        else
+        {
+            result = new String( buf );
+        }
 
         buf = null;
         return result;
