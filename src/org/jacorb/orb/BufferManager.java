@@ -231,7 +231,7 @@ public final class BufferManager
 
     public void release()
     {
-        printStatistics();
+        // printStatistics();
 	for( int i= MAX; i > 0; )
 	{
 	    i--;
