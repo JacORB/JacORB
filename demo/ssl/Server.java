@@ -2,7 +2,7 @@ package demo.ssl;
 
 import java.io.*;
 
-import iaik.x509.X509Certificate;
+import java.security.cert.X509Certificate;
 
 import org.omg.PortableServer.POA;
 import org.omg.SecurityLevel2.*;
