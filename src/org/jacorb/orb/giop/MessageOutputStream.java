@@ -1,3 +1,5 @@
+package org.jacorb.orb.connection;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,16 +20,8 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.connection;
-
-import java.io.*;
-import java.util.*;
-
-import org.omg.GIOP.*;
-import org.omg.IOP.*;
-
+import java.io.IOException;
 import org.jacorb.orb.CDROutputStream;
-import org.jacorb.util.Debug;
 
 /**
  * MessageOutputStream.java

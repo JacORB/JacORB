@@ -1,3 +1,4 @@
+package org.jacorb.orb.connection;
 
 /*
  *        JacORB - a free Java ORB
@@ -19,17 +20,12 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.connection;
-
-import java.io.*;
-import java.util.*;
-
-import org.omg.GIOP.*;
-import org.omg.IOP.*;
-
+import java.io.IOException;
+import java.util.Vector;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORBConstants;
-import org.jacorb.util.Debug;
+import org.omg.IOP.ServiceContext;
+import org.omg.IOP.ServiceContextHelper;
 
 /**
  * ServiceContextTransportingOutputStream.java
@@ -44,36 +40,44 @@ import org.jacorb.util.Debug;
 public class ServiceContextTransportingOutputStream
     extends MessageOutputStream
 {
-    //The purpose of this array is to align the data following this
-    //array on an 8 byte boundary.  This allows for adding service
-    //contexts to the header without having to remarshal everything
-    //that follows. There are already 12 bytes on the stream (the GIOP
-    //message header), so the next possible 8 byte boundary is
-    //16. This is reached by adding an array of length 0, because that
-    //will only write a ulong for the length (0), which consumes 4
-    //bytes.
-    //
-    // This is only necessary for GIOP 1.0/1.1, because in 1.2, the
-    // service_context array is the last attribute of the
-    // [Request|Reply]Header, and the body is per spec aligned to an 8
-    // byte boundary.
+    /**
+     * The <code>service_context</code> array is to align the data following this
+     * array on an 8 byte boundary.  This allows for adding service
+     * contexts to the header without having to remarshal everything
+     * that follows. There are already 12 bytes on the stream (the GIOP
+     * message header), so the next possible 8 byte boundary is
+     * 16. This is reached by adding an array of length 0, because that
+     * will only write a ulong for the length (0), which consumes 4
+     * bytes.
+     *
+     *  This is only necessary for GIOP 1.0/1.1, because in 1.2, the
+     *  service_context array is the last attribute of the
+     *  [Request|Reply]Header, and the body is per spec aligned to an 8
+     *  byte boundary.
+     */
     protected static ServiceContext[] service_context = new ServiceContext[0];
 
-    //The end of the GIOP message header. Only valid if
-    //header_padding != 0
+    /**
+     * <code>header_end</code> represents the end of the GIOP message header.
+     * Only valid if header_padding != 0
+     */
     private int header_end = -1;
 
-    //no. of bytes used for padding between header and body
+    /**
+     * <code>header_padding</code> represents the number of bytes used for padding
+     * between header and body
+     */
     private int header_padding = 0;
 
-    //If ServiceContexts are actually added, this will be the last
-    //context, and the context_data is used to fill up to the next 8
-    //byte boundary.
-
+    /**
+     * <code>padding_ctx</code> is used if ServiceContexts are actually added.
+     * This will be the last context, and the context_data is used to fill up
+     * to the next 8 byte boundary
+     */
     private static ServiceContext padding_ctx =
         new ServiceContext (ORBConstants.SERVICE_PADDING_CONTEXT, new byte[0]);
 
-    private Vector contexts = null;
+    private Vector contexts;
 
 
     public ServiceContextTransportingOutputStream()
@@ -129,7 +133,7 @@ public class ServiceContextTransportingOutputStream
         {
             if( size() >  header_end + header_padding)
             {
-                //has a body, so include padding (by not removing it :-)
+                //has a body, so include padding by not removing it :-)
                 insertMsgSize( size() - Messages.MSG_HEADER_SIZE );
             }
             else

@@ -52,17 +52,17 @@ public class RequestOutputStream
      * (CORBA 3.0, 22.2.4.1)
      */
     private UtcT requestStartTime = null;
-    
+
     /**
      * Absolute time after which this request may no longer be delivered
      * to its target. (CORBA 3.0, 22.2.4.2/5)
      */
     private UtcT requestEndTime   = null;
 
-    /** 
+    /**
      * Absolute time after which a reply may no longer be obtained
      * or returned to the client. (CORBA 3.0, 22.2.4.4/6)
-     */ 
+     */
     private UtcT replyEndTime     = null;
 
     private org.jacorb.orb.dii.Request request = null;
@@ -71,7 +71,7 @@ public class RequestOutputStream
 
     public RequestOutputStream( ClientConnection connection,
                                 int request_id,
-                                String operation, 
+                                String operation,
                                 boolean response_expected,
                                 short syncScope,
                                 UtcT requestStartTime,
@@ -81,20 +81,19 @@ public class RequestOutputStream
                                 int giop_minor )
     {
         super();
-        
+
         setGIOPMinor( giop_minor );
 
-        
         this.request_id = request_id;
         this.response_expected = response_expected;
         this.syncScope = syncScope;
         this.operation = operation;
         this.connection = connection;
-        
+
         this.requestStartTime = requestStartTime;
         this.requestEndTime   = requestEndTime;
         this.replyEndTime     = replyEndTime;
-        
+
         if (requestStartTime != null ||
             requestEndTime != null ||
             replyEndTime != null)
@@ -108,30 +107,15 @@ public class RequestOutputStream
         switch( giop_minor )
         {
             case 0 :
-            { 
-                // GIOP 1.0
-
-//                  RequestHeader_1_0 req_hdr = 
-//                      GIOPHeaderFactory.getRequestHeader_1_0( alignment_ctx,
-//                                                              request_id,
-//                                                              response_expected,
-//                                                              object_key,
-//                                                              operation,
-//                                                              principal );
-
-//                  RequestHeader_1_0Helper.write( this, req_hdr );
-//                  GIOPHeaderFactory.returnRequestHeader_1_0( req_hdr );
-
-
-                // inlining
-
+            {
+                // GIOP 1.0 inlining
 		org.omg.IOP.ServiceContextListHelper.write( this , service_context );
 		write_ulong( request_id);
-		write_boolean( response_expected );		
+		write_boolean( response_expected );
 		write_long( object_key.length );
 		write_octet_array( object_key, 0, object_key.length);
 		write_string( operation);
-		org.omg.CORBA.PrincipalHelper.write( this, 
+		org.omg.CORBA.PrincipalHelper.write( this,
                                                      principal);
 
                 break;
@@ -139,24 +123,13 @@ public class RequestOutputStream
             case 1 :
             {
                 //GIOP 1.1
-//                  RequestHeader_1_1 req_hdr = new 
-                //                RequestHeader_1_1( alignment_ctx,
-//                                                              request_id,
-//                                                              response_expected,
-//                                                              reserved,
-//                                                              object_key,
-//                                                              operation,
-//                                                              principal );
-//                  RequestHeader_1_1Helper.write( this, req_hdr );
-//                  GIOPHeaderFactory.returnRequestHeader_1_1( req_hdr );
-
 		org.omg.IOP.ServiceContextListHelper.write( this , service_context );
 		write_ulong( request_id);
-		write_boolean( response_expected );		
+		write_boolean( response_expected );
 		write_long( object_key.length );
 		write_octet_array( object_key, 0, object_key.length);
 		write_string( operation);
-		org.omg.CORBA.PrincipalHelper.write( this, 
+		org.omg.CORBA.PrincipalHelper.write( this,
                                                      principal);
 
                 break;
@@ -167,25 +140,14 @@ public class RequestOutputStream
                 TargetAddress addr = new TargetAddress();
                 addr.object_key( object_key );
 
-//                  RequestHeader_1_2 req_hdr = 
-//                      GIOPHeaderFactory.getRequestHeader_1_2( alignment_ctx,
-//                                                              request_id,
-//                                                              (byte) ((response_expected)? 0x03 : 0x00),
-//                                                              reserved,
-//                                                              addr,
-//                                                              operation
-//                                                              );
-
-//                  RequestHeader_1_2Helper.write( this, req_hdr );
-
-                // inlined RequestHeader_1_2Helper.write method 
+                // inlined RequestHeader_1_2Helper.write method
 
                 write_ulong( request_id);
                 if (response_expected)
                 {
                 	write_octet ((byte)0x03);
                 }
-                else 
+                else
                 {
                 	switch (syncScope)
                 	{
@@ -220,9 +182,9 @@ public class RequestOutputStream
             {
                 throw new Error( "Unknown GIOP minor: " + giop_minor );
             }
-        }               
+        }
     }
-    
+
     public int requestId()
     {
         return request_id;
@@ -237,7 +199,7 @@ public class RequestOutputStream
 	{
 		return syncScope;
 	}
-   
+
     public String operation()
     {
         return operation;
@@ -257,14 +219,14 @@ public class RequestOutputStream
     {
         return request;
     }
-    
+
     public ClientConnection getConnection()
     {
         return connection;
     }
-    
+
     /**
-     * Returns the timing policies for this request as an array 
+     * Returns the timing policies for this request as an array
      * of PolicyValues that can be propagated in a ServiceContext.
      */
     private org.omg.Messaging.PolicyValue[] getTimingPolicyValues()
@@ -280,8 +242,8 @@ public class RequestOutputStream
             l.add (new PolicyValue (REPLY_END_TIME_POLICY_TYPE.value,
                                     Time.toCDR (replyEndTime)));
         return (PolicyValue[])l.toArray (new PolicyValue[0]);
-    }                                       
-                                                
+    }
+
     private ServiceContext createInvocationPolicies()
     {
         CDROutputStream out = new CDROutputStream();
