@@ -415,11 +415,7 @@ public final class ORB
 
     /**
      * Tests if a policy factory is present for the given type.
-     * This method is (right now) only called by the Info-Objects
-     * of the portableInterceptor implementation to avoid running
-     * into exceptions.
      */
-
     public boolean hasPolicyFactoryForType(int type)
     {
         return (policy_factories != null &&
