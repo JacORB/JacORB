@@ -199,7 +199,7 @@ public final class ORB
             configuration.getAttribute("jacorb.giop.add_1_0_profiles", "off").equals("on");
 
         hashTableClassName = 
-            configuration.getAttribute( "jacorb.hashtable_class" );
+            configuration.getAttribute( "jacorb.hashtable_class", "" );
              
         useIMR = 
             configuration.getAttribute("jacorb.use_imr","off").equals("on");
@@ -214,7 +214,7 @@ public final class ORB
             configuration.getAttribute("jacorb.use_imr", "on").equals("on");
 
         iorProxyHost = 
-        configuration.getAttribute("jacorb.ior_proxy_host");
+            configuration.getAttribute("jacorb.ior_proxy_host", "");
 
         iorProxyPort = 
             configuration.getAttributeAsInteger("jacorb.ior_proxy_port",-1);
@@ -1406,7 +1406,7 @@ public final class ORB
 
         if (orbID == null )
         {
-            orbID = "anonymous";
+            orbID = "jacorb";
         }
 
         try
@@ -1586,16 +1586,25 @@ public final class ORB
             throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
         }
 
-        transport_manager = new TransportManager( this );
-        giop_connection_manager = new GIOPConnectionManager();
-        policyManager = new PolicyManager( this );
 
-        clientConnectionManager =
-            new ClientConnectionManager(
-                this,
-                transport_manager,
-                giop_connection_manager);
+        try
+        {
+            transport_manager = new TransportManager( this );
+            transport_manager.configure(configuration);
 
+            giop_connection_manager = new GIOPConnectionManager();
+            
+            clientConnectionManager =
+                new ClientConnectionManager( this,
+                                             transport_manager,
+                                             giop_connection_manager );        
+            clientConnectionManager.configure(configuration);
+        }
+        catch( ConfigurationException ce )
+        {
+            if (logger.isErrorEnabled())
+                logger.error(ce.getMessage());
+        }
 
         if( hashTableClassName == null || hashTableClassName.length() == 0 )
         {
