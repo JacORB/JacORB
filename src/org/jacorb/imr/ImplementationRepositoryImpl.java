@@ -1094,7 +1094,8 @@ public class ImplementationRepositoryImpl
             
 	    out = new ReplyOutputStream( new org.omg.IOP.ServiceContext[0],
                                          in.req_hdr.request_id,
-                                         org.omg.GIOP.ReplyStatusType_1_0.LOCATION_FORWARD);
+                                         org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
+                                         in.getGIOPMinor() );
 
 	    // The typecode is for org.omg.CORBA.Object, but avoiding 
             // creation of new ObjectHolder Instance.
@@ -1162,7 +1163,8 @@ public class ImplementationRepositoryImpl
         {
 	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                         in.req_hdr.request_id,
-                                        org.omg.GIOP.ReplyStatusType_1_0.SYSTEM_EXCEPTION);
+                                        org.omg.GIOP.ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                        in.getGIOPMinor());
 	    
 	    SystemExceptionHelper.write(out, sys_ex);
 	    out.close();

@@ -26,6 +26,8 @@ import org.jacorb.orb.*;
 import org.jacorb.orb.connection.*;
 import org.jacorb.orb.portableInterceptor.*;
 
+import org.omg.GIOP.*;
+
 /**
  * @author Gerald Brose, FU Berlin
  * @version $Id$
@@ -39,7 +41,7 @@ public class ServerRequest
     protected ReplyOutputStream out;	
     protected ServerConnection connection;
     
-    protected int status = org.omg.GIOP.ReplyStatusType_1_0._NO_EXCEPTION;
+    protected int status = ReplyStatusType_1_2._NO_EXCEPTION;
     protected byte[] oid;
     protected org.omg.CORBA.Object reference = null;
     protected String[] rest_of_name = null;
@@ -136,9 +138,9 @@ public class ServerRequest
 	return ex;
     }
 
-    public org.omg.GIOP.ReplyStatusType_1_0 status()
+    public ReplyStatusType_1_2 status()
     {
-	return org.omg.GIOP.ReplyStatusType_1_0.from_int( status );
+	return ReplyStatusType_1_2.from_int( status );
     }
 
     public org.omg.CORBA.Context ctx()
@@ -253,7 +255,7 @@ public class ServerRequest
 	if( stream_based )
 	    throw new RuntimeException("This ServerRequest is stream-based!");
 	this.ex = ex;
-	status = org.omg.GIOP.ReplyStatusType_1_0._USER_EXCEPTION;
+	status = ReplyStatusType_1_2._USER_EXCEPTION;
     }
 
 
@@ -270,7 +272,8 @@ public class ServerRequest
                         new ReplyOutputStream(
                                  new org.omg.IOP.ServiceContext[0],
                                  requestId(), 
-                                 org.omg.GIOP.ReplyStatusType_1_0.from_int(status),
+                                 ReplyStatusType_1_2.from_int(status),
+                                 in.getGIOPMinor(),
                                  orb.hasServerRequestInterceptors());
                     out.setCodeSet( connection.TCS, connection.TCSW );
 		}
@@ -280,12 +283,12 @@ public class ServerRequest
 
 		if( !stream_based )
 		{
-		    if( status == org.omg.GIOP.ReplyStatusType_1_0._USER_EXCEPTION )
+		    if( status == ReplyStatusType_1_2._USER_EXCEPTION )
 		    {
 			out.write_string( ex.type().id() );
 			ex.write_value( out );
 		    }
-		    else if( status == org.omg.GIOP.ReplyStatusType_1_0._NO_EXCEPTION )
+		    else if( status == ReplyStatusType_1_2._NO_EXCEPTION )
 		    {
 			result.write_value( out );
 			if( args != null )
@@ -318,11 +321,11 @@ public class ServerRequest
 		/* these two exceptions are set in the same way for both stream-based and
 		   DSI-based servers */
 
-		if( status == org.omg.GIOP.ReplyStatusType_1_0._LOCATION_FORWARD )
+		if( status == ReplyStatusType_1_2._LOCATION_FORWARD )
 		{
 		    out.write_Object( location_forward.forward_reference );
 		}
-		else if( status == org.omg.GIOP.ReplyStatusType_1_0._SYSTEM_EXCEPTION )
+		else if( status == ReplyStatusType_1_2._SYSTEM_EXCEPTION )
 		{
 		    org.jacorb.orb.SystemExceptionHelper.write( out, sys_ex );
 		}
@@ -370,7 +373,8 @@ public class ServerRequest
 	out = 
             new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                   requestId(),
-                                  org.omg.GIOP.ReplyStatusType_1_0.NO_EXCEPTION,
+                                  ReplyStatusType_1_2.NO_EXCEPTION,
+                                  in.getGIOPMinor(),
                                   orb.hasServerRequestInterceptors());
         out.setCodeSet( connection.TCS, connection.TCSW );
 	return out;
@@ -380,7 +384,7 @@ public class ServerRequest
     {
 	stream_based = true;
 
-	status = org.omg.GIOP.ReplyStatusType_1_0._USER_EXCEPTION;
+	status = ReplyStatusType_1_2._USER_EXCEPTION;
 
 	//keep service contexts
 	org.omg.IOP.ServiceContext[] ctx = null;
@@ -392,7 +396,8 @@ public class ServerRequest
 	out = 
             new ReplyOutputStream(ctx,
                                   requestId(),
-                                  org.omg.GIOP.ReplyStatusType_1_0.USER_EXCEPTION,
+                                  ReplyStatusType_1_2.USER_EXCEPTION,
+                                  in.getGIOPMinor(),
                                   orb.hasServerRequestInterceptors());
         out.setCodeSet( connection.TCS, connection.TCSW );
 	return out;
@@ -403,7 +408,7 @@ public class ServerRequest
     public void setSystemException(org.omg.CORBA.SystemException s)
     {
 	org.jacorb.util.Debug.output(2, s);
-	status = org.omg.GIOP.ReplyStatusType_1_0._SYSTEM_EXCEPTION;
+	status = ReplyStatusType_1_2._SYSTEM_EXCEPTION;
 
 	/* we need to create a new output stream here because a system exception may
 	   have occurred *after* a no_exception request header was written onto the
@@ -418,7 +423,8 @@ public class ServerRequest
 
 	out = new ReplyOutputStream(ctx,
                                     requestId(),
-                                    org.omg.GIOP.ReplyStatusType_1_0.SYSTEM_EXCEPTION,
+                                    ReplyStatusType_1_2.SYSTEM_EXCEPTION,
+                                    in.getGIOPMinor(),
                                     orb.hasServerRequestInterceptors());
 	sys_ex = s;
     }
@@ -426,7 +432,7 @@ public class ServerRequest
     public void setLocationForward(org.omg.PortableServer.ForwardRequest r)
     {
 	org.jacorb.util.Debug.output(2,"Location Forward");
-	status = org.omg.GIOP.ReplyStatusType_1_0._LOCATION_FORWARD;
+	status = ReplyStatusType_1_2._LOCATION_FORWARD;
 
 	//keep service contexts
 	org.omg.IOP.ServiceContext[] ctx = null;
@@ -437,7 +443,8 @@ public class ServerRequest
 
 	out = new ReplyOutputStream(ctx,
                                     requestId(),
-                                    org.omg.GIOP.ReplyStatusType_1_0.LOCATION_FORWARD,
+                                    ReplyStatusType_1_2.LOCATION_FORWARD,
+                                    in.getGIOPMinor(),
                                     orb.hasServerRequestInterceptors());
 	location_forward = r;
     }
@@ -542,7 +549,8 @@ public class ServerRequest
             out = 
                 new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                       requestId(),
-                                      org.omg.GIOP.ReplyStatusType_1_0.NO_EXCEPTION,
+                                      ReplyStatusType_1_2.NO_EXCEPTION,
+                                      in.getGIOPMinor(),
                                       orb.hasServerRequestInterceptors());
         out.setCodeSet( connection.TCS, connection.TCSW );
         return out;
@@ -571,7 +579,8 @@ public class ServerRequest
 	if( out == null )
 	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                         requestId(), 
-                                        org.omg.GIOP.ReplyStatusType_1_0.from_int(status));
+                                        ReplyStatusType_1_2.from_int(status),
+                                        in.getGIOPMinor() );
         out.setCodeSet( connection.TCS, connection.TCSW );
     
 

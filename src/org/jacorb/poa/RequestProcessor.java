@@ -37,7 +37,7 @@ import org.omg.PortableServer.DynamicImplementation;
 import org.omg.PortableServer.ServantLocatorPackage.CookieHolder;
 
 import org.omg.CORBA.portable.InvokeHandler;
-import org.omg.GIOP.ReplyStatusType_1_0;
+import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.PortableInterceptor.*;
 
 /**
@@ -449,26 +449,26 @@ public class RequestProcessor
             short op = 0;
             switch(request.status().value())
             {
-            case ReplyStatusType_1_0._NO_EXCEPTION :
+            case ReplyStatusType_1_2._NO_EXCEPTION :
                 op = ServerInterceptorIterator.SEND_REPLY;
                 info.reply_status = SUCCESSFUL.value;
                 break;
 
-            case ReplyStatusType_1_0._USER_EXCEPTION :
+            case ReplyStatusType_1_2._USER_EXCEPTION :
                 info.reply_status = USER_EXCEPTION.value;
                 SystemExceptionHelper.insert(info.sending_exception, 
                                              new org.omg.CORBA.UNKNOWN("Stream-based UserExceptions are not available!"));
                 op = ServerInterceptorIterator.SEND_EXCEPTION;
                 break;
 
-            case ReplyStatusType_1_0._SYSTEM_EXCEPTION :
+            case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
                 info.reply_status = SYSTEM_EXCEPTION.value;
                 SystemExceptionHelper.insert(info.sending_exception, 
                                              request.getSystemException());
                 op = ServerInterceptorIterator.SEND_EXCEPTION;
                 break;
 
-            case ReplyStatusType_1_0._LOCATION_FORWARD :
+            case ReplyStatusType_1_2._LOCATION_FORWARD :
                 info.reply_status = LOCATION_FORWARD.value;
                 op = ServerInterceptorIterator.SEND_OTHER;
                 break;
