@@ -30,6 +30,7 @@ import org.jacorb.orb.giop.ReplyOutputStream;
 
 import java.util.*;
 
+import org.apache.avalon.framework.configuration.*;
 import org.apache.avalon.framework.logger.Logger;
 
 import org.omg.PortableServer.Servant;
@@ -55,7 +56,7 @@ import org.omg.IOP.ServiceContext;
 
 public class RequestProcessor
     extends Thread
-    implements InvocationContext
+    implements InvocationContext, Configurable
 {
     private boolean start;
     private boolean terminate;
@@ -66,6 +67,15 @@ public class RequestProcessor
     private Servant servant;
     private ServantManager servantManager;
     private CookieHolder cookieHolder;
+    
+    /**
+     * Whether to check for expiry of any ReplyEndTimePolicy.  Normally,
+     * it is sufficient to check this on the client side, but the additional
+     * check on the server side can save the server and the network some work.
+     * It requires that the clocks of the client and server machine are
+     * synchronized, though.
+     */
+    private boolean checkReplyEndTime = false;
 
     /** this processor's logger instance, obtained from the request controller */
     private Logger logger;
@@ -88,6 +98,15 @@ public class RequestProcessor
     {
         super ("RequestProcessor-" + (++count));
         poolManager = _poolManager;
+    }
+
+    public void configure (Configuration configuration)
+        throws ConfigurationException
+    {
+        checkReplyEndTime = configuration.getAttributeAsBoolean
+        (
+          "jacorb.poa.check_reply_end_time", false
+        );
     }
 
     /**
@@ -516,7 +535,7 @@ public class RequestProcessor
                                             0, CompletionStatus.COMPLETED_NO));
             return;
         }
-        if (Time.hasPassed (request.getReplyEndTime()))
+        if (checkReplyEndTime && Time.hasPassed (request.getReplyEndTime()))
         {
             request.setSystemException
                 (new org.omg.CORBA.TIMEOUT ("Reply End Time exceeded",
@@ -584,7 +603,7 @@ public class RequestProcessor
             invokePostInvoke();
         }
 
-        if (Time.hasPassed (request.getReplyEndTime()))
+        if (checkReplyEndTime && Time.hasPassed (request.getReplyEndTime()))
         {
             request.setSystemException
                 (new org.omg.CORBA.TIMEOUT ("Reply End Time exceeded after invocation",
