@@ -16,25 +16,29 @@
    </target>
 
    <target name="all" depends="init,idl">
-	<javac srcdir="${dirs.base}"
+	<javac srcdir="${dirs.base}/src/generated"
                destdir="${classdir}"
-	       includes="${dirs.base}/src/generated/org/jacorb/util/tracing/*.java,\
-                         ${dirs.base}/src/generated/org/jacorb/util/tracing/*Package/*.java,
-                         ${dirs.base}/src/org/jacorb/util/tracing/*.java"   
+	       includes="org/jacorb/util/tracing/*.java,\
+                         org/jacorb/util/tracing/**/*.java"
+	        />
+
+	<javac srcdir="${dirs.base}/src"
+               destdir="${classdir}"
+	       includes="org/jacorb/util/tracing/*.java"   
 	        />
    </target>
 
    <target name="idl" >
-      <java classname="jacorb.idl.parser" classpath="${classpath}:${lib}/idl.jar"
+      <java classname="org.jacorb.idl.parser" classpath="${classpath}:${lib}/idl.jar"
                fork="yes">
-               <arg line="${idlflags} ${dirs.base}/src/org/jacorb/util/tracing/Tracing.idl"/>
+               <arg line="${idlflags} ${dirs.base}/idl/jacorb/Tracing.idl"/>
       </java>
    </target>
 
 
    <target name="clean">
-      <deltree dir="${classdir}/org/jacorb/util/tracing"/>
-      <deltree dir="${dirs.base}/src/generated/org/jacorb/util/tracing"/>
+      <delete dir="${classdir}/org/jacorb/util/tracing"/>
+      <delete dir="${dirs.base}/src/generated/org/jacorb/util/tracing"/>
    </target>
 
 </project>

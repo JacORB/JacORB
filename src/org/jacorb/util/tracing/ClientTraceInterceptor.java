@@ -164,12 +164,12 @@ System.out.println("reply: return from op " + ri.operation());
         }
     }
 
-    public void receive_exception(ClientRequestInfo ri) 
+    public void do_receive_exception(ClientRequestInfo ri) 
         throws ForwardRequest
     {
     }
 
-    public void receive_other(ClientRequestInfo ri) 
+    public void do_receive_other(ClientRequestInfo ri) 
         throws ForwardRequest
     {
     }
@@ -197,14 +197,4 @@ System.out.println("reply: return from op " + ri.operation());
         }        
     }
 }
-
-
-
-
-
-
-
-
-
-
 
