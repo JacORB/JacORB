@@ -110,30 +110,15 @@ class AttrDecl
     {
 	for( Enumeration e = declarators.v.elements(); e.hasMoreElements();)
 	{
+            String fullName = param_type_spec.full_name();
             irInfoTable.put( ((SimpleDeclarator)e.nextElement()).name(), 
-                             "attribute" + (readOnly?"":"-w") + ";" + param_type_spec.typeName());
+                             "attribute" + (readOnly?"":"-w") + ";" +
+                             ( fullName != null ? fullName :  param_type_spec.typeName()));
         }
     }
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

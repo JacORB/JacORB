@@ -70,7 +70,8 @@ public class IDLType
                                                 org.omg.CORBA.Repository ir,
                                                 boolean define)
     {
-        org.jacorb.util.Debug.output(2,"IDLType create for tc kind " + tc.kind().value());
+        org.jacorb.util.Debug.output(3, "IDLType create for tc kind " + 
+                                     tc.kind().value());
 
         if( tc == null ) // PIDLs
             return null;
@@ -195,7 +196,7 @@ public class IDLType
                     }
                     else
                     {
-                        return org.omg.CORBA.IDLTypeHelper.narrow(ir.lookup_id( tc.id()) );
+                        return org.omg.CORBA.IDLTypeHelper.narrow( ir.lookup_id( tc.id() ) );
                     }
                 }
                 catch( Exception e )
@@ -240,13 +241,6 @@ public class IDLType
         }
     }
 }
-
-
-
-
-
-
-
 
 
 

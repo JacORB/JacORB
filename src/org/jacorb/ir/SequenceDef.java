@@ -3,7 +3,7 @@ package org.jacorb.ir;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -39,10 +39,12 @@ public class SequenceDef
         type = tc;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Sequence;
         this.ir = ir;
+        String name = "<unknown>";
         try
         {
             element_type = tc.content_type();
             bound = tc.length();
+            name = element_type.name();
         } 
         catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
         {
@@ -51,7 +53,10 @@ public class SequenceDef
 
         element_type_def = IDLType.create( element_type, ir );
 
-        org.jacorb.util.Debug.assert( element_type_def != null, "Element type null in sequence def");
+        org.jacorb.util.Debug.assert( element_type_def != null, 
+                                      "Element type " + name  + 
+                                      " null in sequence def");
+
         org.jacorb.util.Debug.output(2, "New SequenceDef");
     }
 

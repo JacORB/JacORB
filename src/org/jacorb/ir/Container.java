@@ -134,10 +134,7 @@ public class Container
 
                     org.omg.CORBA.Contained containedRef = 
                         Contained.createContainedReference(containedObject);
-                    
-                    if( containedObject instanceof ContainerType )
-                        ((ContainerType)containedObject).loadContents();
-                    
+                                        
                     containedRef.move( this_container, 
                                        containedRef.name(), 
                                        containedRef.version() );
@@ -146,6 +143,9 @@ public class Container
                                              " loads "+ containedRef.name() );
                     contained.put( containedRef.name() , containedRef );
                     containedLocals.put( containedRef.name(), containedObject );
+                    if( containedObject instanceof ContainerType )
+                        ((ContainerType)containedObject).loadContents();
+
                 } 
                 catch ( ClassNotFoundException e ) 
                 {

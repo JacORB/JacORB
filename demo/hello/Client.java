@@ -59,6 +59,16 @@ public class Client
             // invoke the operation again and print the wide string result
             System.out.println( "wide string: " + 
                                 goodDay.hello_wide( "Hello Wörld, from ö 1 2 3 0 *&^%$#@!@"));
+
+            char X = 'X';
+            char Y = goodDay.getwchar(X);
+            if (Y != 'Y') 
+            {
+                System.out.println("test failed");
+                System.out.println("Y = " + Y);
+            }
+            else 
+                System.out.println("test succeed");
         }
         catch( Exception ex ) 
 	{

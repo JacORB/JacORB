@@ -4,6 +4,7 @@ module hello
     {
 	string hello();
 	wstring hello_wide(in wstring msg);
+        wchar getwchar(in wchar x);
     };
 
 };

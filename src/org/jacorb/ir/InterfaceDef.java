@@ -69,6 +69,7 @@ public class InterfaceDef
 
     /* reference to my container as a contained object */
     private org.omg.CORBA.Contained       myContainer;
+    private org.omg.CORBA.InterfaceDef myReference;
 
     private File 		                 my_dir;
     private Hashtable                            op = new Hashtable();
@@ -79,6 +80,7 @@ public class InterfaceDef
     private String []                            class_names;
     private int                                  size = 0;
     private boolean                              defined = false;
+    private boolean                              loaded = false;
 
     private Class                                containedClass = null;
     private Class                                containerClass = null;
@@ -158,10 +160,11 @@ public class InterfaceDef
 
     public void loadContents()
     {
+        org.jacorb.util.Debug.output(2, "Interface " +name+ " loading... "); 
         // read from the interface class (operations and atributes)
         Debug.assert( getReference() != null, "my own ref null");
 
-        org.omg.CORBA.InterfaceDef myReference = 
+        myReference = 
             org.omg.CORBA.InterfaceDefHelper.narrow( getReference());
 
         Debug.assert( myReference != null, "narrow failed for " + getReference() );
@@ -209,15 +212,20 @@ public class InterfaceDef
                         org.omg.CORBA.Contained containedRef = 
                             Contained.createContainedReference(containedObject);
                         
-                        if( containedObject instanceof ContainerType )
-                            ((ContainerType)containedObject).loadContents();
-                        
-                        containedRef.move( myReference, containedRef.name(), containedRef.version() );
+
+                        containedRef.move( myReference, 
+                                           containedRef.name(), 
+                                           containedRef.version() );
                         
                         org.jacorb.util.Debug.output(2, "Interface " + full_name + 
                                                  " loads "+ containedRef.name() );
+
                         contained.put( containedRef.name() , containedRef );
-                        containedLocals.put( containedRef.name(), containedObject );                        
+                        containedLocals.put( containedRef.name(), containedObject );
+                        
+                        if( containedObject instanceof ContainerType )
+                            ((ContainerType)containedObject).loadContents();
+                        
                     } 
                     catch ( Exception e ) 
                     {
@@ -226,6 +234,173 @@ public class InterfaceDef
                 }
             }
         }
+//          org.jacorb.util.Debug.output(2, "Interface " +name+ " loads attributes/ops");
+
+//          Vector ops = new Vector();
+//          Vector atts = new Vector();
+//          Hashtable irInfo= null;
+
+//          Class irHelperClass = null;
+//          try
+//          {
+//              irHelperClass = 
+//                  RepositoryImpl.loader.loadClass( theClass.getName() + "IRHelper");
+//              irInfo = (Hashtable)irHelperClass.getDeclaredField("irInfo").get(null);
+//          }
+//          catch( ClassNotFoundException e )
+//          {
+//              org.jacorb.util.Debug.output(1, "!! No IR helper class for interface " + 
+//                                       theClass.getName());
+//          }
+//          catch( Exception e )
+//          {
+//              e.printStackTrace();
+//          }
+
+//          Method methods[] = signatureClass.getDeclaredMethods();
+        
+//          for( int i = 0; i < methods.length; i++ )
+//          {
+//              Object value = irInfo.get(methods[i].getName());
+//              if( value == null || !((String)value).startsWith("attribute"))
+//              {
+//                  ops.addElement( 
+//                       new OperationDef( methods[i], theClass, irHelperClass, myReference ));
+//              }
+//              else
+//              {
+//                  if( ((String)value).startsWith("attribute") )
+//                  {
+//                      String attrDescr = (String)value;
+
+//                      if( methods[i].getReturnType() == Void.class )
+//                          continue;
+                    
+//                      int idx = attrDescr.indexOf('-');
+//                      String attrTypeName = 
+//                          attrDescr.substring( attrDescr.indexOf(";")+1);
+
+//                      atts.addElement(
+//                          new AttributeDef( methods[i],
+//                                            attrTypeName,
+//                                            ( idx > 0 ? 
+//                                              org.omg.CORBA.AttributeMode.ATTR_NORMAL : 
+//                                              org.omg.CORBA.AttributeMode.ATTR_READONLY  ),
+//                                            myReference, 
+//                                            containing_repository ));
+//                  }
+//              }
+//          }
+//          org.jacorb.util.Debug.output(2, "Interface " +name+ " defines ops");
+
+//          op_defs = new OperationDef[ ops.size() ];
+//          ops.copyInto( op_defs );
+//          for( int i = 0; i < op_defs.length; i++ )
+//          {
+//              op_defs[i].move( myReference , op_defs[i].name(), version );
+//              containedLocals.put( op_defs[i].name(), op_defs[i] );
+
+//              try
+//              {
+//                  org.omg.CORBA.OperationDef operationRef = 
+//                      org.omg.CORBA.OperationDefHelper.narrow(
+//                           RepositoryImpl.poa.servant_to_reference( 
+//                                   new  org.omg.CORBA.OperationDefPOATie( op_defs[i] )));
+//                  contained.put( op_defs[i].name(), operationRef ) ;
+//                  op_defs[i].setReference(operationRef);
+//              } 
+//              catch( Exception e )
+//              {
+//                  e.printStackTrace();
+//              }
+//          }
+//          org.jacorb.util.Debug.output(2, "Interface " +name+ " defines attributes");
+
+//          att_defs = new AttributeDef[ atts.size() ];
+//          atts.copyInto( att_defs );
+
+//          for( int i = 0; i < att_defs.length; i++ )
+//          {
+//              att_defs[i].move( myReference , att_defs[i].name(), version );
+//              containedLocals.put( att_defs[i].name(), att_defs[i] );
+//              try
+//              {
+//                  org.omg.CORBA.AttributeDef attribute = 
+//                      org.omg.CORBA.AttributeDefHelper.narrow(
+//                            RepositoryImpl.poa.servant_to_reference( 
+//                                 new  org.omg.CORBA.AttributeDefPOATie( att_defs[i] )));
+//                  contained.put( att_defs[i].name(), attribute );
+//                  att_defs[i].setReference( attribute );
+//              } 
+//              catch( Exception e )
+//              {
+//                  e.printStackTrace();
+//              }
+//          }
+
+//          /* constants */
+//          org.jacorb.util.Debug.output(2, "Interface " +name+ " defines constants");
+
+//          Field[] fields = theClass.getDeclaredFields();
+//          constant_defs = new ConstantDef[ fields.length ];
+//          for( int i = 0; i < constant_defs.length; i++ )
+//          {
+//              constant_defs[i] = new ConstantDef( fields[i],   
+//                                                  myReference, 
+//                                                  containing_repository );
+//              constant_defs[i].move( myReference , constant_defs[i].name(), version );
+//              containedLocals.put( constant_defs[i].name(), constant_defs[i] );
+//              try
+//              {
+//                  org.omg.CORBA.ConstantDef constRef = 
+//                      org.omg.CORBA.ConstantDefHelper.narrow(
+//                           RepositoryImpl.poa.servant_to_reference( 
+//                               new  org.omg.CORBA.ConstantDefPOATie( constant_defs[i] )));
+
+//                  contained.put( constant_defs[i].name(), constRef ) ;
+//                  constant_defs[i].setReference(constRef);
+//              } 
+//              catch( Exception e )
+//              {
+//                  e.printStackTrace();
+//              }
+//          }
+
+//          operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
+//          for( int c = 0; c < operations.length; c++ )
+//          {
+//              operations[c] = op_defs[c].describe_operation();
+//          }
+
+//          attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
+//          for( int a = 0; a < att_defs.length; a++ )
+//          {
+//              attributes[a] = att_defs[a].describe_attribute();
+//          }
+
+//          constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
+//          for( int b = 0; b < constant_defs.length; b++ )
+//          {
+//              constants[b] = constant_defs[b].describe_constant();
+//          }
+
+//          Debug.assert( operations != null, "operations null!");
+//          Debug.assert( attributes != null, "attributes null!");
+
+        loaded = true;
+        org.jacorb.util.Debug.output(2, "Interface " + name +  " loaded ]");
+    }
+
+    void define()
+    {
+        Debug.assert( loaded, "Interface " + name +  " not loaded!");
+        org.jacorb.util.Debug.output(2, "Interface " + name +  " defining... ]");
+        for( Enumeration e = containedLocals.elements();
+             e.hasMoreElements();
+             ((IRObject)e.nextElement()).define())
+            ;
+
+        org.jacorb.util.Debug.output(2, "Interface " +name+ " loads attributes/ops");
 
         Vector ops = new Vector();
         Vector atts = new Vector();
@@ -234,7 +409,8 @@ public class InterfaceDef
         Class irHelperClass = null;
         try
         {
-            irHelperClass = RepositoryImpl.loader.loadClass( theClass.getName() + "IRHelper");
+            irHelperClass = 
+                RepositoryImpl.loader.loadClass( theClass.getName() + "IRHelper");
             irInfo = (Hashtable)irHelperClass.getDeclaredField("irInfo").get(null);
         }
         catch( ClassNotFoundException e )
@@ -281,6 +457,7 @@ public class InterfaceDef
                 }
             }
         }
+        org.jacorb.util.Debug.output(2, "Interface " +name+ " defines ops");
 
         op_defs = new OperationDef[ ops.size() ];
         ops.copyInto( op_defs );
@@ -303,6 +480,7 @@ public class InterfaceDef
                 e.printStackTrace();
             }
         }
+        org.jacorb.util.Debug.output(2, "Interface " +name+ " defines attributes");
 
         att_defs = new AttributeDef[ atts.size() ];
         atts.copyInto( att_defs );
@@ -327,6 +505,7 @@ public class InterfaceDef
         }
 
         /* constants */
+        org.jacorb.util.Debug.output(2, "Interface " +name+ " defines constants");
 
         Field[] fields = theClass.getDeclaredFields();
         constant_defs = new ConstantDef[ fields.length ];
@@ -353,16 +532,26 @@ public class InterfaceDef
             }
         }
 
-        org.jacorb.util.Debug.output(2, "Interface " + name +  " loaded ]");
-    }
+        operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
+        for( int c = 0; c < operations.length; c++ )
+        {
+            operations[c] = op_defs[c].describe_operation();
+        }
 
-    void define()
-    {
-        org.jacorb.util.Debug.output(2, "Interface " + name +  " defining... ]");
-        for( Enumeration e = containedLocals.elements();
-             e.hasMoreElements();
-             ((IRObject)e.nextElement()).define())
-            ;
+        attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
+        for( int a = 0; a < att_defs.length; a++ )
+        {
+            attributes[a] = att_defs[a].describe_attribute();
+        }
+
+        constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
+        for( int b = 0; b < constant_defs.length; b++ )
+        {
+            constants[b] = constant_defs[b].describe_constant();
+        }
+
+        Debug.assert( operations != null, "operations null!");
+        Debug.assert( attributes != null, "attributes null!");
 
 
         /* get base interfaces */
@@ -410,24 +599,26 @@ public class InterfaceDef
             }
         }			
 
-        operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
-        for( int c = 0; c < operations.length; c++ )
-        {
-            operations[c] = op_defs[c].describe_operation();
-        }
+//          operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
+//          for( int c = 0; c < operations.length; c++ )
+//          {
+//              operations[c] = op_defs[c].describe_operation();
+//          }
 
-        attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
-        for( int a = 0; a < att_defs.length; a++ )
-        {
-            attributes[a] = att_defs[a].describe_attribute();
-        }
+//          attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
+//          for( int a = 0; a < att_defs.length; a++ )
+//          {
+//              attributes[a] = att_defs[a].describe_attribute();
+//          }
 
-        constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
-        for( int b = 0; b < constant_defs.length; b++ )
-        {
-            constants[b] = constant_defs[b].describe_constant();
-        }
-        
+//          constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
+//          for( int b = 0; b < constant_defs.length; b++ )
+//          {
+//              constants[b] = constant_defs[b].describe_constant();
+//          }
+        Debug.assert( operations != null, "operations null!");
+        Debug.assert( attributes != null, "attributes null!");
+
         defined = true;
         org.jacorb.util.Debug.output(2, "Interface " + name +  " defined ]");
     }
@@ -462,6 +653,9 @@ public class InterfaceDef
         String def_in = "IDL:Global:1.0";
         if( defined_in instanceof org.omg.CORBA.Contained )
             def_in = ((org.omg.CORBA.Contained)defined_in).id();
+
+        Debug.assert( operations != null, "operations null!");
+        Debug.assert( attributes != null, "attributes null!");
 
         return new org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription(name, 
                                                                               id, 

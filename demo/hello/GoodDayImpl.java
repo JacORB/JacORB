@@ -26,5 +26,12 @@ public class GoodDayImpl
         return "Hello Wörld, from ö 1 2 3 0 *&^%$#@!@";
     }
 
-
+    public char getwchar(char arg0)
+    {
+        if (arg0 == 'X') 
+            System.out.println("test succeed");
+        else 
+            System.out.println("test failed");
+        return('Y');
+   }
 }

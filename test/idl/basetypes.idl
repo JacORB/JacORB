@@ -6,6 +6,17 @@ module S {
 
 module basetypes
 {
+
+  struct Utest {
+    short s;
+    unsigned short us;
+    long l;
+    unsigned long ul;
+    long long ll;
+    unsigned long long ull;
+  };
+
+
     // definitions
 
     typedef long ASN1_Integer;
@@ -47,9 +58,9 @@ module basetypes
     interface N;
 
     interface Inter
-	{
-	    oneway void op();
-	};
+    {
+        oneway void op();
+    };
     
 };
 
