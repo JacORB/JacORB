@@ -409,19 +409,19 @@ public class JacIDL
             }
 
         }
-        catch (IOException ioex)
+        catch (IOException ex)
         {
-            ioex.printStackTrace();
+            System.err.println(ex);
             throw new BuildException();
         }
-        catch (ParseException pex)
+        catch (ParseException ex)
         {
-            System.err.println(pex.getMessage());
+            System.err.println(ex);
             throw new BuildException();
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            System.err.println(ex);
             throw new BuildException();
         }
     }
