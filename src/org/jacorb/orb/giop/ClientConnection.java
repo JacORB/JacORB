@@ -68,16 +68,22 @@ public class ClientConnection
     // all pending messages.
     private boolean gracefulStreamClose = false;
 
+    //The profile that was used for registering with the
+    //ClientConnectionManager. In case of BiDirIIOP it is NOT equal to
+    //the transports profile.
+    private org.omg.ETF.Profile registeredProfile = null;
+
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
                              ClientConnectionManager conn_mg,
-                             String info,
+                             org.omg.ETF.Profile registeredProfile,
                              boolean client_initiated )
     {
         this.connection = connection;
         this.orb = orb;
         this.conn_mg = conn_mg;
-        this.info = info;
+        this.registeredProfile = registeredProfile;
+        this.info = registeredProfile.toString();
         this.client_initiated = client_initiated;
 
         //For BiDirGIOP, the connection initiator may only generate
@@ -95,6 +101,16 @@ public class ClientConnection
 
         replies = new HashMap();
         sasContexts = new HashMap();
+    }
+
+    /**
+     * Get the profile that was used for registering with the
+     * ClientConnectionManager. In case of BiDirIIOP it is NOT equal
+     * to the transports profile.  
+     */
+    public org.omg.ETF.Profile getRegisteredProfile()
+    {
+        return registeredProfile;
     }
 
     public ServiceContext setCodeSet( ParsedIOR pior )
@@ -345,8 +361,6 @@ public class ClientConnection
      */
     public void connectionClosed()
     {
-        streamClosed();
-
         if( ! client_initiated )
         {
             //if this is a server side BiDir connection, it will stay
@@ -355,7 +369,11 @@ public class ClientConnection
             //the underlying connection closed.
 
             conn_mg.removeConnection( this );
+            
+            System.out.println( "Removed, profile: " + get_server_profile() + "; info: " + connection.connection_info );
         }
+
+        streamClosed();
     }
 
     public void streamClosed()

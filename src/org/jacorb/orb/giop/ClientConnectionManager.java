@@ -97,35 +97,6 @@ public class ClientConnectionManager
         receptor_pool = MessageReceptorPool.getInstance();
     }
 
-    public static String unifyTargetAddress( String host_and_port )
-    {
-        int separator_index = host_and_port.indexOf( ":" );
-
-        if( separator_index < 0 )
-        {
-            throw new org.omg.CORBA.BAD_PARAM( "Missing port in host_and_port string: >" + host_and_port + '<' );
-        }
-
-        String host = host_and_port.substring( 0, separator_index );
-        String port = host_and_port.substring( separator_index + 1 );
-
-        try
-        {
-            /** make sure we have a raw IP address here */
-            InetAddress inet_addr =
-                InetAddress.getByName( host );
-
-            host_and_port = inet_addr.getHostAddress() + ':' + port;
-        }
-        catch( UnknownHostException uhe )
-        {
-            throw new org.omg.CORBA.TRANSIENT("Unknown host " + host);
-        }
-
-        return host_and_port;
-    }
-
-
     public void setRequestListener( RequestListener listener )
     {
         request_listener = listener;
@@ -156,7 +127,7 @@ public class ClientConnectionManager
                     null );
 
             c = new ClientConnection( connection, orb, this,
-                                      profile.toString(), true );
+                                      profile, true );
 
             Debug.output( 2, "ClientConnectionManager: created new conn to target " +
                           c.getInfo() );
@@ -168,7 +139,7 @@ public class ClientConnectionManager
         else
         {
             Debug.output( 2, "ClientConnectionManager: found conn to target " +
-                          c.getInfo() );
+                          c.getInfo());
         }
 
         c.incClients();
@@ -176,22 +147,26 @@ public class ClientConnectionManager
         return c;
     }
 
+    /**
+     * Only used by Delegate for client-initiated connections.
+     */
     public synchronized void releaseConnection( ClientConnection c )
     {
         // hasNoMoreClients now merged into decClients.
         if ( c.decClients() )
         {
-            connections.remove (c.get_server_profile());
+            connections.remove (c.getRegisteredProfile());
         }
     }
 
-    public synchronized void removeConnection( ClientConnection c )
+    /**
+     * Only used by ClientConnection to unregister server-side of
+     * BiDir connection.  
+     */
+    public synchronized void removeConnection(ClientConnection c)
     {
-        connections.remove( c.get_server_profile() );
+        connections.remove( c.getRegisteredProfile() );
     }
-
-
-
 
     public synchronized void addConnection( GIOPConnection connection )
     {
@@ -207,7 +182,7 @@ public class ClientConnectionManager
             ClientConnection c = new ClientConnection
             (
                 connection, orb, this,
-                profile.toString(),
+                profile,
                 false
             );
 
