@@ -41,8 +41,10 @@ import org.omg.PortableServer.*;
 public class CDROutputStream
     extends org.omg.CORBA_2_3.portable.OutputStream
 {
-    private static final int NET_BUF_SIZE = 1024;
-    private static final int MEM_BUF_SIZE = 256;
+    static int instances = 0;
+
+    /** for statistics */
+    private int copies = 0;
 
     /** needed for alignment purposes */
     private int index = 0;
@@ -105,7 +107,8 @@ public class CDROutputStream
         public int length = 0;
         public byte[] buf = null;
 
-        public DeferredWriteFrame( int write_pos, int start, int length, byte[] buf )
+        public DeferredWriteFrame( int write_pos, int start, 
+                                   int length, byte[] buf )
         {
             this.write_pos = write_pos;
             this.start = start;
@@ -132,12 +135,14 @@ public class CDROutputStream
      * in  memory marshaling, but do  not use the  ORB's output buffer
      * manager 
      */
+
     public CDROutputStream()
     {
         bufMgr = BufferManager.getInstance();
-        buffer = bufMgr.getBuffer( MEM_BUF_SIZE );
+        buffer = bufMgr.getPreferredMemoryBuffer();
         use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
-   }
+        instances++;
+    }
 
     /** 
      * OutputStreams created using this constructor 
@@ -149,9 +154,11 @@ public class CDROutputStream
         this.orb = orb;
 
         bufMgr = BufferManager.getInstance();
-        buffer = bufMgr.getBuffer( NET_BUF_SIZE );
+        buffer = bufMgr.getPreferredNetworkBuffer();
 
         use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
+        instances++;
+
     }
         
     /** 
@@ -167,9 +174,11 @@ public class CDROutputStream
 
     public org.omg.CORBA.ORB orb ()
     {
-        if (orb == null) orb = org.omg.CORBA.ORB.init();
+        if (orb == null) 
+            orb = org.omg.CORBA.ORB.init();
         return orb;
     }
+
 
     /**
      * write the contents of this CDR stream to the output stream, 
@@ -308,6 +317,7 @@ public class CDROutputStream
         deferredArrayQueue.clear ();
         deferred_writes = 0;
         released = true;
+        Debug.output(1,"Outbuf copies " + copies );
     }
 
     /**
@@ -365,10 +375,11 @@ public class CDROutputStream
             }
             else
             {
-                new_buf = bufMgr.getBuffer(pos+i+2);
-                System.arraycopy(buffer,0,new_buf,0,pos);
+                new_buf = bufMgr.getBuffer( pos+i+2 );
+                System.arraycopy( buffer, 0, new_buf, 0, pos );
+                copies++;
 
-                bufMgr.returnBuffer(buffer);
+                bufMgr.returnBuffer( buffer );
             }
             buffer = new_buf;
         }
@@ -1093,9 +1104,19 @@ public class CDROutputStream
     {
         if( value != null )
         {
-            deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
-            index += length;
-            deferred_writes += length;
+            if( length > 4000 )
+            {
+                deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
+                index += length;
+                deferred_writes += length;
+            }
+            else
+            {
+                check(length);
+                System.arraycopy(value,offset,buffer,pos,length);
+                index += length;
+                pos += length;
+            }
         }
     }
 
@@ -1391,7 +1412,7 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_abstract_interface: 
-               if( tcMap.containsKey( value.id())) 
+               if( tcMap.containsKey( value.id()) )
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
@@ -1405,7 +1426,6 @@ public class CDROutputStream
                   write_string(value.name());
                   endEncapsulation();
                }
-
                break;
             default: 
                throw new org.omg.CORBA.MARSHAL ("Cannot handle TypeCode with kind: " + _kind);
