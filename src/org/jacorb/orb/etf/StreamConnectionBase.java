@@ -86,7 +86,7 @@ public abstract class StreamConnectionBase
             }
             catch( InterruptedIOException e )
             {
-                int soTimeout = getSoTimeout();
+                int soTimeout = getTimeout();
                 
                 if (soTimeout != 0)
                 {
