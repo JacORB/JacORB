@@ -191,6 +191,7 @@ public class PrintIOR
                     break;
                 case TAG_ALTERNATE_IIOP_ADDRESS.value:
                     System.out.println("\t#"+ i + ": TAG_ALTERNATE_IIOP_ADDRESS");
+                    printAlternateAddress(taggedComponents[i]);
                     break;
                 case TAG_CODE_SETS.value:
                     System.out.println("\t#"+ i + ": TAG_CODE_SETS");
@@ -487,6 +488,14 @@ public class PrintIOR
         {
             System.out.println (" (Foreign)");
         }
+    }
+
+    private static void printAlternateAddress(TaggedComponent tc)
+    {
+        CDRInputStream is =
+            new CDRInputStream((org.omg.CORBA.ORB)null, tc.component_data);
+        is.openEncapsulatedArray();
+        System.out.print ("\t\tAddress: " + IIOPAddress.read(is));
     }
 
     public static void dumpHex(byte bs[])
