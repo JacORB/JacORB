@@ -223,8 +223,17 @@ public final class ORB
             configuration.getAttributeAsInteger("jacorb.ior_proxy_port",-1);
 
         printVersion = 
-            configuration.getAttribute("jacorb.orb.print_version", "true").equals("true");
+            configuration.getAttribute("jacorb.orb.print_version", "on").equals("on");
 
+        if( printVersion && logger.isInfoEnabled())
+        {
+            logger.info("\n\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + 
+                        "\tJacORB V " + versionString + ", www.jacorb.org\n" + 
+                        "\t(C) Gerald Brose, XTRADYNE Technologies/FU Berlin, " +
+                        dateString + "\n" + 
+                        "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        }
+        
         BufferManager.configure( configuration);
         try
         {
@@ -233,7 +242,7 @@ public final class ORB
         catch( BAD_INV_ORDER b)
         {
             b.printStackTrace(); // cannot happen!
-       }
+        }
     }
 
     /**
@@ -1557,14 +1566,6 @@ public final class ORB
                 }
                 knownReferences = new HashMap();
             }
-        }
-
-        if( printVersion )
-        {
-            System.out.println("\tJacORB V " + versionString +
-                               ", www.jacorb.org");
-            System.out.println("\t(C) Gerald Brose, XTRADYNE Technologies/FU Berlin, " +
-                               dateString);
         }
 
         interceptorInit();
