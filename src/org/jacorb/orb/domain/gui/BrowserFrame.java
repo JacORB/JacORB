@@ -121,6 +121,7 @@ public class BrowserFrame
     {
         mainFrame= this;
         theSharedData= shared;
+        orb = theSharedData.getORB();
         Domain rootDomain= null;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try
@@ -178,7 +179,11 @@ public class BrowserFrame
         }
     } // check
 
-    /** initializes the tree, member list and policy list structure. */
+
+    /** 
+     * initializes the tree, member list and policy list structure. 
+     */
+
     private void initTree(org.jacorb.orb.domain.Domain RootDomain)
     {
         if (RootDomain == null)
@@ -215,7 +220,9 @@ public class BrowserFrame
                 {
                     DomainTreeNode node= 
                         (DomainTreeNode) jTree1.getLastSelectedPathComponent();
-                    if (node == null) return;
+
+                    if (node == null) 
+                        return;
 
                     DomainRenameItem.setEnabled(true); // enable renaming after node is selected
 
@@ -225,28 +232,35 @@ public class BrowserFrame
                         updateListModels(domain);
                     }
                     catch (org.omg.CORBA.COMM_FAILURE fail)
-                    { // delete domain reference, if no longer valid
+                    { 
+                        // delete domain reference, if no longer valid
                         Debug.output(Debug.DOMAIN | 2,"The selected domain does not reply. "
                                      +" Removing it from domain graph ...");
                         DomainTreeNode parentNode= (DomainTreeNode) node.getParent();
                         if (parentNode == null)
                         {
-                            Debug.output(Debug.DOMAIN | Debug.IMPORTANT," valueChanged: cannot "
-                                         +" remove root domain, cancel removing.");
+                            Debug.output(Debug.DOMAIN | Debug.IMPORTANT,
+                                         " valueChanged: cannot "
+                                         + " remove root domain, cancel removing.");
                             return;
                         }
-                        Domain parentDomain= parentNode.getDomain();
+                        Domain parentDomain = parentNode.getDomain();
                         parentDomain.deleteChild(domain);
 
-                        JOptionPane.showMessageDialog(mainFrame, "The domain does not reply. \n Removing domain",
-                                                      "Broken Connection" , JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(mainFrame, 
+                                                      "The domain does not reply. \n Removing domain",
+                                                      "Broken Connection" , 
+                                                      JOptionPane.INFORMATION_MESSAGE);
                         updateTreeView(parentNode);
                     }
                 }
             }
                                          );
         // tree will expand listener
-        jTree1.addTreeWillExpandListener(new TreeWillExpandListener () {
+
+        jTree1.addTreeWillExpandListener(
+            new TreeWillExpandListener () 
+                {
                 public void treeWillExpand(TreeExpansionEvent e)
                 {
                     // org.jacorb.util.Debug.output(2, "tree will expand "+ e.getPath());
@@ -843,18 +857,22 @@ public class BrowserFrame
         DomainMenu.addSeparator();
         DomainMenu.add(CloseMenuItem);
         DomainMenu.add(ExitMenuItem);
+
         HelpMenu.add(AboutMenuItem);
         menuBar1.add(DomainMenu);
         menuBar1.add(ViewMenu);
         menuBar1.add(HelpMenu);
+
         ViewMenu.add(jMenuItem3);
         ViewMenu.add(jMenuItem1);
         ViewMenu.add(showToolTipsMenuItem);
+
         TreePopupMenu.add(UpdateMenuItem);
         TreePopupMenu.add(DomainCutMenuItem);
         TreePopupMenu.add(DomainCopyMenuItem);
         TreePopupMenu.add(DomainPasteMenuItem);
         TreePopupMenu.add(DomainRenameItem);
+
         contentPane.add(outerSplitPane, BorderLayout.CENTER);
         outerSplitPane.add(TreeScrollPane, JSplitPane.LEFT);
         outerSplitPane.add(innerSplitPane, JSplitPane.RIGHT);
@@ -863,16 +881,19 @@ public class BrowserFrame
         innerSplitPane.add(PolicyScrollPane, JSplitPane.RIGHT);
         PolicyScrollPane.getViewport().add(policyList, null);
         TreeScrollPane.getViewport().add(jTree1, null);
+
         PolicyPopupMenu.add(PolicyPropertyMenuItem);
         PolicyPopupMenu.add(PolicyCutMenuItem);
         PolicyPopupMenu.add(PolicyCopyMenuItem);
         PolicyPopupMenu.add(PolicyPasteMenuItem);
         PolicyPopupMenu.add(PolicyNewMenu);
+
         MemberPopupMenu.add(PropertiesMenuItem);
         MemberPopupMenu.add(CutMenuItem);
         MemberPopupMenu.add(CopyMenuItem);
         MemberPopupMenu.add(PasteMenuItem);
         MemberPopupMenu.add(RenameMenuItem);
+
         PolicyNewMenu.add(PolicyNewPropertyPolicyMenuItem);
         PolicyNewMenu.add(PolicyNewMetaPropertyPolicyMenuItem);
         PolicyNewMenu.add(PolicyNewConflictResolutionPolicyMenuItem);
@@ -880,8 +901,10 @@ public class BrowserFrame
     }
 
     //File | Exit action performed
-    public void fileExit_actionPerformed(ActionEvent e) {
-        releaseRessources(); // if this is the last frame, releaseRessources will call System.exit()
+    public void fileExit_actionPerformed(ActionEvent e) 
+    {
+        releaseRessources(); 
+        // if this is the last frame, releaseRessources will call System.exit()
         // else clean up ourselfes
         try
         {
@@ -899,6 +922,7 @@ public class BrowserFrame
     //Help | About action performed
 
     //Overridden so we can exit when window is closed
+
     protected void processWindowEvent(WindowEvent e) {
         super.processWindowEvent(e);
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -1015,6 +1039,7 @@ public class BrowserFrame
             {
                 PolicyEditor editor = 
                     (PolicyEditor)Class.forName(EditorClassName).newInstance();
+                editor.setORB( orb );
                 editor.setEditorPolicy( pol );
                 box.add( editor.getTitle(), 
                          editor.getGraphicalComponent() );

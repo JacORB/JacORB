@@ -7,48 +7,57 @@ package org.jacorb.orb.domain.gui;
  * retrieved via the operation "getPolicyTypeResponsibleFor".
  *
  * @author Herbert Kiefer
- * @version $Revision$ 
+ * @version $Id$ 
 */
 
 public interface PolicyEditor
 {
-  /** 
-   *  sets the  policy the  editor  should edit.  reinits the  editor.
-   * Because policy editors are  intended be be dynamicly loaded, they
-   *  are create  via the  default  constructor. For  that reason  the
-   *  policy editor  needs an  initialization.  This is  done by  this
-   * operation. 
-   */
+    /** 
+     *  sets the  policy the  editor  should edit.  reinits the  editor.
+     * Because policy editors are  intended be be dynamicly loaded, they
+     *  are create  via the  default  constructor. For  that reason  the
+     *  policy editor  needs an  initialization.  This is  done by  this
+     * operation. 
+     */
 
-  public void setEditorPolicy(org.omg.CORBA.Policy policyToEdit);
+    public void setEditorPolicy(org.omg.CORBA.Policy policyToEdit);
  
-  /** 
-   * returns the policy the editor edits.
-   */
-  public org.omg.CORBA.Policy getEditorPolicy();
+    /** 
+     * @return the policy the editor edits.
+     */
+
+    public org.omg.CORBA.Policy getEditorPolicy();
 
 
-  /** returns the policy type this editor is intended for. */
-  public int getPolicyTypeResponsibleFor();
+    /**
+     *  sets the ORB instance shared by the editor and its environment.
+     */
 
-  /** 
-   * @return the  graphical component  of the  editor.  The graphical
-   * component  is used  to display the  editor. Normally this  is the
-   * main panel the editor is using.  
-   */
+    public void setORB(org.omg.CORBA.ORB orb);
 
-  public java.awt.Component getGraphicalComponent();
 
-  /** 
-   * returns the title of this editor. The title is a string which is used
-   * in grapical displayment to describe the editor. 
-   */
+    /**
+     * @return the policy type this editor is intended for. 
+     */
 
-  public String getTitle();
+    public int getPolicyTypeResponsibleFor();
+
+    /** 
+     * @return the  graphical component  of the  editor.  The graphical
+     * component  is used  to display the  editor. Normally this  is the
+     * main panel the editor is using.  
+     */
+
+    public java.awt.Component getGraphicalComponent();
+
+    /** 
+     * returns the title of this editor. The title is a string which is used
+     * in grapical displayment to describe the editor. 
+     */
+
+    public String getTitle();
   
 } // PolicyEditor
-
-
 
 
 

@@ -19,59 +19,71 @@ public class DefaultPolicyEditor
     /** the policy this editor edits. */
     protected org.omg.CORBA.Policy _policy;
 
+    public org.omg.CORBA.ORB orb;
+
     public DefaultPolicyEditor() 
     {
     }
 
-    public DefaultPolicyEditor(org.omg.CORBA.Policy pol)
+    public DefaultPolicyEditor( org.omg.CORBA.Policy pol )
     {
         _policy= pol;
     }
-    /** returns the policy the editor edtis.
+
+    public void setORB(org.omg.CORBA.ORB orb)
+    {
+        this.orb = orb;
+    }
+
+    /**
+     *  @return the policy the editor edtis.
      */
+
     public org.omg.CORBA.Policy getEditorPolicy()
     {
         return _policy;
     }
 
-    /** sets the policy the editor should edit. reinits the editor */
+    /**
+     * sets the policy the editor should edit. reinits the editor 
+     */
+
     public void setEditorPolicy(org.omg.CORBA.Policy policyToEdit)
     {
         _policy = policyToEdit;
     }
   
-    /** returns the type of policy this editor is intended for. 
-     *  (Do override this operation ! )??
+    /**
+     *  @return the  type of policy this editor  is intended for.  (Do
+     *  override this operation ! )??  
      */
+
     public int getPolicyTypeResponsibleFor()
     {
         return _policy.policy_type();
     }
 
-    /** returns the graphical component of the editor. The graphical component
-     *  is used to display the editor. Normally this is the main panel the editor 
-     *  is using.
+    /** 
+     *  @return  the graphical component of the  editor. The graphical
+     *  component is used to  display the editor. Normally this is the
+     *  main panel the editor is using.  
      */
+
     public java.awt.Component getGraphicalComponent()
     {
         return this;
     }
 
-    /** returns the title of this editor. The title is a string which is used
-     *  in grapical displayment to describe the editor. */
+    /** 
+     *  @return the title of this  editor. The title is a string which
+     *  is used in grapical displayment to describe the editor. 
+     */
     public String getTitle()
     {
         return "DefaultPolicyEditor";
     }
 
 } // DefaultPolicyEditor
-
-
-
-
-
-
-
 
 
 
