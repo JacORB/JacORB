@@ -20,7 +20,7 @@ module sasPolicy {
     boolean stateful;
   };
 
-  const CORBA::PolicyType SAS_POLICY_TYPE = 100;
+  const CORBA::PolicyType SAS_POLICY_TYPE = 102;
 
   local interface SASPolicy : CORBA::Policy {
     readonly attribute SASPolicyValues value;
@@ -31,7 +31,7 @@ module sasPolicy {
     string atlasCache;
   };
 
-  const CORBA::PolicyType ATLAS_POLICY_TYPE = 101;
+  const CORBA::PolicyType ATLAS_POLICY_TYPE = 103;
 
   local interface ATLASPolicy : CORBA::Policy {
     readonly attribute ATLASPolicyValues value;
