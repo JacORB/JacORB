@@ -26,6 +26,7 @@ import junit.framework.TestSuite;
 import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.test.notification.MockMessage;
+import org.jacorb.notification.engine.MessagePushOperation;
 
 /**
  * @author Alphonse Bendt
@@ -33,7 +34,7 @@ import org.jacorb.test.notification.MockMessage;
  */
 public class PushOperationTest extends TestCase {
 
-    class MockPushOperation extends PushOperation {
+    class MockPushOperation extends MessagePushOperation {
         int pushInvoked = 0;
 
         public MockPushOperation(Message m) {

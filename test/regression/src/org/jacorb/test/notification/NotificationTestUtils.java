@@ -1,16 +1,16 @@
 package org.jacorb.test.notification;
 
-import junit.framework.TestCase;
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.DynamicEvaluator;
-import org.jacorb.notification.filter.FilterConstraint;
+import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.etcl.TCLCleanUp;
+import org.jacorb.notification.filter.FilterConstraint;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
+import org.jacorb.notification.interfaces.Message;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LongSeqHelper;
 import org.omg.CORBA.ORB;
@@ -21,6 +21,8 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
 import org.omg.DynamicAny.DynAnyFactory;
+
+import junit.framework.TestCase;
 
 /**
  * @author Alphonse Bendt
@@ -37,27 +39,39 @@ public class NotificationTestUtils {
         orb_ = orb;
     }
 
-    public void setUp() throws Exception {
-    }
-
     public StructuredEvent getStructuredEvent() {
-        FixedEventHeader _fixedHeader = new FixedEventHeader();
-        _fixedHeader.event_name = "ALARM";
-        _fixedHeader.event_type = new EventType("TESTING", "TESTING");
-        EventHeader _header = new EventHeader(_fixedHeader, new Property[0]);
+        StructuredEvent _structuredEvent = getEmptyStructuredEvent();
 
-        StructuredEvent _structuredEvent =
-            new StructuredEvent(_header, new Property[0], getTestPersonAny());
+        _structuredEvent.header.fixed_header.event_name = "ALARM";
+        _structuredEvent.header.fixed_header.event_type.domain_name = "TESTING";
+        _structuredEvent.header.fixed_header.event_type.type_name = "TESTING";
+
+        _structuredEvent.remainder_of_body = getTestPersonAny();
 
         return _structuredEvent;
     }
 
+    public StructuredEvent getEmptyStructuredEvent() {
+        FixedEventHeader _fixedHeader = new FixedEventHeader();
+        _fixedHeader.event_name = "";
+        _fixedHeader.event_type = new EventType("", "");
+        EventHeader _header = new EventHeader(_fixedHeader, new Property[0]);
+
+        StructuredEvent _structuredEvent =
+            new StructuredEvent(_header, new Property[0], orb_.create_any());
+
+        return _structuredEvent;
+    }
+
+
     public Any getStructuredEventAny() {
         Any _structuredEventAny = orb_.create_any();
+
         StructuredEventHelper.insert(_structuredEventAny, getStructuredEvent());
 
         return _structuredEventAny;
     }
+
 
     public Person getTestPerson() {
         // prepare test data

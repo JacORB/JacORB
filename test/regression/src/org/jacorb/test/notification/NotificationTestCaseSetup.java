@@ -25,13 +25,15 @@ import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
+import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.EventChannelFactoryImpl;
-
-import java.util.Properties;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.engine.DefaultTaskProcessor;
+import org.jacorb.notification.queue.EventQueueFactory;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
-import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
 
 /**
  * @author Alphonse Bendt
@@ -45,6 +47,10 @@ public class NotificationTestCaseSetup extends TestSetup {
     private Thread orbThread_;
     private NotificationTestUtils testUtils_;
     private EventChannelFactoryImpl eventChannelFactory_;
+
+    private ChannelContext channelContext_;
+
+    private ORB clientORB_;
 
     ////////////////////////////////////////
 
@@ -64,7 +70,22 @@ public class NotificationTestCaseSetup extends TestSetup {
 
         orb_ = ORB.init(new String[0], null);
         poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+
         testUtils_ = new NotificationTestUtils(orb_);
+
+        channelContext_ = new ChannelContext();
+
+        channelContext_.setORB(orb_);
+
+        channelContext_.setPOA(poa_);
+
+        channelContext_.setTaskProcessor(new DefaultTaskProcessor());
+
+        channelContext_.setEventQueueFactory(new EventQueueFactory());
+
+        channelContext_.setMessageFactory(new MessageFactory());
+
+        channelContext_.configure(getConfiguration());
 
         poa_.the_POAManager().activate();
 
@@ -76,7 +97,17 @@ public class NotificationTestCaseSetup extends TestSetup {
                    });
 
         orbThread_.setDaemon(true);
+
         orbThread_.start();
+
+        clientORB_ = ORB.init(new String[] {}, null);
+
+//         new Thread(new Runnable() {
+//                 public void run() {
+//                     clientORB_.run();
+//                 }
+//             }).start();
+
     }
 
 
@@ -87,9 +118,17 @@ public class NotificationTestCaseSetup extends TestSetup {
             eventChannelFactory_.dispose();
         }
 
+        channelContext_.dispose();
+
         orb_.shutdown(true);
+
+        clientORB_.shutdown(true);
     }
 
+
+    public ORB getClientORB() {
+        return clientORB_;
+    }
 
     public EventChannelFactoryImpl getFactoryServant() throws Exception {
         if (eventChannelFactory_ == null) {
@@ -107,5 +146,13 @@ public class NotificationTestCaseSetup extends TestSetup {
 
     public POA getPOA() {
         return poa_;
+    }
+
+    public Configuration getConfiguration() {
+        return (((org.jacorb.orb.ORB)getORB()).getConfiguration());
+    }
+
+    public ChannelContext getChannelContext() {
+        return channelContext_;
     }
 }

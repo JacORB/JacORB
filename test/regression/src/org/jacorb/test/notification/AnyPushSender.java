@@ -40,7 +40,7 @@ public class AnyPushSender
     SupplierAdmin myAdmin_;
     NotificationTestCase testCase_;
 
-    AnyPushSender(NotificationTestCase testCase)
+    public AnyPushSender(NotificationTestCase testCase)
     {
         testCase_ = testCase;
     }

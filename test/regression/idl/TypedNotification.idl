@@ -1,0 +1,25 @@
+#pragma prefix "jacorb.org"
+
+module org {
+  module jacorb {
+    module test {
+      module notification {
+	module typed {
+
+	  interface Coffee {
+	    void drinking_coffee(in string name, in long minutes);
+	    void cancel_coffee(in string name);
+	  };
+	  
+	  interface PullCoffee {
+	    void drinking_coffee(out string name, out long minutes);
+	    boolean try_drinking_coffee(out string name, out long minutes);
+	    void cancel_coffee(out string name);
+	    boolean try_cancel_coffee(out string name);
+	  };
+	  
+	};
+      };
+    };
+  };
+};

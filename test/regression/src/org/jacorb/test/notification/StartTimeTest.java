@@ -23,7 +23,7 @@ package org.jacorb.test.notification;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxyConsumerI;
@@ -168,7 +168,8 @@ public class StartTimeTest extends NotificationTestCase
 
         final Latch _latch = new Latch();
 
-        TaskProcessor _taskProcessor = new TaskProcessor() {
+        // TODO check if MockTaskProcessor can be used here
+        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor() {
                 public void processMessageInternal(Message event) {
                     try {
                         long _recvTime = System.currentTimeMillis();

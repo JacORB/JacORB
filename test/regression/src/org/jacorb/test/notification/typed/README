@@ -1,0 +1,3 @@
+the tests in this directoy partly depend on a running Interface
+Repository with the idl file TypedNotificationClient.idl loaded (in
+directory test/regression/idl).

@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.List;
 
 import junit.framework.Assert;
+import org.omg.CosNotification.Property;
 
 /**
  * @author Alphonse Bendt
@@ -86,6 +87,10 @@ public class MockMessage extends AbstractMessage {
 
     public Any toAny() {
         return any;
+    }
+
+    public Property[] toTypedEvent() {
+        return null;
     }
 
     public void setAny(Any a) {

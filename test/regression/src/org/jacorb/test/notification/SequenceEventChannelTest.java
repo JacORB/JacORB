@@ -1,12 +1,14 @@
 package org.jacorb.test.notification;
 
+import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
@@ -23,16 +25,44 @@ public class SequenceEventChannelTest extends NotificationTestCase {
     }
 
 
-    public void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-
     public void setUp() throws Exception {
         channel_ = getDefaultChannel();
 
         // set test event type and name
         testEvent_ = new StructuredEvent[] {getTestUtils().getStructuredEvent()};
+    }
+
+
+    public void testSetMaximumBatchSize() throws Exception {
+        StructuredEvent[] _events = new StructuredEvent[] {
+            getTestUtils().getStructuredEvent(),
+            getTestUtils().getStructuredEvent()
+        };
+
+        Any _value = getORB().create_any();
+
+        _value.insert_long(2);
+
+        channel_.set_qos(new Property[] {new Property( MaximumBatchSize.value, _value )});
+
+        SequencePushSender _pushSender = new SequencePushSender(this, _events);
+
+        SequencePushReceiver _pushReceiver = new SequencePushReceiver(this) {
+                public void push_structured_events(StructuredEvent[] event) throws Disconnected {
+                    assertEquals(2, event.length);
+
+                    super.push_structured_events(event);
+                }
+            };
+
+        _pushSender.connect(channel_, false);
+        _pushReceiver.connect(channel_, false);
+
+        _pushReceiver.start();
+        _pushSender.start();
+
+        _pushSender.join();
+        _pushReceiver.join();
     }
 
 
