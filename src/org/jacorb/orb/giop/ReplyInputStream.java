@@ -41,39 +41,39 @@ public class ReplyInputStream
 
     public ReplyInputStream( org.omg.CORBA.ORB orb, byte[] buffer )
     {
-	super( orb, buffer );
+        super( orb, buffer );
 
         //check message type
-	if( Messages.getMsgType( buffer ) != MsgType_1_1._Reply )
+        if( Messages.getMsgType( buffer ) != MsgType_1_1._Reply )
         {
-	    throw new Error( "Error: not a reply!" );
+            throw new Error( "Error: not a reply!" );
         }
-        
+
         switch( giop_minor )
-        { 
-            case 0 : 
+        {
+            case 0 :
             {
                 //GIOP 1.0 = GIOP 1.1, fall through
             }
-            case 1 : 
+            case 1 :
             {
                 //GIOP 1.1
-                ReplyHeader_1_0 hdr = 
-                    ReplyHeader_1_0Helper.read( this );
+                ReplyHeader_1_0 hdr =
+                ReplyHeader_1_0Helper.read( this );
 
                 body_start = pos;
 
-                rep_hdr = 
-                    new ReplyHeader_1_2( hdr.request_id,
-                                         ReplyStatusType_1_2.from_int( hdr.reply_status.value() ),
-                                         hdr.service_context );
+                rep_hdr =
+                new ReplyHeader_1_2( hdr.request_id,
+                                     ReplyStatusType_1_2.from_int( hdr.reply_status.value() ),
+                                     hdr.service_context );
                 break;
             }
-            case 2 : 
+            case 2 :
             {
                 //GIOP 1.2
                 rep_hdr = ReplyHeader_1_2Helper.read( this );
-                
+
                 skipHeaderPadding();
 
                 body_start = pos;
@@ -100,15 +100,15 @@ public class ReplyInputStream
      * or LOCATION_FORWARD_PERM, an appropriate exception object is returned.
      * For any other status, returns null.
      */
-    public synchronized Exception getException() 
+    public synchronized Exception getException()
     {
-        switch( rep_hdr.reply_status.value() ) 
+        switch( rep_hdr.reply_status.value() )
         {
-            case ReplyStatusType_1_2._USER_EXCEPTION : 
+            case ReplyStatusType_1_2._USER_EXCEPTION :
             {
-                mark( 0 ); 
+                mark( 0 );
                 String id = read_string();
-                
+
                 try
                 {
                     reset();
@@ -120,12 +120,12 @@ public class ReplyInputStream
                 }
                 return new ApplicationException( id, this );
             }
-            case ReplyStatusType_1_2._SYSTEM_EXCEPTION: 
+            case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
             {
                 return SystemExceptionHelper.read( this );
             }
             case  ReplyStatusType_1_2._LOCATION_FORWARD:
-            case  ReplyStatusType_1_2._LOCATION_FORWARD_PERM: 
+            case  ReplyStatusType_1_2._LOCATION_FORWARD_PERM:
             {
                 return new ForwardRequest( read_Object() );
             }
@@ -133,10 +133,10 @@ public class ReplyInputStream
             {
                 return null;
             }
-    }
+        }
     }
 
-   
+
     /**
      * Returns a copy of the body of this reply.  This does not include
      * the GIOP header and the reply header.
@@ -151,23 +151,13 @@ public class ReplyInputStream
 
     public void finalize()
     {
-	try
-	{
-	    close();
-	}
-	catch( java.io.IOException iox )
-	{
-	    //ignore
-	}
+        try
+        {
+            close();
+        }
+        catch( java.io.IOException iox )
+        {
+            //ignore
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
