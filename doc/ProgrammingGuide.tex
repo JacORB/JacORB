@@ -20,8 +20,7 @@
 \title{JacORB 1.4 Programming Guide}
 
 \author{Gerald Brose, Nicolas Noffke\\
-Xtradyne Technologies, Berlin, Germany\\
-\{brose,noffke\}@xtradyne.com\\
+\{gerald.brose,nicholas.noffke\}@xtradyne.com\\
 \\
 $Revision$
 }
@@ -65,9 +64,10 @@ CORBA or a tutorial.
 In this chapter  we explain how to obtain and  install JacORB and give
 an overview of the package contents.
 
-\section{Obtaining JacORB}
+\section{Downloading JacORB}
 
-JacORB can be obtained as a g-zipped tar--archive or as a zip--archive
+
+JacORB can be downloaded as a g-zipped tar--archive or as a zip--archive
 from the  JacORB home page  at {\tt www.jacorb.org}.
 
 To install JacORB, just unzip  and untar (or simply unzip) the archive
@@ -80,24 +80,24 @@ the utilities in this directory are found.
 \section{Installation}
 \label{Sec_installation}
 
-\subsection{Ant and build files}
+\subsection{Requirements}
 
-JacORB will run on any JavaVM, but to rebuild JacORB (and compile the
-examples) you need to have the XML--based make tool ``Ant'' installed on your
-machine.  Ant can be downloaded from {\tt http://jakarta.apache.org/ant}. All
-make files ({\tt build.xml}) are written for this tool. To rebuild JacORB
-completely, add {\tt \JacORBDir/classes} to your CLASSPATH, and type {\tt ant}
-in the installation directory.  Optionally, you might want to do a {\tt ant
-  clean} first.
+JacORB requires JDK 1.2 or above properly installed on your machine.
+To build JacORB (and compile the examples) you need to have the
+XML--based make tool ``Ant'' installed on your machine.  Ant can be
+downloaded from {\tt http://jakarta.apache.org/ant}. All make files
+({\tt build.xml}) are written for this tool. To rebuild JacORB
+completely, just type {\tt ant} in the installation directory.
+Optionally, you might want to do a {\tt ant clean} first.
 
-In order to be able to use SSL you need a third party implementation of the
-SSL protocol. We currently support:
+For SSL, you need an implementation of the SSL protocol. We currently support:
+
 \begin{enumerate}
-\item IAIKs\footnote{{\tt http://jcewww.iaik.tu-graz.ac.at/}} implementation
+\item IAIK's \footnote{{\tt http://jcewww.iaik.tu-graz.ac.at/}} implementation
   consisting of the crypto provider IAIK--JCE 2.5 (or higher) and the SSL
   library iSaSiLk 3.0 (or higher). Using this implementation allows you to
   access the clients authenticated certificates.
-\item Suns JSSE Reference implementation included in the JDK 1.4 and
+\item Sun's JSSE Reference implementation included in the JDK 1.4 and
   separately available from the Developer Connection.
 \end{enumerate}
 
@@ -809,12 +809,13 @@ name, their  clients are  decoupled from the  actual locations  of the
 objects that provide  this service.  The binding from  name to service
 can be changed without the clients needing to know.
 
-JacORB provides  an implementation  of the OMG's  Interoperable Naming
-Service  which supports  binding  names to  object  references and  to
+JacORB provides an implementation of the OMG's Interoperable Naming
+Service (INS) which supports binding names to object references and to
 lookup object references using these names.  It also allows clients to
-easily  convert names  to  strings  and vice  versa.  The JacORB  name
-service comprises two  components: the name server program,  and a set
+easily convert names to strings and vice versa.  The JacORB name
+service comprises two components: the name server program, and a set
 of interfaces and classes used to access the service.
+
 
 One word of caution about using JDK 1.2 with the JacORB naming service: JDK
 1.2 comes with a couple of outdated and apparently buggy naming service
@@ -830,25 +831,25 @@ The JacORB  name server is a  process that needs to  be started before
 the name service can be accessed by programs. Starting the name server
 is done by typing on the command line either simply
 
-\cmdline{ns <ior filename> [<timeout>]}
+\cmdline{ns [<ior filename>][-p port] [-t <timeout>]}
 
 You can also start the Java interpreter explicitly by typing
 
-\cmdline{jaco jacorb.naming.NameServer <filename> [<timeout>]}
+\cmdline{jaco jacorb.naming.NameServer [<filename>][-p port] [-t <timeout>]}
 
 In the example
 
 \cmdline{ns /home/me/public\_html/NS\_Ref}
 
-we direct  the name server  process to write location  information and
-logging information to  the file {\tt /home/me/public\_html/NS\_Ref}.  A
-client--side ORB uses this file to locate the name server process. The
-client--side ORB does not, however, access the file through a local or
-shared file  system by  default.  Rather,  the file is  read as  a WWW
-resource by  using a URL pointing  to it.  This implies  that the name
-server log file is accessible through  a URL in the first place, i.e.,
-that you  know of a  web server in  your domain which can  answer HTTP
-request to read the file.
+we direct the name server process to write location information (its
+own object reference) to the file {\tt /home/me/public\_html/NS\_Ref}.
+A client--side ORB uses this file to locate the name server process.
+The client--side ORB does not, however, need to be able to access the file through a
+local or shared file system because  the file is read as a
+ resource by using a URL pointing to it.  This implies that the
+name server log file is accessible through a URL in the first place,
+i.e., that you know of a web server in your domain which can answer
+HTTP request to read the file. 
 
 The advantage of this approach is  that clients do not need to rely on
 a hard--coded well known port  and that the name server is immediately
@@ -865,11 +866,18 @@ rather than
 
 \noindent\verb+http://www.inf.fu-berlin.de/~brose/NS_Ref+
 
-Specifying file URLs  is also useful on machines  that have no network
-connection at all. Please note that the overhead of using HTTP is only
-incurred  once ---  when the  clients  first locate  the name  server.
-Subsequent  requests  will use  standard  CORBA operation  invocations
-which means they will be IIOP requests (over TCP).
+Specifying file URLs is also useful is clients and servers are run on
+a single machine that may have no network connection at all. Please
+note that the overhead of using HTTP is only incurred once --- when
+the clients first locate the name server.  Subsequent requests will
+use standard CORBA operation invocations which means they will be IIOP
+requests (over TCP). In JacORB 1.4, the file name argument was made
+optional because the JacORB 1.4 name server also answers requests that
+are made using simplified corbaloc: URLs of the form {\tt
+  corbaloc::ip-address:port/NameService}. This means that all you need
+to know to construct an object reference to your name service is the
+IP address of the machine and the port number  the server process is
+listening on (the one specified using {\tt -p}).
 
 The name server stores its  internal state, i.e., the name bindings in
 its context,  in files  in the current  directory unless  the property
@@ -878,7 +886,14 @@ saving is done  when the server goes down  regularly, i.e. killing the
 server  with CTRL-C  will result  in loss  of data.   The  server will
 restore state from its files if any files exist and are non--empty.
 
-The second  parameter is a time--out  value in msecs. If  this value is
+The second  parameter is a port number on which you want the name
+service to listen for incoming requests. If this parameter is not
+set, the name server will come up on the first free port it is
+provided with by the operating system. The port number can also be set
+using specific properties in the properties file, but the -p switch
+was added merely for convenience.
+
+The last  parameter is a time--out  value in msecs. If  this value is
 set, the name server will shut down after the specified amount of time
 and save  its state. This is  useful if the name  server is registered
 with  the  Implementation Repository  and  can  thus  be restarted  on
@@ -1379,6 +1394,8 @@ don't consider this list to be complete:
 \chapter{Dynamic Management of Any Values}
 \label{Ch_dynany}
 
+{\em by Jason Courage}
+
 The purpose of this chapter is to describe the DynAny specification,
 which is the specification for the dynamic management of Any values.
 This chapter only describes the main features of the DynAny
@@ -1780,6 +1797,48 @@ The demo/dynany directory of the JacORB repository contains example
 code illustrating the use of DynAny objects.  Further code can be
 found in the org.jacorb.test.orb.dynany package of the JacORB-Test
 repository.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Objects By Value}
+\label{ch:obv}
+
+Until CORBA 2.3, objects could only be passed using reference
+semantics: there was no way to specify that object state should be
+copied along with an object reference. A further restrictions of the
+earlier CORBA version were that all non-object types (structs, unions,
+sequences, etc.) were {\em values}, so you could not use, e.g. a
+reference to struct to construct a graph of structure values that
+contains shared nodes. Finally, there was no inheritance between
+structs.
+
+All these shortcomings are addressed the {\em objects-by-value} (OBV)
+chapters of the CORBA specification: the addition of stateful
+valuetypes supports copy semantics for objects and inheritance for
+structs, boxed value types introduce reference semantics for base
+types, and abstract interfaces determine whether an argument is sent
+by-value or by-reference by the argument's runtime type. The
+introduction of OBV into CORBA presented a major shift in the CORBA
+philosophy, which had been to strictly avoid any dependence on
+implementation details (state, in particular). It also added a
+considerable amount of marshaling complexity and interoperability
+problems. (As a personal note: Even in CORBA 2.6, the OBV marshalling
+sections are still not particularly precise...)
+
+Beginning with the 1.4 beta releases, JacORB added OBV support.
+However, the value type support in JacORB is not yet complete: while
+the IDL compiler accepts all of the value type IDL syntax, the runtime
+system does not support abstract valuetypes, and the marshalling of
+truncatable value types does not yet meet all the standard's
+requirements (and should thus be called ``beta''). Boxed value types
+and simple regular value types (including value type inheritance) work
+as prescribed in the standard.
+
+\section{Example}
+
+The remainder of this chapter presents a simple value type example,
+which is part of the demo programs in the JacORB distribution.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
