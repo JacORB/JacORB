@@ -3,15 +3,20 @@ package demo.benchmark;
 public class benchImpl 
     extends benchPOA
 {
+    
 
     public int[] intTransfer(int myInt[]) 
     {
 	return myInt;
     }
 
-    public byte[] octetTransfer( byte mybytes[]) 
+    public void octetInTransfer( byte mybytes[] ) 
     {
-	return mybytes;
+    }
+
+    public byte[] octetOutTransfer() 
+    {
+	return null;
     }
 
     public void ping()

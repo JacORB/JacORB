@@ -34,7 +34,7 @@
               classpath="${lib}/idl.jar;${java.class.path}">
 
 	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/server.idl"/>
+	      ${dirs.base}/demo/${name}/*.idl"/>
          </java>
    </target>
 
