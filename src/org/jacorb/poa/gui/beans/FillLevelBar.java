@@ -25,7 +25,7 @@ package org.jacorb.poa.gui.beans;
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99
- * @see		jacorb.poa.gui.beans.FillLevelCanvas
+ * @see		org.jacorb.poa.gui.beans.FillLevelCanvas
  */
 public class FillLevelBar extends java.awt.Panel {
 	private boolean useAvg;

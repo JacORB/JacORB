@@ -31,8 +31,6 @@ import java.awt.event.ActionEvent;
  *
  * Created: Mon Nov  1 18:22:20 1999
  *
- * @author 
- * @version
  */
 
 public class ConnectWindow extends JFrame implements ActionListener  {

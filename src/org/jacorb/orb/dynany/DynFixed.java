@@ -63,7 +63,7 @@ public final class DynFixed
    }
 
    /**
-    * @overrides from_any() in DynAny
+    * Overrides from_any() in DynAny
     */
 
    public void from_any(org.omg.CORBA.Any value) 

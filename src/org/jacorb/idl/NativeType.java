@@ -134,7 +134,6 @@ public class NativeType
     }
 
     /**
-     * @overrides accept in TypeDeclaration
      */ 
 
     public void accept( IDLTreeVisitor visitor )

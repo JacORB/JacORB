@@ -132,7 +132,7 @@ public final class DynArray
    }
 
    /**
-     * @overrides  equal() in DynAny
+     * Overrides  equal() in DynAny
      */
 
    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
@@ -223,8 +223,9 @@ public final class DynArray
    }
 
    /**
-     * returns the DynAny's internal any representation, 
-     * @overwrites getRepresentation() in DynAny
+     * Returns the DynAny's internal any representation. 
+     * <p>
+     * Overrides getRepresentation() in DynAny
      */
 
    protected org.omg.CORBA.Any getRepresentation()

@@ -143,7 +143,7 @@ public final class DynSequence
    }
 
    /**
-    * @overrides  equal() in DynAny
+    * Overrides  equal() in DynAny
     */
 
    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )

@@ -127,7 +127,7 @@ class NameTable
      *
      *  @param String name The name to be defined
      *  @param String kind the type of name, e.g. "type"
-     *  @throw NameAlreadyDefined if the name is already defined
+     *  @throws NameAlreadyDefined if the name is already defined
      */
 
     public static void define( String name, String kind )
@@ -253,7 +253,7 @@ class NameTable
 
     /**
      *  define a shadowed name, i.e. an inherited name
-     *  @throw NameAlreadyDefined if a name is already defined
+     *  @throws NameAlreadyDefined if a name is already defined
      */
 
     private static void defineShadows( Hashtable shadowEntries )
@@ -286,7 +286,7 @@ class NameTable
 
     /**
      * copy names declared in an ancestor interface to the local scope
-     *  @throw NameAlreadyDefined
+     *  @throws NameAlreadyDefined
      */
 
     public static synchronized void inheritFrom( String name,

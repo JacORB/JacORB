@@ -31,7 +31,7 @@ import java.util.*;
  *
  * @author Gerald Brose, Reimo Tiedemann, FU Berlin
  * @version 1.04, 10/26/99, RT
- * @see		jacorb.poa.RequestProcessor
+ * @see org.jacorb.poa.RequestProcessor
  */
 
 public class RPPoolManager

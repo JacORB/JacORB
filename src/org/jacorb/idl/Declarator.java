@@ -60,7 +60,6 @@ public class Declarator
     }
 
     /**
-     * @overrides escapeName from IdlSymbol
      */
 
     public void escapeName()

@@ -70,7 +70,7 @@ public class GlobalInputStream
      * file.  (Used, e.g., to determine if code has been previosuly
      * generated from an IDL file).
      *
-     * @arg other the file to compare this stream against
+     * @param other the file to compare this stream against
      * @return true, if this stream's IDL file is more recent than the other file  .
      */
 

@@ -363,7 +363,6 @@ public class ValueAbsDecl
 
 
     /**
-     * @overrides accept in TypeDeclaration
      */ 
 
     public void accept(IDLTreeVisitor visitor)

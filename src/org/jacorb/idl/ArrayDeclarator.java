@@ -45,7 +45,6 @@ class ArrayDeclarator
     }
 
     /**
-     * @overrides escapeName from Declarator
      */
 
     public void escapeName()

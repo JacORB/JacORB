@@ -32,8 +32,9 @@ import org.jacorb.naming.*;
  * IOR to the given file such that it complies with the
  * JacORB mechanism for locating the root naming context
  *
- * @authors Gerald Brose, Wei-Ju Wu, Volker Siegel
- * @date September 1998
+ * @author Gerald Brose
+ * @author Wei-Ju Wu
+ * @author Volker Siegel
  */
 
 public class NameManager

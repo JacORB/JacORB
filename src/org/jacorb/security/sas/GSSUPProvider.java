@@ -40,7 +40,6 @@ public class GSSUPProvider extends Provider
     /**
      * Returns the default GSSManager implementation.
      *
-     * @return a GSSManager implementation
      */
     public GSSUPProvider()
     {

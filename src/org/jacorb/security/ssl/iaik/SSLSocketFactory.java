@@ -214,8 +214,7 @@ public class SSLSocketFactory
      * The minimum quality of service for these defaults requires
      * confidentiality protection and server authentication.
      *
-     * @return:
-     *	array of the cipher suites enabled by default
+     * @return array of the cipher suites enabled by default
      */
 
     public String[] getDefaultCipherSuites()
@@ -232,8 +231,7 @@ public class SSLSocketFactory
      * requirements for those defaults.
      * Such cipher suites are useful in specialized applications.
      *
-     * @return:
-     * 	an array of cipher suite names
+     * @return an array of cipher suite names
      */
     public String[] getSupportedCipherSuites()
     {

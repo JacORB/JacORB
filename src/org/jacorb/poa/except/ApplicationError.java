@@ -26,7 +26,7 @@ package org.jacorb.poa.except;
  * 
  * @author Reimo Tiedemann, FU Berlin
  * @version $Id$
- * @see	  jacorb.poa.POA#createPOA(String, org.omg.PortableServer.POAManager, org.omg.CORBA.Policy[])
+ * @see org.jacorb.poa.POA#create_POA(String, org.omg.PortableServer.POAManager, org.omg.CORBA.Policy[])
  */
 public final class ApplicationError 
     extends java.lang.Error 

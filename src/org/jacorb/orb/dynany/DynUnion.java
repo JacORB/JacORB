@@ -107,7 +107,7 @@ public final class DynUnion
    }
 
    /**
-    * @overrides from_any() in DynAny
+    * Overrides from_any() in DynAny
     */
 
    public void from_any( org.omg.CORBA.Any value ) 
@@ -207,7 +207,7 @@ public final class DynUnion
    }
 
    /**
-    * @overrides component_count() in DynAny
+    * Overrides component_count() in DynAny
     */
    public int component_count ()
    {
@@ -219,7 +219,7 @@ public final class DynUnion
    }
    
    /**
-    * @overrides next() in DynAny
+    * Overrides next() in DynAny
     */
    public boolean next()
    {
@@ -234,7 +234,7 @@ public final class DynUnion
    }
 
    /**
-    * @overrides seek() in DynAny
+    * Overrides seek() in DynAny
     */
    public boolean seek(int index)    
    {
@@ -255,7 +255,7 @@ public final class DynUnion
 
    
    /**
-    * @overrides  equal() in DynAny
+    * Overrides  equal() in DynAny
     */
    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
    {

@@ -23,10 +23,11 @@ package org.jacorb.poa.except;
 /**
  * This exception will be thrown if sb. requested the completion of request
  * processing.
+ * <p>
+ * See (private method) <code>org.jacorb.poa.RequestController.processRequest(org.jacorb.orb.dsi.ServerRequest)</code>.
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99, RT
- * @see     org.jacorb.poa.RequestController#processRequest(org.jacorb.orb.dsi.ServerRequest)
  * @see     org.jacorb.poa.RequestController#run()
  */
 public final class CompletionRequestedException 

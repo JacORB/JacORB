@@ -1355,7 +1355,7 @@ public final class Delegate
     }
 
     /**
-     * @overrides servant_postinvoke() in org.omg.CORBA.portable.Delegate<BR>
+     * Overrides servant_postinvoke() in org.omg.CORBA.portable.Delegate<BR>
      * called from generated stubs after a local operation
      */
 
@@ -1397,7 +1397,7 @@ public final class Delegate
     }
 
     /**
-     * @overrides servant_preinvoke() in org.omg.CORBA.portable.Delegate<BR>
+     * Overrides servant_preinvoke() in org.omg.CORBA.portable.Delegate<BR>
      * called from generated stubs before a local operation
      */
 

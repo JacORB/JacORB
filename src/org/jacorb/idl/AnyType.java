@@ -44,7 +44,7 @@ public class AnyType
     }
 
     /**
-     * @overrides getIDLTypeName in TypeSpec
+     * @return the string "any".
      */
 
     public String getIDLTypeName()

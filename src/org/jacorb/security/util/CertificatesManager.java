@@ -38,7 +38,6 @@ import iaik.utils.KeyAndCertificate;
 
 /**
  * @author André Benvenuti ( bnv ), UGFU, Generalstab, Bern
- * @created 04.11.99
  */
 
 public class CertificatesManager {

@@ -69,7 +69,6 @@ public class EnumType
     }
 
     /**
-     * @overrides  set_included from TypeDeclaration
      */
 
     public void set_included(boolean i)
@@ -464,7 +463,6 @@ public class EnumType
     }
 
     /**
-     * @overrides accept in TypeDeclaration
      */
 
     public void accept(IDLTreeVisitor visitor)

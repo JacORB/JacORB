@@ -40,7 +40,6 @@ class BaseType
 
     /** 
      * ignore, these types don't need to know their package 
-     * @overrides setPackage in 
      */
 
     public void setPackage( String s )

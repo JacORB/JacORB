@@ -2236,7 +2236,7 @@ public class CDRInputStream
     }
 
     /**
-     * @overrides read_value(java.io.Serializable value) in
+     * Overrides read_value(java.io.Serializable value) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
 
@@ -2291,7 +2291,7 @@ public class CDRInputStream
      * Unlike the other read_value() methods in this class, this method does
      * not expect a GIOP value tag nor a repository id in the stream.
      * 
-     * @overrides read_value(value) in
+     * Overrides read_value(value) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
 
@@ -2309,7 +2309,7 @@ public class CDRInputStream
     }
 
     /**
-     * @overrides read_value(clz) in
+     * Overrides read_value(clz) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
 
@@ -2355,7 +2355,7 @@ public class CDRInputStream
     }
 
     /**
-     * @overrides read_value(factory) in
+     * Overrides read_value(factory) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
 

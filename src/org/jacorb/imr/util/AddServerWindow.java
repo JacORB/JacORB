@@ -32,8 +32,6 @@ import java.awt.datatransfer.*;
  *
  * Created: Mon Nov  1 19:22:12 1999
  *
- * @author 
- * @version
  */
 
 public class AddServerWindow 

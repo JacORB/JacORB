@@ -79,13 +79,13 @@ public abstract class Any implements org.omg.CORBA.portable.IDLEntity {
     abstract public void insert_TypeCode(TypeCode value);
 
     /**
-    *@ deprecated
+    *@deprecated
     */
     public Principal extract_Principal() {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
     /**
-    *@ deprecated
+    *@deprecated
     */
     public void insert_Principal(Principal p) {
         throw new org.omg.CORBA.NO_IMPLEMENT();

@@ -149,7 +149,6 @@ public class TypeDef
     }
 
     /**
-     * @overrides accept in TypeDeclaration
      */ 
 
     public void accept( IDLTreeVisitor visitor )

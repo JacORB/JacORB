@@ -34,7 +34,10 @@ import org.jacorb.orb.*;
  *    Modifications to support the above have been made as well as to support
  *    section 2.1.5 "Disconnection Behavior" on page 2-4.
  *
- * @authors Jeff Carlson, Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose 1997
+ * @author Jeff Carlson
+ * @author Joerg v. Frantzius
+ * @author Rainer Lischetzki
+ * @author Gerald Brose
  * $Id$
  */
 public class ProxyPullConsumerImpl

@@ -53,7 +53,7 @@ public class ByteArrayKey
     }
 
     /**
-     * @overrides hashCode () in Object
+     * Overrides hashCode () in Object
      */
     public int hashCode ()
     {
@@ -74,7 +74,7 @@ public class ByteArrayKey
     }
 
     /**
-     * @overrides equals () in Object
+     * Overrides equals () in Object
      */
     public boolean equals (Object obj)
     {

@@ -1345,7 +1345,6 @@ public class UnionType
     }
 
     /**
-     * @overrides accept in TypeDeclaration
      */ 
 
     public void accept(IDLTreeVisitor visitor)

@@ -65,7 +65,6 @@ public class ObjectRepresentantFactory
     }
     /**
      * This method was created by a SmartGuide.
-     * @return
      * @param counterPart org.omg.CORBA.Object
      */
     public static ObjectRepresentant create(org.omg.CORBA.Object counterPart) {

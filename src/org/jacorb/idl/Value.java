@@ -136,7 +136,6 @@ public class Value
     }
 
     /**
-     * @overrides accept in TypeDeclaration
      */ 
 
     public void accept( IDLTreeVisitor visitor )

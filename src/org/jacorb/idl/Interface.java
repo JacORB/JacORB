@@ -1333,7 +1333,6 @@ public class Interface
     }
 
     /**
-     * @overrides accept in IdlSymbol
      */
 
     public void accept(IDLTreeVisitor visitor)

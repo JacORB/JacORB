@@ -48,7 +48,7 @@ public class TypeSpec
     }
 
     /**
-     * @deprecated, use either getJavaTypeName() or getIDLTypeName()
+     * @deprecated use either getJavaTypeName() or getIDLTypeName()
      */
 
 

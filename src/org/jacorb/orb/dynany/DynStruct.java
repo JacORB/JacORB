@@ -167,7 +167,7 @@ public final class DynStruct
     }
 
     /**
-     * @overrides  equal() in DynAny
+     * Overrides  equal() in DynAny
      */
 
     public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
@@ -305,8 +305,9 @@ public final class DynStruct
     }
 
     /**
-     * returns the DynAny's internal any representation, 
-     * @overwrites getRepresentation() in DynAny
+     * returns the DynAny's internal any representation.
+     * <p>
+     * Overrides getRepresentation() in DynAny.
      */
 
     protected org.omg.CORBA.Any getRepresentation()

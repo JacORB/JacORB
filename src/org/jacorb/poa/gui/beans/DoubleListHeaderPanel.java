@@ -23,7 +23,7 @@ package org.jacorb.poa.gui.beans;
 /**
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/10/99
- * @see		jacorb.poa.gui.beans.DoubleListDialog
+ * @see		org.jacorb.poa.gui.beans.DoubleListDialog
  */
 public class DoubleListHeaderPanel extends java.awt.Panel {
 	private java.awt.Label ivjHeaderLabel1 = null;

@@ -255,7 +255,6 @@ public class ArrayTypeSpec
     }
 
     /**
-     * @overrides length() in VectorType
      */
 
     public int length()

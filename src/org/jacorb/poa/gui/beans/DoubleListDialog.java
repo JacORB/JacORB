@@ -25,7 +25,7 @@ package org.jacorb.poa.gui.beans;
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/10/99
- * @see		jacorb.poa.gui.beans.DoubleListItem
+ * @see		org.jacorb.poa.gui.beans.DoubleListItem
  */
 public class DoubleListDialog extends java.awt.Dialog implements CloseButtonPanelController, java.awt.event.ComponentListener, java.awt.event.MouseListener, java.awt.event.WindowListener {
 	private DoubleListItem selectedItem = null;

@@ -533,7 +533,7 @@ public class ServerRequest
      * <code>getScopes</code> returns the cached vector of poa_names.
      *
      * @return a <code>Vector</code> value containing Strings separated by
-     * {@link POAConstants.OBJECT_KEY_SEPARATOR OBJECT_KEY_SEPARATOR}
+     * {@link org.jacorb.poa.POAConstants#OBJECT_KEY_SEPARATOR OBJECT_KEY_SEPARATOR}
      */
     public Vector getScopes ()
     {

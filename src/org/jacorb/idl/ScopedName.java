@@ -205,7 +205,6 @@ public class ScopedName
     }
 
     /**
-     * @overrides escapeName in IdlSymbol
      */
 
     public void escapeName()

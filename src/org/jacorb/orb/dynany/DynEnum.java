@@ -76,7 +76,7 @@ public final class DynEnum
 
 
    /**
-    * @overrides  from_any() in DynAny
+    * Overrides  from_any() in DynAny
     */
 
    public void from_any( org.omg.CORBA.Any value ) 
@@ -111,7 +111,7 @@ public final class DynEnum
    }
 
    /**
-    * @overrides  equal() in DynAny
+    * Overrides  equal() in DynAny
     */
 
    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )

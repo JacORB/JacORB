@@ -238,7 +238,7 @@ public class Name
     /**
      *
      * @return an a array of NameComponents
-     * @throw org.omg.CosNaming.NamingContextPackage.InvalidName
+     * @throws org.omg.CosNaming.NamingContextPackage.InvalidName
      */
 
     public static org.omg.CosNaming.NameComponent[] toName( String sn ) 

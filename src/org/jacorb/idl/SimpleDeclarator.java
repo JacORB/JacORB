@@ -40,7 +40,6 @@ public class SimpleDeclarator
     }
 
     /**
-     * @overrides escapeName from Declarator
      */
 
     public void escapeName()

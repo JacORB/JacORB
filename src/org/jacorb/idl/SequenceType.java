@@ -102,7 +102,6 @@ public class SequenceType
     }
 
     /**
-     * @overrides length() in VectorType
      */
 
     public int length()

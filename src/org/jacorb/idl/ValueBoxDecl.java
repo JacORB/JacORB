@@ -177,8 +177,6 @@ public class ValueBoxDecl
      * @return a string for an expression of type TypeCode that
      * describes this type
      *
-     * @overrides getTypeCodeExpression(Set knownTypes) in
-     * TypeDeclaration
      */
 
     public String getTypeCodeExpression(Set knownTypes)
@@ -430,7 +428,6 @@ public class ValueBoxDecl
 
 
     /**
-     * @overrides accept in TypeDeclaration
      */ 
 
     public void accept(IDLTreeVisitor visitor)

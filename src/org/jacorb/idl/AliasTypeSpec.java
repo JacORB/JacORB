@@ -121,7 +121,6 @@ public class AliasTypeSpec
 
     /**
      * @return true if this is a basic type
-     * @overrides basic() in org.jacorb.idl.TypeSpec
      */
 
     public boolean basic()

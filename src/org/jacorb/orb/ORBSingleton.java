@@ -75,7 +75,7 @@ public class ORBSingleton
     /**
      * code>checkTCName</code> checks that a name is a legal IDL name
      * (CORBA 2.6 4-59).
-     * @throw org.omg.CORBA.BAD_PARAM
+     * @throws org.omg.CORBA.BAD_PARAM
      */
     private void checkTCName (String name) throws BAD_PARAM
     {
@@ -147,7 +147,7 @@ public class ORBSingleton
     /**
      * check that a type is a legal member type
      * (cf. CORBA 2.4 chapter 10, section 7.3
-     * @throw org.omg.CORBA.BAD_PARAM
+     * @throws org.omg.CORBA.BAD_PARAM
      */
 
     private void checkTCMemberType( TypeCode tc )

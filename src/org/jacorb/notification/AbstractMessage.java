@@ -277,7 +277,7 @@ public abstract class AbstractMessage extends AbstractPoolable
      * this Event. The Constraint Key consists of domain_name and
      * type_name of the Event.
      * Within this Implementation the Operation
-     * {@link FilterUtils#calcConstraintKey(String, String)}
+     * {@link MessageUtils#calcConstraintKey(String, String)}
      * is used to provide a uniform
      * Mapping from domain_name and type_name to a Constraint Key.
      *
@@ -301,8 +301,9 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     /**
      * get the Type of this NotificationEvent. The value is one of
-     * {@link #TYPE_ANY TYPE_ANY}, {@link #TYPE_STRUCTURED
-     * TYPE_STRUCTURED} or {@link #TYPE_TYPED TYPE_TYPED}.
+     * {@link org.jacorb.notification.interfaces.Message#TYPE_ANY TYPE_ANY}, 
+     * {@link org.jacorb.notification.interfaces.Message#TYPE_STRUCTURED TYPE_STRUCTURED},
+     *  or {@link org.jacorb.notification.interfaces.Message#TYPE_TYPED TYPE_TYPED}.
      *
      * @return the Type of this NotificationEvent.
      */

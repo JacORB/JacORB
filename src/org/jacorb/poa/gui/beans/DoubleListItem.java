@@ -25,7 +25,7 @@ package org.jacorb.poa.gui.beans;
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/10/99
- * @see		jacorb.poa.gui.beans.DoubleListDialog
+ * @see		org.jacorb.poa.gui.beans.DoubleListDialog
  */
 public interface DoubleListItem {
 public void _correctWidth(int diff_width);

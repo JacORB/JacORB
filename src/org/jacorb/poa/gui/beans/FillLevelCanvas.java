@@ -23,7 +23,7 @@ package org.jacorb.poa.gui.beans;
 /**
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99
- * @see		jacorb.poa.gui.beans.FillLevelBar
+ * @see		org.jacorb.poa.gui.beans.FillLevelBar
  */
 public class FillLevelCanvas extends java.awt.Canvas {
 	private java.awt.Graphics buf = null;

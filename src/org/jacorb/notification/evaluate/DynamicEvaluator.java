@@ -280,7 +280,6 @@ public class DynamicEvaluator
      *
      * @param value
      *
-     * @return
      */
     public Any evaluateUnion( Any value )
     throws EvaluationException

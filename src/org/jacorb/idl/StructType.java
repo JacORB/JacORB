@@ -574,7 +574,7 @@ public class StructType
     /** 
      * Generates code from this AST class 
      *
-     * @arg ps - not used, the necessary output streams to classes
+     * @param ps not used, the necessary output streams to classes
      * that receive code (e.g., helper and holder classes for the
      * IDL/Java mapping, are created inside this method.
      */

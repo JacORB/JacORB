@@ -136,7 +136,7 @@ public interface AuthorizationHandler
      * @param prxy the previous proxy auth info sent, or null if none was sent
      * @exception IOException if an exception occurs during the reading of
      *            the trailers.
-     * @see #handleAuthHeaders(RoResponse, RoRequest, AuthorizationInfo, AuthorizationInfo)
+     * @see #handleAuthHeaders(Response, RoRequest, AuthorizationInfo, AuthorizationInfo)
      */
     void handleAuthTrailers(Response resp, RoRequest req,
 			    AuthorizationInfo prev, AuthorizationInfo prxy)

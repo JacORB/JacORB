@@ -140,7 +140,7 @@ public final class ORB
     }
 
     /**
-     * @overwrites id() in org.omg.CORBA_2_5.ORB
+     * Overrides id() in org.omg.CORBA_2_5.ORB
      */
 
     public String id()
@@ -1081,11 +1081,12 @@ public final class ORB
      * to resove_initial_references(id). <br>
      * The references "RootPOA", "POACurrent" and "PICurrent" can be set,
      * but will not be resolved with the passed in references.
+     * <p>
+     * Overrides  register_initial_reference() in org.omg.CORBA_2_5.ORB
      *
      * @param id The references human-readable id, e.g. "MyService".
      * @param obj The objects reference.
      * @exception InvalidName A reference with id has already been registered.
-     * @overwrites  register_initial_reference() in org.omg.CORBA_2_5.ORB
      */
 
     public void register_initial_reference( String id, org.omg.CORBA.Object obj )

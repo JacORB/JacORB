@@ -155,7 +155,6 @@ public class ImRServerInfo  implements java.io.Serializable{
      * This method blocks until the server is released, i.e. set
      * to not holding. <br> This will not time out since holding a 
      * server is only done by administrators.
-     * @param
      **/
     public synchronized void awaitRelease(){
 	while(holding){
