@@ -67,6 +67,7 @@ public class ServerAccessDecisionInterceptor
     public void receive_request_service_contexts(ServerRequestInfo ri) 
         throws ForwardRequest
     {
+        throw new org.omg.CORBA.NO_MEMORY();
     }
 
     public void receive_request(ServerRequestInfo ri)
