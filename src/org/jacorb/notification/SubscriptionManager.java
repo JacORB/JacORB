@@ -66,7 +66,8 @@ public class SubscriptionManager
         synchronized(listeners_) {
             // use a iterator on a copy of the original list here.
             // otherwise the iterator would fail if the list would be
-            // modified concurrently which happens during offer_change.
+            // modified concurrently which may happen during
+            // subscription_change.
             Iterator _i = new ArrayList(listeners_).iterator();
 
             while (_i.hasNext()) {
@@ -87,8 +88,6 @@ public class SubscriptionManager
             changeSet(added, removed);
         } catch (InterruptedException e) {
             logger_.fatalError("interrupted", e);
-
-            throw new UNKNOWN();
         }
     }
 
@@ -99,7 +98,7 @@ public class SubscriptionManager
         } catch (InterruptedException e) {
             logger_.fatalError("interrupted", e);
 
-            throw new UNKNOWN();
+            return null;
         }
     }
 }
