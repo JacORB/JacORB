@@ -30,72 +30,182 @@ class ForwarderImpl
         public void Xswap4(byte[] by,int a, int b, int c, int d, int off){
             byte swap;
             swap=by[a+off];by[a+off]=by[d+off];by[d+off]=swap;
-            swap=by[b+off];by[c+off]=by[b+off];by[b+off]=swap;
+           //this line is wrong (reported by Armin Schloesser) swap=by[b+off];by[c+off]=by[b+off];by[b+off]=swap;
+	   swap=by[b+off];by[b+off]=by[c+off];by[c+off]=swap;
         }
+
+	public int doAlign(int index, int boundary) {
+          if (index%boundary != 0) {
+            index = index + boundary - (index%boundary);
+          }
+          return index;
+        }
+
+
                         
         public void changeByteOrder(byte[] buffer)
         {
 
+	   // bug fixed alignement was not taken into account
+            // 13.4.2000 A.Schloesser (Philips Automation Projects,Kassel)
+            // here we have to change the MessageHeader
+            //                       and  RequestHeader
+            //              length info to the wanted byte Order
+            /*
+               struct MessageHeader {       offset in buffer
+                 char magic[4]              0
+                 struct Version {
+                    octet major             4
+                    octet minorA            5
+                 }
+                 boolean byte_order         6
+                 octet   message_type       7
+                 unsigned long message_size 8
+               } end MessageHeader
+               struct RequestHeader {
+                 sequence<ServiceContext> {
+                   long          length         4 byte align
+                   unsigned long context_id    
+                   sequence<octet> data {    
+                     long length               
+                     octet [] data
+                   }
+                 }
+                 unsigned long request_id       4 byte align
+                 boolean  response_expected
+                 sequence<octet> object_key {
+                   long length                  4 byte align
+                   octet[] object_key
+                 }
+                 string operation {
+                   long length                  4 byte align
+                   char [] operation (null terminated)
+                 }
+                 Principal requesting_principal
+               } end RequestHeader
+            */
+
             boolean little=((buffer[6]&1)==0);
             boolean is_giop_1_1 = (buffer[5]==1);
 
+            int msgSize=0;
             int serviceContextLength=0;
             int object_keyLength=0;
+            int opname_Length=0;
             int off=0;
-        
-            Xswap4(buffer,8,9,10,11,0);       //request size
-            Xswap4(buffer,12,13,14,15,0);   //serviceContext Length             
 
+            //debug
+            if (org.jacorb.util.Environment.verbosityLevel()>=3){
+              System.out.println("[changeByteOrder] little=" + little + " is_giop_1_1=" + is_giop_1_1);
+            }
+
+            off += 8;
+            Xswap4(buffer,0,1,2,3,off);     //request size
             if (little)
-                serviceContextLength=  (((buffer[15] & 0xff) << 24) +
-                                        ((buffer[14] & 0xff) << 16) +
-                                        ((buffer[13] & 0xff) << 8) +
-                                        ((buffer[12] & 0xff) << 0));
+                msgSize=  (((buffer[3+off] & 0xff) << 24) +
+                           ((buffer[2+off] & 0xff) << 16) +
+			   ((buffer[1+off] & 0xff) << 8) +
+			   ((buffer[0+off] & 0xff) << 0));
             else
-                serviceContextLength= (((buffer[12] & 0xff) << 24) +
-                                       ((buffer[13] & 0xff) << 16) +
-                                       ((buffer[14] & 0xff) << 8) +
-                                       ((buffer[15] & 0xff) << 0));
+                msgSize= (((buffer[0+off] & 0xff) << 24) +
+                          ((buffer[1+off] & 0xff) << 16) +
+			  ((buffer[2+off] & 0xff) << 8) +
+			  ((buffer[3+off] & 0xff) << 0));
 
+            if (org.jacorb.util.Environment.verbosityLevel()>=3){
+              System.out.println("[changeByteOrder[" + off + "]] msgSize=" + msgSize);
+            }
+            off += 4;
+            Xswap4(buffer,0,1,2,3,off);   //serviceContext Length               
+            if (little)
+                serviceContextLength=  (((buffer[3+off] & 0xff) << 24) +
+                                        ((buffer[2+off] & 0xff) << 16) +
+                                        ((buffer[1+off] & 0xff) << 8) +
+                                        ((buffer[0+off] & 0xff) << 0));
+            else
+                serviceContextLength= (((buffer[0+off] & 0xff) << 24) +
+                                       ((buffer[1+off] & 0xff) << 16) +
+                                       ((buffer[2+off] & 0xff) << 8) +
+                                       ((buffer[3+off] & 0xff) << 0));
+
+            if (org.jacorb.util.Environment.verbosityLevel()>=3){
+              System.out.println("[changeByteOrder[" + off + "]] serviceContextLength=" + serviceContextLength);
+            }
+
+            off += 4; // we are now at the RequestHeader
             for(int i=serviceContextLength;i>0;i--){
-                Xswap4(buffer,16,17,18,19,off); //context_id
-                Xswap4(buffer,20,21,22,23,off); //context_dataLength
+                Xswap4(buffer,0,1,2,3,off); //context_id
+                Xswap4(buffer,4,5,6,7,off); //context_dataLength
                 int context_dataLength;
-
                 if (little)
-                    context_dataLength=  (((buffer[23+off] & 0xff) << 24) +
-                                          ((buffer[22+off] & 0xff) << 16) +
-                                          ((buffer[21+off] & 0xff) << 8) +
-                                          ((buffer[20+off] & 0xff) << 0));
+                    context_dataLength=  (((buffer[7+off] & 0xff) << 24)+
+                                          ((buffer[6+off] & 0xff) << 16)+
+                                          ((buffer[5+off] & 0xff) << 8)+
+                                          ((buffer[4+off] & 0xff) << 0));
                 else
-                    context_dataLength= (((buffer[20+off] & 0xff) << 24) +
-                                         ((buffer[21+off] & 0xff) << 16) +
-                                         ((buffer[22+off] & 0xff) << 8) +
-                                         ((buffer[23+off] & 0xff) << 0));
+                    context_dataLength= (((buffer[4+off] & 0xff) << 24)+
+                                         ((buffer[5+off] & 0xff) << 16)+
+                                         ((buffer[6+off] & 0xff) << 8) +
+                                         ((buffer[7+off] & 0xff) << 0));
+
+                if (org.jacorb.util.Environment.verbosityLevel()>=3){
+                  System.out.println("[changeByteOrder[" + off + "]] context_dataLength=" + context_dataLength);
+                }
 
                 off=off+8+context_dataLength;
+                // align to next long
+                off = doAlign(off,4);
             }
-        
-            Xswap4(buffer,16,17,18,19,off); //request_ID
 
-            if( is_giop_1_1 )
+            // we are now at request_id
+            Xswap4(buffer,0,1,2,3,off); //request_ID
+            off += 4;
+            off += 1; // skip response_expected
+            if( is_giop_1_1 ) {
                 off += 3;
-            Xswap4(buffer,21,22,23,24,off); //object_keyLength
+            }
+            // align
+            off = doAlign(off,4);
+            Xswap4(buffer,0,1,2,3,off); //object_keyLength
+            if (little)
+                object_keyLength=  (((buffer[3+off] & 0xff) << 24) +
+                                    ((buffer[2+off] & 0xff) << 16) +
+                                    ((buffer[1+off] & 0xff) << 8) +
+                                    ((buffer[0+off] & 0xff) << 0));
+            else
+                object_keyLength= (((buffer[0+off] & 0xff) << 24) +
+                                   ((buffer[1+off] & 0xff) << 16) +
+                                   ((buffer[2+off] & 0xff) << 8) +
+                                   ((buffer[3+off] & 0xff) << 0));
+
+            if (org.jacorb.util.Environment.verbosityLevel()>=3){
+              System.out.println("[changeByteOrder[" + off + "]] object_keyLength=" + object_keyLength);
+            }
+
+            off+=4 + object_keyLength;
+            // we are now at String Operation
+
+            // align
+            off = doAlign(off,4);
+
+            Xswap4(buffer,0,1,2,3,off); //OpnameLength;
 
             if (little)
-                object_keyLength=  (((buffer[24+off] & 0xff) << 24) +
-                                    ((buffer[23+off] & 0xff) << 16) +
-                                    ((buffer[22+off] & 0xff) << 8) +
-                                    ((buffer[21+off] & 0xff) << 0));
+                opname_Length=  (((buffer[3+off] & 0xff) << 24) +
+                                 ((buffer[2+off] & 0xff) << 16) +
+                                 ((buffer[1+off] & 0xff) << 8) +
+                                 ((buffer[0+off] & 0xff) << 0));
             else
-                object_keyLength= (((buffer[21+off] & 0xff) << 24) +
-                                   ((buffer[22+off] & 0xff) << 16) +
-                                   ((buffer[23+off] & 0xff) << 8) +
-                                   ((buffer[24+off] & 0xff) << 0));
+                opname_Length= (((buffer[0+off] & 0xff) << 24) +
+                                ((buffer[1+off] & 0xff) << 16) +
+                                ((buffer[2+off] & 0xff) << 8) +
+                                ((buffer[3+off] & 0xff) << 0));
+            if (org.jacorb.util.Environment.verbosityLevel()>=3){
+              System.out.println("[changeByteOrder[" + off + "]] opname_Length=" + opname_Length);
+            }
 
-            off+=object_keyLength;
-            Xswap4(buffer,25,26,27,28,off); //OpnameLength;
-            buffer[6]= (byte)~(buffer[6] & 0xfe); //toggle the endian byte
+            buffer[6] = (little)?(byte)1:(byte)0; //toggle the endian byte
+
         }
 
 
