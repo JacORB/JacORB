@@ -43,14 +43,14 @@ public class Time
      */
     public static UtcT corbaTime()
     {
-        return corbaTime (System.currentTimeMillis());
+        return corbaTime(System.currentTimeMillis());
     }
 
     /**
      * Converts the given unixTime into a CORBA UtcT.
      * @param unixTime the number of milliseconds since 1970/01/01 00:00 UTC.
      */
-    public static UtcT corbaTime (long unixTime)
+    public static UtcT corbaTime(long unixTime)
     {
         UtcT result = new UtcT();
 
@@ -70,9 +70,9 @@ public class Time
     /**
      * Converts the given Java date into a CORBA UtcT.
      */
-    public static UtcT corbaTime (java.util.Date date)
+    public static UtcT corbaTime(java.util.Date date)
     {
-        return corbaTime (date.getTime());
+        return corbaTime(date.getTime());
     }
     
     /**
@@ -80,7 +80,7 @@ public class Time
      * a given number of CORBA time units (100 ns) in the future.
      * If the argument is negative, returns null.
      */
-    public static UtcT corbaFuture (long corbaUnits)
+    public static UtcT corbaFuture(long corbaUnits)
     {
         if (corbaUnits < 0)
             return null;
@@ -97,7 +97,7 @@ public class Time
      * time.  The value is positive if that time is in the future, and 
      * negative otherwise.
      */
-    public static long millisTo (UtcT time)
+    public static long millisTo(UtcT time)
     {
         long unixTime = (time.time - UNIX_OFFSET) / 10000;
         
@@ -113,10 +113,10 @@ public class Time
      * already in the past, false otherwise.  As a special convenience,
      * this method also returns false if the argument is null.
      */
-    public static boolean hasPassed (UtcT time)
+    public static boolean hasPassed(UtcT time)
     {
         if (time != null)
-            return millisTo (time) < 0;
+            return millisTo(time) < 0;
         else
             return false;
     }
@@ -127,7 +127,7 @@ public class Time
      * lies indefinitely in the future.  If both arguments are null,
      * this method returns null itself.
      */
-    public static UtcT earliest (UtcT timeA, UtcT timeB)
+    public static UtcT earliest(UtcT timeA, UtcT timeB)
     {
         if (timeA == null)
             if (timeB == null)
@@ -144,11 +144,11 @@ public class Time
     /**
      * Returns a CDR encapsulation of the given UtcT.
      */
-    public static byte[] toCDR (UtcT time)
+    public static byte[] toCDR(UtcT time)
     {
         // TODO: make this more efficient with mere bit shifting
         byte[] buffer = new byte[25];
-        CDROutputStream out = new CDROutputStream (buffer);
+        CDROutputStream out = new CDROutputStream(buffer);
         out.beginEncapsulatedArray();
         UtcTHelper.write(out, time);
         return buffer;
@@ -157,11 +157,11 @@ public class Time
     /**
      * Decodes a CDR encapsulation of a UtcT.
      */
-    public static UtcT fromCDR (byte[] buffer)
+    public static UtcT fromCDR(byte[] buffer)
     {
-        CDRInputStream in = new CDRInputStream (null, buffer);
+        CDRInputStream in = new CDRInputStream(null, buffer);
         in.openEncapsulatedArray();
-        return UtcTHelper.read (in);
+        return UtcTHelper.read(in);
     }
     
     /**
@@ -169,11 +169,11 @@ public class Time
      * If the time is null, or it has already passed,
      * then this method returns immediately.
      */
-    public static void waitFor (UtcT time)
+    public static void waitFor(UtcT time)
     {
         if (time != null)
         {
-            long delta = Time.millisTo (time);
+            long delta = Time.millisTo(time);
             if (delta > 0)
             {
                 Object lock = new Object();
@@ -181,11 +181,10 @@ public class Time
                 {
                     try
                     {
-                        lock.wait (delta);
+                        lock.wait(delta);
                     }
                     catch (InterruptedException e)
                     {
-                        Debug.output( 4, "interrupted while waiting on timer");
                     }
                 }
             }
