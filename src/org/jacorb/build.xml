@@ -51,14 +51,7 @@
                  <arg file="${include}/jacorb/imr.idl"/>
                  <arg file="${include}/jacorb/channel.idl"/>
                  <arg file="${include}/jacorb/Tracing.idl"/>
-           </java>
-
-	   <java classname="org.jacorb.idl.parser"
-                 fork="yes"
-                 classpath="${classpath}">
-                 <arg line="${jidlflags} -sloppy_names"/>
-                 <arg file="${include}/jacorb/DomainManagement.idl"/>
-           </java>
+           </java>           
 
    </target>
 
