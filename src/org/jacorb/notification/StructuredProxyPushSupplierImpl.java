@@ -21,7 +21,6 @@ package org.jacorb.notification;
  *
  */
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -188,7 +187,11 @@ public class StructuredProxyPushSupplierImpl
         {
             if ( pushConsumer_ != null )
             {
-                pushConsumer_.disconnect_structured_push_consumer();
+            	try {
+                	pushConsumer_.disconnect_structured_push_consumer();
+				} catch (Exception e) {
+					logger_.warn("Error disconnecting consumer: "+e);
+				}
                 pushConsumer_ = null;
                 connected_ = false;
             }
