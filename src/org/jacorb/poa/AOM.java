@@ -298,14 +298,14 @@ public class AOM
             /* object deactivation */
 
             objectMap.remove(oidbak);
-            servant._set_delegate(null);
+            // servant._set_delegate(null);
 
             if (unique) 
             {
                 servantMap.remove(servant);
             }
 
-        	if (logTrace.test(2))
+            if (logTrace.test(2))
             	logTrace.printLog(oid, "object is deactivated");
 
             // notify an aom listener                   
@@ -348,7 +348,7 @@ public class AOM
                      contains (servant)
                 );
                                 
-	        	if (logTrace.test(2))
+                if (logTrace.test(2))
     	            logTrace.printLog(oid, "servant is etherealized");
                           
                 // notify an aom listener
