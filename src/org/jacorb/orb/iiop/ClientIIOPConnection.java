@@ -51,6 +51,10 @@ import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
 import org.omg.SSLIOP.SSL;
 import org.omg.SSLIOP.SSLHelper;
 import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
+import org.omg.CORBA.COMM_FAILURE;
+import org.omg.CORBA.TIMEOUT;
+import org.omg.CORBA.TRANSIENT;
+
 
 /**
  * ClientIIOPConnection.java
@@ -77,6 +81,9 @@ public class ClientIIOPConnection
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
     public static int openTransports = 0;
+
+    //for storing exceptions during connect
+    private Exception exception = null;
 
     public ClientIIOPConnection()
     {
@@ -137,29 +144,31 @@ public class ClientIIOPConnection
             }
 
             checkSSL();
-            IIOPAddress address = target_profile.getAddress();
-
-            connection_info = address.getIP() + ":"
-                              + (use_ssl ? ssl_port
-                                         : address.getPort());
-
-            if (logger.isDebugEnabled())
+            int retries;
+            if( time_out == 0 )
             {
-                logger.debug("Trying to connect to " + connection_info);
+               //user has specified no timout or infinite timeout (0)
+               //so we can use retries
+               retries = Environment.noOfRetries();
             }
-
-            int retries = Environment.noOfRetries();
+            else
+            {
+               //user has explicitly defined a timeout for request
+               //so he expects, that the operation shall only use (block) the
+               //specified amount of time --> use this time and do not retry
+               retries = 0;
+            }
 
             while( retries >= 0 )
             {
                 try
                 {
-                    socket = createSocket();
+                    createSocket(time_out);
 
                     if( timeout != 0 )
                     {
                         /* re-set the socket timeout */
-                        socket.setSoTimeout( timeout );
+                        socket.setSoTimeout( timeout /*note: this is another timeout!*/ );
                     }
 
                     in_stream =
@@ -189,10 +198,14 @@ public class ClientIIOPConnection
 
                     //only sleep and print message if we're actually
                     //going to retry
+                    retries--;
                     if( retries >= 0 )
                     {
-                        Debug.output( 1, "Retrying to connect to " +
+                       if (logger.isInfoEnabled())
+                       {
+                           logger.info( "Retrying to connect to " +
                                       connection_info );
+                       }
                         try
                         {
                             Thread.sleep( Environment.retryInterval() );
@@ -201,8 +214,16 @@ public class ClientIIOPConnection
                         {
                         }
                     }
-                    retries--;
                 }
+                catch (TIMEOUT e)
+                {
+                   //thrown if timeout is expired
+                   target_profile = null;
+                   use_ssl = false;
+                   ssl_port = -1;
+                   throw e;
+                }
+
             }
 
             if( retries < 0 )
@@ -222,56 +243,122 @@ public class ClientIIOPConnection
      * the target profile, starting with the primary IIOP address,
      * and then any alternate IIOP addresses that have been specified.
      */
-    private Socket createSocket() throws IOException
+    private void createSocket(long time_out) throws IOException
     {
-        Socket      result    = null;
-        IOException exception = null;
-
         List addressList = new ArrayList();
         addressList.add    (target_profile.getAddress());
         addressList.addAll (target_profile.getAlternateAddresses());
 
         Iterator addressIterator = addressList.iterator();
 
-        while (result == null && addressIterator.hasNext())
+        exception = null;
+        socket = null;
+        while (socket == null && addressIterator.hasNext())
         {
             try
             {
                 IIOPAddress address = (IIOPAddress)addressIterator.next();
-                if (use_ssl)
+
+                final SocketFactory factory = getSocketFactory();
+                final String ipAddress = address.getIP();
+                final int port = (use_ssl) ? ssl_port : address.getPort();
+                connection_info = ipAddress + ":" + port;
+
+                if (logger.isDebugEnabled())
                 {
-                    result = getSSLSocketFactory().createSocket
-                    (
-                        address.getIP(), ssl_port
-                    );
-                    connection_info = address.getIP() + ":" + ssl_port;
+                    logger.debug("Trying to connect to " + connection_info + " with timeout=" + time_out);
+                }
+                exception = null;
+                socket = null;
+
+                if( time_out > 0 )
+                {
+                   //set up connect with an extra thread
+                   //if thread returns within time_out it notifies current thread
+                   //if not this thread will cancel the connect-thread
+                   //this is necessary since earlier JDKs didnt support connect()
+                   //with time_out
+                   final ClientIIOPConnection self = this;
+                   Thread thread = new Thread( new  Runnable()
+                                                    {
+                                                       public void run()
+                                                       {
+                                                          try
+                                                          {
+                                                             socket = factory.createSocket(ipAddress, port);
+                                                          }
+                                                          catch (Exception e)
+                                                          {
+                                                             exception = e;
+                                                          }
+                                                          finally
+                                                          {
+                                                             synchronized (self)
+                                                             {
+                                                                self.notify();
+                                                             }
+                                                          }
+                                                       }
+                                                    } );
+                   thread.setDaemon(true);
+                   try
+                   {
+                      synchronized (self)
+                      {
+                         thread.start();
+                         self.wait(time_out);
+                      }
+                   }
+                   catch (InterruptedException _ex) { }
+                   if (socket == null)
+                   {
+                      if (exception == null)
+                      {
+                         if (logger.isDebugEnabled())
+                {
+                           logger.debug("connect to " + connection_info + " with timeout=" + time_out + " timed out");
+                         }
+                         thread.interrupt();
+                         exception = new TIMEOUT("connection timeout of " + time_out + " milliseconds expired");
                 }
                 else
                 {
-                    result = getSocketFactory().createSocket
-                    (
-                        address.getIP(), address.getPort()
-                    );
-                    connection_info = address.toString();
+                         if (logger.isDebugEnabled())
+                         {
+                           logger.debug("connect to " + connection_info + " with timeout="
+                                         + time_out + " raised exception: " + exception.toString());
+                         }
                 }
             }
-            catch (IOException e)
+                }
+                else
+                {
+                   //no timeout --> may hang forever!
+                   socket = factory.createSocket(ipAddress, port);
+                }
+            }
+            catch (Exception e)
             {
                 exception = e;
             }
         }
 
-        if (result != null)
+        if (exception != null)
         {
-            return result;
+           if( exception instanceof IOException )
+        {
+              throw (IOException)exception;
         }
-        else if (exception != null)
+           else if( exception instanceof org.omg.CORBA.TIMEOUT )
         {
-            throw exception;
+              throw (org.omg.CORBA.TIMEOUT)exception;
         }
         else
         {
-            throw new IOException ("connection failure without exception");
+              //not expected, because all used methods just throw IOExceptions or TIMEOUT
+              //but... never say never ;o)
+               throw new IOException ( "Unexpected exception occured: " + exception.toString() );
+           }
         }
     }
 
