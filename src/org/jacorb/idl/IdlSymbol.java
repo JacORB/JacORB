@@ -113,7 +113,8 @@ class IdlSymbol
     public void escapeName()
     {
         if( !name.startsWith( "_" ) &&
-                lexer.strictJavaEscapeCheck( name ) )
+            !pack_name.startsWith( "org.omg" ) &&
+            lexer.strictJavaEscapeCheck( name ) )
         {
             name = "_" + name;
         }
