@@ -48,6 +48,9 @@ gerald.brose@acm.org
       - more ETF work
       - remorphing of logging, now using Apache Avalon interfaces to go
         to Logkit
+      - Synchronization fixes.
+      - ORB:
+        - Added proprietary call ORB::addObjectKey. 
 
 2.0 beta 2
 ==========
