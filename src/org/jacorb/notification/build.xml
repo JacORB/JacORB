@@ -4,7 +4,7 @@
   <!ENTITY common SYSTEM "file:../../../../common.xml"> 
 ]>
 
-<project name="notification" default="notification.all" basedir="../../../..">
+<project name="notification" default="all" basedir="../../../..">
 
 <!-- ============================================================= -->
 <!--              JacORB - NotificationService build file          -->
@@ -69,7 +69,7 @@
   </target>
 
   <!-- default target -->
-  <target name="notification.all" 
+  <target name="all" 
     depends="notification.init, antlr, server" />
 
   <!-- ====== -->
