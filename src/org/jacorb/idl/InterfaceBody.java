@@ -177,7 +177,12 @@ class InterfaceBody
 	    for( Enumeration e = inheritance_spec.v.elements(); 
                  e.hasMoreElements(); )
 	    {
-		o = parser.get_pending(	((ScopedName)(e.nextElement())).resolvedName() );
+                ScopedName scoped_name = (ScopedName)e.nextElement();
+
+                Environment.output(4, "Trying to resolve " + scoped_name );
+
+
+		o = parser.get_pending(	scoped_name.resolvedName() );
 		pending = pending || ( o != null );
 	    }
 	    ParseThread p = null;
@@ -464,46 +469,6 @@ class InterfaceBody
 	    }
 	} 
     }
-
-
-    /** print methods for impl-based skeletons */
-
-//      public void printSkelInvocations(PrintWriter ps)
-//      {
-//  	Operation [] ops = getMethods();
-//  	String name = null;
-//  	if( ops.length > 0 )
-//  	{
-//  	    /* Some operation names have been escaped with "_" to 
-//  	       avoid name clashes with Java names. The operation name
-//  	       on the wire is the original IDL name, however, so we
-//  	       need to ask for the right name here. We need to take
-//  	       care not to scramble up "_set_/_get" accessor methods! */
-
-//  	    if( ops[0] instanceof OpDecl && ops[0].opName().startsWith("_") )
-//  		name = ops[0].opName().substring(1);
-//  	    else
-//  		name = ops[0].opName();
-
-//  	    ps.println("\t\tif( method.equals(\"" + name + "\"))");
-//  	    ps.print("\t\t{\n\t\t\t");
-//  	    ops[0].printInvocation(ps);
-//  	    ps.println("\t\t}");
-
-//  	    for( int i= 1; i < ops.length; i++)
-//  	    {
-//  		if( ops[i] instanceof OpDecl && ops[i].opName().startsWith("_") )
-//  		    name = ops[i].opName().substring(1);
-//  		else
-//  		    name = ops[i].opName();
-
-//  		ps.println("\t\telse if( method.equals(\"" + name + "\"))");
-//  		ps.print("\t\t{\n\t\t\t");
-//  		ops[i].printInvocation(ps);
-//  		ps.println("\t\t}");
-//  	    }
-//  	}
-//      }
 
 }
 

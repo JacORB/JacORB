@@ -199,6 +199,8 @@ class ScopedName
 
     public void setId( String _id )
     {
+	Environment.output( 3, "ScopedName.setId " + _id);
+
 	typeName = _id;
         escapeName();
     }
@@ -212,7 +214,21 @@ class ScopedName
         if( ! name.startsWith("_") &&
             lexer.strictJavaEscapeCheck( typeName ))
         {
-            typeName = "_" +typeName;
+            escapedName = true;
+
+            // if the type name is not a simple name, then insert the escape
+            // char after the last dot
+            if( typeName.indexOf('.') > 0 )
+            {
+                typeName = 
+                    typeName.substring( 0, typeName.lastIndexOf('.')+1) +
+                    "_" + typeName.substring( typeName.lastIndexOf('.')+1);
+            }
+            else
+            {
+                typeName = "_" + typeName;
+            }
+	Environment.output( 3, "ScopedName.escapeName " + typeName);
         }
     }
 
@@ -282,7 +298,8 @@ class ScopedName
 
     private String resolvedName( String pack_name, String s )
     {
-	Environment.output(3, "Resolve " + pack_name + ":" +  s);
+	Environment.output( 3, "Resolve " + pack_name + ":" +  s);
+
         boolean global = false;
 
 	if( s == null )
@@ -445,7 +462,7 @@ class ScopedName
 
 	while( !NameTable.defined( prefix + buf.toString() ) )
 	{
-	    //System.out.println("sub = " + sub + ", Looking at " +  prefix +  buf.toString()  + " hash: " + (new String (prefix + buf.toString())).hashCode() );
+//  	    System.out.println("sub = " + sub + ", Looking at " +  prefix +  buf.toString()  + " hash: " + (new String (prefix + buf.toString())).hashCode() );
 	    if( sub > p_scopes.length )
 	    {
 		//    if( NameTable.defined( "Global." + s ))
@@ -577,10 +594,10 @@ class ScopedName
 	return n;
     }
 
-    public String signature()
-    {
-	return resolvedTypeSpec().signature();
-    }
+//      public String signature()
+//      {
+//  	return resolvedTypeSpec().signature();
+//      }
 
     public String holderName()
     {

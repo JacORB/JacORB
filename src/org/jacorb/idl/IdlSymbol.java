@@ -40,6 +40,7 @@ class IdlSymbol
     String name = "";
     protected boolean is_pseudo = false; // is this a PIDL spec.?
     protected boolean included = false;
+    protected boolean escapedName = false;
     protected boolean inhibitionFlag = false;
     str_token token;
     protected String _id;
@@ -112,8 +113,14 @@ class IdlSymbol
         if( ! name.startsWith("_") &&
             lexer.strictJavaEscapeCheck( name ))
         {
+            escapedName = true;
             name = "_" + name;
         }
+    }
+
+    public boolean isEscaped()
+    {
+        return escapedName;
     }
 	
     public void setPackage( String s )
@@ -254,6 +261,10 @@ class IdlSymbol
 	ps.println("\t}");
     }
 
+    /**
+     * @return this symbol's repository Id
+     */
+
     String id()
     {
         Environment.output(2, "Id for name " + name );
@@ -288,6 +299,10 @@ class IdlSymbol
 
                             if( !enclosingModuleName.startsWith("org" ))
                                 enclosingName = ((Module)enc).originalModuleName();
+
+                            // remove leading "_" in repository Ids
+                            if( enc.isEscaped() )
+                                enclosingName = enclosingName.substring(1);
                         }
                         sb.insert( 0, enclosingName + "/");
                         enc = enc.getEnclosingSymbol();
@@ -300,8 +315,12 @@ class IdlSymbol
                     break;
                 }
             }
-            sb.append(name);
-		
+
+            if( isEscaped() )
+                sb.append(name.substring(1));
+            else
+                sb.append( name );
+
 			
             if( token != null && token.pragma_prefix.length() > 0 )
             {

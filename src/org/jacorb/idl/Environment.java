@@ -37,6 +37,22 @@ public final class Environment
         _verbosity = level; 
     }
 
+        
+    public static void printTrace(int msg_level)
+    {
+        if( msg_level > _verbosity )
+        {
+            try
+            {
+                throw new RuntimeException();
+            }
+            catch( Exception e )
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static final void output(int msg_level, String msg) 
     {
 	if( msg_level > _verbosity ) 

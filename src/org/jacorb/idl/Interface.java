@@ -70,7 +70,7 @@ class Interface
             body.setPackage( s); // a new scope!
 
         if( inheritanceSpec != null )
-            inheritanceSpec.setPackage(s);
+           inheritanceSpec.setPackage(s);
     }
 
     public void set_abstract()
@@ -102,6 +102,9 @@ class Interface
         if( enclosing_symbol != null && enclosing_symbol != s )
             throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
         enclosing_symbol = s;
+
+        if( inheritanceSpec != null )
+            inheritanceSpec.setEnclosingSymbol(s);
     }
 
 
@@ -205,6 +208,7 @@ class Interface
         {
             if( inheritanceSpec != null && inheritanceSpec.v.size() > 0)
             {
+                Environment.output(4, "Checking inheritanceSpec of " + full_name() );
                 for( Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements(); )
                 {
                     try
