@@ -179,7 +179,7 @@ public class ServantDelegate
     public boolean non_existent(org.omg.PortableServer.Servant self)
     {
         check();
-        org.jacorb.util.Debug.output(2,"ServantDelegate: non_existent: return false");
+        //org.jacorb.util.Debug.output(2,"ServantDelegate: non_existent: return false");
         return false;
     }
 
