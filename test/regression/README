@@ -30,13 +30,13 @@ name of the tests being run.
 
 In order to run the JacORB tests the following must be in the
 classpath:
-  - JUnit (junit.jar), available at http://www.junit.org/
+  - JUnit 3.8.1 (junit.jar), available at http://www.junit.org/
   - optionally: jacorb.jar, if jacorb classes should be taken from
     there. By default, classes from the classes/ dir are used.
 
-The initial set of tests was developed using JUnit v3.7 and Ant v1.4.1.
-Please make sure your Ant installation has the "optional.jar" file
-in its lib/ directory
+The tests are being developed using JUnit 3.8.1 and Ant 1.5.1 (although
+Ant 1.4.x might still be fine).  Please make sure your Ant installation 
+has the "optional.jar" file in its lib/ directory
 
 Adding new tests
 ----------------
