@@ -80,6 +80,21 @@ public final class DynUnion
             }
          }
 
+         // rare case when the union only has a default case label
+         if( discriminator.type().kind().value() ==
+             org.omg.CORBA.TCKind._tk_octet )
+         {
+            try
+            {
+               set_to_unlisted_label ();
+            }
+            catch (TypeMismatch ex)
+            {
+               // should never happen         
+               ex.printStackTrace ();
+            }
+         }
+
          select_member();
          org.jacorb.util.Debug.output( 3, "DynUnion.ctor(), member == null? " + 
                                        ( member == null ));
@@ -95,7 +110,7 @@ public final class DynUnion
    }
 
    /**
-    * @overrides  from_any() in DynAny
+    * @overrides from_any() in DynAny
     */
 
    public void from_any( org.omg.CORBA.Any value ) 
@@ -103,7 +118,7 @@ public final class DynUnion
    {
       checkDestroyed ();
       if( ! type().equivalent( value.type() ))
-         throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
+         throw new TypeMismatch();
 
       try
       {
@@ -125,7 +140,7 @@ public final class DynUnion
             if( type().member_label(i).equal( discriminator ))
             {
                member_any = org.omg.CORBA.ORB.init().create_any();
-               member_any.read_value( is, type().member_type(i));
+               member_any.read_value( is, type().member_type(i) );
                member_name = type().member_name(i);
                member_index = i;
                break;		   
@@ -138,7 +153,7 @@ public final class DynUnion
             if( def_idx != -1 )
             {
                member_any = org.omg.CORBA.ORB.init().create_any();
-               member_any.read_value( is, type().member_type(def_idx));
+               member_any.read_value( is, type().member_type(def_idx) );
                member_name = type().member_name(def_idx);
                member_index = def_idx;
             }
@@ -306,11 +321,10 @@ public final class DynUnion
       throws TypeMismatch
    {
       checkDestroyed ();
-      if( ! d.type().equivalent( discriminator.type()))
+      if( ! d.type().equivalent( discriminator.type() ))
       {
          throw new TypeMismatch();
       }
-
       discriminator = d.to_any();
 
       /* check if the new discriminator is consistent with the 
@@ -318,8 +332,25 @@ public final class DynUnion
 
       try
       {
-         if( ! type().member_label( member_index ).equal( discriminator ) )
-            select_member();
+         if (member_index == type.default_index ())
+         {
+            // default member, only change the member if a non-default
+            // discriminator value is specified
+            for (int i = 0; i < type.member_count (); i++)
+            {
+               if( type().member_label(i).equal( discriminator ))
+               {
+                  select_member();
+                  break;
+               }
+            }
+         }
+         else
+         {
+            // non-default member, check if the member has changed
+            if( ! type().member_label( member_index ).equal( discriminator ))
+               select_member();
+         }
       }
       catch( org.omg.CORBA.TypeCodePackage.Bounds b )
       {
@@ -341,11 +372,9 @@ public final class DynUnion
       member = null;
       try
       {
-         int members = type().member_count();
-            
          /* search through all members and compare their label with
             the discriminator */
-         for( int i = 0; i < members; i++ )
+         for( int i = 0; i < type().member_count(); i++ )
          {
             if( type().member_label(i).equal( discriminator ))
             {
@@ -415,21 +444,28 @@ public final class DynUnion
          int def_idx = type().default_index();
          if( def_idx == -1 )
             throw new TypeMismatch();
-
          pos = 0;
 
-         discriminator = type().member_label( def_idx );
-         select_member();
-      }	
-      catch( org.omg.CORBA.TypeCodePackage.Bounds b )
-      {
-         b.printStackTrace();
-      }   	
+         // do nothing if the discriminator is already set to a default value
+         if (member_index != def_idx)
+         {
+            try
+            {
+               set_to_unlisted_label ();
+            }
+            catch (TypeMismatch ex)
+            {
+               // should never happen         
+               ex.printStackTrace ();
+            }      
+            select_member();
+         }
+      }
       catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
       {
          // should not happen anymore
          bk.printStackTrace();
-      }	
+      }
    }
 
    /**
@@ -452,24 +488,65 @@ public final class DynUnion
          if( type().default_index() != -1 )
             throw new TypeMismatch();
 
-         /* find a discriminator value that is not an explicit case label */
-         switch( discriminator.type().kind().value() )
+         // do nothing if discriminator is already set to no active member
+         if (!has_no_active_member ())
+         {
+            set_to_unlisted_label ();
+         }
+      }
+      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+      {
+         // should not happen anymore
+         bk.printStackTrace();
+      }	
+   }
+
+   /* find a discriminator value that is not an explicit case label */
+   private void set_to_unlisted_label ()
+      throws TypeMismatch
+   {
+      try
+      {
+         switch( type().discriminator_type().kind().value() )
          {
          case TCKind._tk_boolean:
             {
-               // does this union use all boolean labels available?
-               if( type().member_count() == 2)
-                  throw new TypeMismatch();
+               boolean found;
+               boolean cur_bool;
+               org.omg.CORBA.Any check_val = null;
+               org.omg.CORBA.Any cur_label = null;
+
+               for (int i = 0; i < 2; i++)
+               {
+                  if (i == 0)
+                  {
+                     cur_bool = true;
+                  }
+                  else
+                  {
+                     cur_bool = false;
+                  }
+                  check_val = orb.create_any ();
+                  check_val.insert_boolean (cur_bool);
+
+                  found = false; // is the value used as a label?
+                  for( int j = 0; j < type().member_count() && !found; j++ )
+                  {
+                     if( check_val.equal( type().member_label(j)) )
+                     {
+                        found = true;
+                     }
+                  }
                
-               if ( type().member_label(0).extract_boolean() )
-               {
-                  discriminator.insert_boolean( false );
+                  if( !found )
+                  {
+                     // the value is not found among the union's label
+                     discriminator = check_val;
+                     return;
+                  }
                }
-               else
-               {
-                  discriminator.insert_boolean( true );
-               }
-               return;
+               // no unused value found
+               throw new TypeMismatch();
             }
          case TCKind._tk_char:
             {
@@ -479,7 +556,7 @@ public final class DynUnion
                org.omg.CORBA.Any cur_label = null;
 
                // 33 to 126 defines a reasonable set of printable chars
-               for (int i = 33; i < 127; i++)
+               for (int i = 0; i < 127; i++)
                {
                   check_val = orb.create_any ();
                   check_val.insert_char ((char) i);
@@ -601,15 +678,10 @@ public final class DynUnion
             }
          case TCKind._tk_enum:
             {
-               // does this union use all enum labels available?
-               if(type().member_count() == discriminator.type().member_count())
-                  throw new TypeMismatch();
-
                org.omg.DynamicAny.DynEnum enum = null;
                try
                {         
-                  enum = DynEnumHelper.narrow(
-                                              dynFactory.create_dyn_any_from_type_code(discriminator.type()));
+                  enum = (org.omg.DynamicAny.DynEnum) dynFactory.create_dyn_any_from_type_code (discriminator.type());
                }
                catch( InconsistentTypeCode it )
                {
@@ -645,29 +717,30 @@ public final class DynUnion
                      return;
                   }                    
                }
-               // no unused value found, should not happen
+               // no unused value found
                throw new TypeMismatch();                
             }
          default:
             throw new TypeMismatch();
          }
       }
-      catch( org.omg.CORBA.TypeCodePackage.Bounds b )
+      catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
       {
-         b.printStackTrace();
-      }   	
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+         // should never happen
+         bk.printStackTrace ();
+      }
+      catch (org.omg.CORBA.TypeCodePackage.Bounds b)
       {
-         // should not happen anymore
-         bk.printStackTrace();
-      }	
+         // should never happen
+         b.printStackTrace ();
+      }
    }
-
+   
    /** 
     * @returns true, if the union  has no active member (that is, the
     * union's  value consists solely of  its discriminator because
     * the discriminator has a value that is not listed as an explicit
-    *  case label).  Calling this  operation on  a union  that  has a
+    * case label).  Calling this  operation on  a union  that  has a
     * default case  returns false. Calling this operation  on a union
     * that uses the entire range of discriminator values for explicit
     * case labels returns false.
@@ -683,14 +756,6 @@ public final class DynUnion
             return false;
          }
 
-         // check whether the union uses the complete range of
-         // discriminator values if the discriminator is an enumeration
-         if (discriminator.type ().kind ().value () == TCKind._tk_enum &&
-             (type ().member_count () == discriminator.type ().member_count ()))
-         {
-            return false;
-         }
-         
          for( int i = 0; i < type.member_count(); i++ )
          {
             if( discriminator.equal( type.member_label(i)  ))
