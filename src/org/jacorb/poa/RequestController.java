@@ -63,7 +63,7 @@ public final class RequestController
     private Hashtable 			activeRequestTable;
     // RequestProcessor -> oid
     // for synchronisation with the object deactiviation process
-    private Vector 			deactivationList = new Vector();
+    private List			deactivationList = new ArrayList();
     // oid's
 
     // other synchronisation stuff
@@ -171,7 +171,7 @@ public final class RequestController
 
     synchronized void freeObject( byte[] oid )
     {
-        deactivationList.removeElement( new ByteArrayKey( oid ) );
+        deactivationList.remove( new ByteArrayKey( oid ) );
     }
 
     AOM getAOM()
@@ -576,7 +576,7 @@ public final class RequestController
 
         }
 
-        deactivationList.addElement( oidbak );
+        deactivationList.add( oidbak );
     }
 
     /**
