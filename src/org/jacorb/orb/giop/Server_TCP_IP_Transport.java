@@ -111,22 +111,22 @@ public class Server_TCP_IP_Transport
         {
             Debug.output( 2, "Closing TCP connection, reason " + reason );
 
-            try
-            {
-                java.lang.reflect.Method method = 
-                    (socket.getClass().getMethod( "shutdownOutput", 
-                                                  new Class [0] ));
-                method.invoke (socket, new java.lang.Object[0]);
+//              try
+//              {
+//                  java.lang.reflect.Method method = 
+//                      (socket.getClass().getMethod( "shutdownOutput", 
+//                                                    new Class [0] ));
+//                  method.invoke (socket, new java.lang.Object[0]);
 
-                method = (socket.getClass().getMethod ("shutdownInput", 
-                                                       new Class [0]));
-                method.invoke (socket, new java.lang.Object[0]);
-            }
-            catch (Throwable ex)
-            {
-                // If Socket does not support shutdownOutput method
-                // (i.e JDK < 1.3)
-            }
+//                  method = (socket.getClass().getMethod ("shutdownInput", 
+//                                                         new Class [0]));
+//                  method.invoke (socket, new java.lang.Object[0]);
+//              }
+//              catch (Throwable ex)
+//              {
+//                  // If Socket does not support shutdownOutput method
+//                  // (i.e JDK < 1.3)
+//              }
 
             socket.close();
 
