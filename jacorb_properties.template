@@ -372,6 +372,7 @@ jacorb.security.jsse.trustees_from_ks=off
 # A comma-separated (no whitespaces!) list of cipher suite names. See
 # the JSSE docs on how to obtain the correct cipher suite strings
 jacorb.security.ssl.server.cipher_suites=
+jacorb.security.ssl.client.cipher_suites=
 
 #########################
 #                       #
