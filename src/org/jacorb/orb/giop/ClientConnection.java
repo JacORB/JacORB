@@ -111,7 +111,7 @@ public class ClientConnection
         in_stream = in;
         out_stream = 
             new BufferedOutputStream( mysock.getOutputStream(), 
-                                     Environment.outBufSize() );
+                                      Environment.outBufSize() );
 
         String ip = mysock.getInetAddress().getHostAddress();
         if ( ip.indexOf('/') > 0 ) 
@@ -120,7 +120,9 @@ public class ClientConnection
         String host_and_port = ip + ":"+ mysock.getPort();
         String ssl = isSSL() ? "SSL " : ""; //bnv
         connection_info = host_and_port;
-        client_count = 1;
+
+        //Client count is incremented by the Delegate
+        //client_count = 1;
         
         Debug.output(1, "New " + ssl + "connection to " + host_and_port);
         repReceptor = new ReplyReceptor( this );
