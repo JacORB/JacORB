@@ -167,16 +167,22 @@ public class CDRInputStream
     public CDRInputStream(final org.omg.CORBA.ORB orb, final byte[] buf)
     {
         buffer = buf;
+        // orb may be null!
         if (orb != null)
         {
-            this.orb = orb;            
-            try
+            this.orb = orb;  
+            // orb may be the singleton!
+            if (orb instanceof org.jacorb.orb.ORB)
             {
-                configure(((org.jacorb.orb.ORB)orb).getConfiguration());
-            }
-            catch( ConfigurationException ce )
-            {
-                throw new INTERNAL("ConfigurationException: " + ce.getMessage());
+                try
+                {
+                    
+                    configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+                }
+                catch( ConfigurationException ce )
+                {
+                    throw new INTERNAL("ConfigurationException: " + ce.getMessage());
+                }
             }
         }
         else
