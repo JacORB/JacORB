@@ -268,8 +268,12 @@ jacorb.ssl.server_socket_factory=org.jacorb.security.ssl.SSLServerSocketFactory
 # this role change
 jacorb.security.change_ssl_roles=off
 
-#have iaiks ssl classes print debug output to stdout
+# have iaiks ssl classes print debug output to stdout
 jacorb.security.iaik_debug=off
+
+# Use the keystore to take trusted certs from. This will only work, if
+# the keystore has been loaded because its keys are needed
+jacorb.security.jsse.trustees_from_ks=off
 
 #########################
 #                       #

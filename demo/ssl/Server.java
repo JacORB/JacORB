@@ -53,7 +53,7 @@ public class Server
     }
 
     /**
-     * This method retirevs the received client certificate 
+     * This method retrievs the received client certificate 
      * from the Credentials.
      */
     private X509Certificate getClientCert()

@@ -10,9 +10,9 @@ org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.
 # mutual authentication = 60
 
 jacorb.security.support_ssl=on
-jacorb.security.ssl.supported_options=60
-jacorb.security.enforce_ssl=off
-jacorb.security.ssl.required_options=60
+jacorb.security.ssl.supported_options=0
+jacorb.security.enforce_ssl=on
+jacorb.security.ssl.required_options=40
 
 # files with public key certs of trusted CAs
 #
@@ -25,6 +25,7 @@ jacorb.security.trustees=CA_cert
 jacorb.security.default_user=Ringo
 jacorb.security.default_password=foo
 
-# the name and location of the keystore relative to the home directory
+# the name and location of the keystore relative to the home or
+# current directory 
 jacorb.security.keystore=ringo_ks
 jacorb.security.keystore_password=foo

@@ -4,9 +4,9 @@
 # mutual authentication = 60
 
 jacorb.security.support_ssl=on
-jacorb.security.ssl.supported_options=60
+jacorb.security.ssl.supported_options=40
 jacorb.security.enforce_ssl=on
-jacorb.security.ssl.required_options=60
+jacorb.security.ssl.required_options=0
 
 # files with public key certs of trusted CAs
 #
@@ -19,6 +19,7 @@ jacorb.security.trustees=CA_cert
 jacorb.security.default_password=foo
 jacorb.security.default_user=Paul
 
-# the name and location of the keystore relative to the home directory
+# the name and location of the keystore relative to the home or
+# current directory
 jacorb.security.keystore_password=foo
 jacorb.security.keystore=paul_ks
