@@ -582,9 +582,6 @@ non terminal java_cup.runtime.symbol empty;
 
 non terminal java_cup.runtime.int_token op_attribute;
 non terminal java_cup.runtime.int_token param_attribute;
-
-non terminal java_cup.runtime.int_token truncatable;
-
 non terminal java_cup.runtime.str_token unary_op;
 
 non terminal Spec specification;
@@ -595,6 +592,7 @@ non terminal Interface interface;
 non terminal InterfaceBody interface_body;
 non terminal Definition export;
 non terminal ScopedName scopename;
+non terminal Truncatable truncatable;
 
 non terminal Value        value;
 non terminal ValueBoxDecl value_box_dcl;
@@ -1061,18 +1059,27 @@ value_dcl ::=
        ;
 
 value_inheritance_spec ::= 
-          COLON truncatable:t scopename_list:vn 
+          COLON truncatable:t COMMA scopename_list:vn 
                 {:                        
-                        RESULT.truncatable = ( t.int_val == 1 );      
+                        RESULT.truncatable = t;      
+                        RESULT.v = (Vector)vn.v.clone(); 
+                :}
+        | COLON scopename_list:vn 
+                {:                        
                         RESULT.v = (Vector)vn.v.clone(); 
                 :}
         | SUPPORTS scopename_list:interface_names
                 {:
                         RESULT.supports = (Vector)interface_names.v.clone(); 
                 :}
-        | COLON truncatable:t scopename_list:vn SUPPORTS scopename_list:interface_names
+        | COLON truncatable:t COMMA scopename_list:vn SUPPORTS scopename_list:interface_names
                 {:      
-                        RESULT.truncatable = ( t.int_val == 1 );      
+                        RESULT.truncatable = t;      
+                        RESULT.v = (Vector)vn.v.clone(); 
+                        RESULT.supports = (Vector)interface_names.v.clone(); 
+                :}
+        | COLON scopename_list:vn SUPPORTS scopename_list:interface_names
+                {:      
                         RESULT.v = (Vector)vn.v.clone(); 
                         RESULT.supports = (Vector)interface_names.v.clone(); 
                 :}
@@ -1080,13 +1087,9 @@ value_inheritance_spec ::=
         ;      
 
 truncatable ::=
-          TRUNCATABLE  
+          TRUNCATABLE scopename:s 
           {: 
-                RESULT.int_val = 1; 
-          :} 
-        | empty   
-          {: 
-                RESULT.int_val = 0; 
+                RESULT.scopedName = s; 
           :} 
         ;      
 

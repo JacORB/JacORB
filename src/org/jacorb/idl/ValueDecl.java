@@ -146,6 +146,31 @@ class ValueDecl
             }
         }
 
+        // check inheritance rules
+        Enumeration e = inheritanceSpec.getValueTypes();
+        if( e.hasMoreElements() )
+        {
+            boolean stateful_ancestor = false;
+            for( ; e.hasMoreElements(); )
+            {
+                try
+                {
+                    ScopedName name = (ScopedName)e.nextElement();
+                    ConstrTypeSpec ts = (ConstrTypeSpec)name.resolvedTypeSpec();
+                    if( ts.declaration() instanceof Interface )
+                    {
+                        continue;
+                    }
+                }
+                catch( Exception ex )
+                {
+                    // ex.printStackTrace();
+                    parser.fatal_error("Illegal inheritance spec: " + 
+                                       inheritanceSpec, token );
+                }                        
+            }
+        }
+
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -312,13 +337,33 @@ class ValueDecl
         printClassComment (out);
 
         out.println ("public abstract class " + name);
-        if (this.isCustomMarshalled())
-            out.println ("\timplements org.omg.CORBA.portable.CustomValue");
+
+        
+        Enumeration e = inheritanceSpec.getValueTypes();
+        if( e.hasMoreElements()  )
+        {                
+            out.print("\textends ");
+            for( ; e.hasMoreElements(); )
+            {
+                out.print(((IdlSymbol)e.nextElement()).toString() + " ");
+            }
+            out.println ();
+        }
+
+        if( this.isCustomMarshalled() )
+            out.print("\timplements org.omg.CORBA.portable.CustomValue");
         else
-            out.println ("\timplements org.omg.CORBA.portable.StreamableValue");
-        if( inheritanceSpec != null )
-        {    
-            
+            out.print("\timplements org.omg.CORBA.portable.StreamableValue");
+        out.println ();
+
+        e = inheritanceSpec.getSupportedInterfaces();
+        if( e.hasMoreElements() )
+        {                
+            for(; e.hasMoreElements(); )
+            {
+                out.print(", " + ((IdlSymbol)e.nextElement()).toString() );
+            }
+            out.println ();
         }
 
         out.println ("{");
