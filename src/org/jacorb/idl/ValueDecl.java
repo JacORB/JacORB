@@ -31,7 +31,7 @@ import java.util.*;
  * @version $Id$
  */
 
-class ValueDecl
+public class ValueDecl
     extends Value
 {
     private MemberList stateMembers;
@@ -802,6 +802,18 @@ class ValueDecl
         out.println( "}" );
         out.close();
     }
+
+
+    /**
+     * @overrides accept in TypeDeclaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitValue( this );
+    }
+
+
 
 }
 

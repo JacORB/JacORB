@@ -34,7 +34,7 @@ import java.util.*;
  * not others is a nuisance...
  */
 
-class ValueAbsDecl
+public class ValueAbsDecl
     extends Value
 {
     ValueBody body = null;
@@ -356,5 +356,17 @@ class ValueAbsDecl
             }
         }
     }
+
+
+    /**
+     * @overrides accept in TypeDeclaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitValue( this );
+    }
+
+
 }
 
