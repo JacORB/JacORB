@@ -573,6 +573,11 @@ public class Environment
         return _props.getProperty( key, def ); 
     }
 
+    public static void setProperty( String key, String value ) 
+    { 
+        _props.setProperty( key, value ); 
+    }
+
     public static String[] getPropertyValueList(String key) 
     {
         String list =  _props.getProperty(key);
