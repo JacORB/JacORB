@@ -1364,8 +1364,10 @@ public class CDROutputStream
                     for( int i = 0; i < tc.member_count(); i++)
                         write_value( tc.member_type(i), in, tcMap);
                 } 
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
-                catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+                {} 
+                catch ( org.omg.CORBA.TypeCodePackage.Bounds b )
+                {}
                 break;
             }
             case TCKind._tk_enum:
