@@ -11,7 +11,7 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
+	<property name="include" value="${dirs.base}/idl/omg"/>
 	<property name="idlflags" value="-I${include}/omg -d ${dirs.base}/demo/${name}/generated"/>
    </target>
 
@@ -28,13 +28,11 @@
 
 
    <target name="idl" depends="init">
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
-              classpath="${lib}/idl.jar;${java.class.path}">
-
-	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/bank.idl"/>
-         </java>
+        <jacidl 
+              srcdir="demo/${name}"/>
+              destdir="${demo/${name}}/generated"/>
+              includepath="${include}"
+	      include="*.idl"/>
    </target>
 
    <target name="clean" depends="init">

@@ -8,11 +8,7 @@
   <!-- ==================================================== -->
 
 
-   <target name="init_compile">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="demodir" value="${basedir}/demo"/>
-	<property name="lib" value="${dirs.base}/lib"/>
+   <target name="init_compile">	
 	<property name="target" value="all"/>
 	<mkdir dir="${classdir}/demo"/>
    </target>

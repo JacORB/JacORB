@@ -1,3 +1,5 @@
+module demo
+{
 module arrays
 {
     interface MyServer 
@@ -31,4 +33,5 @@ module arrays
 	oneway void notify2(in serfs svs);
 	oneway void notify3(in arrayContainer ac);
     };
+};
 };

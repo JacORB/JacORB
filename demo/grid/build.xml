@@ -16,12 +16,12 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg -ir -d ${dirs.base}/demo/${name}/generated"/>
+        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
+	<property name="include" value="${dirs.base}/idl/omg"/>
    </target>
 
    <target name="all" depends="gridinit,idl">
-	<javac srcdir="${dirs.base}/demo/${name}/generated"
+	<javac srcdir="${dest}"
                destdir="${classdir}"
 	       includes="**/*.java"
 	        />
@@ -32,20 +32,20 @@
 	        />
    </target>
 
-   <target name="idl" depends="gridinit">
-        <java classname="org.jacorb.idl.parser" 
-              fork="yes" 
-              classpath="${lib}/idl.jar;${classpath}">
 
-	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/server.idl"/>
-         </java>
+   <target name="idl" depends="gridinit,load-taskdef">
+        <mkdir dir="${dest}" />
+        <jacidl srcdir="demo/${name}"
+                destdir="${dest}"
+                includepath="${include}"
+	        includes="*.idl"/>
    </target>
+
 
 
    <target name="clean" depends="gridinit">
            <delete dir="${classdir}/demo/grid"/>
-           <delete dir="${dirs.base}/demo/grid/generated"/>
+           <delete dir="${dest}"/>
    </target>
 
 </project>
