@@ -142,7 +142,6 @@ public class POAMonitorImpl
             try {
                 terminate = true;
                 poaModel._removePOAEventListener(this);
-                logTrace.setLogTrace(null);
                 POAMonitor newMonitor = (POAMonitor)Class.forName("org.jacorb.poa.POAMonitorLightImpl").newInstance();
                 newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, logTrace);
                 poaModel.setMonitor(newMonitor);
@@ -240,7 +239,6 @@ public class POAMonitorImpl
                 view = new org.jacorb.poa.gui.poa.POAFrame(this);
 
                 initView();
-                logTrace.setLogTrace(this);
                 refreshView();
 
                 poaModel._addPOAEventListener(this);
@@ -392,7 +390,4 @@ public class POAMonitorImpl
     }
 
 
-    public void setLogTrace(LogTrace _logTrace) {
-        logTrace = _logTrace;
-    }
 }
