@@ -177,63 +177,63 @@ public final class ORB
     }
 
     /**
-     * configure the ORB 
+     * configure the ORB
      */
 
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
         super.configure(myConfiguration);
-        this.configuration = 
+        this.configuration =
             (org.jacorb.config.Configuration)myConfiguration;
-        logger = 
+        logger =
             configuration.getNamedLogger("jacorb.orb");
 
-        cacheReferences = 
+        cacheReferences =
             configuration.getAttribute("jacorb.reference_caching", "off").equals("on");
-                            
-        implName = 
+
+        implName =
             configuration.getAttribute("jacorb.implname", "" );
 
-        giopMinorVersion = 
+        giopMinorVersion =
             configuration.getAttributeAsInteger("jacorb.giop_minor_version", 2);
 
-        giopAdd_1_0_Profiles = 
+        giopAdd_1_0_Profiles =
             configuration.getAttribute("jacorb.giop.add_1_0_profiles", "off").equals("on");
 
-        hashTableClassName = 
+        hashTableClassName =
             configuration.getAttribute( "jacorb.hashtable_class", "" );
-             
-        useIMR = 
+
+        useIMR =
             configuration.getAttribute("jacorb.use_imr","off").equals("on");
 
-        imrProxyHost = 
+        imrProxyHost =
             configuration.getAttribute("jacorb.imr.ior_proxy_host",null);
 
-        imrProxyPort = 
-            configuration.getAttributeAsInteger("jacorb.imr.ior_proxy_port",-1); 
+        imrProxyPort =
+            configuration.getAttributeAsInteger("jacorb.imr.ior_proxy_port",-1);
 
-        useIMREndpoint = 
+        useIMREndpoint =
             configuration.getAttribute("jacorb.use_imr", "on").equals("on");
 
-        iorProxyHost = 
+        iorProxyHost =
             configuration.getAttribute("jacorb.ior_proxy_host", null);
 
-        iorProxyPort = 
+        iorProxyPort =
             configuration.getAttributeAsInteger("jacorb.ior_proxy_port",-1);
 
-        printVersion = 
+        printVersion =
             configuration.getAttribute("jacorb.orb.print_version", "on").equals("on");
 
         if( printVersion && logger.isInfoEnabled())
         {
-            logger.info("\n\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + 
-                        "\tJacORB V " + versionString + ", www.jacorb.org\n" + 
+            logger.info("\n\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
+                        "\tJacORB V " + versionString + ", www.jacorb.org\n" +
                         "\t(C) Gerald Brose, XTRADYNE Technologies/FU Berlin, " +
-                        dateString + "\n" + 
+                        dateString + "\n" +
                         "\t~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         }
-        
+
         BufferManager.configure( configuration);
         try
         {
@@ -243,6 +243,8 @@ public final class ORB
         {
             b.printStackTrace(); // cannot happen!
         }
+
+        configureObjectKeyMap(configuration);
     }
 
     /**
@@ -493,7 +495,7 @@ public final class ORB
     {
         if (giop_connection_manager == null)
         {
-            giop_connection_manager = 
+            giop_connection_manager =
                 new GIOPConnectionManager();
             try
             {
@@ -829,7 +831,7 @@ public final class ORB
             }
             catch( ConfigurationException ce )
             {
-                throw new org.omg.CORBA.INITIALIZE("ConfigurationException: " + 
+                throw new org.omg.CORBA.INITIALIZE("ConfigurationException: " +
                                                    ce.getMessage() );
             }
             rootpoa._addPOAEventListener( this );
@@ -860,7 +862,7 @@ public final class ORB
     {
         List l = new ArrayList();
 
-        for( Iterator e = initial_references.keySet().iterator(); 
+        for( Iterator e = initial_references.keySet().iterator();
              e.hasNext(); l.add( e.next() ) );
 
         String [] initial_services =
@@ -1036,7 +1038,7 @@ public final class ORB
 
         if( iorProxyPort != -1 )
         {
-            port = iorProxyPort;          
+            port = iorProxyPort;
 
             if( port < 0 )
             {
@@ -1139,7 +1141,7 @@ public final class ORB
 
             try
             {
-                url = 
+                url =
                     configuration.getAttribute("ORBInitRef." + identifier);
             }
             catch( Exception e )
@@ -1158,7 +1160,7 @@ public final class ORB
                     if (logger.isErrorEnabled())
                     {
                         logger.error( "Could not create initial reference for \"" +
-                                      identifier + "\"\n" + 
+                                      identifier + "\"\n" +
                                       "Please check property \"ORBInitRef." +
                                       identifier + '\"' );
                     }
@@ -1189,7 +1191,7 @@ public final class ORB
                     if (logger.isWarnEnabled())
                         logger.warn(io.getMessage());
                 }
-                
+
                 if (obj != null)
                 {
                     if (! obj._is_a(org.omg.CosNaming.NamingContextHelper.id()))
@@ -1212,22 +1214,22 @@ public final class ORB
                 {
                     try
                     {
-                        Class currentClass = 
+                        Class currentClass =
                             ObjectUtil.classForName( "org.jacorb.security.level2.CurrentImpl" );
 
-                        Constructor constr = 
+                        Constructor constr =
                             currentClass.getConstructor( new Class[]{ org.omg.CORBA.ORB.class });
 
-                        securityCurrent = 
+                        securityCurrent =
                             (org.omg.SecurityLevel2.Current)constr.newInstance( new Object[]{ this });
 
-                        Method configureMethod = 
-                            currentClass.getDeclaredMethod( "configure", 
+                        Method configureMethod =
+                            currentClass.getDeclaredMethod( "configure",
                                                             new Class[]{ Configuration.class } );
 
                         configureMethod.invoke( securityCurrent, new Object[]{ configuration });
-                        
-                        Method init = 
+
+                        Method init =
                             currentClass.getDeclaredMethod( "init", new Class[0] );
 
                         init.invoke( securityCurrent, new Object[0] );
@@ -1425,7 +1427,7 @@ public final class ORB
 
 
     /**
-     * called from ORB.init(), entry point for initialization. 
+     * called from ORB.init(), entry point for initialization.
      */
 
     protected void set_parameters(String[] args, java.util.Properties props)
@@ -1517,7 +1519,7 @@ public final class ORB
             clientConnectionManager =
                 new ClientConnectionManager( this,
                                              getTransportManager(),
-                                             getGIOPConnectionManager());        
+                                             getGIOPConnectionManager());
             clientConnectionManager.configure(configuration);
         }
         catch( ConfigurationException ce )
@@ -1540,7 +1542,7 @@ public final class ORB
         {
             try
             {
-                knownReferences = 
+                knownReferences =
                     (Map)ObjectUtil.classForName( hashTableClassName ).newInstance();
             }
             catch( Exception e )
@@ -1557,7 +1559,7 @@ public final class ORB
     }
 
     /**
-     * Initialization method, called from within the super class 
+     * Initialization method, called from within the super class
      * org.omg.CORBA.ORB
      */
 
@@ -1585,7 +1587,7 @@ public final class ORB
             clientConnectionManager =
                 new ClientConnectionManager( this,
                                              getTransportManager(),
-                                             getGIOPConnectionManager() );        
+                                             getGIOPConnectionManager() );
             clientConnectionManager.configure(configuration);
         }
         catch( ConfigurationException ce )
@@ -1606,7 +1608,7 @@ public final class ORB
         {
             try
             {
-                knownReferences = 
+                knownReferences =
                     (Map)ObjectUtil.classForName( hashTableClassName ).newInstance();
             }
             catch( Exception e )
@@ -2270,12 +2272,27 @@ public final class ORB
         return list;
     }
 
+    /**
+     * a helper method supplied to initialize the object key map. This
+     * replaces functionality from the defunct Environment class to populate
+     * a hash map based on the names starting with "jacorb.orb.ObjectKeyMap"
+     */
+
+    private void configureObjectKeyMap (Configuration config)
+    {
+        String[] names = config.getAttributeNames();
+        String prefix = "jacorb.orb.objectKeyMap.";
+        for (int i = 0; i < names.length; i++)
+            if (names[i].startsWith (prefix))
+                objectKeyMap.put(names[i].substring (prefix.length()),
+                                 config.getAttribute (names[i],""));
+    }
 
     /**
-     * <code>addObjectKey </code> is a proprietary method that allows the internal
-     * objectKeyMap to be altered programmatically. The objectKeyMap allows more
-     * readable corbaloc URLs by mapping the actual object key to an arbitary string.
-     * See the jacorb.properties file for more information.
+     * <code>addObjectKey </code> is a proprietary method that allows the
+     * internal objectKeyMap to be altered programmatically. The objectKeyMap
+     * allows more readable corbaloc URLs by mapping the actual object key to
+     * an arbitary string. See the jacorb.properties file for more information.
      *
      * @param key_name a <code>String</code> value e.g. NameService
      * @param full_path an <code>String</code> value e.g. file:/home/rnc/NameSingleton.ior
