@@ -64,9 +64,16 @@ class OpDecl
     public void parse()
     {
         //        escapeName();
-        if( opAttribute == 1  && !raisesExpr.empty())
-            parser.error("Oneway operation "+full_name()+
-                         " may not define a raises clases.", token);
+        if( opAttribute == 1 )
+        {
+            if( !raisesExpr.empty())
+                parser.error("Oneway operation "+full_name()+
+                             " may not define a raises clases.", token);
+
+            if( ! (opTypeSpec.typeSpec() instanceof VoidTypeSpec) )
+                parser.error("Oneway operation "+full_name()+
+                             " may only define void as return type.", token);
+        }
 
 	try
 	{
