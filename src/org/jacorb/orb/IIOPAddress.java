@@ -8,12 +8,22 @@ import java.net.*;
  */
 public class IIOPAddress 
 {
-    private String host;
+    private String hostname = null;
+    private String ip = null;
     private int port;
     
+    /**
+     * Creates a new IIOPAddress for host and port.  Host can be
+     * either a DNS name, or a textual representation of a numeric
+     * IP address (dotted decimal).
+     */
     public IIOPAddress (String host, int port)
     {
-        this.host = host;
+        if (isIP (host))
+            this.ip = host;
+        else
+            this.hostname = host;
+
         if (port < 0)
             this.port = port + 65536;
         else
@@ -27,25 +37,86 @@ public class IIOPAddress
         return new IIOPAddress (host, port);
     }
     
-    private static String rawIP (String host)
+    /**
+     * Returns true if host is a numeric IP address.
+     */
+    private static boolean isIP (String host)
     {
-        try
+        int index       = 0;
+        int numberStart = 0;
+        int length      = host.length();
+        char ch = ' ';
+        
+        for (int i=0; i<4; i++)
         {
-            /** make sure we have a raw IP address here */
-            InetAddress inet_addr = 
-                InetAddress.getByName( host );
-                
-            return inet_addr.getHostAddress();
+            while (true)
+            {
+                if (index >= length) break;
+                ch = host.charAt(index);
+                if (ch == '.') break;
+                if (ch < '0' || ch > '9') return false;
+                index++;
+            }
+            if (index >= length && i == 3 
+                && (index - numberStart) <= 3 && (index-numberStart) > 0)
+                return true;
+            else if (ch == '.' && (index - numberStart) <= 3
+                               && (index - numberStart) > 0)
+            {
+                index++;
+                numberStart = index;
+            }                
+            else
+                return false;
         }
-        catch( UnknownHostException uhe )
+        return false;
+    }       
+
+    /**
+     * Returns the host part of this IIOPAddress, as a numeric IP address in 
+     * dotted decimal form.  If the numeric IP address was specified when 
+     * this object was created, then that address is returned.  Otherwise,
+     * this method performs a DNS lookup on the hostname.
+     */    
+    public String getIP()
+    {
+        if (ip == null)
         {
-            throw new org.omg.CORBA.TRANSIENT("Unknown host " + host);
+            try
+            {
+                String result = InetAddress.getByName(hostname).toString();
+                ip = result.substring (result.indexOf('/')+1);
+            }
+            catch (UnknownHostException ex)
+            {
+                throw new RuntimeException ("could not resolve hostname: " 
+                                            + hostname);
+            }  
         }
+        return ip;
     }
 
-    public String getHost()
+    /**
+     * Returns the host part of this IIOPAddress, as a DNS hostname.
+     * If the DNS name was specified when this IIOPAddress was created,
+     * then that name is returned.  Otherwise, this method performs a
+     * reverse DNS lookup on the IP address.
+     */
+    public String getHostname()
     {
-        return host;
+        if (hostname == null)
+        {
+            try
+            {
+                 hostname = InetAddress.getByName(ip).getHostName();
+            }
+            catch (UnknownHostException ex)
+            {
+                throw new RuntimeException ("could not resolve ip address: "
+                                            + ip);
+            }
+        }
+        return hostname;      
     }
 
     public int getPort()
@@ -58,7 +129,15 @@ public class IIOPAddress
         if (other instanceof IIOPAddress)
         {
             IIOPAddress x = (IIOPAddress)other;
-            return this.host.equals (x.host) && this.port == x.port;
+            if (this.port == x.port)
+            {
+                if (this.ip != null)
+                    return this.ip.equals (x.ip);
+                else
+                    return this.hostname.equals (x.hostname);
+            }
+            else
+                return false;
         }
         else
             return false;
@@ -66,19 +145,25 @@ public class IIOPAddress
     
     public int hashCode()
     {
-        return host.hashCode() + port;
+        if (ip != null)
+            return ip.hashCode() + port;
+        else
+            return hostname.hashCode() + port;
     }
     
     public String toString()
     {
-        return host + ":" + port;
+        if (hostname != null)
+            return hostname + ":" + port;
+        else
+            return ip + ":" + port;
     }
     
     public byte[] toCDR()
     {
     	CDROutputStream out = new CDROutputStream();
     	out.beginEncapsulatedArray();
-    	out.write_string (host);
+    	out.write_string (ip);
     	out.write_ushort ((short)port);
     	return out.getBufferCopy();
     }
