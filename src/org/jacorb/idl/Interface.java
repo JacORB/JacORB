@@ -198,16 +198,25 @@ class Interface
             // if we get here, there is already a type spec for this interface
             // in the global type table for a forward declaration of this
             // interface. We must replace that table entry with this type spec
-            // if this is not yet another forwad declaration
+            // if this is not yet another forward declaration
 
-            if( body != null )
+            if (parser.get_pending (full_name ()) != null)
             {
-                justAnotherOne = true;
+                if (body == null )
+                {
+                    justAnotherOne = true;
+                }
+                // else actual definition
+
+                if( !full_name().equals( "org.omg.CORBA.TypeCode" ) && body != null )
+                {
+                    TypeMap.replaceForwardDeclaration( full_name(), ctspec );
+                }
             }
-
-            if( !full_name().equals( "org.omg.CORBA.TypeCode" ) && body != null )
+            else
             {
-                TypeMap.replaceForwardDeclaration( full_name(), ctspec );
+                Environment.output( 4, nad );
+                parser.error( "Interface " + typeName() + " already defined", token );
             }
         }
 
@@ -219,18 +228,16 @@ class Interface
                 Hashtable h = new Hashtable();
                 for( Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements(); )
                 {
-//                      try
-//                      {
                         ScopedName name = (ScopedName)e.nextElement();
                         ConstrTypeSpec ts = (ConstrTypeSpec)name.resolvedTypeSpec();
-                        
+
                         if( ts.declaration() instanceof Interface )
                         {
                             if( h.containsKey( ts.full_name() ))
                             {
                                 parser.fatal_error( "Illegal inheritance spec: " +
-                                                    inheritanceSpec  + 
-                                                    " (repeated inheritance not allowed).", 
+                                                    inheritanceSpec  +
+                                                    " (repeated inheritance not allowed).",
                                                     token );
                             }
                             // else:
@@ -239,14 +246,9 @@ class Interface
                         }
                         // else:
                         parser.fatal_error( "Illegal inheritance spec: " +
-                                            inheritanceSpec  + " (ancestor " + 
-                                            ts.full_name() + " not an interface)", 
+                                            inheritanceSpec  + " (ancestor " +
+                                            ts.full_name() + " not an interface)",
                                             token );
-                        //                }
-//                      catch( Exception ex )
-//                      {
-//                          ex.printStackTrace();
-//                      }
                 }
                 body.set_ancestors( inheritanceSpec );
             }
@@ -353,20 +355,20 @@ class Interface
         else
         {
             ps.println( "public interface " + classname );
-            
+
             if( is_abstract )
-            {               
+            {
                 ps.print( "\textends org.omg.CORBA.portable.IDLEntity");
             }
             else
             {
                 ps.print( "\textends " + classname + "Operations" );
-                
+
                 if( is_local )
                 {
                     // Looking at RTF work it
                     // seems a new interface 'LocalInterface' will be used for this purpose.
-                    
+
                     ps.print( ", org.omg.CORBA.LocalInterface, org.omg.CORBA.portable.IDLEntity" );
                 }
                 else
@@ -931,29 +933,29 @@ class Interface
                 {
                     if( !is_abstract )
                     {
-                        ps = new PrintWriter( 
+                        ps = new PrintWriter(
                                  new java.io.FileWriter( new File( dir, name +
                                                                    "Operations.java" ) ) );
                         // are we in the unnamed package?
                         printOperations( name, ps );
                         ps.close();
 
-                        // Helper 
+                        // Helper
 
                         //TO BE DONE: helpers and holders should also
                         //be generated for abstract interfaces, but
                         //what should these look like? IDL/Java 2.4
                         //RTF does not seem to be consistent here...
 
-                        ps = new PrintWriter( 
+                        ps = new PrintWriter(
                                  new java.io.FileWriter( new File( dir, name +
                                                                    "Helper.java" ) ) );
                         printHelper( name, ps );
                         ps.close();
-                    
+
                         // Holder file
 
-                        ps = new PrintWriter( 
+                        ps = new PrintWriter(
                                  new java.io.FileWriter( new File( dir, name + "Holder.java" ) ) );
 
                         printHolder( name, ps );
@@ -969,8 +971,8 @@ class Interface
                         ps.close();
                     }
 
-                    if( parser.generate_skeletons && 
-                        !is_local && 
+                    if( parser.generate_skeletons &&
+                        !is_local &&
                         !is_abstract )
                     {
                         // Skeletons
@@ -1000,15 +1002,15 @@ class Interface
 
                     if( is_local )
                     {
-                        ps = new PrintWriter( 
-                                new java.io.FileWriter( 
+                        ps = new PrintWriter(
+                                new java.io.FileWriter(
                                     new File( dir, "_" + name +
                                               "LocalBase.java" ) ) );
                         printLocalBase( name, ps );
                         ps.close();
 
-                        ps = new PrintWriter( 
-                                new java.io.FileWriter( 
+                        ps = new PrintWriter(
+                                new java.io.FileWriter(
                                     new File( dir, name + "LocalTie.java" ) ) );
                         printLocalTie( name, ps );
                         ps.close();
@@ -1031,7 +1033,3 @@ class Interface
         }
     }
 }
-
-
-
-

@@ -53,8 +53,14 @@ class SymbolList
             ( (IdlSymbol)e.nextElement() ).setPackage( s );
     }
 
-    public void parse()
 
+    public int size ()
+    {
+        return v.size ();
+    }
+
+
+    public void parse()
     {
         Enumeration e = v.elements();
         for( ; e.hasMoreElements(); )
@@ -89,5 +95,3 @@ class SymbolList
         return sb.toString();
     }
 }
-
-

@@ -1663,6 +1663,11 @@ union_type ::=
                         RESULT.set_included( parser.include_state );
                         parser.closeScope( (Scope)RESULT );
                 :}
+        | UNION ID:i
+                {:
+                        RESULT.set_token(i);
+                        parser.closeScope( (Scope)RESULT );
+                :}
         ;
 
 // #54

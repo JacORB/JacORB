@@ -121,20 +121,23 @@ class ValueDecl
 
     public void parse()
     {
+        boolean justAnotherOne = false;
+
         if( isCustomMarshalled() &&
                 inheritanceSpec != null &&
                 inheritanceSpec.truncatable != null )
         {
-            parser.error( "Valuetype " + typeName() + 
+            parser.error( "Valuetype " + typeName() +
                           " may no be BOTH custom AND truncatable", token );
         }
+
+        ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
 
         try
         {
             escapeName();
             ScopedName.definePseudoScope( full_name() );
 
-            ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
             ctspec.c_type_spec = this;
 
             NameTable.define( full_name(), "type" );
@@ -142,75 +145,100 @@ class ValueDecl
         }
         catch( NameAlreadyDefined nad )
         {
-            Environment.output( 4, nad );
-            parser.error( "Valuetype " + typeName() + " already defined", token );
+            if (parser.get_pending (full_name ()) != null)
+            {
+                if (stateMembers.size () != 0)
+                {
+                    justAnotherOne = true;
+                }
+                if( ! full_name().equals( "org.omg.CORBA.TypeCode" ) && stateMembers.size () != 0 )
+                {
+                    TypeMap.replaceForwardDeclaration( full_name(), ctspec );
+                }
+            }
+            else
+            {
+                Environment.output( 4, nad );
+                parser.error( "Valuetype " + typeName() + " already defined", token );
+            }
         }
 
-        stateMembers.parse();
-
-        for( Iterator i = operations.iterator(); i.hasNext(); )
-            ( (IdlSymbol)i.next() ).parse();
-
-        for( Iterator i = exports.iterator(); i.hasNext(); )
+        if (stateMembers.size () != 0)
         {
-            IdlSymbol sym = (IdlSymbol)i.next();
-            sym.parse();
-            if( sym instanceof AttrDecl )
+            stateMembers.parse();
+
+            for( Iterator i = operations.iterator(); i.hasNext(); )
+                ( (IdlSymbol)i.next() ).parse();
+
+            for( Iterator i = exports.iterator(); i.hasNext(); )
             {
-                for( Enumeration e = ( (AttrDecl)sym ).getOperations();
+                IdlSymbol sym = (IdlSymbol)i.next();
+                sym.parse();
+                if( sym instanceof AttrDecl )
+                {
+                    for( Enumeration e = ( (AttrDecl)sym ).getOperations();
+                         e.hasMoreElements(); )
+                        operations.add( e.nextElement() );
+                }
+            }
+
+            // check inheritance rules
+
+            if( inheritanceSpec != null )
+            {
+                Hashtable h = new Hashtable();
+                for( Enumeration e = inheritanceSpec.getValueTypes();
                      e.hasMoreElements(); )
-                    operations.add( e.nextElement() );
-            }
-        }
-
-        // check inheritance rules
-
-        if( inheritanceSpec != null )
-        {
-            Hashtable h = new Hashtable();
-            for( Enumeration e = inheritanceSpec.getValueTypes(); 
-                 e.hasMoreElements(); )
-            {
-                ScopedName name = (ScopedName)e.nextElement();
-                ConstrTypeSpec ts = 
-                    (ConstrTypeSpec)name.resolvedTypeSpec().typeSpec();
-
-                if( ts.declaration() instanceof Value )
                 {
-                    if( h.containsKey( ts.full_name() ))
+                    ScopedName name = (ScopedName)e.nextElement();
+                    ConstrTypeSpec ts =
+                        (ConstrTypeSpec)name.resolvedTypeSpec().typeSpec();
+
+                    if( ts.declaration() instanceof Value )
                     {
-                        parser.fatal_error( "Illegal inheritance spec: " +
-                                            inheritanceSpec  + 
-                                            " (repeated inheritance not allowed).", 
-                                            token );
+                        if( h.containsKey( ts.full_name() ))
+                        {
+                            parser.fatal_error( "Illegal inheritance spec: " +
+                                                inheritanceSpec  +
+                                                " (repeated inheritance not allowed).",
+                                                token );
+                        }
+                        // else:
+                        h.put( ts.full_name(), "" );
+                        continue;
                     }
-                    // else:
-                    h.put( ts.full_name(), "" );
-                    continue;
+                    else
+                    {
+                        System.out.println( " Declaration is " + ts.declaration().getClass() );
+                        parser.fatal_error( "Non-value type in inheritance spec: \n\t" +
+                                            inheritanceSpec, token );
+                    }
                 }
-                else
-                {
-                    System.out.println( " Declaration is " + ts.declaration().getClass() );
-                    parser.fatal_error( "Non-value type in inheritance spec: \n\t" +
-                            inheritanceSpec, token );
-                }
-            }
 
-            for( Enumeration e = inheritanceSpec.getSupportedInterfaces();
-                 e.hasMoreElements(); )
-            {
-                ScopedName name = (ScopedName)e.nextElement();
-                ConstrTypeSpec ts = (ConstrTypeSpec)name.resolvedTypeSpec().typeSpec();
-                if( ts.declaration() instanceof Interface )
+                for( Enumeration e = inheritanceSpec.getSupportedInterfaces();
+                     e.hasMoreElements(); )
                 {
-                    continue;
-                }
-                else
-                {
-                    parser.fatal_error( "Non-interface type in supported interfaces list:\n\t" +
-                            inheritanceSpec, token );
+                    ScopedName name = (ScopedName)e.nextElement();
+                    ConstrTypeSpec ts = (ConstrTypeSpec)name.resolvedTypeSpec().typeSpec();
+                    if( ts.declaration() instanceof Interface )
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        parser.fatal_error( "Non-interface type in supported interfaces list:\n\t" +
+                                            inheritanceSpec, token );
+                    }
                 }
             }
+            NameTable.parsed_interfaces.put( full_name(), "" );
+            parser.remove_pending( full_name() );
+        }
+        else if ( ! justAnotherOne)
+        {
+            // i am forward declared, must set myself as
+            // pending further parsing
+            parser.set_pending( full_name() );
         }
 
     }

@@ -173,14 +173,22 @@ class StructType
             }
             else
             {
-                if (memberlist != null)
+                if (parser.get_pending (full_name ()) != null)
                 {
-                    justAnotherOne = true;
-                }
+                    if (memberlist != null)
+                    {
+                        justAnotherOne = true;
+                    }
 
-                if( !full_name().equals( "org.omg.CORBA.TypeCode" ) && memberlist != null )
+                    if( !full_name().equals( "org.omg.CORBA.TypeCode" ) && memberlist != null )
+                    {
+                        TypeMap.replaceForwardDeclaration( full_name(), ctspec );
+                    }
+                }
+                else
                 {
-                    TypeMap.replaceForwardDeclaration( full_name(), ctspec );
+                    Environment.output( 4, nad );
+                    parser.error( "Struct " + typeName() + " already defined", token );
                 }
             }
         }
