@@ -27,15 +27,15 @@
 
    <!-- check for Java 2 -->
    <target name="javatest">
-      <available classname="java.lang.ref.WeakReference" property="java2" />  
+      <available classname="java.lang.ref.WeakReference" property="java2" />
    </target>
 
    <!-- top-level targets  -->
 
-   <target name="all" 
+   <target name="all"
       depends="corba,names,security,events,transactions,concurrency,collections,trading" />
 
-   <target name="services" 
+   <target name="services"
       depends="events,trading,collections,transactions,concurrency" />
 
 
@@ -43,7 +43,7 @@
    <!--                       CORBA                          -->
    <!-- ==================================================== -->
 
-   <target name="corba" 
+   <target name="corba"
            depends="orb,sysex,dynany,portableserver,iop,iiop,giop,conf,interceptor,compile"/>
 
    <target name="compile" >
@@ -66,7 +66,7 @@
    <!-- standard classes defined by the IDL language mapping  -->
    <!-- are copied from a directory containing OMG-provided files -->
 
-   <target name="orb" depends="init"> 
+   <target name="orb" depends="init">
       <jacidl generateir="true"
          srcdir="idl"
          packageprefix="org.omg"
@@ -82,8 +82,8 @@
       <delete file="${src}/generated/org/omg/CORBA/TypeCodePOATie.java"/>
       <delete file="${src}/generated/org/omg/CORBA/_TypeCodeStub.java"/>
       <delete file="${src}/generated/org/omg/CORBA/PolicyOperations.java"/>
-      
-      <mkdir dir="${src}/generated/org"/> 
+
+      <mkdir dir="${src}/generated/org"/>
 
       <copy todir="${src}/generated">
          <!-- <fileset dir="${src}/omg-99-10-27"> -->
@@ -146,7 +146,7 @@
    <!-- classes.  The Exception classes and Holder classes are discarded. -->
 
    <target name="sysex" depends="init">
-      <mkdir dir="${src}/generated/temp"/> 
+      <mkdir dir="${src}/generated/temp"/>
 
       <jacidl generateir="true"
               srcdir="idl"
@@ -160,7 +160,7 @@
             <include name="**/CompletionStatus*.java"/>
             <include name="**/*Helper.java"/>
          </fileset>
-      </copy>      
+      </copy>
 
       <delete dir="${src}/generated/temp"/>
 
@@ -223,7 +223,7 @@
               includes="**/omg/CONV_FRAME.idl"
               destdir="${src}/generated"/>
    </target>
-   
+
    <target name="interceptor" depends="time">
       <jacidl generateir="true"
               noskel="true"
@@ -233,11 +233,6 @@
               includepath="${basedir}/idl/omg"
               includes="**/omg/Dynamic.idl,**/omg/Messaging.idl,**/omg/PortableInterceptor.idl"
               destdir="${src}/generated"/>
-        <!--
-   <java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
-         <arg line="${idlflags} -noskel  ${include}/omg/IOP_N.idl"/>
-   </java>
-        -->
    </target>
 
    <target name="portableserver" depends="init">
@@ -262,7 +257,7 @@
                destdir="${classdir}"
                includes="org/omg/PortableServer/**/*.java,org/omg/BiDirPolicy/**/*.java"
                classpath="${classpath}"
-       />   
+       />
 
    </target>
 
@@ -316,7 +311,7 @@
               srcdir="idl"
               packageprefix="org.omg"
               includepath="${basedir}/idl/omg"
-              includes="**/omg/CosEventChannelAdmin.idl"
+              includes="omg/CosEventChannelAdmin.idl"
               destdir="${src}/generated"/>
    </target>
 
@@ -325,7 +320,7 @@
               srcdir="idl"
               packageprefix="org.omg"
               includepath="${basedir}/idl/omg"
-              includes="**/omg/CosEventComm.idl"
+              includes="omg/CosEventComm.idl"
               destdir="${src}/generated"/>
    </target>
 
@@ -342,7 +337,7 @@
               destdir="${src}/generated"/>
 
       <javac debug="${debug}" srcdir="${src}/generated/"
-               destdir="${classdir}" 
+               destdir="${classdir}"
                includes="org/omg/CosTransactions/**/*.java,org/omg/CosTransactions/*.java"
       />
    </target>
@@ -361,36 +356,36 @@
       destdir="${src}/generated"/>
 
    <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}" 
+               destdir="${classdir}"
           includes="org/omg/CosCollection/Istring*.java,org/omg/CosCollection/NVPair*.java,org/omg/CosCollection/ParameterList*.java,org/omg/CosCollection/AnySequence*.java,org/omg/CosCollection/_Operations*.java,org/omg/CosCollection/Operations*.java,org/omg/CosCollection/*Invalid*.java,org/omg/CosCollection/*Reason*.java,org/omg/CosCollection/*EmptyCollection*.java,org/omg/CosCollection/*Com*.java,org/omg/CosCollection/Iterator*.java,org/omg/CosCollection/_Iterator*.java, org/omg/CosCollection/Collection*.java, org/omg/CosCollection/_Collection*.java"
           />
 
    <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}" 
+               destdir="${classdir}"
           includes="org/omg/CosCollection/*BoundStyle*.java,org/omg/CosCollection/*Iterator*.java,org/omg/CosCollection/_*Iterator*.java"
                excludes="org/omg/CosCollection/Iterator*.java,org/omg/CosCollection/_Iterator*.java"
           />
 
    <javac debug="${debug}" srcdir="${src}/generated"
-          destdir="${classdir}" 
+          destdir="${classdir}"
          includes="org/omg/CosCollection/*Operations*.java, org/omg/CosCollection/Collection*.java, org/omg/CosCollection/*Heap*.java, org/omg/CosCollection/*RestrictedAccessCollection*.java, org/omg/CosCollection/*Deque*.java, org/omg/CosCollection/*Queue*.java,org/omg/CosCollection/*Stack*.java,org/omg/CosCollection/*PriorityQueue*.java,org/omg/CosCollection/*CollectionFactor*.java, org/omg/CosCollection/*OrderedCollection*.java, org/omg/CosCollection/*SequentialCollection*.java, org/omg/CosCollection/*CSequence*.java"
         excludes="org/omg/CosCollection/*Relation*.java, org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*EqualitySequen*.java, org/omg/CosCollection/*Map*.java,org/omg/CosCollection/*Set*.java, org/omg/CosCollection/*Key*.java"
           />
 
    <javac debug="${debug}" srcdir="${src}/generated"
-          destdir="${classdir}" 
+          destdir="${classdir}"
          includes="org/omg/CosCollection/*EqualitySequence*.java,org/omg/CosCollection/*Collection*.java"
         excludes="org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*Factor*.java, org/omg/CosCollection/*Key*.java, org/omg/CosCollection/*Set*.java"
           />
 
     <javac debug="${debug}" srcdir="${src}"
-          destdir="${classdir}" 
+          destdir="${classdir}"
          includes="org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*Map*.java,org/omg/CosCollection/*Set*.java, org/omg/CosCollection/*Key*.java"
         excludes="org/omg/CosCollection/*Factor*.java,org/omg/CosCollection/*Relation*.java"
           />
 
     <javac debug="${debug}" srcdir="${src}/generated"
-          destdir="${classdir}" 
+          destdir="${classdir}"
          includes="org/omg/CosCollection/*Factor*.java,org/omg/CosCollection/*Relation*.java"
           />
    </target>
@@ -408,7 +403,7 @@
               destdir="${src}/generated"/>
 
    <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}" 
+               destdir="${classdir}"
                includes="org/omg/CosConcurrencyControl/**/*.java,org/omg/CosConcurrencyControl/*.java"
         />
    </target>
@@ -509,7 +504,7 @@
    <!--    security service  -->
    <!--                      -->
 
-   <target name="security" 
+   <target name="security"
       depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop,csi">
    <javac debug="${debug}" srcdir="${src}/generated"
                destdir="${classdir}"
