@@ -1,32 +1,32 @@
 JacORB 1.4
 
-	  Installing and Building JacORB
+Installing and Building JacORB
 _____________________________________________________________________
 
 
 Required:
 =========
 
-	- JDK 1.2 or later
+ - JDK 1.3 or later
 
-	- Version 1.2 or later of the Jakarta Ant make tool,
+ - Version 1.5 or later of the Jakarta Ant make tool,
           available from http://jakarta.apache.org/ant.
 
-	- for IIOP over SSL:
+ - for IIOP over SSL:
           JDK 1.4 or IAIK crytography provider and SSL implementation,
           available from http://www.iaik.at
 
         - for using names instead of ip adresses in IORs:
-          dnsjava 1.1.6 (or above) available from
+          Either use JDK1.4 or use dnsjava 1.1.6 (or above) available from
           http://www.xbill.org/dnsjava. See step 7 for instructions.
 
         This release has been tested on:
 
-        Linux JDK 1.2.2, 1.3.1, 1.4.0
-        Solaris JDK 1.2.2, 1.3.1, 1.4.0
-        Windows 2000 JDK 1.2.2, 1.3.1, 1.4.0
-        Windows NT JDK 1.2.2, 1.3.1, 1.4.0
-        HP-UX JDK 1.2.2, 1.3.1, 1.4.0
+        Linux JDK 1.3.1, 1.4.1
+        Solaris JDK 1.3.1, 1.4.1
+        Windows 2000 JDK 1.3.1, 1.4.1
+        Windows NT JDK 1.3.1, 1.4.1
+        HP-UX JDK 1.3.1, 1.4.1
         AIX JDK 1.3.0, 1.3.1
 
 
@@ -34,7 +34,7 @@ Installation:
 =============
 
 1. Download "Ant" and install it as described in its documentation if
-   you want to rebuild. This JacORB release relies on Ant 1.2 or later.
+   you want to rebuild.
 
 2. Extend your search path to include the bin subdirectory of the
    installation directory so that the JacORB utilities can be found.
@@ -112,8 +112,8 @@ Installation:
 Building JacORB (Optional)
 ==========================
 
-   Ensure Ant 1.2 or later is installed on your system and that you are
-   starting with a clean environment.
+   Ensure Ant (See version requirements above) is installed on your system
+   and that you are starting with a clean environment.
 
    To build JacORB you need to call "ant" in the installation
    directory:
