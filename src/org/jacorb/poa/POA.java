@@ -206,23 +206,23 @@ public class POA
             }
         }
 
-        watermark = generateWatermark();
+//         watermark = generateWatermark();
 
-        aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logger) : null;
+//         aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logger) : null;
 
-        // GB: modified
-        requestController = new RequestController(this, orb, aom);
-        poaManager.registerPOA(this);
-        monitor = new POAMonitorLightImpl();
+//         // GB: modified
+//         requestController = new RequestController(this, orb, aom);
+//         poaManager.registerPOA(this);
+//         monitor = new POAMonitorLightImpl();
 
-        monitor.init( this, aom,
-                      requestController.getRequestQueue(),
-                      requestController.getPoolManager(),
-                      "POA " + name );
+//         monitor.init( this, aom,
+//                       requestController.getRequestQueue(),
+//                       requestController.getPoolManager(),
+//                       "POA " + name );
 
-        monitor.openMonitor();
-        if (poaListener != null)
-            poaListener.poaCreated(this);
+//         monitor.openMonitor();
+//         if (poaListener != null)
+//             poaListener.poaCreated(this);
     }
 
 
@@ -232,16 +232,37 @@ public class POA
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.poa");
 
+        implName = 
+            configuration.getAttribute("jacorb.implname","standardImplName").getBytes();
+        serverId = 
+            String.valueOf((long)(Math.random()*9999999999L)).getBytes();      
+
+        watermark = generateWatermark();
+
+        aom = isRetain() ? new AOM( isUniqueId(), isSingleThreadModel(), logger) : null;
+
+        // GB: modified
+        requestController = new RequestController(this, orb, aom);
         requestController.configure(configuration);
+
+        poaManager.registerPOA(this);
+        monitor = new POAMonitorLightImpl();
+        monitor.init( this, aom,
+                      requestController.getRequestQueue(),
+                      requestController.getPoolManager(),
+                      "POA " + name );
+
+        monitor.openMonitor();
+        if (poaListener != null)
+            poaListener.poaCreated(this);
+
         monitor.configure(configuration);
 
         if (logger.isDebugEnabled())
         {
             logger.debug("POA " + name + " ready");
         }
-
-        implName = configuration.getAttribute("jacorb.implname").getBytes();
-        serverId = String.valueOf((long)(Math.random()*9999999999L)).getBytes();        
+  
     }
 
 
@@ -706,12 +727,15 @@ public class POA
                 POA aChild;
                 while ((aChild = (POA)childs.get(poa_name)) != null)
                 {
-                    try {
+                    try 
+                    {
                         poaCreationLog.wait();  // notification is in unregisterChild
-                    } catch (InterruptedException e) {
+                    } 
+                    catch (InterruptedException e) {
                     }
                     // anyone else has won the race
-                    if (child != aChild) throw new AdapterAlreadyExists();
+                    if (child != aChild) 
+                        throw new AdapterAlreadyExists();
                 }
             }
 
@@ -721,7 +745,17 @@ public class POA
             POAManager aPOAManager =
                 a_POAManager == null ? new POAManager(orb) : (POAManager) a_POAManager;
 
-            child = new POA(orb, poa_name, this, aPOAManager, policyList);
+            child = 
+                new POA(orb, poa_name, this, aPOAManager, policyList);
+
+            try
+            {
+                child.configure(configuration);
+            }
+            catch (ConfigurationException e)
+            {
+                throw new org.omg.CORBA.INTERNAL(e.getMessage());
+            }
 
             // notify a poa listener
             try

@@ -98,22 +98,19 @@ public class SASClientInterceptor
         try
         {
             configuration.getAttribute("jacorb.security.sas.contextClass");
-            try 
-            {
-                Class c = 
-                    org.jacorb.util.ObjectUtil.classForName(contextClass);
-                sasContext = (ISASContext)c.newInstance();
-            }
-            catch (Exception e) 
-            {
-                if (logger.isErrorEnabled())
-                    logger.error("Could not instantiate class " + contextClass + ": " + e);
-            }
+            Class c = 
+                org.jacorb.util.ObjectUtil.classForName(contextClass);
+            sasContext = (ISASContext)c.newInstance();
         }
         catch(ConfigurationException ce) 
         {
             if (logger.isDebugEnabled())
                 logger.debug("ConfigurationException", ce);
+        }
+        catch (Exception e) 
+        {
+            if (logger.isErrorEnabled())
+                logger.error("Could not instantiate class " + contextClass + ": " + e);
         }
 
         if (sasContext == null) 

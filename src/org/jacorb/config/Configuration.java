@@ -31,22 +31,26 @@ import org.jacorb.orb.ORB;
 import org.jacorb.util.ObjectUtil;
 
 /**
- * Configuration objects are read-only representations of files with
- * configuration properties. Configuration files for a given name are
- * looked up relative to a configuration directory, with the
- * configuration <name> in the file ${JACORB_CONFIG}/<name>.properties
- * The default value after installation is $JacORB_HOME/etc$.
+ * ORB configuration objects are read-only representations of files with
+ * configuration properties.
  *
- * To also support packaged servers in jar files, the configuration
- * file lookup mechanism tries to load properties files from the
- * classpath, if it cannot find them in the config dictionary.
- *
- * Failure to retrieve the configuration file will result in an
- * exception raised by ORB.init().
+ * ORB configuration options for a given name are looked up and loaded as follows:
+ * <ol>
+ * <li>System properties are loaded first
+ * <li>the file <tt>common.orb.properties</tt> is loaded from java.home/lib
+ *     and user.home if it exists
+ * <li>if the ORBid is property is set the file <tt>ORBid.orb.properties</tt> is 
+ *     loaded from jacorb.config.dir/etc, if that exists, or jacorb.home/etc, or '.'
+ *     If ORBid is not set, the default file <tt>jacorb.orb.properties</tt>
+ *     is loaded from these places.
+ * <li>To also support packaged servers in jar files, the configuration
+ *     file lookup mechanism finally tries to load named properties files 
+ *     (<tt>ORBid.orb.properties</tt>, or <tt>jacorb.orb.properties</tt>) from 
+ *     the classpath, if it cannot find them in the config dictionary.
+ *</ol>
  *
  * The Configuration object is also used by JacORB components to
  * retreive their Logger objects.
- *
  * 
  * @author Gerald Brose, XTRADYNE Technologies
  * @version $Id$
@@ -74,7 +78,7 @@ public class Configuration
 
     /**  default class name for logger factory */
     private final String loggerFactoryClzName = 
-       "org.jacorb.util.LogKitLoggerFactory";
+       "org.jacorb.config.LogKitLoggerFactory";
 
 
     /**
@@ -108,92 +112,95 @@ public class Configuration
     /**
      * loads properties from files. 
      *
-     * Properties are loaded in the following order, with later properties 
-     * overriding earlier ones:
-     * 1) System properties (incl. command line)
-     * 2) common.orb.properties file
-     * 2) specific configuration file for the ORB (if any)
-     * 3) the ORB properties set in the client code and passed int through ORB.init(). 
-     *    (Note that these will thus always take effect!)
+     * Properties are loaded in the following order, with later
+     * properties overriding earlier ones: 1) System properties
+     * (incl. command line) 2) common.orb.properties file 2) specific
+     * configuration file for the ORB (if any) 3) the ORB properties
+     * set in the client code and passed int through ORB.init().
+     * (Note that these will thus always take effect!)
      *
-     * @param name the name for the ORB instance, may not be null. For the unspecified
-     * case, the name may be "anonymous", int which case no ORB-specific properties file
-     * will be looked up.
+     * @param name the name for the ORB instance, may not be null. 
      */
 
     private void init(String name, Properties orbProperties)
-    {
-        String separator = System.getProperty("file.separator");
-        String home = System.getProperty("user.home");
-        String lib = System.getProperty("java.home");
-
-        // 1) include system properties
-        setAttributes( System.getProperties() );
-
-        // 2) look for orb.common.properties
-
-        // look for common properties files in java.home/lib first
-        Properties commonProps = 
-            loadPropertiesFromFile( lib + separator + "lib" + separator + COMMON_PROPS);
-
-        if (commonProps!= null)
-            setAttributes(commonProps);
-
-        // look for common properties files in user.home next
-        commonProps = 
-            loadPropertiesFromFile( home + separator + COMMON_PROPS );
- 
-        if (commonProps!= null)
-            setAttributes(commonProps);
-
-        // look for common properties files on the classpath next
-        commonProps = 
-            loadPropertiesFromClassPath( COMMON_PROPS );
-
-        if (commonProps!= null)
-            setAttributes(commonProps);
-
-        // 3) look for specific properties file
-        if( !name.equals("anonymous"))
-        {
-            String configDir = 
-                System.getProperty("jacorb.config.dir");
-            
-            if (configDir == null)
-                configDir = System.getProperty("jacorb.home");
-            
-            if (configDir != null )
-                configDir += separator + "etc";
-            else
-            {
-                System.err.println("[ jacorb.home unset! Will use '.']");
-                configDir = ".";
-            }
-            
-            String propFileName = configDir + separator + name + fileSuffix;
-            
-            // now load properties file from file system
-            Properties orbConfig = loadPropertiesFromFile(propFileName );
-            
-            if (orbConfig!= null)
-            {
-                System.out.println("[configuration " + name + " loaded from file]");
-                setAttributes(orbConfig);
-            }
-            
-            // now load properties file from classpath
-            orbConfig = loadPropertiesFromClassPath( name +  fileSuffix );
-            if (orbConfig!= null)
-            {
-                System.out.println("[configuration " + name + " loaded from classpath]");
-                setAttributes(orbConfig);
-            }
-        }
-
-        // 4) load properties passed to ORB.init(), these will override any
+        throws ConfigurationException
+   {
+       if( name == null )
+           throw new ConfigurationException("Illegal null value for ORB name!");
+       String separator = System.getProperty("file.separator");
+       String home = System.getProperty("user.home");
+       String lib = System.getProperty("java.home");
+       
+       // 1) include system properties
+       setAttributes( System.getProperties() );
+       
+       // 2) look for orb.common.properties
+       
+       // look for common properties files in java.home/lib first
+       Properties commonProps = 
+           loadPropertiesFromFile( lib + separator + "lib" + separator + COMMON_PROPS);
+       
+       if (commonProps!= null)
+           setAttributes(commonProps);
+       
+       // look for common properties files in user.home next
+       commonProps = 
+           loadPropertiesFromFile( home + separator + COMMON_PROPS );
+       
+       if (commonProps!= null)
+           setAttributes(commonProps);
+       
+       // look for common properties files on the classpath next
+       commonProps = 
+           loadPropertiesFromClassPath( COMMON_PROPS );
+       
+       if (commonProps!= null)
+           setAttributes(commonProps);
+       
+       // 3) look for specific properties file
+       String configDir = 
+           System.getProperty("jacorb.config.dir");
+       
+       if (configDir == null)
+           configDir = System.getProperty("jacorb.home");
+       
+       if (configDir != null )
+           configDir += separator + "etc";
+       else
+       {
+           System.err.println("[ jacorb.home unset! Will use '.']");
+           configDir = ".";
+       }
+       
+       String propFileName = configDir + separator + name + fileSuffix;
+       
+       // now load properties file from file system
+       Properties orbConfig = loadPropertiesFromFile(propFileName );
+       
+       if (orbConfig!= null)
+       {
+           System.out.println("[ configuration " + name + 
+                              " loaded from file " + propFileName + " ]");
+           setAttributes(orbConfig);
+       }
+       else
+       {
+           System.out.println("[ configuration " + name + 
+                              " not found in "  + propFileName + " ]");
+       }
+       
+       // now load properties file from classpath
+       orbConfig = loadPropertiesFromClassPath( name +  fileSuffix );
+       if (orbConfig!= null)
+       {
+           System.out.println("[configuration " + name + " loaded from classpath]");
+           setAttributes(orbConfig);
+       }
+       
+       // 4) load properties passed to ORB.init(), these will override any
         // settings in config files or system properties!
-        if (orbProperties != null)
-            setAttributes(orbProperties);
+       if (orbProperties != null)
+           setAttributes(orbProperties);
     }
 
     /**
@@ -202,14 +209,9 @@ public class Configuration
 
     void setAttributes(Properties properties)
     {
-        System.out.println("--- set Attributes ----");
         for (Iterator iter=properties.keySet().iterator(); iter.hasNext();)
         {
             String key = (String)iter.next();
-
-            System.out.println("setting (" + key + "," +
-                               (String)properties.get(key) + ")");
-
             setAttribute(key, (String)properties.get(key));
         }
     }
@@ -233,7 +235,7 @@ public class Configuration
         }
         catch( java.io.IOException io )
         {
-            io.printStackTrace(); //debug only
+            //            io.printStackTrace(); //debug only
             return null;
         }
     }
@@ -277,25 +279,22 @@ public class Configuration
     private void initLogging()
         throws ConfigurationException
     {
-        String logFileName = getAttribute("jacorb.logfile");
-        String size = getAttribute( "jacorb.logfile.maxLogSize" );
-        int maxLogSize = 0;
+        String logFileName = 
+            getAttribute("jacorb.logfile", "");
 
-        if( size != null )
-        {
-            maxLogSize = Integer.parseInt( size );
-        }
+        int maxLogSize = 
+            getAttributeAsInteger( "jacorb.logfile.maxLogSize", 0 );
 
-        if (logFileName != null && !logFileName.equals(""))
+        if ( !logFileName.equals(""))
         {
             // Convert $implname postfix to implementation name
             if (logFileName.endsWith("$implname"))
             {
                 logFileName = logFileName.substring (0, logFileName.length () - 9);
 
-                if ( getAttribute("jacorb.implname") != null)
+                if ( !getAttribute("jacorb.implname","").equals(""))
                 {
-                    logFileName += getAttribute("jacorb.implname");
+                    logFileName += getAttribute("jacorb.implname","");
                 }
                 else
                 {
@@ -305,12 +304,12 @@ public class Configuration
             }
         }
 
-        String clzName = getAttribute("jacorb.log.loggerFactory");
+        String clzName = getAttribute("jacorb.log.loggerFactory","");
         Class loggerFactoryClz = null;
 
         try
         {
-            if ( clzName != null)
+            if ( !clzName.equals(""))
             {
                 loggerFactoryClz = org.jacorb.util.ObjectUtil.classForName(clzName);
             }
@@ -331,13 +330,14 @@ public class Configuration
             System.err.println("Configuration Error, could not create logger!");
         }
 
-        if (logFileName != null)
+        if (!logFileName.equals(""))
         {
             try
             {
                 loggerFactory.setDefaultLogFile(logFileName, maxLogSize);
                 //logger = loggerFactory.getNamedRootLogger("jacorb");
-                logger = loggerFactory.getNamedLogger("jacorb",logFileName, maxLogSize);
+                logger = 
+                    loggerFactory.getNamedLogger("jacorb",logFileName, maxLogSize);
             }
             catch (IOException e)
             {
@@ -384,10 +384,18 @@ public class Configuration
      */
 
     public List getAttributeList(String key)
-        throws ConfigurationException
     {
         List result = new ArrayList();
-        String value = getAttribute(key);
+        String value = null;
+
+        try
+        {
+            value = getAttribute(key);
+        }
+        catch( ConfigurationException ce)
+        {
+            // ignore
+        }
 
         if (value != null)
         {
@@ -402,20 +410,29 @@ public class Configuration
      * Create an object from the given property. The class's default
      * constructor will be used.
      *
-     * @return null or an object of the class of the keys value
-     * @throws Error if reflection fails.
+     * @return an object of the class of the keys value, or null, if 
+     * no class name is found for the key
+     * @throws ConfigurationException if object creation fails.
      */
 
     public Object getAttributeAsObject( String key )
         throws ConfigurationException
     {
-        String s = getAttribute( key );
+        String className = null;
+        try
+        {
+            className = getAttribute( key );
+        }
+        catch( Exception e )
+        {
+            // ignore
+        }
 
-        if( s != null && s.length() > 0 )
+        if(  className != null && className.length() > 0 )
         {
             try
             {
-                Class c = ObjectUtil.classForName( s );
+                Class c = ObjectUtil.classForName(className);
                 return c.newInstance();
             }
             catch( Exception e )

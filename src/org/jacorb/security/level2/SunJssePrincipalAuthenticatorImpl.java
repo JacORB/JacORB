@@ -65,10 +65,10 @@ public class SunJssePrincipalAuthenticatorImpl
 
         logger = configuration.getNamedLogger("jacorb.security.jsse");
         keyStoreLocation =
-            configuration.getAttribute("jacorb.security.keystore");
+            configuration.getAttribute("jacorb.security.keystore", null);
 
         String storePassphrase =
-            configuration.getAttribute("jacorb.security.keystore_password");
+            configuration.getAttribute("jacorb.security.keystore_password", null);
     }
 
 

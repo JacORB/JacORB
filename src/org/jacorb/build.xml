@@ -22,7 +22,7 @@
    </target>
 
    <target name="subdirs"
-           depends="template,config,util,orb,poa,ir,naming,events,concurrency,tracing,security">
+           depends="template,config,util,orb,poa,imr,ir,naming,events,concurrency,tracing,security">
 <!--           depends="config,template,util,orb,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification"> -->
 
    </target>

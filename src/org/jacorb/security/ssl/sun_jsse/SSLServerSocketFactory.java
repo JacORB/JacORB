@@ -97,10 +97,10 @@ public class SSLServerSocketFactory
             configuration.getAttribute("jacorb.security.change_ssl_roles","off").equals("on");
 
         keystore_location = 
-            configuration.getAttribute("jacorb.security.keystore");
+            configuration.getAttribute("jacorb.security.keystore","UNSET");
 
         keystore_passphrase = 
-            configuration.getAttribute("jacorb.security.keystore_password" );
+            configuration.getAttribute("jacorb.security.keystore_password","UNSET" );
  
         try
         {
@@ -124,7 +124,7 @@ public class SSLServerSocketFactory
         // We need to obtain all the cipher suites to use from the
         // properties file.
 	String cipher_suite_list =
-            configuration.getAttribute("jacorb.security.ssl.server.cipher_suites" );
+            configuration.getAttribute("jacorb.security.ssl.server.cipher_suites",null );
 	
 	if ( cipher_suite_list != null )
 	{
