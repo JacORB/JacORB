@@ -238,7 +238,7 @@ public final class ORB
     org.jacorb.poa.POA findPOA( org.jacorb.orb.Delegate d,
                                 org.omg.CORBA.Object ref )
     {
-        Vector scopes;
+        List scopes;
         String res;
         String refImplName = null;
 
