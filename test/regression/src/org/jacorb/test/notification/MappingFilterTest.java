@@ -21,57 +21,52 @@ package org.jacorb.test.notification;
  *
  */
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.CosNotifyFilter.FilterFactoryHelper;
 import org.omg.CORBA.Any;
-import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CORBA.AnyHolder;
-import org.omg.CosNotifyFilter.MappingConstraintInfo;
-import org.omg.CosNotifyFilter.ConstraintExp;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyFilter.MappingConstraintPair;
-import org.jacorb.notification.FilterFactoryImpl;
-import org.jacorb.notification.ApplicationContext;
 import org.omg.CORBA.ORB;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotifyFilter.ConstraintExp;
+import org.omg.CosNotifyFilter.FilterFactory;
+import org.omg.CosNotifyFilter.InvalidGrammar;
+import org.omg.CosNotifyFilter.MappingConstraintInfo;
+import org.omg.CosNotifyFilter.MappingConstraintPair;
+import org.omg.CosNotifyFilter.MappingFilter;
+import org.omg.CosNotifyFilter.MappingFilterOperations;
 import org.omg.PortableServer.POAHelper;
+
+import org.jacorb.notification.ApplicationContext;
+import org.jacorb.notification.FilterFactoryImpl;
 import org.jacorb.notification.FilterImpl;
 import org.jacorb.notification.MappingFilterImpl;
-import org.apache.log.Priority;
-import org.omg.CosNotifyFilter.MappingFilterOperations;
-import org.omg.CosNotifyFilter.InvalidGrammar;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
- *  Unit Test for class MappingFilter
- *
- *
- * Created: Mon Jun  9 19:04:49 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class MappingFilterTest extends NotificationTestCase
 {
-
     FilterFactory filterFactory_;
+
     Any testPerson_;
+
     NotificationTestUtils testUtils_;
 
     FilterImpl filter_;
+
     ApplicationContext appContext_;
 
-    /**
-     * Creates a new <code>MappingFilterTest</code> instance.
-     *
-     * @param name test name
-     */
+    ////////////////////////////////////////
+
     public MappingFilterTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
+
+    ////////////////////////////////////////
 
     public void setUp() throws Exception {
         ORB orb_ = ORB.init(new String[0], null);
@@ -84,8 +79,8 @@ public class MappingFilterTest extends NotificationTestCase
         filterFactory_ = new FilterFactoryImpl(appContext_).getFilterFactory();
 
         testPerson_ = getTestUtils().getTestPersonAny();
-
     }
+
 
     public void testCreate() throws Exception {
         Any _defaultValue = getORB().create_any();
@@ -99,6 +94,7 @@ public class MappingFilterTest extends NotificationTestCase
             fail();
         } catch (InvalidGrammar e) {}
     }
+
 
     public void testMatch() throws Exception {
         Any defaultValue = getORB().create_any();
@@ -114,7 +110,6 @@ public class MappingFilterTest extends NotificationTestCase
         assertTrue(!_mappingFilter.match(testPerson_, anyHolder));
 
         // add some filter data
-
         Any resultToSet = getORB().create_any();
 
         resultToSet.insert_string("this indicates success");
@@ -188,9 +183,7 @@ public class MappingFilterTest extends NotificationTestCase
         assertEquals("this is 20", anyHolder.value.extract_string());
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite() throws Exception
     {
         TestSuite _suite = new TestSuite("Test MappingFilters");
@@ -208,9 +201,7 @@ public class MappingFilterTest extends NotificationTestCase
         return _setup;
     }
 
-    /**
-     * Entry point
-     */
+
     public static void main(String[] args) throws Exception
     {
         junit.textui.TestRunner.run(suite());
