@@ -142,11 +142,11 @@ public final class Delegate
 
     private void _init()
     {
-        org.omg.IIOP.ProfileBody_1_1 pb = pior.getProfileBody ();
+        org.omg.IIOP.ProfileBody_1_1 pb = pior.getProfileBody();
         int port = pb.port;
 
         // bnv: consults SSL tagged component
-        ssl = ParsedIOR.getSSLTaggedComponent ( pb );    
+        ssl = ParsedIOR.getSSLTaggedComponent( pb );    
     
         if( useSSL( ssl ) ) 
         {
@@ -215,7 +215,7 @@ public final class Delegate
         }
     }
 
-    public synchronized void bind( String object_reference) 
+    public synchronized void bind( String object_reference ) 
     { 
         if( bound )
             return;
@@ -245,32 +245,36 @@ public final class Delegate
     }
 
     public org.omg.CORBA.Request create_request(org.omg.CORBA.Object self,
-                                                             org.omg.CORBA.Context ctx,
-                                                             java.lang.String operation ,
-                                                             org.omg.CORBA.NVList args, 
-                                                             org.omg.CORBA.NamedValue result)
+                                                org.omg.CORBA.Context ctx,
+                                                java.lang.String operation ,
+                                                org.omg.CORBA.NVList args, 
+                                                org.omg.CORBA.NamedValue result)
     {
-        if( !bound)
+        if( !bound )
             bind();
-        return new org.jacorb.orb.dii.Request( self, orb, 
-                                           connection, object_key, 
-                                           operation, args, ctx, result);
+
+        return new org.jacorb.orb.dii.Request( self, 
+                                               orb, 
+                                               connection, 
+                                               object_key, 
+                                               operation, 
+                                               args, 
+                                               ctx, 
+                                               result );
     }
 
     /** 
      */
 
     public org.omg.CORBA.Request create_request(org.omg.CORBA.Object self, 
-                                                 org.omg.CORBA.Context ctx, 
-                                                 String operation, 
-                                                 org.omg.CORBA.NVList arg_list, 
-                                                 org.omg.CORBA.NamedValue result, 
-                                                 org.omg.CORBA.ExceptionList exceptions, 
-                                                 org.omg.CORBA.ContextList contexts)
+                                                org.omg.CORBA.Context ctx, 
+                                                String operation, 
+                                                org.omg.CORBA.NVList arg_list, 
+                                                org.omg.CORBA.NamedValue result, 
+                                                org.omg.CORBA.ExceptionList exceptions, 
+                                                org.omg.CORBA.ContextList contexts)
     {
-        if( true )
-            throw new java.lang.RuntimeException("Not yet implemented!");
-        return null;
+        throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
     private synchronized void incrementClientCount()
@@ -302,7 +306,8 @@ public final class Delegate
                 throw new org.omg.CORBA.COMM_FAILURE();
             }
             connection.duplicate();
-            org.jacorb.util.Debug.output(4,"Reference count for " + adport + " : " + client_count );
+            org.jacorb.util.Debug.output(4,"Reference count for " + adport + 
+                                         " : " + client_count );
             return self;
         } 
         catch ( Exception e )
@@ -496,6 +501,7 @@ public final class Delegate
                   return org.jacorb.orb.CDROutputStream.null_ior;
                   else
         */
+
         if( iorOriginal != null )
             return iorOriginal;
         else
@@ -581,23 +587,7 @@ public final class Delegate
         ReplyInputStream rep = null;
         ClientRequestInfoImpl info = null;
         RequestOutputStream ros = null;
-    
-        if (! location_forward_permanent)
-        {
-            org.jacorb.util.Debug.output(2, "Delegate: falling back to original IOR");
-            // falling back to original target,
-            // if location forward was only one-time
-            unbind();
-            ior = iorOriginal;
-            pior = new ParsedIOR( ior );
-            _init();
-            bind();
-          
-            iorOriginal = null;
-            piorOriginal = null;
-            location_forward_permanent = true;
-        }
-    
+        
         if( !bound )
             bind();
     
@@ -658,12 +648,33 @@ public final class Delegate
         try
         {          
             os.close(); 
+
             rep = (ReplyInputStream)connection.sendRequest(self,ros);
-            
+ 
             // devik: if tcs was not negotiated yet, in every context we will send
             // tcs wanted. After first such request was sent (and it is here) we can
             // mark connection tcs as negotiated
             connection.markTcsNegotiated();
+
+            if (! location_forward_permanent)
+            {
+                Debug.output(2, "Delegate: falling back to original IOR");
+
+                // falling back to original target,
+                // if location forward was only one-time
+                unbind();
+                ior = iorOriginal;
+                pior = piorOriginal;//new ParsedIOR( ior );
+
+                iorOriginal = null;
+                piorOriginal = null;
+                location_forward_permanent = true;
+
+                _init();
+                
+                //lazy bind :-), bind() will be called on the next invocation
+                //bind();          
+            }
         } 
         catch (org.omg.CORBA.SystemException cfe)
         {
@@ -888,7 +899,8 @@ public final class Delegate
         ClientInterceptorIterator intercept_iter = 
             ((org.jacorb.orb.ORB) orb).getInterceptorManager().getClientIterator();
         
-        try{
+        try
+        {
             intercept_iter.iterate(info, op);
         }
         catch (org.omg.PortableInterceptor.ForwardRequest fwd)
