@@ -49,7 +49,7 @@ import java.io.*;
  * @since JacORB 2.0 beta 3
  */
 
-class LogKitLoggerFactory
+public class LogKitLoggerFactory
     implements LoggerFactory
 {
     private final static String name = "logkit";
@@ -209,24 +209,7 @@ class LogKitLoggerFactory
         if (priorityString != null)
             priority = Integer.parseInt(priorityString);
 
-        switch (priority)
-        {
-        case 4 :
-            logger.setPriority(Priority.DEBUG);
-            break;
-        case 3 :
-            logger.setPriority(Priority.INFO);
-            break;
-        case 2 :
-            logger.setPriority(Priority.WARN);
-            break;
-        case 1 :
-            logger.setPriority(Priority.ERROR);
-            break;
-        case 0 :
-        default :
-            logger.setPriority(Priority.FATAL_ERROR);
-        }
+        logger.setPriority(intToPriority(priority));
 
         if (target != null )
         {
@@ -239,9 +222,22 @@ class LogKitLoggerFactory
 
         return result;
     }
-
-
-
-
-
+    
+    public static org.apache.log.Priority intToPriority(int priority)
+    {
+        switch (priority)
+        {
+            case 4 :
+                return org.apache.log.Priority.DEBUG;
+            case 3 :
+                return org.apache.log.Priority.INFO;
+            case 2 :
+                return org.apache.log.Priority.WARN;
+            case 1 :
+                return org.apache.log.Priority.ERROR;
+            case 0 :
+            default :
+                return org.apache.log.Priority.FATAL_ERROR;
+        }
+    }
 }
