@@ -113,6 +113,36 @@ public class TaskProcessorRetryStrategyTest extends AbstractRetryStrategyTest
         controlTaskProcessor_.verify();
     }
 
+    
+    public void testFailedRetryRequeues() throws Exception
+    {
+        mockConsumer_.incErrorCounter();
+        controlConsumer_.setDefaultReturnValue(0);
+        
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setReturnValue(true, 2);
+        controlConsumer_.replay();
+        
+        mockPushOperation_.invokePush();
+        controlPushOperation_.setThrowable(new TRANSIENT());
+           
+        controlPushOperation_.replay();
+        
+        mockTaskProcessor_.getBackoutInterval();
+        controlTaskProcessor_.setDefaultReturnValue(0);
+        
+        mockTaskProcessor_.executeTaskAfterDelay(0, null);
+        controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
+        controlTaskProcessor_.setReturnValue(new Object());
+        
+        controlTaskProcessor_.replay();
+        
+        ((TaskProcessorRetryStrategy)objectUnderTest_).retryPushOperation_.run();
+        
+        controlConsumer_.verify();
+        controlPushOperation_.verify();
+        controlTaskProcessor_.verify();
+    }
    
     public static Test suite()
     {
