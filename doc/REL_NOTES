@@ -41,6 +41,14 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+      - You can now use IORInterceptors to add new profiles to IORs
+        (rather than just adding components to profiles that were
+        created by the ORB).  To achieve this, the IORInfo object
+        that is passed to IORInterceptors now implements a special
+        JacORB interface, org.jacorb.orb.portableInterceptors.IORInfoExt.
+        This interface provides methods to look up existing profiles
+        and add new ones to an IOR.
+
       - rename property jacorb.connection.server_timeout to
         jacorb.connection.server.timeout, for consistency
 
