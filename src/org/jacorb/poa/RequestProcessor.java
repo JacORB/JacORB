@@ -77,7 +77,6 @@ public class RequestProcessor
         specialOperations.put("_non_existent", "");
 
         specialOperations.put("_get_policy", "");
-        specialOperations.put("_get_domain_managers", "");
         specialOperations.put("_set_policy_overrides", "");
     }
 
