@@ -25,16 +25,16 @@ import org.jacorb.util.*;
 
 /**
  * A BufferManager is used to share a pool of buffers and to implement
- *  a buffer  allocation policy.  This  reduces the  number of  memory
+ * a buffer  allocation policy.  This  reduces the  number of  memory
  * allocations and deallocations and the overall memory footprint.
+ * Buffers are generally created on demand.
  *
  * @author Gerald Brose, FU Berlin
  * @version $Id$ 
 */
 
-public class BufferManager
+public final class BufferManager
 {
-    private static BufferManager singleton = new BufferManager();
 
     /** the buffer pool */
     private Stack[] bufferPool;
@@ -53,10 +53,17 @@ public class BufferManager
 
     /** max number of buffers of the same size held in pool */
 
-    private static final int THREASHOLD = 50;
+    private static final int THREASHOLD = 20;
+
+    private static int MEM_BUFSIZE = 256;
+    private static int NET_BUFSIZE = 2048;
+
+    private static int MIN_PREFERRED_BUFS = 10;
 
     private int hits = 0;
     private int calls = 0;
+
+    private static BufferManager singleton = new BufferManager();
 
     private BufferManager()
     {
@@ -65,8 +72,45 @@ public class BufferManager
 
 	for( int i = 0; i < MAX; i++)
         {
-	    bufferPool[ i ] = new Stack();	
+	    bufferPool[ i ] = new Stack();
         }
+
+        /* create a number of buffers for the preferred memory buffer
+           size */
+
+        int m_pos = 0;
+        int j = MEM_BUFSIZE;
+
+        while( j > 1 )
+        {
+            j = j >> 1;        
+            m_pos++;
+        }
+
+        for( int min = 0; min < MIN_PREFERRED_BUFS; min++ )
+        {
+            bufferPool[ m_pos -MIN_OFFSET ].push( new byte[ MEM_BUFSIZE ]);
+        }
+
+        /* create a number of buffers for the preferred network buffer
+           size */
+
+        m_pos = 0;
+        j = NET_BUFSIZE;
+
+        while( j > 1 )
+        {
+            j = j >> 1;        
+            m_pos++;
+        }
+
+        for( int min = 0; min < MIN_PREFERRED_BUFS; min++ )
+        {
+            bufferPool[ m_pos -MIN_OFFSET ].push( new byte[ NET_BUFSIZE ]);
+        }
+
+
+
     }
 
     public static BufferManager getInstance()
@@ -103,13 +147,23 @@ public class BufferManager
 	return l-1;
     }
 
+    public  byte[] getPreferredNetworkBuffer()
+    {
+        return getBuffer( NET_BUFSIZE );
+    }
+
+    public  byte[] getPreferredMemoryBuffer()
+    {
+        return getBuffer( MEM_BUFSIZE );
+    }
+
 
    /**
      * @param required_capacity - so many more bytes are needed
      * @returns a buffer large enough to hold required_capacity
      */
 
-    public synchronized byte[] getBuffer(int initial)
+    public synchronized byte[] getBuffer( int initial )
     {
       //org.jacorb.util.Debug.output( 2, "get buffer: " + initial + " bytes");
 
@@ -162,10 +216,10 @@ public class BufferManager
 
     public void printStatistics()
     {
-	System.out.println( "BufferManager statistics:");
+	System.out.println( "BufferManager statistics: " + ( hits * 100 / calls) + "%");
 	System.out.println("\t get Buffer called: " +  calls);
 	System.out.println("\t buffers found in pool: " + hits);
-	System.out.println( "\t buffers size: ");
+	System.out.println( "\t buffer sizes: ");
 
 	for( int i= MAX; i > 0; )
 	{
@@ -177,6 +231,7 @@ public class BufferManager
 
     public void release()
     {
+        printStatistics();
 	for( int i= MAX; i > 0; )
 	{
 	    i--;
