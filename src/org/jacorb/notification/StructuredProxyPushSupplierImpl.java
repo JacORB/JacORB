@@ -81,7 +81,7 @@ public class StructuredProxyPushSupplierImpl
 
     public void deliverEvent( NotificationEvent event )
     {
-        logger_.debug( "deliverEvent" );
+        logger_.debug( "deliverEvent connected="+connected_+" active="+active_+" enabled="+enabled_ );
 
         if ( connected_ )
         {
