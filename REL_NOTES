@@ -52,6 +52,10 @@ gerald.brose@acm.org
                  exception when appropriate.
                - The work_pending and perform_work operations now throw
                  BAD_INV_ORDER if the ORB has been shutdown.
+               - Fix to corbaloc URL parsing to recognize corbaloc:rir URLs
+                 with no key string specified.
+               - Fix to parsing of IOR resources to allow multiple levels of
+                 indirection before an IOR or corbaloc URL is obtained.
          - Portable Interceptors:
                - Fix so that interceptors registered with an ORB initializer
                  are also applied to any objects registered as initial
