@@ -1,6 +1,7 @@
 2003-08-12  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/IIOPAddress.java: Add comments to explain port number format.
+	Fix for Jac#368.
 
 2003-08-11  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
