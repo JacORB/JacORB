@@ -24,6 +24,8 @@ import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.util.*;
 
+import org.apache.avalon.framework.logger.*;
+
 import org.omg.PortableServer.POAManagerPackage.State;
 
 import java.io.*;
@@ -40,22 +42,22 @@ import java.io.*;
 public class LogWriter
     implements LogTrace
 {
-    private LogTrace delegate;
     private String prefix;
-    private boolean isLogFileOut;
+    private Logger logger = Debug.getNamedLogger("jacorb.poa");
+    private int logLevel = 3;
 
-    private LogWriter() {
+    private LogWriter() 
+    {
     }
 
     public LogWriter(String _prefix)
     {
         prefix = _prefix+" - ";
-        if ( Environment.logFileOut() != null)
-            isLogFileOut = true;
     }
 
-    public boolean test(int logLevel) {
-        return Environment.verbosityLevel() >= ( logLevel);
+    public boolean test(int logLevel) 
+    {
+        return this.logLevel >= logLevel;
     }
 
     public void printLog(byte[] oid, String message)
@@ -90,29 +92,14 @@ public class LogWriter
 
     private void printLog_(String message)
     {
-        if ( isLogFileOut || delegate == null)
-        {
-            org.jacorb.util.Debug.output( 0, prefix+message);
-        }
-        if (delegate != null)
-        {
-            delegate.printLog(message);
-        }
+        if( logger.isDebugEnabled() )
+            logger.debug( prefix + message);
     }
 
     private void printLog_(Throwable e)
     {
-        if ( isLogFileOut || delegate == null)
-        {
-            org.jacorb.util.Debug.output( 0, e);
-        }
-        if (delegate != null)
-        {
-            delegate.printLog(e);
-        }
+        org.jacorb.util.Debug.output(1, e);
     }
 
-    public void setLogTrace(LogTrace _delegate) {
-        delegate = _delegate;
-    }
+
 }

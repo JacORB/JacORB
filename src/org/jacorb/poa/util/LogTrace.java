@@ -37,7 +37,6 @@ public interface LogTrace
     public void printLog(org.jacorb.orb.dsi.ServerRequest request, org.omg.PortableServer.POAManagerPackage.State state, String message);
     public void printLog(String message);
     void printLog(Throwable e);
-    void setLogTrace(LogTrace _delegate);
 
 }
 
