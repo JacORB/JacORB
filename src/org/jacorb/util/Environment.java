@@ -25,15 +25,17 @@ import org.apache.avalon.framework.logger.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
+import org.omg.CORBA.BAD_QOS;
+
 
 /**
  * JacORB configuration options are accessed through this class.<BR>
  * <p>
  * On initialization, this class loads ORB configuration properties
  * from different sources. The default configuration files are called
- * ".jacorb_properties" or "jacorb.properties". Properties areloaded 
- * in the following order, with properties loaded later 
- * overriding earlier settings:<break> 
+ * ".jacorb_properties" or "jacorb.properties". Properties areloaded
+ * in the following order, with properties loaded later
+ * overriding earlier settings:<break>
  * <ol>
  * <li>default file in JRE/lib
  * <li>default file in user.home
@@ -42,8 +44,8 @@ import java.io.*;
  * <li>additional custom properties files (custom.props)
  * </ol>
  * <break>
- * ORB.init() parameters are set using the addProperties() method and 
- * override any settings from configuration files, so hard-coded 
+ * ORB.init() parameters are set using the addProperties() method and
+ * override any settings from configuration files, so hard-coded
  * properties will always we honored.
  *
  * @author Gerald Brose <mailto:gerald.brose@acm.org>
@@ -138,7 +140,7 @@ public class Environment
 
     /**
      * static initializer, calling init() explicitly...
-     */ 
+     */
     static
     {
         init();
@@ -193,7 +195,7 @@ public class Environment
 
             /* load config files from the default ClassLoader's classpath
                next, if any (supported by Per Bockman mailto:pebo@enea.se ) */
-             
+
             try
             {
                 java.net.URL url = null;
@@ -211,7 +213,7 @@ public class Environment
                 {
                     configurationProperties.load( url.openStream() );
                     if (true)
-                        System.out.println("[configuration loaded from classpath resource " + 
+                        System.out.println("[configuration loaded from classpath resource " +
                                            url + "]");
                 }
             }
@@ -249,15 +251,13 @@ public class Environment
             readValues();
 
             // NB: additional properties passed as arguments to
-            // ORB.init() are later explicitly added 
+            // ORB.init() are later explicitly added
 
             // initialize default logger factory and create a logger:
             initLogging();
 
-            if (logger == null)
-            {
-                throw new Error("Logger is null!");
-            }
+            if( logger == null )
+                throw new BAD_QOS("Logger is null!");
         }
         catch (SecurityException secex)
         {
@@ -275,7 +275,7 @@ public class Environment
     private static void loadProperties(String fileName)
         throws java.io.IOException
     {
-        BufferedInputStream bin = 
+        BufferedInputStream bin =
             new BufferedInputStream(new FileInputStream(fileName));
         configurationProperties.load(bin);
         bin.close();
@@ -418,7 +418,7 @@ public class Environment
      * of the property <tt>jacorb.log.loggerFactory</tt> determines the
      * logger factory class name that is used to create the root logger.
      *
-     * @since 2.0 beta 3 
+     * @since 2.0 beta 3
      */
 
     private static void initLogging()
@@ -488,12 +488,12 @@ public class Environment
         {
             e.printStackTrace();
         }
-        
+
         if (loggerFactory == null)
         {
-            System.err.println("Configuration Error, could not create logger!"); 
+            System.err.println("Configuration Error, could not create logger!");
         }
-        
+
         if (logFileName != null)
         {
             try
@@ -505,7 +505,7 @@ public class Environment
                 logger = loggerFactory.getNamedRootLogger("jacorb");
                 if( logger.isErrorEnabled())
                 {
-                    logger.error("Could not create logger with file target: " + logFileName + 
+                    logger.error("Could not create logger with file target: " + logFileName +
                                  ", falling back to console log!");
                 }
             }
@@ -519,17 +519,17 @@ public class Environment
     // value getters
     public static final  boolean getStrictCheckOnTypecodeCreation()
     {
-        return strict_check_on_tc_creation; 
+        return strict_check_on_tc_creation;
     }
 
-    public static final  boolean isMonitoringOn() 
+    public static final  boolean isMonitoringOn()
     {
-        return _monitoring_on;   
+        return _monitoring_on;
     }
 
-    public static final  Properties jacorbProperties() 
-    { 
-        return configurationProperties;   
+    public static final  Properties jacorbProperties()
+    {
+        return configurationProperties;
     }
 
     /**
@@ -552,7 +552,7 @@ public class Environment
 //     }
 
     /**
-     * @return the max size of the log file in kilo bytes. A size of 0 
+     * @return the max size of the log file in kilo bytes. A size of 0
      * means no limit, any other size requires log file rotation.
      */
 
@@ -651,9 +651,9 @@ public class Environment
         return isPropertyOn(jacorbPrefix + "giop.add_1_0_profiles");
     }
 
-    public static final boolean retryOnFailure()      
-    { 
-        return _retry_on_failure; 
+    public static final boolean retryOnFailure()
+    {
+        return _retry_on_failure;
     }
 
     /**
@@ -711,9 +711,9 @@ public class Environment
         }
         catch( NumberFormatException nfe )
         {
-            throw new Error( "Unable to create long from string >>" +
-                             s + "<<. " +
-                             "Please check property \"" + key + '\"');
+            throw new BAD_QOS( "Unable to create long from string >>" +
+                               s + "<<. " +
+                               "Please check property \"" + key + '\"');
         }
     }
 
@@ -727,9 +727,9 @@ public class Environment
         }
         catch( NumberFormatException nfe )
         {
-            throw new Error( "Unable to create int from string >>" +
-                             s + "<<. " +
-                             "Please check property \"" + key + '\"');
+            throw new BAD_QOS( "Unable to create int from string >>" +
+                               s + "<<. " +
+                               "Please check property \"" + key + '\"');
         }
     }
 
@@ -745,9 +745,9 @@ public class Environment
             }
             catch( NumberFormatException nfe )
             {
-                throw new Error( "Unable to create int from string >>" +
-                                 s + "<<. " +
-                                 "Please check property \"" + key + '\"');
+                throw new BAD_QOS( "Unable to create int from string >>" +
+                                   s + "<<. " +
+                                   "Please check property \"" + key + '\"');
             }
         }
         else
@@ -777,8 +777,8 @@ public class Environment
             }
             catch( Exception e )
             {
-                throw new Error( "Unable to build class from key >" +
-                                 key +"<: " + e );
+                throw new BAD_QOS( "Unable to build class from key >" +
+                                   key +"<: " + e );
             }
         }
         else
@@ -843,8 +843,8 @@ public class Environment
 
     }
 
-    /** 
-     * returns a copy of the org.jacorb properties. 
+    /**
+     * returns a copy of the org.jacorb properties.
      */
 
     public static Properties getProperties()
@@ -989,12 +989,12 @@ public class Environment
                 {
                     if( trim )
                     {
-                        properties.put( name.substring( prefix.length() + 1) , 
+                        properties.put( name.substring( prefix.length() + 1) ,
                                         configurationProperties.getProperty(name) );
                     }
                     else
                     {
-                        properties.put( name , 
+                        properties.put( name ,
                                         configurationProperties.getProperty(name));
                     }
                 }
@@ -1012,39 +1012,39 @@ public class Environment
     }
 
     /**
-     * Returns the <code>Class</code> object for the class or interface 
-     * with the given string name. This method is a replacement for 
-     * <code>Class.forName(String name)</code>. Unlike 
-     * <code>Class.forName(String name)</code> (which always uses the 
+     * Returns the <code>Class</code> object for the class or interface
+     * with the given string name. This method is a replacement for
+     * <code>Class.forName(String name)</code>. Unlike
+     * <code>Class.forName(String name)</code> (which always uses the
      * caller's loader or one of its ancestors), <code>classForName</code>
      * uses a thread-specific loader that has no delegation relationship
-     * with the caller's loader. It attempts the load the desired class 
-     * with the thread-specific context class loader and falls back to 
-     * <code>Class.forName(String name)</code> only if the context class 
-     * loader cannot load the class.  
+     * with the caller's loader. It attempts the load the desired class
+     * with the thread-specific context class loader and falls back to
+     * <code>Class.forName(String name)</code> only if the context class
+     * loader cannot load the class.
      * <p>
      * Loading a class with a loader that is not necessarily an ancestor
      * of the caller's loader is a crucial thing in many scenarios. As an
      * example, assume that JacORB was loaded by the boot class loader,
      * and suppose that some code in JacORB contains a call
-     * <code>Class.forName(someUserClass)</code>. Such usage of 
-     * <code>Class.forName</code> effectively forces the user to place 
-     * <code>someUserClass</code> in the boot class path. If 
+     * <code>Class.forName(someUserClass)</code>. Such usage of
+     * <code>Class.forName</code> effectively forces the user to place
+     * <code>someUserClass</code> in the boot class path. If
      * <code>classForName(someUserClass)</code> were used instead, the user
-     * class would be loaded by the context class loader, which by default 
-     * is set to the system (CLASSPATH) classloader. 
+     * class would be loaded by the context class loader, which by default
+     * is set to the system (CLASSPATH) classloader.
      * <p>
      * In this simple example above, the default setting of the context class
-     * loader allows classes in the boot classpath to reach classes in the 
-     * system classpath. In other scenarios, the context class loader might 
-     * be different from the system classloader. Middleware systems like 
-     * servlet containers or EJB containers set the context class loader so 
-     * that a given thread can reach user-provided classes that are not in 
+     * loader allows classes in the boot classpath to reach classes in the
+     * system classpath. In other scenarios, the context class loader might
+     * be different from the system classloader. Middleware systems like
+     * servlet containers or EJB containers set the context class loader so
+     * that a given thread can reach user-provided classes that are not in
      * the system classpath.
      * <p>
      * For maximum flexibility, <code>classForName</code> should replace
      * <code>Class.forName(String name)</code> in nearly all cases.
-     * 
+     *
      * @param name the fully qualified name of a class
      *
      * @return the Class object for that class
@@ -1055,23 +1055,23 @@ public class Environment
      * @throws ExceptionInInitializerError if the class initialization fails
      */
 
-    public static Class classForName(String name) 
+    public static Class classForName(String name)
         throws ClassNotFoundException, IllegalArgumentException
     {
         if (name == null)
             throw new IllegalArgumentException("Class name must not be null!");
-        try 
+        try
         {
-            // Here we prefer classLoader.loadClass() over the three-argument 
-            // form of Class.forName(), as the latter is reported to cause 
-            // caching of stale Class instances (due to a buggy cache of 
+            // Here we prefer classLoader.loadClass() over the three-argument
+            // form of Class.forName(), as the latter is reported to cause
+            // caching of stale Class instances (due to a buggy cache of
             // loaded classes).
             return Thread.currentThread().getContextClassLoader().loadClass(name);
         }
-        catch (Exception e) 
+        catch (Exception e)
         {
-            // As a fallback, we prefer Class.forName(name) because it loads 
-            // array classes (i.e., it handles arguments like 
+            // As a fallback, we prefer Class.forName(name) because it loads
+            // array classes (i.e., it handles arguments like
             // "[Lsome.class.Name;" or "[[I;", which classLoader.loadClass()
             // does not handle).
             return Class.forName(name);
@@ -1112,7 +1112,7 @@ public class Environment
                 }
                 catch (ClassNotFoundException e)
                 {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(e.toString());
                 }
             }
         }
@@ -1122,8 +1122,8 @@ public class Environment
         }
         catch (Exception exc)
         {
-            throw new RuntimeException(exc);
-        }   
+            throw new RuntimeException(exc.toString());
+        }
     }
- 
+
 }
