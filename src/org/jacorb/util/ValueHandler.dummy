@@ -39,6 +39,17 @@ public class ValueHandler {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
+    public static boolean isCustomMarshaled (Class clz)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
+    public static java.io.Serializable writeReplace (
+                                                    java.io.Serializable value)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }       
+
     /**
      * From javax.rmi.CORBA.Util.
      */

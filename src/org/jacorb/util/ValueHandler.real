@@ -15,7 +15,7 @@ public class ValueHandler {
     {
         return javax.rmi.CORBA.Util.createValueHandler()
             .getRunTimeCodeBase();
-  }
+    }
 
     public static java.io.Serializable readValue 
         (org.omg.CORBA.portable.InputStream in,
@@ -32,6 +32,19 @@ public class ValueHandler {
         javax.rmi.CORBA.Util.createValueHandler()
             .writeValue (out, value);
     }
+
+    public static boolean isCustomMarshaled (Class clz)
+    {
+        return javax.rmi.CORBA.Util.createValueHandler()
+            .isCustomMarshaled (clz);
+    }
+
+    public static java.io.Serializable writeReplace (
+                                                    java.io.Serializable value)
+    {
+        return javax.rmi.CORBA.Util.createValueHandler()
+            .writeReplace (value);
+    }       
 
     /**
      * From javax.rmi.CORBA.Util.
