@@ -387,7 +387,8 @@ public class IIOPProfile
         {
             IIOPProfile other = (IIOPProfile)prof;
             return this.primaryAddress.equals(other.primaryAddress)
-               &&  this.getAlternateAddresses().equals(other.getAlternateAddresses());
+               &&  this.getAlternateAddresses().equals(other.getAlternateAddresses()
+               &&  this.getSSLPort() == other.getSSLPort());
         }
         else
             return false;
