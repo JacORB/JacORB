@@ -1,3 +1,197 @@
+2004-02-14  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryTest.java: whitespace
+
+	code cleanup
+
+	* notification/perf/PerformanceTest.java: fixed compilation error
+
+2004-02-13  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/CosEventChannelTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MockMessage.java,
+	notification/SequenceEventChannelTest.java,
+	notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/TimeoutTest.java,
+	notification/engine/ReleaseTasksTest.java: fixed compilation
+	errors
+
+	* notification/engine/PushToConsumerTest.java: new
+	testcase. proxysupplier pushes an event to an consumer and the
+	consumer throws Notconnected. the consumer should be disconnected
+
+	* notification/engine/MockEventConsumer.java: reflect changes in
+	notification package
+
+2004-02-11  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/PackageTest.java: whitespace
+
+2004-02-10  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/CosEventPullReceiver.java,
+	notification/CosEventPullSender.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePullSender.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPullSender.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java: cleaned up a bit
+
+2004-02-09  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPullReceiver.java,
+	notification/CosEventPullSender.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/OfferManagerTest.java, notification/PackageTest.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePullSender.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPullSender.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestClientOperations.java,
+	notification/TimeoutTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/perf/PerformanceTest.java: testcases for new
+	functionality (operations offer_change subscription_change and
+	related classes)
+
+	some cleanup of testcode
+
+2004-02-08  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/PackageTest.java, notification/StartTimeTest.java,
+	notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java: reflect changes in
+	notification package
+
+	* notification/MessageFactoryTest.java,
+	notification/NotificationEventFactoryTest.java: renamed
+	NotificationEventFactoryTest to MessageFactoryTest
+
+2004-01-29  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AdminLimitTest.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/CollectionsWrapperTest.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPullReceiver.java,
+	notification/CosEventPullSender.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/PropertyValidatorTest.java,
+	notification/QoSTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePullSender.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPullSender.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TimeoutTest.java,
+	notification/bugs/MultipleDeliveryBugTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/perf/PerformanceTest.java,
+	notification/util/WildcardMapTest.java: reflect changes in
+	notification package
+
+2004-01-26  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* AllTest.java, util/AllTest.java,
+	util/LogKitLoggerFactoryTest.java: added a test for
+	LogKitLoggerFactory
+
+2004-01-23  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/TestUtils.java: fixed wrong import
+
+	* notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/node/EvaluationResultTest.java,
+	notification/node/TCLTest.java, notification/AdminLimitTest.java,
+	notification/AllTest.java, notification/FilterImplTest.java,
+	notification/MessageUtilsTest.java, notification/MockMessage.java,
+	notification/NotificationEventFactoryTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/TestClientOperations.java,
+	notification/TestUtils.java, notification/TimeoutTest.java:
+	reflect changes in notification package
+
+2004-01-17  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/FilterImplTest.java: *** empty log message ***
+
+2004-01-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AdminLimitTest.java, notification/AllTest.java,
+	notification/FilterImplTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/MessageUtilsTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestUtils.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/TestUtils.java,
+	notification/engine/MockEventConsumer.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/node/TCLTest.java,
+	notification/util/ObjectPoolTest.java,
+	notification/util/ThreadPoolTest.java:
+	(*) reflect changes in packages org.jacorb.notification.*
+
+2004-01-16  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/FloatTest.java: Fix filename
+
+2004-01-14  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* poa/AllTest.java, poa/POAActivateTest.java: Add some poa tests
+
 2004-01-03  Andre Spiegel  <spiegel@gnu.org>
 
 	* common/ClientServerSetup.java (setUp): Revert previous change,

@@ -1,3 +1,1037 @@
+2004-02-16  Gerald Brose  <gerald.brose@acm.org>
+
+	* util/Version.java: Version update for 2.1
+
+2004-02-14  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java:
+	(shutdown) the estimated shutdown time is now based on the number
+	of connected Consumers and Suppliers
+
+	* notification/EventChannelImpl.java:
+	added method getNumberOfConnectedClients
+
+	* notification/Main.java: whitespace
+
+2004-02-13  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java: code cleanup
+
+	replaced Vector with ArrayList
+
+	* notification/EventChannelImpl.java: code cleanup
+
+	* notification/EventTypeSet.java: whitespace
+
+	* notification/MessageFactory.java: code cleanup
+
+	whitespace
+
+	* notification/engine/AbstractDeliverTask.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ConsumerAdminTieImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminTieImpl.java:
+	(deliverMessage) ProxySuppliers do not catch exception
+	Disconnected anymore. instead the calling PushToConsumerTask
+	destroys the ProxySupplier.
+
+	(runPullEvent) may throw Disconnected now too. this causes the
+	ProxyConsumer to be destroyed.
+
+	whitespace
+
+	* notification/interfaces/TimerEventSupplier.java: added dispose
+	operation so that dispose() can be called if pull operation raises
+	Disconnected
+
+	* notification/interfaces/MessageConsumer.java:
+	(deliverMessage) changed signature. push operations may raise
+	Disconnected not NotConnected.
+
+	* notification/engine/TaskProcessor.java: whitespace
+
+2004-02-13  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/Interface.java:  comment change only
+
+2004-02-13  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/EnumType.java, idl/Interface.java: Correct accessor
+
+	* idl/TypeMap.java: printStackTrace->getLogger().debug
+
+	* idl/JacIDL.java: Make the error output consistent
+
+	* idl/lexer.java: Removed some printStackTrace
+
+	* idl/parser.cup, idl/parser.java, idl/sym.java: Updated doc and
+	regenerated parser.
+
+2004-02-13  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/parser.cup: renamed j2me flag to cldc10
+
+2004-02-13  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractMessage.java: organized imports
+
+2004-02-13  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/GlobalInputStream.java, idl/ScopedName.java, idl/build.xml,
+	idl/parser.cup, idl/parser.java, idl/sym.java: Remove deprecated
+	-i option on the compiler. Updated docs.
+
+2004-02-13  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* security/sas/SASClientInterceptor.java:
+	(receive_reply, receive_exception) fixed bug: calling
+	ri.get_reply_service_context() instead of
+	ri.get_request_service_context()
+
+2004-02-13  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/IIOPAddress.java (equals): Fix for out of memory error
+	caused by using object equality rather than .equals()
+
+2004-02-12  Gerald Brose  <gerald.brose@acm.org>
+
+	* util/Version.java: new intermediate date
+
+	* orb/giop/ReplyPlaceholder.java:
+	(timeout) method tentatively commented out, seems not to get used
+	by any code
+
+	* orb/giop/GIOPConnectionManager.java: use new logging
+
+	* orb/giop/GIOPConnection.java:
+	(receiveMessages) added returning message buffer to buffer manager
+	in two error cases to avoid potential memory leakage
+
+	* idl/parser.java, idl/sym.java: *** empty log message ***
+
+	* idl/EnumType.java: (printEnumClass) j2me behavior
+
+	* idl/Interface.java:
+	(printStub) new code supplied by Nokia for J2ME compatibility
+
+	* idl/parser.cup: new option -j2me
+
+2004-02-11  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/PushToConsumerTask.java: whitespace
+
+	reset errorcounter after successful delivery
+
+	* notification/engine/TaskProcessor.java: whitespace
+
+	added doc
+
+	* notification/engine/FilterConsumerAdminTask.java: code cleanup
+
+	* notification/engine/AbstractTaskPool.java: whitespace
+
+	* notification/engine/AbstractFilterTask.java: doc
+
+	* notification/engine/AbstractDeliverTask.java:
+	renamed variable target_ to messageConsumer_
+
+	removed commented out code
+
+2004-02-11  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASTargetInterceptor.java: _is_a and _non_existent
+	fix - this helps with the Name service
+
+	* security/sas/SASClientInterceptor.java: _is_a fix
+
+2004-02-09  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/giop/ServerGIOPConnection.java:
+	(close) new method to override super class' close and to
+	unregister the connection from its manager. Fixes #456 and #458
+
+	* orb/portableInterceptor/CodecFactoryImpl.java: uses new
+	CodecImpl implementation
+
+2004-02-09  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ConsumerAdminTieImpl.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminTieImpl.java,
+	notification/servant/AbstractAdmin.java: added support for
+	operations offer_change and subscription_change
+
+	* notification/EventChannelImpl.java,
+	notification/EventTypeSet.java, notification/OfferManager.java,
+	notification/SubscriptionManager.java: support for operations
+	offer_change and subscription_change
+
+	* notification/MessageFactory.java: *** empty log message ***
+
+	* notification/EventChannelFactoryImpl.java: modified log message
+
+	* notification/ChannelContext.java: whitespace
+
+	* notification/AnyMessage.java: replaced string literal with constant
+
+2004-02-09  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/IIOPAddress.java: cosmetics (coding style)
+
+2004-02-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/IIOPAddress.java: Revert back to version 1.7, but change
+	equals() and hashCode() to use the IP address for all comparisons,
+	not the host name.
+
+2004-02-08  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/MessageFactory.java: an Any that is wrapped in a
+	StructuredEvent is extracted by the Channel before its processed
+	further.
+
+	Similarly, a StructuredEvent wrapped in an Any is extracted before
+	further processing.
+
+	See page 2-11 in the Spec.
+
+	* notification/FilterManager.java, notification/KeyedListEntry.java:
+	removed superfluous class KeyedListEntry
+
+	* notification/AbstractMessage.java, notification/AnyMessage.java,
+	notification/StructuredEventMessage.java:
+	(match) moved method to superclass
+
+	* notification/CollectionsWrapper.java: whitespace
+
+	* notification/engine/TaskProcessor.java: renamed method
+	processEventInternal to processMessageInternal
+
+	* notification/engine/FilterProxySupplierTask.java: replaced
+	Hashtable with HashMap
+
+2004-02-06  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java: Logger name
+	match other interceptor logger
+
+2004-02-06  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/portableInterceptor/CodecImpl.java: replaces old
+	Codec_CDR_1_0_Impl
+
+2004-02-06  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASTargetInterceptor.java: Debug messages
+
+2004-02-06  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/ORB.java: added policyManager field and getPolicyManager()
+	operation
+
+	* orb/Delegate.java:
+	(get_client_policy) now also checks for policies at the ORB-level
+
+	* orb/policies/PolicyManager.java, orb/policies/PolicyUtil.java:
+	*** empty log message ***
+
+2004-02-05  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* naming/NamingContextImpl.java, orb/Delegate.java,
+	orb/giop/ClientConnection.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/GIOPConnection.java, orb/iiop/ClientIIOPConnection.java,
+	orb/iiop/IIOPConnection.java,
+	orb/standardInterceptors/SASComponentInterceptor.java,
+	proxy/ProxyImpl.java, security/sas/GSSUPContextSpi.java,
+	security/sas/GSSUPNameSpi.java,
+	security/sas/GSSUPProviderInitializer.java,
+	security/sas/GssUpContext.java, security/sas/JsseContext.java,
+	security/sas/KerberosContext.java, security/sas/NullContext.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASInitializer.java,
+	security/sas/SASTargetInterceptor.java,
+	util/threadpool/ThreadPool.java:
+	org.jacorb.util.Debug.getNamedLogger -> Debug.getNamedLogger
+
+2004-02-05  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* orb/iiop/ClientIIOPConnection.java: AdironTest TLS_CSIv2_UP UP -
+	test now working
+
+2004-02-05  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* security/sas/ATLASPolicyImpl.java,
+	security/sas/GSSUPContextSpi.java,
+	security/sas/GSSUPMechFactory.java,
+	security/sas/GSSUPNameSpi.java,
+	security/sas/GSSUPProviderInitializer.java,
+	security/sas/GssUpContext.java, security/sas/ISASContext.java,
+	security/sas/JsseContext.java, security/sas/KerberosContext.java,
+	security/sas/NullContext.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASInitializer.java, security/sas/SASPolicyImpl.java,
+	security/sas/SASTargetInterceptor.java: Whitespace only - tab
+	removal
+
+2004-02-05  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* orb/util/PrintIOR.java: Print SAS target name
+
+2004-02-05  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Removed stacktrace
+
+	* imr/ServerStartupDaemonImpl.java: printStackTrace -> Debug.output
+
+2004-02-05  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* orb/util/PrintIOR.java: tabs to spaces
+
+	* security/sas/GSSUPNameSpi.java, security/sas/GssUpContext.java,
+	security/sas/NullContext.java: AdironTest IIOP_CSIv2 Basic - test
+	now works
+
+	* orb/util/PrintIOR.java: removed reference to org.ietf.jgss
+
+2004-02-05  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/util/PrintIOR.java: Whitespace only
+
+2004-02-05  Simon McQueen  <sm@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Fixed use of request
+	stream header target for all fomats of TargetAddress.
+
+	* orb/giop/LocateRequestInputStream.java,
+	orb/giop/RequestInputStream.java: Removed use of
+	ParsedIOR.unfiyTargetAddress which was coercing all
+	TargetAddresses to GIOP 1.0 form.
+
+	* orb/dsi/ServerRequest.java (Constructor): Changed initialisation
+	of object_key attribute for general case TargetAddress.
+
+	* orb/ParsedIOR.java (unfiyTargetAddress, extractObjectKey): First
+	method removed and replaced by the second.  This allows the
+	extraction of an object key from a TargetAddress without modifying
+	the TargetAddress object.  Now works for all profiles rather than
+	just IIOP.
+
+2004-02-05  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/standardInterceptors/SASComponentInterceptor.java:
+	Whitespace only (tab removal)
+
+2004-02-04  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/ServantDelegate.java,
+	orb/portableInterceptor/ServerRequestInfoImpl.java: Fix for bug
+	#444: pass non-null arguments to _all_interfaces().
+
+2004-02-04  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GSSUPNameSpi.java, security/sas/GssUpContext.java,
+	security/sas/ISASContext.java, security/sas/JsseContext.java,
+	security/sas/KerberosContext.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASTargetInterceptor.java: Interoperability Tests
+	with Adiron
+
+	* orb/util/PrintIOR.java: SAS tag components
+
+2004-02-04  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/portableInterceptor/InterceptorManager.java: WeakHashMap
+	currents (from Threads to PICurrent instances) replaced by a
+	ThreadLocal variable (piCurrent). Before this change, multiple
+	PICurrent instances could somehow be associated with the same
+	thread. (This was happening in JBoss, which uses a PICurrent for
+	the transaction context.)
+
+2004-02-04  Gerald Brose  <gerald.brose@acm.org>
+
+	* util/Version.java: changed to 2.1 beta (CVS)
+
+	* naming/ContextLister.java: removed ^M's...
+
+	* idl/JacIDL.java: changed default debug level to 1
+
+	* orb/IIOPAddress.java: fix for bug# 453: rely internally on
+	java.net.InetAddress as the representation, especially for
+	equals() and hashCode().
+
+	* orb/Delegate.java: minor logging changes
+
+	* orb/giop/GIOPConnection.java: more logger changes
+
+	* orb/giop/ClientConnection.java: added about four words of
+	javadoc comment
+
+	* orb/iiop/IIOPProfile.java:
+	(equals) compare only the primaryAddress (as in hashCode()!)
+
+	* util/threadpool/ThreadPool.java, orb/giop/ClientConnection.java:
+	updates for new logging framework
+
+	* orb/Delegate.java: logging code changed
+
+	* orb/ORB.java: first step towards policy manager, new field added
+
+	* orb/giop/ClientConnectionManager.java: updates for new logging
+	framework
+
+	* orb/giop/GIOPConnection.java:
+	(readMessage) updates for new logging framework
+
+	* orb/iiop/IIOPConnection.java: updated logging to new logger
+	framework
+
+	* orb/iiop/ClientIIOPConnection.java: updated logging to logger
+	framework
+
+2004-02-03  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* util/Environment.java: Revert change of the "jacorb.implname"
+	property (from "jacorb.impl_name" back to
+	"jacorb.implname"). Applications that rely on this property were
+	throwing OBJECT_NOT_EXIST ("object key not previously generated!")
+	due to the implname not being set.
+
+2004-02-02  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/ValueDecl.java:
+	(print) added check so that no code is generated for included
+	definitions
+
+2004-02-01  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* util/Environment.java: Property name changed back to
+	"jacorb.interop.strict_check_on_tc_creation"
+	(instead of "jacorb.strict_check_on_tc_creation"), as the name
+	with "interop" appears in the regression tests and in the
+	.jacorb.properties template.
+
+	* poa/RequestProcessor.java: Instead of leaving the wait loop, a
+	RequestProcessor thread now ignores InterruptedException while it
+	waits for a new task.
+
+2004-02-01  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASTargetInterceptor.java,
+	orb/portableInterceptor/InterceptorManager.java: SAS Intrerceptors
+
+2004-01-30  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/IdlSymbol.java, idl/Literal.java, idl/build.xml,
+	idl/fixed_token.java, idl/lexer.java, idl/parser.cup,
+	idl/parser.java, idl/runtime/char_token.java,
+	idl/runtime/double_token.java, idl/runtime/float_token.java,
+	idl/runtime/int_token.java, idl/runtime/long_token.java,
+	idl/runtime/lr_parser.java, idl/runtime/str_token.java,
+	idl/runtime/symbol.java, idl/runtime/token.java,
+	idl/runtime/virtual_parse_stack.java, idl/str_token.java,
+	idl/sym.java: Incorporated Java_CUP runtime classes into the
+	JacORB package name space to avoid clashes with newer java_cup
+	libararies used elsewhere.
+
+2004-01-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* naming/NamingContextImpl.java, orb/CDROutputStream.java,
+	poa/POAManagerMonitorImpl.java, poa/POAMonitorImpl.java,
+	util/Debug.java, util/Environment.java: As Alphonse has made
+	jacorb.log.default.log_pattern configurable removed
+	jacorb.log.timestamp. Simplified environment more.
+
+2004-01-30  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* orb/portableInterceptor/InterceptorManager.java:
+	Let PICcurrent pass to target methods
+
+2004-01-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* util/LogKitLoggerFactory.java: Whitespace only
+
+2004-01-30  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* security/sas/SASTargetInterceptor.java:
+	(constructor) assigning value of useSsl from Boolean.valueOf()
+	instead of Boolean.getBoolean()
+
+2004-01-29  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxyConsumerI.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/AdminPropertySet.java,
+	notification/servant/ConsumerAdminTieImpl.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/ManageableServant.java,
+	notification/servant/PropertySet.java,
+	notification/servant/PropertySetListener.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/QoSPropertySet.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/ServantFactory.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/SupplierAdminTieImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java:
+	cleanup.
+
+	make better use of inheritance hierarchy.
+	fixed a wrong value returned by Proxy.MyType().
+
+	rewrote QoS Settings Management.
+
+	* notification/queue/EventQueueFactory.java:
+	replaced references to PropertyManager with QoSPropertySet
+
+	* notification/interfaces/FilterStage.java: renamed method
+
+	* notification/engine/TaskProcessor.java:
+	set Name for ClockDaemon Thread
+
+	* notification/engine/TaskFactory.java,
+	notification/engine/PushToConsumerTask.java: whitespace
+
+	* notification/engine/FilterProxySupplierTask.java: added doc
+
+	whitespace
+
+	* notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterConsumerAdminTask.java: renamed method
+
+	* notification/conf/Configuration.java,
+	notification/conf/Default.java: added properties:
+	"jacorb.notification.consumer.max_number"
+	"jacorb.notification.supplier.max_number"
+	"jacorb.notification.start_time_supported"
+	"jacorb.notification.stop_time_supported"
+	"jacorb.notification.proxy.destroy_causes_disconnect"
+
+	* notification/EventChannelImpl.java,
+	notification/EventTypeIdentifier.java,
+	notification/FilterFactoryImpl.java, notification/FilterImpl.java,
+	notification/FilterManager.java, notification/KeyedListEntry.java,
+	notification/Main.java, notification/MessageFactory.java,
+	notification/StructuredEventMessage.java: further code cleanup
+
+	* notification/EventChannelFactoryImpl.java: cleanup
+
+	* notification/ConstraintEntry.java: added method getConstraintKey.
+
+	* notification/ChannelContext.java: cleanup
+
+	* notification/ApplicationContext.java: removed references to
+	removed classes
+
+	* notification/AbstractMessage.java: modified log output
+
+	* notification/properties.html, notification/README.PROPERTIES:
+	merged into ProgrammingGuide
+
+	* notification/PropertyManager.java,
+	notification/PropertyValidator.java: removed
+
+	* notification/util/TaskExecutor.java: changed log output
+
+2004-01-28  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/ATLASPolicyFactory.java,
+	security/sas/ATLASPolicyImpl.java, security/sas/GssUpContext.java,
+	security/sas/ISASContext.java, security/sas/JsseContext.java,
+	security/sas/KerberosContext.java,
+	security/sas/SASClientInitializer.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASInitializer.java,
+	security/sas/SASPolicyFactory.java,
+	security/sas/SASPolicyImpl.java,
+	security/sas/SASTargetInitializer.java,
+	security/sas/SASTargetInterceptor.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: SASPolicy
+
+2004-01-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPListener.java (createEndPointProfile): Make the
+	IIOPAddress from either the symbolic or the numeric host name,
+	depending on what we need later (jacorb.dns.enable).  Fix for bug
+	#447.
+
+2004-01-28  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* util/LogKitLoggerFactory.java: Use text for debug levels
+
+2004-01-28  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* orb/giop/GIOPConnection.java:
+	removed debug code that unintentionally got into my last commit
+
+	* orb/giop/BiDirConnectionClientInterceptor.java:
+	(fix for bug #449) non bidir connections will have their request
+	listener replaced if necessary
+
+	* orb/giop/ClientConnection.java:
+	(fix for bug #449) added method getGIOPConnection() so the
+	BiDirConnectionClientInterceptor gets access to the GIOPConnection
+
+	* orb/giop/GIOPConnection.java:
+	(fix for bug #449) made getRequestListener() protected so it can
+	be accessed by the BiDirConnectionClientInterceptor.
+
+2004-01-26  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* util/LogKitLoggerFactory.java: PatternFormat used by console
+	logger can be set by new property jacorb.log.default.log_pattern
+
+	(getNamedLogger) if no priority is set for the requested logger use
+	the priority of the parent logger.
+
+	(getNamedLogger) null LogTarget defaults to consoleTarget
+
+2004-01-24  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/properties.html: Properties as HTML
+
+2004-01-23  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/util/AbstractObjectPool.java: removed debugging code
+
+	* notification/filter/FilterConstraint.java: removed unnecessary
+	Reference to class
+
+	* notification/AbstractAdmin.java,
+	notification/AbstractMessage.java,
+	notification/AbstractProxy.java,
+	notification/AbstractProxySupplier.java,
+	notification/AnyMessage.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java,
+	notification/ConfigurableProperties.java,
+	notification/Constants.java, notification/ConstraintEntry.java,
+	notification/ConsumerAdminTieImpl.java,
+	notification/EvaluationContext.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/FilterFactoryImpl.java, notification/FilterImpl.java,
+	notification/FilterManager.java, notification/MessageFactory.java,
+	notification/MessageUtils.java,
+	notification/ProxyPullConsumerImpl.java,
+	notification/ProxyPullSupplierImpl.java,
+	notification/ProxyPushConsumerImpl.java,
+	notification/ProxyPushSupplierImpl.java,
+	notification/README.PROPERTIES,
+	notification/SequenceProxyPullConsumerImpl.java,
+	notification/SequenceProxyPullSupplierImpl.java,
+	notification/SequenceProxyPushConsumerImpl.java,
+	notification/SequenceProxyPushSupplierImpl.java,
+	notification/StructuredEventMessage.java,
+	notification/StructuredProxyPullConsumerImpl.java,
+	notification/StructuredProxyPullSupplierImpl.java,
+	notification/StructuredProxyPushConsumerImpl.java,
+	notification/StructuredProxyPushSupplierImpl.java,
+	notification/SupplierAdminTieImpl.java, notification/build.xml,
+	notification/conf/Configuration.java,
+	notification/conf/Default.java,
+	notification/engine/AbstractDeliverTask.java,
+	notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/engine/TaskFactory.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TimerDeliverTask.java,
+	notification/filter/ComponentName.java,
+	notification/filter/DynamicEvaluator.java,
+	notification/filter/EvaluationContext.java,
+	notification/filter/EvaluationException.java,
+	notification/filter/EvaluationResult.java,
+	notification/filter/FilterConstraint.java,
+	notification/filter/FilterUtils.java,
+	notification/filter/ParseException.java,
+	notification/filter/RuntimeVariable.java,
+	notification/filter/etcl/AbstractTCLNode.java,
+	notification/filter/etcl/AbstractTCLVisitor.java,
+	notification/filter/etcl/AndOperator.java,
+	notification/filter/etcl/ArrayOperator.java,
+	notification/filter/etcl/AssocOperator.java,
+	notification/filter/etcl/BoolValue.java,
+	notification/filter/etcl/ComponentPositionOperator.java,
+	notification/filter/etcl/CurrentTimeNode.java,
+	notification/filter/etcl/DefaultOperator.java,
+	notification/filter/etcl/DivOperator.java,
+	notification/filter/etcl/DomainNameShorthandNode.java,
+	notification/filter/etcl/DotOperator.java,
+	notification/filter/etcl/ETCLComponentName.java,
+	notification/filter/etcl/EqOperator.java,
+	notification/filter/etcl/EventNameShorthandNode.java,
+	notification/filter/etcl/ExistOperator.java,
+	notification/filter/etcl/GtOperator.java,
+	notification/filter/etcl/GteOperator.java,
+	notification/filter/etcl/IdentValue.java,
+	notification/filter/etcl/ImmutableEvaluationResult.java,
+	notification/filter/etcl/ImplicitOperator.java,
+	notification/filter/etcl/ImplicitOperatorNode.java,
+	notification/filter/etcl/InOperator.java,
+	notification/filter/etcl/LtOperator.java,
+	notification/filter/etcl/LteOperator.java,
+	notification/filter/etcl/MessageUtils.java,
+	notification/filter/etcl/MinusOperator.java,
+	notification/filter/etcl/MultOperator.java,
+	notification/filter/etcl/NeqOperator.java,
+	notification/filter/etcl/NotOperator.java,
+	notification/filter/etcl/NumberValue.java,
+	notification/filter/etcl/OrOperator.java,
+	notification/filter/etcl/PlusOperator.java,
+	notification/filter/etcl/PropertyShorthandNode.java,
+	notification/filter/etcl/RuntimeVariableNode.java,
+	notification/filter/etcl/StaticTypeChecker.java,
+	notification/filter/etcl/StaticTypeException.java,
+	notification/filter/etcl/StringValue.java,
+	notification/filter/etcl/SubstrOperator.java,
+	notification/filter/etcl/TCLCleanUp.java,
+	notification/filter/etcl/TypeNameShorthandNode.java,
+	notification/filter/etcl/UnionPositionOperator.java,
+	notification/filter/etcl/VisitorException.java,
+	notification/filter/etcl/grammar/CommonTokenTypes.txt,
+	notification/filter/etcl/grammar/comp-lexer.g,
+	notification/filter/etcl/grammar/tcl-lexer.g,
+	notification/filter/etcl/grammar/tcl.g,
+	notification/interfaces/AdminEvent.java,
+	notification/interfaces/FilterStage.java,
+	notification/interfaces/Message.java,
+	notification/interfaces/ProxyCreationRequestEvent.java,
+	notification/interfaces/ProxyDisposedEvent.java,
+	notification/interfaces/ProxyEvent.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ConsumerAdminTieImpl.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/FilterStageListManager.java,
+	notification/servant/ManageableServant.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/ServantFactory.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminTieImpl.java: general cleanup to
+	simplify dependencies
+
+	moved Admins and Proxies to package notification.servant
+
+	moved Filter related Stuff to package notification.filter
+
+	moved AST classes in package notification.filter.etcl
+
+	added javadoc
+
+	whitespace
+
+	* notification/queue/EventQueueFactory.java:
+	replaced Hashtable by HashMap
+
+	whitespace
+
+	* notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/BoundedDeadlineEventQueue.java: replaced Vector
+	by ArrayList
+
+	whitespace
+
+	* notification/queue/AbstractBoundedEventQueue.java: whitespace
+
+	* notification/util/WildcardMap.java: replaced Vector by ArrayList
+
+	added javadoc
+
+	added whitespace
+
+2004-01-17  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/ConstraintEntry.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/FilterImpl.java,
+	notification/SequenceProxyPushSupplierImpl.java,
+	notification/StructuredProxyPushSupplierImpl.java,
+	notification/SupplierAdminTieImpl.java:
+	(*) renamed getConstraintEvaluator -> getFilterConstraint
+
+	* notification/queue/EventQueue.java: cleanup, fixed javadoc
+
+	* notification/queue/QueueUtil.java,
+	notification/queue/EventQueueFactory.java: cleanup, added private
+	ctor
+
+	* notification/util/TaskExecutor.java: cleanup
+
+	* notification/util/TaskExecutor.java: cosmetics
+
+	* notification/engine/TaskProcessor.java,
+	notification/engine/TimerDeliverTask.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/AbstractDeliverTask.java,
+	notification/AbstractProxySupplier.java: whitespace
+
+2004-01-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java: commented out
+	references to not yet checked in classes
+
+	* notification/README.PROPERTIES: added new property
+	jacorb.notification.proxysupplier.threadpolicy
+
+	* notification/EvaluationContext.java:
+	(*) removed references to removed class ResultExtractor
+
+	* notification/build.xml: added target clean.classes that only
+	cleans compiled classes and leaves generated sources (antlr)
+	intact.
+
+	* notification/AbstractAdmin.java,
+	notification/AbstractMessage.java,
+	notification/AbstractProxy.java,
+	notification/AbstractProxySupplier.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java,
+	notification/ConfigurableProperties.java,
+	notification/Constants.java,
+	notification/ConsumerAdminTieImpl.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java, notification/FilterImpl.java,
+	notification/MessageFactory.java, notification/MessageUtils.java,
+	notification/ProxyPullConsumerImpl.java,
+	notification/ProxyPullSupplierImpl.java,
+	notification/ProxyPushConsumerImpl.java,
+	notification/ProxyPushSupplierImpl.java,
+	notification/SequenceProxyPullConsumerImpl.java,
+	notification/SequenceProxyPullSupplierImpl.java,
+	notification/SequenceProxyPushSupplierImpl.java,
+	notification/StructuredEventMessage.java,
+	notification/StructuredProxyPullConsumerImpl.java,
+	notification/StructuredProxyPullSupplierImpl.java,
+	notification/StructuredProxyPushConsumerImpl.java,
+	notification/StructuredProxyPushSupplierImpl.java,
+	notification/SupplierAdminTieImpl.java:
+	(*) reflect changes in package interfaces and util cleanup
+
+	(AbstractAdmin) renamed getThisRef to getCorbaRef
+
+	(AbstractProxy) renamed getThisRef to getCorbaRef
+
+	* notification/engine/AbstractDeliverTask.java,
+	notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/AbstractTaskPool.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/engine/Task.java,
+	notification/engine/TaskConfigurator.java,
+	notification/engine/TaskErrorHandler.java,
+	notification/engine/TaskFactory.java,
+	notification/engine/TaskFinishHandler.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TimerDeliverTask.java:
+	(Task) remove superfluous interface Task
+
+	(TaskErrorHandler) remove superfluous interface
+	TaskErrorHandler. method handleTaskError is moved to AbstractTask
+
+	(TaskFinishHandler) remove superfluous interface TaskFinishHandler
+
+	(*Task) simplified structure and control flow
+
+	(*) reflect changes in package interfaces
+
+	* notification/util/AbstractObjectPool.java:
+	(c'tor) added parameter name
+
+	(various) use parameter name during logging
+
+	* notification/util/TaskExecutor.java, notification/util/ThreadPool.java:
+	renamed class ThreadPool to TaskExecutor
+
+	* notification/interfaces/EventConsumer.java,
+	notification/interfaces/FilterStage.java,
+	notification/interfaces/Message.java,
+	notification/interfaces/MessageConsumer.java: renamed
+	EventConsumer to MessageConsumer
+
+	(MessageConsumer) added Method getExecutor
+
+	* notification/MappingFilterImpl.java: cleanup, cosmetics
+
+	* notification/Main.java: cosmetics
+
+2004-01-16  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* util/Environment.java: removed unused members, cleaned up
+	readValue[s] methods
+
+2004-01-16  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/ORB.java:
+	(getReference) changed repId to
+	"IDL:omg.org/CORBA/Object:1.0" (org and omg were the wrong way
+	around!)
+
+	* orb/ParsedIOR.java:
+	(createObjectIOR) changed repId to
+	"IDL:omg.org/CORBA/Object:1.0" (org and omg were the wrong way
+	around!)
+
+2004-01-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/AliasTypeSpec.java, idl/ArrayDeclarator.java,
+	idl/ArrayTypeSpec.java, idl/Case.java, idl/ConstDecl.java,
+	idl/Definition.java, idl/Definitions.java, idl/ElementSpec.java,
+	idl/EnumType.java, idl/Environment.java, idl/FixedPointType.java,
+	idl/GlobalInputStream.java, idl/IdlSymbol.java,
+	idl/Interface.java, idl/InterfaceBody.java, idl/JacIDL.java,
+	idl/MemberList.java, idl/Method.java, idl/Module.java,
+	idl/OpDecl.java, idl/ParamDecl.java, idl/PrimaryExpr.java,
+	idl/RaisesExpr.java, idl/ScopedName.java, idl/SequenceType.java,
+	idl/StructType.java, idl/TypeDeclaration.java, idl/TypeMap.java,
+	idl/TypeSpec.java, idl/UnionType.java, idl/Value.java,
+	idl/ValueAbsDecl.java, idl/ValueBoxDecl.java, idl/ValueDecl.java,
+	idl/lexer.java, idl/parser.cup, idl/parser.java, idl/sym.java:
+	Removed commented out code. Cleaned up exception
+	propogation. System.out/err->logger.
+
+	* idl/AliasTypeSpec.java, idl/ArrayDeclarator.java,
+	idl/ArrayTypeSpec.java, idl/ConstExprEvaluator.java,
+	idl/ConstrTypeSpec.java, idl/ExceptionHolderTypeSpec.java,
+	idl/IdlSymbol.java, idl/InterfaceBody.java, idl/Literal.java,
+	idl/Member.java, idl/NameTable.java, idl/ObjectTypeSpec.java,
+	idl/ReplyHandlerTypeSpec.java, idl/TemplateTypeSpec.java,
+	idl/TypeCodeTypeSpec.java, idl/VectorType.java: Whitespace only
+
+2004-01-15  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/CDROutputStream.java: Fixed message in marshal exception.
+
+	Thanks to Timothy Wall for supplying the fix.
+
+2004-01-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/util/PrintIOR.java (printAlternateAddress): New method.
+	(printTaggedComponents): Use it.
+
+2004-01-14  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/OpDecl.java, idl/GlobalInputStream.java,
+	idl/ScopedName.java, idl/TypeDeclaration.java, idl/TypeSpec.java,
+	idl/Value.java: Whitespace only
+
+2004-01-14  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* util/Environment.java:
+	(readValues) fix for bug #442
+	jacorb.connection.client.pending_reply_timeout wasn't read in
+	because the wrong readValue() method was used.
+
+2004-01-12  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/giop/ClientConnection.java: Whitespace only
+
+2004-01-12  Simon McQueen  <sm@prismtechnologies.com>
+
+	* idl/JacIDL.java: Changed format of i2jpackage nested element
+	from: <i2jpackage>x:y<i2jpackage> to <i2jpackage names="x:y"/> to
+	allow for variable substitution.
+
+	This fixes bug #437. Thanks to Peter Kanis for the report and fix.
+
+2004-01-12  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/giop/CodeSet.java, orb/util/PingObject.java: Whitespace only
+
+2004-01-09  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* poa/POA.java, poa/POAMonitorImpl.java: Whitespace only
+
+2004-01-07  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/giop/ClientGIOPConnection.java,
+	orb/giop/GIOPConnection.java, orb/giop/ServerGIOPConnection.java:
+	Change protection levels; use inheritance hierarchy better.
+
+	* orb/CDROutputStream.java, orb/giop/MessageOutputStream.java:
+	Remove getInternalBuffer call; use inheritance instead.
+
+	* orb/CDRInputStream.java, proxy/ProxyImpl.java:
+	Rename getBuffer to getBufferCopy to match CDROutputStream
+
+	* util/Environment.java: Strings final
+
+	* orb/http/ServerConnection.java,
+	orb/standardInterceptors/SASComponentInterceptor.java: CDRStreams
+	- normalise close/release
+
 2004-01-06  Nick Cross  <nick.cross@prismtechnologies.com>
 
 	* orb/Delegate.java: Error handling
