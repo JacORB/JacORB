@@ -27,6 +27,7 @@ import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.Dependant;
+import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
