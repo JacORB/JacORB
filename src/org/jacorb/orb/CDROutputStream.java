@@ -1618,7 +1618,8 @@ public class CDROutputStream
         if (!write_special_value (value))
         {
             valueMap.put (value, new Integer(pos));
-            if (value instanceof org.omg.CORBA.portable.IDLEntity)
+            if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
+                (value instanceof java.lang.String))
                 write_long (0x7fffff00);
             else
             {
