@@ -1032,7 +1032,7 @@ public class Interface
         }
         else
         {
-            // code supplied byte Nokia for J2ME compatibility
+            // code supplied byte Nokia for CLDC10 compatibility
             // avoids use of the static .class variable.
             String fullName = null;
             if(!pack_name.equals(""))
