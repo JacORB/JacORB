@@ -186,7 +186,8 @@ public final class ORB
                     knownReferences.remove(key);
                     Debug.output(4,"Removing an invalid reference from cache.");
                 }
-                else if( pior.getIIOPAddress().equals(delpior.getIIOPAddress()))
+                else if( pior.getEffectiveProfile()
+                           .is_match( delpior.getEffectiveProfile() ))
                 {
                     return o._duplicate();
                 }
