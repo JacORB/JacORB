@@ -1922,7 +1922,7 @@ public final class ORB
 
     public byte[] mapObjectKey( byte[] originalKey )
     {
-        if( Environment.doMapObjectKeys() )
+        if( objectKeyMap.size() != 0 )
         {
             String s = new String( originalKey );
             Object o = objectKeyMap.get( s );
