@@ -209,12 +209,12 @@ public class ServerRequestListener
     {
         POA tmp_poa = rootPOA;
         String res;
-        Vector scopes;
+        List scopes;
 
         try
         {
             // Get cached scopes from ServerRequest
-            scopes = request.getScopes ();
+            scopes = request.getScopes();
 
             for( int i = 0; i < scopes.size(); i++)
             {
