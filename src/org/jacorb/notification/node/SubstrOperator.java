@@ -23,6 +23,7 @@ package org.jacorb.notification.node;
 
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
+
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
@@ -33,15 +34,12 @@ public class SubstrOperator extends AbstractTCLNode {
 
     static final String NAME = "SubstrOperator";
 
-    String value_;
-
     public String getName() {
         return NAME;
     }
 
     public SubstrOperator(Token tok) {
         super(tok);
-        value_ = tok.getText();
     }
 
 
@@ -75,19 +73,25 @@ public class SubstrOperator extends AbstractTCLNode {
         return (left().isStatic() && right().isStatic());
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor)
+        throws VisitorException {
+
         left().acceptInOrder(visitor);
         visitor.visitSubstr(this);
         right().acceptInOrder(visitor);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor)
+        throws VisitorException {
+
         left().acceptPostOrder(visitor);
         right().acceptPostOrder(visitor);
         visitor.visitSubstr(this);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor)
+        throws VisitorException {
+
         visitor.visitSubstr(this);
         left().acceptPreOrder(visitor);
         right().acceptPreOrder(visitor);

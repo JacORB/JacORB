@@ -86,12 +86,17 @@ public class PropertyShorthandNode extends AbstractTCLNode
         EvaluationResult _res = null;
 
         try {
-        _res = _event.extractVariableHeader(context, shorthandVariableHeader_, value_);
+            _res = _event.extractVariableHeader(context,
+                                                shorthandVariableHeader_,
+                                                value_);
+
         } catch (EvaluationException e) {}
 
         if (_res == null) {
             try {
-                _res = _event.extractFilterableData(context, shorthandFilterableData_, value_);
+                _res = _event.extractFilterableData(context,
+                                                    shorthandFilterableData_,
+                                                    value_);
             } catch (EvaluationException e) {}
 
             if (_res == null) {

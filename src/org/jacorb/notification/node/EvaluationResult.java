@@ -62,9 +62,6 @@ public class EvaluationResult implements TCLParserTokenTypes
     static Logger logger_ =
         Hierarchy.getDefaultHierarchy().getLoggerFor( EvaluationResult.class.getName() );
 
-    private boolean isFloat_;
-    private boolean isLong_;
-
     private int typeCode_;
 
     private Object value_;
@@ -127,7 +124,6 @@ public class EvaluationResult implements TCLParserTokenTypes
 
     public void setFloat( Double d )
     {
-        isFloat_ = true;
         setValue( d );
         typeCode_ = TCKind._tk_float;
     }
@@ -386,8 +382,13 @@ public class EvaluationResult implements TCLParserTokenTypes
         return super.equals( o );
     }
 
-    public int compareTo( EvaluationResult other ) throws DynamicTypeException,
-                EvaluationException
+    public int hashCode() {
+        return getValue().hashCode();
+    }
+
+    public int compareTo( EvaluationResult other )
+        throws DynamicTypeException,
+               EvaluationException
     {
 
         int _ret = Integer.MAX_VALUE;
@@ -408,10 +409,14 @@ public class EvaluationResult implements TCLParserTokenTypes
 
                 _ret = _l.compareTo( other.getString() );
             }
-            catch ( BadKind bk )
-            {}
-            catch ( Bounds bounds )
-            {}
+            catch ( BadKind e )
+            {
+                throw new EvaluationException(e);
+            }
+            catch ( Bounds e )
+            {
+                throw new EvaluationException(e);
+            }
 
         }
         else if ( isString() || other.isString() )
@@ -681,8 +686,9 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
     private EvaluationResult delegate_;
 
     public int compareTo( EvaluationContext evaluationContext,
-                          EvaluationResult evaluationResult ) throws DynamicTypeException,
-                EvaluationException
+                          EvaluationResult evaluationResult )
+        throws DynamicTypeException,
+               EvaluationException
     {
 
         return delegate_.compareTo( evaluationResult );
@@ -701,6 +707,11 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
     public boolean equals( Object object )
     {
         return delegate_.equals( object );
+    }
+
+    public int hashCode()
+    {
+        return delegate_.hashCode();
     }
 
     public String toString()
@@ -746,16 +757,6 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult
     ImmutableEvaluationResultWrapper( EvaluationResult er )
     {
         delegate_ = er;
-    }
-
-    public void release()
-    {
-        unsupported();
-    }
-
-    public void setObjectPool()
-    {
-        unsupported();
     }
 
     public void setString( String s )

@@ -305,10 +305,13 @@ public class TaskConfigurator implements Disposable
                     // above the EventConsumer still
                     // throws an exception we'll assume its totally
                     // messed up and dispose it.
-                    logger_.fatalError("a disabled EventConsumer should never throw an exception during deliverEvent", e);
+                    logger_.error("a disabled EventConsumer should not throw "
+                                  + " an exception during deliverEvent", e);
                     try {
                         _consumer.dispose();
-                    } catch (Exception ex) {}
+                    } catch (Exception ex) {
+                        logger_.debug("Error disposing Consumer", ex);
+                    }
                 }
             }
         }

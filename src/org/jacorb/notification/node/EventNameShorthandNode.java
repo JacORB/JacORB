@@ -22,12 +22,14 @@ package org.jacorb.notification.node;
  */
 
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.parser.TCLParser;
+
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.apache.log.Hierarchy;
 
 /**
  *
@@ -44,13 +46,15 @@ public class EventNameShorthandNode extends ComponentName {
     static final String COMP_NAME = "$.header.fixed_header.event_name";
     public static final String SHORT_NAME = "event_name";
 
-
     static {
         try {
             expandedPath_ = TCLParser.parse( COMP_NAME );
             expandedPath_.acceptInOrder( new TCLCleanUp() );
         } catch (Exception e) {
-
+            Hierarchy
+                .getDefaultHierarchy()
+                .getLoggerFor(EventNameShorthandNode.class.getName())
+                .fatalError("No exception should ever occur at this point", e);
         }
     }
 

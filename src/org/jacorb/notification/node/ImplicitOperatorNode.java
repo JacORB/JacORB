@@ -23,6 +23,7 @@ package org.jacorb.notification.node;
 
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -64,7 +65,7 @@ public class ImplicitOperatorNode extends AbstractTCLNode {
         new EvaluationException();
 
     ImplicitOperator operator_;
-    String operatorName_;
+    //    String operatorName_;
 
     public ImplicitOperatorNode(Token token) {
         super(token);
@@ -72,19 +73,19 @@ public class ImplicitOperatorNode extends AbstractTCLNode {
 
         if (DISCRIM.equals(_tokenText)) {
             operator_ = OPERATOR_DISCRIM;
-            operatorName_ = DISCRIM;
+            //operatorName_ = DISCRIM;
             setName("ImplicitOperator - _d");
         } else if (LENGTH.equals(_tokenText)) {
             operator_ = OPERATOR_LENGTH;
-            operatorName_ = LENGTH;
+            //            operatorName_ = LENGTH;
             setName("ImplicitOperator - _length");
         } else if (REPO_ID.equals(_tokenText)) {
             operator_ = OPERATOR_REPO_ID;
-            operatorName_ = REPO_ID;
+            //operatorName_ = REPO_ID;
             setName("Implicit - _repos_id");
         } else if (TYPE_ID.equals(_tokenText)) {
             operator_ = OPERATOR_TYPE_ID;
-            operatorName_ = TYPE_ID;
+            //            operatorName_ = TYPE_ID;
             setName("Implicit - _type_id");
         } else {
             throw new RuntimeException();
