@@ -301,7 +301,7 @@ public final class DynSequence
         return false;
     }
 
-   public boolean seek(int index)    
+    public boolean seek(int index)    
     {
         if( index < 0 )
         {
@@ -310,7 +310,7 @@ public final class DynSequence
         }
         if( index < length )
         {
-            pos = limit;
+            pos = index;
             return true;
         }
         pos = -1;
