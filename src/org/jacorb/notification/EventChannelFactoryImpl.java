@@ -378,6 +378,10 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	return ior_;
     }
 
+    public EventChannelFactory getEventChannelFactory() {
+	return thisFactory_;
+    }
+
     void throwPersistentNotSupported( String property ) throws UnsupportedQoS
     {
         Any _lowVal = applicationContext_.getOrb().create_any();

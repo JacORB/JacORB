@@ -71,7 +71,7 @@
    <target name="compile-src">
       <antcall target="jacorb-javac">
          <param name="javac-includes" value="**"/>
-         <param name="javac-excludes" value="notification/**,generated/**,**/RMITestServant.java"/>
+         <param name="javac-excludes" value="generated/**,**/RMITestServant.java"/>
       </antcall>
    </target>
 

@@ -28,6 +28,9 @@ import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.jacorb.notification.EventChannelFactoryImpl;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
+import junit.extensions.TestSetup;
 
 /**
  * NotificationTestCaseSetup.java
@@ -36,29 +39,50 @@ import org.jacorb.notification.EventChannelFactoryImpl;
  * @version $Id$
  */
 
-public class NotificationTestCaseSetup extends ClientServerSetup {
+public class NotificationTestCaseSetup extends TestSetup {
 
-    private TestUtils testUtils_;
+    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+    ORB orb_;
+    POA poa_;
+    TestUtils testUtils_;
+    private EventChannelFactoryImpl eventChannelServant_;
 
     public TestUtils getTestUtils() {
 	return(testUtils_);
     }
 
-    public NotificationTestCaseSetup(Test suite, String servantname) throws Exception {
-	super(suite, servantname);
-    } 
+    public NotificationTestCaseSetup(Test suite) throws Exception {
+	super(suite);
+    }
 
     public void setUp() throws Exception {
+	logger_.debug("setUp");
+
 	super.setUp();
-	testUtils_ = new TestUtils(getClientOrb());
+	orb_ = ORB.init(new String[0], null);
+	poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+	testUtils_ = new TestUtils(orb_);
+	eventChannelServant_ = new EventChannelFactoryImpl();
     }
 
     public void tearDown() throws Exception {
+	logger_.debug("tearDown");
+	eventChannelServant_.dispose();
+	orb_.shutdown(true);
 	super.tearDown();
-    }
-
-    public NotificationTestCaseSetup(Test suite) throws Exception {
-	this(suite, EventChannelFactoryImpl.class.getName());
+	logger_.debug("tearDown - done");
     }
     
+    public EventChannelFactoryImpl getServant() {
+	logger_.debug("getServant: " + eventChannelServant_);
+	return eventChannelServant_;
+    }
+
+    public ORB getClientOrb() {
+	return orb_;
+    }
+
+    public POA getClientRootPOA() {
+	return poa_;
+    }
 }

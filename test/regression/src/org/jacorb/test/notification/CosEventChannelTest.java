@@ -157,8 +157,7 @@ public class CosEventChannelTest extends NotificationTestCase {
  	_suite = new TestSuite("Basic CosEvent EventChannel Tests");
 
 	NotificationTestCaseSetup _setup =
-	    new NotificationTestCaseSetup( _suite,
-					   "org.jacorb.notification.EventChannelFactoryImpl");
+	    new NotificationTestCaseSetup( _suite );
 
 	String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(CosEventChannelTest.class);
 

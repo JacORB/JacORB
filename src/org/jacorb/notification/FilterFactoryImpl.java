@@ -34,6 +34,7 @@ import org.omg.PortableServer.POAHelper;
 import org.apache.log.Priority;
 import java.io.IOException;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
+import org.omg.CosNotifyFilter.FilterFactory;
 
 /**
  * FilterFactoryImpl.java
@@ -50,17 +51,23 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
     public static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
 
     protected ApplicationContext applicationContext_;
+    protected boolean isApplicationContextCreatedHere_;
+
+    private FilterFactory thisRef_;
 
     public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive {
-	super();
+	super();	
+
+	EventChannelFactoryImpl.setLogLevel("org.jacorb.notification", Priority.NONE);
 
 	//	EventChannelFactoryImpl.setLogFile("filterImpl.log", "org.jacorb.notification", Priority.DEBUG);
 
 	final ORB _orb = ORB.init(new String[0], null);
 	POA _poa = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));
 	applicationContext_ = new ApplicationContext(_orb, _poa, true);
+	isApplicationContextCreatedHere_ = true;
 
-	_this(_orb);
+	getFilterFactory();
 
 	_poa.the_POAManager().activate();
 
@@ -77,6 +84,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
 	super();
 
 	applicationContext_ = applicationContext;
+	isApplicationContextCreatedHere_ = false;
     }
 
     public Filter create_filter(String grammar) throws InvalidGrammar {
@@ -100,6 +108,22 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable {
     }
 
     public void dispose() {
+	if (isApplicationContextCreatedHere_) {
+	    applicationContext_.getOrb().shutdown(true);
+	    applicationContext_.dispose();
+	}
+
+    }
+
+    public FilterFactory getFilterFactory() {
+	if (thisRef_ == null) {
+	    synchronized(this) {
+		if (thisRef_ == null) {
+		    thisRef_ = _this(applicationContext_.getOrb());
+		}
+	    }
+	}
+	return thisRef_;
     }
 
 }

@@ -18,6 +18,9 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
 import java.util.Random;
 import org.omg.CosNotifyFilter.FilterFactoryHelper;
+import EDU.oswego.cs.dl.util.concurrent.Latch;
+import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
+import org.omg.CORBA.ORB;
 
 /**
  * FilterTest.java
@@ -29,7 +32,7 @@ import org.omg.CosNotifyFilter.FilterFactoryHelper;
  * @version $Id$
  */
 
-public class FilterTest extends NotificationTestCase {
+public class FilterTest extends TestCase {
 
     static Random random_ = new Random(System.currentTimeMillis());
 
@@ -40,14 +43,33 @@ public class FilterTest extends NotificationTestCase {
     Any testPerson_;
     TestUtils testUtils_;
 
+    FilterFactoryImpl factoryServant_;
+
     public FilterTest(String name, NotificationTestCaseSetup setup) {
-	super(name, setup);
+	super(name);
+    }
+
+    public FilterTest(String name) {
+	super(name);
     }
     
     public void setUp() throws Exception {
-	factory_ = FilterFactoryHelper.narrow(setup.getServerObject());
+	super.setUp();
 
-	testPerson_ = getTestUtils().getTestPersonAny();
+	factoryServant_ = new FilterFactoryImpl();
+	
+	factory_ = factoryServant_.getFilterFactory();
+
+	ORB _orb = ORB.init(new String[0], null);
+
+	testUtils_ = new TestUtils(_orb);
+
+	testPerson_ = testUtils_.getTestPersonAny();
+    }
+
+    public void tearDown() throws Exception {
+	factoryServant_.dispose();
+	super.tearDown();
     }
 
     /**
@@ -192,18 +214,20 @@ public class FilterTest extends NotificationTestCase {
     }
 
     public static Test suite() throws Exception {
-	TestSuite _suite = new TestSuite("Test Filters");
+	TestSuite _suite = new TestSuite(FilterTest.class);
 
-	NotificationTestCaseSetup _setup =
-	    new NotificationTestCaseSetup(_suite, FilterFactoryImpl.class.getName());
+
+	return _suite;
+// 	NotificationTestCaseSetup _setup =
+// 	    new NotificationTestCaseSetup(_suite, FilterFactoryImpl.class.getName());
 	
-	String[] _testMethodNames = org.jacorb.test.common.TestUtils.getTestMethods(FilterTest.class);
+// 	String[] _testMethodNames = org.jacorb.test.common.TestUtils.getTestMethods(FilterTest.class, "testMatch");
 
- 	for (int x=0; x<_testMethodNames.length; ++x) {
- 	    _suite.addTest(new FilterTest(_testMethodNames[x], _setup));
- 	}
+//  	for (int x=0; x<_testMethodNames.length; ++x) {
+//  	    _suite.addTest(new FilterTest(_testMethodNames[x], _setup));
+//  	}
 
-	return _setup;
+// 	return _setup;
     }
 
     public static void main(String[] args) throws Exception {
@@ -224,6 +248,11 @@ class FilterRead extends Thread {
 
     TestCase testCase_;
     static int sCounter = 0;
+
+    FilterRead() {
+	super();
+	setDaemon(true);
+    }
 
     void debug(String msg) {
 	logger_.debug(msg);
@@ -312,8 +341,6 @@ class Counter {
 }
 
 class FilterModify extends Thread {
-
-
     TestCase testCase_;
     Filter filter_;
     int iterations_ = 100;
@@ -322,6 +349,9 @@ class FilterModify extends Thread {
 
     FilterModify(TestCase testCase, Filter filter, String expression, int iterations) {
 	super();
+
+	setDaemon(true);
+
 	testCase_ = testCase;
 	filter_ = filter;
 	iterations_ = iterations;

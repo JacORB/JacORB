@@ -46,26 +46,28 @@ import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
  * @version $Id$
  */
 
-public class NotificationTestCase extends ClientServerTestCase {
+public class NotificationTestCase extends TestCase {
+
+    NotificationTestCaseSetup setup_;
 
     public ORB getORB() {
-	return ((NotificationTestCaseSetup)setup).getClientOrb();
+	return setup_.getClientOrb();
     }
 
     public POA getPOA() {
-	return ((NotificationTestCaseSetup)setup).getClientRootPOA();
+	return setup_.poa_;
     }
 
     public TestUtils getTestUtils() {
-	return ((NotificationTestCaseSetup)setup).getTestUtils();
+	return setup_.getTestUtils();
     }
 
     public EventChannelFactory getEventChannelFactory() {
-	return EventChannelFactoryHelper.narrow(setup.getServerObject());
+	return setup_.getServant().getEventChannelFactory();
     }
 
     public NotificationTestCaseSetup getSetup() {
-	return (NotificationTestCaseSetup)setup;
+	return setup_;
     }
 
     /** 
@@ -74,7 +76,8 @@ public class NotificationTestCase extends ClientServerTestCase {
      * @param name test name
      */
     public NotificationTestCase(String name, NotificationTestCaseSetup setup) {
-	super(name, setup);
+	super(name);
+	setup_ = setup;
     }
 
     static {
