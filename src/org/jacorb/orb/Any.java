@@ -693,7 +693,6 @@ public final class Any
     { 
         if( value instanceof org.jacorb.orb.CDROutputStream )
         {
-            //System.out.println("Any.create_input_stream()");
             return new org.jacorb.orb.CDRInputStream( orb, ((CDROutputStream)value).getBufferCopy());
         }
         else
@@ -819,7 +818,7 @@ public final class Any
         //org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
     }
 
-    public void write_value( org.omg.CORBA.portable.OutputStream output )
+    public void write_value (org.omg.CORBA.portable.OutputStream output)
     {
         int kind = typeCode.kind().value();
         // org.jacorb.util.Debug.output(3, "Any.writeValue kind " + kind );
@@ -894,21 +893,26 @@ public final class Any
         case TCKind._tk_alias:
             try
             {
-                if( value instanceof org.omg.CORBA.portable.Streamable )
+                if (value instanceof org.omg.CORBA.portable.Streamable)
                 { 
                     org.omg.CORBA.portable.Streamable s = 
                         (org.omg.CORBA.portable.Streamable)value;
-                    s._write(output);
+                    s._write (output);
                 }
-                else if ( value instanceof org.omg.CORBA.portable.OutputStream )
+                else if (value instanceof org.omg.CORBA.portable.OutputStream)
                 { 
-                    byte [] internal_buf = 
-                        ((CDROutputStream)value).getBufferCopy();
-                    
-                    CDRInputStream in = 
-                        new CDRInputStream( orb, internal_buf );
+                    // Use ORB from CDROutputStream if Any has been created
+                    // from ORBSingleton.
 
-                    in.read_value( typeCode, output );
+                    org.omg.CORBA.ORB toUse = orb;
+                    if (! (toUse instanceof org.jacorb.orb.ORB))
+                    {
+                        toUse = ((CDROutputStream) output).orb ();
+                    }
+                    CDROutputStream os = (CDROutputStream) value;
+                    CDRInputStream in = new CDRInputStream (toUse, os.getBufferCopy ());
+
+                    in.read_value (typeCode, output);
                 }
                 break;
             } 
@@ -917,22 +921,6 @@ public final class Any
                 e.printStackTrace();
                 throw new INTERNAL( e.getMessage());
             }
-//          case TCKind._tk_alias:
-//              try
-//              {
-//                  // save tc
-//                  org.omg.CORBA.TypeCode _tc = typeCode;
-//                  typeCode = typeCode.content_type();
-//                  // it gets overwritten here
-//                  write_value( output);
-//                  // restore
-//                  typeCode = _tc;
-//              } 
-//              catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
-//              {
-//                  throw new org.omg.CORBA.UNKNOWN("Bad TypeCode kind");
-//              }
-//              break;
         case TCKind._tk_value:
             ((org.omg.CORBA_2_3.portable.OutputStream)output)
                 .write_value ((java.io.Serializable)value);
