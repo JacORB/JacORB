@@ -39,7 +39,8 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-1.4
+1.4.0
+=====
 
    - bug fixes:
          - ORB:
@@ -47,6 +48,10 @@ gerald.brose@acm.org
                  to server and back again if server is down.
                - Fix to TypeCode::equal and TypeCode::equivalent operations
                  for handling recursive TypeCodes.
+         - Portable Interceptors:
+               - Fix so that interceptors registered with an ORB initializer
+                 are also applied to any objects registered as initial
+                 references.
 
    - DynAny:
          - Implemented DynFixed interface.
