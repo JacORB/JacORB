@@ -370,7 +370,7 @@ public class ClientConnection
 
             conn_mg.removeConnection( this );
             
-            System.out.println( "Removed, profile: " + get_server_profile() + "; info: " + connection.connection_info );
+            //System.out.println( "Removed, profile: " + get_server_profile() + "; info: " + connection.connection_info );
         }
 
         streamClosed();
