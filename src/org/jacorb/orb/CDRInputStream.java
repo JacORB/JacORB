@@ -637,6 +637,7 @@ public class CDRInputStream
 	case TCKind._tk_TypeCode:
 	case TCKind._tk_longlong:
 	case TCKind._tk_ulonglong:
+        case TCKind._tk_wchar:
 	case TCKind._tk_Principal:
 	    return orb.get_primitive_tc( org.omg.CORBA.TCKind.from_int(kind) );
 	case TCKind._tk_objref: 
