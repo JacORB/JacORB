@@ -71,6 +71,24 @@ public final class Environment
         t.printStackTrace();
     }
 
+    public static org.apache.log.Priority intToPriority(int priority)
+    {
+        switch (priority)
+        {
+            case 4 :
+                return org.apache.log.Priority.DEBUG;
+            case 3 :
+                return org.apache.log.Priority.INFO;
+            case 2 :
+                return org.apache.log.Priority.WARN;
+            case 1 :
+                return org.apache.log.Priority.ERROR;
+            case 0 :
+            default :
+                return org.apache.log.Priority.FATAL_ERROR;
+        }
+    }
+
 
 
 }
