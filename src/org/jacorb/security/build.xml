@@ -15,12 +15,16 @@
                    property="iaik.present" />
    </target>
 
-   <target name="all" depends="init,leveltwo,principal_authenticator,ssl,util">
+   <target name="all" depends="init,leveltwo,principal_authenticator,ssl,sas,util">
 
    </target>
 
    <target name="ssl">
            <ant antfile="${src}/org/jacorb/security/ssl/build.xml" dir="${basedir}"/>
+   </target>
+
+   <target name="sas">
+           <ant antfile="${src}/org/jacorb/security/sas/build.xml" dir="${basedir}"/>
    </target>
 
 
