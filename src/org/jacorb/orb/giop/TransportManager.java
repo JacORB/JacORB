@@ -41,9 +41,7 @@ import org.jacorb.util.*;
  * */
 
 public class TransportManager
-{    
-    public static final String FACTORY_PROP = "jacorb.net.socket_factory";
-
+{
     public static SocketFactory socket_factory = null;
     public static SocketFactory ssl_socket_factory = null;
 
@@ -53,7 +51,7 @@ public class TransportManager
      * Maps ETF Profile tags (Integer) to ETF Factories objects.
      */
     private Map  factoriesMap  = null;
-    
+
     /**
      * List of all installed ETF Factories.  This list contains an
      * instance of each Factories class, ordered in the same way as
@@ -72,21 +70,21 @@ public class TransportManager
             {
                 throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
             }
-            
+
             try
             {
                 Class ssl = Environment.classForName( s );
-                
+
                 Constructor constr = ssl.getConstructor( new Class[]{
                     ORB.class });
-                
+
                 ssl_socket_factory = (SocketFactory)
                     constr.newInstance( new Object[]{ orb });
             }
             catch (Exception e)
             {
                 Debug.output( 2, e.getMessage());
-                
+
                 throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
             }
         }
@@ -96,7 +94,7 @@ public class TransportManager
     {
         if (profileSelector == null)
         {
-            profileSelector = 
+            profileSelector =
                 (ProfileSelector)Environment.getObjectProperty
                                          ("jacorb.transport.client.selector");
             if (profileSelector == null)
@@ -122,7 +120,7 @@ public class TransportManager
 
     /**
      * Returns a list of Factories for all configured transport plugins,
-     * in the same order as they were specified in the 
+     * in the same order as they were specified in the
      * jacorb.transport.factories property.
      */
     public List getFactoriesList()
@@ -135,18 +133,18 @@ public class TransportManager
     }
 
     /**
-     * Build the factoriesMap and factoriesList. 
+     * Build the factoriesMap and factoriesList.
      */
     private void loadFactories()
     {
         factoriesMap  = new HashMap();
         factoriesList = new ArrayList();
-            
-        List classNames = 
+
+        List classNames =
             Environment.getListProperty ("jacorb.transport.factories");
         if (classNames.isEmpty())
             classNames.add ("org.jacorb.orb.iiop.IIOPFactories");
-                
+
         for (Iterator i = classNames.iterator(); i.hasNext();)
         {
             String className = (String)i.next();
@@ -158,14 +156,14 @@ public class TransportManager
 
     /**
      * Instantiates the given Factories class.
-     */    
+     */
     private org.omg.ETF.Factories instantiateFactories (String className)
     {
         try
         {
             // Environment.classForName() uses the context class loader.
-            // This is important here because JacORB might be on the 
-            // bootclasspath, and the external transport on the normal 
+            // This is important here because JacORB might be on the
+            // bootclasspath, and the external transport on the normal
             // classpath.
             Class c = Environment.classForName(className);
             return (Factories)c.newInstance();
@@ -176,9 +174,6 @@ public class TransportManager
                 ("could not instantiate Factories class " + className
                  + ", exception: " + e);
         }
-    }            
+    }
 
 }
-
-
-

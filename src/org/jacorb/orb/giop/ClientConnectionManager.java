@@ -42,8 +42,6 @@ import org.jacorb.util.*;
 
 public class ClientConnectionManager
 {
-    public static final String FACTORY_PROP = "jacorb.net.socket_factory";
-
     private org.jacorb.orb.ORB orb = null;
 
     /** connection mgmt. */
