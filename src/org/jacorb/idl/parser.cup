@@ -5,7 +5,8 @@ import java.util.*;
 
 /**
  * 
- * JavaCup Specification for CORBA IDL
+ * JavaCup Specification for CORBA IDL, to be processed like this:
+ * java java_cup.Main < parser.cup
  *      
  * @author Gerald Brose,
  *  Institut fuer Informatik, 
@@ -31,7 +32,7 @@ parser code
     public static Stack scopes = new Stack();
 
     public static String currentVersion = "";
-    public static String compiler_version = "1.4 beta 2, 20 November 2001";
+    public static String compiler_version = "1.4 beta 3, 2 February 2002";
 
     static String out_dir = "."; 
     static String package_prefix = null;
@@ -321,11 +322,10 @@ parser code
         System.out.println("\t<filelist>\t");
   }
 
-  private static void version()
-  {
-        System.out.println("JacORB IDL compiler V" + compiler_version + ",\n   (C) Gerald Brose, FU Berlin, 1997-2001.");
-  }
-
+    private static void version()
+    {
+        System.out.println("JacORB IDL compiler V" + compiler_version + ",\n   (C) Gerald Brose, FU Berlin, 1997-2002.");
+    }
 
     /* override error routines */
 
@@ -1613,12 +1613,12 @@ switch_type_spec ::=
 switch_body ::=
           case:c 
         {:
-                RESULT.v.addElement(c);
+                RESULT.caseListVector.addElement(c);
         :}
         | case:c switch_body:sb
         {:
-                RESULT.v = (Vector)sb.v.clone();
-                RESULT.v.addElement(c);
+                RESULT.caseListVector = (Vector)sb.caseListVector.clone();
+                RESULT.caseListVector.addElement( c );
         :}
         ;
 
@@ -1633,7 +1633,7 @@ case ::=
 
 // #56b)
 case_label_list ::=
-        CASE const_expr:c COLON
+          CASE const_expr:c COLON
                 {: RESULT.v.addElement(c); :}
         | DEFAULT COLON
                 {: RESULT.v.addElement( null ); :}
