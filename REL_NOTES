@@ -41,14 +41,13 @@ brose@inf.fu-berlin.de
                     (by Alex Sinishin and Viacheslav Tararin of DekaSoft 
                     Ltd., Ukraine,taras@deka.kp.km.ua)
 
-
  Missing:
 
         - OBV, GIOP 1.2
 
  Roadmap:
 
-        - OBV, GIOP 1.2
+        - OBV, GIOP 1.2, BiDirectional GIOP
 
 
    H I S T O R Y      O F     C H A N G E S
@@ -63,6 +62,17 @@ brose@inf.fu-berlin.de
              compiler now resets internal table between IDL files passed
                 on the same command line
 
+             Uninitialized string members in exceptions and structs.  
+                Strings are now initialized to "", otherwise there can be
+                MARSHAL excpetions at runtime because of null values.
+
+             generated code in multi-dimensional sequences now compiles
+                with javac.
+
+             Compiler did not complain if oneway operations declare 
+                exceptions or return types other than void.
+
+             Arrays of anys: generated code now compiles with javac.
 
         - added support for inverse DNS lookup of IP addresses, so IORs
           contain fully qualified host names instead of IP numbers. See
