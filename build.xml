@@ -201,6 +201,8 @@
    <target name="doc" depends="init" description="Create the Javadoc">
       <mkdir dir="${basedir}/doc/api"/>
       <javadoc destdir="${basedir}/doc/api"
+               additionalparam="-breakiterator"
+               classpath="${classpath}:${lib}/wrapper.jar"
                Splitindex="Yes"
                Use="Yes"
                maxmemory="256m"
