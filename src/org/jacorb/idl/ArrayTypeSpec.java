@@ -20,16 +20,16 @@
 
 package org.jacorb.idl;
 
+import java.io.*;
+
 /**
  * @author Gerald Brose (C)
  * @version $Id$
  *
  */
 
-import java.io.*;
-
 class ArrayTypeSpec 
-    extends TemplateTypeSpec 
+    extends VectorType
 {
     ArrayDeclarator declarator = null;
     String typename = null;
@@ -66,8 +66,11 @@ class ArrayTypeSpec
      * nested ArrayTypeSpecs
      */
 
-    private ArrayTypeSpec(int num, TypeSpec elem, 
-			  ArrayDeclarator ad, String pack_name, int my_dim)
+    private ArrayTypeSpec(int num, 
+                          TypeSpec elem, 
+			  ArrayDeclarator ad, 
+                          String pack_name, 
+                          int my_dim)
     {
 	super(num);
 	declarator = ad;
@@ -78,9 +81,13 @@ class ArrayTypeSpec
 	this.pack_name = pack_name;
 	this.my_dim = my_dim; 
 	if( dims.length > my_dim + 1 )
-	    type_spec = new ArrayTypeSpec( new_num(), elem, ad, pack_name, my_dim + 1 );		
+        {
+	    type_spec = 
+                new ArrayTypeSpec( new_num(), elem, ad, pack_name, my_dim + 1 );
+        }
 	else
 	    type_spec = elem;		
+
 	// needs to be done here because nested array type specs are not parsed
 	StringBuffer sb = new StringBuffer();
 	for( int i = my_dim; i < dims.length; i++ )
@@ -94,7 +101,8 @@ class ArrayTypeSpec
 
     public Object clone()
     {
-	ArrayTypeSpec st = new ArrayTypeSpec(new_num(), type_spec, declarator, pack_name);
+	ArrayTypeSpec st = 
+            new ArrayTypeSpec(new_num(), type_spec, declarator, pack_name);
 	st.dims = this.dims;
 	st.included = this.included;
 	st.typedefd = this.typedefd;
@@ -114,17 +122,6 @@ class ArrayTypeSpec
 	enclosing_symbol = s;
     }
 
-    /**
-     * @returns the TypeSpec for the array's elemements
-     */
-
-    public TypeSpec elementTypeSpec()
-    {
-	TypeSpec t = type_spec;
-	while( !(t instanceof ArrayTypeSpec ) && t.type_spec != null )
-	    t = t.type_spec;
-	return t;
-    }
 
     public TypeSpec typeSpec()
     {
@@ -147,38 +144,6 @@ class ArrayTypeSpec
 	typedefd = true;
     }
 
-    public String typeName()
-    {
-	// return elementTypeSpec().typeName() + "[]";
-	return elementTypeName() + "[]";
-    }
-
-
-    public String elementTypeName()
-    {
-	if( type_spec.typeSpec() instanceof ScopedName )
-	{
-	    return ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec().typeName();
-	}
-	else
-	{
-	    return type_spec.typeName();
-	}
-    }
-
-    public String typeSignature()
-    {
-	if( typeSig == null )
-	{
-	    typeSig = typeName();
-	    while( typeSig.endsWith("[]"))
-	    {
-		typeSig = "[" + typeSig.substring(0, typeSig.length()-3);
-	    }
-	}
-	return typeSig;
-    }
-
     public void parse() 
         throws ParseException
     {
@@ -196,14 +161,17 @@ class ArrayTypeSpec
 	}
 
 	StringBuffer sb = new StringBuffer();
+
 	for( int i = my_dim; i < dims.length; i++ )
 	    sb.append("[]");
+
 	dimensionStr = sb.toString();
 
 	try
 	{
 	    if( !typedefd )
 		NameTable.define( full_name(), "type" );
+
 	    if( !NameTable.defined(typeName(), "type" ))
 		NameTable.define( typeName(), "type" );
 	} 
@@ -214,7 +182,8 @@ class ArrayTypeSpec
     }
 
     /**
-     * @returns a string for an expression of type TypeCode that describes this type
+     * @returns a string for an expression of type TypeCode that
+     * describes this type 
      */
     
     public String getTypeCodeExpression()
@@ -265,13 +234,12 @@ class ArrayTypeSpec
 	return dims [my_dim];
     }
 
-    public String printReadExpression(String streamname)
-    {
-	return helperName() +  ".read(" + streamname +")"; 
-    }
+
 
     public String printReadStatement (String var_name, String streamname)
     {
+        Environment.output(2 ,"Array printReadStatement" );
+
 	StringBuffer sb = new StringBuffer ();
 	String type = typeName ();
 
@@ -280,16 +248,13 @@ class ArrayTypeSpec
 
 	sb.append (type.substring (type.indexOf(']')+1) +";\n");
 
-
-	//	for( int i = my_dim+1; i < dims.length; i++ )
-	//  sb.append("[]");
-	//	sb.append(";\n");
 	
 	if( elementTypeSpec() instanceof BaseType && 
             ! ( elementTypeSpec() instanceof AnyType))
 	{
 	    String _tmp =  elementTypeSpec().printReadExpression( streamname );
-	    sb.append("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + "_array("+var_name+",0,"+length()+");");
+	    sb.append("\t\t" + _tmp.substring(0,_tmp.indexOf("(")) + 
+                      "_array("+var_name+",0,"+length()+");");
 	}
 	else 
 	{
@@ -341,9 +306,6 @@ class ArrayTypeSpec
 		sb.append("\t\t"+indent+"}\n");
 	    }
 	    return sb.toString();
-//  	}
-//  	else
-//  	    return helperName() + ".write(" + streamname +","+var_name+");";
     }
 
 
@@ -398,7 +360,8 @@ class ArrayTypeSpec
 	ps.println("public final class " + className + "Helper");
 	ps.println("{");
 
-	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = "+getTypeCodeExpression()+";");
+	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = " +
+                   getTypeCodeExpression()+";");
 	TypeSpec.printHelperClassMethods(className, ps, type);
 	printIdMethod(ps);
 
@@ -413,9 +376,6 @@ class ArrayTypeSpec
 
 	ps.println( type.substring(type.indexOf(']')) +"; // " + type);
 
-		    //	for( int i = my_dim+1; i < dims.length; i++ )
-		    //	    ps.print("[]");
-		    //	ps.print(";\n");
 
 	if( elementTypeSpec() instanceof BaseType && 
             ! ( elementTypeSpec() instanceof AnyType) )
@@ -502,8 +462,5 @@ class ArrayTypeSpec
 	}
     }
 	
-    public String toString()
-    {
-	return typeName();
-    }
+
 }
