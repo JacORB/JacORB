@@ -65,7 +65,7 @@
    <target name="utils">
    	<javac srcdir="${jsrc}"
                destdir="${classdir}" 
-               includes="org/jacorb/util/Environment.java,org/jacorb/util/Debug.java,org/jacorb/util/Version.java,org/jacorb/util/ObjectUtil.java,org/jacorb/util/AssertionViolation.java,org/jacorb/util/threadpool/*.java"
+               includes="org/jacorb/util/Propla.java,org/jacorb/util/Environment.java,org/jacorb/util/Debug.java,org/jacorb/util/Version.java,org/jacorb/util/ObjectUtil.java,org/jacorb/util/AssertionViolation.java,org/jacorb/util/threadpool/*.java"
 	       />
    </target>
 
