@@ -41,6 +41,7 @@ public class QueryIR
             if( ir == null )
             {
                 System.out.println( "Could not find IR.");
+                System.exit(1);
             }  
 						 
             org.omg.CORBA.Contained c = ir.lookup_id( args[0] );
