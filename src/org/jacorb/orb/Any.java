@@ -29,13 +29,13 @@ import java.util.*;
  * Differences to the standardized any type:
  * - no support for "streamable"
  * - additional insert_void operation
- * 
+ *
  * @author (c) Gerald Brose, FU Berlin 1997/98
- * $Id$ 
- * 
+ * $Id$
+ *
  */
 
-public final class Any 
+public final class Any
     extends org.omg.CORBA.Any
 {
     private org.omg.CORBA.TypeCode typeCode;
@@ -47,7 +47,7 @@ public final class Any
         this.orb = orb;
         typeCode = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_null);
     }
-        
+
     public TCKind kind ()
     {
         return typeCode.kind ();
@@ -74,7 +74,7 @@ public final class Any
         return value;
     }
 
-    public int _get_TCKind () 
+    public int _get_TCKind ()
     {
         return org.omg.CORBA.TCKind._tk_any;
     }
@@ -93,7 +93,7 @@ public final class Any
     }
 
     public boolean equal (org.omg.CORBA.Any a)
-    {   
+    {
         if (a == null)
         {
            throw new BAD_PARAM ("Null passed to Any equal operation");
@@ -101,13 +101,13 @@ public final class Any
 
         if (!typeCode.equal (a.type ()))
         {
-            return false; 
+            return false;
         }
 
         int kind = originalType().kind().value();
         switch (kind)
         {
-            case TCKind._tk_null: 
+            case TCKind._tk_null:
             case TCKind._tk_void:
                 return true;
             case TCKind._tk_short:
@@ -142,15 +142,15 @@ public final class Any
                 return extract_TypeCode().equal( a.extract_TypeCode() );
             case TCKind._tk_Principal:
                 throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-            case TCKind._tk_objref: 
+            case TCKind._tk_objref:
                 return extract_Object().equals( a.extract_Object() );
-            case TCKind._tk_string: 
+            case TCKind._tk_string:
                 return extract_string().equals( a.extract_string() );
-            case TCKind._tk_wstring: 
+            case TCKind._tk_wstring:
                 return extract_wstring().equals( a.extract_wstring() );
-            case TCKind._tk_array: 
-            case TCKind._tk_sequence: 
-            case TCKind._tk_struct: 
+            case TCKind._tk_array:
+            case TCKind._tk_sequence:
+            case TCKind._tk_struct:
             case TCKind._tk_except:
             case TCKind._tk_enum:
             case TCKind._tk_union:
@@ -178,7 +178,7 @@ public final class Any
             }
             default:
                 throw new BAD_TYPECODE("Cannot compare anys with TypeCode kind " + kind);
-        } 
+        }
     }
 
     public boolean equals (java.lang.Object obj)
@@ -247,7 +247,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_long);
     }
 
-    public int extract_long () 
+    public int extract_long ()
     {
         checkExtract (TCKind._tk_long, "Cannot extract long");
         if (value instanceof CDROutputStream)
@@ -265,7 +265,7 @@ public final class Any
         typeCode = orb.get_primitive_tc( TCKind.tk_ulong );
     }
 
-    public int extract_ulong () 
+    public int extract_ulong ()
     {
         checkExtract (TCKind._tk_ulong, "Cannot extract ulong");
         if (value instanceof CDROutputStream)
@@ -283,7 +283,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_longlong);
     }
 
-    public long extract_longlong () 
+    public long extract_longlong ()
     {
         checkExtract (TCKind._tk_longlong, "Cannot extract longlong");
         if (value instanceof CDROutputStream)
@@ -301,7 +301,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_ulonglong);
     }
 
-    public long extract_ulonglong () 
+    public long extract_ulonglong ()
     {
         checkExtract (TCKind._tk_ulonglong, "Cannot extract ulonglong");
         if (value instanceof CDROutputStream)
@@ -319,7 +319,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_float);
     }
 
-    public float extract_float () 
+    public float extract_float ()
     {
         checkExtract (TCKind._tk_float, "Cannot extract float");
         if (value instanceof CDROutputStream)
@@ -337,7 +337,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_double);
     }
 
-    public double extract_double () 
+    public double extract_double ()
     {
         checkExtract (TCKind._tk_double, "Cannot extract double");
         if (value instanceof CDROutputStream)
@@ -355,7 +355,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_boolean);
     }
 
-    public boolean extract_boolean () 
+    public boolean extract_boolean ()
     {
         checkExtract (TCKind._tk_boolean, "Cannot extract boolean");
         if (value instanceof CDROutputStream)
@@ -373,7 +373,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_char);
     }
 
-    public char extract_char () 
+    public char extract_char ()
     {
         checkExtract (TCKind._tk_char, "Cannot extract char");
         if (value instanceof CDROutputStream)
@@ -389,7 +389,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_wchar);
     }
 
-    public char extract_wchar () 
+    public char extract_wchar ()
     {
         checkExtract (TCKind._tk_wchar, "Cannot extract wchar");
         if (value instanceof CDROutputStream)
@@ -407,7 +407,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_octet);
     }
 
-    public byte extract_octet () 
+    public byte extract_octet ()
     {
         checkExtract (TCKind._tk_octet, "Cannot extract octet");
         if (value instanceof CDROutputStream)
@@ -425,7 +425,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_any);
     }
 
-    public org.omg.CORBA.Any extract_any () 
+    public org.omg.CORBA.Any extract_any ()
     {
         checkExtract (TCKind._tk_any, "Cannot extract any");
         if (value instanceof CDROutputStream)
@@ -443,7 +443,7 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_TypeCode);
     }
 
-    public org.omg.CORBA.TypeCode extract_TypeCode () 
+    public org.omg.CORBA.TypeCode extract_TypeCode ()
     {
         checkExtract (TCKind._tk_TypeCode, "Cannot extract TypeCode");
         if (value instanceof CDROutputStream)
@@ -456,12 +456,12 @@ public final class Any
     // string
 
     public void insert_string (String s)
-    { 
+    {
         value = s;
         typeCode = orb.create_string_tc (0);
     }
 
-    public String extract_string () 
+    public String extract_string ()
     {
         checkExtract (TCKind._tk_string, "Cannot extract string");
         return value.toString ();
@@ -473,7 +473,7 @@ public final class Any
         typeCode = orb.create_wstring_tc (0);
     }
 
-    public String extract_wstring () 
+    public String extract_wstring ()
     {
         checkExtract (TCKind._tk_wstring, "Cannot extract wstring");
         return value.toString ();
@@ -481,15 +481,15 @@ public final class Any
 
     // fixed
 
-    public void insert_fixed (java.math.BigDecimal _value) 
+    public void insert_fixed (java.math.BigDecimal _value)
     {
         value = _value;
         typeCode = (new org.omg.CORBA.FixedHolder(_value))._type();
     }
 
    public void insert_fixed(java.math.BigDecimal _value,
-                            org.omg.CORBA.TypeCode type) 
-   // ??       throws org.omg.CORBA.BAD_INV_ORDER 
+                            org.omg.CORBA.TypeCode type)
+   // ??       throws org.omg.CORBA.BAD_INV_ORDER
    {
        try
        {
@@ -503,13 +503,13 @@ public final class Any
           else if ( extra < 0 )
           {
              StringBuffer sb = new StringBuffer (val);
-             
+
              // add the decimal point if necessary
              if ( val.indexOf('.') == -1 )
              {
                 sb.append(".");
              }
-             
+
              // pad the value with zeros to fit the scale of the typecode
              for ( int i = extra; i < 0; i++ )
              {
@@ -518,11 +518,11 @@ public final class Any
              val = sb.toString();
           }
           _value = new java.math.BigDecimal( val );
-          
+
           org.omg.CORBA.FixedHolder holder =
              new org.omg.CORBA.FixedHolder( _value );
           org.omg.CORBA.TypeCode tc = holder._type();
-          
+
           if ( tc.fixed_digits() > type.fixed_digits() )
           {
              throw new org.omg.CORBA.BAD_TYPECODE();
@@ -531,12 +531,12 @@ public final class Any
        catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
        {
           throw new org.omg.CORBA.BAD_TYPECODE();
-       }        
+       }
        value = _value;
        typeCode = type;
    }
 
-    public java.math.BigDecimal extract_fixed () 
+    public java.math.BigDecimal extract_fixed ()
     {
         checkExtract (TCKind._tk_fixed, "Cannot extract fixed");
         if (value instanceof CDROutputStream)
@@ -545,11 +545,11 @@ public final class Any
         }
         return (java.math.BigDecimal)value;
     }
-        
+
     // obj refs
 
     public void insert_Object (org.omg.CORBA.Object o)
-    { 
+    {
         value = o;
 
         org.omg.CORBA.ORB orb = null;
@@ -563,7 +563,7 @@ public final class Any
            name = "Object";
         }
         else
-        {            
+        {
            orb = ((org.omg.CORBA.portable.ObjectImpl)o)._orb();
            typeId = ((org.omg.CORBA.portable.ObjectImpl)o)._ids()[0];
 
@@ -578,11 +578,11 @@ public final class Any
         typeCode = orb.create_interface_tc( typeId , name );
     }
 
-    public void insert_Object (org.omg.CORBA.Object o, 
+    public void insert_Object (org.omg.CORBA.Object o,
                                org.omg.CORBA.TypeCode type)
-    { 
+    {
         if( type.kind().value() != TCKind._tk_objref )
-            tc_error("Illegal, non-object TypeCode!"); 
+            tc_error("Illegal, non-object TypeCode!");
 
         if( value == null )
         {
@@ -606,7 +606,7 @@ public final class Any
         return (org.omg.CORBA.Object)value;
     }
 
-    // workaround: as long as local objects don't have stubs, we need to 
+    // workaround: as long as local objects don't have stubs, we need to
     // return *Java* objects
 
     public java.lang.Object extract_objref ()
@@ -632,21 +632,21 @@ public final class Any
         value = s;
         typeCode = s._type();
     }
-    
+
     public org.omg.CORBA.portable.Streamable extract_Streamable()
         throws org.omg.CORBA.BAD_INV_ORDER
     {
         try
         {
             return (org.omg.CORBA.portable.Streamable)value;
-        } 
+        }
         catch ( ClassCastException cce )
         {
             throw new org.omg.CORBA.BAD_INV_ORDER();
         }
     }
 
-    public java.io.Serializable extract_Value() 
+    public java.io.Serializable extract_Value()
         throws org.omg.CORBA.BAD_OPERATION
     {
         int kind = typeCode.kind().value();
@@ -671,7 +671,7 @@ public final class Any
         }
     }
 
-    public void insert_Value(java.io.Serializable value, org.omg.CORBA.TypeCode type) 
+    public void insert_Value(java.io.Serializable value, org.omg.CORBA.TypeCode type)
         throws org.omg.CORBA.MARSHAL
     {
         this.value    = value;
@@ -681,7 +681,7 @@ public final class Any
     // portable
 
     public org.omg.CORBA.portable.OutputStream create_output_stream()
-    { 
+    {
         if(!( orb instanceof org.jacorb.orb.ORB ))
             value = new CDROutputStream();
         else
@@ -690,7 +690,7 @@ public final class Any
     }
 
     public org.omg.CORBA.portable.InputStream create_input_stream()
-    { 
+    {
         if( value instanceof org.jacorb.orb.CDROutputStream )
         {
             return new org.jacorb.orb.CDRInputStream( orb, ((CDROutputStream)value).getBufferCopy());
@@ -707,20 +707,20 @@ public final class Any
         }
     }
 
-    public void read_value (org.omg.CORBA.portable.InputStream input, 
+    public void read_value (org.omg.CORBA.portable.InputStream input,
                             org.omg.CORBA.TypeCode type)
         throws org.omg.CORBA.MARSHAL
     {
         if (type == null)
         {
            throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
-        }   
+        }
         typeCode = type;
 
         int kind = type.kind().value();
         switch (kind)
         {
-        case TCKind._tk_null: 
+        case TCKind._tk_null:
             break;
         case TCKind._tk_void:
             break;
@@ -778,18 +778,18 @@ public final class Any
             break;
         case TCKind._tk_Principal:
             throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-        case TCKind._tk_objref: 
+        case TCKind._tk_objref:
             insert_Object( input.read_Object());
             break;
-        case TCKind._tk_string: 
+        case TCKind._tk_string:
             insert_string( input.read_string());
             break;
-        case TCKind._tk_wstring: 
+        case TCKind._tk_wstring:
             insert_wstring( input.read_wstring());
             break;
-        case TCKind._tk_array: 
-        case TCKind._tk_sequence: 
-        case TCKind._tk_struct: 
+        case TCKind._tk_array:
+        case TCKind._tk_sequence:
+        case TCKind._tk_struct:
         case TCKind._tk_except:
         case TCKind._tk_enum:
         case TCKind._tk_union:
@@ -801,11 +801,11 @@ public final class Any
             ((CDROutputStream)value).write_value(type, input);
             break;
         case TCKind._tk_value:
-            insert_Value 
+            insert_Value
                 (((org.omg.CORBA_2_3.portable.InputStream)input).read_value());
             break;
         case TCKind._tk_abstract_interface:
-           java.lang.Object obj = 
+           java.lang.Object obj =
               ((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
            if (obj instanceof org.omg.CORBA.Object)
               insert_Object((org.omg.CORBA.Object)obj);
@@ -815,16 +815,15 @@ public final class Any
         default:
             throw new BAD_TYPECODE("Cannot handle TypeCode with kind " + kind);
         }
-        //org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
     }
 
     public void write_value (org.omg.CORBA.portable.OutputStream output)
     {
         int kind = typeCode.kind().value();
-        // org.jacorb.util.Debug.output(3, "Any.writeValue kind " + kind );
+
         switch (kind)
         {
-        case TCKind._tk_null: 
+        case TCKind._tk_null:
             break;
         case TCKind._tk_void:
             break;
@@ -875,32 +874,32 @@ public final class Any
             break;
         case TCKind._tk_Principal:
             throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-        case TCKind._tk_objref: 
+        case TCKind._tk_objref:
             output.write_Object(extract_Object());
             break;
-        case TCKind._tk_string: 
+        case TCKind._tk_string:
             output.write_string(extract_string());
             break;
-        case TCKind._tk_wstring: 
+        case TCKind._tk_wstring:
             output.write_wstring(extract_wstring());
             break;
-        case TCKind._tk_struct: 
+        case TCKind._tk_struct:
         case TCKind._tk_except:
         case TCKind._tk_enum:
         case TCKind._tk_union:
-        case TCKind._tk_array: 
-        case TCKind._tk_sequence: 
+        case TCKind._tk_array:
+        case TCKind._tk_sequence:
         case TCKind._tk_alias:
             try
             {
                 if (value instanceof org.omg.CORBA.portable.Streamable)
-                { 
-                    org.omg.CORBA.portable.Streamable s = 
+                {
+                    org.omg.CORBA.portable.Streamable s =
                         (org.omg.CORBA.portable.Streamable)value;
                     s._write (output);
                 }
                 else if (value instanceof org.omg.CORBA.portable.OutputStream)
-                { 
+                {
                     // Use ORB from CDROutputStream if Any has been created
                     // from ORBSingleton.
 
@@ -915,10 +914,10 @@ public final class Any
                     in.read_value (typeCode, output);
                 }
                 break;
-            } 
+            }
             catch( Exception e )
             {
-                e.printStackTrace();
+                org.jacorb.util.Debug.output(1, e );
                 throw new INTERNAL( e.getMessage());
             }
         case TCKind._tk_value:
@@ -941,7 +940,7 @@ public final class Any
         value = null;
         typeCode = orb.get_primitive_tc (TCKind.tk_void);
     }
-   
+
     /**
      * Convenience method for making a shallow copy of an Any.
      */
