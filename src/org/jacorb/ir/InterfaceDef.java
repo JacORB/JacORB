@@ -254,11 +254,12 @@ public class InterfaceDef
             Object value = irInfo.get(methods[i].getName());
             if( value == null || !((String)value).startsWith("attribute"))
             {
-                ops.addElement( new OperationDef( methods[i], theClass, irHelperClass, myReference ));
+                ops.addElement( 
+                     new OperationDef( methods[i], theClass, irHelperClass, myReference ));
             }
             else
             {
-                if( ((String)value).equals("attribute") )
+                if( ((String)value).startsWith("attribute") )
                 {
                     String attrDescr = (String)value;
 
@@ -266,13 +267,17 @@ public class InterfaceDef
                         continue;
                     
                     int idx = attrDescr.indexOf('-');
-                    String attrTypeName = attrDescr.substring( attrDescr.indexOf(";")+1);
+                    String attrTypeName = 
+                        attrDescr.substring( attrDescr.indexOf(";")+1);
 
-                    atts.addElement(new AttributeDef( methods[i],
-                                                      attrTypeName,
-                                                      (idx > 0 ? org.omg.CORBA.AttributeMode.ATTR_NORMAL : org.omg.CORBA.AttributeMode.ATTR_READONLY  ),
-                                                      myReference, 
-                                                      containing_repository ));
+                    atts.addElement(
+                        new AttributeDef( methods[i],
+                                          attrTypeName,
+                                          ( idx > 0 ? 
+                                            org.omg.CORBA.AttributeMode.ATTR_NORMAL : 
+                                            org.omg.CORBA.AttributeMode.ATTR_READONLY  ),
+                                          myReference, 
+                                          containing_repository ));
                 }
             }
         }
@@ -803,9 +808,6 @@ public class InterfaceDef
         return typeCode;
     }
 }
-
-
-
 
 
 
