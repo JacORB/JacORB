@@ -58,7 +58,7 @@ public final class POAUtil
         } 
         else 
         {
-            return objectId_to_string(objectId).replace('\n', ' ');
+            return oid_to_string(objectId).replace('\n', ' ');
         }
     }
 
@@ -308,14 +308,27 @@ public final class POAUtil
     /**
      * converts an iod into a string
      */
-    public static String objectId_to_string(byte[] oid) {
+    public static String oid_to_string(byte[] oid) {
         return new String(oid);
     }
     /**
      * converts a string into an oid
      */
-    public static byte[] string_to_objectId(String str) {	
+    public static byte[] string_to_oid(String str) {	
         return str.getBytes();
+    }
+
+    /**
+     * converts an oid into a bak
+     */
+    public static ByteArrayKey oid_to_bak(byte[] oid) {
+        return new ByteArrayKey(oid);
+    }
+    /**
+     * converts a bak into an oid
+     */
+    public static byte[] bak_to_oid(ByteArrayKey bak) {	
+        return bak.getBytes();
     }
 
     /**

@@ -3,7 +3,7 @@ package org.jacorb.poa.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -30,11 +30,12 @@ package org.jacorb.poa.util;
  */
 public interface LogTrace 
 {
-	public void printLog(int mode, byte[] objectId, String message);
-	public void printLog(int mode, org.jacorb.orb.dsi.ServerRequest request, String message);
-	public void printLog(int mode, org.jacorb.orb.dsi.ServerRequest request, org.omg.PortableServer.POAManagerPackage.State state, String message);
-	public void printLog(int mode, String message);
-	void printLog(int mode, Throwable e);
+	public boolean test(int logLevel);
+	public void printLog(byte[] objectId, String message);
+	public void printLog(org.jacorb.orb.dsi.ServerRequest request, String message);
+	public void printLog(org.jacorb.orb.dsi.ServerRequest request, org.omg.PortableServer.POAManagerPackage.State state, String message);
+	public void printLog(String message);
+	void printLog(Throwable e);
 	void setLogTrace(LogTrace _delegate);
 }
 

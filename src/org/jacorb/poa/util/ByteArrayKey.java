@@ -103,4 +103,8 @@ public class ByteArrayKey
 
         return result;
     }
+    
+    public String toString() {
+    	return new String(bytes);    	
+    }
 }

@@ -154,7 +154,7 @@ public class RequestController
 
     synchronized void freeObject( byte[] oid ) 
     {
-        deactivationList.removeElement(POAUtil.objectId_to_string(oid));	
+        deactivationList.removeElement(POAUtil.oid_to_bak(oid));	
     }
 
     AOM getAOM() 
@@ -230,24 +230,27 @@ public class RequestController
             if (waitForCompletionCalled) 
             {
                 /* state has changed to holding, discarding or inactive */
-                logTrace.printLog(2, request, "cannot process request, because waitForCompletion was called");
+                if (logTrace.test(2))
+                    logTrace.printLog(request, "cannot process request, because waitForCompletion was called");
                 throw new CompletionRequestedException();
             }
 			
             if (waitForShutdownCalled) 
             { 
                 /* poa goes shutdown */
-                logTrace.printLog(2, request, "cannot process request, because the poa goes shutdown");
+                if (logTrace.test(2))
+                    logTrace.printLog(request, "cannot process request, because the poa goes shutdown");
                 throw new ShutdownInProgressException();
             }
 			
             /* below this point it's save that the poa is active */ 
 
-            if (deactivationList.contains(POAUtil.objectId_to_string(request.objectId()))) 
+            if (deactivationList.contains(POAUtil.oid_to_bak(request.objectId()))) 
             {
                 if (!poa.isUseServantManager() && !poa.isUseDefaultServant()) 
                 {
-                    logTrace.printLog(0, request, "cannot process request, because object is already in the deactivation process");
+                	if (logTrace.test(0))
+                        logTrace.printLog(request, "cannot process request, because object is already in the deactivation process");
                     throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                 }
                 invalid = true;
@@ -267,7 +270,8 @@ public class RequestController
                 {
                     if ((servant = poa.defaultServant) == null) 
                     {
-                        logTrace.printLog(0, request, "cannot process request, because default servant is not set");
+                    	if (logTrace.test(0))
+                            logTrace.printLog(request, "cannot process request, because default servant is not set");
                         throw new org.omg.CORBA.OBJ_ADAPTER();
                     }
 
@@ -276,7 +280,8 @@ public class RequestController
                 {
                     if ((servantManager = poa.servantManager) == null) 
                     {
-                        logTrace.printLog(0, request, "cannot process request, because servant manager is not set");
+                    	if (logTrace.test(0))
+                            logTrace.printLog(request, "cannot process request, because servant manager is not set");
                         throw new org.omg.CORBA.OBJ_ADAPTER();
                     }
 
@@ -284,18 +289,20 @@ public class RequestController
                 } 
                 else 
                 {
-                    logTrace.printLog(2, request, "cannot process request, because object doesn't exist");
+                	if (logTrace.test(2))
+                        logTrace.printLog(request, "cannot process request, because object doesn't exist");
                     throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                 }
             }
 
             /* below  this point it's  save that the request  is valid
                (all preconditions can be met) */
-            activeRequestTable.put(request, POAUtil.objectId_to_string(request.objectId()));
+            activeRequestTable.put(request, POAUtil.oid_to_bak(request.objectId()));
         }
 
         // get and initialize a processor for request processing
-        logTrace.printLog(3, request, "trying to get a RequestProcessor");
+        if (logTrace.test(3))
+            logTrace.printLog(request, "trying to get a RequestProcessor");
         RequestProcessor processor = getPoolManager().getProcessor();
         processor.init(this, request, servant, servantManager);	
         processor.begin();	
@@ -319,7 +326,8 @@ public class RequestController
             request.setSystemException(exception);
 
         orb.getBasicAdapter().return_result(request);
-        logTrace.printLog(2, request, " request rejected with exception: "+exception);
+        if (logTrace.test(2))
+            logTrace.printLog(request, " request rejected with exception: "+exception);
     }
 
     /**
@@ -329,7 +337,8 @@ public class RequestController
 
     synchronized void resetPreviousCompletionCall() 
     {
-        logTrace.printLog(6, "reset a previous completion call");
+    	if (logTrace.test(6))
+            logTrace.printLog("reset a previous completion call");
         waitForCompletionCalled = false;
         notifyAll(); /* maybe somebody waits for completion */
     }
@@ -459,7 +468,8 @@ public class RequestController
         {
             try 
             {
-                logTrace.printLog(6, "somebody waits for completion and there are active processors");
+            	if (logTrace.test(6))
+                    logTrace.printLog("somebody waits for completion and there are active processors");
                 wait();
             } 
             catch (InterruptedException e) 
@@ -481,8 +491,8 @@ public class RequestController
 
     synchronized void waitForObjectCompletion( byte[] oid ) 
     {
-        String oidStr = POAUtil.objectId_to_string(oid);			
-        while (activeRequestTable.contains(oidStr)) 
+        ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);			
+        while (activeRequestTable.contains(oidbak)) 
         {
             try 
             {
@@ -492,8 +502,9 @@ public class RequestController
             {
             }
         }		
-        logTrace.printLog(6, oid, "all active processors for this object have finished");		
-        deactivationList.addElement(oidStr);
+        if (logTrace.test(6))
+            logTrace.printLog(oid, "all active processors for this object have finished");		
+        deactivationList.addElement(oidbak);
     }
 
     /**
@@ -512,7 +523,8 @@ public class RequestController
             {
                 try 
                 {
-                    logTrace.printLog(6, "the RequestController goes to sleep");
+                	if (logTrace.test(6))
+                        logTrace.printLog("the RequestController goes to sleep");
                     queueLog.wait();
                 } 
                 catch (java.lang.InterruptedException e) {
@@ -535,7 +547,8 @@ public class RequestController
         {
             try 
             {
-                logTrace.printLog(6, "somebody waits for shutdown and there are active processors");
+            	if (logTrace.test(6))
+                    logTrace.printLog("somebody waits for shutdown and there are active processors");
                 wait();
             } 
             catch (InterruptedException e) 

@@ -86,13 +86,13 @@ public class AOM
     synchronized protected void add( byte[] oid, Servant servant ) 
         throws ObjectAlreadyActive, ServantAlreadyActive 
     {
-        String oidStr = POAUtil.objectId_to_string(oid);
+        ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);
 
         /* an incarnation and activation with the same oid has priority */
         /* a reactivation for the same oid blocks until etherealization is complete */
 
-        while (incarnationList.contains(oidStr) || 
-               etherealisationList.contains(oidStr)) 
+        while (incarnationList.contains(oidbak) || 
+               etherealisationList.contains(oidbak)) 
         {
             try 
             {
@@ -103,7 +103,7 @@ public class AOM
             }
         }
 
-        if (objectMap.containsKey(oidStr)) 
+        if (objectMap.containsKey(oidbak)) 
             throw new ObjectAlreadyActive();
 
         if (unique && servantMap.containsKey(servant)) 
@@ -111,14 +111,15 @@ public class AOM
 
         /* this is the actual object activation: */
                 
-        objectMap.put(oidStr, servant);
+        objectMap.put(oidbak, servant);
 
         if ( unique ) 
         {
-            servantMap.put(servant, oidStr);
+            servantMap.put(servant, oidbak);
         }
                 
-        logTrace.printLog(Debug.POA | 2, oid, "object is activated");
+        if (logTrace.test(2))
+        	logTrace.printLog(oid, "object is activated");
 
         // notify an aom listener
         if ( aomListener != null ) 
@@ -134,7 +135,7 @@ public class AOM
 
     protected boolean contains(byte[] oid) 
     {
-        return objectMap.containsKey(POAUtil.objectId_to_string(oid));
+        return objectMap.containsKey(POAUtil.oid_to_bak(oid));
     }
 
 
@@ -154,14 +155,17 @@ public class AOM
     synchronized protected StringPair[] deliverContent() 
     {               
         StringPair[] result = new StringPair[objectMap.size()];
-        String oidStr;
+        ByteArrayKey oidbak;
         Enumeration en = objectMap.keys();
 
         for ( int i = 0; i < result.length; i++ ) 
         {
-            oidStr = (String) en.nextElement();
+            oidbak = (ByteArrayKey) en.nextElement();
             result[i] = 
-                new StringPair(oidStr, objectMap.get(oidStr).getClass().getName()); 
+                new StringPair(
+                	POAUtil.oid_to_string(oidbak.getBytes()),
+                	objectMap.get(oidbak).getClass().getName()
+                ); 
         }
         return result;
 
@@ -172,10 +176,10 @@ public class AOM
         if (!unique) 
             throw new POAInternalError("error: not UNIQUE_ID policy (getObjectId)");
 
-        String oidStr = (String)servantMap.get(servant);
+        ByteArrayKey oidbak = (ByteArrayKey)servantMap.get(servant);
 
-        if (oidStr != null) 
-            return POAUtil.string_to_objectId(oidStr);
+        if (oidbak != null) 
+            return POAUtil.bak_to_oid(oidbak);
 
         return null;
     }
@@ -184,7 +188,7 @@ public class AOM
 
     protected Servant getServant(byte[] oid) 
     {  
-        return (Servant) objectMap.get(POAUtil.objectId_to_string(oid));
+        return (Servant) objectMap.get(POAUtil.oid_to_bak(oid));
     }
 
 
@@ -195,7 +199,7 @@ public class AOM
                                               org.omg.PortableServer.POA poa ) 
         throws org.omg.PortableServer.ForwardRequest 
     {
-        String oidStr = POAUtil.objectId_to_string(oid);
+        ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);
         Servant servant = null;
                 
         /* all invocations of incarnate on the servant manager are serialized */
@@ -213,37 +217,40 @@ public class AOM
         }
 
         /* another thread was faster, the incarnation is unnecessary now */
-        if (objectMap.containsKey(oidStr)) 
+        if (objectMap.containsKey(oidbak)) 
         {
-            return (Servant) objectMap.get(oidStr);
+            return (Servant) objectMap.get(oidbak);
         }
 
         /* servant incarnation */
                 
-        incarnationList.addElement(oidStr);     
+        incarnationList.addElement(oidbak);     
         try 
         {
             servant = servant_activator.incarnate(oid, poa);                               
         } 
         finally 
         {
-            incarnationList.removeElement(oidStr);
+            incarnationList.removeElement(oidbak);
             notifyAll();
         }
 
         if (servant == null) 
         {
-            logTrace.printLog(0, oid, "servant is not incarnated (incarnate returns null)");
+        	if (logTrace.test(0))
+            	logTrace.printLog(oid, "servant is not incarnated (incarnate returns null)");
             return null;        
         }
 
         if (unique && servantMap.containsKey(servant)) 
         {
-            logTrace.printLog(0, oid, "servant is not incarnated (unique_id policy is violated)");
+        	if (logTrace.test(0))
+	            logTrace.printLog(oid, "servant is not incarnated (unique_id policy is violated)");
             return null;
         }
 
-        logTrace.printLog(2, oid, "servant is incarnated");
+        if (logTrace.test(2))
+        	logTrace.printLog(oid, "servant is incarnated");
         // notify an aom listener
         if (aomListener != null) aomListener.servantIncarnated(oid, servant);
 
@@ -272,24 +279,24 @@ public class AOM
                            POA poa,
                            boolean cleanup_in_progress) 
     {
-        String  oidStr = POAUtil.objectId_to_string(oid);
+        ByteArrayKey  oidbak = POAUtil.oid_to_bak(oid);
         Servant servant = null;
                 
         synchronized (this) 
         {                       
-            if (objectMap.get(oidStr) == null) 
+            if (objectMap.get(oidbak) == null) 
                 return;
 
             // wait for request completion on this object (see freeObject below)
             if ( requestController != null) 
                  requestController.waitForObjectCompletion(oid);
 
-            if ((servant = (Servant)objectMap.get(oidStr)) == null) 
+            if ((servant = (Servant)objectMap.get(oidbak)) == null) 
                 return;
                         
             /* object deactivation */
 
-            objectMap.remove(oidStr);
+            objectMap.remove(oidbak);
             servant._set_delegate(null);
 
             if (unique) 
@@ -297,7 +304,8 @@ public class AOM
                 servantMap.remove(servant);
             }
 
-            logTrace.printLog(2, oid, "object is deactivated");
+        	if (logTrace.test(2))
+            	logTrace.printLog(oid, "object is deactivated");
 
             // notify an aom listener                   
             if (aomListener != null) 
@@ -326,7 +334,7 @@ public class AOM
                 {
                 }
             }
-            etherealisationList.addElement(oidStr);
+            etherealisationList.addElement(oidbak);
                 
             try 
             {
@@ -339,7 +347,8 @@ public class AOM
                      contains (servant)
                 );
                                 
-                logTrace.printLog(2, oid, "servant is etherealized");
+	        	if (logTrace.test(2))
+    	            logTrace.printLog(oid, "servant is etherealized");
                           
                 // notify an aom listener
 
@@ -349,12 +358,14 @@ public class AOM
             } 
             catch (org.omg.CORBA.SystemException e) 
             {
-                logTrace.printLog(1, oid, 
-                                  "exception occurred during servant etherialisation: "+e);
+	        	if (logTrace.test(1))        	
+	                logTrace.printLog(
+	                	oid, "exception occurred during servant etherialisation: "+e
+	                );
             } 
             finally 
             {
-                etherealisationList.removeElement(oidStr);
+                etherealisationList.removeElement(oidbak);
                 notifyAll();
             }
                         
@@ -372,7 +383,7 @@ public class AOM
         Enumeration en = objectMap.keys();
         while (en.hasMoreElements()) 
         {
-            oid = POAUtil.string_to_objectId((String) en.nextElement());
+            oid = POAUtil.bak_to_oid((ByteArrayKey) en.nextElement());
             remove(oid, null, servant_activator, poa, cleanup_in_progress);             
         }
     }

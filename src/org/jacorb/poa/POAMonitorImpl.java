@@ -24,6 +24,7 @@ import org.jacorb.poa.except.*;
 import org.jacorb.poa.util.*;
 import org.jacorb.poa.gui.*;
 
+import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
 
@@ -75,7 +76,7 @@ public class POAMonitorImpl
                 
         if (poaModel != null) {
             try {
-                poaModel.deactivate_object(POAUtil.string_to_objectId(oidStr));
+                poaModel.deactivate_object(POAUtil.string_to_oid(oidStr));
             } catch (Throwable e) {
                 printMessage("Exception occurred in deactivateObject() of POAMonitor: "+e);
             }
@@ -128,8 +129,10 @@ public class POAMonitorImpl
                 view._setState(state);
             } catch (Throwable exception) 
             {
-                logTrace.printLog(0, "Exception occurred changeSate() of POAMonitor");
-                logTrace.printLog(0, exception);
+            	if (logTrace.test(0)) {
+                    logTrace.printLog("Exception occurred changeSate() of POAMonitor");
+                    logTrace.printLog(exception);
+            	}
             }
         }
     }
@@ -149,8 +152,10 @@ public class POAMonitorImpl
                 tmp._destroy();
                                                                 
             } catch (Throwable exception) {
-                logTrace.printLog(0, "Exception occurred in closeMonitor() of POAMonitorImpl");
-                logTrace.printLog(0, exception);
+            	if (logTrace.test(0)) {
+	                logTrace.printLog("Exception occurred in closeMonitor() of POAMonitorImpl");
+	                logTrace.printLog(exception);
+            	}
             }
         }
     }
@@ -197,8 +202,10 @@ public class POAMonitorImpl
                 view._initThreadPoolBar(0);
                                 
             } catch (Throwable exception) {
-                logTrace.printLog(0, "Exception occurred in initView() of POAMonitor");
-                logTrace.printLog(0, exception);
+            	if (logTrace.test(0)) {
+	                logTrace.printLog("Exception occurred in initView() of POAMonitor");
+	                logTrace.printLog(exception);
+            	}
             }
         }
     }
@@ -233,40 +240,11 @@ public class POAMonitorImpl
                 view._setVisible(true);
                                 
             } catch (Throwable exception) {
-                logTrace.printLog(0, "Exception occurred in openMonitor() of POAMonitor");
-                logTrace.printLog(0, exception);
-            }
-
-            /*                      
-                                    terminate = false;
-                        
-                                    refreshThread = new Thread() {
-
-                                    public void run() {
-                                    while (!terminate) {
-                                    System.out.println(aomChanged+" "+queueChanged+" "+pmChanged);
-                                    if (aomChanged) {
-                                    aomChanged = false;
-                                    refreshAOM();
-                                    }
-                                    if (queueChanged) {
-                                    queueChanged = false;
-                                    refreshQueue();
-                                    }
-                                    if (pmChanged) {
-                                    pmChanged = false;
-                                    refreshPM();
-                                    }
-                                    try {
-                                    sleep(4000);
-                                    } catch (InterruptedException e) {
-                                    }
-                                    }
-                                    }
-                                    };
-                                    refreshThread.setDaemon(true);
-                                    refreshThread.start();
-            */                      
+            	if (logTrace.test(0)) {
+	                logTrace.printLog("Exception occurred in openMonitor() of POAMonitor");
+	                logTrace.printLog(exception);
+            	}
+            }     
         }
     }
     private synchronized void printException(Throwable e) {
@@ -280,19 +258,22 @@ public class POAMonitorImpl
             }
         }
     }
-    public void printLog(int mode, byte[] objectId, String message) {
+    public boolean test(int logLevel) {
+		return Environment.verbosityLevel() >= (Debug.POA | logLevel);	
+    }
+    public void printLog(byte[] objectId, String message) {
         printMessage(message);
     }
-    public void printLog(int mode, ServerRequest request, String message) {
+    public void printLog(ServerRequest request, String message) {
         printMessage(message);
     }
-    public void printLog(int mode, ServerRequest request, State state, String message) {
+    public void printLog(ServerRequest request, State state, String message) {
         printMessage(message);
     }
-    public void printLog(int mode, String message) {
+    public void printLog(String message) {
         printMessage(message);
     }
-    public void printLog(int mode, Throwable e) {
+    public void printLog(Throwable e) {
         printException(e);
     }
     private synchronized void printMessage(String str) {
@@ -321,8 +302,10 @@ public class POAMonitorImpl
             try {
                 view._setValueAOMBar(aomSize);
             } catch (Throwable exception) {
-                logTrace.printLog(0, "Exception occurred in refreshAOM() of POAMonitor");
-                logTrace.printLog(0, exception);
+            	if (logTrace.test(0)) {
+	                logTrace.printLog("Exception occurred in refreshAOM() of POAMonitor");
+	                logTrace.printLog(exception);
+            	}
             }
         }
     }
@@ -333,8 +316,10 @@ public class POAMonitorImpl
                 view._setMaxThreadPoolBar(poolSize);
                 view._setValueThreadPoolBar(poolCount);
             } catch (Throwable exception) {
-                logTrace.printLog(0, "Exception occurred in refreshPM() of POAMonitor");
-                logTrace.printLog(0, exception);
+            	if (logTrace.test(0)) {
+	                logTrace.printLog("Exception occurred in refreshPM() of POAMonitor");
+	                logTrace.printLog(exception);
+            	}
             }
         }
     }
@@ -343,8 +328,10 @@ public class POAMonitorImpl
             try {
                 view._setValueQueueBar(queueSize);
             } catch (Throwable exception) {
-                logTrace.printLog(0, "Exception occurred in refreshQueue() of POAMonitor");
-                logTrace.printLog(0, exception);
+            	if (logTrace.test(0)) {
+	                logTrace.printLog("Exception occurred in refreshQueue() of POAMonitor");
+	                logTrace.printLog(exception);
+            	}
             }
         }
     }

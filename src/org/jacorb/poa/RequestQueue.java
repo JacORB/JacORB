@@ -64,7 +64,8 @@ public class RequestQueue
         if (queue.size() == 1) {
             controller.continueToWork();
         }
-        logTrace.printLog(3, request, "is queued (queue size: " + queue.size() + ")");
+        if (logTrace.test(3))
+            logTrace.printLog(request, "is queued (queue size: " + queue.size() + ")");
         // notify a queue listener
         if (queueListener != null) queueListener.requestAddedToQueue(request, queue.size());
     }
@@ -77,7 +78,7 @@ public class RequestQueue
         ServerRequest sr;
         for (int i=0; i<result.length; i++) {
             sr = (ServerRequest) en.nextElement();
-            result[i] = new StringPair(sr.requestId()+"", POAUtil.objectId_to_string(sr.objectId())); 
+            result[i] = new StringPair(sr.requestId()+"", POAUtil.oid_to_string(sr.objectId())); 
         }
         return result;
     }

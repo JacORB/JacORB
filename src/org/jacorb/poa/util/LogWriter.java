@@ -22,6 +22,7 @@ package org.jacorb.poa.util;
 
 import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.util.*;
 
 import org.omg.PortableServer.POAManagerPackage.State;
 
@@ -55,70 +56,61 @@ public class LogWriter
             isLogFileOut = true;
     }
 
-    public void printLog(int mode, byte[] oid, String message) 
+	public boolean test(int logLevel) {
+		return Environment.verbosityLevel() >= (Debug.POA | logLevel);	
+	}
+
+    public void printLog(byte[] oid, String message) 
     {
-        if (Environment.verbosityLevel() >= mode) 
-        {
-            printLog_(mode, "oid: "+POAUtil.convert(oid, isSystemId)+" - "+message);
-        }
+    	printLog_("oid: "+POAUtil.convert(oid, isSystemId)+" - "+message);
     }
 
-    public void printLog(int mode, ServerRequest request, String message) 
+    public void printLog(ServerRequest request, String message) 
     {
-        if (Environment.verbosityLevel() >= mode) 
-        {
-            printLog_(mode, "rid: "+request.requestId()+
-                      " oid: "+POAUtil.convert(request.objectId(), isSystemId)+
-                      " opname: "+request.operation()+" - "+message);
-        }
+    	printLog_("rid: "+request.requestId()+
+                  " oid: "+POAUtil.convert(request.objectId(), isSystemId)+
+                  " opname: "+request.operation()+" - "+message);
     }
-    public void printLog(int mode, ServerRequest request, State state, String message) 
+    
+    public void printLog(ServerRequest request, State state, String message) 
     {
-        if (Environment.verbosityLevel() >= mode) 
-        {
-            printLog_(mode, "rid: "+request.requestId()+
-                      " oid: "+POAUtil.convert(request.objectId(), isSystemId)+
-                      " opname: "+request.operation()+" - "+message+
-                      " (in state "+POAUtil.convert(state)+")");
-        }
+        printLog_("rid: "+request.requestId()+
+                  " oid: "+POAUtil.convert(request.objectId(), isSystemId)+
+                  " opname: "+request.operation()+" - "+message+
+                  " (in state "+POAUtil.convert(state)+")");
     }
 
-    public void printLog(int mode, String message) 
+    public void printLog(String message) 
     {
-        if (Environment.verbosityLevel() >= mode) {
-            printLog_(mode, message);
-        }
+        printLog_(message);
     }
 
-    public void printLog(int mode, Throwable e) 
+    public void printLog(Throwable e) 
     {
-        if ( Environment.verbosityLevel() >= mode ) 
-        {
-            printLog_(mode, e);
-        }
+       printLog_(e);
     }
 
-    private void printLog_( int mode, String message) 
+    private void printLog_(String message) 
     {		
         if ( isLogFileOut || delegate == null) 
         {
-            org.jacorb.util.Debug.output(mode, prefix+message);			
+            org.jacorb.util.Debug.output( 0, prefix+message);			
         }
         if (delegate != null) 
         {
-            delegate.printLog(mode, message);
+            delegate.printLog(message);
         }		
     }
 
-    private void printLog_( int mode, Throwable e) 
+    private void printLog_(Throwable e) 
     {		
         if ( isLogFileOut || delegate == null) 
         {
-            org.jacorb.util.Debug.output( mode, e);			
+            org.jacorb.util.Debug.output( 0, e);			
         }
         if (delegate != null) 
         {
-            delegate.printLog(mode, e);
+            delegate.printLog(e);
         }		
     }
 

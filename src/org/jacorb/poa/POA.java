@@ -44,7 +44,7 @@ import java.util.*;
  * @version $Id$
  */
 
-public class POA 
+public class POA
     extends org.omg.CORBA.LocalObject 
     implements org.omg.PortableServer.POA 
 {
@@ -246,7 +246,8 @@ public class POA
         if (poaListener != null) 
           poaListener.poaCreated(this);
                 
-        logTrace.printLog(1, "ready");
+	    if (logTrace.test(1))        	                
+        	logTrace.printLog("ready");
     }
 
 
@@ -398,16 +399,18 @@ public class POA
             {
                 if (!previouslyGeneratedObjectKey(request.objectKey())) 
                 {
-                    logTrace.printLog(0, request, 
-                                      "_invoke: object key not previously generated!,  operation: " + 
-                                      request.operation());   
+	        		if (logTrace.test(0))        	                	
+                    	logTrace.printLog(request, 
+                                          "_invoke: object key not previously generated!,  operation: " + 
+                                          request.operation());   
                     throw new WrongAdapter();
                 }
                 if (isSystemId() && !previouslyGeneratedObjectId(request.objectId()) ) 
                 {
-                    logTrace.printLog(0, request.objectId(), 
-                                      "_invoke: oid not previously generated!, operation: " + 
-                                      request.operation());   
+                	if (logTrace.test(0))
+                        logTrace.printLog(request.objectId(), 
+                                          "_invoke: oid not previously generated!, operation: " + 
+                                          request.operation());   
                     throw new WrongAdapter();
                 }
             }
@@ -505,7 +508,8 @@ public class POA
 
         if ( isSystemId() && !previouslyGeneratedObjectId(oid) ) 
         {
-            logTrace.printLog(0, oid, "activate_object_with_id: oid not previously generated!");   
+        	if (logTrace.test(0))
+            logTrace.printLog(oid, "activate_object_with_id: oid not previously generated!");   
             throw new org.omg.CORBA.BAD_PARAM();
         }
 
@@ -578,9 +582,11 @@ public class POA
                 
         /* etherialize all active objects */
         if (etherealize && isRetain() && useServantManager()) {
-            logTrace.printLog(3, "etherialize all servants ...");
+        	if (logTrace.test(3))
+                logTrace.printLog("etherialize all servants ...");
             aom.removeAll((ServantActivator) servantManager, this, true);
-            logTrace.printLog(3, "... done");
+            if (logTrace.test(3))
+                logTrace.printLog("... done");
                     
             if (monitor != null) monitor.changeState("inactive (etherialization completed)");
                         
@@ -723,7 +729,8 @@ public class POA
 
         if (isSystemId () && !previouslyGeneratedObjectId (oid))
         {
-            logTrace.printLog (0, oid, "create_reference_with_id: oid not previously generated!");   
+        	if (logTrace.test(0))
+                logTrace.printLog (oid, "create_reference_with_id: oid not previously generated!");   
             throw new org.omg.CORBA.BAD_PARAM ();
         }               
 
@@ -1286,7 +1293,8 @@ public class POA
                 /* announce */  
                 if (poaListener != null) 
                     poaListener.poaStateChanged(this, POAConstants.DESTROYED);                             
-                logTrace.printLog(3, "destruction is apparent");
+                if (logTrace.test(3))
+                    logTrace.printLog("destruction is apparent");
                 monitor.changeState("destruction is apparent ...");                             
             }
         }
@@ -1303,31 +1311,39 @@ public class POA
         {                    
             /* do */
             /* clear up the queue */
-            logTrace.printLog(3, "clear up the queue ..."); 
+            if (logTrace.test(3))
+                logTrace.printLog("clear up the queue ..."); 
 
             requestController.clearUpQueue(new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed"));
-            logTrace.printLog(3, "... done");
+            if (logTrace.test(3))
+                logTrace.printLog("... done");
                 
             /* etherialize all active objects */
             if (etherealize && isRetain() && useServantManager()) 
             {
-                logTrace.printLog(3, "etherialize all servants ...");
+            	if (logTrace.test(3))
+                    logTrace.printLog("etherialize all servants ...");
                 aom.removeAll((ServantActivator) servantManager, this, true);
-                logTrace.printLog(3, "... done");
+                if (logTrace.test(3))
+                    logTrace.printLog("... done");
             }
                         
             /* stop the request processor threads */
             if (!isSingleThreadModel()) 
             {
-                logTrace.printLog(3, "remove all processors from the pool ...");        
+            	if (logTrace.test(3))
+                    logTrace.printLog("remove all processors from the pool ...");        
                 requestController.clearUpPool();
-                logTrace.printLog(3, "... done");
+                if (logTrace.test(3))
+                    logTrace.printLog("... done");
             }
 
-            /* stop the request controller */                   
-            logTrace.printLog(3, "stop the request controller ...");    
+            /* stop the request controller */  
+            if (logTrace.test(3))                 
+                logTrace.printLog("stop the request controller ...");    
             requestController.end();
-            logTrace.printLog(3, "... done");                           
+            if (logTrace.test(3))
+                logTrace.printLog("... done");                           
                         
             /* set */
             shutdownState = POAConstants.DESTRUCTION_COMPLETE;
@@ -1340,7 +1356,8 @@ public class POA
             }
                         
             /* annouce */
-            logTrace.printLog(1, "destroyed");
+            if (logTrace.test(1))
+                logTrace.printLog("destroyed");
             monitor.changeState("destroyed");
 
             /* clear tables */
@@ -1368,7 +1385,8 @@ public class POA
                 /* set */       
                 shutdownState = POAConstants.SHUTDOWN_IN_PROGRESS;
                 /* annouce */   
-                logTrace.printLog(3, "shutdown is in progress");
+                if (logTrace.test(3))
+                    logTrace.printLog("shutdown is in progress");
                 monitor.changeState("shutdown is in progress ...");                             
             }
         }
@@ -1392,7 +1410,8 @@ public class POA
         byte[] objectId = POAUtil.extractOID(reference);
         /* not spec (isSystemId) */
         if (isSystemId() && !previouslyGeneratedObjectId(objectId)) {
-            logTrace.printLog(0, objectId, "reference_to_id: oid not previously generated!");   
+        	if (logTrace.test(0))
+                logTrace.printLog(objectId, "reference_to_id: oid not previously generated!");   
             throw new WrongAdapter();
         }               
                 
@@ -1411,7 +1430,8 @@ public class POA
 
         /* not spec (isSystemId) */
         if (isSystemId() && !previouslyGeneratedObjectId(objectId)) {
-            logTrace.printLog(0, objectId, "reference_to_servant: oid not previously generated!");   
+        	if (logTrace.test(0))
+                logTrace.printLog(objectId, "reference_to_servant: oid not previously generated!");   
             throw new WrongAdapter();
         }               
                 

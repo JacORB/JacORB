@@ -63,8 +63,10 @@ public class POAMonitorLightImpl
                 poaModel.setMonitor(newMonitor);
                 newMonitor.openMonitor();
             } catch (Throwable exception) {
-                logTrace.printLog(0, "Exception occurred in openMonitor() of POAMonitorLightImpl");
-                logTrace.printLog(0, exception);                                
+            	if (logTrace.test(0)) {
+	                logTrace.printLog("Exception occurred in openMonitor() of POAMonitorLightImpl");
+	                logTrace.printLog(exception);                                
+            	}
             }
         }
     }

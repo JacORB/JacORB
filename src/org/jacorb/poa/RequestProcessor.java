@@ -179,7 +179,8 @@ public class RequestProcessor
 
     private void invokeIncarnate() 
     {
-        controller.getLogTrace().printLog(3, request, "invoke incarnate on servant activator");
+    	if (controller.getLogTrace().test(3))
+            controller.getLogTrace().printLog(request, "invoke incarnate on servant activator");
         try 
         {
                                 
@@ -188,7 +189,8 @@ public class RequestProcessor
                                                     controller.getPOA());
             if (servant == null) 
             {
-                controller.getLogTrace().printLog(0, request, "incarnate: returns null");
+            	if (controller.getLogTrace().test(0))
+                    controller.getLogTrace().printLog(request, "incarnate: returns null");
                 request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER());    
             }
 
@@ -197,19 +199,23 @@ public class RequestProcessor
         } 
         catch (org.omg.CORBA.SystemException e) 
         {
-            controller.getLogTrace().printLog(0, request, "incarnate: system exception was thrown ("+e+")");
+        	if (controller.getLogTrace().test(0))
+                controller.getLogTrace().printLog(request, "incarnate: system exception was thrown ("+e+")");
             request.setSystemException(e);
 
         } 
         catch (org.omg.PortableServer.ForwardRequest e) 
         {
-            controller.getLogTrace().printLog(0, request, "incarnate: forward exception was thrown ("+e+")");
+        	if (controller.getLogTrace().test(0))
+                controller.getLogTrace().printLog(request, "incarnate: forward exception was thrown ("+e+")");
             request.setLocationForward(e);
                                 
         } 
         catch (Throwable e) { /* not spec. */
-            controller.getLogTrace().printLog(0, request, "incarnate: throwable was thrown");
-            controller.getLogTrace().printLog(0, e);
+        	if (controller.getLogTrace().test(0)) {
+                controller.getLogTrace().printLog(request, "incarnate: throwable was thrown");
+                controller.getLogTrace().printLog(e);
+        	}
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage())); 
             /* which system exception I should raise? */                        
         }
@@ -225,8 +231,9 @@ public class RequestProcessor
         try 
         {                       
             if (servant instanceof org.omg.CORBA.portable.InvokeHandler) 
-            {                           
-                controller.getLogTrace().printLog(3, request, "invoke operation on servant (stream based)");
+            {                          
+            	if (controller.getLogTrace().test(3)) 
+                    controller.getLogTrace().printLog(request, "invoke operation on servant (stream based)");
                 if( specialOperations.containsKey(request.operation()))
                 {
                     ((org.jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(servant, 
@@ -243,8 +250,9 @@ public class RequestProcessor
 
             } 
             else if (servant instanceof org.omg.PortableServer.DynamicImplementation) 
-            {                         
-                controller.getLogTrace().printLog(3, request, 
+            {          
+            	if (controller.getLogTrace().test(3))               
+                    controller.getLogTrace().printLog(request, 
                                                   "invoke operation on servant (dsi based)");
                 if( specialOperations.containsKey(request.operation()) && 
                     !(servant instanceof org.jacorb.orb.Forwarder) )
@@ -261,23 +269,26 @@ public class RequestProcessor
                 }
             } 
             else 
-            {                           
-                controller.getLogTrace().printLog(0, 
-                                                  request, 
-                                                  "unknown servant type (neither stream nor dsi based)");
+            {
+            	if (controller.getLogTrace().test(0))                           
+                    controller.getLogTrace().printLog(request, 
+                                                      "unknown servant type (neither stream nor dsi based)");
                                         
             }
                                 
         } 
         catch (org.omg.CORBA.SystemException e) 
         {
-            controller.getLogTrace().printLog(1, request, "invocation: system exception was thrown ("+e+")");
+        	if (controller.getLogTrace().test(1))
+                controller.getLogTrace().printLog(request, "invocation: system exception was thrown ("+e+")");
             request.setSystemException(e);
         } 
         catch (Throwable e)             
         {         /* not spec. */
-            controller.getLogTrace().printLog(0, request, "invocation: throwable was thrown");
-            controller.getLogTrace().printLog(0, e);
+        	if (controller.getLogTrace().test(0)) {
+                controller.getLogTrace().printLog(request, "invocation: throwable was thrown");
+                controller.getLogTrace().printLog(e);
+        	}
             request.setSystemException(new org.omg.CORBA.UNKNOWN()); /* which system exception I should raise? */
         }
     }
@@ -291,9 +302,9 @@ public class RequestProcessor
     {
         try 
         {
-            controller.getLogTrace().printLog(3, 
-                                              request, 
-                                              "invoke postinvoke on servant locator");
+        	if (controller.getLogTrace().test(3))
+                controller.getLogTrace().printLog(request, 
+                                                  "invoke postinvoke on servant locator");
 
             ((ServantLocator) servantManager).postinvoke(request.objectId(),
                                                          controller.getPOA(),
@@ -303,13 +314,16 @@ public class RequestProcessor
         } 
         catch (org.omg.CORBA.SystemException e) 
         {
-            controller.getLogTrace().printLog(1, request, "postinvoke: system exception was thrown ("+e+")");
+        	if (controller.getLogTrace().test(1))
+                controller.getLogTrace().printLog(request, "postinvoke: system exception was thrown ("+e+")");
             request.setSystemException(e);
                         
         } 
         catch (Throwable e) {         /* not spec. */
-            controller.getLogTrace().printLog(0, request, "postinvoke: throwable was thrown");
-            controller.getLogTrace().printLog(0, e);
+        	if (controller.getLogTrace().test(0)) {
+                controller.getLogTrace().printLog(request, "postinvoke: throwable was thrown");
+                controller.getLogTrace().printLog(e);
+        	}
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER()); 
             /* which system exception I should raise? */
         }
@@ -322,7 +336,8 @@ public class RequestProcessor
 
     private void invokePreInvoke() 
     {
-        controller.getLogTrace().printLog(3, request, "invoke preinvoke on servant locator");
+    	if (controller.getLogTrace().test(3))
+            controller.getLogTrace().printLog(request, "invoke preinvoke on servant locator");
         try 
         {
             cookieHolder = new CookieHolder();
@@ -332,7 +347,8 @@ public class RequestProcessor
                                                                   cookieHolder);
             if (servant == null) 
             {
-                controller.getLogTrace().printLog(0, request, "preinvoke: returns null");
+            	if (controller.getLogTrace().test(0))
+                    controller.getLogTrace().printLog(request, "preinvoke: returns null");
                 request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER());    
             }
             controller.getORB().set_delegate( servant );        // set the orb
@@ -340,19 +356,23 @@ public class RequestProcessor
         } 
         catch (org.omg.CORBA.SystemException e) 
         {
-            controller.getLogTrace().printLog(1, request, "preinvoke: system exception was thrown ("+e+")");
+        	if (controller.getLogTrace().test(1))
+                controller.getLogTrace().printLog(request, "preinvoke: system exception was thrown ("+e+")");
             request.setSystemException(e);
 
         } 
         catch (org.omg.PortableServer.ForwardRequest e) 
         {
-            controller.getLogTrace().printLog(1, request, "preinvoke: forward exception was thrown ("+e+")");
+        	if (controller.getLogTrace().test(1))
+                controller.getLogTrace().printLog(request, "preinvoke: forward exception was thrown ("+e+")");
             request.setLocationForward(e);
                                                 
         } 
         catch (Throwable e) {         /* not spec. */
-            controller.getLogTrace().printLog(0, request, "preinvoke: throwable was thrown");
-            controller.getLogTrace().printLog(0, e);
+        	if (controller.getLogTrace().test(0)) {
+                controller.getLogTrace().printLog(request, "preinvoke: throwable was thrown");
+                controller.getLogTrace().printLog(e);
+        	}
             request.setSystemException(new org.omg.CORBA.OBJ_ADAPTER(e.getMessage())); 
             /* which system exception I should raise? */
         }
@@ -576,12 +596,15 @@ public class RequestProcessor
                     e.printStackTrace();
                 }
             }
-            controller.getLogTrace().printLog(Debug.POA | 2, request, "process request");
+            
+            if (controller.getLogTrace().test(2))
+                controller.getLogTrace().printLog(request, "process request");
                         
             process();
                     
             // return the request to the request controller
-            controller.getLogTrace().printLog(3, request, "ends with request processing");
+            if (controller.getLogTrace().test(3))
+                controller.getLogTrace().printLog(request, "ends with request processing");
             controller.returnResult(request);
                         
             start = false;
