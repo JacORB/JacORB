@@ -1,4 +1,4 @@
 @echo off
 rem Starts the JacORB KeyStoreManager
 
-jaco jacorb.security.util.KeyStoreManager
+jaco org.jacorb.security.util.KeyStoreManager

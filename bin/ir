@@ -6,4 +6,4 @@
 
 # Starts the JacORB name server
 
-jaco jacorb.ir.IRServer "$@"
+jaco org.jacorb.ir.IRServer "$@"

@@ -1,4 +1,4 @@
 #!/bin/sh -f
 # List bindings in the JacORB Name Server
 
-jaco jacorb.naming.UnbindName "$@"
+jaco org.jacorb.naming.UnbindName "$@"

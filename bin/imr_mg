@@ -2,4 +2,4 @@
 
 # Starts the JacORB 1.0 Implementation repository manager
 
-jaco jacorb.imr.util.ImRManager "$@"
+jaco org.jacorb.imr.util.ImRManager "$@"

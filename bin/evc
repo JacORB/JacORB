@@ -6,4 +6,4 @@
 
 # Starts the JacORB event channel
 
-jaco jacorb.events.EventChannelImpl "$@"
+jaco org.jacorb.events.EventChannelImpl "$@"

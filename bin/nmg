@@ -6,4 +6,4 @@
 
 # Starts the JacORB name server
 
-jaco jacorb.naming.namemanager.NameManager "$@"
+jaco org.jacorb.naming.namemanager.NameManager "$@"

@@ -1,3 +1,3 @@
 @echo off
 rem Starts the JacORB Interface Repositor Browser
-jaco jacorb.ir.gui.IRBrowser %*
+jaco org.jacorb.ir.gui.IRBrowser %*

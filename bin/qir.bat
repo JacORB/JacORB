@@ -1,2 +1,2 @@
 @echo off
-jaco jacorb.ir.QueryIR %*
+jaco org.jacorb.ir.QueryIR %*

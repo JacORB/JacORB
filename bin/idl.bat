@@ -1,2 +1,2 @@
 @echo off
-java -classpath C:\Work\tmp\JacORB\lib\idl.jar jacorb.idl.parser %*
+java -classpath /home/troll/noffke/JacORB\lib\idl.jar org.jacorb.idl.parser %*

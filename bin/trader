@@ -3,4 +3,4 @@
 
 # Starts the JTrader trading service
 
-jaco jacorb.trading.TradingService "$@"
+jaco org.jacorb.trading.TradingService "$@"

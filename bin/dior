@@ -1,4 +1,4 @@
 #!/bin/sh
 # decodes and prints the components of a stringified IOR
 
-jaco jacorb.orb.util.PrintIOR "$@"
+jaco org.jacorb.orb.util.PrintIOR "$@"

@@ -1,2 +1,2 @@
 #!/bin/sh
-java  -classpath C:\Work\tmp\JacORB/lib/idl.jar org.jacorb.idl.parser  "$@"
+java  -classpath /home/troll/noffke/JacORB/lib/idl.jar org.jacorb.idl.parser  "$@"

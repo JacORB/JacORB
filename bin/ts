@@ -6,5 +6,5 @@
 
 # Starts the JacORB TransactionService
 
-jaco jacorb.transaction.TransactionService "$@"
+jaco org.jacorb.transaction.TransactionService "$@"
 

@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # Starts the JacORB v1.0 ImR server startup daemon
-jaco jacorb.imr.ServerStartupDaemonImpl "$@"
+jaco org.jacorb.imr.ServerStartupDaemonImpl "$@"

@@ -2,4 +2,4 @@
 
 rem Starts the JacORB domain server
 
-jaco jacorb.orb.domain.DomainServer %*
+jaco org.jacorb.orb.domain.DomainServer %*

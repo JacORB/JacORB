@@ -1,4 +1,4 @@
 @echo off
 rem Starts the JacORB transaction server
 
-jaco jacorb.transaction.TransactionService %*
+jaco org.jacorb.transaction.TransactionService %*

@@ -1,1 +1,1 @@
-appletviewer -J-Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -J-Dorg.omg.CORBA.ORBSingletonClass=jacorb.orb.ORBSingleton -J"-Xbootclasspath:%JAVA_HOME%\jre\lib\rt.jar;%CLASSPATH%"   %*
+appletviewer -J-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -J-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton -J"-Xbootclasspath:%JAVA_HOME%\jre\lib\rt.jar;%CLASSPATH%"   %*

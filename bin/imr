@@ -2,4 +2,4 @@
 
 # Starts the JacORB  v1.0 implementation repository
 
-jaco jacorb.imr.ImplementationRepositoryImpl "$@"
+jaco org.jacorb.imr.ImplementationRepositoryImpl "$@"
