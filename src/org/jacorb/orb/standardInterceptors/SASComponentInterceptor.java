@@ -149,7 +149,8 @@ public class SASComponentInterceptor
                 short asTargetRequires = targetRequires;
 
                 // the SAS_ContextSec
-                String atlasURL = URLDecoder.decode(org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.url"));
+				String atlasURL = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.url");
+				if (atlasURL != null) atlasURL = URLDecoder.decode(atlasURL);
                 String atlasCache = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.cacheid");
                 ServiceConfiguration[] serviceConfiguration = null;
                 if (atlasURL == null)

@@ -326,7 +326,7 @@ public class SASClientInterceptor
         if (atlasProfile == null) return new AuthorizationElement[0];
         String cacheID = new String(atlasProfile.the_cache_id);
         String locator = atlasProfile.the_locator.the_url();
-        locator = URLDecoder.decode(locator);
+        if (locator != null) locator = URLDecoder.decode(locator);
 
         // see if the tokens are in the ATLAS cache
         synchronized (atlasCache)
