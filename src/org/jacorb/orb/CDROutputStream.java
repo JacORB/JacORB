@@ -1617,6 +1617,9 @@ public class CDROutputStream
             case TCKind._tk_wstring:
                 write_wstring( in.read_wstring());
                 break;
+            case TCKind._tk_fixed:
+                write_fixed (in.read_fixed());
+                break;
             case TCKind._tk_array:
                 try
                 {

@@ -31,7 +31,7 @@ import org.jacorb.orb.connection.CodeSet;
 import org.jacorb.util.ValueHandler;
 
 /**
- * Read CDR encoded data 
+ * Read CDR encoded data
  *
  * @author Gerald Brose, FU Berlin
  * $Id$
@@ -40,6 +40,8 @@ import org.jacorb.util.ValueHandler;
 public class CDRInputStream
     extends org.omg.CORBA_2_3.portable.InputStream
 {
+    private int uniqueValue;
+
     /** index for reading from the stream in plain java.io. style */
     int read_index;
 
@@ -65,7 +67,7 @@ public class CDRInputStream
     public int giop_minor = 2; // needed to determine size in chars
 
     /**
-     * Maps indices within the buffer (java.lang.Integer) to the values that 
+     * Maps indices within the buffer (java.lang.Integer) to the values that
      * appear at these indices.
      */
     private Hashtable valueMap = new Hashtable();
@@ -97,7 +99,7 @@ public class CDRInputStream
     protected int pos = 0;
     protected int index = 0;
 
-    /** 
+    /**
      * for this stream to be able to return a live object reference, a
      * full ORB (not the Singleton!) must be known. If this stream is
      * used only to demarshal base type data, the Singleton is enough
@@ -112,10 +114,10 @@ public class CDRInputStream
         use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
     }
 
-    public CDRInputStream (final org.omg.CORBA.ORB orb, 
-                           final byte[] buf, 
+    public CDRInputStream (final org.omg.CORBA.ORB orb,
+                           final byte[] buf,
                            final boolean littleEndian )
-    {       
+    {
         this( orb, buf );
 	this.littleEndian = littleEndian;
     }
@@ -144,7 +146,7 @@ public class CDRInputStream
         recursiveTCMap.clear();
 	closed = true;
     }
-	
+
     public org.omg.CORBA.ORB orb ()
     {
         if (orb == null) orb = org.omg.CORBA.ORB.init();
@@ -170,7 +172,7 @@ public class CDRInputStream
 		    ((_buffer[_pos+1] & 0xff) << 16) +
 		    ((_buffer[_pos+2] & 0xff) <<  8) +
 		    ((_buffer[_pos+3] & 0xff) <<  0));
-    }    
+    }
 
     private static final short _read2int
     (final boolean _littleEndian, final byte[] _buffer, final int _pos)
@@ -190,9 +192,9 @@ public class CDRInputStream
 	index += distance;
     }
 
-    /** 
+    /**
      * close a CDR encapsulation and
-     * restore index and byte order information 
+     * restore index and byte order information
      */
 
     public final void closeEncapsulation()
@@ -210,9 +212,9 @@ public class CDRInputStream
         //	Debug.output(8,"Closing Encapsulation at pos: " + pos  + " littleEndian now: " + littleEndian + ",  index now " + index );
     }
 
-    /** 
+    /**
      * open a CDR encapsulation and
-     * restore index and byte order information 
+     * restore index and byte order information
      */
 
     public final void openEncapsulation()
@@ -222,13 +224,13 @@ public class CDRInputStream
 	int size = read_long();
 
 	/* save current index plus size of the encapsulation on the stack.
-	   When the encapsulation is closed, this value will be restored as 
+	   When the encapsulation is closed, this value will be restored as
 	   index */
 
 	encaps_stack.push(new EncapsInfo(old_endian, index, pos, size ));
 
         //        Debug.output(8,"Opening Encapsulation at pos: " + _pos + " size: " + size);
-        openEncapsulatedArray();	
+        openEncapsulatedArray();
     }
 
     public final void openEncapsulatedArray()
@@ -236,7 +238,7 @@ public class CDRInputStream
         /* reset index  to zero, i.e. align relative  to the beginning
            of the encaps. */
 	resetIndex();
-	littleEndian = read_boolean();	
+	littleEndian = read_boolean();
     }
 
 
@@ -248,9 +250,9 @@ public class CDRInputStream
 
     /* from java.io.InputStream */
 
-    public int read() 
+    public int read()
 	throws java.io.IOException
-    {     
+    {
 	if( closed )
 	    throw new java.io.IOException("Stream already closed!");
 
@@ -270,56 +272,56 @@ public class CDRInputStream
     {
 	return read(b, 0, b.length);
     }
-    
+
 
     public int read (final byte[] b, final int off, final int len)
 	throws java.io.IOException
     {
-	if( b == null )
-	    throw new NullPointerException();
+        if( b == null )
+            throw new NullPointerException();
 
-	if( off < 0 || 
-            len < 0 || 
+        if( off < 0 ||
+            len < 0 ||
             off + len > b.length )
-	    throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException();
 
-	if( len == 0 )
-	    return 0;
+        if( len == 0 )
+            return 0;
 
-	if( available() < 1 )
-	    return -1;
+        if( available() < 1 )
+            return -1;
 
-	if( closed )
-	    throw new java.io.IOException("Stream already closed!");
+        if( closed )
+            throw new java.io.IOException("Stream already closed!");
 
-	int min = ( len < available() ? len : available());
-	System.arraycopy(buffer, 0, b, off, min );
-	return min;
+        int min = ( len < available() ? len : available());
+        System.arraycopy(buffer, 0, b, off, min );
+        return min;
     }
 
 
     public final org.omg.CORBA.Any read_any()
     {
-	org.omg.CORBA.TypeCode _tc = read_TypeCode();
-	org.omg.CORBA.Any any = orb.create_any();
-	any.read_value( this, _tc );
-	return any;
+        org.omg.CORBA.TypeCode _tc = read_TypeCode();
+        org.omg.CORBA.Any any = orb.create_any();
+        any.read_value( this, _tc );
+        return any;
     }
 
     public final boolean read_boolean()
     {
-	index++;
-	byte bb = buffer[pos++];
+        index++;
+        byte bb = buffer[pos++];
 
-	if( bb == 1 )
-	    return true;
-	else if ( bb == 0 )
-	    return false;
-	else
+        if( bb == 1 )
+            return true;
+        else if ( bb == 0 )
+            return false;
+        else
         {
             Debug.output( 1, "", buffer );
-	    throw new Error("Unexpected boolean value: " + bb 
-			    + " pos: " + pos + " index: " + index);
+            throw new Error("Unexpected boolean value: " + bb
+                            + " pos: " + pos + " index: " + index);
         }
     }
 
@@ -344,7 +346,7 @@ public class CDRInputStream
             else
             {
                 Debug.output( 1, "", buffer );
-                throw new Error ("Unexpected boolean value: " + bb 
+                throw new Error ("Unexpected boolean value: " + bb
                                  + " pos: " + pos + " index: " + index);
             }
         }
@@ -352,8 +354,8 @@ public class CDRInputStream
 
     public final char read_char ()
     {
-        index++; 
-        return (char)(0xff & buffer[pos++]);	       	
+        index++;
+        return (char)(0xff & buffer[pos++]);
     }
 
     public final void read_char_array
@@ -361,12 +363,12 @@ public class CDRInputStream
     {
         for (int j = offset; j < offset + length; j++)
         {
-            index++; 
+            index++;
             value[j] = (char) (0xff & buffer[pos++]);
         }
     }
 
-    public final double read_double () 
+    public final double read_double ()
     {
         return Double.longBitsToDouble (read_longlong ());
     }
@@ -380,37 +382,37 @@ public class CDRInputStream
         }
     }
 
-    public final java.math.BigDecimal read_fixed() 
-    {     
-	StringBuffer sb = new StringBuffer();
-	
-	int b = buffer[pos++];
-	int c = b & 0x0F; // second half byte
-	index++;
+    public final java.math.BigDecimal read_fixed()
+    {
+        StringBuffer sb = new StringBuffer();
 
-	while(true)
-	{ 
-	    c = (b & 0xF0) >>> 4;
-	    sb.append(c );
-	    c = b & 0x0F;
-	    if( c == 0xC || c == 0xD )
-		break;
-	    sb.append(c );
-	    b = buffer[pos++];
-	    index++;
-	}
+        int b = buffer[pos++];
+        int c = b & 0x0F; // second half byte
+        index++;
 
-	java.math.BigDecimal result =
-            new java.math.BigDecimal( new java.math.BigInteger( sb.toString()));
+        while(true)
+        {
+            c = (b & 0xF0) >>> 4;
+            sb.append(c );
+            c = b & 0x0F;
+            if( c == 0xC || c == 0xD )
+                break;
+            sb.append(c );
+            b = buffer[pos++];
+            index++;
+        }
 
-	if( c == 0xD )
-	    return result.negate();
-	else
-	    return result;
+        java.math.BigDecimal result =
+        new java.math.BigDecimal( new java.math.BigInteger( sb.toString()));
+
+        if( c == 0xD )
+            return result.negate();
+        else
+            return result;
 
     }
 
-    public final float read_float () 
+    public final float read_float ()
     {
         return Float.intBitsToFloat (read_long ());
     }
@@ -424,7 +426,7 @@ public class CDRInputStream
         }
     }
 
-    public final int read_long () 
+    public final int read_long ()
     {
 	int result;
 
@@ -462,8 +464,8 @@ public class CDRInputStream
     }
 
 
-    public final long read_longlong () 
-    {    
+    public final long read_longlong ()
+    {
  	int remainder = 8 - (index % 8);
  	if (remainder != 8)
  	{
@@ -490,12 +492,12 @@ public class CDRInputStream
  	    index += remainder;
  	    pos += remainder;
  	}
-        
+
 	if (littleEndian)
         {
             for(int j=offset; j < offset+length; j++)
             {
-                value[j] = ( (long) read_long() & 0xFFFFFFFFL) + 
+                value[j] = ( (long) read_long() & 0xFFFFFFFFL) +
                     ((long) read_long() << 32);
             }
         }
@@ -503,7 +505,7 @@ public class CDRInputStream
         {
             for(int j=offset; j < offset+length; j++)
             {
-                value[j] = ((long) read_long() << 32) + 
+                value[j] = ((long) read_long() << 32) +
                     ((long) read_long() & 0xFFFFFFFFL);
             }
         }
@@ -516,7 +518,7 @@ public class CDRInputStream
         org.omg.IOP.IOR ior = org.omg.IOP.IORHelper.read(this);
         ParsedIOR pior = new ParsedIOR( ior );
 
-        if( pior.isNull() ) 
+        if( pior.isNull() )
         {
             return null;
         }
@@ -571,7 +573,7 @@ public class CDRInputStream
      *   contributed by Mark Allerton <MAllerton@img.seagatesoftware.com>
      */
 
-    public final short read_short () 
+    public final short read_short ()
     {
 	int remainder = 2 - (index % 2);
 	if (remainder != 2)
@@ -605,27 +607,27 @@ public class CDRInputStream
 
         index += length * 2;
     }
-	
+
     public final String read_string()
     {
-	int remainder = 4 - (index % 4);
-	if( remainder != 4 )
-	{
-	    index += remainder;
-	    pos += remainder;
-	}
+        int remainder = 4 - (index % 4);
+        if( remainder != 4 )
+        {
+            index += remainder;
+            pos += remainder;
+        }
 
-	// read size (#bytes == #chars)
-	int size = _read4int( littleEndian, buffer, pos);
-	index += 4; 
-	pos += 4;
+        // read size (#bytes == #chars)
+        int size = _read4int( littleEndian, buffer, pos);
+        index += 4;
+        pos += 4;
 
-	char[] buf = new char[ size ];
+        char[] buf = new char[ size ];
         for( int i = 0; i < size; i++ )
         {
             buf[ i ] = (char)(0xff & buffer[pos++]);
         }
-        
+
         index += size;
 
         if( (size > 0) &&
@@ -651,10 +653,11 @@ public class CDRInputStream
 
     private final org.omg.CORBA.TypeCode read_TypeCode (final  Hashtable tcMap )
     {
+        org.omg.CORBA.TypeCode result = null;
         int kind = read_long();
         int start_pos = pos - 4;
 
-        //  Debug.output( 4, "Read Type code of kind " + 
+        //  Debug.output( 4, "Read Type code of kind " +
         //                        kind + " at pos: " + start_pos );
 
         String id, name;
@@ -662,10 +665,9 @@ public class CDRInputStream
         org.omg.CORBA.TypeCode[] member_types;
         int member_count, length;
         org.omg.CORBA.TypeCode content_type;
-        org.omg.CORBA.TypeCode result_tc;
         boolean byteorder = false;
 
-        switch( kind ) 
+        switch( kind )
         {
             case TCKind._tk_null:
             case TCKind._tk_void:
@@ -684,85 +686,100 @@ public class CDRInputStream
             case TCKind._tk_ulonglong:
             case TCKind._tk_wchar:
             case TCKind._tk_Principal:
-                return orb.get_primitive_tc( org.omg.CORBA.TCKind.from_int(kind) );
-            case TCKind._tk_objref: 
+            {
+                result = orb.get_primitive_tc
+                    (org.omg.CORBA.TCKind.from_int (kind));
+                break;
+            }
+            case TCKind._tk_objref:
+            {
                 openEncapsulation();
-                id = read_string();
-                name = read_string();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
                 closeEncapsulation();
-                return orb.create_interface_tc(id, name);
-            case TCKind._tk_struct: 
-                openEncapsulation();
-                id = read_string();
 
-                //  Debug.output(4, "** remember " + id + " at pos " + start_pos );
+                result = orb.create_interface_tc (id, name);
+                break;
+            }
+            case TCKind._tk_struct:
+            {
+                openEncapsulation();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
+                member_count = read_long();
 
                 tcMap.put( new Integer( start_pos ), id );
 
-                name = read_string();
-                member_count = read_long();
                 StructMember[] struct_members = new StructMember[member_count];
                 for( int i = 0; i < member_count; i++)
                 {
-                    struct_members[i] = new StructMember( read_string(),
-                                                          read_TypeCode(tcMap), 
-                                                          null);
+                   struct_members[i] = new StructMember
+                   (
+                       validateMember (read_string ()),
+                       read_TypeCode (tcMap),
+                       null
+                   );
                 }
                 closeEncapsulation();
-                result_tc = orb.create_struct_tc(id, name, struct_members );
 
-                recursiveTCMap.put( id , result_tc );
-
-                return result_tc;
+                result = orb.create_struct_tc (id, name, struct_members);
+                recursiveTCMap.put (id , result);
+                break;
+            }
             case TCKind._tk_except:
+            {
                 openEncapsulation();
-                id = read_string();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
+                member_count = read_long();
 
-                // Debug.output(4, "** remember " + id + " at pos " + start_pos );
                 tcMap.put( new Integer( start_pos ), id );
 
-                name = read_string();
-                member_count = read_long();
                 StructMember[] members = new StructMember[member_count];
                 for( int i = 0; i < member_count; i++)
                 {
-                    members[i] = new StructMember( read_string(),read_TypeCode(), null);
+                    members[i] = new StructMember
+                    (
+                        validateMember (read_string()),
+                        read_TypeCode (),
+                        null
+                    );
                 }
                 closeEncapsulation();
-                result_tc = orb.create_struct_tc(id, name, members );
-                recursiveTCMap.put( id , result_tc );
-                return result_tc;
+
+                result = orb.create_struct_tc (id, name, members);
+                recursiveTCMap.put (id, result);
+                break;
+            }
             case TCKind._tk_enum:
+            {
                 openEncapsulation();
-                id = read_string();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
+                member_count = read_long();
 
                 tcMap.put( new Integer( start_pos ), id );
 
-                name = read_string();
-                member_count = read_long();
                 member_names = new String[member_count];
                 for( int i = 0; i < member_count; i++)
                 {
-                    member_names[i] = read_string();
+                    member_names[i] = validateMember (read_string ());
                 }
                 closeEncapsulation();
-                result_tc = orb.create_enum_tc(id, name, member_names);
-                recursiveTCMap.put( id , result_tc );
-                return result_tc;
+
+                result = orb.create_enum_tc (id, name, member_names);
+                recursiveTCMap.put (id , result);
+                break;
+            }
             case TCKind._tk_union:
             {
-                //		Debug.output(4, "TC Union at pos" + 
-                //           pos, buffer, pos, buffer.length );
-
                 openEncapsulation();
-                id = read_string();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
 
                 // remember this TC's id and start_pos
-                tcMap.put( new Integer(start_pos), id ); 
+                tcMap.put( new Integer(start_pos), id );
 
-                name = read_string();
-                //  		Debug.output(4, "TC Union has name " + 
-                //                               name + " at pos" + pos );
                 org.omg.CORBA.TypeCode discriminator_type = read_TypeCode(tcMap);
 
                 // Use the dealiased discriminator type for the label types.
@@ -771,135 +788,160 @@ public class CDRInputStream
                 // wire.
                 org.omg.CORBA.TypeCode orig_disc_type =
                     ((org.jacorb.orb.TypeCode) discriminator_type).originalType();
-             
+
                 int default_index = read_long();
-
-                //  		Debug.output(4, "TC Union has default idx: " +  
-                //                               default_index +  "  (at pos " + pos );
-
                 member_count = read_long();
-
-                //  Debug.output(4, "TC Union has " + member_count + 
-                //               " members at pos " + pos );
 
                 UnionMember[] union_members = new UnionMember[member_count];
                 for( int i = 0; i < member_count; i++)
                 {
-                    // Debug.output(4, "Member " + i + "in  union " + 
-                    //             id + " , " + name + ", start reading TC at pos " + pos );
                     org.omg.CORBA.Any label = orb.create_any();
-		    
+
                     if( i == default_index )
                     {
-                        //Debug.output(4, "Default discr.");
+                        // Default discriminator
                         label.insert_octet( read_octet());
-                    } 
-                    else 
+                    }
+                    else
                     {
                         // use the dealiased discriminator type to construct labels
                         label.read_value( this, orig_disc_type );
                     }
- 
-                    String mn = read_string();
 
-                    union_members[i] = 
-                        new UnionMember( mn, label, read_TypeCode(tcMap), null);
-                }		
+                    union_members[i] = new UnionMember
+                    (
+                        validateMember (read_string ()),
+                        label,
+                        read_TypeCode(tcMap),
+                        null
+                    );
+                }
                 closeEncapsulation();
-                result_tc = 
-                    orb.create_union_tc( id, name, discriminator_type, union_members );
-                recursiveTCMap.put( id , result_tc );
-                return result_tc;
+
+                result = orb.create_union_tc
+                    (id, name, discriminator_type, union_members);
+                recursiveTCMap.put (id, result);
+                break;
             }
-            case TCKind._tk_string: 
-                return orb.create_string_tc(read_long());
-            case TCKind._tk_wstring: 
-                return orb.create_wstring_tc(read_long());
-            case TCKind._tk_fixed: 
-                return orb.create_fixed_tc(read_ushort(), read_short() );
-            case TCKind._tk_array: 
+            case TCKind._tk_string:
+            {
+                result = orb.create_string_tc(read_long());
+                break;
+            }
+            case TCKind._tk_wstring:
+            {
+                result = orb.create_wstring_tc(read_long());
+                break;
+            }
+            case TCKind._tk_fixed:
+            {
+                result = orb.create_fixed_tc(read_ushort(), read_short() );
+                break;
+            }
+            case TCKind._tk_array:
+            {
                 openEncapsulation();
 
                 content_type = read_TypeCode(tcMap);
                 length = read_long();
 
                 closeEncapsulation();
-                return orb.create_array_tc(length, content_type);
-            case TCKind._tk_sequence: 
+                result = orb.create_array_tc(length, content_type);
+                break;
+            }
+            case TCKind._tk_sequence:
+            {
                 openEncapsulation();
 
                 content_type = read_TypeCode(tcMap);
                 length = read_long();
 
                 closeEncapsulation();
-                org.omg.CORBA.TypeCode seq_tc = 
-                    orb.create_sequence_tc(length, content_type);
-                return seq_tc;
-            case TCKind._tk_alias: 
-                openEncapsulation();
-                id = read_string();
-                name = read_string();
 
-                // Debug.output(4, "** remember alias at pos " + start_pos );
+                result = orb.create_sequence_tc(length, content_type);
+                break;
+            }
+            case TCKind._tk_alias:
+            {
+                openEncapsulation();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
+
                 tcMap.put( new Integer( start_pos ), id );
 
                 content_type = read_TypeCode( tcMap );
                 closeEncapsulation();
-                result_tc = orb.create_alias_tc( id, name, content_type );
-                recursiveTCMap.put( id , result_tc );
-                return result_tc;
-            case TCKind._tk_value: 
+                result = orb.create_alias_tc (id, name, content_type );
+                recursiveTCMap.put (id , result);
+                break;
+            }
+            case TCKind._tk_value:
+            {
                 openEncapsulation();
-                id = read_string();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
 
                 tcMap.put( new Integer( start_pos ), id );
 
-                name = read_string();
                 short type_modifier = read_short();
                 org.omg.CORBA.TypeCode concrete_base_type = read_TypeCode( tcMap );
                 member_count = read_long();
                 ValueMember[] vMembers = new ValueMember[member_count];
+
                 for( int i = 0; i < member_count; i++)
                 {
-                    vMembers[i] = new ValueMember(read_string(),
-                                                  null, // id
-                                                  null, // defined_in
-                                                  null, // version
-                                                  read_TypeCode( tcMap ),
-                                                  null, // type_def
-                                                  read_short());
+                    vMembers[i] = new ValueMember
+                    (
+                        validateMember (read_string ()),
+                        null, // id
+                        null, // defined_in
+                        null, // version
+                        read_TypeCode (tcMap),
+                        null, // type_def
+                        read_short()
+                    );
                 }
                 closeEncapsulation();
-                result_tc = orb.create_value_tc(id, name, type_modifier,
-                                                concrete_base_type, vMembers);
-                recursiveTCMap.put( id , result_tc );
-                return result_tc;
-            case TCKind._tk_value_box: 
+                result = orb.create_value_tc
+                    (id, name, type_modifier, concrete_base_type, vMembers);
+                recursiveTCMap.put( id , result );
+                break;
+            }
+            case TCKind._tk_value_box:
+            {
                 openEncapsulation();
-                id = read_string();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
+
                 tcMap.put( new Integer( start_pos ), id );
-                name = read_string();
                 content_type = read_TypeCode( tcMap );
                 closeEncapsulation();
-                result_tc = orb.create_value_box_tc( id, name, content_type );
-                recursiveTCMap.put( id , result_tc );
-                return result_tc;
-            case TCKind._tk_abstract_interface: 
+
+                result = orb.create_value_box_tc (id, name, content_type);
+                recursiveTCMap.put( id , result );
+                break;
+            }
+            case TCKind._tk_abstract_interface:
+            {
                 openEncapsulation();
-                id = read_string();
-                name = read_string();
+                id = validateID (read_string ());
+                name = validateName (read_string ());
                 closeEncapsulation();
-                return orb.create_abstract_interface_tc( id, name );
+
+                result = orb.create_abstract_interface_tc (id, name);
+                break;
+            }
             case 0xffffffff:
+            {
                 /* recursive TC */
                 int negative_offset = read_long();
-                String recursiveId = 
+                String recursiveId =
                     (String)tcMap.get( new Integer( pos - 4 + negative_offset ) );
 
                 Debug.myAssert( recursiveId != null,
-                                "No recursive TypeCode! (pos: " + 
+                                "No recursive TypeCode! (pos: " +
                                 (pos - 4 + negative_offset) + ")");
-            
+
                 // look up TypeCode in map to check if it's repeated
                 org.omg.CORBA.TypeCode rec_tc =
                     (org.omg.CORBA.TypeCode) recursiveTCMap.get (recursiveId);
@@ -912,11 +954,16 @@ public class CDRInputStream
                     rec_tc = orb.create_recursive_tc( recursiveId );
                 }
 
-                return rec_tc;
+                result = rec_tc;
+                break;
+            }
             default:
+            {
                 // error, dump buffer contents for diagnosis
                 throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
+            }
         }
+        return result;
     }
 
     public final int read_ulong ()
@@ -984,12 +1031,12 @@ public class CDRInputStream
  	    index += remainder;
  	    pos += remainder;
  	}
-        
+
 	if (littleEndian)
         {
             for (int j = offset; j < offset+length; j++)
             {
-                value[j] = ( (long) read_long() & 0xFFFFFFFFL) + 
+                value[j] = ( (long) read_long() & 0xFFFFFFFFL) +
                     ((long) read_long() << 32);
             }
         }
@@ -997,7 +1044,7 @@ public class CDRInputStream
         {
             for (int j = offset; j < offset+length; j++)
             {
-                value[j] = ((long) read_long() << 32) + 
+                value[j] = ((long) read_long() << 32) +
                     ((long) read_long() & 0xFFFFFFFFL);
             }
         }
@@ -1046,9 +1093,9 @@ public class CDRInputStream
         {
             //ignore size indicator
             read_wchar_size();
-            
+
             boolean wchar_little_endian = readBOM ();
-            
+
             return read_wchar (wchar_little_endian);
         }
         else
@@ -1056,16 +1103,16 @@ public class CDRInputStream
             return read_wchar (littleEndian);
         }
     }
-        
+
     /**
      * The number of bytes this char takes. This is actually not
      * necessary since the encodings used are either fixed-length
-     * (UTF-16) or have their length encoded internally (UTF-8).  
+     * (UTF-16) or have their length encoded internally (UTF-8).
      */
     private final int read_wchar_size()
     {
         index++;
-        
+
         return buffer[ pos++ ];
     }
 
@@ -1078,29 +1125,29 @@ public class CDRInputStream
             {
                 if( giop_minor < 2 )
                 {
-                    throw new Error( "GIOP 1." + giop_minor + 
+                    throw new Error( "GIOP 1." + giop_minor +
                                      " only allows 2 Byte encodings for wchar, but the selected TCSW is UTF-8" );
                 }
 
-                short b = (short) (0xff & buffer[pos++]); 
+                short b = (short) (0xff & buffer[pos++]);
                 index++;
 
-                if( (b & 0x80) == 0 ) 
+                if( (b & 0x80) == 0 )
                 {
                     return (char) b;
                 }
-                else if( (b & 0xe0) == 0xc0 ) 
-                { 
-                    index++; 
-                    return (char)(((b & 0x1F) << 6) | 
-                                  ((short)buffer[pos++] & 0x3F)); 
-                }
-                else 
+                else if( (b & 0xe0) == 0xc0 )
                 {
-                    index += 2; 
-                    short b2 = (short)(0xff & buffer[pos++]);	
-                    return (char)(( ( b & 0x0F) << 12) | 
-                                  ( (b2 & 0x3F) << 6) | 
+                    index++;
+                    return (char)(((b & 0x1F) << 6) |
+                                  ((short)buffer[pos++] & 0x3F));
+                }
+                else
+                {
+                    index += 2;
+                    short b2 = (short)(0xff & buffer[pos++]);
+                    return (char)(( ( b & 0x0F) << 12) |
+                                  ( (b2 & 0x3F) << 6) |
                                   ( (short)buffer[pos++] & 0x3F));
                 }
             }
@@ -1110,20 +1157,20 @@ public class CDRInputStream
 
                 if( wchar_little_endian )
                 {
-                    c = (char) ( (buffer[ pos++ ] & 0xFF) | 
+                    c = (char) ( (buffer[ pos++ ] & 0xFF) |
                                  (buffer[ pos++ ] << 8) );
                 }
                 else
                 {
-                    c = (char) ( (buffer[ pos++ ] << 8) | 
+                    c = (char) ( (buffer[ pos++ ] << 8) |
                                  (buffer[ pos++ ] & 0xFF) );
                 }
-                
+
                 index += 2;
                 return c;
             }
         }
-    
+
 	throw new Error( "Bad CodeSet: " + codeSetW );
     }
 
@@ -1132,13 +1179,13 @@ public class CDRInputStream
      *
      * @return true for little endianess, false otherwise (including
      * no BOM present. In this case, big endianess is assumed per
-     * spec).  
+     * spec).
      */
     private final boolean readBOM()
     {
         /*
           if( !use_BOM )
-          return false; 
+          return false;
         */
 
         if( (buffer[ pos     ] == (byte) 0xFE) &&
@@ -1149,7 +1196,7 @@ public class CDRInputStream
 
             pos += 2;
             index += 2;
-            
+
             return false;
         }
         else if( (buffer[ pos     ] == (byte) 0xFF) &&
@@ -1157,10 +1204,10 @@ public class CDRInputStream
         {
             //encountering a byte order marker indicating
             //little endianess
-            
+
             pos += 2;
             index += 2;
-            
+
             return true;
         }
         else
@@ -1187,10 +1234,10 @@ public class CDRInputStream
 	}
 
         if( giop_minor == 2 )
-        {	
+        {
             // read size in bytes
             int size = _read4int( littleEndian, buffer, pos);
-            index += 4; 
+            index += 4;
             pos += 4;
 
             if( size == 0 )
@@ -1199,7 +1246,7 @@ public class CDRInputStream
             }
 
             char[] buf = new char[ size ];
-            
+
             int i = 0;
             int endPos = pos + size;
 
@@ -1212,21 +1259,21 @@ public class CDRInputStream
 
                 buf[ i++ ] = read_wchar( wchar_litte_endian );
             }
-            
+
             return new String( buf, 0, i );
         }
         else //GIOP 1.1 / 1.0
         {
             // read size
             int size = _read4int( littleEndian, buffer, pos);
-            index += 4; 
+            index += 4;
             pos += 4;
             char[] buf = new char[ size ];
 
             int endPos = pos + size;
 
             if( codeSetW == CodeSet.UTF16 )
-            {                
+            {
                 //size is in chars, but char has 2 bytes
                 endPos += size;
             }
@@ -1236,9 +1283,9 @@ public class CDRInputStream
             while( pos < endPos )
             {
                 //use the stream-wide endianess
-                buf[ i++ ] = read_wchar( littleEndian ); 
+                buf[ i++ ] = read_wchar( littleEndian );
             }
-            
+
             if( (i != 0) &&
                 (buf[ i - 1 ] == 0) )
             {
@@ -1251,7 +1298,7 @@ public class CDRInputStream
                 //allowed.
                 return new String( buf, 0, i );
             }
-        }                
+        }
     }
 
     public boolean markSupported()
@@ -1286,8 +1333,8 @@ public class CDRInputStream
 	littleEndian = b;
     }
 
-    /** 
-     * called from Any 
+    /**
+     * called from Any
      */
 
     final void read_value
@@ -1304,7 +1351,7 @@ public class CDRInputStream
 
 	switch (kind)
 	{
-            case TCKind._tk_null: 
+            case TCKind._tk_null:
             case TCKind._tk_void:
                 break;
             case TCKind._tk_boolean:
@@ -1318,7 +1365,7 @@ public class CDRInputStream
                 break;
             case TCKind._tk_octet:
                 out.write_octet( read_octet());
-                break;	    
+                break;
             case TCKind._tk_ushort:
                 out.write_ushort( read_ushort());
                 break;
@@ -1351,49 +1398,52 @@ public class CDRInputStream
                 break;
             case TCKind._tk_Principal:
                 throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-            case TCKind._tk_objref: 
+            case TCKind._tk_objref:
                 out.write_Object( read_Object());
                 break;
-            case TCKind._tk_string: 
+            case TCKind._tk_string:
                 out.write_string( read_string());
                 break;
-            case TCKind._tk_wstring: 
+            case TCKind._tk_wstring:
                 out.write_wstring( read_wstring());
                 break;
-            case TCKind._tk_array: 
+            case TCKind._tk_fixed:
+                out.write_fixed (read_fixed());
+                break;
+            case TCKind._tk_array:
                 try
                 {
                     int length = tc.length();
                     for( int i = 0; i < length; i++ )
                         read_value( tc.content_type(), out );
-                } 
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-                {} 
+                {}
                 break;
-            case TCKind._tk_sequence: 
+            case TCKind._tk_sequence:
                 try
                 {
                     int len = read_long();
                     out.write_long(len);
                     for( int i = 0; i < len; i++ )
                         read_value( tc.content_type(), out );
-                } 
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-                {} 
+                {}
                 break;
             case TCKind._tk_except:
                 out.write_string( read_string());
                 // don't break, fall through to ...
-            case TCKind._tk_struct: 
+            case TCKind._tk_struct:
                 try
                 {
                     for( int i = 0; i < tc.member_count(); i++)
                         read_value( tc.member_type(i), out );
-                } 
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
                 {
                     b.printStackTrace();
-                } 
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.Bounds b )
                 {
                     b.printStackTrace();
@@ -1411,7 +1461,7 @@ public class CDRInputStream
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
                 {
                     b.printStackTrace();
-                } 
+                }
                 break;
             case TCKind._tk_union:
                 try
@@ -1435,7 +1485,7 @@ public class CDRInputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }		
+                                }
                             }
                             break;
                         }
@@ -1470,7 +1520,7 @@ public class CDRInputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }		
+                                }
                             }
                             break;
                         }
@@ -1539,7 +1589,7 @@ public class CDRInputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }		
+                                }
                             }
                             break;
                         }
@@ -1556,7 +1606,7 @@ public class CDRInputStream
                                         member_idx = i;
                                         break;
                                     }
-                                }		
+                                }
                             }
                             break;
                         }
@@ -1568,7 +1618,7 @@ public class CDRInputStream
                             {
                                 if( i != def_idx)
                                 {
-                                    int label = 
+                                    int label =
                                         tc.member_label(i).create_input_stream().read_long();
                                     if(s == label)
                                     {
@@ -1592,15 +1642,15 @@ public class CDRInputStream
                     {
                         read_value( tc.member_type( def_idx ), out );
                     }
-                } 
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk ){} 
+                }
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk ){}
                 catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
 
-                break;	
+                break;
             case 0xffffffff:
                 try
                 {
-                    org.omg.CORBA.TypeCode _tc = 
+                    org.omg.CORBA.TypeCode _tc =
                         (org.omg.CORBA.TypeCode)recursiveTCMap.get(tc.id());
 
 
@@ -1612,11 +1662,11 @@ public class CDRInputStream
                     // Debug.output(4, "++ found recursive tc " + tc.id()  );
 
                     read_value( _tc , out );
-                } 
+                }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
                 {
                     b.printStackTrace();
-                } 
+                }
                 break;
             default:
                 throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
@@ -1624,7 +1674,7 @@ public class CDRInputStream
     }
 
 
-    public java.io.Serializable read_value() 
+    public java.io.Serializable read_value()
     {
 	int start_offset = pos;
         int tag = read_long();
@@ -1632,10 +1682,10 @@ public class CDRInputStream
         if (tag == 0xffffffff)
             // indirection
             return read_indirect_value();
-        else if (tag == 0x00000000) 
+        else if (tag == 0x00000000)
             // null tag
             return null;
-   
+
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
 
         tag = tag & 0xfffffffe;
@@ -1651,16 +1701,16 @@ public class CDRInputStream
             return read_multi_typed_value( start_offset, codebase );
         }
         else
-            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: "
                                              + Integer.toHexString(tag));
     }
 
     /**
      * @overrides read_value(java.io.Serializable value) in
-     * org.omg.CORBA_2_3.portable.InputStream 
+     * org.omg.CORBA_2_3.portable.InputStream
      */
 
-    public java.io.Serializable read_value (final String rep_id) 
+    public java.io.Serializable read_value (final String rep_id)
     {
 	int start_offset = pos;
         int tag = read_long();
@@ -1669,7 +1719,7 @@ public class CDRInputStream
             // indirection
             return read_indirect_value();
         }
-        else if (tag == 0x00000000) 
+        else if (tag == 0x00000000)
         {
             // null tag
             return null;
@@ -1693,27 +1743,27 @@ public class CDRInputStream
         }
         else
         {
-            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: "
                                              + Integer.toHexString(tag));
         }
     }
 
     /**
      * @overrides read_value(value) in
-     * org.omg.CORBA_2_3.portable.InputStream 
+     * org.omg.CORBA_2_3.portable.InputStream
      */
 
-    public java.io.Serializable read_value(java.io.Serializable value) 
+    public java.io.Serializable read_value(java.io.Serializable value)
     {
         return read_value( value.getClass()); // GB: is that okay?
     }
 
     /**
      * @overrides read_value(clz) in
-     * org.omg.CORBA_2_3.portable.InputStream 
+     * org.omg.CORBA_2_3.portable.InputStream
      */
 
-    public java.io.Serializable read_value (final java.lang.Class clz) 
+    public java.io.Serializable read_value (final java.lang.Class clz)
     {
 	int start_offset = pos;
         int tag = read_long();
@@ -1723,13 +1773,13 @@ public class CDRInputStream
             // indirection
             return read_indirect_value();
         }
-        else if (tag == 0x00000000) 
+        else if (tag == 0x00000000)
         {
             // null tag
             Debug.output( 4, "read_value(clz): read null tag");
             return null;
         }
-   
+
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
 
         tag = tag & 0xfffffffe;
@@ -1749,19 +1799,19 @@ public class CDRInputStream
         }
         else
         {
-            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: "
                                              + Integer.toHexString(tag));
         }
     }
 
     /**
      * @overrides read_value(factory) in
-     * org.omg.CORBA_2_3.portable.InputStream 
+     * org.omg.CORBA_2_3.portable.InputStream
      */
 
 
     public java.io.Serializable read_value
-    (final org.omg.CORBA.portable.BoxedValueHelper factory) 
+    (final org.omg.CORBA.portable.BoxedValueHelper factory)
     {
 	int start_offset = pos;
         int tag = read_long();
@@ -1771,17 +1821,17 @@ public class CDRInputStream
             // indirection
             return read_indirect_value();
         }
-        else if (tag == 0x00000000) 
+        else if (tag == 0x00000000)
         {
             // null tag, explicit representation of null value
             return null;
         }
-   
+
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
 
         tag = tag & 0xfffffffe;
 
-        if (tag == 0x7fffff00) 
+        if (tag == 0x7fffff00)
         {
             java.io.Serializable result = factory.read_value (this);
 
@@ -1789,17 +1839,17 @@ public class CDRInputStream
                 valueMap.put (new Integer(start_offset), result);
 
             return result;
-        } 
+        }
         else if (tag == 0x7fffff02)
         {
             // Read value according to type information.
             // Possible optimization: ignore type info and use factory for
-            // reading the value anyway, since the type information is 
+            // reading the value anyway, since the type information is
             // most likely redundant.
-            return read_typed_value(start_offset, codebase); 
+            return read_typed_value(start_offset, codebase);
         }
-        else 
-            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+        else
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: "
                                              + Integer.toHexString(tag));
     }
 
@@ -1810,7 +1860,7 @@ public class CDRInputStream
      * `index'.
      */
     private java.io.Serializable read_untyped_value (final String[] repository_ids,
-                                                     final int index, 
+                                                     final int index,
                                                      final String codebase)
     {
         java.io.Serializable result = null;
@@ -1823,7 +1873,7 @@ public class CDRInputStream
                 result = read_wstring();
                 break;
             }
-            else if( repository_ids[r].startsWith ("IDL:")) 
+            else if( repository_ids[r].startsWith ("IDL:"))
             {
                 org.omg.CORBA.portable.ValueFactory factory =
                     ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory (repository_ids[r]);
@@ -1839,7 +1889,7 @@ public class CDRInputStream
                     if( r < repository_ids.length-1 )
                         continue;
                     else
-                        throw new org.omg.CORBA.MARSHAL ("No factory found for: " + 
+                        throw new org.omg.CORBA.MARSHAL ("No factory found for: " +
                                                          repository_ids[0] );
                 }
             }
@@ -1863,7 +1913,7 @@ public class CDRInputStream
                 // Explicitly using the thread context class loader in the
                 // first place solves the problem."
 
-                String className = 
+                String className =
                     org.jacorb.ir.RepositoryID.className (repository_ids[r]);
 
                 Class c = null;
@@ -1872,7 +1922,7 @@ public class CDRInputStream
                 //#else
                 //# ClassLoader ctxcl = null;
                 //#endif
-                try 
+                try
                 {
                     if (ctxcl != null)
                     {
@@ -1887,13 +1937,13 @@ public class CDRInputStream
                     }
                     else
                     {
-                        c = ValueHandler.loadClass(className, codebase, null);      
+                        c = ValueHandler.loadClass(className, codebase, null);
                     }
 
-                    result = ValueHandler.readValue(this, index, c, 
+                    result = ValueHandler.readValue(this, index, c,
                                                     repository_ids[r], null);
                 }
-                catch (ClassNotFoundException e) 
+                catch (ClassNotFoundException e)
                 {
                     if( r < repository_ids.length-1 )
                         continue;
@@ -1914,27 +1964,27 @@ public class CDRInputStream
     }
 
     /**
-     * Reads a value with type information, i.e. one that is preceded 
-     * by a single RepositoryID.  It is assumed that the tag and the codebase 
+     * Reads a value with type information, i.e. one that is preceded
+     * by a single RepositoryID.  It is assumed that the tag and the codebase
      * of the value have already been read.
      */
 
-    private java.io.Serializable read_typed_value( final int index, 
-                                                   final String codebase) 
+    private java.io.Serializable read_typed_value( final int index,
+                                                   final String codebase)
     {
         return read_untyped_value ( new String[]{ read_repository_id() }, index, codebase);
     }
 
     /**
-     * Reads a value with type information, i.e. one that is preceded 
-     * by an array of RepositoryIDs.  It is assumed that the tag and the codebase 
+     * Reads a value with type information, i.e. one that is preceded
+     * by an array of RepositoryIDs.  It is assumed that the tag and the codebase
      * of the value have already been read.
      */
 
     private java.io.Serializable read_multi_typed_value( final int index,
-                                                         final String codebase) 
+                                                         final String codebase)
     {
-        int id_count = read_long();        
+        int id_count = read_long();
         String[] ids = new String[ id_count ];
 
         for( int i = 0; i < id_count; i++ )
@@ -1948,10 +1998,10 @@ public class CDRInputStream
      * Reads a RepositoryID from the buffer, either directly or via
      * indirection.
      */
-    private String read_repository_id() 
+    private String read_repository_id()
     {
         int tag = read_long();
-        if (tag == 0xffffffff)  
+        if (tag == 0xffffffff)
         {
             // indirection
             int index = read_long();
@@ -1980,17 +2030,17 @@ public class CDRInputStream
      * Reads a codebase from the buffer, either directly or via
      * indirection.
      */
-    private String read_codebase() 
+    private String read_codebase()
     {
         int tag = read_long();
-        if (tag == 0xffffffff)  
+        if (tag == 0xffffffff)
         {
             // indirection
             int index = read_long();
             index = index + pos - 4;
             String codebase = (String)codebaseMap.get (new Integer(index));
             if (codebase == null)
-                throw 
+                throw
                     new org.omg.CORBA.MARSHAL ("stale codebase indirection");
             else
                 return codebase;
@@ -2010,7 +2060,7 @@ public class CDRInputStream
      * Reads an indirect value from this stream. It is assumed that the
      * value tag (0xffffffff) has already been read.
      */
-    private java.io.Serializable read_indirect_value () 
+    private java.io.Serializable read_indirect_value ()
     {
         // indirection
         int index = read_long();
@@ -2018,47 +2068,79 @@ public class CDRInputStream
         java.lang.Object value = valueMap.get (new Integer(index));
         if (value == null) {
 
-            // Java to IDL Language Mapping, v1.1, page 1-44: 
+            // Java to IDL Language Mapping, v1.1, page 1-44:
             //
             // "The ValueHandler object may receive an IndirectionException
             // from the ORB stream. The ORB input stream throws this exception
             // when it is called to unmarshal a value encoded as an indirection
             // that is in the process of being unmarshaled. This can occur when
             // the ORB stream calls the ValueHandler object to unmarshal an RMI
-            // value whose state contains a recursive reference to itself. 
+            // value whose state contains a recursive reference to itself.
             // Because the top-level ValueHandler.readValue call has not yet
             // returned a value, the ORB stream's indirection table contains no
             // entry for an object with the stream offset specified by the
-            // indirection tag. This stream offset is returned in the 
+            // indirection tag. This stream offset is returned in the
             // exception's offset field."
 
             throw new org.omg.CORBA.portable.IndirectionException (index);
         }
         else
             return (java.io.Serializable)value;
-    } 
+    }
 
-    /**
-     * Reads an abstract interface from this stream. The abstract interface 
+    private String validateName (String name)
+    {
+        if (name != null && name.length () == 0)
+        {
+            return null;
+        }
+        return name;
+    }
+
+
+    private String validateMember (String name)
+    {
+        if (name == null || name.length () == 0)
+        {
+            uniqueValue = (++uniqueValue)%Integer.MAX_VALUE;
+            return ("DUMMY_NAME_".concat (String.valueOf (uniqueValue)));
+        }
+        return name;
+    }
+
+
+    private String validateID (String id)
+    {
+        if (id == null || id.length () == 0)
+        {
+            id = "IDL:";
+        }
+        return id;
+    }
+
+
+   /**
+     * Reads an abstract interface from this stream. The abstract interface
+     * Reads an abstract interface from this stream. The abstract interface
      * appears as a union with a boolean discriminator, which is true if the
      * union contains a CORBA object reference, or false if the union contains
-     * a value. 
+     * a value.
      */
 
     public java.lang.Object read_abstract_interface() {
-	return read_boolean() ? (java.lang.Object)read_Object() 
+	return read_boolean() ? (java.lang.Object)read_Object()
             : (java.lang.Object)read_value();
     }
 
     /**
-     * Reads an abstract interface from this stream. The abstract interface 
+     * Reads an abstract interface from this stream. The abstract interface
      * appears as a union with a boolean discriminator, which is true if the
      * union contains a CORBA object reference, or false if the union contains
-     * a value. 
+     * a value.
      */
 
     public java.lang.Object read_abstract_interface(final java.lang.Class clz) {
-	return read_boolean() ? (java.lang.Object)read_Object(clz) 
+	return read_boolean() ? (java.lang.Object)read_Object(clz)
             : (java.lang.Object)read_value(clz);
     }
 
