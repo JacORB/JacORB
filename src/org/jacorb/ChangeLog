@@ -1,3 +1,26 @@
+2004-12-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/threadpool/ThreadPool.java (getJob, putJob): Apply patch by
+	Marcel Gosselin, fixing bug #445.
+
+2004-11-24  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* security/ssl/sun_jsse/KeyStoreUtil.java: bug #489 now loading
+	from classpath first to be able to run in an unsigned applet.
+
+	* config/Configuration.java: (getConfiguration, <c'tor>): bug #489:
+	added boolean param "isApplet", added methid initApplet() that
+	avoids accessing files and system properties.
+
+	* orb/ORB.java: (set_parameters): bug #489: adapted to new
+	interface of jacorb Configuration class
+
+	* config/Configuration.java: (loadPropertiesFromClassPath): replaced
+	ClassLoader.getSystemResource() by
+	Thread.currentThread().getContextClassLoader().getResource() to be
+	able to resolve property files from custom jar files e.g. in
+	applets.
+
 2004-11-18  Andre Spiegel  <spiegel@gnu.org>
 
 	* util/Version.java: Bump version number to 2.2.1 (the
