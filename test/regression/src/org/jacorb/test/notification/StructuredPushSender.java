@@ -101,6 +101,9 @@ public class StructuredPushSender
     private void runOnEventArray()  {
         for (int x=0; x<events_.length; ++x) {
             try {
+                if (logger_.isDebugEnabled()) {
+                    logger_.debug("push#" + x  + " => " + events_[x] + " to channel");
+                }
                 pushConsumer_.push_structured_event(events_[x]);
             } catch (Exception e) {
                 logger_.error("", e);
