@@ -213,13 +213,17 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 
 #OASSLPort=4711
 
-# For using SSL, this interceptor *must* be set. Otherwise, it can
-# be left commented out.
+# This interceptor must be set if programs need access to
+# certificates usign the CORBA Security API, SSL works also
+# without this interceptor
+
 #org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
 
-#
-# numbers are decimal values !
-#
+# IIOP/SSL parameters (numbers are decimal values):
+# EstablishTrustInClient = 64
+# EstablishTrustInTarget = 32
+# mutual authentication = 96
+
 jacorb.security.support_ssl=off
 jacorb.security.ssl.supported_options=64
 jacorb.security.enforce_ssl=off
