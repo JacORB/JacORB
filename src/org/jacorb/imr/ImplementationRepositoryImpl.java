@@ -84,25 +84,34 @@ public class ImplementationRepositoryImpl
 	table_file_backup = table_backup;
 
 	//build up server table
-	if( new_table )
-        {
-	    server_table = new ServerTable();
-        }
-	else
-        {
-	    try
-            {
-		ObjectInputStream _in = new ObjectInputStream(new FileInputStream(table_file));
-		server_table = (ServerTable)_in.readObject();
 
-		_in.close();
-	    }
-            catch (Exception _e)
+        try
+        {
+            if (new_table)
             {
-		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
-		server_table = new ServerTable();
-	    }
-	}
+                server_table = new ServerTable ();
+                save_server_table (table_file);
+            }
+            else
+            {
+                try
+                {
+                    ObjectInputStream _in = new ObjectInputStream (new FileInputStream (table_file));
+                    server_table = (ServerTable)_in.readObject();
+                    _in.close();
+                }
+                catch (Exception ex)
+                {
+                    Debug.output (Debug.IMR | Debug.INFORMATION, ex);
+                    server_table = new ServerTable ();
+                    save_server_table (table_file);
+                }
+            }
+        }
+        catch (FileOpFailed ex)
+        {
+            Debug.output (Debug.IMR | Debug.INFORMATION, ex);
+        }
 	
 	//read in properties from Environment.
 	try
@@ -570,7 +579,7 @@ public class ImplementationRepositoryImpl
 
 	    if (_table_file_str == null){
 		System.out.println("WARNING: No file for the server table specified!");
-		System.out.println("Property org.jacorb.imr.table_file or use the -f switch");
+		System.out.println("Property jacorb.imr.table_file or use the -f switch");
 		System.out.println("Will create \"table.dat\" in current directory, if necessary");
 		_table_file_str = "table.dat";
 	    }
@@ -583,14 +592,14 @@ public class ImplementationRepositoryImpl
 	    if (!_table_file.exists()){ 	
 		System.out.println("ERROR: The table file does not exist!");
 		System.out.println("Please check " + _table_file.getAbsolutePath());
-		System.out.println("Property org.jacorb.imr.table_file or use the -n or -f switch");
+		System.out.println("Property jacorb.imr.table_file or use the -n or -f switch");
 		System.exit(-1);
 	    }
 
 	    if (_table_file.isDirectory()){
 		System.out.println("ERROR: The table file is a directory!");
 		System.out.println("Please check " + _table_file.getAbsolutePath());
-		System.out.println("Property org.jacorb.imr.table_file or use the -n or -f switch");
+		System.out.println("Property jacorb.imr.table_file or use the -n or -f switch");
 		System.exit(-1);
 	    }
 	
@@ -623,7 +632,7 @@ public class ImplementationRepositoryImpl
 	    _ior_file_str = Environment.getProperty("jacorb.imr.ior_file");
 	    if (_ior_file_str == null){
 		System.out.println("ERROR: Please specify a file for the IOR string!");
-		System.out.println("Property org.jacorb.imr.ior_file or use the -i switch");
+		System.out.println("Property jacorb.imr.ior_file or use the -i switch");
 
 		System.exit(-1);
 	    }
@@ -705,7 +714,7 @@ public class ImplementationRepositoryImpl
             Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 
 	    System.out.println("ERROR: Failed to write IOR to file.\nPlease check the path.");
-	    System.out.println("Property org.jacorb.imr.ior_file or -i <file> switch");
+	    System.out.println("Property jacorb.imr.ior_file or -i <file> switch");
 	    System.exit(-1);
 	}
 
