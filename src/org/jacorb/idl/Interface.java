@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2000  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -895,11 +895,13 @@ class Interface
                     printHolder( name, ps);
                     ps.close();
 
-                    // Stub
-
-                    ps = new PrintWriter(new java.io.FileWriter(new File(dir,"_" + name + "Stub.java")));
-                    printStub( name , ps );
-                    ps.close();
+                    if ( parser.generate_stubs )
+                    {
+                        // Stub
+                        ps = new PrintWriter(new java.io.FileWriter(new File(dir,"_" + name + "Stub.java")));
+                        printStub( name , ps );
+                        ps.close();
+                    }
 
                     if ( parser.generate_skeletons )
                     {
@@ -938,19 +940,6 @@ class Interface
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
