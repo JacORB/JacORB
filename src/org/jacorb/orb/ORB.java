@@ -25,6 +25,7 @@ import java.io.*;
 import java.applet.Applet;
 import java.lang.reflect.*;
 
+import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.util.*;
 import org.jacorb.orb.policies.*;
 import org.jacorb.orb.dii.Request;
@@ -479,26 +480,7 @@ public final class ORB
             //attempt to override the server IOR address with the ImR address
             try
             {
-                if( imr == null )
-                {
-                    try
-                    {
-                        imr = (ImRAccess) Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
-                        imr.connect( this );
-                    }
-                    catch( Exception e )
-                    {
-                        if( e instanceof org.omg.CORBA.INTERNAL )
-                        {
-                            throw (org.omg.CORBA.INTERNAL) e;
-                        }
-                        else
-                        {
-                            Debug.output( 1, e );
-                            throw new org.omg.CORBA.INTERNAL( e.toString() );
-                        }
-                    }
-                }
+                getImR ();
 
                 // set host and port to ImR's values
                 address = getIMRAddressForIOR( imr.getImRHost() );
@@ -814,28 +796,7 @@ public final class ORB
         {
             persistentPOACount++;
 
-            /* Lookup the implementation repository */
-
-            if( imr == null && Environment.useImR() )
-            {
-                try
-                {
-                    imr = (ImRAccess) Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
-                    imr.connect( this );
-                }
-                catch( Exception e )
-                {
-                    if( e instanceof org.omg.CORBA.INTERNAL )
-                    {
-                        throw (org.omg.CORBA.INTERNAL) e;
-                    }
-                    else
-                    {
-                        Debug.output( 1, e );
-                        throw new org.omg.CORBA.INTERNAL( e.toString() );
-                    }
-                }
-            }
+            getImR ();
 
             if( imr != null )
             {
@@ -846,6 +807,38 @@ public final class ORB
                                  server_name, // logical server name
                                  getServerAddress(),
                                  getServerPort() );
+            }
+        }
+    }
+
+
+    private void getImR ()
+    {
+        /* Lookup the implementation repository */
+        if( imr == null && Environment.useImR() )
+        {
+            try
+            {
+                imr = ImRAccessImpl.connect (this);
+            }
+            catch( Exception e )
+            {
+                // If we failed to resolve the IMR set the reference to null.
+                Debug.output (2, "Error: No connection to ImplementationRepository");
+                Debug.output (3, e);
+
+                if( e instanceof org.omg.CORBA.INTERNAL )
+                {
+                    throw new org.omg.CORBA.OBJ_ADAPTER ("Unable to resolve ImR");
+                }
+                else if (e instanceof org.omg.CORBA.TRANSIENT)
+                {
+                    throw (org.omg.CORBA.TRANSIENT)e;
+                }
+                else
+                {
+                    throw new org.omg.CORBA.OBJ_ADAPTER( e.toString() );
+                }
             }
         }
     }
@@ -1101,8 +1094,6 @@ public final class ORB
             {
                 obj = new CodecFactoryImpl(this);
             }
-//              else if( identifier.equals("TransactionCurrent") )
-//                  obj = new org.jacorb.transaction.TransactionCurrentImpl();
             else
             {
                 throw new org.omg.CORBA.ORBPackage.InvalidName ();
@@ -1116,31 +1107,6 @@ public final class ORB
             return obj;
         }
     }
-
-//      private void initialReferencesInit()
-//      {
-//          Hashtable props = Environment.getProperties( "ORBInitRef." );
-
-//          for( Enumeration names = props.keys(); names.hasMoreElements(); )
-//          {
-//              String name = (String) names.nextElement();
-//              String key = name.substring( name.indexOf('.')+1);
-//              try
-//              {
-//                  register_initial_reference( key,
-//                             string_to_object( (String) props.get( name )));
-
-//                  Debug.output(3, "ORBInitRef " + key + " string: " +
-//                               (String) props.get( name ));
-//              }
-//              catch( Exception e )
-//              {
-//                  Debug.output( 1, "Unable to create initial reference from " +
-//                                name + "=" + props.get( name ) );
-//                  Debug.output( 3, e );
-//              }
-//          }
-//      }
 
 
     /**
@@ -1386,32 +1352,10 @@ public final class ORB
                                dateString);
         }
 
-//          Hashtable initrefs = Environment.getProperties("ORBInitRef");
-
-//          for( Enumeration e = initrefs.keys(); e.hasMoreElements(); )
-//          {
-//              String key = (String)e.nextElement();
-//              Object obj = string_to_object( (String)initrefs.get( key ));
-//              if( obj != null )
-//                  initial_references.put( key.substring( key.indexOf('.')+1), obj);
-//          }
-
         always_add_1_0_Profile =
             Environment.isPropertyOn( "jacorb.giop.add_1_0_profiles" );
 
-
-
         interceptorInit();
-
-//          try
-//          {
-//              resolve_initial_references("SecurityCurrent");
-//          }
-//          catch( Exception e )
-//          {
-//              e.printStackTrace();
-//          }
-
     }
 
     protected void set_parameters
@@ -1590,7 +1534,7 @@ public final class ORB
 
         clientConnectionManager.shutdown();
         knownReferences.clear();
-        BufferManager.getInstance().release();
+        bufferManager.release();
 
         Debug.output(3,"ORB shutdown (all tables cleared)");
 
