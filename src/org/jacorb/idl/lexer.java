@@ -417,8 +417,8 @@ public class lexer
             line = new StringBuffer();
         }
 
-        if( logger.isDebugEnabled() )
-            logger.debug("Lexer.advance() next_char is " + next_char + " (" + (char)next_char + ")");
+//          if( logger.isDebugEnabled() )
+//              logger.debug("Lexer.advance() next_char is " + next_char + " (" + (char)next_char + ")");
     }
 
 
@@ -985,7 +985,7 @@ public class lexer
         if( text != null )
         {
             char[] next = {(char)next_char, (char)next_char2};
-            GlobalInputStream.insert( text + ( new String( next ) ) );
+            GlobalInputStream.insert( text +  next ) );
             advance(); // restore lookahead
             advance(); // restore lookahead
             return null;
