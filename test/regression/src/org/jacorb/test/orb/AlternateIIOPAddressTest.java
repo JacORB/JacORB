@@ -46,7 +46,7 @@ public class AlternateIIOPAddressTest extends ClientServerTestCase
         TestSuite suite = new TestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS");
 
         Properties client_props = new Properties();
-        client_props.setProperty ("jacorb.retries", "2");
+        client_props.setProperty ("jacorb.retries", "0");
         client_props.setProperty ("jacorb.retry_interval", "50");
 
         Properties server_props = new Properties();

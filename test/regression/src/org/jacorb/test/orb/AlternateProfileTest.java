@@ -60,7 +60,7 @@ public class AlternateProfileTest extends ClientServerTestCase
         TestSuite suite = new TestSuite("Test TAG_ALTERNATE_IIOP_ADDRESS");
 
         Properties client_props = new Properties();
-        client_props.setProperty ("jacorb.retries", "2");
+        client_props.setProperty ("jacorb.retries", "0");
         client_props.setProperty ("jacorb.retry_interval", "50");
         client_props.setProperty ("jacorb.connection.client.pending_reply_timeout", "2000");
         client_props.setProperty ("jacorb.log.verbosity", "4");
