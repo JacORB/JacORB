@@ -20,7 +20,6 @@
 
 package org.jacorb.orb;
 
-import org.jacorb.orb.*;
 import org.jacorb.orb.connection.MessageInputStream;
 import org.jacorb.orb.connection.ReplyInputStream;
 import org.jacorb.orb.connection.ReplyPlaceholder;
@@ -28,6 +27,7 @@ import org.jacorb.util.*;
 
 import org.omg.GIOP.*;
 import org.omg.CORBA.SystemException;
+import org.omg.CORBA._AliasDefStub;
 import org.omg.CORBA.portable.RemarshalException;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.InvokeHandler;
@@ -117,112 +117,112 @@ public class ReplyReceiver extends ReplyPlaceholder
     public synchronized ReplyInputStream getReply()
         throws RemarshalException, ApplicationException
     {
-        // Call to super implementation handles RemarshalException,
-        // COMM_FAILURE, and timeout (IMP_LIMIT).
-        ReplyInputStream reply = ( ReplyInputStream ) super.getInputStream();
-        Set pending_replies    = delegate.get_pending_replies();
-
-        // ReplyStatusType_1_2 status = delegate.doNotCheckExceptions()
-        //                            ? ReplyStatusType_1_2.NO_EXCEPTION
-        //                            : reply.getStatus();
-
         try
         {
-            if ( !delegate.doNotCheckExceptions() )
-            {
-                // This will check the reply status and
-                // throw arrived exceptions
-                reply.checkExceptions();
-            }
-            interceptors.handle_receive_reply ( reply );
-            return reply;
+            super.getInputStream();  // block until reply is available
+        }
+        catch ( SystemException se )
+        {
+            interceptors.handle_receive_exception( se );
+            throw se;
         }
         catch ( RemarshalException re )
         {
             // Wait until the thread that received the actual
             // forward request rebound the Delegate
             delegate.waitOnBarrier();
-            throw re;
-        }            
-        catch ( org.omg.PortableServer.ForwardRequest f )
-        {
-            intercept_location_forward ( reply, f.forward_reference );
-            
-            // make other threads that have unreturned replies wait
-            delegate.lockBarrier();
+            throw new RemarshalException();   
+        }
 
-            // tell every pending request to remarshal
-            // they will be blocked on the barrier
-            synchronized ( pending_replies )
+        ReplyInputStream reply = ( ReplyInputStream ) in;
+        
+        ReplyStatusType_1_2 status = delegate.doNotCheckExceptions()
+                                     ? ReplyStatusType_1_2.NO_EXCEPTION
+                                     : reply.getStatus();
+                                       
+        switch ( status.value() )
+        {
+            case ReplyStatusType_1_2._NO_EXCEPTION:
             {
-                for ( Iterator i = pending_replies.iterator(); i.hasNext(); )
-                {
-                    ReplyPlaceholder p = ( ReplyPlaceholder ) i.next();
-                    p.retry();
-                }
+                interceptors.handle_receive_reply ( reply );
+                return reply;
             }
-            
-            // do the actual rebind
-            delegate.rebind ( f.forward_reference );
-            
-            // now other threads can safely remarshal
-            delegate.openBarrier();
-            
-            throw new RemarshalException();
-        }
-        catch ( SystemException se )
-        {
-            intercept_exception ( se, reply );
-            throw se;
-        }
-        catch ( ApplicationException ae )
-        {
-            intercept_exception ( ae, reply );
-            throw ae;
-        }
-
-    }
-
-    private void intercept_location_forward 
-                                    ( ReplyInputStream reply,
-                                      org.omg.CORBA.Object forward_reference )
-    {
-        try
-        {
-            interceptors.handle_location_forward ( reply, forward_reference );
-        }
-        catch ( RemarshalException re )
-        {
-            remarshalException = true;
-        }
-    }
-    
-    private void intercept_exception ( SystemException ex, 
-                                       ReplyInputStream reply )
-    {
-        try
-        {
-            interceptors.handle_receive_exception ( ex, reply );    
-        }
-        catch ( RemarshalException re )
-        {
-            remarshalException = true;
+            case ReplyStatusType_1_2._USER_EXCEPTION:
+            {
+                ApplicationException ae = getApplicationException ( reply );
+                interceptors.handle_receive_exception( ae, reply );
+                throw ae;
+            }
+            case ReplyStatusType_1_2._SYSTEM_EXCEPTION:
+            {
+                SystemException se = SystemExceptionHelper.read ( reply );
+                interceptors.handle_receive_exception( se, reply );
+                throw se;
+            }
+            case ReplyStatusType_1_2._LOCATION_FORWARD:
+            case ReplyStatusType_1_2._LOCATION_FORWARD_PERM:
+            {
+                org.omg.CORBA.Object forward_reference = reply.read_Object();
+                interceptors.handle_location_forward( reply, forward_reference );
+                doRebind( forward_reference );
+                throw new RemarshalException();               
+            }
+            case ReplyStatusType_1_2._NEEDS_ADDRESSING_MODE:
+            {
+                throw new org.omg.CORBA.NO_IMPLEMENT( 
+                            "WARNING: Got reply status NEEDS_ADDRESSING_MODE "
+                          + "(not implemented)." );
+            }
+            default:
+            {
+                throw new Error( "Received unexpected reply status: " +
+                                 status.value() );
+            }                
         }
     }
 
-    private void intercept_exception ( ApplicationException ex, 
-                                       ReplyInputStream reply )
+    private void doRebind ( org.omg.CORBA.Object forward_reference )
     {
+        // make other threads that have unreturned replies wait
+        delegate.lockBarrier();
+
+        // tell every pending request to remarshal
+        // they will be blocked on the barrier
+        Set pending_replies = delegate.get_pending_replies();
+        synchronized ( pending_replies )
+        {
+            for ( Iterator i = pending_replies.iterator(); i.hasNext(); )
+            {
+                ReplyPlaceholder p = ( ReplyPlaceholder ) i.next();
+                p.retry();
+            }
+        }
+            
+        // do the actual rebind
+        delegate.rebind ( forward_reference );
+            
+        // now other threads can safely remarshal
+        delegate.openBarrier();
+    }
+
+    private ApplicationException getApplicationException ( ReplyInputStream reply )
+    {
+        reply.mark( 0 ); 
+        String id = reply.read_string();
+                
         try
         {
-            interceptors.handle_receive_exception ( ex, reply );    
+            reply.reset();
         }
-        catch ( RemarshalException re )
+        catch( java.io.IOException ioe )
         {
-            remarshalException = true;
+            //should not happen anyway
+            Debug.output( 1, ioe );
         }
+
+        return new ApplicationException( id, reply );
     }
-    
+
     private static class DummyResponseHandler 
         implements org.omg.CORBA.portable.ResponseHandler
     {
