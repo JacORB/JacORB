@@ -77,13 +77,19 @@ public class Configuration
     }
 
     /**
-     * loads properties from files. Properties are loaded int the
-     * following order, with later properties overriding earlier ones,
+     * loads properties from files. 
+     *
+     * Properties are loaded in the following order, with later properties 
+     * overriding earlier ones:
      * 1) System properties (incl. command line)
      * 2) common.orb.properties file
      * 2) specific configuration file for the ORB (if any)
      * 3) the ORB properties set in the client code and passed int through ORB.init(). 
      *    (Note that these will thus always take effect!)
+     *
+     * @param name the name for the ORB instance, may not be null. For the unspecified
+     * case, the name may be "anonymous", int which case no ORB-specific properties file
+     * will be looked up.
      */
 
     private void init(String name, Properties orbProperties)
@@ -119,38 +125,40 @@ public class Configuration
             setAttributes(commonProps);
 
         // 3) look for specific properties file
-
-        String configDir = 
-            System.getProperty("jacorb.config.dir");
-
-        if (configDir == null)
-            configDir = System.getProperty("jacorb.home");
-
-        if (configDir != null )
-            configDir += separator + "etc";
-        else
+        if( !name.equals("anonymous"))
         {
-            System.err.println("[ jacorb.home unset! Will use '.']");
-            configDir = ".";
-        }
-        
-        String propFileName = configDir + separator + name + fileSuffix;
-
-        // now load properties file from file system
-        Properties orbConfig = loadPropertiesFromFile(propFileName );
-
-        if (orbConfig!= null)
-        {
-            System.out.println("[configuration " + name + " loaded from file]");
-            setAttributes(orbConfig);
-        }
-
-        // now load properties file from classpath
-        orbConfig = loadPropertiesFromClassPath( name +  fileSuffix );
-        if (orbConfig!= null)
-        {
-            System.out.println("[configuration " + name + " loaded from classpath]");
-            setAttributes(orbConfig);
+            String configDir = 
+                System.getProperty("jacorb.config.dir");
+            
+            if (configDir == null)
+                configDir = System.getProperty("jacorb.home");
+            
+            if (configDir != null )
+                configDir += separator + "etc";
+            else
+            {
+                System.err.println("[ jacorb.home unset! Will use '.']");
+                configDir = ".";
+            }
+            
+            String propFileName = configDir + separator + name + fileSuffix;
+            
+            // now load properties file from file system
+            Properties orbConfig = loadPropertiesFromFile(propFileName );
+            
+            if (orbConfig!= null)
+            {
+                System.out.println("[configuration " + name + " loaded from file]");
+                setAttributes(orbConfig);
+            }
+            
+            // now load properties file from classpath
+            orbConfig = loadPropertiesFromClassPath( name +  fileSuffix );
+            if (orbConfig!= null)
+            {
+                System.out.println("[configuration " + name + " loaded from classpath]");
+                setAttributes(orbConfig);
+            }
         }
 
         // 4) load properties passed to ORB.init(), these will override any
