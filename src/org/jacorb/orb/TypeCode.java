@@ -922,26 +922,27 @@ public class TypeCode
      * @return the content type if this is an alias, this otherwise
      */
 
-    public org.jacorb.orb.TypeCode originalType()
-    {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return actualTypecode.originalType ();
-       }
+   public org.jacorb.orb.TypeCode originalType()
+   {
+      if (is_recursive ())
+      {
+         // recursive typecodes must be structs or unions so there is no
+         // unwinding of aliases to be done
+         return this;
+      }
 
-       org.jacorb.orb.TypeCode tc = this;
-        try
-        {
-            while( tc.kind() == org.omg.CORBA.TCKind.tk_alias)
-                tc = (org.jacorb.orb.TypeCode)tc.content_type();
-        }
-        catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-        {
-            // does not happen
-        }
-        return tc;
-    }
+      org.jacorb.orb.TypeCode tc = this;
+      try
+      {
+         while( tc.kind() == org.omg.CORBA.TCKind.tk_alias)
+            tc = (org.jacorb.orb.TypeCode)tc.content_type();
+      }
+      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+      {
+         // does not happen
+      }
+      return tc;
+   }
 
     /**
      * Creates a TypeCode for an arbitrary Java class.
@@ -1031,25 +1032,33 @@ public class TypeCode
 
    void resolveRecursion (TypeCode actual)
    {
-      for (int i = 0; i < member_count; i++)
+      if (member_type == null)
       {
-         switch (member_type[i].kind)
+         return;
+      }
+
+      TypeCode tc;
+      for (int i = 0; i < member_type.length; i++)
+      {
+         tc = member_type[i].originalType ();
+
+         switch (tc.kind)
          {
          case   TCKind._tk_struct:
          case   TCKind._tk_union:
-            member_type[i].resolveRecursion (actual);
+            tc.resolveRecursion (actual);
             break;
          case   TCKind._tk_sequence:
-            if (member_type[i].content_type.is_recursive ()
-                && member_type[i].content_type.id.equals (actual.id))
+            tc = tc.content_type.originalType ();
+
+            if (tc.is_recursive () && tc.id.equals (actual.id))
             {
-               member_type[i].content_type.setActualTC (actual);
+               tc.setActualTC (actual);
             }
             else
             {
-               member_type[i].content_type.resolveRecursion (actual);
+               tc.resolveRecursion (actual);
             }
-            break;
          }
       }
    }
