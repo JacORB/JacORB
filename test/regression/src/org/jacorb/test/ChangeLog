@@ -1,3 +1,7 @@
+2003-09-02  Gerald Brose  <gerald.brose@acm.org>
+
+	* Version 2.0 beta 1 released.
+
 2003-08-31  Andre Spiegel  <spiegel@gnu.org>
 
 	* bugs/AllTest.java (suite): Add bug228.
