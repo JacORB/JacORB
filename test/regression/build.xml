@@ -77,6 +77,7 @@
       <antcall target="idl-basicserver"/>
       <antcall target="idl-charserver"/>
       <antcall target="idl-callbackserver"/>
+      <antcall target="idl-timingserver"/>
    </target>
 
 
@@ -153,6 +154,14 @@
       <property name="pkg.idl" value="org/jacorb/Tests"/>
       <property name="callback.idl" value="true"/>
       <property name="file.idl" value="CallbackServer.idl"/>
+      <antcall target="process-idl"/>
+  </target>
+
+  <target name="idl-timingserver">
+      <property name="props.idl" value="TimingServer"/>
+      <property name="pkg.idl" value="org/jacorb/Tests"/>
+      <property name="callback.idl" value="true"/>
+      <property name="file.idl" value="TimingServer.idl"/>
       <antcall target="process-idl"/>
   </target>
 
