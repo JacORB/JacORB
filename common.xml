@@ -4,11 +4,17 @@
 <!-- This should not be called directly; instead it      -->
 <!-- should be included with '&common;' syntax.          -->
 
-<target name="init" depends="ant-version">
+<target name="base-init" unless="BASE-INIT">
     <property name="dirs.base" value="${basedir}"/>
     <property name="src" value="${dirs.base}/src"/>
     <property name="lib" value="${dirs.base}/lib"/>
     <property name="idl" value="${dirs.base}/idl"/>
+</target>
+
+
+<!-- Call base-init first. The regression tests call this but -->
+<!-- have their own base-init                                 -->
+<target name="init" depends="base-init,ant-version">
     <property name="debug" value="off"/>
     <!-- This value only used under Ant 1.5 -->
     <property name="debuglevel" value="lines,source"/>
@@ -20,7 +26,6 @@
           <os family="dos"/>
        </or>
     </condition>
-
     <!-- Location of the compiled classes -->
     <pathconvert property="classdir" targetos="${architecture}">
        <path>
@@ -32,6 +37,7 @@
     <pathconvert property="classpath" targetos="${architecture}">
        <path>
           <pathelement location="${dirs.base}/classes"/>
+          <pathelement location="${basedir}/classes"/>
           <pathelement location="${lib}/logkit.jar"/>
           <pathelement location="${lib}/concurrent.jar"/>
           <pathelement location="${lib}/antlr.jar"/>
@@ -44,6 +50,7 @@
     <pathconvert property="xbootclasspath" targetos="${architecture}">
        <path>
           <pathelement location="${dirs.base}/classes"/>
+          <pathelement location="${basedir}/classes"/>
           <pathelement location="${sun.boot.class.path}"/>
           <pathelement location="${lib}/logkit.jar"/>
           <pathelement location="${lib}/concurrent.jar"/>
@@ -54,7 +61,6 @@
     </pathconvert>
 
     <mkdir dir="${classdir}"/>
-    <mkdir dir="${lib}"/>
     <mkdir dir="${src}/generated"/>
     <filter token="path" value="basedir"/>
 </target>
