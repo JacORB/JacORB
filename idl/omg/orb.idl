@@ -47,8 +47,9 @@ module CORBA
 	tk_sequence, tk_array, tk_alias, tk_except, 
 	tk_longlong, tk_ulonglong, tk_longdouble,
 	tk_wchar, tk_wstring, tk_fixed, tk_value,
-	tk_value_box, 
-	tk_native, tk_abstract_interface
+	tk_value_box,
+	tk_native, tk_abstract_interface,
+        tk_local_interface // latest addition
     };
     
     // not suitable for deriving user-defined interfaces

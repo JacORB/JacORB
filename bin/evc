@@ -1,6 +1,6 @@
 #!/bin/sh 
 
-# JacORB v1.0 name server
+# JacORB v1.0 event channel server
 # Gerald Brose, Freie Universitaet Berlin
 # brose@inf.fu-berlin.de
 

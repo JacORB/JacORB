@@ -85,8 +85,9 @@
       
       <mkdir dir="${src}/generated/org"/> 
 
-      <copy todir="${src}/generated">
-         <fileset dir="${src}/omg-99-10-27">
+      <copy todir="${src}/generated" overwrite="yes">
+         <!-- <fileset dir="${src}/omg-99-10-27"> -->
+         <fileset dir="${src}/omg-02-01-02">
              <include name="**/*.java"/>
          </fileset>
       </copy>
@@ -103,6 +104,9 @@
 
       <copy file="${src}/java_mapping/CORBA/ORB.java"
          tofile="${src}/generated/org/omg/CORBA/ORB.java"
+      />
+      <copy file="${src}/java_mapping/CORBA/Any.java"
+         tofile="${src}/generated/org/omg/CORBA/Any.java"
       />
       <copy file="${src}/java_mapping/CORBA/LocalObject.java"
          tofile="${src}/generated/org/omg/CORBA/LocalObject.java"

@@ -18,7 +18,7 @@
                    property="rmi.iiop.present"/>
    </target>
 
-   <target name="all" depends="init,reference-without-rmi,reference-with-rmi,domain,compile,dns"/> <!-- ir -->
+   <target name="all" depends="init,reference-without-rmi,reference-with-rmi,compile,dns"/> <!-- ir -->
 
    <target name="reference-without-rmi" unless="rmi.iiop.present">
         <echo message="RMI/IIOP not present, using old Reference inheritance."/>

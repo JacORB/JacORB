@@ -89,18 +89,41 @@ module CORBA
     exception BAD_INV_ORDER  ex_body;
     exception TRANSIENT  ex_body;
     exception FREE_MEM  ex_body;
+
     exception INV_IDENT  ex_body;
-    exception INV_FLAG  ex_body;
-    exception INTF_REPOS  ex_body;
-    exception BAD_CONTEXT  ex_body;
-    exception OBJ_ADAPTER  ex_body;
-    exception DATA_CONVERSION  ex_body;
-    exception OBJECT_NOT_EXIST  ex_body;
-    exception TRANSACTION_REQUIRED  ex_body;
-    exception TRANSACTION_ROLLEDBACK  ex_body;
+
+    exception INV_FLAG ex_body;
+    // invalid flag was specified
+    exception INTF_REPOS ex_body;
+    // error accessing interface repository
+    exception BAD_CONTEXT ex_body;
+    // error processing context object
+    exception OBJ_ADAPTER ex_body;
+    // failure detected by object adapter
+    exception DATA_CONVERSION ex_body;
+    // data conversion error
+    exception OBJECT_NOT_EXIST ex_body;
+    // non-existent object, delete reference
+    exception TRANSACTION_REQUIRED ex_body;
+    // transaction required
+    exception TRANSACTION_ROLLEDBACK ex_body;
+    // transaction rolled back
     exception INVALID_TRANSACTION ex_body;
+    // invalid transaction
     exception INV_POLICY ex_body;
+    // invalid policy
     exception CODESET_INCOMPATIBLE ex_body;
+    // incompatible code set
+    exception REBIND ex_body;
+    // rebind needed
+    exception TIMEOUT ex_body;
+    // operation timed out
+    exception TRANSACTION_UNAVAILABLE ex_body;
+    // no transaction
+    exception TRANSACTION_MODE ex_body;
+    // invalid transaction mode
+    exception BAD_QOS ex_body;
+    // bad quality of service
 
 
     pseudo interface ImplementationDef {};

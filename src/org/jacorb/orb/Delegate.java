@@ -26,7 +26,6 @@ import java.lang.Object;
 import java.net.*;
 
 import org.jacorb.util.*;
-import org.jacorb.orb.domain.*;
 import org.jacorb.orb.connection.*;
 import org.jacorb.poa.POAConstants;
 import org.jacorb.orb.portableInterceptor.*;
@@ -53,9 +52,6 @@ public final class Delegate
     // OF THE REFERENCE.
     private ParsedIOR _pior = null;
     private ClientConnection connection = null;
-
-    /** domain service used to implement get_policy and get_domain_managers */
-    private static Domain _domainService = null;
 
     /* save last ior for fallback */
     private ParsedIOR piorOriginal = null;
@@ -386,64 +382,13 @@ public final class Delegate
         return getParsedIOR().getAdPort();
     }
 
-    private org.jacorb.orb.domain.Domain _domainService()
-    {
-        if (_domainService == null)
-        {
-            try 
-            { 
-
-                Debug.output(Debug.DOMAIN | Debug.DEBUG1, 
-                             "Delegate._domainService: fetching "
-                             +"global domain service reference from orb");
-
-                _domainService= org.jacorb.orb.domain.DomainHelper.narrow
-                    ( this.orb.resolve_initial_references("DomainService") );
-            }
-            catch (Exception e) 
-            {
-                Debug.output(Debug.DOMAIN | Debug.IMPORTANT, e);
-            }
-        }
-
-        return _domainService;
-    } // _domainService
 
 
     public org.omg.CORBA.DomainManager[] get_domain_managers
         (org.omg.CORBA.Object self)
-    {    
-        // ask object implementation
-        while(true)
-        {
-            try
-            {
-                org.omg.CORBA.portable.OutputStream os = 
-                    request(self, "_get_domain_managers", true );
-
-                os.write_Object(self);
-                org.omg.CORBA.portable.InputStream is = invoke( self, os );
-
-                return org.jacorb.orb.domain.DomainListHelper.read( is );
-            }
-            catch ( RemarshalException r ){}
-            catch( ApplicationException _ax )
-            {
-                String _id = _ax.getId();
-                throw new RuntimeException("Unexpected exception " + _id );
-            }
-
-            //   catch (org.omg.CORBA.BAD_OPERATION e)
-            //              { // object implementation does not support domain service
-            //              // therefore ask global domain service 
-            //              Debug.output
-            //                  (2,"Delegate: catched BAD_OPERATION exception, resuming "
-            //                   + "operation _domain_managers() by getting domains from "
-            //                   + "global domain service");
-            //              return _domainService().getDomains(self);
-            //              }
-        }
-    } // get_domain_managers
+    {
+        return null;
+    }
 
 
     /**

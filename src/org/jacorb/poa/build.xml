@@ -14,13 +14,19 @@
 	<available classname="javax.swing.JTree" property="swing.present" />
    </target>
 
-   <target name="all" depends="init,base,gui"/>
+   <target name="all" depends="init,util,base,gui"/>
 	
-
    <target name="base">
 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
-	       includes="org/jacorb/poa/**.java,org/jacorb/poa/except/*.java,org/jacorb/poa/policy/*.java,org/jacorb/poa/util/*.java"
+	       includes="org/jacorb/poa/except/*.java,org/jacorb/poa/policy/*.java,org/jacorb/poa/**.java"
+	        />
+   </target>
+
+   <target name="util">
+	<javac debug="${debug}" srcdir="${src}"
+               destdir="${classdir}"
+	       includes="org/jacorb/poa/util/*.java"
 	        />
    </target>
 

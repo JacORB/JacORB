@@ -236,13 +236,15 @@ public class Name
     }
 
     /**
-     * @returns an a array of NameComponents
+     *
+     * @return an a array of NameComponents
+     * @throw org.omg.CosNaming.NamingContextPackage.InvalidName
      */
 
-    public static org.omg.CosNaming.NameComponent[] toName(String sn) 
+    public static org.omg.CosNaming.NameComponent[] toName( String sn ) 
 	throws org.omg.CosNaming.NamingContextPackage.InvalidName
     {
-	if( sn.startsWith("/"))
+	if( sn == null || sn.length() == 0 || sn.startsWith("/"))
 	    throw new InvalidName();
 
 	Vector v = new Vector();
@@ -321,14 +323,5 @@ public class Name
 	return sb.toString();
     }
 
-
 }
-
-
-
-
-
-
-
-
 

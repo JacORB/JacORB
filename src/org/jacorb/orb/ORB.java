@@ -29,7 +29,6 @@ import org.jacorb.util.*;
 import org.jacorb.orb.policies.*;
 import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.connection.*;
-import org.jacorb.orb.domain.DomainFactory;
 import org.jacorb.orb.portableInterceptor.*;
 
 import org.omg.CORBA.TypeCode;
@@ -101,9 +100,6 @@ public final class ORB
 
     /** do we always add GIOP 1.0 profiles in GIOP 1.2 IORs ? */
     private boolean always_add_1_0_Profile = false;
-
-    /** synchroniziation for orb domain creation */ 
-    private static boolean ORBDomainCreationInProgress = false;
   
     /* for registering POAs with the ImR */
     private ImRAccess imr = null;
@@ -122,8 +118,8 @@ public final class ORB
     private static org.omg.CORBA.TCKind kind;
 
     private static final String [] services  = 
-    {"RootPOA","POACurrent",  "DynAnyFactory", "DomainService", 
-     "LocalDomainService", "PICurrent", "CodecFactory"};
+    {"RootPOA","POACurrent",  "DynAnyFactory", 
+     "PICurrent", "CodecFactory"};
 
     private boolean bidir_giop = false;
 
@@ -893,109 +889,6 @@ public final class ORB
             else if( identifier.equals("POACurrent") )
             {
                 return (org.omg.CORBA.Object)getPOACurrent();
-            }
-            else if( identifier.equals("LocalDomainService") )
-            { 
-                if ( ! Environment.useDomain() ) 
-                    throw new org.omg.CORBA.ORBPackage.InvalidName(
-                         "domain service is not configured for usage."
-                         +" Set property \"jacorb.use_domain\" to \"on\".");
-          
-                // make  a  new local,  orb-specific
-                // instance of a domain called "orb domain"
-
-                org.jacorb.orb.domain.ORBDomain orb_domain= null;
-
-                // recursion  end: at  orb  domain  creation the  orb
-                // domain itself wants to be mapped by the poa to some
-                // domain(s).   The   poa   calls   this   part   of
-                // resolve_initial_references again  to obtain the orb
-                // domain. The  dilemma is,  that the  orb  domain is
-                // going  to be created  and the reference to  it will
-                // not   be   available   until   poa.servant_to_ref
-                // returns. The chosen solution to this problem is to
-                // return a  null  refence on  the  second call.  The
-                // method POA.doInitialMapping() knows how to handle this.
-
-                if( ORBDomainCreationInProgress ) 
-                    throw new org.omg.CORBA.ORBPackage.InvalidName("second call");
-
-                ORBDomainCreationInProgress = true;
-                try 
-                {               
-                    // policy factory
-                    org.jacorb.orb.domain.PolicyFactoryImpl polFactoryImpl =
-                        new org.jacorb.orb.domain.PolicyFactoryImpl();
-                    try 
-                    { 
-                        getRootPOA().the_POAManager().activate(); 
-                    } 
-                    catch (org.omg.PortableServer.POAManagerPackage.AdapterInactive e) 
-                    { 
-                        Debug.output(1, e); 
-                    }
-
-                    org.jacorb.orb.domain.PolicyFactory polFactory =
-                        org.jacorb.orb.domain.PolicyFactoryHelper.narrow(
-                             getRootPOA().servant_to_reference( polFactoryImpl ));
-
-                    // create policies by the help of the policy factory
-                    org.omg.CORBA.Policy policies[] = new org.omg.CORBA.Policy[1];
-                    policies[0]= 
-                        polFactory.createConflictResolutionPolicy(
-                            org.jacorb.orb.domain.ConflictResolutionPolicy.PARENT_RULES);
-              
-                    // create domain with the above policies
-                    org.jacorb.orb.domain.ORBDomainImpl impl = 
-                        new org.jacorb.orb.domain.ORBDomainImpl( null, policies, "orb domain");
-                    
-                    org.jacorb.orb.domain.ORBDomainPOATie tie = 
-                        new org.jacorb.orb.domain.ORBDomainPOATie( impl );
-                    impl.setTie(tie);
-
-                    orb_domain = 
-                        org.jacorb.orb.domain.ORBDomainHelper.narrow(
-                             getRootPOA().servant_to_reference( tie ));
-
-                    obj = orb_domain;
-                    ORBDomainCreationInProgress = false;
-                    //                    orb_domain.insertLocalDomain( orb_domain );
-                } 
-                catch( org.omg.PortableServer.POAPackage.WrongPolicy wp ) 
-                {
-                    Debug.output(1, "the root poa of this orb has the wrong"
-                                 +" policies for \"servant_to_reference\".");
-                }
-                catch( org.omg.PortableServer.POAPackage.ServantNotActive na ) 
-                {
-                    Debug.output(1, na);
-                }
-
-                if( Environment.mountORBDomain() )
-                { 
-                    initial_references.put( identifier, obj ); // to avoid recursive calls
-                    this.mountORBDomain();
-                }
-
-                String filename = Environment.ORBDomainFilename();
-
-                if ( filename!= null && !filename.equals("") )
-                {
-                    Debug.output(Debug.DOMAIN | Debug.INFORMATION, 
-                                 "writing IOR of local domain service to file "+ filename);
-                    try 
-                    {
-                        FileOutputStream out = new FileOutputStream( filename );
-                        PrintWriter pw = new PrintWriter( out );
-                        pw.println(this.object_to_string( orb_domain ));
-                        pw.flush();
-                        out.close();
-                    }
-                    catch (IOException e) 
-                    {
-                        Debug.output(1, "Unable to write IOR to file " + filename);
-                    }
-                }
             }
             else if( identifier.equals("SecurityCurrent") ) 
             {
@@ -1828,86 +1721,6 @@ public final class ORB
         return interceptor_manager;
     }
    
-    public void mountORBDomain()
-    {
-        mountORBDomain("orb domain");
-    }
-
-    /** inserts the orb domain into the domain server as child domain. 
-     *  The orb domain is the domain  returned by 
-     *  this.resolve_initial_references("LocalDomainService"). The domain server is the domain 
-     *  returned by this.resolve_initial_references("DomainService").
-     *  @param orbDomainNameif not null and not empty the orb domain name is set
-     *                              to this value
-     */
-
-    public void mountORBDomain(String orbDomainName)
-    {
-        org.jacorb.orb.domain.Domain domainServer= null;
-        org.jacorb.orb.domain.Domain orb_domain  = null;
-
-        try 
-        {   
-            domainServer= org.jacorb.orb.domain.DomainHelper.narrow
-                (resolve_initial_references("DomainService"));
-        
-            orb_domain= org.jacorb.orb.domain.DomainHelper.narrow
-                (resolve_initial_references("LocalDomainService"));
-
-            // set name of orb domain
-            if (orbDomainName == null || orbDomainName.equals(""))
-                orbDomainName= "orb domain";
-
-            if ( domainServer.hasChild(orb_domain) )
-            { 
-                // do not insert if already a child of domain server
-                // just change name
-                Debug.output(2, "ORB.mountORBDomain: rename from \"" + orb_domain.name() 
-                             +"\" to \"" + orbDomainName +"\".");
-                domainServer.renameChildDomain(orb_domain.name(), orbDomainName);
-                orb_domain.name(orbDomainName);
-                return;
-            }
-            // else first insert: set name of orb domain
-            orb_domain.name(orbDomainName);
-
-            
-        }
-        catch (org.omg.CORBA.ORBPackage.InvalidName inv) 
-        {
-            Debug.output(1, inv);
-        }
-        catch (org.jacorb.orb.domain.NameAlreadyDefined def)
-        { 
-            return; 
-        }
-        catch (org.jacorb.orb.domain.InvalidName invalid)
-        { 
-            return; 
-        }
-        
-        int tries= 0;
-        while (true) // try until suceeded
-        {
-            try 
-            { 
-                domainServer.insertChild(orb_domain);
-                return;
-            } 
-            catch (org.jacorb.orb.domain.GraphNodePackage.ClosesCycle cc) 
-            {
-                Debug.output(1, cc);
-                return;
-            }
-            catch (org.jacorb.orb.domain.NameAlreadyDefined already)
-            {
-                Debug.output(1, "ORB.mountORBDomain: name "
-                             + already.name +  " already used in domain server scope");
-                tries++;
-                orb_domain.name(orbDomainName + "#"+ Integer.toString(tries) );
-            }
-        }
-    }
 
     /* DII helper methods */
 

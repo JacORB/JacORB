@@ -698,12 +698,13 @@ public class NamingContextImpl
 
     /**
      * convert a string into name
+     * @throw InvalidName
      */
 
-    public NameComponent[] to_name(String sn) 
+    public NameComponent[] to_name( String sn ) 
         throws InvalidName
     {
-        return Name.toName(sn);
+        return Name.toName( sn );
     }
 
 
