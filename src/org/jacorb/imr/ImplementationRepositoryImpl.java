@@ -993,7 +993,7 @@ public class ImplementationRepositoryImpl
 
 	private void replyNewLocation(byte[] buffer)
         {
-	    in = new RequestInputStream(connection, buffer);
+	    in = new RequestInputStream( orb, buffer);
 	    String _poa_name = POAUtil.extractImplName(in.req_hdr.object_key) +
                 "/" + POAUtil.extractPOAName(in.req_hdr.object_key);
 
@@ -1033,8 +1033,7 @@ public class ImplementationRepositoryImpl
 							(short) _poa.port,
 							in.req_hdr.object_key);    
 
-	    out = new ReplyOutputStream(connection,
-                                        new org.omg.IOP.ServiceContext[0],
+	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                         in.req_hdr.request_id,
                                         org.omg.GIOP.ReplyStatusType_1_0.LOCATION_FORWARD);
 
@@ -1089,8 +1088,7 @@ public class ImplementationRepositoryImpl
 
 	private void sendSysException(org.omg.CORBA.SystemException sys_ex)
         {
-	    out = new ReplyOutputStream(connection,
-                                        new org.omg.IOP.ServiceContext[0],
+	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                         in.req_hdr.request_id,
                                         org.omg.GIOP.ReplyStatusType_1_0.SYSTEM_EXCEPTION);
 	    

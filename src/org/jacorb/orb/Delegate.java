@@ -192,7 +192,7 @@ public final class Delegate
         if( org.jacorb.util.Environment.locateOnBind())
         {        
             LocateRequestOutputStream lros = 
-                new LocateRequestOutputStream( connection, object_key );
+                new LocateRequestOutputStream( object_key, connection.getId());
             LocateReplyInputStream lris = 
                 connection.sendLocateRequest( lros );
     
@@ -416,8 +416,8 @@ public final class Delegate
         ctx = connection.addCodeSetContext(ctx,pior);
     
         RequestOutputStream _os = 
-            new RequestOutputStream( connection, 
-                                     orb, 
+             new RequestOutputStream( orb, 
+                                     connection.getId(),
                                      "_get_policy", 
                                      true, 
                                      object_key, 
@@ -1078,14 +1078,15 @@ public final class Delegate
         // with codeset servicecontext.
 
         ctx = connection.addCodeSetContext( ctx, pior );
-        
-        return new RequestOutputStream( connection, 
-                                        orb, 
+        RequestOutputStream ros = new RequestOutputStream( orb, 
+                                        connection.getId(),
                                         operation, 
                                         responseExpected, 
                                         object_key,
                                         ctx, 
                                         use_interceptors);
+        ros.setCodeSet( connection.TCS, connection.TCSW );
+        return ros;
     }
 
     /**
