@@ -41,6 +41,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.test.common.TestUtils;
 
 /**
  * Test to reveal bug reported by Matthew Leahy
@@ -57,22 +58,16 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     EventChannel channel_;
-    EventChannelFactory channelFactory_;
 
     public MultipleDeliveryBugTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
+
     public void setUp() throws Exception
     {
-        channelFactory_ = getFactory();
-
-        Property[] qos = new Property[0];
-        Property[] adm = new Property[0];
-        IntHolder _channelId = new IntHolder();
-
-        channel_ = channelFactory_.create_channel(qos, adm, _channelId);
+        channel_ = getDefaultChannel();
     }
 
 
@@ -85,8 +80,7 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
         NotificationTestCaseSetup _setup =
             new NotificationTestCaseSetup(_suite);
 
-        String[] methodNames =
-            org.jacorb.test.common.TestUtils.getTestMethods(MultipleDeliveryBugTest.class);
+        String[] methodNames = TestUtils.getTestMethods(MultipleDeliveryBugTest.class);
 
         for (int x = 0; x < methodNames.length; ++x)
         {
@@ -132,6 +126,7 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
 
         assertTrue(_receiver.isEventHandled());
     }
+
 
     public static void main(String[] args) throws Exception
     {
