@@ -133,4 +133,8 @@ public class InternetIOPProfile extends _ProfileLocalBase
         return primaryAddress.hashCode();
     }
     
+    public String toString()
+    {
+        return primaryAddress.toString();
+    }
 }
