@@ -44,11 +44,10 @@ public class DynAny
    protected org.omg.CORBA.ORB orb;
 
    /* our representation of a primitive type any is the any itself */
-   private org.omg.CORBA.Any anyRepresentation;
+   private org.omg.CORBA.Any anyRepresentation = null;
 
 
-   protected DynAny()
-   {}
+   protected DynAny() {}
 
    DynAny( org.omg.DynamicAny.DynAnyFactory dynFactory,  
            org.omg.CORBA.TypeCode _type)
@@ -88,8 +87,14 @@ public class DynAny
    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
    {
       checkDestroyed ();
-      org.jacorb.util.Debug.myAssert( anyRepresentation != null, "anyRepresentation not initialized");
-      return dyn_any.to_any().equal( anyRepresentation );
+
+      //org.jacorb.util.Debug.myAssert( getRepresentation() != null, "DynAny not initialized");
+      if ( getRepresentation() == null )
+      {
+         throw new BAD_INV_ORDER ("DynAny not initialized");
+      }
+
+      return dyn_any.to_any().equal( getRepresentation() );
    }
 
    public void from_any(org.omg.CORBA.Any value) 
@@ -118,7 +123,7 @@ public class DynAny
       checkDestroyed ();
       org.jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
       out_any.type( type());
-      out_any.read_value( anyRepresentation.create_input_stream(), type());
+      out_any.read_value( getRepresentation().create_input_stream(), type());
       return out_any;
    }
 
