@@ -1,4 +1,4 @@
-package org.jacorb.notification.evaluate;
+package org.jacorb.notification.engine;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,29 +21,35 @@ package org.jacorb.notification.evaluate;
  *
  */
 
-import java.lang.Exception;
+import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.omg.CosEventComm.Disconnected;
 
 /**
- * EvaluationException.java
+ * PullFromSupplierTask.java
  *
  *
- * Created: Thu Sep 26 14:44:25 2002
+ * Created: Sun Feb 09 18:20:02 2003
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class EvaluationException extends Exception
-{
+public class PullFromSupplierTask extends TaskBase {
 
-    public EvaluationException()
-    {
-        super();
+    private TimerEventSupplier target_;
+
+    public void setTarget(TimerEventSupplier target) {
+	target_ = target;
     }
 
-    public EvaluationException( String description )
-    {
-        super( description );
+    public void doWork() throws Disconnected {
+	target_.runPullEvent();
+	setStatus(DONE);
     }
 
-} // EvaluationException
+    public void reset() {
+	super.reset();
+	target_ = null;
+    }
+    
+}// PullFromSupplierTask

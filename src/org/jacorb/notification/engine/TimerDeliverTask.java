@@ -21,7 +21,43 @@ package org.jacorb.notification.engine;
  *
  */
 
-interface TaskCoordinator {
-    public void workDone(Task task);
-    public void handleError(Task task, Throwable t);
+import org.jacorb.notification.interfaces.TimerEventConsumer;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotifyChannelAdmin.NotConnected;
+
+/**
+ *
+ *
+ * Created: Thu Jan 30 01:31:47 2003
+ *
+ * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @version $Id$
+ */
+
+public class TimerDeliverTask extends TaskBase {
+
+    private TimerEventConsumer target_;
+    
+    public void setTimedDeliverTarget(TimerEventConsumer target) {
+	target_ = target;
+    }
+
+    public void doWork() throws Disconnected, NotConnected {
+	if (target_.hasPendingEvents()) {
+
+	    target_.deliverPendingEvents();
+
+	    if (target_.hasPendingEvents()) {
+		setStatus(RESCHEDULE);
+	    } else {
+		setStatus(DONE);
+	    }
+	}
+    }
+
+    public void reset() {
+	super.reset();
+	target_ = null;
+    }
+
 }

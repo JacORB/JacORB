@@ -1,4 +1,4 @@
-package org.jacorb.notification.evaluate;
+package org.jacorb.notification.engine;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,29 +21,17 @@ package org.jacorb.notification.evaluate;
  *
  */
 
-import java.lang.Exception;
-
 /**
- * EvaluationException.java
  *
  *
- * Created: Thu Sep 26 14:44:25 2002
+ * Created: Tue Feb 11 21:53:54 2003
  *
- * @author Alphonse Bendt
+ * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version $Id$
  */
 
-public class EvaluationException extends Exception
-{
+interface TaskFinishHandler {
 
-    public EvaluationException()
-    {
-        super();
-    }
+    void handleTaskFinished(Task task);
 
-    public EvaluationException( String description )
-    {
-        super( description );
-    }
-
-} // EvaluationException
+}

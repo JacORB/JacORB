@@ -22,8 +22,9 @@ package org.jacorb.notification.engine;
  */
 
 import org.jacorb.notification.NotificationEvent;
-import org.jacorb.notification.framework.Poolable;
-import org.jacorb.notification.util.ObjectPoolBase;
+import org.jacorb.notification.interfaces.Poolable;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * TaskBase.java
@@ -35,20 +36,49 @@ import org.jacorb.notification.util.ObjectPoolBase;
  * @version $Id$
  */
 
-public abstract class TaskBase implements Task, Poolable {
+public abstract class TaskBase extends Poolable implements Task {
 
-    protected ObjectPoolBase myPool_;
-    private TaskCoordinator coordinator_;
+    protected Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+
+    private TaskFinishHandler coordinator_;
+    private TaskErrorHandler errorHandler_;
     protected NotificationEvent event_;
     protected int status_;
 
     TaskBase() {
+	status_ = NEW;
+    }
+
+    /**
+     * Set Status of this Task.
+     */
+    protected void setStatus(int status) {
+	status_ = status;
+    }
+
+    /**
+     * Get the current Status of this Task.
+     */
+    public int getStatus() {
+	return status_;
     }
     
-    public void setTaskCoordinator(TaskCoordinator coord) {
+    /**
+     *
+     */
+    public void setTaskFinishHandler(TaskFinishHandler coord) {
 	coordinator_ = coord;
     }
 
+    public void setTaskErrorHandler(TaskErrorHandler handler) {
+	errorHandler_ = handler;
+    }
+
+    /**
+     * set the NotificationEvent for this Task to use. the reference
+     * counter of the NotificationEvent is increased by one.
+     */
     public void setNotificationEvent(NotificationEvent event) {
 	if (event_ != null) {
 	    throw new RuntimeException("remove old first");
@@ -58,37 +88,48 @@ public abstract class TaskBase implements Task, Poolable {
 	event_.addReference();
     }
 
+    /**
+     * remove the reference to the NotificationEvent from this task.
+     */
     public NotificationEvent removeNotificationEvent() {
 	NotificationEvent _event = event_;
 	event_ = null;
 	return _event;
     }
 
-    public abstract void doWork();
+    /**
+     * access the NotificationEvent this Task is using.
+     */
+    public NotificationEvent getNotificationEvent() {
+	return event_;
+    }
 
-    public synchronized void run() {
+    /**
+     * Override this Method in Subclasses to do the "real work".
+     */
+    public abstract void doWork() throws Exception;
+
+    /**
+     * template method.
+     * <ol><li>Call doWork()
+     * <li>Call TaskFinishHandler in case of success
+     * <li>Call TaskErrorHandler in case a exception occurs while
+     * executing doWork
+     * </ol>
+     */
+    public void run() {
 	try {
 	    doWork();
-	    coordinator_.workDone(this);
+	    coordinator_.handleTaskFinished(this);
 	} catch (Throwable t) {
-	    coordinator_.handleError(this, t);
+	    errorHandler_.handleTaskError(this, t);
 	}
-    }
-
-    // Interface Poolable
-    
-    public void setObjectPool(ObjectPoolBase pool) {
-	myPool_ = pool;
-    }
-
-    public void release() {
-	myPool_.returnObject(this);
     }
     
     public void reset() {
-	//	myPool_ = null;
 	coordinator_ = null;
 	event_ = null;
-	status_ = 0;
+	status_ = NEW;
     }
+
 }// TaskBase

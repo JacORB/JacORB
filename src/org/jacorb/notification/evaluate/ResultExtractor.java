@@ -29,65 +29,73 @@ import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * ResultExtractor.java
  *
  *
- * Created: Tue Sep 17 15:19:18 2002
- *
- * @author <a href="mailto:a.bendt@berlin.de">Alphonse Bendt</a>
- * @version
+ * @author Alphonse Bendt
+ * @version $Id$
  */
 
-public class ResultExtractor {
-    static boolean DEBUG = false;
+public class ResultExtractor
+{
 
-    DynAnyFactory dynAnyFactory_;
+    private DynAnyFactory dynAnyFactory_;
 
-    public ResultExtractor(DynAnyFactory factory) {
-	dynAnyFactory_ = factory;
+    private Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+
+    public ResultExtractor( DynAnyFactory factory )
+    {
+        dynAnyFactory_ = factory;
     }
 
-    public EvaluationResult extractFromAny(Any any)
-	throws TypeMismatch, InconsistentTypeCode, InvalidValue {
-	debug("extractFromAny(Any)");
+    public EvaluationResult extractFromAny( Any any )
+	throws TypeMismatch, InconsistentTypeCode, InvalidValue
+    {
+        logger_.debug( "extractFromAny(Any)" );
 
-	EvaluationResult _ret = new EvaluationResult();
+        EvaluationResult _ret = new EvaluationResult();
 
-	//	DynAny _dynAny = dynAnyFactory_.create_dyn_any(any);
+        // DynAny _dynAny = dynAnyFactory_.create_dyn_any(any);
 
-	switch(any.type().kind().value()) {
-	    //	switch (_dynAny.type().kind().value()) {
-	case TCKind._tk_boolean:
-	    debug("bool");
-	    _ret.setBool(any.extract_boolean());
-	    break;
-	case TCKind._tk_string:
-	    debug("string");
-	    _ret.setString(any.extract_string());
-	    break;
-	case TCKind._tk_long:
-	    debug("long");
-	    _ret.setInt(any.extract_long());
-	    break;
-	case TCKind._tk_short:
-	    _ret.setInt(any.extract_short());
-	    break;
-	case TCKind._tk_any:
-	    debug("again");
-	    return extractFromAny(any.extract_any());
-	default:
-	    _ret.addAny(any);
-	    break;
-	}
-	return _ret;
+        switch ( any.type().kind().value() )
+        {
+            // switch (_dynAny.type().kind().value()) {
+
+        case TCKind._tk_boolean:
+            logger_.debug( "bool" );
+            _ret.setBool( any.extract_boolean() );
+            break;
+
+        case TCKind._tk_string:
+            logger_.debug( "string" );
+            _ret.setString( any.extract_string() );
+            break;
+
+        case TCKind._tk_long:
+            logger_.debug( "long" );
+            _ret.setInt( any.extract_long() );
+            break;
+
+        case TCKind._tk_short:
+	    logger_.debug( "int" );
+            _ret.setInt( any.extract_short() );
+            break;
+
+        case TCKind._tk_any:
+            logger_.debug( "nested" );
+            return extractFromAny( any.extract_any() );
+
+        default:
+            _ret.addAny( any );
+            break;
+        }
+
+        return _ret;
     }
 
-    static void debug(String msg) {
-	if (DEBUG) {
-	    System.err.println("[ResultExtractor] " + msg);
-	}
-    }
-
-}// ResultExtractor
+} // ResultExtractor

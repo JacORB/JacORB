@@ -1,4 +1,4 @@
-package org.jacorb.notification.framework;
+package org.jacorb.notification.interfaces;
 
 /*
  *        JacORB - a free Java ORB
@@ -22,8 +22,7 @@ package org.jacorb.notification.framework;
  */
 
 /**
- * Disposable.java
- *
+ * Abstraction of a disposable Object.
  *
  * Created: Sat Nov 30 19:05:03 2002
  *
@@ -32,5 +31,12 @@ package org.jacorb.notification.framework;
  */
 
 public interface Disposable {
-    public void dispose();
-}// Disposable
+
+    /**
+     * Dispose this Object. Free all associated Ressources allocated
+     * by this Object. The Object may not be used after a call to
+     * dispose unless it has been recylced in a proper way.
+     */
+    void dispose();
+
+}

@@ -1,4 +1,4 @@
-package org.jacorb.notification.evaluate;
+package org.jacorb.notification.engine;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,29 +21,50 @@ package org.jacorb.notification.evaluate;
  *
  */
 
-import java.lang.Exception;
+import org.jacorb.notification.interfaces.EventConsumer;
 
 /**
- * EvaluationException.java
- *
- *
- * Created: Thu Sep 26 14:44:25 2002
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class EvaluationException extends Exception
+public class PushToConsumerTask extends TaskBase
 {
 
-    public EvaluationException()
+    private EventConsumer target_;
+
+    public void reset()
     {
-        super();
+        target_ = null;
+        super.reset();
     }
 
-    public EvaluationException( String description )
+    EventConsumer getEventConsumer()
     {
-        super( description );
+        return target_;
     }
 
-} // EvaluationException
+    void setEventConsumer( EventConsumer dest )
+    {
+        target_ = dest;
+    }
+
+    public void doWork()
+    {
+        if ( logger_.isDebugEnabled() )
+        {
+            logger_.debug( "push to " + target_ );
+        }
+
+        target_.deliverEvent( event_ );
+
+        setStatus( DONE );
+    }
+
+    public void release()
+    {
+        super.release();
+    }
+
+}

@@ -21,15 +21,15 @@ package org.jacorb.notification.engine;
  *
  */
 
-import org.jacorb.notification.EventChannelImpl;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.jacorb.notification.NotificationEvent;
-import org.apache.log4j.Logger;
-import java.util.List;
-import org.jacorb.notification.framework.DistributorNode;
-import org.jacorb.notification.framework.EventDispatcher;
-import java.util.Iterator;
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.Poolable;
 import org.jacorb.notification.util.ObjectPoolBase;
-import org.jacorb.notification.framework.Poolable;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CORBA.TRANSIENT;
 
 /**
  * TaskConfigurator.java
@@ -37,139 +37,370 @@ import org.jacorb.notification.framework.Poolable;
  *
  * Created: Thu Nov 14 21:08:24 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class TaskConfigurator {
-    Logger logger_ = Logger.getLogger("ENGINE.TaskConfigurator");
-    Logger timeLogger_ = Logger.getLogger("TIME.Taskconfigurator");
+public class TaskConfigurator
+{
+    class PushToConsumerTaskErrorHandler implements TaskErrorHandler
+    {
+        public void handleTaskError( Task task, Throwable error )
+        {
+            if ( error instanceof OBJECT_NOT_EXIST 
+		 || error instanceof TRANSIENT)
+            {
+		
+                // push operation caused a OBJECT_NOT_EXIST Exception
+                // destroy the ProxySupplier
 
-    DistributorNode[] ARRAY_TEMPLATE = new DistributorNode[0];
-    Engine engine_;
+                PushToConsumerTask _pushToConsumerTask = 
+		    ( PushToConsumerTask ) task;
+		
+		if (logger_.isWarnEnabled()) {
+		    logger_.warn("push to Consumer failed");
+		    logger_.warn("dispose EventConsumer");
+		}
 
-    public TaskConfigurator(Engine engine) {
-	engine_ = engine;
+                _pushToConsumerTask.getEventConsumer().dispose();
+
+		_pushToConsumerTask.release();
+            }
+            else
+            {
+		logger_.error("error during push", error);
+
+                // TODO
+                // backoff strategy
+                // disable ProxySupplier for some time ...
+            }
+        }
     }
-    
-    public void init() {
-	filterTaskPool_.init();
-	deliverTaskPool_.init();
+
+    class PushToConsumerTaskFinishHandler implements TaskFinishHandler
+    {
+        public void handleTaskFinished( Task task )
+        {
+            try
+            {
+                switch ( task.getStatus() )
+                {
+
+                case Task.RESCHEDULE:
+                    // deliverTask needs to be rescheduled
+		    logger_.warn("reschedule PushToConsumerTask");
+
+                    taskProcessor_.scheduleOrExecutePushToConsumerTask( ( PushToConsumerTask ) task );
+
+                    break;
+
+                case Task.DONE:
+		    logger_.debug("finish done task");
+		    logger_.debug("removeNotificationEvent().release");
+                    ( ( TaskBase ) task ).removeNotificationEvent().release();
+
+		    logger_.debug("task");
+                    ( ( Poolable ) task ).release();
+                    break;
+
+                default:
+                    // should not come here
+                    throw new RuntimeException();
+                }
+            }
+            catch ( InterruptedException ie )
+            {
+                //ignore
+            }
+        }
     }
-    
-    ObjectPoolBase filterTaskPool_ = new ObjectPoolBase() {
-	    public Object newInstance() {
-		return new FilterTask();
-	    }
-	    public void passivateObject(Object o) {
-		((Poolable)o).reset();
-	    }
-	    public void activateObject(Object o) {
-		((Poolable)o).setObjectPool(this);
-		((TaskBase)o).setTaskCoordinator(engine_);
-	    }
-	};
+
+    class FilterTaskErrorHandler implements TaskErrorHandler {
+	public void handleTaskError(Task task, Throwable error) {
+	    logger_.error("Error occured in Task " + task, error);
+	}
+    }
+
+    class FilterTaskFinishHandler implements TaskFinishHandler
+    {
+
+        public void handleTaskFinished( Task task )
+        {
+
+            FilterTaskBase _filterTask = ( FilterTaskBase ) task;
+
+            try
+            {
+                switch ( _filterTask.getStatus() )
+                {
+
+                case Task.RESCHEDULE:
+
+                    // fetch the FilterStages for which filtering was
+                    // successful and configure task to eval them
+                    FilterStage[] _dest = _filterTask.getMatchingFilterStage();
+
+                    _filterTask.setCurrentFilterStage( _dest );
+
+                    if ( _filterTask instanceof FilterOutgoingTask )
+                    {
+                        // if we are filtering Outgoing events its
+                        // possible that deliveries can be made as soon as
+                        // the ConsumerAdmin Filters are eval'd
+                        // (InterFilterGroupOperator) 
+
+                        FilterOutgoingTask _outgoingTask = 
+			    ( FilterOutgoingTask ) task;
+
+                        PushToConsumerTask[] _deliverTask =
+                            newPushToConsumerTask( _outgoingTask.getNotificationEvent(),
+                                                   _outgoingTask.getFilterStagesWithEventConsumer() );
+
+                        if ( _deliverTask != null && _deliverTask.length > 0 )
+                        {
+                            taskProcessor_.schedulePushToConsumerTask( _deliverTask );
+                            _outgoingTask.clearFilterStagesWithEventConsumer();
+                        }
+                    }
+
+                    if ( _dest.length == 0 )
+                    {
+                        // if no filter matched the task is done and can
+                        // be dropped
+                        _filterTask.removeNotificationEvent().release();
+                        _filterTask.release();
+                    }
+                    else
+                    {
+                        // schedule for evaluation of the remaining filters
+                        _filterTask.clearMatchingFilterStage();
+
+			taskProcessor_.scheduleOrExecuteFilterTask( _filterTask );
+			
+                    }
+
+                    break;
+
+                case Task.DONE:
+
+                    if ( task instanceof FilterOutgoingTask )
+                    {
+                        Poolable _toBeReleased = ( Poolable ) task;
+
+                        PushToConsumerTask[] _deliverTasks =
+                            newPushToConsumerTask( ( FilterOutgoingTask ) task );
+
+                        taskProcessor_.schedulePushToConsumerTask( _deliverTasks );
+                        _toBeReleased.release();
+                    }
+                    else if ( task instanceof FilterIncomingTask )
+                    {
+
+                        FilterOutgoingTask _newTask =
+                            newFilterOutgoingTask( ( FilterIncomingTask ) task );
+
+			taskProcessor_.scheduleOrExecuteFilterTask( _newTask );
+
+                        ( ( Poolable ) task ).release();
+                    }
+                    else
+                    {
+                        // bug
+                        throw new RuntimeException();
+                    }
+
+                    break;
+
+                case Task.ERROR:
+                    // fallthrough
+
+                default:
+                    logger_.fatalError( "wrong status: " + task.getStatus() );
+                    logger_.fatalError( task.toString() );
+                    throw new RuntimeException();
+                }
+            }
+            catch ( InterruptedException e )
+            {
+                // ignore
+            }
+        }
+    }
+
+    TaskProcessor taskProcessor_;
+
+    final Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+
+    TaskErrorHandler filterTaskErrorHandler_ = new FilterTaskErrorHandler();
+
+    TaskFinishHandler deliverTaskFinishHandler_ = new PushToConsumerTaskFinishHandler();
+
+    TaskFinishHandler filterTaskFinishHandler_ = new FilterTaskFinishHandler();
+
+    TaskErrorHandler deliverTaskErrorHandler_ = new PushToConsumerTaskErrorHandler();
+
+    public TaskConfigurator( TaskProcessor taskProcessor )
+    {
+        taskProcessor_ = taskProcessor;
+    }
+
+    public void init()
+    {
+        filterIncomingTaskPool_.init();
+        filterOutgoingTaskPool_.init();
+        deliverTaskPool_.init();
+    }
+
+    ObjectPoolBase filterIncomingTaskPool_ = new ObjectPoolBase()
+            {
+                public Object newInstance()
+                {
+		    Object _i = new FilterIncomingTask();		    
+
+                    return _i;
+                }
+
+                public void passivateObject( Object o )
+                {
+                    ( ( Poolable ) o ).reset();
+                }
+
+                public void activateObject( Object o )
+                {
+                    ( ( Poolable ) o ).setObjectPool( this );
+                }
+            };
+
+    ObjectPoolBase filterOutgoingTaskPool_ = new ObjectPoolBase()
+            {
+                public Object newInstance()
+                {
+                    return new FilterOutgoingTask();
+                }
+
+                public void passivateObject( Object o )
+                {
+                    ( ( Poolable ) o ).reset();
+                }
+
+                public void activateObject( Object o )
+                {
+                    ( ( Poolable ) o ).setObjectPool( this );
+                }
+            };
 
     ObjectPoolBase deliverTaskPool_ =
-	new ObjectPoolBase() {
-	    public Object newInstance() {
-		return new DeliverTask();
-	    }
-	    public void passivateObject(Object o) {		
-		((Poolable)o).reset();
-		((DeliverTask)o).fresh_ = false;
-	    }
-	    public void activateObject(Object o) {
-		((Poolable)o).setObjectPool(this);
-		((TaskBase)o).setTaskCoordinator(engine_);
-		((DeliverTask)o).released_ = false;
-	    }
-	};
+        new ObjectPoolBase()
+        {
+            public Object newInstance()
+            {
+                return new PushToConsumerTask();
+            }
 
-    FilterTask initTask(NotificationEvent event) {
-	long _start = System.currentTimeMillis();
-	long _stop = 0;
-	try {
-	    FilterTask task = (FilterTask)filterTaskPool_.lendObject();
-	    task.setNotificationEvent(event);
-	    
-	    DistributorNode[] _d = new DistributorNode[] {event.getDistributorNode()};
-	    
-	    task.configureDestinations(_d);
-	    task.setStatus(Task.NEW);
+            public void passivateObject( Object o )
+            {
+		Poolable _p = (Poolable) o;
+		_p.setObjectPool(null);
+                _p.reset();
+            }
 
-	    _stop = System.currentTimeMillis();
+            public void activateObject( Object o )
+            {
+		Poolable _p = (Poolable) o;
+		_p.setObjectPool( this );
+            }
+        };
 
-	    return task;
-	} catch (Throwable t) {
-	    t.printStackTrace();
-	} finally {
-	    timeLogger_.info("initTask(): " + (_stop - _start));
-	}
-	return null;
+    /**
+     * factory method for a new FilterIncomingTask instance. uses
+     * an Object Pool.
+     */
+    FilterIncomingTask newFilterIncomingTask( NotificationEvent event )
+    {
+        try
+        {
+            FilterIncomingTask task =
+                ( FilterIncomingTask ) filterIncomingTaskPool_.lendObject();
+
+            task.setNotificationEvent( event );
+
+            task.setTaskFinishHandler( filterTaskFinishHandler_ );
+
+            FilterStage[] _d = new FilterStage[] {event.getFilterStage() };
+
+            if ( _d.length > 1 )
+            {
+                throw new RuntimeException( "Assertion Failed" );
+            }
+
+            task.setCurrentFilterStage( _d );
+
+            return task;
+        }
+        catch ( Throwable t )
+        {
+            t.printStackTrace();
+            throw new RuntimeException();
+        }
     }
 
-    DeliverTask[] initTask(FilterTask task) {
-	List _allDests = task.getNewDestinations();
-	DeliverTask _deliverTasks[] = new DeliverTask[_allDests.size()];
+    /**
+     * factory method to create PushToConsumer Tasks. The Tasks are
+     * initialized with the data taken from a FilterOutgoingTask.
+     */
+    PushToConsumerTask[] newPushToConsumerTask( FilterOutgoingTask task )
+    {
 
-	EventDispatcher[] _disp = new EventDispatcher[_allDests.size()];
-	int x=0;
-	NotificationEvent _event = task.removeNotificationEvent();
-	for (Iterator i=_allDests.iterator();i.hasNext();) {
-	    _deliverTasks[x] = (DeliverTask)deliverTaskPool_.lendObject();
-	    _deliverTasks[x].configureDestination(((DistributorNode)i.next()).getEventDispatcher());
-	    _deliverTasks[x].setStatus(Task.DELIVERING);
-	    _deliverTasks[x].setNotificationEvent(_event);
-	    ++x;
-	}
-	_event.release();
-	logger_.debug("return: " + _deliverTasks.length + " new tasks");
-	return _deliverTasks;
+        PushToConsumerTask[] _deliverTasks;
+        FilterStage[] _allDests = task.getMatchingFilterStage();
+
+        NotificationEvent _event = task.removeNotificationEvent();
+
+        _deliverTasks = newPushToConsumerTask( _event, _allDests );
+
+        _event.release();
+
+        return _deliverTasks;
     }
 
-    void updateTask(Task task) throws InterruptedException {
-	if (task.getDone()) {
-	    switch(task.getStatus()) {
-	    case Task.NEW:
-		// fallthrough
-	    case Task.FILTERING:
-		FilterTask _filterTask = (FilterTask)task;
-		List _allDests = _filterTask.getNewDestinations();
-		DistributorNode[] _dest = (DistributorNode[])_allDests.toArray(ARRAY_TEMPLATE);
-		_filterTask.incCount();
-		if (_dest.length == 0) {
-		    // Drop task		    
-		    _filterTask.removeNotificationEvent().release();
-		    _filterTask.release();
-		} else if (_filterTask.getCount() < 4) {
-		    _filterTask.configureDestinations(_dest);
-		    engine_.queueFilterTask(_filterTask);
-		} else {
-		    Poolable _toBeReleased = (Poolable)task;
-		    DeliverTask[] _deliverTasks = initTask(_filterTask);
-		    for (int x=0; x<_deliverTasks.length; ++x) {
-			if (_deliverTasks[x].released_) {
-			    throw new RuntimeException();
-			}
-		    }
-		    engine_.queueDeliverTask(_deliverTasks);
-		    _toBeReleased.release();
-		}
-		break;
-	    case Task.DELIVERING:
-		// fallthrough
-	    case Task.DELIVERED:
-		((DeliverTask)task).removeNotificationEvent().release();
-		logger_.debug("release task");
-		((Poolable)task).release();
-		logger_.debug("done");
-		task = null;
-		// fallthrough
-	    default:
-		break;
-	    }
-	}
+    /**
+     * factory method to create PushToConsumer Tasks. The Tasks are
+     * initialized with a NotificationEvent and the EventConsumers
+     * associated to some FilterStages
+     */
+    PushToConsumerTask[] newPushToConsumerTask( NotificationEvent event,
+						FilterStage[] nodes )
+    {
+
+        PushToConsumerTask _deliverTasks[] = new PushToConsumerTask[ nodes.length ];
+
+        EventConsumer[] _disp = new EventConsumer[ nodes.length ];
+
+        for ( int x = 0; x < nodes.length; ++x )
+        {
+            _deliverTasks[ x ] = ( PushToConsumerTask ) deliverTaskPool_.lendObject();
+
+            _deliverTasks[ x ].setEventConsumer( nodes[ x ].getEventConsumer() );
+            _deliverTasks[ x ].setNotificationEvent( event );
+            _deliverTasks[ x ].setTaskFinishHandler( deliverTaskFinishHandler_ );
+            _deliverTasks[ x ].setTaskErrorHandler( deliverTaskErrorHandler_ );
+        }
+
+        return _deliverTasks;
     }
 
-}// TaskConfigurator
+    FilterOutgoingTask newFilterOutgoingTask( FilterIncomingTask task )
+    {
+        FilterOutgoingTask _newTask =
+            ( FilterOutgoingTask ) filterOutgoingTaskPool_.lendObject();
+
+        _newTask.setFilterStage( task );
+        _newTask.setNotificationEvent( task.removeNotificationEvent() );
+        _newTask.setTaskFinishHandler( filterTaskFinishHandler_ );
+	_newTask.setTaskErrorHandler( filterTaskErrorHandler_ );
+	
+        return _newTask;
+    }
+} 
+

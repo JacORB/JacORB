@@ -25,20 +25,21 @@ package org.jacorb.notification.engine;
  * Task.java
  *
  *
- * Created: Thu Nov 14 18:33:57 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
 public interface Task extends Runnable {    
-    public static int NEW = 0;
-    public static int DELIVERING = 1;
-    public static int DELIVERED = 2;
-    public static int FILTERED = 3;
-    public static int FILTERING = 4;
-    public static int FINISHED = 10;
 
-    public int getStatus();
-    public boolean getDone();
+    public static int NEW = 0;
+    public static int ERROR = 1;
+    public static int RESCHEDULE = 2;
+    public static int DONE = 3;
+
+    /**
+     * return the status of this Task.
+     */ 
+    int getStatus();
+
 }// Task

@@ -1,3 +1,5 @@
+package org.jacorb.notification.engine;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,25 +20,19 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.engine;
-
-import java.util.List;
-import org.jacorb.notification.TransmitEventCapable;
 
 /**
- * Destination.java
+ * TaskErrorHandler.java
  *
  *
- * Created: Thu Nov 14 20:37:21 2002
+ * Created: Tue Feb 11 21:53:54 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version
+ * @author Alphonse Bendt
+ * @version $Id$
  */
 
-public interface Destination {
+public interface TaskErrorHandler {
 
-    List getSubsequentDestinations();
-    List getFilters();
-    TransmitEventCapable getEventSink();
+    void handleTaskError(Task task, Throwable t);
 
-}// Destination
+}// TaskErrorHandler
