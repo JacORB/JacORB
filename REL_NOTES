@@ -116,6 +116,7 @@ gerald.brose@acm.org
                           calculated in CDROutputStream
                         - more bugs fixed for recursive and 
                           repeated TypeCode               
+                IDL Compiler fix to handle escape characters
 
         - Added build compatibility to the JDK 1.4 and fixed 
           compatibility problems with JDK 1.2
