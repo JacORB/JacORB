@@ -163,14 +163,14 @@ public class AliasTypeSpec
 
         if( ts instanceof TemplateTypeSpec )
         {
-            if( ts instanceof VectorType && ((VectorType)ts).typedefd() )
-            {
-                tc_name = full_name() + "Helper.type()";                
-            }
-            else
-            {
+//                if( ts instanceof VectorType && ((VectorType)ts).typedefd() )
+//                {
+//                    tc_name = ((VectorType)ts).helperName();                
+//                }
+//                else
+//                {
                 tc_name = originalType.getTypeCodeExpression();
-            }
+                //              }
         }
         else if( ts instanceof BaseType ||
             ts instanceof ConstrTypeSpec || // for value types
