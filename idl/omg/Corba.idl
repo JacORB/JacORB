@@ -31,7 +31,7 @@ module CORBA
     typedef sequence <PolicyType> PolicyTypeSeq;
     exception InvalidPolicies { sequence <unsigned short> indices; };
 
-    interface DomainManager
+    local interface DomainManager
     {
 	Policy get_domain_policy(in PolicyType policy_type);
     };
@@ -62,7 +62,7 @@ module CORBA
 
     enum SetOverrideType {SET_OVERRIDE, ADD_OVERRIDE};
 
-    interface PolicyManager 
+    local interface PolicyManager 
     {
         PolicyList get_policy_overrides(in PolicyTypeSeq ts);
 
@@ -71,9 +71,9 @@ module CORBA
                                   ) raises (InvalidPolicies);
     };
 
-    interface Current {}; // dummy
+    local interface Current {}; // dummy
 
-    interface PolicyCurrent : PolicyManager, Current {
+    local interface PolicyCurrent : PolicyManager, Current {
     };
 
 
