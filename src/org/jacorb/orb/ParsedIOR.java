@@ -299,7 +299,7 @@ public class ParsedIOR
         {
             IORAddressingInfo info = addr.ior();
 
-            ParsedIOR pior = new ParsedIOR( info.ior );
+            ParsedIOR pior = new ParsedIOR( info.ior, null );
             pior.effectiveProfile =
               (IIOPProfile)pior.profiles.get (info.selected_profile_index);
 
@@ -348,8 +348,9 @@ public class ParsedIOR
         parse( object_reference );
     }
 
-    public ParsedIOR( IOR _ior )
+    public ParsedIOR( IOR _ior, org.jacorb.orb.ORB orb )
     {
+        this.orb = orb;
         decode( _ior );
     }
 
@@ -379,10 +380,15 @@ public class ParsedIOR
                                            (_ior.profiles[i].profile_data);
                     break;
                 }
-                case TAG_INTERNET_IOP.value :
+                default:
                 {
-                    profiles.add (new IIOPProfile
-                                         (_ior.profiles[i].profile_data));
+                    org.omg.ETF.Factories f = 
+                        orb.getTransportManager().getFactories();
+                    TaggedProfileHolder tp =
+                        new TaggedProfileHolder (_ior.profiles[i]);
+                    profiles.add 
+                      (f.demarshal_profile (tp,
+                                            new TaggedComponentSeqHolder()));
                     break;
                 }
             }
