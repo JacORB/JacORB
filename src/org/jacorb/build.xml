@@ -27,7 +27,7 @@
 
    <target name="all" depends="init,idlcompile,subdirs" />
 
-   <target name="idlcompile" depends="idl">
+   <target name="idlcompile" depends="init,idl">
 	<javac srcdir="${jsrc}/generated/"
                destdir="${classdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
@@ -35,8 +35,10 @@
 	/>
    </target>
 
+   <!-- Determine if IDL compilation is necessary. -->
 
-   <target name="idl">
+
+   <target name="idl" depends="init">
 	   <java classname="org.jacorb.idl.parser" 
                  fork="yes" 
                  classpath="${classpath}">
