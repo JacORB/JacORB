@@ -489,7 +489,7 @@ public class ParsedIOR
             if (profile == null)
                 return; // could not decode any address in list
 
-            profile.set_object_key(orb.mapObjectKey(corbaLoc.getKey()));
+            profile.set_object_key(corbaLoc.getKey());
             ior = createObjectIOR(profile);
         }
 
