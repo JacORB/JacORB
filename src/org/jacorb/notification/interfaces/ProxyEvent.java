@@ -22,11 +22,9 @@ package org.jacorb.notification.interfaces;
  */
 
 import org.jacorb.notification.servant.AbstractProxy;
+import org.jacorb.notification.servant.AbstractAdmin;
 
 /**
- * ProxyEvent.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -38,4 +36,9 @@ public class ProxyEvent extends ApplicationEvent
         super(b);
     }
 
+
+    public ProxyEvent(AbstractAdmin admin)
+    {
+        super(admin);
+    }
 }
