@@ -52,7 +52,7 @@
 	  includes="**/*.java" />
   </target>
 
-  <target name="clean" depends="init">
+  <target name="clean" depends="demo.init">
     <delete dir="${dirs.base}/demo/${name}/generated/" />
     <delete dir="${classdir}/demo/${name}" />
   </target>
