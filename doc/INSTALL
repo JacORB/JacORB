@@ -82,6 +82,22 @@ Installation:
            classpath. You can use the file jacotemplate[.bat] as a
            template and replace the @@@XYZ_HOME@@@ placeholders by
            your actual paths.
+           
+           You will also need to replace the @@@CLASSPATH@@@ tokens
+           with appropriate values. For J2SE < 1.4 this would be
+           something like :
+           -Xbootclasspath/p:${JACORB_HOME}/lib/jacorb.jar:\
+            ${JACORB_HOME}/lib/logkit.jar:\
+            ${JACORB_HOME}/lib/concurrent.jar:\
+            ${JACORB_HOME}/lib/antlr.jar:\
+            ${JRE_HOME}/lib/rt.jar
+           
+           For J2SE 1.4 this should be like :
+           -Djava.endorsed.dirs=${JACORB_HOME}/lib \
+            -classpath ${JACORB_HOME}/lib/jacorb.jar:\
+            ${JACORB_HOME}/lib/logkit.jar:\
+            ${JACORB_HOME}/lib/concurrent.jar:\
+            ${JACORB_HOME}/lib/antlr.jar            
 
 6. Generate or edit the IDL compiler scripts idl and idl.bat if you
    plan to use the IDL compiler.
