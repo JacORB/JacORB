@@ -118,6 +118,28 @@ public final class Environment
         System.out.println("####################################################################");
     }
 
+    /** throws an myAssertion violation exception if the boolean expression
+     *  is not satisfied.
+     *  @param expression the expression to be checked
+     *  @param msg_level the message level of the myAssertion
+     *  @param msg the message to be printed
+     *  @exception AssertionViolation 
+     */
+
+    public static void doAssert(int msg_level, boolean expression, String msg)
+    {
+        if( msg_level <= _verbosity)
+        {
+            if (! expression) 
+                throw new RuntimeException("AssertionViolation: " + msg);
+        }
+    }
+
+    public static void doAssert(boolean expression, String msg)
+    {
+        doAssert( 1, expression, msg );
+    }
+
 
 }
 

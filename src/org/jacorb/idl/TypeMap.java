@@ -58,7 +58,7 @@ class TypeMap
 	throws NameAlreadyDefined
     {
 	Environment.output(3,"Typedef'ing " + name + " for " + 
-                           type.typeName() + 
+                           //                           type.typeName() + 
                            " , hash: " + type.hashCode() );
 
 	if( typemap.containsKey( name ))
@@ -76,12 +76,12 @@ class TypeMap
 		    typemap.put( name, ((ScopedName)type.typeSpec()).resolvedTypeSpec() );
 		else
 		    typemap.put( name, type.typeSpec() );
-		Environment.output(3," resolved " + ((ScopedName)type.typeSpec()).resolvedTypeSpec()); 
+		//Environment.output(3," resolved " + ((ScopedName)type.typeSpec()).resolvedTypeSpec()); 
 	    } 
 	    else 
 	    {
 		typemap.put( name, type.typeSpec() );
-		Environment.output(3,""+ type.typeSpec() ); 
+		//Environment.output(3,""+ type.typeSpec() ); 
 	    }
 	}
     }

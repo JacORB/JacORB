@@ -1,3 +1,4 @@
+
 package org.jacorb.idl;
 
 import java_cup.runtime.*;
@@ -39,6 +40,10 @@ parser code
 
     static boolean parse_only = false;
     static boolean global_import = false;
+
+    /** used for internal checking that name conversion 
+        to mapped Java names is done only after parsing */
+    public static boolean done_parsing = false;
 
     /** compiler flags */
     public static boolean include_state = false;
@@ -748,6 +753,8 @@ specification ::=
                 }
                 else
                         Environment.output(3,"No global import");
+
+                parser.done_parsing = true;
 
                 /* code generation phase */
 

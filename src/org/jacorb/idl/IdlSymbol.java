@@ -264,6 +264,9 @@ class IdlSymbol
 
     public void setPrintPhaseNames()
     {
+//          Environment.doAssert( parser.done_parsing, 
+//                                "Parser not done parsing yet.");
+
 	if( pack_name.length() > 0 )
 	{
             typeName = ScopedName.unPseudoName( pack_name +"." + name );
@@ -275,7 +278,10 @@ class IdlSymbol
 	}
 	else
 	    typeName = ScopedName.unPseudoName( name );
-        Environment.output(2, "setPrintPhaseNames: pack_name " +   pack_name +", name " + name + " typename " + typeName );
+
+        Environment.output(2, "setPrintPhaseNames: pack_name " + 
+                           pack_name +", name " + name + 
+                           " typename " + typeName );
     }
     
     public void printIdMethod(PrintWriter ps)

@@ -173,10 +173,9 @@ class StructType
 	}
 	if( memberlist != null )
 	{
-            ScopedName.addRecursionScope( typeName()  );
-
+            ScopedName.addRecursionScope( typeName());
 	    memberlist.parse();
-            ScopedName.removeRecursionScope( typeName()  );
+            ScopedName.removeRecursionScope( typeName() );
 	}
 
 	parsed = true;

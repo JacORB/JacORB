@@ -76,7 +76,7 @@ class ElementSpec
 
 
                 //                if( ts.typeName().equals( containingUnion.typeName() ) ||
-                if( ScopedName.isRecursionScope( ts.typeName() ) )
+                if( ScopedName.isRecursionScope( ts.typeName() ))
                 {
                     ((SequenceType)seqTs.typeSpec()).setRecursive();
                 }

@@ -228,9 +228,9 @@ class UnionType
             switch_body.setTypeSpec (switch_type_spec);
             switch_body.setUnion (this);
 
-            ScopedName.addRecursionScope (typeName ());
+            ScopedName.addRecursionScope( typeName());
             switch_body.parse();
-            ScopedName.removeRecursionScope (typeName ());
+            ScopedName.removeRecursionScope( typeName() );
         } 
         catch (NameAlreadyDefined p)
         {
