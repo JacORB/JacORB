@@ -1192,7 +1192,12 @@ public class CDRInputStream
             int size = _read4int( littleEndian, buffer, pos);
             index += 4; 
             pos += 4;
-            
+
+            if( size == 0 )
+            {
+                return "";
+            }
+
             char[] buf = new char[ size ];
             
             int i = 0;

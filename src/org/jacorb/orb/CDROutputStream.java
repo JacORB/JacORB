@@ -856,7 +856,7 @@ public class CDROutputStream
         index += 4;                 // reserve for length indicator
 
         //the byte order marker
-        if( giop_minor == 2 && use_BOM )
+        if( giop_minor == 2 && use_BOM && s.length() > 0)
         {
             //big endian encoding
             buffer[ pos++ ] = (byte) 0xFE;
