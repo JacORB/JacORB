@@ -39,7 +39,7 @@ import java.lang.reflect.*;
 public class TypeCode 
     extends org.omg.CORBA.TypeCode
 {
-    private int kind = -1;
+   private int kind = -1;
 
     private String id = null;
     private String name = null;
@@ -62,6 +62,7 @@ public class TypeCode
 
     /** if this TC is recursive... */
     private boolean     recursive = false;
+    private TypeCode    actualTypecode = null;
 
     private static boolean     class_init = false;
     private static TypeCode[]  primitive_tcs = new TypeCode[33];
@@ -144,7 +145,7 @@ public class TypeCode
 
     public boolean is_primitive()
     {
-        return ( primitive_tcs[kind] != null );
+        return ( !is_recursive () && primitive_tcs[kind] != null );
     }
 
 
@@ -164,6 +165,7 @@ public class TypeCode
         this.id = id;      
         recursive = true;
         kind = -1;
+        actualTypecode = null;
     }
 
     /**
@@ -341,21 +343,14 @@ public class TypeCode
 
     public boolean equal( org.omg.CORBA.TypeCode tc)
     {
-        if( is_recursive() || ((org.jacorb.orb.TypeCode)tc).is_recursive())
-        {
-            try
-            {
-                return id().equals( tc.id());
-            }
-            catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-            {
-                return false;
-            }
-        }
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return tc.equal (actualTypecode);
+       }
 
-        //        org.jacorb.util.Debug.output( 4, "Comparing this " + 
-        //        kind().value() + 
-        // " with tc " + tc.kind().value());
+       //org.jacorb.util.Debug.output( 4, "Comparing this " + kind().value() + 
+       //                              with tc " + tc.kind().value());
 
         if( kind().value() != tc.kind().value())
             return false;
@@ -454,13 +449,25 @@ public class TypeCode
 
     public org.omg.CORBA.TCKind kind()
     {
-        return org.omg.CORBA.TCKind.from_int(kind);
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.kind ();
+       }
+
+       return org.omg.CORBA.TCKind.from_int(kind);
     }
 
 
     public int _kind()
     {
-        return kind;
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode._kind ();
+       }
+       
+       return kind;
     }
 
     public java.lang.String id() 
@@ -488,7 +495,13 @@ public class TypeCode
     public java.lang.String name() 
         throws org.omg.CORBA.TypeCodePackage.BadKind 
     {
-        switch( kind )
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.name ();
+       }
+
+       switch( kind )
         {
         case   TCKind._tk_objref:
         case   TCKind._tk_struct:
@@ -505,7 +518,13 @@ public class TypeCode
     public int member_count() 
         throws org.omg.CORBA.TypeCodePackage.BadKind 
     {
-        switch( kind )
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.member_count ();
+       }
+
+       switch( kind )
         {
         case   TCKind._tk_struct:
         case   TCKind._tk_except: 
@@ -520,7 +539,13 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind,
                org.omg.CORBA.TypeCodePackage.Bounds 
     {
-        switch( kind )
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.member_name (index);
+       }
+
+       switch( kind )
         {
         case TCKind._tk_struct:
         case TCKind._tk_except: 
@@ -540,7 +565,13 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind,
                org.omg.CORBA.TypeCodePackage.Bounds
     {
-        if( kind != TCKind._tk_struct && 
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.member_type (index);
+       }
+
+       if( kind != TCKind._tk_struct && 
             kind != TCKind._tk_union &&
             kind != TCKind._tk_value && 
             kind != TCKind._tk_except )
@@ -556,7 +587,13 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind,  
                org.omg.CORBA.TypeCodePackage.Bounds
     {
-        if( kind != TCKind._tk_union )
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.member_label (index);
+       }
+
+       if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         if( index > member_count )
             throw new  org.omg.CORBA.TypeCodePackage.Bounds();
@@ -566,7 +603,13 @@ public class TypeCode
     public org.omg.CORBA.TypeCode discriminator_type() 
         throws org.omg.CORBA.TypeCodePackage.BadKind
     {
-        if( kind != TCKind._tk_union )
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.discriminator_type ();
+       }
+
+       if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         return discriminator_type;
     }
@@ -575,7 +618,13 @@ public class TypeCode
     public int default_index() 
         throws org.omg.CORBA.TypeCodePackage.BadKind 
     {
-        if( kind != TCKind._tk_union )
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.default_index ();
+       }
+
+       if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         return default_index;
     }
@@ -664,17 +713,12 @@ public class TypeCode
     {
         try 
         {
-            if( is_recursive() )
-            {
-                if( !((org.jacorb.orb.TypeCode)tc).is_recursive())
-                    return false;
-                else
-                    return id().equals( tc.id());
-            }
-            else
-                if( ((org.jacorb.orb.TypeCode)tc).is_recursive())
-                    return false;
-
+           if (is_recursive ())
+           {
+              checkActualTC ();
+              return tc.equivalent (actualTypecode);
+           }
+           
             /* unalias any typedef'd types */
 
             if( kind().value() == TCKind._tk_alias )
@@ -791,8 +835,14 @@ public class TypeCode
 
     public String idlTypeName() 
     {
-        switch( kind().value() ) 
-        {
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.idlTypeName ();
+       }
+
+       switch( kind().value() ) 
+       {
         case   TCKind._tk_objref:
         case   TCKind._tk_struct:
         case   TCKind._tk_union:
@@ -874,7 +924,13 @@ public class TypeCode
 
     public org.jacorb.orb.TypeCode originalType()
     {
-        org.jacorb.orb.TypeCode tc = this;
+       if (is_recursive ())
+       {
+          checkActualTC ();
+          return actualTypecode.originalType ();
+       }
+
+       org.jacorb.orb.TypeCode tc = this;
         try
         {
             while( tc.kind() == org.omg.CORBA.TCKind.tk_alias)
@@ -972,4 +1028,42 @@ public class TypeCode
         return new ValueMember (f.getName(), id, "", "1.0", tc, null, access);
     }
 
+
+   void resolveRecursion (TypeCode actual)
+   {
+      for (int i = 0; i < member_count; i++)
+      {
+         switch (member_type[i].kind)
+         {
+         case   TCKind._tk_struct:
+         case   TCKind._tk_union:
+            member_type[i].resolveRecursion (actual);
+            break;
+         case   TCKind._tk_sequence:
+            if (member_type[i].content_type.is_recursive ()
+                && member_type[i].content_type.id.equals (actual.id))
+            {
+               member_type[i].content_type.setActualTC (actual);
+            }
+            else
+            {
+               member_type[i].content_type.resolveRecursion (actual);
+            }
+            break;
+         }
+      }
+   }
+
+   private void setActualTC (TypeCode tc)
+   {
+      actualTypecode = tc;
+   }
+
+   private void checkActualTC ()
+   {
+      if (actualTypecode == null)
+      {
+         throw new org.omg.CORBA.BAD_INV_ORDER ();
+      }
+   }
 }
