@@ -237,15 +237,19 @@ public final class GIOPConnection
                         continue;
                 }
 
+                //for now, only GIOP 1.2 from here on
+
                 Integer request_id = 
-                    new Integer( Messages.getGIOPMinor( message ));
+                    new Integer( Messages.getRequestId( message ));
                 
                 //sanity check
                 if( ! fragments.containsKey( request_id ))
                 {
                     Debug.output( 1, "ERROR: No previous Fragment to this one" );
-                    //FIXME: handle!
-                    
+
+                    //Drop this one and continue
+                    buf_mg.returnBuffer( message );
+
                     continue;
                 }
                 
@@ -356,12 +360,17 @@ public final class GIOPConnection
                 
                 //if we're here, it's the first part of a fragmented message
                 Integer request_id = 
-                    new Integer( Messages.getGIOPMinor( message ));
+                    new Integer( Messages.getRequestId( message ));
                 
                 //sanity check
                 if( fragments.containsKey( request_id ))
                 {
-                    //FIXME: handle!
+                    Debug.output( 1, "ERROR, Received a message of type " +
+                                  msg_type + " with the more fragments follow bit set, but there is already an fragmented, incomplete message with the same request id " +
+                                  request_id + "!" );
+
+                    //Drop this one and continue
+                    buf_mg.returnBuffer( message );
                     
                     continue;
                 }
