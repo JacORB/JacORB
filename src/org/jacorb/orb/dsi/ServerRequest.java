@@ -105,7 +105,18 @@ public class ServerRequest
 	if( stream_based )
         {
             org.omg.CORBA.Any any = orb.create_any();
-            ((CDROutputStream)any.create_output_stream()).setBuffer( out.getBufferCopy() );
+
+            // create the output stream for the result
+
+            CDROutputStream _out = ((CDROutputStream)any.create_output_stream());
+
+            // get a copy of the content of this reply
+            byte[] result_buf = out.getBody();
+
+            // ... and insert it
+            _out.setBuffer( result_buf  );
+            // important: set the _out buffer's position to the end of the contents!
+            _out.skip( result_buf.length );
             return any;
         }
 	return result;
