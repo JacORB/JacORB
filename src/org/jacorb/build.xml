@@ -20,6 +20,7 @@
 	-I${include}/jacorb -ir -d ${jsrc}/generated"/>
 	<available classname="iaik.x509.X509Certificate" property="iaik.present" />
         <available classname="javax.swing.JFrame" property="swing.present" />
+        <available classname="javax.rmi.CORBA.ValueHandler" property="valuehandler.present"/>
    </target>
 
    <target name="javatest">
@@ -72,10 +73,24 @@
 
    </target>
 
-   <target name="utils">
+   <target name="valuehandler-dummy" unless="valuehandler.present">
+      <echo message="ValueHandler not present, creating dummy wrapper."/>
+      <copy file="src/org/jacorb/util/ValueHandler.dummy"
+            tofile="src/org/jacorb/util/ValueHandler.java"
+            overwrite="yes"/>
+   </target>
+
+   <target name="valuehandler-real" if="valuehandler.present">
+      <echo message="ValueHandler is present, wrapping it."/>
+      <copy file="src/org/jacorb/util/ValueHandler.real"
+            tofile="src/org/jacorb/util/ValueHandler.java"
+            overwrite="yes"/>
+   </target>
+
+   <target name="utils" depends="init,valuehandler-dummy,valuehandler-real">
    	<javac srcdir="${jsrc}"
                destdir="${classdir}" 
-               includes="org/jacorb/util/Propla.java,org/jacorb/util/Environment.java,org/jacorb/util/Debug.java,org/jacorb/util/Version.java,org/jacorb/util/ObjectUtil.java,org/jacorb/util/AssertionViolation.java,org/jacorb/util/threadpool/*.java"
+               includes="org/jacorb/util/Propla.java,org/jacorb/util/Environment.java,org/jacorb/util/Debug.java,org/jacorb/util/Version.java,org/jacorb/util/ObjectUtil.java,org/jacorb/util/AssertionViolation.java,org/jacorb/util/threadpool/*.java,org/jacorb/util/ValueHandler.java"
 	       />
    </target>
 
