@@ -11,6 +11,7 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumer;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
@@ -18,7 +19,6 @@ import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.SequencePullSupplierHelper;
 import org.omg.CosNotifyComm.SequencePullSupplierOperations;
 import org.omg.CosNotifyComm.SequencePullSupplierPOATie;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 /**
  * @author Alphonse Bendt
@@ -37,6 +37,7 @@ public class SequencePullSender
     boolean connected_;
     boolean eventHandled_;
     boolean available_ = false;
+    NotificationTestCase testCase_;
 
     public void run()
     {
@@ -56,9 +57,10 @@ public class SequencePullSender
         return eventHandled_;
     }
 
-    public SequencePullSender(StructuredEvent[] event)
+    public SequencePullSender(NotificationTestCase testCase, StructuredEvent[] event)
     {
         event_ = event;
+        testCase_ = testCase;
     }
 
 
@@ -114,21 +116,20 @@ public class SequencePullSender
         connected_ = false;
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        EventChannel channel,
+    public void connect(EventChannel channel,
                         boolean useOrSemantic)
         throws AdminLimitExceeded,
                AlreadyConnected,
                TypeError
     {
-        orb_ = setup.getORB();
+        orb_ = testCase_.getSetup().getORB();
         SequencePullSupplierPOATie _senderTie = new SequencePullSupplierPOATie(this);
         SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
         IntHolder _proxyId = new IntHolder();
         pullConsumer_ = SequenceProxyPullConsumerHelper.narrow(_supplierAdmin.obtain_notification_pull_consumer(ClientType.SEQUENCE_EVENT, _proxyId));
 
-        setup.assertEquals(ProxyType._PULL_SEQUENCE,
-                           pullConsumer_.MyType().value());
+        testCase_.assertEquals(ProxyType._PULL_SEQUENCE,
+                               pullConsumer_.MyType().value());
 
         pullConsumer_.connect_sequence_pull_supplier(SequencePullSupplierHelper.narrow(_senderTie._this(orb_)));
         connected_ = true;
@@ -144,4 +145,4 @@ public class SequencePullSender
         return connected_;
     }
 
-} // StructuredPullSender
+}

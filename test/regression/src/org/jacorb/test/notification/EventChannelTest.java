@@ -157,9 +157,9 @@ public class EventChannelTest extends NotificationTestCase {
 
     public void testSendEventPushPull() throws Exception {
         AnyPullReceiver _receiver = new AnyPullReceiver(this);
-        _receiver.connect(getSetup(), channel_,false);
+        _receiver.connect(channel_,false);
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
-        _sender.connect(getSetup(), channel_, false);
+        _sender.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
         _receiverThread.start();
@@ -178,7 +178,7 @@ public class EventChannelTest extends NotificationTestCase {
         logger_.debug("testSendEventPushPush");
         // start a receiver thread
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
-        _receiver.connect(getSetup(), channel_, false);
+        _receiver.connect(channel_, false);
 
         logger_.debug("Connected");
 
@@ -189,7 +189,7 @@ public class EventChannelTest extends NotificationTestCase {
         // start a sender
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
 
-        _sender.connect(getSetup(),  channel_, false);
+        _sender.connect(channel_, false);
 
         _receiverThread.start();
 
@@ -207,10 +207,10 @@ public class EventChannelTest extends NotificationTestCase {
 
     public void testSendEventPullPush() throws Exception {
         AnyPullSender _sender = new AnyPullSender(this,testPerson_);
-        _sender.connect(getSetup(),  channel_, false);
+        _sender.connect(channel_, false);
 
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
-        _receiver.connect(getSetup(), channel_, false);
+        _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
         _receiverThread.start();
@@ -231,10 +231,10 @@ public class EventChannelTest extends NotificationTestCase {
 
     public void testSendEventPullPull() throws Exception {
         AnyPullSender _sender = new AnyPullSender(this,testPerson_);
-        _sender.connect(getSetup(),  channel_, false);
+        _sender.connect(channel_, false);
 
         AnyPullReceiver _receiver = new AnyPullReceiver(this);
-        _receiver.connect(getSetup(), channel_, false);
+        _receiver.connect(channel_, false);
 
         Thread _receiverThread = new Thread(_receiver);
         _receiverThread.start();
@@ -261,16 +261,16 @@ public class EventChannelTest extends NotificationTestCase {
         EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
 
         AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(this);
-        _anyPullReceiver.connect(getSetup(), _channel, false);
+        _anyPullReceiver.connect(_channel, false);
 
         AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(this);
-        _anyPushReceiver.connect(getSetup(), _channel, false);
+        _anyPushReceiver.connect(_channel, false);
 
         AnyPullSender _anyPullSender = new AnyPullSender(this,testPerson_);
-        _anyPullSender.connect(getSetup(), _channel, false);
+        _anyPullSender.connect(_channel, false);
 
         AnyPushSender _anyPushSender = new AnyPushSender(this,testPerson_);
-        _anyPushSender.connect(getSetup(), _channel, false);
+        _anyPushSender.connect(_channel, false);
 
         _channel.destroy();
 
@@ -290,16 +290,16 @@ public class EventChannelTest extends NotificationTestCase {
         EventChannel _channel = getFactory().create_channel(new Property[0], new Property[0], _id);
 
         AnyPullReceiver _anyPullReceiver = new AnyPullReceiver(this);
-        _anyPullReceiver.connect(getSetup(), _channel, false);
+        _anyPullReceiver.connect(_channel, false);
 
         AnyPushReceiver _anyPushReceiver = new AnyPushReceiver(this);
-        _anyPushReceiver.connect(getSetup(), _channel, false);
+        _anyPushReceiver.connect(_channel, false);
 
         AnyPullSender _anyPullSender = new AnyPullSender(this, testPerson_);
-        _anyPullSender.connect(getSetup(), _channel, false);
+        _anyPullSender.connect(_channel, false);
 
         AnyPushSender _anyPushSender = new AnyPushSender(this, testPerson_);
-        _anyPushSender.connect(getSetup(), _channel, false);
+        _anyPushSender.connect(_channel, false);
 
         assertTrue(_anyPullReceiver.isConnected());
         assertTrue(_anyPushReceiver.isConnected());

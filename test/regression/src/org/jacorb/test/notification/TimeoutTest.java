@@ -142,8 +142,8 @@ public class TimeoutTest extends NotificationTestCase
         StructuredPushReceiver _receiver =
             new StructuredPushReceiver(this);
 
-        _sender.connect(getSetup(), eventChannel_, false);
-        _receiver.connect(getSetup(), eventChannel_, false);
+        _sender.connect(eventChannel_, false);
+        _receiver.connect(eventChannel_, false);
 
         new Thread(_receiver).start();
         new Thread(_sender).start();

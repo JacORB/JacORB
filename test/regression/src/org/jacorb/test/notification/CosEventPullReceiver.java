@@ -1,21 +1,16 @@
 package org.jacorb.test.notification;
 
-import org.omg.CosEventComm.PullConsumerPOA;
-import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventChannelAdmin.EventChannelHelper;
-import org.omg.CosEventChannelAdmin.EventChannel;
-import org.omg.PortableServer.POA;
 import org.omg.CosEventChannelAdmin.ConsumerAdmin;
+import org.omg.CosEventChannelAdmin.EventChannel;
+import org.omg.CosEventChannelAdmin.EventChannelHelper;
+import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosEventComm.PullConsumerPOA;
 
 /**
- * CosEventPullReceiver.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -27,6 +22,12 @@ public class CosEventPullReceiver extends PullConsumerPOA implements Runnable, T
     long timeout_ = 1000;
     boolean error_ = false;
     boolean connected_;
+    NotificationTestCase testCase_;
+
+
+    public CosEventPullReceiver(NotificationTestCase testCase) {
+        testCase_ = testCase;
+    }
 
     public void disconnect_pull_consumer() {
         connected_ = false;
@@ -64,14 +65,13 @@ public class CosEventPullReceiver extends PullConsumerPOA implements Runnable, T
         }
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        org.omg.CosNotifyChannelAdmin.EventChannel channel,
+    public void connect(org.omg.CosNotifyChannelAdmin.EventChannel channel,
                         boolean useOrSemantic) throws AlreadyConnected {
 
         EventChannel _channel = EventChannelHelper.narrow(channel);
         ConsumerAdmin _admin = _channel.for_consumers();
         mySupplier_ = _admin.obtain_pull_supplier();
-        mySupplier_.connect_pull_consumer(_this(setup.getORB()));
+        mySupplier_.connect_pull_consumer(_this(testCase_.getSetup().getORB()));
         connected_ = true;
     }
 

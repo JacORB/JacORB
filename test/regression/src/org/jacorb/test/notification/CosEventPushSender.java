@@ -1,26 +1,19 @@
 package org.jacorb.test.notification;
 
-import org.omg.CosEventComm.PushSupplierPOA;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
+import org.omg.CORBA.Any;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.EventChannel;
 import org.omg.CosEventChannelAdmin.EventChannelHelper;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventChannelAdmin.TypeError;
-import org.omg.CosEventChannelAdmin.SupplierAdmin;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumer;
-import org.omg.CORBA.Any;
-import org.omg.CosEventComm.Disconnected;
-import junit.framework.TestCase;
-import org.apache.avalon.framework.logger.Logger;
+import org.omg.CosEventChannelAdmin.SupplierAdmin;
+import org.omg.CosEventComm.PushSupplierPOA;
+
 import org.jacorb.util.Debug;
 
+import junit.framework.TestCase;
+import org.apache.avalon.framework.logger.Logger;
+
 /**
- * CosEventPushSender.java
- *
- *
- * Created: Fri Nov 22 18:46:42 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -34,9 +27,9 @@ public class CosEventPushSender extends PushSupplierPOA implements TestClientOpe
     boolean error_;
     ProxyPushConsumer myConsumer_;
     Any event_;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
 
-    CosEventPushSender(TestCase testCase, Any event) {
+    CosEventPushSender(NotificationTestCase testCase, Any event) {
         event_ = event;
         testCase_ = testCase;
     }
@@ -57,8 +50,7 @@ public class CosEventPushSender extends PushSupplierPOA implements TestClientOpe
         return error_;
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        org.omg.CosNotifyChannelAdmin.EventChannel channel,
+    public void connect(org.omg.CosNotifyChannelAdmin.EventChannel channel,
                         boolean useOrSemantic) throws AlreadyConnected {
 
         testCase_.assertNotNull(channel);
@@ -71,7 +63,7 @@ public class CosEventPushSender extends PushSupplierPOA implements TestClientOpe
         myConsumer_ = _admin.obtain_push_consumer();
         testCase_.assertNotNull(myConsumer_);
 
-        myConsumer_.connect_push_supplier(_this(setup.getORB()));
+        myConsumer_.connect_push_supplier(_this(testCase_.getSetup().getORB()));
 
         connected_ = true;
     }
@@ -97,4 +89,4 @@ public class CosEventPushSender extends PushSupplierPOA implements TestClientOpe
         }
     }
 
-}// CosEventPushSender
+}

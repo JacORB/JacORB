@@ -33,14 +33,18 @@ class SequencePushSender
     boolean error_ = false;
     boolean connected_;
     boolean eventSent_;
+    NotificationTestCase testCase_;
 
-    SequencePushSender(StructuredEvent[] event)
+
+    SequencePushSender(NotificationTestCase testCase, StructuredEvent[] event)
     {
+        testCase_ = testCase;
         event_ = event;
     }
 
-    SequencePushSender(StructuredEvent[] event, int times)
+    SequencePushSender(NotificationTestCase testCase, StructuredEvent[] event, int times)
     {
+        testCase_ = testCase;
         event_ = event;
         times_ = times;
     }
@@ -86,8 +90,7 @@ class SequencePushSender
     public void subscription_change(EventType[] eventType, EventType[] eventType2) throws InvalidEventType
         {}
 
-    public void connect(NotificationTestCaseSetup setup,
-                        EventChannel channel,
+    public void connect(EventChannel channel,
                         boolean useOrSemantic)
         throws AdminLimitExceeded,
                AlreadyConnected
@@ -100,10 +103,10 @@ class SequencePushSender
         pushConsumer_ =
             SequenceProxyPushConsumerHelper.narrow(supplierAdmin.obtain_notification_push_consumer(ClientType.SEQUENCE_EVENT,_proxyIdHolder));
 
-        setup.assertEquals(ProxyType._PUSH_SEQUENCE,
+        testCase_.assertEquals(ProxyType._PUSH_SEQUENCE,
                            pushConsumer_.MyType().value());
 
-        pushConsumer_.connect_sequence_push_supplier(SequencePushSupplierHelper.narrow(senderTie._this(setup.getORB())));
+        pushConsumer_.connect_sequence_push_supplier(SequencePushSupplierHelper.narrow(senderTie._this(testCase_.getSetup().getORB())));
 
         connected_ = true;
     }

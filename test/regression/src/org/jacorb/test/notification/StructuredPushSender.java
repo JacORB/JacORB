@@ -1,7 +1,5 @@
 package org.jacorb.test.notification;
 
-import junit.framework.TestCase;
-
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.EventType;
@@ -15,19 +13,21 @@ import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumer;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.StructuredPushSupplierHelper;
+import org.omg.CosNotifyComm.StructuredPushSupplier;
 import org.omg.CosNotifyComm.StructuredPushSupplierOperations;
 import org.omg.CosNotifyComm.StructuredPushSupplierPOATie;
-import org.omg.CosNotifyComm.StructuredPushSupplier;
-import org.omg.PortableServer.POAHelper;
-import org.omg.PortableServer.POA;
-import org.omg.CORBA.ORB;
-import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.Debug;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.avalon.framework.logger.Logger;
 
 public class StructuredPushSender
     extends Thread
-    implements StructuredPushSupplierOperations, TestClientOperations {
+    implements StructuredPushSupplierOperations,
+               TestClientOperations {
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
     PerformanceListener perfListener_;
@@ -40,31 +40,32 @@ public class StructuredPushSender
     boolean connected_;
     boolean eventSent_;
     long interval_ = 0;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
+    List addedSubscriptions_ = new ArrayList();
+    List removedSubscriptions_ = new ArrayList();
 
-    StructuredPushSender(TestCase testCase, StructuredEvent event) {
+    StructuredPushSender(NotificationTestCase testCase, StructuredEvent event) {
         event_ = event;
         testCase_ = testCase;
     }
 
-    public StructuredPushSender(TestCase testCase,StructuredEvent event, int times) {
+    public StructuredPushSender(NotificationTestCase testCase,StructuredEvent event, int times) {
         testCase_ = testCase;
         event_ = event;
         times_ = times;
     }
 
-    public StructuredPushSender(TestCase testCase,
+    public StructuredPushSender(NotificationTestCase testCase,
                                 StructuredEvent[] events,
                                 long interval) {
 
         testCase_ = testCase;
         events_ = events;
         interval_ = interval;
-
     }
 
 
-    public StructuredPushSender(TestCase testCase,
+    public StructuredPushSender(NotificationTestCase testCase,
                                 PerformanceListener logger,
                                 StructuredGenerator generator,
                                 int times,
@@ -135,12 +136,19 @@ public class StructuredPushSender
         connected_ = false;
     }
 
-    public void subscription_change(EventType[] eventType,
-                                    EventType[] eventType2) throws InvalidEventType {
+    public void subscription_change(EventType[] added,
+                                    EventType[] removed) throws InvalidEventType {
+        for (int x=0; x<added.length; ++x) {
+            addedSubscriptions_.add(added[x]);
+        }
+
+        for (int x=0; x<removed.length; ++x) {
+            removedSubscriptions_.add(removed[x]);
+        }
+
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        EventChannel channel,
+    public void connect(EventChannel channel,
                         boolean useOrSemantic)
         throws AdminLimitExceeded,
                AlreadyConnected,
@@ -152,7 +160,7 @@ public class StructuredPushSender
             new StructuredPushSupplierPOATie(this);
 
         StructuredPushSupplier sender =
-            senderTie._this(setup.getORB());
+            senderTie._this(testCase_.getSetup().getORB());
 
         SupplierAdmin supplierAdmin =
             channel.default_supplier_admin();
@@ -177,6 +185,5 @@ public class StructuredPushSender
 
     public void shutdown() {
         pushConsumer_.disconnect_structured_push_consumer();
-        //      testCase_.assertTrue(pushConsumer_._non_existent());
     }
 }

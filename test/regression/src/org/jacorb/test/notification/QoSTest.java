@@ -183,14 +183,14 @@ public class QoSTest extends NotificationTestCase
         StructuredPushReceiver receiver =
             new StructuredPushReceiver(this, events.length);
 
-        receiver.connect(getSetup(), channel, false);
+        receiver.connect(channel, false);
 
         receiver.pushSupplier_.suspend_connection();
 
         StructuredPushSender sender =
             new StructuredPushSender(this, events, 100);
 
-        sender.connect(getSetup(), channel, false);
+        sender.connect(channel, false);
 
         // push events
         sender.run();

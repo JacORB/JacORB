@@ -45,10 +45,10 @@ public class CosEventChannelTest extends NotificationTestCase
     {
         CosEventPushReceiver _receiver = new CosEventPushReceiver(this);
 
-        _receiver.connect(getSetup(), channel_, false);
+        _receiver.connect(channel_, false);
 
         CosEventPushSender _sender = new CosEventPushSender(this, testData_);
-        _sender.connect(getSetup(), channel_, false);
+        _sender.connect(channel_, false);
 
         Thread _r = new Thread(_receiver);
         _r.start();
@@ -63,12 +63,12 @@ public class CosEventChannelTest extends NotificationTestCase
 
     public void testPushPull() throws Exception
     {
-        CosEventPullReceiver _receiver = new CosEventPullReceiver();
-        _receiver.connect(getSetup(), channel_, false);
+        CosEventPullReceiver _receiver = new CosEventPullReceiver(this);
+        _receiver.connect(channel_, false);
         Thread _r = new Thread(_receiver);
 
         CosEventPushSender _sender = new CosEventPushSender(this, testData_);
-        _sender.connect(getSetup(), channel_, false);
+        _sender.connect(channel_, false);
         Thread _s = new Thread(_sender);
 
         _r.start();
@@ -85,10 +85,10 @@ public class CosEventChannelTest extends NotificationTestCase
     public void testPullPush() throws Exception
     {
         CosEventPushReceiver _receiver = new CosEventPushReceiver(this);
-        _receiver.connect(getSetup(), channel_, false);
+        _receiver.connect(channel_, false);
 
-        CosEventPullSender _sender = new CosEventPullSender(testData_);
-        _sender.connect(getSetup(), channel_, false);
+        CosEventPullSender _sender = new CosEventPullSender(this, testData_);
+        _sender.connect(channel_, false);
 
         Thread _r = new Thread(_receiver);
         _r.start();
@@ -104,12 +104,12 @@ public class CosEventChannelTest extends NotificationTestCase
 
     public void testPullPull() throws Exception
     {
-        CosEventPullReceiver _receiver = new CosEventPullReceiver();
-        _receiver.connect(getSetup(), channel_, false);
+        CosEventPullReceiver _receiver = new CosEventPullReceiver(this);
+        _receiver.connect(channel_, false);
         Thread _r = new Thread(_receiver);
 
-        CosEventPullSender _sender = new CosEventPullSender(testData_);
-        _sender.connect(getSetup(), channel_, false);
+        CosEventPullSender _sender = new CosEventPullSender(this, testData_);
+        _sender.connect(channel_, false);
 
         _r.start();
 
@@ -126,14 +126,14 @@ public class CosEventChannelTest extends NotificationTestCase
                                 new IntHolder());
 
         TestClientOperations[] _testClients = new TestClientOperations[] {
-                                                  new CosEventPullSender(testData_),
+                                                  new CosEventPullSender(this, testData_),
                                                   new CosEventPushSender(this, testData_),
                                                   new CosEventPushReceiver(this),
-                                                  new CosEventPullReceiver()};
+                                                  new CosEventPullReceiver(this)};
 
         for (int x = 0; x < _testClients.length; ++x)
         {
-            _testClients[x].connect(getSetup(), _channel, false);
+            _testClients[x].connect(_channel, false);
             assertTrue(_testClients[x].isConnected());
         }
 

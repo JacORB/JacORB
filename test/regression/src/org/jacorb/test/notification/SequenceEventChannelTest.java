@@ -49,15 +49,15 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
         EventChannel _channel = getFactory().create_channel(_p, _p, _channelId);
 
-        SequencePushSender _pushSender = new SequencePushSender(testEvent_);
-        SequencePullSender _pullSender = new SequencePullSender(testEvent_);
-        SequencePushReceiver _pushReceiver = new SequencePushReceiver();
-        SequencePullReceiver _pullReceiver = new SequencePullReceiver();
+        SequencePushSender _pushSender = new SequencePushSender(this, testEvent_);
+        SequencePullSender _pullSender = new SequencePullSender(this, testEvent_);
+        SequencePushReceiver _pushReceiver = new SequencePushReceiver(this);
+        SequencePullReceiver _pullReceiver = new SequencePullReceiver(this);
 
-        _pushSender.connect(getSetup(), _channel,false);
-        _pullSender.connect(getSetup(), _channel,false);
-        _pushReceiver.connect(getSetup(), _channel,false);
-        _pullReceiver.connect(getSetup(), _channel,false);
+        _pushSender.connect(_channel,false);
+        _pullSender.connect(_channel,false);
+        _pushReceiver.connect(_channel,false);
+        _pullReceiver.connect(_channel,false);
 
         assertTrue(_pushSender.isConnected());
         assertTrue(_pullSender.isConnected());
@@ -78,11 +78,11 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public void testSendPushPush() throws Exception {
-        SequencePushSender _sender = new SequencePushSender(testEvent_);
-        SequencePushReceiver _receiver = new SequencePushReceiver();
+        SequencePushSender _sender = new SequencePushSender(this, testEvent_);
+        SequencePushReceiver _receiver = new SequencePushReceiver(this);
 
-        _sender.connect(getSetup(), channel_,false);
-        _receiver.connect(getSetup(), channel_,false);
+        _sender.connect(channel_,false);
+        _receiver.connect(channel_,false);
 
         _receiver.start();
         _sender.start();
@@ -96,11 +96,11 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public void testSendPushPull() throws Exception {
-        SequencePushSender _sender = new SequencePushSender(testEvent_);
-        SequencePullReceiver _receiver = new SequencePullReceiver();
+        SequencePushSender _sender = new SequencePushSender(this, testEvent_);
+        SequencePullReceiver _receiver = new SequencePullReceiver(this);
 
-        _sender.connect(getSetup(), channel_,false);
-        _receiver.connect(getSetup(), channel_,false);
+        _sender.connect(channel_,false);
+        _receiver.connect(channel_,false);
 
         _receiver.start();
         _sender.start();
@@ -114,11 +114,11 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public void testSendPullPush() throws Exception {
-        SequencePullSender _sender = new SequencePullSender(testEvent_);
-        SequencePushReceiver _receiver = new SequencePushReceiver();
+        SequencePullSender _sender = new SequencePullSender(this, testEvent_);
+        SequencePushReceiver _receiver = new SequencePushReceiver(this);
 
-        _receiver.connect(getSetup(), channel_,false);
-        _sender.connect(getSetup(), channel_,false);
+        _receiver.connect(channel_,false);
+        _sender.connect(channel_,false);
 
         _receiver.start();
         _sender.start();
@@ -132,11 +132,11 @@ public class SequenceEventChannelTest extends NotificationTestCase {
 
 
     public void testSendPullPull() throws Exception {
-        SequencePullSender _sender = new SequencePullSender(testEvent_);
-        SequencePullReceiver _receiver = new SequencePullReceiver();
-            _sender.connect(getSetup(), channel_,false);
+        SequencePullSender _sender = new SequencePullSender(this, testEvent_);
+        SequencePullReceiver _receiver = new SequencePullReceiver(this);
+            _sender.connect(channel_,false);
 
-        _receiver.connect(getSetup(), channel_,false);
+        _receiver.connect(channel_,false);
 
         _receiver.start();
         _sender.start();

@@ -1,35 +1,28 @@
 package org.jacorb.test.notification;
 
-import org.omg.CosNotifyComm.StructuredPullSupplierOperations;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
-import org.omg.CosNotification.EventType;
 import org.omg.CORBA.BooleanHolder;
-import org.omg.PortableServer.POA;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CORBA.ORB;
-import org.omg.CosNotifyChannelAdmin.ClientType;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumer;
-import org.omg.CosNotifyComm.StructuredPullSupplierPOATie;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CORBA.IntHolder;
-import org.omg.CosNotifyComm.StructuredPullSupplierHelper;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerHelper;
-import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
-import junit.framework.TestCase;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.AdminNotFound;
+import org.omg.CosNotifyChannelAdmin.ClientType;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumer;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerHelper;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
+import org.omg.CosNotifyComm.StructuredPullSupplierHelper;
+import org.omg.CosNotifyComm.StructuredPullSupplierOperations;
+import org.omg.CosNotifyComm.StructuredPullSupplierPOATie;
 
 /**
- * StructuredPullSender.java
- *
- *
- * Created: Sun Dec 08 15:13:41 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -44,7 +37,7 @@ public class StructuredPullSender
     private boolean error_;
     boolean connected_;
     boolean eventHandled_;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
     boolean available_;
 
     public boolean isError() {
@@ -55,7 +48,7 @@ public class StructuredPullSender
         return eventHandled_;
     }
 
-    public StructuredPullSender(TestCase testCase, StructuredEvent event) {
+    public StructuredPullSender(NotificationTestCase testCase, StructuredEvent event) {
         event_ = event;
         testCase_ = testCase;
     }
@@ -131,9 +124,9 @@ public class StructuredPullSender
         connected_ = false;
     }
 
-    public void connect(NotificationTestCaseSetup setup,EventChannel channel,boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound {
+    public void connect(EventChannel channel,boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound {
 
-        orb_ = setup.getORB();
+        orb_ = testCase_.getSetup().getORB();
 
         StructuredPullSupplierPOATie _senderTie = new StructuredPullSupplierPOATie(this);
         SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
@@ -146,7 +139,7 @@ public class StructuredPullSender
         testCase_.assertEquals(pullConsumer_.MyType(), ProxyType.PULL_STRUCTURED);
 
 
-        pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper.narrow(_senderTie._this(setup.getORB())));
+        pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper.narrow(_senderTie._this(testCase_.getSetup().getORB())));
         connected_ = true;
     }
 

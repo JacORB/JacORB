@@ -43,11 +43,11 @@ import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
-import org.jacorb.test.notification.EchoServer;
-import org.jacorb.test.notification.EchoServerHelper;
 import org.jacorb.test.notification.AnyGenerator;
 import org.jacorb.test.notification.AnyPushReceiver;
 import org.jacorb.test.notification.AnyPushSender;
+import org.jacorb.test.notification.EchoServer;
+import org.jacorb.test.notification.EchoServerHelper;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.jacorb.test.notification.PerformanceListener;
@@ -60,16 +60,11 @@ import org.jacorb.test.notification.TestUtils;
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
-import org.apache.log.Priority;
 
 /**
- *
- * Created: Mon Jan 06 14:41:48 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -302,13 +297,13 @@ public class PerformanceTest extends NotificationTestCase {
         StructuredPushReceiver[] _receivers = new StructuredPushReceiver[numberOfConsumers];
 
         StructuredPushSender _sender =
-            new StructuredPushSender((TestCase)this, (PerformanceListener)_perfLogger, _generator, events, sInterval);
+            new StructuredPushSender(this, (PerformanceListener)_perfLogger, _generator, events, sInterval);
 
         Thread[] _receiverThread = new Thread[numberOfConsumers];
 
         for (int x=0; x<_receivers.length; x++) {
             _receivers[x] = new StructuredPushReceiver(this, _perfLogger, 1);
-            _receivers[x].connect(getSetup(), channel_,false);
+            _receivers[x].connect(channel_,false);
             _receivers[x].setTimeOut(events * sTimeout);
             _receivers[x].setBarrier(_barrier);
 
@@ -340,7 +335,7 @@ public class PerformanceTest extends NotificationTestCase {
 
         logger_.debug("Receiver started");
 
-        _sender.connect(getSetup(), channel_, false);
+        _sender.connect(channel_, false);
 
         for (int x=0; x<_receiverThread.length; x++) {
             _receiverThread[x].start();
@@ -390,7 +385,7 @@ public class PerformanceTest extends NotificationTestCase {
 
         for (int x=0; x<_receivers.length; x++) {
             _receivers[x] = new AnyPushReceiver(this,_perfLogger, 1);
-            _receivers[x].connect(getSetup(), channel_,false);
+            _receivers[x].connect(channel_,false);
             _receivers[x].setTimeOut(events * sTimeout);
             _receivers[x].setBarrier(_barrier);
 
@@ -413,7 +408,7 @@ public class PerformanceTest extends NotificationTestCase {
 
         logger_.debug("Receiver started");
 
-        _sender.connect(getSetup(), channel_,false);
+        _sender.connect(channel_,false);
 
         for (int x=0; x<_receiverThread.length; x++) {
             _receiverThread[x].start();
@@ -477,7 +472,7 @@ public class PerformanceTest extends NotificationTestCase {
 
         for (int x=0; x<_receivers.length; x++) {
             _receivers[x] = new AnyPushReceiver(this,_perfLogger, numberOfevents * numberOfSuppliers);
-            _receivers[x].connect(getSetup(), channel_,false);
+            _receivers[x].connect(channel_,false);
             _receivers[x].setTimeOut(numberOfSuppliers * numberOfevents * sTimeout);
             _receivers[x].setBarrier(_barrier);
         }
@@ -489,7 +484,7 @@ public class PerformanceTest extends NotificationTestCase {
         Thread[] _senderThreads = new Thread[numberOfSuppliers];
         for (int x=0; x<numberOfSuppliers; ++x) {
             _senderThreads[x] = new Thread(_sender[x]);
-            _sender[x].connect(getSetup(), channel_, false);
+            _sender[x].connect(channel_, false);
         }
 
         logger_.debug("Receiver started");
@@ -634,7 +629,7 @@ public class PerformanceTest extends NotificationTestCase {
         AnyPushReceiver _receiver = new AnyPushReceiver(this);
         _receiver.setExpected(events);
         _receiver.setPerformanceListener(_counter);
-        _receiver.connect(getSetup(), channel_, false);
+        _receiver.connect(channel_, false);
         _receiver.setTimeOut(80 * events);
 
         TestEventGenerator _generator = new TestEventGenerator() {
@@ -644,7 +639,7 @@ public class PerformanceTest extends NotificationTestCase {
             };
 
         AnyPushSender _sender = new AnyPushSender(this, _counter, _generator, events, 0);
-        _sender.connect(getSetup(), channel_, false);
+        _sender.connect(channel_, false);
 
         Thread _t = new Thread(_sender);
         Thread _r = new Thread(_receiver);
@@ -685,7 +680,7 @@ public class PerformanceTest extends NotificationTestCase {
             _consumers[x] = new AnyPushReceiver(this);
             _consumers[x].setExpected(events);
             _consumers[x].setPerformanceListener(_logger);
-            _consumers[x].connect(getSetup(), channel_, false);
+            _consumers[x].connect(channel_, false);
             _consumers[x].setTimeOut(100 * events);
             _consumers[x].setBarrier(_barrier);
         }
@@ -693,7 +688,7 @@ public class PerformanceTest extends NotificationTestCase {
         AnyPushSender _sender =
             new AnyPushSender(this, _logger, _generator, events, 0);
 
-        _sender.connect(getSetup(), channel_, false);
+        _sender.connect(channel_, false);
 
         Thread _t = new Thread(_sender);
 

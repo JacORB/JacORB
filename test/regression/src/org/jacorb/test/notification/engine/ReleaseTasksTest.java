@@ -86,10 +86,10 @@ public class ReleaseTasksTest extends NotificationTestCase
 
     public void testAllTasksAreReleased() throws Exception {
         StructuredPushReceiver pushReceiver = new StructuredPushReceiver(this);
-        pushReceiver.connect(getSetup(), eventChannel_, false);
+        pushReceiver.connect(eventChannel_, false);
 
         StructuredPullReceiver pullReceiver = new StructuredPullReceiver(this);
-        pullReceiver.connect(getSetup(), eventChannel_, false);
+        pullReceiver.connect(eventChannel_, false);
 
         final FilterStage supplierAdminMock = new MockFilterStage() {
                 public List getSubsequentFilterStages() {

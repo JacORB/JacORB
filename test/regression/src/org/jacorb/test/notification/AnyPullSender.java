@@ -39,9 +39,9 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
     boolean connected_ = false;
     boolean available_ = false;
     SupplierAdmin myAdmin_;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
 
-    public AnyPullSender(TestCase testCase, Any event)
+    public AnyPullSender(NotificationTestCase testCase, Any event)
     {
         event_ = event;
         testCase_ = testCase;
@@ -57,8 +57,7 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         return connected_;
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        EventChannel channel,
+    public void connect(EventChannel channel,
                         boolean useOrSemantic)
     throws AdminLimitExceeded, AlreadyConnected, TypeError, AdminNotFound
     {
@@ -66,7 +65,7 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
 
-        invalidAny_ = setup.getORB().create_any();
+        invalidAny_ = testCase_.getSetup().getORB().create_any();
 
         if (useOrSemantic)
         {
@@ -84,10 +83,10 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         myConsumer_ =
             ProxyPullConsumerHelper.narrow(myAdmin_.obtain_notification_pull_consumer(ClientType.ANY_EVENT, _proxyId));
 
-        setup.assertEquals(ProxyType._PULL_ANY, myConsumer_.MyType().value());
+        testCase_.assertEquals(ProxyType._PULL_ANY, myConsumer_.MyType().value());
 
 
-        myConsumer_.connect_any_pull_supplier(_this(setup.getORB()));
+        myConsumer_.connect_any_pull_supplier(_this(testCase_.getSetup().getORB()));
         connected_ = true;
     }
 

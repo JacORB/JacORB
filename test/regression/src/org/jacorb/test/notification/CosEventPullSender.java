@@ -1,17 +1,17 @@
 package org.jacorb.test.notification;
 
-import org.omg.CosEventComm.PullSupplierPOA;
-import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.Any;
-import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
-import org.omg.CosEventComm.Disconnected;
+import org.omg.CORBA.BooleanHolder;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.EventChannel;
 import org.omg.CosEventChannelAdmin.EventChannelHelper;
+import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
 import org.omg.CosEventChannelAdmin.SupplierAdmin;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosEventComm.PullSupplierPOA;
+
 import EDU.oswego.cs.dl.util.concurrent.Latch;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 /**
  * @author Alphonse Bendt
@@ -27,9 +27,11 @@ public class CosEventPullSender extends PullSupplierPOA implements TestClientOpe
     private boolean connected_;
     private boolean error_;
     private boolean sent_;
+    NotificationTestCase testCase_;
 
-    CosEventPullSender(Any event) {
+    CosEventPullSender(NotificationTestCase testCase, Any event) {
         event_ = event;
+        testCase_ = testCase;
     }
 
     public void run() {
@@ -87,19 +89,18 @@ public class CosEventPullSender extends PullSupplierPOA implements TestClientOpe
         myConsumer_.disconnect_pull_consumer();
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        org.omg.CosNotifyChannelAdmin.EventChannel channel,
+    public void connect(org.omg.CosNotifyChannelAdmin.EventChannel channel,
                         boolean useOrSemantic)
 
         throws AlreadyConnected, TypeError {
 
-        invalidAny_ = setup.getORB().create_any();
+        invalidAny_ = testCase_.getSetup().getORB().create_any();
         EventChannel _channel = EventChannelHelper.narrow(channel);
         SupplierAdmin _admin = _channel.for_suppliers();
         myConsumer_ = _admin.obtain_pull_consumer();
 
-        myConsumer_.connect_pull_supplier(_this(setup.getORB()));
+        myConsumer_.connect_pull_supplier(_this(testCase_.getSetup().getORB()));
         connected_ = true;
     }
 
-}// CosEventPullSender
+}

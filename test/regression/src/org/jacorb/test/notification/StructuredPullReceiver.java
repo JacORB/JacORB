@@ -1,29 +1,33 @@
 package org.jacorb.test.notification;
 
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyComm.StructuredPullConsumerOperations;
-import org.omg.CosNotifyComm.StructuredPullConsumerPOATie;
-import org.omg.CosNotifyChannelAdmin.ClientType;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplier;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
+import org.omg.CosNotifyChannelAdmin.ClientType;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplier;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierHelper;
 import org.omg.CosNotifyComm.StructuredPullConsumerHelper;
-import org.omg.CORBA.BooleanHolder;
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import junit.framework.TestCase;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.apache.avalon.framework.logger.Logger;
+import org.omg.CosNotifyComm.StructuredPullConsumerOperations;
+import org.omg.CosNotifyComm.StructuredPullConsumerPOATie;
+import org.omg.PortableServer.POA;
+
 import org.jacorb.util.Debug;
 
+import junit.framework.TestCase;
+import org.apache.avalon.framework.logger.Logger;
 
-public class StructuredPullReceiver extends Thread implements StructuredPullConsumerOperations, TestClientOperations {
+
+public class StructuredPullReceiver
+    extends Thread
+    implements StructuredPullConsumerOperations, TestClientOperations {
 
     StructuredEvent event_ = null;
     ORB orb_;
@@ -34,9 +38,9 @@ public class StructuredPullReceiver extends Thread implements StructuredPullCons
     boolean received_;
     long TIMEOUT = 2000;
     boolean error_;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
 
-    public StructuredPullReceiver(TestCase testCase) {
+    public StructuredPullReceiver(NotificationTestCase testCase) {
         super();
         testCase_ = testCase;
     }
@@ -45,15 +49,20 @@ public class StructuredPullReceiver extends Thread implements StructuredPullCons
         return connected_;
     }
 
-    public void connect(NotificationTestCaseSetup setup, EventChannel channel,boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected {
+    public void connect(EventChannel channel,
+                        boolean useOrSemantic)
+        throws AdminLimitExceeded,
+               AlreadyConnected {
+
         StructuredPullConsumerPOATie _receiverTie = new StructuredPullConsumerPOATie(this);
         ConsumerAdmin _consumerAdmin = channel.default_consumer_admin();
         IntHolder _proxyId = new IntHolder();
+
         pullSupplier_ = StructuredProxyPullSupplierHelper.narrow(_consumerAdmin.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId));
 
         testCase_.assertEquals(pullSupplier_.MyType(), ProxyType.PULL_STRUCTURED);
 
-        pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(setup.getORB())));
+        pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(testCase_.getSetup().getORB())));
         connected_ = true;
     }
 

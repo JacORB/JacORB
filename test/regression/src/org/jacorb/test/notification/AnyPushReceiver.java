@@ -49,17 +49,17 @@ public class AnyPushReceiver
     long TIMEOUT = 3000L;
     long TIMEOUT_OFF = 0;
     int filterId_ = Integer.MIN_VALUE;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
     ConsumerAdmin myAdmin_;
 
     private Object lock_ = new Object();
 
-    public AnyPushReceiver(TestCase testCase)
+    public AnyPushReceiver(NotificationTestCase testCase)
     {
         testCase_ = testCase;
     }
 
-    public AnyPushReceiver(TestCase testCase,
+    public AnyPushReceiver(NotificationTestCase testCase,
                            PerformanceListener listener,
                            int expected)
     {
@@ -128,8 +128,7 @@ public class AnyPushReceiver
         mySupplier_.disconnect_push_supplier();
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        EventChannel channel,
+    public void connect(EventChannel channel,
                         boolean useOrSemantic)
 
     throws AdminLimitExceeded,
@@ -160,11 +159,11 @@ public class AnyPushReceiver
         mySupplier_ =
             ProxyPushSupplierHelper.narrow(myAdmin_.obtain_notification_push_supplier(ClientType.ANY_EVENT, _proxyId));
 
-        setup.assertEquals(ProxyType._PUSH_ANY,
-                           mySupplier_.MyType().value());
+        testCase_.assertEquals(ProxyType._PUSH_ANY,
+                               mySupplier_.MyType().value());
 
 
-        mySupplier_.connect_any_push_consumer(_this(setup.getORB()));
+        mySupplier_.connect_any_push_consumer(_this(testCase_.getSetup().getORB()));
 
         connected_ = true;
     }

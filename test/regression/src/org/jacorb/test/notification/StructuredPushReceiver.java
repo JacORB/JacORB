@@ -26,8 +26,8 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.jacorb.util.Debug;
 
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import junit.framework.TestCase;
 import org.apache.avalon.framework.logger.Logger;
+import java.util.ArrayList;
 
 public class StructuredPushReceiver extends Thread
     implements StructuredPushConsumerOperations,
@@ -48,15 +48,18 @@ public class StructuredPushReceiver extends Thread
     CyclicBarrier barrier_;
     boolean connected_ = false;
     PerformanceListener perfListener_;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
 
-    List receivedEvents = new Vector();
+    List receivedEvents = new ArrayList();
 
-    public StructuredPushReceiver(TestCase testCase) {
+    List addedOffers = new ArrayList();
+    List removedOffers = new ArrayList();
+
+    public StructuredPushReceiver(NotificationTestCase testCase) {
         testCase_ = testCase;
     }
 
-    public StructuredPushReceiver(TestCase testCase,
+    public StructuredPushReceiver(NotificationTestCase testCase,
                                   PerformanceListener perfListener,
                                   int expected) {
         perfListener_ = perfListener;
@@ -64,7 +67,7 @@ public class StructuredPushReceiver extends Thread
         testCase_ = testCase;
     }
 
-    public StructuredPushReceiver(TestCase testCase,
+    public StructuredPushReceiver(NotificationTestCase testCase,
                                   int expected) {
         this( testCase, null, expected);
     }
@@ -123,13 +126,22 @@ public class StructuredPushReceiver extends Thread
         connected_ = false;
     }
 
-    public void offer_change(EventType[] type1,
-                             EventType[] type2)
+    public void offer_change(EventType[] added,
+                             EventType[] removed)
         throws InvalidEventType {
+
+        for (int x=0; x<added.length; ++x) {
+            addedOffers.add(added[x]);
+        }
+
+        for (int x=0; x<removed.length; ++x) {
+            removedOffers.add(removed[x]);
+        }
+
+        logger_.info("offer_change");
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        EventChannel channel,
+    public void connect(EventChannel channel,
                         boolean useOrSemantic)
         throws AdminLimitExceeded,
                AlreadyConnected,
@@ -148,7 +160,7 @@ public class StructuredPushReceiver extends Thread
         testCase_.assertNotNull(pushSupplier_.MyType());
         testCase_.assertEquals(pushSupplier_.MyType(), ProxyType.PUSH_STRUCTURED);
 
-        pushSupplier_.connect_structured_push_consumer(StructuredPushConsumerHelper.narrow(receiverTie._this(setup.getORB())));
+        pushSupplier_.connect_structured_push_consumer(StructuredPushConsumerHelper.narrow(receiverTie._this(testCase_.getSetup().getORB())));
 
         connected_ = true;
     }

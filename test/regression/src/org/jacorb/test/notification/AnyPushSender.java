@@ -44,9 +44,9 @@ public class AnyPushSender
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     SupplierAdmin myAdmin_;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
 
-    AnyPushSender(TestCase testCase)
+    AnyPushSender(NotificationTestCase testCase)
     {
         testCase_ = testCase;
     }
@@ -61,13 +61,13 @@ public class AnyPushSender
         runs_ = i;
     }
 
-    AnyPushSender(TestCase testCase, Any event) throws AlreadyConnected
+    AnyPushSender(NotificationTestCase testCase, Any event) throws AlreadyConnected
     {
         event_ = event;
         testCase_ = testCase;
     }
 
-    public AnyPushSender(TestCase testCase,
+    public AnyPushSender(NotificationTestCase testCase,
                          PerformanceListener perfListener,
                          TestEventGenerator generator,
                          int runs,
@@ -182,8 +182,7 @@ public class AnyPushSender
         }
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        EventChannel channel,
+    public void connect(EventChannel channel,
                         boolean useOrSemantic)
 
         throws AdminLimitExceeded,
@@ -208,9 +207,9 @@ public class AnyPushSender
 
         myConsumer_ = ProxyPushConsumerHelper.narrow(myAdmin_.obtain_notification_push_consumer(ClientType.ANY_EVENT, _proxyId));
 
-        setup.assertEquals(ProxyType._PUSH_ANY, myConsumer_.MyType().value());
+        testCase_.getSetup().assertEquals(ProxyType._PUSH_ANY, myConsumer_.MyType().value());
 
-        myConsumer_.connect_any_push_supplier(_this(setup.getORB()));
+        myConsumer_.connect_any_push_supplier(_this(testCase_.getSetup().getORB()));
         connected_ = true;
     }
 

@@ -120,8 +120,8 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
 
         _receiver.setTimeOut(testSize * 100);
 
-        _sender.connect(getSetup(), channel_, false);
-        _receiver.connect(getSetup(), channel_, false);
+        _sender.connect(channel_, false);
+        _receiver.connect(channel_, false);
 
         _receiver.start();
 

@@ -33,9 +33,12 @@ class SequencePullReceiver extends Thread implements SequencePullConsumerOperati
     long TIMEOUT = 1000;
     boolean error_;
 
-    SequencePullReceiver()
+    NotificationTestCase testCase_;
+
+    public SequencePullReceiver(NotificationTestCase testCase)
     {
         super();
+        testCase_ = testCase;
     }
 
     public boolean isConnected()
@@ -43,7 +46,7 @@ class SequencePullReceiver extends Thread implements SequencePullConsumerOperati
         return connected_;
     }
 
-    public void connect(NotificationTestCaseSetup setup, EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected
+    public void connect(EventChannel channel, boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected
     {
         SequencePullConsumerPOATie _receiverTie = new SequencePullConsumerPOATie(this);
         ConsumerAdmin _consumerAdmin = channel.default_consumer_admin();
@@ -51,11 +54,11 @@ class SequencePullReceiver extends Thread implements SequencePullConsumerOperati
 
         pullSupplier_ = SequenceProxyPullSupplierHelper.narrow(_consumerAdmin.obtain_notification_pull_supplier(ClientType.SEQUENCE_EVENT, _proxyId));
 
-        setup.assertEquals(ProxyType._PULL_SEQUENCE,
-                           pullSupplier_.MyType().value());
+        testCase_.assertEquals(ProxyType._PULL_SEQUENCE,
+                               pullSupplier_.MyType().value());
 
 
-        pullSupplier_.connect_sequence_pull_consumer(SequencePullConsumerHelper.narrow(_receiverTie._this(setup.getORB())));
+        pullSupplier_.connect_sequence_pull_consumer(SequencePullConsumerHelper.narrow(_receiverTie._this(testCase_.getSetup().getORB())));
 
         connected_ = true;
     }

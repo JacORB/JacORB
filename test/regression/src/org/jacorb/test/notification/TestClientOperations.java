@@ -19,7 +19,12 @@ public interface TestClientOperations {
     boolean isConnected();
     boolean isEventHandled();
     boolean isError();
-    void connect(NotificationTestCaseSetup setup, EventChannel eventChannel, boolean useOrSemantic) throws AlreadyConnected, TypeError, AdminLimitExceeded, AdminNotFound;
+    void connect(EventChannel eventChannel,
+                 boolean useOrSemantic)
+        throws AlreadyConnected,
+               TypeError,
+               AdminLimitExceeded,
+               AdminNotFound;
 
     void shutdown() throws FilterNotFound;
 

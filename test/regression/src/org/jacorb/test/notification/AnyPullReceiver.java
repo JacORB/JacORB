@@ -46,20 +46,19 @@ public class AnyPullReceiver
     boolean connected_;
     IntHolder adminId_;
     ConsumerAdmin myAdmin_;
-    TestCase testCase_;
+    NotificationTestCase testCase_;
 
-    public AnyPullReceiver(TestCase testCase)
+    public AnyPullReceiver(NotificationTestCase testCase)
     {
         testCase_ = testCase;
     }
 
-    public void connect(NotificationTestCaseSetup setup,
-                        EventChannel channel,
+    public void connect(EventChannel channel,
                         boolean useOrSemantic) throws AdminNotFound, AlreadyConnected, AdminLimitExceeded
     {
 
-        orb_ = setup.getORB();
-        poa_ = setup.getPOA();
+        orb_ = testCase_.getSetup().getORB();
+        poa_ = testCase_.getSetup().getPOA();
 
         IntHolder _proxyId = new IntHolder();
         IntHolder _adminId = new IntHolder();
@@ -81,8 +80,8 @@ public class AnyPullReceiver
             ProxyPullSupplierHelper.narrow(myAdmin_.
                                            obtain_notification_pull_supplier(ClientType.ANY_EVENT, _proxyId));
 
-        setup.assertEquals(ProxyType._PULL_ANY,
-                           mySupplier_.MyType().value());
+        testCase_.getSetup().assertEquals(ProxyType._PULL_ANY,
+                                          mySupplier_.MyType().value());
 
 
         mySupplier_.connect_any_pull_consumer(_this(orb_));
