@@ -14,18 +14,21 @@ module basetypes
     unsigned long ul;
     long long ll;
     unsigned long long ull;
+      wstring ws;
   };
 
 
     // definitions
+    typedef wstring MY_W;
 
     typedef long ASN1_Integer;
     typedef ASN1_Integer NotificationIdentifierHelper;
 
     interface foo {
         typedef  string < 8 > octstring;
-        
+
         octstring afunction(in octstring asdf);
+        const wstring WS1 = L"Hello";
     };
     
     const long arrayBound = 011;
@@ -70,6 +73,7 @@ module basetypes
     interface Inter
     {
         oneway void op();
+        wstring wop( out wstring  p );
     };
     
 };
