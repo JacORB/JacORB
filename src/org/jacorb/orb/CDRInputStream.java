@@ -107,6 +107,18 @@ public class CDRInputStream
 	closed = true;
     }
 	
+    // rmic-generated generated stubs call this method.
+    // Before adding this implementation I was getting NO_IMPLEMENT 
+    // exceptions on calls to this method. After I added it I started getting
+    // NO_IMPLEMENT exceptions on calls to org.jacorb.orb.Any.insert_Value()
+    public org.omg.CORBA.ORB orb ()
+    {
+        if (orb != null)
+            return orb;
+	else
+	    return new ORBSingleton();
+    }
+
     public void setCodeSet( int codeSet, int codeSetWide )
     {
         this.codeSet = codeSet;
@@ -1230,6 +1242,9 @@ public class CDRInputStream
             valueMap.put (new Integer(index), result);
             return result;
         } 
+        else if (tag == 0x7fffff02)
+	    // without this I was getting NPEs in read_special_value()
+            return read_typed_value(); 
         else 
             return read_special_value (tag);
     }
@@ -1244,7 +1259,11 @@ public class CDRInputStream
                                                      int index)
     {
         java.io.Serializable result;
-        if (repository_id.startsWith ("IDL:"))
+	if (repository_id.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+	    // ValueHandler.readValue seems not to read Strings,
+	    // so I treat them as a special case
+	    result = read_wstring();
+        else if (repository_id.startsWith ("IDL:")) 
         {
             org.omg.CORBA.portable.ValueFactory factory =
                 ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory 
@@ -1264,9 +1283,10 @@ public class CDRInputStream
                 org.jacorb.ir.RepositoryID.className (repository_id);
             Class c = null;
             try {
-                c = Class.forName (className);
+	        c = Thread.currentThread().getContextClassLoader().loadClass
+		                                                   (className);
             } catch (ClassNotFoundException e) {
-                throw new RuntimeException ("class not found: " + c);
+                throw new RuntimeException ("class not found: " + className);
             }
             result = v.readValue (this, index, 
                                   c,
@@ -1336,7 +1356,8 @@ public class CDRInputStream
                 return (java.io.Serializable)value;
         } 
         else
-            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " + tag);
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+					     + Integer.toHexString(tag));
     } 
 
     //      public byte[]  get_buffer(){
