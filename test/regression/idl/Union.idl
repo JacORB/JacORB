@@ -9,7 +9,22 @@ module org
             interface Discriminator
             {
 
-               enum Color{red, green, blue};
+    enum EnumType 
+    {
+      ENUM_VALUE_A,	     
+      ENUM_VALUE_B,
+      ENUM_VALUE_C,
+      ENUM_VALUE_D
+    };
+
+    union UnionType switch(EnumType) 
+    {
+    	case ENUM_VALUE_A: string value;
+    	default: short dummy;	
+    };
+
+
+               enum Color{red, green, blue, black, grey};
 
                union CharUnionDef switch(char) {
                   case '\x0':

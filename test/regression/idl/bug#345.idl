@@ -1,0 +1,30 @@
+module bug345 {
+
+    interface Foo {
+        struct State {
+            string s;
+        };
+        
+        readonly attribute State fooState;        
+   };
+
+    interface Bar : Foo {
+        struct State {
+            long l;
+        };
+
+        readonly attribute State barState;
+        
+   };
+
+    interface Baz : Bar {
+        struct State {
+            short m;
+        };
+
+        readonly attribute State bazState;
+        
+   };
+
+
+};
