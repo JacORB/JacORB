@@ -20,7 +20,7 @@
    <!--                   IDL compiler                       -->
    <!-- ==================================================== -->
 
-   <target name="compiler" depends="init,java_cup,idlsrc,idllib,idlcmd"/>
+   <target name="compiler" depends="init,idlsrc,idllib,idlcmd"/>
 
    <target name="idlcmd">
         <copy overwrite="yes" file="bin/idltemplate" tofile="bin/idl" />
@@ -31,7 +31,7 @@
    </target>
 
    <!-- package idl.jar -->
-   <target name="idllib" depends="java_cup,idlsrc" >
+   <target name="idllib" depends="idlsrc" >
         <jar jarfile="${lib}/idl.jar"
              basedir="${classdir}"
              includes="org/jacorb/idl/**,java_cup/**"
@@ -42,9 +42,6 @@
       <ant antfile="${src}/org/jacorb/idl/build.xml" dir="${basedir}" />
    </target>
 
-   <target name="java_cup">
-      <ant antfile="${src}/java_cup/build.xml" dir="${basedir}"/>
-   </target>
 
 
    <!-- ==================================================== -->
