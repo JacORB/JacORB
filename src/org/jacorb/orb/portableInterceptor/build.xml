@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../../common.xml"> ]>
+
 <project name="portableInterceptor" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
@@ -7,30 +9,15 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" 
-                value="-I${include}/omg -I${include}/jacorb -d
-	${src}/generated"/>
-   </target>
+   &common;
 
    <target name="all" depends="init">
-	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/orb/portableInterceptor/*.java"
-	       />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/orb/portableInterceptor/*.java"/>
+      </antcall>
    </target>
+
 
    <target name="clean">
    </target>
-
 </project>
-
-
-
-
-

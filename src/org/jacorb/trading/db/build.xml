@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../../common.xml"> ]>
+
 <project name="trading-db" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
@@ -7,39 +9,28 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
-	<available classname="COM.odi.ObjectStore"
-	property="pse-present" />
+   &common;
+
+
+   <target name="check-pse">
+      <available classname="com.odi.ObjectStore" property="pse-present" />
    </target>
 
-   <target name="all" depends="init,simple,pse">
- 	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/trading/db/*.java"
-	       />
+
+   <target name="all" depends="init,pse">
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/trading/db/*.java,org/jacorb/trading/db/simple/**/*.java,org/jacorb/trading/db/simple/*.java"/>
+      </antcall>
    </target>
 
-   <target name="simple">
- 	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/trading/db/simple/**/*.java,
-               org/jacorb/trading/db/simple/*.java"
-	       />
-   </target>
 
    <target name="pse" if="pse-present">
- 	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/trading/db/pse/**/*.java,
-               org/jacorb/trading/db/pse/*.java"
-	       />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/trading/db/pse/**/*.java,org/jacorb/trading/db/pse/*.java"/>
+      </antcall>
    </target>
+
 
    <target name="clean">
    </target>
-
 </project>
-

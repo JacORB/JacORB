@@ -1,0 +1,80 @@
+
+<!-- This is a common initialization file for JacORB     -->
+<!--                                                     -->
+<!-- This should not be called directly; instead it      -->
+<!-- should be included with '&common;' syntax.          -->
+
+<target name="init" depends="ant-version">
+    <property name="dirs.base" value="${basedir}"/>
+    <property name="src" value="${dirs.base}/src"/>
+    <property name="lib" value="${dirs.base}/lib"/>
+    <property name="idl" value="${dirs.base}/idl"/>
+    <property name="debug" value="on"/>
+    <!-- This value only used under Ant 1.5 -->
+    <property name="debuglevel" value="lines,source"/>
+
+    <property name="classdir" value="${dirs.base}/classes"/>
+    <property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
+    <mkdir dir="${classdir}"/>
+    <mkdir dir="${lib}"/>
+    <mkdir dir="${src}/generated"/>
+    <filter token="path" value="basedir"/>
+</target>
+
+
+<target name="load-taskdef">
+   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpath="${basedir}/classes"/>
+</target>
+
+<target name="ant-version" unless="ant15">
+    <available classname="org.apache.tools.ant.filters.ClassConstants" property="ant15"/>
+</target>
+
+
+<target name="check-src" unless="javac-src">
+   <property name="javac-src" value="${src}"/>
+</target>
+
+
+<target name="check-excludes" unless="javac-excludes">
+   <property name="javac-excludes" value=""/>
+</target>
+
+
+<target name="check-includes" unless="javac-includes">
+   <fail message="Pass javac-includes to target"/>
+</target>
+
+
+<!-- This target is a compatibility wrapper to allow either a Ant 14 or Ant  -->
+<!-- 15 to be used. Optional parameters are:                                 -->
+<!-- javac-src        Defaults to ${src}                                     -->
+<!-- javac-excludes   For file selection; defaults to ''                     -->
+<!-- Mandatory parameter is:                                                 -->
+<!-- javac-includes   Specifies which files to compile.                      -->
+<target name="jacorb-javac" depends="check-includes,javac-14,javac-15"/>
+
+
+<target name="javac-14" depends="check-src,check-excludes" unless="ant15">
+   <echo message="Compiling for ${ant.project.name}"/>
+   <javac srcdir="${javac-src}"
+          destdir="${classdir}"
+          bootclasspath="${classdir}:${classpath}"
+          debug="${debug}"
+          includes="${javac-includes}"
+          excludes="${javac-excludes}">
+   </javac>
+</target>
+
+
+<target name="javac-15" depends="check-src,check-excludes" if="ant15">
+   <echo message="Compiling for ${ant.project.name}"/>
+   <javac srcdir="${javac-src}"
+          destdir="${classdir}"
+          bootclasspath="${classdir}:${classpath}"
+          debug="${debug}"
+          debuglevel="${debuglevel}"
+          includes="${javac-includes}"
+          excludes="${javac-excludes}">
+   </javac>
+</target>

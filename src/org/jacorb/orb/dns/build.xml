@@ -1,42 +1,38 @@
 <?xml version="1.0"?>
 
-<project name="orb" default="all" basedir="../../../../..">
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../../common.xml"> ]>
+
+<project name="dns" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
   <!--             dns lookup build file                    -->
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init" depends="dns_test">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
+   &common;
+
+   <target name="dns-test">
+      <available classname="org.xbill.DNS.dns" property="dns.available" />
    </target>
 
-   <target name="dns_test">
-	<available classname="org.xbill.DNS.dns"
-	property="dns_available" />	
+   <target name="all" depends="init,dns-test,dns,dns-delegate"/>
+
+
+   <target name="dns">
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/orb/dns/DNSLookup.java,org/jacorb/orb/dns/DNSLookupDelegate.java"/>
+      </antcall>
    </target>
 
-   <target name="all" depends="init,dns,dns_delegate"/> 
 
-   <target name="dns" >
-	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/orb/dns/DNSLookup.java,org/jacorb/orb/dns/DNSLookupDelegate.java"
-	        />
+   <target name="dns-delegate" if="dns.available">
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/orb/dns/DNSLookupDelegateImpl.java"/>
+      </antcall>
    </target>
 
-   <target name="dns_delegate" if="dns_available">
-	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/orb/dns/DNSLookupDelegateImpl.java"
-	        />
-   </target>
 
    <target name="clean" depends="init">
         <delete dir="${classdir}/org/jacorb/orb/dns" />
    </target>
-
 </project>
-

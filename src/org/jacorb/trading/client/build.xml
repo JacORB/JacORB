@@ -1,29 +1,25 @@
 <?xml version="1.0"?>
 
-<project name="client" default="all" basedir="../../../../..">
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../../common.xml"> ]>
+
+<project name="trading-client" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
   <!--             trader client build file                         -->
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
-   </target>
+   &common;
+
 
    <target name="all" >
- 	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/trading/client/**/**.java"
-	       />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/trading/client/**/**.java"/>
+      </antcall>
    </target>
 
 
    <target name="clean" depends="init">
            <delete dir="${classdir}/org/jacorb/trading/client"/>
    </target>
-
 </project>
-

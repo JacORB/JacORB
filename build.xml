@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:./common.xml"> ]>
+
 <project name="main" default="all" basedir=".">
 
    <!-- ==================================================== -->
@@ -7,24 +9,11 @@
    <!-- $Id$ -->
    <!-- ==================================================== -->
 
-   <target name="init">
-   <property name="Name" value="main"/>
-   <property name="name" value="main"/>
-   <property name="dirs.base" value="${basedir}"/>
-   <property name="classdir" value="${dirs.base}/classes"/>
-   <property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
-   <property name="src" value="${dirs.base}/src"/>
-   <property name="lib" value="${dirs.base}/lib"/>
-   <property name="debug" value="off"/>
-   <mkdir dir="${classdir}"/>
-   <mkdir dir="${lib}"/>
-   <mkdir dir="${src}/generated"/>
-   <filter token="path" value="basedir"/>
-   </target>
+   &common;
 
    <!-- top-level target -->
    <target name="all" depends="init,compiler,omg_idl,jacorb,libs"
-      description="Build JacORB. Use -Ddebug=on to compile code with debug."/>
+      description="Build JacORB. Use -Ddebug=lines,vars,source to compile code with full debugging."/>
 
 
    <!-- ==================================================== -->

@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../common.xml"> ]>
+
 <project name="trading" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
@@ -7,50 +9,37 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
-   </target>
+   &common;
 
    <target name="all" depends="init,impl,db,util,client,test"/>
 
    <target name="impl">
- 	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/trading/impl/*.java,org/jacorb/trading/*.java"
-	       />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/trading/impl/*.java,org/jacorb/trading/*.java"/>
+      </antcall>
    </target>
 
    <target name="db">
-           <ant antfile="${src}/org/jacorb/trading/db/build.xml" 
-           dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/trading/db/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="util">
- 	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/trading/util/*.java"
-	       />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/trading/util/*.java"/>
+      </antcall>
    </target>
 
    <target name="client">
-	   <ant
-	   antfile="${src}/org/jacorb/trading/client/build.xml" 
-           dir="${basedir}"
-	   />
+      <ant antfile="${src}/org/jacorb/trading/client/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="test">
- 	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/trading/test/*.java"
-	       />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/trading/test/*.java"/>
+      </antcall>
    </target>
 
    <target name="clean" depends="init">
            <delete dir="${classdir}/org/jacorb/trading" />
    </target>
-
 </project>
-

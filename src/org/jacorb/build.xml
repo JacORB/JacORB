@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../common.xml"> ]>
+
 <project name="jacorb" default="all" basedir="../../..">
 
   <!-- ==================================================== -->
@@ -7,48 +9,33 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="Name" value="jacorb-orb"/>
-	<property name="name" value="jacorb-orb"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="extpath" value="${dirs.base}/classes"/>
-	<property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
-	<property name="jsrc" value="${dirs.base}/src"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-        <taskdef name="jacidl"
-                 classname="org.jacorb.idl.JacIDL"
-                 classpath="${basedir}/classes"/>
-   </target>
+  &common;
 
    <!-- all -->
 
-   <target name="all" depends="init,idlcompile,subdirs" />
+   <target name="all" depends="init,load-taskdef,idlcompile,subdirs" />
 
    <target name="idlcompile" depends="init,idl">
-	<javac debug="${debug}" srcdir="${jsrc}/generated/"
-               destdir="${classdir}"
-               bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	       includes="org/jacorb/proxy/**"
-	/>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/jacorb/proxy/**"/>
+      </antcall>
    </target>
 
+
    <!-- Determine if IDL compilation is necessary. -->
-
-
-    <target name="idl" depends="init">
-        <jacidl srcdir="${include}/jacorb"
-                destdir="${jsrc}/generated"
-                sloppynames="true"
-                generateir="true"
-                includepath="${include}/omg"
-                includes="Proxy.idl"/>
+   <target name="idl" depends="init,load-taskdef">
+      <jacidl srcdir="${idl}/jacorb"
+              destdir="${src}/generated"
+              sloppynames="true"
+              generateir="true"
+              includepath="${idl}/omg"
+              includes="Proxy.idl"/>
     </target>
 
 
    <target name="utils" depends="init">
-      <ant antfile="${jsrc}/org/jacorb/util/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/util/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="subdirs"
@@ -58,59 +45,58 @@
 <!--proxy-->
 
    <target name="proxy" depends="init" >
-   	<javac debug="${debug}" srcdir="${jsrc}"
-               destdir="${classdir}"
-	       includes="org/jacorb/proxy/*.java"
-	       />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/proxy/*.java"/>
+      </antcall>
    </target>
 
    <target name="poa" depends="init" >
-   	<ant antfile="${jsrc}/org/jacorb/poa/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/poa/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="ir" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/ir/build.xml"  dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/ir/build.xml"  dir="${basedir}"/>
    </target>
 
    <target name="transaction" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/transaction/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/transaction/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="collection" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/collection/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/collection/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="concurrency" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/concurrency/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/concurrency/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="orb" depends="init">
-        <ant antfile="${jsrc}/org/jacorb/util/build.xml" target="valuehandler" dir="${basedir}"/>
-   	<ant antfile="${jsrc}/org/jacorb/orb/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/util/build.xml" target="valuehandler" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/orb/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="imr"  depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/imr/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/imr/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="naming" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/naming/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/naming/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="security" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/security/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/security/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="events" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/events/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/events/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="trading" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/trading/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/trading/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="tracing" depends="init">
-   	<ant antfile="${jsrc}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="clean">

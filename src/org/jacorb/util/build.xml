@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../common.xml"> ]>
+
 <project name="util" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
@@ -7,21 +9,7 @@
   <!-- $Id$  -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="Name" value="jacorb-orb"/>
-	<property name="name" value="jacorb-orb"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="extpath" value="${dirs.base}/classes"/>
-	<property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
-	<property name="jsrc" value="${dirs.base}/src"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<property name="include" value="${dirs.base}/idl"/>
-        <taskdef name="jacidl"
-                 classname="org.jacorb.idl.JacIDL"
-                 classpath="${basedir}/classes"/>
-   </target>
-
+   &common;
 
    <target name="value-handler-test" unless="no-rmi">
        <available classname="javax.rmi.CORBA.ValueHandler" property="valuehandler.present" />
@@ -43,16 +31,16 @@
             overwrite="yes"/>
    </target>
 
+
    <target name="all" depends="init,valuehandler">
-       <ant antfile="${jsrc}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
-       <javac debug="${debug}" srcdir="${jsrc}"
-              destdir="${classdir}"
-              includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"/>
+      <ant antfile="${src}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/util/*.java,org/jacorb/util/**/*.java"/>
+      </antcall>
    </target>
 
 
    <target name="clean">
       <delete file="ValueHandler.java"/>
    </target>
-
 </project>

@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../../common.xml"> ]>
+
 <project name="ssl" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
@@ -7,33 +9,23 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
-	<available classname="iaik.x509.X509Certificate" 
-                   property="iaik.present" />
-	<available classname="com.sun.net.ssl.SSLContext" 
-                   property="sun_jsse.present" />
+   &common;
+
+   <target name="check-props">
+      <available classname="iaik.x509.X509Certificate" property="iaik.present" />
+      <available classname="com.sun.net.ssl.SSLContext" property="sun_jsse.present" />
    </target>
 
-   <target name="all" depends="init,iaik,sun_jsse">
+   <target name="all" depends="init,check-props,iaik,sun_jsse">
    </target>
+
 
    <target name="iaik" if="iaik.present">
-           <ant antfile="${src}/org/jacorb/security/ssl/iaik/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/security/ssl/iaik/build.xml" dir="${basedir}"/>
    </target>
+
 
    <target name="sun_jsse" if="sun_jsse.present">
-           <ant antfile="${src}/org/jacorb/security/ssl/sun_jsse/build.xml" dir="${basedir}"/>
+      <ant antfile="${src}/org/jacorb/security/ssl/sun_jsse/build.xml" dir="${basedir}"/>
    </target>
 </project>
-
-
-
-
-
-
-
-
-

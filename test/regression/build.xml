@@ -1,22 +1,38 @@
 <?xml version="1.0"?>
 
-<project name="test" default="run-all" basedir="../..">
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../common.xml"> ]>
+
+<project name="regression-test" default="help" basedir="../../">
 
 
   <!-- ==================================================== -->
   <!--             JacORB Tests build file                  -->
   <!-- ==================================================== -->
+   <target name="help">
+      <exec executable="java" outputproperty="OUTPUT">
+         <arg line="-classpath ${java.class.path} org.apache.tools.ant.Main -logger org.apache.tools.ant.NoBannerLogger -projecthelp -buildfile ${basedir}/test/regression/build.xml"/>
+      </exec>
+      <echo message="${OUTPUT}"/>
+   </target>
 
+   &common;
 
-   <target name="init">
+   <!-- Using test-init so we can set different src, class and idl directories -->
+   <target name="test-init" depends="ant-version,load-taskdef">
+      <property name="debug" value="on"/>
+      <!-- This value only used under Ant 1.5 -->
+      <property name="debuglevel" value="lines,source"/>
       <property name="testdir" value="${basedir}/test/regression"/>
-      <property name="dirs.src" value="${testdir}/src"/>
-      <property name="dirs.idl" value="${testdir}/idl"/>
-      <property name="dirs.classes" value="${basedir}/classes"/>
+      <property name="src" value="${testdir}/src"/>
+      <property name="idl" value="${testdir}/idl"/>
       <property name="dirs.output" value="${testdir}/output"/>
-      <property name="idl.flags" 
-                value="-p org.jacorb -d ${dirs.src}/generated"/>
-      <property name="class.path" value="${java.class.path}:${dirs.classes}"/>
+      <!-- Add JacORB classes -->
+      <property name="classdir" value="${basedir}/test/regression/classes"/>
+      <property name="classpath" value="${classdir}:${basedir}/classes:${java.class.path}"/>
+
+      <mkdir dir="${src}/generated"/>
+      <mkdir dir="${dirs.output}"/>
+      <mkdir dir="${classdir}"/>
    </target>
 
 
@@ -25,26 +41,26 @@
    <!-- ==================================================== -->
 
 
-   <target name="build-all" depends="init">
-      <echo message="${class.path}"/>
+   <target name="build-all" depends="test-init">
       <antcall target="compile-idl"/>
       <antcall target="compile-src"/>
    </target>
 
 
    <target name="compile-src">
-      <javac srcdir="${dirs.src}" 
-             destdir="${dirs.classes}"
-             excludes="generated/**"
-             classpath="${class.path}"/>
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="**"/>
+         <param name="javac-excludes" value="generated/**"/>
+      </antcall>
    </target>
 
 
    <target name="run" depends="build-all">
-      <junit fork="yes" printsummary="on">
-         <jvmarg value="-Xbootclasspath/p:${class.path}"/>
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+         <jvmarg value="-Xbootclasspath/p:${classpath}"/>
+         <jvmarg value="-Dtestdir=${testdir}"/>
          <formatter type="plain"/>
-	      <test name="${test}" todir="${dirs.output}"/>
+         <test name="${test}" todir="${dirs.output}"/>
       </junit>
    </target>
 
@@ -63,10 +79,13 @@
       <condition property="${props.idl}">
          <or>
             <not>
-               <available file="${dirs.classes}/${pkg.idl}"/>
+               <available file="${classdir}/${pkg.idl}"/>
             </not>
-            <uptodate targetfile="${dirs.idl}/${file.idl}">
-               <srcfiles dir="${dirs.src}/generated/${pkg.idl}" 
+            <not>
+               <available file="${src}/generated/${pkg.idl}"/>
+            </not>
+            <uptodate targetfile="${idl}/${file.idl}">
+               <srcfiles dir="${src}/generated/${pkg.idl}"
                          includes="**/*.java"/>
             </uptodate>
          </or>
@@ -75,15 +94,16 @@
    </target>
 
 
-   <target name="generate-src"  if="${props.idl}">
-      <java classname="org.jacorb.idl.parser"
-            classpath="${class.path}">
-	      <arg line="${idl.flags} ${dirs.idl}/${file.idl}"/>
-      </java>
-      <javac srcdir="${dirs.src}/generated"
-             destdir="${dirs.classes}"
-             includes="${pkg.idl}/**"
-             classpath="${class.path}"/>
+   <target name="generate-src" if="${props.idl}">
+      <jacidl generateir="true"
+              srcdir="${idl}"
+              packageprefix="org.jacorb"
+              destdir="${src}/generated"
+              includes="${file.idl}"/>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="${pkg.idl}/**"/>
+      </antcall>
    </target>
 
 
@@ -110,12 +130,34 @@
       <antcall target="run">
          <param name="test" value="org.jacorb.test.AllTest"/>
       </antcall>
-   </target>
+      <antcall target="compile-idl-test-generated"/>
+  </target>
 
 
    <target name="run-all-separate"
            description="Run all Jacorb tests, logging results in separate files">
       <antcall target="run-all-orb-separate"/>
+   </target>
+
+
+   <!-- ==================================================== -->
+   <!--                  run idl tests                       -->
+   <!-- ==================================================== -->
+
+   <target name="run-all-idl"
+           description="Run all Jacorb tests in the idl package and its subpackages">
+      <antcall target="run">
+         <param name="test" value="org.jacorb.test.idl.AllTest"/>
+      </antcall>
+      <antcall target="compile-idl-test-generated"/>
+   </target>
+
+   <target name="compile-idl-test-generated" depends="test-init">
+       <!-- Compile the test idl -->
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="generated/**"/>
+      </antcall>
+      <echo message="Successfully compiled test idl"/>
    </target>
 
 
@@ -208,12 +250,11 @@
    <!-- ==================================================== -->
 
 
-   <target name="clean" 
-           depends="init"
+   <target name="clean"
+           depends="test-init"
            description="Remove all generated source files and class files">
-      <delete dir="${dirs.classes}/org" failonerror="false"/>
-      <delete dir="${dirs.src}/generated/org" failonerror="false"/>
+      <delete dir="${classdir}/org" failonerror="false"/>
+      <delete dir="${src}/generated" failonerror="false"/>
+      <delete dir="${classdir}" failonerror="false"/>
    </target>
-
-
 </project>

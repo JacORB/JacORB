@@ -1,27 +1,22 @@
 <?xml version="1.0"?>
 
-<project name="orb" default="all" basedir="../../../..">
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../common.xml"> ]>
+
+<project name="concurrency" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!--             Concurrency build file                   -->
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${basedir}/src"/>
-   </target>
+   &common;
 
    <target name="all" depends="init">
-	<javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/concurrency/**/*.java"
-	        />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/concurrency/**/*.java"/>
+      </antcall>
    </target>
 
    <target name="clean">
    </target>
-
 </project>
-

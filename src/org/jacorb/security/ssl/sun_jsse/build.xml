@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../../../common.xml"> ]>
+
 <project name="sun_jsse" default="all" basedir="../../../../../..">
 
   <!-- ==================================================== -->
@@ -7,20 +9,15 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
-        <property name="local" value="${dirs.base}/src/org/jacorb/security/ssl/sun_jsse"/>
-   </target>
+   &common;
+
 
    <target name="all" depends="init">
-           <javac debug="${debug}" srcdir="${src}"
-                  destdir="${classdir}"
-                  includes="org/jacorb/security/ssl/sun_jsse/*.java"
-        />
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/security/ssl/sun_jsse/*.java"/>
+      </antcall>
    </target>
-   
+
    <target name="patch" depends="init">
            <patch patchfile="${local}/ServerInvocationInterceptor.java.patch"
                   originalfile="${local}/ServerInvocationInterceptor.java"
@@ -48,10 +45,3 @@
                   reverse="yes" />
    </target>
 </project>
-
-
-
-
-
-
-
