@@ -172,6 +172,7 @@ public class StructuredPushReceiver extends Thread implements StructuredPushCons
         Assert.assertNotNull(pushSupplier_.MyType());
         Assert.assertEquals(pushSupplier_.MyType(), ProxyType.PUSH_STRUCTURED);
 
+        Assert.assertEquals(_consumerAdmin, pushSupplier_.MyAdmin());
         pushSupplier_.connect_structured_push_consumer(StructuredPushConsumerHelper
                 .narrow(receiverTie._this(testCase_.getORB())));
 
