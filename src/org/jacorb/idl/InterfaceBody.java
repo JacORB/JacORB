@@ -365,15 +365,19 @@ class InterfaceBody
                                   boolean is_local )
     {
         Operation[] ops = getMethods();
-        if( ops.length > 0 )
+        for( int i = 0; i < ops.length; i++ )
+            ops[ i ].printMethod( ps, classname, is_local );
+        
+        if ( parser.generate_ami_callback && 
+             !(my_interface instanceof ReplyHandler) )
         {
             for( int i = 0; i < ops.length; i++ )
-                ops[ i ].printMethod( ps, classname, is_local );
+                ops[ i ].print_sendc_Method( ps, classname );
         }
     }
 
 
-    /** print methods to the stub file */
+    /** print methods to the skeleton file */
 
     public void printDelegatedMethods( PrintWriter ps )
     {
