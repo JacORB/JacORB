@@ -224,6 +224,12 @@
       <delete dir="${src}/generated"/>  
    </target>
 
+   <target name="realclean" depends="clean">
+      <delete>
+        <fileset dir="lib/" includes="*.jar"/>
+      </delete >  
+   </target>
+
    <!-- ==================================================== -->
    <!--                  API documentation                   -->
    <!-- ==================================================== -->
