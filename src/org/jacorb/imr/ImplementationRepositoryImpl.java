@@ -1077,43 +1077,48 @@ public class ImplementationRepositoryImpl
      * new RequestReceptor thread is started.
      */
     private class SocketListener
-	extends Thread
+        extends Thread
     {
-	private ServerSocket server_socket;
-	private int port = 0;
-	private String address;
-	private int timeout = 0;
-	private boolean run = true;
-	private boolean wait = false;
+        private ServerSocket server_socket;
+        private int port = 0;
+        private String address;
+        private int timeout = 0;
+        private boolean run = true;
+        private boolean wait = false;
 
         private MessageReceptorPool receptor_pool = null;
         private RequestListener request_listener = null;
         private ReplyListener reply_listener = null;
 
-	/**
-	 * The constructor. It sets up the ServerSocket and starts the thread.
-	 */
-	public SocketListener()
+        private TransportManager transport_manager = null;
+
+        /**
+         * The constructor. It sets up the ServerSocket and starts the thread.
+         */
+        public SocketListener()
         {
-	    try
+            try
             {
-		server_socket =
-                new ServerSocket( default_port );
-
-		address = InetAddress.getLocalHost().toString();
-
-		if( address.indexOf("/") >= 0 )
-		    address = address.substring(address.indexOf("/") + 1);
-
-		port = server_socket.getLocalPort();
-
-		Debug.output(Debug.IMR | Debug.INFORMATION,
+                server_socket =
+                    new ServerSocket( default_port );
+                
+                transport_manager = 
+                    new TransportManager( (org.jacorb.orb.ORB) orb );
+                
+                address = InetAddress.getLocalHost().toString();
+                
+                if( address.indexOf("/") >= 0 )
+                    address = address.substring(address.indexOf("/") + 1);
+                
+                port = server_socket.getLocalPort();
+                
+                Debug.output(Debug.IMR | Debug.INFORMATION,
                              "ImR Listener at " + port + ", " + address );
-
+                
                 String s =
-                Environment.getProperty( "jacorb.imr.connection_timeout",
-                                         "2000" ); //default: 2 secs
-
+                    Environment.getProperty( "jacorb.imr.connection_timeout",
+                                             "2000" ); //default: 2 secs
+                
                 try
                 {
                     timeout = Integer.parseInt( s );
@@ -1188,32 +1193,33 @@ public class ImplementationRepositoryImpl
 	{
 	    Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 	    while( run )
+        {
+            try
             {
-		try
-                {
-                    Socket socket = server_socket.accept();
-                    socket.setSoTimeout( timeout );
-
-                    Transport transport =
-                    new Server_TCP_IP_Transport( socket, false ); //no ssl
-
-                    GIOPConnection connection =
+                Socket socket = server_socket.accept();
+                socket.setSoTimeout( timeout );
+                
+                Transport transport = 
+                    transport_manager.createServerTransport( socket, 
+                                                             false ); //no ssl
+                
+                GIOPConnection connection =
                     new GIOPConnection( transport,
                                         request_listener,
                                         reply_listener );
-
-                    receptor_pool.connectionCreated( connection );
-		}
-                catch (Exception _e)
-                {
-		    // when finishing, we do a close() on
-		    // server_socket from "outside" and that causes an
-		    // exception here. But since we wanted it this
-		    // way, we don't display the Exception to avoid
-		    // confusing users.
-		    if (run)
-			Debug.output(Debug.IMR | Debug.INFORMATION, _e);
-		}
+                
+                receptor_pool.connectionCreated( connection );
+            }
+            catch (Exception _e)
+            {
+                // when finishing, we do a close() on
+                // server_socket from "outside" and that causes an
+                // exception here. But since we wanted it this
+                // way, we don't display the Exception to avoid
+                // confusing users.
+                if (run)
+                    Debug.output(Debug.IMR | Debug.INFORMATION, _e);
+            }
 	    }
 
 	    // doing the actual shutdown of the implementation
