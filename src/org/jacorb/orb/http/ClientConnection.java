@@ -81,7 +81,6 @@ public final class ClientConnection
 
 	replies.clear();
 	buffers.clear();
-	objects.clear();
 
 	if( lost_replies > 0 )
 	    org.jacorb.util.Debug.output(2,"Lost " + lost_replies + " outstanding replies");
@@ -102,10 +101,7 @@ public final class ClientConnection
         return buffers;
     }
    
-    public Hashtable get_objects(){
-        return objects;
-    }
-    public Hashtable get_replies(){
+ public Hashtable get_replies(){
         return replies;
     }
 
@@ -224,7 +220,6 @@ public final class ClientConnection
 		    Integer key = new Integer( os.requestId() );
 		    buffers.put( key, os );
 		    replies.put( key, rep );
-		    objects.put( key, o );
 		}
 		
 		synchronized(notifier){

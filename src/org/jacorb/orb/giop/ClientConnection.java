@@ -39,31 +39,31 @@ public class ClientConnection
     extends AbstractConnection
 {
     private int id_count = 0;
-    private String connection_info = null;
-    private InputStream in_stream;
-    private BufferedOutputStream out_stream;
+    protected String connection_info = null;
+    protected InputStream in_stream;
+    protected BufferedOutputStream out_stream;
 
     /** client-side socket timeout */
-    private int timeout = 0;
+    protected int timeout = 0;
 
-    private ConnectionManager manager;
+    protected ConnectionManager manager;
 
     /** write lock */
     public Object writeLock = new Object();
 
     //contains RequestOutputStreams instead of byte[]
-    private Hashtable buffers = new Hashtable();
+    protected Hashtable buffers = new Hashtable();
 
-    private Hashtable replies = new Hashtable();
-    private boolean littleEndian;
+    protected Hashtable replies = new Hashtable();
+    protected boolean littleEndian;
 
     /* how many clients use this connection? */
     private int client_count = 0;
 
     private Socket mysock = null;
-    private ReplyReceptor repReceptor;
-    private byte[] header = new byte[ Messages.MSG_HEADER_SIZE ];
-    private SocketFactory socket_factory = null;
+    protected ReplyReceptor repReceptor;
+    protected byte[] header = new byte[ Messages.MSG_HEADER_SIZE ];
+    protected SocketFactory socket_factory = null;
     
     private String target_host = null;
     private int target_port = -1;
@@ -118,54 +118,7 @@ public class ClientConnection
             }
         }
     }
-/*        this( mgr, 
-              s, 
-              new BufferedInputStream( s.getInputStream()),
-              socket_factory );
-    }
 
-
-    public ClientConnection ( ConnectionManager mgr,
-                              java.net.Socket s, 
-                              InputStream in,
-                              SocketFactory socket_factory )
-        throws IOException
-    {
-        this.socket_factory = socket_factory;
-        manager = mgr;
-        this.orb = mgr.getORB();
-        mysock = s;
-
-        in_stream = in;
-        out_stream = 
-            new BufferedOutputStream( mysock.getOutputStream(), 
-                                      Environment.outBufSize() );
-
-        String ip = mysock.getInetAddress().getHostAddress();
-        if ( ip.indexOf('/') > 0 ) 
-            ip = ip.substring( ip.indexOf('/') + 1 );
-
-        String host_and_port = ip + ":"+ mysock.getPort();
-        String ssl = isSSL() ? "SSL " : ""; //bnv
-        connection_info = host_and_port;
-
-        //Client count is incremented by the Delegate
-        //client_count = 1;
-        
-        Debug.output(1, "New " + ssl + "connection to " + host_and_port);
-        repReceptor = new ReplyReceptor( this );
-
-        //get the client-side timeout property value
-
-        String prop = 
-            Environment.getProperty("jacorb.connection.client_timeout");
-        
-        if( prop != null )
-        {
-            timeout = Integer.parseInt(prop);
-        }
-    }
-*/
     ORB getORB()
     {
         return orb;

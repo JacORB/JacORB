@@ -371,7 +371,6 @@ class ForwarderImpl
                         key = new Integer( cdr.requestId() );
                         //                      ((org.jacorb.orb.ClientSideConnection)realCon).get_buffers().put( key, cdr);
                         ((ClientConnection)realCon).get_replies().put( key, rep );
-                        ((ClientConnection)realCon).get_objects().put( key, poa_current.get_POA().servant_to_reference(this) ); 
                     }
                     //if (! realCon.connected()) done above
                     //  realCon.reconnect();
@@ -392,7 +391,6 @@ class ForwarderImpl
                     org.jacorb.orb.CDRInputStream xxx=((ReplyInputStream)rep.rawResult());
                     //              ((ClientConnection)realCon).get_buffers().remove(key);
                     ((ClientConnection)realCon).get_replies().remove(key);
-                    ((ClientConnection)realCon).get_objects().remove(key);
                     inrequest.reply(xxx.getBuffer(),((ReplyInputStream)xxx).msg_hdr.message_size+12);
                 }
             }
