@@ -1,3 +1,79 @@
+2003-10-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Delegate.java: Fix for bug #310, patch by Marc Heide
+	<marc.heide@siemens.com>.
+	(cookie, invokedOperation): New fields.
+	(servant_preinvoke): Store cookie and invokedOperation for later
+	postinvoke call.
+	(servant_postinvoke): If POA has ServantLocator, call postinvoke
+	method with stored cookie and operation.
+
+2003-10-05  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/Delegate.java: (is_a) removed some buggy code to fix bug #384.
+
+2003-09-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ServantDelegate.java: Fix for Jac#289 - fix for registering
+	transient servants.
+
+	* orb/ServantDelegate.java: Remove commented out line and tab
+	removal - white space change.
+
+2003-09-29  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/KerberosContextCreator.java,
+	security/sas/KerberosContextValidator.java: SAS and Kerberos
+
+2003-09-24  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASClientInterceptor.java,
+	security/sas/SASTargetInterceptor.java,
+	security/sas/ISASContextCreator.java,
+	security/sas/KerberosContextCreator.java,
+	security/sas/KerberosContextValidator.java: SAS and Kerberos
+
+	* orb/standardInterceptors/SASComponentInterceptor.java: Cleanup
+
+2003-09-24  Simon McQueen  <sm@prismtechnologies.com>
+
+	* naming/namemanager/NameManager.java: Added usage message on error.
+
+	Thanks to Jesper Söderlund for reporting the problem.
+
+2003-09-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/OpDecl.java (c'tor): Fix prev change, closing bug 383.
+	(parse): Fix typo in error message.
+
+2003-09-17  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPProfile.java (clone): Add comments to explain why
+	we don't copy primaryAddress.
+
+2003-09-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractAdmin.java:
+	(set_qos) throw NO_IMPLEMENT instead of UnsupportedQos
+
+	(validate_qos) throw NO_IMPLEMENT instead of UnsupportedQos
+
+2003-09-15  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/Version.java: Set release number to "2.0 beta x, CVS".
+
+2003-09-12  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* orb/giop/RequestOutputStream.java:
+	(Constructor) removed check if reserved byte array has length 3:
+	This array is constantly initialized to a length of 3 anyway
+
+2003-09-12  Gerald Brose  <gerald.brose@acm.org>
+
+	* util/Version.java: updated version for beta2
+
+	* orb/ORB.java: changed Copyright line a little :-)
+
 2003-09-12  Gerald Brose  <gerald.brose@acm.org>
 
 	* Version 2.0 beta 2 released.
