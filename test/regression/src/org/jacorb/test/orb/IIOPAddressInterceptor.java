@@ -10,6 +10,8 @@ import org.omg.PortableInterceptor.IORInterceptor;
 import org.jacorb.orb.IIOPAddress;
 
 /**
+ * An IOR Interceptor that adds alternate addresses to IIOP Profiles.
+ * 
  * @author Andre Spiegel
  * @version $Id$
  */

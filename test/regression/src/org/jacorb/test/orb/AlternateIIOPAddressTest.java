@@ -8,6 +8,8 @@ import org.jacorb.test.*;
 import org.jacorb.test.common.*;
 
 /**
+ * Tests components of type TAG_ALTERNATE_IIOP_ADDRESS within IORs.
+ * 
  * @author Andre Spiegel
  * @version $Id$
  */
