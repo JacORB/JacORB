@@ -422,10 +422,17 @@ public class CDROutputStream
         /* Because encapsulations can be nested, we need to
            remember the beginnning of the enclosing
            encapsulation (or -1 if we are in the outermost encapsulation)
-           Also, remember the current index because we need to 
-           restore this when closing the encapsulation */
+           Also, remember the current index and the indirection maps because 
+           we need to restore these when closing the encapsulation */
 
-        encaps_stack.push(new EncapsInfo(index, encaps_start ));
+        encaps_stack.push(new EncapsInfo(index, encaps_start, 
+                                         valueMap, repIdMap, codebaseMap));
+
+        // set up new indirection maps for this encapsulation 
+
+        valueMap = new HashMap();
+        repIdMap = new HashMap();
+        codebaseMap = new HashMap();
 
         // the start of this encapsulation
 
@@ -473,11 +480,15 @@ public class CDROutputStream
         buffer[encaps_start -2 ] = (byte)((encaps_size >>>  8) & 0xFF);
         buffer[encaps_start -1 ] = (byte)(encaps_size & 0xFF);
 
-        /* restore index and encaps_start information*/
+        /* restore index and encaps_start information and indirection maps */
 
         EncapsInfo ei = (EncapsInfo)encaps_stack.pop();
         encaps_start = ei.start;
         index = ei.index + encaps_size;
+        valueMap = ei.valueMap;
+        repIdMap = ei.repIdMap;
+        codebaseMap = ei.codebaseMap;
+
     }
 
     public byte[] getBufferCopy()
