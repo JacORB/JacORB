@@ -1554,11 +1554,9 @@ public class ImplementationRepositoryImpl
 
             // The typecode is for org.omg.CORBA.Object, but avoiding
             // creation of new ObjectHolder Instance.
-            org.omg.IOP.IOR _ior =
-            ParsedIOR.createObjectIOR( _poa.host,
-                                       (short) _poa.port,
-                                       object_key,
-                                       giop_minor );
+            IIOPAddress addr = new IIOPAddress (_poa.host,(short)_poa.port);
+            IIOPProfile p = new IIOPProfile (addr,object_key,giop_minor);
+            org.omg.IOP.IOR _ior = ParsedIOR.createObjectIOR(p);
 
             if( !_old_poa_state )
             {
