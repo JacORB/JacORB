@@ -128,14 +128,17 @@ public class ServerRequestInfoImpl
 
     public Any result() 
     {
-        if (caller_op != ServerInterceptorIterator.SEND_REPLY)
+        if ( caller_op != ServerInterceptorIterator.SEND_REPLY )
             throw new BAD_INV_ORDER("The attribute \"result\" is currently invalid!", 
                                     10, CompletionStatus.COMPLETED_MAYBE);
 
         Any result = null;
-        try{
+        try
+        {
             result = request.result();
-        }catch(Exception e){
+        }
+        catch(Exception e)
+        {
             Debug.output(Debug.INFORMATION | Debug.INTERCEPTOR, e);
         }
 
