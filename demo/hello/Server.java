@@ -10,10 +10,10 @@ public class Server
 {
     public static void main(String[] args) 
     {
-        if( args.length != 2 ) 
+        if( args.length != 1 ) 
 	{
             System.out.println(
-                "Usage: java demo.hello.Server <ior_file> <location>");
+                "Usage: jaco demo.hello.Server <ior_file>");
             System.exit( 1 );
         }
 
@@ -29,7 +29,7 @@ public class Server
 	    poa.the_POAManager().activate();
 
             // create a GoodDay object
-            GoodDayImpl goodDayImpl = new GoodDayImpl( args[1] );	
+            GoodDayImpl goodDayImpl = new GoodDayImpl( "Somewhere" );	
     
             // create the object reference
             org.omg.CORBA.Object obj = 

@@ -9,7 +9,7 @@ public class Client
     {
         if( args.length != 1 ) 
 	{
-            System.out.println( "Usage: java demo.hello.Client <ior_file>" );
+            System.out.println( "Usage: jaco demo.hello.Client <ior_file>" );
             System.exit( 1 );
         }
 
