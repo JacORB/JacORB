@@ -602,10 +602,9 @@ class EntryList
     ////////////////////////////////////////
     // private methods
 
-    private class Cursor
+    private static class Cursor
     {
         int cursor;
-        int offset;
         EntryList list;
 
         public String toString()
@@ -1014,6 +1013,11 @@ class WCEntry
         }
 
         return true;
+    }
+
+    public int hashCode() {
+        return key_[start_];
+
     }
 
     public boolean equals( Object o )
