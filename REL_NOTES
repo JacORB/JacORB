@@ -65,9 +65,12 @@ gerald.brose@acm.org
                           throws a MARSHAL exception.
                         - Current and Principal deprecated. Use of any operations
                           for these types will throw NO_IMPLEMENT.
+
                 DynAnys:
                         - Operations called on a DynAny that has been 
                           destroyed now throw an OBJECT_NOT_EXIST exception
+                        - Enabled creation of DynAnys with TCKind tk_null and
+                          tk_void
                         - Fixed the get_dyn_any/insert_dyn_any operations
                         - Fixed handling of user exceptions
                         - Fixed initialization of current position for
