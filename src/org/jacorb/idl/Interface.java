@@ -263,7 +263,7 @@ public class Interface
             // if we get here, there is already a type spec for this interface
             // in the global type table for a forward declaration of this
             // interface. We must replace that table entry with this type spec
-            // if this is not yet another forward declaration
+            // unless this is yet another forward declaration
 
             if (parser.get_pending (full_name ()) != null)
             {
@@ -281,7 +281,8 @@ public class Interface
             }
             else
             {
-                parser.error("Interface " + typeName() + " already defined", token);
+                // this is another forward declaration, ignore
+                //parser.error("Interface " + typeName() + " already defined", token);
             }
         }
 
