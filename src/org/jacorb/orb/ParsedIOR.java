@@ -540,8 +540,16 @@ public class ParsedIOR
 
         int port = pb.port;
 
+        // parse SAS
+        CompoundSecMechList sas = getSASTaggedComponent( pb );
+        if (sas != null)
+        {
+            use_sas = true;
+        }
+
         // bnv: consults SSL tagged component
         SSL ssl = getSSLTaggedComponent( pb );
+        if (sas != null) ssl.target_requires |= sas.mechanism_list[0].target_requires;
 
         // SSL usage is decided the following way: At least one side
         // must require it. Therefore, we first check if it is
@@ -580,6 +588,7 @@ public class ParsedIOR
             ( ((ssl.target_requires & minimum_options) != 0) || //server ...
               ((client_required & minimum_options) != 0))) //...or client require it
         {
+            Debug.output( 1, "Selecting SSL for connection");
             use_ssl = true;
             port = ssl.port;
         }
@@ -594,13 +603,6 @@ public class ParsedIOR
         else
         {
             use_ssl = false;
-        }
-
-        // parse SAS
-        CompoundSecMechList sas = getSASTaggedComponent( pb );
-        if (sas != null)
-        {
-            use_sas = true;
         }
 
         if( port < 0 )
