@@ -21,7 +21,7 @@ public class Client
 	    {
 		NamingContextExt nc = 
                     NamingContextExtHelper.narrow(
-      		        orb.resolve_initial_references("NameService"));
+      		        orb.resolve_initial_references( "NameService" ));
 
                 org.omg.CORBA.Object o = 
                     nc.resolve(nc.to_name("grid.example"));
@@ -58,8 +58,9 @@ public class Client
 		System.out.println("MyException, reason: " + ex.why);
 	    }
 
+
             orb.shutdown(true);
-	    System.out.println("done. ");
+            System.out.println("done. ");
        
 	}
 	catch (Exception e) 
