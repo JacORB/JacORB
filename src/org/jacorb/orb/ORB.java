@@ -1019,7 +1019,7 @@ public final class ORB
                     {
                         logger.debug( e.getMessage() );
                     }
-                    
+
                     throw new org.omg.CORBA.ORBPackage.InvalidName();
                 }
             }
@@ -1156,9 +1156,8 @@ public final class ORB
                 }
             }
         }
-        catch( java.lang.InterruptedException iex )
+        catch (InterruptedException ex)
         {
-            iex.printStackTrace();
         }
         if (logger.isInfoEnabled())
         {
@@ -1365,10 +1364,10 @@ public final class ORB
 
         objectKeyMap =
             Environment.getProperties("jacorb.orb.objectKeyMap", true );
-        
+
         String versionProperty =
             Environment.getProperty("jacorb.orb.print_version");
-        
+
         if( versionProperty != null &&
             versionProperty.equals("on") )
         {
@@ -1457,7 +1456,7 @@ public final class ORB
                     if (logger.isWarnEnabled())
                     {
                         logger.warn( e.getMessage());
-                    }              
+                    }
                 }
             }
 
@@ -1474,7 +1473,7 @@ public final class ORB
                     if (logger.isWarnEnabled())
                     {
                         logger.warn( e.getMessage());
-                    }             
+                    }
                 }
             }
 
@@ -1523,7 +1522,7 @@ public final class ORB
             {
                 logger.info("ORB going down...");
             }
-            
+
             if( shutdown_in_progress && wait_for_completion )
             {
                 synchronized( shutdown_synch )
@@ -1566,7 +1565,7 @@ public final class ORB
         if (logger.isDebugEnabled())
         {
             logger.debug("ORB going shutdown (cleaning up ORB...)");
-        }       
+        }
 
         clientConnectionManager.shutdown();
         knownReferences.clear();
@@ -1634,7 +1633,7 @@ public final class ORB
             if (logger.isDebugEnabled())
             {
                 logger.debug(iae.getMessage());
-            } 
+            }
             return null;
         }
     }
@@ -1867,14 +1866,14 @@ public final class ORB
      * null if no such BoxedValueHelper can be found.  This method uses an
      * internal cache of BoxedValueHelpers so that each class needs only
      * be looked up once.
-     * 
+     *
      * @param repId the repository id of the type for which a BoxedValueHelper
      * should be returned.  It is assumed that repId is the repository id of a
      * boxed value type.  Otherwise, the result will be null.
      * @return an instance of the BoxedValueHelper class that corresponds
      * to repId.
      */
-    
+
     public BoxedValueHelper getBoxedValueHelper(String repId)
     {
         BoxedValueHelper result = (BoxedValueHelper)boxedValueHelpers.get(repId);
@@ -2057,7 +2056,7 @@ public final class ORB
                         if (logger.isDebugEnabled())
                         {
                             logger.debug("Error - could not read protocol " + found );
-                        }    
+                        }
                         return originalKey;
                     }
                 }
