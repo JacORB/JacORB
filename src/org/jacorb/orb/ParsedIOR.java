@@ -28,6 +28,7 @@ import org.jacorb.orb.util.*;
 import org.jacorb.util.*;
 
 import org.omg.IOP.*;
+import org.omg.IIOP.*;
 import org.omg.CosNaming.*;
 
 /**
@@ -40,15 +41,15 @@ import org.omg.CosNaming.*;
 public class ParsedIOR 
 {
     private int effectiveProfileBody = 0;
-    protected org.omg.IIOP.ProfileBody_1_1[] profileBodies = null; 
+    protected ProfileBody_1_1[] profileBodies = null; 
 
     /** top-level tagged componenents, i.e. not part of IOP components    */
-    public TaggedComponent [] taggedComponents = new TaggedComponent[0];
-    public TaggedProfile []  effectiveProfile;
+    public TaggedComponent[] taggedComponents = new TaggedComponent[0];
+    public TaggedProfile[]  effectiveProfile;
 
     protected boolean endianness = false;
     protected String ior_str = null;
-    protected IOR ior = null;
+    private IOR ior = null;
     
     private org.jacorb.orb.ORB orb;
 
@@ -58,39 +59,60 @@ public class ParsedIOR
      * factory method
      */
 
-    public static org.omg.IOP.IOR createIOR( String typeId, 
-					     org.omg.IIOP.ProfileBody_1_0 profileBody )
+    public static IOR createIOR( String typeId, 
+                                 ProfileBody_1_0 profileBody )
     {
-	org.omg.IOP.IOR ior = new org.omg.IOP.IOR();
+	IOR ior = new IOR();
 	ior.type_id = typeId;
-	ior.profiles = new org.omg.IOP.TaggedProfile[1];
-	ior.profiles[0] = new org.omg.IOP.TaggedProfile();
+	ior.profiles = new TaggedProfile[1];
+	ior.profiles[0] = new TaggedProfile();
 	ior.profiles[0].tag = 0; // IIOP
+
 	CDROutputStream out = new CDROutputStream();
-	out.write_boolean(false);
-	org.omg.IIOP.ProfileBody_1_0Helper.write( out, profileBody );
+        out.beginEncapsulatedArray();
+	ProfileBody_1_0Helper.write( out, profileBody );
+
 	ior.profiles[0].profile_data = out.getBufferCopy();
+
+	return ior;
+    }
+
+    public static IOR createIOR( String typeId, 
+                                 ProfileBody_1_1 profileBody )
+    {
+	IOR ior = new IOR();
+	ior.type_id = typeId;
+	ior.profiles = new TaggedProfile[1];
+	ior.profiles[0] = new TaggedProfile();
+	ior.profiles[0].tag = 0; // IIOP
+
+	CDROutputStream out = new CDROutputStream();
+        out.beginEncapsulatedArray();
+	ProfileBody_1_1Helper.write( out, profileBody );
+
+	ior.profiles[0].profile_data = out.getBufferCopy();
+
 	return ior;
     }
 
 
-    public static org.omg.IIOP.ProfileBody_1_1 getProfileBody( byte [] profile, 
-							       int min_minor )
+    public static ProfileBody_1_1 getProfileBody( byte[] profile, 
+                                                  int min_minor )
     {
-	org.omg.IIOP.ProfileBody_1_1 _profile_body = null;
+	ProfileBody_1_1 _profile_body = null;
 	CDRInputStream in = new CDRInputStream((org.omg.CORBA.ORB)null, profile);
 	try
         {
 	    // look for all profiles, if we found TaggedComponents
 	    // we'll extract them
-	    in.setLittleEndian(in.read_boolean());
+	    in.openEncapsulatedArray();
       
 	    // mark position because we will pre-read version from stream
 	    in.mark(0); 
       
 	    // first read the version and observe if we have already
 	    // decoded newer version of IIOP IOR
-	    int minor = org.omg.IIOP.VersionHelper.read(in).minor;
+	    int minor = VersionHelper.read(in).minor;
       
 	    if( ( minor < min_minor) || (minor > 2) ) 
 		return null;
@@ -101,19 +123,19 @@ public class ParsedIOR
 	    switch(minor){
 	    case 2: // 1.2 is compatible with 1.1
 	    case 1:
-		_profile_body = org.omg.IIOP.ProfileBody_1_1Helper.read(in);
+		_profile_body = ProfileBody_1_1Helper.read(in);
 		break;
 	    case 0:
 		// convert profile body 1.0 -> 1.1 by adding empty or existing tagged
 		// components (should be always empty because if we already read >1.0
 		// profile version, we should never encounter these lines)
-		org.omg.IIOP.ProfileBody_1_0 pb0;
-		pb0 = org.omg.IIOP.ProfileBody_1_0Helper.read(in);
-		_profile_body = new org.omg.IIOP.ProfileBody_1_1(pb0.iiop_version,
+		ProfileBody_1_0 pb0;
+		pb0 = ProfileBody_1_0Helper.read(in);
+		_profile_body = new ProfileBody_1_1(pb0.iiop_version,
 								 pb0.host,
 								 pb0.port,
 								 pb0.object_key,
-								 new org.omg.IOP.TaggedComponent[0]);
+								 new TaggedComponent[0]);
 		// taggedComponents);
 		if( _profile_body.port < 0 )
 		    _profile_body.port += 65536;
@@ -122,14 +144,14 @@ public class ParsedIOR
 	}
         catch ( Exception ex )
         {
-	    org.jacorb.util.Debug.output( 2, ex );
+	    Debug.output( 2, ex );
 	    throw new org.omg.CORBA.INV_OBJREF();
 	};
 
 	return _profile_body;  
     }
 
-    public static org.omg.SSLIOP.SSL getSSLTaggedComponent( org.omg.IOP.TaggedComponent [] components )
+    public static org.omg.SSLIOP.SSL getSSLTaggedComponent( TaggedComponent[] components )
     {
         boolean found_ssl = false;
         for ( int i = 0; i < components.length; i++ )
@@ -137,9 +159,10 @@ public class ParsedIOR
             if( components[i].tag == 20 ) //TAG_SSL_SEC_TRANS
             {
                 found_ssl = true;
-                org.jacorb.orb.CDRInputStream in =
-                    new org.jacorb.orb.CDRInputStream( (org.omg.CORBA.ORB)null, 
-                                                   components[ i ].component_data );
+
+                CDRInputStream in =
+                    new CDRInputStream( (org.omg.CORBA.ORB)null, 
+                                        components[ i ].component_data );
                 try
                 {
                     in.openEncapsulatedArray();
@@ -156,7 +179,7 @@ public class ParsedIOR
 
 
     public static org.omg.SSLIOP.SSL getSSLTaggedComponent( 
-                                   org.omg.IIOP.ProfileBody_1_1 profileBody )
+                                   ProfileBody_1_1 profileBody )
     {
         if ( profileBody == null ||
              profileBody.iiop_version == null ||
@@ -179,9 +202,9 @@ public class ParsedIOR
                 Debug.output( 8, "Component data",
                               profileBody.components[ i ].component_data);
 
-                org.jacorb.orb.CDRInputStream in =
-                    new org.jacorb.orb.CDRInputStream((org.omg.CORBA.ORB)null, 
-                                                  profileBody.components[ i ].component_data );
+                CDRInputStream in =
+                    new CDRInputStream((org.omg.CORBA.ORB)null, 
+                                       profileBody.components[ i ].component_data );
                 try
                 {
                     in.openEncapsulatedArray();
@@ -201,7 +224,7 @@ public class ParsedIOR
     {
         for ( int i = 0; i < taggedComponents.length; i++ )
         {
-	    if( taggedComponents[i].tag != org.omg.IOP.TAG_CODE_SETS.value ) 
+	    if( taggedComponents[i].tag != TAG_CODE_SETS.value ) 
 		continue;
 
 	    Debug.output(4,"TAG_CODE_SETS found");			
@@ -211,7 +234,7 @@ public class ParsedIOR
 		new CDRInputStream( orb, 
                                    taggedComponents[i].component_data);
 
-	    is.setLittleEndian( is.read_boolean());
+	    is.openEncapsulatedArray();
 
 	    return org.omg.CONV_FRAME.CodeSetComponentInfoHelper.read(is);
 	}
@@ -223,18 +246,38 @@ public class ParsedIOR
 
     public ParsedIOR( String object_reference )
     {
+//          System.out.println("created new PIOR with string reference "+ 
+//                             object_reference);
+        
 	parse( object_reference );
+
+//  	for ( int i = 0; i <ior.profiles.length; i++ )
+//  	{
+//              Debug.output( 1, "rcv prof " + i, ior.profiles[i].profile_data ); 
+//          }
+
     }
 
     public ParsedIOR( String object_reference, ORB orb )
     {
+//          System.out.println("created new PIOR with string reference "+ 
+//                             object_reference);
+
 	this.orb = orb;
 	parse( object_reference );
+
+//  	for ( int i = 0; i <ior.profiles.length; i++ )
+//  	{
+//              Debug.output( 1, "rcv prof " + i, ior.profiles[i].profile_data ); 
+//          }
+
     }
 
     public ParsedIOR( IOR _ior )
     {
 	decode( _ior );
+
+        //System.out.println("created new PIOR friom IOR ");
     }
 
     public boolean equals( Object o )
@@ -257,49 +300,48 @@ public class ParsedIOR
 
 	for ( int i = 0; i <_ior.profiles.length; i++ )
 	{
-	    org.jacorb.util.Debug.output( 4, "Parsing IOR, found profile id: " +
+	    Debug.output( 4, "Parsing IOR, found profile id: " +
                                       _ior.profiles[i].tag );
 	    switch( _ior.profiles[i].tag ) 
 	    {
-	    case TAG_MULTIPLE_COMPONENTS.value:
-		org.jacorb.util.Debug.output(4,"TAG_MULTIPLE_COMPONENTS found in IOR");
-		CDRInputStream in2 = 
-                    new CDRInputStream( (org.omg.CORBA.ORB)null,
-                                        _ior.profiles[i].profile_data );
-		in2.setLittleEndian( in2.read_boolean() );
-		taggedComponents = MultipleComponentProfileHelper.read(in2);
-		break;	
-	    case TAG_INTERNET_IOP.value: //TAG_INTERNET_IOP
-		org.jacorb.util.Debug.output(4, "TAG_INTERNET_IOP found in IOR");
-                // decode Internet IOP profile
-
-                org.omg.IIOP.ProfileBody_1_1 body = 
-                    getProfileBody( _ior.profiles[i].profile_data, 0 );
-          
-                if ( body != null )
+                case TAG_MULTIPLE_COMPONENTS.value :
                 {
-                    internetProfiles.addElement( body );
-                    org.jacorb.util.Debug.output( 4, "IOP 1.1 decoded" ); 
+                    Debug.output( 4, "TAG_MULTIPLE_COMPONENTS found in IOR" );
+                    
+                    CDRInputStream in = 
+                        new CDRInputStream( (org.omg.CORBA.ORB)null,
+                                            _ior.profiles[i].profile_data );
+                    in.openEncapsulatedArray();
+
+                    taggedComponents = MultipleComponentProfileHelper.read( in );
+                    break;	
                 }
+                case TAG_INTERNET_IOP.value :
+                {
+                    Debug.output(4, "TAG_INTERNET_IOP found in IOR");
+                    // decode Internet IOP profile
 
-		iiopFound = true;
-		break;
-	    }
-	} 
-
-        //to test IORs with no profile
-        //internetProfiles.clear();
-
-
-//  	if( !iiopFound && _ior.profiles.length > 0 ) // only if this not null
-//  	    throw new org.omg.CORBA.INV_OBJREF("no TAG_INTERNET_IOP found in object_reference");
+                    ProfileBody_1_1 body = 
+                        getProfileBody( _ior.profiles[i].profile_data, 0 );
+          
+                    if ( body != null )
+                    {
+                        internetProfiles.addElement( body );
+                        Debug.output( 4, "IOP 1.1 decoded" ); 
+                    }
+                    
+                    iiopFound = true;
+                    break;
+                }
+            } 
+        }
 
         profileBodies = 
-            new org.omg.IIOP.ProfileBody_1_1[ internetProfiles.size() ];
+            new ProfileBody_1_1[ internetProfiles.size() ];
         internetProfiles.copyInto( profileBodies );
 
         effectiveProfileBody = 0;
-
+        
         /* select the effective profile. We take the one with the
            highest minor version  number */
         for( int b = 1; b < profileBodies.length; b++)
@@ -333,14 +375,14 @@ public class ParsedIOR
 	    }
 	    catch( Exception e )
 	    {
-		org.jacorb.util.Debug.output(2, e );
+		Debug.output(2, e );
 		throw new IllegalArgumentException("Invalid corbaloc: URL");
 	    }
 	}
 	else if( address.protocol_identifier.equals("iiop"))
 	{
-	    org.omg.IIOP.ProfileBody_1_0 profile_body = 
-		new org.omg.IIOP.ProfileBody_1_0( address.getVersion(),
+	    ProfileBody_1_0 profile_body = 
+		new ProfileBody_1_0( address.getVersion(),
 						  address.host,
 						  (short)address.port,
 						  corbaLoc.getKey());
@@ -352,7 +394,7 @@ public class ParsedIOR
 
 
 
-    public org.omg.IOP.IOR getIOR()
+    public IOR getIOR()
     {
 	return ior;
     }
@@ -367,7 +409,7 @@ public class ParsedIOR
 
        		// endianness = false, big-endian
 		out.write_boolean(false);
-		org.omg.IOP.IORHelper.write(out,ior);
+		IORHelper.write(out,ior);
 
 		byte bytes[] = out.getBufferCopy();
 		StringBuffer sb = new StringBuffer("IOR:");
@@ -387,7 +429,7 @@ public class ParsedIOR
 	    } 
 	    catch (Exception e) 
 	    { 
-		org.jacorb.util.Debug.output(2,e); 
+		Debug.output(2,e); 
 		throw new org.omg.CORBA.UNKNOWN("Error in building IIOP-IOR");
 	    }
 	}
@@ -404,7 +446,7 @@ public class ParsedIOR
 	return profileBodies[ effectiveProfileBody ].object_key;
     }
 
-    public org.omg.IIOP.ProfileBody_1_1 getProfileBody() // chg by devik
+    public ProfileBody_1_1 getProfileBody() // chg by devik
     {
         if( profileBodies.length > effectiveProfileBody )
         {
@@ -416,12 +458,12 @@ public class ParsedIOR
         }            
     }
 
-    public org.omg.IIOP.ProfileBody_1_1[] getProfileBodies()
+    public ProfileBody_1_1[] getProfileBodies()
     {
         return profileBodies;
     }
 
-    public org.omg.IOP.TaggedProfile getEffectiveProfile() // chg by bnv
+    public TaggedProfile getEffectiveProfile() // chg by bnv
     {
         if( profileBodies.length > effectiveProfileBody )
         {
@@ -477,7 +519,7 @@ public class ParsedIOR
 	    if(endianness)
 		in_.setLittleEndian(true);
 	    
-	    org.omg.IOP.IOR _ior =  org.omg.IOP.IORHelper.read(in_);
+	    IOR _ior =  IORHelper.read(in_);
 	    decode( _ior );
 	}
 	else if (object_reference.startsWith("corbaloc:"))
@@ -507,7 +549,7 @@ public class ParsedIOR
 	    if( corbaloc.indexOf('/') == -1 )
 		corbaloc += "/NameService";
 
-	    org.jacorb.util.Debug.output(4,corbaloc);
+	    Debug.output(4,corbaloc);
 
 	    try
 	    {
@@ -518,7 +560,7 @@ public class ParsedIOR
 	    }
 	    catch( Exception e )
 	    {
-		org.jacorb.util.Debug.output(4, e );
+		Debug.output(4, e );
 		throw new RuntimeException("Invalid object reference: " + object_reference);
 	    }
 	}

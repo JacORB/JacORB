@@ -242,12 +242,6 @@ public final class ORB
                                          boolean _transient, 
                                          org.jacorb.poa.POA poa )
     {
-        boolean endianness = false;
-        org.jacorb.orb.CDROutputStream profileDataStream;
-        
-        // up to two profiles will be written
-        TaggedProfile[] tps = null;
-        
         String address = Environment.getProperty( "jacorb.ior_proxy_host" );
         if( address == null )
         {
@@ -320,12 +314,6 @@ public final class ORB
             }
         }
 
-        // additional multiple tagged components profile, 
-        // used often for codeset
-        // information ( bnv plus the SSL tagged component.)
-        boolean useMulti = Environment.charsetUpdateMulti();
-
-        TaggedComponent[] components = null;
 
         Vector components_iiop_profile = new Vector();
         Vector components_multi_profile = new Vector();
@@ -348,6 +336,10 @@ public final class ORB
                 Debug.output(2, e);
             }
         }
+        
+        TaggedProfile[] tps = null;
+
+        boolean useMulti = components_multi_profile.size() > 0;
 
         //all components for the profiles have to be present by now.
         switch( IIOPVersion.minor )
@@ -359,7 +351,7 @@ public final class ORB
             case 1: 
             {
                 // create IIOP 1.1 profile  
-                components = 
+                TaggedComponent[] components = 
                     new TaggedComponent[ components_iiop_profile.size() ];
                 
                 components_iiop_profile.copyInto( components );
@@ -372,16 +364,19 @@ public final class ORB
                                                       components);
                 
                 // serialize the profile id 1, leave idx 0 for v.1.0 profile
-                profileDataStream = new CDROutputStream( this );
+                CDROutputStream profileDataStream = new CDROutputStream( this );
                 profileDataStream.beginEncapsulatedArray();
 
-                org.omg.IIOP.ProfileBody_1_1Helper.write( profileDataStream, pb1 );
+                org.omg.IIOP.ProfileBody_1_1Helper.write( profileDataStream, 
+                                                          pb1 );
 
                 tps = new TaggedProfile[useMulti ? 3:2];
-                tps[1] = new TaggedProfile(TAG_INTERNET_IOP.value, 
-                                           profileDataStream.getBufferCopy());
-            
-                // fall thru
+                
+
+                byte[] data = profileDataStream.getBufferCopy();
+
+                tps[1] = new TaggedProfile( TAG_INTERNET_IOP.value, data );
+                // fall through
             }
             case 0: 
             {
@@ -393,37 +388,40 @@ public final class ORB
                         (short) port,
                         key );
             
-                profileDataStream = new CDROutputStream( this );
+                CDROutputStream profileDataStream = new CDROutputStream( this );
                 profileDataStream.beginEncapsulatedArray();
 
-                org.omg.IIOP.ProfileBody_1_0Helper.write( profileDataStream, pb0 );
+                org.omg.IIOP.ProfileBody_1_0Helper.write( profileDataStream, 
+                                                          pb0 );
 
-                if (tps == null) 
+                if(tps == null) 
                     tps = new TaggedProfile[useMulti ? 2:1];
 
                 tps[0] = new TaggedProfile( TAG_INTERNET_IOP.value, 
                                             profileDataStream.getBufferCopy() );
-
-                // now optionally fill the last IOR profile with multicomponent
-                if(useMulti)
-                {
-                    components = 
-                        new TaggedComponent[ components_multi_profile.size() ];
-
-                    components_multi_profile.copyInto( components );
-                }
-
-                profileDataStream = new org.jacorb.orb.CDROutputStream(this);
-                profileDataStream.beginEncapsulatedArray();
-
-                MultipleComponentProfileHelper.write( profileDataStream, components );
-
-                tps[ tps.length - 1 ] = 
-                    new TaggedProfile( TAG_MULTIPLE_COMPONENTS.value,
-                                       profileDataStream.getBufferCopy() );
             }      
         }
-        
+
+        // now optionally fill the last IOR profile with multicomponent
+        if(useMulti)
+        {
+            TaggedComponent[] components = 
+                new TaggedComponent[ components_multi_profile.size() ];
+            
+            components_multi_profile.copyInto( components );
+            
+            CDROutputStream profileDataStream = new CDROutputStream(this);
+            profileDataStream.beginEncapsulatedArray();
+            
+            MultipleComponentProfileHelper.write( profileDataStream, 
+                                                  components );
+            
+            tps[ tps.length - 1 ] = 
+                new TaggedProfile( TAG_MULTIPLE_COMPONENTS.value,
+                                   profileDataStream.getBufferCopy() );
+        }
+
+
         IOR _ior = new IOR( repId, tps );
 
         if( Environment.useAppligator(isApplet()) ) 
@@ -433,7 +431,7 @@ public final class ORB
                 org.jacorb.orb.CDROutputStream out = 
                     new org.jacorb.orb.CDROutputStream(this);
 
-                out.write_boolean(endianness);
+                out.beginEncapsulatedArray();
                 org.omg.IOP.IORHelper.write(out, _ior);
                 byte bytes[] = out.getBufferCopy();
 

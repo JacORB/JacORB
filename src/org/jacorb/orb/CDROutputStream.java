@@ -25,6 +25,8 @@ import java.lang.*;
 import java.util.*;
 
 import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.orb.connection.Messages;
+import org.jacorb.util.Debug;
 
 import org.omg.CORBA.TCKind;
 import org.omg.PortableServer.*;
@@ -40,13 +42,12 @@ import org.omg.PortableServer.*;
 public class CDROutputStream
     extends org.omg.CORBA.portable.OutputStream
 {
-    /** GIOP Message header version 1.0 Big Endian */
-    private static final byte[] giopMessageHeader = { (byte)'G', (byte)'I',
-                                                      (byte)'O', (byte)'P',
-                                                      1, 0, 0 } ;
+     private static byte[] magic = new byte[]{ (byte) 'G', (byte) 'I',
+                                               (byte) 'O', (byte) 'P' };
+
     private int index = 0;
     private int pos = 0;
-    public  byte[] buffer;
+    private byte[] buffer;
     private int BUF_SIZE;
     private int NET_BUF_SIZE = 1024;
 
@@ -57,9 +58,8 @@ public class CDROutputStream
     /* character encoding code sets for char and wchar, default ISO8859_1 */
     private int codeSet =  CodeSet.UTF8;
     private int codeSetW=  CodeSet.UTF16;
-    private int minorGIOPVersion = 1; // needed to determine size in chars
 
-    private BufferManager bufMgr;
+    private BufferManager bufMgr = null;
 
     private int resize_factor = 1;
     private int encaps_start = -1;
@@ -72,7 +72,16 @@ public class CDROutputStream
         new org.omg.IOP.IOR("", new org.omg.IOP.TaggedProfile[0]);
 
     private org.omg.CORBA.ORB orb;
-        
+
+    //the end of the GIOP message header 
+    private int header_end = -1;
+    
+    //no. of bytes used for padding between header and body
+    private int header_padding = 0;
+
+    //using GIOP 1.0, until told otherwise
+    private int giop_minor = 0;
+    
     /**
      * Associated connection. Can be null only if stream is used
      * for data encapsulation which should not use connection's
@@ -129,6 +138,11 @@ public class CDROutputStream
         this.codeSetW = codeSetWide;
     }
 
+    public void setGIOPMinor( int giop_minor )
+    {
+        this.giop_minor = giop_minor;
+    }
+
     /**
      * Returns codeset OSF registry number used for this stream.
      */
@@ -150,39 +164,114 @@ public class CDROutputStream
      * the buffer and sets the start position and index.
      */
 
-    public void writeGIOPMsgHeader( byte messageType )
+    public void writeGIOPMsgHeader( int message_type,
+                                    int minor_version )
     {
-        // Write the array header without
-        System.arraycopy(giopMessageHeader,0,buffer,0,giopMessageHeader.length);
-        buffer[7]=messageType;
+        //attribute magic (4 bytes)
+        System.arraycopy( magic, 0, buffer, 0, magic.length );
+       
+        //version
+        buffer[4] = 1;
+        buffer[5] = (byte) minor_version;
+
+        //endianess in GIOP 1.0, flags in GIOP 1.1/1.2. Always use big
+        //endian. 
+        //For 1.1/1.2: 2nd LSB is 1 for fragments, but this
+        //isn't supported (yet?) by JacORB. 6 MSBs must stay 0
+        buffer[6] = 0;
+        
+        buffer[7] = (byte) message_type;
 
         // Skip the header + leave 4 bytes for message size
-        index=12;
-        pos=12;
+        index = 12;
+        pos = 12;
     }
 
+    /**
+     * GIOP 1.2 requires the message body to start on an 8 byte
+     * border, while 1.0/1.1 do not. Additionally, this padding shall
+     * only be performed, if the body is not empty (which we don't
+     * know at this stage.  
+     */
+    public void markHeaderEnd( boolean do_pad )
+    {
+        header_end = pos;
+
+        if( do_pad )
+        {
+            header_padding = 8 - (pos % 8); //difference to next 8 byte border
+            header_padding = (header_padding == 8)? 0 : header_padding;
+
+            //skip header_padding bytes
+            index += header_padding;
+            pos += header_padding;
+        }
+    }
+
+    public int getHeaderEnd()
+    {
+        return header_end + header_padding;
+    }
+    
     /**
      * insertMsgSize, messageSize and close have been moved here from
      * derived classes. 
      */
 
-    public void insertMsgSize(int size)
+    private void insertMsgSize( int size )
     {
-        buffer[8] = (byte)((size >>> 24) & 0xFF);
-        buffer[9] = (byte)((size >>> 16) & 0xFF);
-        buffer[10] = (byte)((size >>>  8) & 0xFF);
-        buffer[11] = (byte)(size & 0xFF);
+        //sanity check
+        if( buffer[0] == magic[0] &&
+            buffer[1] == magic[1] &&
+            buffer[2] == magic[2] &&
+            buffer[3] == magic[3] )
+        {
+            //This seems to be GIOP
+
+            buffer[8]  = (byte)((size >> 24) & 0xFF);
+            buffer[9]  = (byte)((size >> 16) & 0xFF);
+            buffer[10] = (byte)((size >>  8) & 0xFF);
+            buffer[11] = (byte) (size        & 0xFF);
+        }
+        else
+        {
+            Debug.output( 1, "CDROutputStream.insertMsgSize()", buffer );
+
+            throw new Error( "Trying to insert a message size into a buffer that doesn't seem to be a GIOP message" );
+        }
     }
 
+    /**
+     * DON'T USE!! This is only made public for the proxy. Use close()
+     * instead.  
+     */
     public void insertMsgSize()
     {
-        insertMsgSize( pos-12 );
+        if( header_padding == 0 )
+        {
+            insertMsgSize( pos - Messages.MSG_HEADER_SIZE );
+        }
+        else
+        {
+            if( pos - header_padding == header_end )
+            {
+                //no body written, so remove padding
+                insertMsgSize( pos - header_padding - Messages.MSG_HEADER_SIZE );
+                
+                pos -= header_padding;
+            }
+            else
+            {
+                //has a body, so include padding (by not removing it :-)
+                insertMsgSize( pos - Messages.MSG_HEADER_SIZE );
+            }
+        }
     }
 
     public void close() 
     {
         if( closed )
-            throw new java.lang.Error("Stream already closed!");
+            throw new Error("Stream already closed!");
         
         if (header_stream != null)
             header_stream.close();
@@ -587,9 +676,9 @@ public class CDROutputStream
             write_char( value[i] );
     }
         
-    public final void write_wstring (String s)
+    public final void write_wstring( String s )
     {      
-        if ( s==null ) 
+        if( s == null ) 
             throw new org.omg.CORBA.MARSHAL("Null References");
                 
         check(7 + s.length()*3, 4);  // the worst case
@@ -606,7 +695,7 @@ public class CDROutputStream
         write_wchar( (char)0 );
                         
         boolean sizeInChars = 
-            ( minorGIOPVersion < 2 && codeSetW == CodeSet.UTF16 );
+            ( giop_minor < 2 && codeSetW == CodeSet.UTF16 );
 
         _write4int( buffer, 
                     startPos, 
@@ -1481,7 +1570,6 @@ public class CDROutputStream
     {
 	release();
     }
-
 }
 
 

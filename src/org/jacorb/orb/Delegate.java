@@ -59,7 +59,7 @@ public final class Delegate
     private String adport;
 
     /** code set service Context */
-    org.omg.IOP.ServiceContext[] ctx = new org.omg.IOP.ServiceContext[0];
+    ServiceContext[] ctx = new ServiceContext[0];
 
     /** SSL tagged component */
     private org.omg.SSLIOP.SSL ssl;
@@ -234,15 +234,15 @@ public final class Delegate
     
                 switch( lris.status().value() )
                 {
-                    case org.omg.GIOP.LocateStatusType_1_0._OBJECT_HERE:
+                    case LocateStatusType_1_2._OBJECT_HERE:
                         Debug.output(3,"object here");
                         break;
-                    case org.omg.GIOP.LocateStatusType_1_0._OBJECT_FORWARD:
+                    case LocateStatusType_1_2._OBJECT_FORWARD:
                         Debug.output(3,"Locate Reply: Forward");
                         rebind( orb.object_to_string( lris.read_Object()) );
                         // ignore this for the moment...
                         break;
-                    case org.omg.GIOP.LocateStatusType_1_0._UNKNOWN_OBJECT :
+                    case LocateStatusType_1_2._UNKNOWN_OBJECT :
                         throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
                     default:
                         throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.status().value());
@@ -1308,15 +1308,14 @@ public final class Delegate
     }
 
     public void setIOR(org.omg.IOP.IOR _ior)
-    {
-        
+    {        
         synchronized( bind_sync )
         {
             _pior = new ParsedIOR( _ior );
             piorOriginal = null;
 
             bind_sync.notifyAll();
-        }
+        }     
     }
 
     public String toString()

@@ -51,7 +51,8 @@ public class CDRInputStream
     /* character encoding code sets for char and wchar, default ISO8859_1 */
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
-    private int minorGIOPVersion = 1; // needed to determine size in chars
+
+    private int giop_minor = 0; // needed to determine size in chars
 
     private boolean closed = false;
 
@@ -68,6 +69,16 @@ public class CDRInputStream
 	is used only to demarshal base type data, the Singleton is enough
     */
     public org.omg.CORBA.ORB orb = null;
+
+    /**
+     * This is used by the ReplyInputStream, because it is created
+     * when the request ist sent, but the buffer is available not
+     * until the rpley is received.  
+     */
+    public CDRInputStream( org.omg.CORBA.ORB orb )
+    {
+	this.orb = orb;
+    }
  
     public CDRInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
@@ -81,6 +92,11 @@ public class CDRInputStream
     {       
         this( orb, buf );
 	this.littleEndian = littleEndian;
+    }
+
+    public void setGIOPMinor( int giop_minor )
+    {
+        this.giop_minor = giop_minor;
     }
 
     public void close()
@@ -104,6 +120,23 @@ public class CDRInputStream
         this.codeSetW = codeSetWide;
     }
 
+    /**
+     * For GIOP 1.2 only: The message body is aligned on an 8 byte
+     * boundary, if a body is present.  
+     */
+    protected void skipHeaderPadding()
+    {
+        int header_padding = 8 - (pos % 8); //difference to next 8 byte border
+        header_padding = (header_padding == 8)? 0 : header_padding;
+
+        if( (pos + header_padding) < buffer.length &&
+            (index + header_padding) < buffer.length )
+        {
+            //skip header_padding bytes, if body present
+            index += header_padding;
+            pos += header_padding;
+        }   
+    }
 
     private static final int _read4int(boolean _littleEndian, byte[] _buffer, int _pos)
     {
@@ -260,8 +293,11 @@ public class CDRInputStream
 	else if ( bb == 0 )
 	    return false;
 	else
+        {
+            Debug.output( 1, "", buffer );
 	    throw new Error("Unexpected boolean value: " + bb 
 			    + " pos: " + pos + " index: " + index);
+        }
     }
 
     /** arrays */
@@ -557,7 +593,7 @@ public class CDRInputStream
 	char[] buf = new char[size];
 	int i;
 	int endPos = pos + 
-	    ((tcs==CodeSet.UTF16 &&  minorGIOPVersion < 2 ) ? size*2 : size);
+	    ((tcs==CodeSet.UTF16 &&  giop_minor < 2 ) ? size*2 : size);
 
 	for( i=0; pos < endPos; i++ ) 
 	    buf[i] = read_char( tcs );
@@ -579,12 +615,14 @@ public class CDRInputStream
      * 		why about to replace it with position marking ?
      */
 
+    /*
     protected final void unread_string(String str)
     {
 	int diff = 4 + str.length() + 1;
 	pos -= diff;
 	index -= diff;
     }
+    */
 
     public final org.omg.CORBA.TypeCode read_TypeCode()
     {
@@ -1155,17 +1193,17 @@ public class CDRInputStream
 	return pos;
     }
 
-    public void finalize()
-    {
-	try
-	{
-	    close();
-	}
-	catch( IOException iox )
-	{
-	    //ignore
-	}
-    }
+//      public void finalize()
+//      {
+//  	try
+//  	{
+//  	    close();
+//  	}
+//  	catch( IOException iox )
+//  	{
+//  	    //ignore
+//  	}
+//      }
 }
 
 
