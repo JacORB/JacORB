@@ -106,6 +106,7 @@ public class IIOPProfile extends _ProfileLocalBase
         if( sep > -1)
         {
             String ver_str =  addr.substring(0,sep);
+            addr = addr.substring(sep+1);
             sep = ver_str.indexOf('.');
             if( sep != -1 )
             {
@@ -119,7 +120,6 @@ public class IIOPProfile extends _ProfileLocalBase
                     throw new IllegalArgumentException(errorstr);
                 }
             }
-            addr = addr.substring(sep+1);
         }
         version = new org.omg.GIOP.Version ((byte)major,(byte)minor);
 
