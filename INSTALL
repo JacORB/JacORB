@@ -89,6 +89,9 @@ Installation:
            script in bin/ yourself to update the classpath.
 
 
+6. If you intend to use Appligator with appletviewer, please edit
+   bin/jacapplet(.bat) to reflect your local system configuration.
+
 Building JacORB (Optional)
 ==========================
 
