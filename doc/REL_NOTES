@@ -45,7 +45,7 @@ gerald.brose@acm.org
         jacorb.connection.server.timeout, for consistency
 
       - added property
-        "jacorb.connection.client.timeout_ignores_pending_message"
+        "jacorb.connection.client.timeout_ignores_pending_messages"
         which controls if client-side idle timeouts take care of
         pending messages or not. 
 
