@@ -1,3 +1,25 @@
+2005-02-09  Andre Spiegel  <spiegel@gnu.org>
+
+	Patch by Jimmy Wilson to make the MessageReceptorPool size
+	configurable via the new property jacorb.connection.max_threads.
+	This fixes bug #568.
+	
+	* orb/giop/MessageReceptorPool.java (ctor, getInstance): Take a
+	Configuration argument.
+	(MAX_DEFAULT, maxConnectionThreads): New instance fields.
+
+	* orb/BasicAdapter.java (configure): Pass Configuration to
+	MessageReceptorPool ctor.
+
+	* orb/giop/ClientConnectionManager.java (ctor, configure): Move
+	creation of the MessageReceptorPool from the former to the latter
+	to allow configuration.
+
+	* imr/ImplementationRepositoryImpl.java (SocketListener.ctor,
+	SocketListener.configure): Move creation of the
+	MessageReceptorPool from the former to the latter to allow
+	configuration.
+
 2005-02-04  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/ReplyReceiver.java (doRebind): Use a finally clause to
