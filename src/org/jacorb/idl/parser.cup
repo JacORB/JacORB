@@ -5,27 +5,26 @@ import java_cup.runtime.*;
 import java.util.*;
 
 /**
- * 
+ *
  * JavaCup Specification for CORBA IDL, to be processed like this:
  * java java_cup.Main < parser.cup
- *      
+ *
  * @author Gerald Brose,
- *  Institut fuer Informatik, 
+ *  Institut fuer Informatik,
  *  Freie Universitaet Berlin.
  *
- * 
+ *
  * $Id$
  *
  */
 
-action code 
+action code
 {:
 :};
 
 
-parser code 
+parser code
 {:
-
     static String command_line[] = null;
 
     public static Vector import_list = new Vector();
@@ -36,14 +35,14 @@ parser code
     public static String compiler_version = "1.4 beta 5, May 2002";
 
     private static final String yearString = "1997-2002";
-   
-    static String out_dir = "."; 
+
+    static String out_dir = ".";
     static String package_prefix = null;
 
     static boolean parse_only = false;
     static boolean global_import = false;
 
-    /** used for internal checking that name conversion 
+    /** used for internal checking that name conversion
         to mapped Java names is done only after parsing */
     public static boolean done_parsing = false;
 
@@ -55,9 +54,9 @@ parser code
     public static boolean generate_skeletons = true;
     public static boolean generate_stubs = true;
 
-    private static boolean generateIncluded = false;
-    private static boolean inhibitionState = false;
-    private static boolean localityContraint = false;
+    protected static boolean generateIncluded = false;
+    protected static boolean inhibitionState = false;
+    protected static boolean localityContraint = false;
 
     private static int activeParseThreads;
 
@@ -65,18 +64,18 @@ parser code
     public static boolean sloppy = false;
 
     /**
-     *  allows reinitialization if compiler is not 
+     *  allows reinitialization if compiler is not
      *  run from a command-line
      */
 
-    private static void init()
+    protected static void init()
     {
         command_line = null;
         import_list = new Vector();
         pack_replace = new Hashtable();
         scopes = new Stack();
 
-        out_dir = "."; 
+        out_dir = ".";
         package_prefix = null;
 
         parse_only = false;
@@ -87,18 +86,17 @@ parser code
         generate_skeletons = true;
 
         generateIncluded = false;
-        boolean inhibitionState = false;
-        boolean localityContraint = false;
+        inhibitionState = false;
+        localityContraint = false;
     }
 
-    public static void main( String argv[] ) 
+    public static void main( String argv[] )
     {
-        //        init();
         boolean result = compile( argv );
     }
 
-    
-    public static boolean compile( String argv[] ) 
+
+    public static boolean compile( String argv[] )
     {
         init();
         Hashtable tmpDefines = new Hashtable();
@@ -115,51 +113,51 @@ parser code
                     {
                         parse_only = true;
                         continue;
-                    } 
+                    }
                     if( argv[i].equals("-global_import"))
                     {
                         global_import = true;
                         continue;
-                    } 
+                    }
                     if( argv[i].equals("-noskel"))
                     {
                         generate_skeletons = false;
                         continue;
-                    } 
+                    }
                     if( argv[i].equals("-nostub"))
                     {
                         generate_stubs = false;
                         continue;
-                    } 
+                    }
                     if( argv[i].equals("-sloppy_forward"))
                     {
                         sloppy = true;
                         continue;
-                    } 
+                    }
                     if( argv[i].equals("-sloppy_names"))
                     {
                         strict_names = false;
                         continue;
-                    } 
-                    if( argv[i].equals("-d")) 
+                    }
+                    if( argv[i].equals("-d"))
                     {
                         if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                             usage(argv, "-d");
                         out_dir = argv[++i];
                         continue;
-                    } 
-                    if( argv[i].equals("-W")) 
+                    }
+                    if( argv[i].equals("-W"))
                     {
                         if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                             usage(argv, "-W");
                         org.jacorb.idl.Environment.verbosityLevel(Integer.parseInt( argv[++i]));
                         continue;
-                    } 
-                    if( argv[i].startsWith("-D")) 
+                    }
+                    if( argv[i].startsWith("-D"))
                     {
                         String def = argv[i].substring(2);
                         String val;
-                        
+
                         if( def.indexOf('=') > 0 )
                         {
                             val = def.substring( def.indexOf('=') + 1);
@@ -170,19 +168,19 @@ parser code
                         tmpDefines.put( def, val );
                         continue;
                     }
-                    if( argv[i].startsWith("-U")) 
+                    if( argv[i].startsWith("-U"))
                     {
                         tmpUnDefines.put( argv[i].substring(2), "" );
                         continue;
-                    } 
-                    if( argv[i].equals("-p")) 
+                    }
+                    if( argv[i].equals("-p"))
                     {
                         if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                             usage(argv, "-p");
                         package_prefix = argv[++i];
                         continue;
-                    } 
-                    if( argv[i].equals("-i2jpackage")) 
+                    }
+                    if( argv[i].equals("-i2jpackage"))
                     {
                         if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
                             usage(argv, "-i2jpackage");
@@ -197,20 +195,20 @@ parser code
                         Environment.output(3,"Replace pack " + idlp + " with " + jp );
                         i++;
                         continue;
-                    } 
-                    if( argv[i].equals("-ir")) 
-                    {  
+                    }
+                    if( argv[i].equals("-ir"))
+                    {
                         generateIR = true;
                         continue;
-                    } 
-                    if( argv[i].equals("-i")) 
+                    }
+                    if( argv[i].equals("-i"))
                     {
                         if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                             usage(argv, "-i");
                         import_list.addElement( argv[++i]) ;
                         continue;
-                    } 
-                    if( argv[i].startsWith("-I")) 
+                    }
+                    if( argv[i].startsWith("-I"))
                     {
                         GlobalInputStream.setIncludePath(argv[i].substring(2));
                         continue;
@@ -246,9 +244,9 @@ parser code
                         Environment.output( 4, argv[j] );
                         GlobalInputStream.init();
                         try
-                        {               
+                        {
                             GlobalInputStream.setInput( argv[j] );
-                        }       
+                        }
                         catch (java.io.IOException io )
                         {
                             System.err.println("Could not find file " + argv[j]);
@@ -304,7 +302,7 @@ parser code
     }
 
     private static void help()
-    {     
+    {
         System.out.println("\t-syntax\tsyntax check only, no code generation, implies -no_ir");
 //ystem.out.println("\t-no_ir\tdo not generate information for the Interface Repository");
         System.out.println("\t-noskel\tdisables generation of POA skeletons");
@@ -371,100 +369,99 @@ parser code
        lexer.emit_error( message );
     }
 
-        /* bookkeeping with IDL scopes */
+    /* bookkeeping with IDL scopes */
 
-        /** called from the lexer/scanner whenever a scope opening
-            symbol is encountered */
+    /** called from the lexer/scanner whenever a scope opening
+        symbol is encountered */
 
-        public static void openScope()
-        {
-            scopes.push(new ScopeData());
-        }
+    public static void openScope()
+    {
+        scopes.push(new ScopeData());
+    }
 
-        /** called from within the parser whenever parsing a scope 
-            symbol is complete */
+    /** called from within the parser whenever parsing a scope
+        symbol is complete */
 
-        public static void closeScope(Scope symbol)
-        {
-                ScopeData data = (ScopeData) scopes.pop();
-                symbol.setScopeData( data );
-        }
+    public static void closeScope(Scope symbol)
+    {
+            ScopeData data = (ScopeData) scopes.pop();
+            symbol.setScopeData( data );
+    }
 
-        public static ScopeData currentScopeData()
-        {
-                return (ScopeData)scopes.peek();
-        }
+    public static ScopeData currentScopeData()
+    {
+            return (ScopeData)scopes.peek();
+    }
 
 
-        // an interface inheriting from an forward declared interface
-        // needs to wait on an object until the ancestor has been parsed
-        // if get_pending returns null, the ancestor was not forward 
-        // declared and thus has already been parsed
+    // an interface inheriting from an forward declared interface
+    // needs to wait on an object until the ancestor has been parsed
+    // if get_pending returns null, the ancestor was not forward
+    // declared and thus has already been parsed
 
-        // forward declared interfaces are put into this list
+    // forward declared interfaces are put into this list
 
-      public static java.util.Hashtable pending_interfaces = new java.util.Hashtable();
+    public static java.util.Hashtable pending_interfaces = new java.util.Hashtable();
 
-      public static synchronized void set_pending( String name )
-      {
-           // name will only be marked pending if it has not already been
-           // parsed before and if is not already pending
+    public static synchronized void set_pending( String name )
+    {
+         // name will only be marked pending if it has not already been
+         // parsed before and if is not already pending
 
-           if( ! ( pending_interfaces.containsKey(name) ||
-                   NameTable.parsed_interfaces.containsKey(name)) )
-           {
-                   pending_interfaces.put(name, new Object());
-           }
-      }
+         if( ! ( pending_interfaces.containsKey(name) ||
+                 NameTable.parsed_interfaces.containsKey(name)) )
+         {
+                 pending_interfaces.put(name, new Object());
+         }
+    }
 
-       public static synchronized void remove_pending( String name )
-       {
-            Object o = pending_interfaces.remove(name);
-            if( o != null) 
-            {
-                synchronized( o )
-                { 
-                     o.notifyAll();
-                }
-            }
-            if( pending_interfaces.size() == 0 )
-            {
-                // notify the main thread that the parsing phase is complete
-                synchronized( pending_interfaces )
-                {
-                     pending_interfaces.notifyAll();
-                }
-            }
-       }
+    public static synchronized void remove_pending( String name )
+    {
+         Object o = pending_interfaces.remove(name);
+         if( o != null)
+         {
+             synchronized( o )
+             {
+                  o.notifyAll();
+             }
+         }
+         if( pending_interfaces.size() == 0 )
+         {
+             // notify the main thread that the parsing phase is complete
+             synchronized( pending_interfaces )
+             {
+                  pending_interfaces.notifyAll();
+             }
+         }
+    }
 
-      public static Object get_pending( String name )
-      {
-          return pending_interfaces.get(name);
-      }
+    public static Object get_pending( String name )
+    {
+        return pending_interfaces.get(name);
+    }
 
-      public static synchronized void decActiveParseThreads()
-      {
-          Environment.output(3,"decActiveParseThreads");
-          activeParseThreads--;
-      }
+    public static synchronized void decActiveParseThreads()
+    {
+        Environment.output(3,"decActiveParseThreads");
+        activeParseThreads--;
+    }
 
-      public static synchronized void incActiveParseThreads()
-      {
-          Environment.output(3,"incActiveParseThreads");
-          activeParseThreads++;
-      }
+    public static synchronized void incActiveParseThreads()
+    {
+        Environment.output(3,"incActiveParseThreads");
+        activeParseThreads++;
+    }
 
-      public static synchronized int activeParseThreads()
-      {
-          Environment.output(3,"activeParseThreads returns "+activeParseThreads );
-          return activeParseThreads;
-      }
+    public static synchronized int activeParseThreads()
+    {
+        Environment.output(3,"activeParseThreads returns "+activeParseThreads );
+        return activeParseThreads;
+    }
 
-        public static boolean generateIncluded()
-        {
-                return generateIncluded;
-        }
-
+    public static boolean generateIncluded()
+    {
+        return generateIncluded;
+    }
 
     public static boolean getInhibitionState()
     {
@@ -488,38 +485,23 @@ parser code
 
     static void addGlobalNamesToImport()
     {
-        for( Enumeration e = NameTable.getGlobalTypes(); 
+        for( Enumeration e = NameTable.getGlobalTypes();
                 e.hasMoreElements(); )
         {
                 String s = (String) e.nextElement();
                 import_list.addElement( s );
                 Environment.output(4,"Adding import for global name " + s );
-        }       
+        }
     }
 
 
-    /** 
+    /**
      * Package replacements as requested
      * by compiler options
      */
 
     public static String pack_replace(String old)
     {
-//        for( Enumeration e = pack_replace.keys(); e.hasMoreElements();)
-//        {
-//              String key = (String)e.nextElement();
-//
-//              Environment.output(4,"Comparing name " + old + " with key " + key );
-//
-//              if( old.startsWith( key ))
-//              {
-//                  String result = (String)pack_replace.get( key ) + 
-//                                   old.substring( key.length() + 1 );
-//                  return result;
-//              }
-//        }
-//        return old;
-
         String n_str = (String)pack_replace.get(old);
         if( n_str == null )
             return old;
@@ -529,35 +511,35 @@ parser code
 
 :};
 
-/*----------------------------------------------------------------*/ 
+/*----------------------------------------------------------------*/
 
-init with 
-{: 
-        lexer.init(); 
+init with
+{:
+        lexer.init();
 :};
 
 
-scan with 
-{: 
-        return lexer.next_token(); 
+scan with
+{:
+        return lexer.next_token();
 :};
 
-/*----------------------------------------------------------------*/ 
+/*----------------------------------------------------------------*/
 
 /** terminal symbols and reserved words in IDL:
  *
- * "Object" is listed as reserved in the OMG spec. 
+ * "Object" is listed as reserved in the OMG spec.
  */
 
 terminal java_cup.runtime.token
   ABSTRACT, ANY, ATTRIBUTE, BOOLEAN, CASE, CHAR, CONST, CONTEXT, CUSTOM,
-  DEFAULT, DOUBLE, ENUM, EXCEPTION, FACTORY, FALSE, FIXED, FLOAT, IN, 
-  INOUT, INTERFACE, LOCAL, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT, 
+  DEFAULT, DOUBLE, ENUM, EXCEPTION, FACTORY, FALSE, FIXED, FLOAT, IN,
+  INOUT, INTERFACE, LOCAL, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT,
   PRIVATE, PUBLIC, PSEUDO, RAISES, READONLY, SEQUENCE, SHORT, STRING,
-  STRUCT, SUPPORTS, SWITCH, TRUE, TRUNCATABLE, TYPEDEF, UNSIGNED, UNION, 
+  STRUCT, SUPPORTS, SWITCH, TRUE, TRUNCATABLE, TYPEDEF, UNSIGNED, UNION,
   VALUEBASE, VALUETYPE, VOID, WCHAR, WSTRING,
   SEMI, COMMA, STAR, DOT, COLON, EQUALS, PLUS, MINUS, LPAREN, RPAREN,
-  LCBRACE, RCBRACE, LSBRACE, RSBRACE, LESSTHAN, GREATERTHAN, QUOTE, DBLQUOTE, 
+  LCBRACE, RCBRACE, LSBRACE, RSBRACE, LESSTHAN, GREATERTHAN, QUOTE, DBLQUOTE,
   BSLASH, BAR, CIRCUM, AMPERSAND, SLASH, PERCENT, TILDE, DBLCOLON,
   RSHIFT, LSHIFT, LDBLQUOTE;
 
@@ -567,7 +549,7 @@ terminal org.jacorb.idl.str_token ID;
 /**
  * "int" is not actually a reserved word in IDL, it has been put here
  * merely to prevent its usage as an integer type.
- */ 
+ */
 
 terminal java_cup.runtime.char_token CH;
 terminal java_cup.runtime.int_token  INT;
@@ -578,7 +560,7 @@ terminal fixed_token  FIXED_NUMBER;
 
 non terminal java_cup.runtime.symbol case_label, context_expr, string_literal_list;
 
-non terminal java_cup.runtime.symbol empty; 
+non terminal java_cup.runtime.symbol empty;
 
 non terminal java_cup.runtime.int_token op_attribute;
 non terminal java_cup.runtime.int_token param_attribute;
@@ -668,12 +650,12 @@ non terminal SymbolList case_label_list, param_dcls, init_param_decls, parameter
 non terminal SymbolList simple_declarator_list, declarators;
 non terminal SymbolList inheritance_spec, enumerator_list, fixed_array_size_list;
 
-/*----------------------------------------------------------------*/ 
+/*----------------------------------------------------------------*/
 
 start with specification;
 
 // #1
-specification ::= 
+specification ::=
         {:
         :}
           definitions:ds
@@ -697,28 +679,28 @@ specification ::=
                 }
 
                 // if there are still interfaces to be parsed, wait until the
-                // threads performing this have finished. The last one 
-                // will call notify() :) 
+                // threads performing this have finished. The last one
+                // will call notify() :)
 
                 if( parser.pending_interfaces.size() > 0  )
-                {                  
+                {
                    // give other threads a chance to start and signal
                    // that they're active
                    Thread.yield();
-                      
+
                    boolean runnableFound = false;
 
-                   // still no one seems to be active, but we'll call 
+                   // still no one seems to be active, but we'll call
                    // round to be sure
                    if( parser.activeParseThreads() == 0 )
                    {
                         Environment.output(3,"Check for runnable threads");
 
                         for( int t = 0;
-                             t < InterfaceBody.parseThreads.size() && !runnableFound; 
+                             t < InterfaceBody.parseThreads.size() && !runnableFound;
                              t++ )
                         {
-                            runnableFound = 
+                            runnableFound =
                                 ((InterfaceBody.ParseThread)InterfaceBody.parseThreads.elementAt(t)).isRunnable();
                         }
                    }
@@ -726,7 +708,7 @@ specification ::=
                    // only block waiting if we know that there are active or
                    // runnable threads and that there are still pending tasks
 
-                   if( ( parser.activeParseThreads() > 1 || runnableFound ) && 
+                   if( ( parser.activeParseThreads() > 1 || runnableFound ) &&
                          parser.pending_interfaces.size() > 0 )
                    {
                        synchronized( parser.pending_interfaces )
@@ -735,13 +717,13 @@ specification ::=
                            parser.pending_interfaces.wait();
                            Environment.output(3,"Waking up after wait for pending_interfaces");
                        }
-                   } 
+                   }
                 }
- 
-                if( parser.pending_interfaces.size() > 0 && 
+
+                if( parser.pending_interfaces.size() > 0 &&
                     !parser.sloppy )
                 {
-                    parser.fatal_error("Undefined interface: " + 
+                    parser.fatal_error("Undefined interface: " +
                         (String)(parser.pending_interfaces.keys().nextElement()), null );
                 }
 
@@ -765,7 +747,7 @@ specification ::=
                    {
                         RESULT.print(new java.io.PrintWriter( java.lang.System.out ));
                    }
-                } 
+                }
                 catch ( Exception e )
                 {
                      Environment.output(1,e);
@@ -776,7 +758,7 @@ specification ::=
 
 // #1a
 
-definitions ::= 
+definitions ::=
           definition:d definitions:ds
                 {:
                         RESULT.v = (Vector)ds.v.clone();
@@ -790,30 +772,30 @@ definitions ::=
         ;
 
 // #2
-definition ::= 
+definition ::=
           type_dcl:t SEMI
-                {: 
-                        RESULT.set_declaration(t); 
+                {:
+                        RESULT.set_declaration(t);
                 :}
         | const_dcl:c SEMI
-                {: 
-                        RESULT.set_declaration(c); 
+                {:
+                        RESULT.set_declaration(c);
                 :}
         | except_dcl:e SEMI
-                {: 
-                        RESULT.set_declaration(e); 
+                {:
+                        RESULT.set_declaration(e);
                 :}
         | interface:p SEMI
-                {: 
-                        RESULT.set_declaration(p); 
+                {:
+                        RESULT.set_declaration(p);
                 :}
         | module:m SEMI
-                {: 
+                {:
                         RESULT.set_declaration(m);
                  :}
 
         | value:m SEMI
-                {: 
+                {:
                         RESULT.set_declaration(m);
                  :}
         ;
@@ -821,7 +803,7 @@ definition ::=
 // #3
 module ::=
         MODULE ID:i LCBRACE definitions:d RCBRACE
-        {: 
+        {:
                 RESULT.spec = d;
                 RESULT.set_token(i);
                 RESULT.setPackage(i.str_val );
@@ -835,7 +817,7 @@ module ::=
 // #4,5,6,7
 interface ::=
           INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
-         {: 
+         {:
                 RESULT.set_token(i);
                 RESULT.inheritanceSpec = is;
                 RESULT.body = b ;
@@ -847,7 +829,7 @@ interface ::=
                 parser.closeScope( (Scope)RESULT );
          :}
          | ABSTRACT INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
-          {: 
+          {:
                 RESULT.set_token(i);
                 RESULT.set_abstract();
                 RESULT.inheritanceSpec = is;
@@ -860,7 +842,7 @@ interface ::=
                 parser.closeScope( (Scope)RESULT );
          :}
          | LOCAL INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
-          {: 
+          {:
                 RESULT.set_token(i);
                 RESULT.inheritanceSpec = is;
                 RESULT.body = b ;
@@ -872,14 +854,14 @@ interface ::=
                 parser.closeScope( (Scope)RESULT );
          :}
         | PSEUDO INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
-          {: 
+          {:
                 RESULT.set_pseudo();
                 RESULT.set_token(i);
                 RESULT.inheritanceSpec = is;
-                RESULT.body = b; 
+                RESULT.body = b;
                 b.set_pseudo();
                 b.set_name(i.str_val);
-//              b.set_token(i); 
+//              b.set_token(i);
                 b.my_interface = RESULT;
                 b.setEnclosingSymbol(RESULT);
                 RESULT.set_included( parser.include_state );
@@ -888,20 +870,20 @@ interface ::=
          :}
         | INTERFACE ID:i
           {:
-                RESULT.set_token(i);    
+                RESULT.set_token(i);
                 // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
           :}
         | ABSTRACT INTERFACE ID:i
           {:
-                RESULT.set_token(i);    
+                RESULT.set_token(i);
                 RESULT.set_abstract();
                 // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
           :}
         | LOCAL INTERFACE ID:i
           {:
-                RESULT.set_token(i);    
+                RESULT.set_token(i);
                 RESULT.set_abstract();
                 RESULT.set_locality( true );
                 parser.closeScope( (Scope)RESULT );
@@ -909,7 +891,7 @@ interface ::=
         | PSEUDO INTERFACE ID:i
           {:
                 RESULT.set_pseudo();
-                RESULT.set_token(i);    
+                RESULT.set_token(i);
                 // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
           :}
@@ -921,17 +903,17 @@ interface ::=
 
 interface_body ::=
           export:e interface_body:i
-                {: 
+                {:
                         RESULT.v = (Vector)i.v.clone();
                         RESULT.v.insertElementAt(e,0);
                 :}
         | empty
-                {: RESULT.commit(); :} 
+                {: RESULT.commit(); :}
                 // so that the i_body knows its vector is complete
         ;
 
 // # 9
-export ::= 
+export ::=
           type_dcl:t SEMI
                 {: RESULT.set_declaration(t); :}
         | const_dcl:c SEMI
@@ -948,8 +930,8 @@ export ::=
 // # 10
 inheritance_spec ::=
           COLON scopename_list:sl
-                {: 
-                        RESULT.v = (Vector)sl.v.clone(); 
+                {:
+                        RESULT.v = (Vector)sl.v.clone();
                 :}
         | empty
         ;
@@ -957,56 +939,56 @@ inheritance_spec ::=
 
 scopename_list ::=
           scopename:sn COMMA scopename_list:snl
-            {: 
-                RESULT.v = (Vector)snl.v.clone(); 
-                RESULT.v.insertElementAt(sn,0); 
+            {:
+                RESULT.v = (Vector)snl.v.clone();
+                RESULT.v.insertElementAt(sn,0);
             :}
         | scopename:sn {: RESULT.v.insertElementAt(sn,0); :}
         ;
 
 
 scopename ::=
-          ID:i  
-                {: 
+          ID:i
+                {:
                         RESULT.setId( i.str_val );
-                        RESULT.set_token(i);    
+                        RESULT.set_token(i);
                 :}
-        | DBLCOLON ID:i  
-                {: 
+        | DBLCOLON ID:i
+                {:
                         RESULT.setId( "." + i.str_val);
-                        RESULT.set_token(i);    
+                        RESULT.set_token(i);
                 :}
         | scopename:sn DBLCOLON ID:i
-                {: 
+                {:
                         RESULT.setId( sn.typeName+ "." + i.str_val );
                         RESULT.set_token(i);
                  :}
         // not in the IDL grammar, but apparently necessary:
         |  OBJECT:o
-                {: 
+                {:
                         RESULT.typeName = "org.omg.CORBA.Object";
                 :}
         ;
 
 value ::=
           value_dcl:vd
-               {: 
+               {:
                         RESULT.setValue (vd);
                 :}
         | value_abs_dcl:vad
-               {: 
+               {:
                         RESULT.setValue (vad);
                 :}
         | value_box_dcl:vbx
-               {: 
+               {:
                         RESULT.setValue (vbx);
                 :}
         ;
 
 
-value_box_dcl ::= 
+value_box_dcl ::=
         VALUETYPE ID:i type_spec:ts
-                {: 
+                {:
                         RESULT.name = i.str_val;
                         RESULT.typeSpec = ts;
                 :}
@@ -1018,12 +1000,12 @@ value_abs_dcl ::=
                         RESULT.name = i.str_val;
                         RESULT.setInheritanceSpec( is );
                         RESULT.body = b;
-                        b.set_name(i.str_val);  
+                        b.set_name(i.str_val);
                         b.myAbsValue = RESULT;
                         b.setEnclosingSymbol(RESULT);
                         RESULT.set_token (i);
                 :}
-        | ABSTRACT VALUETYPE ID:i 
+        | ABSTRACT VALUETYPE ID:i
                 {:
                         RESULT.name = i.str_val;
                         RESULT.set_token (i);
@@ -1033,17 +1015,17 @@ value_abs_dcl ::=
 
 value_body ::=
           export:e value_body:vb
-                {: 
+                {:
                         RESULT.v = (Vector)vb.v.clone();
                         RESULT.v.insertElementAt(e,0);
                 :}
           | empty
-                {: RESULT.commit(); :} 
+                {: RESULT.commit(); :}
                 // so that the i_body knows its vector is complete
         ;
 
 
-value_dcl ::= 
+value_dcl ::=
           CUSTOM VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
                 {:
                         RESULT.name = i.str_val;
@@ -1057,7 +1039,7 @@ value_dcl ::=
                         RESULT.name = i.str_val;
                         RESULT.set_token (i);
                         RESULT.isCustomMarshalled (false);
-                :} 
+                :}
         | VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
                 {:
                         RESULT.name = i.str_val;
@@ -1065,41 +1047,41 @@ value_dcl ::=
                         RESULT.setInheritanceSpec (is);
                         RESULT.setValueElements (ve);
                         RESULT.isCustomMarshalled (false);
-                :} 
+                :}
        ;
 
-value_inheritance_spec ::= 
-          COLON truncatable:t scopename_list:vn 
-                {:                        
+value_inheritance_spec ::=
+          COLON truncatable:t scopename_list:vn
+                {:
                         RESULT.truncatable = t;
                         RESULT.truncatable.scopedName = (ScopedName)vn.v.remove(0);
-                        RESULT.v = (Vector)vn.v.clone(); 
+                        RESULT.v = (Vector)vn.v.clone();
                 :}
-        | COLON scopename_list:vn 
-                {:                        
-                        RESULT.v = (Vector)vn.v.clone(); 
+        | COLON scopename_list:vn
+                {:
+                        RESULT.v = (Vector)vn.v.clone();
                 :}
         | SUPPORTS scopename_list:interface_names
                 {:
-                        RESULT.supports = (Vector)interface_names.v.clone(); 
+                        RESULT.supports = (Vector)interface_names.v.clone();
                 :}
         | COLON truncatable:t scopename_list:vn SUPPORTS scopename_list:interface_names
-                {:      
-                        RESULT.truncatable = t;      
+                {:
+                        RESULT.truncatable = t;
                         RESULT.truncatable.scopedName = (ScopedName)vn.v.remove(0);
-                        RESULT.v = (Vector)vn.v.clone(); 
-                        RESULT.supports = (Vector)interface_names.v.clone(); 
+                        RESULT.v = (Vector)vn.v.clone();
+                        RESULT.supports = (Vector)interface_names.v.clone();
                 :}
         | COLON scopename_list:vn SUPPORTS scopename_list:interface_names
-                {:      
-                        RESULT.v = (Vector)vn.v.clone(); 
-                        RESULT.supports = (Vector)interface_names.v.clone(); 
+                {:
+                        RESULT.v = (Vector)vn.v.clone();
+                        RESULT.supports = (Vector)interface_names.v.clone();
                 :}
         | empty
-        ;      
+        ;
 
-truncatable ::= TRUNCATABLE 
-        ;      
+truncatable ::= TRUNCATABLE
+        ;
 
 value_elements ::=
           value_element:e value_elements:es
@@ -1133,7 +1115,7 @@ state_member ::=
                            RESULT.type_spec   = ts;
                            RESULT.declarators = ds;
                   :}
-                           
+
         | PRIVATE type_spec:ts declarators:ds SEMI
                   {:
                            RESULT.isPublic    = false;
@@ -1141,7 +1123,7 @@ state_member ::=
                            RESULT.declarators = ds;
                   :}
         ;
-        
+
 init_dcl ::=
           FACTORY ID:i LPAREN init_param_decls:ipd RPAREN SEMI
                 {:
@@ -1156,15 +1138,15 @@ init_dcl ::=
 
 init_param_decls ::=
           init_param_decl:ip
-                {: 
-                        RESULT.v.insertElementAt( ip, 0); 
+                {:
+                        RESULT.v.insertElementAt( ip, 0);
                 :}
         | init_param_decl:ip COMMA init_param_decls:ipdcls
-                {: 
-                        RESULT.v = (Vector)ipdcls.v.clone(); 
-                        RESULT.v.insertElementAt( ip, 0); 
+                {:
+                        RESULT.v = (Vector)ipdcls.v.clone();
+                        RESULT.v.insertElementAt( ip, 0);
                 :}
-        ; 
+        ;
 
 
 init_param_decl ::=
@@ -1180,7 +1162,7 @@ const_dcl ::=
          CONST const_type:ct ID:i EQUALS const_expr:ce
                 {:
                         RESULT.set_name(i.str_val);
-                        RESULT.set_token(i);    
+                        RESULT.set_token(i);
                         RESULT.const_expr = ce;
                         RESULT.const_type = (ConstType)ct;
                         RESULT.set_included( parser.include_state );
@@ -1196,74 +1178,74 @@ const_type ::=
         | fixed_pt_const_type:s {: RESULT.symbol = s; :}
         | string_type:s {: RESULT.symbol = s; :}
         | octet_type:s {: RESULT.symbol = s; :}
-        | scopename:s 
-                {: 
-                        RESULT.symbol = s; 
+        | scopename:s
+                {:
+                        RESULT.symbol = s;
                         RESULT.set_token(s.get_token());
                 :}
         ;
 
 // #14
-const_expr ::= or_expr:o 
-                {: 
-                        RESULT.or_expr = o; 
+const_expr ::= or_expr:o
+                {:
+                        RESULT.or_expr = o;
                 :}
         ;
 
 // #15
 or_expr ::=
-          xor_expr:x 
-                {: 
-                        RESULT.xor_expr = x; 
+          xor_expr:x
+                {:
+                        RESULT.xor_expr = x;
                 :}
         | or_expr:o BAR xor_expr:x
                 {:
-                        RESULT.or_expr = o; 
+                        RESULT.or_expr = o;
                         RESULT.xor_expr = x;
                 :}
         ;
 
 // #16
 xor_expr ::=
-          and_expr:a 
-                {: 
-                        RESULT.and_expr = a; 
+          and_expr:a
+                {:
+                        RESULT.and_expr = a;
                 :}
         | xor_expr:x CIRCUM and_expr:a
                 {:
-                        RESULT.and_expr = a; 
+                        RESULT.and_expr = a;
                         RESULT.xor_expr = x;
                 :}
         ;
 
 // #17
 and_expr ::=
-          shift_expr:s 
-                {: 
-                        RESULT.shift_expr = s; 
+          shift_expr:s
+                {:
+                        RESULT.shift_expr = s;
                 :}
         | and_expr:a AMPERSAND shift_expr:s
                 {:
-                        RESULT.and_expr = a; 
+                        RESULT.and_expr = a;
                         RESULT.shift_expr = s;
                 :}
         ;
 
 // #18
 shift_expr ::=
-          add_expr:a 
-                {: 
-                        RESULT.add_expr = a; 
+          add_expr:a
+                {:
+                        RESULT.add_expr = a;
                 :}
         | shift_expr:s LSHIFT add_expr:a
                 {:
-                        RESULT.add_expr = a; 
+                        RESULT.add_expr = a;
                         RESULT.shift_expr = s;
                         RESULT.operator = "<<";
                 :}
         | shift_expr:s RSHIFT add_expr:a
                 {:
-                        RESULT.add_expr = a; 
+                        RESULT.add_expr = a;
                         RESULT.shift_expr = s;
                         RESULT.operator = ">>";
                 :}
@@ -1272,19 +1254,19 @@ shift_expr ::=
 
 // #19
 add_expr ::=
-          mult_expr:m  
+          mult_expr:m
                 {:
-                        RESULT.mult_expr = m; 
+                        RESULT.mult_expr = m;
                 :}
         | add_expr:a PLUS mult_expr:m
                 {:
-                        RESULT.add_expr = a; 
+                        RESULT.add_expr = a;
                         RESULT.mult_expr = m;
                         RESULT.operator = "+";
                 :}
         | add_expr:a MINUS mult_expr:m
                 {:
-                        RESULT.add_expr = a; 
+                        RESULT.add_expr = a;
                         RESULT.mult_expr = m;
                         RESULT.operator = "-";
                 :}
@@ -1295,25 +1277,25 @@ mult_expr ::=
           unary_expr:u {: RESULT.unary_expr = u; :}
         | mult_expr:m STAR unary_expr:u
                 {:
-                        RESULT.unary_expr = u; 
+                        RESULT.unary_expr = u;
                         RESULT.mult_expr = m;
                         RESULT.operator = "*";
                 :}
         | mult_expr:m SLASH unary_expr:u
                 {:
-                        RESULT.unary_expr = u; 
+                        RESULT.unary_expr = u;
                         RESULT.mult_expr = m;
                         RESULT.operator = "/";
                 :}
         | mult_expr:m PERCENT unary_expr:u
                 {:
-                        RESULT.unary_expr = u; 
+                        RESULT.unary_expr = u;
                         RESULT.mult_expr = m;
                         RESULT.operator = "%";
                 :}
         ;
 
-// #21 
+// #21
 unary_expr ::=
           unary_op:u primary_expr:p
                 {:
@@ -1340,43 +1322,43 @@ primary_expr ::=
 
 // #24 + 25
 literal ::=
-          NUMBER:n 
-                {: 
-                        RESULT.string = "" + n.int_val; 
+          NUMBER:n
+                {:
+                        RESULT.string = "" + n.int_val;
                         RESULT.token = n;
                 :}
-        | LONG_NUMBER:l 
+        | LONG_NUMBER:l
                 {:
                         RESULT.string = "" + l.long_val;
                         RESULT.token = l;
                 :}
-        | QUOTE CH:c QUOTE 
+        | QUOTE CH:c QUOTE
                 {:
-                        RESULT.string = "\'" + c.char_val + "\'"; 
+                        RESULT.string = "\'" + c.char_val + "\'";
                         RESULT.token = c;
                 :}
-        | string_literal:s 
-                {: 
-                        RESULT.string = s.string;                 
-                        RESULT.wide = s.wide; 
+        | string_literal:s
+                {:
+                        RESULT.string = s.string;
+                        RESULT.wide = s.wide;
                 :}
-        | FIXED_NUMBER:f 
-                {: 
-                        RESULT.string = "" + f.fixed_val; 
+        | FIXED_NUMBER:f
+                {:
+                        RESULT.string = "" + f.fixed_val;
                         RESULT.token = f;
                 :}
-        | FLOAT_NUMBER:n 
-                {: 
-                        RESULT.string = "" + n.float_val ; 
+        | FLOAT_NUMBER:n
+                {:
+                        RESULT.string = "" + n.float_val ;
                         RESULT.token = n;
                 :}
-        | TRUE 
-                {: 
-                        RESULT.string = "true"; 
+        | TRUE
+                {:
+                        RESULT.string = "true";
                 :}
-        | FALSE 
-                {: 
-                        RESULT.string = "false"; 
+        | FALSE
+                {:
+                        RESULT.string = "false";
                 :}
         ;
 
@@ -1386,12 +1368,12 @@ string_literal ::=
         | DBLQUOTE DBLQUOTE
                  {: RESULT.string = "\"\""; :}
         | LDBLQUOTE ID:i DBLQUOTE
-                 {: 
+                 {:
                         RESULT.string = "\"" + i.str_val + "\"";
                         RESULT.wide = true;
                   :}
         | LDBLQUOTE DBLQUOTE
-                 {: 
+                 {:
                         RESULT.string = "\"\"";
                         RESULT.wide = true;
                   :}
@@ -1404,7 +1386,7 @@ positive_int_const ::= const_expr:c
 
 
 // #27
-type_dcl ::= 
+type_dcl ::=
           type_def:t
                 {: RESULT.type_decl = t; :}
         | struct_type:s
@@ -1417,16 +1399,16 @@ type_dcl ::=
                 {: RESULT.type_decl = n; :}
         ;
 
-type_def ::= 
+type_def ::=
         TYPEDEF type_declarator:t
-        {: 
-                RESULT.type_declarator = t; 
+        {:
+                RESULT.type_declarator = t;
                 RESULT.set_included( parser.include_state );
         :}
         ;
 
 // #28
-type_declarator ::= 
+type_declarator ::=
         type_spec:ts declarators:ds
                 {:
                         RESULT.type_spec = ts;
@@ -1436,42 +1418,42 @@ type_declarator ::=
 
 // #29
 type_spec ::=
-          simple_type_spec:s 
-                {: 
-                        RESULT.type_spec = s; 
+          simple_type_spec:s
+                {:
+                        RESULT.type_spec = s;
                         RESULT.set_token(s.get_token());
                 :}
-        | constr_type_spec:s 
-                {: 
-                        RESULT.type_spec = s; 
+        | constr_type_spec:s
+                {:
+                        RESULT.type_spec = s;
                         RESULT.set_token(s.get_token());
                 :}
         ;
 
 // #30
-simple_type_spec ::= 
-          base_type_spec:s 
-                {: 
-                        RESULT.type_spec = s; 
+simple_type_spec ::=
+          base_type_spec:s
+                {:
+                        RESULT.type_spec = s;
                 :}
-        | template_type_spec:s 
-                {: 
-                        RESULT.type_spec = s; 
+        | template_type_spec:s
+                {:
+                        RESULT.type_spec = s;
                         RESULT.set_token(s.get_token());
                 :}
-        | scopename:s 
-                {: 
-                        RESULT.type_spec = s; 
+        | scopename:s
+                {:
+                        RESULT.type_spec = s;
                         RESULT.set_token(s.get_token());
                 :}
         ;
 
 // #31
-base_type_spec ::= 
+base_type_spec ::=
           float_pt_type:s {: RESULT.type_spec = s; :}
-        | int_type:s 
-                {: 
-                        RESULT.type_spec = s; 
+        | int_type:s
+                {:
+                        RESULT.type_spec = s;
                 :}
         | char_type:s {: RESULT.type_spec = s; :}
         | bool_type:s {: RESULT.type_spec = s; :}
@@ -1481,39 +1463,39 @@ base_type_spec ::=
         ;
 
 // #32
-template_type_spec ::= 
-          sequence_type:s 
-                {: 
-                        RESULT.type_spec = s; 
+template_type_spec ::=
+          sequence_type:s
+                {:
+                        RESULT.type_spec = s;
                         RESULT.set_token(s.get_token());
                 :}
-        | string_type:s 
-                {: 
-                        RESULT.type_spec = s; 
+        | string_type:s
+                {:
+                        RESULT.type_spec = s;
                         RESULT.set_token(s.get_token());
                 :}
         | fixed_point_type:f
-                {: 
-                        RESULT.type_spec = f; 
+                {:
+                        RESULT.type_spec = f;
                         RESULT.set_token(f.get_token());
                 :}
         ;
 
 // #33
 constr_type_spec ::=
-          struct_type:s 
-                {: 
-                        RESULT.c_type_spec = s; 
+          struct_type:s
+                {:
+                        RESULT.c_type_spec = s;
                         RESULT.set_token(s.get_token());
                 :}
-        | union_type:u 
-                {: 
-                        RESULT.c_type_spec = u; 
+        | union_type:u
+                {:
+                        RESULT.c_type_spec = u;
                         RESULT.set_token(u.get_token());
                 :}
-        | enum_type:e 
-                {: 
-                        RESULT.c_type_spec = e; 
+        | enum_type:e
+                {:
+                        RESULT.c_type_spec = e;
                         RESULT.set_token(e.get_token());
                 :}
         ;
@@ -1521,33 +1503,33 @@ constr_type_spec ::=
 // #34
 declarators ::=
           declarator:d COMMA declarators:ds
-                {: 
+                {:
                         RESULT.v = (Vector)ds.v.clone();
-                        RESULT.v.insertElementAt(d,0); 
+                        RESULT.v.insertElementAt(d,0);
                 :}
         | declarator:d
-                {: 
+                {:
                         RESULT.v.insertElementAt(d,0);
                  :}
         ;
 
 // #35 + 37
-declarator ::= 
-          simple_declarator:s 
+declarator ::=
+          simple_declarator:s
                 {: RESULT.d = s; :}
-        | array_declarator:s 
+        | array_declarator:s
                 {: RESULT.d = s; :}
         ;
 
 // #36
-simple_declarator ::= ID:i 
-                {: 
-                        RESULT.set_token(i);    
+simple_declarator ::= ID:i
+                {:
+                        RESULT.set_token(i);
                 :}
         ;
 
 // #38
-float_pt_type ::= 
+float_pt_type ::=
           float_type:f
                 {:RESULT.type_spec = f; :}
         | double_type:d
@@ -1569,97 +1551,102 @@ double_type ::=
 // #39-45
 int_type ::=
           long_type:l
-                {: 
-                        RESULT.type_spec = l; 
+                {:
+                        RESULT.type_spec = l;
                 :}
         | long_long_type:ll
-                {: 
-                        RESULT.type_spec = ll; 
+                {:
+                        RESULT.type_spec = ll;
                 :}
         | UNSIGNED long_type:l
-                {: 
-                        RESULT.type_spec = l; 
+                {:
+                        RESULT.type_spec = l;
                         RESULT.setUnsigned();
                 :}
         | UNSIGNED long_long_type:l
-                {: 
-                        RESULT.type_spec = l; 
+                {:
+                        RESULT.type_spec = l;
                         RESULT.setUnsigned();
                 :}
         | short_type:s
-                {: 
-                        RESULT.type_spec = s; 
+                {:
+                        RESULT.type_spec = s;
                 :}
         | UNSIGNED short_type:s
-                {: 
-                        RESULT.type_spec = s; 
+                {:
+                        RESULT.type_spec = s;
                         RESULT.setUnsigned();
                 :}
         ;
 
-short_type ::= 
+short_type ::=
         SHORT
         ;
 
-long_type ::= 
+long_type ::=
         LONG
         ;
 
-long_long_type ::= 
+long_long_type ::=
         LONG LONG
         ;
 
 // #46
-char_type ::= 
+char_type ::=
           CHAR
         | WCHAR
         {: RESULT.setWide(); :}
         ;
 
 // #47
-bool_type ::= 
+bool_type ::=
         BOOLEAN
         ;
 
 // #48
-octet_type ::= 
+octet_type ::=
         OCTET
         ;
 
 // #49
-any_type ::= 
+any_type ::=
         ANY
         ;
 
 // #50
 struct_type ::=
         STRUCT ID:i LCBRACE member_list:ml RCBRACE
-                {: 
-                        RESULT.set_token(i);    
+                {:
+                        RESULT.set_token(i);
                         RESULT.exc = false;
                         RESULT.set_memberlist( ml );
                         RESULT.set_included( parser.include_state );
                         parser.closeScope( (Scope)RESULT );
                 :}
+        | STRUCT ID:i
+                {:
+                        RESULT.set_token(i);
+                        parser.closeScope( (Scope)RESULT );
+               :}
         ;
 
 // #51
 member_list ::=
           member:m
-                {: 
-                        RESULT.v.insertElementAt(m,0); 
+                {:
+                        RESULT.v.insertElementAt(m,0);
                 :}
         | member:m member_list:ml
-                {: 
+                {:
                         RESULT.v = (Vector)ml.v.clone();
-                        RESULT.v.insertElementAt(m,0); 
+                        RESULT.v.insertElementAt(m,0);
                 :}
         ;
 
 // #52
 member ::=
         type_spec:ts declarators:ds SEMI
-                {: 
+                {:
                         RESULT.type_spec = ts;
                         RESULT.declarators = ds;
                 :}
@@ -1667,18 +1654,18 @@ member ::=
 
 // #53
 union_type ::=
-        UNION ID:i SWITCH LPAREN switch_type_spec:s RPAREN 
+        UNION ID:i SWITCH LPAREN switch_type_spec:s RPAREN
                 LCBRACE switch_body:sb RCBRACE
-                {: 
-                        RESULT.setSwitchType( s ); 
-                        RESULT.setSwitchBody( sb ); 
+                {:
+                        RESULT.setSwitchType( s );
+                        RESULT.setSwitchBody( sb );
                         RESULT.set_token(i);
                         RESULT.set_included( parser.include_state );
                         parser.closeScope( (Scope)RESULT );
                 :}
         ;
 
-// #54 
+// #54
 switch_type_spec ::=
           int_type:i {: RESULT.type_spec = i; :}
         | char_type:c {: RESULT.type_spec = c; :}
@@ -1689,7 +1676,7 @@ switch_type_spec ::=
 
 // #55
 switch_body ::=
-          case:c 
+          case:c
         {:
                 RESULT.caseListVector.addElement(c);
         :}
@@ -1700,7 +1687,7 @@ switch_body ::=
         :}
         ;
 
-// #56 
+// #56
 case ::=
         case_label_list:c element_spec:es SEMI
                 {:
@@ -1741,8 +1728,8 @@ element_spec ::=
 // #59
 enum_type ::=
         ENUM ID:i LCBRACE enumerator_list:el RCBRACE
-                {: 
-                        RESULT.set_token(i);    
+                {:
+                        RESULT.set_token(i);
                         RESULT.enumlist = el;
                         RESULT.set_included( parser.include_state );
                 :}
@@ -1751,15 +1738,15 @@ enum_type ::=
 // #60
 enumerator_list ::=
           ID:i
-                {: 
-                        RESULT.v.insertElementAt(i.str_val,0); 
-                        RESULT.set_token(i);    
+                {:
+                        RESULT.v.insertElementAt(i.str_val,0);
+                        RESULT.set_token(i);
                 :}
         | ID:i COMMA enumerator_list:el
-                {: 
+                {:
                         RESULT.v = (Vector)el.v.clone();
-                        RESULT.v.insertElementAt(i.str_val,0); 
-                        RESULT.set_token(i);    
+                        RESULT.v.insertElementAt(i.str_val,0);
+                        RESULT.set_token(i);
                 :}
         ;
 
@@ -1772,7 +1759,7 @@ native_type ::=
         ;
 
 // #61
-sequence_type ::= 
+sequence_type ::=
           SEQUENCE LESSTHAN simple_type_spec:sts
                             COMMA positive_int_const:pic GREATERTHAN
                 {:
@@ -1786,54 +1773,54 @@ sequence_type ::=
         ;
 
 // # 62
-string_type ::= 
+string_type ::=
           STRING LESSTHAN positive_int_const:pic GREATERTHAN
           {: RESULT.max = pic.const_expr; :}
         | WSTRING LESSTHAN positive_int_const:pic GREATERTHAN
-          {: 
-                RESULT.max = pic.const_expr; 
+          {:
+                RESULT.max = pic.const_expr;
                 RESULT.setWide();
           :}
         | STRING
-        | WSTRING 
+        | WSTRING
         {: RESULT.setWide(); :}
         ;
 
-fixed_point_type ::= 
+fixed_point_type ::=
           FIXED LESSTHAN positive_int_const:digits COMMA positive_int_const:scale GREATERTHAN
-          {: 
+          {:
                 RESULT.digit_expr = digits.const_expr;
                 RESULT.scale_expr = scale.const_expr;
-         :}     
+         :}
         ;
 
 
 
 // #63
-array_declarator ::= 
+array_declarator ::=
           ID:i fixed_array_size_list:fasl
-                {: 
-                        RESULT.set_token(i);    
+                {:
+                        RESULT.set_token(i);
                         RESULT.fixed_array_size_list = fasl;
                 :}
         ;
 
 fixed_array_size_list ::=
           fixed_array_size:fas
-                {: 
-                        RESULT.v.insertElementAt(fas,0); 
+                {:
+                        RESULT.v.insertElementAt(fas,0);
                 :}
         | fixed_array_size:fas fixed_array_size_list:fasl
-                {: 
+                {:
                         RESULT.v = (Vector)fasl.v.clone();
-                        RESULT.v.insertElementAt(fas,0); 
+                        RESULT.v.insertElementAt(fas,0);
                 :}
         ;
 
 // #64
 fixed_array_size ::=
         LSBRACE positive_int_const:pic RSBRACE
-                {: 
+                {:
                         RESULT.pos_int_const = pic;
                 :}
         ;
@@ -1856,28 +1843,28 @@ attr_dcl ::=
 
 simple_declarator_list ::=
           simple_declarator:sd
-                {: 
-                        RESULT.v.insertElementAt(sd,0); 
+                {:
+                        RESULT.v.insertElementAt(sd,0);
                 :}
         | simple_declarator:sd COMMA simple_declarator_list:sdl
-                {: 
+                {:
                         RESULT.v = (Vector)sdl.v.clone();
-                        RESULT.v.insertElementAt(sd,0); 
+                        RESULT.v.insertElementAt(sd,0);
                 :}
         ;
 
 // #66
-except_dcl ::= 
+except_dcl ::=
           EXCEPTION ID:i LCBRACE RCBRACE
-                {: 
-                        RESULT.set_token(i);    
+                {:
+                        RESULT.set_token(i);
                         RESULT.exc = true;
                         RESULT.set_included( parser.include_state );
                         parser.closeScope( (Scope)RESULT );
                 :}
         | EXCEPTION ID:i LCBRACE member_list:ml RCBRACE
-                {: 
-                        RESULT.set_token(i);    
+                {:
+                        RESULT.set_token(i);
                         RESULT.exc = true;
                         RESULT.set_memberlist( ml );
                         RESULT.set_included( parser.include_state );
@@ -1888,12 +1875,12 @@ except_dcl ::=
 
 // #67
 op_dcl ::=
-        op_attribute:oa op_type_spec:ots ID:i parameter_dcls:pds 
+        op_attribute:oa op_type_spec:ots ID:i parameter_dcls:pds
                 raises_expr:re context_expr
-          {: 
+          {:
                         RESULT.opAttribute = oa.int_val;
                         RESULT.opTypeSpec = ots;
-                        RESULT.set_token(i);    
+                        RESULT.set_token(i);
                         RESULT.paramDecls = (Vector)pds.v.clone();
                         RESULT.raisesExpr = re;
           :}
@@ -1902,48 +1889,48 @@ op_dcl ::=
 // #68
 op_attribute ::=
           ONEWAY
-                {: RESULT.int_val = 1; :} 
-        | empty 
-                {: RESULT.int_val = 0; :} 
+                {: RESULT.int_val = 1; :}
+        | empty
+                {: RESULT.int_val = 0; :}
         ;
 
 // #69
-op_type_spec ::= 
+op_type_spec ::=
           param_type_spec:s {: RESULT.type_spec = s; :}
         | void_type_spec:s {: RESULT.type_spec = s; :}
         ;
 
 
-void_type_spec ::= 
+void_type_spec ::=
         VOID
         ;
 
 // #70
-parameter_dcls ::= 
-          LPAREN param_dcls:pds RPAREN 
-                {: 
-                        RESULT.v = (Vector)pds.v.clone(); 
+parameter_dcls ::=
+          LPAREN param_dcls:pds RPAREN
+                {:
+                        RESULT.v = (Vector)pds.v.clone();
                 :}
         | LPAREN RPAREN
         ;
 
 
-param_dcls ::= 
-          param_dcl:pd COMMA param_dcls:pds  
-            {: 
-                        RESULT.v = (Vector)pds.v.clone(); 
-                        RESULT.v.insertElementAt(pd,0); 
+param_dcls ::=
+          param_dcl:pd COMMA param_dcls:pds
+            {:
+                        RESULT.v = (Vector)pds.v.clone();
+                        RESULT.v.insertElementAt(pd,0);
                 :}
-        | param_dcl:pd 
-                {: 
-                        RESULT.v.insertElementAt(pd,0); 
+        | param_dcl:pd
+                {:
+                        RESULT.v.insertElementAt(pd,0);
                 :}
         ;
 
 // #71
 param_dcl ::=
         param_attribute:pa param_type_spec:pts simple_declarator:sd
-          {: 
+          {:
                 RESULT.paramAttribute = pa.int_val;
                 RESULT.paramTypeSpec = pts;
                 RESULT.simple_declarator = sd;
@@ -1960,8 +1947,8 @@ param_attribute ::=
 // #73
 raises_expr ::=
           RAISES LPAREN scopename_list:snl RPAREN
-        {: 
-                RESULT.nameList = (Vector)snl.v.clone(); 
+        {:
+                RESULT.nameList = (Vector)snl.v.clone();
         :}
         | empty
         ;
@@ -1985,4 +1972,3 @@ param_type_spec ::=
         ;
 
 empty ::= /* nothing */;
-
