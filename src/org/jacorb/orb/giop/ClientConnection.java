@@ -164,9 +164,9 @@ public class ClientConnection
                       CodeSet.csName( tcsw ) + " as TCSW" );
 
         // encapsulate context
-	CDROutputStream os = new CDROutputStream( orb );
-	os.beginEncapsulatedArray();
-	CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
+        CDROutputStream os = new CDROutputStream( orb );
+        os.beginEncapsulatedArray();
+        CodeSetContextHelper.write( os, new CodeSetContext( tcs, tcsw ));
 
         return new ServiceContext( org.omg.IOP.CodeSets.value,
                                    os.getBufferCopy() );
