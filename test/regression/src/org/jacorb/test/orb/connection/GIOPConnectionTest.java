@@ -15,29 +15,60 @@ import org.jacorb.orb.connection.*;
 import java.io.*;
 import java.util.*;
 
+import org.omg.ETF.BufferHolder;
+import org.omg.ETF.Profile;
 import org.omg.GIOP.*;
+import org.jacorb.orb.*;
 
-public class GIOPConnectionTest 
-    extends junit.framework.TestCase 
+import junit.framework.*;
+
+public class GIOPConnectionTest extends TestCase 
 {
     public static junit.framework.TestSuite suite()
     {
-      return new junit.framework.TestSuite( GIOPConnectionTest.class );
+        TestSuite suite = new TestSuite ("GIOPConnection Test");
+
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_2_CorrectFragmentedRequest"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_0_CorrectRefusing"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_IllegalMessageType"));
+        suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_NoImplement"));
+
+        return suite;        
     }
 
     private class DummyTransport
         implements Transport
     {
         private boolean closed = false;
-        private List messages = null;
-        private int messages_index = 0;
+        private byte[] data = null;
+        private int index = 0;
         private ByteArrayOutputStream b_out = new ByteArrayOutputStream();
+        private org.omg.ETF.Profile profile = new InternetIOPProfile
+        (
+            new IIOPAddress ("127.0.0.1", 4711),
+            null
+        );
+            
 
         private TransportListener listener = null;
 
         public DummyTransport( List messages )
         {
-            this.messages = messages;
+            // convert the message list into a plain byte array
+            
+            int size = 0;
+            for (Iterator i = messages.iterator(); i.hasNext();)
+            {
+                size += ((byte[])i.next()).length;
+            }
+            data = new byte[size];
+            int index = 0;
+            for (Iterator i = messages.iterator(); i.hasNext();)
+            {
+                byte[] msg = (byte[])i.next();
+                System.arraycopy(msg, 0, data, index, msg.length);
+                index += msg.length;
+            }
         }
 
         public byte[] getWrittenMessage()
@@ -50,32 +81,15 @@ public class GIOPConnectionTest
             return closed;
         }
 
-        public byte[] getMessage()
-            throws IOException
-        {
-            System.out.println( "getMessage" );
-
-            if( messages_index < messages.size() )
-            {
-                return (byte[]) messages.get( messages_index++ );
-            }
-            else
-            {
-                listener.streamClosed();
-
-                return null;
-            }
-        }
-
-        public void write( byte[] message, int start, int size )
-            throws IOException
+        public void write( boolean is_first, boolean is_last, 
+                           byte[] message, int start, int size,
+                           long timeout )
         {
             b_out.write( message, start, size );
         }
     
 
         public void flush()
-            throws IOException
         {
         }
     
@@ -113,7 +127,33 @@ public class GIOPConnectionTest
         public void turnOnFinalTimeout()
         {
         }
+
+        public Profile get_server_profile()
+        {
+            return profile;
+        }
+
+        public void read (BufferHolder data, int offset, 
+                          int min_length, int max_length, long time_out)
+        {
+            if (this.index + min_length > this.data.length)
+            {
+                listener.streamClosed();
+                throw new org.omg.CORBA.COMM_FAILURE ("end of stream");
+            }
+            else
+            {
+                System.arraycopy (this.data, this.index, data.value, offset, min_length);
+                this.index += min_length;
+            }
+        }
+
+        public boolean waitUntilConnected()
+        {
+            return true;
+        }
     }
+    
 
     private class DummyRequestListener
         implements RequestListener
