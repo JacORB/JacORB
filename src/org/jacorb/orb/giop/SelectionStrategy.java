@@ -23,12 +23,20 @@ package org.jacorb.orb.connection;
 import java.util.List;
 
 /**
+ * This class is used to select a transport for closing. The transport
+ * should be idle (although this is checked again later when
+ * closing). The given list of transports is synchronized, so no
+ * additional synchronization is necessary.
+ *
  * @author Nicolas Noffke
- * @version $Id$
- */
+ * @version $Id$ */
 
 public interface SelectionStrategy
 {
+    /**
+     * Select a transport for closing. If none is idle, null should be
+     * returned.  
+     */
     public Transport selectForClose( List transports );
 }
 

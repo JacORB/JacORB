@@ -30,18 +30,18 @@ import org.jacorb.orb.factory.*;
 import org.jacorb.util.*;
 
 /**
- * This class manages Transports
+ * This class manages Transports. On the one hand it creates them, and
+ * on the other it enforces an upper limit on the open transports.
  *
  * @author Nicolas Noffke
  * @version $Id$
- *
- */
+ * */
 
 public class TransportManager
 {    
     public static final String FACTORY_PROP = "jacorb.net.socket_factory";
 
-    private List client_transports = null;
+    //private List client_transports = null;
     private List server_transports = null;
 
     private SocketFactory socket_factory = null;
@@ -63,7 +63,7 @@ public class TransportManager
             String s = Environment.getProperty( "jacorb.ssl.socket_factory" );
             if( s == null || s.length() == 0 )
             {
-                throw new RuntimeException("SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
+                throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
             }
             
             try
@@ -166,13 +166,10 @@ public class TransportManager
                             selection_strategy.selectForClose( server_transports );
                     }
                     
-                    if( to_close != null )
+                    if( to_close != null &&
+                        ((Server_TCP_IP_Transport) to_close).tryShutdown() )
                     {
-                        if( ((Server_TCP_IP_Transport) to_close).tryShutdown() )
-                        {
-                            break;
-                        }
-                        //else: maybe just received a message, so try again
+                        break;
                     }
                     else
                     {
@@ -193,6 +190,7 @@ public class TransportManager
             }
         }
 
+        //create a new statistics provider for each new Transport
         StatisticsProvider provider = null;
         if( statistics_provider_class != null )
         {
