@@ -1157,8 +1157,7 @@ public class lexer
                     } 
 
                     if( next_char == 'e' || next_char == 'E' )
-                    {
-                        
+                    {                        
                         // System.out.println("Reading exponent");
 
                         if( fraction == null )
@@ -1166,7 +1165,7 @@ public class lexer
 
                         fraction.append('e');
                         advance();
-                        if( next_char == '-' )
+                        if( next_char == '-' || next_char == '+')
                         {
                             fraction.append( (char)next_char );
                             advance();    
@@ -1178,10 +1177,16 @@ public class lexer
                             advance();
                         }
                         
-                        return new float_token(sym.FLOAT_NUMBER, 
-                                               Float.valueOf( value.toString() + 
-                                                              "." + 
-                                                              fraction.toString()).floatValue());
+                        if( fraction.length() == 1 )
+                        {
+                            emit_error("Empty exponent in float/double.");
+                            continue;
+                        }
+
+                        return new float_token( sym.FLOAT_NUMBER, 
+                                                Float.valueOf( value.toString() + 
+                                                               "." + 
+                                                               fraction.toString()).floatValue());
                     }
 
                     if( next_char == 'd' || next_char == 'D' )

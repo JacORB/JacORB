@@ -301,7 +301,7 @@ parser code
   }
 
 
-  /* override error routines */
+    /* override error routines */
 
     public void report_fatal_error( String message, Object info)
         throws ParseException
@@ -333,6 +333,10 @@ parser code
        lexer.emit_error(message, p_info);
     }
 
+    public static void error( String message )
+    {
+       lexer.emit_error( message );
+    }
 
         /* bookkeeping with IDL scopes */
 
@@ -1193,22 +1197,21 @@ literal ::=
         | QUOTE CH:c QUOTE 
                 {:
                         RESULT.string = "\'" + c.char_val + "\'"; 
-                        RESULT.token = n;
+                        RESULT.token = c;
                 :}
 //      | QUOTE ID:i QUOTE 
-                {: 
-                        RESULT.string = "\'" + i.str_val + "\'"; 
-                        RESULT.token = n;
-                :}
+//                {: 
+//                        RESULT.string = "\'" + i.str_val + "\'"; 
+//                        RESULT.token = n;
+//                :}
         | string_literal:s 
                 {: 
                         RESULT.string = s.string; 
-                        RESULT.token = n;
                 :}
         | FIXED_NUMBER:f 
                 {: 
                         RESULT.string = "" + f.fixed_val; 
-                        RESULT.token = n;
+                        RESULT.token = f;
                 :}
         | FLOAT_NUMBER:n 
                 {: 
@@ -1218,12 +1221,10 @@ literal ::=
         | TRUE 
                 {: 
                         RESULT.string = "true"; 
-                        RESULT.token = n;
                 :}
         | FALSE 
                 {: 
                         RESULT.string = "false"; 
-                        RESULT.token = n;
                 :}
         ;
 
