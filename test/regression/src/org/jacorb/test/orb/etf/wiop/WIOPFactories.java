@@ -58,7 +58,17 @@ public class WIOPFactories
 
     public Connection create_connection (ProtocolProperties props)
     {
-        return new WIOPConnection (new ClientIIOPConnection(),
+        ClientIIOPConnection delegate = new ClientIIOPConnection();
+        try
+        {
+            delegate.configure(configuration);
+        }
+        catch( ConfigurationException ce )
+        {
+            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
+        }
+
+        return new WIOPConnection (delegate,
                                    tag);
     }
 
@@ -73,7 +83,7 @@ public class WIOPFactories
                 throws IOException
             {
                 return new WIOPConnection
-                    (new ServerIIOPConnection (socket, is_ssl), tag);
+                    (super.createServerConnection(socket, is_ssl), tag);
             }
         };
         try
