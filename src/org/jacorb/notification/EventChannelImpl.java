@@ -411,7 +411,8 @@ public class EventChannelImpl
         AbstractAdmin _admin = new ConsumerAdminTieImpl(context);
 
         configureAdmin(_admin);
-        _admin.setKey(key);
+
+        _admin.setID(key);
 
         return _admin;
     }
@@ -428,7 +429,8 @@ public class EventChannelImpl
         AbstractAdmin _admin = new SupplierAdminTieImpl(context);
 
         configureAdmin(_admin);
-        _admin.setKey(key);
+
+        _admin.setID(key);
 
         return _admin;
     }
@@ -459,7 +461,17 @@ public class EventChannelImpl
 
                 fireAdminCreatedEvent(_defaultConsumerAdmin);
 
-                consumerAdminServants_.put(_defaultConsumerAdmin.getKey(), _defaultConsumerAdmin);
+                final Integer _key = _defaultConsumerAdmin.getID();
+
+                consumerAdminServants_.put(_key, _defaultConsumerAdmin);
+
+                _defaultConsumerAdmin.setDisposeHook(new Runnable() {
+                        public void run() {
+                            synchronized(consumerAdminServants_) {
+                                consumerAdminServants_.remove(_key);
+                                listManager_.actionSourceModified();
+                            }
+                        }});
 
                 listManager_.actionSourceModified();
             }
@@ -468,11 +480,13 @@ public class EventChannelImpl
         return _defaultConsumerAdmin;
     }
 
+
     boolean isDefaultConsumerAdminActive() {
         synchronized (modifyConsumerAdminsLock_) {
             return consumerAdminServants_.containsKey(DEFAULT_ADMIN_KEY);
         }
     }
+
 
     /**
      * @todo factor out object creation to factory class
@@ -495,7 +509,16 @@ public class EventChannelImpl
 
                 fireAdminCreatedEvent(_admin);
 
-                supplierAdminServants_.put(_admin.getKey(), _admin);
+                final Integer _key = _admin.getID();
+
+                supplierAdminServants_.put(_key, _admin);
+
+                _admin.setDisposeHook(new Runnable() {
+                        public void run() {
+                            synchronized(supplierAdminServants_) {
+                                supplierAdminServants_.remove(_key);
+                            }
+                        }});
             }
         }
 
@@ -601,9 +624,6 @@ public class EventChannelImpl
     }
 
 
-    /**
-     * @todo factor out object creation to factory class
-     */
     AbstractAdmin new_for_consumers_servant( InterFilterGroupOperator filterGroupOperator,
                                              IntHolder intHolder )
     {
@@ -611,9 +631,9 @@ public class EventChannelImpl
 
         _admin.setInterFilterGroupOperator(filterGroupOperator);
 
-        intHolder.value = _admin.getKey().intValue();
+        intHolder.value = _admin.getID().intValue();
 
-        _admin.setIsKeyPublic(true);
+        _admin.setIsIDPublic(true);
 
         try {
             _admin.set_qos(qosSettings_.toArray());
@@ -623,15 +643,23 @@ public class EventChannelImpl
 
         _admin.addProxyCreationEventListener( proxySupplierCreationListener_ );
 
-        synchronized (modifyConsumerAdminsLock_) {
-            consumerAdminServants_.put( _admin.getKey(), _admin );
+        final Integer _key = _admin.getID();
 
-            //            allConsumerAdmins_.add( _admin );
+        _admin.setDisposeHook(new Runnable() {
+                public void run() {
+                    synchronized(consumerAdminServants_) {
+                        consumerAdminServants_.remove(_key);
+                        listManager_.actionSourceModified();
+                    }
+                }});
+
+        synchronized (modifyConsumerAdminsLock_) {
+            consumerAdminServants_.put( _key, _admin );
 
             listManager_.actionSourceModified();
-
-            return _admin;
         }
+
+        return _admin;
     }
 
 
@@ -647,19 +675,16 @@ public class EventChannelImpl
     }
 
 
-    /**
-     * @todo factor out object creation to factory class
-     */
     AbstractAdmin new_for_suppliers_servant( InterFilterGroupOperator filterGroupOperator,
                                              IntHolder intHolder )
     {
         AbstractAdmin _admin = newSupplierAdmin(channelContext_);
 
-        intHolder.value = _admin.getKey().intValue();
+        intHolder.value = _admin.getID().intValue();
 
         _admin.setInterFilterGroupOperator(filterGroupOperator);
 
-        _admin.setIsKeyPublic(true);
+        _admin.setIsIDPublic(true);
 
         try {
             _admin.set_qos(qosSettings_.toArray());
@@ -669,8 +694,18 @@ public class EventChannelImpl
 
         _admin.addProxyCreationEventListener( proxyConsumerCreationListener_ );
 
+        final Integer _key = _admin.getID();
+
+        _admin.setDisposeHook(new Runnable() {
+                public void run() {
+                    synchronized(supplierAdminServants_) {
+                        supplierAdminServants_.remove(_key);
+                    }
+                }});
+
+
         synchronized(modifySupplierAdminsLock_) {
-            supplierAdminServants_.put( _admin.getKey(), _admin );
+            supplierAdminServants_.put( _key, _admin );
         }
 
         return _admin;
@@ -681,9 +716,9 @@ public class EventChannelImpl
      * @todo admins should remove themselves from the right list. not
      * the otherway around.
      */
-    public void removeAdmin( AbstractAdmin admin )
+    private void removeAdmin( AbstractAdmin admin )
     {
-        Integer _key = admin.getKey();
+        Integer _key = admin.getID();
 
         if ( _key != null )
         {
@@ -897,6 +932,8 @@ public class EventChannelImpl
 
         eventChannelFactory_.removeEventChannelServant(getKey());
 
+        logger_.info("destroy ConsumerAdmins");
+
         Iterator _i = consumerAdminServants_.values().iterator();
 
         while ( _i.hasNext() )
@@ -906,6 +943,8 @@ public class EventChannelImpl
             _d.dispose();
         }
 
+
+        logger_.info("destroy SupplierAdmins");
 
         _i = supplierAdminServants_.values().iterator();
 
@@ -975,5 +1014,10 @@ public class EventChannelImpl
     public ChannelContext getChannelContext()
     {
         return channelContext_;
+    }
+
+
+    public boolean isPersistent() {
+        return false;
     }
 }
