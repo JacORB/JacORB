@@ -44,7 +44,8 @@ public class FilterManager implements FilterAdminOperations
     protected List filtersReadOnlyView_;
     protected int filterIdPool_ = 0;
 
-    public static FilterManager EMPTY = new FilterManager( Collections.EMPTY_LIST );
+    public static final FilterManager EMPTY =
+        new FilterManager( Collections.EMPTY_LIST );
 
     protected FilterManager( List list )
     {

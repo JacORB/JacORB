@@ -49,11 +49,10 @@ import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
 {
 
-    public static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
+    public final static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
 
     protected ApplicationContext applicationContext_;
     protected boolean isApplicationContextCreatedHere_;
-
     private FilterFactory thisRef_;
 
     public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive
@@ -63,7 +62,9 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
         LogConfiguration.getInstance().configure();
 
         final ORB _orb = ORB.init( new String[ 0 ], null );
-        POA _poa = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+        POA _poa =
+            POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+
         applicationContext_ = new ApplicationContext( _orb, _poa, true );
         isApplicationContextCreatedHere_ = true;
 
@@ -71,21 +72,21 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
 
         _poa.the_POAManager().activate();
 
-        Thread t = new Thread( new Runnable()
-                               {
-                                   public void run()
-                                   {
-                                       _orb.run();
-                                   }
-                               }
-
-                             );
+        Thread t =
+            new Thread( new Runnable()
+                {
+                    public void run()
+                    {
+                        _orb.run();
+                    }
+                });
 
         t.setDaemon( true );
         t.start();
     }
 
-    public FilterFactoryImpl( ApplicationContext applicationContext ) throws InvalidName
+    public FilterFactoryImpl( ApplicationContext applicationContext )
+        throws InvalidName
     {
         super();
 
@@ -111,7 +112,9 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
         if ( CONSTRAINT_GRAMMAR.equals( grammar ) )
         {
 
-            FilterImpl _filterServant = new FilterImpl( applicationContext_, CONSTRAINT_GRAMMAR );
+            FilterImpl _filterServant =
+                new FilterImpl( applicationContext_,
+                                CONSTRAINT_GRAMMAR );
 
             _filterServant.init();
 
@@ -130,11 +133,13 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
 
         FilterImpl _filterImpl = create_filter_servant( grammar );
 
-        MappingFilterImpl _mappingFilterServant = new MappingFilterImpl( applicationContext_,
-                _filterImpl,
-                any );
+        MappingFilterImpl _mappingFilterServant =
+            new MappingFilterImpl( applicationContext_,
+                                   _filterImpl,
+                                   any );
 
-        MappingFilter _filter = _mappingFilterServant._this( applicationContext_.getOrb() );
+        MappingFilter _filter =
+            _mappingFilterServant._this( applicationContext_.getOrb() );
 
         return _filter;
     }
