@@ -93,7 +93,7 @@ public class StopTimeTest extends NotificationTestCase
         structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
         messageFactory_.dispose();
 
         super.tearDown();

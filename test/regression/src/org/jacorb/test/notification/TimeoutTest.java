@@ -23,14 +23,12 @@ package org.jacorb.test.notification;
 
 import java.util.Date;
 
-import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Time;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -56,8 +54,7 @@ public class TimeoutTest extends NotificationTestCase
 {
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
-    MessageFactory notificationEventFactory_;
-    ApplicationContext applicationContext_;
+    MessageFactory messageFactory_;
     StructuredEvent structuredEvent_;
     EventChannel eventChannel_;
 
@@ -70,17 +67,13 @@ public class TimeoutTest extends NotificationTestCase
         super(name, setup);
     }
 
+
     public void setUp() throws Exception
     {
-        eventChannel_ =
-            getFactory().create_channel(new Property[0],
-                                        new Property[0],
-                                        new IntHolder());
+        eventChannel_ = getDefaultChannel();
 
-        applicationContext_ = new ApplicationContext(getORB(), getPOA(), true);
-
-        notificationEventFactory_ = new MessageFactory();
-        notificationEventFactory_.init();
+        messageFactory_ = new MessageFactory();
+        messageFactory_.init();
 
         structuredEvent_ = new StructuredEvent();
         EventHeader _header = new EventHeader();
@@ -97,13 +90,11 @@ public class TimeoutTest extends NotificationTestCase
         structuredEvent_.remainder_of_body = getORB().create_any();
     }
 
-    public void tearDown()
+    public void tearDown() throws Exception
     {
         super.tearDown();
 
-        notificationEventFactory_.dispose();
-        applicationContext_.dispose();
-        eventChannel_.destroy();
+        messageFactory_.dispose();
     }
 
 
@@ -166,13 +157,13 @@ public class TimeoutTest extends NotificationTestCase
 
     public void testStructuredEventWithoutTimeoutProperty() throws Exception
     {
-        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
+        Message _event = messageFactory_.newMessage(structuredEvent_);
         assertTrue(!_event.hasTimeout());
     }
 
     public void testAnyEventHasNoStopTime() throws Exception
     {
-        Message _event = notificationEventFactory_.newMessage(getORB().create_any());
+        Message _event = messageFactory_.newMessage(getORB().create_any());
         assertTrue(!_event.hasTimeout());
     }
 
@@ -188,7 +179,7 @@ public class TimeoutTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(Timeout.value, _any);
 
-        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
+        Message _event = messageFactory_.newMessage(structuredEvent_);
         assertTrue(_event.hasTimeout());
         assertEquals(_timeout, _event.getTimeout());
     }

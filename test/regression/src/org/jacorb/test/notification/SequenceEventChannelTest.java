@@ -30,7 +30,7 @@ public class SequenceEventChannelTest extends NotificationTestCase {
     }
 
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
         super.tearDown();
     }
 

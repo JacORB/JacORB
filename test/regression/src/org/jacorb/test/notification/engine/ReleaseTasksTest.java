@@ -78,7 +78,7 @@ public class ReleaseTasksTest extends NotificationTestCase
         eventChannel_ = EventChannelHelper.narrow(eventChannelServant_.activate());
     }
 
-    public void tearDown() {
+    public void tearDown() throws Exception {
         super.tearDown();
 
         factory_.dispose();

@@ -35,6 +35,7 @@ import org.omg.CosNotifyFilter.MappingFilter;
 import java.util.Date;
 
 import junit.framework.Assert;
+import org.omg.CosNotifyFilter.Filter;
 
 /**
  * @author Alphonse Bendt
@@ -116,6 +117,10 @@ public class MockMessage extends AbstractMessage {
     }
 
     public boolean match(MappingFilter m, AnyHolder r) {
+        return true;
+    }
+
+    public boolean match(Filter filter) {
         return true;
     }
 
