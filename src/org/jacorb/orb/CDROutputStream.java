@@ -618,6 +618,7 @@ public class CDROutputStream
     {
         if (value != null )
         {
+            //no alignment necessary
             check(length);
 
             for( int i = offset; i < offset+length; i++ )
@@ -662,6 +663,7 @@ public class CDROutputStream
         if( value == null ) 
             throw new org.omg.CORBA.MARSHAL( "Null References" );
 
+        //no alignment necessary
         check( length );
 
         int too_large_mask = 
@@ -898,6 +900,13 @@ public class CDROutputStream
     public final void write_double_array
        (final double[] value, final int offset, final int length)
     {
+        //if nothing has to be written, return, and especially DON'T
+        //ALIGN
+        if( length == 0 )
+        {
+            return;
+        }
+
         /* align to 8 byte boundary */
                 
         check(7 + length*8, 8);
@@ -971,6 +980,13 @@ public class CDROutputStream
     public final void write_float_array
         (final float[] value, final int offset, final int length)
     {
+        //if nothing has to be written, return, and especially DON'T
+        //ALIGN
+        if( length == 0 )
+        {
+            return;
+        }
+
         /* align to 4 byte boundary */
                 
         check(3 + length*4,4);
@@ -998,6 +1014,13 @@ public class CDROutputStream
     public final void write_long_array
         (final int[] value, final int offset, final int length)
     {
+        //if nothing has to be written, return, and especially DON'T
+        //ALIGN
+        if( length == 0 )
+        {
+            return;
+        }
+
         /* align to 4 byte boundary */
 
         check(3 + length*4,4);
@@ -1041,6 +1064,13 @@ public class CDROutputStream
     public final void write_longlong_array
         (final long[] value, final int offset, final int length)
     {
+        //if nothing has to be written, return, and especially DON'T
+        //ALIGN
+        if( length == 0 )
+        {
+            return;
+        }
+
         check(7 + length*8,8);
 
         if( value != null )
@@ -1153,6 +1183,13 @@ public class CDROutputStream
     public final void write_short_array
         (final short[] value, final int offset, final int length)
     {
+        //if nothing has to be written, return, and especially DON'T
+        //ALIGN
+        if( length == 0 )
+        {
+            return;
+        }
+
         /* align to 2-byte boundary */
 
         check(2*length + 3);
