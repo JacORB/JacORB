@@ -39,7 +39,7 @@ import org.omg.PortableServer.POA;
  * @version $Id$
  */public class BasicAdapter
 {
-    private static SSLServerSocketFactory ssl_socket_factory = null;
+    public  static SSLServerSocketFactory ssl_socket_factory = null;
     private static ServerSocketFactory socket_factory = null;
     private static SocketFactory client_socket_factory = null;
 
