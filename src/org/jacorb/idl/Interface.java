@@ -246,8 +246,7 @@ public class Interface
             ScopedName.definePseudoScope(full_name());
             ctspec.c_type_spec = this;
 
-            if (is_pseudo
-                )
+            if (is_pseudo)
                 NameTable.define(full_name(), "pseudo interface");
             else
                 NameTable.define(full_name(), "interface");
@@ -298,7 +297,28 @@ public class Interface
                 for (Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements();)
                 {
                     ScopedName name = (ScopedName) e.nextElement();
-                    ConstrTypeSpec ts = (ConstrTypeSpec) name.resolvedTypeSpec();
+
+                    TypeSpec resolvedTSpec = name.resolvedTypeSpec();
+
+                    // unwind any typedef's interface names
+                    while (resolvedTSpec instanceof AliasTypeSpec )
+                    {
+                        resolvedTSpec = 
+                            ((AliasTypeSpec)resolvedTSpec).originalType();
+                    }
+
+                    if (! (resolvedTSpec instanceof ConstrTypeSpec))
+                    {
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug("Illegal inheritance spec, not a constr. type but " + 
+                                         resolvedTSpec.getClass() + ", name " + name );
+                        }
+                        parser.fatal_error("Illegal inheritance spec (not a constr. type): " +
+                                           inheritanceSpec, token);
+                    }
+
+                    ConstrTypeSpec ts = (ConstrTypeSpec) resolvedTSpec;
 
                     if (ts.declaration() instanceof Interface)
                     {
