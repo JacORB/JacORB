@@ -39,6 +39,41 @@ gerald.brose@acm.org
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+1.4 beta 4:
+===========
+
+	- bug fixes:
+	      - Fixed bug that would lead to a NullPointerException
+	        when using corbaloc IORs without the explicit protocol
+	        qualifier (i.e. corbaloc::<host>:<port>/<object key>).
+
+
+        The following just didn't make it into the beta 3 release
+        notes:
+
+	- SSL/JSSE
+	      - added properties 
+		      jacorb.security.ssl.server.cipher_suites
+		      jacorb.security.ssl.client.cipher_suites
+		that allow for setting the enabled cipher suites for
+		JSSE
+
+        - SSL/IAIK
+             - incompatibility notice: Please note that the IAIK SSL
+	       and JCE libraries don't work using the JDK 1.4. This is
+	       because the JDK 1.4 only accepts signed cryptography
+	       providers, but the IAIK JCE isn't. 
+
+	- Corbaloc with SSL
+
+             - added new corbaloc protocol qualifier "ssliop" to allow
+	       for using corbaloc IORs together with SSL. Also added
+	       properties 
+	            jacorb.security.ssl.corbaloc_ssliop.supported_options
+	            jacorb.security.ssl.corbaloc_ssliop.required_options
+	       to be able to configure these SSL connections.
+
+
 1.4 beta 3:
 ===========
 
