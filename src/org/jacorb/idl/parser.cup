@@ -49,6 +49,9 @@ parser code
     private static boolean inhibitionState = false;
     private static boolean localityContraint = false;
 
+    /*  a la CORBA 2.4, allow forward declarations that remain undefined */
+    public static boolean sloppy = false;
+
     /**
      *  allows reinitialization if compiler is not 
      *  run from a command-line
@@ -112,6 +115,11 @@ parser code
                         if( argv[i].equals("-nostub"))
                         {
                                 generate_stubs = false;
+                                continue;
+                        } 
+                        if( argv[i].equals("-sloppy_forward"))
+                        {
+                                sloppy = true;
                                 continue;
                         } 
                         if( argv[i].equals("-d")) 
@@ -267,6 +275,7 @@ parser code
         System.out.println("\t-noskel\tdisables generation of POA skeletons");
         System.out.println("\t-nostub\tdisables generation of client stubs");
         System.out.println("\t-Idir\tset include path for idl files");
+        System.out.println("\t-sloppy_forward\tallow forward declarations wo. later definitions");
         System.out.println("\t-Dx\tdefine preprocessor symbol x with value 1");
         System.out.println("\t-Dx=y\tdefine preprocessor symbol x with value y");
         System.out.println("\t-U\tundefine preprocessor symbol");
@@ -361,13 +370,13 @@ parser code
 
     public static synchronized void set_pending( String name )
     {
-                // name will only be marked pending if it has not already been
-                // parsed before and if is not already pending
-                if( ! ( pending_interfaces.containsKey(name) ||
-                        NameTable.parsed_interfaces.containsKey(name)) )
-                {
-                        pending_interfaces.put(name,new Object());
-                }
+           // name will only be marked pending if it has not already been
+           // parsed before and if is not already pending
+           if( ! ( pending_interfaces.containsKey(name) ||
+                   NameTable.parsed_interfaces.containsKey(name)) )
+           {
+                   pending_interfaces.put(name,new Object());
+           }
     }
 
     public static synchronized void remove_pending( String name )
