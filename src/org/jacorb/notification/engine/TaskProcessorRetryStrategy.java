@@ -26,12 +26,12 @@ import org.jacorb.notification.interfaces.MessageConsumer;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TaskProcessorRetryStrategy extends RetryStrategy
+public class TaskProcessorRetryStrategy extends AbstractRetryStrategy
 {
     /**
      * retry the failed operation. schedule the pending messages for delivery.
      */
-    final Runnable retryPushOperation_ = new Runnable()
+    public final Runnable retryPushOperation_ = new Runnable()
     {
         public void run()
         {
@@ -39,6 +39,7 @@ public class TaskProcessorRetryStrategy extends RetryStrategy
             {
                 pushOperation_.invokePush();
                 taskProcessor_.scheduleTimedPushTask(messageConsumer_);
+                dispose();
             }
             catch (Throwable error)
             {
@@ -49,7 +50,7 @@ public class TaskProcessorRetryStrategy extends RetryStrategy
                 }
                 catch (RetryException e)
                 {
-                    //dispose();
+                    dispose();
                 }
             }
         }
@@ -58,7 +59,7 @@ public class TaskProcessorRetryStrategy extends RetryStrategy
     /**
      * re-enable disabled MessageConsumer and schedule retry
      */
-    private final Runnable enableMessageConsumer_ = new Runnable()
+    public final Runnable enableMessageConsumer_ = new Runnable()
     {
         public void run()
         {
@@ -77,12 +78,6 @@ public class TaskProcessorRetryStrategy extends RetryStrategy
 
     final TaskProcessor taskProcessor_;
 
-    /**
-     * specify how long a ProxySupplier should be disabled in case
-     * delivering messages to its Consumer fails.
-     */
-    private final long backoutInterval_;
-
     public TaskProcessorRetryStrategy(MessageConsumer mc,
                                       PushOperation op,
                                       TaskProcessor tp)
@@ -90,7 +85,6 @@ public class TaskProcessorRetryStrategy extends RetryStrategy
         super(mc, op);
         
         taskProcessor_ = tp;
-        backoutInterval_ = tp.getBackoutInterval();
     }
 
 
@@ -103,7 +97,7 @@ public class TaskProcessorRetryStrategy extends RetryStrategy
     {
         messageConsumer_.disableDelivery();
 
-        taskProcessor_.executeTaskAfterDelay(backoutInterval_,
+        taskProcessor_.executeTaskAfterDelay(taskProcessor_.getBackoutInterval(),
                                              enableMessageConsumer_);
     }
 }

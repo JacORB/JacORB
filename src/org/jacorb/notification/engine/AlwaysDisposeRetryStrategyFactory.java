@@ -21,13 +21,17 @@
 
 package org.jacorb.notification.engine;
 
-import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.MessageConsumer;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public interface RetryStrategy extends Disposable
+public class AlwaysDisposeRetryStrategyFactory implements RetryStrategyFactory
 {
-    void retry() throws RetryException;
+    public RetryStrategy newRetryStrategy(MessageConsumer messageConsumer,
+            PushOperation pushOperation)
+    {
+        return new AlwaysDisposeRetryStrategy(messageConsumer, pushOperation);
+    }
 }
