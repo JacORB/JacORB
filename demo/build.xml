@@ -9,6 +9,7 @@
 
 
    <target name="init_compile">	
+	<property name="classdir" value="${basedir}/classes"/>
 	<property name="target" value="all"/>
 	<mkdir dir="${classdir}/demo"/>
    </target>
