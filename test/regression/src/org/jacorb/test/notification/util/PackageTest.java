@@ -47,6 +47,7 @@ public class PackageTest extends TestCase
         _suite.addTest( WildcardMapTest.suite() );
         _suite.addTest( CachingWildcardMapTest.suite() );
         _suite.addTest( ThreadPoolTest.suite() );
+        _suite.addTest( ObjectPoolTest.suite() );
 
         return _suite;
     }
