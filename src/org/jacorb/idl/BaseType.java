@@ -68,15 +68,23 @@ class BaseType
 
     public static boolean isBasicName( String typeName )
     {
-        return ( typeName.startsWith( "long" ) ||
-                 typeName.startsWith( "int" ) ||
-                 typeName.startsWith( "short" ) ||
-                 typeName.startsWith( "float" ) ||
-                 typeName.startsWith( "double" ) ||
-                 typeName.startsWith( "byte" ) ||
-                 typeName.startsWith( "boolean" ) ||
-                 typeName.startsWith( "char" ) ||
-                 typeName.startsWith( "string" ) );
+        // The type may be an array type e.g. float[][] so chop off any array
+        // designators for the comparison.
+        int index = typeName.indexOf ('[');
+        String toMatch = typeName.substring (0, (index == -1 ? typeName.length () : index));
+
+        return
+        (
+            toMatch.equals ("long")      ||
+            toMatch.equals ("int")       ||
+            toMatch.equals ("short")     ||
+            toMatch.equals ("float")     ||
+            toMatch.equals ("double")    ||
+            toMatch.equals ("byte")      ||
+            toMatch.equals ("boolean")   ||
+            toMatch.equals ("char")      ||
+            toMatch.equals ("java.lang.String")
+        );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -128,5 +136,3 @@ class BaseType
 
 
 }
-
-
