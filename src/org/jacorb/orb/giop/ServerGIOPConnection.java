@@ -105,10 +105,10 @@ public class ServerGIOPConnection
             }
             else
             {
-                transport.closeCompletely();
+                transport.close();
             }
         }
-        catch( IOException e )
+        catch( org.omg.CORBA.COMM_FAILURE e )
         {
             Debug.output( 1, e );
         }
