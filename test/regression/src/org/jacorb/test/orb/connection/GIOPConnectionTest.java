@@ -103,6 +103,16 @@ public class GIOPConnectionTest
             return null;
         }
 
+        public void closeAllowReopen() throws IOException
+        {
+            closed = true;
+        }
+
+        public void closeCompletely() throws IOException
+        {
+            closed = true;
+        }
+
     }
 
     private class DummyRequestListener
