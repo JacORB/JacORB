@@ -36,7 +36,7 @@ import org.apache.avalon.framework.configuration.*;
  * @version $Id$
  */
 
-public abstract class IIOPConnection 
+public abstract class IIOPConnection
     extends org.omg.ETF._ConnectionLocalBase
     implements Configurable
 {
@@ -144,7 +144,7 @@ public abstract class IIOPConnection
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("Transport to " + connection_info +
-                                 ": stream closed" );
+                                 ": stream closed " + se.getMessage() );
                 }
                 throw to_COMM_FAILURE (se);
             }
@@ -154,7 +154,7 @@ public abstract class IIOPConnection
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("Transport to " + connection_info +
-                                 ": stream closed" );
+                                 ": stream closed on read  < 0" );
                 }
                 throw new org.omg.CORBA.COMM_FAILURE ("read() did not return any data");
             }
@@ -226,6 +226,8 @@ public abstract class IIOPConnection
         {
             try
             {
+                if (logger.isInfoEnabled())
+                    logger.info ("Socket timeout set to " + finalTimeout + " ms");
                 socket.setSoTimeout( finalTimeout );
             }
             catch( SocketException se )
