@@ -55,17 +55,16 @@ gerald.brose@acm.org
         - bug fixes:
                 Any:
                         - Fix for equal operation on aliased types.
-                        - Fix for insertion and extraction of basic types
-                          when any contains an aliased (from typedef) basic type.
+                        - Fix for insertion and extraction of basic types when
+                          any contains an aliased (from typedef) basic type.
                 ORB:
                         - Fix for IORs not containing zero character padding.
                         - Passing a null to object_to_string now returns the
                           correct string for a null object reference.
                         - Passing a local object to object_to_string now
                           throws a MARSHAL exception.
-                        - Current and Principal deprecated. Use of any operations
-                          for these types will throw NO_IMPLEMENT.
-
+                        - Current and Principal deprecated. Use of any
+                          operations for these types will throw NO_IMPLEMENT.
                 DynAnys:
                         - Operations called on a DynAny that has been 
                           destroyed now throw an OBJECT_NOT_EXIST exception
@@ -76,8 +75,9 @@ gerald.brose@acm.org
                         - Fixed initialization of current position for
                           DynStructs and DynUnions
                         - Fixed iteration operations for DynUnions
-                        - Fixed implementation of DynUnion operation
-                          set_to_no_active_member
+                        - Fixed implementation of DynUnion operations
+                          set_to_no_active_member, set_to_default_member and
+                          set_discriminator
 
          - Portable Interceptors:
                - Adapted to CORBA 2.5 IDL (ForwardRequest exception
