@@ -495,8 +495,9 @@ public class CDRInputStream
             }
         }
 
-	pos += 8 * length;
-	index += 8 * length;
+        // not necessary as long as the read_long() stuff above is not inlined
+        //  	pos += 8 * length;
+        //  	index += 8 * length;
     }
 
     public final org.omg.CORBA.Object read_Object()
