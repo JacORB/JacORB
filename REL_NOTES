@@ -72,6 +72,7 @@ gerald.brose@acm.org
                           wstring inout parameters.
                         - Fix for typedef'd any holder class.
                         - Fix for long long constant values.
+                        - Fix for large fixed constant values.
                 Any:
                         - Fix for equal operation on aliased types.
                         - Fix for insertion and extraction of basic types when
