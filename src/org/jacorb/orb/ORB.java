@@ -386,17 +386,19 @@ public final class ORB
     }
 
     /**
-     * Called from within getReference above. 
+     * Called from within getReference (below) and set_policy_override
+     * (in org.jacorb.orb.Delegate). 
      *
      * Generates IOR 1.0 and 1.1, 1.1 contains also 1.0 profile. Only 1.1 and 
      * greater profiles contain codeset information about this server. <br>
      * If present, IORInterceptors will be invoked.
      */
 
-    protected org.omg.IOP.IOR createIOR( String repId, 
-                                         byte[] key, 
-                                         boolean _transient, 
-                                         org.jacorb.poa.POA poa )
+    org.omg.IOP.IOR createIOR( String repId, 
+			       byte[] key, 
+			       boolean _transient, 
+			       org.jacorb.poa.POA poa,
+			       Hashtable policy_overrides)
     {
         String address = Environment.getProperty( "jacorb.ior_proxy_host" );
         if( address == null )
@@ -482,7 +484,8 @@ public final class ORB
                 new IORInfoImpl(this, 
                                 poa, 
                                 components_iiop_profile,
-                                components_multi_profile);
+                                components_multi_profile,
+                                policy_overrides);
             try
             {
                 interceptor_manager.getIORIterator().iterate(info);
@@ -666,7 +669,7 @@ public final class ORB
                 rep_id = "IDL:org.omg/CORBA/Object:1.0";
 
             org.omg.IOP.IOR ior = 
-                createIOR( rep_id, object_key, _transient, poa );
+                createIOR( rep_id, object_key, _transient, poa, null );
 
             Delegate d = new Delegate( this, ior );
             return d.getReference( poa );
