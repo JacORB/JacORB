@@ -784,13 +784,3 @@ public class ParsedIOR
 	ior_str = getIORString ();
     }
 }
-
-
-
-
-
-
-
-
-
-

@@ -894,7 +894,7 @@ public final class ORB
 		}
             }
             /* "special" behavior follows */
-            else if( identifier.equals("NameService") && isApplet() )
+            else if (identifier.equals ("NameService") && isApplet ())
             {
                 // try to get location of URL with ns's IOR from a file
                 //     called NameService.ior at the applet's host
@@ -904,10 +904,15 @@ public final class ORB
                                                        + "/"
                                                        + "NameService.ior");
                 
-                obj = this.string_to_object(ior_str);
+                obj = this.string_to_object (ior_str);
 
-                if( ! obj._is_a( org.omg.CosNaming.NamingContextHelper.id()))
-                    obj = null;
+                if (obj != null)
+                {
+                    if (! obj._is_a (org.omg.CosNaming.NamingContextHelper.id ()))
+                    {
+                        obj = null;
+                    }
+                }
             }
             else if( identifier.equals("RootPOA") )
             {
@@ -1065,15 +1070,16 @@ public final class ORB
 //              else if( identifier.equals("TransactionCurrent") )
 //                  obj = new org.jacorb.transaction.TransactionCurrentImpl();
             else
-                throw new org.omg.CORBA.ORBPackage.InvalidName();
+            {
+                throw new org.omg.CORBA.ORBPackage.InvalidName ();
+            }
     
             if (obj != null)
             {
-                initial_references.put(identifier, obj);
-                return obj;
+                initial_references.put (identifier, obj);
             }
-            else
-                return null;
+          
+            return obj;
         }
     }
 
@@ -1503,10 +1509,12 @@ public final class ORB
         destroyed = true;
     }
 
-    public org.omg.CORBA.Object string_to_object(String str) 
+    public org.omg.CORBA.Object string_to_object (String str) 
     {
-        if( str == null )
+        if (str == null)
+        {
             return null;
+        }
 
         try
         {
@@ -1520,13 +1528,11 @@ public final class ORB
                 return _getObject(pior);
             }
         }
-        catch( IllegalArgumentException iae )
+        catch (IllegalArgumentException iae)
         {
-            Debug.output( 5, iae );
+            Debug.output (5, iae);
             return null;
         }
-
-
     }
 
     /**
