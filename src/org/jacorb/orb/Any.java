@@ -670,7 +670,12 @@ public final class Any
                             org.omg.CORBA.TypeCode type)
         throws org.omg.CORBA.MARSHAL
     {
+        if (type == null)
+        {
+           throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
+        }   
         typeCode = type;
+
         int kind = type.kind().value();
         switch (kind)
         {
@@ -703,7 +708,14 @@ public final class Any
             insert_double( input.read_double());
             break;
         case TCKind._tk_fixed:
-            insert_fixed( input.read_fixed());
+            try
+            {
+               // move the decimal based on the scale
+               java.math.BigDecimal fixed = input.read_fixed();
+               int scale = (int)type.fixed_scale();
+               insert_fixed( fixed.movePointLeft( scale ), type );
+            }
+            catch( org.omg.CORBA.TypeCodePackage.BadKind bk ){}
             break;
         case TCKind._tk_boolean:
             insert_boolean( input.read_boolean());
