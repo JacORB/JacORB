@@ -67,12 +67,32 @@ public class DNSLookupDelegateImpl
                     
     public String inverseLookup( String ip )
     {
-        return _inverseLookup( dns.inaddrString( ip ));
+        try
+        {
+            return _inverseLookup( dns.inaddrString( ip ));
+        }
+        catch( NoClassDefFoundError e )
+        {
+            Debug.output( 1, "DNS lookup support is compiled, but the classes of the org.xbill.dns package are not present" );
+            Debug.output( 2, e );
+        }            
+        
+        return null;
     }
 
     public String inverseLookup( InetAddress addr )
     {
-        return _inverseLookup( dns.inaddrString( addr ));
+        try
+        {
+            return _inverseLookup( dns.inaddrString( addr ));
+        }
+        catch( NoClassDefFoundError e )
+        {
+            Debug.output( 1, "DNS lookup support is compiled, but the classes of the org.xbill.dns package are not present" );
+            Debug.output( 2, e );
+        }
+        
+        return null;
     }
 
 } // DNSLookupDelegateImpl
