@@ -57,9 +57,9 @@ public class ObjectTypeSpec
 		return this;
 	}
 
-    public void setPackage( String s)
-    {
-        s = parser.pack_replace(s);
+        public void setPackage( String s)
+        {
+            s = parser.pack_replace(s);
 	}
 
 	public boolean basic()
@@ -72,7 +72,6 @@ public class ObjectTypeSpec
 	}
 
 	public void parse() 
-		 
 	{
 	}
 
@@ -86,9 +85,9 @@ public class ObjectTypeSpec
 	 * 			that describes this type
 	 */
 
-	public String getTypeCodeExpression()
+	public String getTypeCodeExpression ()
 	{
-		return "org.omg.CORBA.ORB.init().create_interface_tc(\"IDL:omg.org/CORBA/Object:1.0\",\"org.omg.CORBA.Object\")";
+		return "org.omg.CORBA.ORB.init().create_interface_tc(\"IDL:omg.org/CORBA/Object:1.0\",\"Object\")";
 	}
 
 	public void print(PrintWriter ps)
@@ -111,23 +110,3 @@ public class ObjectTypeSpec
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
