@@ -119,9 +119,6 @@ public class ClientServerSetup extends TestSetup {
 
     public void setUp() throws Exception
     {
-        // Reset Environment.  This ought to be done somewhere in the ORB.
-        org.jacorb.util.Environment._init();
-
         clientOrb = ORB.init (new String[0], clientOrbProperties );
         clientRootPOA = POAHelper.narrow
                           ( clientOrb.resolve_initial_references( "RootPOA" ) );
