@@ -28,7 +28,7 @@ import java.io.*;
  * @version $Id$
  */
 
-class Literal 
+class Literal
     extends IdlSymbol
 {
     public String string;
@@ -50,30 +50,30 @@ class Literal
     public void parse()
     {
         // const expressions containing literals can be declared
-        // outside cons declarations (e.g, in sequence bounds), 
+        // outside cons declarations (e.g, in sequence bounds),
         // but we care only for const declarations here.
 
         if( declared_in != null )
         {
             TypeSpec ts = declared_in.const_type.symbol.typeSpec();
 
-            Environment.output(2, "Literal " + ts.getClass().getName() + " " + 
+            Environment.output(2, "Literal " + ts.getClass().getName() + " " +
                                ( token != null? token.getClass().getName() :"<no token>"));
 
-            if( ts instanceof FloatPtType && 
+            if( ts instanceof FloatPtType &&
                 !(token instanceof java_cup.runtime.float_token  ))
             {
-                parser.error("Expecting float/double constant!" );    
+                parser.error("Expecting float/double constant!" );
             }
-            else if( ts instanceof FixedPointConstType && 
+            else if( ts instanceof FixedPointConstType &&
                      !( token instanceof fixed_token  ) )
             {
-                parser.error("Expecting fixed point constant (perhaps a missing \"d\")!" );    
+                parser.error("Expecting fixed point constant (perhaps a missing \"d\")!" );
             }
             else if( ts instanceof StringType )
             {
                 if( wide && !((StringType)ts).isWide())
-                    parser.error("Illegal assignment of wide string constant to string!" );    
+                    parser.error("Illegal assignment of wide string constant to string!" );
 
             }
 
@@ -81,9 +81,120 @@ class Literal
     }
 
 
+    public String toString()
+    {
+       return escapeBackslash (string);
+    }
+
     public void print( PrintWriter ps )
     {
-        ps.print( string );
+       ps.print( string );
     }
-}
 
+
+   /**
+    * Doubles up instances of the backslash character in a
+    * string, to avoid them being interpreted as escape sequences
+    *
+    * @param name a <code>String</code> value
+    * @return string
+    */
+   public static String escapeBackslash (String name)
+   {
+      StringBuffer result = new StringBuffer();
+
+      char[] chrs = name.toCharArray();
+
+      for (int i=0; i<chrs.length; i++)
+      {
+         switch (chrs[i])
+         {
+            case '\n':
+            {
+               result.append ('\\');
+               result.append ('n');
+               break;
+            }
+            case '\t':
+            {
+               result.append ('\\');
+               result.append ('t');
+               break;
+            }
+            case '\013':
+            {
+               result.append ('\\');
+               result.append ("013");
+               break;
+            }
+            case '\b':
+            {
+               result.append ('\\');
+               result.append ('b');
+               break;
+            }
+            case '\r':
+            {
+               result.append ('\\');
+               result.append ('r');
+               break;
+            }
+            case '\f':
+            {
+               result.append ('\\');
+               result.append ('f');
+               break;
+            }
+            case '\007':
+            {
+               result.append ('\\');
+               result.append ("007");
+               break;
+            }
+            case '\\':
+            {
+               result.append ('\\');
+               result.append ('\\');
+               break;
+            }
+            case '\0':
+            {
+               result.append ('\\');
+               result.append ('0');
+               break;
+            }
+            case '\'':
+            {
+               if (i == 1)
+               {
+                  result.append ('\\');
+                  result.append ('\'');
+               }
+               else
+               {
+                  result.append (chrs[i]);
+               }
+               break;
+            }
+            case '\"':
+            {
+               if (i == 1)
+               {
+                  result.append ('\\');
+                  result.append ('\"');
+               }
+               else
+               {
+                  result.append (chrs[i]);
+               }
+               break;
+            }
+            default:
+            {
+               result.append (chrs[i]);
+            }
+         }
+      }
+      return result.toString();
+   }
+}

@@ -27,7 +27,7 @@ import java.io.PrintWriter;
  * @version $Id$
  */
 
-class PrimaryExpr 
+class PrimaryExpr
     extends IdlSymbol
 {
     public IdlSymbol symbol;
@@ -47,23 +47,23 @@ class PrimaryExpr
             ps.print("(");
             symbol.print(ps);
             ps.print(")");
-        } 
+        }
         else if( symbol instanceof ScopedName)
         {
             ps.print(((ScopedName)symbol).resolvedName() );
             //            ps.print( ConstDecl.namedValue( (ScopedName)symbol));
-        } 
+        }
         else // Literal
             symbol.print(ps);
     }
 
-    public void parse()          
+    public void parse()
     {
         symbol.parse();
     }
 
     public void setDeclaration( ConstDecl declared_in )
-    {        
+    {
         this.declared_in = declared_in;
         if( symbol instanceof Literal )
             ((Literal)symbol).setDeclaration( declared_in );
@@ -85,13 +85,13 @@ class PrimaryExpr
         if( symbol instanceof ConstExpr)
         {
             return ((ConstExpr)symbol).pos_int_const();
-        } 
+        }
         else if( symbol instanceof ScopedName)
-        {       
+        {
             return Integer.parseInt( ConstDecl.namedValue( (ScopedName)symbol));
-        } 
-        else 
-            return Integer.parseInt( ((Literal)symbol).string );
+        }
+        else
+            return Integer.parseInt( ((Literal)symbol).toString ());
     }
 
     public String value()
@@ -99,13 +99,13 @@ class PrimaryExpr
         if( symbol instanceof ConstExpr)
         {
             return "(" + ((ConstExpr)symbol).value()+")";
-        } 
+        }
         else if( symbol instanceof ScopedName)
         {
             return ConstDecl.namedValue( (ScopedName)symbol);
-        } 
-        else 
-            return ((Literal)symbol).string;
+        }
+        else
+            return ((Literal)symbol).toString ();
     }
 
     public String toString()
@@ -113,28 +113,19 @@ class PrimaryExpr
         if( symbol instanceof ConstExpr)
         {
             return "(" + ((ConstExpr)symbol).toString()+")";
-        } 
+        }
         else if( symbol instanceof ScopedName)
         {
             return ((ScopedName)symbol).resolvedName();
-        } 
-        else 
+        }
+        else
         {
-            return ((Literal)symbol).string;
+            return ((Literal)symbol).toString ();
         }
     }
 
     public str_token get_token()
     {
-	return symbol.get_token();
+        return symbol.get_token();
     }
-
-
 }
-
-
-
-
-
-
-
