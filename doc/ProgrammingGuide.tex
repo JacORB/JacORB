@@ -1638,17 +1638,18 @@ directory. You then need to install jacorb.jar in this directory.
 
 If Netscape loads wrong classes  or throws security exceptions (have a
 look at  Netscape's JAVA Console  to see this)  be sure to  check your
-{\tt CLASSPATH} and look for old or .  Remove all JacORB  and VisiBroker classes  from your
-{\tt CLASSPATH}. We succeeded running JacORB applet clients on
-Netscape 4.72 with the Java 1.3 plugin.
+{\tt  CLASSPATH} and  look for  old jar  files or  ``.''.   Remove all
+JacORB and VisiBroker classes  from your {\tt CLASSPATH}. We succeeded
+running  JacORB applet  clients on  Netscape  4.72 with  the Java  1.3
+plugin.
 
 Microsoft's  Internet   Explorer  is  stricter   than  Netscape:  Even
 downloaded classes are not allowed  to listen on a socket. We strongly
 advise to  use Sun's Java  1.3 plugin with  IE also. To trick  IE into
 using   JacORB,   you   need   to   copy  JacORB   classes   to   {\tt
-\$WINNT\\Java\\TrustLib}.  You can either  copy the  entire jacorb.jar
-and  unpack it in  this directory  or just  copy the  directories {\tt
-jacorb}, {\tt org}, and {\tt HTTPClient}.
+\$WINNT$\backslash$Java$\backslash$TrustLib}.  You can either copy the
+entire jacorb.jar  and unpack  it in this  directory or just  copy the
+directories {\tt jacorb}, {\tt org}, and {\tt HTTPClient}.
 
 Appligator works well  with Sun's appletviewer. You only  have to make
 the  appletviewer  replace  the  Sun's  CORBA  classes  with  JacORB's
@@ -1661,9 +1662,9 @@ There is a shell script  called "jacapplet" in JacORB's bin directory,
 which calls the appletviewer with the appropriate options (you have to
 edit it to match your local jdk path).
 
-If you use the Appligator with other browsers or if you know a 
-way to load the JacORB classes without removing and copying jars please 
-let us know.
+If you use the Appligator with other  browsers or if you know a way to
+load the JacORB  classes without removing and copying  jars please let
+us know.
 
 \subsubsection*{Examples}
 
