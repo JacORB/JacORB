@@ -34,7 +34,7 @@ import java.util.*;
  * client to another target by throwing a ForwardRequest
  * exception.
  *
- * @author Nicolas Noffke, Sebastian Müller, Steve Osselton
+ * @author Nicolas Noffke, Sebastian M?ller, Steve Osselton
  */
 
 public class ProxyClientForwardInterceptor
@@ -173,7 +173,7 @@ public class ProxyClientForwardInterceptor
         org.jacorb.proxy.Proxy proxy = null;
         boolean redirect = false;
         ParsedIOR pior = new ParsedIOR (target.toString ());
-        String host = pior.getHost ();
+        String host = pior.getIIOPAddress().getHost ();
         long hostIP = ipToInt (host);
 
         // Determine whether to redirect to proxy
