@@ -105,8 +105,7 @@ public class FilterConstraint
 
     public EvaluationResult evaluate( EvaluationContext evaluationContext,
                                       Message event )
-        throws EvaluationException,
-               DynamicTypeException
+        throws EvaluationException
     {
         if (logger_.isDebugEnabled() ) {
             logger_.debug("evaluate()" + rootNode_.toStringTree());
