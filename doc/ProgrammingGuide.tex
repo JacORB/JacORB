@@ -1109,7 +1109,7 @@ in the following) must be started:
 \cmdline{imr [-n] [-p <port>] [-i <ior\_file>][-f <file>][-b <file>] [-a]}
 
 The   ImR   is  located   using   the   configuration  property   {\tt
-jacorb.ImplementationRepositoryURL}.  This property  must be  set such
+ORBInitRef.ImplementationRepository}.  This property  must be set such
 that  a  http  connection  can  be  made and  the  ImR's  IOR  can  be
 read. Next, startup  daemons must be created on  selected hosts. To do
 this, the following command must is issued on each host:
@@ -1308,8 +1308,8 @@ and several  imr\_ssds are running  on other machines. An  attacker can
 now  execute processes  on the  machines the  ssds are  running  on by
 taking the following steps:
 \begin{enumerate}
-         \item  Setting  the  {\tt  jacorb.ImplementationRepositoryURL}
-         property to the IOR file on your server.
+         \item  Setting the  {\tt ORBInitRef.ImplementationRepository}
+                property to the IOR file on your server.
          \item  Creating a new logical server with the desired command
            to execute as startup command on the desired host (where a
            ssd is running). This is the crucial point. The ssd calls
