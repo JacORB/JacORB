@@ -8,7 +8,7 @@
 
    <target name="all" depends="init">
       <antcall target="jacorb-javac">
-         <param name="javac-includes" value="org/jacorb/idl/**.java"/>
+         <param name="javac-includes" value="org/jacorb/idl/**/*.java"/>
       </antcall>
    </target>
 </project>
