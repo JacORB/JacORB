@@ -21,10 +21,11 @@ package org.jacorb.notification.container;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.FilterFactoryImpl;
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.filter.FilterFactoryImpl;
+import org.jacorb.notification.filter.DefaultFilterFactoryDelegate;
 import org.jacorb.notification.util.LogUtil;
 import org.jacorb.notification.util.PatternWrapper;
 import org.omg.CORBA.ORB;
@@ -37,7 +38,7 @@ import org.picocontainer.defaults.AbstractComponentAdapter;
 class FilterFactoryComponentAdapter extends AbstractComponentAdapter
 {
     private final Logger logger_ = LogUtil.getLogger(getClass().getName());
-    
+
     public FilterFactoryComponentAdapter()
     {
         super(FilterFactory.class, FilterFactory.class);
@@ -45,6 +46,7 @@ class FilterFactoryComponentAdapter extends AbstractComponentAdapter
 
     public void verify(PicoContainer container)
     {
+        // no operation
     }
 
     public Object getComponentInstance(PicoContainer container)
@@ -56,7 +58,10 @@ class FilterFactoryComponentAdapter extends AbstractComponentAdapter
                 return lookupFilterFactory(container);
             } catch (Exception e)
             {
-                logger_.info("Could not resolve FilterFactory. Will fall back to builtin FilterFactory.", e);
+                logger_
+                        .info(
+                                "Could not resolve FilterFactory. Will fall back to builtin FilterFactory.",
+                                e);
             }
         }
 
@@ -75,8 +80,10 @@ class FilterFactoryComponentAdapter extends AbstractComponentAdapter
 
         final MutablePicoContainer _container = _parent.makeChildContainer();
 
-        _container.registerComponentImplementation(FilterFactoryImpl.class);
+        _container.registerComponentImplementation(DefaultFilterFactoryDelegate.class);
 
+        _container.registerComponentImplementation(FilterFactoryImpl.class);
+        
         _container.registerComponentInstance(IContainer.class, new IContainer()
         {
             public MutablePicoContainer getContainer()
@@ -91,7 +98,7 @@ class FilterFactoryComponentAdapter extends AbstractComponentAdapter
         });
 
         FilterFactoryImpl servant = (FilterFactoryImpl) _container
-                .getComponentInstance(FilterFactoryImpl.class);
+                .getComponentInstanceOfType(FilterFactoryImpl.class);
 
         return FilterFactoryHelper.narrow(servant.activate());
     }

@@ -1,5 +1,3 @@
-package org.jacorb.notification;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,6 +19,8 @@ package org.jacorb.notification;
  *
  */
 
+package org.jacorb.notification.filter;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -29,24 +29,13 @@ import java.util.List;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.IContainer;
 import org.jacorb.notification.conf.Attributes;
-import org.jacorb.notification.filter.AbstractFilter;
-import org.jacorb.notification.filter.MappingFilterImpl;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.CosNotifyFilter.FilterFactoryHelper;
-import org.omg.CosNotifyFilter.FilterFactoryPOA;
-import org.omg.CosNotifyFilter.FilterHelper;
 import org.omg.CosNotifyFilter.InvalidGrammar;
-import org.omg.CosNotifyFilter.MappingFilter;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.Servant;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
@@ -56,74 +45,39 @@ import org.picocontainer.defaults.DefaultPicoContainer;
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, ManageableServant
-        
-{
-    private final ORB orb_;
-
-    private final POA poa_;
-
-    private final List disposeHooks_ = new ArrayList();
-
-    private final List allFilters_ = new ArrayList();
-
-    private final Object allFiltersLock_ = new Object();
-    
-    private FilterFactory thisRef_;
-
-    private final Logger logger_;
-
-    private final Configuration config_;
-
-    private org.omg.CORBA.Object reference_;
-
+public class DefaultFilterFactoryDelegate implements IFilterFactoryDelegate, Disposable
+{ 
     private final List availableFilters_ = new ArrayList();
-
-    private final MutablePicoContainer pico_;
 
     private final MutablePicoContainer filterPico_;
 
-    ////////////////////////////////////////
+    private final Logger logger_;
+    
+    // //////////////////////////////////////
 
-    public FilterFactoryImpl(IContainer container, ORB orb, POA poa, Configuration config)
+    public DefaultFilterFactoryDelegate(IContainer container, Configuration config)
     {
-        super();
-
         PicoContainer parent = container.getContainer();
 
         if (parent != null)
         {
-            pico_ = new DefaultPicoContainer(parent);
-
             filterPico_ = new DefaultPicoContainer(parent);
         }
         else
         {
-            pico_ = new DefaultPicoContainer();
-
             filterPico_ = new DefaultPicoContainer();
         }
 
-        orb_ = orb;
-        poa_ = poa;
-        config_ = ((org.jacorb.config.Configuration) config);
-
-        logger_ = ((org.jacorb.config.Configuration) config_).getNamedLogger(getClass().getName());
-
-        loadFilterPlugins(config_);
+        logger_ = ((org.jacorb.config.Configuration) config).getNamedLogger(getClass().getName());
+        
+        loadFilterPlugins(config);
     }
 
-    public String getControllerName()
+    public void dispose()
     {
-        return "org.jacorb.notification.jmx.FilterFactoryControl";
+        filterPico_.dispose();
     }
-
-    public void addDisposeHook(Disposable d)
-    {
-        disposeHooks_.add(d);
-    }
-
+    
     private void loadFilterPlugins(Configuration conf)
     {
         // add default ETCL Filter
@@ -162,34 +116,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
         }
     }
 
-    public Filter create_filter(String grammar) throws InvalidGrammar
-    {
-        final AbstractFilter _servant = create_filter_servant(grammar);
-
-        _servant.preActivate();
-
-        Filter _filter = FilterHelper.narrow(_servant.activate());
-
-        synchronized (allFiltersLock_)
-        {
-            allFilters_.add(_servant);
-
-            _servant.addDisposeHook(new Disposable()
-            {
-                public void dispose()
-                {
-                    synchronized (allFiltersLock_)
-                    {
-                        allFilters_.remove(_servant);
-                    }
-                }
-            });
-        }
-
-        return _filter;
-    }
-
-    public String getAvailableConstraintLanguages()
+    private String getAvailableConstraintLanguages()
     {
         Iterator i = availableFilters_.iterator();
 
@@ -204,7 +131,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
         return b.toString();
     }
 
-    private AbstractFilter create_filter_servant(String grammar) throws InvalidGrammar
+    public AbstractFilter create_filter_servant(String grammar) throws InvalidGrammar
     {
         AbstractFilter _filterServant = (AbstractFilter) filterPico_.getComponentInstance(grammar);
 
@@ -221,84 +148,15 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, M
         return _filterServant;
     }
 
-    public MappingFilter create_mapping_filter(String grammar, Any any) throws InvalidGrammar
+    public MappingFilterImpl create_mapping_filter_servant(Configuration config,
+            String grammar, Any any) throws InvalidGrammar
     {
-        AbstractFilter _filterImpl = create_filter_servant(grammar);
-
-        MappingFilterImpl _mappingFilterServant = new MappingFilterImpl(config_, _filterImpl, any);
-
-        MappingFilter _filter = _mappingFilterServant._this(orb_);
-
-        return _filter;
-    }
-
-    public void preActivate()
-    {
-
-    }
-
-    public void deactivate()
-    {
-        try
-        {
-            poa_.deactivate_object(poa_.servant_to_id(getServant()));
-        } catch (Exception e)
-        {
-            logger_.fatalError("cannot deactivate object", e);
-            throw new RuntimeException();
-        }
-    }
-
-    private Servant getServant()
-    {
-        return this;
-    }
-
-    public synchronized org.omg.CORBA.Object activate()
-    {
-        if (reference_ == null)
-        {
-            reference_ = FilterFactoryHelper.narrow(getServant()._this_object(orb_));
-        }
-        return reference_;
-    }
-
-    public void dispose()
-    {
-        deactivate();
-
-        Iterator i = disposeHooks_.iterator();
-        while (i.hasNext())
-        {
-            ((Disposable) i.next()).dispose();
-        }
+        AbstractFilter _filter = create_filter_servant(grammar);
         
-        disposeHooks_.clear();
-        pico_.dispose();
-        filterPico_.dispose();
-    }
+        return new MappingFilterImpl(config, _filter, any);
+    }    
 
-    public synchronized FilterFactory getFilterFactory()
-    {
-        if (thisRef_ == null)
-        {
-            thisRef_ = _this(orb_);
-        }
-
-        return thisRef_;
-    }
-
-    public POA _default_POA()
-    {
-        return poa_;
-    }
-
-    public List getFilters()
-    {
-        return Collections.unmodifiableList(allFilters_);
-    }
-    
-    private static List getAttributeNamesWithPrefix(Configuration configuration, String prefix)
+    static List getAttributeNamesWithPrefix(Configuration configuration, String prefix)
     {
         final List _attributesWithPrefix = new ArrayList();
 
