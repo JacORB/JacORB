@@ -47,6 +47,7 @@ import org.omg.PortableInterceptor.*;
  * @author Reimo Tiedemann, FU Berlin
  * @version $Id$
  */
+
 public class RequestProcessor 
     extends Thread 
     implements InvocationContext 
@@ -76,28 +77,37 @@ public class RequestProcessor
         specialOperations.put("_set_policy_overrides", "");
     }
 
-    RequestProcessor(RPPoolManager _poolManager) {
+    RequestProcessor( RPPoolManager _poolManager ) 
+    {
         poolManager = _poolManager;
     }
 
     /**
      * starts the request processor
      */
-    synchronized void begin() {
+
+    synchronized void begin() 
+    {
         start = true;
         notify();
     }
+
     /**
      * terminates the request processor
      */
-    synchronized void end() {
+
+    synchronized void end() 
+    {
         terminate = true;
         notify();
     }
+
     /**
      * returns the oid associated current servant invocation
      */
-    public byte[] getObjectId() {
+
+    public byte[] getObjectId() 
+    {
         if (!start) throw new POAInternalError("error: RequestProcessor not started (getObjectId)");
         return request.objectId();
     }
@@ -105,7 +115,9 @@ public class RequestProcessor
     /**
      * returns the orb that has received the request
      */
-    public org.omg.CORBA.ORB getORB() {
+
+    public org.omg.CORBA.ORB getORB() 
+    {
         if (!start) throw new POAInternalError("error: RequestProcessor not started (getORB)");
         return controller.getORB();
     }
@@ -113,7 +125,9 @@ public class RequestProcessor
     /**
      * returns the poa that has dispatched the request
      */
-    public POA getPOA() {
+
+    public POA getPOA() 
+    {
         if (!start) throw new POAInternalError("error: RequestProcessor not started (getPOA)");
         return controller.getPOA();
     }
@@ -121,6 +135,7 @@ public class RequestProcessor
     /**
      * returns the actual servant
      */
+
     public Servant getServant() 
     {
         if (!start) 
@@ -131,10 +146,11 @@ public class RequestProcessor
     /**
      * initializes the request processor
      */
-    void init(RequestController _controller, 
-              ServerRequest _request, 
-              Servant _servant, 
-              ServantManager _servantManager) 
+
+    void init( RequestController _controller, 
+               ServerRequest _request, 
+               Servant _servant, 
+               ServantManager _servantManager) 
     {
         controller = _controller;
         request = _request;
@@ -143,16 +159,27 @@ public class RequestProcessor
         cookieHolder = null;
     }
 
+    private void clear()
+    {
+        controller = null;
+        request = null;
+        servant = null;
+        servantManager = null;
+        cookieHolder = null;
+    }
+
+
     /**
      * causes the aom to perform the incarnate call on a servant activator
      */
+
     private void invokeIncarnate() 
     {
         controller.getLogTrace().printLog(3, request, "invoke incarnate on servant activator");
         try 
         {
                                 
-            servant = controller.getAOM().incarnate(request.objectId(), 
+            servant = controller.getAOM().incarnate( request.objectId(), 
                                                     (ServantActivator) servantManager,
                                                     controller.getPOA());
             if (servant == null) 
@@ -188,6 +215,7 @@ public class RequestProcessor
     /**
      * invokes the operation on servant,
      */
+
     private void invokeOperation() 
     {
         try 
@@ -519,6 +547,7 @@ public class RequestProcessor
             start = false;
             // give back the processor into the pool
             poolManager.releaseProcessor(this);
+            clear();
         }
     }
 
