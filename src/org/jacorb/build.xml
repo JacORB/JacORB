@@ -7,36 +7,27 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init" depends="javatest">
+   <target name="init">
 	<property name="Name" value="jacorb-orb"/>
 	<property name="name" value="jacorb-orb"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="extpath" value="${dirs.base}/classes"/>
 	<property name="classpath" value="${java.class.path}:${dirs.base}/classes"/>
 	<property name="jsrc" value="${dirs.base}/src"/>
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
 	<property name="jidlflags" value="-I${include}/omg
 	-I${include}/jacorb -ir -d ${jsrc}/generated"/>
-	<available classname="iaik.x509.X509Certificate" property="iaik.present" />
-        <available classname="javax.swing.JFrame" property="swing.present" />
         <available classname="javax.rmi.CORBA.ValueHandler" property="valuehandler.present"/>
    </target>
 
-   <target name="javatest">
-	<available classname="java.lang.ref.WeakReference" property="java2" />	
-   </target>
 
    <!-- all -->
 
    <target name="all" depends="init,idlcompile,subdirs" />
 
-   <target name="idlcompile" depends="idl, idlcompile1, idlcompile2"/>
-
-   <!-- idlcompile subtasks for JDK 1.3/1.2 versus 1.1 -->
-
-   <target name="idlcompile1" if="java2">
-        <echo message="Compiling with JDK 1.2 or 1.3"/>
+   <target name="idlcompile" depends="idl">
 	<javac srcdir="${jsrc}/generated/"
                destdir="${classdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
@@ -44,13 +35,6 @@
 	/>
    </target>
 
-   <target name="idlcompile2" unless="java2">
-        <echo message="Compiling with JDK 1.1"/>
-	<javac srcdir="${jsrc}/generated/org/jacorb"
-               destdir="${classdir}"
-	       includes="proxy/**,imr/**,events/**,orb/**"
-	        />
-   </target>
 
    <target name="idl">
 	   <java classname="org.jacorb.idl.parser" 
@@ -90,26 +74,12 @@
    <target name="utils" depends="init,valuehandler-dummy,valuehandler-real">
    	<javac srcdir="${jsrc}"
                destdir="${classdir}" 
-               includes="org/jacorb/util/Propla.java,org/jacorb/util/Environment.java,org/jacorb/util/Debug.java,org/jacorb/util/Version.java,org/jacorb/util/ObjectUtil.java,org/jacorb/util/AssertionViolation.java,org/jacorb/util/threadpool/*.java,org/jacorb/util/ValueHandler.java"
-	       />
-   </target>
-
-   <target name="CAD" if="swing.present" >
-   	<javac srcdir="${jsrc}"
-               destdir="${classdir}" 
-	       includes="org/jacorb/util/CAD.java,org/jacorb/util/CADTableModel.java"
-	       />
-   </target>
-
-   <target name="WeakHashtable" if="java2" >
-   	<javac srcdir="${jsrc}"
-               destdir="${classdir}" 
-	       includes="org/jacorb/util/WeakHashtable.java,org/jacorb/util/ThreadSystemProperties.java,org/jacorb/util/CapsuleThread.java"
+               includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"
 	       />
    </target>
 
    <target name="subdirs"
-               depends="utils,CAD,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,WeakHashtable,tracing,security">
+               depends="utils,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
    </target>
 
 <!--proxy-->
@@ -117,7 +87,7 @@
    <target name="proxy" depends="init" >
    	<javac srcdir="${jsrc}"
                destdir="${classdir}" 
-	       includes="org/jacorb/proxy/**.java"
+	       includes="org/jacorb/proxy/*.java"
 	       />
    </target>
 
@@ -125,7 +95,7 @@
    	<ant antfile="${jsrc}/org/jacorb/poa/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="ir" depends="init" if="java2">
+   <target name="ir" depends="init">
    	<ant antfile="${jsrc}/org/jacorb/ir/build.xml"  dir="${basedir}"/>
    </target>
 
@@ -153,7 +123,7 @@
    	<ant antfile="${jsrc}/org/jacorb/naming/build.xml" dir="${basedir}"/>
    </target>
 
-   <target name="security" depends="init" if="iaik.present">
+   <target name="security" depends="init">
    	<ant antfile="${jsrc}/org/jacorb/security/build.xml" dir="${basedir}"/>
    </target>
 

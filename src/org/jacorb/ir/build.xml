@@ -7,30 +7,18 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init" depends="javatest">
+   <target name="init">
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
    </target>
 
-   <target name="javatest">
-	<available classname="java.lang.ref.WeakReference"
-	property="java2" />	
-   </target>
+   <target name="all" depends="init,compile"/>
 
-   <target name="all" depends="init,compile,gui"/>
-
-   <target name="compile" if="java2">
+   <target name="compile">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="org/jacorb/ir/*.java"
-	        />
-   </target>
-
-   <target name="gui" depends="init" if="java2">
-	<javac srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/ir/gui/**/*.java,org/jacorb/ir/gui/*.java"
+	       includes="org/jacorb/ir/*.java,org/jacorb/ir/**/*.java"
 	        />
    </target>
 

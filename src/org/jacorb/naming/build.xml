@@ -12,22 +12,14 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
-	<available classname="javax.swing.JTree" property="swing.present" />
    </target>
 
-   <target name="all" depends="init,base, gui"/>
+   <target name="all" depends="init,base"/>
 
    <target name="base">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="org/jacorb/naming/**.java, org/jacorb/naming/**Package/**.java"
-        />
-   </target>
-
-   <target name="gui" if="swing.present">
-	<javac srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/naming/namemanager/*.java"
+	       includes="org/jacorb/naming/*.java, org/jacorb/naming/**/*.java"
         />
    </target>
 
