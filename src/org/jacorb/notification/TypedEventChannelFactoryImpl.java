@@ -103,7 +103,7 @@ public class TypedEventChannelFactoryImpl
         } catch (Exception e) {
             logger_.fatalError("No InterfaceRepository available!. Typed Notification Channels will not work without an InterfaceRepository", e);
 
-            throw new RuntimeException();
+            throw new RuntimeException("No Interface Repository available");
         }
     }
 
