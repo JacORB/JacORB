@@ -437,22 +437,28 @@ public final class Delegate
         return equals( obj );
     }
 
-    /**
-     *
-     */
-
-    public void finalize()
+    protected void finalize() throws Throwable
     {
-        if ( connection != null )
+        try
         {
-            conn_mg.releaseConnection( connection );
+            if ( connection != null )
+            {
+                // Synchronization for inc/dec of clients is handled inside
+                // releaseConnection.
+                conn_mg.releaseConnection( connection );
+            }
+
+            // Call using string rather than this to prevent data race warning.
+            orb._release( getParsedIOR().getIORString() );
+
+            if ( Debug.isDebugEnabled() )
+            {
+                Debug.output( 3, " Delegate gc'ed!" );
+            }
         }
-
-        orb._release( this );
-
-        if ( Debug.isDebugEnabled() )
+        finally
         {
-            Debug.output( 3, " Delegate gc'ed!" );
+            super.finalize();
         }
     }
 
@@ -1407,7 +1413,7 @@ public final class Delegate
         if (poa != null)
         {
             // remember that a local request is outstanding. On
-            //  any exit through an exception, this must be cleared again, 
+            //  any exit through an exception, this must be cleared again,
             // otherwise the POA will hangon destruction (bug #400).
             poa.addLocalRequest();
 
@@ -1440,7 +1446,7 @@ public final class Delegate
                         //  exit on an error condition, but need to clean up first (added to fix bug #400)
                         poa.removeLocalRequest();
                         throw new org.omg.CORBA.OBJECT_NOT_EXIST();
-                    }                    
+                    }
                 }
                 else if ( poa.isUseServantManager() )
                 {
@@ -1623,7 +1629,7 @@ public final class Delegate
         pending_replies_sync.openBarrier();
     }
 
-    private class Barrier
+    private static class Barrier
     {
         private boolean is_open = true;
 
