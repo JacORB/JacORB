@@ -548,7 +548,7 @@ public class StructType
             {
                 Member m = (Member)e.nextElement();
                 Declarator d = m.declarator;
-                ps.print(m.type_spec.getJavaTypeName() + " " + d.name());
+                ps.print(m.type_spec.toString() + " " + d.name());
                 if (e.hasMoreElements())
                     ps.print(", ");
             }
