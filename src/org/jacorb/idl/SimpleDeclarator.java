@@ -53,6 +53,7 @@ public class SimpleDeclarator
 
     public void parse()
     {
+        // add sloppy_declarator behavior here....
         try
         {
             NameTable.define( full_name(), "declarator" );
