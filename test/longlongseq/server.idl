@@ -1,0 +1,18 @@
+module test
+{
+    module longlongseq {
+
+        typedef sequence<long long> SeqLongLong;
+
+        interface TestIf {
+            SeqLongLong test1( in SeqLongLong argin, out SeqLongLong argout,
+                               inout SeqLongLong arginout );
+
+            SeqLongLong test2( in SeqLongLong argin, out SeqLongLong argout );
+
+            void test3( inout SeqLongLong arginout );
+        };
+               
+    };
+
+};

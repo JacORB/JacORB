@@ -1,0 +1,12 @@
+module test
+{
+    module XYZ {
+
+        interface TestIf {
+            
+            void op();
+        };
+               
+    };
+
+};
