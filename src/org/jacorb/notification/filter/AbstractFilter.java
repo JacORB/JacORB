@@ -686,8 +686,13 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
             }
             else
             {
-                current_ = ((List) arrayOfLists_[currentListIdx_]).iterator();
+                switchIterator();
             }
+        }
+
+        private void switchIterator()
+        {
+            current_ = ((List) arrayOfLists_[currentListIdx_]).iterator();
         }
 
         public boolean hasNext()
@@ -706,7 +711,9 @@ public abstract class AbstractFilter extends FilterPOA implements Disposable, Ma
 
             if (!current_.hasNext() && currentListIdx_ < arrayOfLists_.length - 1)
             {
-                current_ = ((List) arrayOfLists_[++currentListIdx_]).iterator();
+                ++currentListIdx_;
+                
+                switchIterator();
             }
 
             return _ret;
