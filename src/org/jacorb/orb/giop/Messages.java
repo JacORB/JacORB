@@ -158,10 +158,11 @@ public class Messages
             //GIOP 1.2
             
             if( msg_type == MsgType_1_1._Request || 
-		msg_type == MsgType_1_1._LocateRequest ||  
-		msg_type == MsgType_1_1._Reply || 
+                msg_type == MsgType_1_1._LocateRequest ||  
+                msg_type == MsgType_1_1._Reply || 
                 msg_type == MsgType_1_1._LocateReply ||
-		msg_type == MsgType_1_1._CancelRequest )
+                msg_type == MsgType_1_1._CancelRequest ||
+                msg_type == MsgType_1_1._Fragment )
             {   
                 //easy for GIOP 1.2, it's right after the message
                 //header
@@ -176,7 +177,7 @@ public class Messages
         else if( giop_minor == 0 || giop_minor == 1 )
         {
             if( msg_type == MsgType_1_1._Request || 
-		msg_type == MsgType_1_1._Reply )
+                msg_type == MsgType_1_1._Reply )
             {
                 // service contexts are the first entry in the header
                 
@@ -207,7 +208,7 @@ public class Messages
                 }
             }
             else if( msg_type == MsgType_1_1._LocateRequest || 
-		     msg_type == MsgType_1_1._LocateReply )
+                     msg_type == MsgType_1_1._LocateReply )
             {
                 //easy, it's right after the message header
                 request_id = readULong( buf, MSG_HEADER_SIZE, little_endian );
