@@ -18,109 +18,43 @@ one for the CSS and one for the TSS. The service also uses a user specified
 SAS context class to support different authentication mechanisms, such as
 GSSUP and Kerberos.
 
-The SAS service is activated based on entries in the JacORB properties file.
-The properties are slightly different for a CSS and a TSS application.
+The SAS service is activated based on entries in the JacORB properties file
+and CORBA Properties assigned to the POA.
 
 The following is a part of the JacORB properties file that is used by 
-the CSS.
+the SAS.
 
 \begin{scriptsize}
 \begin{verbatim}
+
 ########################################
 #                                      #
 #   SAS configuration                  #
 #                                      #
 ########################################
 
-# This option initializes SAS support in the ORB and sets the logging level
-jacorb.security.support_sas=on
-jacorb.SAS.log.verbosity=3
-
-# This option configures the SAS to support stateful sessions (default=true)
-jacorb.security.sas.tss.stateful=true
+jacorb.SAS.log.verbosity=INFO
+jacorb.SAS.CSS.log.verbosity=INFO
+jacorb.SAS.TSS.log.verbosity=INFO
 
 # This option defines the specific SAS context generator/validator
 # Currently supported contexts include:
 #    GssUpContext      - Uses GSSUP security
 #    KerberosContext   - uses Kerberos security
+# At least one context must be selected for SAS support
 jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
 #jacorb.security.sas.contextClass=org.jacorb.security.sas.KerberosContext
 
-# This initializer installs the SAS Target Security Service (TSS)
-#org.omg.PortableInterceptor.ORBInitializerClass.SASTarget=org.jacorb.security.sas.SASTargetInitializer
-
-# This initializer installs the SAS Client Security Service (CSS)
-org.omg.PortableInterceptor.ORBInitializerClass.SASClient=org.jacorb.security.sas.SASClientInitializer
+# This initializer installs the SAS interceptors
+# Comment out this line if you do not want SAS support
+org.omg.PortableInterceptor.ORBInitializerClass.SAS=org.jacorb.security.sas.SASInitializer
 
 # This option is used for GSSUP security and sets up the GSS Provider
-org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.
-GSSUPProviderInitializer
-
-# This option identifies the layered security attributes required by the target
-# Attributes are entered in a comma-separated list. Valid attributes are:
-#       Integrity
-#       Confidentiality
-#       EstablishTrustInTarget
-#       EstablishTrustInClient
-#       IdentityAssertion
-#       DelegationByClient
-#jacorb.security.sas.tss.target_supports=EstablishTrustInTarget
-#jacorb.security.sas.tss.target_requires=EstablishTrustInTarget
+# Comment out this line if you are not using GSS UP authentication
+org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
 \end{verbatim}
 \end{scriptsize}
 
-
-The following is a part of the JacORB properties file that is used by 
-the TSS.
-
-\begin{scriptsize}
-\begin{verbatim}
-########################################
-#                                      #
-#   SAS configuration                  #
-#                                      #
-########################################
-
-# This option initializes SAS support in the ORB and sets the logging level
-jacorb.security.support_sas=on
-jacorb.SAS.log.verbosity=3
-
-# This option configures the SAS to support stateful sessions (default=true)
-jacorb.security.sas.tss.stateful=true
-
-# This option defines the specific SAS context generator/validator
-# Currently supported contexts include:
-#    GssUpContext      - Uses GSSUP security
-#    KerberosContext   - uses Kerberos security
-jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
-#jacorb.security.sas.contextClass=org.jacorb.security.sas.KerberosContext
-
-# This initializer installs the SAS Target Security Service (TSS)
-org.omg.PortableInterceptor.ORBInitializerClass.SASTarget=org.jacorb.security.sas.SASTargetInitializer
-
-# This initializer installs the SAS Client Security Service (CSS)
-#org.omg.PortableInterceptor.ORBInitializerClass.SASClient=org.jacorb.security.sas.SASClientInitializer
-
-# This option is used for GSSUP security and sets up the GSS Provider
-org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.
-GSSUPProviderInitializer
-
-# This option identifies the layered security attributes required by the target
-# Attributes are entered in a comma-separated list. Valid attributes are:
-#       Integrity
-#       Confidentiality
-#       EstablishTrustInTarget
-#       EstablishTrustInClient
-#       IdentityAssertion
-#       DelegationByClient
-jacorb.security.sas.tss.target_supports=EstablishTrustInTarget
-jacorb.security.sas.tss.target_requires=EstablishTrustInTarget
-\end{verbatim}
-\end{scriptsize}
-
-In some cases, an application may act as both a CSS and a TSS. 
-In these cases, a single properties file may be used with both the
-CSS and TSS interceptors included.
 
 \section{GSSUP Example}
 
@@ -169,44 +103,44 @@ import org.jacorb.security.sas.GssUpContext;
 import org.omg.CORBA.ORB;
 
 public class GssUpClient {
-    public static void main(String args[]) {
-        if (args.length != 3) {
-            System.out.println("Usage: java demo.sas.GssUpClient <ior_file> <username> <password>");
-            System.exit(1);
-        }
+	public static void main(String args[]) {
+		if (args.length != 3) {
+			System.out.println("Usage: java demo.sas.GssUpClient <ior_file> <username> <password>");
+			System.exit(1);
+		}
 
-        try {
-            // set security credentials
-            GssUpContext.setUsernamePassword(args[1], args[2]);
+		try {
+			// set security credentials
+			GssUpContext.setUsernamePassword(args[1], args[2]);
 
-            // initialize the ORB.
-            ORB orb = ORB.init(args, null);
+			// initialize the ORB.
+			ORB orb = ORB.init(args, null);
 
-            // get the server
-            File f = new File(args[0]);
-            if (!f.exists()) {
-                System.out.println("File " + args[0] + " does not exist.");
-                System.exit(-1);
-            }
-            if (f.isDirectory()) {
-                System.out.println("File " + args[0] + " is a directory.");
-                System.exit(-1);
-            }
-            BufferedReader br = new BufferedReader(new FileReader(f));
-            org.omg.CORBA.Object obj = orb.string_to_object(br.readLine());
-            br.close();
-            SASDemo demo = SASDemoHelper.narrow(obj);
+			// get the server
+			File f = new File(args[0]);
+			if (!f.exists()) {
+				System.out.println("File " + args[0] + " does not exist.");
+				System.exit(-1);
+			}
+			if (f.isDirectory()) {
+				System.out.println("File " + args[0] + " is a directory.");
+				System.exit(-1);
+			}
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			org.omg.CORBA.Object obj = orb.string_to_object(br.readLine());
+			br.close();
+			SASDemo demo = SASDemoHelper.narrow(obj);
 
-            //call single operation
-            demo.printSAS();
-            demo.printSAS();
-            demo.printSAS();
+			//call single operation
+			demo.printSAS();
+			demo.printSAS();
+			demo.printSAS();
 
-            System.out.println("Call to server succeeded");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+			System.out.println("Call to server succeeded");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 }
 \end{verbatim}
 \end{scriptsize}
@@ -221,19 +155,6 @@ This call registers the client's username and password with the GSSUP context.
 This information will then later be used by the CSS interceptor as the user's
 authentication information.
 
-The following is JacORB properties section for the client SAS.
-
-\begin{scriptsize}
-\begin{verbatim}
-jacorb.security.support_sas=on
-jacorb.SAS.log.verbosity=3
-jacorb.security.sas.tss.stateful=true
-jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
-org.omg.PortableInterceptor.ORBInitializerClass.SASClient=org.jacorb.security.sas.SASClientInitializer
-org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
-\end{verbatim}
-\end{scriptsize}
-
 \subsection{GSSUP Target Example}
 
 The following is a sample GSSUP target.
@@ -245,71 +166,74 @@ package demo.sas;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-import org.jacorb.security.sas.GssUpContext;
+import org.jacorb.sasPolicy.SASPolicyValues;
+import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
+import org.jacorb.sasPolicy.SASPolicyValuesHelper;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.Any;
+import org.omg.CSIIOP.EstablishTrustInClient;
 
 public class GssUpServer extends SASDemoPOA {
-    private ORB orb;
 
-    public GssUpServer(ORB orb) {
-        this.orb = orb;
-    }
+	private ORB orb;
 
-    public void printSAS() {
-        try {
-            org.omg.PortableInterceptor.Current current = 
-                (org.omg.PortableInterceptor.Current) orb.resolve_initial_references("PICurrent");
-            org.omg.CORBA.Any anyName = 
-                current.get_slot(org.jacorb.security.sas.SASTargetInitializer.sasPrincipalNamePIC);
-            String name = anyName.extract_string();
-            System.out.println("printSAS for user " + name);
-        } catch (Exception e) {
-            System.out.println("printSAS Error: " + e);
-        }
-    }
+	public GssUpServer(ORB orb) {
+		this.orb = orb;
+	}
 
-    public static void main(String[] args) {
-        if (args.length != 1) {
-            System.out.println("Usage: java demo.sas.GssUpServer <ior_file>");
-            System.exit(-1);
-        }
+	public void printSAS() {
+		try {
+			org.omg.PortableInterceptor.Current current = (org.omg.PortableInterceptor.Current)orb.resolve_initial_references("PICurrent");
+			org.omg.CORBA.Any anyName = current.get_slot(org.jacorb.security.sas.SASInitializer.sasPrincipalNamePIC);
+			if( anyName.type().kind().value() == org.omg.CORBA.TCKind._tk_null ) {
+				System.out.println("Null Name");
+			} else {
+				String name = anyName.extract_string();
+				System.out.println("printSAS for user " + name);
+			}
+		} catch (Exception e) {
+			System.out.println("printSAS Error: " + e);
+		}
+	}
 
-        try {
-            // initialize the ORB and POA.
-            ORB orb = ORB.init(args, null);
-            POA poa = (POA) orb.resolve_initial_references("RootPOA");
-            poa.the_POAManager().activate();
+	public static void main(String[] args) {
+		if (args.length != 1) {
+			System.out.println("Usage: java demo.sas.GssUpServer <ior_file>");
+			System.exit(-1);
+		}
+
+		try {
+			// initialize the ORB and POA.
+			ORB orb = ORB.init(args, null);
+			POA rootPOA = (POA) orb.resolve_initial_references("RootPOA");
+			org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[3];
+			policies[0] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+			policies[1] = rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+			Any sasAny = orb.create_any();
+			SASPolicyValuesHelper.insert( sasAny, new SASPolicyValues(EstablishTrustInClient.value, EstablishTrustInClient.value, true) );
+			policies[2] = orb.create_policy(SAS_POLICY_TYPE.value, sasAny);
+			POA securePOA = rootPOA.create_POA("SecurePOA", rootPOA.the_POAManager(), policies);
+ 			rootPOA.the_POAManager().activate();
 			
-            // create object and write out IOR
-            org.omg.CORBA.Object demo = poa.servant_to_reference(new GssUpServer(orb));
-            PrintWriter pw = new PrintWriter(new FileWriter(args[0]));
-            pw.println(orb.object_to_string(demo));
-            pw.flush();
-            pw.close();
+			// create object and write out IOR
+			GssUpServer server = new GssUpServer(orb);
+			securePOA.activate_object_with_id("SecureObject".getBytes(), server);
+			org.omg.CORBA.Object demo = securePOA.servant_to_reference(server);
+			PrintWriter pw = new PrintWriter(new FileWriter(args[0]));
+			pw.println(orb.object_to_string(demo));
+			pw.flush();
+			pw.close();
 			
-            // run the ORB
-            orb.run();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+			// run the ORB
+			orb.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
-\end{verbatim}
-\end{scriptsize}
-
-The following is JacORB properties section for the target SAS.
-
-\begin{scriptsize}
-\begin{verbatim}
-jacorb.security.support_sas=on
-jacorb.SAS.log.verbosity=3
-jacorb.security.sas.tss.stateful=true
-jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
-org.omg.PortableInterceptor.ORBInitializerClass.SASTarget=org.jacorb.security.sas.SASTargetInitializer
-org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
-jacorb.security.sas.tss.target_supports=EstablishTrustInTarget
-jacorb.security.sas.tss.target_requires=EstablishTrustInTarget
 \end{verbatim}
 \end{scriptsize}
 
@@ -365,83 +289,83 @@ import javax.security.auth.login.LoginException;
 import org.omg.CORBA.ORB;
 
 public class KerberosClient {
-    private static Principal myPrincipal = null; 
-    private static Subject mySubject = null;	
-    private static ORB orb = null;
+	private static Principal myPrincipal = null; 
+	private static Subject mySubject = null;	
+	private static ORB orb = null;
 	
-    public KerberosClient(String args[]) {
+	public KerberosClient(String args[]) {
 
-        try {
-            // initialize the ORB.
-            orb = ORB.init(args, null);
+		try {
+			// initialize the ORB.
+			orb = ORB.init(args, null);
 
-            // get the server
-            File f = new File(args[0]);
-            if (!f.exists()) {
-                System.out.println("File " + args[0] + " does not exist.");
-                System.exit(-1);
-            }
-            if (f.isDirectory()) {
-                System.out.println("File " + args[0] + " is a directory.");
-                System.exit(-1);
-            }
-            BufferedReader br = new BufferedReader(new FileReader(f));
-            org.omg.CORBA.Object obj = orb.string_to_object(br.readLine());
-            br.close();
-            SASDemo demo = SASDemoHelper.narrow(obj);
+			// get the server
+			File f = new File(args[0]);
+			if (!f.exists()) {
+				System.out.println("File " + args[0] + " does not exist.");
+				System.exit(-1);
+			}
+			if (f.isDirectory()) {
+				System.out.println("File " + args[0] + " is a directory.");
+				System.exit(-1);
+			}
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			org.omg.CORBA.Object obj = orb.string_to_object(br.readLine());
+			br.close();
+			SASDemo demo = SASDemoHelper.narrow(obj);
 
-            //call single operation
-            demo.printSAS();
-            demo.printSAS();
-            demo.printSAS();
+			//call single operation
+			demo.printSAS();
+			demo.printSAS();
+			demo.printSAS();
 
-            System.out.println("Call to server succeeded");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+			System.out.println("Call to server succeeded");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 	
-    public static void main(String args[]) {
-        if (args.length != 3) {
-            System.out.println("Usage: java demo.sas.KerberosClient <ior_file> <username> <password>");
-            System.exit(1);
-        }
+	public static void main(String args[]) {
+		if (args.length != 3) {
+			System.out.println("Usage: java demo.sas.KerberosClient <ior_file> <username> <password>");
+			System.exit(1);
+		}
 
-        // login - with Kerberos
-        LoginContext loginContext = null;
-        try {
-            JaasTxtCalbackHandler txtHandler = new JaasTxtCalbackHandler();
-            txtHandler.setMyUsername(args[1]);
-            txtHandler.setMyPassword(args[2].toCharArray());
-            loginContext = new LoginContext("KerberosClient", txtHandler);
-            loginContext.login();
-        } catch (LoginException le) {
-            System.out.println("Login error: " + le);
-            System.exit(1);
-        }
-        mySubject = loginContext.getSubject();
-        myPrincipal = (Principal) mySubject.getPrincipals().iterator().next();
-        System.out.println("Found principal " + myPrincipal.getName());
+		// login - with Kerberos
+		LoginContext loginContext = null;
+		try {
+			JaasTxtCalbackHandler txtHandler = new JaasTxtCalbackHandler();
+			txtHandler.setMyUsername(args[1]);
+			txtHandler.setMyPassword(args[2].toCharArray());
+			loginContext = new LoginContext("KerberosClient", txtHandler);
+			loginContext.login();
+		} catch (LoginException le) {
+			System.out.println("Login error: " + le);
+			System.exit(1);
+		}
+		mySubject = loginContext.getSubject();
+		myPrincipal = (Principal) mySubject.getPrincipals().iterator().next();
+		System.out.println("Found principal " + myPrincipal.getName());
 
-        // run in privileged mode
-        final String[] finalArgs = args;
-        try {
-            Subject.doAs(mySubject, new PrivilegedAction() {
-                public Object run() {
-                    try {
-                        KerberosClient client = new KerberosClient(finalArgs);
-                        orb.run();
-                    } catch (Exception e) {
-                        System.out.println("Error running program: "+e);
-                    }
-                    System.out.println("Exiting privileged operation");
-                    return null;
-                }
-            });
-        } catch (Exception e) {
-            System.out.println("Error running privileged: "+e);
-        }
-    }
+		// run in privileged mode
+		final String[] finalArgs = args;
+		try {
+			Subject.doAs(mySubject, new PrivilegedAction() {
+				public Object run() {
+					try {
+						KerberosClient client = new KerberosClient(finalArgs);
+						orb.run();
+					} catch (Exception e) {
+						System.out.println("Error running program: "+e);
+					}
+					System.out.println("Exiting privileged operation");
+					return null;
+				}
+			});
+		} catch (Exception e) {
+			System.out.println("Error running privileged: "+e);
+		}
+	}
 }
 \end{verbatim}
 \end{scriptsize}
@@ -450,18 +374,6 @@ The CSS uses JAAS to logon and return the user's Kerberos credentials.
 The CSS must then run the rest of the application as a PrivilegedAction using
 the logged on credentials. This allows the CSS interceptor to retrieve the
 Kerberos ticket from the logon session.
-
-The following is JacORB properties section for the client SAS.
-
-\begin{scriptsize}
-\begin{verbatim}
-jacorb.security.support_sas=on
-jacorb.SAS.log.verbosity=3
-jacorb.security.sas.tss.stateful=true
-jacorb.security.sas.contextClass=org.jacorb.security.sas.KerberosContext
-org.omg.PortableInterceptor.ORBInitializerClass.SASClient=org.jacorb.security.sas.SASClientInitializer
-\end{verbatim}
-\end{scriptsize}
 
 The following is the JAAS logon configuration for the CSS:
 
@@ -492,83 +404,102 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.omg.CORBA.ORB;
+import org.jacorb.sasPolicy.SASPolicyValues;
+import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
+import org.jacorb.sasPolicy.SASPolicyValuesHelper;
+import org.omg.PortableServer.IdAssignmentPolicyValue;
+import org.omg.PortableServer.LifespanPolicyValue;
 import org.omg.PortableServer.POA;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.Any;
+import org.omg.CSIIOP.EstablishTrustInClient;
 
 public class KerberosServer extends SASDemoPOA {
-    private static Principal myPrincipal = null; 
-    private static Subject mySubject = null;	
-    private static ORB orb;
+	private static Principal myPrincipal = null; 
+	private static Subject mySubject = null;	
+	private ORB orb;
 
-    public void printSAS() {
-        try {
-            org.omg.PortableInterceptor.Current current = (org.omg.PortableInterceptor.Current)      orb.resolve_initial_references("PICurrent");
-            org.omg.CORBA.Any anyName = current.get_slot(org.jacorb.security.sas.SASTargetInitializer.sasPrincipalNamePIC);
-            String name = anyName.extract_string();
-            System.out.println("printSAS for user " + name);
-        } catch (Exception e) {
-            System.out.println("printSAS Error: " + e);
-        }
-    }
+	public KerberosServer(ORB orb) {
+		this.orb = orb;
+	}
+
+	public void printSAS() {
+		try {
+			org.omg.PortableInterceptor.Current current = (org.omg.PortableInterceptor.Current) orb.resolve_initial_references("PICurrent");
+			org.omg.CORBA.Any anyName = current.get_slot(org.jacorb.security.sas.SASInitializer.sasPrincipalNamePIC);
+			String name = anyName.extract_string();
+			System.out.println("printSAS for user " + name);
+		} catch (Exception e) {
+			System.out.println("printSAS Error: " + e);
+		}
+	}
 	
-    public KerberosServer(String[] args) {
-        try {
-            // initialize the ORB and POA.
-            orb = ORB.init(args, null);
-            POA poa = (POA) orb.resolve_initial_references("RootPOA");
-            poa.the_POAManager().activate();
+	public KerberosServer(String[] args) {
+		try {
+			// initialize the ORB and POA.
+			orb = ORB.init(args, null);
+			POA rootPOA = (POA) orb.resolve_initial_references("RootPOA");
+			org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[3];
+			policies[0] = rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+			policies[1] = rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+			Any sasAny = orb.create_any();
+			SASPolicyValuesHelper.insert( sasAny, new SASPolicyValues(EstablishTrustInClient.value, EstablishTrustInClient.value, true) );
+			policies[2] = orb.create_policy(SAS_POLICY_TYPE.value, sasAny);
+			POA securePOA = rootPOA.create_POA("SecurePOA", rootPOA.the_POAManager(), policies);
+			rootPOA.the_POAManager().activate();
 			
-            // create object and write out IOR
-            org.omg.CORBA.Object demo = poa.servant_to_reference(this);
-            PrintWriter pw = new PrintWriter(new FileWriter(args[0]));
-            pw.println(orb.object_to_string(demo));
-            pw.flush();
-            pw.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+			// create object and write out IOR
+			securePOA.activate_object_with_id("SecureObject".getBytes(), this);
+			org.omg.CORBA.Object demo = securePOA.servant_to_reference(this);
+			PrintWriter pw = new PrintWriter(new FileWriter(args[0]));
+			pw.println(orb.object_to_string(demo));
+			pw.flush();
+			pw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-    public static void main(String[] args) {
-        if (args.length != 2) {
-            System.out.println("Usage: java demo.sas.KerberosServer <ior_file> <password>");
-            System.exit(-1);
-        }
+	public static void main(String[] args) {
+		if (args.length != 2) {
+			System.out.println("Usage: java demo.sas.KerberosServer <ior_file> <password>");
+			System.exit(-1);
+		}
 
-        // login - with Kerberos
-        LoginContext loginContext = null;
-        try {
-            JaasTxtCalbackHandler cbHandler = new JaasTxtCalbackHandler();
-            cbHandler.setMyPassword(args[1].toCharArray());
-            loginContext = new LoginContext("KerberosService", cbHandler);
-            loginContext.login();
-        } catch (LoginException le) {
-            System.out.println("Login error: " + le);
-            System.exit(1);
-        }
-        mySubject = loginContext.getSubject();
-        myPrincipal = (Principal) mySubject.getPrincipals().iterator().next();
-        System.out.println("Found principal " + myPrincipal.getName());
+		// login - with Kerberos
+		LoginContext loginContext = null;
+		try {
+			JaasTxtCalbackHandler cbHandler = new JaasTxtCalbackHandler();
+			cbHandler.setMyPassword(args[1].toCharArray());
+			loginContext = new LoginContext("KerberosService", cbHandler);
+			loginContext.login();
+		} catch (LoginException le) {
+			System.out.println("Login error: " + le);
+			System.exit(1);
+		}
+		mySubject = loginContext.getSubject();
+		myPrincipal = (Principal) mySubject.getPrincipals().iterator().next();
+		System.out.println("Found principal " + myPrincipal.getName());
 
-        // run in privileged mode
-        final String[] finalArgs = args;
-        try {
-            Subject.doAs(mySubject, new PrivilegedAction() {
-                public Object run() {
-                    try {
-                        // create application
-                        KerberosServer app = new KerberosServer(finalArgs);
-                        orb.run();
-                    } catch (Exception e) {
-                        System.out.println("Error running program: "+e);
-                    }
-                    return null;
-                }
-            });
-        } catch (Exception e) {
-            System.out.println("Error running privileged: "+e);
-        }
-    }
+		// run in privileged mode
+		final String[] finalArgs = args;
+		try {
+			Subject.doAs(mySubject, new PrivilegedAction() {
+				public Object run() {
+					try {
+						// create application
+						KerberosServer app = new KerberosServer(finalArgs);
+						app.orb.run();
+					} catch (Exception e) {
+						System.out.println("Error running program: "+e);
+					}
+					return null;
+				}
+			});
+		} catch (Exception e) {
+			System.out.println("Error running privileged: "+e);
+		}
+	}
 }
 \end{verbatim}
 \end{scriptsize}
@@ -578,20 +509,6 @@ logon principal to use is defined in the JAAS login configuration file.
 The TSS must then run the rest of the application as a PrivilegedAction using
 the logged on credentials. This allows the TSS interceptor to retrieve the
 Kerberos ticket from the logon session.
-
-The following is JacORB properties section for the target SAS.
-
-\begin{scriptsize}
-\begin{verbatim}
-jacorb.security.support_sas=on
-jacorb.SAS.log.verbosity=3
-jacorb.security.sas.tss.stateful=true
-jacorb.security.sas.contextClass=org.jacorb.security.sas.KerberosContext
-org.omg.PortableInterceptor.ORBInitializerClass.SASTarget=org.jacorb.security.sas.SASTargetInitializer
-jacorb.security.sas.tss.target_supports=EstablishTrustInTarget
-jacorb.security.sas.tss.target_requires=EstablishTrustInTarget
-\end{verbatim}
-\end{scriptsize}
 
 The following is the JAAS logon configuration for the TSS:
 

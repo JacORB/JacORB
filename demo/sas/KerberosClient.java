@@ -76,9 +76,7 @@ public class KerberosClient {
 			System.out.println("Login error: " + le);
 			System.exit(1);
 		}
-		System.out.println("7");
 		mySubject = loginContext.getSubject();
-		System.out.println("8");
 		myPrincipal = (Principal) mySubject.getPrincipals().iterator().next();
 		System.out.println("Found principal " + myPrincipal.getName());
 
