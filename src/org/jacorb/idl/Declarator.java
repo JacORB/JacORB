@@ -92,23 +92,3 @@ class Declarator
 	return d.getEnclosingSymbol();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
