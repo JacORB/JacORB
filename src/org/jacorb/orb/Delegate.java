@@ -886,7 +886,7 @@ public final class Delegate
             {
                 receiver = new ReplyReceiver ( this,
                                                ros.operation(),
-                                               ros.getRoundtripTimeout(),
+                                               ros.getReplyEndTime(),
                                                interceptors,
                                                replyHandler,
                                                retries > 0);
@@ -1332,19 +1332,24 @@ public final class Delegate
                                                    String operation,
                                                    boolean responseExpected )
     {
-        // Compute absolute timeouts at the earliest possible time: now.
-        long roundtrip = getRelativeRoundtripTimeout();
-        UtcT roundtripTimeout = (roundtrip > 0) ? Time.corbaFuture (roundtrip)
-                                                : null;
-        long request = getRelativeRequestTimeout();
-        UtcT requestTimeout   = (request > 0) ? Time.corbaFuture (request)
-                                              : null;
+        // Compute the deadlines for this request based on any absolute or
+        // relative timing policies that have been specified.  Compute this
+        // now, because it is the earliest possible time, and therefore any
+        // relative values will cover the entire invocation.
         
+        long request = getRelativeRequestTimeout();
+        UtcT requestEndTime = Time.earliest (Time.corbaFuture (request),
+                                             getRequestEndTime());
+                                        
+        long roundtrip = getRelativeRoundtripTimeout();
+        UtcT replyEndTime = Time.earliest (Time.corbaFuture (roundtrip),
+                                           getReplyEndTime());
+                                      
         // Perhaps we're already too late?
-        if (Time.hasPassed (getRequestEndTime()))
+        if (Time.hasPassed (requestEndTime))
             throw new TIMEOUT ("Request End Time exceeded prior to invocation",
                                0, CompletionStatus.COMPLETED_NO);
-        else if (Time.hasPassed (getReplyEndTime()))
+        else if (Time.hasPassed (replyEndTime))
             throw new TIMEOUT ("Reply End Time exceeded prior to invocation",
                                0, CompletionStatus.COMPLETED_NO);        
 
@@ -1359,7 +1364,9 @@ public final class Delegate
                                          connection.getId(),
                                          operation,
                                          responseExpected,
-                                         roundtripTimeout,
+                                         getRequestStartTime(),
+                                         requestEndTime,
+                                         replyEndTime,
                                          p.get_object_key(),
                                          ( int ) p.getProfileBody().iiop_version.minor );
 
