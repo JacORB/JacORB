@@ -50,6 +50,8 @@ import org.omg.CORBA.portable.BoxedValueHelper;
 import org.omg.CORBA.portable.StreamableValue;
 import org.omg.Messaging.*;
 import org.omg.PortableInterceptor.*;
+import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
+import org.omg.PortableServer.POAManagerPackage.State;
 import org.omg.IOP.*;
 import org.omg.IIOP.*;
 import org.omg.ETF.*;
@@ -633,11 +635,18 @@ public final class ORB
             profileComponents.addComponent(create_ORB_TYPE_ID());
             componentMap.put(new Integer(profile.tag()), profileComponents);
 
-            // use proxy or ImR address if necessary
             if (profile instanceof IIOPProfile)
             {
+                // use proxy or ImR address if necessary
                 patchAddress((IIOPProfile)profile, repId, _transient);
+
+                // patch primary address port to 0 if SSL is required
+                if (poa.isSSLRequired())
+                {
+                    ((IIOPProfile)profile).patchPrimaryAddress(null, 0);
             }
+        }
+
         }
 
         TaggedComponentList multipleComponents = new TaggedComponentList();
@@ -2391,6 +2400,135 @@ public final class ORB
             getTarget().set_slot(id, data);
         }
 
+    }
+
+    // Even though the methods connect(obj) and disconnect(obj) are 
+    // deprecated, they are implemented here because the server-side 
+    // programming model traditionally used by RMI/IIOP strongly relies 
+    // on them.
+
+    /**
+     * Indicates that the root POA manager was not yet activated.
+     */
+    private boolean firstConnection = true;
+
+    /**
+     * Associates connected objects to their servants. The servant associated
+     * with a connected object is retrieved from this map when disconnect is
+     * called on the object.
+     */
+    private Map connectedObjects = new HashMap();
+
+    /**
+     * Servant class used by connect and disconnect
+     */
+    static class HandlerWrapper extends org.omg.PortableServer.Servant
+                                implements org.omg.CORBA.portable.InvokeHandler
+    {
+        private org.omg.CORBA.portable.InvokeHandler wrappedHandler;
+
+        public HandlerWrapper(org.omg.CORBA.portable.ObjectImpl objectImpl)
+        {
+            wrappedHandler = (org.omg.CORBA.portable.InvokeHandler)objectImpl;
+        }
+
+        public String[] _all_interfaces(org.omg.PortableServer.POA poa, 
+                                        byte[] objectID)
+        {
+            return ((org.omg.CORBA.portable.ObjectImpl)wrappedHandler)._ids();
+        }
+
+        public org.omg.CORBA.portable.OutputStream _invoke(
+                                String method, 
+                                org.omg.CORBA.portable.InputStream input, 
+                                org.omg.CORBA.portable.ResponseHandler handler) 
+            throws org.omg.CORBA.SystemException
+        {
+            return wrappedHandler._invoke(method, input, handler);
+        }
+
+    }
+
+        public void connect(org.omg.CORBA.Object obj) 
+    {
+        if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
+            throw new BAD_PARAM("connect parameter must extend " + 
+                                "org.omg.CORBA.portable.ObjectImpl");
+        
+        if (!(obj instanceof org.omg.CORBA.portable.InvokeHandler))
+            throw new BAD_PARAM("connect parameter must implement " +
+                                "org.omg.CORBA.portable.InvokeHandler");
+        
+        synchronized (connectedObjects)
+        {
+            if (connectedObjects.containsKey(obj) == false)
+            {
+                org.omg.CORBA.portable.ObjectImpl objectImpl = 
+                    (org.omg.CORBA.portable.ObjectImpl)obj;
+                org.omg.PortableServer.Servant servant = 
+                    new HandlerWrapper(objectImpl);
+                org.omg.CORBA.Object ref = servant._this_object(this);
+                objectImpl._set_delegate(
+                    ((org.omg.CORBA.portable.ObjectImpl)ref)._get_delegate());
+                connectedObjects.put(obj, servant);
+                if (firstConnection)
+                {
+                    firstConnection = false;
+                    org.omg.PortableServer.POAManager rootPOAManager = 
+                        getRootPOA().the_POAManager();
+                    if (rootPOAManager.get_state() == State.HOLDING)
+                    {
+                        try 
+                        {
+                            rootPOAManager.activate();
+                        }
+                        catch (AdapterInactive adapterInactive)
+                        {
+                            // cannot happen
+                            if( logger.isErrorEnabled() )
+                            {
+                                logger.error(adapterInactive.getMessage());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void disconnect(org.omg.CORBA.Object obj)
+    {
+        if (!(obj instanceof org.omg.CORBA.portable.ObjectImpl))
+            throw new BAD_PARAM("disconnect parameter must extend " + 
+                                "org.omg.CORBA.portable.ObjectImpl");
+        
+        if (!(obj instanceof org.omg.CORBA.portable.InvokeHandler))
+            throw new BAD_PARAM("disconnect parameter must implement " +
+                                "org.omg.CORBA.portable.InvokeHandler");
+        
+        synchronized (connectedObjects)
+        {
+            org.omg.PortableServer.Servant servant = 
+                (org.omg.PortableServer.Servant)connectedObjects.get(obj);
+            
+            if (servant != null)
+            {
+                connectedObjects.remove(obj);
+                try 
+                {
+                    getRootPOA().deactivate_object(
+                                        getRootPOA().servant_to_id(servant));
+                }
+                catch (Exception e) 
+                {
+                    // cannot happen
+                    if( logger.isErrorEnabled())
+                    {
+                        logger.error(e.getMessage());
+                    }
+                }
+            }
+        }
     }
 
 }
