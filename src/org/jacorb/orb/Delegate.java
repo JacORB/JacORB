@@ -46,7 +46,7 @@ import org.omg.CORBA.SystemException;
  */
 
 public final class Delegate
-    extends org.omg.CORBA.portable.Delegate
+    extends org.omg.CORBA_2_3.portable.Delegate
 {
     // WARNING: DO NOT USE _pior DIRECTLY, BECAUSE THAT IS NOT MT
     // SAFE. USE getParsedIOR() INSTEAD, AND KEEP A METHOD-LOCAL COPY
@@ -81,6 +81,9 @@ public final class Delegate
     private boolean locate_on_bind_performed = false;
 
     private ConnectionManager conn_mg = null;
+
+    private Hashtable policy_overrides = new Hashtable();
+
     /**
      * A general note on the synchronization concept
      *
@@ -1377,6 +1380,40 @@ public final class Delegate
     public void initInterceptors()
     {
         use_interceptors = ((org.jacorb.orb.ORB) orb).hasClientRequestInterceptors();
+    }
+
+    public org.omg.CORBA.Object set_policy_override(org.omg.CORBA.Object self,
+                org.omg.CORBA.Policy[] policies,
+                org.omg.CORBA.SetOverrideType set_add) 
+    {
+	if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
+	{
+	    policy_overrides.clear();
+	}
+	for (int i = 0; i < policies.length; i++)
+	{
+	    if ( ((org.jacorb.orb.ORB)orb).hasPolicyFactoryForType( policies[i].policy_type() ) )
+	    {
+		policy_overrides.put(new Integer(policies[i].policy_type()), policies[i]);
+	    }
+	}
+	ParsedIOR pior = getParsedIOR();
+	org.omg.IOP.IOR ior = ((org.jacorb.orb.ORB)orb).createIOR( pior.getIOR().type_id, 
+								   pior.get_object_key(), 
+								   !poa.isPersistent(), 
+								   poa,
+								   policy_overrides);
+        synchronized( bind_sync )
+        {
+	    _pior = new ParsedIOR( ior );
+	    getParsedIOR().init();
+	}
+	return self;
+    }
+
+    public String get_codebase(org.omg.CORBA.Object self)
+    {
+	return getParsedIOR().getCodebaseComponent();
     }
 
     private class Barrier
