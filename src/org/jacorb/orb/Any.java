@@ -131,6 +131,8 @@ public final class Any
                 return extract_boolean() == a.extract_boolean();
             case TCKind._tk_char:
                 return extract_char() == a.extract_char();
+            case TCKind._tk_wchar:
+                return extract_wchar() == a.extract_wchar();
             case TCKind._tk_octet:
                 return extract_octet() == a.extract_octet();
             case TCKind._tk_any:
