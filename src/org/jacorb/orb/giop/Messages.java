@@ -138,7 +138,7 @@ public class Messages
         return offset + 4 + length * element_size;
     }
 
-    /** directly extract request ID from a reply or locate reply buffer */
+    /** directly extract request ID from a buffer */
 
     public static int getRequestId( byte[] buf )
     {
@@ -152,8 +152,11 @@ public class Messages
         {
             //GIOP 1.2
             
-            if( msg_type == MsgType_1_1._Reply || 
-                msg_type == MsgType_1_1._LocateReply )
+            if( msg_type == MsgType_1_1._Request || 
+		msg_type == MsgType_1_1._LocateRequest ||  
+		msg_type == MsgType_1_1._Reply || 
+                msg_type == MsgType_1_1._LocateReply ||
+		msg_type == MsgType_1_1._CancelRequest )
             {   
                 //easy for GIOP 1.2, it's right after the message
                 //header
@@ -167,9 +170,10 @@ public class Messages
         }
         else if( giop_minor == 0 || giop_minor == 1 )
         {
-            if( msg_type == MsgType_1_1._Reply )
+            if( msg_type == MsgType_1_1._Request || 
+		msg_type == MsgType_1_1._Reply )
             {
-                // service contexts are the first entry in the reply header
+                // service contexts are the first entry in the header
                 
                 //get the number of individual service contexts
                 int service_ctx_length = readULong( buf, 
@@ -197,7 +201,8 @@ public class Messages
                     request_id = readULong( buf, pos, little_endian );
                 }
             }
-            else if( msg_type == MsgType_1_1._LocateReply )
+            else if( msg_type == MsgType_1_1._LocateRequest || 
+		     msg_type == MsgType_1_1._LocateReply )
             {
                 //easy, it's right after the message header
                 request_id = readULong( buf, MSG_HEADER_SIZE, little_endian );
