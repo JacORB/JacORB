@@ -110,22 +110,11 @@ class NameTable
                             "NameTable.checkScopingRules2:  " + 
                             name + " kind: " + kind );
 
-        for( int i = 0; i < scopes.length-1; i++ )
-        {
-
-        Environment.output( 1,
-                            "NameTable.checkScopingRules2: comparing " + scopes[i]
-                             + " with: " + scopes[scopes.length-1] );
-
-          if( scopes[i].equals( scopes[scopes.length-1] ))
+          if( scopes.length > 1 &&
+             scopes[scopes.length-2].equals( scopes[scopes.length-1] ))
           {
-            StringBuffer sb = new StringBuffer();
-            for( int j = 0; j < i; j++ )
-              sb.append( scopes[j] + "." );
-            sb.append( scopes[ i ] );
-              throw new IllegalRedefinition( sb.toString(), name );
+              throw new IllegalRedefinition( name );
           }
-        }
 
 
         // later use...
