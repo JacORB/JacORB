@@ -83,7 +83,7 @@
        <jar jarfile="${lib}/jacorb.jar"
       basedir="${classdir}"
       includes="org/jacorb/**,org/omg/**, HTTPClient/**"
-      excludes="org/jacorb/idl/**"
+      excludes="org/jacorb/idl/**,org/jacorb/demo/**"
       />
    </target>
 
