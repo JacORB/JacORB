@@ -22,13 +22,27 @@ package org.jacorb.notification;
  */
 
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
+import org.omg.CORBA.ORB;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotifyComm.NotifySubscribe;
+import org.omg.CosNotifyComm.NotifySubscribeOperations;
+import org.omg.CosNotifyComm.NotifySubscribePOA;
+import org.omg.CosNotifyFilter.CallbackNotFound;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
+
+import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.interfaces.Disposable;
 
 /**
  * FilterManager.java
@@ -37,12 +51,18 @@ import org.omg.CosNotifyFilter.FilterNotFound;
  * @version $Id$
  */
 
-public class FilterManager implements FilterAdminOperations
+public class FilterManager
+    implements FilterAdminOperations,
+               SubscriptionChangeListener
 {
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
+    protected ApplicationContext applicationContext_;
     protected List filters_;
     protected List filtersReadOnlyView_;
     protected int filterIdPool_ = 0;
+
+    protected Map filterId2callbackId_ = new Hashtable();
 
     public static final FilterManager EMPTY =
         new FilterManager( Collections.EMPTY_LIST );
@@ -53,9 +73,11 @@ public class FilterManager implements FilterAdminOperations
         filtersReadOnlyView_ = Collections.unmodifiableList( filters_ );
     }
 
-    FilterManager()
+    FilterManager(ApplicationContext applicationContext)
     {
         this( new Vector() );
+
+        applicationContext_ = applicationContext;
     }
 
     protected int getFilterId()
@@ -74,6 +96,7 @@ public class FilterManager implements FilterAdminOperations
 
         return _key;
     }
+
 
     public void remove_filter( int filterId ) throws FilterNotFound
     {
@@ -136,4 +159,86 @@ public class FilterManager implements FilterAdminOperations
         return filtersReadOnlyView_;
     }
 
+    public void subscriptionChangedForFilter(int filterId,
+                                             EventType[] eventType1,
+                                             EventType[] eventType2) {
+
+    }
+
+    private void attachFilterListener(int filterId, Filter filter) {
+        FilterCallback filterCallback =
+            new FilterCallback(this,
+                               applicationContext_.getOrb(),
+                               filterId,
+                               filter);
+
+        filterId2callbackId_.put(new Integer(filterId),
+                                 filterCallback);
+    }
+
+    private void detachFilterListener(int filterId) {
+        Integer key = new Integer(filterId);
+
+        if (filterId2callbackId_.containsKey(key)) {
+            FilterCallback filterCallback =
+                (FilterCallback)filterId2callbackId_.remove(key);
+
+            filterCallback.dispose();
+        }
+    }
+
+
 } // FilterManager
+
+interface SubscriptionChangeListener {
+    void subscriptionChangedForFilter(int filterId,
+                                      EventType[] eventTypeArray,
+                                      EventType[] eventTypeArray1);
+
+} // SubscriptionChangeListener
+
+class FilterCallback extends NotifySubscribePOA implements Disposable {
+
+    Logger logger_ = Debug.getNamedLogger(getClass().getName());
+    int callbackId_;
+    int filterId;
+    Filter filter_;
+    NotifySubscribe notifySubscribe_;
+    SubscriptionChangeListener subscriptionChangeListener_;
+
+    public FilterCallback(SubscriptionChangeListener subscriptionChangeListener,
+                          ORB orb,
+                          int filterId,
+                          Filter filter) {
+        subscriptionChangeListener_  = subscriptionChangeListener;
+        filter_ = filter;
+        notifySubscribe_ = _this(orb);
+        attach();
+    }
+
+    private void attach() {
+        callbackId_ = filter_.attach_callback(notifySubscribe_);
+    }
+
+    private void detach() {
+        try {
+            filter_.detach_callback(callbackId_);
+        } catch (CallbackNotFound e) {
+
+        }
+    }
+
+    public void subscription_change(EventType[] eventTypeArray,
+                                    EventType[] eventTypeArray1)
+        throws InvalidEventType {
+
+        subscriptionChangeListener_.subscriptionChangedForFilter(filterId,
+                                                                eventTypeArray,
+                                                                eventTypeArray1);
+    }
+
+    public void dispose() {
+        detach();
+    }
+
+}
