@@ -112,7 +112,6 @@ class Module
         }
         catch( NameAlreadyDefined nad )
         {
-            Environment.output( 4, nad );
             parser.error( "Module name " + full_name() + " already defined", token );
         }
         spec.parse();
@@ -147,7 +146,8 @@ class Module
             }
             catch( IOException io )
             {
-                Environment.output( 2, io );
+                if( logger.isWarnEnabled() )
+                    logger.warn( "Exception: ", io );
             }
         }
         spec.print( ps );
@@ -165,6 +165,8 @@ class Module
     }
 
 }
+
+
 
 
 

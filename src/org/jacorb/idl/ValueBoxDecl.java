@@ -133,7 +133,6 @@ class ValueBoxDecl
         }
         catch( NameAlreadyDefined nad )
         {
-            Environment.output( 4, nad );
             parser.error( "Value box " + typeName() + " already defined", token );
         }
 
@@ -408,6 +407,8 @@ class ValueBoxDecl
         }
     }
 }
+
+
 
 
 

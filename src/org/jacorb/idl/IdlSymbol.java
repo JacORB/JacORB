@@ -24,6 +24,9 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.*;
 
+import org.apache.log.*;
+
+
 /**
  * Base class for all classes of the abstract syntax tree
  *
@@ -58,6 +61,8 @@ class IdlSymbol
     protected static final char fileSeparator =
             System.getProperty( "file.separator" ).charAt( 0 );
 
+    Logger logger;
+
     /**
      * class contstructor
      */
@@ -66,6 +71,7 @@ class IdlSymbol
     {
         super( num );
         inhibitionFlag = parser.getInhibitionState();
+        logger = parser.getLogger();
     }
 
     public void set_included( boolean i )
@@ -284,7 +290,8 @@ class IdlSymbol
 
     public void addImportedAlias( String alias )
     {
-        Environment.output( 2, "addImportedAlias " + alias );
+        if( logger.isWarnEnabled() )
+		 logger.warn( "addImportedAlias " + alias );
         if( alias.indexOf( '.' ) < 0 && !BaseType.isBasicName( alias ) )
         {
             imports.put( alias + "Helper", "" );
@@ -320,7 +327,8 @@ class IdlSymbol
     {
         if( name != null && name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
-            Environment.output( 2, "addImportedName " + name );
+            if( logger.isWarnEnabled() )
+		 logger.warn( "addImportedName " + name );
 
             // If we have a typedef for a basic type we only want
             // to import the helper class.
@@ -346,7 +354,8 @@ class IdlSymbol
     {
         if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
-            Environment.output( 2, "addImportedNameHolder " + name );
+            if( logger.isWarnEnabled() )
+		 logger.warn( "addImportedNameHolder " + name );
 
             imports.put( name, "" );
 //              imports.put( name + "Helper", "" );
@@ -368,9 +377,10 @@ class IdlSymbol
         else
             typeName = ScopedName.unPseudoName( name );
 
-        Environment.output( 2, "setPrintPhaseNames: pack_name " +
-                pack_name + ", name " + name +
-                " typename " + typeName );
+        if( logger.isWarnEnabled() )
+            logger.warn( "setPrintPhaseNames: pack_name " +
+                                          pack_name + ", name " + name +
+                                          " typename " + typeName );
     }
 
     public void printIdMethod( PrintWriter ps )
@@ -389,7 +399,8 @@ class IdlSymbol
 
     String id()
     {
-        Environment.output( 2, "Id for name " + name );
+        if( logger.isWarnEnabled() )
+		 logger.warn( "Id for name " + name );
         IdlSymbol enc = enclosing_symbol;
         StringBuffer sb = new StringBuffer();
 
@@ -454,7 +465,8 @@ class IdlSymbol
                 //		_id = org.jacorb.orb.ir.RepositoryID.toRepositoryID( full_name());
             }
         }
-        Environment.output( 2, "Id for name " + name + " is " + _id );
+        if( logger.isWarnEnabled() )
+		 logger.warn( "Id for name " + name + " is " + _id );
         return _id;
     }
 
@@ -545,3 +557,5 @@ class IdlSymbol
 
 
 }
+
+

@@ -1,8 +1,13 @@
-
 package org.jacorb.idl;
 
-import java_cup.runtime.*;
 import java.util.*;
+import java.io.*;
+
+import java_cup.runtime.*;
+
+import org.apache.log.*;
+import org.apache.log.format.*;
+import org.apache.log.output.io.*;
 
 /**
  *
@@ -69,6 +74,9 @@ parser code
 
     private static int activeParseThreads;
 
+    private static Logger logger;
+    private static Writer logWriter;
+
     /*  a la CORBA 2.4, allow forward declarations that remain undefined */
     public static boolean sloppy = false;
 
@@ -98,6 +106,14 @@ parser code
         localityContraint = false;
 
         finalString = FINAL;
+
+        String pattern = "[%.8{category}] %.7{priority} : %{message}\\n%{throwable}";
+        PatternFormatter formatter = new PatternFormatter( pattern );
+        logWriter = new OutputStreamWriter( System.err );
+        WriterTarget writerTarget = new WriterTarget( logWriter, formatter );
+        logger = Hierarchy.getDefaultHierarchy().getLoggerFor("jacorb.idl");
+        logger.setPriority( Priority.FATAL_ERROR );
+        logger.setLogTargets( new LogTarget[] { writerTarget } );
     }
 
     public static void main( String argv[] )
@@ -167,7 +183,29 @@ parser code
                     {
                         if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                             usage(argv, "-W");
-                        org.jacorb.idl.Environment.verbosityLevel(Integer.parseInt( argv[++i]));
+
+                        int level = Integer.parseInt( argv[++i] );
+                        Priority p = null;      
+                        switch( level )
+                        {
+                            case 1: 
+                                p = Priority.ERROR;
+                                break;
+                            case 2: 
+                                p = Priority.WARN;
+                                break;
+                            case 3: 
+                                p = Priority.INFO;
+                                break;
+                            case 4:
+                                p = Priority.DEBUG;
+                                break;
+                            default:
+                                p = Priority.FATAL_ERROR;
+                       }
+
+                        logger.setPriority( p );
+                        org.jacorb.idl.Environment.verbosityLevel( level );
                         continue;
                     }
                     if( argv[i].startsWith("-D"))
@@ -214,7 +252,6 @@ parser code
                         String jp = argv[i+1].substring(split_idx+1);
 
                         pack_replace.put( idlp, jp );
-                        Environment.output(3,"Replace pack " + idlp + " with " + jp );
                         i++;
                         continue;
                     }
@@ -268,7 +305,6 @@ parser code
                 {
                     if( argv[j].endsWith(".idl"))
                     {
-                        Environment.output( 4, argv[j] );
                         GlobalInputStream.init();
                         try
                         {
@@ -311,7 +347,6 @@ parser code
         catch( Exception e )
         {
             System.err.println( "Error: " + e.getMessage());
-            Environment.output( 2, e );
             usage(argv, e.getMessage());
         }
         return true;
@@ -473,19 +508,16 @@ parser code
 
     public static synchronized void decActiveParseThreads()
     {
-        Environment.output(3,"decActiveParseThreads");
         activeParseThreads--;
     }
 
     public static synchronized void incActiveParseThreads()
     {
-        Environment.output(3,"incActiveParseThreads");
         activeParseThreads++;
     }
 
     public static synchronized int activeParseThreads()
     {
-        Environment.output(3,"activeParseThreads returns "+activeParseThreads );
         return activeParseThreads;
     }
 
@@ -551,6 +583,18 @@ parser code
         else
             return n_str;
     }
+
+    /**
+     * convenience access to the preconfigured loger for the
+     * IDL compiler
+     */
+
+    static final Logger getLogger()
+    {
+        return logger;
+    }
+
+
 
 :};
 
@@ -736,8 +780,6 @@ specification ::=
                    // round to be sure
                    if( parser.activeParseThreads() == 0 )
                    {
-                        Environment.output(3,"Check for runnable threads");
-
                         for( int t = 0;
                              t < InterfaceBody.parseThreads.size() && !runnableFound;
                              t++ )
@@ -755,9 +797,7 @@ specification ::=
                    {
                        synchronized( parser.pending_interfaces )
                        {
-                           Environment.output(3,"Wait for pending_interfaces");
                            parser.pending_interfaces.wait();
-                           Environment.output(3,"Waking up after wait for pending_interfaces");
                        }
                    }
                 }
@@ -774,17 +814,12 @@ specification ::=
                 parser.done_parsing = true;
 
                 /* code generation phase */
-                try
+
+                if (! ((org.jacorb.idl.parser)CUP$parser).parse_only  )
                 {
-                   if (! ((org.jacorb.idl.parser)CUP$parser).parse_only  )
-                   {
-                        RESULT.print(new java.io.PrintWriter( java.lang.System.out ));
-                   }
+                     RESULT.print( new java.io.PrintWriter( java.lang.System.out ) );
                 }
-                catch ( Exception e )
-                {
-                     Environment.output(1,e);
-                }
+
         :}
         | empty
         ;

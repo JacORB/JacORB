@@ -56,7 +56,8 @@ class Literal
         {
             TypeSpec ts = declared_in.const_type.symbol.typeSpec();
 
-            Environment.output( 2, "Literal " + ts.getClass().getName() + " " +
+            if( logger.isWarnEnabled() )
+		 logger.warn( "Literal " + ts.getClass().getName() + " " +
                     ( token != null? token.getClass().getName() :"<no token>" ) );
 
             if( ts instanceof FloatPtType &&
@@ -208,3 +209,5 @@ class Literal
         return result.toString();
     }
 }
+
+

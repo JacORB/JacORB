@@ -40,6 +40,7 @@ public class GlobalInputStream
     private static boolean eof;
     private static File currentFile;
     private static String[] path_names;
+    private static org.apache.log.Logger logger;
 
     /** stack of information for lexical scopes */
     static java.util.Stack positions;
@@ -53,6 +54,7 @@ public class GlobalInputStream
         eof = false;
         currentFile = null;
         positions = new java.util.Stack();
+        logger = parser.getLogger();
     }
 
     public static void setInput( String fname )
@@ -86,7 +88,8 @@ public class GlobalInputStream
         positions.push( position );
         lookahead_stack.push( new Character( lookahead ) );
 
-        Environment.output( 2, "Including " + fname );
+        if( logger.isWarnEnabled() )
+		 logger.warn( "Including " + fname );
         /* files form their own scopes, so we have to open a new one here */
     }
 
@@ -144,7 +147,8 @@ public class GlobalInputStream
                     ioe.printStackTrace();
                 }
 
-                Environment.output( 3, "opening " + dir + File.separator + fname );
+                if( logger.isInfoEnabled() )
+		 logger.info( "opening " + dir + File.separator + fname );
                 currentFile = new File( dir + File.separator + fname );
             }
             else
@@ -172,7 +176,8 @@ public class GlobalInputStream
                 {
                     try
                     {
-                        Environment.output( 3, "opening " + path_names[ i ] + File.separator + fname );
+                        if( logger.isInfoEnabled() )
+		 logger.info( "opening " + path_names[ i ] + File.separator + fname );
                         currentFile = new File( path_names[ i ] + File.separator + fname );
                         return new FileInputStream( currentFile );
                     }
@@ -245,7 +250,8 @@ public class GlobalInputStream
 
                     //ch = stream.read();
                     included = !( positions.empty() );
-                    Environment.output( 3, "returning to " + currentFile + " included: " + included );
+                    if( logger.isInfoEnabled() )
+		 logger.info( "returning to " + currentFile + " included: " + included );
                     lexer.restorePosition( positionInfo );
                 }
                 else
@@ -258,6 +264,8 @@ public class GlobalInputStream
     }
 
 }
+
+
 
 
 

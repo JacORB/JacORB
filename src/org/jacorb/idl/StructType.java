@@ -169,7 +169,6 @@ class StructType
         {
             if (exc)
             {
-                Environment.output( 4, nad );
                 parser.error( "Struct " + typeName() + " already defined", token );
             }
             else
@@ -188,7 +187,6 @@ class StructType
                 }
                 else
                 {
-                    Environment.output( 4, nad );
                     parser.error( "Struct " + typeName() + " already defined", token );
                 }
             }
@@ -594,3 +592,5 @@ class StructType
         }
     }
 }
+
+

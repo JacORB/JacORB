@@ -243,7 +243,8 @@ class ArrayTypeSpec
 
     public String printReadStatement( String var_name, String streamname )
     {
-        Environment.output( 2, "Array printReadStatement" );
+        if( logger.isWarnEnabled() )
+		 logger.warn( "Array printReadStatement" );
 
         StringBuffer sb = new StringBuffer();
         String type = typeName();
@@ -469,3 +470,5 @@ class ArrayTypeSpec
 
 
 }
+
+

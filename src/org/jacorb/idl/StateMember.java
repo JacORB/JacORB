@@ -64,3 +64,5 @@ public class StateMember
                 inStreamName );
     }
 }
+
+

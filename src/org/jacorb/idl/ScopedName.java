@@ -35,14 +35,13 @@ class ScopedName
     extends SimpleTypeSpec
     implements SwitchTypeSpec
 {
+    private static Hashtable pseudoScopes = new Hashtable();
 
-    private static Hashtable pseudoScopes =
-            new Hashtable();
-
-    private static Hashtable enumMap =
-            new Hashtable();
+    private static Hashtable enumMap = new Hashtable();
 
     private static Stack recursionStack = new Stack();
+
+    private static org.apache.log.Logger staticLogger = parser.getLogger();
 
     /**
      *  Interfaces define a new scope, but since we can't do that
@@ -200,9 +199,8 @@ class ScopedName
 
     public void setId( String _id )
     {
-        Environment.output( 3, "ScopedName.setId " + _id );
-        if( Environment.isEnabled( 3 ))
-		 Environment.output( 3, "ScopedName.setId " + _id );
+        if( logger.isInfoEnabled() )
+		 logger.info( "ScopedName.setId " + _id );
 
         typeName = _id;
         escapeName();
@@ -232,9 +230,8 @@ class ScopedName
                 if( lexer.strictJavaEscapeCheck( typeName ))
                     typeName = "_" + typeName;
             }
-            Environment.output( 3, "ScopedName.escapeName " + typeName );
-            if( Environment.isEnabled( 3 ))
-		 Environment.output( 3, "ScopedName.escapeName " + typeName );
+            if( logger.isInfoEnabled() )
+		 logger.info( "ScopedName.escapeName " + typeName );
         }
     }
 
@@ -304,9 +301,8 @@ class ScopedName
 
     private String resolvedName( String pack_name, String s )
     {
-        Environment.output( 3, "Resolve " + pack_name + ":" + s );
-        if( Environment.isEnabled( 3 ))
-		 Environment.output( 3, "Resolve " + pack_name + ":" + s );
+        if( logger.isInfoEnabled() )
+		 logger.info( "Resolve " + pack_name + ":" + s );
 
         boolean global = false;
 
@@ -334,14 +330,9 @@ class ScopedName
         {
             String unmap = unMap( ( !global? pack_name + "." : "" ) + result );
 
-            if( Environment.isEnabled( 3 ))
-            {
-		 Environment.output( 3, "resolve, " + 
-                                     ( !global? pack_name + "." : "" ) + 
-                                     result +
-                                     " was in name table, returning " + unmap +
-                                     " suffix: " + suffix );
-            }
+            if( logger.isInfoEnabled() )
+		 logger.info( "resolve, " + ( !global? pack_name + "." : "" ) + result + " was in name table, returning " + unmap + " suffix: " + suffix );
+
             return unmap + suffix;
         }
 
@@ -376,12 +367,9 @@ class ScopedName
                 if( NameTable.defined( result ) )
                 {
                     String unmap2 = unMap( result );
-                    if( Environment.isEnabled( 3 ))
-                    {
-                        Environment.output( 3, "resolve b, " + result +
-                                            " was in name table, returning " +
-                                            unmap2 + " suffix: " + suffix );
-                    }
+
+                    if( logger.isInfoEnabled() )
+		 logger.info( "resolve b, " + result + " was in name table, returning " +  unmap2 + " suffix: " + suffix );
                     return unmap2 + suffix;
                 }
             }
@@ -505,7 +493,8 @@ class ScopedName
             buf.append( s );
         }
         String res = unMap( prefix + buf.toString() ) + suffix;
-        Environment.output( 4, "ScopedName.resolve (at end) returns: " + res );
+        if( logger.isDebugEnabled() )
+		 logger.debug( "ScopedName.resolve (at end) returns: " + res );
         //System.out.println("Return! resolved name is " + res);
         return res;
     }
@@ -684,7 +673,8 @@ class ScopedName
 
     public static void addRecursionScope( String typeName )
     {
-        Environment.output( 2, "addRecursionScope " + typeName );
+        if( staticLogger.isWarnEnabled() )
+            staticLogger.warn( "addRecursionScope " + typeName );
         recursionStack.push( typeName );
     }
 
@@ -694,14 +684,15 @@ class ScopedName
         if( typeName != null && ( check == null || !check.equals( typeName ) ) )
         {
             throw new RuntimeException( "RecursionScope Error, expected " +
-                    typeName + ", got " + check );
+                                        typeName + ", got " + check );
         }
     }
 
     public static boolean isRecursionScope( String typeName )
     {
-        Environment.output( 2, "Check isRecursionScope " + typeName +
-                " " + recursionStack.search( typeName ) );
+        if( staticLogger.isWarnEnabled() )
+            staticLogger.warn( "Check isRecursionScope " + typeName +
+                               " " + recursionStack.search( typeName ) );
 
         return ( recursionStack.search( typeName ) != -1 );
     }
@@ -713,3 +704,5 @@ class ScopedName
                 ( (SwitchTypeSpec)t ).isSwitchable() );
     }
 }
+
+

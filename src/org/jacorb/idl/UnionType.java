@@ -199,7 +199,6 @@ class UnionType
             }
             else
             {
-                Environment.output( 4, nad );
                 parser.error( "Union " + full_name() + " already defined", token );
             }
         }
@@ -363,14 +362,6 @@ class UnionType
                         // this is a scoped name
                         allCaseLabels.addElement
                             (ScopedName.unPseudoName (((ScopedName)ce).resolvedName()));
-
-                        Environment.output
-                        (
-                            4,
-                             "Adding " +
-                            (ScopedName.unPseudoName (((ScopedName)ce).resolvedName ())) +
-                            " case labels."
-                        );
                     }
                 }
                 else
@@ -1334,3 +1325,5 @@ class UnionType
         return tspec;
     }
 }
+
+

@@ -65,7 +65,8 @@ class Interface
 
     public void setPackage( String s )
     {
-        Environment.output( 4, "** Interface setPackage " + s );
+        if( logger.isDebugEnabled() )
+            logger.debug( "Interface setPackage " + s );
 
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
@@ -232,7 +233,6 @@ class Interface
             }
             else
             {
-                Environment.output( 4, nad );
                 parser.error( "Interface " + typeName() + " already defined", token );
             }
         }
@@ -241,7 +241,8 @@ class Interface
         {
             if( inheritanceSpec != null && inheritanceSpec.v.size() > 0 )
             {
-                Environment.output( 4, "Checking inheritanceSpec of " + full_name() );
+                if( logger.isDebugEnabled() )
+                    logger.debug( "Checking inheritanceSpec of " + full_name() );
                 Hashtable h = new Hashtable();
                 for( Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements(); )
                 {
@@ -1022,3 +1023,5 @@ class Interface
         }
     }
 }
+
+

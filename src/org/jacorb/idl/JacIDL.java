@@ -353,7 +353,7 @@ public class JacIDL extends MatchingTask
                     // setup the parser
                     String fileName = _compileList[ i ].getPath();
                     log( "processing idl file: " + fileName );
-                    Environment.output( 4, fileName );
+
                     GlobalInputStream.init();
                     GlobalInputStream.setInput( fileName );
                     lexer.reset();
@@ -370,14 +370,13 @@ public class JacIDL extends MatchingTask
         }
         catch( IOException ioex )
         {
-
             ioex.printStackTrace();
-
+            throw new BuildException();
         }
         catch( Exception ex )
         {
-
             ex.printStackTrace();
+            throw new BuildException();
         }
     }
 
@@ -463,3 +462,5 @@ public class JacIDL extends MatchingTask
         }
     }
 }
+
+

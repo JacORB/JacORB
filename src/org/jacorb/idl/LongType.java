@@ -104,3 +104,5 @@ class LongType
             return "extract_long";
     }
 }
+
+

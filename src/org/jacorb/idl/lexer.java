@@ -126,6 +126,7 @@ public class lexer
     /** currently active pragma prefix */
     public static String currentPragmaPrefix = "";
 
+    private static org.apache.log.Logger logger;
 
     /** reset the scanner state */
 
@@ -151,10 +152,12 @@ public class lexer
      */
 
     public static void init()
-            throws java.io.IOException
+        throws java.io.IOException
     {
         /* set up standard symbols */
         defines.put( "JACORB_IDL_1_4", "" );
+
+        logger = parser.getLogger();
 
         /* set up the keyword table */
 
@@ -340,13 +343,15 @@ public class lexer
 
     public static void define( String symbol, String value )
     {
-        Environment.output( 4, "Defining: " + symbol + " as " + value );
+        if( logger.isDebugEnabled() )
+		 logger.debug( "Defining: " + symbol + " as " + value );
         defines.put( symbol, value );
     }
 
     public static void undefine( String symbol )
     {
-        Environment.output( 4, "Un-defining: " + symbol );
+        if( logger.isDebugEnabled() )
+		 logger.debug( "Un-defining: " + symbol );
         defines.remove( symbol );
     }
 
@@ -715,7 +720,8 @@ public class lexer
                 if( brackets )
                 {
                     swallow_whitespace();
-                    Environment.output( 4, "next char: " + next_char );
+                    if( logger.isDebugEnabled() )
+		 logger.debug( "next char: " + next_char );
 
                     if( ')' != next_char )
                     {
@@ -936,7 +942,8 @@ public class lexer
         }
 
         // check if it's a keyword
-        Environment.output( 3, "Advancing after symbol " + result_str );
+        if( logger.isInfoEnabled() )
+		 logger.info( "Advancing after symbol " + result_str );
 
         keyword_num = (Integer)keywords.get( result_str );
         if( keyword_num != null )
@@ -987,7 +994,8 @@ public class lexer
     public static String checkIdentifier( String str )
     {
 
-        Environment.output( 3, "checking identifier " + str );
+        if( logger.isInfoEnabled() )
+		 logger.info( "checking identifier " + str );
 
         /* if it is an escaped identifier, look it up as a keyword,
            otherwise remove the underscore. */
@@ -1047,7 +1055,8 @@ public class lexer
     public static boolean needsJavaEscape( Module m )
     {
         String s = m.pack_name;
-        Environment.output( 4, "checking module name " + s );
+        if( logger.isDebugEnabled() )
+		 logger.debug( "checking module name " + s );
         return ( strictJavaEscapeCheck( s ) );
     }
 
@@ -1892,3 +1901,5 @@ public class lexer
         return result;
     }
 }
+
+

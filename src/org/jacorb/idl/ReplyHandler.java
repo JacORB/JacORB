@@ -198,7 +198,6 @@ public class ReplyHandler extends Interface
         }
         catch (NameAlreadyDefined e)
         {
-            Environment.output( 4, e );
             parser.error( "Interface " + typeName() + " already defined", token );
         }
         
@@ -217,3 +216,5 @@ public class ReplyHandler extends Interface
             
 
 }
+
+

@@ -132,7 +132,10 @@ class EnumType
             // are defined. Therefore, an additional mapping in
             // ScopedName is required.
 
-            String prefix = ( pack_name.length() > 0 ? pack_name + "." : "" );
+            String prefix = ( pack_name.length() > 0 ? 
+                              full_name().substring( 0, full_name().lastIndexOf('.')+1 ) : 
+                              "" );
+            //           String prefix = ( pack_name.length() > 0 ? pack_name + "." : "" );
 
             for( Enumeration e = enumlist.v.elements(); e.hasMoreElements(); )
             {
@@ -141,7 +144,7 @@ class EnumType
                 {
                     NameTable.define( prefix + enum_ident, "enum label" );
                     ScopedName.enumMap( prefix + enum_ident, full_name() +
-                            "." + enum_ident );
+                                        "." + enum_ident );
                 }
                 catch( NameAlreadyDefined p )
                 {
@@ -438,3 +441,5 @@ class EnumType
         return true;
     }
 }
+
+

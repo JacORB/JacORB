@@ -175,7 +175,6 @@ class ValueDecl
             }
             else
             {
-                Environment.output( 4, nad );
                 parser.error( "Valuetype " + typeName() + " already defined", token );
             }
         }
@@ -186,7 +185,8 @@ class ValueDecl
             stateMembers.parse();
             ScopedName.removeRecursionScope( typeName() );
 
-            Environment.output( 2, "valueDecl.parse(): operations" );
+            if( logger.isWarnEnabled() )
+		 logger.warn( "valueDecl.parse(): operations" );
 
             // parse operations
             Iterator iter = operations.iterator();
@@ -196,7 +196,8 @@ class ValueDecl
                 sym.parse();
             }
 
-            Environment.output( 2, "valueDecl.parse(): exports" );
+            if( logger.isWarnEnabled() )
+		 logger.warn( "valueDecl.parse(): exports" );
 
             // parser exports
             iter = exports.iterator();
@@ -791,3 +792,5 @@ class ValueDecl
     }
 
 }
+
+

@@ -52,6 +52,8 @@ class NameTable
 
     public static Hashtable parsed_interfaces = new Hashtable();
 
+    static org.apache.log.Logger logger;
+
     public static void init()
     {
         h.clear();
@@ -74,6 +76,8 @@ class NameTable
         h.put( "void", "type" );
         h.put( "org.omg.CORBA.Any", "type" );
         h.put( "org.omg.CORBA.Object", "interface" );
+
+        logger = parser.getLogger();
     }
 
     /**
@@ -83,7 +87,8 @@ class NameTable
     private static void checkScopingRules( String name, String kind )
             throws NameAlreadyDefined
     {
-        Environment.output( 1,
+        if( logger.isDebugEnabled() )
+		 logger.debug(
                 "NameTable.checkScopingRules:  " +
                 name + " kind: " + kind );
 
@@ -102,7 +107,8 @@ class NameTable
             scopes[ i ] = strtok.nextToken();
         }
 
-        Environment.output( 1,
+        if( logger.isDebugEnabled() )
+		 logger.debug(
                 "NameTable.checkScopingRules2:  " +
                 name + " kind: " + kind );
 
@@ -116,7 +122,8 @@ class NameTable
         // later use...
 //          for( int i = scopes.length-1; i >= 0; i-- )
 //          {
-//              Environment.output( 1,
+//              if( logger.isDebugEnabled() )
+        //		 logger.debug(
 //                                  "NameTable.checkScopingRules2:  " +
 //                                  name + " kind: " + kind );
 
@@ -129,14 +136,16 @@ class NameTable
 
 //              sb.append( scopes[ scopes.length - 1 ] );
 
-//              Environment.output( 1,
+//              if( logger.isDebugEnabled() )
+        //		 logger.debug(
 //                                  "NameTable.checkScopingRules3:  " + sb.toString() );
 
 
 //              if( h.containsKey( sb.toString() ))
 //              {
 //                  String definedKind = (String)h.get( sb.toString() );
-//                  Environment.output( 1,
+//                  if( logger.isDebugEnabled() )
+        //		 logger.debug(
 //                                      "NameTable.checkScopingRules4:  " +
 //                                      sb.toString() +
 //                                      " definedKind: " + definedKind);
@@ -167,7 +176,8 @@ class NameTable
     public static void define( String name, String kind )
             throws NameAlreadyDefined
     {
-        Environment.output( 3,
+        if( logger.isInfoEnabled() )
+		 logger.info(
                 "NameTable.define2: putting " +
                 name + " kind " + kind + " hash: " +
                 name.hashCode() );
@@ -236,7 +246,8 @@ class NameTable
                 presentOpName = source + "." + opName;
 
             }
-            Environment.output( 3,
+            if( logger.isInfoEnabled() )
+		 logger.info(
                     "NameTable source of " + name
                     + " is " + presentOpName );
 
@@ -250,7 +261,8 @@ class NameTable
                 }
                 otherOpName = source + "." + opName;
             }
-            Environment.output( 3,
+            if( logger.isInfoEnabled() )
+		 logger.info(
                     "NameTable other source of " + name
                     + " is " + otherOpName );
 
@@ -281,7 +293,7 @@ class NameTable
      */
 
     private static void defineShadows( Hashtable shadowEntries )
-            throws NameAlreadyDefined
+        throws NameAlreadyDefined
     {
         String firstViolation = null;
         for( Enumeration e = shadowEntries.keys(); e.hasMoreElements(); )
@@ -295,7 +307,8 @@ class NameTable
             else
             {
                 h.put( name, kind );
-                Environment.output( 4, "Put shadow " + name );
+                if( logger.isDebugEnabled() )
+                    logger.debug( "Put shadow " + name );
                 shadows.put( name, "" );
                 if( kind.equals( "operation" ) )
                     operationSources.put( name, name.substring( 0, name.lastIndexOf( "." ) ) );
@@ -312,8 +325,9 @@ class NameTable
      *  @throw NameAlreadyDefined
      */
 
-    public static synchronized void inheritFrom( String name, SymbolList ancestors )
-            throws NameAlreadyDefined
+    public static synchronized void inheritFrom( String name, 
+                                                 SymbolList ancestors )
+        throws NameAlreadyDefined
     {
         Hashtable shadowNames = new Hashtable();
         for( Enumeration e = h.keys(); e.hasMoreElements(); )
@@ -331,8 +345,9 @@ class NameTable
                 if( s.equals( anc ) )
                 {
                     String kind = (String)h.get( key );
-                    Environment.output( 4, "NameTable.inheritFrom ancestor " +
-                            anc + " : key " + key + " kind " + kind );
+                    if( logger.isDebugEnabled() )
+                        logger.debug( "NameTable.inheritFrom ancestor " +
+                                                       anc + " : key " + key + " kind " + kind );
 
                     String shadowKey = name + key.substring( key.lastIndexOf( '.' ) );
                     shadowNames.put( shadowKey, kind );
@@ -342,7 +357,8 @@ class NameTable
 
                     if( kind.startsWith( "type" ) )
                     {
-                        Environment.output( 4, "- NameTable.inherit type from:  " + key );
+                        if( logger.isDebugEnabled() )
+                            logger.debug( "- NameTable.inherit type from:  " + key );
 
 
                         TypeSpec t =
@@ -364,7 +380,8 @@ class NameTable
                         //                          }
                         //                          catch ( NameAlreadyDefined nad )
                         //                          {
-                        //                            Environment.output(3,nad);
+                        //                            if( logger.isInfoEnabled() )
+                        //		 logger.info(nad);
                         //                              // Can be ignored: it is legal to inherit multiple
                         //                              // type definitions of the same name in IDL
                         //                              // System.err.println("Problem " + name + " inherits (multiple inh.)");
@@ -372,12 +389,13 @@ class NameTable
                     }
                     else if( kind.equals( "operation" ) )
                     {
-                        Environment.output( 4, "- NameTable.inherit operation from:  " +
-                                key );
+                        if( logger.isDebugEnabled() )
+                            logger.debug( "- NameTable.inherit operation from:  " +
+                                                           key );
 
                         NameTable.defineInheritedOperation( name +
-                                key.substring( key.lastIndexOf( '.' ) ),
-                                anc );
+                                                            key.substring( key.lastIndexOf( '.' ) ),
+                                                            anc );
                     }
 
                     if( !defined( key ) )
@@ -394,7 +412,8 @@ class NameTable
         }
         catch( NameAlreadyDefined nad )
         {
-            Environment.output( 4, nad );
+            if( logger.isDebugEnabled() )
+		 logger.debug( "Exception ", nad );
             // System.err.println( nad.getMessage + " already defined, " + name + " inherits (multiple inh.)");
         }
     }
@@ -445,7 +464,8 @@ class NameTable
 //              }
 //              else
 //              {
-//                  Environment.output( 4, "Not a global type: " + str );
+//                  if( logger.isDebugEnabled() )
+    //		 logger.debug( "Not a global type: " + str );
 //              }
 //          }
 
@@ -464,6 +484,8 @@ class NameTable
     }
 
 }
+
+
 
 
 

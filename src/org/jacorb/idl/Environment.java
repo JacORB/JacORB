@@ -21,21 +21,36 @@ package org.jacorb.idl;
  */
 
 
+
 public final class Environment
 {
     private static int verbosity = 0;
 
-    public static final void verbosityLevel( int level )
+    /**
+     * called by the parser to set the verbosity level
+     */
+
+    static final void verbosityLevel( int level )
     {
         verbosity = level;
+
     }
 
-    public static final boolean isEnabled( int msg_level )
+
+    /**
+     * @deprecated 
+     */
+
+    static final boolean isEnabled( int msg_level )
     {
         return msg_level <= verbosity;
     }
 
-    public static final void output( int msg_level, String msg )
+    /**
+     * @deprecated 
+     */
+
+    static final void output( int msg_level, String msg )
     {
         if( msg_level > verbosity )
             return;
@@ -43,7 +58,11 @@ public final class Environment
         System.out.println( "   [ " + msg + " ]" );
     }
 
-    public static final void output( int msg_level, Throwable t )
+    /**
+     * @deprecated 
+     */
+
+    static final void output( int msg_level, Throwable t )
     {
         if( msg_level > verbosity )
             return;
@@ -53,5 +72,8 @@ public final class Environment
     }
 
 
+
 }
+
+
 

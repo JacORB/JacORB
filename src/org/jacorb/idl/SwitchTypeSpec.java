@@ -33,3 +33,5 @@ interface SwitchTypeSpec
 
     public boolean isSwitchable();
 }
+
+

@@ -132,3 +132,5 @@ class CharType
         return !wide;
     }
 }
+
+

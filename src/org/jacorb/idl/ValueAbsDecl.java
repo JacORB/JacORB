@@ -171,7 +171,8 @@ class ValueAbsDecl
         {
             if( inheritanceSpec != null && inheritanceSpec.v.size() > 0 )
             {
-                Environment.output( 4, "Checking inheritanceSpec of " + full_name() );
+                if( logger.isDebugEnabled() )
+		 logger.debug( "Checking inheritanceSpec of " + full_name() );
                 for( Enumeration e = inheritanceSpec.v.elements(); e.hasMoreElements(); )
                 {
                     ScopedName name = (ScopedName)e.nextElement();
@@ -336,6 +337,8 @@ class ValueAbsDecl
         }
     }
 }
+
+
 
 
 

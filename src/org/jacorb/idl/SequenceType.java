@@ -105,7 +105,8 @@ public class SequenceType
 
     void setRecursive()
     {
-        Environment.output( 2, "Sequence " + typeName +
+        if( logger.isWarnEnabled() )
+		 logger.warn( "Sequence " + typeName +
                 " set recursive ------- this: " + this );
         recursive = true;
     }
@@ -116,7 +117,8 @@ public class SequenceType
 
     public String getTypeCodeExpression()
     {
-        Environment.output( 1, "Sequence getTypeCodeExpression " + name );
+        if( logger.isDebugEnabled() )
+		 logger.debug( "Sequence getTypeCodeExpression " + name );
         String originalType = null;
 
         if( recursive )
@@ -148,7 +150,8 @@ public class SequenceType
 
     public String printReadStatement( String var_name, String streamname )
     {
-        Environment.output( 1, "Sequence printReadStatement for " + typeName() );
+        if( logger.isDebugEnabled() )
+		 logger.debug( "Sequence printReadStatement for " + typeName() );
 
         StringBuffer sb = new StringBuffer();
         String type = typeName();
@@ -544,6 +547,8 @@ public class SequenceType
 
 
 }
+
+
 
 
 

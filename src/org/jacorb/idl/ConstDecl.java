@@ -192,7 +192,8 @@ class ConstDecl
             }
             enc = enc.getEnclosingSymbol();
         }
-        Environment.output( 4, "ConstDecl.contained()? " + full_name()
+        if( logger.isDebugEnabled() )
+		 logger.debug( "ConstDecl.contained()? " + full_name()
                 + " returns " + result );
         return result;
     }
@@ -237,7 +238,8 @@ class ConstDecl
                     new PrintWriter( new java.io.FileWriter(
                             new File( dir, fname ) ) );
 
-            Environment.output( 4, "ConstDecl.print " + fname );
+            if( logger.isDebugEnabled() )
+		 logger.debug( "ConstDecl.print " + fname );
 
             if( !pack_name.equals( "" ) )
                 pw.println( "package " + pack_name + ";" );
@@ -259,7 +261,8 @@ class ConstDecl
 
             pw.print( "\t" + const_type.toString() + " value = " );
 
-            Environment.output( 2, "ConstDecl, ts " +
+            if( logger.isWarnEnabled() )
+		 logger.warn( "ConstDecl, ts " +
                     const_type.toString() + " " + ts.getClass() );
 
             if( ts instanceof ShortType )
@@ -309,3 +312,5 @@ class ConstDecl
         }
     }
 }
+
+
