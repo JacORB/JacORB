@@ -464,6 +464,9 @@ public abstract class AbstractProxySupplier
                                 {
                                     logger_.error("invalid event type", e);
                                 }
+                            catch (Exception e) {
+                                logger_.error("offer_change failed", e);
+                            }
                         }
                     };
 
