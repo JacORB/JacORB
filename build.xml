@@ -18,6 +18,7 @@
    <property name="debug" value="off"/>
    <mkdir dir="${classdir}"/>
    <mkdir dir="${lib}"/>
+   <mkdir dir="${src}/generated"/>
    <filter token="path" value="basedir"/>
    </target>
 
