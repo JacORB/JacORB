@@ -233,7 +233,7 @@ public class Messages
     
     public static final boolean responseExpected( byte flags )
     {
-        return (0x03 & flags) == 0x03;
+        return flags == (byte)0x01 || flags == (byte)0x03;
     }
     
     public static final byte responseFlags( boolean response_expected )
