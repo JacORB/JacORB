@@ -30,7 +30,7 @@
 
    <!-- top-level targets  -->
 
-   <target name="all" depends="init,compiler,omg_idl,jacorb,libs" />
+   <target name="all" depends="init,compiler,omg_idl,http,jacorb,libs" />
 
    <!--               -->
    <!-- IDL compiler  -->
@@ -91,6 +91,15 @@
         <ant antfile="${basedir}/idl/build.xml" dir="${basedir}"/>
    </target>
 
+
+   <!-- ==================================================== -->
+   <!--           HTTP client for HTTP Tunneling             -->
+   <!-- ==================================================== -->
+
+
+   <target name="http" depends="init">
+       <ant antfile="${src}/HTTPClient/build.xml" dir="${basedir}"/>
+   </target>
 
 
    <!-- ==================================================== -->
