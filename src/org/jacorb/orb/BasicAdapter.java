@@ -412,7 +412,7 @@ public class BasicAdapter
             {
                 address_string = addr.toString();
 
-                if( address_string.indexOf( "/" ) > 0 )
+                if( address_string.indexOf( "/" ) >= 0 )
                 {
                     address_string = 
                         address_string.substring( 
