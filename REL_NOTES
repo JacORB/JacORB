@@ -18,6 +18,7 @@ gerald.brose@acm.org
         - native IIOP, supports IIOP 1.2 Code sets and IIOP over SSL
         - GIOP 1.2, Bidirectional GIOP
         - POA
+        - AMI (callback model)
         - OBV
         - DynAny
         - Implementation Repository with GUI
@@ -50,6 +51,10 @@ gerald.brose@acm.org
           off indirection encoding for repeated typecodes.
         - Added property 'jacorb.dns.enable' to control use of DNS when support
           is included.
+        - AMI (Asynchronous Method Invocation) is now implemented.
+          At present, there is only support for the callback model.
+          QoS policies are being worked on.  At this time, only
+          RelativeRoundtripTimeout and ReplyStartTime work.
         - Fix for ClientRequestInfo target field value.
         - Fix for marshalling of negative fixed values.
         - Fix for reply status value for server side portable interceptors.
