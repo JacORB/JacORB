@@ -112,7 +112,4 @@ class LongLongType
         else
             return "extract_longlong";
     }
-
 }
-
-
