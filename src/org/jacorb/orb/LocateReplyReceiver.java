@@ -1,3 +1,5 @@
+package org.jacorb.orb;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,8 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb;
-
 import org.jacorb.orb.*;
 import org.jacorb.orb.connection.MessageInputStream;
 import org.jacorb.orb.connection.LocateReplyInputStream;
@@ -31,7 +31,7 @@ import org.omg.CORBA.portable.RemarshalException;
 /**
  * A special ReplyPlaceholder that receives LocateReplies.
  *
- * @author Andre Spiegel
+ * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
 public class LocateReplyReceiver 

@@ -1,5 +1,25 @@
 package org.jacorb.orb;
 
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1997-2002  Gerald Brose.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 import java.io.*;
 import java.lang.reflect.*;
 
@@ -13,8 +33,22 @@ import org.jacorb.ir.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.connection.*;
 
+/**
+ * JacORB-specific implementation of 
+ * <code>org.omg.Messaging.ExceptionHolder</code>.  An instance of this
+ * type is used to pass an exception to a reply handler.
+ *
+ * @author Andre Spiegel <spiegel@gnu.org>
+ * @version $Id$
+ */
 public class ExceptionHolderImpl extends org.omg.Messaging.ExceptionHolder
 {
+    /**
+     * Constructs an ExceptionHolderImpl object from an input stream.
+     * It is assumed that the reply status of this input stream is
+     * either USER_EXCEPTION or SYSTEM_EXCEPTION.  If it has another
+     * status, a RuntimeException is thrown.
+     */
     public ExceptionHolderImpl( ReplyInputStream is )
     {
         int status = is.getStatus().value();
@@ -85,6 +119,9 @@ public class ExceptionHolderImpl extends org.omg.Messaging.ExceptionHolder
            "raise_exception_with_list not yet implemented" );
     }
 
+    /**
+     * For testing.
+     */
     public String toString()
     {
         StringBuffer result = new StringBuffer();
@@ -150,7 +187,10 @@ public class ExceptionHolderImpl extends org.omg.Messaging.ExceptionHolder
                              );
         return ( org.omg.CORBA.UserException ) result;           
     }
-    
+
+    /**
+     * Marshals this object into a new buffer and returns that buffer.
+     */    
     public byte[] marshal()
     {
          byte[] buffer = 

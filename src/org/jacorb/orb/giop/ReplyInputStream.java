@@ -86,11 +86,57 @@ public class ReplyInputStream
         }
     }
 
+    /**
+     * Returns the reply status of this reply.
+     */
     public ReplyStatusType_1_2 getStatus()
     {
         return rep_hdr.reply_status;
     }
-    
+
+    /**
+     * Returns any exception that is indicated by this reply.  If
+     * the reply status is USER_EXCEPTION, SYSTEM_EXCEPTION, LOCATION_FORWARD,
+     * or LOCATION_FORWARD_PERM, an appropriate exception object is returned.
+     * For any other status, returns null.
+     */
+    public synchronized Exception getException() 
+    {
+        switch( rep_hdr.reply_status.value() ) 
+        {
+            case ReplyStatusType_1_2._USER_EXCEPTION : 
+            {
+                mark( 0 ); 
+                String id = read_string();
+                
+                try
+                {
+                    reset();
+                }
+                catch( java.io.IOException ioe )
+                {
+                    //should not happen anyway
+                    Debug.output( 1, ioe );
+                }
+                return new ApplicationException( id, this );
+            }
+            case ReplyStatusType_1_2._SYSTEM_EXCEPTION: 
+            {
+                return SystemExceptionHelper.read( this );
+            }
+            case  ReplyStatusType_1_2._LOCATION_FORWARD:
+            case  ReplyStatusType_1_2._LOCATION_FORWARD_PERM: 
+            {
+                return new ForwardRequest( read_Object() );
+            }
+            default:
+            {
+                return null;
+            }
+    }
+    }
+
+   
     /**
      * Returns a copy of the body of this reply.  This does not include
      * the GIOP header and the reply header.
