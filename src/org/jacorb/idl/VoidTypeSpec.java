@@ -27,10 +27,9 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class VoidTypeSpec
-        extends TypeSpec
+public class VoidTypeSpec
+    extends TypeSpec
 {
-
     public VoidTypeSpec( int num )
     {
         super( num );
@@ -41,10 +40,13 @@ class VoidTypeSpec
         return "void";
     }
 
+    /**
+     * @returns true if this is a basic type
+     */
 
-    public String typeSignature()
-    {
-        return "V";
+    public boolean basic()
+    {        
+        return true;
     }
 
     public void print( PrintWriter ps )

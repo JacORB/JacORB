@@ -27,10 +27,9 @@ import java.io.PrintWriter;
  * @version 1.0, December 1998
  */
 
-class Declarator
-        extends IdlSymbol
+public class Declarator
+    extends IdlSymbol
 {
-
     public Declarator d;
 
     public Declarator( int num )

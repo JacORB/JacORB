@@ -27,7 +27,7 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class ParamDecl
+public class ParamDecl
     extends IdlSymbol
 {
     public static final int MODE_IN    = 1;
@@ -50,7 +50,7 @@ class ParamDecl
                       TypeSpec paramTypeSpec,
                       SimpleDeclarator simple_declarator )
     {
-        super (new_num());
+        super( new_num());
         this.paramAttribute = paramAttribute;
         this.paramTypeSpec  = paramTypeSpec;
         this.simple_declarator = simple_declarator;
@@ -144,6 +144,12 @@ class ParamDecl
     {
         return paramTypeSpec.typeSpec().printReadExpression( ps );
     }
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitParamDecl( this );
+    }
+
 
 }
 

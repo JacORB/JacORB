@@ -43,7 +43,7 @@ public class SequenceType
     private boolean recursive = false;
 
     public ConstExpr max = null;
-    public int length = 0;
+    int length = 0;
 
     public SequenceType( int num )
     {
@@ -99,6 +99,15 @@ public class SequenceType
         type_spec.setPackage( s );
         if( max != null )
             max.setPackage( s );
+    }
+
+    /**
+     * @overrides length() in VectorType
+     */
+
+    public int length()
+    {
+        return length;
     }
 
 

@@ -26,7 +26,7 @@ package org.jacorb.idl;
  */
 
 class ShortType
-        extends IntType
+    extends IntType
 {
 
     public ShortType( int num )

@@ -80,7 +80,12 @@ public class ObjectTypeSpec
 
     public String getTypeCodeExpression()
     {
-        return "org.omg.CORBA.ORB.init().create_interface_tc(\"IDL:omg.org/CORBA/Object:1.0\",\"Object\")";
+        return "org.omg.CORBA.ORB.init().create_interface_tc(\"" + id() + "\",\"Object\")";
+    }
+
+    public String id()
+    {
+        return "IDL:omg.org/CORBA/Object:1.0";
     }
 
     public void print( PrintWriter ps )

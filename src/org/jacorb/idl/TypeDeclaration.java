@@ -28,7 +28,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.*;
 
-class TypeDeclaration
+public class TypeDeclaration
     extends Declaration
 {
     boolean typedefd = false;
@@ -162,6 +162,27 @@ class TypeDeclaration
     {
         return type_decl.printWriteStatement( var_name, streamname );
     }
+
+//      public String id()
+//      {
+//          System.out.println("TypeDecl.id() called in class " + getClass().getName() + " from: ");
+//          new RuntimeException().printStackTrace();
+
+//          if( type_decl != null )
+//              return type_decl.id();
+//          else
+//              return super.id();
+//      }
+
+    /**
+     * @overrides accept in Declaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        type_decl.accept( visitor );
+    }
+
 
 }
 

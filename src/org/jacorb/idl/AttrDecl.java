@@ -29,9 +29,8 @@ import java.util.*;
  */
 
 class AttrDecl
-        extends Declaration
+    extends Declaration
 {
-
     public boolean readOnly;
     public TypeSpec param_type_spec;
     public SymbolList declarators;
@@ -121,9 +120,4 @@ class AttrDecl
 
 
 }
-
-
-
-
-
 

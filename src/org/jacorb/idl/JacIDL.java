@@ -68,6 +68,7 @@ public class JacIDL
     public JacIDL()
     {
         parser.command_line = null;
+        parser.import_list = new Vector();
         parser.pack_replace = new Hashtable();
         parser.scopes = new java.util.Stack();
         parser.include_state = false;

@@ -26,10 +26,9 @@ package org.jacorb.idl;
  */
 
 
-class SimpleDeclarator
-        extends Declarator
+public class SimpleDeclarator
+    extends Declarator
 {
-
     public SimpleDeclarator( int num )
     {
         super( num );

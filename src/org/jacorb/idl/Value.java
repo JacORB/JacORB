@@ -27,7 +27,7 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class Value
+public class Value
     extends TypeDeclaration
 {
     private Value value;
@@ -134,6 +134,16 @@ class Value
     {
         return value.printWriteStatement( var_name, streamname );
     }
+
+    /**
+     * @overrides accept in TypeDeclaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitValue( this );
+    }
+
 
 }
 

@@ -26,7 +26,7 @@ package org.jacorb.idl;
  */
 
 class SimpleTypeSpec
-        extends TypeSpec
+    extends TypeSpec
 {
 
     public SimpleTypeSpec( int num )

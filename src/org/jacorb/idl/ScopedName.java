@@ -31,7 +31,7 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.util.*;
 
-class ScopedName
+public class ScopedName
     extends SimpleTypeSpec
     implements SwitchTypeSpec
 {
@@ -331,7 +331,10 @@ class ScopedName
             String unmap = unMap( ( !global? pack_name + "." : "" ) + result );
 
             if( logger.isInfoEnabled() )
-		 logger.info( "resolve, " + ( !global? pack_name + "." : "" ) + result + " was in name table, returning " + unmap + " suffix: " + suffix );
+		 logger.info( "resolve, " + 
+                              ( !global? pack_name + "." : "" ) + result + 
+                              " was in name table, returning " + unmap + 
+                              " suffix: " + suffix );
 
             return unmap + suffix;
         }
@@ -535,6 +538,7 @@ class ScopedName
         String tmp = null;
         TypeSpec y = TypeMap.map( _name );
         TypeSpec x = null;
+
         while( y != null && !( y instanceof ScopedName )
                 && !( y instanceof ConstrTypeSpec ) )
         {
@@ -589,6 +593,9 @@ class ScopedName
         if( n.endsWith( "PackagePackage" ) || !n.startsWith( "_" ) && n.endsWith( "Package" ) )
             n = n.substring( 0, n.lastIndexOf( "Package" ) );
 
+        int i = n.indexOf( '.' );
+        if( i > 0 && parser.hasImports() )
+            n = n.substring( i + 1 );
         return n;
     }
 

@@ -29,7 +29,7 @@ import java.util.*;
  * @version $Id$
  */
 
-class EnumType
+public class EnumType
     extends TypeDeclaration
     implements SwitchTypeSpec
 {
@@ -449,4 +449,14 @@ class EnumType
     {
         return true;
     }
+
+    /**
+     * @overrides accept in TypeDeclaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitEnum( this );
+    }
+
 }

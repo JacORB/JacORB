@@ -27,9 +27,8 @@ package org.jacorb.idl;
 
 
 class IllegalRedefinition
-        extends NameAlreadyDefined
+    extends NameAlreadyDefined
 {
-
     public String oldDef;
     public String newDef;
 

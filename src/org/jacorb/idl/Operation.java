@@ -28,47 +28,60 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.io.Serializable;
 
-interface Operation
-        extends Serializable
+public interface Operation
+    extends Serializable
 {
-    /**
-     * <code>name</code> gives the plain name of the operation
-     * @return a <code>String</code> value
-     */
-    public String name();
+
+    /** plain name of the operation */
+
+    String name();
+
+    /*  mangled name in case of attributes (_get_, _set_)*/
+
+    String opName();
+
+    String signature();
+
+    void printSignature( PrintWriter ps );
 
     /**
-     * <code>opName</code> gives the mangled name in case of attributes
-     * (_get_, _set_).
-     *
-     * @return a <code>String</code> value
+     * @param printModifiers whether "public abstract" should be added
      */
-    public String opName();
+    void printSignature( PrintWriter ps, boolean printModifiers );
 
-    public String signature();
+    /** method code for stubs */
 
-    public void printSignature( PrintWriter ps );
+    void printMethod( PrintWriter ps, String classname, boolean is_local );
 
-    public void printSignature( PrintWriter ps, boolean printModifiers );
+    void print_sendc_Method( PrintWriter ps, String classname );
 
-    /**
-     * <code>printMethod</code> produces the method code for stubs.
-     *
-     * @param ps a <code>PrintWriter</code> value
-     * @param classname a <code>String</code> value
-     * @param is_local a <code>boolean</code> value
-     * @param is_abstract a <code>boolean</code> value used by Interface to
-     *        denote an abstract.
-     */
-    public void printMethod( PrintWriter ps, String classname, boolean is_local, boolean is_abstract );
+    /** method code for skeletons */
 
-    public void print_sendc_Method( PrintWriter ps, String classname );
+    void printDelegatedMethod( PrintWriter ps );
 
-    /**
-     * Method code for skeletons
-     * @param ps a <code>PrintWriter</code> value
-     */
-    public void printDelegatedMethod( PrintWriter ps );
+    void printInvocation( PrintWriter ps );
 
-    public void printInvocation( PrintWriter ps );
+
+    void accept( IDLTreeVisitor visitor );
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

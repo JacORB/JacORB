@@ -25,14 +25,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.*;
 
-/**
- * The AST representation of an IDL union
- *
- * @author Gerald Brose
- * @version $Id$
- */
-
-class UnionType
+public class UnionType
     extends TypeDeclaration
     implements Scope
 {
@@ -701,7 +694,7 @@ class UnionType
                         String lab = (String) unusedCaseLabels.elementAt (i);
                         if (! lab.equals (defaultStr))
                         {
-                            pw.print (" && _discriminator != " + lab); // fixes bug #373
+                            pw.print (" && discriminator != " + lab);
                         }
                     }
                 }
@@ -1340,4 +1333,15 @@ class UnionType
         }
         return tspec;
     }
+
+    /**
+     * @overrides accept in TypeDeclaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitUnion( this );
+    }
+
+
 }

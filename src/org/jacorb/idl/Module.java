@@ -35,11 +35,10 @@ import java.io.PrintWriter;
  * Note: a module's name is its package name!
  */
 
-class Module
-        extends Declaration
-        implements Scope
+public class Module
+    extends Declaration
+    implements Scope
 {
-
     public Definitions spec;
 
     private ScopeData scopeData;
@@ -163,6 +162,21 @@ class Module
     {
         return unreplacedName;
     }
+
+    public Definitions getDefinitions()
+    {
+        return spec;
+    }
+
+    /**
+     * @overrides accept in IdlSymbol
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitModule( this );
+    }
+
 
 }
 

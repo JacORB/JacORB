@@ -1,3 +1,4 @@
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -28,21 +29,20 @@ import java.util.*;
  * @version $Id$
  */
 
-class Definitions
-        extends SymbolList
+public class Definitions
+    extends SymbolList
 {
 
     public Definitions( int num )
     {
         super( num );
         v = new Vector();
-        Enumeration e = v.elements();
     }
 
     public void setPackage( String s )
     {
         s = parser.pack_replace( s );
-        Enumeration e = v.elements();
+        Enumeration e = getElements();
         for( ; e.hasMoreElements(); )
         {
             IdlSymbol i = (IdlSymbol)e.nextElement();
@@ -54,49 +54,44 @@ class Definitions
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
-            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+            System.err.println( "was " + enclosing_symbol.getClass().getName() + 
+                                " now: " + s.getClass().getName() );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " +
+                                        name );
         }
         enclosing_symbol = s;
-        for( Enumeration e = v.elements(); e.hasMoreElements(); )
+        for( Enumeration e = getElements(); e.hasMoreElements(); )
             ( (IdlSymbol)e.nextElement() ).setEnclosingSymbol( s );
     }
 
     public void set_included( boolean i )
     {
         included = i;
-        Enumeration e = v.elements();
+        Enumeration e = getElements();
         for( ; e.hasMoreElements(); )
             ( (IdlSymbol)e.nextElement() ).set_included( i );
     }
 
+    public Enumeration getElements()
+    {
+        return v.elements();
+    }
+
     public void print( PrintWriter ps )
     {
-        Enumeration e = v.elements();
+        Enumeration e = getElements();
         for( ; e.hasMoreElements(); )
             ( (IdlSymbol)e.nextElement() ).print( ps );
     }
+
+    /**
+     * @overrides accept in IdlSymbol
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitDefinitions( this );
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

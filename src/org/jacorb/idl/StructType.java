@@ -30,7 +30,7 @@ import java.util.*;
  * @version $Id$
  */
 
-class StructType
+public class StructType
     extends TypeDeclaration
     implements Scope
 {
@@ -534,32 +534,8 @@ class StructType
                 ps.println( d.name() + ";" );
             }
             ps.println( "\t}" );
+
         }
-
-        // generate toStrign method for structs, see bug #336
-
-        ps.println( "\t/** convenience method, not per IDL mapping */" );
-        ps.println( "\tpublic String toString()" );
-        ps.println( "\t{" );
-
-        StringBuffer sb = new StringBuffer("struct " + className + "[ \"");
-
-        if( memberlist != null )
-        {
-            for( Enumeration e = memberlist.v.elements(); e.hasMoreElements(); )
-            {
-                Member m = (Member)e.nextElement();
-                Declarator d = m.declarator;
-                sb.append( " + " + d.name() + " + \" \"" );
-            }
-        }
-
-        sb.append(" + \" ] \"; ");
-
-        ps.println( "\t\treturn \"" + sb.toString() );
-        ps.println( "\t}" );
-
-
         ps.println( "}" );
     }
 
@@ -623,4 +599,12 @@ class StructType
             i.printStackTrace();
         }
     }
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitStruct( this );
+    }
+
+
+
 }

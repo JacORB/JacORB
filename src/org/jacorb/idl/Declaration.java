@@ -26,7 +26,7 @@ package org.jacorb.idl;
  */
 
 
-class Declaration
+public class Declaration
     extends IdlSymbol
 {
     public Declaration( int num )
@@ -34,6 +34,17 @@ class Declaration
         super( num );
         pack_name = "";
     }
+
+    /**
+     * @overrides accept in IdlSymbol
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitDeclaration( this );
+    }
+
+
 }
 
 

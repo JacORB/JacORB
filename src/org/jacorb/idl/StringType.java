@@ -25,10 +25,9 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-class StringType
-        extends TemplateTypeSpec
+public class StringType
+    extends TemplateTypeSpec
 {
-
     public ConstExpr max = null;
     private int length = 0;
     private boolean wide = false;
