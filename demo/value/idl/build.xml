@@ -19,7 +19,7 @@
    <target name="all" depends="init,idl">
 	<javac srcdir="${dirs.base}/demo/${name}/generated"
                destdir="${classdir}"
-	       includes="**/*.java"
+	       includes="demo/${name}/**/*.java"
 	        />
 
 	<javac srcdir="${dirs.base}"
@@ -30,8 +30,9 @@
 
    <target name="idl" depends="init">
         <jacidl 
+              srcdir="${dirs.base}/demo/${name}"
               destdir="${dirs.base}/demo/${name}/generated" 
-              includes="${dirs.base}/demo/${name}/server.idl"/>
+              includes="server.idl"/>
    </target>
 
 
