@@ -1263,12 +1263,12 @@ public class ImplementationRepositoryImpl
             lros = new LocateRequestOutputStream (object_key, connection.getId(), 2);
             place_holder = new ReplyPlaceholder ();
 
-            connection.sendRequest
-            (
+            connection.sendRequest(
                 lros,
                 place_holder,
-                lros.getRequestId ()
-            );
+                lros.getRequestId (),
+                true ); // response expected
+
             lris = (LocateReplyInputStream) place_holder.getInputStream ();
 
             switch (lris.rep_hdr.locate_status.value ())
@@ -1315,6 +1315,8 @@ public class ImplementationRepositoryImpl
         public void requestReceived( byte[] request,
                                      GIOPConnection connection )
         {
+            connection.incPendingMessages();
+
             RequestInputStream in = new RequestInputStream( orb, request );
 
             replyNewLocation( in.req_hdr.target.object_key(),
@@ -1326,9 +1328,11 @@ public class ImplementationRepositoryImpl
         public void locateRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
-            LocateRequestInputStream in =
-            new LocateRequestInputStream( orb, request );
+            connection.incPendingMessages();
 
+            LocateRequestInputStream in =
+                new LocateRequestInputStream( orb, request );
+            
             replyNewLocation( in.req_hdr.target.object_key(),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
@@ -1385,14 +1389,12 @@ public class ImplementationRepositoryImpl
 	    Debug.output( Debug.IMR | Debug.INFORMATION,
                           "ImR: Looking up: " + _server.name );
 
-            // There is only point pinging the remote object if
-            //
-            // server is active and
-            // either the QoS to ping returned objects is true
-            // or the ServerStartUpDaemon is active and there is a command to
-            //    run - if not, even if the server isn't actually active, we
-            //    can't restart it so just allow this to fall through and throw
-            //    the TRANSIENT below.
+            // There is only point pinging the remote object if server
+            // is active and either the QoS to ping returned objects
+            // is true or the ServerStartUpDaemon is active and there
+            // is a command to run - if not, even if the server isn't
+            // actually active, we can't restart it so just allow this
+            // to fall through and throw the TRANSIENT below.
             boolean ssd_valid =
             (
                 (_server.command.length() != 0) &&
@@ -1400,8 +1402,8 @@ public class ImplementationRepositoryImpl
             );
             if (_server.active && (check_object_liveness || ssd_valid))
             {
-                // At this point the server *might* be running - we just want to
-                // verify it.
+                // At this point the server *might* be running - we
+                // just want to verify it.
                 if (! checkServerActive (_poa.host, _poa.port, object_key))
                 {
                     // Server is not active so set it down
@@ -1498,7 +1500,7 @@ public class ImplementationRepositoryImpl
                               "ImR: Sending location forward for " +
                               _server.name );
 
-		connection.sendMessage( out );
+		connection.sendReply( out );
 	    }
             catch( IOException _e )
             {
@@ -1531,7 +1533,7 @@ public class ImplementationRepositoryImpl
 
 	    try
             {
-		connection.sendMessage( out );
+		connection.sendReply( out );
 	    }
             catch( IOException _e )
             {
