@@ -466,7 +466,7 @@
    <!--     Notification service  -->
    <!--                           -->
 
-   <target name="notification" depends="init,notif,typed">
+   <target name="notification" depends="init,notif,typed" description="Compile Notification Service IDL">
    <javac debug="${debug}" srcdir="${src}/generated"
                destdir="${classdir}"
           includes="org/omg/CosNotification/*.java,org/omg/CosNotify**/*.java,org/omg/CosTyped*/**/*.java"
