@@ -12,15 +12,12 @@ import org.jacorb.notification.queue.EventQueueOverflowStrategy;
 import org.jacorb.notification.util.TaskExecutor;
 import org.jacorb.util.Debug;
 
-import org.omg.CORBA.TRANSIENT;
-import org.omg.CosEventComm.Disconnected;
-
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Assert;
 import org.apache.avalon.framework.logger.Logger;
 
-class MockEventConsumer implements MessageConsumer {
-
+public class MockEventConsumer implements MessageConsumer
+{
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     EventQueue eventQueue =
@@ -39,7 +36,8 @@ class MockEventConsumer implements MessageConsumer {
 
     List expectedEvents = new ArrayList();
 
-    public void setErrorThreshold(int t) {
+    public void setErrorThreshold(int t)
+    {
         errorThreshold_ = t;
     }
 
@@ -47,109 +45,142 @@ class MockEventConsumer implements MessageConsumer {
 
     SynchronizedInt errorCounter = new SynchronizedInt(0);
 
-
-    public void addToExcepectedEvents(Object event) {
+    public void addToExcepectedEvents(Object event)
+    {
         expectedEvents.add(event);
     }
 
 
-    public void check() {
-        if (expectedEvents.size() > 0) {
+    public void check()
+    {
+        if (expectedEvents.size() > 0)
+        {
             checkExpectedEvents();
         }
 
-        if (expectedDisposeCalls != -1) {
+        if (expectedDisposeCalls != -1)
+        {
             Assert.assertEquals(expectedDisposeCalls, disposeCalled);
         }
     }
 
 
-    private void checkExpectedEvents() {
+    private void checkExpectedEvents()
+    {
         Iterator i = expectedEvents.iterator();
 
-        while(i.hasNext()) {
+        logger_.info("checkExpectedEvents");
+
+        while (i.hasNext())
+        {
             Object o = i.next();
+
+            logger_.info("Object: " + o + " Class: " + o.getClass().getName() );
+
             Assert.assertTrue(expectedEvents + " does not contain " + o,
                               eventsReceived.contains(o));
         }
     }
 
 
-    public void enableDelivery() {
+    public void enableDelivery()
+    {
         enabled = true;
     }
 
 
-    public void disableDelivery() {
+    public void disableDelivery()
+    {
         enabled = false;
     }
 
 
-    public void deliverMessage(Message event) throws Disconnected {
+    public void deliverMessage(final Message event)
+    {
         logger_.info("deliverEvent " + event);
 
-        if (enabled) {
-            if (deliverPossible) {
+        if (enabled)
+        {
+            if (deliverPossible)
+            {
                 eventsReceived.add(event.toAny());
-            } else {
-                throw new TRANSIENT();
+
+                event.dispose();
             }
-        } else {
-            eventQueue.put(event);
+            else
+            {
+
+            }
+        }
+        else
+        {
+            eventQueue.put((Message)event.clone());
         }
     }
 
 
-    public void dispose() {
+    public void dispose()
+    {
         disposeCalled++;
     }
 
 
-    public boolean isDisposed() {
+    public boolean isDisposed()
+    {
         return disposeCalled > 0;
     }
 
 
-    public void deliverPendingMessages() {
+    public void deliverPendingData()
+    {
         logger_.debug("deliverPendingEvents");
 
-        try {
+        try
+        {
             Message[] events = eventQueue.getAllEvents(true);
-            for (int x=0; x<events.length; ++x) {
-                eventsReceived.add(events[x].toAny());
+            for (int x = 0; x < events.length; ++x)
+            {
+                deliverMessage(events[x]);
             }
-        } catch (Exception e) {
-
+        }
+        catch (Exception e)
+        {
         }
     }
 
 
-    public boolean hasPendingMessages() {
+    public boolean hasPendingData()
+    {
         return (!eventQueue.isEmpty());
     }
 
 
-    public void resetErrorCounter() {
+    public void resetErrorCounter()
+    {
         errorCounter.set(0);
     }
 
 
-    public int getErrorCounter() {
+    public int getErrorCounter()
+    {
         return errorCounter.get();
     }
 
 
-    public int incErrorCounter() {
+    public int incErrorCounter()
+    {
         return errorCounter.increment();
     }
 
 
-    public int getErrorThreshold() {
+    public int getErrorThreshold()
+    {
         return errorThreshold_;
     }
 
 
-    public TaskExecutor getExecutor() {
+    public TaskExecutor getExecutor()
+    {
         return TaskExecutor.getDefaultExecutor();
     }
 }

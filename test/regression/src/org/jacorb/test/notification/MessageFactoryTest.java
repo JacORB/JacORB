@@ -64,6 +64,9 @@ public class MessageFactoryTest extends TestCase {
     public void testNewEventAny() throws Exception {
         Message _notifyEvent = messageFactory_.newMessage(testPerson_);
         assertNotNull(_notifyEvent);
+
+        System.out.println(_notifyEvent);
+
     }
 
 

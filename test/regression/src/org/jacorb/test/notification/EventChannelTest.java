@@ -23,6 +23,7 @@ import org.jacorb.util.Debug;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt
@@ -171,6 +172,7 @@ public class EventChannelTest extends NotificationTestCase {
         _sender.shutdown();
     }
 
+
     public void testSendEventPushPush() throws Exception {
         logger_.debug("testSendEventPushPush");
         // start a receiver thread
@@ -201,6 +203,35 @@ public class EventChannelTest extends NotificationTestCase {
         _receiver.shutdown();
         _sender.shutdown();
     }
+
+
+    public void testSendEventPushPush_MisbehavingConsumer() throws Exception {
+        // start a receiver thread
+        AnyPushReceiver _receiver = new AnyPushReceiver(this) {
+                public void push(Any any) {
+                    throw new TRANSIENT();
+                }
+            };
+        _receiver.connect(channel_, false);
+
+        Thread _receiverThread = new Thread(_receiver);
+
+        // start a sender
+        AnyPushSender _sender = new AnyPushSender(this, testPerson_);
+
+        _sender.connect(channel_, false);
+
+        _receiverThread.start();
+
+        _sender.run();
+
+        Thread.sleep(20000);
+
+        assertTrue(!_receiver.isConnected());
+
+        _sender.shutdown();
+    }
+
 
     public void testSendEventPullPush() throws Exception {
         AnyPullSender _sender = new AnyPullSender(this,testPerson_);
@@ -320,8 +351,8 @@ public class EventChannelTest extends NotificationTestCase {
         IntHolder _id = new IntHolder();
 
         EventChannel _channel = getFactory().create_channel(new Property[0],
-                                                                        new Property[0],
-                                                                        _id);
+                                                            new Property[0],
+                                                            _id);
 
         // test if channel id appears within channel list
         int[] _allFactories = getFactory().get_all_channels();
@@ -347,7 +378,7 @@ public class EventChannelTest extends NotificationTestCase {
         NotificationTestCaseSetup _setup =
             new NotificationTestCaseSetup(_suite);
 
-        String[] methodNames = TestUtils.getTestMethods( EventChannelTest.class);
+        String[] methodNames = TestUtils.getTestMethods( EventChannelTest.class, "testSendEventPushPush_MisbehavingConsumer" );
 
         for (int x=0; x<methodNames.length; ++x) {
             _suite.addTest(new EventChannelTest(methodNames[x], _setup));

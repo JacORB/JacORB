@@ -1,9 +1,9 @@
-package org.jacorb.test.notification.engine;
+package org.jacorb.test.notification;
 
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1997-2003  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,42 +18,40 @@ package org.jacorb.test.notification.engine;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.jacorb.notification.servant.AbstractAdmin;
+import java.util.List;
+import org.jacorb.notification.interfaces.MessageConsumer;
+import org.omg.PortableServer.Servant;
 
 /**
- * PackageTest.java
- *
- *
- * Created: Mon Apr  7 15:20:03 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
+public class MockAdmin extends AbstractAdmin {
 
-public class PackageTest extends TestCase {
-
-    public PackageTest(String name) {
-        super(name);
+    public MockAdmin() {
+        super();
     }
 
-    public static Test suite() throws Exception {
-        TestSuite _suite =
-            new TestSuite("Tests in Package org.jacorb.test.notification.engine");
-
-        _suite.addTest(ReleaseTasksTest.suite());
-        _suite.addTest(PushToConsumerTest.suite());
-        _suite.addTest(PushOperationTest.suite());
-        _suite.addTest(WaitRetryStrategyTest.suite());
-
-        return _suite;
+    public List getSubsequentFilterStages() {
+        return null;
     }
 
-    public static void main(String[] args) throws Exception {
-        junit.textui.TestRunner.run(suite());
+    public boolean hasMessageConsumer() {
+        return false;
+    }
+
+    public MessageConsumer getMessageConsumer() {
+        return null;
+    }
+
+    public org.omg.CORBA.Object activate() {
+        return null;
+    }
+
+    public Servant getServant() {
+        return null;
     }
 }

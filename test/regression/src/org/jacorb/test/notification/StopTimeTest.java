@@ -50,6 +50,7 @@ import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
 import org.omg.CosNotification.StopTimeSupported;
 import org.omg.CORBA.BAD_QOS;
+import org.jacorb.test.common.TestUtils;
 
 /**
  * @author Alphonse Bendt
@@ -70,7 +71,7 @@ public class StopTimeTest extends NotificationTestCase
     public StopTimeTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
-    };
+    }
 
     public void setUp() throws Exception {
         eventChannel_ = getDefaultChannel();
@@ -273,7 +274,7 @@ public class StopTimeTest extends NotificationTestCase
         NotificationTestCaseSetup _setup =
             new NotificationTestCaseSetup(_suite);
 
-        String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(StopTimeTest.class);
+        String[] methodNames = TestUtils.getTestMethods(StopTimeTest.class);
 
         for (int x=0; x<methodNames.length; ++x) {
             _suite.addTest(new StopTimeTest(methodNames[x], _setup));

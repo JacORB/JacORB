@@ -21,6 +21,7 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt
@@ -317,6 +318,32 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+    public void testSendPushPush_MisbehavingConsumer() throws Exception
+    {
+        StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
+
+        StructuredPushReceiver _receiver = new StructuredPushReceiver(this) {
+                public void push_structured_event(StructuredEvent event) {
+                    throw new TRANSIENT();
+                }
+            };
+
+        _sender.connect(channel_, false);
+        _receiver.connect(channel_, false);
+
+        _receiver.start();
+        _sender.start();
+
+        _sender.join();
+        _receiver.join();
+
+        Thread.sleep(20000);
+
+        assertFalse(_receiver.isConnected());
+
+    }
+
+
 
     public void testSendPushPull() throws Exception
     {
@@ -333,8 +360,9 @@ public class StructuredEventChannelTest extends NotificationTestCase
         _receiver.join();
 
         assertTrue("Error while sending", !_sender.error_);
-        assertTrue("Should have received something", _receiver.received_);
+        assertTrue("Should have received something", _receiver.isEventHandled());
     }
+
 
     public void testSendPullPush() throws Exception
     {
@@ -354,6 +382,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
         assertTrue("Error while sending", !_sender.isError());
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
+
 
     public void testSendPullPull() throws Exception
     {
@@ -393,6 +422,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
         return _setup;
     }
+
 
     public static void main(String[] args) throws Exception
     {

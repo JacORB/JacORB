@@ -45,6 +45,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import java.util.ArrayList;
 import org.jacorb.notification.util.QoSPropertySet;
+import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.jacorb.notification.interfaces.ProxyEvent;
 
 /**
  * @author Alphonse Bendt
@@ -91,18 +93,23 @@ public class AdminLimitTest extends TestCase
 
         final List _events = new ArrayList();
 
-        ProxyCreationRequestEventListener _listener =
-            new ProxyCreationRequestEventListener()
+        ProxyEventListener _listener =
+            new ProxyEventListener()
             {
-                public void actionProxyCreationRequest(ProxyCreationRequestEvent e)
-                throws AdminLimitExceeded
+                public void actionProxyCreationRequest(ProxyEvent event)
+                    throws AdminLimitExceeded
                 {
 
-                    _events.add(e);
+                    _events.add(event);
                 }
+
+                public void actionProxyCreated(ProxyEvent event) {
+                }
+
+                public void actionProxyDisposed(ProxyEvent event) {}
             };
 
-        consumerAdmin_.addProxyCreationEventListener(_listener);
+        consumerAdmin_.addProxyEventListener(_listener);
 
         ProxySupplier _proxySupplier =
             consumerAdmin_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId);
@@ -115,19 +122,22 @@ public class AdminLimitTest extends TestCase
     {
         IntHolder _proxyId = new IntHolder();
 
-        ProxyCreationRequestEventListener _listener =
-            new ProxyCreationRequestEventListener()
+        ProxyEventListener _listener =
+            new ProxyEventListener()
             {
-                public void actionProxyCreationRequest(ProxyCreationRequestEvent e)
-                throws AdminLimitExceeded
+                public void actionProxyCreationRequest(ProxyEvent e)
+                    throws AdminLimitExceeded
                 {
-
                     throw new AdminLimitExceeded();
-
                 }
+
+
+                public void actionProxyDisposed(ProxyEvent event) {}
+
+                public void actionProxyCreated(ProxyEvent event) {}
             };
 
-        consumerAdmin_.addProxyCreationEventListener(_listener);
+        consumerAdmin_.addProxyEventListener(_listener);
 
         try
         {
@@ -144,19 +154,22 @@ public class AdminLimitTest extends TestCase
     {
         IntHolder _proxyId = new IntHolder();
 
-        ProxyCreationRequestEventListener _listener =
-            new ProxyCreationRequestEventListener()
+        ProxyEventListener _listener =
+            new ProxyEventListener()
             {
 
-                public void actionProxyCreationRequest(ProxyCreationRequestEvent e)
-                throws AdminLimitExceeded
-                {
+                public void actionProxyCreated(ProxyEvent event) {}
 
+                public void actionProxyDisposed(ProxyEvent event) {}
+
+                public void actionProxyCreationRequest(ProxyEvent event)
+                    throws AdminLimitExceeded
+                {
                     counter_++;
                 }
             };
 
-        consumerAdmin_.addProxyCreationEventListener(_listener);
+        consumerAdmin_.addProxyEventListener(_listener);
 
         ProxySupplier[] _seqProxySupplier = new ProxySupplier[3];
 

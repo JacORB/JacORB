@@ -1,18 +1,15 @@
 package org.jacorb.test.notification;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
-import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.Debug;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -172,6 +169,5 @@ public class SequenceEventChannelTest extends NotificationTestCase {
     public static void main(String[] args) throws Exception {
         junit.textui.TestRunner.run(suite());
     }
-
 }
 

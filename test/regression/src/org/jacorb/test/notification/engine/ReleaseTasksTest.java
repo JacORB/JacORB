@@ -23,18 +23,20 @@ package org.jacorb.test.notification.engine;
 
 import org.jacorb.notification.EventChannelFactoryImpl;
 import org.jacorb.notification.EventChannelImpl;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.test.common.TestUtils;
 import org.jacorb.test.notification.MockMessage;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.jacorb.test.notification.StructuredPullReceiver;
 import org.jacorb.test.notification.StructuredPushReceiver;
+import org.jacorb.util.Debug;
 
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.CosNotifyFilter.MappingFilter;
 
 import java.util.Collections;
@@ -43,16 +45,9 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
-import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 
 
 /**
- *  Unit Test for class ReleaseTasks
- *
- *
- * Created: Sun Aug 17 11:48:32 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -203,5 +198,4 @@ class MockFilterStage implements FilterStage {
     public MappingFilter getPriorityFilter() {
         return null;
     }
-
 }
