@@ -6,6 +6,7 @@
 #pragma prefix "omg.org"
 
 #include <CosNotifyComm.idl>
+#include <orb.idl>
 
 module CosNotifyFilter {
 
