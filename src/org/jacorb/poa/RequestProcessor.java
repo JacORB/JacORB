@@ -355,14 +355,13 @@ public class RequestProcessor
                 logger.warn("rid: " + request.requestId() +
                             " opname: " + request.operation() +
                             " invocation: throwable was thrown, " +
-                            e.getMessage());
+                            e.toString());
                 if (logger.isDebugEnabled())
                 {
                     logger.debug("Exception:", e);
                 }
             }
-            request.setSystemException(new org.omg.CORBA.UNKNOWN(e.getMessage()));
-            /* which system exception I should raise? */
+            request.setSystemException (new org.omg.CORBA.UNKNOWN(e.toString()));
         }
     }
 
