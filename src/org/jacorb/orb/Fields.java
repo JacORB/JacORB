@@ -3,6 +3,8 @@ package org.jacorb.orb;
 import java.util.*;
 import java.lang.reflect.*;
 
+import org.omg.CORBA.*;
+
 /**
  * Provides static methods to access the serializable fields of a class.
  */
@@ -12,7 +14,7 @@ public class Fields
     private static final class FieldComparator 
         implements java.util.Comparator 
     {
-        public int compare (Object o1, Object o2) 
+        public int compare (java.lang.Object o1, java.lang.Object o2) 
         {
             Field f1 = (Field)o1;
             Field f2 = (Field)o2;
@@ -40,7 +42,6 @@ public class Fields
     public static SortedSet getFields (Class clz) 
     {
         Field[]   fields = clz.getDeclaredFields();
-        AccessibleObject.setAccessible (fields, true);
         SortedSet result = new TreeSet (new FieldComparator());
         for (int i=0; i < fields.length; i++) 
         {
