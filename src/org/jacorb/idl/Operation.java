@@ -28,8 +28,8 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 import java.io.Serializable;
 
-interface Operation
-        extends Serializable
+public interface Operation
+    extends Serializable
 {
     /**
      * <code>name</code> gives the plain name of the operation
@@ -45,11 +45,6 @@ interface Operation
      */
     public String opName();
 
-    public String signature();
-
-    public void printSignature( PrintWriter ps );
-
-    public void printSignature( PrintWriter ps, boolean printModifiers );
 
     /**
      * <code>printMethod</code> produces the method code for stubs.
@@ -65,10 +60,43 @@ interface Operation
     public void print_sendc_Method( PrintWriter ps, String classname );
 
     /**
-     * Method code for skeletons
-     * @param ps a <code>PrintWriter</code> value
+     * @param printModifiers whether "public abstract" should be added
      */
-    public void printDelegatedMethod( PrintWriter ps );
+    void printSignature( PrintWriter ps, boolean printModifiers );
 
-    public void printInvocation( PrintWriter ps );
+    /** method code for stubs */
+
+    void printMethod( PrintWriter ps, String classname, boolean is_local );
+
+    void print_sendc_Method( PrintWriter ps, String classname );
+
+    /** method code for skeletons */
+
+    void printDelegatedMethod( PrintWriter ps );
+
+    void printInvocation( PrintWriter ps );
+
+
+    void accept( IDLTreeVisitor visitor );
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
