@@ -1643,14 +1643,24 @@ public final class ORB
                             + ", a org.jacorb.orb.Delegate was expected");
     }
 
-    public void perform_work() 
+    public void perform_work () 
     {     
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
+        if (! run)
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                (4, org.omg.CORBA.CompletionStatus.COMPLETED_NO);          
+        }
     }
 
-    public boolean work_pending() 
+    public boolean work_pending () 
     {     
-        throw new org.omg.CORBA.NO_IMPLEMENT ();
+        if (! run)
+        {
+            throw new org.omg.CORBA.BAD_INV_ORDER
+                (4, org.omg.CORBA.CompletionStatus.COMPLETED_NO);          
+        }
+
+        return false;
     }
 
     public ValueFactory register_value_factory (String id, 
