@@ -1075,6 +1075,15 @@ public class POA
         }
     }
 
+    protected static void checkNotLocal (org.omg.CORBA.Object obj)
+       throws WrongAdapter
+    {
+        if (obj instanceof org.omg.CORBA.LocalObject)
+        {
+            throw new WrongAdapter ("Local object");
+        }
+    }
+
     protected boolean isDestructionApparent() 
     {
         return shutdownState >= POAConstants.DESTRUCTION_APPARENT;
@@ -1335,10 +1344,11 @@ public class POA
         return IdUtil.equals(object_key, getPOAId(), getPOAId().length);
     }
 
-    public byte[] reference_to_id(org.omg.CORBA.Object reference) 
+    public byte[] reference_to_id (org.omg.CORBA.Object reference) 
         throws WrongAdapter, WrongPolicy 
     {
         checkDestructionApparent ();
+        checkNotLocal (reference);
 
         byte[] objectId = POAUtil.extractOID(reference);
         /* not spec (isSystemId) */
@@ -1355,6 +1365,7 @@ public class POA
         throws ObjectNotActive, WrongAdapter, WrongPolicy 
     {
         checkDestructionApparent ();
+        checkNotLocal (reference);
 
         if (!isRetain() && !isUseDefaultServant()) 
             throw new WrongPolicy();
