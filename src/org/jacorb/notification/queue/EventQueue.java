@@ -47,12 +47,24 @@ public interface EventQueue
 
     /**
      * get up to <code>n</code> events from this queue.
+     * 
+     * @param n number of requested messages
+     * 
+     * @param wait a <code>boolean</code> value. If this parameter is
+     * set to true the queue will block until an element is
+     * available. If the parameter is set to false the queue will
+     * return null in case it is empty.
      */
     Message[] getEvents( int n, boolean wait )
         throws InterruptedException;
 
     /**
      * get all Messages from this queue.
+ 
+     * @param wait a <code>boolean</code> value. If this parameter is
+     * set to true the queue will block until an element is
+     * available. If the parameter is set to false the queue will
+     * return null in case it is empty.
      */
     Message[] getAllEvents( boolean wait )
         throws InterruptedException;
@@ -71,5 +83,4 @@ public interface EventQueue
      * access the current size of this queue.
      */
     int getSize();
-
 }
