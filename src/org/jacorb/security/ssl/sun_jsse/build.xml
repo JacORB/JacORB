@@ -11,6 +11,7 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
+        <property name="local" value="${dirs.base}/src/org/jacorb/security/ssl/sun_jsse"/>
    </target>
 
    <target name="all" depends="init">
@@ -18,6 +19,33 @@
                   destdir="${classdir}"
                   includes="org/jacorb/security/ssl/sun_jsse/*.java"
         />
+   </target>
+   
+   <target name="patch" depends="init">
+           <patch patchfile="${local}/ServerInvocationInterceptor.java.patch"
+                  originalfile="${local}/ServerInvocationInterceptor.java"
+                  backups="yes" />
+           <patch patchfile="${local}/SSLSocketFactory.java.patch"
+                  originalfile="${local}/SSLSocketFactory.java"
+                  backups="yes" />
+           <patch patchfile="${local}/SSLServerSocketFactory.java.patch"
+                  originalfile="${local}/SSLServerSocketFactory.java"
+                  backups="yes" />
+   </target>
+
+   <target name="unpatch" depends="init">
+           <patch patchfile="${local}/ServerInvocationInterceptor.java.patch"
+                  originalfile="${local}/ServerInvocationInterceptor.java"
+                  backups="no"
+                  reverse="yes" />
+           <patch patchfile="${local}/SSLSocketFactory.java.patch"
+                  originalfile="${local}/SSLSocketFactory.java"
+                  backups="no"
+                  reverse="yes" />
+           <patch patchfile="${local}/SSLServerSocketFactory.java.patch"
+                  originalfile="${local}/SSLServerSocketFactory.java"
+                  backups="no"
+                  reverse="yes" />
    </target>
 </project>
 

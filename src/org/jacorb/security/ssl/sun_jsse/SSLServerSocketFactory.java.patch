@@ -1,0 +1,11 @@
+--- JacORB1_4_beta2/src/org/jacorb/security/ssl/sun_jsse/SSLServerSocketFactory.java	2001/11/20 17:56:09	1.1
++++ JacORB1_4_beta2/src/org/jacorb/security/ssl/sun_jsse/SSLServerSocketFactory.java	2001/11/20 17:56:18
+@@ -11,7 +11,7 @@
+ 
+ //uncomment this line if you want to compile with the separately
+ //available jsse1.0.2
+-//import com.sun.net.ssl.*;
++import com.sun.net.ssl.*;
+ 
+ import java.net.*;
+ import java.io.*;

@@ -1,0 +1,11 @@
+--- JacORB1_4_beta2/src/org/jacorb/security/ssl/sun_jsse/SSLSocketFactory.java	2001/11/20 17:56:09	1.1
++++ JacORB1_4_beta2/src/org/jacorb/security/ssl/sun_jsse/SSLSocketFactory.java	2001/11/20 17:56:30
+@@ -38,7 +38,7 @@
+ 
+ //uncomment this line if you want to compile with the separately
+ //available jsse1.0.2
+-//import com.sun.net.ssl.*;
++import com.sun.net.ssl.*;
+ 
+ public class SSLSocketFactory 
+     implements org.jacorb.orb.factory.SocketFactory 

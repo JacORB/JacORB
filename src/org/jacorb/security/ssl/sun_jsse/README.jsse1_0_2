@@ -1,27 +1,17 @@
 ***********************************************
 *                                             *
 *  Special instructions for building with a   *
-*  JDK < 1.4 and the downloadable jsse 1.0.2  *
+*  JDK < 1.4 and the downloadable JSSE 1.0.2  *
 *                                             *
 ***********************************************
 
 To be able to compile the classes in this package with a JDK < 1.4 and
-the downloadable jsse 1.0.2, you have to take the following steps:
+the downloadable JSSE 1.0.2, you have to take the following steps:
 
-1.) Edit SSLSocketFactory:
-    a) uncomment the line "import com.sun.net.ssl.*;"
-    b) optionally uncomment 
-       "Security.addProvider( new
-        com.sun.net.ssl.internal.ssl.Provider() );",
-       if you don't register the provider in any other way.
+1.) Apply the patches (kindly provided by Stephan Feder [sf@b-i-t.de])
+    by running "ant patch" (or using patch manually). You can remove
+    the patches by running "ant unpatch".
 
-2.) Edit SSLSocketFactory:
-    a) uncomment the line "import com.sun.net.ssl.*;"
-    b) optionally uncomment 
-       "Security.addProvider( new
-        com.sun.net.ssl.internal.ssl.Provider() );",
-       if you don't register the provider in any other way.
- 
-3.) Remove the files "ServerInvocationInterceptor.java" and
-    "SecurityServiceInitializer.java" because accessing the peers
-    certificates isn't implemented for the separate jsse 1.0.2
+2.) Recompile by running "ant".
+
+3.) Rebuild the libs by running "ant libs" in JacORBs root dir.
