@@ -205,7 +205,7 @@ public final class Delegate
 
             _pior.init();
 
-            connection = conn_mg.getConnection( _pior.getAdPort(),
+            connection = conn_mg.getConnection( _pior.getIIOPAddress().toString(),
                                                 _pior.useSSL() );
 
             bound = true;
@@ -429,13 +429,6 @@ public final class Delegate
 
         Debug.output( 3, " Delegate gc'ed!" );
     }
-
-    public String get_adport()
-    {
-        return getParsedIOR().getAdPort();
-    }
-
-
 
     public org.omg.CORBA.DomainManager[] get_domain_managers
     ( org.omg.CORBA.Object self )
