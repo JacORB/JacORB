@@ -166,6 +166,9 @@ public class MockEventConsumer implements MessageConsumer
         return errorThreshold_;
     }
 
+    public boolean isRetryAllowed() {
+        return getErrorCounter() < getErrorThreshold();
+    }
 
     public TaskExecutor getExecutor()
     {
