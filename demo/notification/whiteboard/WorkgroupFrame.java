@@ -1,20 +1,21 @@
 package demo.notification.whiteboard;
 
-import java.util.Vector;
-import java.util.Enumeration;
-import java.awt.Frame;
 import java.awt.BorderLayout;
-import java.awt.MenuBar;
+import java.awt.Frame;
 import java.awt.Menu;
-import java.awt.event.ActionListener;
+import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
 
 /**
- *
- * @author
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -36,12 +37,13 @@ public class WorkgroupFrame extends Frame implements IWorkgroupFrame {
 	return this;
     }
 
-    public Enumeration getList() {
+    public List getList() {
         String[] s = controller_.getListOfWhiteboards();
-        Vector v = new Vector();
-        for (int n=0; n<s.length; n++)
-            v.addElement(s[n]);
-        return v.elements();
+        List v = new ArrayList();
+        for (int n=0; n<s.length; n++) {
+            v.add(s[n]);
+	}
+        return Collections.unmodifiableList(v);
     }
 
     public void setCurrentBoardText(String name) {
@@ -230,3 +232,4 @@ public class WorkgroupFrame extends Frame implements IWorkgroupFrame {
     private java.awt.MenuItem select,exit,activateGhost,leaveMenuItem_;
     private java.awt.TextField currentBoard;
 }
+

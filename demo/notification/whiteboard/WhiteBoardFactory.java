@@ -1,7 +1,9 @@
 package demo.notification.whiteboard;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -31,14 +33,14 @@ import org.jacorb.notification.EventChannelFactoryImpl;
 
 public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations {
 
-    Hashtable boards;
+    HashMap boards;
     EventChannelFactory channelFactory_;
     POA poa_;
     ORB orb_;
 
     public WhiteBoardFactory(ORB orb, POA poa, EventChannelFactory ecf) {
         _this(orb);
-        boards = new Hashtable();
+        boards = new HashMap();
         orb_ = orb;
         poa_ = poa;
         channelFactory_ = ecf;
@@ -78,22 +80,12 @@ public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations
     }
 
     public String[] listAllWhiteboards() {
-        Enumeration e = boards.keys();
-        java.util.Vector v = new java.util.Vector();
-
-        while ( e.hasMoreElements() )
-            v.addElement(e.nextElement() );
-
-        String[] s = new String[v.size()];
-        v.copyInto(s);
-
-        return s;
+        return (String[]) boards.keySet().toArray(new String[0]);
     }
+
 
     public static void main(String[] args) {
         // CORBA initialisierung
-
-
         try {
             ORB _orb = ORB.init(args, null);
 
@@ -142,3 +134,4 @@ public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations
         }
     }
 } // WhiteBoardFactory
+

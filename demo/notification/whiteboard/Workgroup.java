@@ -1,8 +1,7 @@
 package demo.notification.whiteboard;
 
-import java.util.Vector;
-
-import org.jacorb.notification.util.AbstractObjectPool;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
@@ -33,11 +32,8 @@ import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
 
 /**
- * Workgroup.java
- *
- *
  * @author Alphonse Bendt
- * @version $Id$
+ * @version $Id$ Workgroup.java,v 1.6 2004/04/28 12:37:27 brose Exp $
  */
 
 public class Workgroup
@@ -453,11 +449,7 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
     StructuredEvent event_;
     Thread thisThread_;
 
-    AbstractObjectPool lineDataPool_;
-
-    AbstractObjectPool updatePool_;
-
-    Vector queue_ = new Vector();
+    List queue_ = new ArrayList();
     Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor("ImageHandler");
     WorkgroupController control_;
 
@@ -474,8 +466,8 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
                         }
                     }
                 }
-                _update = (WhiteboardUpdate)queue_.firstElement();
-                queue_.removeElementAt(0);
+                _update = (WhiteboardUpdate)queue_.get(0);
+                queue_.remove(0);
             }
 
             StructuredEvent _event = getEvent();
@@ -492,11 +484,6 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
                 d.printStackTrace();
                 connected_ = false;
             }
-
-            if (_update.discriminator() == UpdateType.line) {
-                lineDataPool_.returnObject(_update.line());
-            }
-            updatePool_.returnObject(_update);
         }
     }
 
@@ -506,20 +493,6 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
         thisThread_ = new Thread(this);
         thisThread_.setPriority(3);
         control_ = control;
-
-        lineDataPool_ = new AbstractObjectPool("LineDataPool") {
-                public Object newInstance() {
-                    return new LineData();
-                }
-            };
-        lineDataPool_.init();
-
-        updatePool_ = new AbstractObjectPool("UpdatePool") {
-            public Object newInstance() {
-                return new WhiteboardUpdate();
-            }
-        };
-        updatePool_.init();
     }
 
     void shutdown() {
@@ -570,12 +543,12 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
             return;
         }
 
-        WhiteboardUpdate _update = (WhiteboardUpdate)updatePool_.lendObject();
+        WhiteboardUpdate _update = new WhiteboardUpdate();
         _update.clear(true);
         logger_.debug("clear()");
 
         synchronized(queue_) {
-            queue_.addElement(_update);
+            queue_.add(_update);
             queue_.notifyAll();
         }
     }
@@ -593,8 +566,8 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
             return;
         }
 
-        WhiteboardUpdate _update = (WhiteboardUpdate)updatePool_.lendObject();
-        LineData _data = (LineData)lineDataPool_.lendObject();
+        WhiteboardUpdate _update = new WhiteboardUpdate();
+        LineData _data = new LineData();
 
         _data.x0 = x0;
         _data.y0 = y0;
@@ -608,7 +581,7 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
         _update.line(_data);
 
         synchronized(queue_) {
-            queue_.addElement(_update);
+            queue_.add(_update);
             queue_.notifyAll();
         }
     }

@@ -1,37 +1,36 @@
 package demo.notification.whiteboard;
 
-import java.util.Map;
 import java.util.Hashtable;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumer;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotification.EventHeader;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.FixedEventHeader;
-import org.omg.CosNotification.EventType;
-import org.omg.CORBA.ORB;
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import java.util.Map;
+
 import org.omg.CORBA.IntHolder;
-import org.omg.CosNotifyChannelAdmin.ClientType;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerHelper;
+import org.omg.CORBA.ORB;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotification.EventHeader;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.FixedEventHeader;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
+import org.omg.CosNotifyChannelAdmin.AdminNotFound;
+import org.omg.CosNotifyChannelAdmin.ClientType;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.InvalidGrammar;
-import org.omg.CosNotifyFilter.ConstraintExp;
-import org.omg.CosNotifyFilter.InvalidConstraint;
-import org.omg.CosNotifyComm.StructuredPushSupplierOperations;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumer;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerHelper;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotifyComm.StructuredPushSupplierOperations;
 import org.omg.CosNotifyComm.StructuredPushSupplierPOATie;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosNotifyChannelAdmin.AdminNotFound;
+import org.omg.CosNotifyFilter.ConstraintExp;
+import org.omg.CosNotifyFilter.Filter;
+import org.omg.CosNotifyFilter.FilterFactory;
+import org.omg.CosNotifyFilter.InvalidConstraint;
+import org.omg.CosNotifyFilter.InvalidGrammar;
 
 /**
- * WhiteBoard.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -265,3 +264,4 @@ class LocalRegistrationInfo {
     int consumerAdmin_;
     int supplierAdmin_;
 }
+
