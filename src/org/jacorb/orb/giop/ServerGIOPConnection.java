@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -48,7 +48,6 @@ public class ServerGIOPConnection
     private GIOPConnectionManager manager = null;
 
     private boolean closeOnReadTimeout = false;
-
     private boolean delayClose = false;
 
     public ServerGIOPConnection( org.omg.ETF.Profile profile,
@@ -176,7 +175,7 @@ public class ServerGIOPConnection
         }
         else
         {
-            /**
+            /*
              * If we don't have any more pending messages, we'll send a
              * GIOP CloseConnection message (done by tryClose() ).
              */
@@ -190,10 +189,19 @@ public class ServerGIOPConnection
      */
     protected void streamClosed()
     {
-        /**
-         * We're server side and can't reopen, therefore close completely
-         * if stream closed.
-         */
         close();
     }
+    
+    /**
+     * @overrides close in GIOPConnection
+     */   
+    public void close()
+    {
+        super.close();
+        if( manager != null )
+        {
+            manager.unregisterServerGIOPConnection( this );
+        }
+    }
+
 }// ServerGIOPConnection
