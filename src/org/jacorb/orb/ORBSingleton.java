@@ -75,7 +75,8 @@ public class ORBSingleton
 
     public TypeCode create_interface_tc( String id, String name)
     {
-        return new org.jacorb.orb.TypeCode( id, name);
+        return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_objref, 
+					   id, name);
     }
 
     public org.omg.CORBA.TypeCode create_fixed_tc( short digits, 
@@ -163,6 +164,12 @@ public class ORBSingleton
                                     TypeCode boxed_type) {
         return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_value_box,
                                             id, name, boxed_type);
+    }
+
+    public org.omg.CORBA.TypeCode create_abstract_interface_tc(String id,
+                                    String name) {
+        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_abstract_interface,
+					    id, name);
     }
 
     /* DII helper methods */
