@@ -3642,7 +3642,7 @@ Note that this is a purely static decision, based on availability of
 You can customize this strategy by providing your own implementation of
 {\tt org.jacorb.orb.ProfileSelector}, and specifying it in the
 property {\tt jacorb.transport.client.selector}.  The interface {\tt
-ProfileSelector} requires a single method, 
+ProfileSelector} requires a single method,
 
 \begin{verbatim}
    public Profile selectProfile (List profiles,
@@ -3696,9 +3696,9 @@ automatically be generated.
 \noindent{\tt idl
   [-h|-help] [-v|-version] [-Dsymbol[=value]] [-Idir] [-U <symbol>]
   [-W debug\_level] [-all] [-ami\_callback] [-ami\_polling] [-jdk14]
-  [-d <Output Dir>] [-i <import\_package] [-i2jpackage x:y]
-  [-i2jpackagefile <filename>] [-ir] [-nofinal] [-noskel] [-nostub]
-  [-p <package\_prefix>] [-sloppy\_forward] [-sloppy\_names] [-syntax]
+  [-d <Output Dir>] [-i2jpackage x:y][-i2jpackagefile <filename>]
+  [-ir] [-nofinal] [-noskel] [-nostub] [-p <package\_prefix>]
+  [-sloppy\_forward] [-sloppy\_names] [-syntax]
   <filelist>}
 
 The option {\tt -v} prints out a short version  string while {\tt -h}
@@ -3741,9 +3741,6 @@ an interface {\tt InterfaceY} in it  will result in a subdirectory
 
 The {\tt -jdk14} option makes the IDL compiler do extra checks to ensure
 JDK1.4 compatible code is generated.
-
-The {\tt -i} option allows you to add the specified Java import to the
- generated code.
 
 To be able to flexibly redirect generated Java classes into packages,
 the {\tt -i2jpackage} switch can be used. Using this option, any IDL
