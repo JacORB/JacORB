@@ -38,16 +38,13 @@ import org.omg.CORBA.COMM_FAILURE;
  * @version $Id$
  */
 
-public class Client_TCP_IP_Transport 
-    extends TCP_IP_Transport 
+public class Client_TCP_IP_Transport
+    extends TCP_IP_Transport
 {
     private String target_host = null;
     private int target_port = -1;
     private SocketFactory socket_factory = null;
     private int timeout = 0;
-    private String connection_info = null;
-
-    private Socket socket = null;
 
     private boolean closed = false;
     private boolean connected = false;
@@ -64,7 +61,7 @@ public class Client_TCP_IP_Transport
         connection_info = target_host + ':' + target_port;
 
         //get the client-side timeout property value
-        String prop = 
+        String prop =
             Environment.getProperty( "jacorb.connection.client_idle_timeout" );
 
         if( prop != null )
@@ -81,11 +78,11 @@ public class Client_TCP_IP_Transport
             }
         }
     }
-    
+
     protected synchronized void waitUntilConnected()
         throws IOException
     {
-        while( ! connected && 
+        while( ! connected &&
                ! closed )
         {
             try
@@ -96,7 +93,7 @@ public class Client_TCP_IP_Transport
             {
             }
         }
-        
+
         if( closed )
         {
             throw new CloseConnectionException();
@@ -107,22 +104,22 @@ public class Client_TCP_IP_Transport
     {
         if( ! connected )
         {
-            Debug.output(3, "Trying to connect to " + 
+            Debug.output(3, "Trying to connect to " +
                          connection_info );
-            
+
             int retries = Environment.noOfRetries();
 
-            while( retries > 0 ) 
+            while( retries > 0 )
             {
-                try 
+                try
                 {
                     //noffke: by now, the factory knows if to provide
                     //ssl or not
-                    socket = socket_factory.createSocket( target_host, 
+                    socket = socket_factory.createSocket( target_host,
                                                           target_port );
-                    
+
                     //                    socket.setTcpNoDelay( true );
-                    
+
                     if( timeout != 0 )
                     {
                         /* re-set the socket timeout */
@@ -131,8 +128,8 @@ public class Client_TCP_IP_Transport
 
                     in_stream =
                         socket.getInputStream();
-                    
-                    out_stream = 
+
+                    out_stream =
                         new BufferedOutputStream( socket.getOutputStream());
 
                     Debug.output( 1, "Connected to " +
@@ -144,15 +141,15 @@ public class Client_TCP_IP_Transport
                     notifyAll();
 
                     return;
-                } 
-                catch ( IOException c ) 
-                { 
-                    Debug.output( 1, "Retrying to connect to " + 
+                }
+                catch ( IOException c )
+                {
+                    Debug.output( 1, "Retrying to connect to " +
                                      connection_info );
-                    try 
+                    try
                     {
                         Thread.sleep( Environment.retryInterval() );
-                    } 
+                    }
                     catch( InterruptedException i )
                     {
                     }
@@ -163,7 +160,7 @@ public class Client_TCP_IP_Transport
 
             if( retries == 0 )
             {
-                throw new org.omg.CORBA.TRANSIENT("Retries exceeded, couldn't reconnect to " + 
+                throw new org.omg.CORBA.TRANSIENT("Retries exceeded, couldn't reconnect to " +
                                                   connection_info );
             }
         }
@@ -171,29 +168,32 @@ public class Client_TCP_IP_Transport
 
     /**
      * Close socket layer down.
-     */    
+     */
     protected synchronized void close( int reason )
         throws IOException
     {
         if (connected && socket != null)
         {
-             // Try and invoke socket.shutdownOutput via reflection (bug #81)
- 
-             try
-             {
-                 java.lang.reflect.Method method 
-                     = (socket.getClass().getMethod ("shutdownOutput", new Class [0]));
-                 method.invoke (socket, new java.lang.Object[0]);
-             }
-             catch (Throwable ex)
-             {
-                 // If Socket does not support shutdownOutput method (i.e JDK < 1.3)
-             }
+            // Try and invoke socket.shutdownOutput via reflection (bug #81)
+
+            try
+            {
+                java.lang.reflect.Method method
+                = (socket.getClass().getMethod ("shutdownOutput", new Class [0]));
+                method.invoke (socket, new java.lang.Object[0]);
+
+                method = (socket.getClass().getMethod ("shutdownInput", new Class [0]));
+                method.invoke (socket, new java.lang.Object[0]);
+            }
+            catch (Throwable ex)
+            {
+                // If Socket does not support shutdownOutput method (i.e JDK < 1.3)
+            }
 
             socket.close ();
-            
+
             //this will cause exceptions when trying to read from
-            //the streams. Better than "nulling" them.            
+            //the streams. Better than "nulling" them.
             if( in_stream != null )
             {
                 in_stream.close();
@@ -204,14 +204,10 @@ public class Client_TCP_IP_Transport
                 out_stream.close();
             }
 
-            //not jdk1.2
-            //socket.shutdownInput();
-            //socket.shutdownOutput();
-
             Debug.output( 2, "Closed client-side TCP/IP transport to " +
                           connection_info );
         }
-       
+
         connected = false;
 
         if( reason == GIOP_CONNECTION_CLOSED )
@@ -230,25 +226,13 @@ public class Client_TCP_IP_Transport
           {
           }
           else if( reason == STREAM_CLOSED )
-          {          
-          } 
+          {
+          }
         */
     }
-    
+
     public boolean isSSL()
     {
         return socket_factory.isSSL( socket );
     }
 }// Client_TCP_IP_Transport
-
-
-
-
-
-
-
-
-
-
-
-
