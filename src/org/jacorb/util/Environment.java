@@ -20,6 +20,7 @@ package org.jacorb.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.io.*;
 
@@ -58,7 +59,7 @@ public class Environment
 {
     private static String propertiesFile1       = ".jacorb_properties";
     private static String propertiesFile2       = "jacorb.properties";
-    private static Vector propertiesFiles       = new Vector();
+    private static java.util.Vector propertiesFiles = new java.util.Vector();
     private static String jacorbPrefix          = "jacorb.";
     private static String poaPrefix             = jacorbPrefix + "poa.";
 
@@ -80,16 +81,18 @@ public class Environment
     private static boolean              _use_imr_endpoint = true;
     private static boolean              _cache_references = false;
     private static PrintWriter          _log_file_out = null;
-
     private static String               logFileName = null;
+
+    private static long                  _max_log_size = 0;
     private static boolean              append = false;
+    private static long                  _current_log_size = 0;
 
     // domain service configuration
     /** indicates whether the domain service is used or not */
     private static boolean          _use_domain= false;
 
     /** if set to true (default), every orb domain gets mounted as child domain to
-     *	the domain server on creation */
+     *  the domain server on creation */
     private static boolean          _mount_orb_domain= true;
 
     /** the filename to which the IOR of the orb domain (local domain service) is written
@@ -99,13 +102,7 @@ public class Environment
     /** the time how long an entry in the policy cache is valid, value in ms */
     private static long _cache_entry_lifetime  = 1000 * 60 * 5;      // 5 minutes
 
-    /*
-     * Enable no indirection for typecodes. This is for compatibility with
-     * Orbix 2K which is broken.
-     */
-    private static boolean _indirection_encoding_disable = false;
-
-   /** the pathname of the domains the poa maps newly created object references by default */
+    /** the pathname of the domains the poa maps newly created object references by default */
     private static String           _default_domains= null;
 
     /** threading properties */
@@ -128,6 +125,9 @@ public class Environment
     private static Hashtable untrimmedPrefixProps = new Hashtable();
     private static Hashtable trimmedPrefixProps = new Hashtable();
 
+    private static SimpleDateFormat dateFormatter;
+    private static SimpleDateFormat timeFormatter;
+
     static
     {
         _init();
@@ -140,7 +140,7 @@ public class Environment
             _props = new Properties();
 
             String customPropertyFileNames =
-                System.getProperty( "custom.props" );
+            System.getProperty( "custom.props" );
 
             String home = System.getProperty( "user.home" );
             String sep = System.getProperty( "file.separator" );
@@ -166,44 +166,39 @@ public class Environment
             // Full name of the config file
             String sConfigFile = null;
 
-            // The code below compiles under jdk 1.1, but causes a hang at
-            // startup.  Therefore, omit this step under jdk 1.1 for now.
+            /*
+             * load config files from the default ClassLoader's classpath
+             *
+             * supported by Per Bockman (pebo@enea.se)
+             */
+            try
+            {
+                java.net.URL url = null;
 
-            //#ifjdk 1.2
-                /*
-                 * load config files from the default ClassLoader's classpath
-                 *
-                 * supported by Per Bockman (pebo@enea.se)
-                 */
-                try
+                //try first file name
+                url =
+                ClassLoader.getSystemResource( propertiesFile1 );
+
+                if( url == null )
                 {
-                    java.net.URL url = null;
-               
-                    //try first file name
+                    //first is not found, so try second
                     url =
-                        ClassLoader.getSystemResource( propertiesFile1 );
-               
-                    if( url == null )
-                    {
-                        //first is not found, so try second
-                        url =
-                            ClassLoader.getSystemResource( propertiesFile2 );
-                    }
-               
-                    if( url != null )
-                    {
-                        _props.load( url.openStream() );
-               
-                         sConfigFile = url.toString();
-               
-                         loaded = true;
-                    }
+                    ClassLoader.getSystemResource( propertiesFile2 );
                 }
-                catch(java.io.IOException ioe)
+
+                if( url != null )
                 {
-                    // ignore it
+                    _props.load( url.openStream() );
+
+                    sConfigFile = url.toString();
+
+                    loaded = true;
                 }
-            //#endif
+            }
+            catch(java.io.IOException ioe)
+            {
+                // ignore it
+            }
 
             if( ! loaded ) //no props file found in classpath
             {
@@ -240,16 +235,16 @@ public class Environment
                 try
                 {
                     StringTokenizer strtok =
-                        new StringTokenizer(customPropertyFileNames, ",");
+                    new StringTokenizer(customPropertyFileNames, ",");
 
                     while( strtok.hasMoreTokens() )
                     {
                         _props.load(
                             new BufferedInputStream(
-                                 new FileInputStream( strtok.nextToken() )));
+                                new FileInputStream( strtok.nextToken() )));
                     }
 
-		    loaded = true;
+                    loaded = true;
                 }
                 catch ( IOException e )
                 {
@@ -257,7 +252,7 @@ public class Environment
                 }
             }
 
-            copyProps (System.getProperties(), _props);
+            _props.putAll( System.getProperties() );
 
             //read prop values to set fields ov this class
             readValues();
@@ -304,7 +299,7 @@ public class Environment
         {
             try
             {
-                copyProps (System.getProperties(), _props);
+                _props.putAll( System.getProperties() );
             }
             catch( SecurityException se )
             {
@@ -312,19 +307,12 @@ public class Environment
                 se.printStackTrace();
             }
 
-            copyProps (other_props, _props);
+            _props.putAll( other_props );
+
             readValues();
         }
     }
-    
-    private static void copyProps (Properties source, Properties destination)
-    {
-        for (Enumeration e = source.propertyNames(); e.hasMoreElements();)
-        {
-            String name = (String)e.nextElement();
-            destination.put (name, source.get(name));
-        }
-    }
+
 
     /**
      * Tries to read value from propname and then suffix locations. Returns
@@ -352,7 +340,7 @@ public class Environment
             _retries = Integer.parseInt(o);
         else if( varName.equals("_retry_interval"))
             _retry_interval = Integer.parseInt(o);
-	else if( varName.equals("_cache_entry_lifetime"))
+        else if( varName.equals("_cache_entry_lifetime"))
             _cache_entry_lifetime = Long.parseLong(o);
         else if( varName.equals("_outbuf_size"))
             _outbuf_size = Integer.parseInt(o);
@@ -362,7 +350,7 @@ public class Environment
             _default_context = o;
         else    if( varName.equals("_orb_domain_filename"))
             _orb_domain_filename = o;
-	else    if( varName.equals("_default_domains"))
+        else    if( varName.equals("_default_domains"))
             _default_domains= o;
         else    if( varName.equals("_verbosity"))
             _verbosity = Integer.parseInt(o);
@@ -385,8 +373,6 @@ public class Environment
             _thread_pool_max = Integer.parseInt(o);
         else    if( varName.equals("_thread_pool_min"))
             _thread_pool_min = Integer.parseInt(o);
-        else    if( varName.equals("_indirection_encoding_disable"))
-            _indirection_encoding_disable = (o.equalsIgnoreCase("on")? true : false);
         else    if( varName.equals("_queue_max"))
             _queue_max = Integer.parseInt(o);
         else if( varName.equals("_use_appligator_for_applets"))
@@ -394,13 +380,13 @@ public class Environment
         else if( varName.equals("_use_appligator_for_applications"))
             _use_appligator_for_applications = (o.equalsIgnoreCase("off")? false : true );
         else if( varName.equals("_use_httptunneling_for")){
-		 StringTokenizer tokenizer=new StringTokenizer((String)o,",");
-		 while(tokenizer.hasMoreTokens()){
-			String s=tokenizer.nextToken();
-			System.out.println("HTTP Tunneling set for:"+s);
-			_use_httptunneling_for.put(s,new Object());
-		}
-	}
+            StringTokenizer tokenizer=new StringTokenizer((String)o,",");
+            while(tokenizer.hasMoreTokens()){
+                String s=tokenizer.nextToken();
+                System.out.println("HTTP Tunneling set for:"+s);
+                _use_httptunneling_for.put(s,new Object());
+            }
+        }
         else    if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
     }
@@ -421,22 +407,21 @@ public class Environment
 
             if (logFileName.endsWith ("$implname"))
             {
-               logFileName = logFileName.substring (0, logFileName.length () - 9);
+                logFileName = logFileName.substring (0, logFileName.length () - 9);
 
-               if (_props.getProperty ("implname") != null)
-               {
-                  logFileName += _props.getProperty ("implname");
-               }
-               else if (_props.getProperty (jacorbPrefix + "implname") != null)
-               {
-                  logFileName += _props.getProperty (jacorbPrefix + "implname");
-               }
-               else
-               {
-                  // Just in case implename has not been set
-
-                  logFileName += "log";
-               }
+                if (_props.getProperty ("implname") != null)
+                {
+                    logFileName += _props.getProperty ("implname");
+                }
+                else if (_props.getProperty (jacorbPrefix + "implname") != null)
+                {
+                    logFileName += _props.getProperty (jacorbPrefix + "implname");
+                }
+                else
+                {
+                    // Just in case implename has not been set
+                    logFileName += "log";
+                }
             }
 
             try
@@ -445,12 +430,19 @@ public class Environment
                     (new FileOutputStream (logFileName, append));
                 if (_verbosity > 0)
                 {
-                   System.out.println("Write output to log file \""+logFileName+"\"");
+                    System.out.println("Write output to log file \""+logFileName+"\"");
                 }
             }
             catch (java.io.IOException ioe)
             {
                 System.out.println("Cannot access log file \""+logFileName+"\"");
+            }
+
+            // Only get a max log size if we are not overwriting the current log
+            if (append)
+            {
+               _current_log_size = (new File (logFileName)).length ();
+               _max_log_size = getLongProperty ("jacorb.logfile.maxLogSize", 10, 0);
             }
         }
 
@@ -469,7 +461,6 @@ public class Environment
         readValue("_use_imr","use_imr",jacorbPrefix+"use_imr");
         readValue("_use_imr_endpoint","use_imr_endpoint",jacorbPrefix+"use_imr_endpoint");
         readValue("_use_domain","use_domain",jacorbPrefix+"use_domain");
-        readValue("_indirection_encoding_disable","interop.indirection_encoding_disable",jacorbPrefix+"interop.indirection_encoding_disable");
         readValue("_mount_orb_domain","_mount_orb_domain", jacorbPrefix+"orb_domain.mount");
         readValue("_thread_pool_max","thread_pool_max",poaPrefix+"thread_pool_max");
         readValue("_thread_pool_min","thread_pool_min",poaPrefix+"thread_pool_min");
@@ -481,10 +472,38 @@ public class Environment
         readValue("_impl_name","implname",jacorbPrefix+"implname");
     }
 
+    public static void rollLog ()
+    {
+        _log_file_out.close ();
+
+        File old = new File (logFileName);
+        File reNamed = new File (logFileName + "_" + date () + "_" + time ());
+        old.renameTo (reNamed);
+
+        try
+        {
+            _log_file_out = new PrintWriter
+                (new FileOutputStream (logFileName, append));
+            if (_verbosity > 0)
+            {
+                System.out.println("write output to log file \""+logFileName+"\"");
+            }
+        }
+        catch (java.io.IOException ioe)
+        {
+            System.out.println("Cannot access log file \""+logFileName+"\"");
+        }
+
+    }
+
     // value getters
     public static final  boolean isMonitoringOn() { return _monitoring_on;   }
     public static final  Properties jacorbProperties() { return _props;   }
     public static final  PrintWriter logFileOut() {     return _log_file_out;  }
+    /*    public static final  String logFileName() { return logFileName; }*/
+    public static final  long maxLogSize() { return _max_log_size; }
+    public static final  long currentLogSize () { return _current_log_size; }
+
     public static final int noOfRetries() { return _retries;   }
     public static final  int outBufSize() { return _outbuf_size; }
     public static final boolean locateOnBind() { return _locate_on_bind; }
@@ -506,11 +525,6 @@ public class Environment
     public static final  int threadPoolMax() { return _thread_pool_max; }
     public static final  int threadPoolMin() { return _thread_pool_min; }
 
-    public static final boolean indirectionEncoding ()
-    {
-        return ( ! _indirection_encoding_disable);
-    }
-
     public static final int verbosityLevel()
     {
         return _verbosity;
@@ -523,20 +537,20 @@ public class Environment
 
     public static final boolean useAppligator(boolean amIanApplet)
     {
-	if (amIanApplet)
-	{
-	   return _use_appligator_for_applets;
-	}
-	else
-	{
-	   return _use_appligator_for_applications;
-	}
+        if (amIanApplet)
+        {
+            return _use_appligator_for_applets;
+        }
+        else
+        {
+            return _use_appligator_for_applications;
+        }
     }
 
     public static final boolean useHTTPTunneling(String ipaddr)
     {
-	Object o=_use_httptunneling_for.get(ipaddr);
-	return (o!=null);
+        Object o=_use_httptunneling_for.get(ipaddr);
+        return (o!=null);
     }
 
 
@@ -565,11 +579,45 @@ public class Environment
      * is returned.
      */
 
-    public static boolean isPropertyOn( String key )
+    public static boolean isPropertyOn (String key)
     {
-        String s = _props.getProperty( key, "off" );
+        String s = _props.getProperty (key, "off");
+        return "on".equals (s);
+    }
 
-        return "on".equals( s );
+    public static boolean isPropertyOff (String key)
+    {
+       return (!isPropertyOn (key));
+    }
+
+    public static long getLongProperty (String key, int base, long def)
+    {
+        String s = _props.getProperty (key);
+
+        try
+        {
+            return Long.parseLong (s, base);
+        }
+        catch (NumberFormatException nfe)
+        {
+           return def;
+        }
+    }
+
+    public static long getLongProperty( String key, int base )
+    {
+        String s = _props.getProperty( key );
+
+        try
+        {
+            return Long.parseLong (s, base);
+        }
+        catch( NumberFormatException nfe )
+        {
+            throw new Error( "Unable to create long from string >>" +
+                             s + "<<. " +
+                             "Please check property \"" + key + '\"');
+        }
     }
 
     public static int getIntProperty( String key, int base )
@@ -589,10 +637,10 @@ public class Environment
     }
 
     /*
-    public static int getIntProperty( String key )
-    {
-        return getIntProperty( key, 10 );
-    }
+      public static int getIntProperty( String key )
+      {
+      return getIntProperty( key, 10 );
+      }
     */
 
     public static boolean hasProperty( String key )
@@ -639,18 +687,22 @@ public class Environment
         return (Properties) _props.clone();
     }
 
+    public static final String date()
+    {
+        if (dateFormatter == null)
+        {
+            dateFormatter = new SimpleDateFormat ("dd:MM:yyyy");
+        }
+        return dateFormatter.format (new Date ());
+    }
+
     public static final String time()
     {
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        return cal.get(Calendar.HOUR_OF_DAY) +
-            ":" +
-            ( (cal.get(Calendar.MINUTE)<10) ?
-              "0"+cal.get(Calendar.MINUTE) :
-              ""+cal.get(Calendar.MINUTE) ) +
-            ":" +
-            ( (cal.get(Calendar.SECOND)<10) ?
-              "0"+cal.get(Calendar.SECOND) :
-              ""+cal.get(Calendar.SECOND) );
+        if (timeFormatter == null)
+        {
+            timeFormatter = new SimpleDateFormat ("H:mm:ss:SSS");
+        }
+        return timeFormatter.format (new Date ());
     }
 
     public static final void readFromURL(java.net.URL _url)
@@ -691,7 +743,7 @@ public class Environment
         Vector orb_initializers = new Vector();
 
         String initializer_prefix =
-            "org.omg.PortableInterceptor.ORBInitializerClass.";
+        "org.omg.PortableInterceptor.ORBInitializerClass.";
 
         //Test EVERY property if prefix matches.
         //I'm open to suggestions for more efficient ways (noffke)
@@ -707,7 +759,7 @@ public class Environment
                     if( prop.length() > initializer_prefix.length() )
                     {
                         name =
-                            prop.substring( initializer_prefix.length() );
+                        prop.substring( initializer_prefix.length() );
                     }
                 }
 
@@ -718,16 +770,11 @@ public class Environment
 
                 try
                 {
-                    //#ifjdk 1.2
-                        ClassLoader cl =
-                            Thread.currentThread().getContextClassLoader();
-                        if (cl == null)
-                            cl = ClassLoader.getSystemClassLoader();
-                        orb_initializers.addElement(cl.loadClass(name).newInstance());
-                    //#else
-                    //# orb_initializers.addElement
-                    //#     (Class.forName(name).newInstance());
-                    //#endif
+                    ClassLoader cl =
+                    Thread.currentThread().getContextClassLoader();
+                    if (cl == null)
+                        cl = ClassLoader.getSystemClassLoader();
+                    orb_initializers.addElement(cl.loadClass(name).newInstance());
                     Debug.output(Debug.INTERCEPTOR | Debug.DEBUG1,
                                  "Build: " + name);
                 }

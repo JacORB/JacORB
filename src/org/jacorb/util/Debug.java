@@ -24,7 +24,7 @@ import java.util.*;
 import java.io.*;
 
 /**
- * 
+ *
  * @author Gerald Brose
  * @version $Id$
  */
@@ -33,14 +33,21 @@ public final class Debug
 {
     /* private variables */
     //for byte -> hexchar
-    private static final char[] lookup = 
-    new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' }; 
+    private static final char[] lookup =
+    new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     private static StringBuffer sb = new StringBuffer();
 
     private static int _verbosity;
     private static int _category;
     private static PrintWriter _log_file_out = Environment.logFileOut();
+    // the length of a String is given by the number of 16 bit unicode
+    // characters it contains. The maxLogSize is given in kBytes.
+    // This conversion gives us the max number of characters in a
+    // single log.
+    private static long maxLogSize;
+    private static long currentLogSize;
+    private static boolean timestamp = Environment.isPropertyOn ("jacorb.log.timestamp");
 
     /* Debug priorities */
 
@@ -65,7 +72,7 @@ public final class Debug
     public static final int TOOLS = 0x040000;
 
     /* unused */
-    /* 
+    /*
 
        !! Please update names in CAD.java as well,
        if you make updates here !!
@@ -91,7 +98,7 @@ public final class Debug
       public static final int RESERVED = 0x40000000;
     */
 
-    static 
+    static
     {
         initialize();
     }
@@ -103,6 +110,8 @@ public final class Debug
         if( _category == 0 )
             _category = 0xffffff00;
         _log_file_out = Environment.logFileOut();
+         maxLogSize = (Environment.maxLogSize ()) * 1024;
+         currentLogSize = Environment.currentLogSize ()/2;
     }
 
     public static boolean canOutput( int msg_level )
@@ -119,18 +128,36 @@ public final class Debug
             (_msg_level <= _verbosity);
     }
 
-    public static final void output(int msg_level, String msg) 
-    {	
-        if( canOutput( msg_level ))
+    public static final void output (int msg_level, String msg)
+    {
+        if (canOutput (msg_level))
         {
-            if (_log_file_out == null ) 
+            if (timestamp)
             {
-                System.out.println("[ " + msg + " ]");
-            } 
+               msg = "[ " + Environment.date () + ':' +
+                     Environment.time() + "> " + msg + " ]";
+            }
             else
             {
-                _log_file_out.println("[ " + Environment.time() + "> " + msg + " ]");
-                _log_file_out.flush();
+               msg = "[ " + msg + " ]";
+            }
+
+            if (_log_file_out == null)
+            {
+                System.out.println (msg);
+            }
+            else
+            {
+                if (maxLogSize > 0)
+                {
+                    if (exceedsMaxLogSize (msg.length ()))
+                    {
+                        _log_file_out = Environment.logFileOut ();
+                    }
+                }
+
+                _log_file_out.println (msg);
+                _log_file_out.flush ();
             }
         }
     }
@@ -144,7 +171,7 @@ public final class Debug
     {
         output(msg_level,name,bs, 0, bs.length);
     }
-	
+
     /**
      * Output a buffer in hex format. Note that output synchronizes
      * the calling threads in order to avoid garbled debug output.
@@ -161,7 +188,7 @@ public final class Debug
     public static synchronized void output(int msg_level,
                                            String name,
                                            byte bs[],
-                                           int start, 
+                                           int start,
                                            int len)
     {
         if( canOutput( msg_level ) )
@@ -173,18 +200,18 @@ public final class Debug
             {
                 if((i % 16 ) == 0)
                 {
-                    System.out.println( chars ); 
-                    chars = new StringBuffer();                    
+                    System.out.println( chars );
+                    chars = new StringBuffer();
                 }
 
                 chars.append( toAscii( bs[i] ));
 
                 System.out.print( toHex( bs[i] ));
 
-                if( (i % 4) == 3 ) 
-                { 
+                if( (i % 4) == 3 )
+                {
                     chars.append( ' ' );
-                    System.out.print( ' ' ); 
+                    System.out.print( ' ' );
                 }
             }
 
@@ -205,7 +232,7 @@ public final class Debug
                     chars.insert( 0, ' ' );
                 }
             }
-                    
+
             System.out.println( chars );
         }
     }
@@ -220,41 +247,43 @@ public final class Debug
 
         int lower = b & 0x0F;
         sb.append( lookup[lower] );
-        
+
         sb.append( ' ' );
 
         return sb.toString();
     }
-	
+
     public static final char toAscii(byte b)
     {
-        if( b > (byte) 31 && 
-            b < (byte) 127) 
+        if( b > (byte) 31 &&
+            b < (byte) 127)
         {
-            return (char) b; 
+            return (char) b;
         }
-        else 
+        else
         {
             return '.';
         }
     }
-	
-    public static final void output(int msg_level, Throwable e) 
+
+    public static final void output(int msg_level, Throwable e)
     {
         if( canOutput( msg_level ) )
         {
-            if (_log_file_out == null || msg_level == 0) 
+            if (_log_file_out == null || msg_level == 0)
             {
                 System.out.println("############################ StackTrace ############################");
                 e.printStackTrace(System.out);
                 System.out.println("####################################################################");
-            } 
+            }
             if (_log_file_out != null)
             {
+                //Assumption made that will want events prior to exception in
+                //same log, no call to exceedsMaxLogSize
                 _log_file_out.println("############################ StackTrace ############################");
                 e.printStackTrace(_log_file_out);
                 _log_file_out.println("####################################################################");
-                _log_file_out.flush();			
+                _log_file_out.flush();
             }
         }
     }
@@ -280,14 +309,14 @@ public final class Debug
      *  @param expression the expression to be checked
      *  @param msg_level the message level of the myAssertion
      *  @param msg the message to be printed
-     *  @exception AssertionViolation 
+     *  @exception AssertionViolation
      */
 
     public static void myAssert(int msg_level, boolean expression, String msg)
     {
         if( canOutput( msg_level ))
         {
-            if (! expression) 
+            if (! expression)
                 throw new AssertionViolation(msg);
         }
     }
@@ -297,7 +326,27 @@ public final class Debug
         myAssert( 1, expression, msg );
     }
 
-      
+
+    private static boolean exceedsMaxLogSize (int length)
+    {
+        if ((length + currentLogSize) >= maxLogSize)
+        {
+
+        // if to big, call onto Environment.rollLog () - which will copy
+        // existing log to a new (backup) file, with date/time appended to name
+            Environment.rollLog ();
+            //will write this msg to a new log, so reset the currentLogSize
+            currentLogSize = length;
+            return true;
+        }
+        else
+        {
+            //will append (or otherwise) to existing log.
+            currentLogSize += length;
+            return false;
+        }
+    }
+
     /**
      * utility method,
      */
@@ -317,7 +366,7 @@ public final class Debug
       }
     */
     /**
-     * utility method, 
+     * utility method,
      */
     /*
       public static void dumpHex(byte b)
@@ -335,5 +384,3 @@ public final class Debug
       }
     */
 }
-
-

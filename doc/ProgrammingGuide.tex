@@ -243,8 +243,21 @@ jacorb.verbosity=1
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
 
+# Whether to timestamp log entries
+jacorb.log.timestamp=off
+
 # If logging to file whether to append to existing file or overwrite
 jacorb.logfile.append=off
+
+# If jacorb.logfile.append is on, set rolling log size in kilobytes.
+# A value of 0 implies no rolling log
+jacorb.logfile.maxLogSize=0
+
+# hexdump outgoing messages
+jacorb.debug.dump_outgoing_messages=off
+
+# hexdump incoming messages
+jacorb.debug.dump_incoming_messages=off
 
 ##################################################
 #                                                #
@@ -3213,6 +3226,11 @@ to configure JacORB are given in the following tables.
 \verb"jacorb.logfile" & Output destination for diagnostic log file. If not set, then diagnostics are sent to standard output. & file \\
 \hline
 \verb"jacorb.logfile.append" & If logging to file whether to append to existing file or overwrite. Default is off. & boolean \\
+\hline
+\verb"jacorb.logfile.maxLogS"
+\verb"ize" & If appending to a file sets the size in kilobytes at which the file is rolled over. Default is off (0). & integer \\
+\hline
+\verb"jacorb.log.timestamp" & Whether to timestamp log messages. Default is off & boolean \\
 \hline
 \verb"jacorb.debug.dump_outg"
 \verb"oing_messages" & Hex dump outgoing messages. Default is off. & boolean \\

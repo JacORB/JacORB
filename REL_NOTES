@@ -41,6 +41,10 @@ gerald.brose@acm.org
       - Logging:
         - Added property 'jacorb.logfile.append' to support appending to rather
           than overwriting an existing log file.
+        - Added property 'jacorb.logfile.maxLogSize' to support rolling logs.
+        - Added property 'jacorb.log.timestamp' to control whether log messages
+          are timestamped or not.
+
       - ORB:
         - Added property 'jacorb.interop.indirection_encoding_disable' to turn off
           indirection encoding for repeated typecodes.
