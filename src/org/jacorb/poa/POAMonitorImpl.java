@@ -135,11 +135,11 @@ public class POAMonitorImpl
             }
             catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
                     logger.warn("Exception during changeState() of POAMonitor" +
-                                 exception.getMessage());
-            	}
+                                exception.getMessage());
+                }
             }
         }
     }
@@ -164,11 +164,11 @@ public class POAMonitorImpl
             }
             catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
-	                logger.warn("Exception during closeMonitor() of POAMonitorImpl" +
-                                    exception.getMessage());
-            	}
+                    logger.warn("Exception during closeMonitor() of POAMonitorImpl" +
+                                exception.getMessage());
+                }
             }
         }
     }
@@ -204,11 +204,11 @@ public class POAMonitorImpl
                 view._setPolicyIdUniqueness(POAUtil.convert(poaModel.idUniquenessPolicy, ID_UNIQUENESS_POLICY_ID.value));
                 view._setPolicyIdAssignment(POAUtil.convert(poaModel.idAssignmentPolicy, ID_ASSIGNMENT_POLICY_ID.value));
                 view._setPolicyServantRetention(POAUtil.convert(
-                                                                poaModel.servantRetentionPolicy, SERVANT_RETENTION_POLICY_ID.value));
+                                                    poaModel.servantRetentionPolicy, SERVANT_RETENTION_POLICY_ID.value));
                 view._setPolicyRequestProcessing(POAUtil.convert(
-                                                                 poaModel.requestProcessingPolicy, REQUEST_PROCESSING_POLICY_ID.value));
+                                                     poaModel.requestProcessingPolicy, REQUEST_PROCESSING_POLICY_ID.value));
                 view._setPolicyImplicitActivation(POAUtil.convert(
-                                                                  poaModel.implicitActivationPolicy, IMPLICIT_ACTIVATION_POLICY_ID.value));
+                                                      poaModel.implicitActivationPolicy, IMPLICIT_ACTIVATION_POLICY_ID.value));
 
                 view._initAOMBar(aomModel != null ? 10 : 0, true);
 
@@ -221,11 +221,11 @@ public class POAMonitorImpl
             }
             catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
-	                logger.warn("Exception during initView() of POAMonitor" +
-                                    exception.getMessage());
-            	}
+                    logger.warn("Exception during initView() of POAMonitor" +
+                                exception.getMessage());
+                }
             }
         }
     }
@@ -270,11 +270,11 @@ public class POAMonitorImpl
             }
             catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
                     logger.warn("Exception occurred in openMonitor() of POAMonitor" +
                                 exception.getMessage() );
-            	}
+                }
             }
         }
     }
@@ -351,11 +351,11 @@ public class POAMonitorImpl
             }
             catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
                     logger.warn("Exception during refreshAOM() of POAMonitor" +
-                                     exception.getMessage());
-            	}
+                                exception.getMessage());
+                }
             }
         }
     }
@@ -373,11 +373,11 @@ public class POAMonitorImpl
             }
             catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
-	                logger.warn("Exception occurred in refreshPM() of POAMonitor" +
-                                    exception.getMessage());
-            	}
+                    logger.warn("Exception occurred in refreshPM() of POAMonitor" +
+                                exception.getMessage());
+                }
             }
         }
     }
@@ -393,11 +393,11 @@ public class POAMonitorImpl
             }
             catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled())
+                if (logger.isWarnEnabled())
                 {
                     logger.warn("Exception occurred in refreshQueue() of POAMonitor: " +
                                 exception.getMessage());
-            	}
+                }
             }
         }
     }

@@ -154,37 +154,37 @@ public class POA
                 switch (policies[i].policy_type())
                 {
                     case THREAD_POLICY_ID.value :
-                        threadPolicy =
-                            (org.omg.PortableServer.ThreadPolicy) policies[i];
-                        break;
+                    threadPolicy =
+                        (org.omg.PortableServer.ThreadPolicy) policies[i];
+                    break;
                     case LIFESPAN_POLICY_ID.value :
-                        lifespanPolicy =
-                            (org.omg.PortableServer.LifespanPolicy) policies[i];
-                        break;
+                    lifespanPolicy =
+                        (org.omg.PortableServer.LifespanPolicy) policies[i];
+                    break;
                     case ID_UNIQUENESS_POLICY_ID.value :
-                        idUniquenessPolicy =
-                            (org.omg.PortableServer.IdUniquenessPolicy) policies[i];
-                        break;
+                    idUniquenessPolicy =
+                        (org.omg.PortableServer.IdUniquenessPolicy) policies[i];
+                    break;
                     case ID_ASSIGNMENT_POLICY_ID.value :
-                        idAssignmentPolicy =
-                            (org.omg.PortableServer.IdAssignmentPolicy) policies[i];
-                        break;
+                    idAssignmentPolicy =
+                        (org.omg.PortableServer.IdAssignmentPolicy) policies[i];
+                    break;
                     case SERVANT_RETENTION_POLICY_ID.value :
-                        servantRetentionPolicy =
-                            (org.omg.PortableServer.ServantRetentionPolicy) policies[i];
-                        break;
+                    servantRetentionPolicy =
+                        (org.omg.PortableServer.ServantRetentionPolicy) policies[i];
+                    break;
                     case REQUEST_PROCESSING_POLICY_ID.value :
-                        requestProcessingPolicy =
-                            (org.omg.PortableServer.RequestProcessingPolicy) policies[i];
-                        break;
+                    requestProcessingPolicy =
+                        (org.omg.PortableServer.RequestProcessingPolicy) policies[i];
+                    break;
                     case IMPLICIT_ACTIVATION_POLICY_ID.value :
-                        implicitActivationPolicy =
-                            (org.omg.PortableServer.ImplicitActivationPolicy) policies[i];
-                        break;
+                    implicitActivationPolicy =
+                        (org.omg.PortableServer.ImplicitActivationPolicy) policies[i];
+                    break;
                     case BIDIRECTIONAL_POLICY_TYPE.value :
-                        bidirectionalPolicy =
-                            (org.omg.BiDirPolicy.BidirectionalPolicy) policies[i];
-                        break;
+                    bidirectionalPolicy =
+                        (org.omg.BiDirPolicy.BidirectionalPolicy) policies[i];
+                    break;
                 }
             }
         }
@@ -302,7 +302,7 @@ public class POA
                     try
                     {
                         successful =
-                            the_activator().unknown_adapter(this, POAUtil.unmaskStr(adapter_name));
+                        the_activator().unknown_adapter(this, POAUtil.unmaskStr(adapter_name));
                     }
                     finally
                     {
@@ -354,7 +354,7 @@ public class POA
             else
             {
                 qualifiedName = parent._getQualifiedName() +
-                    POAConstants.OBJECT_KEY_SEPARATOR + name;
+                POAConstants.OBJECT_KEY_SEPARATOR + name;
             }
         }
         return qualifiedName;
@@ -379,7 +379,7 @@ public class POA
                 {
                     if (logger.isWarnEnabled())
                     {
-                    	logger.warn(logPrefix +
+                        logger.warn(logPrefix +
                                     " rid: " + request.requestId() +
                                     " opname: " + request.operation() +
                                     " _invoke: object key not previously generated!");
@@ -390,7 +390,7 @@ public class POA
                 {
                     if (logger.isWarnEnabled())
                     {
-                    	logger.warn(logPrefix +
+                        logger.warn(logPrefix +
                                     " rid: " + request.requestId() +
                                     " opname: " + request.operation() +
                                     " _invoke: object key not previously generated!");
@@ -408,9 +408,9 @@ public class POA
                 if (logger.isDebugEnabled())
                 {
                     logger.debug(logPrefix +
-                                " rid: " + request.requestId() +
-                                " opname: " + request.operation() +
-                                " _invoke: queuing request");
+                                 " rid: " + request.requestId() +
+                                 " opname: " + request.operation() +
+                                 " _invoke: queuing request");
                 }
                 requestController.queueRequest(request);
             }
@@ -435,9 +435,9 @@ public class POA
         policies= new org.omg.CORBA.Policy[1];
 
         policies[0] =
-            new org.jacorb.poa.policy.ImplicitActivationPolicy(ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
+        new org.jacorb.poa.policy.ImplicitActivationPolicy(ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION);
         POA rootPOA =
-            new POA(orb, POAConstants.ROOT_POA_NAME, null, poaMgr, policies);
+        new POA(orb, POAConstants.ROOT_POA_NAME, null, poaMgr, policies);
         return rootPOA;
     }
 
@@ -613,7 +613,7 @@ public class POA
     }
 
     public ImplicitActivationPolicy create_implicit_activation_policy
-    (ImplicitActivationPolicyValue value)
+        (ImplicitActivationPolicyValue value)
     {
         checkDestructionApparent ();
         return new org.jacorb.poa.policy.ImplicitActivationPolicy (value);
@@ -689,7 +689,7 @@ public class POA
                 throw new org.omg.CORBA.BAD_INV_ORDER();
 
             POAManager aPOAManager =
-                a_POAManager == null ? new POAManager(orb) : (POAManager) a_POAManager;
+            a_POAManager == null ? new POAManager(orb) : (POAManager) a_POAManager;
             child = new POA(orb, poa_name, this, aPOAManager, policyList);
             // notify a poa listener
             try
@@ -787,12 +787,12 @@ public class POA
             throw new WrongPolicy();
 
         aom.remove(
-                   oid,
-                   requestController,
-                   useServantManager() ? (ServantActivator)servantManager : null,
-                   this,
-                   false
-        );
+            oid,
+            requestController,
+            useServantManager() ? (ServantActivator)servantManager : null,
+            this,
+            false
+                  );
 
         createdReferences.remove( new ByteArrayKey(oid));
     }
@@ -819,30 +819,30 @@ public class POA
         }
 
         Thread thread = new Thread()
+        {
+            public void run()
             {
-                public void run()
-                {
-                                /* The apparent destruction of the POA
-                                   occurs  only  after  all  executing
-                                   requests in the POA have completed,
-                                   but before any calls to etherealize
-                                   are made. */
-                    requestController.waitForShutdown();
-                                /*  poa behaves  as  if he  is in  the
-                                    holding state  now and blocks until
-                                    all active request have comleted */
-                    makeDestructionApparent();
-                                /* unregister poa from the POAManager,
-                                   any calls on the poa are impossible
-                                   now especially  you cannot activate
-                                   or  deactivate  objects  (raises  a
-                                   OBJ_NOT_EXIST  exception),  but you
-                                   have   a    race   condition   with
-                                   currently       running      object
-                                   (de)activation processes */
-                    makeDestructionComplete();
-                }
-            };
+                /* The apparent destruction of the POA
+                   occurs  only  after  all  executing
+                   requests in the POA have completed,
+                   but before any calls to etherealize
+                   are made. */
+                requestController.waitForShutdown();
+                /*  poa behaves  as  if he  is in  the
+                    holding state  now and blocks until
+                    all active request have comleted */
+                makeDestructionApparent();
+                /* unregister poa from the POAManager,
+                   any calls on the poa are impossible
+                   now especially  you cannot activate
+                   or  deactivate  objects  (raises  a
+                   OBJ_NOT_EXIST  exception),  but you
+                   have   a    race   condition   with
+                   currently       running      object
+                   (de)activation processes */
+                makeDestructionComplete();
+            }
+        };
         thread.start();
         if (wait_for_completion)
         {
@@ -901,7 +901,7 @@ public class POA
                         try
                         {
                             successful =
-                                the_activator().unknown_adapter(this, adapter_name);
+                            the_activator().unknown_adapter(this, adapter_name);
                         }
                         finally {
                             unknownAdapterCalled = false;
@@ -1005,9 +1005,9 @@ public class POA
         if (poaId == null)
         {
             byte[] impl_name =
-                POAUtil.maskId( (Environment.implName() != null) ?
-                                Environment.implName() :
-                                Environment.serverId() );
+            POAUtil.maskId( (Environment.implName() != null) ?
+                            Environment.implName() :
+                            Environment.serverId() );
             int in_length = impl_name.length;
 
             byte[] poa_name = _getQualifiedName().getBytes();
@@ -1122,7 +1122,7 @@ public class POA
     protected boolean isActive()
     {
         return poaManager.get_state().value() ==
-            org.omg.PortableServer.POAManagerPackage.State._ACTIVE ? true : false;
+        org.omg.PortableServer.POAManagerPackage.State._ACTIVE ? true : false;
     }
 
     protected void checkDestructionApparent ()
@@ -1134,7 +1134,7 @@ public class POA
     }
 
     protected static void checkNotLocal (org.omg.CORBA.Object obj)
-       throws WrongAdapter
+        throws WrongAdapter
     {
         if (obj instanceof org.omg.CORBA.LocalObject)
         {
@@ -1214,13 +1214,13 @@ public class POA
     protected boolean isMultipleId()
     {
         return idUniquenessPolicy != null &&
-            idUniquenessPolicy.value() == IdUniquenessPolicyValue.MULTIPLE_ID;
+        idUniquenessPolicy.value() == IdUniquenessPolicyValue.MULTIPLE_ID;
     }
 
     public boolean isPersistent()
     {
         return lifespanPolicy != null &&
-            lifespanPolicy.value() == LifespanPolicyValue.PERSISTENT;
+        lifespanPolicy.value() == LifespanPolicyValue.PERSISTENT;
     }
 
     /**
@@ -1230,7 +1230,7 @@ public class POA
     public boolean isRetain()
     {
         return servantRetentionPolicy == null ||
-            servantRetentionPolicy.value() == ServantRetentionPolicyValue.RETAIN;
+        servantRetentionPolicy.value() == ServantRetentionPolicyValue.RETAIN;
     }
 
     protected boolean isShutdownInProgress()
@@ -1241,19 +1241,19 @@ public class POA
     protected boolean isSingleThreadModel()
     {
         return threadPolicy != null &&
-            threadPolicy.value() == ThreadPolicyValue.SINGLE_THREAD_MODEL;
+        threadPolicy.value() == ThreadPolicyValue.SINGLE_THREAD_MODEL;
     }
 
     public boolean isSystemId()
     {
         return idAssignmentPolicy == null ||
-            idAssignmentPolicy.value() == IdAssignmentPolicyValue.SYSTEM_ID;
+        idAssignmentPolicy.value() == IdAssignmentPolicyValue.SYSTEM_ID;
     }
 
     protected boolean isUniqueId()
     {
         return idUniquenessPolicy == null ||
-            idUniquenessPolicy.value() == IdUniquenessPolicyValue.UNIQUE_ID;
+        idUniquenessPolicy.value() == IdUniquenessPolicyValue.UNIQUE_ID;
     }
 
     /**
@@ -1262,13 +1262,13 @@ public class POA
     protected boolean isUseDefaultServant()
     {
         return requestProcessingPolicy != null &&
-            requestProcessingPolicy.value() == RequestProcessingPolicyValue.USE_DEFAULT_SERVANT;
+        requestProcessingPolicy.value() == RequestProcessingPolicyValue.USE_DEFAULT_SERVANT;
     }
 
     public boolean isUseServantManager()
     {
         return requestProcessingPolicy != null &&
-            requestProcessingPolicy.value() == RequestProcessingPolicyValue.USE_SERVANT_MANAGER;
+        requestProcessingPolicy.value() == RequestProcessingPolicyValue.USE_SERVANT_MANAGER;
     }
 
     /**
@@ -1786,161 +1786,161 @@ public class POA
             switch (policies[i].policy_type())
             {
                 case THREAD_POLICY_ID.value :
-                    /* no dependencies */
-                    break;
+                /* no dependencies */
+                break;
                 case LIFESPAN_POLICY_ID.value :
-                    // PERSISTENT -> ImplName is set
-                    if (((LifespanPolicy) policies[i]).value() ==
-                        LifespanPolicyValue.PERSISTENT)
+                // PERSISTENT -> ImplName is set
+                if (((LifespanPolicy) policies[i]).value() ==
+                    LifespanPolicyValue.PERSISTENT)
+                {
+                    if ( Environment.implName() == null )
                     {
-                        if ( Environment.implName() == null )
+                        logger.fatalError("cannot create a persistent poa! (implname property is not used)");
+                        return i;
+                    }
+                }
+
+                /* no dependencies */
+                break;
+                case ID_UNIQUENESS_POLICY_ID.value :
+                /* no dependencies */
+                /* if you set NON_RETAIN the poa doesn't take any
+                   notice of the IdUniquenesPolicyValue */
+                break;
+                case ID_ASSIGNMENT_POLICY_ID.value :
+                //   SYSTEM_ID   ->   no   dependencies   USER_ID   ->
+                // NO_IMPLICIT_ACTIVATION, but  an error will detected
+                //  if  we  have  considered  the  IMPLICIT_ACTIVATION
+                // policy
+                break;
+
+                case SERVANT_RETENTION_POLICY_ID.value :
+                // RETAIN -> no dependencies
+                // NON_RETAIN -> (USE_DEFAULT_SERVANT || USE_SERVANT_MANAGER)
+                if (((ServantRetentionPolicy) policies[i]).value() ==
+                    ServantRetentionPolicyValue.NON_RETAIN) {
+
+                    policy =
+                    POAUtil.getPolicy(policies, REQUEST_PROCESSING_POLICY_ID.value);
+                    if (policy != null)
+                    {
+                        if ( ((RequestProcessingPolicy) policy).value() !=
+                             RequestProcessingPolicyValue.USE_DEFAULT_SERVANT &&
+                             ((RequestProcessingPolicy) policy).value() !=
+                             RequestProcessingPolicyValue.USE_SERVANT_MANAGER)
                         {
-                            logger.fatalError("cannot create a persistent poa! (implname property is not used)");
                             return i;
                         }
                     }
-
-                    /* no dependencies */
-                    break;
-                case ID_UNIQUENESS_POLICY_ID.value :
-                    /* no dependencies */
-                    /* if you set NON_RETAIN the poa doesn't take any
-                       notice of the IdUniquenesPolicyValue */
-                    break;
-                case ID_ASSIGNMENT_POLICY_ID.value :
-                    //   SYSTEM_ID   ->   no   dependencies   USER_ID   ->
-                    // NO_IMPLICIT_ACTIVATION, but  an error will detected
-                    //  if  we  have  considered  the  IMPLICIT_ACTIVATION
-                    // policy
-                    break;
-
-                case SERVANT_RETENTION_POLICY_ID.value :
-                    // RETAIN -> no dependencies
-                    // NON_RETAIN -> (USE_DEFAULT_SERVANT || USE_SERVANT_MANAGER)
-                    if (((ServantRetentionPolicy) policies[i]).value() ==
-                        ServantRetentionPolicyValue.NON_RETAIN) {
-
-                        policy =
-                            POAUtil.getPolicy(policies, REQUEST_PROCESSING_POLICY_ID.value);
-                        if (policy != null)
-                        {
-                            if ( ((RequestProcessingPolicy) policy).value() !=
-                                 RequestProcessingPolicyValue.USE_DEFAULT_SERVANT &&
-                                 ((RequestProcessingPolicy) policy).value() !=
-                                 RequestProcessingPolicyValue.USE_SERVANT_MANAGER)
-                            {
-                                return i;
-                            }
-                        }
-                        else
-                        {
-                            return i; // default (USE_ACTIVE_OBJECT_MAP_ONLY) is forbidden
-                        }
-                        // NON_RETAIN -> NO_IMPLICIT_ACTIVATION, but an error will
-                        // be detected if we have considered the IMPLICIT_ACTIVATION policy
+                    else
+                    {
+                        return i; // default (USE_ACTIVE_OBJECT_MAP_ONLY) is forbidden
                     }
-                    break;
+                    // NON_RETAIN -> NO_IMPLICIT_ACTIVATION, but an error will
+                    // be detected if we have considered the IMPLICIT_ACTIVATION policy
+                }
+                break;
 
                 case REQUEST_PROCESSING_POLICY_ID.value :
-                    // USE_SERVANT_MANAGER -> no dependencies
-                    // USE_ACTIVE_OBJECT_MAP_ONLY -> RETAIN
-                    if (((RequestProcessingPolicy) policies[i]).value() ==
-                        RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY)
-                    {
+                // USE_SERVANT_MANAGER -> no dependencies
+                // USE_ACTIVE_OBJECT_MAP_ONLY -> RETAIN
+                if (((RequestProcessingPolicy) policies[i]).value() ==
+                    RequestProcessingPolicyValue.USE_ACTIVE_OBJECT_MAP_ONLY)
+                {
 
-                        policy = POAUtil.getPolicy( policies,
-                                                    SERVANT_RETENTION_POLICY_ID.value);
-                        if (policy != null)
-                        {
-                            if (((ServantRetentionPolicy) policy).value() !=
-                                ServantRetentionPolicyValue.RETAIN)
-                            {
-                                return i;
-                            }
-                        }
-                        else
-                        {
-                            // do nothing, because default (RETAIN) is ok
-                        }
-                        // USE_DEFAULT_SERVANT -> (MULTIPLE_ID || NON_RETAIN)  /* not spec. (NON_RETAIN) */
-                    }
-                    else if (((RequestProcessingPolicy) policies[i]).value() == RequestProcessingPolicyValue.USE_DEFAULT_SERVANT)
+                    policy = POAUtil.getPolicy( policies,
+                                                SERVANT_RETENTION_POLICY_ID.value);
+                    if (policy != null)
                     {
-                        policy  =
-                            POAUtil.getPolicy(policies, ID_UNIQUENESS_POLICY_ID.value);
-                        policy2 =
-                            POAUtil.getPolicy(policies, SERVANT_RETENTION_POLICY_ID.value);
-                        if (policy == null && policy2 == null)
+                        if (((ServantRetentionPolicy) policy).value() !=
+                            ServantRetentionPolicyValue.RETAIN)
                         {
-                            return i; // default (UNIQUE_ID && RETAIN) is forbidden
-                        }
-                        else if (policy != null && policy2 == null)
-                        {
-                            if (((IdUniquenessPolicy) policy).value() !=
-                                IdUniquenessPolicyValue.MULTIPLE_ID )
-                                return i;
-                        }
-                        else if (policy == null && policy2 != null)
-                        {
-                            if (((ServantRetentionPolicy) policy2).value() !=
-                                ServantRetentionPolicyValue.NON_RETAIN )
-                                return i;
-                        }
-                        else if (policy != null && policy2 != null)
-                        {
-                            if (((IdUniquenessPolicy) policy).value() !=
-                                IdUniquenessPolicyValue.MULTIPLE_ID &&
-                                ((ServantRetentionPolicy) policy2).value() !=
-                                ServantRetentionPolicyValue.NON_RETAIN )
-                                return i;
+                            return i;
                         }
                     }
-                    break;
+                    else
+                    {
+                        // do nothing, because default (RETAIN) is ok
+                    }
+                    // USE_DEFAULT_SERVANT -> (MULTIPLE_ID || NON_RETAIN)  /* not spec. (NON_RETAIN) */
+                }
+                else if (((RequestProcessingPolicy) policies[i]).value() == RequestProcessingPolicyValue.USE_DEFAULT_SERVANT)
+                {
+                    policy  =
+                    POAUtil.getPolicy(policies, ID_UNIQUENESS_POLICY_ID.value);
+                    policy2 =
+                    POAUtil.getPolicy(policies, SERVANT_RETENTION_POLICY_ID.value);
+                    if (policy == null && policy2 == null)
+                    {
+                        return i; // default (UNIQUE_ID && RETAIN) is forbidden
+                    }
+                    else if (policy != null && policy2 == null)
+                    {
+                        if (((IdUniquenessPolicy) policy).value() !=
+                            IdUniquenessPolicyValue.MULTIPLE_ID )
+                            return i;
+                    }
+                    else if (policy == null && policy2 != null)
+                    {
+                        if (((ServantRetentionPolicy) policy2).value() !=
+                            ServantRetentionPolicyValue.NON_RETAIN )
+                            return i;
+                    }
+                    else if (policy != null && policy2 != null)
+                    {
+                        if (((IdUniquenessPolicy) policy).value() !=
+                            IdUniquenessPolicyValue.MULTIPLE_ID &&
+                            ((ServantRetentionPolicy) policy2).value() !=
+                            ServantRetentionPolicyValue.NON_RETAIN )
+                            return i;
+                    }
+                }
+                break;
 
                 case IMPLICIT_ACTIVATION_POLICY_ID.value :
-                    // NO_IMPLICIT_ACTIVATION -> no dependencies
-                    // IMPLICIT_ACTIVATION -> (SYSTEM_ID && RETAIN)
-                    if (((ImplicitActivationPolicy) policies[i]).value() ==
-                        ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION)
+                // NO_IMPLICIT_ACTIVATION -> no dependencies
+                // IMPLICIT_ACTIVATION -> (SYSTEM_ID && RETAIN)
+                if (((ImplicitActivationPolicy) policies[i]).value() ==
+                    ImplicitActivationPolicyValue.IMPLICIT_ACTIVATION)
+                {
+                    policy = POAUtil.getPolicy(policies,
+                                               SERVANT_RETENTION_POLICY_ID.value);
+                    if (policy != null)
                     {
-                        policy = POAUtil.getPolicy(policies,
-                                                   SERVANT_RETENTION_POLICY_ID.value);
-                        if (policy != null)
+                        if (((ServantRetentionPolicy) policy).value() !=
+                            ServantRetentionPolicyValue.RETAIN)
                         {
-                            if (((ServantRetentionPolicy) policy).value() !=
-                                ServantRetentionPolicyValue.RETAIN)
-                            {
-                                return i;
-                            }
-                        }
-                        else
-                        {
-                            // do nothing, because default (RETAIN) is ok
-                        }
-
-                        policy = POAUtil.getPolicy(policies, ID_ASSIGNMENT_POLICY_ID.value);
-                        if (policy != null)
-                        {
-                            if (((IdAssignmentPolicy) policy).value() !=
-                                IdAssignmentPolicyValue.SYSTEM_ID)
-                            {
-                                return i;
-                            }
-                        }
-                        else
-                        {
-                            // do nothing, because default (SYSTEM_ID) is ok
+                            return i;
                         }
                     }
-                    break;
-                case BIDIRECTIONAL_POLICY_TYPE.value :
-                    // nothing to do
-                    break;
-                    //ignore unknown policies
+                    else
+                    {
+                        // do nothing, because default (RETAIN) is ok
+                    }
 
-                    //              // unknown policy type -> return i
-                    //          default :
-                    //              return i;
+                    policy = POAUtil.getPolicy(policies, ID_ASSIGNMENT_POLICY_ID.value);
+                    if (policy != null)
+                    {
+                        if (((IdAssignmentPolicy) policy).value() !=
+                            IdAssignmentPolicyValue.SYSTEM_ID)
+                        {
+                            return i;
+                        }
+                    }
+                    else
+                    {
+                        // do nothing, because default (SYSTEM_ID) is ok
+                    }
+                }
+                break;
+                case BIDIRECTIONAL_POLICY_TYPE.value :
+                // nothing to do
+                break;
+                //ignore unknown policies
+
+                //              // unknown policy type -> return i
+                //          default :
+                //              return i;
             }
         }
         return -1;
