@@ -506,19 +506,26 @@ class OpDecl
 	return name();
     }
 
-    public void printSignature(PrintWriter ps)
+    public void printSignature (PrintWriter ps)
     {
-	ps.print("\t" + opTypeSpec.toString() + " " + name + "(");
+        printSignature (ps, false);
+    }
 
-	Enumeration e = paramDecls.elements();
-	if(e.hasMoreElements())
-	    ((ParamDecl)e.nextElement()).print(ps);
+    /**
+     * @param printModifiers whether "public abstract" should be added
+     */
+    public void printSignature (PrintWriter ps, boolean printModifiers)
+    {
+        ps.print ("\t");
+        if (printModifiers) ps.print ("public abstract ");
 
-	for(; e.hasMoreElements();)
-	{
-	    ps.print(", ");
-	    ((ParamDecl)e.nextElement()).print(ps);
-	}
+        ps.print(opTypeSpec.toString() + " " + name + "(");
+
+	for (Enumeration e = paramDecls.elements(); e.hasMoreElements();)
+        {
+            ((ParamDecl)e.nextElement()).print(ps);
+            if (e.hasMoreElements()) ps.print (", ");
+        }
 
 	ps.print(")");
 	raisesExpr.print(ps);
