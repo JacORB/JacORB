@@ -381,6 +381,12 @@ public class ValueDecl
 
     public void print(PrintWriter ps)
     {
+        // no code generation for included definitions
+        if (included && !generateIncluded())
+        {
+            return;
+        }
+
         try
         {
             String path = parser.out_dir
