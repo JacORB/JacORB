@@ -25,9 +25,11 @@ import java.util.*;
 
 import org.omg.GIOP.*;
 import org.omg.IOP.*;
+import org.omg.Messaging.*;
 import org.omg.TimeBase.*;
 
 import org.jacorb.orb.*;
+import org.jacorb.util.*;
 
 /**
  * @author Gerald Brose, FU Berlin 1999
@@ -90,6 +92,13 @@ public class RequestOutputStream
         this.requestStartTime = requestStartTime;
         this.requestEndTime   = requestEndTime;
         this.replyEndTime     = replyEndTime;
+        
+        if (requestStartTime != null ||
+            requestEndTime != null ||
+            replyEndTime != null)
+        {
+            addServiceContext (createInvocationPolicies());
+        }
 
         writeGIOPMsgHeader( MsgType_1_1._Request,
                             giop_minor );
@@ -225,4 +234,34 @@ public class RequestOutputStream
     {
         return connection;
     }
+    
+    /**
+     * Returns the timing policies for this request as an array 
+     * of PolicyValues that can be propagated in a ServiceContext.
+     */
+    private org.omg.Messaging.PolicyValue[] getTimingPolicyValues()
+    {
+        List l = new ArrayList();
+        if (requestStartTime != null)
+            l.add (new PolicyValue (REQUEST_START_TIME_POLICY_TYPE.value,
+                                    Time.toCDR (requestStartTime)));
+        if (requestEndTime != null)
+            l.add (new PolicyValue (REQUEST_END_TIME_POLICY_TYPE.value,
+                                    Time.toCDR (requestEndTime)));
+        if (replyEndTime != null)
+            l.add (new PolicyValue (REPLY_END_TIME_POLICY_TYPE.value,
+                                    Time.toCDR (replyEndTime)));
+        return (PolicyValue[])l.toArray (new PolicyValue[0]);
+    }                                       
+                                                
+    private ServiceContext createInvocationPolicies()
+    {
+        CDROutputStream out = new CDROutputStream();
+        out.beginEncapsulatedArray();
+        PolicyValueSeqHelper.write(out, getTimingPolicyValues());
+        return new ServiceContext (org.omg.IOP.INVOCATION_POLICIES.value,
+                                   out.getBufferCopy());
+    }
+
+
 }
