@@ -40,16 +40,14 @@ public class InterceptorManager
     private Interceptor[] server_req_interceptors = null;
     private Interceptor[] ior_interceptors = null;
 
-    //#ifjdk 1.2
-        private WeakHashMap currents = null;
-    //#else
-    //# private HashMap currents = null;
-    //#endif
     private org.omg.CORBA.ORB orb = null;
     private int current_slots = 0;
     private Logger logger;
 
+    private static ThreadLocal piCurrent = new ThreadLocal();
+
     public static final PICurrentImpl EMPTY_CURRENT = new PICurrentImpl(null, 0);
+
 
     public InterceptorManager(Vector client_interceptors,
                               Vector server_interceptors,
@@ -134,12 +132,6 @@ public class InterceptorManager
       
         this.orb = orb;
         current_slots = slot_count;
-
-        //#ifjdk 1.2
-            currents = new WeakHashMap();
-        //#else
-        //# currents = new HashMap();
-        //#endif
     }
 
     /**
@@ -147,18 +139,13 @@ public class InterceptorManager
      */
     public Current getCurrent()
     {
-        Current ts_current = (Current) currents.get(Thread.currentThread());
-    
-        if (ts_current == null){
-            //create new client current
-            //server currents have been created and set separately
-;
-            ts_current = getEmptyCurrent();
-            currents.put(Thread.currentThread(),
-                         ts_current);
+        Current value = (Current)piCurrent.get();
+        if (value == null)
+        {
+            value = getEmptyCurrent();
+            piCurrent.set(value);
         }
-
-        return ts_current;
+        return value;
     }
 
     /**
@@ -167,8 +154,7 @@ public class InterceptorManager
      */
     public void setTSCurrent(Current current)
     {
-        currents.put(Thread.currentThread(),
-                     new PICurrentImpl((PICurrentImpl)current));
+        piCurrent.set(current);
     }
 
     /**
@@ -177,7 +163,7 @@ public class InterceptorManager
      */
     public void removeTSCurrent()
     {
-        currents.remove(Thread.currentThread());
+        piCurrent.set(null);
     }
 
     /**
