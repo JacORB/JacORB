@@ -952,17 +952,45 @@ public class CDRInputStream
         }
     }
 
-    public org.omg.CORBA.Object read_Object (final java.lang.Class clz)
+    public org.omg.CORBA.Object read_Object(final java.lang.Class clz)
     {
-        if (clz.isInterface() && java.rmi.Remote.class.isAssignableFrom (clz))
+        if (org.omg.CORBA.portable.ObjectImpl.class.isAssignableFrom(clz))
         {
-            return ((org.omg.CORBA.Object)
-                    org.jacorb.util.ValueHandler.portableRemoteObject_narrow
-                    (read_Object(), clz));
+            org.omg.CORBA.Object obj = read_Object();
+            if (obj instanceof org.omg.CORBA.portable.ObjectImpl)
+            {
+                org.omg.CORBA.portable.ObjectImpl stub = null;
+                try
+                {
+                    stub = (org.omg.CORBA.portable.ObjectImpl)clz.newInstance();
+                }
+                catch (InstantiationException e)
+                {
+                    throw new MARSHAL("Exception in stub instantiation: " + e);
+                }
+                catch (IllegalAccessException e)
+                {
+                    throw new MARSHAL("Exception in stub instantiation: " + e);
+                }
+                stub._set_delegate(
+                     ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate());
+                return stub;
+            }
+            else
+            {
+                return obj;
+            }
+        }
+        else if (clz.isInterface() && 
+                 java.rmi.Remote.class.isAssignableFrom(clz))
+        {
+            return (org.omg.CORBA.Object)
+                org.jacorb.util.ValueHandler.portableRemoteObject_narrow(
+                                                           read_Object(), clz);
         }
         else
         {
-            return (read_Object());
+            return read_Object();
         }
     }
 
