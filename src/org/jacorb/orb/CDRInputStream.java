@@ -170,13 +170,13 @@ public class CDRInputStream
         // orb may be null!
         if (orb != null)
         {
-            this.orb = orb;  
+            this.orb = orb;
             // orb may be the singleton!
             if (orb instanceof org.jacorb.orb.ORB)
             {
                 try
                 {
-                    
+
                     configure(((org.jacorb.orb.ORB)orb).getConfiguration());
                 }
                 catch( ConfigurationException ce )
@@ -206,16 +206,16 @@ public class CDRInputStream
     private void configure(Configuration configuration)
         throws ConfigurationException
     {
-        logger = 
+        logger =
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.cdr");
 
-        useBOM = 
+        useBOM =
             configuration.getAttribute("jacorb.use_bom","off").equals("on");
-        cometInteropFix = 
+        cometInteropFix =
             configuration.getAttribute("jacorb.interop.comet","off").equals("on");
-        laxBooleanEncoding = 
+        laxBooleanEncoding =
             configuration.getAttribute("jacorb.interop.lax_boolean_encoding","off").equals("on");
-        cacheTypecodes = 
+        cacheTypecodes =
             configuration.getAttribute("jacorb.cacheTypecodes","off").equals("on");
     }
 
@@ -355,7 +355,7 @@ public class CDRInputStream
         return giop_minor;
     }
 
-    public void close() 
+    public void close()
         throws IOException
     {
         // Don't need to call super.close as super is noop.
@@ -538,7 +538,7 @@ public class CDRInputStream
 
             if (logger.isDebugEnabled())
             {
-                logger.debug("Size of CDR encapsulation larger than buffer, swapping byte order\n" + 
+                logger.debug("Size of CDR encapsulation larger than buffer, swapping byte order\n" +
                              "Size of CDR encapsulation was " + size + ", is now " + temp);
             }
 
@@ -1082,7 +1082,7 @@ public class CDRInputStream
         int kind = read_long();
         int start_pos = pos - 4;
 
-        if (logger.isDebugEnabled())
+        if (logger != null && logger.isDebugEnabled())
         {
             logger.debug("Read Type code of kind " + kind + " at pos: " + start_pos);
         }
@@ -2251,8 +2251,8 @@ public class CDRInputStream
             return read_multi_typed_value( start_offset, codebase );
         }
         else
-            throw new MARSHAL("unknown value tag: 0x" + 
-                              Integer.toHexString(theTag) + " (offset=0x" + 
+            throw new MARSHAL("unknown value tag: 0x" +
+                              Integer.toHexString(theTag) + " (offset=0x" +
                               Integer.toHexString(start_offset) + ")");
     }
 
@@ -2297,8 +2297,8 @@ public class CDRInputStream
         }
         else
         {
-            throw new MARSHAL("unknown value tag: 0x" + 
-                              Integer.toHexString(theTag) + " (offset=0x" + 
+            throw new MARSHAL("unknown value tag: 0x" +
+                              Integer.toHexString(theTag) + " (offset=0x" +
                               Integer.toHexString(start_offset) + ")");
         }
     }
@@ -2372,8 +2372,8 @@ public class CDRInputStream
         }
         else
         {
-            throw new MARSHAL("unknown value tag: 0x" + 
-                              Integer.toHexString(theTag) + " (offset=0x" + 
+            throw new MARSHAL("unknown value tag: 0x" +
+                              Integer.toHexString(theTag) + " (offset=0x" +
                               Integer.toHexString(start_offset) + ")");
         }
     }
@@ -2427,8 +2427,8 @@ public class CDRInputStream
             return read_typed_value(start_offset, codebase);
         }
         else
-            throw new MARSHAL("unknown value tag: 0x" + 
-                              Integer.toHexString(theTag) + " (offset=0x" + 
+            throw new MARSHAL("unknown value tag: 0x" +
+                              Integer.toHexString(theTag) + " (offset=0x" +
                               Integer.toHexString(start_offset) + ")");
     }
 
@@ -2770,7 +2770,7 @@ public class CDRInputStream
      * a value.
      */
 
-    public java.lang.Object read_abstract_interface() 
+    public java.lang.Object read_abstract_interface()
     {
         return read_boolean() ? (java.lang.Object)read_Object()
         : (java.lang.Object)read_value();
@@ -2783,7 +2783,7 @@ public class CDRInputStream
      * a value.
      */
 
-    public java.lang.Object read_abstract_interface(final java.lang.Class clz) 
+    public java.lang.Object read_abstract_interface(final java.lang.Class clz)
     {
         return read_boolean() ? (java.lang.Object)read_Object(clz)
         : (java.lang.Object)read_value(clz);
