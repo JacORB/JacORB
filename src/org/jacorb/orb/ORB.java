@@ -1102,10 +1102,16 @@ public final class ORB
         _props = props;
         Environment.addProperties( props );
 
-        if( Environment.getProperty("jacorb.orb.print_version").equals("on"))
+        String versionProperty = 
+            Environment.getProperty("jacorb.orb.print_version");
+
+        if( versionProperty != null &&
+            versionProperty.equals("on") )
         {
-            System.out.println("\tJacORB V " + versionString + ", www.jacorb.org");
-            System.out.println("\t(C) Gerald Brose, FU Berlin, " + dateString );
+            System.out.println("\tJacORB V " + versionString + 
+                               ", www.jacorb.org");
+            System.out.println("\t(C) Gerald Brose, FU Berlin, " + 
+                               dateString );
         }
 
         initialReferencesInit();
