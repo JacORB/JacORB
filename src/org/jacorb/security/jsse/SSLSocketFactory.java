@@ -42,6 +42,7 @@ public class SSLSocketFactory
     implements org.jacorb.orb.factory.SocketFactory 
 {    
     private SocketFactory factory = null;
+    private boolean change_roles = false;
     
     public SSLSocketFactory( org.jacorb.orb.ORB orb ) 
     {
@@ -51,13 +52,22 @@ public class SSLSocketFactory
 	{
 	    Debug.output( 1, "ERROR: Unable to create ServerSocketFactory!" );
 	}
+	
+	change_roles = Environment.changeSSLRoles();
     }
 
     public Socket createSocket( String host, 
                                 int port )
 	throws IOException, UnknownHostException
     {       
-	return factory.createSocket( host, port );    
+	SSLSocket s = (SSLSocket) factory.createSocket( host, port );
+	
+	if( change_roles )
+	{
+	    s.setUseClientMode( false );
+	}
+	
+	return s;
     }
 
     public boolean isSSL ( java.net.Socket s )
@@ -87,22 +97,6 @@ public class SSLSocketFactory
             {
                 System.out.print( "Please enter store pass phrase: " );
                 keystore_passphrase= 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            String alias = Environment.defaultUser();
-            if( alias == null ) 
-            {
-                System.out.print( "Please enter alias  name: " );
-                alias = 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            String password = Environment.defaultPassword();
-            if ( password == null ) 
-            {
-                System.out.print( "Please enter password: " );
-                password = 
                     (new BufferedReader(new InputStreamReader(System.in))).readLine();
             }
 

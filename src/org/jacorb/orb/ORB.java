@@ -108,28 +108,6 @@ public final class ORB
 
     public ORB()
     {
-        connectionManager = new ConnectionManager(this);
-
-        String s = Environment.getProperty( "jacorb.hashtable_class" );
-        if( s == null || s.length() == 0 )
-        {
-            Debug.output( Debug.INFORMATION | Debug.ORB_MISC, 
-                          "Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
-            knownReferences = new Hashtable();  
-
-        }
-        else
-        {
-            try
-            {
-                knownReferences = (Hashtable) Class.forName( s ).newInstance();
-            }
-            catch( Exception e )
-            {
-                Debug.output( Debug.INFORMATION | Debug.ORB_MISC, e );
-                knownReferences = new Hashtable();
-            }
-        }
     }
 
     /** 
@@ -1040,7 +1018,31 @@ public final class ORB
     {      
         _args = args;
         _props = props;
+
         Environment.addProperties( props );
+
+	connectionManager = new ConnectionManager(this);
+	
+        String s = Environment.getProperty( "jacorb.hashtable_class" );
+        if( s == null || s.length() == 0 )
+        {
+            Debug.output( Debug.INFORMATION | Debug.ORB_MISC, 
+                          "Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
+            knownReferences = new Hashtable();  
+
+        }
+        else
+        {
+            try
+            {
+                knownReferences = (Hashtable) Class.forName( s ).newInstance();
+            }
+            catch( Exception e )
+            {
+                Debug.output( Debug.INFORMATION | Debug.ORB_MISC, e );
+                knownReferences = new Hashtable();
+            }
+        }
 
         String versionProperty = 
             Environment.getProperty("jacorb.orb.print_version");
@@ -1057,11 +1059,38 @@ public final class ORB
         interceptorInit();
     }
 
-    protected void set_parameters(java.applet.Applet app, java.util.Properties  props)
+    protected void set_parameters( java.applet.Applet app, 
+				   java.util.Properties  props )
     {
         applet = app;
         _props = props;
+
         Environment.addProperties( props );
+
+	connectionManager = new ConnectionManager(this);
+	
+        String s = Environment.getProperty( "jacorb.hashtable_class" );
+        if( s == null || s.length() == 0 )
+        {
+            Debug.output( Debug.INFORMATION | Debug.ORB_MISC, 
+                          "Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
+            knownReferences = new Hashtable();  
+
+        }
+        else
+        {
+            try
+            {
+                knownReferences = (Hashtable) Class.forName( s ).newInstance();
+            }
+            catch( Exception e )
+            {
+                Debug.output( Debug.INFORMATION | Debug.ORB_MISC, e );
+                knownReferences = new Hashtable();
+            }
+        }
+
+
         // unproxyTable = new Hashtable();
 
         interceptorInit();

@@ -12,23 +12,31 @@
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
 	<available classname="iaik.x509.X509Certificate" property="iaik.present" />
+	<available classname="javax.net.ssl.SSLSocketFactory" property="jsse.present" />
 	<available classname="javax.swing.JTree" property="swing.present" />
 	<available classname="java.util.Collection"
 	property="java2.present"/>
 	   <echo message="security.build: src ${src}"/>
    </target>
 
-   <target name="all" depends="init,leveltwo,ssl,util">
+   <target name="all" depends="init,leveltwo,ssl,jsse,util">
 
    </target>
 
    <target name="ssl" if="iaik.present">
-	   <echo message="original ssl setup"/>
 	   <javac srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/security/ssl/*.java"
         />
    </target>
+
+   <target name="jsse" if="jsse.present">
+	   <javac srcdir="${src}"
+               destdir="${classdir}"
+	       includes="org/jacorb/security/jsse/*.java"
+        />
+   </target>
+
 
    <!-- -->
 

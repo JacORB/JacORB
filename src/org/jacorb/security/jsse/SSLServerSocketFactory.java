@@ -22,8 +22,9 @@ public class SSLServerSocketFactory
 {
     private ServerSocketFactory factory = null;
     private boolean mutual_auth = false;
+    private boolean change_roles = false;
 
-    public SSLServerSocketFactory(org.jacorb.orb.ORB orb)
+    public SSLServerSocketFactory( org.jacorb.orb.ORB orb )
     {
 	factory = createServerSocketFactory();
 
@@ -39,6 +40,7 @@ public class SSLServerSocketFactory
 	    mutual_auth = true;
 	}
 
+	change_roles = Environment.changeSSLRoles();
     }
            
     public ServerSocket createServerSocket( int port )
@@ -82,11 +84,10 @@ public class SSLServerSocketFactory
 
     public void switchToClientMode( java.net.Socket socket )
     {
-        // rt: switch to client mode
-//         if( Environment.changeSSLRoles())
-//         {	
-//             ((SSLSocket) socket).setUseClientMode( true );
-//         }
+        if( change_roles )
+        {	
+            ((SSLSocket) socket).setUseClientMode( true );
+        }
     }
     
     private ServerSocketFactory createServerSocketFactory() 
@@ -111,22 +112,6 @@ public class SSLServerSocketFactory
             {
                 System.out.print( "Please enter store pass phrase: " );
                 keystore_passphrase= 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            String alias = Environment.defaultUser();
-            if( alias == null ) 
-            {
-                System.out.print( "Please enter alias  name: " );
-                alias = 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            String password = Environment.defaultPassword();
-            if ( password == null ) 
-            {
-                System.out.print( "Please enter password: " );
-                password = 
                     (new BufferedReader(new InputStreamReader(System.in))).readLine();
             }
 
