@@ -157,7 +157,7 @@ class Method
 
 
 
-    public void printMethod(PrintWriter ps, String classname, boolean locality_constraint)
+    public void printMethod(PrintWriter ps, String classname, boolean is_local)
     {	
 	ps.print("\tpublic ");
 
@@ -172,7 +172,7 @@ class Method
 
 	    // remote part, not for locality constrained objects
 	    // 
-	    if( ! locality_constraint )
+	    if( ! is_local )
 	    {
 		ps.println("\t\tif(! this._is_local())");
 		ps.println("\t\t{");
@@ -220,7 +220,7 @@ class Method
 	    ps.println("\t\t}");
 	    ps.println("\t\treturn _result;");
 	    ps.println("\t\t}");
-	    if( ! locality_constraint )	ps.println("\t\t}\n");
+	    if( ! is_local )	ps.println("\t\t}\n");
 	    ps.println("\t}\n");
 	}
 	else
@@ -234,7 +234,7 @@ class Method
 	    ps.println("\t\t{");
 	    // remote part not for locality constrained objects
 	    // 
-	    if( ! locality_constraint )
+	    if( ! is_local )
 	    {
 		ps.println("\t\tif(! this._is_local())");
 		ps.println("\t\t{");
@@ -280,7 +280,7 @@ class Method
 	    ps.println("\t\t\t\t}");
 	    ps.println("\t\t\t\treturn;");
 	    ps.println("\t\t\t}");
-	    if( ! locality_constraint )	ps.println("\t\t}\n");
+	    if( ! is_local )	ps.println("\t\t}\n");
 	    ps.println("\t}\n");
 	}
     }

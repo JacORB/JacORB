@@ -30,12 +30,12 @@ import java.io.*;
 
 class Interface 
     extends TypeDeclaration
-    implements  Scope
+    implements Scope
 { 
     public InterfaceBody body = null;
     public SymbolList inheritanceSpec = null;
     private String [] ids = null;
-    private boolean locality_constraint = false;
+    private boolean is_local = false;
     private boolean is_abstract = false;
     private ScopeData scopeData;
 
@@ -114,7 +114,7 @@ class Interface
 
     public void set_locality( boolean local )
     {
-        this.locality_constraint = local;
+        this.is_local = local;
     }
 
 
@@ -335,16 +335,28 @@ class Interface
         }
         else
         { 
-            ps.println("public interface " + classname );
-            ps.print("\textends " + classname + 
-                     "Operations, org.omg.CORBA.Object, org.omg.CORBA.portable.IDLEntity");
+            ps.println ("public interface " + classname);
+            ps.print ("\textends " + classname + "Operations");
+
+            if (is_local)
+            {
+               // Cannot extend LocalObject as required by specification as this is
+               // an abstract class rather than an interface. Looking at RTF work it
+               // seems a new interface 'LocalInterface' will be used for this purpose.
+
+               ps.print (", org.omg.CORBA.Object");
+            }
+            else
+            {
+               ps.print (", org.omg.CORBA.Object, org.omg.CORBA.portable.IDLEntity");
+            }
 
             if( inheritanceSpec.v.size() > 0 )
             {
                 Enumeration e = inheritanceSpec.v.elements();
-                for(; e.hasMoreElements();)
+                while (e.hasMoreElements ())
                 {
-                    ps.print(", " + (ScopedName)e.nextElement());
+                    ps.print (", " + (ScopedName)e.nextElement ());
                 }
             }
         }
@@ -493,20 +505,34 @@ class Interface
 
         ps.println("\tpublic static " + className + " read (final org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
-        ps.println("\t\treturn narrow( in.read_Object());");
+        if (is_local)
+        {
+            ps.println ("\t\tthrow new org.omg.CORBA.MARSHAL ();");
+        }
+        else
+        {
+            ps.println ("\t\treturn narrow (in.read_Object ());");
+        }
         ps.println("\t}");
 
         ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, final " + typeName() + " s)");
         ps.println("\t{");
-        ps.println("\t\t_out.write_Object(s);");
+        if (is_local)
+        {
+            ps.println ("\t\tthrow new org.omg.CORBA.MARSHAL ();");
+        }
+        else
+        {
+            ps.println ("\t\t_out.write_Object(s);");
+        }
         ps.println("\t}");
 
-        ps.println("\tpublic static " + typeName() + " narrow(org.omg.CORBA.Object obj)");
+        ps.println("\tpublic static " + typeName() + " narrow (final org.omg.CORBA.Object obj)");
         ps.println("\t{");
         ps.println("\t\tif( obj == null )");
         ps.println("\t\t\treturn null;");
 
-        if( parser.generate_stubs  )
+        if (parser.generate_stubs && ! is_local)
         {
             ps.println("\t\ttry");
             ps.println("\t\t{");
@@ -629,7 +655,7 @@ class Interface
         if( !pack_name.equals("")) ps.print(pack_name + ".");
         ps.println( classname + "Operations.class;");
 
-        body.printStubMethods(ps, classname, locality_constraint);
+        body.printStubMethods(ps, classname, is_local);
 
         ps.println("}");
     }
@@ -830,7 +856,7 @@ class Interface
                     printHolder( name, ps);
                     ps.close();
 
-                    if ( parser.generate_stubs )
+                    if (parser.generate_stubs && ! is_local)
                     {
                         // Stub
                         ps = new PrintWriter(new java.io.FileWriter(new File(dir,"_" +
@@ -839,7 +865,7 @@ class Interface
                         ps.close();
                     }
 
-                    if ( parser.generate_skeletons )
+                    if (parser.generate_skeletons && ! is_local)
                     {
                         // Skeletons
 
@@ -855,7 +881,7 @@ class Interface
                         ps.close();
                     }
 
-                    if( parser.generateIR )
+                    if (parser.generateIR)
                     {
                         ps = new PrintWriter( new java.io.FileWriter(new File(dir, name + 
                                                                               "IRHelper.java")));

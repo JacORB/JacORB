@@ -49,7 +49,7 @@ interface Operation
 
     /** method code for stubs */
 
-    public void printMethod(PrintWriter ps, String classname, boolean locality_constraint);
+    public void printMethod(PrintWriter ps, String classname, boolean is_local);
 
     /** method code for skeletons */
 

@@ -362,13 +362,13 @@ class InterfaceBody
 
     public void printStubMethods(PrintWriter ps, 
                                  String classname,
-                                 boolean locality_constraint)
+                                 boolean is_local)
     {
 	Operation [] ops = getMethods();
 	if( ops.length > 0 )
 	{
 	    for( int i= 0; i < ops.length; i++)
-		ops[i].printMethod(ps, classname, locality_constraint);
+		ops[i].printMethod(ps, classname, is_local);
 	}
     }
 
