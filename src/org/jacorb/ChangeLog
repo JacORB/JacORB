@@ -1,3 +1,46 @@
+2001-11-20  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDROutputStream.java:
+	(write_value (BoxedValueHelper)): Don't write repository id for
+	strings.
+
+2001-11-20  Nicolas Noffke  <noffke@inf.fu-berlin.de>
+
+	* build.xml:
+	added target valuehandler that wraps valuehandler-dummy and
+	valuehandler-real which has to be executed before compiling the orb
+
+	* security/level2/CurrentImpl.java:
+	removed reference to PrincipalAuthenticatorImpl, so compile will
+	succeed without having iaiks libs present
+
+	* security/build.xml: adapted to iaik /jsse split
+
+	* imr/build.xml: removed JDK 1.1 compatibility
+
+2001-11-20  Gerald Brose  <gerald.brose@acm.org>
+
+	* build.xml, ir/build.xml, orb/build.xml:
+	no more JDK 1.1 checks in build files
+
+2001-11-20  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDRInputStream.java (currentValueIndex): New instance field.
+	(read_untyped_value): Set it.
+	(register_value): New method; registers a value object at
+	`currentValueIndex'.
+
+	* orb/ORB.java (JacORBValueFactory): New private class.
+	(findValueFactory): Use it, instead of an inlined anonymous class.
+
+2001-11-20  Gerald Brose  <gerald.brose@acm.org>
+
+	* build.xml, ir/build.xml, naming/build.xml: removed JDK version  check
+
+2001-11-20  Andre Spiegel  <spiegel@gnu.org>
+
+	* ChangeLog: Initial revision.
+
 2001-11-19  Nicolas Noffke  <noffke@inf.fu-berlin.de>
 
 	* imr/ImplementationRepositoryImpl.java:
