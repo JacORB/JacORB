@@ -18,59 +18,51 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class GssUpServer extends SASDemoPOA
-{
+public class GssUpServer extends SASDemoPOA {
 
-    private ORB orb;
+	private ORB orb;
 
-    public GssUpServer(ORB orb)
-    {
-        this.orb = orb;
-    }
+	public GssUpServer(ORB orb) {
+		this.orb = orb;
+	}
 
-    /**
-     * This method is from the IDL--interface. It prints out the
-     * received client cert (if available).
-     */
-    public void printSAS()
-    {
-        try
-        {
-            org.omg.PortableInterceptor.Current current = (org.omg.PortableInterceptor.Current) orb.resolve_initial_references( "PICurrent" );
-            org.omg.CORBA.Any anyName = current.get_slot( org.jacorb.security.sas.SASTargetInitializer.sasPrincipalNamePIC );
-            String name = anyName.extract_string();
-            System.out.println("printSAS for user " + name);
-        }
-        catch (Exception e)
-        {
-            System.out.println("printSAS Error: " + e);
-        }
-    }
+	public void printSAS() {
+		try {
+			org.omg.PortableInterceptor.Current current = (org.omg.PortableInterceptor.Current) orb.resolve_initial_references("PICurrent");
+			org.omg.CORBA.Any anyName = current.get_slot(org.jacorb.security.sas.SASTargetInitializer.sasPrincipalNamePIC);
+			String name = anyName.extract_string();
+			System.out.println("printSAS for user " + name);
+		} catch (Exception e) {
+			System.out.println("printSAS Error: " + e);
+		}
+	}
 
-    public static void main( String[] args )
-    {
-        if( args.length != 1 )
-		{
-            System.out.println( "Usage: java demo.sas.GssUpServer <ior_file>" );
-            System.exit( -1 );
-        }
+	public static void main(String[] args) {
+		if (args.length != 1) {
+			System.out.println("Usage: java demo.sas.GssUpServer <ior_file>");
+			System.exit(-1);
+		}
 
-        try
-        {
+		try {
+			// set security credentials
 			GssUpContext.setUsernamePassword("Server", "");
-            ORB orb = ORB.init( args, null );
-            POA poa = (POA) orb.resolve_initial_references( "RootPOA" );
-            poa.the_POAManager().activate();
-            org.omg.CORBA.Object demo = poa.servant_to_reference( new GssUpServer( orb ));
-            PrintWriter pw = new PrintWriter( new FileWriter( args[ 0 ] ));
-            pw.println( orb.object_to_string( demo ));
-            pw.flush();
-            pw.close();
-	    	orb.run();
-        }
-        catch( Exception e )
-        {
-            e.printStackTrace();
-        }
-    }
+
+			// initialize the ORB and POA.
+			ORB orb = ORB.init(args, null);
+			POA poa = (POA) orb.resolve_initial_references("RootPOA");
+			poa.the_POAManager().activate();
+			
+			// create object and write out IOR
+			org.omg.CORBA.Object demo = poa.servant_to_reference(new GssUpServer(orb));
+			PrintWriter pw = new PrintWriter(new FileWriter(args[0]));
+			pw.println(orb.object_to_string(demo));
+			pw.flush();
+			pw.close();
+			
+			// run the ORB
+			orb.run();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

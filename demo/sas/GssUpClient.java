@@ -15,54 +15,43 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class GssUpClient
-{
-    public static void main( String args[] )
-    {
-        if( args.length != 3 )
-	{
-            System.out.println( "Usage: java demo.sas.GssUpClient <ior_file> <username> <password>" );
-            System.exit( 1 );
-        }
+public class GssUpClient {
+	public static void main(String args[]) {
+		if (args.length != 3) {
+			System.out.println("Usage: java demo.sas.GssUpClient <ior_file> <username> <password>");
+			System.exit(1);
+		}
 
-        try
-	{
- 
+		try {
 			// set security credentials
 			GssUpContext.setUsernamePassword(args[1], args[2]);
 
-           // initialize the ORB.
-            ORB orb = ORB.init( args, null );
+			// initialize the ORB.
+			ORB orb = ORB.init(args, null);
 
-            // get the server
-            File f = new File( args[ 0 ] );
-            if( ! f.exists() )
-            {
-                System.out.println("File " + args[0] + " does not exist.");
+			// get the server
+			File f = new File(args[0]);
+			if (!f.exists()) {
+				System.out.println("File " + args[0] + " does not exist.");
+				System.exit(-1);
+			}
+			if (f.isDirectory()) {
+				System.out.println("File " + args[0] + " is a directory.");
+				System.exit(-1);
+			}
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			org.omg.CORBA.Object obj = orb.string_to_object(br.readLine());
+			br.close();
+			SASDemo demo = SASDemoHelper.narrow(obj);
 
-                System.exit( -1 );
-            }
-            if( f.isDirectory() )
-            {
-                System.out.println("File " + args[0] + " is a directory.");
+			//call single operation
+			demo.printSAS();
+			demo.printSAS();
+			demo.printSAS();
 
-                System.exit( -1 );
-            }
-            BufferedReader br = new BufferedReader( new FileReader( f ));
-            org.omg.CORBA.Object obj = orb.string_to_object( br.readLine() );
-            br.close();
-            SASDemo demo = SASDemoHelper.narrow( obj );
-
-            //call single operation
-            demo.printSAS();
-            demo.printSAS();
-            demo.printSAS();
-
-            System.out.println( "Call to server succeeded" );
-        }
-        catch( Exception ex )
-	{
-            ex.printStackTrace();
-        }
-    }
+			System.out.println("Call to server succeeded");
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 }
