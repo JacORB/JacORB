@@ -46,11 +46,13 @@ public class LFUSelectionStrategyImpl
             {
                 LFUStatisticsProviderImpl sp = (LFUStatisticsProviderImpl)
                     t.getStatisticsProvider();
-  
-                if( sp.getFrequency() < least_usage )
+
+                double frequency = sp.getFrequency();
+
+                if( frequency < least_usage )
                 {
                     least_used = t;
-                    least_usage = sp.getFrequency();
+                    least_usage = frequency;
                 }
             }
         }
@@ -58,6 +60,5 @@ public class LFUSelectionStrategyImpl
         return least_used;
     }
 }
-
 
 
