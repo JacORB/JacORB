@@ -51,8 +51,9 @@ public class ParseException
     public String getMessage()
     {
         return 
-            ( position != null ?  position.toString() : "" ) + 
-            ": " + "parse error: " + super.getMessage();
+            ( position != null ? (position.toString() + ": ") : "" ) + 
+             "Parse error " + 
+            ( super.getMessage() != null ?  (": " + super.getMessage()) : "" ) ;
     }
     
 
