@@ -1598,19 +1598,24 @@ public final class Delegate
             policy_overrides.put( new Integer( policies[ i ].policy_type() ), policies[ i ] );
         }
 
-        ParsedIOR pior = getParsedIOR();
-        org.omg.IOP.IOR ior = orb.createIOR( pior.getIOR().type_id,
-                                             pior.get_object_key(),
-                                             poa != null
-                                             ? !poa.isPersistent()
-                                             : false,
-                                             poa,
-                                             policy_overrides );
+        // The code below is wrong because it replaces the ParsedIOR
+        // with one that always points to the local POA.  I don't see
+        // why we must recreate the ParsedIOR at all.  Code commented
+        // out to fix bug 408.
 
-        synchronized ( bind_sync )
-        {
-            _pior = new ParsedIOR( ior, orb );
-        }
+//        ParsedIOR pior = getParsedIOR();
+//        org.omg.IOP.IOR ior = orb.createIOR( pior.getIOR().type_id,
+//                                             pior.get_object_key(),
+//                                             poa != null
+//                                             ? !poa.isPersistent()
+//                                             : false,
+//                                             poa,
+//                                             policy_overrides );
+//
+//        synchronized ( bind_sync )
+//        {
+//            _pior = new ParsedIOR( ior, orb );
+//        }
 
         return self;
     }
