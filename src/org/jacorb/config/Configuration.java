@@ -25,8 +25,9 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.*;
 
 import java.io.*;
-import java.util.Properties;
-import java.util.Iterator;
+import java.util.*;
+
+import org.jacorb.util.ObjectUtil;
 
 /**
  * Configuration objects are read-only representations of files with
@@ -89,7 +90,7 @@ public class Configuration
      * into ORB.init()
      */
 
-    Configuration(String name, Properties orbProperties)
+    public Configuration(String name, Properties orbProperties)
         throws ConfigurationException
     {
         super(name);
@@ -358,5 +359,59 @@ public class Configuration
         return loggerFactory.getNamedLogger(name);
     }
     
+
+    /**
+     * For a property that has a list of comma-separated values,
+     * this method returns these values as a list of Strings.
+     * If the property is not set, an empty list is returned.
+     */
+
+    public List getAttributeList(String key)
+        throws ConfigurationException
+    {
+        List result = new ArrayList();
+        String value = getAttribute(key);
+
+        if (value != null)
+        {
+            StringTokenizer tok = new StringTokenizer(value, ",");
+            while (tok.hasMoreTokens())
+                result.add(tok.nextToken().trim());
+        }
+        return result;
+    }
+
+    /**
+     * Create an object from the given property. The class's default
+     * constructor will be used.
+     *
+     * @return null or an object of the class of the keys value
+     * @throws Error if reflection fails.
+     */
+
+    public Object getAttributeAsObject( String key )
+        throws ConfigurationException
+    {
+        String s = getAttribute( key );
+
+        if( s != null && s.length() > 0 )
+        {
+            try
+            {
+                Class c = ObjectUtil.classForName( s );
+                return c.newInstance();
+            }
+            catch( Exception e )
+            {
+                throw new ConfigurationException( "Unable to build class from key >" +
+                                                  key +"<: " + e );
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
+
 
 }
