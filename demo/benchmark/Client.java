@@ -195,7 +195,7 @@ public class Client
 		    System.out.println("  Array size     Ping    int[]  byte[]  struct[]   string[]");
 		    System.out.println(" ============= ======== ====== ======= ========== =========");
 
-		    for (int i = 0; i < 5; i++ ) 
+		    for (int i = 0; i < 6; i++ ) 
 		    {
 			System.out.print("\t"+size);
 			int myInt[] = new int[size];
