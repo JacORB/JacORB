@@ -43,6 +43,8 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
         private Map alternateMessages_;
 
+        //////////////////////////////
+
         public AlternateMessageMap() {
             this(new Hashtable());
         }
@@ -51,6 +53,8 @@ public class FilterProxySupplierTask extends AbstractFilterTask
             alternateMessages_ = m;
         }
 
+        //////////////////////////////
+
         public Message getAlternateMessage(FilterStage s) {
             if (alternateMessages_.containsKey(s)) {
                 return (Message)alternateMessages_.get(s);
@@ -58,9 +62,11 @@ public class FilterProxySupplierTask extends AbstractFilterTask
             return null;
         }
 
+
         public void putAlternateMessage(FilterStage s, Message e) {
             alternateMessages_.put(s, e);
         }
+
 
         public void clear() {
             alternateMessages_.clear();
@@ -92,6 +98,7 @@ public class FilterProxySupplierTask extends AbstractFilterTask
     {
         return "[FilterProxySupplierTask#" + id_ + "]";
     }
+
 
     /**
      * Initialize this FilterOutgoingTask with the Configuration of
@@ -134,7 +141,6 @@ public class FilterProxySupplierTask extends AbstractFilterTask
                 _currentMessage = (Message)message_.clone();
 
                 _currentMessage.setPriority(_priorityFilterResult.value.extract_long());
-
             }
         } catch (UnsupportedFilterableData e) {
             logger_.error("error evaluating PriorityFilter", e);
@@ -151,13 +157,16 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         try {
             boolean lifetimeMatch =
                 _currentEvent.match(arrayCurrentFilterStage_[indexOfCurrentFilterStage].getLifetimeFilter(),
-                             _lifetimeFilterResult);
+                                    _lifetimeFilterResult);
 
             if (lifetimeMatch && (_currentEvent == message_)) {
+                // LifeTime Mapping Filter matched and current Message
+                // was not copied yet. This depends on the fact that
+                // updatePriority was run before.
+
                 _currentEvent = (Message)message_.clone();
 
                 _currentEvent.setTimeout(_lifetimeFilterResult.value.extract_long());
-
             }
 
         } catch (UnsupportedFilterableData e) {
@@ -167,30 +176,36 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         return _currentEvent;
     }
 
+
     private void filter() {
         for (int x = 0; x < arrayCurrentFilterStage_.length; ++x) {
+
             boolean _forward = false;
 
             if (!arrayCurrentFilterStage_[x].isDisposed()) {
 
-                Message _currentEvent = message_;
+                Message _currentMessage = message_;
 
                 if (arrayCurrentFilterStage_[x].hasPriorityFilter()) {
-                    _currentEvent = updatePriority(x, _currentEvent);
+                    _currentMessage = updatePriority(x, _currentMessage);
                 }
 
                 if (arrayCurrentFilterStage_[x].hasLifetimeFilter()) {
-                    _currentEvent = updateTimeout(x, _currentEvent);
+                    _currentMessage = updateTimeout(x, _currentMessage);
                 }
 
-                if (_currentEvent != message_) {
+                if (_currentMessage != message_) {
+                    // MappingFilter attached to  a particular
+                    // FilterStage did change (Timeout or Priority)
+                    // the current Message.
+                    // store changed Message in Map for later use.
                     changedMessages_.
                         putAlternateMessage(arrayCurrentFilterStage_[x],
-                                                      _currentEvent);
+                                            _currentMessage);
                 }
 
                 _forward =
-                    _currentEvent.match(arrayCurrentFilterStage_[x]);
+                    _currentMessage.match(arrayCurrentFilterStage_[x]);
             }
 
             if (_forward) {
