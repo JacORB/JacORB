@@ -285,12 +285,15 @@ public class IIOPListener extends _ListenerLocalBase
         return sslServerSocketFactory;
     }
 
+    /**
+     * This call creates a new IIOPProfile to listen on.
+     */
     private IIOPProfile createEndPointProfile()
     {
         IIOPProfile result = null;
         if (acceptor != null)
         {
-            String host = getConfiguredHost().getHostAddress();
+            String host = getConfiguredHost().getHostName();
             int    port = getConfiguredPort();
             if (port == 0)
                 port = acceptor.getLocalAddress().getPort();
@@ -300,7 +303,7 @@ public class IIOPListener extends _ListenerLocalBase
         {
             // only an SSL acceptor exists: make a dummy primary address
             // (port number zero)
-            String host = getConfiguredHost().getHostAddress();
+            String host = getConfiguredHost().getHostName();
             result = new IIOPProfile (new IIOPAddress (host, 0), null);
         }
         else
@@ -442,7 +445,13 @@ public class IIOPListener extends _ListenerLocalBase
         public void init()
         {
             serverSocket = createServerSocket();
-        }
+
+            if( Debug.isDebugEnabled() )
+            {
+                Debug.output
+                    ( "Created socket listener on " + serverSocket.getInetAddress() );
+            }
+       }
 
         public void run()
         {
