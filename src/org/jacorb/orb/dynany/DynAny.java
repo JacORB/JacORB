@@ -335,7 +335,6 @@ public class DynAny
          throw new TypeMismatch ();
       any.insert_any(value);
    }
-    
 
    public void insert_dyn_any(org.omg.DynamicAny.DynAny value) 
       throws TypeMismatch
@@ -343,7 +342,6 @@ public class DynAny
       checkDestroyed ();
       insert_any (value.to_any ());
    }
-
 
    public boolean get_boolean() throws TypeMismatch
    {
@@ -713,6 +711,10 @@ public class DynAny
          org.jacorb.orb.Any a = (org.jacorb.orb.Any)orb.create_any();
          a.type( orb.get_primitive_tc( TCKind.tk_null ));
          _any.insert_any(a);
+         break;
+      case TCKind._tk_null:
+      case TCKind._tk_void:
+         // legal TypeCodes that have no associated value
          break;
       default: 
          throw new TypeMismatch();
