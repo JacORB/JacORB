@@ -150,6 +150,8 @@ public class Environment
     /**  default class name for logger factory */
     private static String loggerFactoryClzName = "org.jacorb.util.LogKitLoggerFactory";
 
+    private static Class identityHashMapClass = null;
+
     static
     {
         _init();
@@ -1143,4 +1145,42 @@ public class Environment
         return loggerFactory;
     }
 
+    /**
+     * Creates an IdentityHashMap, using either the JDK 1.4 class or
+     * JacORB's drop-in replacement class if the former is not available.
+     *
+     * @return a newly created IdentityHashMap instance
+     */
+    public static Map createIdentityHashMap()
+    {
+        if (identityHashMapClass == null)
+        {
+            try
+            {
+                identityHashMapClass =
+                    classForName("java.util.IdentityHashMap");
+            }
+            catch (ClassNotFoundException ex)
+            {
+                try
+                {
+                    identityHashMapClass =
+                        classForName("org.jacorb.util.IdentityHashMap");
+                }
+                catch (ClassNotFoundException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        try
+        {
+            return (Map)identityHashMapClass.newInstance();
+        }
+        catch (Exception exc)
+        {
+            throw new RuntimeException(exc);
+        }   
+    }
+ 
 }
