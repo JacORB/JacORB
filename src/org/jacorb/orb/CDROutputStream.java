@@ -390,7 +390,7 @@ public class CDROutputStream
     public final void write_any( org.omg.CORBA.Any value )
     {
         write_TypeCode( value.type() );
-        value.write_value(this);
+        value.write_value( this ) ;
     }
 
     public  final void write_boolean (boolean value)
@@ -1252,7 +1252,7 @@ public class CDROutputStream
     {
         Debug.assert( tc != null, "Illegal null pointer for TypeCode");
         int kind = ((TypeCode)tc)._kind();
-
+ 
         //int kind = tc.kind().value();
         switch (kind)
         {
@@ -1318,7 +1318,6 @@ public class CDROutputStream
             case TCKind._tk_array: 
                 try
                 {
-                    tcMap.put( tc.id(), tc );
                     int length = tc.length();
                     int a_kind = ((TypeCode)tc.content_type())._kind();
                     if( a_kind == TCKind._tk_octet )
@@ -1340,25 +1339,19 @@ public class CDROutputStream
             case TCKind._tk_sequence: 
                 try
                 {
-                    tcMap.put( tc.id(), tc );
                     int len = in.read_long();
                     write_long(len);
                     int s_kind = ((TypeCode)tc.content_type())._kind();
-                    if( s_kind == TCKind._tk_octet )
-                    {
-                        check( len );
-                        in.read_octet_array( buffer, pos, len );
-                        index+= len;
-                        pos += len;
-                    }
-                    else
-                    {
-                        org.omg.CORBA.TypeCode content_tc = tc.content_type();
-                        for( int i = 0; i < len; i++ )
-                            write_value(  content_tc, in, tcMap);
-                    }
+
+                    org.omg.CORBA.TypeCode content_tc = tc.content_type();
+                    for( int i = 0; i < len; i++ )
+                        write_value(  content_tc, in, tcMap);
+                    
                 } 
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+                {
+                    b.printStackTrace();
+                } 
                 break;
             case TCKind._tk_except:
                 write_string( in.read_string());
@@ -1581,6 +1574,8 @@ public class CDROutputStream
                 {
                     tcMap.put( tc.id(), tc );
                     write_value( tc.content_type(), in, tcMap );
+
+
                 } 
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
                 break;
