@@ -1,0 +1,201 @@
+%
+% $Id$
+%
+
+The JacORB Notification Service is a partial implementation of
+the Notification Service specified by the OMG.
+
+\section{Runnning the Notification Service}
+\label{sec:ntfy-running}
+
+The JacORB notification server is a process that needs to be started
+before the notification service can be accessed. Starting
+the notification server is done by running
+
+\cmdline{ntfy [-printIOR] [-printCorbaloc] [-writeIOR <filename>]
+  [-registerName <nameID>[.<nameKind>]] [-port <oaPort>] [-channels
+  <channels>] [-help]} 
+
+
+\subsection{Running as a NT Service or a UNIX Daemon}
+\label{sec:runn-notif-serv-1}
+
+With a little help from the
+\href{http://wrapper.tanukisoftware.org}{Java Service Wrapper} it is
+easy to run the JacORB notification service as a Windows Service or as
+a UNIX daemon. 
+
+\subsubsection{Installing and Running as a NT Service}
+\label{sec:windows-service}
+
+The necessary wrapper configuration files are preconfigured in the
+\texttt{JacORB/bin} directory. 
+
+The notification service can be installed as a service by double
+clicking on the \texttt{NotifyService-Install-NT.bat} batch file which
+is located in the \texttt{JacORB/bin} directory.
+Alternatively you can open a Command Window and then run the install
+script from the command prompt. 
+
+\begin{verbatim}
+  C:\JacORB\bin>NotifyService-Install-NT.bat
+  wrapper  | JacORB Notification Service installed.
+\end{verbatim}
+
+Once the service has been installed, it can be started by opening up
+the Service Control Panel, selecting the service, and then pressing
+the start button.
+
+The service can also be started and stopped from within a Command
+Window by using the \texttt{net start JacORB-Notify} and \texttt{net
+  stop JacORB-Notify} commands, or 
+by passing commands to the Wrapper.exe executable. 
+
+The wrapper is set up to start the JacORB Notification Service
+whenever the machine is rebooted.
+
+The service can be uninstalled by running the
+\texttt{NotifyService-Uninstall-NT.bat} batch file.
+
+See the Windows specific
+\href{http://wrapper.tanukisoftware.org/doc/english/launch-win.html}{wrapper
+  documentation} for more details.
+  
+
+\subsubsection{Installing and Running as a UNIX Daemon}
+\label{sec:inst-runn-as}
+
+JacORB is shipped with a \texttt{sh} script which can be used to start
+and stop the JacORB Notification Service controlled by the Java
+Service Wrapper.
+
+First you need to download the appropiate binary for your system from
+\href{http://wrapper.tanukisoftware.org}{http://wrapper.tanukisoftware.org}.
+The Java Service Wrapper is supported on Windows, Linux, Solaris, AIX,
+HP-UX, Macintosh OS X, DEC OSF1, FreeBSD, and SGI Irix systems (Note:
+You don't need to download anything if you are running Windows. All
+necessary stuff is shipped with the JacORB distribution).
+
+You'll need two files from the downloaded distribution. One is
+the system-specific \texttt{wrapper} executable. Place it somewhere in
+your searchpath. The second is the native library
+\texttt{libwrapper.so} in the \texttt{\emph{wrapper-dir}/lib}
+directory. This library is required by the 
+wrapper executable. Place the library in the \texttt{JacORB/lib}
+directory. Alternatively you can create a link to the library.
+
+Ensure that the shell-script
+\texttt{JacORB/bin/ntfy-wrapper} has the executable bit set. Note that
+the sh script will attempt to create a pid file in the directory
+specified by the property \texttt{PIDDIR} in the script. If
+the user used to launch the Wrapper does not have permission to write
+to this directory then this will result in an error. An alternative
+that will work in most cases is to write the pid file to another
+directory. To make this change, edit the sh  script and change the following line: 
+
+\begin{verbatim}
+PIDDIR="."
+\end{verbatim}
+to something more appropiate:
+\begin{verbatim}
+PIDDIR="/var/run"
+\end{verbatim}
+
+
+\paragraph{Running in the console}
+\label{sec:running-console}
+
+ The JacORB notification service  can now be run by simply executing
+ \texttt{bin/ntfy-wrapper console}.
+
+ When running using the console command, output from the notification
+ service will be visible in the console. 
+
+ The notification service can be terminated by hitting CTRL-C in the command
+ window. This will cause the Wrapper to shut down the service cleanly.  
+
+ If you omit the command the scripts prints the available commands.
+ The script accepts the commands start, stop, restart and dump. The
+ start, stop, and restart commands are common to most daemon scripts
+ and are used to control the wrapper and the notification service  as
+ a daemon process. The console 
+ command will launch the wrapper in the current shell, making it
+ possible to kill the application with CTRL-C. The final command,
+ dump, will send a kill -3 signal to the wrapper causing the its JVM
+ to do a full thread dump.  
+
+
+\paragraph{Running as a Daemon Process}
+\label{sec:running-as-daemon}
+
+ The application can be run as a detatched daemon process by executing
+ the script using the start  command. 
+
+ When running using the start  command, output from the JVM will only
+ be visible by viewing the \texttt{NotifyService-Wrapper.log} file
+ using \texttt{tail -f NotifyService-Wrapper.log}
+
+ Because the application is running as a detatched process, it can not
+ be terminated using CTRL-C and will continue to run even if the
+ console is closed. 
+
+ To stop the application rerun the script using the stop command.
+
+ 
+ \paragraph{Installing The Application To Start on Reboot}
+ \label{sec:inst-appl-start}
+
+ This is system specific. See the UNIX specific
+ \href{http://wrapper.tanukisoftware.org/doc/english/launch-nix.html}{wrapper
+   documentation} for instructions for some platforms.
+
+\section{Accessing the Notification Service}
+\label{sec:access-notif-serv}
+
+Configuring a default notification service as the ORB's default is done
+by adding the URL that points to the service to the properties files
+\texttt{.jacorb\_properties}. A valid URL can be obtained in various ways:
+
+\begin{enumerate}
+\item By specifying the option \texttt{-printIOR} as you start the
+  notification service a stringified IOR is printed out to the
+  console. From there you can copy it to a useful location.
+
+\item Usually the stringified IOR makes most sense inside a file. Use
+  the option \texttt{-writeIOR <filename>} to write the IOR to the specified
+  file.
+
+\item A more compact URL can be obtained by using the
+  option \texttt{-printCorbaloc}. In conjunction with the option
+  \texttt{-port} you can use the simplified corbaloc: URL of the form
+  \texttt{corbaloc::ip-address:port/NotificationService}. This means
+  all you need to know to construct an object reference to your
+  notification service is the IP address of the machine and the port
+  number the server process ist listening on (the one specified using
+  \texttt{-port}). 
+
+\end{enumerate}
+
+Add the property \texttt{ORBInitRef.NotificationService} to your
+properties file. The value can be a corbaloc: URL or alternatively the
+file name where you saved the IOR.
+
+The JacORB notification service is accessed using the standard CORBA
+defined interface:
+
+\small{
+\begin{verbatim}
+  // get a reference to the notification service
+  ORB orb = ORB.init(args, null);
+  org.omg.CORBA.Object o = orb.resolve_initial_references("NotificationService");
+  EventChannelFactory ecf = EventChannelHelper.narrow( o );
+  IntHolder cid = new IntHolder();
+  EventChannel ec = ecf.create_channel(new Property[0], new Property[0], cid);
+  ...
+\end{verbatim}
+}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 
