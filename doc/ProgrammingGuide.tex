@@ -850,7 +850,7 @@ local or shared file system because  the file is read as a
  resource by using a URL pointing to it.  This implies that the
 name server log file is accessible through a URL in the first place,
 i.e., that you know of a web server in your domain which can answer
-HTTP request to read the file. 
+HTTP request to read the file.
 
 The advantage of this approach is  that clients do not need to rely on
 a hard--coded well known port  and that the name server is immediately
@@ -1299,8 +1299,9 @@ your objects  on server shutdown  you {\em must} deactivate  your POAs
 prior   to   exiting   your    process   (or   at   least   use   {\tt
 orb.shutdown(\dots)} which  includes POA deactivation).  Otherwise the
 ImR keeps the  server as active and will return  invalid IORs. In case
-of  a  server crash  you  can use  the  command  {\tt imr\_mg  setdown
-AServerName} to notify the ImR of the server termination.
+of  a  server crash  you  can either notify the ImR manually by  using
+the  command  {\tt imr\_mg  setdown AServerName} or allow the ImR to
+detect the crashed server and restart it if necessary.
 
 \section{Server migration}
 
@@ -1902,7 +1903,7 @@ code:
     ValueServer s = ValueServerHelper.narrow( obj );
     boxedLong boxL = new boxedLong (774);
 
-    System.out.println ("Passing two integers: " 
+    System.out.println ("Passing two integers: "
                        + s.receive_long ( boxL , null ));
 \end{verbatim}
 
@@ -2144,7 +2145,7 @@ follows:
 The Appligator can be run as a normal CORBA server via the
 'appligator' shell script or batch file. The Appligator is configured
 vis both command line arguments and properties stored in the ORB
-configuration file 'jacorb.properties'.  
+configuration file 'jacorb.properties'.
 
 \subsection{Starting Appligator}
 
@@ -2181,7 +2182,7 @@ configuration properties are
 placed in the 'jacorb.properties' file, all have the common prefix
 'jacorb.ProxyServer'. Configuration properties are used either for the
 configuration of the Appligator server itself or for the configuration
-of Appligator clients.  
+of Appligator clients.
 
 \subsubsection{Appligator Server Properties}
 
@@ -2204,7 +2205,7 @@ this network will not be redirected to the Appligator. This is useful
 when a CORBA server may need to call to an Appligator to access remote
 servers but may want to communicate with local servers directly. The
 dotted decimal form should be used for both these properties, for
-example: 
+example:
 
 \verb+jacorb.ProxyServer.Netmask=255.255.255.0+
 
@@ -2226,12 +2227,12 @@ are downloaded from). This lets Applets only use CORBA servers on
 their applethost, if no proxy is used. With JacORB Appligator, access
 for your Applets is no longer restricted. Placed on the applethost,
 Appligator handles all connections from and to your Applet
-transparently. 
+transparently.
 
 Due to the transparency of JacORB Appligator you can write your Applet
 as if it were a normal CORBA program. The only thing you have to do is
 to use a special initialization of the ORB by calling the ORB init
-operation that takes an Applet as a parameter: 
+operation that takes an Applet as a parameter:
 
 \verb+ORB orb = ORB.init (applet, properties);+
 
@@ -2241,30 +2242,30 @@ course has no local properties file, but a remote one: You have to
 place the properties file (which has the same syntax and parameters as
 the normal file) in the same directory as your Applet (the file name
 has to be: jacorb.properties, without a leading dot).
- 
+
 Similar to the name server, Appligator writes its IOR to a file. Your
 Applet has to know the location of this file to retrieve the IOR of
 Appligator. You must set the location of the IOR file via the
 jacorb.properties file (jacorb.ProxyServer.URL) or with an Applet
-parameter in the <APPLET> HTML tag (JacorbProxyServerURL). 
+parameter in the <APPLET> HTML tag (JacorbProxyServerURL).
 
 \subsection{Summary}
 
 \begin{itemize}
 \item Init the ORB with jacorb.orb.init(applet,properties), where applet is
 this Applet and properties are java.util.Properties (which can be
-null).  
+null).
 \item Put a jacorb.properties file in the directory of the Applet.
 \item Specify the location for the Appligator IOR file in the
 jacorb.properties (jacorb.ProxyServer.URL) or in an Applet parameter
-(JacorbProxyServerURL) 
+(JacorbProxyServerURL)
 \item Make sure the name server IOR file is
 accessible for the Applet (lies on the applethost)
-\item Start Appligator on the applethost (web server) with: 
+\item Start Appligator on the applethost (web server) with:
 
 \verb+$ appligator <port> <filename>+
 
-Where filename is the location where the Appligator IOR is written and is the location specified in the JacORB properties file or Applet parameter. 
+Where filename is the location where the Appligator IOR is written and is the location specified in the JacORB properties file or Applet parameter.
 \end{itemize}
 
 \subsection{Applet Properties}
@@ -2290,7 +2291,7 @@ ROOT/java/classes. It's a good idea to store a backup of Netscape's
 file in another directory. Note that renaming this jar file in the
 original directory does not suffice if you don't also change the .jar
 extension because Netscape loads all jar files in this directory. You
-then need to install jacorb.jar in this directory. 
+then need to install jacorb.jar in this directory.
 
 If Netscape loads wrong classes or throws security exceptions (have a
 look at Netscape's Java Console to see this) be sure to check your
@@ -2305,11 +2306,11 @@ using JacORB, you need to copy JacORB classes to
 \$WINNT$\backslash$Java$\backslash$TrustLib. You can either copy the
 entire jacorb.jar and unpack it in this directory or just copy the
 directories jacorb, org,and HTTPClient.
- 
+
 Appligator works well with Sun's appletviewer. You only have to make
 the appletviewer replace the Sun's CORBA classes with JacORB's
 classes. A typical appletviewer call for JacORB Applets looks like
-this (written in one command line): 
+this (written in one command line):
 
 \verb+$ appletviewer http://www.example.com/CORBA/dii example.html+
 
@@ -2319,7 +2320,7 @@ directory, which calls the appletviewer with the appropriate options
 
 If you use the Appligator with other browsers or if you know a way to
 load the JacORB classes without removing and copying jars please let
-us know.  
+us know.
 
 \subsection{Examples}
 
@@ -2329,9 +2330,9 @@ examples include a HTML file which calls the Applet. To run the
 example start the name server first. Start Appligator on your web
 server and than the normal example server corresponding to the Applet
 example on any computer in any order. Then you can call the example
-Applet with the JDK appletviewer or Netscape. 
+Applet with the JDK appletviewer or Netscape.
 
-Be sure to have a jacorb.properties file and the jacorb.jar in place. 
+Be sure to have a jacorb.properties file and the jacorb.jar in place.
 
 \section{Firewall Support}
 
@@ -2358,7 +2359,7 @@ Appligator.
 
 To make your port filtering firewall working with CORBA and GIOP
 messages you must ask your system administrator to assign a port for
-GIOP messages on the firewall. Start the Appligator on this port. 
+GIOP messages on the firewall. Start the Appligator on this port.
 
 Now all CORBA servers (which are aware of the Appligator) in your
 enclave can be contacted over the Appligator. If your CORBA client
@@ -2375,19 +2376,19 @@ use the Appligator. You can use a shared file system to access this
 file or put it on a web server etc. The location of the file in which
 the IOR of the Appligator is stored must be set in the
 jacorb.properties file. Use the ''jacorb.ProxyServer.URL'' property
-for this. 
+for this.
 
 \subsection{Summary}
 
 \begin{itemize}
 \item Use the Appligator as a GIOP proxy on a firewall if your
   firewall is configured to block all traffic but traffic on some
-  special ports. 
+  special ports.
 \item Ask your system administrator to assign a special port for GIOP
   on your firewall and start the Appligator on this port on the
   firewall: for example:
 \verb+$ appligator 7777 app.ior+
-\item All CORBA objects that should be reachable from outside the firewall or need to contact a CORBA object outside the firewall must use the Appligator as a proxy. Configure the client side ORB initializer for those applications 
+\item All CORBA objects that should be reachable from outside the firewall or need to contact a CORBA object outside the firewall must use the Appligator as a proxy. Configure the client side ORB initializer for those applications
 \item Set the location of the Appligator in the jacorb.properties file
   of your clients (jacorb.ProxyServer.URL)
 \end{itemize}
@@ -2429,7 +2430,7 @@ Rather than configure a firewall to allow direct access to an
 Appligator a better solution is to enable SSH and use SSH as a secure
 tunnel to the Appligator. To do this you first need to patch the
 Appligator IOR file used by the client so that this refers to a local
-port on the local host: 
+port on the local host:
 \verb+$ fixior 127.0.0.1 11111 app.ior+
 
 SSH can then be used to create a secure tunnel between this port and

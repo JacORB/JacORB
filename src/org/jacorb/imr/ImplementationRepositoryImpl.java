@@ -225,11 +225,6 @@ public class ImplementationRepositoryImpl
     public void register_poa(String name, String server, String host, int port)
 	throws IllegalPOAName, DuplicatePOAName, UnknownServerName
     {
-        ConnectionManager         cm           = null;
-        ClientConnection          connection   = null;
-        LocateRequestOutputStream lros         = null;
-        ReplyPlaceholder          place_holder = null;
-        LocateReplyInputStream    lris         = null;
         ImRServerInfo             _server      = null;
         ImRPOAInfo                _poa         = null;
         boolean                   remap        = false;
@@ -277,50 +272,7 @@ public class ImplementationRepositoryImpl
             // otherwise we can remap the currently registered name.
             if ((_poa.active) ||  (! server.equals(_poa.server.name)))
             {
-                cm = ((org.jacorb.orb.ORB)orb).getConnectionManager ();
-                connection = cm.getConnection (_poa.host + ':' + _poa.port, false);
-
-                try
-                {
-                    lros = new LocateRequestOutputStream (new byte[0], connection.getId(), 2);
-                    place_holder = new ReplyPlaceholder ();
-
-                    connection.sendRequest
-                    (
-                        lros,
-                        place_holder,
-                        lros.getRequestId ()
-                    );
-                    lris = (LocateReplyInputStream) place_holder.getInputStream ();
-
-                    switch (lris.rep_hdr.locate_status.value ())
-                    {
-                        case LocateStatusType_1_2._UNKNOWN_OBJECT:
-                        case LocateStatusType_1_2._OBJECT_HERE:
-                        case LocateStatusType_1_2._OBJECT_FORWARD:
-                        case LocateStatusType_1_2._OBJECT_FORWARD_PERM:
-                        case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION:
-                        case LocateStatusType_1_2._LOC_NEEDS_ADDRESSING_MODE:
-                        default:
-                        {
-                            remap = false;
-			    break;
-                        }
-                    }
-                }
-		catch (org.omg.CORBA.SystemException se)
-		{
-                    remap = true;
-		}
-                catch (Throwable ex)
-                {
-                    remap = true;
-                }
-                finally
-                {
-                    cm.releaseConnection (connection);
-                    cm.shutdown ();
-                }
+                remap = ! (checkServerActive (_poa.host, _poa.port));
 
                 if (remap == false)
                 {
@@ -335,7 +287,6 @@ public class ImplementationRepositoryImpl
                 {
                     Debug.output
                         (Debug.IMR | Debug.INFORMATION, "ImR: Remapping server/port");
-
                 }
             }
 
@@ -743,8 +694,8 @@ public class ImplementationRepositoryImpl
 		}
 	    }
 	}catch (Exception _e){
-	    _e.printStackTrace();
-	    usage();
+            _e.printStackTrace();
+            usage();
 	}
 
 
@@ -921,7 +872,6 @@ public class ImplementationRepositoryImpl
             Debug.output(Debug.IMR | Debug.INFORMATION,
                          "ImR: server " + server.name + " is down");
 
-            //server is down;
             if (server.command.length() == 0){
                 //server can't be restartet, send exception
                 throw new ServerStartupFailed("Server " + server.name +
@@ -1204,6 +1154,60 @@ public class ImplementationRepositoryImpl
     }
 
 
+    private static boolean checkServerActive (String host, int port)
+    {
+        ConnectionManager         cm           = null;
+        ClientConnection          connection   = null;
+        LocateRequestOutputStream lros         = null;
+        ReplyPlaceholder          place_holder = null;
+        LocateReplyInputStream    lris         = null;
+        boolean                   result       = false;
+
+        cm = ((org.jacorb.orb.ORB)orb).getConnectionManager ();
+        connection = cm.getConnection (host + ':' + port, false);
+
+        Debug.output(Debug.IMR | Debug.DEBUG1,
+                     "Pinging " + host + " / " + port);
+        try
+        {
+            lros = new LocateRequestOutputStream (new byte[0], connection.getId(), 2);
+            place_holder = new ReplyPlaceholder ();
+
+            connection.sendRequest
+            (
+                lros,
+                place_holder,
+                lros.getRequestId ()
+            );
+            lris = (LocateReplyInputStream) place_holder.getInputStream ();
+
+            switch (lris.rep_hdr.locate_status.value ())
+            {
+                case LocateStatusType_1_2._UNKNOWN_OBJECT:
+                case LocateStatusType_1_2._OBJECT_HERE:
+                case LocateStatusType_1_2._OBJECT_FORWARD:
+                case LocateStatusType_1_2._OBJECT_FORWARD_PERM:
+                case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION:
+                case LocateStatusType_1_2._LOC_NEEDS_ADDRESSING_MODE:
+                default:
+                {
+                    result = true;
+                    break;
+                }
+            }
+        }
+        catch (Throwable ex)
+        {
+            result = false;
+        }
+        finally
+        {
+            cm.releaseConnection (connection);
+        }
+        return result;
+    }
+
+
     /**
      * Inner class ImRRequestListener. Receives messages.
      */
@@ -1290,6 +1294,13 @@ public class ImplementationRepositoryImpl
 
 	    Debug.output( Debug.IMR | Debug.INFORMATION,
                           "ImR: Looking up: " + _server.name );
+
+            if (_server.active && (! checkServerActive (_poa.host, _poa.port)))
+            {
+                // Server is not active so set it down
+                _server.setDown ();
+            }
+
 
 	    try
             {
