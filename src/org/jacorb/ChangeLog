@@ -1,3 +1,814 @@
+2002-03-07  Andre Spiegel  <spiegel@gnu.org>
+
+	Patch by Francisco Reverbel <reverbel@ime.usp.br>
+	
+	* poa/POA.java (isSystemId): Made it public.
+
+	* orb/ORB.java (findPOA): Return null for systemIds.
+
+	* orb/TypeCode.java:
+	(create_tc, getValueMembers, createValueMember): Change argument
+	`knownClasses' into a map from classes to type codes, rename it to
+	`knownTypes'.  Use this to call setActualTC() on recursive type
+	codes.
+
+	* orb/CDROutputStream.java:
+	(orb): New method.
+	(write_TypeCode): Fix writing of tk_abstract_interface.
+
+2002-03-07  Jason Courage
+
+	* orb/TypeCode.java, orb/ORBSingleton.java:
+	Implemented create_local_interface_tc operation.
+
+2002-03-06  Jason Courage
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: Replaced Java
+	runtime and assertion exceptions with CORBA System Exceptions.
+
+2002-03-06  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/connection/Server_TCP_IP_Transport.java:
+	(c'tor) wrap socket streams in buffered streams
+
+	* orb/connection/Client_TCP_IP_Transport.java:
+	(connect) wrap socket streams in buffered streams
+
+2002-03-06  Jason Courage
+
+	* orb/ORBSingleton.java: Added checks to some typecode creation
+	methods to check validity of content typecodes; small aesthetic
+	improvements.
+
+2002-03-05  Jason Courage
+
+	* orb/domain/build.xml, build.xml, util/tracing/build.xml,
+	imr/build.xml, events/build.xml: Modified classpath property to
+	put JacORB classes directory at front of classpath.
+
+2002-03-05  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/Any.java, orb/ORBSingleton.java: *** empty log message ***
+
+	* orb/CDROutputStream.java:
+	(write_octet_array) revamped to defer buffer copies
+	(write) new method that finally writes the entire buffer contents
+	(including all deferred buffer writes) to an output stream
+
+	* orb/connection/Transport.java: renamed methods
+	addMessageFragment() and sendMessages() to write() and flush()
+
+	* orb/connection/MessageOutputStream.java:
+	(write_to) use new write() interface instead of
+	addMessageFragment()
+
+	* orb/connection/ServiceContextTransportingOutputStream.java: use
+	new write() methods
+
+	* orb/connection/GIOPConnection.java: made class final and let it
+	extend java.io.OutputStream, renamed addMessageFragment to write()
+
+	* orb/connection/TCP_IP_Transport.java:
+	(write, flush) renamed to fit general OutputStream method names
+
+2002-03-04  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* orb/ParsedIOR.java, orb/util/CorbaLoc.java: added support for
+	the new "ssliop" protocol for corbaloc to be able to use corbaloc
+	together with ssl
+
+2002-03-04  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/Interface.java, idl/SequenceType.java, idl/StructType.java,
+	idl/UnionType.java, idl/ValueBoxDecl.java, idl/AliasTypeSpec.java,
+	idl/ArrayTypeSpec.java, idl/EnumType.java,
+	idl/FixedPointType.java: Update for bug #124
+
+2002-03-01  Jason Courage
+
+	* orb/TypeCode.java: Changed assertion to BAD_PARAM exception.
+
+	* orb/Any.java, orb/CDRInputStream.java, orb/CDROutputStream.java:
+	Modified read_value and write_value methods to work on org.omg.CORBA InputStreams/OutputStreams instead of JacORB-specific streams. (bug 82)
+
+	* orb/CDRInputStream.java: Fixed bug in creation of sequence
+	TypeCode where sequence length is hardcoded to 0.
+
+2002-03-01  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/CDROutputStream.java, orb/CDRInputStream.java:
+	Optimisiation via additional inlining and use of final parameters
+
+	* idl/TypeSpec.java, idl/UnionType.java, idl/ValueBoxDecl.java,
+	idl/ValueDecl.java, idl/ArrayTypeSpec.java, idl/EnumType.java,
+	idl/FixedPointType.java, idl/Interface.java,
+	idl/SequenceType.java, idl/StructType.java,
+	idl/AliasTypeSpec.java: Update to generate final classes and
+	parameters
+
+2002-02-28  Jason Courage
+
+	* orb/TypeCode.java: Implemented create_abstract_interface_tc and
+	create_native_tc operations and fixed numerous bugs.
+
+	* orb/ORBSingleton.java: Implemented create_native_tc operation.
+
+2002-02-28  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/ConstDecl.java: Fix for bug #112
+
+2002-02-28  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java.patch,
+	security/ssl/sun_jsse/SSLSocketFactory.java.patch: adapted to new
+	revision
+
+2002-02-27  Nick Cross
+
+	* idl/lexer.java, idl/Literal.java:
+	Add octal, hex and unicode escape character support
+
+2002-02-26  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Any.java: Fix for bug #109. wchar equality not implemented
+
+	* idl/sym.java, idl/ConstDecl.java, idl/EnumType.java, idl/parser.java:
+	Fix for bug #102
+
+	* idl/ConstDecl.java: Fix for bug #107
+
+	* idl/sym.java, idl/parser.java, idl/parser.cup:
+	Diagnostic stack trace dump removed
+
+	* idl/build.xml: Debug enable removed - oops
+
+	* idl/sym.java, idl/parser.cup, idl/parser.java,
+	idl/ConstDecl.java, idl/ConstType.java, idl/Member.java,
+	idl/build.xml, idl/lexer.java: Fixes for bug# 89
+
+2002-02-26  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/CDROutputStream.java: (write_char_array) inlined
+
+2002-02-25  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* security/ssl/sun_jsse/SSLSocketFactory.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java: added cipher
+	suite selection patch
+
+	* security/ssl/build.xml: replaced test class of property jsse.present
+
+	* security/build.xml: removed unnecessary property
+
+	* imr/ImplementationRepositoryImpl.java:
+	fixed unnecessary but caught NullPointerException
+
+	* imr/ImRAccessImpl.java: *** empty log message ***
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: adapted to
+	agreed-upon handling of wstrings (removed length indicator) (Bug
+	86)
+
+2002-02-25  Jason Courage
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java: Fixed
+	calculation of indirection pointer for recursive and repeated
+	TypeCodes.
+
+2002-02-25  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* orb/ImRAccess.java, orb/ORB.java: added interface and mechanism
+	to fully separate the imr package from the orb
+
+2002-02-25  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/AliasTypeSpec.java:
+	Fix for bug #101. Aliased any now uses generic AnyHolder
+
+2002-02-21  Nick Cross
+
+	* build.xml, orb/build.xml, util/build.xml: Clean mods
+
+	* idl/Literal.java, idl/PrimaryExpr.java, idl/lexer.java:
+	Fix for bug #59
+
+2002-02-20  Jason Courage
+
+	* orb/TypeCode.java: Added comments to recursion operations and
+	added new resolveRecursion operation to be called from outside
+	TypeCode class to give a single point of entry to resolving
+	recursion.
+
+	* orb/ORBSingleton.java: Changed method signature for
+	resolveRecursion operation called from create_union_tc and
+	create_struct_tc.
+
+2002-02-20  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/ORBSingleton.java, orb/ORB.java:
+	Fix for bug #92. ORB create_operation_list operation implemented
+
+2002-02-20  Jason Courage
+
+	* orb/TypeCode.java: Fixed bug in code that resolves recursion.
+
+	* orb/Any.java: Improved code in insert_Object method.
+
+	* orb/ORBSingleton.java: Cosmetic changes to diagnostics.
+
+2002-02-19  Jason Courage
+
+	* orb/Any.java: Fixed insert_Object operation to set the IDL
+	identifier name.
+
+2002-02-19  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Delegate.java, orb/ParsedIOR.java: Fix for bug #95
+
+2002-02-19  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/NameTable.java: (getGlobalTypes) fixed a bracketing error
+
+2002-02-19  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/UnionType.java: Fix for bug #97
+
+	* idl/ArrayTypeSpec.java, idl/IdlSymbol.java, idl/Member.java,
+	idl/UnionType.java, idl/AliasTypeSpec.java: Update for bugs #63
+	and #94
+
+	* idl/Declarator.java, idl/LongType.java: Blank lines remmoved
+
+2002-02-18  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/ObjectTypeSpec.java: Fix for bug #96. Correct type code now
+	generated
+
+2002-02-18  Jason Courage
+
+	* orb/CDRInputStream.java: Added code to 0xffffffff case of
+	read_TypeCode operation to correctly handle repeated and recursive
+	typecodes read from a stream.
+
+	* orb/TypeCode.java: Added code to ensure that a recursive
+	typecode is handled like a normal typecode by TypeCode API, and
+	added code to resolve recursion in unions and structs.
+
+2002-02-18  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/ORBSingleton.java: Diagnostics update
+
+2002-02-18  Jason Courage
+
+	* orb/ORBSingleton.java: Added calls to resolve recursion in
+	create_union_tc and create_struct_tc operations.
+
+	* orb/ORBSingleton.java:
+	Fixed discriminator type check to handle aliased discriminators.
+
+	* orb/ORBSingleton.java: Fixed check for TC member type to allow
+	for recursive types and fixed checks in create_union_tc
+	operation (bug 93).
+
+2002-02-14  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/UnionType.java:
+	(writeHelperClass) correctly generate code for method type() (was:
+	bug when resolvin typedef'd const values)
+
+	* orb/ORBSingleton.java:
+	(checkTCRepositorId) fixed wrong condition check
+
+2002-02-14  Steve Osselton  <steve@prismtechnologies.com>
+
+	* naming/Name.java: Fix for bug #50. Escaped name handling update
+
+	* orb/ORB.java, orb/ORBSingleton.java:
+	Fix for bug #91. DII operations now not allowed on singleton ORB
+
+2002-02-14  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/ORBSingleton.java:
+	(tc_create) methods: added checking for invalid arguments
+
+2002-02-14  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/connection/Client_TCP_IP_Transport.java:
+	Bug #81 fix reversion. See bug tracker logs
+
+	* idl/OpDecl.java: Fix for bugs #64 and #66. Fix for wchar and
+	wstring inout parameter handling in helper
+
+2002-02-13  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/ParsedIOR.java, orb/ORB.java: Updates WRT bug #79. Ensure
+	null returned from ObjectUtil.readURL operation handled correctly
+
+	* orb/dii/Request.java: Fix for bug #83. User exceptions now
+	encapsulated within environment
+
+2002-02-13  Jason Courage
+
+	* orb/CDRInputStream.java: Fix for repeated TypeCodes in a
+	constructed type in an Any: in the 0xffffffff case of the
+	read_TypeCode method the TypeCode is obtained from the
+	recursiveTCMap rather than created from the
+	ORB::create_recursive_tc method.
+
+2002-02-13  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/UnionType.java: Fix for bug #61. Valid code now generated
+	for unions with long long discriminators
+
+2002-02-12  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/factory/PortRangeSocketFactory.java,
+	orb/factory/SocketFactoryManager.java,
+	orb/connection/ConnectionManager.java,
+	orb/factory/DefaultServerSocketFactory.java,
+	orb/factory/DefaultSocketFactory.java, orb/BasicAdapter.java:
+	Updates based upon EHR #57 to support configurable socket
+	factoriesD
+
+	* orb/connection/Client_TCP_IP_Transport.java:
+	Update to fix for bug #81
+
+2002-02-11  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/connection/Client_TCP_IP_Transport.java:
+	Update to fix for bug #81 ts use reflection
+
+2002-02-08  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/sym.java, idl/TypeMap.java, idl/UnionType.java,
+	idl/parser.cup, idl/parser.java, idl/ElementSpec.java,
+	idl/EnumType.java, idl/Environment.java, idl/IdlSymbol.java,
+	idl/StructType.java: misc cosmetics
+
+	* idl/Case.java:
+	(parse) changed generatio of scoped name for enum labels
+
+2002-02-08  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/connection/Client_TCP_IP_Transport.java: Patch for bug #81 added
+
+2002-02-08  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/SwitchBody.java:
+	(parse) fixed another NPE when running into the default label
+
+2002-02-07  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/UnionType.java, idl/CharType.java, idl/EnumType.java,
+	idl/IntType.java, idl/ScopedName.java, idl/SwitchTypeSpec.java,
+	idl/TypeSpec.java, idl/BooleanType.java, idl/BaseType.java: Fix
+	for bug #60 - invalid wchar discriminators not detected
+
+2002-02-07  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/sym.java, idl/parser.java: *** empty log message ***
+
+	* idl/SwitchBody.java: (parse) fixed null pointer error
+
+	* idl/sym.java, idl/parser.cup, idl/parser.java:
+	*** empty log message ***
+
+	* idl/UnionType.java:
+	updated to reflext name changes (renamed v in SwitchBody to
+	caseListVector)
+
+	* idl/SymbolList.java: cosmetics
+
+	* idl/lexer.java:
+	error reporting routines: fixed wrong increments of error numbers
+
+	* idl/XorExpr.java, idl/AndExpr.java, idl/ConstExpr.java,
+	idl/MultExpr.java, idl/OrExpr.java, idl/PrimaryExpr.java,
+	idl/ShiftExpr.java, idl/UnaryExpr.java, idl/AddExpr.java: added
+	set_token() to delegate toke setting such that error messages will
+	eventually report the correct source code line
+
+	* idl/SwitchBody.java: (parse) now checks for duplicate case labels
+
+	* idl/Case.java:
+	(get Labels()) added to allow SwitchBody to get at the labels for
+	stricter type checking
+
+2002-02-04  Steve Osselton  <steve@prismtechnologies.com>
+
+	* idl/AliasTypeSpec.java: Fix for bug #76
+
+	* idl/UnionType.java: Fix for bug #75
+
+2002-01-31  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* collection/util/ArrayFactory.java, collection/util/Cach.java,
+	collection/util/SortedVector.java: removed "};" to avoid confusing
+	some compilers
+
+2002-01-25  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/JacIDL.java: *** empty log message ***
+
+2002-01-23  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/Delegate.java:
+	(servant_preinvoke) changed condition so that servant managers are
+	also possible with RETAIN POAs
+
+2002-01-22  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* orb/CDROutputStream.java: (check(int,int)) fixed stupidity :-) bug
+
+2002-01-21  Jason Courage
+
+	* orb/dynany/DynUnion.java: Correctly initialise the current
+	position in the set_to_no_active_member and set_discriminator
+	operations.
+
+	* orb/dynany/DynUnion.java: Never set default discriminator value
+	to zero octet; when looking for char value not used in union,
+	search begins at char with int value of zero; value of default
+	member does not change if discriminator is set to a new value that
+	still corresponds to the default member.
+
+2002-01-18  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* security/level2/CurrentImpl.java:
+	the current is now able to run without a principal authenticator. this is
+	necessary for ssl with sun jsse, so access to the peers certificates is
+	possible.
+
+	* orb/CDROutputStream.java:
+	(check(int,int)) inserted code that will zero out padding bytes so
+	there isn't any garbage in it anymore. This is necessary for ior
+	stringification so the same iors will always produce the same strings
+
+	* orb/BufferManager.java:
+	(getBuffer) removed the Arrays.fill() - this is now done in the stream
+	(whole) replaced the usage of Vectors by Stacks - especially the call
+	to removeElementAt( 0 ) which is pretty inefficient to get an
+	arbitrary entry
+
+	* orb/ParsedIOR.java:
+	(getIORString) - replaced "hexifying" the ior buffer by a simpler and
+	faster way (using a lookup table instead of computing the char)
+
+2002-01-17  Jason Courage
+
+	* orb/dynany/DynAny.java: Added null and void typecodes to list of
+	valid typecodes for creating a DynAny.
+
+2002-01-11  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/BufferManager.java:
+	(getBuffer) clear buffers before returning them
+
+	* orb/connection/ServerRequestListener.java: *** empty log message ***
+
+	* orb/Delegate.java:
+	(toString) call piorOriginal.getIORString() instead of accessing a
+	(now private) field
+
+	* orb/ParsedIOR.java: made field ior_str private
+
+	* security/ssl/iaik/SSLServerSocketFactory.java:
+	(switchToClientMode) added Debug output
+
+	* orb/BasicAdapter.java: (Listener.run) added SSL role switch
+
+	* orb/portableInterceptor/ServerRequestInfoImpl.java: cosmetics
+
+	* orb/CDROutputStream.java: *** empty log message ***
+
+	* orb/Any.java: whitespace :-)
+
+	* orb/dsi/ServerRequest.java:
+	(result) fixed funneling raw byte arrays into the any
+
+	* orb/connection/ServiceContextTransportingOutputStream.java:
+	(getBody) new method to get at the contents of the message
+
+	* ir/gui/typesystem/remote/RemoteTypeSystem.java,
+	ir/StringDef.java, ir/StructDef.java, ir/TypeCodeUtil.java,
+	ir/WstringDef.java, ir/gui/IRBrowser.java,
+	ir/gui/typesystem/remote/IRWstring.java, ir/ConstantDef.java,
+	ir/IDLType.java, ir/IRWstring.java, ir/IdlWriter.java,
+	security/level2/PrincipalAuthenticatorImpl.java,
+	security/level2/CurrentImpl.java, orb/ORB.java, orb/TypeCode.java,
+	orb/ParsedIOR.java: *** empty log message ***
+
+2002-01-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/OpDecl.java (printInvocation): Fix the case when the
+	argument of a writeStatement is itself generated.
+
+	* idl/ValueDecl.java (printHolder, printHelper): Delegate all
+	read/write methods to the streams.
+
+2002-01-07  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/ParsedIOR.java: Updates for bug report #52
+
+2002-01-04  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/ParamDecl.java:
+	(printWriteStatement, printReadExpression) convenience methods
+	added
+
+	* idl/OpDecl.java:
+	(printMethod, printInvocation) fixed generated read/write
+	statements to address wstring problems in bug #54
+
+2002-01-04  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/ParsedIOR.java: Fix for bug #53
+
+2001-12-21  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* orb/ORB.java:
+	(set_parameters) fixed bug 39: now supporting args of form
+	-ORBInitRef <name>=value (whitespace instead of dot)
+
+2001-12-21  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Any.java: Basic type extraction fix when using
+	CDROutputStream as internal representation
+
+2001-12-21  Nicolas Noffke  <Nicolas.Noffke@epost.de>
+
+	* security/ssl/sun_jsse/README.jsse1_0_2,
+	security/ssl/sun_jsse/ServerInvocationInterceptor.java.patch,
+	security/ssl/sun_jsse/build.xml,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java.patch,
+	security/ssl/sun_jsse/SSLSocketFactory.java.patch: integrated
+	patch by Stefan Feder for accessing the peers certs with JSSE
+	1.0.2
+
+	* orb/portableInterceptor/ServerInterceptorIterator.java,
+	orb/Delegate.java,
+	orb/portableInterceptor/ClientInterceptorIterator.java: adapted to
+	changes in PortableInterceptor IDL (removed permanent flag of
+	ForwardRequest exception)
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java:
+	(forward_reference()) fixed double negation where this op throws a
+	BAD_INV_ORDER when it actually shouldn't (BUG 51)
+
+2001-12-20  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/Principal.java, orb/Current.java, orb/ORB.java,
+	orb/CDRInputStream.java, orb/CDROutputStream.java: Current and
+	Principal deprecated
+
+	* orb/Any.java: Bug fixes for #48 and #49
+
+2001-12-17  Steve Osselton  <steve@prismtechnologies.com>
+
+	* poa/POA.java: Fix for bug #37: Missing the_children attribute
+	implementation added
+
+	* poa/POA.java: Fix for bug #36: create_reference operations no
+	longer cache created reference
+
+2001-12-17  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/TypeDeclaration.java: *** empty log message ***
+
+	* idl/MemberList.java: cosmetics
+
+	* orb/util/PrintIOR.java:
+	added a number of print methods for various tagged components
+
+	* idl/ValueDecl.java:
+	(setEnclosingSymbol) set this as the enclosing symbol in delegated
+	calls
+
+	* idl/StructType.java:
+	(setEnclosingSymbol) set this as the enclosingSymbol for delegates
+
+	* idl/Environment.java: cosmetics
+
+2001-12-14  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/Member.java, idl/StructType.java, idl/ValueDecl.java:
+	(parse) propagate setEnclosingSymbol to members
+
+2001-12-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ORBSingleton.java:
+	Patch by Francisco Reverbel <reverbel@ime.usp.br>.
+	(create_interface_tc): Adapt to new TypeCode constructor.
+	(create_abstract_interface_tc): Implemented.
+
+	* orb/ORB.java: Patch by Francisco Reverbel <reverbel@ime.usp.br>.
+	(createIOR): Package access.  New parameter policy_overrides.
+
+	* orb/Delegate.java: Patch by Francisco Reverbel <reverbel@ime.usp.br>.
+	Extend CORBA_2_3 Delegate.
+	(policy_overrides): New field.
+	(set_policy_override, get_codebase): Implemented.
+
+	* orb/CDROutputStream.java:
+	Patch by Francisco Reverbel <reverbel@ime.usp.br>, adapted AS.
+	(codebaseMap): New field.
+	(write_TypeCode): Be prepared for non-JacORB TypeCodes.  Handle
+	tk_abstract_interface.
+	(write_codebase, write_value_header): New method.
+	(write_value): Use them.
+	(write_abstract_interface): Implemented.
+
+	* orb/CDRInputStream.java:
+	Patch by Francisco Reverbel <reverbel@ime.usp.br> (adapted AS.)
+	(codebaseMap): New field.
+	(read_Object(Class)): Implement for javax.rmi.Remote.
+	(read_TypeCode): Handle tk_abstract_interface.
+	(read_value): Handle codebases in all variants.
+	(read_untyped_value): Add `codebase' parameter.
+	(read_special_value): Removed.
+	(read_codebase, read_indirect_value): New method.
+	(read_abstract_interface): Implemented.
+
+	* orb/Any.java: Patch by Francisco Reverbel <reverbel@ime.usp.br>.
+	(read_value, write_value): Handle abstract interfaces.
+
+	* orb/portableInterceptor/IORInfoImpl.java:
+	Patch by Francisco Reverbel <reverbel@ime.usp.br>.
+	(policy_overrides): New field.
+	(IORInfoImpl): New parameter for it.
+	(get_effective_policy): Handle overridden policies.
+
+	* orb/util/PrintIOR.java:
+	Patch by Francisco Reverbel <reverbel@ime.usp.br>.
+	(printIOR): Handle codebases.
+
+	* ir/TypeCodeUtil.java (static initializer):
+	Adapt to new constructor for TypeCode tk_objref.
+
+	* util/Environment.java (getORBInitializers):
+	Don't use Class.forName().
+
+	* util/ValueHandler.real, util/ValueHandler.dummy (loadClass,
+	getCodebase, portableRemoteObject_narrow): New methods.
+
+	* orb/ParsedIOR.java:
+	Patch by Francisco Reverbel <reverbel@ime.usp.br>.
+	(getCodebaseComponent): New method.
+
+	* orb/TypeCode.java (TypeCode [tk_value]): Handle null member list.
+	(TypeCode): Change parameters of constructor for tk_objref; also use it
+	for tk_abstract_interface.
+
+	* orb/TypeCode.java (TypeCode [tk_value]): Handle null member list.
+
+	* util/Environment.java (getORBInitializers):
+	Don't use Class.forName().
+
+	* orb/util/PrintIOR.java (printIOR): Handle codebases.
+
+	* orb/portableInterceptor/IORInfoImpl.java (policy_overrides):
+	New field.
+	(IORInfoImpl): New parameter for it.
+	(get_effective_policy): Handle overridden policies.
+
+	* orb/TypeCode.java (TypeCode):
+	Change parameters of constructor for tk_objref; also use it
+	for tk_abstract_interface.
+
+	* orb/ParsedIOR.java (getCodebaseComponent): New method.
+
+2001-12-14  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* ir/gui/typesystem/ModelParticipant.java: cosmetics
+
+	* ir/IRWstring.java: *** empty log message ***
+
+2001-12-13  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/OpDecl.java, idl/RaisesExpr.java, idl/SequenceType.java,
+	idl/SwitchBody.java, idl/UnionType.java, idl/AliasTypeSpec.java,
+	idl/AttrDecl.java, idl/BaseType.java, idl/ElementSpec.java,
+	idl/IdlSymbol.java, idl/Member.java: fixed broken import
+	statements for simply types
+
+2001-12-11  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/ParsedIOR.java:
+	(init) added two other cases in which clients use SSL, viz. if the
+	target's SSL profile required integrity/confidentiality
+
+2001-12-11  Steve Osselton  <steve@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Fix for bug #41 - imr not
+	starting when jacorb.use_imr property is enabled
+
+2001-12-07  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/parser.java, idl/sym.java, idl/StructType.java,
+	idl/SwitchBody.java, idl/UnionType.java, idl/lexer.java,
+	idl/parser.cup, idl/Interface.java, idl/Member.java,
+	idl/MemberList.java, idl/OpDecl.java, idl/RaisesExpr.java,
+	idl/SequenceType.java, idl/AliasTypeSpec.java, idl/AttrDecl.java,
+	idl/Declaration.java, idl/Definition.java, idl/ElementSpec.java,
+	idl/IdlSymbol.java: added code to generate import statements for
+	type names in the unnamed package.
+
+2001-12-07  Jason Courage
+
+	* orb/dynany/DynAny.java: Set the default value of a DynAny
+	containing an object reference.
+
+2001-12-07  Steve Osselton  <steve@prismtechnologies.com>
+
+	* util/Environment.java: Update to allow log file to be based upon
+	implementation name
+
+2001-12-07  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/CDROutputStream.java:
+	(write_TypeCode) added missing table entries for
+	recursive/repeated TCs
+
+	* orb/CDRInputStream.java:
+	(read_TypeCode) added missing table entries for recursive/repeated
+	TCs
+
+2001-12-06  Steve Osselton  <steve@prismtechnologies.com>
+
+	* orb/TypeCode.java: Null pointer fix for static initialization of
+	_tk_value TypeCode
+
+2001-11-30  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/TypeCode.java (primitive_tcs): Add another bogus TypeCode
+	object for kind _tk_value, to pacify Sun's ValueHandler.
+
+2001-11-30  Jason Courage
+
+	* orb/dynany/DynUnion.java: Fixed initialization of current
+	position; fixed iteration operations; fixed implementation of
+	set_to_no_active_member operation.
+
+2001-11-29  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* security/build.xml: fixed error in principal_authenticator target
+
+2001-11-28  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* build.xml: *** empty log message ***
+
+	* orb/dynany/DynStruct.java: added new instance variable
+	exception_msg for exceptions
+
+	(c'tor, from_any, to_any) for exceptions, read and write exception_msg
+
+2001-11-27  Jason Courage
+
+	* orb/dynany/DynStruct.java: Fixed exception handling in
+	current_member_name/kind and set_members operations.
+
+	* orb/dynany/DynArray.java, orb/dynany/DynEnum.java,
+	orb/dynany/DynSequence.java, orb/dynany/DynUnion.java,
+	orb/dynany/DynAny.java: Added code to test if the dynany has been
+	destroyed.
+
+	* orb/dynany/DynStruct.java: Added code to test if the dynany has
+	been destroyed; set initial position to zero for all dynstructs
+	except empty exceptions; throw TypeMismatch if current_component
+	is called on an empty exception.
+
+2001-11-27  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* orb/TypeCode.java:
+	(member_label, default_index, discriminitator) only accept unions,
+	not structs
+	(member_count, member_name, member_type) also handle exceptions
+
+	* idl/StructType.java:
+	(getTypeCodeExpression) create exception typeCode with
+	"create_exception_tc"
+
+2001-11-26  Gerald Brose  <Gerald.Brose@xtradyne.com>
+
+	* idl/Interface.java:
+	(printOperations) inherit from sn + "Operations" rather than from
+	sn
+
+	* idl/InterfaceBody.java:
+	(parse) added escaping the interface name here also.
+
+2001-11-26  Jason Courage
+
+	* orb/dynany/DynSequence.java, orb/dynany/DynStruct.java,
+	orb/dynany/DynUnion.java: Removed System.err statements.
+
+2001-11-23  Jason Courage
+
+	* orb/dynany/DynAny.java: All operations throw OBJECT_NOT_EXIST if
+	the DynAny has been destroyed; the get/insert_dyn_any ops have
+	been correctly implemented; the get/insert ops now correctly throw
+	a TypeMismatch exception if a type-incorrect operation is used.
+
 2001-11-23  Steve Osselton
 
 	* orb/ORB.java: Check for local object added to object_to_string
