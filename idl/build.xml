@@ -491,6 +491,11 @@
               includepath="${idl}/omg"
               includes="**/omg/CosNotifyComm.idl,**/omg/CosNotifyFilter.idl"
               destdir="${src}/generated"/>
+    <jacidl generateir="true"
+      srcdir="${idl}"
+      includepath="${idl}/omg"
+      includes="**/jacorb/notification.idl"
+      destdir="${src}/generated" />
    </target>
 
    <target name="typed">

@@ -1,0 +1,23 @@
+#include <CosNotifyChannelAdmin.idl>
+
+module org {
+  module jacorb {
+    module notification {
+
+      struct StaticEventChannelFactoryInfo {
+	string corbaloc;
+	long port;
+	string hostname;
+	boolean filterfactory_running;
+	string filterfactory_url;
+      };
+
+      interface JacORBEventChannelFactory:
+	::CosNotifyChannelAdmin::EventChannelFactory
+      {
+	StaticEventChannelFactoryInfo get_static_info();
+	void destroy();
+      };
+    };
+  };
+};
