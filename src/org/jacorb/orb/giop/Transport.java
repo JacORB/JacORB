@@ -51,23 +51,12 @@ public interface Transport
                
     void flush();
 
+    void close();
+
     org.omg.ETF.Profile get_server_profile(); 
 
     // Non-ETF methods below this line
 
-    /**
-     * Close this transport (and free resources).  
-     */
-    public void closeCompletely()
-        throws IOException;
-
-    /**
-     * Close only the underlying network connection. Everything else
-     * stays in place and the network connection can be reopened.  
-     */
-    public void closeAllowReopen()
-        throws IOException;
-    
     /**
      * Get the statistics provider for transport usage statistics.
      */
