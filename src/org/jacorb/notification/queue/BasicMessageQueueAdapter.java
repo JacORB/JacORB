@@ -45,10 +45,10 @@ public class BasicMessageQueueAdapter implements MessageQueueAdapter
     /*
      * @see org.jacorb.notification.queue.EventQueueDelegate#enqeue(org.jacorb.notification.interfaces.Message)
      */
-    public void enqeue(Message message) throws InterruptedException
+    public void enqeue(Message message)
     {
         // enqueue a copy of the Message to ensure this queue owns the Message
-        queue_.put((Message) message.clone());
+        queue_.put(message);
     }
 
     /*
@@ -56,7 +56,7 @@ public class BasicMessageQueueAdapter implements MessageQueueAdapter
      * 
      * @see org.jacorb.notification.queue.EventQueueDelegate#hasPendingData()
      */
-    public boolean hasPendingMessages() throws InterruptedException
+    public boolean hasPendingMessages()
     {
         return !queue_.isEmpty();
     }
@@ -66,7 +66,7 @@ public class BasicMessageQueueAdapter implements MessageQueueAdapter
      * 
      * @see org.jacorb.notification.queue.EventQueueDelegate#getPendingMessagesCount()
      */
-    public int getPendingMessagesCount() throws InterruptedException
+    public int getPendingMessagesCount()
     {
         return queue_.getSize();
     }
