@@ -34,19 +34,17 @@ import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.ApplicationEvent;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
+import org.jacorb.notification.interfaces.ProxyEvent;
+import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.ConsumerAdminTieImpl;
+import org.jacorb.notification.util.QoSPropertySet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import java.util.ArrayList;
-import org.jacorb.notification.util.QoSPropertySet;
-import org.jacorb.notification.interfaces.ProxyEventListener;
-import org.jacorb.notification.interfaces.ProxyEvent;
 
 /**
  * @author Alphonse Bendt
