@@ -65,7 +65,7 @@ public class TaskExecutor implements Executor, Disposable
                 executor_ = new DirectExecutor();
 
                 if (logger_.isInfoEnabled() ) {
-                    logger_.info( "Created direct Executing ThreadPool: " + name );
+                    logger_.info( "Created ThreadPool " + name + ": DirectExecutor");
                 }
             }
         else
@@ -97,7 +97,7 @@ public class TaskExecutor implements Executor, Disposable
                 executor_ = _executor;
 
                 if (logger_.isInfoEnabled()) {
-                    logger_.info( "Created ThreadPool " + name + " with Size " + numberOfThreads );
+                    logger_.info( "Created ThreadPool " + name + ": Threads=" + numberOfThreads );
                 }
             }
     }
