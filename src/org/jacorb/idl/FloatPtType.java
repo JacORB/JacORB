@@ -27,9 +27,8 @@ package org.jacorb.idl;
 
 
 class FloatPtType
-        extends BaseType
+    extends BaseType
 {
-
     public FloatPtType( int num )
     {
         super( num );
@@ -40,23 +39,5 @@ class FloatPtType
         return type_spec.holderName();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -63,6 +63,8 @@ class Interface
 
     public void setPackage( String s )
     {
+        Environment.output( 4, "** Interface setPackage " + s );
+
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
             pack_name = new String( s + "." + pack_name );

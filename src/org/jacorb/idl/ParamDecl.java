@@ -58,6 +58,9 @@ class ParamDecl
             if( ts != null )
                 paramTypeSpec = ts;
         }
+        
+        Environment.doAssert( paramTypeSpec != null , " paramTypeSpec is null " + name );
+
         //simple_declarator.print(ps);
     }
 
