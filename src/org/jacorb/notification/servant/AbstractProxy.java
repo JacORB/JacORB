@@ -104,6 +104,7 @@ public abstract class AbstractProxy
     */
     private FilterManager filterManager_;
     private SynchronizedBoolean disposed_ = new SynchronizedBoolean(false);
+    private SynchronizedBoolean disposeInProgress_ = new SynchronizedBoolean(false);
     private Runnable disposeHook_;
     private SynchronizedInt errorCounter_ = new SynchronizedInt(0);
     private POA poa_;
@@ -350,7 +351,7 @@ public abstract class AbstractProxy
     private void tryDisconnectClient()
     {
         try {
-            if (disposedProxyDisconnectsClient_ && isConnected() )
+            if (disposedProxyDisconnectsClient_ && connected_.get() )
                 {
                     logger_.info("disconnect_client");
 
@@ -385,6 +386,8 @@ public abstract class AbstractProxy
 
     public void dispose()
     {
+        disposeInProgress_.set(true);
+
         checkDisposalStatus();
 
         //////////////////////////////
@@ -426,7 +429,7 @@ public abstract class AbstractProxy
 
     public final boolean isConnected()
     {
-        return connected_.get();
+        return !disposeInProgress_.get() && connected_.get();
     }
 
 
