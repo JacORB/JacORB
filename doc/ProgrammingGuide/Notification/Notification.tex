@@ -5,7 +5,7 @@
 The JacORB Notification Service is a partial implementation of
 the Notification Service specified by the OMG.
 
-\section{Runnning the Notification Service}
+\section{Running the Notification Service}
 \label{sec:ntfy-running}
 
 Before the JacORB Notification Service can be accessed a server
@@ -220,7 +220,7 @@ Consumers. The third Thread Pool us used to pull Messages from PullSuppliers.
     \verb"filter."
     \verb"thread_pool_size"\footnote{All notification service
     properties share the common prefix \emph{jacorb.notification} which
-    is omitted here for the sake of space saving} &
+    is omitted here to save some space} &
 
     This is the Size of the Thread Pool used to process the filters.
     Increasing this value on a Multiprocessor machine or if Filters are on
@@ -378,6 +378,16 @@ Consumers. The third Thread Pool us used to pull Messages from PullSuppliers.
     to \texttt{ORB::string\_to\_object}. &
 
     URL & builtin \\ \hline
+
+    \verb"proxy.destroy_"
+    \verb"causes_disconnect" &
+
+    Specify if a destroyed Proxy should call the disconnect operation
+    of its consumer/supplier. &
+
+    boolean & on \\ \hline
+
+ 
 
   \end{longtable}
 \end{small}
