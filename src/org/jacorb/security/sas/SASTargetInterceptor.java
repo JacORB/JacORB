@@ -120,8 +120,9 @@ public class SASTargetInterceptor
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        if (ri.operation().equals("_is_a")) return;
-        if (ri.operation().equals("_non_existent")) return;
+        logger.debug("receive_request_service_contexts for "+ri.operation());
+        //if (ri.operation().equals("_is_a")) return;
+        //if (ri.operation().equals("_non_existent")) return;
         if (sasContext == null) return;
         GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
 
@@ -224,8 +225,9 @@ public class SASTargetInterceptor
     public void receive_request( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        if (ri.operation().equals("_is_a")) return;
-        if (ri.operation().equals("_non_existent")) return;
+        logger.debug("receive_request for "+ri.operation());
+        //if (ri.operation().equals("_is_a")) return;
+        //if (ri.operation().equals("_non_existent")) return;
         if (sasContext == null) return;
         GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
 
@@ -361,6 +363,8 @@ public class SASTargetInterceptor
 
     public void send_reply( ServerRequestInfo ri )
     {
+        logger.debug("send_reply for "+ri.operation());
+
         //if (!useSAS) return;
         Any slot_any = null;
         try {
@@ -390,6 +394,8 @@ public class SASTargetInterceptor
     public void send_exception( ServerRequestInfo ri )
         throws ForwardRequest
     {
+        logger.debug("send_exception for "+ri.operation());
+
         //if (!useSAS) return;
         Any slot_any = null;
         try {
@@ -419,6 +425,7 @@ public class SASTargetInterceptor
     public void send_other( ServerRequestInfo ri )
         throws ForwardRequest
     {
+        logger.debug("send_other for "+ri.operation());
     }
 
     protected Any makeCompleteEstablishContext(long client_context_id, SASPolicyValues sasValues) {
