@@ -178,8 +178,14 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
 
     static Logger logger_ = Debug.getNamedLogger( AbstractObjectPool.class.getName() );
 
+    String name_;
+
     LinkedList pool_;
     HashSet active_ = new HashSet();
+
+    int instanceCount_;
+    int lendCount_;
+    int returnCount_;
 
     /**
      * lower watermark. if pool size is below that value, create
@@ -205,19 +211,22 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
      */
     int initialSize_;
 
-    protected AbstractObjectPool()
+    protected AbstractObjectPool(String name)
     {
-        this( LOWER_WATERMARK_DEFAULT,
+        this( name,
+              LOWER_WATERMARK_DEFAULT,
               SIZE_INCREASE_DEFAULT,
               INITIAL_SIZE_DEFAULT,
               MAXIMUM_WATERMARK_DEFAULT );
     }
 
-    protected AbstractObjectPool( int threshold,
+    protected AbstractObjectPool( String name,
+                                  int threshold,
                                   int sizeincrease,
                                   int initialsize,
                                   int maxsize )
     {
+        name_ = name;
         pool_ = new LinkedList();
         lowerWatermark_ = threshold;
         sizeIncrease_ = sizeincrease;
@@ -233,6 +242,9 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
             for ( int x = 0; x < sizeIncrease_; ++x )
             {
                 Object _i = newInstance();
+
+                ++instanceCount_;
+
                 pool_.add( _i );
             }
         }
@@ -248,6 +260,8 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
         {
             Object _i = newInstance();
 
+            ++instanceCount_;
+
             pool_.add( _i );
         }
     }
@@ -258,6 +272,16 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
     public void dispose()
     {
         deregisterPool( this );
+
+        if (logger_.isInfoEnabled() ) {
+            logger_.info(name_
+                         + " Stats: instanceCount="
+                         + instanceCount_
+                         + ", lend="
+                         + lendCount_
+                         + ", return="
+                         + returnCount_ );
+        }
     }
 
     /**
@@ -280,11 +304,15 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
 
         if ( _ret == null )
         {
+            ++instanceCount_;
+
             _ret = newInstance();
         }
 
         activateObject( _ret );
         active_.add( _ret );
+
+        ++lendCount_;
 
         return _ret;
     }
@@ -293,37 +321,39 @@ public abstract class AbstractObjectPool implements Runnable, Disposable
      * return an Object to the pool.
      */
     public void returnObject( Object o )
-                      {
-                          if ( active_.remove( o ) )
-                          {
-                              passivateObject( o );
+    {
+        ++returnCount_;
 
-                              if ( pool_.size() < maxWatermark_ )
-                              {
-                                  synchronized ( pool_ )
-                                  {
-                                      pool_.add( o );
-                                      pool_.notifyAll();
-                                  }
-                              }
-                              else
-                              {
-                                  destroyObject( o );
-                              }
-                          }
-                          else
-                          {
-                              // ignore
-                              logger_.warn( "Object " + o + " was not in pool. multiple release?" );
-                              //                throw new RuntimeException();
-                          }
-                      }
+        if ( active_.remove( o ) )
+            {
+                passivateObject( o );
 
-                      /**
-                       * This method is called by the Pool to create a new
-                       * Instance. Subclasses must override appropiately .
-                       */
-                      public abstract Object newInstance();
+                if ( pool_.size() < maxWatermark_ )
+                    {
+                        synchronized ( pool_ )
+                            {
+                                pool_.add( o );
+                                pool_.notifyAll();
+                            }
+                    }
+                else
+                    {
+                        destroyObject( o );
+                    }
+            }
+        else
+            {
+                // ignore
+                logger_.warn( "Object " + o + " was not in pool " + name_ +". multiple release?" );
+                //                throw new RuntimeException();
+            }
+    }
+
+    /**
+     * This method is called by the Pool to create a new
+     * Instance. Subclasses must override appropiately .
+     */
+    public abstract Object newInstance();
 
     /**
      * Is called after Object is returned to pool. No Op.
