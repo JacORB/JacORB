@@ -76,14 +76,14 @@ public class FixIOR
             System.exit (1);
         }
 
-        // Parse IOR and set port/host information
+        // Parse IOR 
 
         pior = new ParsedIOR (iorString);
         ior = pior.getIOR ();
-        profiles = ior.profiles;
 
         // Iterate through IIOP profiles setting host and port
 
+        profiles = ior.profiles;
         for (int i = 0; i < profiles.length; i++)
         {
             if (profiles[i].tag == TAG_INTERNET_IOP.value)
