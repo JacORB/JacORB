@@ -268,13 +268,12 @@ public abstract class TCP_IP_Transport
         }            
     }
 
-    public void addOutgoingMessage( byte[] message,
-                                    int start,
-                                    int size ) 
+    public void write( byte[] message,
+                       int start,
+                       int size ) 
         throws IOException 
     {
         connect();
-
         out_stream.write( message, start, size );
         
         if( b_out != null )
@@ -283,7 +282,7 @@ public abstract class TCP_IP_Transport
         }
     }
     
-    public void sendMessages()
+    public void flush()
         throws IOException
     {
         if( b_out != null )
