@@ -507,7 +507,8 @@ public final class ORB
         {
             IORInfoImpl info = new IORInfoImpl (this, poa,
                                                 componentMap,
-                                                policy_overrides);
+                                                policy_overrides,
+                                                profiles);
             try
             {
                 interceptor_manager.getIORIterator().iterate( info );
