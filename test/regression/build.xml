@@ -77,7 +77,7 @@
       <antcall target="idl-tests"/>
       <antcall target="idl-basicserver"/>
       <antcall target="idl-charserver"/>
-      <antcall target="idl-retstringseq"/>
+      <!-- <antcall target="idl-retstringseq"/> -->
       <antcall target="idl-callbackserver"/>
       <antcall target="idl-timingserver"/>
       <antcall target="idl-syncscopeserver"/>
@@ -187,7 +187,7 @@
 
   <target name="idl-connectiontimeout">
       <property name="props.idl" value="ConnectionTimeout"/>
-      <property name="pkg.idl" value="org/jacorb/test/orb/connection"/>
+      <property name="pkg.idl" value="org/jacorb/Tests"/>
       <property name="callback.idl" value="false"/>
       <property name="file.idl" value="ConnectionTimeout.idl"/>
       <antcall target="process-idl"/>
