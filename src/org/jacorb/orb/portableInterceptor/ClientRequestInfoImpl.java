@@ -88,9 +88,9 @@ public class ClientRequestInfoImpl
          else
              this.target = self;
 
-		 InternetIOPProfile profile = (InternetIOPProfile)pior.getEffectiveProfile();
+                 InternetIOPProfile profile = (InternetIOPProfile)pior.getEffectiveProfile();
          this.effective_profile    = profile.asTaggedProfile();
-		 this.effective_components = profile.getComponents().asArray(); 
+                 this.effective_components = profile.getComponents().asArray(); 
 
          if ( this.effective_components == null )
          {
@@ -119,7 +119,7 @@ public class ClientRequestInfoImpl
             try
             {
                 NamedValue value = request.arguments.item(i);
-	
+        
                 ParameterMode mode = null;
                 if (value.flags() == ARG_IN.value)
                     mode = ParameterMode.PARAM_IN;
@@ -127,7 +127,7 @@ public class ClientRequestInfoImpl
                     mode = ParameterMode.PARAM_OUT;
                 else if (value.flags() == ARG_INOUT.value)
                     mode = ParameterMode.PARAM_INOUT;
-	
+        
                 arguments[i] = new org.omg.Dynamic.Parameter(value.value(), mode);
             }
             catch (Exception e)
@@ -361,9 +361,3 @@ public class ClientRequestInfoImpl
     }
 
 } // ClientRequestInfoImpl
-
-
-
-
-
-

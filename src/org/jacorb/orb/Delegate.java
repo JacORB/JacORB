@@ -550,11 +550,11 @@ public final class Delegate
 
     public short getSyncScope()
     {
-    	Policy p = get_client_policy (SYNC_SCOPE_POLICY_TYPE.value);
-    	if (p != null)
-    		return ((org.omg.Messaging.SyncScopePolicy)p).synchronization();
-    	else
-			return ((org.omg.Messaging.SYNC_NONE.value));
+        Policy p = get_client_policy (SYNC_SCOPE_POLICY_TYPE.value);
+        if (p != null)
+                return ((org.omg.Messaging.SyncScopePolicy)p).synchronization();
+        else
+                        return ((org.omg.Messaging.SYNC_NONE.value));
     }
 
     /**
