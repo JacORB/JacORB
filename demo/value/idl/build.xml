@@ -1,22 +1,23 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../etc/common.xml"> ]>
+
 <project name="demo" default="all" basedir="../../..">
 
-   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL"
-      classpath="${basedir}/classes"/>
+  &common;
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
+   <target name="valueinit" depends="init" >
 	<property name="name" value="value/idl"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
    </target>
 
-   <target name="all" depends="init,idl">
+   <target name="all" depends="valueinit,idl">
 	<javac srcdir="${dirs.base}/demo/${name}/generated"
                destdir="${classdir}"
 	       includes="demo/${name}/**/*.java"
@@ -28,7 +29,8 @@
 	        />
    </target>
 
-   <target name="idl" depends="init">
+   <target name="idl" depends="valueinit,load-taskdef">
+     <mkdir dir="${dirs.base}/demo/${name}/generated"/>
         <jacidl 
               srcdir="${dirs.base}/demo/${name}"
               destdir="${dirs.base}/demo/${name}/generated" 
@@ -36,7 +38,7 @@
    </target>
 
 
-   <target name="clean" depends="init">
+   <target name="clean" depends="valueinit">
            <delete dir="${classdir}/demo/${name}"/>
            <delete dir="${dirs.base}/demo/${name}/generated"/>
    </target>
