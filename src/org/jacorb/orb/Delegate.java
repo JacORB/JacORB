@@ -1120,7 +1120,7 @@ public final class Delegate
                 // This will only work if there is a correspondence between the Java class
                 // name and the Repository ID. If prefixes have been using then this mapping
                 // may have been lost.
-                Class stub = Class.forName( scn.toString());
+                Class stub = Environment.classForName( scn.toString());
                 Method idm = stub.getMethod ( "_ids", null );
                 String newids[] = (String[] )idm.invoke( stub.newInstance(),  new Object[] { } );
 

@@ -69,7 +69,7 @@ public class GIOPConnectionManager
                 try
                 {
                     statistics_provider_class =
-                        Class.forName( s );
+                        Environment.classForName( s );
                 }
                 catch( Exception e )
                 {

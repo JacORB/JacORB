@@ -577,7 +577,7 @@ public class ParsedIOR
             Class[] types = new Class[1];
             java.lang.Object[] params = new java.lang.Object[1];
 
-            Class cls = Class.forName("javax.naming.InitialContext");
+            Class cls = Environment.classForName("javax.naming.InitialContext");
             java.lang.Object initialContext = cls.newInstance();
 
             types[0] = String.class;

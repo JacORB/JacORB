@@ -66,7 +66,8 @@ public class IORInterceptorInitializer
             {
                 try
                 {
-                    Class sas = Class.forName ("org.jacorb.orb.standardInterceptors.SASComponentInterceptor");
+                    Class sas = Environment.classForName (
+                        "org.jacorb.orb.standardInterceptors.SASComponentInterceptor");
                     Constructor csas = sas.getConstructor
                         (new Class[] { orb.getClass () });
 

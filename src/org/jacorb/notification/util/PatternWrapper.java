@@ -22,6 +22,7 @@ package org.jacorb.notification.util;
  */
 
 import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
 
 import org.apache.avalon.framework.logger.Logger;
 
@@ -52,7 +53,7 @@ public abstract class PatternWrapper
             try
             {
                 sDefaultInstance =
-                    Class.forName( "org.jacorb.notification.util.JDK14PatternWrapper" );
+                    Environment.classForName( "org.jacorb.notification.util.JDK14PatternWrapper" );
             }
             catch ( ClassNotFoundException e )
             {
@@ -66,7 +67,7 @@ public abstract class PatternWrapper
             try
             {
                 sDefaultInstance =
-                    Class.forName( "org.jacorb.notification.util.GNUPatternWrapper" );
+                    Environment.classForName( "org.jacorb.notification.util.GNUPatternWrapper" );
             }
             catch ( ClassNotFoundException e )
             {
@@ -110,7 +111,7 @@ public abstract class PatternWrapper
     {
         try
         {
-            Class.forName( name );
+            Environment.classForName( name );
 
             return true;
         }

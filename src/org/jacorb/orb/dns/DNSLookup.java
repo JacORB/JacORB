@@ -52,8 +52,8 @@ public class DNSLookup
                 // Ensure that both the delegate implementation
                 // and the DNS support classes are available
 
-                c = Class.forName ("org.xbill.DNS.dns");
-                c = Class.forName ("org.jacorb.orb.dns.XbillDelegateImpl");
+                c = Environment.classForName ("org.xbill.DNS.dns");
+                c = Environment.classForName ("org.jacorb.orb.dns.XbillDelegateImpl");
             
                 delegate = (DNSLookupDelegate) c.newInstance ();
             }

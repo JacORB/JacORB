@@ -20,6 +20,7 @@
  */
 package org.jacorb.collection;
 
+import org.jacorb.util.Environment;
 import org.omg.CosCollection.*;
 
 public class  SortedRelationFactoryImpl 
@@ -49,7 +50,7 @@ public class  SortedRelationFactoryImpl
     {
         OperationsOperations ops = null;
         try {
-            Class operation_class = Class.forName( ops_class );
+            Class operation_class = Environment.classForName( ops_class );
             ops = (OperationsOperations)operation_class.newInstance();
         } catch ( Exception e ){
             System.out.println( "Internal error: Can not instantiate object of class \""+ops_class+"\"" );

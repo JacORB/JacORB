@@ -123,7 +123,7 @@ public class SocketFactoryManager
 
         try
         {
-            sfClass = Class.forName (className);
+            sfClass = Environment.classForName (className);
 
             if (orb != null)
             {

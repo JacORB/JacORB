@@ -79,7 +79,7 @@ public class ClientConnectionManager
 
             try
             {
-                Class ssl = Class.forName( s );
+                Class ssl = Environment.classForName( s );
 
                 Constructor constr = ssl.getConstructor( new Class[]{
                     ORB.class });

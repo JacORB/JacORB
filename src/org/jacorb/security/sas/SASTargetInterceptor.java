@@ -120,7 +120,7 @@ public class SASTargetInterceptor
         String validatorClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.tss.context_validator");
         if (validatorClass != null) {
             try {
-              Class c = Class.forName(validatorClass);
+              Class c = Environment.classForName(validatorClass);
               contextValidator = (ISASContextValidator)c.newInstance();
             } catch (Exception e) {
               Debug.output("Could not instantiate class " + validatorClass + ": " + e);

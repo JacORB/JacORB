@@ -230,12 +230,7 @@ public class RepositoryID
             if (RepositoryImpl.loader != null)
                 return RepositoryImpl.loader.loadClass (name);
             else
-                //#ifjdk 1.2
-                    return Thread.currentThread().getContextClassLoader()
-                                                 .loadClass (name);
-                //#else
-                //# return Class.forName (name);
-                //#endif
+                return org.jacorb.util.Environment.classForName(name);
         }
         catch (ClassNotFoundException e)
         {

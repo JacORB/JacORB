@@ -91,7 +91,7 @@ public class SASClientInterceptor
 		String creatorClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.css.context_creator");
 		if (creatorClass != null) {
 			try {
-			  Class c = Class.forName(creatorClass);
+                          Class c = org.jacorb.util.Environment.classForName(creatorClass);
 			  contextCreator = (ISASContextCreator)c.newInstance();
 			} catch (Exception e) {
 			  Debug.output("Could not instantiate class " + creatorClass + ": " + e);

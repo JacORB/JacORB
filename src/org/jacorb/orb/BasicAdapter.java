@@ -86,7 +86,7 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
 
                 try
                 {
-                    Class ssl = Class.forName( s );
+                    Class ssl = Environment.classForName( s );
 
                     Constructor constr = ssl.getConstructor( new Class[]{
                         org.jacorb.orb.ORB.class });

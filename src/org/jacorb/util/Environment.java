@@ -992,17 +992,7 @@ public class Environment
 
                 try
                 {
-                    //#ifjdk 1.2
-                    ClassLoader cl =
-                        Thread.currentThread().getContextClassLoader();
-                    if (cl == null)
-                        cl = ClassLoader.getSystemClassLoader();
-                    orb_initializers.addElement(cl.loadClass(name).newInstance());
-                    //#else
-                    //# orb_initializers.addElement
-                    //#     (Class.forName(name).newInstance());
-                    //#endif
-
+                    orb_initializers.addElement(classForName(name).newInstance());
                     if( logger.isDebugEnabled())
                         logger.debug("Build: " + name);
                 }

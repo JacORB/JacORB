@@ -160,7 +160,7 @@ public class ExceptionHolderImpl extends org.omg.Messaging.ExceptionHolder
         String name = RepositoryID.className (id, "Helper");
 
         // if class doesn't exist, let exception propagate
-        Class  helper = Class.forName (name);
+        Class  helper = Environment.classForName (name);
 
         // helper must not be null from here on
         
@@ -169,7 +169,7 @@ public class ExceptionHolderImpl extends org.omg.Messaging.ExceptionHolder
         Method readMethod = 
             helper.getMethod( "read", 
                                new Class[]{ 
-                                   Class.forName("org.omg.CORBA.portable.InputStream")
+                                   Environment.classForName("org.omg.CORBA.portable.InputStream")
                                } );    
         java.lang.Object result = 
             readMethod.invoke( null, 

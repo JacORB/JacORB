@@ -1028,7 +1028,7 @@ public final class ORB
                 {
                     try
                     {
-                        Class currentClass = Class.forName( "org.jacorb.security.level2.CurrentImpl" );
+                        Class currentClass = Environment.classForName( "org.jacorb.security.level2.CurrentImpl" );
 
                         Constructor constr = currentClass.getConstructor( new Class[]{
                             org.omg.CORBA.ORB.class });
@@ -1304,7 +1304,7 @@ public final class ORB
         {
             try
             {
-                knownReferences = (Hashtable) Class.forName( s ).newInstance();
+                knownReferences = (Hashtable) Environment.classForName( s ).newInstance();
             }
             catch( Exception e )
             {
@@ -1359,7 +1359,7 @@ public final class ORB
         {
             try
             {
-                knownReferences = (Hashtable) Class.forName( s ).newInstance();
+                knownReferences = (Hashtable) Environment.classForName( s ).newInstance();
             }
             catch( Exception e )
             {
@@ -1739,24 +1739,14 @@ public final class ORB
         Class result = null;
         try
         {
-             //#ifjdk 1.2
-                result = Thread.currentThread().getContextClassLoader()
-                                               .loadClass (name);
-             //#else
-             //# result = Class.forName (name);
-             //#endif
+            result = Environment.classForName(name);
         }
         catch (ClassNotFoundException e)
         {
             if (orgomg && name.startsWith ("org.omg"))
                 try
                 {
-                     //#ifjdk 1.2
-                        result = Thread.currentThread().getContextClassLoader()
-                                       .loadClass ("omg.org" + name.substring(7));
-                     //#else
-                     //# result = Class.forName ("omg.org" + name.substring(7));
-                     //#endif
+                    result = Environment.classForName("omg.org" + name.substring(7));
                 }
                 catch (ClassNotFoundException x)
                 {
