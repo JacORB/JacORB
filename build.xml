@@ -2,29 +2,28 @@
 
 <project name="main" default="all" basedir=".">
 
-  <!-- ==================================================== -->
-  <!--            JacORB build file                         -->
-  <!-- $Id$ -->
-  <!-- ==================================================== -->
+   <!-- ==================================================== -->
+   <!--            JacORB build file                         -->
+   <!-- $Id$ -->
+   <!-- ==================================================== -->
 
    <target name="init">
-	<property name="Name" value="main"/>
-	<property name="name" value="main"/>
-	<property name="dirs.base" value="${basedir}"/>
-	<property name="classdir" value="${dirs.base}/classes"/>
-	<property name="classpath" 
-                  value="${java.class.path}:${dirs.base}/classes"/>
-	<property name="src" value="${dirs.base}/src"/>
-	<property name="lib" value="${dirs.base}/lib"/>
-	<mkdir dir="${classdir}"/>
-	<mkdir dir="${lib}"/>
-	<filter token="path" value="basedir"/>
+   <property name="Name" value="main"/>
+   <property name="name" value="main"/>
+   <property name="dirs.base" value="${basedir}"/>
+   <property name="classdir" value="${dirs.base}/classes"/>
+   <property name="classpath" value="${java.class.path}:${dirs.base}/classes"/>
+   <property name="src" value="${dirs.base}/src"/>
+   <property name="lib" value="${dirs.base}/lib"/>
+   <mkdir dir="${classdir}"/>
+   <mkdir dir="${lib}"/>
+   <filter token="path" value="basedir"/>
    </target>
 
 
    <!-- top-level targets  -->
 
-   <target name="all" depends="init,compiler,omg_idl,http,jacorb,libs" />
+   <target name="all" depends="init,compiler,omg_idl,http,jacorb,libs" description="Build JacORB"/>
 
    <!--               -->
    <!-- IDL compiler  -->
@@ -35,28 +34,28 @@
    <target name="idlcmd">
         <delete file="bin/idl" />
         <delete file="bin/idl.bat" />
-        <copy overwrite="yes" file="bin/idltemplate" tofile="bin/idl" />   
+        <copy overwrite="yes" file="bin/idltemplate" tofile="bin/idl" />
         <copy overwrite="yes" file="bin/idltemplate.bat" tofile="bin/idl.bat" />
         <replace file="bin/idl" token="@@@" value="${basedir}"/>
         <replace file="bin/idl.bat" token="@@@" value="${basedir}"/>
         <chmod file="bin/idl" perm="ugo+rx"/>
-   </target> 
+   </target>
 
    <!-- package idl.jar -->
 
    <target name="idllib" depends="java_cup,idlsrc" >
-        <jar jarfile="${lib}/idl.jar" 
+        <jar jarfile="${lib}/idl.jar"
              basedir="${classdir}"
-	         includes="org/jacorb/idl/**,java_cup/**"
-	     />
-   </target>  
+           includes="org/jacorb/idl/**,java_cup/**"
+       />
+   </target>
 
     <target name="idlsrc">
-	<ant antfile="${src}/org/jacorb/idl/build.xml" dir="${basedir}" />
+  <ant antfile="${src}/org/jacorb/idl/build.xml" dir="${basedir}" />
     </target>
 
     <target name="java_cup">
-	<ant antfile="${src}/java_cup/build.xml" dir="${basedir}"/>
+  <ant antfile="${src}/java_cup/build.xml" dir="${basedir}"/>
    </target>
 
    <!-- ==================================================== -->
@@ -95,11 +94,11 @@
 
    <target name="jar" depends="init">
       <delete file="${lib}/jacorb.jar"/>
-       <jar jarfile="${lib}/jacorb.jar" 
-	    basedir="${classdir}"
-	    includes="org/jacorb/**,org/omg/**, HTTPClient/**"
-	    excludes="org/jacorb/idl/**"
-	    />	    
+       <jar jarfile="${lib}/jacorb.jar"
+      basedir="${classdir}"
+      includes="org/jacorb/**,org/omg/**, HTTPClient/**"
+      excludes="org/jacorb/idl/**"
+      />
    </target>
 
    <target name="jaco" depends="init">
@@ -113,18 +112,18 @@
            <replace file="bin/jaco" token="@@@JRE_HOME@@@"
             value="${java.home}" />
            <chmod file="bin/jaco" perm="ugo+rx"/>
-   </target> 
+   </target>
 
-   <!-- This target creates a jar file that contains the --> 
+   <!-- This target creates a jar file that contains the -->
    <!-- core ORB components and (genrated) OMG classes + -->
    <!-- the Naming Service -->
    <target name="core_jacorb_jar" depends="init">
       <delete file="${lib}/core_jacorb.jar"/>
-       <jar jarfile="${lib}/core_jacorb.jar" 
-	    basedir="${classdir}"
-	    includes="org/jacorb/orb/**,org/jacorb/naming/*,org/jacorb/poa/**,org/jacorb/util/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/IOP_N/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**"
+       <jar jarfile="${lib}/core_jacorb.jar"
+      basedir="${classdir}"
+      includes="org/jacorb/orb/**,org/jacorb/naming/*,org/jacorb/poa/**,org/jacorb/util/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/IOP_N/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**"
             excludes="org/jacorb/orb/domain/gui/*,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/orb/connection/http/*"
-	    />	    
+      />
    </target>
 
    <!-- This target creates a jar file that contains the -->
@@ -132,10 +131,10 @@
    <!-- ImR + GUI, IR + GUI, Domain GUI, POA GUI, Tracing, Proxy -->
    <target name="jacorb_services_jar" depends="init">
       <delete file="${lib}/jacorb_services.jar"/>
-       <jar jarfile="${lib}/jacorb_services.jar" 
-	    basedir="${classdir}"
-	    includes="org/jacorb/imr/**,org/jacorb/ir/**,org/jacorb/orb/domain/gui/*,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/proxy/*"
-	    />	    
+       <jar jarfile="${lib}/jacorb_services.jar"
+      basedir="${classdir}"
+      includes="org/jacorb/imr/**,org/jacorb/ir/**,org/jacorb/orb/domain/gui/*,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/proxy/*"
+      />
    </target>
 
    <!-- This target creates a jar file that contains the -->
@@ -143,31 +142,31 @@
    <!-- Concurrency, Events, Trading, Transaction, but not Naming -->
    <target name="omg_services_jar" depends="init">
       <delete file="${lib}/omg_services.jar"/>
-       <jar jarfile="${lib}/omg_services.jar" 
-	    basedir="${classdir}"
-	    includes="org/jacorb/concurrency/**,org/jacorb/events/**,org/jacorb/trading/**,org/jacorb/transaction/**,org/omg/Cos*/**"
+       <jar jarfile="${lib}/omg_services.jar"
+      basedir="${classdir}"
+      includes="org/jacorb/concurrency/**,org/jacorb/events/**,org/jacorb/trading/**,org/jacorb/transaction/**,org/omg/Cos*/**"
             excludes="org/omg/CosNaming/**"
-	    />	    
+      />
    </target>
 
    <!-- This target creates a jar file that contains the -->
    <!-- HTTP tunneling classes -->
    <target name="http_tunneling_jar" depends="init">
       <delete file="${lib}/http_tunneling.jar"/>
-       <jar jarfile="${lib}/http_tunneling.jar" 
-	    basedir="${classdir}"
-	    includes="HTTPClient/**,org/jacorb/orb/connection/http/*"
-	    />	    
+       <jar jarfile="${lib}/http_tunneling.jar"
+      basedir="${classdir}"
+      includes="HTTPClient/**,org/jacorb/orb/connection/http/*"
+      />
    </target>
 
    <!-- This target creates a jar file that contains the -->
    <!-- (genrated) OMG and JacORB security classes -->
    <target name="security_jar" depends="init">
       <delete file="${lib}/security.jar"/>
-       <jar jarfile="${lib}/security.jar" 
-	    basedir="${classdir}"
-	    includes="org/jacorb/security/**,org/omg/Security*/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
-	    />	    
+       <jar jarfile="${lib}/security.jar"
+      basedir="${classdir}"
+      includes="org/jacorb/security/**,org/omg/Security*/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
+      />
    </target>
 
    <!-- ==================================================== -->
@@ -175,18 +174,18 @@
    <!-- ==================================================== -->
 
 
-   <target name="clean" depends="init">
-      <delete dir="${classdir}/demo"/>  
-      <delete dir="${classdir}/org"/>  
-      <delete dir="${classdir}/java_cup"/>  
-      <delete dir="${classdir}/HTTPClient"/>  
-      <delete dir="${src}/generated"/>  
+   <target name="clean" depends="init" description="Clean the checkout">
+      <delete dir="${classdir}/demo"/>
+      <delete dir="${classdir}/org"/>
+      <delete dir="${classdir}/java_cup"/>
+      <delete dir="${classdir}/HTTPClient"/>
+      <delete dir="${src}/generated"/>
    </target>
 
-   <target name="realclean" depends="clean">
+   <target name="realclean" depends="clean" description="Clean the checkout including generated jars">
       <delete>
         <fileset dir="lib/" includes="*.jar"/>
-      </delete >  
+      </delete >
    </target>
 
    <!-- ==================================================== -->
@@ -194,21 +193,19 @@
    <!-- ==================================================== -->
 
 
-   <target name="doc" depends="init">
-           <javadoc destdir="${basedir}/doc/api"
-                    packagenames="org.jacorb.*">
-                    <sourcepath> 
-                                 <pathelement path="${src}" />
-                                 <pathelement path="${src}/generated" />
-                    </sourcepath> 
-           </javadoc>
-           <javadoc destdir="${basedir}/doc/api"
-                    packagenames="org.omg.*">
-                    <sourcepath> 
-                                 <pathelement path="${src}" />
-                                 <pathelement path="${src}/generated" />
-                    </sourcepath> 
-           </javadoc>
+   <target name="doc" depends="init" description="Create the Javadoc">
+      <mkdir dir="${basedir}/doc/api"/>
+      <javadoc destdir="${basedir}/doc/api"
+               Splitindex="Yes"
+               Use="Yes"
+               maxmemory="256m"
+               packagenames="org.jacorb.*,org.omg.*,HTTPClient,java_cup.*">
+         <sourcepath>
+            <pathelement path="${src}" />
+            <pathelement path="${src}/generated" />
+            <pathelement path="${src}/HTTPClient" />
+            <pathelement path="${src}/java_cup" />
+         </sourcepath>
+      </javadoc>
    </target>
 </project>
-
