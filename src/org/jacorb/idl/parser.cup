@@ -122,7 +122,10 @@ parser code
 
     public static void main( String argv[] )
     {
-        compile( argv );
+        if( compile( argv ) == true )
+            System.exit( 0 );
+        else
+            System.exit( 1 );
     }
 
 
