@@ -1,16 +1,17 @@
 package org.jacorb.test.notification;
 
-import junit.framework.TestCase;
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.DynamicEvaluator;
-import org.jacorb.notification.filter.FilterConstraint;
+import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.etcl.TCLCleanUp;
+import org.jacorb.notification.filter.FilterConstraint;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.util.Debug;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LongSeqHelper;
 import org.omg.CORBA.ORB;
@@ -21,34 +22,35 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
 import org.omg.DynamicAny.DynAnyFactory;
-import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
 
+import junit.framework.TestCase;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
- * TestUtils.java
- *
- *
- * Created: Sat Dec 07 16:04:32 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class TestUtils {
-
-    ORB orb_;
-    StructuredEvent structuredEvent_;
-    Any structuredEventAny_;
+    static StructuredEvent invalidStructuredEvent_;
 
     static Logger logger_ = Debug.getNamedLogger(TestUtils.class.getName());
+
+    ////////////////////////////////////////
+
+    ORB orb_;
+
+    StructuredEvent structuredEvent_;
+
+    Any structuredEventAny_;
+
+    ////////////////////////////////////////
 
     public TestUtils(ORB orb) {
         orb_ = orb;
     }
 
-    public void setUp() throws Exception {
-    }
+    ////////////////////////////////////////
 
     public StructuredEvent getStructuredEvent() {
         FixedEventHeader _fixedHeader = new FixedEventHeader();
@@ -62,12 +64,14 @@ public class TestUtils {
         return _structuredEvent;
     }
 
+
     public Any getStructuredEventAny() {
         Any _structuredEventAny = orb_.create_any();
         StructuredEventHelper.insert(_structuredEventAny, getStructuredEvent());
 
         return _structuredEventAny;
     }
+
 
     public Person getTestPerson() {
         // prepare test data
@@ -95,6 +99,7 @@ public class TestUtils {
         return _p;
     }
 
+
     public Any getTestPersonAny() {
         Any _testPerson;
 
@@ -103,6 +108,7 @@ public class TestUtils {
 
         return _testPerson;
     }
+
 
     public Any getSizedTestData(int  size) {
         Any _testData = orb_.create_any();
@@ -116,7 +122,6 @@ public class TestUtils {
         return _testData;
     }
 
-    static StructuredEvent invalidStructuredEvent_;
 
     public static StructuredEvent getInvalidStructuredEvent(ORB orb) {
         if (invalidStructuredEvent_ == null) {
@@ -135,6 +140,7 @@ public class TestUtils {
         return invalidStructuredEvent_;
     }
 
+
     public static void runEvaluation(TestCase testCase,
                                      ApplicationContext appContext,
                                      Any any,
@@ -142,6 +148,7 @@ public class TestUtils {
 
         runEvaluation(testCase, appContext, any, expr, "TRUE");
     }
+
 
     public static void runEvaluation(TestCase testCase,
                                      ApplicationContext appContext,
@@ -181,6 +188,7 @@ public class TestUtils {
             appContext.getMessageFactory();
 
         Message _event = null;
+
         try {
             _event = _notificationEventFactory.newMessage(event);
             runEvaluation(testCase, appContext, _event, expr, expect);
