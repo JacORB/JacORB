@@ -66,7 +66,6 @@ public class ImRAccessImpl
 
         if (result.reg == null || result.reg._non_existent())
         {
-            Debug.output(1, "ERROR: No connection to ImplementationRepository");
             throw new INTERNAL ("Unable to resolve reference to ImR");
         }
         return result;
