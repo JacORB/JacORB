@@ -70,18 +70,29 @@ class Member
 	containingType = t;
     }
 
-    /** must be set by MemberList before parsing */
-
+    /** 
+     * must be set by MemberList before parsing 
+     */
     public void setExtendVector(Vector v)
     {
 	extendVector = v;
     }
 
     /**
+     * Creates a new Member that is similar to this one, 
+     * but only for declarator d.
+     */
+    public Member extractMember (Declarator d)
+    {
+        Member result = new Member (new_num());
+        result.declarator = d;
+        return result;
+    }
+
+    /**
      *	Parsing members means creating new members for definitions
      *   with more than one declarator. 
      */
-
     public void parse() 	
     {
 	boolean clone_and_parse = true;
@@ -142,9 +153,7 @@ class Member
 	    // we define the declarator's name as a type name indirectly
 	    // through the cloned type specs.
 
-	    Member m = new Member( new_num() );
-	    m.declarator = d;
-
+	    Member m = extractMember (d);
  
 	    TypeSpec ts = type_spec.typeSpec();
 
