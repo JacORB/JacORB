@@ -125,7 +125,7 @@ public class ClientServerSetup extends TestSetup {
             "jaco -Djacorb.verbosity=0 "
             + "-Djacorb.orb.print_version=off "
             + propsToCommandLineArgs( serverOrbProperties )
-            + "-classpath " 
+            + " -classpath " 
             + System.getProperty ("java.class.path")
             + " org.jacorb.test.common.TestServer "
             + servantName );
