@@ -1178,10 +1178,14 @@ public final class ORB
             _args = args;
             for( int i = 0; i < args.length; i++ )
             {
-                if( args[ i ].startsWith( "-ORBInitRef" ))
+                String arg = args[ i ].trim();
+                
+                if( arg.startsWith( "-ORBInitRef." ))
                 {
+                    //This is the wrong jacorb form -ORBInitRef.<name>=<val>
+
                     //get rid of the leading `-'
-                    String prop = args[ i ].substring( 1 );
+                    String prop = arg.substring( 1 );
                     
                     //find the equals char that separates prop name from
                     //prop value
@@ -1189,6 +1193,28 @@ public final class ORB
                     
                     //add the property to environment
                     Environment.setProperty( prop.substring( 0, equals_pos ),
+                                             prop.substring( equals_pos + 1) );
+                }
+                else if( arg.equals( "-ORBInitRef" ))
+                {
+                    //This is the compliant form -ORBInitRef <name>=<val>
+                    
+                    //Is there a next arg? 
+                    if( (args.length - 1) < (i + 1) )
+                    {
+                        Debug.output( 1, "WARNING: -ORBInitRef argument without value" );
+                        continue;
+                    }
+
+                    String prop = args[ ++i ].trim();
+
+                    //find the equals char that separates prop name from
+                    //prop value
+                    int equals_pos = prop.indexOf( '=' );
+                    
+                    //add the property to environment
+                    Environment.setProperty( "ORBInitRef." + 
+                                             prop.substring( 0, equals_pos ),
                                              prop.substring( equals_pos + 1) );
                 }
             }
