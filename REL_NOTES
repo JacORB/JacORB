@@ -50,6 +50,15 @@ gerald.brose@acm.org
                 ORB:
                         - Passing null to object_to_string.
                         - Passing local object to object_to_string.
+                DynAnys:
+                        - All operations called on a DynAny that has been 
+                          destroyed correctly throw an OBJECT_NOT_EXIST
+                          exception
+                        - The get_dyn_any/insert_dyn_any operations have been
+                          correctly implemented
+                        - The get/insert base type operations correctly throw
+                          a TypeMismatch exception if a type-incorrect
+                          operation is used to get/insert a value
 
 1.4 beta 2:
 =================
