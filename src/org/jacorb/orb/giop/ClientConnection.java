@@ -288,8 +288,9 @@ public class ClientConnection
 
 
     /**
-     *	Close a connection. Should only be done directly if the connection
-     *  is broken or idCount has reached zero. Otherwise, use releaseConnection.
+     *	Close  a  connection. Should  only  be  done  directly if  the
+     *	connection   is broken or idCount has reached zero. Otherwise,
+     *	use releaseConnection.  
      */
 
     public synchronized void closeConnection()
@@ -389,11 +390,12 @@ public class ClientConnection
      * broken
      */
 
-    private void abort()
-	throws  EOFException
+    private void abort( boolean timeout )
+	throws EOFException, TimeOutException
     {
-	Debug.output(3,"Connection to " + 
-                     connection_info + " aborting...");
+	Debug.output( 3, "Connection to " + 
+                      connection_info + " aborting" + 
+                      ( timeout ? " (because of a timeout)" : "..." ));
 
 	Enumeration keys = replies.keys();
 	int lost_replies = 0;
@@ -403,7 +405,7 @@ public class ClientConnection
 	    Object key = keys.nextElement();
 
 	    ReplyInputStream client = (ReplyInputStream)replies.get(key);
-	    client.cancel();
+	    client.cancel( timeout );
 	    lost_replies++;
 	}
 
@@ -411,9 +413,13 @@ public class ClientConnection
 	objects.clear();
 
 	if( lost_replies > 0 )
-	    Debug.output(2,"Lost " + lost_replies + " outstanding replies");
+	    Debug.output( 2, "Lost " + lost_replies + 
+                          " outstanding replies");
 
-	throw new EOFException();
+        if( timeout )
+            throw new TimeOutException();
+        else
+            throw new EOFException();
     }
 
     /**
@@ -424,6 +430,8 @@ public class ClientConnection
     public byte[] readBuffer() 
 	throws IOException 
     {
+        boolean is_timeout = false;
+
 	for( int i = 0; i < Messages.MSG_HEADER_SIZE; i++ )
 	{
 	    int input = -1;
@@ -437,16 +445,19 @@ public class ClientConnection
 		/* if a client-side time out has been set we have to
 		   abort. NOTE: outstanding replies are lost! */
 		
-		Debug.output(3,"Connection timed out");
+		Debug.output( 3, "Connection timed out");
+                is_timeout = true;
 	    }
 	    catch( Exception e )
 	    {
 		Debug.output(3,e);
 	    }
+
 	    if( input < 0 )		
 	    {
-		abort();
+		abort( is_timeout );
 	    }
+
 	    header[i]=(byte)input;
 	}       
 
@@ -476,7 +487,7 @@ public class ClientConnection
 	    
 	    if( msg_size < 0 )
 	    {
-		abort();
+		abort( false );
 	    }
 	    
 	    int bufSize = msg_size + Messages.MSG_HEADER_SIZE;
@@ -504,9 +515,9 @@ public class ClientConnection
 		    Debug.output(4,ie);
 		}
 
-		if( n<0 )
+		if( n < 0 )
 		{
-		    abort();
+		    abort( false );
 		}  
 		read += n;
 	    }
@@ -656,7 +667,7 @@ public class ClientConnection
 		for( Enumeration e = replies.elements(); e.hasMoreElements();)
 		{
                     Debug.output(1,"WARNING: there were outstanding requests when reconnect succeeded! (Lost now)");
-		    ((ReplyInputStream) e.nextElement()).cancel();
+		    ((ReplyInputStream) e.nextElement()).cancel( false );
 		}
 		return;
 	    } 
@@ -673,7 +684,7 @@ public class ClientConnection
 	    }
 	}
 	if( retries == 0 )
-	    throw new org.omg.CORBA.COMM_FAILURE("Retries exceeded, couldn't reconnect to " + 
+	    throw new org.omg.CORBA.TRANSIENT("Retries exceeded, couldn't reconnect to " + 
 						 connection_info );
     }
 
@@ -712,7 +723,7 @@ public class ClientConnection
     
     public org.omg.CORBA.portable.InputStream sendRequest( org.omg.CORBA.Object o,
 							   RequestOutputStream os ) 
-	throws org.omg.CORBA.COMM_FAILURE
+	throws org.omg.CORBA.COMM_FAILURE, org.omg.CORBA.IMP_LIMIT
     {
 
 	if( !connected() )
@@ -750,6 +761,11 @@ public class ClientConnection
 
 		//Debug.output(5,"sendreq",buf,size);
 	    } 
+	    catch ( TimeOutException t )
+	    {
+		Debug.output( 2, t );
+		throw new org.omg.CORBA.IMP_LIMIT();
+	    }		
 	    catch ( Exception e )
 	    {
 		Debug.output(2,e);
@@ -798,7 +814,6 @@ public class ClientConnection
     public synchronized void sendCloseConnection() 
 	throws org.omg.CORBA.COMM_FAILURE 
     {
-
 	try
 	{
 	    out_stream.write( Messages.closeConnectionMessage());
