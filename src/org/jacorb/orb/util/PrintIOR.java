@@ -266,8 +266,7 @@ public class PrintIOR
                 dumpHex(csmList.mechanism_list[i].as_context_mech.client_authentication_mech);
                 System.out.println();
                 System.out.print("\t\t\tAS_ContextSec target_name: " );
-                dumpHex(csmList.mechanism_list[i].as_context_mech.target_name);
-                System.out.println();
+                printNTExportedName(csmList.mechanism_list[i].as_context_mech.target_name);
                 //}
                 System.out.println("\t\t\tSAS_ContextSec target_supports: " + csmList.mechanism_list[i].sas_context_mech.target_supports );
                 System.out.println("\t\t\tSAS_ContextSec target_requires: " + csmList.mechanism_list[i].sas_context_mech.target_requires );
@@ -281,6 +280,34 @@ public class PrintIOR
                 System.out.println();
             }
         }
+    }
+    
+    private static void printNTExportedName(byte[] nameData) {
+        // check for token identifier
+        if (nameData[0] != 0x04 || nameData[0] != 0x01) {
+        }
+        
+        // get mech length
+        int mechLen = (nameData[2] << 8) + nameData[3];
+        if (mechLen > (nameData.length - 8)) {
+            dumpHex(nameData);
+            System.out.println();
+            return;            
+        }
+        
+        // get name length
+        int nameLen = (nameData[mechLen + 4] << 24) +
+                      (nameData[mechLen + 5] << 16) +
+                      (nameData[mechLen + 6] << 8) +
+                      (nameData[mechLen + 7]);
+        if ((mechLen + nameLen) > (nameData.length - 8)) {
+            dumpHex(nameData);
+            System.out.println();
+            return;            
+        }
+        byte[] name = new byte[nameLen];
+        System.arraycopy(nameData, mechLen + 8, name, 0, nameLen);
+        System.out.println(new String(name));
     }
 
     private static void printTlsSecTrans(byte[] tagData) {
