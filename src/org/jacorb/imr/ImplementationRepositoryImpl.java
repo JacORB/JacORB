@@ -515,6 +515,8 @@ public class ImplementationRepositoryImpl
 	String _ior_file_str = null;
 	String _backup_file_str = null;
 
+        System.setProperty( "jacorb.implname", "the_ImR" );
+
 	try{
 	    for (int i = 0; i < args.length ; i++){
 		switch (args[i].charAt(1)){
@@ -659,10 +661,8 @@ public class ImplementationRepositoryImpl
 	    System.out.println("WARNING: The backup file is not accessible!");
 	    System.out.println("Please check " + _backup_file.getAbsolutePath());
 	}
-        
-        System.setProperty( "jacorb.implname", "the_ImR" );
 
-	orb = org.omg.CORBA.ORB.init(args,null);
+	orb = org.omg.CORBA.ORB.init( args, null );
 
 	//Write IOR to file
 	try{	  
