@@ -44,24 +44,24 @@ public class DynAnyFactoryImpl
     }
 
     public org.omg.DynamicAny.DynAny create_dyn_any( org.omg.CORBA.Any value )
-	throws InconsistentTypeCode
+       throws InconsistentTypeCode
     {
-	try
-	{
-            org.omg.DynamicAny.DynAny dynAny =
-                create_dyn_any_from_type_code( value.type() );
-            dynAny.from_any( value );
-            return dynAny; 
-	}
-	catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
-	{
-	    iv.printStackTrace();
-	}
-	catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
-	{
-	    itc.printStackTrace();
-	}
-        throw new InconsistentTypeCode();
+       try
+       {
+          org.omg.DynamicAny.DynAny dynAny =
+             create_dyn_any_from_type_code( value.type() );
+          dynAny.from_any( value );
+          return dynAny; 
+       }
+       catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
+       {
+          iv.printStackTrace();
+       }
+       catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
+       {
+          itc.printStackTrace();
+       }
+       throw new InconsistentTypeCode();
     }
 
 
@@ -95,6 +95,10 @@ public class DynAnyFactoryImpl
                 case org.omg.CORBA.TCKind._tk_wstring:
                 {
                     return new DynAny( this , type ) ;
+                }
+                case org.omg.CORBA.TCKind._tk_fixed:
+                {
+                    return new DynFixed( this , type ) ;
                 }
                 case org.omg.CORBA.TCKind._tk_except:
                 case org.omg.CORBA.TCKind._tk_struct:
@@ -130,7 +134,7 @@ public class DynAnyFactoryImpl
             org.jacorb.util.Debug.output(3, itc);
             throw new InconsistentTypeCode();
         }
-	return null;
+        return null;
     }
 }
 
