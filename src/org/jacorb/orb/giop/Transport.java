@@ -48,7 +48,7 @@ public interface Transport
         throws IOException;
 
     /**
-     * Add an outgoing message. This may only be a fragment of a
+     * Writes to the wire. The buffer may only be a fragment of a
      * full message (in this case independant of GIOP Fragments), and
      * it also depends on the implementation, if it will already start
      * to send the message over the wire, or wait until sendMessages()
@@ -59,14 +59,15 @@ public interface Transport
      *
      * @param message the buffer containing the message. 
      */
-    public void addOutgoingMessage( byte[] message, int start, int size )
+    public void write( byte[] message, int start, int size )
         throws IOException;
     
+
     /**
      * Send all messages that have been added since the last call to
      * this method.  
      */
-    public void sendMessages()
+    public void flush()
         throws IOException;
     
     /**
