@@ -133,7 +133,7 @@ public class BasicAdapter
 
         }
 
-        receptor_pool = MessageReceptorPool.getInstance();
+        receptor_pool = MessageReceptorPool.getInstance(myConfiguration);
 
         request_listener = new ServerRequestListener( orb, rootPOA );
         request_listener.configure( configuration );
