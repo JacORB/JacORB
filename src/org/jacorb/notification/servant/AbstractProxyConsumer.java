@@ -321,7 +321,7 @@ abstract class AbstractProxyConsumer
      * subscription_change will no more be issued to the connected
      * Supplier
      */
-    private void removeListener()
+    protected void removeListener()
     {
         if (proxySubscriptionListener_ != null)
         {
