@@ -716,7 +716,7 @@ public final class Delegate
       throws ApplicationException, RemarshalException
     {
         // discard result, it is always null
-        invoke_internal (self, os, replyHandler);
+        invoke_internal (self, os, replyHandler, true);
     }
 
     /**
@@ -730,13 +730,14 @@ public final class Delegate
                                          org.omg.CORBA.portable.OutputStream os )
       throws ApplicationException, RemarshalException
     {
-        return invoke_internal (self, os, null);
+        return invoke_internal (self, os, null, false);
     }
 
     private org.omg.CORBA.portable.InputStream invoke_internal
                                ( org.omg.CORBA.Object self,
                                  org.omg.CORBA.portable.OutputStream os,
-                                 org.omg.Messaging.ReplyHandler replyHandler )
+                                 org.omg.Messaging.ReplyHandler replyHandler,
+                                 boolean async )
         throws ApplicationException, RemarshalException
     {
         RequestOutputStream ros      = ( RequestOutputStream ) os;
@@ -797,9 +798,9 @@ public final class Delegate
             throw cfe;
         }
 
-        if ( replyHandler == null && receiver != null )
+        if ( !async && receiver != null )
         {
-            // Synchronous invocation. 
+            // Synchronous invocation, response expected.
             // This call blocks until the reply arrives.
             return receiver.getReplyInputStream();
         }
