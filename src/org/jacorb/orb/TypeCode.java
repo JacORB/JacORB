@@ -183,15 +183,16 @@ public class TypeCode
     }
 
     /**
-     * Constructor for tk_alias
+     * Constructor for tk_alias, tk_value_box
      */  
 
-    public TypeCode ( String _id, 
+    public TypeCode (int _kind, 
+               String _id, 
                String _name, 
                org.omg.CORBA.TypeCode _original_type)
     { 
         id = _id;
-        kind = TCKind._tk_alias;
+        kind = _kind;
         if( _name != null )
             name = _name.replace('.','_'); // for orbixWeb Interop
         else
@@ -468,6 +469,7 @@ public class TypeCode
         case   TCKind._tk_array :
         case   TCKind._tk_sequence :
         case   TCKind._tk_alias : 
+        case   TCKind._tk_value_box :
             return content_type;
         default: throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
