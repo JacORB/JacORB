@@ -141,8 +141,13 @@ public class TypeCode
 
     static TypeCode get_primitive_tc( int _kind )
     {
-        org.jacorb.util.Debug.myAssert( primitive_tcs[_kind] != null, 
-                                        "No primitive TypeCode for kind " + _kind );
+       if ( primitive_tcs[_kind] == null )
+       {
+           throw new org.omg.CORBA.BAD_PARAM ("No primitive TypeCode for kind " + _kind);
+       }
+
+       //org.jacorb.util.Debug.myAssert( primitive_tcs[_kind] != null, 
+       //                                "No primitive TypeCode for kind " + _kind );
         return primitive_tcs[_kind];
     }
 
