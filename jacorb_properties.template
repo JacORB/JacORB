@@ -314,7 +314,7 @@ jacorb.interop.chunk_custom_rmi_valuetypes=on
 
 # uncomment this initializer if you want to use BiDirectional GIOP
 
-#org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=org.jacorb.orb.connection.BiDirConnectionInitializer
+#org.omg.PortableInterceptor.ORBInitializerClass.bidir_init=org.jacorb.orb.giop.BiDirConnectionInitializer
 
 
 ###########################################
