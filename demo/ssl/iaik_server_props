@@ -22,7 +22,7 @@ jacorb.security.ssl.server.required_options=60
 # WARNING: If no CA certs are present, the IAIK chain verifier will
 # accept ALL otherwise valid chains!
 #
-jacorb.security.trustees=new_iaik_ca_cert
+jacorb.security.trustees=iaik_ca_cert
 
 # the name of the default key alias to look up in the keystore
 jacorb.security.default_user=iaik_server_alias
