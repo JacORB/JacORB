@@ -1,0 +1,501 @@
+2003-08-02  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* orb/etf/C_WIOP_S_WIOP.java: changed non-qualified import to
+	full-qualified import
+
+	This fixes some build problems which only seem to be related to
+	jikes (v 1.15).
+
+	* notification/AllTest.java: *** empty log message ***
+
+	* notification/AllTest.java, notification/AnyGenerator.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/CollectionsWrapperTest.java,
+	notification/CosEventChannelTest.java,
+	notification/EventChannelFactoryTest.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/MappingFilterTest.java,
+	notification/NotificationEventFactoryTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/PackageTest.java,
+	notification/SequenceEventChannelTest.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredGenerator.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestServer.java, notification/TimeoutTest.java,
+	notification/node/TCLTest.java: 
+	- added testcases for StartTime, StopTime, Timeout 
+	- code cleanup
+
+2003-07-28  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/MiscTest.java: Add three more idl tests
+
+	* common/TestServer.java: Change to use debug
+
+2003-07-26  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* common/CallbackTestCase.java, orb/CallbackTest.java, orb/policies/TimingTest.java:
+	i was unable to compile the code with the jikes (v1.15) compiler:
+
+	Caution: Ambiguous reference to member named "assertEquals" inherited
+	from type "org/jacorb/test/common/CallbackTestCase$ReplyHandler" but
+	also declared or inherited in the enclosing type
+	"org/jacorb/test/orb/CallbackTest". Explicit qualification is
+	required.
+
+	the following changes were applied to allow compilation with jikes:
+
+	- prefixed the calls to 'assertEquals' and 'fails' with 'this'.
+
+	- added a protected Constructor for CallbackTestCase.ReplyHandler.
+
+2003-07-20  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/NotificationTestCaseSetup.java,
+	notification/node/TCLTest.java,
+	notification/util/WildcardMapTest.java: * proper ORB setup
+
+	* notification/AllTest.java, notification/FilterTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCase.java,
+	notification/node/TCLTest.java,
+	notification/util/CachingWildcardMapTest.java,
+	notification/util/WildcardMapTest.java: added logconfiguration by
+	setting properties in jacorb_properties the logging can be
+	configured in a basic way
+
+2003-07-18  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryTest.java,
+	notification/NotificationTestCaseSetup.java: * replaced new
+	EventChannelFactoryImpl() with
+	EventChannelFactoryImpl.newFactory()
+
+2003-07-17  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/CollectionsWrapperTest.java,
+	notification/EventChannelFactoryTest.java,
+	notification/PackageTest.java: * testcase for CollectionsWrapper
+	* testcase for EventChannelFactoryImpl
+
+2003-07-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/CollectionsWrapperTest.java, notification/PackageTest.java:
+	* added testcase for CollectionsWrapper
+
+2003-07-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/etf/AllTest.java, orb/etf/C_WIOP_S_WIOP.java,
+	orb/etf/wiop/WIOPConnection.java, orb/etf/wiop/WIOPFactories.java,
+	orb/etf/wiop/WIOPListener.java, orb/etf/wiop/WIOPProfile.java:
+	Initial revision.
+
+2003-07-04  Francisco Reverbel  <reverbel@ime.usp.br>
+
+	* common/ClientServerSetup.java:
+	    - Server is now called with plain java instead of jaco.
+	    - Added code to show server output.
+
+	* orb/rmi/RMITest.java, orb/rmi/RMITestImpl.java,
+	orb/rmi/RMITestInterface.java: - Added RMI tests for reference
+	sharing within arrays and collections.
+
+2003-07-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/CosEventChannelTest.java,
+	notification/FilterTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java: *
+	test/regression/build.xml
+
+	  include notification testcases
+
+	* fixed testcases
+
+2003-07-02  Francisco Reverbel  <reverbel@ime.usp.br>
+
+	* AllTest.java, orb/AllTest.java:
+	  - RMI tests moved from org.jacorb.test.rmi to org.jacorb.test.orb.rmi
+
+	* orb/rmi/AllTest.java, orb/rmi/Boo.java,
+	  orb/rmi/FixSunDelegateBug.java.14, orb/rmi/Foo.java,
+	  orb/rmi/NegativeArgumentException.java, orb/rmi/RMITest.java,
+	  orb/rmi/RMITestImpl.java, orb/rmi/RMITestInterface.java,
+	  orb/rmi/RMITestServant.java, orb/rmi/RMITestUtil.java,
+	  orb/rmi/Zoo.java: - RMI tests moved from org.jacorb.test.rmi to
+	  org.jacorb.test.orb.rmi - Commented out print statements in RMI
+	  tests
+
+2003-06-05  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* common/TestUtils.java, notification/AdminLimitTest.java,
+	notification/AllTest.java, notification/AnyGenerator.java,
+	notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/ApplicationContextTest.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPullReceiver.java,
+	notification/CosEventPullSender.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelTest.java,
+	notification/FilterImplTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/NotificationEventFactoryTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationEventUtilsTest.java,
+	notification/NotificationTestCase.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/PackageTest.java,
+	notification/PerformanceListener.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePullSender.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredGenerator.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPullSender.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestClientOperations.java,
+	notification/TestEventGenerator.java, notification/TestUtils.java,
+	notification/evaluate/DynamicEvaluatorTest.java,
+	notification/evaluate/PackageTest.java,
+	notification/evaluate/TestDynamicEvaluator.java,
+	notification/node/EvaluationResultTest.java,
+	notification/node/PackageTest.java,
+	notification/node/TCLTest.java,
+	notification/util/CachingWildcardMapTest.java,
+	notification/util/PackageTest.java,
+	notification/util/ThreadPoolTest.java,
+	notification/util/WildcardMapTest.java: * adapted and moved
+	Notification Service testcases to the JacORB Regression Framework
+
+2003-05-22  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/ServerConnectionTimeoutTest.java,
+	orb/connection/GIOPConnectionTest.java,
+	orb/connection/ClientConnectionTimeoutTest.java: Reconcile ETF
+	changes.
+
+2003-05-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* AllTest.java, common/ClientServerSetup.java,
+	common/TestServer.java, idl/CharTest.java, idl/InterfaceTest.java,
+	idl/LongTest.java, idl/MiscTest.java, idl/ModuleTest.java,
+	idl/PackageTest.java, idl/PragmaTest.java, idl/TypeDefTest.java,
+	idl/UnionTest.java, idl/ValueTest.java, orb/AllTest.java,
+	orb/CharServerImpl.java, orb/CharTest.java, orb/LongLongSeq.java,
+	orb/LongLongSeqServerImpl.java, orb/RecursiveParam.java,
+	orb/RecursiveParamServerImpl.java,
+	orb/connection/BiDirServerImpl.java,
+	orb/connection/ClientConnectionTimeoutTest.java,
+	orb/connection/GIOPConnectionTest.java,
+	orb/connection/ServerConnectionTimeoutTest.java, poa/AllTest.java,
+	poa/Deactivate.java, poa/Test_impl.java: Move tests into
+	regression harness. Modify regression client/server to allow
+	server debug. Modify RMI tests to work under JDK13
+
+2003-05-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/policies/TimingTest.java (test_request_end_time_sync_ok):
+	Make this a little slower.
+
+	* orb/connection/GIOPConnectionTest.java: Adapt to ETF changes.
+
+2003-05-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/GIOPConnectionTest.java: Move
+	org.jacorb.orb.InternetIOPProfile to
+	org.jacorb.orb.iiop.IIOPProfile.
+
+2003-05-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/GIOPConnectionTest.java (DummyTransport): Adapt
+	to changes in Transport interface.
+
+2003-04-30  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/policies/TimingTest.java (test_request_end_time_sync_ok):
+	Give it a little more time.
+
+2003-04-27  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/AllTest.java (suite): Add BiDirTest.
+
+	* orb/connection/GIOPConnectionTest.java (DummyTransport.getStatisticsProvider, DummyTransport.waitUntilConnected):
+	Remove.
+
+	* orb/connection/BiDirServerImpl.java,
+	orb/connection/BiDirSetup.java, orb/connection/BiDirTest.java:
+	Initial revision.
+
+	* common/ClientServerSetup.java (clientRootPOA): New field.
+	(getClientRootPOA): Access it.
+	(getTestServerMain): New template method.
+	(setUp): Use it.
+
+2003-04-26  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/GIOPConnectionTest.java (DummyTransport): Adapt
+	to changes in Transport interface.
+
+2003-04-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/GIOPConnectionTest.java: Bring this up-to-date
+	with ETF changes in the ORB.
+
+2003-04-16  Francisco Reverbel  <reverbel@ime.usp.br>
+
+	* AllTest.java: Added regression tests for RMI over JacORB and for
+	marshaling/unmarshaling of RMI valuetypes.
+
+2003-04-14  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AllTest.java: Add AlternateIIOPAddressTest.
+
+	* orb/AlternateIIOPAddressTest.java: Add the real tests.
+
+2003-04-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AlternateIIOPAddressTest.java,
+	orb/IIOPAddressORBInitializer.java,
+	orb/IIOPAddressInterceptor.java, orb/SampleImpl.java,
+	orb/IIOPAddressServerImpl.java: Initial revision.
+
+2003-04-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AllTest.java (suite): Add MiscTest.suite().
+
+	* orb/MiscTest.java: Initial revision.
+
+2003-04-02  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/BasicServerImpl.java, orb/BasicTest.java,
+	orb/CallbackServerImpl.java, orb/CallbackTest.java,
+	orb/CharServerImpl.java, orb/CharTest.java,
+	orb/connection/ClientConnectionTimeoutTest.java,
+	orb/connection/ConnectionTimeoutServerImpl.java,
+	orb/connection/ServerConnectionTimeoutTest.java,
+	orb/dynany/DynAnyArrayTest.java,
+	orb/dynany/DynAnyBoundedSeqTest.java,
+	orb/dynany/DynAnyEmptyExTest.java, orb/dynany/DynAnyEnumTest.java,
+	orb/dynany/DynAnyNonEmptyExTest.java,
+	orb/dynany/DynAnyStructTest.java,
+	orb/dynany/DynAnyUnboundedSeqTest.java,
+	orb/dynany/DynAnyUnionIntTest.java,
+	orb/dynany/DynAnyUnionTest.java,
+	orb/policies/SyncScopeServerImpl.java,
+	orb/policies/SyncScopeTest.java,
+	orb/policies/TimingServerImpl.java, orb/policies/TimingTest.java:
+	Updated packaging (due to loss of packageprefix).
+
+2003-04-01  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/InterfaceTest.java, idl/LongTest.java, idl/PackageTest.java,
+	idl/UnionTest.java, idl/ValueTest.java: New tests
+
+2003-03-31  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/ClientServerSetup.java (setUp): Add a crucial blank in
+	the argument line.
+
+	* orb/connection/AllTest.java (suite): Add connection timeout tests.
+
+	* orb/connection/ConnectionTimeoutServerImpl.java: Import
+	org.jacorb.Tests package.
+
+	* orb/connection/ClientConnectionTimeoutTest.java,
+	orb/connection/ServerConnectionTimeoutTest.java: Import
+	org.jacorb.Tests package.
+	(suite): Use correct argument order for ClientServerSetup.
+
+2003-02-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/policies/AllTest.java (suite): Add SyncScopeTest.
+
+	* orb/policies/SyncScopeTest.java,
+	orb/policies/SyncScopeServerImpl.java: Initial revision.
+
+	* orb/connection/GIOPConnectionTest.java: Adapt to new syncScope
+	parameter in RequestOutputStream.
+
+2003-01-16  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* common/ClientServerSetup.java: added new constructor to allow
+	passing in custom properties for the client and server orb
+
+	* orb/connection/ClientConnectionTimeoutTest.java,
+	orb/connection/ConnectionTimeoutServerImpl.java,
+	orb/connection/ServerConnectionTimeoutTest.java: *** empty log
+	message ***
+
+	* orb/connection/GIOPConnectionTest.java:
+	adapted to new GIOPConnection interface
+
+2003-01-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/policies/TimingTest.java: Make test cases complete for all
+	the timing policies.
+
+	* orb/connection/GIOPConnectionTest.java (DummyTransport): Add new
+	methods required by the Transport interface.
+
+2003-01-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/policies/TimingTest.java (ReplyHandler): Handle new method
+	in TimingServer.
+	(setRelativeRequestTimeout, setRequestEndTime,
+	setRequestStartTime): New helper methods.  Add test cases for
+	reply end time and request start time.
+
+	* orb/policies/TimingServerImpl.java (server_time): New method.
+
+2003-01-05  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/GIOPConnectionTest.java: Adapt to new constructor
+	parameters of RequestOutputStream.
+
+	* common/ClientServerSetup.java (setUp): Improve error handling as
+	suggested by Nick Cross.
+
+2003-01-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/ClientServerSetup.java (setUp): Pass current classpath to
+	the child process.
+
+	*
+	orb/connection/GIOPConnectionTest.java (DummyTransport.getStatisticsProvider):
+	Add a dummy version of this method.
+
+2002-11-22  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/policies/TimingTest.java (test_reply_start_time_expired):
+	Bump up the timeout a little.
+
+	* orb/CallbackTest.java (test_complex_operation,
+	test_non_empty_exception): Adapt to compiler fix for out
+	parameters.
+
+2002-11-21  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CallbackTest.java (test_return_illegal_char): Bump up the
+	timeout a little.
+
+	* orb/AllTest.java (suite): Include the policies test suite.
+
+	* orb/policies/AllTest.java, orb/policies/TimingServerImpl.java,
+	orb/policies/TimingTest.java: Initial revision.
+
+	* orb/connection/GIOPConnectionTest.java: Supply timeout
+	constructor parameter to RequestOutputStream.
+
+2002-11-12  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CallbackTest.java: Rewrote pass/fail handling.  Add
+	exception test cases.
+
+	* orb/CallbackServerImpl.java: Add implementations for exception
+	operations.
+
+	* common/CallbackTestCase.java: Added documentation and rewrote
+	pass/fail handling.
+
+2002-11-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CallbackTest.java: Five new test cases.
+
+	* common/CallbackTestCase.java (getException): New method.
+	(wait_for_reply): Don't print the waiting time.
+
+	* orb/AllTest.java (suite): Add CallbackTest.
+
+	* orb/CallbackTest.java (test_delayed_ping): New test case.
+	(ref): New method.
+
+	* common/CallbackTestCase.java (wait_for_reply):
+	Rewritten to handle quick replies.
+	(wrong_exception): Raise the exception and print its name.
+
+	* orb/CallbackServerImpl.java (delay): Synchronize so we can wait.
+
+2002-11-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CallbackServerImpl.java, orb/CallbackTest.java,
+	common/CallbackTestCase.java: Initial revision.
+
+2002-11-07  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CharTest.java: When char is out of range, expect
+	DATA_CONVERSION rather than MARSHAL exception.
+
+2002-11-06  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CharTest.java, orb/CharServerImpl.java: Initial revision.
+
+	* orb/AllTest.java (suite): Add CharTest.suite().
+
+	* orb/AllTest.java (suite): Add BasicTest. Don't wrap an ORBSetup
+	here, because that is done below in case it is needed.
+
+	* orb/dynany/AllTest.java (suite): Wrap an ORBSetup here, so that
+	we needn't do it one level up.
+
+	* orb/BasicServerImpl.java, orb/BasicTest.java,
+	common/ClientServerSetup.java, common/ClientServerTestCase.java,
+	common/TestServer.java: Initial revision.
+
+2002-11-04  Andre Spiegel  <spiegel@gnu.org>
+
+	*
+	orb/connection/GIOPConnectionTest.java (DummyTransport.setBusy,isIdle):
+	Provide a dummy implementation.
+
+	* orb/connection/GIOPConnectionTest.java (DummyTransport.setIdle):
+	Provide a dummy implementation.
+
+	* orb/connection/GIOPConnectionTest.java (testGIOP_1_1_NoImplement):
+	Adapt to changes in ReplyInputStream.
+
+2002-10-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* AllTest.java, idl/AllTest.java, idl/CharTest.java,
+	idl/LongTest.java, idl/ModuleTest.java, idl/PackageTest.java,
+	idl/PragmaTest.java, idl/TypeDefTest.java: Add more regressions
+
+2002-10-15  Steve Osselton  <steve.osselton@prismtechnologies.com>
+
+	* naming/ContextTest.java: JDK1.4.1 fix
+
+2002-06-26  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* orb/AllTest.java, orb/connection/AllTest.java,
+	orb/connection/GIOPConnectionTest.java: added test for
+	GIOPConnection
+
+2002-06-25  Gerald Brose  <gerald.brose@acm.org>
+
+	* AllTest.java, common/ORBSetup.java, naming/AllTest.java,
+	naming/ContextTest.java, naming/PackageTest.java,
+	orb/AllTest.java, orb/dynany/AllTest.java,
+	orb/dynany/DynAnyArrayTest.java, orb/dynany/DynAnyBaseTest.java,
+	orb/dynany/DynAnyBoundedSeqTest.java,
+	orb/dynany/DynAnyEmptyExTest.java, orb/dynany/DynAnyEnumTest.java,
+	orb/dynany/DynAnyFixedTest.java,
+	orb/dynany/DynAnyNonEmptyExTest.java,
+	orb/dynany/DynAnyStructTest.java,
+	orb/dynany/DynAnyUnboundedSeqTest.java,
+	orb/dynany/DynAnyUnionIntTest.java,
+	orb/dynany/DynAnyUnionTest.java, orb/dynany/PackageTest.java: ***
+	empty log message ***
+
