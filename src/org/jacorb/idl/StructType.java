@@ -144,10 +144,13 @@ class StructType
 
     public void parse()
     {
+        boolean justAnotherOne = false;
+
         if( parsed )
             throw new RuntimeException( "Compiler error: Struct already parsed!" );
         escapeName();
 
+        ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
         try
         {
             // important: typeName must be set _before_ a new scope is introduced,
@@ -156,7 +159,6 @@ class StructType
 
             ScopedName.definePseudoScope( full_name() );
 
-            ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
             ctspec.c_type_spec = this;
 
             NameTable.define( full_name(), "type-struct" );
@@ -164,14 +166,41 @@ class StructType
         }
         catch( NameAlreadyDefined nad )
         {
-            Environment.output( 4, nad );
-            parser.error( "Struct " + typeName() + " already defined", token );
+            if (exc)
+            {
+                Environment.output( 4, nad );
+                parser.error( "Struct " + typeName() + " already defined", token );
+            }
+            else
+            {
+                if (memberlist != null)
+                {
+                    justAnotherOne = true;
+                }
+
+                if( !full_name().equals( "org.omg.CORBA.TypeCode" ) && memberlist != null )
+                {
+                    TypeMap.replaceForwardDeclaration( full_name(), ctspec );
+                }
+            }
         }
         if( memberlist != null )
         {
             ScopedName.addRecursionScope( typeName() );
             memberlist.parse();
             ScopedName.removeRecursionScope( typeName() );
+
+            if (exc == false)
+            {
+                NameTable.parsed_interfaces.put( full_name(), "" );
+                parser.remove_pending( full_name() );
+            }
+        }
+        else if (!justAnotherOne && exc == false)
+        {
+            // i am forward declared, must set myself as
+            // pending further parsing
+            parser.set_pending( full_name() );
         }
 
         parsed = true;
@@ -530,6 +559,3 @@ class StructType
         }
     }
 }
-
-
-
