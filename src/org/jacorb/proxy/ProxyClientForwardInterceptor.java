@@ -58,6 +58,8 @@ public class ProxyClientForwardInterceptor
 
         if (isProxy (target))
         {
+            Debug.output (1, "ProxyClientForwardInterceptor calling to proxy");
+
             // Get real target
 
             any = orb.create_any ();
@@ -218,7 +220,7 @@ public class ProxyClientForwardInterceptor
 
     private void getProxies ()
     {
-        Hashtable props = Environment.getProperties ("jacorb.ProxyServer.URL:");
+        Hashtable props = Environment.getProperties ("jacorb.ProxyServer.URL-");
         Enumeration keys = props.keys ();
         ProxyInfo info;
         String key;
@@ -257,17 +259,17 @@ public class ProxyClientForwardInterceptor
  * Creates a ProxyInfo class by parsing a configured proxy property
  * of the form:
  *
- * jacorb.ProxyServer.URL:<network>:<netmask>=<url>
+ * jacorb.ProxyServer.URL-<network>-<netmask>=<url>
  */
 
     private ProxyInfo getProxyInfo (String key, String value)
         throws org.omg.CORBA.BAD_PARAM
     {
         ProxyInfo info = new ProxyInfo ();
-        StringTokenizer tok = new StringTokenizer (key, ":");
+        StringTokenizer tok = new StringTokenizer (key, "-");
         String token;
 
-        if (tok.countTokens () == 2)
+        if (tok.countTokens () == 3)
         {
             tok.nextToken ();
             info.network = ipToInt (tok.nextToken ());
