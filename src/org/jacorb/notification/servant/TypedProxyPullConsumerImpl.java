@@ -1,0 +1,214 @@
+package org.jacorb.notification.servant;
+
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1997-2003  Gerald Brose.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+import org.omg.CORBA.Any;
+import org.omg.CORBA.NVList;
+import org.omg.CORBA.Request;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventChannelAdmin.TypeError;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosTypedEventComm.TypedPullSupplier;
+import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
+import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerOperations;
+import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerPOATie;
+import org.omg.PortableServer.Servant;
+
+import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageSupplier;
+import org.omg.CORBA.InterfaceDef;
+import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
+import java.util.List;
+import org.omg.CORBA.InterfaceDefHelper;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
+import org.omg.CORBA.OperationDescription;
+import org.omg.CORBA.ParameterMode;
+import org.omg.CORBA.ARG_OUT;
+
+/**
+ * @Author Alphonse Bendt
+ * @version $Id$
+ */
+
+public class TypedProxyPullConsumerImpl
+    extends AbstractProxyConsumer
+    implements TypedProxyPullConsumerOperations,
+               MessageSupplier
+{
+    private final Object[] STRING_ARRAY_TEMPLATE = new String[0];
+
+    private String expectedInterface_;
+
+    private String[] tryPullOperations_;
+
+    private Map operationDescriptions_ = new HashMap();
+
+    private TypedPullSupplier pullSupplier_;
+
+    private org.omg.CORBA.Object typedPullSupplier_;
+
+    public TypedProxyPullConsumerImpl(String expectedInterface)
+    {
+        expectedInterface_ = expectedInterface;
+    }
+
+
+    public void connect_typed_pull_supplier(TypedPullSupplier typedPullSupplier)
+        throws AlreadyConnected,
+               TypeError
+    {
+        logger_.info("connect typed_pull_supplier");
+
+        assertNotConnected();
+
+        connectClient(typedPullSupplier);
+
+        pullSupplier_ = typedPullSupplier;
+
+        typedPullSupplier_ = pullSupplier_.get_typed_supplier();
+
+        if (!typedPullSupplier_._is_a(expectedInterface_))
+        {
+            throw new TypeError();
+        }
+    }
+
+
+    private String[] getTryPullOperations() {
+        if (tryPullOperations_ == null) {
+
+            InterfaceDef _ifDef = InterfaceDefHelper.narrow(typedPullSupplier_._get_interface_def());
+
+            FullInterfaceDescription _fullIfDescription = _ifDef.describe_interface();
+
+            for (int x=0; x<_fullIfDescription.operations.length; ++x) {
+                if (_fullIfDescription.operations[x].name.startsWith("try_")) {
+
+                    operationDescriptions_.put(_fullIfDescription.operations[x].name,
+                                               _fullIfDescription.operations[x]);
+                }
+            }
+            tryPullOperations_ = (String[])operationDescriptions_.keySet().toArray(STRING_ARRAY_TEMPLATE);
+        }
+        return tryPullOperations_;
+    }
+
+
+    public void runPullMessage() {
+        runPullMessageInternal();
+    }
+
+
+    private OperationDescription getOperationDescription(String operation) {
+        return (OperationDescription)operationDescriptions_.get(operation);
+    }
+
+
+    private Request prepareRequest(String operation) {
+        Request _request =
+            typedPullSupplier_._request(operation);
+
+        NVList _args = _request.arguments();
+
+        OperationDescription _operationDescription =
+            getOperationDescription(operation);
+
+        for (int x=0; x<_operationDescription.parameters.length; ++x) {
+            Any _any = getORB().create_any();
+
+            _any.type(_operationDescription.parameters[x].type);
+
+            _args.add_value(_operationDescription.parameters[x].name,
+                            _any,
+                            ARG_OUT.value);
+        }
+
+        _request.set_return_type(_operationDescription.result);
+
+        return _request;
+    }
+
+
+    private void runPullMessageInternal() {
+        String[] _tryPullOperations = getTryPullOperations();
+
+        for (int x=0; x<_tryPullOperations.length; ++x) {
+            Request _request = prepareRequest(_tryPullOperations[x]);
+
+            _request.invoke();
+
+            Any _result = _request.result().value();
+
+            boolean _success = _result.extract_boolean();
+
+            if (_success) {
+                Message _mesg =
+                    getMessageFactory().newMessage(expectedInterface_,
+                                                   _tryPullOperations[x],
+                                                   _request.arguments(),
+                                                   this);
+
+                checkMessageProperties(_mesg);
+
+                getTaskProcessor().processMessage(_mesg);
+            }
+        }
+    }
+
+    public void disconnect_pull_consumer()
+    {
+        dispose();
+    }
+
+
+    public ProxyType MyType()
+    {
+        return ProxyType.PULL_TYPED;
+    }
+
+
+    public org.omg.CORBA.Object activate()
+    {
+        return TypedProxyPullConsumerHelper.narrow(getServant()._this_object(getORB()));
+    }
+
+
+    public void disconnectClient()
+    {
+        if (pullSupplier_ != null)
+        {
+            pullSupplier_.disconnect_pull_supplier();
+            pullSupplier_ = null;
+        }
+    }
+
+
+    public Servant getServant()
+    {
+        if (thisServant_ == null)
+        {
+            thisServant_ = new TypedProxyPullConsumerPOATie(this);
+        }
+        return thisServant_;
+    }
+}

@@ -3,7 +3,7 @@ package org.jacorb.notification.servant;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2004 Gerald Brose
+ *   Copyright (C) 1999-2003 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,16 +25,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.TaskProcessorDependency;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
-import org.jacorb.notification.engine.TaskExecutor;
 
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplier;
@@ -53,21 +55,23 @@ import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.MappingFilterHelper;
 import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.POA;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class ConsumerAdminTieImpl
+public class ConsumerAdminImpl
     extends AbstractAdmin
     implements ConsumerAdminOperations,
                Disposable,
-               ProxyEventListener
+               ProxyEventListener,
+               TaskProcessorDependency
 {
     private ConsumerAdmin thisRef_;
 
-    private ConsumerAdminPOATie thisServant_;
+    protected Servant thisServant_;
 
     private FilterStageListManager listManager_;
 
@@ -75,11 +79,13 @@ public class ConsumerAdminTieImpl
 
     private MappingFilter lifetimeFilter_;
 
+    private TaskProcessor taskProcessor_;
+
     ////////////////////////////////////////
 
-    public ConsumerAdminTieImpl(ChannelContext channelContext)
+    public ConsumerAdminImpl()
     {
-        super(channelContext);
+        super();
 
         listManager_ = new FilterStageListManager()
             {
@@ -102,13 +108,15 @@ public class ConsumerAdminTieImpl
                 }
             };
 
-        lifetimeFilter_ =
-            MappingFilterHelper.unchecked_narrow(getORB().string_to_object(getORB().object_to_string(null)));
-
-        priorityFilter_ =
-            MappingFilterHelper.unchecked_narrow(getORB().string_to_object(getORB().object_to_string(null)));
-
         addProxyEventListener(this);
+    }
+
+    public void setTaskProcessor(TaskProcessor taskProcessor) {
+        taskProcessor_ = taskProcessor;
+    }
+
+    public TaskProcessor getTaskProcessor() {
+        return taskProcessor_;
     }
 
     ////////////////////////////////////////
@@ -121,6 +129,14 @@ public class ConsumerAdminTieImpl
         }
 
         return thisServant_;
+    }
+
+    public void preActivate() {
+        lifetimeFilter_ =
+            MappingFilterHelper.unchecked_narrow(getORB().string_to_object(getORB().object_to_string(null)));
+
+        priorityFilter_ =
+            MappingFilterHelper.unchecked_narrow(getORB().string_to_object(getORB().object_to_string(null)));
     }
 
 
@@ -155,18 +171,12 @@ public class ConsumerAdminTieImpl
     }
 
 
-    /**
-     * @todo is BAD_PARAM the right exception?
-     */
     public MappingFilter lifetime_filter()
     {
         return lifetimeFilter_;
     }
 
 
-    /**
-     * @todo is BAD_PARAM the right exception?
-     */
     public MappingFilter priority_filter()
     {
         return priorityFilter_;
@@ -204,7 +214,7 @@ public class ConsumerAdminTieImpl
     }
 
 
-    private void configureMappingFilters(AbstractProxySupplier servant)
+    protected void configureMappingFilters(AbstractProxySupplier servant)
     {
         if (lifetimeFilter_ != null)
         {
@@ -297,7 +307,7 @@ public class ConsumerAdminTieImpl
 
         configureQoS(_servant);
 
-        getChannelContext().getTaskProcessor().configureTaskExecutor(_servant);
+        getTaskProcessor().configureTaskExecutor(_servant);
 
         configureInterFilterGroupOperator(_servant);
 
@@ -312,8 +322,7 @@ public class ConsumerAdminTieImpl
         try
         {
             ProxyPullSupplierImpl _servant =
-                new ECProxyPullSupplierImpl( this,
-                                             getChannelContext());
+                new ECProxyPullSupplierImpl();
 
             configureEventStyleID(_servant);
 
@@ -327,9 +336,9 @@ public class ConsumerAdminTieImpl
 
             return org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow( _servant.activate() );
         }
-        catch (UnsupportedQoS e)
+        catch (Exception e)
         {
-            logger_.fatalError("obtain_pull_supplier: QoS Error", e);
+            logger_.fatalError("obtain_pull_supplier: exception", e);
 
             throw new UNKNOWN();
         }
@@ -344,14 +353,13 @@ public class ConsumerAdminTieImpl
         try
         {
             final ProxyPushSupplierImpl _servant =
-                new ECProxyPushSupplierImpl( this,
-                                             getChannelContext());
+                new ECProxyPushSupplierImpl();
 
             configureEventStyleID(_servant);
 
             configureQoS(_servant);
 
-            getChannelContext().getTaskProcessor().configureTaskExecutor(_servant);
+            getTaskProcessor().configureTaskExecutor(_servant);
 
             addProxyToMap(_servant, pushServants_, modifyProxiesLock_);
 
@@ -359,9 +367,9 @@ public class ConsumerAdminTieImpl
 
             return org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow( _servant.activate() );
         }
-        catch (UnsupportedQoS e)
+        catch (Exception e)
         {
-            logger_.fatalError("obtain_push_supplier: QoS error", e);
+            logger_.fatalError("obtain_push_supplier: exception", e);
 
             throw new UNKNOWN();
         }

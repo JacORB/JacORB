@@ -48,14 +48,6 @@ public class StructuredProxyPushConsumerImpl
 
     ////////////////////////////////////////
 
-    public StructuredProxyPushConsumerImpl(AbstractAdmin supplierAdminServant,
-                                           ChannelContext channelContext) {
-        super(supplierAdminServant,
-              channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public ProxyType MyType() {
         return ProxyType.PUSH_STRUCTURED;
     }
@@ -66,7 +58,8 @@ public class StructuredProxyPushConsumerImpl
     {
         checkStillConnected();
         Message _mesg =
-            messageFactory_.newMessage(structuredEvent, this);
+            getMessageFactory().newMessage(structuredEvent, this);
+
         checkMessageProperties(_mesg);
         getTaskProcessor().processMessage(_mesg);
     }

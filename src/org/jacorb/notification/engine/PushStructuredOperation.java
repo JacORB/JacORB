@@ -20,15 +20,16 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosNotifyComm.StructuredPushConsumer;
-import org.jacorb.notification.interfaces.Message;
 import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotifyComm.StructuredPushConsumer;
+
+import org.jacorb.notification.interfaces.Message;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class PushStructuredOperation extends PushOperation {
+public class PushStructuredOperation extends MessagePushOperation {
 
     private StructuredPushConsumer pushConsumer_;
 

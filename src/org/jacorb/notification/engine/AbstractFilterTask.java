@@ -29,8 +29,6 @@ import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.engine.TaskExecutor;
 
 /**
- * Abstract Base Class for FilterTask.
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -42,7 +40,7 @@ abstract class AbstractFilterTask extends AbstractTask
     /**
      * for debugging purpose.
      */
-    private static final boolean STRICT_CHECKING = false;
+    private static final boolean STRICT_CHECKING = true;
 
 
     /**
@@ -145,10 +143,6 @@ abstract class AbstractFilterTask extends AbstractTask
     public synchronized void reset()
     {
         super.reset();
-
-//         synchronized(this) {
-//             disposed_ = false;
-//         }
 
         clearFilterStageToBeProcessed();
     }

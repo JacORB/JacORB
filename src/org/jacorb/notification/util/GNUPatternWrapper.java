@@ -28,6 +28,7 @@ import gnu.regexp.REMatch;
  * @author Alphonse Bendt
  * @version $Id$
  */
+
 public class GNUPatternWrapper extends PatternWrapper
 {
     private gnu.regexp.RE pattern_;

@@ -46,8 +46,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class FilterConstraint
 {
-//     private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
-
     /**
      * String representation of the Constraint.
      */
@@ -69,10 +67,6 @@ public class FilterConstraint
     public FilterConstraint( ConstraintExp constraintExp )
         throws InvalidConstraint
     {
-//         if (logger_.isDebugEnabled()) {
-//             logger_.debug("Create new Constraint. Expression=" + constraintExp.constraint_expr);
-//         }
-
         try
         {
             constraint_ = constraintExp.constraint_expr;
@@ -117,10 +111,6 @@ public class FilterConstraint
             return EvaluationResult.BOOL_TRUE;
         }
 
-//         if (logger_.isDebugEnabled() ) {
-//             logger_.debug("evaluate()" + rootNode_.toStringTree());
-//         }
-
         evaluationContext.setCurrentMessage( event );
 
         EvaluationResult _res = rootNode_.evaluate( evaluationContext );
@@ -131,11 +121,11 @@ public class FilterConstraint
 
     public String toString()
     {
-        StringBuffer _b = new StringBuffer("<FilterConstraint: ");
+        StringBuffer _buffer = new StringBuffer("<FilterConstraint: ");
 
-        rootNode_.printToStringBuffer(_b);
-        _b.append(" >");
+        rootNode_.printToStringBuffer(_buffer);
+        _buffer.append(" >");
 
-        return _b.toString();
+        return _buffer.toString();
     }
 }

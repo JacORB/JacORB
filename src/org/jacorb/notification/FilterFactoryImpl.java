@@ -24,7 +24,6 @@ package org.jacorb.notification;
 import java.util.List;
 
 import org.jacorb.notification.interfaces.Disposable;
-//import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;

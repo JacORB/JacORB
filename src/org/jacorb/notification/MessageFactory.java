@@ -35,6 +35,10 @@ import org.omg.CosNotification.StructuredEventHelper;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
+import org.omg.CosNotification.Property;
+import org.omg.CORBA.NVList;
+import org.omg.CORBA.Bounds;
+import org.omg.CORBA.NamedValue;
 
 /**
  * @author Alphonse Bendt
@@ -43,8 +47,22 @@ import org.apache.avalon.framework.configuration.Configurable;
 
 public class MessageFactory implements Disposable, Configurable
 {
+    private AbstractObjectPool typedEventMessagePool_ =
+        new AbstractObjectPool("TypedEventMessagePool")
+        {
+            public Object newInstance()
+            {
+                return new TypedEventMessage();
+            }
 
-    ////////////////////////////////////////
+            public void activateObject( Object o )
+            {
+                AbstractPoolable obj = (AbstractPoolable) o;
+                obj.reset();
+                obj.setObjectPool( this );
+            }
+        };
+
 
     private AbstractObjectPool anyMessagePool_ =
         new AbstractObjectPool("AnyMessagePool")
@@ -84,6 +102,8 @@ public class MessageFactory implements Disposable, Configurable
         anyMessagePool_.configure (conf);
 
         structuredEventMessagePool_.configure(conf);
+
+        typedEventMessagePool_.configure(conf);
     }
 
     public void dispose()
@@ -91,6 +111,8 @@ public class MessageFactory implements Disposable, Configurable
         structuredEventMessagePool_.dispose();
 
         anyMessagePool_.dispose();
+
+        typedEventMessagePool_.dispose();
     }
 
     ////////////////////////////////////////
@@ -129,7 +151,7 @@ public class MessageFactory implements Disposable, Configurable
 
             _mesg.setFilterStage( consumer.getFirstStage() );
 
-            _mesg.setStructuredEventValue( structuredEvent ,
+            _mesg.setStructuredEvent( structuredEvent ,
                                            consumer.isStartTimeSupported(),
                                            consumer.isTimeOutSupported());
 
@@ -137,9 +159,50 @@ public class MessageFactory implements Disposable, Configurable
         }
     }
 
+
+    public Message newMessage( String interfaceName,
+                               String operationName,
+                               NVList args,
+                               AbstractProxyConsumerI consumer )
+    {
+        try {
+            TypedEventMessage _mesg =
+                (TypedEventMessage) typedEventMessagePool_.lendObject();
+
+            Property[] _props = new Property[args.count()];
+
+            for (int x=0; x<_props.length; ++x) {
+                NamedValue _nv = args.item(x);
+
+                _props[x] = new Property(_nv.name(), _nv.value());
+            }
+
+            _mesg.setTypedEvent(interfaceName, operationName, _props);
+
+            Message _handle = _mesg.getHandle();
+
+            _handle.setInitialFilterStage(consumer.getFirstStage());
+
+            return _handle;
+        } catch (Bounds e) {
+            // this should never happen!
+            throw new RuntimeException (e);
+        }
+    }
+
     ////////////////////////////////////////
 
     // used by the Filters
+
+    public Message newMessage(Property[] props)
+    {
+        TypedEventMessage _mesg =
+            (TypedEventMessage) typedEventMessagePool_.lendObject();
+
+        _mesg.setTypedEvent(props);
+
+        return _mesg.getHandle();
+    }
 
     public Message newMessage( Any any )
     {
@@ -166,7 +229,7 @@ public class MessageFactory implements Disposable, Configurable
             StructuredEventMessage _mesg =
                 ( StructuredEventMessage ) structuredEventMessagePool_.lendObject();
 
-            _mesg.setStructuredEventValue( structuredEvent , false, false);
+            _mesg.setStructuredEvent( structuredEvent , false, false);
 
             return _mesg.getHandle();
         }

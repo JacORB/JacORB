@@ -22,12 +22,14 @@ package org.jacorb.notification.util;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
@@ -35,12 +37,9 @@ import org.omg.CosNotification.PropertyError;
 import org.omg.CosNotification.PropertyRange;
 import org.omg.CosNotification.QoSError_code;
 
-import org.apache.avalon.framework.logger.Logger;
-import java.util.Collections;
-
 /**
  * @author Alphonse Bendt
- * @version $Id$
+ * @version $Id$ 
  */
 
 public abstract class PropertySet
@@ -116,20 +115,20 @@ public abstract class PropertySet
     }
 
 
-    public Property[] toArray()
+    public synchronized Property[] toArray()
     {
         if (arrayView_ == null || modified_)
             {
-                Property[] _ps = new Property[properties_.size()];
+                Property[] _props = new Property[properties_.size()];
 
                 Iterator i = properties_.keySet().iterator();
                 int x = 0;
                 while (i.hasNext())
                     {
                         String _key = (String)i.next();
-                        _ps[x++] = new Property(_key, (Any)properties_.get(_key));
+                        _props[x++] = new Property(_key, (Any)properties_.get(_key));
                     }
-                arrayView_ = _ps;
+                arrayView_ = _props;
                 modified_ = false;
             }
         return arrayView_;
@@ -167,9 +166,6 @@ public abstract class PropertySet
         for (int x = 0; x < props.length; ++x)
             {
                 if (ignoredNames_.contains(props[x].name)) {
-//                     if (logger_.isDebugEnabled()) {
-//                         logger_.debug("ignore property " + props[x].name);
-//                     }
                     continue;
                 }
 
@@ -182,10 +178,6 @@ public abstract class PropertySet
 
                 properties_.put(props[x].name, props[x].value);
 
-//                 if (logger_.isDebugEnabled()) {
-//                     logger_.debug("set " + props[x].name + " => " + props[x].value);
-//                 }
-
                 if (listeners_.containsKey(props[x].name))
                     {
                         if (!props[x].value.equals(_oldValue))
@@ -195,7 +187,9 @@ public abstract class PropertySet
                     }
             }
 
-        modified_ = true;
+        synchronized(this) {
+            modified_ = true;
+        }
 
         Iterator i = _toBeNotified.iterator();
         while (i.hasNext())
@@ -222,11 +216,6 @@ public abstract class PropertySet
             {
                 if (!getValidNames().contains(props[x].name))
                     {
-//                         if (logger_.isErrorEnabled()) {
-//                             logger_.error("Property " + props[x].name + " is unknown");
-
-//                             logger_.error("valid name: " + getValidNames());
-//                         }
                         errorList.add(badProperty(props[x].name));
                     }
             }

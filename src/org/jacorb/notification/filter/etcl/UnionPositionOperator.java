@@ -42,6 +42,7 @@ public class UnionPositionOperator extends AbstractTCLNode
     public UnionPositionOperator( Token token )
     {
         super( token );
+
         setName( "UnionPos" );
         setType( UNION_POS );
     }

@@ -66,17 +66,6 @@ public class ProxyPullSupplierImpl
 
     ////////////////////////////////////////
 
-    ProxyPullSupplierImpl(AbstractAdmin admin,
-                          ChannelContext channelContext)
-    {
-
-        super(admin,
-              channelContext);
-    }
-
-    ////////////////////////////////////////
-
-
     public ProxyType MyType() {
         return ProxyType.PULL_ANY;
     }

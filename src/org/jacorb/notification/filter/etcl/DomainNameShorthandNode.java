@@ -27,11 +27,6 @@ import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.interfaces.Message;
 
 /**
- * DomainNameShorthandNode.java
- *
- *
- * Created: Thu Apr 10 12:08:42 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */

@@ -53,15 +53,6 @@ public class StructuredProxyPushSupplierImpl
 
     ////////////////////////////////////////
 
-    public StructuredProxyPushSupplierImpl( AbstractAdmin myAdminServant,
-                                            ChannelContext channelContext)
-    {
-        super( myAdminServant,
-               channelContext );
-    }
-
-    ////////////////////////////////////////
-
 
     public ProxyType MyType() {
         return ProxyType.PUSH_STRUCTURED;

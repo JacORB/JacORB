@@ -38,16 +38,6 @@ public class ECProxyPullConsumerImpl
     extends ProxyPullConsumerImpl
     implements ProxyPullConsumerOperations
 {
-
-    ECProxyPullConsumerImpl( AbstractAdmin admin,
-                             ChannelContext channelContext)
-    {
-        super( admin,
-               channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public void connect_pull_supplier( PullSupplier pullSupplier )
         throws AlreadyConnected
     {

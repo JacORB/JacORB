@@ -44,7 +44,7 @@ import org.apache.avalon.framework.configuration.Configurable;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
+ * @version $Id$ 
  */
 
 public class EventQueueFactory implements Configurable
@@ -117,8 +117,13 @@ public class EventQueueFactory implements Configurable
 
         short shortDiscardPolicy = discardPolicyNameToValue( discardPolicy_ );
 
-        int maxEventsPerConsumer =
-            qosProperties.get( MaxEventsPerConsumer.value ).extract_long();
+        int maxEventsPerConsumer;
+
+        try {
+            maxEventsPerConsumer = qosProperties.get( MaxEventsPerConsumer.value ).extract_long();
+        } catch (Exception e) {
+            maxEventsPerConsumer = Default.DEFAULT_MAX_EVENTS_PER_CONSUMER;
+        }
 
         if (qosProperties.containsKey( OrderPolicy.value ))
         {

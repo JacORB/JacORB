@@ -41,7 +41,6 @@ import org.omg.CosNotifyFilter.MappingFilterPOA;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
 import org.jacorb.notification.interfaces.Disposable;
-//import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.apache.avalon.framework.configuration.Configuration;

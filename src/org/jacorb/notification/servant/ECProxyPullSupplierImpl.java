@@ -36,20 +36,9 @@ import org.jacorb.notification.ChannelContext;
  */
 
 public class ECProxyPullSupplierImpl
-            extends ProxyPullSupplierImpl
-            implements ProxyPullSupplierOperations
+    extends ProxyPullSupplierImpl
+    implements ProxyPullSupplierOperations
 {
-
-    ECProxyPullSupplierImpl(AbstractAdmin adminServant,
-                            ChannelContext channelContext) throws UnsupportedQoS
-    {
-
-        super(adminServant,
-              channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public void connect_pull_consumer(PullConsumer pullConsumer)
         throws AlreadyConnected
     {

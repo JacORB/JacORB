@@ -23,13 +23,14 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
-import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.Dependant;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.TaskProcessorDependency;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.util.QoSPropertySet;
@@ -71,8 +72,10 @@ public abstract class AbstractProxy
                QoSAdminOperations,
                FilterStage,
                Disposable,
+               Dependant,
                ManageableServant,
-               Configurable
+               Configurable,
+               TaskProcessorDependency
 {
     private MappingFilter nullMappingFilterRef_;
 
@@ -84,10 +87,7 @@ public abstract class AbstractProxy
 
     protected QoSPropertySet qosSettings_;
 
-
     protected Integer id_;
-
-    protected AbstractAdmin admin_;
 
     protected OfferManager offerManager_;
 
@@ -118,30 +118,6 @@ public abstract class AbstractProxy
 
     ////////////////////////////////////////
 
-    AbstractProxy(AbstractAdmin admin,
-                  ChannelContext channelContext)
-    {
-        admin_ = admin;
-
-        channelContext_ = channelContext;
-
-        filterManager_ = new FilterManager(channelContext);
-
-        setPOA(channelContext.getPOA());
-
-        setORB(channelContext.getORB());
-
-        setTaskProcessor(channelContext.getTaskProcessor());
-
-        nullMappingFilterRef_ =
-            MappingFilterHelper.narrow(getORB().string_to_object(getORB().object_to_string(null)));
-
-        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)channelContext.getORB();
-
-        this.configure(jorb.getConfiguration());
-    }
-
-
     public void configure (Configuration conf)
     {
         logger_ = ((org.jacorb.config.Configuration)conf).
@@ -151,6 +127,7 @@ public abstract class AbstractProxy
             conf.getAttribute(Attributes.DISPOSE_PROXY_CALLS_DISCONNECT,
                               Default.DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT).
             equals ("on");
+
         filterManager_.configure (conf);
 
         qosSettings_ = new QoSPropertySet(conf, QoSPropertySet.PROXY_QOS);
@@ -201,16 +178,20 @@ public abstract class AbstractProxy
         return poa_;
     }
 
+    protected ORB getORB() {
+        return orb_;
+    }
 
     public void setORB(ORB orb)
     {
+        filterManager_ = new FilterManager(orb);
+
+        nullMappingFilterRef_ =
+            MappingFilterHelper.narrow(orb.string_to_object(orb.object_to_string(null)));
+
+        configure( ( (org.jacorb.orb.ORB)orb ).getConfiguration() );
+
         orb_ = orb;
-    }
-
-
-    protected ORB getORB()
-    {
-        return orb_;
     }
 
 
@@ -229,31 +210,31 @@ public abstract class AbstractProxy
     // delegate FilterAdmin Operations to FilterManager //
     //////////////////////////////////////////////////////
 
-    public int add_filter(Filter filter)
+    public final int add_filter(Filter filter)
     {
         return filterManager_.add_filter(filter);
     }
 
 
-    public void remove_filter(int n) throws FilterNotFound
+    public final void remove_filter(int n) throws FilterNotFound
     {
         filterManager_.remove_filter(n);
     }
 
 
-    public Filter get_filter(int n) throws FilterNotFound
+    public final Filter get_filter(int n) throws FilterNotFound
     {
         return filterManager_.get_filter(n);
     }
 
 
-    public int[] get_all_filters()
+    public final int[] get_all_filters()
     {
         return filterManager_.get_all_filters();
     }
 
 
-    public void remove_all_filters()
+    public final void remove_all_filters()
     {
         filterManager_.remove_all_filters();
     }
@@ -268,7 +249,7 @@ public abstract class AbstractProxy
     }
 
 
-    public void validate_qos(Property[] props,
+    public final void validate_qos(Property[] props,
                              NamedPropertyRangeSeqHolder propertyRange)
         throws UnsupportedQoS
     {
@@ -276,25 +257,25 @@ public abstract class AbstractProxy
     }
 
 
-    public void set_qos(Property[] qosProps) throws UnsupportedQoS
+    public final void set_qos(Property[] qosProps) throws UnsupportedQoS
     {
         qosSettings_.set_qos(qosProps);
     }
 
 
-    public Property[] get_qos()
+    public final Property[] get_qos()
     {
         return qosSettings_.get_qos();
     }
 
 
-    public void priority_filter(MappingFilter filter)
+    public final void priority_filter(MappingFilter filter)
     {
         priorityFilter_ = filter;
     }
 
 
-    public MappingFilter priority_filter()
+    public final MappingFilter priority_filter()
     {
         if (priorityFilter_ == null) {
             return nullMappingFilterRef_;
@@ -304,7 +285,7 @@ public abstract class AbstractProxy
     }
 
 
-    public MappingFilter lifetime_filter()
+    public final MappingFilter lifetime_filter()
     {
         if (lifetimeFilter_ == null) {
             return nullMappingFilterRef_;
@@ -314,13 +295,13 @@ public abstract class AbstractProxy
     }
 
 
-    public void lifetime_filter(MappingFilter filter)
+    public final void lifetime_filter(MappingFilter filter)
     {
         lifetimeFilter_ = filter;
     }
 
 
-    public Integer getID()
+    public final Integer getID()
     {
         return id_;
     }
@@ -344,13 +325,13 @@ public abstract class AbstractProxy
     }
 
 
-    public List getFilters()
+    public final List getFilters()
     {
         return filterManager_.getFilters();
     }
 
 
-    public void deactivate()
+    public final void deactivate()
     {
         logger_.info("deactivate Proxy");
 
@@ -384,7 +365,7 @@ public abstract class AbstractProxy
     }
 
 
-    public boolean isDisposed()
+    public final boolean isDisposed()
     {
         return disposed_.get();
     }
@@ -433,55 +414,55 @@ public abstract class AbstractProxy
     }
 
 
-    public boolean hasInterFilterGroupOperatorOR()
+    public final boolean hasInterFilterGroupOperatorOR()
     {
         return isInterFilterGroupOperatorOR_;
     }
 
 
-    public boolean isConnected()
+    public final boolean isConnected()
     {
         return connected_.get();
     }
 
 
-    public boolean hasLifetimeFilter()
+    public final boolean hasLifetimeFilter()
     {
         return lifetimeFilter_ != null;
     }
 
 
-    public boolean hasPriorityFilter()
+    public final boolean hasPriorityFilter()
     {
         return priorityFilter_ != null;
     }
 
 
-    public MappingFilter getLifetimeFilter()
+    public final MappingFilter getLifetimeFilter()
     {
         return lifetimeFilter_;
     }
 
 
-    public MappingFilter getPriorityFilter()
+    public final MappingFilter getPriorityFilter()
     {
         return priorityFilter_;
     }
 
 
-    public void resetErrorCounter()
+    public final void resetErrorCounter()
     {
         errorCounter_.set(0);
     }
 
 
-    public int getErrorCounter()
+    public final int getErrorCounter()
     {
         return errorCounter_.get();
     }
 
 
-    public int incErrorCounter()
+    public final int incErrorCounter()
     {
         return errorCounter_.increment();
     }

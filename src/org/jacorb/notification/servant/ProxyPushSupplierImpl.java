@@ -52,15 +52,6 @@ public class ProxyPushSupplierImpl
 
     ////////////////////////////////////////
 
-    ProxyPushSupplierImpl(AbstractAdmin myAdminServant,
-                          ChannelContext channelContext)
-    {
-        super(myAdminServant,
-              channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public ProxyType MyType() {
         return ProxyType.PUSH_ANY;
     }
@@ -90,11 +81,9 @@ public class ProxyPushSupplierImpl
                         logger_.debug("pushConsumer.push(Any)");
 
                         pushConsumer_.push(message.toAny());
-
-                        message.dispose();
                     } catch (Throwable e) {
                         PushAnyOperation _failedOperation =
-                            new PushAnyOperation(pushConsumer_, message);
+                            new PushAnyOperation(pushConsumer_, (Message)message.clone());
 
                         handleFailedPushOperation(_failedOperation, e);
                     }

@@ -48,13 +48,13 @@ public abstract class AbstractTCLNode extends BaseAST implements TCLParserTokenT
 
     private String name_;
 
-
     ////////////////////////////////////////////////////////////
     // Constructor
 
     public AbstractTCLNode( Token tok )
     {
         super();
+
         setType( tok.getType() );
     }
 

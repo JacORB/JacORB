@@ -50,8 +50,8 @@ import org.omg.PortableServer.Servant;
  */
 
 public class StructuredProxyPullSupplierImpl
-            extends AbstractProxySupplier
-            implements StructuredProxyPullSupplierOperations
+    extends AbstractProxySupplier
+    implements StructuredProxyPullSupplierOperations
 {
     /**
      * undefined StructuredEvent that is returned on unsuccessful pull operations.
@@ -77,16 +77,6 @@ public class StructuredProxyPullSupplierImpl
     private StructuredPullConsumer structuredPullConsumer_;
 
     ////////////////////////////////////////
-
-    public StructuredProxyPullSupplierImpl( AbstractAdmin myAdminServant,
-                                            ChannelContext channelContext)
-    {
-        super( myAdminServant,
-               channelContext );
-    }
-
-    ////////////////////////////////////////
-
 
     public ProxyType MyType() {
         return ProxyType.PULL_STRUCTURED;

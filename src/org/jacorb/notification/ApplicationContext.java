@@ -22,6 +22,7 @@ package org.jacorb.notification;
  */
 
 import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
@@ -113,7 +114,8 @@ public class ApplicationContext implements Disposable, Configurable
             };
 
         notificationEventFactory_ = new MessageFactory();
-        taskProcessor_ = new TaskProcessor();
+
+        taskProcessor_ = new DefaultTaskProcessor();
     }
 
 
@@ -130,14 +132,14 @@ public class ApplicationContext implements Disposable, Configurable
         evaluationContextPool_.configure(conf);
         evaluationResultPool_.configure(conf);
         notificationEventFactory_.configure(conf);
-        taskProcessor_.configure (conf);
+        ((DefaultTaskProcessor)taskProcessor_).configure (conf);
     }
 
     public void dispose()
     {
         if ( taskProcessor_ != null )
         {
-            taskProcessor_.dispose();
+            ((DefaultTaskProcessor)taskProcessor_).dispose();
             taskProcessor_ = null;
         }
 

@@ -52,6 +52,9 @@ import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import java.util.List;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
+import org.omg.CosNotifyChannelAdmin.SupplierAdminHelper;
+import org.jacorb.notification.MessageFactoryDependency;
+import org.jacorb.notification.conf.Default;
 
 /**
  * @author Alphonse Bendt
@@ -61,48 +64,52 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 abstract class AbstractProxyConsumer
     extends AbstractProxy
     implements AbstractProxyConsumerI,
-               NotifyPublishOperations
+               NotifyPublishOperations,
+               MessageFactoryDependency
 {
     private final static EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
     ////////////////////////////////////////
 
-    protected MessageFactory messageFactory_;
+    private MessageFactory messageFactory_;
 
-    private TaskProcessor taskProcessor_;
     private SynchronizedBoolean isStartTimeSupported_ =
         new SynchronizedBoolean(true);
+
     private SynchronizedBoolean isStopTimeSupported_ =
         new SynchronizedBoolean(true);
 
+
     private List subsequentDestinations_;
     private NotifySubscribeOperations proxySubscriptionListener_;
+
     private NotifySubscribe subscriptionListener_;
 
+    private SupplierAdmin supplierAdmin_;
+
     ////////////////////////////////////////
 
-    AbstractProxyConsumer( AbstractAdmin adminServant,
-                           ChannelContext channelContext)
-    {
-        super( adminServant,
-               channelContext);
 
-        messageFactory_ =
-            channelContext.getMessageFactory();
-        subsequentDestinations_ = CollectionsWrapper.singletonList(admin_);
-
-        taskProcessor_ = channelContext.getTaskProcessor();
+    protected MessageFactory getMessageFactory() {
+        return messageFactory_;
     }
 
-    ////////////////////////////////////////
+
+    public final void setMessageFactory(MessageFactory factory) {
+        messageFactory_ = factory;
+    }
 
     public final List getSubsequentFilterStages()
     {
         return subsequentDestinations_;
     }
 
+    public void setSubsequentDestinations(List list) {
+        subsequentDestinations_ = list;
+    }
 
-    public void preActivate()
+
+    public void preActivate() throws Exception
     {
         configureStartTimeSupported();
 
@@ -135,8 +142,12 @@ abstract class AbstractProxyConsumer
 
     private void configureStartTimeSupported()
     {
-        isStartTimeSupported_.
-            set(qosSettings_.get(StartTimeSupported.value).extract_boolean());
+        try {
+            isStartTimeSupported_.
+                set(qosSettings_.get(StartTimeSupported.value).extract_boolean());
+        } catch (Exception e) {
+            isStartTimeSupported_.set(Default.DEFAULT_START_TIME_SUPPORTED.equals("on"));
+        }
 
         if (logger_.isInfoEnabled())
         {
@@ -148,8 +159,12 @@ abstract class AbstractProxyConsumer
 
     private void configureStopTimeSupported()
     {
-        isStopTimeSupported_.
-            set(qosSettings_.get(StopTimeSupported.value).extract_boolean());
+        try {
+            isStopTimeSupported_.
+                set(qosSettings_.get(StopTimeSupported.value).extract_boolean());
+        } catch (Exception e) {
+            isStopTimeSupported_.set(Default.DEFAULT_STOP_TIME_SUPPORTED.equals("on"));
+        }
 
         if (logger_.isInfoEnabled())
         {
@@ -197,7 +212,7 @@ abstract class AbstractProxyConsumer
 
     public final SupplierAdmin MyAdmin()
     {
-        return ( SupplierAdmin ) admin_.activate();
+        return supplierAdmin_;
     }
 
 
@@ -221,7 +236,7 @@ abstract class AbstractProxyConsumer
     }
 
 
-    public EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode)
+    public final EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode)
     {
         EventType[] _subscriptionTypes = EMPTY_EVENT_TYPE_ARRAY;
 
@@ -340,30 +355,35 @@ abstract class AbstractProxyConsumer
     static AbstractProxy newProxyPushConsumer(AbstractAdmin admin,
                                               ClientType clientType)
     {
-        AbstractProxy _servant;
+        AbstractProxyConsumer _servant;
 
         switch ( clientType.value() )
         {
             case ClientType._ANY_EVENT:
-                _servant = new ProxyPushConsumerImpl( admin,
-                                                      admin.getChannelContext());
+                _servant = new ProxyPushConsumerImpl();
                 break;
             case ClientType._STRUCTURED_EVENT:
                 _servant =
-                    new StructuredProxyPushConsumerImpl( admin,
-                                                         admin.getChannelContext());
+                    new StructuredProxyPushConsumerImpl();
                 break;
             case ClientType._SEQUENCE_EVENT:
                 _servant =
-                    new SequenceProxyPushConsumerImpl( admin,
-                                                       admin.getChannelContext());
+                    new SequenceProxyPushConsumerImpl();
                 break;
             default:
                 throw new BAD_PARAM("Invalid ClientType: ClientType." + clientType.value());
         }
 
+
+        admin.getChannelContext().resolveDependencies(_servant);
+
+        _servant.supplierAdmin_ = SupplierAdminHelper.narrow(admin.activate());
+
+        _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(admin));
+
         _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
                             getConfiguration());
+
 
 
         return _servant;
@@ -376,27 +396,30 @@ abstract class AbstractProxyConsumer
     static AbstractProxy newProxyPullConsumer(AbstractAdmin admin,
                                               ClientType clientType)
     {
-        AbstractProxy _servant;
+        AbstractProxyConsumer _servant;
 
         switch ( clientType.value() )
         {
             case ClientType._ANY_EVENT:
-                _servant = new ProxyPullConsumerImpl( admin,
-                                                      admin.getChannelContext());
+                _servant = new ProxyPullConsumerImpl();
                 break;
             case ClientType._STRUCTURED_EVENT:
                 _servant =
-                    new StructuredProxyPullConsumerImpl( admin,
-                                                         admin.getChannelContext());
+                    new StructuredProxyPullConsumerImpl();
                 break;
             case ClientType._SEQUENCE_EVENT:
                 _servant =
-                    new SequenceProxyPullConsumerImpl( admin,
-                                                       admin.getChannelContext());
+                    new SequenceProxyPullConsumerImpl();
                 break;
             default:
                 throw new BAD_PARAM("Invalid ClientType: ClientType." + clientType.value());
         }
+
+        admin.getChannelContext().resolveDependencies(_servant);
+
+        _servant.supplierAdmin_ = SupplierAdminHelper.narrow(admin.activate());
+
+        _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(admin));
 
         _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
                             getConfiguration());

@@ -47,15 +47,6 @@ public class SequenceProxyPushConsumerImpl
 
     ////////////////////////////////////////
 
-    public SequenceProxyPushConsumerImpl( AbstractAdmin supplierAdmin,
-                                          ChannelContext channelContext)
-    {
-        super( supplierAdmin,
-               channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public ProxyType MyType() {
         return ProxyType.PUSH_SEQUENCE;
     }

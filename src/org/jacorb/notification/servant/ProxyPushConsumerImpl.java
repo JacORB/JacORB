@@ -49,15 +49,6 @@ public class ProxyPushConsumerImpl
 
     ////////////////////////////////////////
 
-    ProxyPushConsumerImpl( AbstractAdmin myAdminServant,
-                           ChannelContext channelContext)
-    {
-        super( myAdminServant,
-               channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public ProxyType MyType() {
         return ProxyType.PUSH_ANY;
     }
@@ -90,7 +81,7 @@ public class ProxyPushConsumerImpl
         logger_.debug("push Any into the Channel");
 
         Message _mesg =
-            messageFactory_.newMessage( event, this );
+            getMessageFactory().newMessage( event, this );
 
         checkMessageProperties(_mesg);
 

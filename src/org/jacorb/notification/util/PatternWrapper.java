@@ -113,12 +113,15 @@ public abstract class PatternWrapper
 
     public abstract void compile( String pattern );
 
+
     /**
      * Match the given input against this pattern.
      *
      * @param text the input to be matched
-     * @return the index of the last character matched, plus one or zero.
+     * @return the index of the last character matched, plus one or
+     * zero if the pattern did not match.
      */
+
     public abstract int match( String text );
 
     private static boolean isClassAvailable( String name )
