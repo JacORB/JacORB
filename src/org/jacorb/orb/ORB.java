@@ -47,8 +47,8 @@ public final class ORB
     extends ORBSingleton
     implements org.jacorb.poa.POAListener
 {
-    private static final String versionString = "1.3.22";
-    private static final String dateString = "10 April 2001";
+    private static final String versionString = "1.3.300";
+    private static final String dateString = "13 June 2001";
 
     /** "initial" references */
     private Hashtable initial_references = new Hashtable();
