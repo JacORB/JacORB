@@ -690,6 +690,9 @@ public class CDRInputStream
 	case TCKind._tk_enum:
 	    openEncapsulation();
 	    id = read_string();
+
+            tcMap.put( new Integer( start_pos ), id );
+
 	    name = read_string();
 	    member_count = read_long();
 	    member_names = new String[member_count];
@@ -698,7 +701,9 @@ public class CDRInputStream
 		member_names[i] = read_string();
 	    }
 	    closeEncapsulation();
-	    return orb.create_enum_tc(id, name, member_names);
+            result_tc = orb.create_enum_tc(id, name, member_names);
+            recursiveTCMap.put( id , result_tc );
+	    return result_tc;
 	case TCKind._tk_union:
 	    {
                 //		Debug.output(4, "TC Union at pos" + 
@@ -789,6 +794,7 @@ public class CDRInputStream
 	    content_type = read_TypeCode( tcMap );
 	    closeEncapsulation();
             result_tc = orb.create_alias_tc( id, name, content_type );
+            recursiveTCMap.put( id , result_tc );
 	    return result_tc;
 	case TCKind._tk_value: 
 	    openEncapsulation();
@@ -812,15 +818,20 @@ public class CDRInputStream
                                               read_short());
 	    }
 	    closeEncapsulation();
-	    return  orb.create_value_tc(id, name, type_modifier,
+	    result_tc = orb.create_value_tc(id, name, type_modifier,
                                         concrete_base_type, vMembers);
+            recursiveTCMap.put( id , result_tc );
+	    return result_tc;
 	case TCKind._tk_value_box: 
 	    openEncapsulation();
 	    id = read_string();
+            tcMap.put( new Integer( start_pos ), id );
 	    name = read_string();
 	    content_type = read_TypeCode( tcMap );
 	    closeEncapsulation();
-            return orb.create_value_box_tc( id, name, content_type );
+            result_tc = orb.create_value_box_tc( id, name, content_type );
+            recursiveTCMap.put( id , result_tc );
+	    return result_tc;
 	case 0xffffffff:
 	    /* recursive TC */
 	    int negative_offset = read_long();
