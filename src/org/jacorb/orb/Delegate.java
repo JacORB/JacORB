@@ -23,6 +23,8 @@ package org.jacorb.orb;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.orb.giop.*;
@@ -75,6 +77,7 @@ public final class Delegate
     private org.jacorb.poa.POA poa;
 
     private org.jacorb.orb.ORB orb = null;
+    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.orb");
 
     /** set after the first attempt to determine whether
         this reference is to a local object */
@@ -147,7 +150,7 @@ public final class Delegate
         conn_mg = orb.getClientConnectionManager();
     }
 
-    public Delegate ( org.jacorb.orb.ORB orb, org.omg.IOP.IOR _ior )
+    public Delegate(org.jacorb.orb.ORB orb, org.omg.IOP.IOR _ior)
     {
         this.orb = orb;
         _pior = new ParsedIOR( _ior, orb );
@@ -208,7 +211,11 @@ public final class Delegate
      */
     private void bind()
     {
-        synchronized ( bind_sync )
+        // ? why was that int synchronized block?
+        if (bound)
+            return ;
+
+        synchronized (bind_sync)
         {
             if ( bound )
                 return ;
@@ -217,8 +224,7 @@ public final class Delegate
             if (p == null)
                 throw new org.omg.CORBA.COMM_FAILURE ("no effective profile");
 
-            connection = conn_mg.getConnection (p);
-
+            connection = conn_mg.getConnection(p);
             bound = true;
 
             /* The delegate could query the server for the object
@@ -226,7 +232,7 @@ public final class Delegate
              *  first call will get through without redirections
              *  (provided the server's answer is definite):
              */
-            if ( ( ! locate_on_bind_performed ) &&
+            if (( ! locate_on_bind_performed ) &&
                     Environment.locateOnBind() )
             {
                 //only locate once, because bind is called from the
@@ -273,9 +279,9 @@ public final class Delegate
                         {
                             //_OBJECT_FORWARD_PERM is actually more or
                             //less deprecated
-                            if ( Debug.isDebugEnabled() )
+                            if ( logger.isDebugEnabled() )
                             {
-                                Debug.output( 3, "Locate Reply: Forward" );
+                                logger.debug("Locate Reply: Forward");
                             }
 
                             rebind( orb.object_to_string( lris.read_Object() ) );
@@ -321,11 +327,11 @@ public final class Delegate
         }
     }
 
-    public void rebind( String object_reference )
+    public void rebind(String object_reference)
     {
-        synchronized ( bind_sync )
-        {
-            if ( object_reference.indexOf( "IOR:" ) == 0 )
+ //        synchronized (bind_sync)
+//         {
+            if (object_reference.indexOf( "IOR:" ) == 0)
             {
                 rebind( new ParsedIOR( object_reference, orb ) );
             }
@@ -334,13 +340,12 @@ public final class Delegate
                 throw new org.omg.CORBA.INV_OBJREF( "Not an IOR: " +
                                                     object_reference );
             }
-
-        }
+            //        }
     }
 
     public void rebind( org.omg.CORBA.Object o )
     {
-        rebind ( orb.object_to_string( o ) );
+        rebind(orb.object_to_string( o ) );
     }
 
     public void rebind( ParsedIOR p )
@@ -414,7 +419,7 @@ public final class Delegate
         return self;
     }
 
-    public boolean equals( java.lang.Object obj )
+    public boolean equals(java.lang.Object obj)
     {
         return ( obj instanceof org.omg.CORBA.Object &&
                  toString().equals( obj.toString() ) );
@@ -439,9 +444,9 @@ public final class Delegate
             // Call using string rather than this to prevent data race warning.
             orb._release( getParsedIOR().getIORString() );
 
-            if ( Debug.isDebugEnabled() )
+            if ( logger.isDebugEnabled() )
             {
-                Debug.output( 3, " Delegate gc'ed!" );
+                logger.debug("Delegate gc'ed!");
             }
         }
         finally
@@ -643,7 +648,6 @@ public final class Delegate
         synchronized ( bind_sync )
         {
             bind();
-
             return connection;
         }
     }
@@ -660,7 +664,6 @@ public final class Delegate
             {
                 return getParsedIOR().getIOR();
             }
-
         }
     }
 
@@ -697,7 +700,6 @@ public final class Delegate
                 catch ( InterruptedException ie )
                 {
                 }
-
             }
 
             return _pior;
@@ -728,9 +730,9 @@ public final class Delegate
 
     public org.omg.CORBA.portable.ObjectImpl getReference( org.jacorb.poa.POA _poa )
     {
-        if ( Debug.isDebugEnabled() )
+        if ( logger.isDebugEnabled() )
         {
-            Debug.output( 3, "Delegate.getReference with POA <" +
+            logger.debug("Delegate.getReference with POA <" +
                           ( _poa != null ? _poa._getQualifiedName() : " empty" ) + ">" );
         }
 
@@ -847,6 +849,9 @@ public final class Delegate
                     }
                     else
                     {
+                        if (logger.isDebugEnabled())
+                            logger.debug("invoke: RemarshalException");
+                        
                         // RequestOutputStream has been created for
                         // another connection, so try again
                         throw new RemarshalException();
@@ -856,6 +861,9 @@ public final class Delegate
         }
         catch ( org.omg.CORBA.SystemException cfe )
         {
+            if (logger.isDebugEnabled())
+                logger.debug("invoke: SystemException");
+
             interceptors.handle_receive_exception ( cfe );
 
             if ( cfe instanceof org.omg.CORBA.TRANSIENT )
@@ -872,6 +880,9 @@ public final class Delegate
 
         if ( !async && receiver != null )
         {
+            if (logger.isDebugEnabled())
+                logger.debug("invoke: getReply()");
+
             // Synchronous invocation, response expected.
             // This call blocks until the reply arrives.
             org.omg.CORBA.portable.InputStream is = receiver.getReply();
@@ -934,9 +945,17 @@ public final class Delegate
     {
         synchronized ( bind_sync )
         {
+            if( logger.isDebugEnabled())
+            {
+                logger.debug("Delegate.try_rebind" );
+            }
+
             if ( piorOriginal != null )
             {
-                Debug.output( 2, "Delegate: falling back to original IOR" );
+                if( logger.isDebugEnabled())
+                {
+                    logger.debug("Delegate: falling back to original IOR");
+                }
 
                 //keep last failed ior to detect forwarding loops
                 piorLastFailed = getParsedIOR();
@@ -955,20 +974,30 @@ public final class Delegate
 
                 // only lookup ImR if IOR is generated by JacORB
                 if ( orbTypeId == null ||
-                        orbTypeId.intValue() != ORBConstants.JACORB_ORB_ID )
+                     orbTypeId.intValue() != ORBConstants.JACORB_ORB_ID )
                 {
-                    Debug.output( 2, "Delegate: foreign IOR detected" );
+                    if( logger.isDebugEnabled())
+                    {
+                        logger.debug("Delegate: foreign IOR detected" );
+                    }
                     return false;
                 }
 
-                Debug.output( 2, "Delegate: JacORB IOR detected" );
+                if( logger.isDebugEnabled())
+                {
+                    logger.debug("Delegate: JacORB IOR detected" );
+                }
 
                 byte[] object_key = getParsedIOR().get_object_key();
 
                 // No backup IOR so it may be that the ImR is down
                 // Attempt to resolve the ImR again to see if it has
                 // come back up at a different address
-                Debug.output( 2, "Delegate: attempting to contact ImR" );
+
+                if( logger.isDebugEnabled())
+                {
+                    logger.debug("Delegate: attempting to contact ImR" );
+                }
 
                 ImRAccess imr = null;
 
@@ -978,7 +1007,10 @@ public final class Delegate
                 }
                 catch ( Exception e )
                 {
-                    Debug.output( 2, "Delegate: failed to contact ImR" );
+                    if( logger.isDebugEnabled())
+                    {
+                        logger.debug("Delegate: failed to contact ImR" );
+                    }
                     return false;
                 }
 
@@ -986,13 +1018,9 @@ public final class Delegate
                 StringBuffer corbaloc = new StringBuffer( "corbaloc:iiop:" );
 
                 corbaloc.append( imr.getImRHost() );
-
                 corbaloc.append( ":" );
-
                 corbaloc.append( imr.getImRPort() );
-
                 corbaloc.append( "/" );
-
                 corbaloc.append( CorbaLoc.parseKey( object_key ) );
 
                 //rebind to the new IOR
@@ -1083,13 +1111,13 @@ public final class Delegate
             }
             try
             {
-                servant = (org.omg.PortableServer.Servant) so.servant;
-                orb.set_delegate (servant);
-                return (servant._is_a (logical_type_id));
+                servant = (org.omg.PortableServer.Servant)so.servant;
+                orb.set_delegate(servant);
+                return servant._is_a(logical_type_id);
             }
             finally
             {
-                servant_postinvoke (self, so);
+                servant_postinvoke(self, so);
             }
         }
         else
@@ -1121,7 +1149,11 @@ public final class Delegate
                 }
             }
             // If it fails fall back to a remote call.
-            catch (Throwable e) {}
+            catch (Throwable e) 
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("trying is_a remotely");
+            }
 
             org.omg.CORBA.portable.OutputStream os;
             org.omg.CORBA.portable.InputStream is;
@@ -1130,10 +1162,10 @@ public final class Delegate
             {
                 try
                 {
-                    os = request (self, "_is_a", true);
-                    os.write_string (logical_type_id);
-                    is = invoke (self, os);
-                    return is.read_boolean ();
+                    os = request(self, "_is_a", true);
+                    os.write_string(logical_type_id);
+                    is = invoke(self, os);
+                    return is.read_boolean();
                 }
                 catch (RemarshalException re)
                 {
@@ -1146,8 +1178,8 @@ public final class Delegate
         }
     }
 
-    public boolean is_equivalent ( org.omg.CORBA.Object self,
-                                   org.omg.CORBA.Object obj )
+    public boolean is_equivalent(org.omg.CORBA.Object self,
+                                 org.omg.CORBA.Object obj)
     {
         boolean result = true;
 
@@ -1161,9 +1193,9 @@ public final class Delegate
         return result;
     }
 
-    public String getIDString ()
+    public String getIDString()
     {
-        return ( getParsedIOR().getIDString () );
+        return getParsedIOR().getIDString ();
     }
 
     /**
@@ -1173,24 +1205,24 @@ public final class Delegate
      * direct to implementation, avoiding installed interceptors.
      */
 
-    public boolean is_local (org.omg.CORBA.Object self)
+    public boolean is_local(org.omg.CORBA.Object self)
     {
-        if (orb.hasRequestInterceptors ())
+        if (orb.hasRequestInterceptors())
         {
             return false;
         }
-        return (is_really_local (self));
+        return is_really_local(self);
     }
 
     /**
      * @return true if this object lives on a local POA
      */
 
-    private boolean is_really_local (org.omg.CORBA.Object self)
+    private boolean is_really_local(org.omg.CORBA.Object self)
     {
         if (poa == null)
         {
-            resolvePOA (self);
+            resolvePOA(self);
         }
 
         return poa != null;
@@ -1208,12 +1240,12 @@ public final class Delegate
     {
         // If local object call _non_existent directly
 
-        if (is_really_local (self))
+        if (is_really_local(self))
         {
             org.omg.PortableServer.Servant servant;
             org.omg.CORBA.portable.ServantObject so;
 
-            so = servant_preinvoke (self, "_non_existent", java.lang.Object.class);
+            so = servant_preinvoke(self, "_non_existent", java.lang.Object.class);
 
             try
             {
@@ -1279,13 +1311,11 @@ public final class Delegate
     }
 
     public synchronized org.omg.CORBA.Request request( org.omg.CORBA.Object self,
-
-            String operation )
+                                                       String operation )
     {
         synchronized ( bind_sync )
         {
             bind();
-
             return new org.jacorb.orb.dii.Request( self,
                                                    orb,
                                                    connection,
@@ -1524,18 +1554,20 @@ public final class Delegate
             }
             catch( org.omg.PortableServer.ForwardRequest e )
             {
-                if( Debug.isDebugEnabled() )
+                if( logger.isDebugEnabled() )
                 {
-                    Debug.output( "Caught forwardrequest to " + e.forward_reference + " from " + self );
+                    logger.debug("Caught forwardrequest to " + e.forward_reference + " from " + self );
                 }
-                return servant_preinvoke
-                    ( e.forward_reference, operation, expectedType );
+                return servant_preinvoke(e.forward_reference, operation, expectedType);
             }
 
             if ( !expectedType.isInstance( so.servant ) )
             {
-                Debug.output(1, "Warning: expected " + expectedType +
-                             " got " + so.servant.getClass() );
+                if( logger.isWarnEnabled() )
+                {
+                    logger.warn("Expected " + expectedType +
+                                " got " + so.servant.getClass() );
+                }
 
                 poa.removeLocalRequest();
                 return null;
@@ -1554,7 +1586,10 @@ public final class Delegate
             }
             return so;
         }
-        Debug.output(1, "Internal Warning: no POA! servant_preinvoke returns null ");
+        if (logger.isWarnEnabled())
+        {
+            logger.warn("No POA! servant_preinvoke returns null");
+        }
         return null;
     }
 
@@ -1640,7 +1675,7 @@ public final class Delegate
 
         public synchronized void waitOnBarrier()
         {
-            while ( ! is_open )
+            while (! is_open)
             {
                 try
                 {
