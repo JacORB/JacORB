@@ -18,22 +18,32 @@ public class ReplyHandler extends Interface
         super (new_num());
 
         name = "AMI_" + parent.name + "ReplyHandler";
-        inheritanceSpec = createInheritanceSpec (parent.inheritanceSpec);
-        setPackage (parent.pack_name);
+        pack_name = parent.pack_name;
+
+        createInheritanceSpec (parent.inheritanceSpec);
+
+        body = new InterfaceBody (new_num());
+        body.set_name (name);
+        body.my_interface = this;
+        body.setEnclosingSymbol (this);
+        body.inheritance_spec = this.inheritanceSpec;      
+
+        createOperations (parent);
     }
 
     /**
      *  Creates an inheritance spec for this ReplyHandler, based
      *  on the inheritance spec of the parent interface.
      */
-    private SymbolList createInheritanceSpec (SymbolList source)
+    private void createInheritanceSpec (SymbolList source)
     {
-        SymbolList result = new SymbolList (new_num());
+        inheritanceSpec = new SymbolList (new_num());
         if (source.v.isEmpty())
         {
             ScopedName n = new ScopedName (new_num());
-            n.setId ("org.omg.Messaging.ReplyHandler");
-            result.v.add (n);
+            n.pack_name = "org.omg.Messaging";
+            n.typeName  = "ReplyHandler";
+            inheritanceSpec.v.add (n);
         }
         else
         {
@@ -41,16 +51,68 @@ public class ReplyHandler extends Interface
             {
                 ScopedName n1 = (ScopedName)i.next();
                 ScopedName n2 = new ScopedName (new_num());
-                n2.setId (n1.pack_name + "." + "AMI_" + n2.name + "ReplyHandler");
-                result.v.add (n2);
+                n2.pack_name = n1.pack_name;
+                n2.typeName  = "AMI_" + n1.name + "ReplyHandler";
+                inheritanceSpec.v.add (n2);
             }
         }
-        return result;
+    }
+    
+    /**
+     * Creates the operations of this ReplyHandler and puts them into the body.
+     */
+    private void createOperations (Interface parent)
+    {
+        for (Iterator i = parent.body.v.iterator(); i.hasNext();)
+        {
+              Declaration d = ((Definition)i.next()).get_declaration();
+              if (d instanceof OpDecl)
+              {
+                    createOperationsFor ((OpDecl)d);
+              }
+              else if (d instanceof AttrDecl)
+              {
+                    createOperationsFor ((AttrDecl)d);
+              }
+        }      
+    }
+    
+    private void createOperationsFor (OpDecl d)
+    {
+        List paramDecls = new ArrayList();
+        if (!(d.opTypeSpec instanceof VoidTypeSpec))
+        {
+            paramDecls.add (new ParamDecl (ParamDecl.MODE_IN,
+                                           d.opTypeSpec,
+                                           "ami_return_val"));
+        }    
+        for (Iterator i = d.paramDecls.iterator(); i.hasNext();)
+        {
+            ParamDecl p = (ParamDecl)i.next();
+            if (p.paramAttribute != ParamDecl.MODE_IN)
+            {
+                paramDecls.add (new ParamDecl (ParamDecl.MODE_IN,
+                                               p.paramTypeSpec,
+                                               p.simple_declarator));               
+            }
+        }   
+        body.v.add (new Definition (new OpDecl (this, d.name, paramDecls)));
+    }
+    
+    private void createOperationsFor (AttrDecl d)
+    {
+        
+    }
+    
+    public void parse()
+    {
+        body.parse();
     }
     
     public void print (PrintWriter ps)
     {
         printInterface();
+        printOperations();
     }
             
 }
