@@ -63,7 +63,9 @@ gerald.brose@acm.org
           respect pending messages.
         - ApplicationExceptionHelper class fix for types with repository
           identifiers including a prefix.
-        - Added server-side connection management (see programming guide)
+        - Added server-side connection management (see programming
+          guide)
+        - Added support for GIOP CloseConnection messages.
 
       - IMR:
         - Added property 'jacorb.imr.endpoint_port_number' for port IMR runs on.
