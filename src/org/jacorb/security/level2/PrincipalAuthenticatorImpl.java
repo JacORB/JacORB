@@ -1,7 +1,9 @@
+package org.jacorb.security.level2;
+
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.security.level2;
 
 import java.io.*;
 import java.net.*;
@@ -34,6 +35,7 @@ import org.jacorb.util.*;
 import org.jacorb.security.util.*;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 
 /**
@@ -48,13 +50,24 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class PrincipalAuthenticatorImpl
     extends org.omg.CORBA.LocalObject
-    implements org.omg.SecurityLevel2.PrincipalAuthenticator
+    implements org.omg.SecurityLevel2.PrincipalAuthenticator, Configurable
 {  
     private Logger logger;
 
-    public PrincipalAuthenticatorImpl()
+    private String keyStoreLocation;
+    private String storePassphrase;
+
+    public void configure(Configuration config)
+        throws ConfigurationException
     {
-        logger = Debug.getNamedLogger("jacorb.security");
+        logger = 
+            ((org.jacorb.config.Configuration)config).getNamedLogger("jacorb.security");
+        keyStoreLocation = 
+            config.getAttribute("jacorb.security.keystore", null );
+        
+        storePassphrase = 
+            config.getAttribute("jacorb.security.keystore_password", null);
+
     }  
 
     public int[] get_supported_authen_methods(java.lang.String mechanism)
@@ -79,36 +92,9 @@ public class PrincipalAuthenticatorImpl
 	{	
 	    registerProvider();
 
-            String keyStoreLocation = 
-                Environment.getProperty( "jacorb.security.keystore" );
-            if ( keyStoreLocation == null ) 
-            {
-                System.out.print("Please enter key store file name: ");
-                keyStoreLocation = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            String storePassphrase = 
-                Environment.getProperty("jacorb.security.keystore_password");
-            if (storePassphrase == null) 
-            {
-                System.out.print("Please enter store pass phrase: ");
-                storePassphrase = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
             String alias = security_name;
-            if ( alias == null ) 
-            {
-                System.out.print("Please enter alias  name: ");
-                alias = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
             String password = null;
-            if ( auth_data == null )
-            {
-                System.out.print("Please enter password: ");
-                password = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-            else
+            if ( auth_data != null )
             {
                 password = new String( auth_data );
             }
@@ -125,8 +111,8 @@ public class PrincipalAuthenticatorImpl
                 KeyStoreUtil.getKeyStore( keyStoreLocation, 
                                           storePassphrase.toCharArray() );
 
-            X509Certificate[] cert_chain = (X509Certificate[]) 
-                keyStore.getCertificateChain( alias );
+            X509Certificate[] cert_chain = 
+                (X509Certificate[])keyStore.getCertificateChain( alias );
 
             if( cert_chain == null )
             {
@@ -134,30 +120,19 @@ public class PrincipalAuthenticatorImpl
                 {
                     logger.error( "No keys found in keystore for alias \""+
                               alias + "\"!" );
-                }
-
-                if( Environment.getProperty( "jacorb.security.default_user" ) != null )
-                {
-                    if (logger.isErrorEnabled())
-                    {
-                        logger.error("Please check property \"jacorb.security.default_user\"" );
-                    }
-                }
-            
+                }            
                 return org.omg.Security.AuthenticationStatus.SecAuthFailure;
             }
             
-            PrivateKey priv_key = (PrivateKey) 
-                keyStore.getKey ( alias, 
-                                  password.toCharArray() );
+            PrivateKey priv_key = 
+                (PrivateKey)keyStore.getKey(alias, password.toCharArray() );
 
 
             KeyAndCert k_a_c = new KeyAndCert( priv_key, cert_chain );
 
-            AttributeType type = new AttributeType
-                ( new ExtensibleFamily( (short) 0,
-                                        (short) 1 ),
-                  AccessId.value );
+            AttributeType type = 
+                new AttributeType( new ExtensibleFamily((short)0,(short)1 ),
+                                   AccessId.value );
 
 
 

@@ -61,6 +61,7 @@ public class CurrentImpl
 
     private org.omg.CORBA.ORB orb = null;  
     private Logger logger;
+    private org.jacorb.config.Configuration configuration;
 
     public CurrentImpl(org.omg.CORBA.ORB orb)
     {
@@ -75,7 +76,7 @@ public class CurrentImpl
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        org.jacorb.config.Configuration configuration = 
+        configuration = 
             (org.jacorb.config.Configuration)myConfiguration;
 
         logger = configuration.getNamedLogger("jacorb.security.current");
@@ -172,7 +173,10 @@ public class CurrentImpl
             Class[] params = constructors[0].getParameterTypes();
             if( params.length == 0 )
             {
-                return (PrincipalAuthenticator) pa_class.newInstance();
+                PrincipalAuthenticator pa = 
+                    (PrincipalAuthenticator)pa_class.newInstance();
+                ((Configurable)pa).configure(configuration);
+                return pa;
             }
             else if( params.length == 1 )
             {

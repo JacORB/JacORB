@@ -25,7 +25,7 @@
    </target>
 
 
-   <target name="sun_jsse" if="sun_jsse.present">
+   <target name="sun_jsse" if="sun_jsse.present" unless="iaik.present">
       <ant antfile="${src}/org/jacorb/security/ssl/sun_jsse/build.xml" dir="${basedir}"/>
    </target>
 </project>

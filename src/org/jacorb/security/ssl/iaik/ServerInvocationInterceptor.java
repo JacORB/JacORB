@@ -29,7 +29,6 @@ import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.ORBPackage.*;
 import org.omg.CORBA.Any;
 
-import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.security.level2.*;
 import org.jacorb.orb.dsi.ServerRequest;
@@ -101,7 +100,6 @@ public class ServerInvocationInterceptor
         // lookup for context
         if (connection == null)
         {
-            Debug.output( 3, "target has no connection!");
             return;
         }
         
@@ -119,9 +117,7 @@ public class ServerInvocationInterceptor
                                          sslSocket.getPeerCertificateChain() );
         
         if( kac.chain == null )
-        {
-            Debug.output( 2, "Client sent no certificate chain!" );
-            
+        {          
             return;
         }
         
