@@ -49,6 +49,11 @@ public class TaggedComponentList implements Cloneable
 	{
 		return components.length;
 	}
+    
+    public boolean isEmpty()
+    {
+        return components.length == 0;
+    }
 	
 	public TaggedComponent get (int index)
 	{
@@ -127,13 +132,33 @@ public class TaggedComponentList implements Cloneable
      */
     public void addComponent (int tag, byte[] data)
     {
+        addComponent (new TaggedComponent (tag, data));
+    }
+
+    /**
+     * Adds a tagged component to this list.
+     */
+    public void addComponent (TaggedComponent component)
+    {
         TaggedComponent[] newComponents = 
             new TaggedComponent [components.length + 1];
         System.arraycopy (components, 0, newComponents, 0, components.length);
-        newComponents [components.length] = new TaggedComponent (tag, data);
+        newComponents [components.length] = component;
         components = newComponents;
     }
     
+    /**
+     * Adds an entire TaggedComponentList to this list.
+     */   
+    public void addAll (TaggedComponentList other)
+    {
+        TaggedComponent[] newComponents =
+            new TaggedComponent [components.length + other.components.length];
+        System.arraycopy (components, 0, newComponents, 0, components.length);
+        System.arraycopy (other.components, 0, newComponents, components.length,
+                          other.components.length);
+        components = newComponents;        
+    }
     
 	/**
 	 * Searches for a component with the given tag in this component list.  
