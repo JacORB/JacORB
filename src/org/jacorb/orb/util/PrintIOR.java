@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,10 +18,11 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package jacorb.orb.util;
+package org.jacorb.orb.util;
 
-import jacorb.orb.connection.CodeSet;
-import jacorb.orb.ParsedIOR;
+import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.orb.ParsedIOR;
+
 import java.io.*;
 
 /**

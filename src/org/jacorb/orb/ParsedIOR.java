@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2000  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -192,6 +192,28 @@ public class ParsedIOR
                 }
             }
         }
+        return null;
+    }
+
+
+    public  org.omg.CONV_FRAME.CodeSetComponentInfo getCodeSetComponentInfo()
+    {
+        for ( int i = 0; i < taggedComponents.length; i++ )
+        {
+	    if( taggedComponents[i].tag != org.omg.IOP.TAG_CODE_SETS.value ) 
+		continue;
+
+	    Debug.output(4,"TAG_CODE_SETS found");			
+
+	    // get server cs from IOR 
+	    CDRInputStream is =
+		new CDRInputStream( orb, 
+                                   taggedComponents[i].component_data);
+
+	    is.setLittleEndian( is.read_boolean());
+
+	    return org.omg.CONV_FRAME.CodeSetComponentInfoHelper.read(is);
+	}
         return null;
     }
 
@@ -483,11 +505,5 @@ public class ParsedIOR
 
 
 }
-
-
-
-
-
-
 
 

@@ -50,7 +50,7 @@ public class CodeSetInfoInterceptor
 		
 	// fill the info
 	cs_info.ForCharData = new org.omg.CONV_FRAME.
-	    CodeSetComponent(CodeSet.UTF8, new int[] { CodeSet.ISO8859_1 });
+	    CodeSetComponent( CodeSet.UTF8, new int[] { CodeSet.ISO8859_1 });
 	cs_info.ForWcharData = new org.omg.CONV_FRAME.
 	    CodeSetComponent(CodeSet.UTF16, new int[] { CodeSet.UTF8 });
 			
@@ -65,15 +65,9 @@ public class CodeSetInfoInterceptor
 
 	os.close();
 
-	info.add_ior_component_to_profile (tagc, org.omg.IOP.TAG_INTERNET_IOP.value);
+	info.add_ior_component_to_profile (tagc, org.omg.IOP.TAG_MULTIPLE_COMPONENTS.value);
 	org.jacorb.util.Debug.output( Debug.INTERCEPTOR | 3, 
-                                 "CodeSetInfoCreator added TaggedComponent to TAG_INTERNET_IOP profile");
+                                 "CodeSetInfoCreator added TaggedComponent to TAG_MULTIPLE_COMPONENTS profile");
       
     }
 }
-
-
-
-
-
-
