@@ -170,6 +170,10 @@ class InterfaceBody
 
     public void parse() 	 
     {
+        escapeName();
+
+        Environment.output(4, "Interface Body parse " + full_name());
+
 	if( inheritance_spec != null )
 	{
 	    Object o = null;
@@ -201,11 +205,14 @@ class InterfaceBody
 	{
 	    internal_parse();
 	    parser.remove_pending( full_name() );
+        Environment.output(4, "Interface Body done parsing " + full_name());
 	}
     }
 
     public void internal_parse() 	 
     {
+        Environment.output(4, "Interface Body internal_parse " + full_name());
+
 	if( inheritance_spec != null )
         {
             try
