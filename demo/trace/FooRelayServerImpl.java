@@ -6,7 +6,7 @@ import org.omg.CORBA.ORB;
 import org.omg.PortableServer.*;
 import org.omg.CosNaming.*;
 
-import jacorb.orb.domain.*;
+import org.jacorb.orb.domain.*;
 /**
  * FooRelayServerImpl.java
  *

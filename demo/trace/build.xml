@@ -23,18 +23,20 @@
    </target>
 
    <target name="idl" >
-<echo message="lib is ${lib}"/>
+
       <java classname="org.jacorb.idl.parser" 
-	      args="${idlflags} ${dirs.base}/demo/trace/server.idl"
-	      jvmargs="-classpath ${lib}/idl.jar;${java.class.path}"
+	      classpath="${lib}/idl.jar;${java.class.path}"
 	      fork="yes"
-	/>
+	>
+	      <arg line="${idlflags}
+	      ${dirs.base}/demo/${name}/server.idl"/>
+       </java>       
    </target>
 
 
-   <target name="clean">
-   <deltree dir="${classdir}/demo/trace"/>
-   <deltree dir="${dirs.base}/demo/trace/generated"/>
+   <target name="clean" depends="init">
+   <delete dir="${classdir}/demo/trace"/>
+   <delete dir="${dirs.base}/demo/trace/generated"/>
    </target>
 
 </project>
