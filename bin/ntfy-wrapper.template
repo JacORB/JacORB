@@ -1,0 +1,33 @@
+#! /bin/sh
+
+#
+# $Id$
+#
+# sh script suitable for starting and stopping 
+# the JacORB Notification Service controlled by the Java Service Wrapper
+#
+# Make sure that PIDDIR points to the correct location,
+# if you have changed the default location set in the 
+# wrapper configuration file.
+#
+
+#-----------------------------------------------------------------------------
+
+# Application
+APP_NAME="JacORB-Notify"
+APP_LONG_NAME="JacORB Notification Service"
+
+# Wrapper
+WRAPPER_CMD="wrapper"
+WRAPPER_CONF="NotifyService-Wrapper.conf"
+
+# Priority at which to run the wrapper.  See "man nice" for valid priorities.
+#  nice is only used if a priority is specified.
+PRIORITY=
+
+# Location of the pid file.
+PIDDIR="."
+
+# source the common wrapper script
+
+.  @@@JACORB_HOME@@@/bin/jacorb-wrapper-common
