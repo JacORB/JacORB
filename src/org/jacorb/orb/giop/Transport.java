@@ -82,18 +82,6 @@ public interface Transport
      */
     public void turnOnFinalTimeout();
     
-    /**
-     * Wait until the connection is established. This is called from
-     * getMessage() so the connection may be opened up not until the
-     * first message is sent (instead of opening it up when the
-     * transport is created).
-     *
-     * @return true if connection ready, false if connection closed.
-     */
-    public boolean waitUntilConnected();
-
-    
-   
 }// Transport
 
 
