@@ -3,7 +3,7 @@ package org.jacorb.idl;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -32,6 +32,9 @@ class Case
 {
     /** the labels for this case */
     public SymbolList case_label_list = null;
+
+    /** only set after parsing */
+    private IdlSymbol[] labels;
 
     /** this case's element's type's spec */
     public ElementSpec element_spec = null;
@@ -118,38 +121,77 @@ class Case
     {
         element_spec.parse();
 
-        for(Enumeration e = case_label_list.v.elements(); e.hasMoreElements(); )
+        labels = new IdlSymbol[case_label_list.v.size()];
+        int label_idx = 0;
+
+        for( Enumeration e = case_label_list.v.elements(); 
+             e.hasMoreElements(); )
         {
             IdlSymbol sym = (IdlSymbol)e.nextElement();
+            // remember label names
+            labels[ label_idx++ ] = sym;
 
             // check that no literals are used in case labels when
             // the switch type spec doesn't allow it (i.e. bool, int, char)
+
+            TypeSpec ts = type_spec.typeSpec();
 
             if( sym != null )
             { 
                 // null means "default" label in union
                 if( ((ConstExpr)sym).or_expr.xor_expr.and_expr.shift_expr.add_expr.
-                    mult_expr.unary_expr.primary_expr.symbol instanceof Literal &&
-                    type_spec.typeSpec() instanceof ScopedName )
+                    mult_expr.unary_expr.primary_expr.symbol instanceof Literal )
                 {
-                    TypeSpec ts = type_spec.typeSpec();
-                    while( ts instanceof ScopedName )
+                    Literal literal = 
+                        (Literal)((ConstExpr)sym).or_expr.xor_expr.and_expr.shift_expr.add_expr.mult_expr.unary_expr.primary_expr.symbol;
+
+                    if ( ts instanceof ScopedName )
                     {
-                        ts = ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
-                        if( ts instanceof AliasTypeSpec )
-                            ts = ((AliasTypeSpec)ts).originalType();
+                        while( ts instanceof ScopedName )
+                        {
+                            ts = ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
+                            if( ts instanceof AliasTypeSpec )
+                                ts = ((AliasTypeSpec)ts).originalType();
+                        }
                     }
 
-                    if( !(ts instanceof BooleanType || 
+                    /* make sure  that case  label  and discriminator
+                       value are compatible */
+                    
+                    if( 
+                       (!(ts instanceof BooleanType || 
                           ts instanceof IntType || 
                           ts instanceof CharType || 
                           ( ts instanceof BaseType && ((BaseType)ts).isSwitchType())
                           )
                         )
+                        || 
+                        ( ts instanceof BooleanType &&
+                        !(literal.string.equals("true") || literal.string.equals("false")))
+                       ||
+                       ( ts instanceof CharType &&
+                         !literal.string.startsWith("'") )
+                        )
                     {
-                        parser.error("Illegal case label for switch type " + type_spec.typeName(), token);
+                        parser.error("Illegal case label <" + literal.string + 
+                                     "> for switch type " + type_spec.typeName(), token);
                         return; // abort parsing the case here (we'd get other errors)
                     }
+
+                    if( ts instanceof IntType )
+                    {
+                        try
+                        {
+                            int testme = Integer.parseInt( literal.string ); 
+                        }
+                        catch( NumberFormatException ne )
+                        {
+                            parser.error("Illegal case label <" + literal.string + 
+                                         "> for integral switch type " + type_spec.typeName(), token);
+                            return;
+                        }
+                    }
+
                 }
             }
 
@@ -160,7 +202,7 @@ class Case
 
             if( enum_type_name == null )
             { 
-                                // no enum
+                // no enum
                 if( sym != null ) 
                 { 
                     // null means "default" label in union
@@ -168,7 +210,7 @@ class Case
                 } 
             } 
             else 
-            {           
+            {     
                 // case label const expressions refer to enum values
                 if( sym != null ) 
                 { 
@@ -188,8 +230,14 @@ class Case
                     case_label_list.v.setElementAt(sym,idx);
                 }
             }
-        }
+        } // for
     }
+
+    IdlSymbol[] getLabels()
+    {
+        return labels;
+    }
+    
 
     public void print(java.io.PrintWriter ps)
     {   
