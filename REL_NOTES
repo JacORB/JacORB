@@ -89,6 +89,8 @@ gerald.brose@acm.org
                           any contains an aliased (from typedef) basic type.
                         - Fix for insert_Object operation to determine the
                           IDL name from the RepositoryId.
+                        - Fix for read_value and write_value operations to make
+                          them more portable.
                 ORB:
                         - Fix for IORs not containing zero character padding.
                         - Passing a null to object_to_string now returns the
@@ -127,7 +129,7 @@ gerald.brose@acm.org
                           for recursive and repeated TypeCodes.
                         - The create_abstract_interface_tc and
                           create_native_tc operations are now implemented.
-                        - Many small bug fixes to TypeCode operations.
+                        - Many small fixes to TypeCode operations.
 
          - Portable Interceptors:
                - Adapted to CORBA 2.5 IDL (ForwardRequest exception
