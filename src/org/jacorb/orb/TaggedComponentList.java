@@ -102,7 +102,8 @@ public class TaggedComponentList
 	/**
 	 * Returns a List of all components with the given tag from this
 	 * TaggedComponentList.  Each individual component is read with
-	 * the given helper class.
+	 * the given helper class.  If no components with the given tag
+     * can be found, an empty list is returned.
 	 */
 	public List getComponents (int tag, Class helper)
 	{
