@@ -71,7 +71,8 @@ public class ParsedIOR
     {
 	IOR ior = new IOR();
 	ior.type_id = typeId;
-	ior.profiles = new TaggedProfile[1];
+	ior.profiles = new TaggedProfile[2];
+
 	ior.profiles[0] = new TaggedProfile();
 	ior.profiles[0].tag = 0; // IIOP
 
@@ -79,6 +80,22 @@ public class ParsedIOR
         out.beginEncapsulatedArray();
 	ProfileBody_1_0Helper.write( out, profileBody );
 	ior.profiles[0].profile_data = out.getBufferCopy();
+
+	ior.profiles[1] = new TaggedProfile();
+	ior.profiles[1].tag = 0; // IIOP
+
+        ProfileBody_1_1 pb1_1 = 
+            new ProfileBody_1_1( new org.omg.IIOP.Version( (byte) 1, 
+                                                           (byte) 2 ),
+                                 profileBody.host,
+                                 profileBody.port,
+                                 profileBody.object_key,
+                                 new TaggedComponent[0] );
+
+	out = new CDROutputStream();
+        out.beginEncapsulatedArray();
+	ProfileBody_1_1Helper.write( out, pb1_1 );
+	ior.profiles[1].profile_data = out.getBufferCopy();
 
 	return ior;
     }
