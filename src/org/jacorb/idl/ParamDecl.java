@@ -84,12 +84,21 @@ class ParamDecl
 
     public String printWriteStatement( String ps)
     {
-	if( paramAttribute != 1 )
-	    return paramTypeSpec.printWriteStatement(simple_declarator.toString() + ".value", ps);
-	else
-	    return paramTypeSpec.printWriteStatement(simple_declarator.toString(),ps);
+        return printWriteStatement(simple_declarator.toString() , ps);
     }
 
+    public String printWriteStatement( String name, String ps)
+    {
+	if( paramAttribute != 1 )
+	    return paramTypeSpec.typeSpec().printWriteStatement( name + ".value", ps);
+	else
+	    return paramTypeSpec.typeSpec().printWriteStatement( name ,ps);
+    }
+
+    public String printReadExpression( String ps)
+    {
+	    return paramTypeSpec.typeSpec().printReadExpression( ps );
+    }
 
 }
 
