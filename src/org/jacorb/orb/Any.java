@@ -470,10 +470,23 @@ public final class Any
 
     public void insert_Object(org.omg.CORBA.Object o)
     { 
-        orb = ((org.omg.CORBA.portable.ObjectImpl)o)._orb();
         value = o;
-        typeCode = orb.create_interface_tc( ((org.omg.CORBA.portable.ObjectImpl)o)._ids()[0],
-                                            "*** don\'t know yet ***" );
+
+        org.omg.CORBA.ORB orb;
+        String typeId = null;
+        String name = "*** don\'t know yet ***";
+
+        if( value == null )
+        {
+            orb = org.omg.CORBA.ORB.init();
+            typeId = "IDL:omg.org/CORBA/Object:1.0";
+        }
+        else
+        {            
+            orb = ((org.omg.CORBA.portable.ObjectImpl)o)._orb();
+            typeId = ((org.omg.CORBA.portable.ObjectImpl)o)._ids()[0];
+        }
+        typeCode = orb.create_interface_tc( typeId , name );
     }
 
     public void insert_Object(org.omg.CORBA.Object o, org.omg.CORBA.TypeCode type)
