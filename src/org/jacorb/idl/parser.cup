@@ -458,25 +458,6 @@ parser code
                 return generateIncluded;
         }
 
-        /**
-         * sets locality constraint
-         */
-
-        public static void setLocalityContraint()
-        {
-                localityContraint = true;
-        }
-
-    /**
-      * return the current locality constraint, resets constraint
-      */
-
-    public static boolean getLocalityContraint()
-    {
-        boolean result = localityContraint;
-        localityContraint = false;
-        return result;
-    }
 
     public static boolean getInhibitionState()
     {
@@ -492,9 +473,6 @@ parser code
     {
         include_state = i;
     }
-
-
-
 
     public static boolean hasImports()
     {
@@ -567,7 +545,7 @@ scan with
 terminal java_cup.runtime.token
   ABSTRACT, ANY, ATTRIBUTE, BOOLEAN, CASE, CHAR, CONST, CONTEXT, CUSTOM,
   DEFAULT, DOUBLE, ENUM, EXCEPTION, FACTORY, FALSE, FIXED, FLOAT, IN, 
-  INOUT, INTERFACE, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT, 
+  INOUT, INTERFACE, LOCAL, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT, 
   PRIVATE, PUBLIC, PSEUDO, RAISES, READONLY, SEQUENCE, SHORT, STRING,
   STRUCT, SUPPORTS, SWITCH, TRUE, TRUNCATABLE, TYPEDEF, UNSIGNED, UNION, 
   VALUEBASE, VALUETYPE, VOID, WCHAR, WSTRING,
@@ -858,7 +836,7 @@ interface ::=
                 b.my_interface = RESULT;
                 b.setEnclosingSymbol(RESULT);
                 RESULT.set_included( parser.include_state );
-                RESULT.set_locality( parser.getLocalityContraint());
+                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
          :}
          | ABSTRACT INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
@@ -871,7 +849,19 @@ interface ::=
                 b.my_interface = RESULT;
                 b.setEnclosingSymbol(RESULT);
                 RESULT.set_included( parser.include_state );
-                RESULT.set_locality( parser.getLocalityContraint());
+                // RESULT.set_locality( parser.getLocalityContraint());
+                parser.closeScope( (Scope)RESULT );
+         :}
+         | LOCAL INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
+          {: 
+                RESULT.set_token(i);
+                RESULT.inheritanceSpec = is;
+                RESULT.body = b ;
+                b.set_name(i.str_val);
+                b.my_interface = RESULT;
+                b.setEnclosingSymbol(RESULT);
+                RESULT.set_included( parser.include_state );
+                RESULT.set_locality( true );
                 parser.closeScope( (Scope)RESULT );
          :}
         | PSEUDO INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
@@ -886,27 +876,34 @@ interface ::=
                 b.my_interface = RESULT;
                 b.setEnclosingSymbol(RESULT);
                 RESULT.set_included( parser.include_state );
-                RESULT.set_locality( parser.getLocalityContraint());
+                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
          :}
         | INTERFACE ID:i
           {:
                 RESULT.set_token(i);    
-                RESULT.set_locality( parser.getLocalityContraint());
+                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
           :}
         | ABSTRACT INTERFACE ID:i
           {:
                 RESULT.set_token(i);    
                 RESULT.set_abstract();
-                RESULT.set_locality( parser.getLocalityContraint());
+                // RESULT.set_locality( parser.getLocalityContraint());
+                parser.closeScope( (Scope)RESULT );
+          :}
+        | LOCAL INTERFACE ID:i
+          {:
+                RESULT.set_token(i);    
+                RESULT.set_abstract();
+                RESULT.set_locality( true );
                 parser.closeScope( (Scope)RESULT );
           :}
         | PSEUDO INTERFACE ID:i
           {:
                 RESULT.set_pseudo();
                 RESULT.set_token(i);    
-                RESULT.set_locality( parser.getLocalityContraint());
+                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
           :}
         ;

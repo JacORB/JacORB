@@ -107,10 +107,14 @@ class Interface
             inheritanceSpec.setEnclosingSymbol(s);
     }
 
+    /**
+     * set by the parser after creating this object depending
+     * on the presence of the "local" modifier.
+     */
 
-    public void set_locality( boolean locality_constraint )
+    public void set_locality( boolean local )
     {
-        this.locality_constraint = locality_constraint;
+        this.locality_constraint = local;
     }
 
 
@@ -290,11 +294,11 @@ class Interface
                 ScopedName sn = (ScopedName)e.nextElement();
                 if( sn.resolvedName().indexOf('.') < 0 )
                 {
-                    ps.print("import " + sn + ";" );
+                    ps.println("import " + sn + ";" );
                 }
             }
         }
-        printImport(ps);
+        //printImport(ps);
 
         if( is_pseudo ) 
         {
@@ -334,6 +338,7 @@ class Interface
             ps.println("public interface " + classname );
             ps.print("\textends " + classname + 
                      "Operations, org.omg.CORBA.Object, org.omg.CORBA.portable.IDLEntity");
+
             if( inheritanceSpec.v.size() > 0 )
             {
                 Enumeration e = inheritanceSpec.v.elements();

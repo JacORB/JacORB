@@ -80,30 +80,11 @@ class Definition
 	declaration.print(ps);
     }	
 
-    public void parse() 
-	
+    public void parse()        
     {
 	declaration.parse();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

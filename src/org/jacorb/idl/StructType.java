@@ -259,6 +259,8 @@ class StructType
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
 
+        printImport(ps);
+
         printClassComment( className, ps );
 
 	ps.println("final public class " + className + "Holder");
@@ -299,6 +301,8 @@ class StructType
     {
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";\n" );
+
+        printImport(ps);
 
         printClassComment( className, ps );
 
@@ -369,6 +373,8 @@ class StructType
 
 	    ps.println("package " + pack_name + ";" );
 	}
+
+        printImport(ps);
 
         printClassComment( className, ps );
 

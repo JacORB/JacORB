@@ -28,6 +28,7 @@ class SwitchBody
     /** v holds case list */
     Vector v = new Vector();
     TypeSpec ts = null;
+    UnionType myUnion = null;
 
     public SwitchBody( int num )
     {
@@ -52,6 +53,7 @@ class SwitchBody
 
     public void setUnion( UnionType ut )
     {
+        myUnion = ut;
 	for( Enumeration e = v.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
@@ -85,6 +87,12 @@ class SwitchBody
 	for( Enumeration e = v.elements(); e.hasMoreElements();)
 	    ((IdlSymbol)e.nextElement()).parse();
 	ts.parse();
+
+        if( ts.typeName().indexOf( '.' ) < 0 )
+        {
+            myUnion.imports.put( ts.typeName(), "" );
+            myUnion.imports.put( ts.typeName() + "Helper", "" );
+        }
     }
 
     public void print(java.io.PrintWriter ps)

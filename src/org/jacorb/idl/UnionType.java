@@ -211,8 +211,16 @@ class UnionType
 		{
 		    parser.error("Illegal Switch Type: " + ts.typeName(), token);
 		}
+                if( switch_type_spec.typeName().indexOf( '.' ) < 0 )
+                {
+                    imports.put( switch_type_spec.typeName(), "" );
+                    imports.put(  switch_type_spec.typeName() + "Helper", "" );
+                }
+
 	    }
 	    switch_type_spec.parse();
+
+
 	    switch_body.setTypeSpec(switch_type_spec);
             switch_body.setUnion(this);
             ScopedName.addRecursionScope( typeName() );
@@ -250,6 +258,8 @@ class UnionType
     {
 	if( !pack_name.equals(""))
 	    pw.println("package " + pack_name + ";" );
+
+        printImport(pw);
 
         printClassComment( className, pw );
 
@@ -622,6 +632,8 @@ class UnionType
     {
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
+
+        printImport(ps);
 
         printClassComment( className, ps );
 

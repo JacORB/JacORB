@@ -103,6 +103,13 @@ class Member
 	if( type_spec.typeSpec() instanceof ScopedName )
 	{
 	    token = type_spec.typeSpec().get_token();
+            String name = type_spec.typeSpec().toString();
+            if( name.indexOf( '.' ) < 0 )
+            {
+                enclosing_symbol.imports.put( name, "" );
+                enclosing_symbol.imports.put( name + "Helper", "" );
+            }
+
 	    type_spec = ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
 	    clone_and_parse = false;
 	    if( type_spec instanceof ConstrTypeSpec )
@@ -119,6 +126,7 @@ class Member
 		    }
 		}
 	    }
+            
 
 	} 
 	else if( type_spec.typeSpec() instanceof SequenceType )

@@ -90,6 +90,12 @@ class ElementSpec
                 parser.error("Illegal recursion in union " + containingUnion.full_name(), token);
             }
 
+            if( ts.typeName().indexOf( '.' ) < 0 )
+            {
+                containingUnion.imports.put( ts.typeName(), "" );
+                containingUnion.imports.put( ts.typeName() + "Helper", "" );
+            }
+
 	    if( ts != null ) 
 		t = ts;
 	} 

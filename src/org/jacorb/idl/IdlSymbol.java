@@ -47,6 +47,7 @@ class IdlSymbol
     private String _version;
     protected IdlSymbol enclosing_symbol;
     protected String omg_package_prefix = "";
+    protected Hashtable imports = new Hashtable();
 
     String typeName;
 
@@ -224,17 +225,25 @@ class IdlSymbol
 	throw new java.lang.RuntimeException("--abstract--!");
     }
 
-    public void printImport(PrintWriter ps)
+    public void printImport( PrintWriter ps )
     {
 	if( !pack_name.equals(""))
 	{
 	    for( Enumeration e = parser.import_list.elements(); e.hasMoreElements();)
 	    {
-		ps.println("import " + (String)e.nextElement() + ";");
+		ps.println(" import " + (String)e.nextElement() + ";");
 	    }
+            ps.println();
+	    for( Enumeration e = imports.keys(); e.hasMoreElements();)
+	    {
+                String name = (String)e.nextElement();
+		ps.println("import " + name + ";");
+            }
+            ps.println();
 	}
     }
- 
+
+
     public void setPrintPhaseNames()
     {
 	if( pack_name.length() > 0 )

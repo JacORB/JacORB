@@ -176,6 +176,7 @@ public class lexer
         keywords.put("in",      new Integer(sym.IN));
         keywords.put("inout",   new Integer(sym.INOUT));
         keywords.put("interface",       new Integer(sym.INTERFACE));
+        keywords.put("local",    new Integer(sym.LOCAL));
         keywords.put("long",    new Integer(sym.LONG));
         keywords.put("module",  new Integer(sym.MODULE));
         keywords.put("native",  new Integer(sym.NATIVE));
@@ -788,7 +789,7 @@ public class lexer
                 else if( name.equals("local"))
                 {
                     /* proprietary pragma of the JacORB IDL compiler */
-                    parser.setLocalityContraint();
+                    // parser.setLocalityContraint();
                 }
                 else if( name.equals("inhibit_code_generation"))
                 {

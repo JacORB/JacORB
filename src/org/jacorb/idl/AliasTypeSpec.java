@@ -134,10 +134,34 @@ public class AliasTypeSpec
 	    originalType instanceof FixedPointType || 
 	    originalType instanceof SequenceType ||
 	    originalType instanceof ArrayTypeSpec )
+        {
 	    originalType.parse();
+            if( originalType.typeName().indexOf( '.' ) < 0 )
+            {
+                String tName = null;
+                if( originalType instanceof SequenceType ||
+                    originalType instanceof ArrayTypeSpec )
+                {
+                    tName = originalType.typeName().substring( 0, originalType.typeName().indexOf('['));
+                }
+                else
+                    tName = originalType.typeName();
+
+                imports.put( tName, "" );
+                imports.put( tName + "Helper", "" );
+            }        
+        }
 
 	if( originalType instanceof ScopedName )
+        {
 	    originalType = ((ScopedName)originalType).resolvedTypeSpec();
+            if( originalType.typeName().indexOf( '.' ) < 0 )
+            {
+                imports.put( originalType.typeName(), "" );
+                imports.put( originalType.typeName() + "Helper", "" );
+            }
+        }
+
 
     }
 
@@ -324,6 +348,8 @@ public class AliasTypeSpec
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
 
+        printImport( ps );
+
         printClassComment( className, ps );
 
 	ps.println("final public class " + className + "Holder");
@@ -364,6 +390,8 @@ public class AliasTypeSpec
     {
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";" );
+
+        printImport( ps );
 
         printClassComment( className, ps );
 
