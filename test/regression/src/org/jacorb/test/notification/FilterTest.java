@@ -98,8 +98,7 @@ public class FilterTest extends TestCase {
 
 
     public void testMatchEmptyFilter() throws Exception {
-        // TODO match or not ???
-        assertTrue(filter_.match(testPerson_));
+        assertTrue(!filter_.match(testPerson_));
     }
 
 
