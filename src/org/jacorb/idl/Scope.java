@@ -36,3 +36,4 @@ public interface Scope
 
     public String name();
 }
+

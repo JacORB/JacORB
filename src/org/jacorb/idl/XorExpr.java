@@ -58,7 +58,7 @@ class XorExpr
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
-            pack_name = new String( s + "." + pack_name );
+            pack_name = s + "." + pack_name;
         else
             pack_name = s;
         if( xor_expr != null )
@@ -107,6 +107,7 @@ class XorExpr
         return and_expr.get_token();
     }
 }
+
 
 
 

@@ -304,3 +304,4 @@ class ConstDecl extends Declaration
         }
     }
 }
+

@@ -646,3 +646,4 @@ public class IdlSymbol
     }
 
 }
+

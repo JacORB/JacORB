@@ -80,7 +80,7 @@ class ValueInheritanceSpec
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
-            pack_name = new String( s + "." + pack_name );
+            pack_name = s + "." + pack_name;
         else
             pack_name = s;
 
@@ -152,5 +152,6 @@ class ValueInheritanceSpec
         return sb.toString();
     }
 }
+
 
 

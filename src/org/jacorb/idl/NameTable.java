@@ -399,3 +399,4 @@ class NameTable
                 _s.equals( "org.omg.CORBA.Any" ) || _s.equals( "<anon>" ) );
     }
 }
+

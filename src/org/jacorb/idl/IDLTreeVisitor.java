@@ -93,3 +93,4 @@ public interface IDLTreeVisitor
     void visitConstrTypeSpec( ConstrTypeSpec typeDecl );
 
 }
+

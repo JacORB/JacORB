@@ -60,7 +60,7 @@ class ShiftExpr
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
-            pack_name = new String( s + "." + pack_name );
+            pack_name = s + "." + pack_name;
         else
             pack_name = s;
         if( shift_expr != null )
@@ -109,6 +109,7 @@ class ShiftExpr
         return add_expr.get_token();
     }
 }
+
 
 
 
