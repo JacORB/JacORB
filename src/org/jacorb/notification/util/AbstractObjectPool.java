@@ -232,6 +232,7 @@ public abstract class AbstractObjectPool
         config_ = conf;
         logger_ =  ((org.jacorb.config.Configuration)conf).getNamedLogger( getClass().getName() );
         init();
+        registerPool( this );
     }
 
 
@@ -243,6 +244,7 @@ public abstract class AbstractObjectPool
               INITIAL_SIZE_DEFAULT,
               MAXIMUM_WATERMARK_DEFAULT );
     }
+
 
     protected AbstractObjectPool( String name,
                                   int threshold,
@@ -256,8 +258,8 @@ public abstract class AbstractObjectPool
         sizeIncrease_ = sizeincrease;
         initialSize_ = initialsize;
         maxWatermark_ = maxsize;
-        registerPool( this );
     }
+
 
     public void run()
     {
@@ -282,12 +284,7 @@ public abstract class AbstractObjectPool
 
     private Object createInstance() {
         Object _i = newInstance();
-        try {
-            ((Configurable)_i).configure (this.config_);
-        } catch (ClassCastException cce) {
-            // no worries, just don't configure
-        } catch (ConfigurationException ce) {
-        }
+
         return _i;
     }
 
@@ -333,6 +330,13 @@ public abstract class AbstractObjectPool
 
         if ( _ret == null ) {
             _ret = createInstance();
+        }
+
+        try {
+            ((Configurable)_ret).configure (this.config_);
+        } catch (ClassCastException cce) {
+            // no worries, just don't configure
+        } catch (ConfigurationException ce) {
         }
 
         activateObject( _ret );
