@@ -31,8 +31,10 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.util.Time;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CosNotification.Priority;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StartTime;
 import org.omg.CosNotification.StopTime;
@@ -48,7 +50,6 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.TimeBase.TimeTHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
-import org.omg.CosNotification.Priority;
 
 /**
  * Adapts a StructuredEvent to the Message Interface.
@@ -81,7 +82,7 @@ class StructuredEventMessage extends AbstractMessage
         structuredEventValue_ = event;
 
         constraintKey_ =
-            FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
+            MessageUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
                                            structuredEventValue_.header.fixed_header.event_type.type_name );
 
         parseQosSettings();
@@ -243,7 +244,7 @@ class StructuredEventMessage extends AbstractMessage
         return false;
     }
 
-    protected int getPriority() {
+    public int getPriority() {
         return priority_;
     }
 
