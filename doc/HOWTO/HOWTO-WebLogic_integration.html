@@ -1,0 +1,37 @@
+<HTML>
+  <HEAD>
+    <TITLE>JacORB - WebLogic Integration mini HOW-TO</TITLE>
+    <LINK rel="stylesheet" type="text/css" href="http://www.jacorb.org/jacorb.css">
+  </HEAD>
+
+  <BODY>
+    <H1>JacORB - WebLogic Integration mini HOW-TO</H1>
+<p>This HOW-TO describes how you can use JacORB classes from within WebLogic 8.1 in a Windows environment. This technique may work on other versions and platforms but has not been tested yet. Please let us know if this works for you and what, if any, differences you found.</p>
+<p>Essentially, the classpath plus some JacORB specific environment variables must be set.</p>
+
+<p>
+<OL>
+<LI>Locate the batch file that launches your instance of WebLogic, and open this file for editing. Mine is called startWebLogic.cmd</LI>
+<LI>Ensure that the JACORB_HOME environment variable is set to the location of the JacORB home directory in WebLogic startup file.
+<pre>
+set JACORB_HOME=C:\jacorb_2_2_1
+</pre>
+</li>
+<LI>Startup batch files for WebLogic use an environment variable called JAVA_OPTIONS that we want to use. Add the following lines to your startup batch file to enable JacORB.
+<pre>
+set JAVA_OPTIONS=%JAVA_OPTIONS% -Xbootclasspath:%JACORB_HOME%\lib\jacorb.jar;%JACORB_HOME%\lib\concurrent-1.3.2.jar;%JACORB_HOME%\lib\avalon-framework-4.1.5.jar;%JACORB_HOME%\lib\antlr-2.7.2.jar;%JACORB_HOME%\lib\idl.jar;%JACORB_HOME%\lib\logkit-1.2.jar;%JAVA_HOME%\jre\lib\rt.jar
+set JAVA_OPTIONS=%JAVA_OPTIONS% -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB
+set JAVA_OPTIONS=%JAVA_OPTIONS% -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton 
+set JAVA_OPTIONS=%JAVA_OPTIONS% -Djacorb.home=%JACORB_HOME%
+set JAVA_OPTIONS=%JAVA_OPTIONS% -server
+echo JAVA_OPTIONS=%JAVA_OPTIONS%
+</pre>
+</LI>
+<LI>Restart WebLogic using your new and improved script.</LI>
+</ol>
+</p>
+<p>
+Please send your comments and bugs in this script to <a href="mailto:molivieri@yahoo.com">Mike Olivieri</a>
+</p>
+</body>
+</html>
