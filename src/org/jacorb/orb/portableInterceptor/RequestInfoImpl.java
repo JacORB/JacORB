@@ -41,21 +41,21 @@ public abstract class RequestInfoImpl
     implements RequestInfo
 {
 
-    public int request_id;
-    public String operation = null;
+    protected int request_id;
+    protected String operation = null;
 
-    public Parameter[] arguments = null;
-    public TypeCode[] exceptions = null;
-    public Any result = null;
-    public boolean response_expected;
-    public org.omg.CORBA.Object forward_reference = null;
-    public short reply_status;
-    public org.omg.PortableInterceptor.Current current = null;
+    protected Parameter[] arguments = null;
+    protected TypeCode[] exceptions = null;
+    protected Any result = null;
+    protected boolean response_expected;
+    protected org.omg.CORBA.Object forward_reference = null;
+    protected short reply_status;
+    protected org.omg.PortableInterceptor.Current current = null;
   
     protected Hashtable request_ctx = null;
     protected Hashtable reply_ctx = null;
 
-    public short caller_op = -1;
+    protected short caller_op = -1;
     
     public RequestInfoImpl() {
         request_ctx = new Hashtable();
@@ -82,9 +82,33 @@ public abstract class RequestInfoImpl
             reply_ctx.put(new Integer(ctx[_i].context_id), ctx[_i]);
     }
 
+    public void setArguments (Parameter[] args) {
+        this.arguments = args;
+    }
+
+    public void setResult (Any result) {
+        this.result = result;
+    }
+
+    public org.omg.PortableInterceptor.Current current() {
+        return current;
+    }
+
+    public void setCurrent (org.omg.PortableInterceptor.Current current) {
+        this.current = current;
+    }
+
+    public void setReplyStatus (short reply_status) {
+        this.reply_status = reply_status;
+    }
+    
+    public void setForwardReference (org.omg.CORBA.Object forward_reference) {
+        this.forward_reference = forward_reference;
+    }        
+
     // implementation of org.omg.PortableInterceptor.RequestInfoOperations interface
     public Parameter[] arguments() {
-        return null;
+        return arguments;
     }
   
     public String[] contexts() {
@@ -93,11 +117,11 @@ public abstract class RequestInfoImpl
     }
   
     public TypeCode[] exceptions() {
-        return null;
+        return exceptions;
     }
   
     public org.omg.CORBA.Object forward_reference() {
-        return null;
+        return forward_reference;
     }
   
     public ServiceContext get_reply_service_context(int id) {
