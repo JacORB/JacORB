@@ -22,33 +22,30 @@ package org.jacorb.notification;
  */
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.ProxyEvent;
+import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
+import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
+import org.omg.CosEventChannelAdmin.ProxyPushSupplier;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdminOperations;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdminPOATie;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxyNotFound;
-import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
-import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierHelper;
-import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyFilter.MappingFilter;
-import org.omg.CORBA.BAD_PARAM;
-import java.util.List;
-import java.util.Vector;
-import org.jacorb.notification.interfaces.Disposable;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdminPOATie;
-import org.jacorb.notification.interfaces.EventConsumer;
-import org.omg.CosEventChannelAdmin.ProxyPushSupplier;
-import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.PortableServer.Servant;
-import org.jacorb.notification.interfaces.ProxyEventListener;
-import org.jacorb.notification.interfaces.ProxyEvent;
 
 /**
  * ConsumerAdminImpl.java
