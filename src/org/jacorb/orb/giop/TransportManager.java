@@ -47,7 +47,19 @@ public class TransportManager
     public static SocketFactory socket_factory = null;
     public static SocketFactory ssl_socket_factory = null;
 
-    private org.omg.ETF.Factories factories = null;
+    private ProfileSelector profileSelector = null;
+
+    /**
+     * Maps ETF Profile tags (Integer) to ETF Factories objects.
+     */
+    private Map  factoriesMap  = null;
+    
+    /**
+     * List of all installed ETF Factories.  This list contains an
+     * instance of each Factories class, ordered in the same way as
+     * they were specified in the jacorb.transport.factories property.
+     */
+    private List factoriesList = null;
 
     public TransportManager( ORB orb )
     {
@@ -81,36 +93,87 @@ public class TransportManager
         }
     }
 
-    /**
-     * Returns the Factories object for the current transport.
-     */
-    public org.omg.ETF.Factories getFactories()
+    public ProfileSelector getProfileSelector()
     {
-        if (factories == null)
+        if (profileSelector == null)
         {
-            String className = 
-                Environment.getProperty ("jacorb.transport.factories");
-            if (className == null)
+            profileSelector = 
+                (ProfileSelector)Environment.getObjectProperty
+                                         ("jacorb.transport.client.selector");
+            if (profileSelector == null)
             {
-                factories = new IIOPFactories();
-            }
-            else
-            {
-                try
-                {
-                    Class c = Class.forName (className);
-                    factories = (org.omg.ETF.Factories)c.newInstance();
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException 
-                        ("could not instantiate Factories class: "
-                         + className + ", exception: " + e);
-                }
+                profileSelector = new DefaultProfileSelector();
             }
         }
-        return factories;
+        return profileSelector;
     }
+
+    /**
+     * Returns an ETF Factories object for the given tag, or null
+     * if no Factories class has been defined for this tag.
+     */
+    public org.omg.ETF.Factories getFactories (int tag)
+    {
+        if (factoriesMap == null)
+        {
+            loadFactories();
+        }
+        return (Factories)factoriesMap.get (new Integer (tag));
+    }
+
+    /**
+     * Returns a list of Factories for all configured transport plugins,
+     * in the same order as they were specified in the 
+     * jacorb.transport.factories property.
+     */
+    public List getFactoriesList()
+    {
+        if (factoriesList == null)
+        {
+            loadFactories();
+        }
+        return Collections.unmodifiableList (factoriesList);
+    }
+
+    /**
+     * Build the factoriesMap and factoriesList. 
+     */
+    private void loadFactories()
+    {
+        factoriesMap  = new HashMap();
+        factoriesList = new ArrayList();
+            
+        List classNames = 
+            Environment.getListProperty ("jacorb.transport.factories");
+        if (classNames.isEmpty())
+            classNames.add ("org.jacorb.orb.iiop.IIOPFactories");
+                
+        for (Iterator i = classNames.iterator(); i.hasNext();)
+        {
+            String className = (String)i.next();
+            Factories f    = instantiateFactories (className);
+            factoriesMap.put (new Integer (f.profile_tag()), f);
+            factoriesList.add (f);
+        }
+    }
+
+    /**
+     * Instantiates the given Factories class.
+     */    
+    private org.omg.ETF.Factories instantiateFactories (String className)
+    {
+        try
+        {
+            Class c = Class.forName (className);
+            return (Factories)c.newInstance();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException
+                ("could not instantiate Factories class " + className
+                 + ", exception: " + e);
+        }
+    }            
 
 }
 
