@@ -112,6 +112,8 @@ public class ReleaseTasksTest extends NotificationTestCase
 
         pullReceiver.run();
 
+        Thread.sleep(1000);
+
         assertTrue(pushReceiver.isEventHandled());
         assertTrue(pullReceiver.isEventHandled());
 
