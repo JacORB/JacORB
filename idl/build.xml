@@ -25,7 +25,7 @@
    <!-- ==================================================== -->
 
    <target name="corba"
-           depends="orb,sysex,dynany,portableserver,iop,etf,iiop,giop,conf,messaging,interceptor,compile"/>
+           depends="orb,sysex,dynany,portableserver,iop,rtcorba,etf,iiop,giop,conf,messaging,interceptor,compile"/>
 
    <target name="compile">
       <antcall target="jacorb-javac">
@@ -34,7 +34,7 @@
       </antcall>
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${src}/generated"/>
-         <param name="javac-includes" value="org/omg/CORBA_2_3/**/*.java,org/omg/CORBA_2_5/**/*.java,org/omg/IOP/**/*.java,org/omg/ETF/**/*.java,org/omg/GIOP/**/*.java,org/omg/IIOP/**/*.java,org/omg/CONV_FRAME/**/*.java,org/omg/Dynamic/**/*.java"/>
+         <param name="javac-includes" value="org/omg/CORBA_2_3/**/*.java,org/omg/CORBA_2_5/**/*.java,org/omg/IOP/**/*.java,org/omg/RTCORBA/**/*.java,org/omg/ETF/**/*.java,org/omg/GIOP/**/*.java,org/omg/IIOP/**/*.java,org/omg/CONV_FRAME/**/*.java,org/omg/Dynamic/**/*.java"/>
       </antcall>
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${src}/generated"/>
@@ -160,6 +160,16 @@
               omgprefix="true"
               includepath="${idl}/omg"
               includes="**/omg/IOP.idl"
+              destdir="${src}/generated"
+      />
+   </target>
+
+   <target name="rtcorba" depends="init,load-taskdef">
+      <jacidl generateir="true"
+              srcdir="idl"
+              omgprefix="true"
+              includepath="${idl}/omg"
+              includes="**/omg/RTCORBA.idl"
               destdir="${src}/generated"
       />
    </target>
