@@ -22,58 +22,43 @@ package org.jacorb.security.sas;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.GSSUP.GSSUPMechOID;
-import org.omg.GSSUP.InitialContextToken;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public class GssUpContext implements ISASContext
+public class NullContext implements ISASContext
 {
 	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
-	private static String username = "";
-	private static String password = "";
-    private InitialContextToken initialContextToken = null;
-    
-    public static void setUsernamePassword(String username, String password) {
-		GssUpContext.username = username;
-		GssUpContext.password = password;
-    }
     
     public String getMechOID() {
-    	return GSSUPMechOID.value.substring(4);
+    	return "";
     }
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
 	 */
 	public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
-		byte[] target = csmList.mechanism_list[0].as_context_mech.target_name;
-		byte[] contextToken = GSSUPNameSpi.encode(username, password, target);
-		initialContextToken = GSSUPNameSpi.decode(contextToken);
-		return contextToken;
+		return new byte[0];
 	}
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
 	 */
 	public String getClientPrincipal() {
-		return username;
+		return "";
 	}
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
 	 */
 	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
-		initialContextToken = GSSUPNameSpi.decode(contextToken);
-		return (initialContextToken != null);
+		return true;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
 	 */
 	public String getValidatedPrincipal() {
-		if (initialContextToken == null) return null;
-		return new String(initialContextToken.username);
+		return "";
 	}
 
 	/* (non-Javadoc)

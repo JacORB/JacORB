@@ -746,9 +746,11 @@ jacorb.SAS.TSS.log.verbosity=INFO
 
 # This option defines the specific SAS context generator/validator
 # Currently supported contexts include:
+#    NullContext       - Sends a NULL SAS Context
 #    GssUpContext      - Uses GSSUP security
 #    KerberosContext   - uses Kerberos security
 # At least one context must be selected for SAS support
+#jacorb.security.sas.contextClass=org.jacorb.security.sas.NullContext
 #jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
 #jacorb.security.sas.contextClass=org.jacorb.security.sas.KerberosContext
 

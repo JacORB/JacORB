@@ -88,14 +88,14 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
     }
 
-    public static byte[] encode(String username, String password, String target_name)
+    public static byte[] encode(String username, String password, byte[] target_name)
     {
 		InitialContextToken subject = null;
 		try
 		{
 		    subject = new InitialContextToken( username.getBytes("UTF-8"), 
 		                                       password.getBytes("UTF-8"), 
-		                                       target_name.getBytes("UTF-8"));
+		                                       target_name);
 		}
 		catch(java.io.UnsupportedEncodingException e)
 		{
@@ -187,7 +187,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
 
     public static byte[] encode(String username, char[] password, String target_name)
     {
-		return encode(username, new String(password), target_name);
+		return encode(username, new String(password), target_name.getBytes());
 	}
 	 
 	public static InitialContextToken decode(byte[] gssToken)
