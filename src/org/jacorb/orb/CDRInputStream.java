@@ -864,7 +864,7 @@ public class CDRInputStream
         handle_chunking();
 
         org.omg.IOP.IOR ior = org.omg.IOP.IORHelper.read(this);
-        ParsedIOR pior = new ParsedIOR( ior );
+        ParsedIOR pior = new ParsedIOR( ior, (org.jacorb.orb.ORB)orb );
 
         if( pior.isNull() )
         {
