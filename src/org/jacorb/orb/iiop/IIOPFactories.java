@@ -46,7 +46,16 @@ public class IIOPFactories
 
     public Connection create_connection(ProtocolProperties props)
     {
-        return new ClientIIOPConnection();
+        ClientIIOPConnection connection = new ClientIIOPConnection();
+        try
+        {
+            connection.configure(configuration);
+        }
+        catch( ConfigurationException ce )
+        {
+            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
+        }
+        return connection;
     }
 
     /**

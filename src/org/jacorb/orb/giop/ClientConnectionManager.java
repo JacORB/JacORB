@@ -96,8 +96,8 @@ public class ClientConnectionManager
 
         if (configuration.getAttribute("jacorb.security.support_ssl","off").equals("on") )
         {
-            String s = configuration.getAttribute("jacorb.ssl.socket_factory");
-            if ( s == null || s.length() == 0)
+            String s = configuration.getAttribute("jacorb.ssl.socket_factory","");
+            if ( s.length() == 0)
             {
                 throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
             }

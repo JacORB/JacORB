@@ -60,7 +60,7 @@ public class BasicAdapter
     private List listeners = new ArrayList();
 
     private MessageReceptorPool receptor_pool = null;
-    private RequestListener request_listener = null;
+    private ServerRequestListener request_listener = null;
     private ReplyListener reply_listener = null;
 
     private TransportManager transport_manager = null;
@@ -85,23 +85,28 @@ public class BasicAdapter
         this.giop_connection_manager = giop_connection_manager;
     }
 
+    /**
+     * configure the BasicAdapter
+     */ 
 
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
-        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        this.configuration = 
+            (org.jacorb.config.Configuration)myConfiguration;
         logger = 
             configuration.getNamedLogger("jacorb.orb.basic");
 
         socket_factory = 
             transport_manager.getSocketFactoryManager().getServerSocketFactory();
 
-        if( configuration.getAttribute( "jacorb.security.support_ssl","off").equals("on"))
+        if( configuration.getAttribute("jacorb.security.support_ssl","off").equals("on"))
         {
             if( ssl_socket_factory == null )
             {
-                String s = configuration.getAttribute( "jacorb.ssl.server_socket_factory" );
-                if( s == null || s.length() == 0 )
+                String s = 
+                    configuration.getAttribute( "jacorb.ssl.server_socket_factory","" );
+                if(  s.length() == 0 )
                 {
                     throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the property \"jacorb.ssl.server_socket_factory\" is not set!" );
                 }
@@ -129,22 +134,23 @@ public class BasicAdapter
         }
 
         receptor_pool = MessageReceptorPool.getInstance();
+
         request_listener = new ServerRequestListener( orb, rootPOA );
+        request_listener.configure( configuration );
         reply_listener = new NoBiDirServerReplyListener();
 
         // create all Listeners
-
         for (Iterator i = getListenerFactories().iterator();
              i.hasNext();)
         {
              Factories f = (Factories)i.next();
              Listener l = f.create_listener (null, (short)0, (short)0);
-             l.set_handle (this);
+             l.set_handle(this);
+             ((Configurable)l).configure(configuration);
              listeners.add (l);
         }
 
         // activate them
-
         for (Iterator i = listeners.iterator(); i.hasNext();)
         {
             ((Listener)i.next()).listen();

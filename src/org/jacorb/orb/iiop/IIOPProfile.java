@@ -155,6 +155,15 @@ public class IIOPProfile
             }
         }
         primaryAddress = new IIOPAddress(host,port);
+        try
+        {
+            primaryAddress.configure(configuration);
+        }
+        catch( ConfigurationException ce)
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("ConfigurationException", ce );
+        }
         decode_extensions(protocol_identifier.toLowerCase());
     }
 
@@ -186,37 +195,13 @@ public class IIOPProfile
 
     private short get_ssl_options(String propname)
     {
-        try
-        {
-            String option_str = configuration.getAttribute(propname);
-            short value = EstablishTrustInTarget.value;
-            //For the time being, we only use EstablishTrustInTarget,
-            //because we don't handle any of the other options anyway.
-            // So this makes a reasonable default.
-            
-            if( (option_str != null) &&
-                (! option_str.equals( "" )) )
-            {
-                try
-                {
-                    value = (short)Integer.parseInt( option_str, 16 );
-                }
-                catch( NumberFormatException nfe )
-                {
-                    if (logger.isErrorEnabled())
-                        logger.error("Invalid hex property >>" +
-                                     option_str + "<<" +
-                                     "Please check property \"" + propname + "\"" );
-                }
-            }
-            return value;
-        }
-        catch( ConfigurationException ce )
-        {
-            if (logger.isErrorEnabled())
-                logger.error("ConfigurationException:", ce );
-            return 0;
-        }
+        //For the time being, we only use EstablishTrustInTarget,
+        //because we don't handle any of the other options anyway.
+        // So this makes a reasonable default.
+        
+        short value = 
+            (short)configuration.getAttributeAsInteger(propname,EstablishTrustInTarget.value);
+        return value;
     }
 
     /**
@@ -410,24 +395,34 @@ public class IIOPProfile
         if (newHost != null)
         {
             primaryAddress = new IIOPAddress 
-            (
-                newHost,
-                (newPort != -1) ? newPort
-                                : primaryAddress.getPort()
-            );
+                (
+                 newHost,
+                 (newPort != -1) ? newPort
+                 : primaryAddress.getPort()
+                 );
+            
         }
         else if(newPort != -1)
         {
             primaryAddress = new IIOPAddress(primaryAddress.getIP(),
-                                              newPort);
+                                             newPort);
+        }
+        try
+        {
+            primaryAddress.configure(configuration);
+        }
+        catch( ConfigurationException ce)
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("ConfigurationException", ce );
         }
     }
-
-	public List getAlternateAddresses()
-	{
-		return components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
-		                                IIOPAddress.class);
-	}
+    
+    public List getAlternateAddresses()
+    {
+        return components.getComponents(TAG_ALTERNATE_IIOP_ADDRESS.value,
+                                        IIOPAddress.class);
+    }
 
     public byte[] get_object_key()
     {

@@ -40,6 +40,7 @@ import org.apache.avalon.framework.configuration.*;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.INITIALIZE;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.BAD_QOS;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.BooleanHolder;
@@ -183,8 +184,10 @@ public final class ORB
         throws ConfigurationException
     {
         super.configure(myConfiguration);
-        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
-        logger = configuration.getNamedLogger("jacorb.orb");
+        this.configuration = 
+            (org.jacorb.config.Configuration)myConfiguration;
+        logger = 
+            configuration.getNamedLogger("jacorb.orb");
 
         cacheReferences = 
             configuration.getAttribute("jacorb.reference_caching", "off").equals("on");
@@ -214,7 +217,7 @@ public final class ORB
             configuration.getAttribute("jacorb.use_imr", "on").equals("on");
 
         iorProxyHost = 
-            configuration.getAttribute("jacorb.ior_proxy_host", "");
+            configuration.getAttribute("jacorb.ior_proxy_host", null);
 
         iorProxyPort = 
             configuration.getAttributeAsInteger("jacorb.ior_proxy_port",-1);
@@ -282,20 +285,20 @@ public final class ORB
 
         if( o != null )
         {
-            org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate) o._get_delegate();
+            org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate)o._get_delegate();
             if (del != null)
             {
                 ParsedIOR delpior= del.getParsedIOR();
                 if (delpior == null)
                 {
                     knownReferences.remove(key);
-                    if( logger.isDebugEnabled() )
+                    if (logger.isDebugEnabled())
                     {
                         logger.debug("Removing an invalid reference from cache.");
                     }
                 }
                 else if( pior.getEffectiveProfile()
-                           .is_match( delpior.getEffectiveProfile() ))
+                           .is_match(delpior.getEffectiveProfile()))
                 {
                     return o._duplicate();
                 }
@@ -310,6 +313,12 @@ public final class ORB
             }
         }
 
+        if (pior == null)
+        {
+            if (logger.isErrorEnabled())
+                logger.error("Internal error, pior is null");
+        }
+
         org.jacorb.orb.Delegate d = new Delegate(this, pior );
         try
         {
@@ -318,7 +327,7 @@ public final class ORB
         catch(ConfigurationException ce)
         {
             if (logger.isErrorEnabled())
-                logger.error(ce.getMessage());
+                logger.error("ConfigurationException", ce);
         }
 
         o = d.getReference( null );
@@ -473,6 +482,19 @@ public final class ORB
 
     public GIOPConnectionManager getGIOPConnectionManager()
     {
+        if (giop_connection_manager == null)
+        {
+            giop_connection_manager = 
+                new GIOPConnectionManager();
+            try
+            {
+                giop_connection_manager.configure(configuration);
+            }
+            catch( ConfigurationException ce )
+            {
+                throw new INTERNAL(ce.getMessage());
+            }
+        }
         return giop_connection_manager;
     }
 
@@ -578,11 +600,11 @@ public final class ORB
         return new CDROutputStream(this);
     }
 
-    org.omg.IOP.IOR createIOR (String repId,
-                               byte[] objectKey,
-                               boolean _transient,
-                               org.jacorb.poa.POA poa,
-                               Map policy_overrides)
+    org.omg.IOP.IOR createIOR(String repId,
+                              byte[] objectKey,
+                              boolean _transient,
+                              org.jacorb.poa.POA poa,
+                              Map policy_overrides)
     {
         List profiles     = new ArrayList();
         Map  componentMap = new HashMap();
@@ -595,13 +617,13 @@ public final class ORB
             profiles.add (profile);
 
             TaggedComponentList profileComponents = new TaggedComponentList();
-            profileComponents.addComponent (create_ORB_TYPE_ID());
-            componentMap.put (new Integer (profile.tag()), profileComponents);
+            profileComponents.addComponent(create_ORB_TYPE_ID());
+            componentMap.put(new Integer(profile.tag()), profileComponents);
 
             // use proxy or ImR address if necessary
             if (profile instanceof IIOPProfile)
             {
-                patchAddress ((IIOPProfile)profile, repId, _transient);
+                patchAddress((IIOPProfile)profile, repId, _transient);
             }
         }
 
@@ -613,10 +635,10 @@ public final class ORB
         if ((interceptor_manager != null) &&
             interceptor_manager.hasIORInterceptors())
         {
-            IORInfoImpl info = new IORInfoImpl (this, poa,
-                                                componentMap,
-                                                policy_overrides,
-                                                profiles);
+            IORInfoImpl info = new IORInfoImpl(this, poa,
+                                               componentMap,
+                                               policy_overrides,
+                                               profiles);
             try
             {
                 interceptor_manager.getIORIterator().iterate( info );
@@ -629,27 +651,26 @@ public final class ORB
         }
 
         // add GIOP 1.0 profile if necessary
-        IIOPProfile iiopProfile = findIIOPProfile (profiles);
+        IIOPProfile iiopProfile = findIIOPProfile(profiles);
         if ( (iiopProfile != null)
              && ( this.giopMinorVersion == 0 || this.giopAdd_1_0_Profiles ))
             //            && (   Environment.giopMinorVersion() == 0
             //    || Environment.giopAdd_1_0_Profiles()))
         {
             Profile profile_1_0 = iiopProfile.to_GIOP_1_0();
-            profiles.add (profile_1_0);
+            profiles.add(profile_1_0);
 
             // shuffle all components over into the multiple components profile
             TaggedComponentList iiopComponents =
-                (TaggedComponentList)componentMap.get
-                                       (new Integer (TAG_INTERNET_IOP.value));
+                (TaggedComponentList)componentMap.get(new Integer(TAG_INTERNET_IOP.value));
 
-            multipleComponents.addAll (iiopProfile.getComponents());
-            multipleComponents.addAll (iiopComponents);
+            multipleComponents.addAll(iiopProfile.getComponents());
+            multipleComponents.addAll(iiopComponents);
 
             // if we only want GIOP 1.0, remove the other profile
             if (giopMinorVersion == 0)
             {
-                profiles.remove (iiopProfile);
+                profiles.remove(iiopProfile);
             }
         }
 
@@ -663,7 +684,7 @@ public final class ORB
         {
             tps = new TaggedProfile [profiles.size() + 1];
             tps[tps.length-1] =
-                createMultipleComponentsProfile (multipleComponents);
+                createMultipleComponentsProfile(multipleComponents);
         }
 
         TaggedProfileHolder      tp = new TaggedProfileHolder();
@@ -678,7 +699,7 @@ public final class ORB
             tps[i] = tp.value;
         }
 
-        return new IOR (repId, tps);
+        return new IOR(repId, tps);
     }
 
     private TaggedProfile createMultipleComponentsProfile
@@ -759,7 +780,13 @@ public final class ORB
             rep_id = "IDL:omg.org/CORBA/Object:1.0";
 
         org.omg.IOP.IOR ior =
-        createIOR( rep_id, object_key, _transient, poa, null );
+            createIOR( rep_id, object_key, _transient, poa, null );
+
+        if (ior == null)
+        {
+            if (logger.isErrorEnabled())
+                logger.error("Interal error: createIOR returns null");
+        }
 
         Delegate d = new Delegate( this, ior );
         try
@@ -769,7 +796,7 @@ public final class ORB
         catch(ConfigurationException ce)
         {
             if (logger.isErrorEnabled())
-                logger.error(ce.getMessage());
+                logger.error(ce.getMessage(), ce);
         }
         return d.getReference( poa );
     }
@@ -784,8 +811,8 @@ public final class ORB
 
             basicAdapter = new BasicAdapter( this,
                                              rootpoa,
-                                             transport_manager,
-                                             giop_connection_manager );
+                                             getTransportManager(),
+                                             getGIOPConnectionManager() );
 
             try
             {
@@ -914,9 +941,9 @@ public final class ORB
     /**
      * Replace the server address in profile with a proxy address if necessary.
      */
-    private void patchAddress (IIOPProfile profile,
-                               String repId,
-                               boolean _transient)
+    private void patchAddress(IIOPProfile profile,
+                              String repId,
+                              boolean _transient)
     {
         if (repId.equals ("IDL:org/jacorb/imr/ImplementationRepository:1.0"))
         {
@@ -932,7 +959,7 @@ public final class ORB
             // actual imr address or the environment values are patched into the
             // address, giving precedence to the latter.
             profile.patchPrimaryAddress(imr.getImRHost(), imr.getImRPort());
-            profile.patchPrimaryAddress( imrProxyHost, imrProxyPort);
+            profile.patchPrimaryAddress(imrProxyHost, imrProxyPort);
         }
         else
         {
@@ -1103,7 +1130,8 @@ public final class ORB
 
             try
             {
-                configuration.getAttribute("ORBInitRef." + identifier);
+                url = 
+                    configuration.getAttribute("ORBInitRef." + identifier);
             }
             catch( Exception e )
             {
@@ -1121,7 +1149,8 @@ public final class ORB
                     if (logger.isErrorEnabled())
                     {
                         logger.error( "Could not create initial reference for \"" +
-                                      identifier + "\"\n" + "Please check property \"ORBInitRef." +
+                                      identifier + "\"\n" + 
+                                      "Please check property \"ORBInitRef." +
                                       identifier + '\"' );
                     }
                     if (logger.isDebugEnabled())
@@ -1133,7 +1162,7 @@ public final class ORB
                 }
             }
             /* "special" behavior follows */
-            else if (identifier.equals ("NameService") && isApplet ())
+            else if (identifier.equals("NameService") && isApplet())
             {
                 try
                 {
@@ -1491,15 +1520,10 @@ public final class ORB
 
         try
         {
-            transport_manager = new TransportManager( this );
-            transport_manager.configure(configuration);
-
-            giop_connection_manager = new GIOPConnectionManager();
-            
             clientConnectionManager =
                 new ClientConnectionManager( this,
-                                             transport_manager,
-                                             giop_connection_manager );        
+                                             getTransportManager(),
+                                             getGIOPConnectionManager());        
             clientConnectionManager.configure(configuration);
         }
         catch( ConfigurationException ce )
@@ -1589,15 +1613,10 @@ public final class ORB
 
         try
         {
-            transport_manager = new TransportManager( this );
-            transport_manager.configure(configuration);
-
-            giop_connection_manager = new GIOPConnectionManager();
-            
             clientConnectionManager =
                 new ClientConnectionManager( this,
-                                             transport_manager,
-                                             giop_connection_manager );        
+                                             getTransportManager(),
+                                             getGIOPConnectionManager() );        
             clientConnectionManager.configure(configuration);
         }
         catch( ConfigurationException ce )
@@ -1733,16 +1752,16 @@ public final class ORB
             if ( prop_names[i].startsWith( initializer_prefix ))
             {
                 String name = null;
-                try
-                {
-                    name = configuration.getAttribute( prop_names[i] );
-                }
-                catch( ConfigurationException ce )
-                {
-                    ce.printStackTrace(); // debug
-                }
+//                 try
+//                 {
+                    name = configuration.getAttribute( prop_names[i], "" );
+ //                }
+//                 catch( ConfigurationException ce )
+//                 {
+//                     ce.printStackTrace(); // debug
+//                 }
 
-                if( name == null || name.length() == 0 )
+                if( name.length() == 0 )
                 {
                     if( prop_names[i].length() > initializer_prefix.length() )
                     {
@@ -2207,7 +2226,15 @@ public final class ORB
     {
         if (transport_manager == null)
         {
-            transport_manager = new TransportManager (this);
+            transport_manager = new TransportManager(this);
+            try
+            {
+                transport_manager.configure(configuration);
+            }
+            catch( ConfigurationException ce )
+            {
+                throw new INTERNAL(ce.getMessage());
+            }
         }
         return transport_manager;
     }

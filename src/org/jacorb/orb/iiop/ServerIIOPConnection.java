@@ -41,6 +41,7 @@ import org.jacorb.orb.iiop.*;
 
 public class ServerIIOPConnection
     extends IIOPConnection
+    implements Configurable
 {
     private boolean is_ssl;
     private IIOPProfile profile;

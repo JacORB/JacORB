@@ -32,6 +32,7 @@ import org.apache.avalon.framework.configuration.*;
 
 public class ClientGIOPConnection
     extends GIOPConnection
+    implements Configurable
 {
     private boolean ignore_pending_messages_on_timeout = false;
 

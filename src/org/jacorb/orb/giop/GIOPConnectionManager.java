@@ -54,6 +54,9 @@ public class GIOPConnectionManager
         server_giop_connections = new LinkedList();
     }
 
+    /**
+     * configures the GIOPConnectionManager
+     */
 
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
@@ -72,18 +75,16 @@ public class GIOPConnectionManager
         
         wait_for_idle_interval =
             configuration.getAttributeAsInteger( 
-                "jacorb.connection.wait_for_idle_interval", 500 );
-                
+                "jacorb.connection.wait_for_idle_interval", 500 );                
 
         String s = 
-            configuration.getAttribute( "jacorb.connection.statistics_provider_class" );
+            configuration.getAttribute( "jacorb.connection.statistics_provider_class","" );
 
-        if( s != null && s.length() > 0 )
+        if( s.length() > 0 )
         {
             try
             {
-                statistics_provider_class =
-                    ObjectUtil.classForName( s );
+                statistics_provider_class = ObjectUtil.classForName( s );
             }
             catch( Exception e )
             {
@@ -155,6 +156,16 @@ public class GIOPConnectionManager
                                       getStatisticsProvider(),
                                       this);
 
+        try
+        {
+            connection.configure( configuration );
+        }
+        catch( ConfigurationException ce )
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("ConfigurationException", ce);
+        }
+
         synchronized( server_giop_connections )
         {
             server_giop_connections.add( connection );
@@ -178,11 +189,23 @@ public class GIOPConnectionManager
         RequestListener request_listener,
         ReplyListener reply_listener )
     {
-        return new ClientGIOPConnection( profile,
-                                         transport,
-                                         request_listener,
-                                         reply_listener,
-                                         null );
+        ClientGIOPConnection connection = 
+            new ClientGIOPConnection( profile,
+                                      transport,
+                                      request_listener,
+                                      reply_listener,
+                                      null );
+        
+        try
+        {
+            connection.configure( configuration );
+        }
+        catch( ConfigurationException ce )
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("ConfigurationException", ce);
+        }
+        return connection;
     }
 
     private StatisticsProvider getStatisticsProvider()

@@ -98,21 +98,15 @@ public class SASComponentInterceptor
         }
         catch (Exception e)
         {
-            logger.error("Error initing SASComponentInterceptor: ",e);
+            if (logger.isErrorEnabled())
+                logger.error("Error initing SASComponentInterceptor: ",e);
         }
 
         String contextClass = null;
 
         try
         {
-            config.getAttribute("jacorb.security.sas.contextClass");
-        }
-        catch( ConfigurationException ce )
-        {
-            // ignore;
-        }
-        if (contextClass != null) 
-        {
+            contextClass = config.getAttribute("jacorb.security.sas.contextClass");
             try 
             {
                 Class c = org.jacorb.util.ObjectUtil.classForName(contextClass);
@@ -120,14 +114,20 @@ public class SASComponentInterceptor
             }
             catch (Exception e) 
             {
-                logger.error("Could not instantiate SAS Context class " + 
-                             contextClass + ": " + e);
+                if (logger.isErrorEnabled())
+                    logger.error("Could not instantiate SAS Context class " + 
+                                 contextClass + ": " + e);
             }
         }
+        catch( ConfigurationException ce )
+        {
+            // ignore;
+        }
+
         if (sasContext == null) 
         {
-            logger.error("Could not load SAS context class: "+
-                          contextClass);
+            if (logger.isErrorEnabled())
+                logger.error("Could not load SAS context class: "+ contextClass);
         }
     }
 
@@ -163,11 +163,13 @@ public class SASComponentInterceptor
         } 
         catch (BAD_PARAM e) 
         {
-            logger.debug("No SAS Policy");
+            if (logger.isDebugEnabled())
+                logger.debug("No SAS Policy");
         } 
         catch (Exception e) 
         {
-            logger.warn("Error fetching SAS policy: "+e);
+            if (logger.isWarnEnabled())
+                logger.warn("Error fetching SAS policy: "+e);
         }
 
         if (sasValues == null) 
@@ -186,11 +188,13 @@ public class SASComponentInterceptor
         } 
         catch (BAD_PARAM e) 
         {
-            logger.debug("No ATLAS Policy");
+            if (logger.isDebugEnabled())
+                logger.debug("No ATLAS Policy");
         } 
         catch (Exception e) 
         {
-            logger.warn("Error fetching ATLAS policy: "+e);
+            if (logger.isWarnEnabled())
+                logger.warn("Error fetching ATLAS policy: "+e);
         }
 
         // generate SAS tag
@@ -270,7 +274,8 @@ public class SASComponentInterceptor
         }
         catch (Exception e)
         {
-            logger.error("establish_components error: ", e);
+            if (logger.isErrorEnabled())
+                logger.error("establish_components error: ", e);
         }
     }
 } // SASComponentInterceptor

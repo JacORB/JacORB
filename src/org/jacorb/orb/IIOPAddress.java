@@ -24,6 +24,7 @@ import java.net.*;
 
 import org.jacorb.orb.dns.DNSLookup;
 import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Andre Spiegel
@@ -37,7 +38,10 @@ public class IIOPAddress
     private int port;               // 0 .. 65536
  
     private org.jacorb.config.Configuration configuration;
+    private boolean configured = true;
     private DNSLookup lookup;
+    private Logger logger;
+
 
     /**
      * Creates a new IIOPAddress for <code>host</code> and <code>port</code>.
@@ -50,6 +54,9 @@ public class IIOPAddress
      */
     public IIOPAddress(String host, int port)
     {
+        if (host.length() == 0 )
+            throw new IllegalArgumentException();
+
         lookup = new DNSLookup();
 
         if (isIP(host))
@@ -61,13 +68,17 @@ public class IIOPAddress
             this.port = port + 65536;
         else
             this.port = port;
+
+        
     }
     
     public void configure(Configuration configuration)
         throws ConfigurationException
     {
         this.configuration = (org.jacorb.config.Configuration)configuration;
+        logger = this.configuration.getNamedLogger("jacorb.iiop.address");
         lookup.configure(configuration);
+        configured = true;
     }
 
 
@@ -127,6 +138,9 @@ public class IIOPAddress
      */    
     public String getIP()
     {
+        if (!configured)
+            throw new Error("unconfigured IIOPAddress!");
+
         if (ip == null)
         {
             try

@@ -39,12 +39,13 @@ public class MessageReceptorPool
 
     private MessageReceptorPool()
     {
-        pool = new ThreadPool( new ConsumerFactory(){
-                public Consumer create()
-                {
-                    return new MessageReceptor();
-                }
-            },
+        pool = 
+            new ThreadPool( new ConsumerFactory(){
+                    public Consumer create()
+                    {
+                        return new MessageReceptor();
+                    }
+                },
                                1000, //maximum number of connections
                                5 ); //max idle threads
     }

@@ -46,8 +46,8 @@ import org.jacorb.util.ObjectUtil;
 public class TransportManager
     implements Configurable
 {
-    public static SocketFactory socket_factory = null;
-    public static SocketFactory ssl_socket_factory = null;
+    private SocketFactory socket_factory = null;
+    private SocketFactory ssl_socket_factory = null;
 
     private ORB orb = null;
 
@@ -104,8 +104,8 @@ public class TransportManager
 
         if( configuration.getAttribute("jacorb.security.support_ssl","off").equals("on"))
         {
-            String s = configuration.getAttribute("jacorb.ssl.socket_factory");
-            if (s == null || s.length() == 0)
+            String s = configuration.getAttribute("jacorb.ssl.socket_factory", "");
+            if (s.length() == 0)
             {
                 throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
             }
@@ -130,7 +130,6 @@ public class TransportManager
         }
 
         socket_factory = socketFactoryManager.getSocketFactory();
-
     }
 
     public ProfileSelector getProfileSelector()
@@ -143,11 +142,22 @@ public class TransportManager
         return socketFactoryManager;
     }
 
+    public SocketFactory getSocketFactory()
+    {
+        return socket_factory;
+    }
+
+    public SocketFactory getSSLSocketFactory()
+    {
+        return ssl_socket_factory;
+    }
+
+
     /**
      * Returns an ETF Factories object for the given tag, or null
      * if no Factories class has been defined for this tag.
      */
-    public org.omg.ETF.Factories getFactories (int tag)
+    public org.omg.ETF.Factories getFactories(int tag)
     {
         if (factoriesMap == null)
         {
@@ -175,6 +185,12 @@ public class TransportManager
      */
     private void loadFactories()
     {
+        if (configuration == null )
+            throw new org.omg.CORBA.BAD_INV_ORDER("TransportManager not configured!");
+
+        if (factoryClassNames == null )
+            throw new org.omg.CORBA.INTERNAL("factoryClassNames should not be null");
+
         factoriesMap  = new HashMap();
         factoriesList = new ArrayList();
 
@@ -194,7 +210,7 @@ public class TransportManager
     {
         try
         {
-            // Environment.classForName() uses the context class loader.
+            // ObjectUtil.classForName() uses the context class loader.
             // This is important here because JacORB might be on the
             // bootclasspath, and the external transport on the normal
             // classpath.

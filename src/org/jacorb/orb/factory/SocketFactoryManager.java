@@ -59,9 +59,9 @@ public class SocketFactoryManager
         this.configuration = configuration;
         logger = 
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.factory");
-        serverFactoryClassName = configuration.getAttribute(SERVER_FACTORY_PROP);
-        factoryClassName = configuration.getAttribute(FACTORY_PROP);
-        portNo = configuration.getAttribute(PortRangeSocketFactory.MIN_PROP);
+        serverFactoryClassName = configuration.getAttribute(SERVER_FACTORY_PROP, "");
+        factoryClassName = configuration.getAttribute(FACTORY_PROP, "");
+        portNo = configuration.getAttribute(PortRangeSocketFactory.MIN_PROP, "");
     }
 
 
@@ -72,9 +72,9 @@ public class SocketFactoryManager
            return socketFactory;
         }
 
-        if ((factoryClassName  == null) || (factoryClassName.length() == 0))
+        if ( factoryClassName.length() == 0)
         {
-            if ((portNo != null) && (portNo.length() > 0))
+            if ( portNo.length() > 0)
             {
                 // If mimimum port number configured construct PortRangeSocketFactory
                 socketFactory = new PortRangeSocketFactory();

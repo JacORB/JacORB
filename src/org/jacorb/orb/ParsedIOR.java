@@ -395,10 +395,12 @@ public class ParsedIOR
             String content = null;
             try
             {
-                ObjectUtil.readURL(object_reference);
+                content = ObjectUtil.readURL(object_reference);
             }
             catch(java.io.IOException ioe)
             {
+                if (logger.isDebugEnabled())
+                    logger.debug("Error reading IOR/URL: ", ioe);
                 // ignore;
             }
             if (content == null)

@@ -207,14 +207,17 @@ public class CDROutputStream
     public CDROutputStream(final org.omg.CORBA.ORB orb)
     {
         this();
-        this.orb = orb;
-        try
+        if (orb != null )
         {
-            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
-        }
-        catch( ConfigurationException ce )
-        {
-            throw new INTERNAL("ConfigurationException: " + ce.getMessage());
+            this.orb = orb;
+            try
+            {
+                configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+            }
+            catch( ConfigurationException ce )
+            {
+                throw new INTERNAL("ConfigurationException: " + ce.getMessage());
+            }
         }
     }
 

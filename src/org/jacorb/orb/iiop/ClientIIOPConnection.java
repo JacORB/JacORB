@@ -35,18 +35,7 @@ import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
 
-import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.CSIIOP.CompoundSecMechListHelper;
-import org.omg.CSIIOP.Confidentiality;
-import org.omg.CSIIOP.DetectMisordering;
-import org.omg.CSIIOP.DetectReplay;
-import org.omg.CSIIOP.EstablishTrustInClient;
-import org.omg.CSIIOP.EstablishTrustInTarget;
-import org.omg.CSIIOP.Integrity;
-import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
-import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANS;
-import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+import org.omg.CSIIOP.*;
 import org.omg.SSLIOP.SSL;
 import org.omg.SSLIOP.SSLHelper;
 import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
@@ -63,6 +52,7 @@ import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 public class ClientIIOPConnection
     extends IIOPConnection
+    implements Configurable
 {
     private IIOPProfile target_profile;
     private int timeout = 0;
@@ -72,7 +62,7 @@ public class ClientIIOPConnection
     private int noOfRetries  = 5;
     private int retryInterval = 0;
     private boolean doSupportSSL = false;
-
+    private TransportManager transportManager;
 
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
@@ -95,6 +85,8 @@ public class ClientIIOPConnection
             configuration.getAttributeAsInteger("jacorb.retry_interval",500);
         doSupportSSL =
             configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
+        transportManager = 
+            this.configuration.getORB().getTransportManager();
 
     }
 
@@ -219,7 +211,8 @@ public class ClientIIOPConnection
      * the target profile, starting with the primary IIOP address,
      * and then any alternate IIOP addresses that have been specified.
      */
-    private Socket createSocket() throws IOException
+    private Socket createSocket() 
+        throws IOException
     {
         Socket      result    = null;
         IOException exception = null;
@@ -237,15 +230,16 @@ public class ClientIIOPConnection
                 IIOPAddress address = (IIOPAddress)addressIterator.next();
                 if (use_ssl)
                 {
-                    result = getSSLSocketFactory().createSocket
-                    (
-                        address.getIP(), ssl_port
-                    );
+                    result = 
+                        transportManager.getSSLSocketFactory().createSocket
+                        (
+                         address.getIP(), ssl_port
+                         );
                     connection_info = address.getIP() + ":" + ssl_port;
                 }
                 else
                 {
-                    result = getSocketFactory().createSocket
+                    result = transportManager.getSocketFactory().createSocket
                     (
                         address.getIP(), address.getPort()
                     );
@@ -431,16 +425,6 @@ public class ClientIIOPConnection
             use_ssl = false;
             ssl_port = -1;
         }
-    }
-
-    private SocketFactory getSocketFactory()
-    {
-        return TransportManager.socket_factory;
-    }
-
-    private SocketFactory getSSLSocketFactory()
-    {
-        return TransportManager.ssl_socket_factory;
     }
 
 }// Client_TCP_IP_Transport

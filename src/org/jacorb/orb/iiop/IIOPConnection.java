@@ -78,7 +78,7 @@ public abstract class IIOPConnection
         this.configuration = (org.jacorb.config.Configuration)configuration;
         logger = this.configuration.getNamedLogger("jacorb.iiop.conn");
 
-        if( configuration.getAttribute( "jacorb.debug.dump_outgoing_messages","off" ).equals("on"))
+        if( configuration.getAttribute("jacorb.debug.dump_outgoing_messages","off").equals("on"))
         {
             b_out = new ByteArrayOutputStream();
         }

@@ -1,3 +1,5 @@
+package org.jacorb.orb.giop;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -17,8 +19,6 @@
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-
-package org.jacorb.orb.giop;
 
 import org.jacorb.util.threadpool.Consumer;
 

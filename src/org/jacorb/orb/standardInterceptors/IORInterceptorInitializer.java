@@ -61,9 +61,9 @@ public class IORInterceptorInitializer
             config = orb.getConfiguration();
 
             String supportedOptions = 
-                config.getAttribute("jacorb.security.ssl.server.supported_options");
+                config.getAttribute("jacorb.security.ssl.server.supported_options",null);
             String requiredOptions = 
-                config.getAttribute("jacorb.security.ssl.server.required_options");
+                config.getAttribute("jacorb.security.ssl.server.required_options", null);
 
             if( config.getAttribute("jacorb.security.support_ssl","off").equals("on") &&
                 supportedOptions != null &&
