@@ -34,6 +34,9 @@ class InitDecl
     public Vector paramDecls;
     public IdlSymbol myValue;
 
+    /** new in CORBA 3.0, factory methods may raise exceptions */
+    public RaisesExpr raisesExpr;
+
     public InitDecl( int num )
     {
         super( num );
@@ -54,6 +57,7 @@ class InitDecl
              ( (ParamDecl)e.nextElement() ).setPackage( s )
                 )
             ;
+        raisesExpr.setPackage( s );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
@@ -62,6 +66,7 @@ class InitDecl
             throw new RuntimeException( "Compiler Error: trying to reassign container for "
                     + name );
         enclosing_symbol = s;
+        raisesExpr.setEnclosingSymbol( s );
     }
 
     public void parse()
@@ -94,6 +99,7 @@ class InitDecl
                         token );
             }
         }
+        raisesExpr.parse();
     }
 
     /**
@@ -114,7 +120,9 @@ class InitDecl
             ps.print( ", " );
             ( (ParamDecl)e.nextElement() ).print( ps );
         }
-        ps.println( ");" );
+        ps.print( ")" );
+        raisesExpr.print( ps );
+        ps.println( ";" );
     }
 
     /**
