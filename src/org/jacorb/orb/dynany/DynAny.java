@@ -32,8 +32,6 @@ import org.jacorb.orb.TypeCode;
  * $Id$
  *
  */
-
-
 public class DynAny
    extends org.omg.CORBA.LocalObject
    implements org.omg.DynamicAny.DynAny
@@ -680,7 +678,7 @@ public class DynAny
          _any.insert_double( 0 );
          break;
       case TCKind._tk_ulong:
-         _any.insert_long( 0 );
+         _any.insert_ulong( 0 );
          break;
       case TCKind._tk_longlong:
          _any.insert_longlong(0);
@@ -725,6 +723,21 @@ public class DynAny
          throw new TypeMismatch();
       }
       return _any;
+   }
+
+   // methods below suggested by <Philippe.Merle@lifl.fr>,
+   // to allow compilation on J2SDK 1.4.2
+   
+   public void insert_val(java.io.Serializable value)
+        throws TypeMismatch   
+   {
+       throw new Error("NOT IMPLEMENTED");
+   }
+   
+   public java.io.Serializable get_val()
+        throws TypeMismatch
+   {
+        throw new Error("NOT IMPLEMENTED");
    }
 
 }
