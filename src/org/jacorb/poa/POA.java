@@ -1379,7 +1379,7 @@ public class POA
 
             /* annouce */
             if (logger.isInfoEnabled())
-                logger.info(logPrefix + "destroyed");
+                logger.info(logPrefix + " destroyed");
 
             monitor.changeState("destroyed");
 
