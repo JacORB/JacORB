@@ -1098,11 +1098,11 @@ public final class Delegate
                 ((org.jacorb.orb.ORB)orb).findPOA( this, self );
             if( local_poa != null ) // && local_poa._localStubsSupported() )
                 poa = local_poa;
-            Debug.output(3, "Delegate.is_local found " + 
-                         ( local_poa != null ? " a " : " no ") + " local POA");
+//              Debug.output( 3, "Delegate.is_local found " + 
+//                           ( local_poa != null ? " a " : " no ") + " local POA");
         }
         resolved_locality = true;
-        Debug.output(3, "Delegate.is_local returns " + (poa != null ));
+        Debug.output( 5, "Delegate.is_local returns " + (poa != null ));
         return poa != null;
     }
 
