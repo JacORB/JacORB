@@ -11,8 +11,8 @@
        by extending it with a vendor-specific class which
        provides "real" implementations for all the methods. E.g.
 
-	   package com.acme_orb_vendor.CORBA_2_3;
-	   public class ORB extends org.omg.CORBA_2_3 { ... }
+      package com.acme_orb_vendor.CORBA_2_3;
+      public class ORB extends org.omg.CORBA_2_3 { ... }
 
        In order to be conformant the class shall support the signatures
        specified here, but will have an orb-specific implementation.
@@ -46,4 +46,10 @@ public abstract class ORB extends org.omg.CORBA.ORB {
     public void set_delegate(java.lang.Object wrapper) {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
+
+    public void register_initial_reference(String id, org.omg.CORBA.Object obj)
+        throws org.omg.CORBA.ORBPackage.InvalidName {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
 }
