@@ -579,7 +579,7 @@ public class CDRInputStream
 	char[] buf = new char[ size ];
         for( int i = 0; i < size; i++ )
         {
-            buf[ i ] = (char) buffer[ pos++ ];
+            buf[ i ] = (char)(0xff & buffer[pos++]);
         }
         
         index += size;
