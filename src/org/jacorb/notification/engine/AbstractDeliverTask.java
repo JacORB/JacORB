@@ -92,20 +92,42 @@ public abstract class AbstractDeliverTask extends AbstractTask
             // default strategy is to
             // destroy the ProxySupplier
 
-            if ( logger_.isWarnEnabled() )
+            if ( logger_.isErrorEnabled() )
             {
-                logger_.warn( "push to Consumer failed: Dispose MessageConsumer" );
+                logger_.error( "push raised OBJECT_NOT_EXIST: will dispose MessageConsumer", error );
             }
 
             _pushToConsumerTask.getMessageConsumer().dispose();
         }
-        else if (error instanceof Disconnected) {
-            logger_.error("Illegal State: disconnect proxy");
+        else if (error instanceof Disconnected)
+        {
+            // push operation caused Disconnected
+            // this indicates an illegal state
+            // the ProxySupplier thinks the Consumer is connected but
+            // the Consumer thinks its not connected. the default
+            // strategy it to destroy the ProxySupplier
+
+            if (logger_.isErrorEnabled()) {
+                logger_.error("push raised Disconnected: will dispose MessageConsumer", error);
+            }
 
             _pushToConsumerTask.getMessageConsumer().dispose();
         }
         else
         {
+            // push raised an unexpected error:
+            // 1) increment the error counter for this MessageConsumer
+            //    (the error counter is reset on the first successful
+            //    push operation).
+            // 2) disable the MessageConsumer for a while (during this
+            //    period the MessageConsumer only queues Messages).
+            // 3) enable the MessageConsumer again and deliver the
+            //    pending Messages.
+
+            if (logger_.isErrorEnabled()) {
+                logger_.error("push raised unexpected error", error);
+            }
+
             MessageConsumer _consumer = _pushToConsumerTask.getMessageConsumer();
 
             if (logger_.isInfoEnabled())
@@ -116,7 +138,6 @@ public abstract class AbstractDeliverTask extends AbstractTask
 
             if (_consumer.getErrorCounter() > _consumer.getErrorThreshold() )
             {
-
                 if (logger_.isWarnEnabled())
                 {
                     logger_.warn("MessageConsumer is repeatingly failing. Error Counter is: "
