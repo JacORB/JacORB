@@ -35,14 +35,14 @@
 	* security/ssl/sun_jsse/KeyStoreUtil.java: bug #489 now loading
 	from classpath first to be able to run in an unsigned applet.
 
-	* config/Configuration.java: (getConfiguration, <c'tor>): bug #489:
+	* config/Configuration.java (getConfiguration, <c'tor>): bug #489:
 	added boolean param "isApplet", added methid initApplet() that
 	avoids accessing files and system properties.
 
-	* orb/ORB.java: (set_parameters): bug #489: adapted to new
+	* orb/ORB.java (set_parameters): bug #489: adapted to new
 	interface of jacorb Configuration class
 
-	* config/Configuration.java: (loadPropertiesFromClassPath): replaced
+	* config/Configuration.java (loadPropertiesFromClassPath): replaced
 	ClassLoader.getSystemResource() by
 	Thread.currentThread().getContextClassLoader().getResource() to be
 	able to resolve property files from custom jar files e.g. in
@@ -77,9 +77,9 @@
 	* orb/factory/SocketFactoryManager.java: changed to use single
 	string constructor of RuntimeException to sustain jdk1.3 support
 
-	* orb/ORB.java:
-	(set_parameters) factorized out common initialization code for
-	applet and "normal" orbs into new method internalInit()
+	* orb/ORB.java (set_parameters): factorized out common
+	initialization code for applet and "normal" orbs into new method
+	internalInit()
 
 	removed unused/old applet stuff
 
@@ -97,15 +97,15 @@
 	* security/ssl/sun_jsse/SSLServerSocketFactory.java.patch: updated
 	to match current version of java file
 
-	* security/ssl/sun_jsse/SSLServerSocketFactory.java:
-	(createServerSocket) if request_mutual_auth using
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java
+	(createServerSocket): if request_mutual_auth using
 	setWantClientAuth() instead of setNeedClientAuth()
 
 	* security/ssl/sun_jsse/SSLSocketFactory.java.patch: adapted to
 	current version of the java file
 
-	* security/ssl/sun_jsse/SSLSocketFactory.java:
-	(createSocketFactory) removed commented out line
+	* security/ssl/sun_jsse/SSLSocketFactory.java
+	(createSocketFactory): removed commented out line
 	"Security.addProvider..."
 
 2004-11-02  Gerald Brose  <gerald.brose@acm.org>
@@ -130,7 +130,7 @@
 	defined trust manger to be used.  Thanks to Jay Colson for
 	providing the original patch.
 
-	* orb/iiop/IIOPListener.java (comfigure): Add default value for
+	* orb/iiop/IIOPListener.java (configure): Add default value for
 	property to prevent configuration exception when no properties
 	file used.
 
