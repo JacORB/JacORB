@@ -37,17 +37,17 @@ import org.jacorb.util.ObjectUtil;
  * ORB configuration options for a given name are looked up and loaded as follows:
  * <ol>
  * <li>System properties are loaded first
- * <li>the file <tt>common.orb.properties</tt> is loaded from java.home/lib
+ * <li>the file <tt>orb.properties</tt> is loaded from java.home/lib
  *     and user.home if it exists
- * <li>if the ORBid is property is set the file <tt>ORBid.orb.properties</tt> is 
+ * <li>if the ORBid is property is set, the file <tt>ORBid.properties</tt> is 
  *     loaded from jacorb.config.dir/etc, if that exists, or jacorb.home/etc, or '.'
- *     If ORBid is not set, the default file <tt>jacorb.orb.properties</tt>
+ *     If ORBid is not set, the default file <tt>jacorb.properties</tt>
  *     is loaded from these places.
  * <li>Custom properties are loaded from each file name listed int the system property
  *     <tt>custom.props</tt>
  * <li>To also support packaged servers in jar files, the configuration
  *     file lookup mechanism finally tries to load named properties files 
- *     (<tt>ORBid.orb.properties</tt>, or <tt>jacorb.orb.properties</tt>) from 
+ *     (<tt>ORBid.properties</tt>, or <tt>jacorb.properties</tt>) from 
  *     the classpath, if it cannot find them in the config dictionary.
  *</ol>
  *
@@ -61,12 +61,13 @@ import org.jacorb.util.ObjectUtil;
 public class Configuration
     extends org.apache.avalon.framework.configuration.DefaultConfiguration
 {
-    private static final String fileSuffix = ".orb.properties";
-    private static final String COMMON_PROPS = "common" + fileSuffix;
+    private static final String fileSuffix = ".properties";
+    private static final String COMMON_PROPS = "orb" + fileSuffix;
 
     private static final String TRUE = "true";
     private static final String ON = "on";
     private static final String EMPTY_STR = "";
+    private static final int DEFAULT_LOG_LEVEL = 3;
 
     private Configuration config;
     private String configName; 
@@ -96,13 +97,46 @@ public class Configuration
 //         initLogging();
 //     }
 
+    /**
+     * Factory method
+     */
+
+    public static Configuration getConfiguration(Properties props, ORB orb)
+        throws ConfigurationException
+    {
+        // determine the ORBId, if set, so we can locate the corresponding
+        // configuration
+        String orbID = "jacorb"; // default id 
+        String myOrbID = System.getProperty("ORBid");
+
+        if( props != null )
+        {
+            // props override system properties
+            String tmp = (String)props.get("ORBid");
+            if( tmp != null )
+                myOrbID = tmp; 
+        }
+
+        if (myOrbID != null )
+        {
+            // check for legal values
+            if (myOrbID.equals("orb") || myOrbID.equals("jacorb"))
+                throw new ConfigurationException("Illegal orbID, <" + 
+                                                  myOrbID + "> is reserved");
+            else
+                orbID = myOrbID;
+        }
+
+        return new Configuration(orbID, props, orb);
+    }
+
 
     /**
      * Create a configuration using the properties passed
      * into ORB.init()
      */
 
-    public Configuration(String name, Properties orbProperties, ORB orb)
+    private Configuration(String name, Properties orbProperties, ORB orb)
         throws ConfigurationException
     {
         super(name);
@@ -116,7 +150,7 @@ public class Configuration
      *
      * Properties are loaded in the following order, with later
      * properties overriding earlier ones: 1) System properties
-     * (incl. command line) 2) common.orb.properties file 2) specific
+     * (incl. command line) 2) orb.properties file 2) specific
      * configuration file for the ORB (if any) 3) the ORB properties
      * set in the client code and passed int through ORB.init().
      * (Note that these will thus always take effect!)
@@ -132,12 +166,13 @@ public class Configuration
        String separator = System.getProperty("file.separator");
        String home = System.getProperty("user.home");
        String lib = System.getProperty("java.home");
-       int logLevel = 0;
+       int logLevel = DEFAULT_LOG_LEVEL;
+       boolean loaded = false;
 
        // 1) include system properties
        setAttributes( System.getProperties() );
 
-       // 2) look for orb.common.properties       
+       // 2) look for orb.properties       
        // look for common properties files in java.home/lib first
        Properties commonProps = 
            loadPropertiesFromFile( lib + separator + "lib" + separator + COMMON_PROPS);
@@ -147,8 +182,9 @@ public class Configuration
             setAttributes(commonProps);
             // we don't have proper logging at this stage yet, so we can only
             // log to the console, but we check if that is explicitly disallowed
-            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
-            
+            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
+            loaded = true;
+
             if (logLevel > 2)
                 System.out.println("[ base configuration loaded from file " + 
                                    lib + separator + "lib" + separator + COMMON_PROPS + " ]");
@@ -161,8 +197,9 @@ public class Configuration
        if (commonProps!= null)
        {
            setAttributes(commonProps);
+           loaded = true;
 
-           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
                System.out.println("[ base configuration loaded from file " + 
                                    home + separator + COMMON_PROPS + " ]");
@@ -174,8 +211,9 @@ public class Configuration
        
        if (commonProps!= null)
        {
+           loaded = true;
            setAttributes(commonProps);
-           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
                System.out.println("[ base configuration loaded from classpath " + 
                                     COMMON_PROPS + " ]");
@@ -206,8 +244,9 @@ public class Configuration
        if (orbConfig!= null)
        {
            setAttributes(orbConfig);
+           loaded = true;
 
-           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
                System.out.println("[ configuration " + name + 
                                   " loaded from file " + propFileName + " ]");
@@ -231,8 +270,9 @@ public class Configuration
                 if (customProps!= null)
                 {
                     setAttributes(customProps);
+                    loaded = true;
 
-                    logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+                    logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
                     if (logLevel > 2)
                         System.out.println("[ custom properties loaded from file " + 
                                            fileName + " ]");
@@ -251,16 +291,27 @@ public class Configuration
        if (orbConfig!= null)
        {
            setAttributes(orbConfig);
+           loaded = true;
 
-           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",DEFAULT_LOG_LEVEL);
            if (logLevel > 2)
                System.out.println("[ configuration " + name + " loaded from classpath]");
        }
        
        // 4) load properties passed to ORB.init(), these will override any
-        // settings in config files or system properties!
+       // settings in config files or system properties!
        if (orbProperties != null)
+       {
+           loaded = true;
            setAttributes(orbProperties);
+       }
+
+       if (!loaded)
+       {
+           // print a warning....
+           System.out.println("[ No configuration properties found for configuration " + name + " ]");
+       }
+
     }
 
     /**

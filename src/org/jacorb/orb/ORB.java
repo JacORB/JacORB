@@ -1430,26 +1430,11 @@ public final class ORB
 
     protected void set_parameters(String[] args, java.util.Properties props)
     {
-        // determine the ORBId, if set, so we can locate the corresponding
-        // configuration
-        String orbID = System.getProperty("ORBid");
-
-        if( props != null )
-        {
-            _props = props;
-            String myOrbID = (String)props.get("ORBid");
-            if (myOrbID != null )
-                orbID = myOrbID;
-        }
-
-        if (orbID == null )
-        {
-            orbID = "jacorb";
-        }
+        _props = props;        
 
         try
         {
-            configure( new org.jacorb.config.Configuration(orbID, props, this));
+            configure( org.jacorb.config.Configuration.getConfiguration(props, this));
         }
         catch( ConfigurationException ce )
         {
@@ -1581,26 +1566,9 @@ public final class ORB
         applet = app;
         _props = props;
 
-        // determine the ORBId, if set, so we can locate the corresponding
-        // configuration
-        String orbID = System.getProperty("ORBid");
-
-        if( props != null )
-        {
-            _props = props;
-            String myOrbID = (String)props.get("ORBid");
-            if (myOrbID != null )
-                orbID = myOrbID;
-        }
-
-        if (orbID == null )
-        {
-            orbID = "anonymous";
-        }
-
         try
         {
-            configure( new org.jacorb.config.Configuration(orbID, props, this));
+            configure( org.jacorb.config.Configuration.getConfiguration(props, this));
         }
         catch( ConfigurationException ce )
         {
