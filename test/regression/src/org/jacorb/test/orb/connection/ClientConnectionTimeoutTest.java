@@ -24,6 +24,7 @@ import junit.framework.*;
 import junit.extensions.*;
 
 import org.jacorb.test.common.*;
+import org.jacorb.Tests.*;
 import org.omg.CORBA.*;
 import org.jacorb.orb.connection.Client_TCP_IP_Transport;
 
@@ -53,8 +54,8 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
         ClientServerSetup setup = 
             new ClientServerSetup( suite, 
                                    "org.jacorb.test.orb.connection.ConnectionTimeoutServerImpl",
-                                   null,
-                                   client_props );
+                                   client_props,
+                                   null );
                                    
         suite.addTest( new ClientConnectionTimeoutTest( "testTimeout", setup ));
         
