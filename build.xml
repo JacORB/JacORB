@@ -132,6 +132,14 @@
              value="${java.home}" />
     <replace file="bin/jaco" token="@@@CLASSPATH@@@"
              value="${jaco.classpath}" />
+
+    <!-- include .bat files for packages built on linux, don't set eol -->
+    <!-- attribute as this is automatically chosen by the fixcrlf task -->
+    <!-- itself -->
+    <fixcrlf srcDir="bin"
+             includes="*"
+             excludes="*.exe,*.conf,*template*" />
+
     <chmod perm="ugo+rx">
       <fileset dir="bin">
         <include name="*" />
@@ -141,9 +149,7 @@
         <exclude name="*template*" />
       </fileset>
     </chmod>
-
-    <fixcrlf srcdir="bin" eol="crlf" includes="**/*.bat" />
-   </target>
+    </target>
 
    <!-- This target creates a jar file that contains the -->
    <!-- core ORB components and (genrated) OMG classes + -->
