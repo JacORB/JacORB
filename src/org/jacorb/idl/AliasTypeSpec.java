@@ -165,6 +165,7 @@ public class AliasTypeSpec
                 ( ts instanceof TemplateTypeSpec ||
                 ts instanceof BaseType ||
                 ts instanceof ConstrTypeSpec || // for value types
+                ts instanceof ObjectTypeSpec ||
                 ts instanceof AliasTypeSpec ||
                 ts instanceof TypeCodeTypeSpec ?
                 originalType.getTypeCodeExpression() :
