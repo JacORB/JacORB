@@ -266,6 +266,24 @@ public class ParsedIOR
         }
     }
 
+    public String getCodebaseComponent()
+    {
+        for ( int i = 0; i < taggedComponents.length; i++ )
+        {
+	    if( taggedComponents[i].tag != TAG_JAVA_CODEBASE.value ) 
+		continue;
+
+	    Debug.output(4,"TAG_JAVA_CODEBASE found");			
+
+	    // get codebase cs from IOR 
+	    CDRInputStream is =
+		new CDRInputStream( orb, 
+                                   taggedComponents[i].component_data);
+	    return is.read_string();
+	}
+        return null;
+    }
+
     /* instance part */
 
     public ParsedIOR( String object_reference )
