@@ -130,7 +130,7 @@ public class ClientServerSetup extends TestSetup {
         clientRootPOA.the_POAManager().activate();
 
 //      StringBuffer serverexec = new StringBuffer( "java -Djacorb.implname=" );
-        StringBuffer serverexec = new StringBuffer( "jaco.bat -Djacorb.implname=" );
+        StringBuffer serverexec = new StringBuffer( "jaco -Djacorb.implname=");
         serverexec.append( servantName );
 //      serverexec.append(" -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB ");
 //      serverexec.append("-Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton ");
@@ -141,7 +141,7 @@ public class ClientServerSetup extends TestSetup {
         serverexec.append( ' ' );
         serverexec.append( getTestServerMain() );
         serverexec.append( ' ' );
-        serverexec.append( servantName );
+        serverexec.append( servantName + "\"");
 
         System.out.println( "Execing: " + serverexec.toString() );
 
