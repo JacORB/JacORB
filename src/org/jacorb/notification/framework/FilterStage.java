@@ -21,45 +21,49 @@ package org.jacorb.notification.interfaces;
  *
  */
 
-import org.jacorb.notification.util.ObjectPoolBase;
+import java.util.List;
 
 /**
- * Interface to indicate that a Object can be pooled. Objects can be
- * pooled to spare ressources.
+ * Abstraction of a ProxyConsumer, SupplierAdmin, ConsumerAdmin,
+ * ProxySupplier. This Interface allows to use the mentioned Classes
+ * in an uniform way.
  *
- * Created: Sat Jan 04 17:01:16 2003
+ * Created: Thu Nov 14 20:37:21 2002
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version $Id$
  */
 
-public abstract class Poolable {
-
-    private ObjectPoolBase objectPool_;
+public interface FilterStage {
 
     /**
-     * The call to this Method indicates that this Object is not
-     * needed by the user anymore. After a call to
-     * <code>release</code> the Object can be returned to its
-     * ObjectPool. It's forbidden to use the Object
-     * after release has been called as this may cause unexpected behaviour.
+     * check if this DistributorNode has been disposed.
      */
-    public void release() {
-	objectPool_.returnObject(this);
-    }
+    boolean isDisposed();
 
     /**
-     * Set the ObjectPool that administers this instance.
+     * get FilterStages following this Node.
      */
-    public void setObjectPool(ObjectPoolBase pool) {
-	    objectPool_ = pool;
-    }
+    List getSubsequentFilterStages();
 
     /**
-     * Reset the Object to an initial state. Subclasses should
-     * override this method appropiately to reset the instance to an
-     * initial state.
+     * get Filter associated to this FilterStage.
      */
-    public abstract void reset();
+    List getFilters();
 
-}// Poolable
+    /**
+     * check if this FilterStage has a EventConsumer associcated.
+     */
+    boolean hasEventConsumer();
+
+    /**
+     * check if this DistributorNode has OR Semantic enabled.
+     */
+    boolean hasOrSemantic();
+
+    /**
+     * get the associated DeliverTarget or null.
+     */
+    EventConsumer getEventConsumer();
+
+}// Destination
