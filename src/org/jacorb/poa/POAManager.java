@@ -20,13 +20,11 @@ package org.jacorb.poa;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.util.Environment;
-
+import java.util.Enumeration;
+import java.util.Vector;
+import org.omg.CORBA.INTERNAL;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAManagerPackage.State;
-
-import java.util.*;
-import java.lang.Thread;
 
 /**
  * The poa manager class, an implementation of org.omg.PortableServer.POAManager
@@ -214,8 +212,13 @@ public class POAManager
                 return result;
             }
         }
-        throw new Error("POA not registered: " +
-                        POAConstants.ROOT_POA_NAME+POAConstants.OBJECT_KEY_SEPARATOR+name);
+        throw new INTERNAL
+        (
+            "POA not registered: " +
+            POAConstants.ROOT_POA_NAME+
+            POAConstants.OBJECT_KEY_SEPARATOR+
+            name
+        );
     }
 
 
