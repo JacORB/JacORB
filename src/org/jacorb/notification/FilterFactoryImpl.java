@@ -36,6 +36,7 @@ import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.servant.ManageableServant;
+import org.jacorb.util.ObjectUtil;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.UNKNOWN;
@@ -133,7 +134,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, C
         t.start();
     }
 
-    public FilterFactoryImpl(ApplicationContext applicationContext) throws InvalidName
+    public FilterFactoryImpl(ApplicationContext applicationContext) 
     {
         super();
 
@@ -164,7 +165,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable, C
 
                 _clazzName = conf.getAttribute(key);
 
-                Class _clazz = Class.forName(_clazzName);
+                Class _clazz = ObjectUtil.classForName(_clazzName);
 
                 Constructor _constructor = _clazz
                         .getConstructor(new Class[] { ApplicationContext.class });
