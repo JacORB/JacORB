@@ -21,6 +21,9 @@ package org.jacorb.ir;
  */
 
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
+
+import org.apache.avalon.framework.logger.Logger;
 
 public class SequenceDef
     extends IDLType
@@ -29,17 +32,24 @@ public class SequenceDef
     private int bound = -1;
     private org.omg.CORBA.TypeCode element_type;
     private org.omg.CORBA.IDLType element_type_def;
+    private Logger logger;
+    private POA poa;
 
     /** needed for lookup in define() */
     private org.omg.CORBA.Repository ir;
 
-    public SequenceDef( org.omg.CORBA.TypeCode tc, org.omg.CORBA.Repository ir )
+    public SequenceDef( org.omg.CORBA.TypeCode tc, 
+                        org.omg.CORBA.Repository ir,
+                        Logger logger,
+                        POA poa )
     {
         if (tc.kind () != org.omg.CORBA.TCKind.tk_sequence)
         {
            throw new INTF_REPOS ("Precondition volation: TypeCode must be of kind sequence");
         }
-
+        
+        this.logger = logger;
+        this.poa = poa;
         type = tc;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Sequence;
         this.ir = ir;
@@ -55,14 +65,15 @@ public class SequenceDef
             // cannot happen because of above test
         }
 
-        element_type_def = IDLType.create( element_type, ir );
+        element_type_def = IDLType.create( element_type, ir,
+                                           this.logger, this.poa);
 
         if (element_type_def == null)
         {
             throw new INTF_REPOS ("Element type " + name  + " null in SequenceDef " + name );
         }
 
-        org.jacorb.util.Debug.output(2, "New SequenceDef");
+        this.logger.debug("New SequenceDef");
     }
 
     public int bound()

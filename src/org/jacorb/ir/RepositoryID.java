@@ -35,9 +35,10 @@ public class RepositoryID
      * Returns the fully qualified name of the Java class to which
      * the given Repository ID is mapped.
      */
-    public static String className (String repId)
+    public static String className (String repId, 
+                                    ClassLoader loader)
     {
-        return className (repId, null);
+        return className (repId, null, loader);
     }
 
     /**
@@ -46,7 +47,9 @@ public class RepositoryID
      * to the class name.  For example, the string "Helper" can be used
      * as the suffix to find the helper class for a given Repository ID.
      */
-    public static String className (String repId, String suffix)
+    public static String className (String repId, 
+                                    String suffix, 
+                                    ClassLoader loader)
     {
         if (repId.startsWith ("RMI:"))
         {
@@ -66,12 +69,14 @@ public class RepositoryID
 
                 if (prefix.equals ("omg.org"))
                     return ir2scopes ("org.omg",
-                                      id.substring (firstSlash + 1));
+                                      id.substring (firstSlash + 1),
+                                      loader);
                 else if (prefix.indexOf ('.') != -1)
                     return ir2scopes (reversePrefix (prefix),
-                                      id.substring (firstSlash + 1));
+                                      id.substring (firstSlash + 1),
+                                      loader);
                 else
-                    return ir2scopes ("", id);
+                    return ir2scopes ("", id, loader);
             }
         }
         else
@@ -96,7 +101,9 @@ public class RepositoryID
      * FIXME: This method needs documentation.
      * What does this algorithm do, and why is it necessary?  AS.
      */
-    private static String ir2scopes (String prefix, String s)
+    private static String ir2scopes (String prefix, 
+                                     String s, 
+                                     ClassLoader loader)
     {
         if( s.indexOf("/") < 0)
             return s;
@@ -112,9 +119,9 @@ public class RepositoryID
             String sc = strtok.nextToken();
             Class c = null;
             if( sb.toString().length() > 0 )
-                c = loadClass (sb.toString() + "." + sc);
+                c = loadClass (sb.toString() + "." + sc, loader);
             else
-                c = loadClass (sc);
+                c = loadClass (sc, loader);
             if (c == null)
                 if( sb.toString().length() > 0 )
                     sb.append( "." + sc );
@@ -193,7 +200,8 @@ public class RepositoryID
      * not be loaded, an IllegalArgumentException will be thrown
      */
     public static String toRepositoryID ( String className,
-                                          boolean resolveClass )
+                                          boolean resolveClass, 
+                                          ClassLoader loader )
     {
         if( className.equals("") ||
             className.startsWith("IDL:") ||
@@ -204,7 +212,7 @@ public class RepositoryID
             if( resolveClass )
             {
 
-                Class c = loadClass (className);
+                Class c = loadClass(className, loader);
                 if (c == null)
                     throw new  IllegalArgumentException("cannot find class: " + className);
                 else
@@ -214,9 +222,9 @@ public class RepositoryID
         }
     }
 
-    public static String toRepositoryID( String className )
+    public static String toRepositoryID( String className, ClassLoader loader )
     {
-        return toRepositoryID( className, true );
+        return toRepositoryID( className, true, loader );
     }
 
     /**
@@ -224,14 +232,14 @@ public class RepositoryID
      * Returns the corresponding class object, or null if the class loader
      * cannot find a class by that name.
      */
-    private static Class loadClass (String name)
+    private static Class loadClass (String name, ClassLoader loader)
     {
         try
         {
-            if (RepositoryImpl.loader != null)
-                return RepositoryImpl.loader.loadClass (name);
+            if (loader != null)
+                return loader.loadClass (name);
             else
-                return org.jacorb.util.Environment.classForName(name);
+                return org.jacorb.util.ObjectUtil.classForName(name);
         }
         catch (ClassNotFoundException e)
         {
@@ -246,10 +254,11 @@ public class RepositoryID
      *         BoxedValueHelper class can be found for that ID
      * @throws RuntimeException if creation of the Helper instance fails
      */
-    public static BoxedValueHelper createBoxedValueHelper(String repId)
+    public static BoxedValueHelper createBoxedValueHelper(String repId, 
+                                                          ClassLoader loader)
     {
-        String className = className(repId, "Helper");
-        Class c = loadClass(className);
+        String className = className(repId, "Helper", loader);
+        Class c = loadClass(className, loader);
         if (c != null)
             try
             {

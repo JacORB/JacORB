@@ -20,13 +20,14 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.util.Debug;
 import org.omg.CORBA.INTF_REPOS;
+import org.omg.PortableServer.POA;
 
 import java.lang.reflect.*;
 import java.util.*;
 import java.io.*;
 
+import org.apache.avalon.framework.logger.Logger;
 
 public class StructDef
     extends TypedefDef
@@ -50,11 +51,21 @@ public class StructDef
 
     private boolean defined = false;
 
+    private Logger logger;
+    private ClassLoader loader;
+    private POA poa;
+
     public StructDef(Class c,
                      String path,
                      org.omg.CORBA.Container _defined_in,
-                     org.omg.CORBA.Repository ir)
-    {
+                     org.omg.CORBA.Repository ir,
+                     Logger logger,
+                     ClassLoader loader,
+                     POA poa)
+    {   
+        this.logger = logger;
+        this.loader = loader;
+        this.poa = poa;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Struct;
         containing_repository = ir;
         defined_in = _defined_in;
@@ -88,11 +99,11 @@ public class StructDef
                 absolute_name = "::" + name;
             }
 
-            helperClass = RepositoryImpl.loader.loadClass( classId + "Helper") ;
+            helperClass = this.loader.loadClass( classId + "Helper") ;
             id( (String)helperClass.getDeclaredMethod( "id", null ).invoke( null, null ));
 
 //              type =
-//                  TypeCodeUtil.getTypeCode( myClass, RepositoryImpl.loader, null, classId );
+//                  TypeCodeUtil.getTypeCode( myClass, this.loader, null, classId );
 
             type = (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod( 
                                                    "type", 
@@ -104,7 +115,11 @@ public class StructDef
                 org.omg.CORBA.TypeCode type_code = type.member_type(i);
                 String member_name = type.member_name(i);
 
-                org.jacorb.util.Debug.output(3, "StructDef " + absolute_name  + " member " + member_name);
+                if (this.logger.isDebugEnabled())
+                {
+                    this.logger.debug("StructDef " + absolute_name  + 
+                                      " member " + member_name);
+                }
 
                 members[i] = new org.omg.CORBA.StructMember( member_name,
                                                              type_code,
@@ -116,11 +131,15 @@ public class StructDef
 
             if( f.exists() && f.isDirectory() )
                 my_dir = f;
-            org.jacorb.util.Debug.output(2, "StructDef: " + absolute_name );
+
+            if (this.logger.isDebugEnabled())
+            {
+                this.logger.debug("StructDef: " + absolute_name);
+            }
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            logger.error("Caught Exception", e);
             throw new INTF_REPOS( ErrorMsg.IR_Not_Implemented,
                                   org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
@@ -157,15 +176,18 @@ public class StructDef
                 {
                     try
                     {
-                        org.jacorb.util.Debug.output(2, "Struct " +name+ " tries " +
-                                                 full_name.replace('.', fileSeparator) +
-                                                 "Package" + fileSeparator +
-                                                 classes[j].substring( 0, classes[j].indexOf(".class")) );
+                        if (this.logger.isDebugEnabled())
+                        {
+                            this.logger.debug("Struct " +name+ " tries " +
+                                              full_name.replace('.', fileSeparator) +
+                                              "Package" + fileSeparator +
+                                              classes[j].substring( 0, classes[j].indexOf(".class")));
+                        }
 
                         ClassLoader loader = getClass().getClassLoader();
                         if( loader == null )
                         {
-                            loader = RepositoryImpl.loader;
+                            loader = this.loader;
                         }
 
                         Class cl =
@@ -175,29 +197,39 @@ public class StructDef
                                                ).replace( fileSeparator, '/') );
 
 
-                        Contained containedObject = Contained.createContained( cl,
-                                                                               path,
-                                                                               myReference,
-                                                                               containing_repository );
+                        Contained containedObject = 
+                            Contained.createContained( cl,
+                                                       path,
+                                                       myReference,
+                                                       containing_repository,
+                                                       this.logger,
+                                                       this.loader,
+                                                       this.poa);
                         if( containedObject == null )
                             continue;
 
                         org.omg.CORBA.Contained containedRef =
-                            Contained.createContainedReference(containedObject);
+                            Contained.createContainedReference(containedObject,
+                                                               this.logger,
+                                                               this.poa);
 
                         if( containedObject instanceof ContainerType )
                             ((ContainerType)containedObject).loadContents();
 
                         containedRef.move( myReference, containedRef.name(), containedRef.version() );
 
-                        org.jacorb.util.Debug.output(2, "Struct " + full_name +
-                                                 " loads "+ containedRef.name() );
+                        if (this.logger.isDebugEnabled())
+                        {
+                            this.logger.debug("Struct " + full_name +
+                                              " loads "+ containedRef.name() );
+                        }
+
                         contained.put( containedRef.name() , containedRef );
                         containedLocals.put( containedRef.name(), containedObject );
                     }
                     catch ( Exception e )
                     {
-                        e.printStackTrace();
+                        logger.error("Caught Exception", e);
                     }
                 }
             }
@@ -210,7 +242,11 @@ public class StructDef
 
     public void define()
     {
-        org.jacorb.util.Debug.output(2, "Struct " + name +  " defining...");
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Struct " + name +  " defining...");
+        }
+
         for( Enumeration e = containedLocals.elements();
              e.hasMoreElements();
              ((IRObject)e.nextElement()).define())
@@ -219,7 +255,8 @@ public class StructDef
         for( int i = 0; i < members.length; i++ )
         {
             members[i].type_def =
-                IDLType.create( members[i].type, containing_repository);
+                IDLType.create( members[i].type, containing_repository,
+                                this.logger, this.poa);
 
             if (members[i].type_def == null)
             {
@@ -228,8 +265,11 @@ public class StructDef
             }
         }
         defined = true;
-        org.jacorb.util.Debug.output(2, "Struct " + name +  " defined");
 
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Struct " + name +  " defined");
+        }
     }
 
     /**
@@ -261,7 +301,10 @@ public class StructDef
 
     public org.omg.CORBA.Contained lookup( String scopedname )
     {
-        org.jacorb.util.Debug.output(2,"Struct " + this.name + " lookup " + scopedname );
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("Struct " + this.name + " lookup " + scopedname);
+        }
 
         String top_level_name;
         String rest_of_name;
@@ -292,8 +335,12 @@ public class StructDef
 
             if( top == null )
             {
-                org.jacorb.util.Debug.output(2,"Interface " + this.name +
-                                         " top " + top_level_name + " not found ");
+                if (this.logger.isDebugEnabled())
+                {
+                    this.logger.debug("Interface " + this.name +
+                                      " top " + top_level_name + 
+                                      " not found ");
+                }
                 return null;
             }
 
@@ -309,15 +356,18 @@ public class StructDef
                 }
                 else
                 {
-                    org.jacorb.util.Debug.output(2,"Interface " + this.name +
-                                             " " + scopedname + " not found ");
+                    if (this.logger.isDebugEnabled())
+                    {
+                        this.logger.debug("Interface " + this.name +
+                                          " " + scopedname + " not found");
+                    }
                     return null;
                 }
             }
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            logger.error("Caught Exception", e);
             return null;
         }
     }

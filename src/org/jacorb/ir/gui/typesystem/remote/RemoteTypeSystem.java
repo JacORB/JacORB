@@ -27,7 +27,6 @@ import javax.swing.table.*;
 import java.util.*;
 
 import org.jacorb.ir.gui.typesystem.*;
-import org.jacorb.util.Debug;
 
 /**
  * @author Joerg v. Frantzius, Gerald Brose.
@@ -49,16 +48,16 @@ public class RemoteTypeSystem
 
     public RemoteTypeSystem ()
     {
-	try
+        try
         {
             this.rep  =
                 RepositoryHelper.narrow(
-                   orb.resolve_initial_references("InterfaceRepository"));
-	}
-	catch (Exception e)
+                    orb.resolve_initial_references("InterfaceRepository"));
+        }
+        catch (Exception e)
         {
             e.printStackTrace();
-	}
+        }
     }
 
     /**
@@ -67,7 +66,7 @@ public class RemoteTypeSystem
 
     public RemoteTypeSystem (String ior)
     {
-	org.omg.CORBA.Object obj = orb.string_to_object(ior);
+        org.omg.CORBA.Object obj = orb.string_to_object(ior);
         try
         {
             rep = RepositoryHelper.narrow(obj);
@@ -76,7 +75,7 @@ public class RemoteTypeSystem
         {
             System.out.println("IOR is not a Repository, sorry.");
             System.exit(0);
-	}
+        }
     }
 
     /**
@@ -90,17 +89,17 @@ public class RemoteTypeSystem
 
     public DefaultTreeModel createTreeModelRoot()
     {
-	if (treeModel!=null)
+        if (treeModel!=null)
         {
             return treeModel;
-	}
-	else
+        }
+        else
         {
             IRRepository startNode  = new IRRepository(rep);
             treeModel =
                 ModelBuilder.getSingleton().createTreeModelRoot(startNode);
             return treeModel;
-	}
+        }
     }
 
     /**
@@ -112,32 +111,32 @@ public class RemoteTypeSystem
     {
         if (obj == null)
         {
-            Debug.output (3, "A reference from the Repository is null... (but it should not)");
+            //Debug.output (3, "A reference from the Repository is null... (but it should not)");
             return null;
         }
-	IRObject irObject = null;
-	TypeSystemNode result = null;
+        IRObject irObject = null;
+        TypeSystemNode result = null;
 
-	System.out.flush();
+        System.out.flush();
 
-	// Typ-Unterscheidung für obj vornehmen und korrespondierendes
+        // Typ-Unterscheidung für obj vornehmen und korrespondierendes
         // org.jacorb.ir.gui.typesystem-Objekt erzeugen.
-	// knownIRObjects: zu jedem Objekt des IR wird das
+        // knownIRObjects: zu jedem Objekt des IR wird das
         // korrespondierende org.jacorb.ir.gui.typesystem-Objekt
-	// festgehalten, damit letzteres nicht mehrfach für
+        // festgehalten, damit letzteres nicht mehrfach für
         /// das selbe IR-Objekt erzeugt wird
-	// (die Abbildung von IR-Objekten auf
+        // (die Abbildung von IR-Objekten auf
         // org.jacorb.ir.gui.typesystem-Objekte wird sozusagen injektiv gehalten)
 
-	// Je nach Typ wird ein anderer Hashcode verwendet,
+        // Je nach Typ wird ein anderer Hashcode verwendet,
         // um das obj in knownIRObjects abzulegen:
-	// die von Object geerbte hashcode() Methode reicht
+        // die von Object geerbte hashcode() Methode reicht
         // hier nicht, weil sie equals() verwendet und
-	// diese Methode nicht für alle möglichen Typen von
+        // diese Methode nicht für alle möglichen Typen von
         ///  obj korrekt redefiniert wurde (testet nur auf
-	// Objekt-Identität)
+        // Objekt-Identität)
 
-	if ( obj instanceof IRObject )
+        if ( obj instanceof IRObject )
         {
             try
             {
@@ -160,8 +159,8 @@ public class RemoteTypeSystem
 
             if( result != null )
             {
-                Debug.output(2, result.getInstanceNodeTypeName()+" "+
-                             result.getAbsoluteName()+" (cached)");
+//                 Debug.output(2, result.getInstanceNodeTypeName()+" "+
+//                              result.getAbsoluteName()+" (cached)");
                 return result;
             }
 
@@ -174,9 +173,9 @@ public class RemoteTypeSystem
                 result = (TypeSystemNode)knownIRObjects.get(contained.id());
                 if (result != null)
                 {
-                    Debug.output(2,
-                                 result.getInstanceNodeTypeName()+" "+
-                                 result.getAbsoluteName()+" (cached by id)");
+//                     Debug.output(2,
+//                                  result.getInstanceNodeTypeName()+" "+
+//                                  result.getAbsoluteName()+" (cached by id)");
                     return result;
                 }
             }
@@ -188,76 +187,76 @@ public class RemoteTypeSystem
                 switch(irObject.def_kind().value())
                 {
                     // create IRObjects
-                case DefinitionKind._dk_Module:
-                    result = new IRModule(irObject);
-                    break;
-                case DefinitionKind._dk_Interface:
-                    result = new IRInterface(irObject);
-                    break;
-                case DefinitionKind._dk_Constant:
-                    result = new IRConstant(irObject);
-                    break;
-                case DefinitionKind._dk_Attribute:
-                    result = new IRAttribute(irObject);
-                    break;
-                case DefinitionKind._dk_Operation:
-                    result = new IROperation(irObject);
-                    break;
-                    /*   Typedef   ist   eine  abstrakte   Oberklasse,
-			theoretisch   dürfte   es   kein  Objekt   mit
-			DefinitionKind._dk_Typedef      geben     case
-			DefinitionKind._dk_Typedef:   result   =   new
-			IRTypedef(irObject); break; */
-                case DefinitionKind._dk_Exception:
-                    result = new IRException(irObject);
-                    break;
-                case DefinitionKind._dk_Struct:
-                    result = new IRStruct(irObject);
-                    break;
-                case DefinitionKind._dk_Union:
-                    result = new IRUnion(irObject);
-                    break;
-                case DefinitionKind._dk_Primitive:
-                    result = new IRPrimitive(irObject);
-                    break;
-                case DefinitionKind._dk_Fixed:
-                    result = new IRFixed(irObject);
-                    break;
-                case DefinitionKind._dk_String:
-                    result = new IRString(irObject);
-                    break;
-                case DefinitionKind._dk_Wstring:
-                    result = new IRWstring(irObject);
-                    break;
-                case DefinitionKind._dk_Alias:
-                    result = new IRAlias(irObject);
-                    break;
-                case DefinitionKind._dk_Sequence:
-                    result = new IRSequence(irObject);
-                    break;
-                case DefinitionKind._dk_Enum:
-                    result = new IREnum(irObject);
-                    break;
-                case DefinitionKind._dk_Array:
-                    result = new IRArray(irObject);
-                    break;
-                case DefinitionKind._dk_ValueBox:
-                    result = new IRValueBox(irObject);
-                    break;
-                case DefinitionKind._dk_Value:
-                    result = new IRValue(irObject);
-                    break;
-                case DefinitionKind._dk_ValueMember:
-                    result = new IRValueMember(irObject);
-                    break;
-                default:
-                    System.out.println("Unknown/senseless DefinitionKind returned from Repository: "+irObject.def_kind().value());
-                    break;
+                    case DefinitionKind._dk_Module:
+                        result = new IRModule(irObject);
+                        break;
+                    case DefinitionKind._dk_Interface:
+                        result = new IRInterface(irObject);
+                        break;
+                    case DefinitionKind._dk_Constant:
+                        result = new IRConstant(irObject);
+                        break;
+                    case DefinitionKind._dk_Attribute:
+                        result = new IRAttribute(irObject);
+                        break;
+                    case DefinitionKind._dk_Operation:
+                        result = new IROperation(irObject);
+                        break;
+                        /*   Typedef   ist   eine  abstrakte   Oberklasse,
+                             theoretisch   dürfte   es   kein  Objekt   mit
+                             DefinitionKind._dk_Typedef      geben     case
+                             DefinitionKind._dk_Typedef:   result   =   new
+                             IRTypedef(irObject); break; */
+                    case DefinitionKind._dk_Exception:
+                        result = new IRException(irObject);
+                        break;
+                    case DefinitionKind._dk_Struct:
+                        result = new IRStruct(irObject);
+                        break;
+                    case DefinitionKind._dk_Union:
+                        result = new IRUnion(irObject);
+                        break;
+                    case DefinitionKind._dk_Primitive:
+                        result = new IRPrimitive(irObject);
+                        break;
+                    case DefinitionKind._dk_Fixed:
+                        result = new IRFixed(irObject);
+                        break;
+                    case DefinitionKind._dk_String:
+                        result = new IRString(irObject);
+                        break;
+                    case DefinitionKind._dk_Wstring:
+                        result = new IRWstring(irObject);
+                        break;
+                    case DefinitionKind._dk_Alias:
+                        result = new IRAlias(irObject);
+                        break;
+                    case DefinitionKind._dk_Sequence:
+                        result = new IRSequence(irObject);
+                        break;
+                    case DefinitionKind._dk_Enum:
+                        result = new IREnum(irObject);
+                        break;
+                    case DefinitionKind._dk_Array:
+                        result = new IRArray(irObject);
+                        break;
+                    case DefinitionKind._dk_ValueBox:
+                        result = new IRValueBox(irObject);
+                        break;
+                    case DefinitionKind._dk_Value:
+                        result = new IRValue(irObject);
+                        break;
+                    case DefinitionKind._dk_ValueMember:
+                        result = new IRValueMember(irObject);
+                        break;
+                    default:
+                        System.out.println("Unknown/senseless DefinitionKind returned from Repository: "+irObject.def_kind().value());
+                        break;
                 } // switch
             }
             catch( Exception exc )
             {
-                Debug.output( 3, exc );
+                //Debug.output( 3, exc );
             }
 
             if ( result instanceof IRInterface &&
@@ -289,8 +288,8 @@ public class RemoteTypeSystem
                     knownIRObjects.put(((IRNode)result).repositoryID,result);
                 }
             }
-	}	// if (irObjectHelper.narrow...)
-	else
+        }	// if (irObjectHelper.narrow...)
+        else
         {
             // kein IRObject sondern lokales Objekt
             // members von Structs, Unions und Enums können nicht
@@ -355,16 +354,16 @@ public class RemoteTypeSystem
                     result = new IREnumMember((String)obj);
                     knownIRObjects.put(obj,result);
                 }
-	}	// else (obj war kein IRObject)
+        }	// else (obj war kein IRObject)
 
         if( result != null )
         {
-            Debug.output( 2, result.getInstanceNodeTypeName()+" "+
-                          result.getAbsoluteName());
+//             Debug.output( 2, result.getInstanceNodeTypeName()+" "+
+//                           result.getAbsoluteName());
         }
-        else
-            Debug.output( 2, "result is null ");
-	return result;
+//         else
+//             Debug.output( 2, "result is null ");
+        return result;
     }
 
     /**
@@ -374,12 +373,12 @@ public class RemoteTypeSystem
 
     public DefaultTableModel getTableModel(DefaultMutableTreeNode treeNode)
     {
-	DefaultTableModel tableModel = new DefaultTableModel();
-	java.lang.Object[] colIdentifiers = {"Item","Type","Name"};
+        DefaultTableModel tableModel = new DefaultTableModel();
+        java.lang.Object[] colIdentifiers = {"Item","Type","Name"};
 
-	tableModel.setColumnIdentifiers(colIdentifiers);
+        tableModel.setColumnIdentifiers(colIdentifiers);
 
-	if (treeNode!=null)
+        if (treeNode!=null)
         {
             if (treeNode.getUserObject() instanceof AbstractContainer)
             {
@@ -398,8 +397,8 @@ public class RemoteTypeSystem
                     tableModel.addRow(row);
                 }
             }
-	}
-	return tableModel;
+        }
+        return tableModel;
     }
 
     /**
@@ -407,7 +406,7 @@ public class RemoteTypeSystem
      * @param treeModel javax.swing.tree.DefaultTreeModel
      */
     public javax.swing.event.TreeExpansionListener getTreeExpansionListener(TreeModel treeModel) {
-	return ModelBuilder.getSingleton().getTreeExpansionListener(treeModel);
+        return ModelBuilder.getSingleton().getTreeExpansionListener(treeModel);
     }
 
     /**
@@ -417,11 +416,11 @@ public class RemoteTypeSystem
 
     public TreeModel getTreeModel()
     {
-	if (treeModel!=null)
+        if (treeModel!=null)
         {
             return treeModel;
-	}
-	else
+        }
+        else
         {
             try
             {
@@ -433,8 +432,8 @@ public class RemoteTypeSystem
             {
                 e.printStackTrace();
             }
-	}
-	return null;
+        }
+        return null;
     }
 
     /**
@@ -443,8 +442,8 @@ public class RemoteTypeSystem
 
     public static void main(String args[])
     {
-	TreeModel dummy = 	new RemoteTypeSystem().getTreeModel();
-	return;
+        TreeModel dummy = 	new RemoteTypeSystem().getTreeModel();
+        return;
     }
 
 }

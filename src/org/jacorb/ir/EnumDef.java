@@ -36,7 +36,8 @@ public class EnumDef
 
     public EnumDef( Class c, 
                     org.omg.CORBA.Container _defined_in,
-                    org.omg.CORBA.Repository ir )
+                    org.omg.CORBA.Repository ir,
+                    ClassLoader loader)
     {
         def_kind = org.omg.CORBA.DefinitionKind.dk_Enum;
         defined_in = _defined_in;
@@ -52,11 +53,11 @@ public class EnumDef
 
             if( path.endsWith("Package"))
             {
-                id( RepositoryID.toRepositoryID( path.substring( 0, path.lastIndexOf("Package")) + "." + name ));
+                id( RepositoryID.toRepositoryID( path.substring( 0, path.lastIndexOf("Package")) + "." + name, loader));
             }
             else 
             {
-                id( RepositoryID.toRepositoryID( path + "." + name));
+                id( RepositoryID.toRepositoryID( path + "." + name, loader));
             }
 
             absolute_name = myContainer.absolute_name() + "::" + name;
@@ -65,7 +66,7 @@ public class EnumDef
         {
             name( classId );
             defined_in = containing_repository;
-            id( RepositoryID.toRepositoryID(name));
+            id( RepositoryID.toRepositoryID(name, loader));
             absolute_name = "::" + name;
         }	
 

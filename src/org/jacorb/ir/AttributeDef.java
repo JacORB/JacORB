@@ -20,13 +20,14 @@
 
 package org.jacorb.ir;
 
-import org.jacorb.util.Debug;
-
 import java.lang.reflect.*;
 import java.util.*;
 
 import org.omg.CORBA.INTF_REPOS;
 import org.omg.CORBA.TypeCode;
+import org.omg.PortableServer.POA;
+
+import org.apache.avalon.framework.logger.Logger;
 
 public class AttributeDef
     extends Contained
@@ -37,13 +38,20 @@ public class AttributeDef
     private org.omg.CORBA.AttributeMode mode = null;
     private Method method = null;
     private boolean defined = false;
+    private Logger logger;
+    private POA poa;
 
     public AttributeDef( java.lang.reflect.Method m,
                          String attrTypeName,
                          org.omg.CORBA.AttributeMode mode,
                          org.omg.CORBA.Container _defined_in,
-                         org.omg.CORBA.Repository _containing_repository )
+                         org.omg.CORBA.Repository _containing_repository,
+                         Logger logger ,
+                         ClassLoader loader,
+                         POA poa)
     {
+        this.logger = logger;
+        this.poa = poa;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Attribute;
         method = m;
         this.mode = mode;
@@ -54,14 +62,15 @@ public class AttributeDef
         {
             typeCode =
                 TypeCodeUtil.getTypeCode( m.getReturnType(),
-                                          RepositoryImpl.loader,
+                                          loader,
                                           null,
-                                          attrTypeName );
+                                          attrTypeName,
+                                          this.logger);
         }
         catch( ClassNotFoundException cnfe )
         {
-            org.jacorb.util.Debug.output( 0, "Error: TypeCode for AttributeDef  could not be created!");
-            cnfe.printStackTrace();
+            this.logger.error("Error: TypeCode for AttributeDef  could not be created!",
+                              cnfe);
         }
 
         defined_in = _defined_in;
@@ -84,9 +93,11 @@ public class AttributeDef
             name() + ":" + version();
         absolute_name = myContainer.absolute_name() + "::" + name();
 
-        org.jacorb.util.Debug.output(2, "New AttributeDef, name: " + name() +
-                                 " " + absolute_name);
-
+        if (this.logger.isDebugEnabled())
+        {
+            this.logger.debug("New AttributeDef, name: " + name() +
+                              " " + absolute_name);
+        }
     }
 
     public org.omg.CORBA.TypeCode type()
@@ -131,7 +142,8 @@ public class AttributeDef
 
     public void define()
     {
-        type_def = IDLType.create(typeCode, containing_repository  );
+        type_def = IDLType.create(typeCode, containing_repository, 
+                                  this.logger, this.poa );
         defined = true;
     }
 
