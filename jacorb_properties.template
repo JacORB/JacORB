@@ -169,6 +169,14 @@ jacorb.outbuf_size=2048
 # reuse.
 jacorb.maxManagedBufSize=18
 
+# Normally, a jacorb server will close the TCP/IP connection right
+# after sending a CloseConnection message. However, it may
+# occasionally happen that the client sends a message into the closed
+# connection because it hasn't handled the CloseConnection yet. To
+# avoid this situation, closing of the TCP/IP connection can be delayed.
+#jacorb.connection.delay_close=on
+#jacorb.connection.timeout_after_closeconnection=20000
+
 # Wait the specified number of msecs for a reply to a request. If
 # exceeded, a org.omg.CORBA.IMP_LIMIT exception will be thrown
 #jacorb.client.pending_reply_timeout=0
