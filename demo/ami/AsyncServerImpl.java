@@ -13,5 +13,17 @@ public class AsyncServerImpl extends AsyncServerPOA
         }
         return a + b;
     }
+
+    public int op2 (int a) throws demo.ami.MyException
+    {
+        try
+        {
+            Thread.currentThread().sleep( 2000 );
+        }
+        catch (InterruptedException e)
+        {
+        }
+        throw new MyException ("Hello exceptional world");
+    }
 }
             
