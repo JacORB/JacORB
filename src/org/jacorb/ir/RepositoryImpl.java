@@ -53,9 +53,8 @@ public class RepositoryImpl
     private Container[]         containers ;
     private Container           delegate ;
 
-    /** global variable for all IR objects */
-    public POA poa;
-    public ClassLoader loader;
+    private POA poa;
+    private ClassLoader loader;
 
     public static char 	        fileSeparator = 
         System.getProperty("file.separator").charAt(0);
