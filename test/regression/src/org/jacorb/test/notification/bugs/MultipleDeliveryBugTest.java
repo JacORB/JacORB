@@ -85,7 +85,8 @@ public class MultipleDeliveryBugTest extends NotificationTestCase
         NotificationTestCaseSetup _setup =
             new NotificationTestCaseSetup(_suite);
 
-        String[] methodNames = org.jacorb.test.common.TestUtils.getTestMethods(MultipleTest.class);
+        String[] methodNames =
+            org.jacorb.test.common.TestUtils.getTestMethods(MultipleDeliveryBugTest.class);
 
         for (int x = 0; x < methodNames.length; ++x)
         {
