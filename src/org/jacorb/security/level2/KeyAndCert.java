@@ -19,6 +19,10 @@
  *
  */
 package org.jacorb.security.level2;
+
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
+
 /**
  * KeyAndCert.java
  *
@@ -28,9 +32,6 @@ package org.jacorb.security.level2;
  * @author Nicolas Noffke
  * @version $Id$
  */
-
-import java.security.PrivateKey;
-import java.security.cert.Certificate;
 
 public class KeyAndCert
 {
@@ -53,6 +54,31 @@ public class KeyAndCert
         chain = new Certificate[ source.chain.length ];
         System.arraycopy( source.chain, 0, chain, 0, source.chain.length );
     }
+
+    public String toString()
+    {
+        StringBuffer sb = new StringBuffer();
+        for( int i = 0; i < chain.length; i++ )
+        {
+            sb.append( chain[i].toString() );
+        }
+        return sb.toString();
+    }
+
+    /**
+     * return the public key of the first Certificate in the chain, if
+     * there are any certs. Return null otherwise 
+     */
+
+    public java.security.PublicKey getPublicKey()
+    {
+        if( chain.length > 0 )
+            return chain[0].getPublicKey();
+        else
+            return null;
+    }
+
+
 } // KeyAndCert
 
 
