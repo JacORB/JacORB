@@ -35,13 +35,12 @@ import org.jacorb.notification.ChannelContext;
  * @version $Id$
  */
 public class ECProxyPushSupplierImpl
-            extends ProxyPushSupplierImpl
-            implements ProxyPushSupplierOperations
+    extends ProxyPushSupplierImpl
+    implements ProxyPushSupplierOperations
 {
-
     ECProxyPushSupplierImpl(AbstractAdmin myAdminServant,
                             ChannelContext channelContext)
-    throws UnsupportedQoS
+        throws UnsupportedQoS
     {
 
         super(myAdminServant,
@@ -53,7 +52,7 @@ public class ECProxyPushSupplierImpl
     ////////////////////////////////////////
 
     public void connect_push_consumer(PushConsumer pushConsumer)
-    throws AlreadyConnected
+        throws AlreadyConnected
     {
         connect_any_push_consumer(pushConsumer);
     }
@@ -73,5 +72,4 @@ public class ECProxyPushSupplierImpl
     {
         return ProxyPushSupplierHelper.narrow( getServant()._this_object(getORB()) );
     }
-
 }
