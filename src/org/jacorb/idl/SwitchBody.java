@@ -103,13 +103,13 @@ class SwitchBody
             {
                 IdlSymbol sym = 
                     (IdlSymbol)usedLabelNames.get(labels[i].toString());
+
                 if( sym != null )
                 {                    
                     parser.error("Duplicate case label <" + 
-                                 sym.toString() + 
-                                 ">", sym.get_token() );
+                                 sym.toString() + ">", sym.get_token() );
                 }
-                usedLabelNames.put( sym.toString(), sym );
+                usedLabelNames.put( labels[i].toString(), labels[i] );
             }
         }
         usedLabelNames.clear();
