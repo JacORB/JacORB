@@ -58,9 +58,6 @@ public class CDRInputStream
      */
     private int uniqueValue;
 
-    /** index for reading from the stream in plain java.io. style */
-    int read_index;
-
     /**
      * <code>encaps_stack</code> is used to saving/restoring
      * encapsulation information. Do NOT access this variable directly.
@@ -587,9 +584,15 @@ public class CDRInputStream
         return result;
     }
 
-
-    /* from java.io.InputStream */
-
+    /**
+     * Reads the next byte of data from the input stream. The value byte is
+     * returned as an <code>int</code> in the range <code>0</code> to
+     * <code>255</code>. If no byte is available because the end of the stream
+     * has been reached, the value <code>-1</code> is returned.
+     * @return the next byte of data, or <code>-1</code> if the end of the
+     *         stream is reached.
+     * @throws java.io.IOException if stream is closed.
+     */
     public int read()
         throws java.io.IOException
     {
@@ -599,21 +602,33 @@ public class CDRInputStream
         if( available() < 1 )
             return -1;
 
-        return buffer[read_index++];
+        ++index;
+        return buffer[pos++]; // read_index++];
     }
 
+    /**
+     * @return the number of bytes that can be read (or skipped over) from this
+     *         input stream.  This is not necessarily the number of 'valid' bytes.
+     */
     public int available()
     {
-        return pos - read_index;
+        return buffer.length - index;
     }
 
+    /**
+     * Has the effect of read(b, 0, b.length);
+     * @see #read
+     */
     public int read(final byte[] b)
         throws java.io.IOException
     {
         return read(b, 0, b.length);
     }
 
-
+    /**
+     * Performs as described by <code>java.io.InputStream.read(byte[], int, int)</code>,
+     * but never blocks.
+     */
     public int read(final byte[] b, final int off, final int len)
         throws java.io.IOException
     {
@@ -635,7 +650,9 @@ public class CDRInputStream
             throw new java.io.IOException("Stream already closed!");
 
         int min = ( len < available() ? len : available());
-        System.arraycopy(buffer, 0, b, off, min );
+        System.arraycopy(buffer, index, b, off, min );
+        pos += min;
+        index += min;
         return min;
     }
 

@@ -66,7 +66,17 @@ public class PingObject
         }
         else
         {
-            if( o._non_existent())
+            boolean non_exist = true;
+            try
+            {
+                o._non_existent();
+            }
+            catch (org.omg.CORBA.SystemException e)
+            {
+                non_exist = true;
+            }
+            
+            if( non_exist )
             {
                 System.out.println("Object not reachable!");
             }

@@ -1341,9 +1341,9 @@ public final class Delegate
                 catch (RemarshalException re)
                 {
                 }
-                catch (Exception ex)
+                catch (ApplicationException e)
                 {
-                    return true;
+                    throw new RuntimeException( "Unexpected exception " + e.getId() );
                 }
             }
         }

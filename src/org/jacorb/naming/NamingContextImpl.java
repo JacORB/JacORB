@@ -104,7 +104,7 @@ public class NamingContextImpl
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)names.get(n);
-                if( s._non_existent() )
+                if( isDead(s) )
                 {
                     rebind( n.components(), obj );
                     return;
@@ -115,7 +115,7 @@ public class NamingContextImpl
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)contexts.get(n);
-                if( s._non_existent() )
+                if( isDead(s) )
                 {
                     unbind( n.components());
                 }
@@ -261,7 +261,7 @@ public class NamingContextImpl
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)names.get(n);
-                if( s._non_existent() )
+                if( isDead(s) )
                 {
                     unbind( n.components());
                 }
@@ -272,7 +272,7 @@ public class NamingContextImpl
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)contexts.get(n);
-                if( s._non_existent() )
+                if( isDead(s) )
                 {
                     rebind_context( n.components(), obj );
                     return;
@@ -336,7 +336,7 @@ public class NamingContextImpl
         {
             Name _n = (Name)n.nextElement();
 
-            if( ((org.omg.CORBA.Object)names.get( _n ))._non_existent() )
+            if( isDead(((org.omg.CORBA.Object)names.get( _n ))) )
             {
                 if (logger.isInfoEnabled())
                 {
@@ -358,7 +358,7 @@ public class NamingContextImpl
         for( Enumeration c = contexts.keys(); c.hasMoreElements(); )
         {
             Name _n = (Name)c.nextElement();
-            if( ((org.omg.CORBA.Object)contexts.get( _n ))._non_existent() )
+            if( isDead(((org.omg.CORBA.Object)contexts.get( _n ))) )
             {
                 if (logger.isInfoEnabled())
                 {
@@ -573,7 +573,7 @@ public class NamingContextImpl
                 NamingContextExtHelper.narrow((org.omg.CORBA.Object)contexts.get(n));
 
 
-            if ((next_context == null)||(next_context._non_existent()))
+            if ((next_context == null)||(isDead(next_context)))
             {
                 throw new NotFound(NotFoundReason.missing_node,nc);
             }
@@ -598,7 +598,7 @@ public class NamingContextImpl
             if (result == null)
                 throw new NotFound(NotFoundReason.missing_node, n.components());
             
-            if ( !noPing && result._non_existent())
+            if ( !noPing && isDead(result))
             {
                 throw new NotFound(NotFoundReason.missing_node, n.components());
             }
@@ -801,4 +801,20 @@ public class NamingContextImpl
     }
 
 
+    /**
+     * determine if non_existent
+     */
+
+    private boolean isDead(org.omg.CORBA.Object o)
+    {
+        boolean non_exist = true;
+        try
+        {
+            non_exist = o._non_existent();
+        } catch (org.omg.CORBA.SystemException e)
+        {
+            non_exist = true;
+        }
+        return non_exist;
+    }
 }

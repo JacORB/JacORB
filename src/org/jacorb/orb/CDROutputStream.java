@@ -720,8 +720,9 @@ public class CDROutputStream
 
     public org.omg.CORBA.portable.InputStream create_input_stream()
     {
-        byte [] buf = (byte [])buffer.clone();
-        return new CDRInputStream( orb, buf );
+        byte[] result = new byte[index+1];
+        System.arraycopy(buffer, 0, result, 0, result.length);
+        return new CDRInputStream( orb, result );
     }
 
     public final void write_any(final org.omg.CORBA.Any value)

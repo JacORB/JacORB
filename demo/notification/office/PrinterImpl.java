@@ -130,10 +130,20 @@ class PrinterImpl
 
 		    try
 		    {
-                        if( ! pushConsumer._non_existent())
-                            pushConsumer.push_structured_event(printedEvent);
-                        else
-                            System.err.println("Object " + pushConsumer + " not existent");
+                boolean exist = false;
+                try
+                {
+                    exist = ! pushConsumer._non_existent();
+                }
+                catch( org.omg.CORBA.SystemException e )
+                {
+                    // exist remains false
+                }
+
+                if( exist )
+                    pushConsumer.push_structured_event(printedEvent);
+                else
+                    System.err.println("Object " + pushConsumer + " not existent");
 		    }
 		    catch( org.omg.CosEventComm.Disconnected d )
 		    {

@@ -123,7 +123,14 @@ public class WhiteBoardFactory extends IFactoryPOA implements IFactoryOperations
 
             System.out.println("Whiteboard online !");
 
-            if (_factory._non_existent()) {
+            boolean non_exist = false;
+            try {
+                non_exist = _factory._non_existent();
+            } catch (org.omg.CORBA.SystemException e) {
+                non_exist = true;
+            }
+
+            if (non_exist) {
                 System.out.println("NotificationService not available !");
                 System.exit(1);
             }
