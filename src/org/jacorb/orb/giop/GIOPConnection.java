@@ -46,6 +46,7 @@ import org.jacorb.util.*;
 public abstract class GIOPConnection
     extends java.io.OutputStream
 {
+    protected org.omg.ETF.Profile profile = null;
     protected Transport transport = null;
 
     private RequestListener request_listener = null;
@@ -99,11 +100,13 @@ public abstract class GIOPConnection
     
     protected StatisticsProvider statistics_provider = null;
 
-    public GIOPConnection( Transport transport,
+    public GIOPConnection( org.omg.ETF.Profile profile,
+                           Transport transport,
                            RequestListener request_listener,
                            ReplyListener reply_listener,
                            StatisticsProvider statistics_provider )
     {
+        this.profile = profile;
         this.transport = transport;
         this.request_listener = request_listener;
         this.reply_listener = reply_listener;
@@ -665,7 +668,7 @@ public abstract class GIOPConnection
         {
             synchronized (connect_sync)
             {
-                transport.connect (null, 0);
+                transport.connect (profile, 0);
                 connect_sync.notifyAll();
             }
         }
