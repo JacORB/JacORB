@@ -147,19 +147,23 @@ public class AliasTypeSpec
                 else
                     tName = originalType.typeName();
 
-                imports.put( tName, "" );
-                imports.put( tName + "Helper", "" );
+                addImportedName( tName );
+//                  imports.put( tName, "" );
+//                  imports.put( tName + "Helper", "" );
             }        
         }
 
 	if( originalType instanceof ScopedName )
         {
 	    originalType = ((ScopedName)originalType).resolvedTypeSpec();
-            if( originalType.typeName().indexOf( '.' ) < 0 )
-            {
-                imports.put( originalType.typeName(), "" );
-                imports.put( originalType.typeName() + "Helper", "" );
-            }
+
+            addImportedName( originalType.typeName() );
+
+//              if( originalType.typeName().indexOf( '.' ) < 0 )
+//              {
+//                  imports.put( originalType.typeName(), "" );
+//                  imports.put( originalType.typeName() + "Helper", "" );
+//              }
         }
 
 

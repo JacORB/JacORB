@@ -57,9 +57,21 @@ class BaseType
 	return ( type_spec instanceof SwitchTypeSpec );
     }
 
-    public void parse() 
-	 
+    public void parse()         
     {}
+
+    public static boolean isBasicName( String typeName )
+    {
+        return ( typeName.startsWith( "long" ) ||
+                 typeName.startsWith( "int" ) ||
+                 typeName.startsWith( "short" ) ||
+                 typeName.startsWith( "float" ) ||
+                 typeName.startsWith( "double" ) ||
+                 typeName.startsWith( "byte" ) ||
+                 typeName.startsWith( "boolean" ) ||
+                 typeName.startsWith( "char" ) ||
+                 typeName.startsWith( "string" ) );
+    }
 
     public String signature()
     {

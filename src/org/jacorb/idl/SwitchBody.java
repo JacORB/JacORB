@@ -88,11 +88,7 @@ class SwitchBody
 	    ((IdlSymbol)e.nextElement()).parse();
 	ts.parse();
 
-        if( ts.typeName().indexOf( '.' ) < 0 )
-        {
-            myUnion.imports.put( ts.typeName(), "" );
-            myUnion.imports.put( ts.typeName() + "Helper", "" );
-        }
+        myUnion.addImportedName( ts.typeName() );
     }
 
     public void print(java.io.PrintWriter ps)

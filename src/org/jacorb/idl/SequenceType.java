@@ -1,3 +1,4 @@
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -354,11 +355,8 @@ public class SequenceType
                 ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
 	    if( ts != null ) 
 		type_spec = ts;
-            if( type_spec.typeSpec().typeName().indexOf( '.' ) < 0 )
-            {
-                imports.put( type_spec.typeSpec().typeName(), "" );
-                imports.put( type_spec.typeSpec().typeName() + "Helper", "" );
-            }
+
+            addImportedName( type_spec.typeSpec().typeName());
 	}
 	try
 	{

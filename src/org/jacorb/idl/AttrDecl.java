@@ -63,11 +63,8 @@ class AttrDecl
                 ((ScopedName)param_type_spec.typeSpec()).resolvedTypeSpec();
 	    if( ts != null ) 
 		param_type_spec = ts;
-            if( ts.typeName().indexOf( '.' ) < 0 )
-            {
-                myInterface.imports.put( ts.typeName(), "" );
-                myInterface.imports.put( ts.typeName() + "Helper", "" );
-            }
+
+            myInterface.addImportedName( ts.typeName());
 	}
 
 	declarators.parse();

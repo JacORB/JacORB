@@ -211,12 +211,8 @@ class UnionType
 		{
 		    parser.error("Illegal Switch Type: " + ts.typeName(), token);
 		}
-                if( switch_type_spec.typeName().indexOf( '.' ) < 0 )
-                {
-                    imports.put( switch_type_spec.typeName(), "" );
-                    imports.put(  switch_type_spec.typeName() + "Helper", "" );
-                }
 
+                addImportedName( switch_type_spec.typeName() );
 	    }
 	    switch_type_spec.parse();
 

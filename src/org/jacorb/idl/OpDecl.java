@@ -112,17 +112,14 @@ class OpDecl
                              " already defined in operation " + full_name(), 
                              token);
             }
-            if( param.paramTypeSpec.typeName().indexOf('.') < 1 )
+
+            if( param.paramAttribute > 1 )
             {
-                if( param.paramAttribute > 1 )
-                {
-                    myInterface.imports.put( param.paramTypeSpec.typeName() + "Holder","" );
-                }
-                else
-                {
-                    myInterface.imports.put( param.paramTypeSpec.typeName(),"" );
-                }
-                myInterface.imports.put( param.paramTypeSpec.typeName()+ "Helper","" );
+                myInterface.addImportedNameHolder( param.paramTypeSpec.typeName() );
+            }
+            else
+            {
+                myInterface.addImportedName( param.paramTypeSpec.typeName());
             }
         }
 
@@ -133,11 +130,8 @@ class OpDecl
 
 	    if( ts != null ) 
 		opTypeSpec = ts;
-            if( opTypeSpec.typeName().indexOf('.') < 1 )
-            {
-                myInterface.imports.put( opTypeSpec.typeName(),"" );
-                myInterface.imports.put( opTypeSpec.typeName()+ "Helper","" );
-            }
+
+            myInterface.addImportedName( opTypeSpec.typeName() );
 	}
 
 	if( (! NameTable.defined( opTypeSpec.typeName(), "type" )) &&

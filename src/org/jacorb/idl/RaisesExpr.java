@@ -125,11 +125,7 @@ class RaisesExpr
 
         for( int i = 0; i < classes.length; i++ )
         {
-            if( classes[i].indexOf('.') < 0 )
-            {
-                myInterface.imports.put( classes[i], "" );
-                myInterface.imports.put( classes[i] + "Helper", "" );
-            }
+            myInterface.addImportedName( classes[i] );
         }
     }
 
