@@ -44,6 +44,9 @@ gerald.brose@acm.org
    - DynAny
          - Implemented DynFixed interface.
 
+   - build
+         - JacORB classes directory no longer needed in CLASSPATH to
+           build JacORB.
 
 1.4 beta 4:
 ===========

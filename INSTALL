@@ -1,6 +1,6 @@
-JacORB 1.4 Beta 3
+JacORB 1.4 Beta 4
 
-		Installing and Building JacORB
+	  Installing and Building JacORB
 
 _____________________________________________________________________
 
@@ -12,13 +12,13 @@ Required:
           JDK 1.4 or IAIK crytography provider and SSL implementation, 
           available from http://www.iaik.at
 
-	- for rebuilding JacORB or compling the demos:
-	  Version 1.2 or later of the Jakarta Ant make tool,
+	- for rebuilding JacORB or compiling the demos:
+	       Version 1.2 or later of the Jakarta Ant make tool,
           available from http://jakarta.apache.org/ant. 
 
         - for using names instead of ip adresses in IORs:
           dnsjava 1.1.6 (or above) available from 
-          http://www.xbill.org/dnsjava. See step 7. for instructions.
+          http://www.xbill.org/dnsjava. See step 7 for instructions.
 
         This release has been tested on:
 
@@ -32,26 +32,17 @@ Required:
 Installation:
 =============
 
-(0. Download "Ant" and install it as described in its documentation
-    if you want to rebuild. This JacORB release relies on Ant 1.2 !!)
+0. Download "Ant" and install it as described in its documentation if
+   you want to rebuild. This JacORB release relies on Ant 1.2 or later.
 
-1.  For rebuilding, extend your CLASSPATH environment variable to 
-    include the following paths, where <jacorb_home> denotes your 
-    JacORB installation directory and <ant_home> the Ant installation 
-    directory:
+1. Extend your search path to include the bin subdirectory of the
+   installation directory so that the JacORB utilities can be found.
 
-	1) <jacorb_home>/classes
-	2) <ant_home>/lib/ant.jar
-
-2. Extend your search path to include the <jacorb_home>/bin subdirectory
-   of the installation directory so that the JacORB utilities can be
-   found. (For rebuilding, ant's /bin directory must also be included.)
-
-3. If you can't or don't want to use the jaco[.bat] start scripts,
+2. If you can't or don't want to use the jaco[.bat] start scripts,
    copy orb.properties to JAVA_HOME/lib or edit the existing
    orb.properties file.
 
-4. Edit jacorb.properties and copy them to your "home" directory.
+3. Edit jacorb.properties and copy them to your "home" directory.
    Please use jacorb_properties.template as a template.  Most options
    need no configuration, but make sure you adjust at last the URL
    strings for the services you plan to use (e.g. NameService and so
@@ -78,23 +69,20 @@ Installation:
 
       org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
+4. Generate or edit the start scripts jaco and jaco.bat:
+   (This step is carried out automatically by the build process, so 
+    it is only required if you are not rebuilding JacORB.)
 
+        a) If you have Ant installed, simply call 
+           "ant jaco"
 
-5. Generate or edit the start scripts jaco and jaco.bat:
-   (This step is carried out automatically by the build
-    process, so it is only required if you are not rebuilding
-    JacORB).
-
-        a) If you have ant installed, simply call 
-            "ant jaco"
-
-        b) If you don't have ant, you need to create and adapt the
-           jaco[.bat] script in bin/ yourself to update the
+        b) If you don't have Ant, you need to create and adapt the
+           jaco[.bat] script in bin yourself to update the
            classpath. You can use the file jacotemplate[.bat] as a
            template and replace the @@@XYZ_HOME@@@ placeholders by
-           your actual pathes.
+           your actual paths.
 
-6. If you like to have host names instead of IP adresses in your IORs
+5. If you like to have host names instead of IP adresses in your IORs
    you have to install dnsjava (make its classes present) and
    recompile src/org/jacorb/orb/dns. To recompile, do an "ant" in that
    dir, and an "ant libs" in the JacORB root dir. If you're absolutely
@@ -108,19 +96,18 @@ Installation:
 Building JacORB (Optional)
 ==========================
 
-   Ensure ant and java are in your PATH and JAVA_HOME is defined.
-   Ensure the JacORB classes subdirectory is in your CLASSPATH.
+   Ensure Ant 1.2 or later is installed on your system.
 
    To build JacORB you need to call "ant" in the installation
-   directory as shown below.
+   directory:
 
 	$> ant 
  
    NOTE: 
 
-   The build process may bail out, claiming that javac does not have
+   The build process may abort, claiming that javac does not have
    enough memory. This can happen when trying to compile a large
-   number or files at one time. To avoid this on Unix, copy the file
+   number of files at one time. To avoid this on Unix, copy the file
    "ANTRC" to your home directory renaming it to ".antrc". If you are
    building on a Windows platform copy the antrc_pre.bat file to your
    home directory (as denoted by %HOME%).  ant will consult these
@@ -136,7 +123,6 @@ Building JacORB (Optional)
 
    Yet another way of achieving the same is by setting the 
    ANT_OPTS environment variable:
-        set ANT_OPTS=-mx48m
+      set ANT_OPTS=-mx48m
    on Windows, or on Unix:
-        export ANT_OPTS=-mx48m
-
+      export ANT_OPTS=-mx48m
