@@ -87,7 +87,10 @@ public class CDRInputStream
 	throws java.io.IOException
     {
 	if( closed )
-	    throw new java.io.IOException("Stream already closed!");
+	{
+	    return;
+	    //throw new java.io.IOException("Stream already closed!");
+	}
 
 	encaps_stack.removeAllElements();
         //	TCTable.clear();
@@ -1152,6 +1155,17 @@ public class CDRInputStream
 	return pos;
     }
 
+    public void finalize()
+    {
+	try
+	{
+	    close();
+	}
+	catch( IOException iox )
+	{
+	    //ignore
+	}
+    }
 }
 
 

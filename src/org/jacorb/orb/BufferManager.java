@@ -42,7 +42,7 @@ public class BufferManager
     /** the maximal buffer size managed since the buffer
 	pool is ordered by buffer size in log2 steps */
 
-    private static  int MAX;
+    private static int MAX;
 
     /** the buffer at pos n has size 2**(n+MIN_OFFSET)
 	so the smallest available buffer is 2**MIN_OFFSET,
@@ -53,11 +53,10 @@ public class BufferManager
 
     /** max number of buffers of the same size held in pool */
 
-    private static final int THREASHOLD = 15;
+    private static final int THREASHOLD = 50;
 
     private int hits = 0;
     private int calls = 0;
-
 
     private BufferManager()
     {
@@ -110,11 +109,11 @@ public class BufferManager
     public synchronized byte[] getBuffer(int initial)
     {
       //org.jacorb.util.Debug.output( 2, "get buffer: " + initial + " bytes");
-	
+
 	calls++;
 
 	int log = log2up(initial);
-
+	
 	if( log >= MAX+MIN_OFFSET  )
 	    return new byte[initial];
 
@@ -125,6 +124,7 @@ public class BufferManager
 	    hits++;
 	    Object o = v.firstElement();
 	    v.removeElementAt(0);
+
 	    return (byte [])o;
 	}
 	else
@@ -133,22 +133,27 @@ public class BufferManager
 	}
     }
 
-    synchronized void returnBuffer(byte [] current)
+    public synchronized void returnBuffer(byte[] current)
     {
 	int log_curr = log2down(current.length);
 
-	org.jacorb.util.Debug.output( 4, "return buffer: " + current.length + " bytes, log2: " + log_curr );
+	/*
+	org.jacorb.util.Debug.output( 4, "return buffer: " + current.length + 
+				      " bytes, log2: " + log_curr );
+	*/
 
-	if( log_curr >= MIN_OFFSET+MIN_OFFSET )
+	if( log_curr >= MIN_OFFSET )//+MIN_OFFSET )
 	{
 	    if( log_curr > MAX )
+	    {
 		return; // we don't keep anything bigger than 2**MAX
+	    }
 
 	    Vector v = bufferPool[ log_curr-MIN_OFFSET ];
 	    if( v.size() < THREASHOLD )
 	    {
 		v.addElement( current );
-	    }
+	    }	   	    
 	}
     }
 

@@ -116,7 +116,7 @@ public class CDROutputStream
      *  and the character encoding sets
      */
 
-    public CDROutputStream(  byte [] buf )
+    public CDROutputStream( byte[] buf )
     {
         bufMgr = BufferManager.getInstance();
         buffer = buf;
@@ -196,7 +196,11 @@ public class CDROutputStream
     public void release()
     {
         if( released )
-            throw new java.lang.Error("Stream already released!");
+	{
+	    return;
+            //throw new Error("Stream already released!");
+	}
+	
         if( bufMgr != null )
         {
             bufMgr.returnBuffer( buffer );
@@ -1472,6 +1476,12 @@ public class CDROutputStream
     {
         return header_stream;
     }
+
+    public void finalize()
+    {
+	release();
+    }
+
 }
 
 
