@@ -37,12 +37,12 @@ import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.AbstractAdmin;
-import org.jacorb.notification.servant.AdminPropertySet;
+import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.servant.ConsumerAdminTieImpl;
 import org.jacorb.notification.servant.FilterStageListManager;
 import org.jacorb.notification.servant.ManageableServant;
-import org.jacorb.notification.servant.PropertySet;
-import org.jacorb.notification.servant.QoSPropertySet;
+import org.jacorb.notification.util.PropertySet;
+import org.jacorb.notification.util.QoSPropertySet;
 import org.jacorb.notification.servant.SupplierAdminTieImpl;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
@@ -74,6 +74,7 @@ import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
+import org.omg.CosNotification.EventReliability;
 
 /**
  * @author Alphonse Bendt
@@ -170,9 +171,12 @@ public class EventChannelImpl
 
     private AdminPropertySet adminSettings_ = new AdminPropertySet();
 
-    private QoSPropertySet qosSettings_ = new QoSPropertySet(QoSPropertySet.CHANNEL_QOS);
+    private QoSPropertySet qosSettings_ =
+        new QoSPropertySet(QoSPropertySet.CHANNEL_QOS);
 
     private List listAdminEventListeners_ = new ArrayList();
+
+    private Runnable disposeHook_;
 
     private ProxyCreationRequestEventListener proxyConsumerCreationListener_ =
         new ProxyCreationRequestEventListener()
@@ -294,6 +298,12 @@ public class EventChannelImpl
                 }
             }
 
+        if (!Environment.isPropertyOn(Configuration.LAZY_DEFAULT_ADMIN_INIT,
+                                      Default.DEFAULT_LAZY_DEFAULT_ADMIN_INIT)) {
+            default_consumer_admin();
+            default_supplier_admin();
+        }
+
         return thisRef_;
     }
 
@@ -307,7 +317,8 @@ public class EventChannelImpl
     private void addConsumer()
         throws AdminLimitExceeded
     {
-        if ( numberOfConsumers_.compareTo(maxNumberOfConsumers_) < 0)
+        if ( (maxNumberOfConsumers_ == 0) ||
+             (numberOfConsumers_.compareTo(maxNumberOfConsumers_) < 0) )
         {
             numberOfConsumers_.increment();
         }
@@ -337,7 +348,8 @@ public class EventChannelImpl
     private void addSupplier()
         throws AdminLimitExceeded
     {
-        if ( numberOfSuppliers_.compareTo(maxNumberOfSuppliers_) < 0 )
+        if ( (maxNumberOfSuppliers_ == 0) ||
+             (numberOfSuppliers_.compareTo(maxNumberOfSuppliers_) < 0 ) )
         {
             numberOfSuppliers_.increment();
         }
@@ -454,7 +466,7 @@ public class EventChannelImpl
                 _defaultConsumerAdmin = newConsumerAdmin(channelContext_, DEFAULT_ADMIN_KEY);
 
                 try {
-                    _defaultConsumerAdmin.set_qos(qosSettings_.toArray());
+                    _defaultConsumerAdmin.set_qos(createQoSPropertiesForAdmin());
                 } catch (UnsupportedQoS e) {
                     logger_.fatalError("unable to set qos", e);
                 }
@@ -502,7 +514,7 @@ public class EventChannelImpl
                 _admin = newSupplierAdmin(channelContext_, DEFAULT_ADMIN_KEY);
 
                 try {
-                    _admin.set_qos(qosSettings_.toArray());
+                    _admin.set_qos(createQoSPropertiesForAdmin());
                 } catch (UnsupportedQoS e) {
                     logger_.fatalError("", e);
                 }
@@ -636,7 +648,7 @@ public class EventChannelImpl
         _admin.setIsIDPublic(true);
 
         try {
-            _admin.set_qos(qosSettings_.toArray());
+            _admin.set_qos(createQoSPropertiesForAdmin());
         } catch (UnsupportedQoS e) {
             logger_.error("err", e);
         }
@@ -687,7 +699,7 @@ public class EventChannelImpl
         _admin.setIsIDPublic(true);
 
         try {
-            _admin.set_qos(qosSettings_.toArray());
+            _admin.set_qos(createQoSPropertiesForAdmin());
         } catch (UnsupportedQoS e) {
             logger_.fatalError("error setting qos", e);
         }
@@ -776,6 +788,8 @@ public class EventChannelImpl
 
                 return SupplierAdminHelper.narrow(  _admin.activate() );
             } else {
+                logger_.error("request for supplier admin: " + identifier + " could not be served: " + supplierAdminServants_);
+
                 throw new AdminNotFound("ID " + identifier + " does not exist.");
             }
         }
@@ -785,14 +799,14 @@ public class EventChannelImpl
     public int[] get_all_consumeradmins()
     {
         int[] _allKeys;
-        int _defaultConsumerAdmin = 0;
+        //        int _defaultConsumerAdmin = 0;
 
-        if (isDefaultConsumerAdminActive()) {
-            _defaultConsumerAdmin = 1;
-        }
+//         if (isDefaultConsumerAdminActive()) {
+//             _defaultConsumerAdmin = 1;
+//         }
 
         synchronized(modifyConsumerAdminsLock_) {
-            _allKeys = new int[consumerAdminServants_.size() + _defaultConsumerAdmin];
+            _allKeys = new int[consumerAdminServants_.size()]; // + _defaultConsumerAdmin];
 
             Iterator i = consumerAdminServants_.keySet().iterator();
             int x = 0;
@@ -800,9 +814,9 @@ public class EventChannelImpl
                 _allKeys[x++] = ((Integer)i.next()).intValue();
             }
 
-            if (_defaultConsumerAdmin == 1) {
-                _allKeys[x] = 0;
-            }
+//             if (_defaultConsumerAdmin == 1) {
+//                 _allKeys[x] = 0;
+//             }
         }
 
         return _allKeys;
@@ -812,14 +826,14 @@ public class EventChannelImpl
     public int[] get_all_supplieradmins()
     {
         int[] _allKeys;
-        int _defaultSupplierAdmin = 0;
+        //        int _defaultSupplierAdmin = 0;
 
-        if (isDefaultSupplierAdminActive()) {
-            _defaultSupplierAdmin = 1;
-        }
+//         if (isDefaultSupplierAdminActive()) {
+//             _defaultSupplierAdmin = 1;
+//         }
 
         synchronized(modifySupplierAdminsLock_) {
-            _allKeys = new int[supplierAdminServants_.size() + _defaultSupplierAdmin];
+            _allKeys = new int[supplierAdminServants_.size()]; // + _defaultSupplierAdmin];
 
             Iterator i = supplierAdminServants_.keySet().iterator();
             int x = 0;
@@ -827,9 +841,9 @@ public class EventChannelImpl
                 _allKeys[x++] = ((Integer)i.next()).intValue();
             }
 
-            if (_defaultSupplierAdmin == 1) {
-                _allKeys[x] = 0;
-            }
+//             if (_defaultSupplierAdmin == 1) {
+//                 _allKeys[x] = 0;
+//             }
         }
 
         return _allKeys;
@@ -851,8 +865,6 @@ public class EventChannelImpl
     public void set_qos( Property[] props )
         throws UnsupportedQoS
     {
-        logger_.debug("set_qos");
-
         qosSettings_.validate_qos(props, new NamedPropertyRangeSeqHolder());
 
         qosSettings_.set_qos(props);
@@ -879,25 +891,11 @@ public class EventChannelImpl
 
 
     private void configureAdminLimits(PropertySet adminProperties) {
-        maxNumberOfConsumers_ =
-            Environment.getIntPropertyWithDefault(Configuration.MAX_NUMBER_CONSUMERS,
-                                                  Default.DEFAULT_MAX_NUMBER_CONSUMERS);
+        Any _maxConsumers = adminProperties.get( MaxConsumers.value );
+        maxNumberOfConsumers_ = _maxConsumers.extract_long();
 
-        maxNumberOfSuppliers_ =
-            Environment.getIntPropertyWithDefault(Configuration.MAX_NUMBER_SUPPLIERS,
-                                                  Default.DEFAULT_MAX_NUMBER_SUPPLIERS);
-
-        if ( adminProperties.containsKey( MaxConsumers.value ) )
-            {
-                Any _maxConsumers = adminProperties.get( MaxConsumers.value );
-                maxNumberOfConsumers_ = _maxConsumers.extract_long();
-            }
-
-        if ( adminProperties.containsKey( MaxSuppliers.value ) )
-            {
-                Any _maxSuppliers = adminProperties.get( MaxSuppliers.value );
-                maxNumberOfSuppliers_ = _maxSuppliers.extract_long();
-            }
+        Any _maxSuppliers = adminProperties.get( MaxSuppliers.value );
+        maxNumberOfSuppliers_ = _maxSuppliers.extract_long();
 
         if (logger_.isInfoEnabled()) {
             logger_.info("set MaxNumberOfConsumers=" + maxNumberOfConsumers_);
@@ -926,11 +924,18 @@ public class EventChannelImpl
     }
 
 
+    void setDisposeHook(Runnable disposeHook) {
+        disposeHook_ = disposeHook;
+    }
+
+
     public void dispose()
     {
+        logger_.info("destroy channel");
+
         deactivate();
 
-        eventChannelFactory_.removeEventChannelServant(getKey());
+        disposeHook_.run();
 
         logger_.info("destroy ConsumerAdmins");
 
@@ -1029,5 +1034,26 @@ public class EventChannelImpl
      */
     public int getNumberOfConnectedClients() {
         return numberOfConsumers_.get() + numberOfSuppliers_.get();
+    }
+
+
+    public int getMaxNumberOfSuppliers() {
+        return maxNumberOfSuppliers_;
+    }
+
+
+    public int getMaxNumberOfConsumers() {
+        return maxNumberOfConsumers_;
+    }
+
+
+    private Property[] createQoSPropertiesForAdmin() {
+        Map _copy = new HashMap(qosSettings_.toMap());
+
+        _copy.remove(EventReliability.value);
+
+        logger_.debug("createQoSPropsForAdmin" + _copy);
+
+        return PropertySet.map2Props(_copy);
     }
 }
