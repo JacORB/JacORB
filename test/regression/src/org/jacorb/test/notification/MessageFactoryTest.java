@@ -1,6 +1,5 @@
 package org.jacorb.test.notification;
 
-import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.interfaces.Message;
 
@@ -18,30 +17,31 @@ import org.omg.PortableServer.POAHelper;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jacorb.notification.servant.AbstractProxyConsumerI;
+import org.jacorb.notification.interfaces.FilterStage;
 
 /**
- * NotificationEventFactoryTest.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class NotificationEventFactoryTest extends TestCase {
+public class MessageFactoryTest extends TestCase {
 
-    ApplicationContext appContext_;
     ORB orb_;
-    MessageFactory notificationEventFactory_;
+    MessageFactory messageFactory_;
     NotificationTestUtils testUtils_;
     Any testPerson_;
     StructuredEvent testStructured_;
 
+    ////////////////////////////////////////
+
     public void testNewEventStructured() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newMessage(testStructured_);
+        Message _notifyEvent = messageFactory_.newMessage(testStructured_);
     }
 
+
     public void testStructuredToAny() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newMessage(testStructured_);
+        Message _notifyEvent = messageFactory_.newMessage(testStructured_);
         assertNotNull(_notifyEvent);
         Any _any = _notifyEvent.toAny();
         StructuredEvent _event = StructuredEventHelper.extract(_any);
@@ -50,8 +50,9 @@ public class NotificationEventFactoryTest extends TestCase {
         assertEquals("type", _event.header.fixed_header.event_type.type_name);
     }
 
+
     public void testStructuredToStructured() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newMessage(testStructured_);
+        Message _notifyEvent = messageFactory_.newMessage(testStructured_);
         assertNotNull(_notifyEvent);
         StructuredEvent _event = _notifyEvent.toStructuredEvent();
         assertNotNull(_event);
@@ -59,13 +60,15 @@ public class NotificationEventFactoryTest extends TestCase {
         assertEquals("type", _event.header.fixed_header.event_type.type_name);
     }
 
+
     public void testNewEventAny() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newMessage(testPerson_);
+        Message _notifyEvent = messageFactory_.newMessage(testPerson_);
         assertNotNull(_notifyEvent);
     }
 
+
     public void testAnyToStructured() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newMessage(testPerson_);
+        Message _notifyEvent = messageFactory_.newMessage(testPerson_);
         StructuredEvent _structured = _notifyEvent.toStructuredEvent();
         assertNotNull(_structured);
         assertEquals("%ANY", _structured.header.fixed_header.event_type.type_name);
@@ -78,8 +81,9 @@ public class NotificationEventFactoryTest extends TestCase {
         assertEquals("lastname", _p.last_name);
     }
 
+
     public void testAnyToAny() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newMessage(testPerson_);
+        Message _notifyEvent = messageFactory_.newMessage(testPerson_);
         Any _anyEvent = _notifyEvent.toAny();
         assertNotNull(_anyEvent);
 
@@ -89,15 +93,63 @@ public class NotificationEventFactoryTest extends TestCase {
         assertEquals("lastname" , _p.last_name);
     }
 
+
+    public void testWrappedStructuredEventToStructuredEvent() throws Exception {
+        Any _wrappedStructuredEvent = orb_.create_any();
+
+        StructuredEventHelper.insert(_wrappedStructuredEvent, testStructured_);
+
+        Message _mesg = messageFactory_.newMessage(_wrappedStructuredEvent,
+                                                   new AbstractProxyConsumerI() {
+                                                       public boolean isStartTimeSupported() {return false;}
+                                                       public boolean isTimeOutSupported() {return false;}
+                                                       public FilterStage getFirstStage() {return null;}
+                                                   });
+
+        StructuredEvent _recvd = _mesg.toStructuredEvent();
+
+        assertEquals(testStructured_.header.fixed_header.event_name,
+                     _recvd.header.fixed_header.event_name);
+
+        assertEquals(testStructured_.remainder_of_body, _recvd.remainder_of_body);
+        assertEquals(testStructured_.remainder_of_body, _recvd.remainder_of_body);
+    }
+
+
+    public void testWrappedAnyToAny() throws Exception {
+        StructuredEvent _wrappedAny = new StructuredEvent();
+
+        EventHeader _header = new EventHeader();
+        FixedEventHeader _fixed = new FixedEventHeader();
+        _fixed.event_name = "";
+        _fixed.event_type = new EventType("", "%ANY");
+        _header.fixed_header = _fixed;
+        _header.variable_header = new Property[0];
+
+        _wrappedAny.header = _header;
+
+        _wrappedAny.filterable_data = new Property[0];
+
+        _wrappedAny.remainder_of_body = testPerson_;
+
+        Message _mesg = messageFactory_.newMessage(_wrappedAny,
+                                                   new AbstractProxyConsumerI() {
+                                                       public boolean isStartTimeSupported() {return false;}
+                                                       public boolean isTimeOutSupported() {return false;}
+                                                       public FilterStage getFirstStage() {return null;}
+                                                   });
+
+        assertEquals(testPerson_, _mesg.toAny());
+    }
+
+
     public void setUp() throws Exception {
         orb_ = ORB.init(new String[0], null);
         POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
         testUtils_ = new NotificationTestUtils(orb_);
 
-        appContext_ = new ApplicationContext(orb_, _poa, false);
-
-        notificationEventFactory_ = new MessageFactory();
-        notificationEventFactory_.init();
+        messageFactory_ = new MessageFactory();
+        messageFactory_.init();
 
         testPerson_ = testUtils_.getTestPersonAny();
 
@@ -116,25 +168,27 @@ public class NotificationEventFactoryTest extends TestCase {
         testStructured_.remainder_of_body = orb_.create_any();
     }
 
+
     public void tearDown() throws Exception {
         super.tearDown();
-        appContext_.dispose();
     }
 
-    public NotificationEventFactoryTest(String test) {
+
+    public MessageFactoryTest(String test) {
         super(test);
     }
+
 
     public static Test suite() {
         TestSuite suite;
 
-        suite = new TestSuite(NotificationEventFactoryTest.class);
+        suite = new TestSuite(MessageFactoryTest.class);
 
         return suite;
     }
 
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(suite());
     }
-
 }
