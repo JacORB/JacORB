@@ -792,7 +792,7 @@ public abstract class GIOPConnection
      */
     public boolean tryDiscard()
     {
-        if( hasPendingMessages() )
+        if( ! hasPendingMessages() )
         {
             synchronized( pendingUndecidedSync )
             {
