@@ -234,7 +234,7 @@ public class TypeCodeUtil
 
                     return (org.omg.CORBA.TypeCode)type.getDeclaredMethod(
                                                     "type", 
-                                                    null).invoke( null, null );
+                                                    (Class[]) null).invoke( null, (Object[]) null );
                 }
                 catch( ClassNotFoundException cnfe )
                 {
@@ -263,7 +263,7 @@ public class TypeCodeUtil
                     return (org.omg.CORBA.TypeCode)
                         resultHelperClass.getDeclaredMethod(
                                                     "type", 
-                                                    null).invoke( null, null );
+                                                    (Class[]) null).invoke( null, (Object[]) null );
                 }
                 catch( Exception cnfe )
                 {

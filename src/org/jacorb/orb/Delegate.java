@@ -1215,8 +1215,8 @@ public final class Delegate
                 // name and the Repository ID. If prefixes have been using then this mapping
                 // may have been lost.
                 Class stub = ObjectUtil.classForName( scn.toString());
-                Method idm = stub.getMethod ( "_ids", null );
-                String newids[] = (String[] )idm.invoke( stub.newInstance(),  new Object[] { } );
+                Method idm = stub.getMethod ( "_ids", (Class[]) null );
+                String newids[] = (String[] )idm.invoke( stub.newInstance(), (java.lang.Object[]) null );
 
                 for ( int i = 0; i < newids.length ; i++ )
                 {

@@ -85,7 +85,7 @@ public class ExceptionDef
             }
 
             helperClass = this.loader.loadClass(classId + "Helper") ;
-            id( (String)helperClass.getDeclaredMethod("id", null).invoke( null, null ));
+            id( (String)helperClass.getDeclaredMethod("id", (Class[]) null).invoke( null, (Object[]) null ));
             type =
                 TypeCodeUtil.getTypeCode(myClass, this.loader, null, classId, this.logger );
             try

@@ -169,7 +169,7 @@ public class InterfaceDef
             containedClass = this.loader.loadClass("org.omg.CORBA.Contained");
             signatureClass = this.loader.loadClass(classId + "Operations");
 
-            id( (String)helperClass.getDeclaredMethod("id", null).invoke( null, null ) );
+            id( (String)helperClass.getDeclaredMethod("id", (Class[]) null).invoke( null, (Object[]) null ) );
             version( id().substring( id().lastIndexOf(':')));
             typeCode = TypeCodeUtil.getTypeCode( c, null, this.logger );
 
@@ -537,7 +537,7 @@ public class InterfaceDef
                 Class helperClass =
                     this.loader.loadClass( base_names[i] + "Helper");
                 String baseId =
-                    (String)helperClass.getDeclaredMethod( "id", null).invoke(null,null);
+                    (String)helperClass.getDeclaredMethod( "id", (Class[]) null).invoke(null, (Object[]) null);
                 org.omg.CORBA.InterfaceDef base_interface =
                     org.omg.CORBA.InterfaceDefHelper.narrow(
                         containing_repository.lookup_id( baseId ));

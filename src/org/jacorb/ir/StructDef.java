@@ -100,14 +100,14 @@ public class StructDef
             }
 
             helperClass = this.loader.loadClass( classId + "Helper") ;
-            id( (String)helperClass.getDeclaredMethod( "id", null ).invoke( null, null ));
+            id( (String)helperClass.getDeclaredMethod( "id", (Class[]) null ).invoke( null, (Object[]) null ));
 
 //              type =
 //                  TypeCodeUtil.getTypeCode( myClass, this.loader, null, classId );
 
             type = (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod( 
                                                    "type", 
-                                                   null ).invoke( null, null );
+                                                   (Class[]) null ).invoke( null, (Object[]) null );
 
             members = new org.omg.CORBA.StructMember[ type.member_count() ];
             for( int i = 0; i < members.length; i++ )

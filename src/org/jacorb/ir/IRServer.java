@@ -77,7 +77,7 @@ public class IRServer
                                                    args[1], 
                                                    classLoader });
 
-            repositoryClass.getDeclaredMethod("loadContents", null ).invoke( repository,null );
+            repositoryClass.getDeclaredMethod("loadContents", (Class[]) null ).invoke( repository, (Object[]) null );
             
             Object lock = new Object();
             synchronized( lock ) 

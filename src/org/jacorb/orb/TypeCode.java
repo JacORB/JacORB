@@ -1269,9 +1269,9 @@ public class TypeCode
                 Class helperClass =
                     clz.getClassLoader().loadClass(helperClassName);
                 java.lang.reflect.Method typeMethod =
-                    helperClass.getMethod("type", null);
+                    helperClass.getMethod("type", (Class[]) null);
                 TypeCode newTypeCode =
-                    (TypeCode)typeMethod.invoke(null, null);
+                    (TypeCode)typeMethod.invoke(null, (Object[]) null);
                 knownTypes.put(clz, newTypeCode);
                 return newTypeCode;
             }

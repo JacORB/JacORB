@@ -183,7 +183,7 @@ public abstract class Contained
                     loader.loadClass( c.getName()+"Helper");
 
                 org.omg.CORBA.TypeCode tc =
-                    (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod("type", null).invoke(null,null);
+                    (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod("type", (Class[]) null).invoke(null, (java.lang.Object[]) null);
                 switch( tc.kind().value())
                 {
                 case org.omg.CORBA.TCKind._tk_struct:
@@ -228,7 +228,7 @@ public abstract class Contained
             try
             {
                 org.omg.CORBA.TypeCode tc =
-                    (org.omg.CORBA.TypeCode)c.getDeclaredMethod("type",null).invoke(null,null);
+                    (org.omg.CORBA.TypeCode)c.getDeclaredMethod("type", (Class[]) null).invoke(null, (java.lang.Object[]) null);
                 if( tc.kind() == org.omg.CORBA.TCKind.tk_alias )
                 {
                     return new AliasDef(tc, 

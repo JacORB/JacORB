@@ -93,7 +93,7 @@ public class UnionDef
         try
         {
             helperClass = this.loader.loadClass(classId + "Helper");
-            id( (String)helperClass.getDeclaredMethod("id", null).invoke( null, null ));
+            id( (String)helperClass.getDeclaredMethod("id", (Class[]) null).invoke( null, (Object[]) null ));
             type = TypeCodeUtil.getTypeCode( c, this.loader, null, classId, this.logger );
             members = new org.omg.CORBA.UnionMember[ type.member_count() ];
             for( int i = 0; i < members.length; i++ )
