@@ -64,6 +64,9 @@ class OpDecl
     public void parse()
     {
         //        escapeName();
+        if( opAttribute == 1  && !raisesExpr.empty())
+            parser.error("Oneway operation "+full_name()+
+                         " may not define a raises clases.", token);
 
 	try
 	{
@@ -136,7 +139,9 @@ class OpDecl
     }
 
 
-    public void printMethod(PrintWriter ps, String classname, boolean locality_constraint)
+    public void printMethod( PrintWriter ps, 
+                             String classname, 
+                             boolean locality_constraint)
     {
 	/* in some cases generated name have an underscore prepended for the
 	   mapped java name. On the wire, we must use the original name */
@@ -178,7 +183,6 @@ class OpDecl
 
 	    //  arguments..
 	    
-	    
 	    for(e = paramDecls.elements(); e.hasMoreElements();)
 	    {
 		ParamDecl p = ((ParamDecl)e.nextElement());
@@ -188,7 +192,8 @@ class OpDecl
 	
 	    ps.println("\t\t\t\t_is = _invoke(_os);");
 	    
-	    if( opAttribute == 0 && !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
+	    if( opAttribute == 0 && 
+                !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
 	    {
 		ps.println("\t\t\t\t" + opTypeSpec.toString() + " _result = " + 
 			   opTypeSpec.typeSpec().printReadExpression("_is") + ";");
@@ -203,7 +208,8 @@ class OpDecl
 		}
 	    }
 	    
-	    if( opAttribute == 0 && !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
+	    if( opAttribute == 0 && 
+                !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
 	    {
 		ps.println("\t\t\t\treturn _result;");
 	    }
@@ -254,7 +260,8 @@ class OpDecl
 	ps.println("\t\t\t" + classname + "Operations _localServant = (" + 
                    classname + "Operations)_so.servant;");
 
-	if( opAttribute == 0 && !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
+	if( opAttribute == 0 && 
+            !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
 	{
 	    ps.print("\t\t\t" + opTypeSpec.toString() + " _result;");
 	}
@@ -262,7 +269,8 @@ class OpDecl
 	ps.println("\t\t\ttry");
 	ps.println("\t\t\t{");
 
-	if( opAttribute == 0 && !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
+	if( opAttribute == 0 && 
+            !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
 	{
 	    ps.print("\t\t\t_result = ");
 	}
@@ -299,70 +307,6 @@ class OpDecl
 	ps.println("\t\t}\n"); // end while
 	ps.println("\t}\n"); // end method
     }
-
-//      public void printLocalMethod(PrintWriter ps, String classname)
-//      {
-//  	ps.print("\tpublic " + opTypeSpec.toString() + " " + name + "(");
-
-//  	Enumeration e = paramDecls.elements();
-//  	if(e.hasMoreElements())
-//  	    ((ParamDecl)e.nextElement()).print(ps);
-
-//  	for(; e.hasMoreElements();)
-//  	{
-//  	    ps.print(", ");
-//  	    ((ParamDecl)e.nextElement()).print(ps);
-//  	}
-
-//  	ps.print(")");
-//  	raisesExpr.print(ps);
-//  	ps.println("\n\t{");
-//  	ps.println("\t\torg.omg.CORBA.portable.ServantObject so = _servant_preinvoke( \"" + name + "\", " + classname + "Operations.class);");
-
-//  	ps.println("\t\tif( so == null )");
-//  	ps.println("\t\t\tthrow new org.omg.CORBA.UNKNOWN(\"local invocations not supported!\");");
-
-//  	ps.println("\t\t" + classname + "Operations localServant = (" + classname + "Operations)so.servant;");
-
-//  	if( opAttribute == 0 && !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
-//  	{
-//  	    ps.print("\t\t" + opTypeSpec.toString() + " _result;");
-//  	}
-
-//  	ps.println("\t\ttry");
-//  	ps.println("\t\t{");
-
-//  	if( opAttribute == 0 && !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
-//  	{
-//  	    ps.print("\t\t\t_result = ");
-//  	}
-//  	else
-//  	    ps.print("\t\t\t");
-
-//  	ps.print("localServant." + name + "(");
-
-//  	for(e = paramDecls.elements(); e.hasMoreElements();)
-//  	{
-//  	    ParamDecl p = ((ParamDecl)e.nextElement());
-//  	    ps.print( p.simple_declarator.toString() );
-//  	    if( e.hasMoreElements() )
-//  		ps.print(",");
-//  	}
-//  	ps.println(");");
-
-//  	ps.println("\t\t}");	
-//  	ps.println("\t\tfinally");
-//  	ps.println("\t\t{");
-//  	ps.println("\t\t\t_servant_postinvoke(so);");
-//  	ps.println("\t\t}");
-
-//  	if( opAttribute == 0 && !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
-//  	{
-//  	    ps.println("\t\treturn _result;");
-//  	}
-
-//  	ps.println("\t}\n");
-//      }
 
 
     public void printDelegatedMethod(PrintWriter ps)
@@ -640,21 +584,6 @@ class OpDecl
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
