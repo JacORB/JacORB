@@ -37,7 +37,7 @@ public final class Environment
         _verbosity = level; 
     }
 
-        
+        
     public static void printTrace(int msg_level)
     {
         if( msg_level > _verbosity )
@@ -68,7 +68,7 @@ public final class Environment
 	
     public static void output(int msg_level, String name, byte bs[], int len)
     {
-        if (msg_level > _verbosity)
+        if ( msg_level > _verbosity)
             return;
         
         System.out.print("\nHexdump ["+name+"] len=" + len + ","+ bs.length);
@@ -110,7 +110,7 @@ public final class Environment
 	
     public static final void output(int msg_level, Throwable e) 
     {
-        if (msg_level > _verbosity)
+        if ( msg_level > _verbosity)
             return;
 		
         System.out.println("############################ StackTrace ############################");
@@ -120,17 +120,4 @@ public final class Environment
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
