@@ -73,6 +73,24 @@ next
           own configuration.   
 
         - fixed bugs in trader build files (leftover from "org" change).
+
+        - added "auto-register" feature to the ImR. This will register
+          servers, that don't need to be restarted automatically, on their 
+          first startup, so they don't have to be registered manually. This 
+          feature is activated  via a  "-a" switch  to the  ImR process  or 
+          by  setting the property "jacorb.imr.allow_auto_register" to "on".
+
+        - renamed property "jacorb.ImplementationRepositoryURL" to 
+          "ORBInitRef.ImplementationRepository", so the ImR is available 
+          through resolve_initial_references().
+
+        - accepting now ORBInitializer class properties in the form of 
+          "org.omg.PortableInterceptor.ORBInitializerClass.<class name>"
+          for compliance reasons. Old form of 
+          "org.omg.PortableInterceptor.ORBInitializerClass.<name>=<class name>"
+          is still supported.
+
+
 1.3.21
         - internal redesign: all package names now begin with "org.jacorb"
           NOTE: You MUST change existing jacorb.properties files to 
