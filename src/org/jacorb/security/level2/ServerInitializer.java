@@ -50,9 +50,10 @@ public class ServerInitializer
 
             info.add_server_request_interceptor
                 (new ServerAccessDecisionInterceptor(current));
-        }catch (Exception e)
+        }
+        catch (Exception e)
         {
-            Debug.output(Debug.SECURITY | Debug.IMPORTANT, e);
+            Debug.output(1, e);
         }
     }
 

@@ -37,6 +37,8 @@ import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.giop.*;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import javax.net.ssl.SSLSocket;
 
 /**
@@ -57,7 +59,9 @@ public class ServerInvocationInterceptor
     private org.jacorb.security.level2.CurrentImpl current = null;
     private SecAttributeManager attrib_mgr = null;
     private AttributeType type = null; 
-    
+    private Logger logger;
+
+
     public ServerInvocationInterceptor(org.omg.SecurityLevel2.Current current)
     {
         this( current, DEFAULT_NAME );
@@ -75,6 +79,8 @@ public class ServerInvocationInterceptor
             ( new ExtensibleFamily( (short) 0,
                                     (short) 1 ),
               AccessId.value );   
+
+        logger = Debug.getNamedLogger("jacorb.security.jsse");
     }
 
     public String name()
@@ -102,7 +108,8 @@ public class ServerInvocationInterceptor
         // lookup for context
         if (connection == null)
         {
-            Debug.output( 3, "target has no connection!");
+            if (logger.isErrorEnabled())
+                logger.error("target has no connection!");
             return;
         }
         
@@ -125,13 +132,15 @@ public class ServerInvocationInterceptor
         }
         catch( javax.net.ssl.SSLPeerUnverifiedException pue )
         {
-            Debug.output( 2, pue );
+            if (logger.isWarnEnabled())
+                logger.warn("Exception " + pue.getMessage() + " in ServerInvocationInterceptor");
             return;
         }
 
         if( kac.chain == null )
         {
-            Debug.output( 2, "Client sent no certificate chain!" );
+            if (logger.isInfoEnabled())
+                logger.info("Client sent no certificate chain!" );
             
             return;
         }

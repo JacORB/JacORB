@@ -23,6 +23,8 @@ package org.jacorb.security.level2;
 import org.omg.Security.*;
 import org.omg.SecurityLevel2.*;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import java.util.*;
 import java.io.*;
 import java.lang.reflect.*;
@@ -54,9 +56,12 @@ public class CurrentImpl
     
     private org.omg.CORBA.ORB orb = null;  
     
+    private Logger logger;
+
     public CurrentImpl(org.omg.CORBA.ORB orb)
     {
         this.orb = orb;
+        logger = Debug.getNamedLogger("jacorb.security");
         
         attrib_mgr = SecAttributeManager.getInstance();
 
@@ -75,13 +80,11 @@ public class CurrentImpl
         }
         catch (Exception e)
         {
-            Debug.output(Debug.SECURITY | Debug.IMPORTANT,
-                         "Class " + Environment.getProperty("jacorb.security.access_decision") +
-                         " not found!");
-	    Debug.output( Debug.SECURITY | Debug.IMPORTANT,
-			  "Please check property \"jacorb.security.access_decision\"" );
-
-            Debug.output(Debug.SECURITY | Debug.DEBUG1, e);
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("Class " + Environment.getProperty("jacorb.security.access_decision") +
+                            " not found! Please check property \"jacorb.security.access_decision\"" );
+            }
             
             access_decision = new AccessDecisionImpl();
         }
@@ -110,8 +113,11 @@ public class CurrentImpl
             
             if( constructors.length != 1 )
             {
-                Debug.output( Debug.SECURITY | Debug.IMPORTANT,
-                              "PA " + class_name + " must have exactly one constructor that takes either no arg or one arg of type org.omg.CORBA.ORB" );
+                if (logger.isErrorEnabled())
+                {
+                    logger.error("PrincAuth " + class_name + 
+                                " must have exactly one constructor that takes either no arg or one arg of type org.omg.CORBA.ORB" );                    
+                }
 
                 return null;
             }
@@ -131,19 +137,30 @@ public class CurrentImpl
                 }
                 else
                 {
-                  Debug.output( Debug.SECURITY | Debug.IMPORTANT,
-                                "PA " + class_name + "s constructor has an arg of type " + params[0].getName() + " but it must have an arg of type  org.omg.CORBA.ORB" );
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error("PrincAuth " + class_name + 
+                                     "\'s constructor has an arg of type " + 
+                                     params[0].getName() + 
+                                     " but it must have an arg of type org.omg.CORBA.ORB" );
+                    }
                 }
             }  
             else
             {
-                Debug.output( Debug.SECURITY | Debug.IMPORTANT,
-                              "PA " + class_name + " must have exactly one constructor that takes either no arg or one arg of type org.omg.CORBA.ORB" );
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error("PrincAuth " + class_name + 
+                                     " must have exactly one constructor that takes either no arg or one arg of type org.omg.CORBA.ORB" );
+                    }
             }
         }
         catch( Exception e )
         {
-            Debug.output( Debug.SECURITY | Debug.INFORMATION, e );
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("Exception " + e.getMessage() + " in CurrentImpl");
+            }
         }
 
         return null;
@@ -183,9 +200,10 @@ public class CurrentImpl
 
         if( authenticators.size() == 0 )
         {
-            Debug.output(Debug.SECURITY | Debug.IMPORTANT,
-                         "WARNING: No PrincipalAuthenticator set. Will not authenticate!" );
-
+            if (logger.isWarnEnabled())
+            {
+                logger.warn("No PrincipalAuthenticator set. Will not authenticate!");
+            }
             own_credentials = new CredentialsImpl[ 0 ];
 
                 return;
@@ -224,17 +242,24 @@ public class CurrentImpl
                 own_credentials = new CredentialsImpl[ own_creds.size() ];
                 own_creds.copyInto( own_credentials );
 
-
-                Debug.output( 2, "PA " + i + ": AuthenticationStatus.SecAuthSuccess");
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("PrincAuth " + i + ": AuthenticationStatus.SecAuthSuccess");
+                }               
             }
             else
             {
-                Debug.output( 2, "PA " + i + ": AuthenticationStatus.SecAuthFailure");
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("PrincAuth " + i + ": AuthenticationStatus.SecAuthFailure");
+                }  
             }
         }
     }
 
-    /* thread specific, from SecurityLevel1*/
+    /**
+     * thread specific, from SecurityLevel1
+     */
     public SecAttribute[] get_attributes(AttributeType[] types)
     {        
         CredentialsImpl[] tsc = getTSCredentials();
@@ -472,7 +497,8 @@ public class CurrentImpl
 
     public void close()
     {
-        Debug.output( 3, "Closing Current");
+        if (logger.isDebugEnabled())
+            logger.debug( "Closing Current");
         
 	principalAuthenticator = null; // rt: use the gc for finalize
         policies.clear();

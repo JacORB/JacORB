@@ -20,12 +20,11 @@
  */
 package org.jacorb.security.ssl.sun_jsse;
 
+import org.apache.avalon.framework.logger.Logger;
 
-/**
- * @author Nicolas Noffke
- * $Id$
- */
 import org.jacorb.util.*;
+
+import org.apache.avalon.framework.logger.Logger;
 
 //uncomment this line if you want to compile with the separately
 //available jsse1.0.2
@@ -39,6 +38,11 @@ import java.util.*;
 import javax.net.ssl.*;
 import javax.net.*;
 
+/**
+ * @author Nicolas Noffke
+ * $Id$
+ */
+
 public class SSLServerSocketFactory 
     implements org.jacorb.orb.factory.SSLServerSocketFactory
 {
@@ -48,8 +52,12 @@ public class SSLServerSocketFactory
     private boolean change_roles = false;
     private String[] cipher_suites = null;
 
+    private Logger logger;
+
     public SSLServerSocketFactory( org.jacorb.orb.ORB orb )
     {
+        logger = Debug.getNamedLogger("jacorb.security.jsse");
+
         //uncomment this line if you want to compile with the separately
         //available jsse1.0.2
         //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
@@ -58,14 +66,17 @@ public class SSLServerSocketFactory
 
 	if( factory == null )
 	{
-	    Debug.output( 1, "ERROR: Unable to create ServerSocketFactory!" );
+            if (logger.isErrorEnabled())
+                logger.error("Unable to create ServerSocketFactory!" );
 	}
 
 	if( (Environment.getIntProperty( "jacorb.security.ssl.server.supported_options", 16 ) & 0x40) != 0 )
 	{
 	    // would prefer to establish trust in client.  If client can support
 	    // authentication, it will, otherwise we will continue
-	    Debug.output( 3, "Will create SSL sockets that request client authentication" );
+            if (logger.isInfoEnabled())
+                logger.info("Will create SSL sockets that request client authentication" );
+
 	    request_mutual_auth = true;
 	}
 
@@ -75,7 +86,8 @@ public class SSLServerSocketFactory
 	    //--> force other side to authenticate
 	    require_mutual_auth = true;
             request_mutual_auth = false;
-	    Debug.output( 3, "Will create SSL sockets that require client authentication" );
+            if (logger.isInfoEnabled())
+                logger.info("Will create SSL sockets that require client authentication" );
 	}
 
 	change_roles = 
@@ -116,9 +128,12 @@ public class SSLServerSocketFactory
 	SSLServerSocket s = (SSLServerSocket) 
 	    factory.createServerSocket( port );
 
-        if (request_mutual_auth) {
+        if (request_mutual_auth) 
+        {
             s.setWantClientAuth( request_mutual_auth );
-        } else if (require_mutual_auth) {
+        } 
+        else if (require_mutual_auth) 
+        {
             s.setNeedClientAuth( require_mutual_auth );
         }
 
@@ -140,9 +155,12 @@ public class SSLServerSocketFactory
 	SSLServerSocket s = (SSLServerSocket) 
 	    factory.createServerSocket( port, backlog );
 
-        if (request_mutual_auth) {
+        if (request_mutual_auth) 
+        {
             s.setWantClientAuth( request_mutual_auth );
-        } else if (require_mutual_auth) {
+        }
+        else if (require_mutual_auth) 
+        {
             s.setNeedClientAuth( require_mutual_auth );
         }
 
@@ -165,9 +183,12 @@ public class SSLServerSocketFactory
 	SSLServerSocket s = (SSLServerSocket) 
 	    factory.createServerSocket( port, backlog, ifAddress );
 
-        if (request_mutual_auth) {
+        if (request_mutual_auth) 
+        {
             s.setWantClientAuth( request_mutual_auth );
-        } else if (require_mutual_auth) {
+        }
+        else if (require_mutual_auth) 
+        {
             s.setNeedClientAuth( require_mutual_auth );
         }
 
@@ -254,7 +275,8 @@ public class SSLServerSocketFactory
 	} 
 	catch( Exception e ) 
 	{
-	    Debug.output( 1, e );
+            if (logger.isWarnEnabled())
+                logger.warn("Exception " + e.getMessage() + " in SSLServerSocketFactory");
 	}
 
 	return null;

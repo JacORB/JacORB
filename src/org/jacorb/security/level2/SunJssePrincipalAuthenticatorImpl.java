@@ -31,6 +31,10 @@ import org.omg.SecurityLevel2.*;
 import org.omg.Security.*;
 
 import org.jacorb.util.*;
+
+import org.apache.avalon.framework.logger.Logger;
+
+
 //import org.jacorb.security.util.*;
 
 /**
@@ -47,8 +51,11 @@ public class SunJssePrincipalAuthenticatorImpl
     extends org.omg.CORBA.LocalObject
     implements org.omg.SecurityLevel2.PrincipalAuthenticator
 {
+    private Logger logger;
+
     public SunJssePrincipalAuthenticatorImpl()
     {
+        logger = Debug.getNamedLogger("jacorb.security.jsse");
     }
 
     public int[] get_supported_authen_methods(java.lang.String mechanism)
@@ -66,7 +73,9 @@ public class SunJssePrincipalAuthenticatorImpl
                                              OpaqueHolder auth_specific_data
                                              )
     {
-	Debug.output( 3,"JPA: starting authentication" );
+        if (logger.isInfoEnabled())
+            logger.info( "starting authentication" );
+
 	try
 	{
 	    registerProvider();
@@ -123,12 +132,18 @@ public class SunJssePrincipalAuthenticatorImpl
 
             if( cert_chain == null )
             {
-                Debug.output( 0, "No keys found in keystore for alias \""+
+                if (logger.isErrorEnabled())
+                {
+                    logger.error( "No keys found in keystore for alias \""+
                               alias + "\"!" );
+                }
 
                 if( Environment.getProperty( "jacorb.security.default_user" ) != null )
                 {
-                    Debug.output( 0, "Please check property \"jacorb.security.default_user\"" );
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error("Please check property \"jacorb.security.default_user\"" );
+                    }
                 }
 
                 return org.omg.Security.AuthenticationStatus.SecAuthFailure;
@@ -169,13 +184,18 @@ public class SunJssePrincipalAuthenticatorImpl
 
             creds.value = credsImpl;
 
-            Debug.output(3,"JPA: authentication succeeded");
+            if (logger.isInfoEnabled())
+                logger.info( "authentication succesfull" );
 
             return AuthenticationStatus.SecAuthSuccess;
 	}
 	catch (Exception e)
 	{
-	    Debug.output(2,e);
+            if (logger.isDebugEnabled())
+                logger.debug( "Exception: " + e.getMessage());
+            
+            if (logger.isInfoEnabled())
+                logger.info( "authentication failed" );
 
 	    return org.omg.Security.AuthenticationStatus.SecAuthFailure;
 	}
@@ -197,8 +217,6 @@ public class SunJssePrincipalAuthenticatorImpl
     private void registerProvider()
     {
         //iaik.security.provider.IAIK.addAsProvider();
-
-        //Debug.output(3, "added Provider IAIK" );
     }
 }
 

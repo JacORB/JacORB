@@ -29,8 +29,8 @@ import org.omg.Security.*;
 import org.jacorb.util.Environment;
 
 public class SecurityServiceInitializer
-        extends org.omg.CORBA.LocalObject 
-        implements ORBInitializer
+    extends org.omg.CORBA.LocalObject 
+    implements ORBInitializer
 {    
     /**
     * This method registers the interceptors.

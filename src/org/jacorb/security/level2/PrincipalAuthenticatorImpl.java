@@ -33,6 +33,9 @@ import org.omg.Security.*;
 import org.jacorb.util.*;
 import org.jacorb.security.util.*;
 
+import org.apache.avalon.framework.logger.Logger;
+
+
 /**
  * PrincipalAuthenticatorImpl
  * 
@@ -47,8 +50,11 @@ public class PrincipalAuthenticatorImpl
     extends org.omg.CORBA.LocalObject
     implements org.omg.SecurityLevel2.PrincipalAuthenticator
 {  
+    private Logger logger;
+
     public PrincipalAuthenticatorImpl()
     {
+        logger = Debug.getNamedLogger("jacorb.security");
     }  
 
     public int[] get_supported_authen_methods(java.lang.String mechanism)
@@ -66,7 +72,9 @@ public class PrincipalAuthenticatorImpl
                                              OpaqueHolder auth_specific_data
                                              )
     {
-	Debug.output( 3,"JPA: starting authentication" );
+        if (logger.isInfoEnabled())
+            logger.info( "starting authentication" );
+
 	try 
 	{	
 	    registerProvider();
@@ -81,7 +89,7 @@ public class PrincipalAuthenticatorImpl
 
             String storePassphrase = 
                 Environment.getProperty("jacorb.security.keystore_password");
-            if ( storePassphrase == null ) 
+            if (storePassphrase == null) 
             {
                 System.out.print("Please enter store pass phrase: ");
                 storePassphrase = (new BufferedReader(new InputStreamReader(System.in))).readLine();
@@ -122,12 +130,18 @@ public class PrincipalAuthenticatorImpl
 
             if( cert_chain == null )
             {
-                Debug.output( 0, "No keys found in keystore for alias \""+
+                if (logger.isErrorEnabled())
+                {
+                    logger.error( "No keys found in keystore for alias \""+
                               alias + "\"!" );
+                }
 
                 if( Environment.getProperty( "jacorb.security.default_user" ) != null )
                 {
-                    Debug.output( 0, "Please check property \"jacorb.security.default_user\"" );
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error("Please check property \"jacorb.security.default_user\"" );
+                    }
                 }
             
                 return org.omg.Security.AuthenticationStatus.SecAuthFailure;
@@ -168,13 +182,18 @@ public class PrincipalAuthenticatorImpl
             
             creds.value = credsImpl;
 
-            Debug.output(3,"JPA: authentication succeeded");
+            if (logger.isInfoEnabled())
+                logger.info( "authentication succesfull" );
 
             return AuthenticationStatus.SecAuthSuccess;
 	}
 	catch (Exception e) 
 	{
-	    Debug.output(2,e);
+            if (logger.isDebugEnabled())
+                logger.debug( "Exception: " + e.getMessage());
+            
+            if (logger.isInfoEnabled())
+                logger.info( "authentication failed" );
 
 	    return org.omg.Security.AuthenticationStatus.SecAuthFailure;
 	}
@@ -196,8 +215,8 @@ public class PrincipalAuthenticatorImpl
     private void registerProvider()
     {
         iaik.security.provider.IAIK.addAsProvider();
-
-        Debug.output(3, "added Provider IAIK" );
+        if (logger.isDebugEnabled())
+            logger.debug( "Provider IAIK added" );
     }
 }
 
