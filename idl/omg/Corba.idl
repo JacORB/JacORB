@@ -32,7 +32,10 @@ module CORBA
         sequence <ServiceDetail> service_details;
     };
 
+    interface Current {};
+
     typedef unsigned long PolicyType;
+    enum SetOverrideType {SET_OVERRIDE, ADD_OVERRIDE};
 
     interface Policy
     {
@@ -42,6 +45,8 @@ module CORBA
     };
 
     typedef sequence <Policy> PolicyList;
+    typedef sequence <PolicyType> PolicyTypeSeq;
+    exception InvalidPolicies { sequence <unsigned short> indices; };
 
     typedef short PolicyErrorCode;
     const PolicyErrorCode BAD_POLICY = 0;
@@ -51,6 +56,19 @@ module CORBA
     {
 	PolicyErrorCode reason;
     };
+
+    interface PolicyManager 
+    {
+        PolicyList get_policy_overrides(in PolicyTypeSeq ts);
+
+        void set_policy_overrides(in PolicyList policies,
+                                  in SetOverrideType set_add
+                                  ) raises (InvalidPolicies);
+    };
+    
+    interface PolicyCurrent : PolicyManager, Current {
+    };
+
 
     typedef string Identifier;
     typedef string ScopedName;
@@ -854,9 +872,6 @@ module CORBA
 
     typedef sequence <DomainManager> DomainManagersList;
 
-
-    interface Current {};
-
     pseudo interface ORB 
     {
 
@@ -1033,6 +1048,12 @@ module CORBA
 	void obj_is_ready (in Object obj, in ImplementationDef impl);
 	void deactivate_obj (in Object obj);
     };
+
+valuetype WStringValue {
+    public wstring value;
+};
+
+
 }; // CORBA module
 
 #endif
