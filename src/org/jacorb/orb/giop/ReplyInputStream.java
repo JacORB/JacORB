@@ -81,59 +81,9 @@ public class ReplyInputStream
         }
     }
 
-    /** 
-     * This is called from within Delegate and will throw arrived exceptions.
-     */
-
-    public synchronized void checkExceptions() 
-	throws ApplicationException, 
-        ForwardRequest
+    public ReplyStatusType_1_2 getStatus()
     {
-	switch( rep_hdr.reply_status.value() ) 
-	{
-	    case ReplyStatusType_1_2._NO_EXCEPTION :
-            { 
-		break; //no exception	       
-            }
-	    case ReplyStatusType_1_2._USER_EXCEPTION : 
-	    {
-                mark( 0 ); 
-		String id = read_string();
-                
-                try
-                {
-                    reset();
-                }
-                catch( java.io.IOException ioe )
-                {
-                    //should not happen anyway
-                    Debug.output( 1, ioe );
-                }
-
-		throw new ApplicationException( id, this );
-	    }
- 	    case  ReplyStatusType_1_2._SYSTEM_EXCEPTION: 
-	    {
-		throw SystemExceptionHelper.read( this );
-	    }
-	    case  ReplyStatusType_1_2._LOCATION_FORWARD:
-            {
-                //fall through
-            }
-            case  ReplyStatusType_1_2._LOCATION_FORWARD_PERM: 
-            {
-		throw new ForwardRequest( read_Object() );
-            }
-            case  ReplyStatusType_1_2._NEEDS_ADDRESSING_MODE :
-            {
-                throw new org.omg.CORBA.NO_IMPLEMENT( "WARNING: Received reply with status NEEDS_ADRESSING_MODE, but this isn't implemented yet" );
-            }
-            default :
-            {
-                throw new Error( "Received unexpected reply status: " +
-                                 rep_hdr.reply_status.value() );
-            }
-	}
+        return rep_hdr.reply_status;
     }
 
     public void finalize()
