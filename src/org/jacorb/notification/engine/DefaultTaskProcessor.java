@@ -311,9 +311,9 @@ public class DefaultTaskProcessor implements TaskProcessor, Disposable
     {
         if (!consumer.isDisposed())
         {
-            TimerDeliverTask _task = new TimerDeliverTask(this);
+            TimerDeliverTask _task = new TimerDeliverTask(this, consumer);
 
-            _task.setMessageConsumer(consumer);
+            //_task.setMessageConsumer(consumer);
 
             _task.schedule();
         }

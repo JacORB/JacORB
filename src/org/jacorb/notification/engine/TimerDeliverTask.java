@@ -21,6 +21,7 @@ package org.jacorb.notification.engine;
  *
  */
 
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 
@@ -29,10 +30,14 @@ import org.omg.CosNotifyChannelAdmin.NotConnected;
  * @version $Id$
  */
 
-public class TimerDeliverTask extends AbstractDeliverTask
+public class TimerDeliverTask extends AbstractTask
 {
-    public TimerDeliverTask(TaskProcessor tp) {
+    private final MessageConsumer messageConsumer_;
+    
+    public TimerDeliverTask(TaskProcessor tp, MessageConsumer messageConsumer) {
         super(tp);
+        
+        messageConsumer_ = messageConsumer;
     }
 
     ////////////////////////////////////////
@@ -42,14 +47,29 @@ public class TimerDeliverTask extends AbstractDeliverTask
                NotConnected,
                InterruptedException
     {
-        if ( getMessageConsumer().hasPendingData() )
+        if ( !messageConsumer_.isDisposed() && messageConsumer_.hasPendingData() )
         {
-            getMessageConsumer().deliverPendingData();
+            messageConsumer_.deliverPendingData();
         } 
     }
 
 
     public void schedule() throws InterruptedException {
         schedule(false);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jacorb.notification.engine.AbstractTask#handleTaskError(org.jacorb.notification.engine.AbstractTask, java.lang.Throwable)
+     */
+    void handleTaskError(AbstractTask t, Throwable error)
+    {
+        logger_.error("Error", error);
+    }
+
+    /* (non-Javadoc)
+     * @see org.jacorb.notification.util.AbstractPoolable#reset()
+     */
+    public void reset()
+    {
     }
 }
