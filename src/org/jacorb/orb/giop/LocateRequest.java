@@ -29,6 +29,8 @@ import java.io.*;
 import java.lang.*;
 import org.jacorb.orb.*;
 
+import org.omg.GIOP.*;
+
 public class LocateRequest 
     extends org.jacorb.orb.dsi.ServerRequest 
 {
@@ -65,7 +67,7 @@ public class LocateRequest
 		out = 
                     new ReplyOutputStream( new org.omg.IOP.ServiceContext[0],
                                            requestId(), 
-                                           org.omg.GIOP.ReplyStatusType_1_2.from_int(status),
+                                           ReplyStatusType_1_2.from_int(status),
                                            in.getGIOPMinor() );
 	    }
 
@@ -74,12 +76,12 @@ public class LocateRequest
 
 	    if( !stream_based )
 	    {
-		if( status == org.omg.GIOP.ReplyStatusType_1_0._USER_EXCEPTION )
+		if( status == ReplyStatusType_1_2._USER_EXCEPTION )
 		{
 		    out.write_string( ex.type().id() );
 		    ex.write_value( out );
 		}
-		else if( status == org.omg.GIOP.ReplyStatusType_1_0._NO_EXCEPTION )
+		else if( status == ReplyStatusType_1_2._NO_EXCEPTION )
 		{
 		    result.write_value( out );
 		}
@@ -88,11 +90,11 @@ public class LocateRequest
 	    /* these two exceptions are set in the same way for both stream-based and
 	       DSI-based servers */
 	    
-	    if( status == org.omg.GIOP.ReplyStatusType_1_0._LOCATION_FORWARD )
+	    if( status == ReplyStatusType_1_2._LOCATION_FORWARD )
 	    {
 		out.write_Object( location_forward.forward_reference );
 	    }
-	    else if( status == org.omg.GIOP.ReplyStatusType_1_0._SYSTEM_EXCEPTION )
+	    else if( status == ReplyStatusType_1_2._SYSTEM_EXCEPTION )
 	    {
 		org.jacorb.orb.SystemExceptionHelper.write( out, sys_ex );
 	    }
@@ -101,15 +103,15 @@ public class LocateRequest
 	    
 	    out.close();
 	    int reply_status;
-	    if( status != org.omg.GIOP.ReplyStatusType_1_0._NO_EXCEPTION
+	    if( status != ReplyStatusType_1_2._NO_EXCEPTION
 		// || _non_existent()
 		)
 	    {
-		reply_status = org.omg.GIOP.LocateStatusType_1_0._UNKNOWN_OBJECT;
+		reply_status = LocateStatusType_1_2._UNKNOWN_OBJECT;
 	    }
 	    else
 	    {
-		reply_status = org.omg.GIOP.LocateStatusType_1_0._OBJECT_HERE;
+		reply_status = LocateStatusType_1_2._OBJECT_HERE;
 	    }
 
 	    connection.sendLocateReply( requestId(), 

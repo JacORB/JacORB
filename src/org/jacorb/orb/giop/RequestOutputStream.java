@@ -95,6 +95,9 @@ public class RequestOutputStream
 
         this.giop_minor = giop_minor;
 
+        //tell CDR stream which version to use
+        super.setGIOPMinor( giop_minor );
+
         this.request_id = request_id;
         this.operation = operation;
         this.response_expected = response_expected;        
@@ -222,14 +225,16 @@ public class RequestOutputStream
         ctx = context;
         writeHeader( header_stream );
     
-        int difference = 8 - (header_stream.size() % 8); //difference to next 8 byte border
+        //difference to next 8 byte border
+        int difference = 8 - (header_stream.size() % 8); 
         difference = (difference == 8)? 0 : difference;
 
         //jacorb.util.Debug.output(2, "difference: " + difference);
 
-        // This is a bit inefficent, but unfortunately, the service contexts are written
-        // in the middle of the stream (not at the end), so fixing the size directly
-        // would involve meddling inside the buffer.
+        // This is a bit inefficent, but unfortunately, the service
+        // contexts are written in the middle of the stream (not at
+        // the end), so fixing the size directly would involve
+        // meddling inside the buffer.
         if (difference > 0)
         {
             ctx[context.length -1].context_data = new byte[difference];

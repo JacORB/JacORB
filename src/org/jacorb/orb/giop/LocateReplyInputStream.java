@@ -81,7 +81,7 @@ public class LocateReplyInputStream
             }
             case 1 : 
             {
-                
+                /*
                 //GIOP 1.1
                 LocateReplyHeader_1_0 hdr = 
                     LocateReplyHeader_1_0Helper.read( this );
@@ -90,7 +90,7 @@ public class LocateReplyInputStream
                     new LocateReplyHeader_1_2( hdr.request_id,
                                                LocateStatusType_1_2.from_int( hdr.locate_status.value() ));
                 break;
-                
+                */
             }
             case 2 : 
             {

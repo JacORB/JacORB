@@ -240,6 +240,12 @@ public class Messages
         return (0x01 & buf[6]) != 0;
     }
 
+    public static final boolean isFragmented( byte[] buf )
+    {
+        //this is new for GIOP 1.1/1.2
+        return (0x02 & buf[6]) != 0;
+    }
+    
     public static final int getMsgType( byte[] buf )
     {
         return buf[7];

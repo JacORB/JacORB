@@ -586,12 +586,12 @@ public class ClientConnection
                 mysock = socket_factory.createSocket( target_host, 
                                                       target_port );
 
-		//mysock.setTcpNoDelay(true);
+		mysock.setTcpNoDelay(true);
 
                 if( timeout != 0 )
                 {
                     /* re-set the socket timeout */
-                    //mysock.setSoTimeout( timeout );
+                    mysock.setSoTimeout( timeout );
                 }
 
 		in_stream = 
@@ -708,9 +708,7 @@ public class ClientConnection
 		    replies.put( key, rep );
 		}
 
-                Debug.output(1,"send request", os.getBufferCopy());
-
-		if (org.jacorb.util.Environment.verbosityLevel() > 4)
+		if( Environment.verbosityLevel() > 4 )
 		{
 		    //This is a costly op, since it involves buffer copying!
 		    Debug.output(5,"send request", os.getBufferCopy());

@@ -47,6 +47,8 @@ public class ReplyInputStream
 
     private int giop_minor = -1;
 
+    private int msg_size = -1;
+
     public ReplyInputStream( org.omg.CORBA.ORB orb, int request_id )
     {
 	super( orb );
@@ -90,10 +92,15 @@ public class ReplyInputStream
         //and 1.1/1.2
         setLittleEndian( Messages.isLittleEndian( buffer ));
 
+        msg_size = Messages.getMsgSize( buffer );
+        
         //skip the message header. Its attributes are read directly
         skip( Messages.MSG_HEADER_SIZE );	    
 
         giop_minor = Messages.getGIOPMinor( buffer );
+
+        //tell CDR stream which version to use
+        super.setGIOPMinor( giop_minor );
         
         switch( giop_minor )
         { 
@@ -211,7 +218,7 @@ public class ReplyInputStream
 	{
 	    case ReplyStatusType_1_2._NO_EXCEPTION : 
 		return this;	       
-	    case  ReplyStatusType_1_2._USER_EXCEPTION : 
+	    case ReplyStatusType_1_2._USER_EXCEPTION : 
 	    {
                 mark( 0 ); //arg readlimit (0) is not used
 		String id = read_string();
@@ -228,11 +235,11 @@ public class ReplyInputStream
 
 		throw new ApplicationException(id, this);
 	    }
- 	    case  ReplyStatusType_1_0._SYSTEM_EXCEPTION: 
+ 	    case  ReplyStatusType_1_2._SYSTEM_EXCEPTION: 
 	    {
 		throw( org.jacorb.orb.SystemExceptionHelper.read(this) );
 	    }
-	    case  ReplyStatusType_1_0._LOCATION_FORWARD: 
+	    case  ReplyStatusType_1_2._LOCATION_FORWARD: 
 		throw new org.omg.PortableServer.ForwardRequest( this.read_Object());
 	}
 	return this;
@@ -266,6 +273,23 @@ public class ReplyInputStream
 	wakeup();
 
 	return this;
+    }
+    
+    public int getMsgSize()
+    {
+        return msg_size;
+    }
+
+    public void finalize()
+    {
+	try
+	{
+	    close();
+	}
+	catch( IOException iox )
+	{
+	    //ignore
+	}
     }
 }
 

@@ -78,6 +78,9 @@ public class ReplyOutputStream
         this.request_id = request_id;
         this.reply_status = reply_status;
         this.giop_minor = giop_minor;
+
+        //tell CDR stream which version to use
+        super.setGIOPMinor( giop_minor );
  
         if( separate_header )
             header_stream = new CDROutputStream();
@@ -195,12 +198,14 @@ public class ReplyOutputStream
         header_stream = new CDROutputStream();
         writeHeader( header_stream );
     
-        int difference = header_stream.size() % 8; //difference to next 8 byte border
+        //difference to next 8 byte border
+        int difference = header_stream.size() % 8; 
         difference = (difference == 8)? 0 : difference;
 
-        // This is a bit inefficent, but unfortunately, the service contexts are written
-        // in the middle of the stream (not at the end), so fixing the size directly
-        // would involve meddling inside the buffer.    
+        // This is a bit inefficent, but unfortunately, the service
+        // contexts are written in the middle of the stream (not at
+        // the end), so fixing the size directly would involve
+        // meddling inside the buffer.
 
         if (difference > 0)
         {
