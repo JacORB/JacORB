@@ -32,21 +32,25 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
- * ThreadPool.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class ThreadPool implements Executor, Disposable
+public class TaskExecutor implements Executor, Disposable
 {
+
+    private static TaskExecutor DIRECT_EXECUTOR = new TaskExecutor("Direct", 0);
+
+    public static TaskExecutor getDefaultExecutor() {
+        return DIRECT_EXECUTOR;
+    }
+
     Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private Executor executor_;
     private LinkedQueue channel_;
 
-    public ThreadPool( final String name, int numberOfThreads )
+    public TaskExecutor( final String name, int numberOfThreads )
     {
         if ( numberOfThreads < 0 )
             {
