@@ -20,29 +20,25 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.security.Provider;
+import org.omg.Security.*;
+import org.omg.PortableInterceptor.*;
+import org.jacorb.util.*;
+import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
+import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.orb.connection.*;
 import org.omg.GSSUP.*;
 
-/**
- * This is the GSS-API Sercurity Provider Interface (SPI) Provider for the GSSUP Name
- *
- * @author David Robison
- * @version $Id$
- */
-
-public class NT_GSSUPProvider extends Provider
+public class GssUpContextValidator implements ISASContextValidator
 {
+    private InitialContextToken initialContextToken = null;
 
-    protected static org.omg.CORBA.ORB orb = null;
-    protected static org.omg.IOP.Codec codec = null;
+    public boolean validate(ServerRequestInfo ri, byte[] contextToken) {
+        initialContextToken = org.jacorb.security.sas.GSSUPNameSpi.decode(contextToken);
+        return true;
+    }
 
-    /**
-     * Returns the default GSSManager implementation.
-     */
-    public NT_GSSUPProvider()
-    {
-            super("NT-GSSUP", 1.0, "JacORB NT GSSUP provider v1.0");
-            NT_GSSUPMechFactory.myProvider = this;
-            this.put("GssApiMechanism.2.23.130.1.1.1", "org.jacorb.security.sas.NT_GSSUPMechFactory");
+    public String getPrincipalName() {
+        if (initialContextToken == null) return null;
+        return new String(initialContextToken.username);
     }
 }

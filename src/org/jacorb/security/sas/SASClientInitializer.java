@@ -40,6 +40,7 @@ public class SASClientInitializer
         extends org.omg.CORBA.LocalObject
         implements ORBInitializer
 {
+    private static SASClientInterceptor interceptor = null;
     /**
     * This method registers the interceptors.
     */
@@ -49,7 +50,8 @@ public class SASClientInitializer
         // install the CSS interceptor
         try
         {
-            info.add_client_request_interceptor(new SASClientInterceptor(info));
+            interceptor = new SASClientInterceptor(info);
+            info.add_client_request_interceptor(interceptor);
         }
         catch (DuplicateName duplicateName)
         {
@@ -63,6 +65,10 @@ public class SASClientInitializer
 
     public void pre_init(ORBInitInfo info)
     {
+    }
+
+    public static void setContextToken(byte[] contextToken) {
+        interceptor.setContextToken(contextToken);
     }
 }
 

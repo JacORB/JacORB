@@ -45,7 +45,7 @@ public class JsseContextValidator implements ISASContextValidator
 {
     private X509Certificate client_cert = null;
 
-    public boolean validate(ServerRequestInfo ri) {
+    public boolean validate(ServerRequestInfo ri, byte[] contextToken) {
         client_cert = getClientCert(ri);
         if (client_cert == null) return false;
         return true;

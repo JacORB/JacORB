@@ -45,7 +45,7 @@ public class GSSUPProviderInitializer
     /**
     * This method registers the interceptors.
     */
-    public void post_init( ORBInitInfo info )
+    public void pre_init( ORBInitInfo info )
     {
         // save ORB
         org.jacorb.security.sas.GSSUPProvider.orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
@@ -62,7 +62,7 @@ public class GSSUPProviderInitializer
         }
     }
 
-    public void pre_init(ORBInitInfo info)
+    public void post_init(ORBInitInfo info)
     {
     }
 }

@@ -33,6 +33,6 @@ import org.omg.PortableInterceptor.*;
 
 public interface ISASContextValidator
 {
-    public boolean validate(ServerRequestInfo ri);
+    public boolean validate(ServerRequestInfo ri, byte[] contextToken);
     public String getPrincipalName();
 }

@@ -67,6 +67,10 @@ public class SASClientInterceptor
         useStateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.stateful", "true")).booleanValue();
     }
 
+    public void setContextToken(byte[] contextToken) {
+        this.contextToken = contextToken;
+    }
+
     public String name()
     {
         return name;
