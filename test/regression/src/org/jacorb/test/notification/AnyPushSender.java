@@ -25,10 +25,9 @@ import org.apache.avalon.framework.logger.Logger;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 public class AnyPushSender
-            extends PushSupplierPOA
-            implements TestClientOperations, Runnable
+    extends PushSupplierPOA
+    implements TestClientOperations, Runnable
 {
-
     ORB orb_;
     POA poa_;
 
@@ -73,7 +72,6 @@ public class AnyPushSender
                          int runs,
                          long interval)
     {
-
         generator_ = generator;
         perfListener_ = perfListener;
         runs_ = runs;
@@ -86,6 +84,7 @@ public class AnyPushSender
         testCase_.assertNotNull(myAdmin_);
         myAdmin_.add_filter(filter);
     }
+
 
     public void addProxyFilter(Filter filter)
     {
@@ -205,11 +204,13 @@ public class AnyPushSender
 
         testCase_.assertEquals(myAdmin_, channel.get_supplieradmin(_adminId.value));
 
-        myConsumer_ = ProxyPushConsumerHelper.narrow(myAdmin_.obtain_notification_push_consumer(ClientType.ANY_EVENT, _proxyId));
+        myConsumer_ =
+            ProxyPushConsumerHelper.narrow(myAdmin_.obtain_notification_push_consumer(ClientType.ANY_EVENT, _proxyId));
 
         testCase_.assertEquals(ProxyType._PUSH_ANY, myConsumer_.MyType().value());
 
         myConsumer_.connect_any_push_supplier(_this(testCase_.getORB()));
+
         connected_ = true;
     }
 
@@ -217,6 +218,7 @@ public class AnyPushSender
     public void shutdown()
     {
         myConsumer_.disconnect_push_consumer();
+
         if (myAdmin_ != null)
         {
             myAdmin_.destroy();
