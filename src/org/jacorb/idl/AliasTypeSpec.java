@@ -115,21 +115,6 @@ public class AliasTypeSpec
 	    ((TemplateTypeSpec)originalType).markTypeDefd();	    
 	}
 
-//          String typeName = ( pack_name.length() > 0 ? pack_name + "." : "" ) + name;
-
-//  	try
-//  	{
-//              if( typeName.length() > 0 )                
-//                  NameTable.define( typeName , "type" );
-//              else 
-//                  ;
-//  	} 
-//  	catch ( NameAlreadyDefined nad )
-//  	{
-//              Environment.output( 4, nad );
-//  	    parser.error("Typedef'd name " + typeName + " already defined", token);
-//  	}
-
 	if( originalType instanceof ConstrTypeSpec ||
 	    originalType instanceof FixedPointType || 
 	    originalType instanceof SequenceType ||
@@ -145,7 +130,9 @@ public class AliasTypeSpec
                     tName = originalType.typeName().substring( 0, originalType.typeName().indexOf('['));
                 }
                 else
+                {
                     tName = originalType.typeName();
+                }
 
                 addImportedName( tName );
             }        
@@ -155,10 +142,12 @@ public class AliasTypeSpec
         {
 	    originalType = ((ScopedName)originalType).resolvedTypeSpec();
 
-            addImportedName( originalType.typeName() );
+            if( originalType instanceof AliasTypeSpec )
+                addImportedAlias( originalType.full_name() );
+            else
+                addImportedName( originalType.typeName() );
+
         }
-
-
     }
 
     public String toString()
@@ -174,10 +163,15 @@ public class AliasTypeSpec
 
     public String getTypeCodeExpression()
     {
-//System.out.println ("Alias: " + full_name());
         return "org.omg.CORBA.ORB.init().create_alias_tc( " + 
-            full_name() + "Helper.id(),\"" + name + "\"," +
-            originalType.getTypeCodeExpression() + ")";
+            full_name() + "Helper.id(), \"" + name + "\"," +
+            ( originalType.typeSpec() instanceof TemplateTypeSpec || 
+              originalType.typeSpec() instanceof BaseType || 
+              originalType.typeSpec() instanceof AliasTypeSpec || 
+              originalType.typeSpec() instanceof TypeCodeTypeSpec ? 
+              originalType.getTypeCodeExpression() : 
+              originalType.typeSpec().typeName() + "Helper.type()" ) + " )";        
+        //            originalType.getTypeCodeExpression() + ")";        
     }
 
     public String className()
@@ -410,7 +404,7 @@ public class AliasTypeSpec
 
 	String type = originalType.typeName();
 
-	ps.println("\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)");
+	ps.println("\tpublic static void insert (org.omg.CORBA.Any any, " + type + " s)");
 	ps.println("\t{");
         ps.println("\t\tany.type (type ());");       
         ps.println("\t\twrite (any.create_output_stream (), s);");
