@@ -478,7 +478,7 @@
    <!--                      -->
 
    <target name="security" 
-	   depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop">
+	   depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop,csi">
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
 	       includes="org/omg/TimeBase/**,org/omg/Security/**,org/omg/Security**/**,org/omg/SSLIOP/**"
@@ -568,5 +568,45 @@
 		destdir="${src}/generated"/>
    </target>
 
-</project>
+   <!--                      -->
+   <!--    CSI v2            -->
+   <!--                      -->
 
+   <target name="csi" depends="init">
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CSI.idl"
+		destdir="${src}/generated"/>
+
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/CSIIOP.idl"
+		destdir="${src}/generated"/>
+
+   	<jacidl generateir="true"
+		srcdir="idl"
+		noskel="true"
+		nostub="true"
+		sloppynames="true"
+		packageprefix="org.omg"
+		includepath="${basedir}/idl/omg"
+		includes="**/omg/GSSUP.idl"
+		destdir="${src}/generated"/>
+
+      <javac srcdir="${src}/generated"
+             destdir="${classdir}"
+	          includes="org/omg/CSI/**,org/omg/CSIIOP/**,org/omg/GSSUP/**"
+      />
+   </target>
+
+</project>
