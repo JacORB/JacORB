@@ -82,7 +82,7 @@ public class JacIDL
         _force_overwrite = false;
         _ami_callback = false;
         _unchecked_narrow = false;
-        _debuglevel = 0;
+        _debuglevel = 1;
     }
 
     /**
@@ -412,6 +412,11 @@ public class JacIDL
         catch (IOException ioex)
         {
             ioex.printStackTrace();
+            throw new BuildException();
+        }
+        catch (ParseException pex)
+        {
+            System.err.println(pex.getMessage());
             throw new BuildException();
         }
         catch (Exception ex)
