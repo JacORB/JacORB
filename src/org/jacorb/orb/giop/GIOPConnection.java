@@ -50,6 +50,12 @@ public class GIOPConnection
     private boolean writer_active = false;
     private Object write_sync = new Object();
 
+    /*
+     * Connection OSF character formats.
+     */
+    private int TCS = CodeSet.getTCSDefault();
+    private int TCSW = CodeSet.getTCSWDefault();	
+
     public GIOPConnection( Transport transport,
                            RequestListener request_listener,
                            ReplyListener reply_listener )
@@ -57,6 +63,22 @@ public class GIOPConnection
         this.transport = transport;
         this.request_listener = request_listener;
         this.reply_listener = reply_listener;
+    }
+    
+    public void setCodeSets( int TCS, int TCSW )
+    {
+        this.TCS = TCS;
+        this.TCSW = TCSW;
+    }
+
+    public int getTCS()
+    {
+        return TCS;
+    }
+
+    public int getTCSW()
+    {
+        return TCSW;
     }
         
     /**
@@ -100,7 +122,19 @@ public class GIOPConnection
     {
         while( true )
         {
-            byte[] message = transport.getMessage();
+            byte[] message = null;
+            
+            try
+            {
+                message = transport.getMessage();
+            }
+            catch( IOException e )
+            {
+                request_listener.connectionClosed();
+                reply_listener.connectionClosed();
+
+                throw e;
+            }
             
             if( message == null )
             {
@@ -257,9 +291,16 @@ public class GIOPConnection
         return transport.isSSL();
     }
     
-    public void closeConnection()
+    public void close()
     {
-        transport.connectionTerminated();
+        try
+        {
+            transport.close();
+        }
+        catch( IOException e )
+        {
+            Debug.output( 1, e );
+        }      
     }
 }// GIOPConnection
 

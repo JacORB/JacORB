@@ -61,11 +61,6 @@ public class RequestOutputStream
         this.response_expected = response_expected;
         this.operation = operation;
 
-        System.out.println(">>>>>>>>>Created request for op " + 
-                           operation + 
-                           " with GIOP 1." + 
-                           giop_minor);
-      
         writeGIOPMsgHeader( MsgType_1_1._Request,
                             giop_minor );
 

@@ -20,7 +20,7 @@
 
 package org.jacorb.orb.connection;
 
-import java.util.Hashtable;
+import java.util.*;
 
 import org.jacorb.util.Debug;
 
@@ -48,16 +48,34 @@ public class ClientConnection
     //to generate request ids
     private int id_count = 0;
 
+    private ConnectionManager conn_mg = null;
+
+    private boolean client_initiated = true;
+
     private String info = null;
 
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
-                             String info )
+                             ConnectionManager conn_mg,
+                             String info,
+                             boolean client_initiated )
     {
         this.connection = connection;
         this.orb = orb;
+        this.conn_mg = conn_mg;
         this.info = info;
+        this.client_initiated = client_initiated;
 
+        //For BiDirGIOP, the connection initiator may only generate
+        //even valued request ids, and the other side odd valued
+        //request ids. Therefore, we always step the counter by 2, so
+        //we always get only odd or even ids depending on the counters
+        //initial value.
+        if( ! client_initiated )
+        {
+            id_count = 1;
+        }
+        
         connection.setReplyListener( this );
 
         replies = new Hashtable();
@@ -70,7 +88,13 @@ public class ClientConnection
 
     public synchronized int getId()
     {
-        return id_count++; /* */
+        int id = id_count;
+        
+        //if odd or even is determined by the starting value of
+        //id_count
+        id_count += 2;
+
+        return id;
     }
 
     public void incClients()
@@ -88,6 +112,11 @@ public class ClientConnection
         return client_count == 0;
     }
 
+    public boolean isClientInitiated()
+    {
+        return client_initiated;
+    }
+
     /**
      * The request_id parameter is only used, if response_expected.
      */
@@ -102,8 +131,11 @@ public class ClientConnection
             Integer key = new Integer( request_id );
             
             placeholder = new ReplyPlaceholder();
-            
-            replies.put( key, placeholder );
+
+            synchronized( replies )
+            {
+                replies.put( key, placeholder );
+            }
         }
 
         try
@@ -119,9 +151,9 @@ public class ClientConnection
         return placeholder;
     }
 
-    public void closeConnection()
+    public void close()
     {
-        connection.closeConnection();
+        connection.close();
     }
 
     /*
@@ -133,8 +165,13 @@ public class ClientConnection
     {
         Integer key = new Integer( Messages.getRequestId( reply ));
         
-        ReplyPlaceholder placeholder = 
-            (ReplyPlaceholder) replies.remove( key );
+        ReplyPlaceholder placeholder = null;
+        
+        synchronized( replies )
+        {
+            placeholder =
+                (ReplyPlaceholder) replies.remove( key );
+        }
 
         if( placeholder != null )
         {
@@ -152,9 +189,14 @@ public class ClientConnection
                                      GIOPConnection connection )
     {
         Integer key = new Integer( Messages.getRequestId( reply ));
+
+        ReplyPlaceholder placeholder = null;
         
-        ReplyPlaceholder placeholder = 
-            (ReplyPlaceholder) replies.remove( key );
+        synchronized( replies )
+        {
+            placeholder =
+                (ReplyPlaceholder) replies.remove( key );
+        }
 
         if( placeholder != null )
         {
@@ -167,7 +209,6 @@ public class ClientConnection
             Debug.output( 1, "WARNING: Received an unknown reply" );
         }        
     }
-
 
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection )
@@ -182,6 +223,36 @@ public class ClientConnection
         
     }
 
+    public void connectionClosed()
+    {
+        synchronized( replies )
+        {
+            if( replies.size() > 0 )
+            {
+                Debug.output( 1, "ERROR: Abnormal connection termination. Lost " +
+                              replies.size() + " outstanding replies!");
+            }
+
+            for( Enumeration keys = replies.keys();
+                 keys.hasMoreElements(); )
+            {
+                ReplyPlaceholder placeholder =
+                    (ReplyPlaceholder) replies.remove( keys.nextElement() );
+                
+                placeholder.cancel();
+            }
+        }        
+
+        if( ! client_initiated )
+        {
+            //if this is a server side BiDir connection, it will stay
+            //pooled in the COnnectionManager even if no Delegate is
+            //associated with it. Therefore, it has to be removed when
+            //the underlying connection closed.
+            
+            conn_mg.removeConnection( this );
+        }
+    }
 }// ClientConnection
 
 

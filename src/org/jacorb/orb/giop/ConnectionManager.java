@@ -39,7 +39,7 @@ import org.jacorb.util.*;
 
 public class ConnectionManager
 {    
-    private org.jacorb.orb.ORB orb;
+    private org.jacorb.orb.ORB orb = null;
 
     /** connection mgmt. */
     private Hashtable connections = new Hashtable();
@@ -52,7 +52,7 @@ public class ConnectionManager
 
     private MessageReceptorPool receptor_pool = null;
 
-    public ConnectionManager(ORB orb)
+    public ConnectionManager( ORB orb )
     {
         this.orb = orb;
         
@@ -197,7 +197,7 @@ public class ConnectionManager
                                     request_listener,
                                     null );
             
-            c = new ClientConnection( connection, orb, host_and_port );
+            c = new ClientConnection( connection, orb, this, host_and_port, true );
 
             Debug.output( 2, "ConnectionManager: created new conn to target " +
                           c.getInfo() );
@@ -223,16 +223,29 @@ public class ConnectionManager
         
         if( c.hasNoMoreClients() )
         {
-            c.closeConnection();
+            c.close();
 
             connections.remove( c.getInfo() );
         }
     }
 
-    public synchronized void addConnection( ClientConnection c )
+    public synchronized void removeConnection( ClientConnection c )
     {
-        if( ! connections.containsKey( c.getInfo() ))
+        connections.remove( c.getInfo() );
+    }
+
+
+    public synchronized void addConnection( GIOPConnection connection, 
+                                            String info )
+    {
+        if( ! connections.containsKey( info ))
         {
+
+            info = unifyTargetAddress( info );
+
+            ClientConnection c = 
+                new ClientConnection( connection, orb, this, info, false );
+
             //this is a bit of a hack: the bidirectional client
             //connections have to persist until their underlying GIOP
             //connection is closed. Therefore, we set the initial
@@ -241,7 +254,7 @@ public class ConnectionManager
         
             c.incClients();
         
-            connections.put( c.getInfo(), c );
+            connections.put( info, c );
         }
     }
 
@@ -251,7 +264,7 @@ public class ConnectionManager
         
         for( Enumeration e = connections.elements(); e.hasMoreElements(); )
         {
-            ((ClientConnection) e.nextElement()).closeConnection();
+            ((ClientConnection) e.nextElement()).close();
         }
         
         Debug.output(3,"ConnectionManager shut down (all connections released)");

@@ -130,6 +130,10 @@ public class ServerRequestListener
 
     }
 
+    public void connectionClosed()
+    {
+    }
+
     private void deliverRequest( ServerRequest request )
     {
         POA tmp_poa = rootPOA;

@@ -35,6 +35,8 @@ public class ClientRequestInfoImpl
     public org.jacorb.orb.connection.RequestOutputStream request_os = null;
     public org.jacorb.orb.connection.ReplyInputStream reply_is = null;
 
+    public org.jacorb.orb.connection.ClientConnection connection = null;
+
     public ClientRequestInfoImpl() 
     {
         super();

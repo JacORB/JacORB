@@ -81,10 +81,6 @@ public class ReplyInputStream
                 throw new Error( "Unknown GIOP minor version: " + giop_minor );
             }
         }
-
-
-        System.out.println(">>>>>>>>>Received reply with GIOP 1." + 
-                           giop_minor);
     }
 
     /** 

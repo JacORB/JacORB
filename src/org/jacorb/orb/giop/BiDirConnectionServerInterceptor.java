@@ -109,16 +109,12 @@ public class BiDirConnectionServerInterceptor
             {
                 ListenPoint p = bidir_ctx.listen_points[i];
                 
-                String info = 
-                    ConnectionManager.unifyTargetAddress( p.host + 
-                                                          ':' + 
-                                                          p.port );
+                String info = p.host + ':' + 
+                    ((p.port < 0)? ((int) p.port) + 65536 : (int) p.port);
 
                 Debug.output( 2, "BiDirServerInterceptor: Added client conn to target " + info );
                 
-                conn_mg.addConnection( new ClientConnection( connection,
-                                                             orb, 
-                                                             info ));
+                conn_mg.addConnection( connection, info );
             }            
         }
     }    

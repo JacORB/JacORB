@@ -30,6 +30,7 @@ import org.jacorb.util.*;
 import org.omg.IOP.*;
 import org.omg.IIOP.*;
 import org.omg.CosNaming.*;
+import org.omg.CONV_FRAME.*;
 
 /**
  * Class to convert IOR strings into IOR structures
@@ -52,6 +53,8 @@ public class ParsedIOR
     private IOR ior = null;
     
     private org.jacorb.orb.ORB orb;
+
+    private CodeSetComponentInfo cs_info = null;
 
     /* static part */
 
@@ -219,65 +222,22 @@ public class ParsedIOR
         return null;
     }
 
-
-    public  org.omg.CONV_FRAME.CodeSetComponentInfo getCodeSetComponentInfo()
-    {
-        for ( int i = 0; i < taggedComponents.length; i++ )
-        {
-	    if( taggedComponents[i].tag != TAG_CODE_SETS.value ) 
-		continue;
-
-	    Debug.output(4,"TAG_CODE_SETS found");			
-
-	    // get server cs from IOR 
-	    CDRInputStream is =
-		new CDRInputStream( orb, 
-                                   taggedComponents[i].component_data);
-
-	    is.openEncapsulatedArray();
-
-	    return org.omg.CONV_FRAME.CodeSetComponentInfoHelper.read(is);
-	}
-        return null;
-    }
-
-
     /* instance part */
 
     public ParsedIOR( String object_reference )
     {
-//          System.out.println("created new PIOR with string reference "+ 
-//                             object_reference);
-        
 	parse( object_reference );
-
-//  	for ( int i = 0; i <ior.profiles.length; i++ )
-//  	{
-//              Debug.output( 1, "rcv prof " + i, ior.profiles[i].profile_data ); 
-//          }
-
     }
 
     public ParsedIOR( String object_reference, ORB orb )
     {
-//          System.out.println("created new PIOR with string reference "+ 
-//                             object_reference);
-
 	this.orb = orb;
 	parse( object_reference );
-
-//  	for ( int i = 0; i <ior.profiles.length; i++ )
-//  	{
-//              Debug.output( 1, "rcv prof " + i, ior.profiles[i].profile_data ); 
-//          }
-
     }
 
     public ParsedIOR( IOR _ior )
     {
 	decode( _ior );
-
-        //System.out.println("created new PIOR friom IOR ");
     }
 
     public boolean equals( Object o )
@@ -355,6 +315,24 @@ public class ParsedIOR
 
 	ior = _ior;
 	ior_str = getIORString();
+
+        //retrieve the codeset component
+        for( int i = 0; i < taggedComponents.length; i++ )
+        {
+	    if( taggedComponents[i].tag != TAG_CODE_SETS.value )
+            {
+		continue;
+            }
+
+	    // get server cs from IOR 
+	    CDRInputStream is =
+		new CDRInputStream( orb, 
+                                    taggedComponents[i].component_data);
+            
+	    is.openEncapsulatedArray();
+            
+	    cs_info = CodeSetComponentInfoHelper.read( is );
+	}
     }
 
     /**
@@ -392,6 +370,10 @@ public class ParsedIOR
 	decode( ior );
     }
 
+    public CodeSetComponentInfo getCodeSetComponentInfo()
+    {
+        return cs_info;
+    }
 
 
     public IOR getIOR()
@@ -512,8 +494,18 @@ public class ParsedIOR
 		     (c2 - '0'));
 		bos.write((i1*16+i2));
 	    }
-	    CDRInputStream in_ = new CDRInputStream(org.omg.CORBA.ORB.init(), bos.toByteArray());
-            //	    Connection.dumpBA( bos.toByteArray());
+
+	    CDRInputStream in_ = null;
+            
+            if( orb == null )
+            {
+                in_ = new CDRInputStream( org.omg.CORBA.ORB.init(), 
+                                          bos.toByteArray() );
+            }
+            else
+            {
+                in_ = new CDRInputStream( orb, bos.toByteArray() );
+            }                
 	    
 	    endianness = in_.read_boolean();
 	    if(endianness)

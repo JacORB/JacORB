@@ -45,4 +45,9 @@ public class ClientReplyListener
         
     }
 
+    public void connectionClosed()
+    {
+
+    }
 }// ClientReplyListener
+

@@ -39,6 +39,11 @@ import org.jacorb.util.Debug;
 public abstract class TCP_IP_Transport 
     implements Transport  
 {
+    //Reasons for closing connections
+    public static final int GIOP_CONNECTION_CLOSED = 0;
+    public static final int READ_TIMED_OUT = 1;
+    public static final int STREAM_CLOSED = 2;
+
     protected InputStream in_stream = null;
     protected OutputStream out_stream = null;
 
@@ -52,14 +57,49 @@ public abstract class TCP_IP_Transport
         buff_mg = BufferManager.getInstance();
     }
 
-    protected abstract void transportClosed()
-        throws IOException;
-
+    /**
+     * Open up a new connection (if not already done). This is always
+     * called prior to sending a message.  
+     */
     protected abstract void connect();
+    
+    /**
+     * Wait until the connection is established. This is called from
+     * getMessage() so the connection may be opened up not until the
+     * first message is sent (instead of opening it up when the
+     * transport is created).  
+     */
     protected abstract void waitUntilConnected()
         throws IOException;
 
-    
+    /**
+     * Tell the extending class that the connection has/sould be
+     * closed together with the reason. The extending class can then
+     * decide if it wishes to close the connection finally by throwing
+     * a CloseConnectionException.  
+     */
+    protected abstract void close( int reason )
+        throws IOException;
+       
+
+    /*
+     * This is called from GIOPConnection.
+     */
+    public void close()
+        throws IOException
+    {
+        close( GIOP_CONNECTION_CLOSED );
+    }
+
+
+    /**
+     * This method tries to read in <tt>length</tt> bytes from
+     * <tt>in_stream</tt> and places them into <tt>buffer</tt>
+     * beginning at <tt>start_pos</tt>. It doesn't care * about the
+     * contents of the bytes.
+     *
+     * @return the actual number of bytes that were read.  
+     */
     private int readToBuffer( byte[] buffer, 
                               int start_pos,
                               int length )
@@ -79,18 +119,16 @@ public abstract class TCP_IP_Transport
             }
             catch( InterruptedIOException e )
             {
-                //read timed out
-                transportClosed();
-
-                throw e;
+                close( READ_TIMED_OUT );
+                
+                return -1;
             }
 
             if( n < 0 )
             {
-                //ended to early
-                transportClosed();
+                close( STREAM_CLOSED );
                 
-                throw new CloseConnectionException();
+                return -1;
             }  
 
             read += n;
@@ -102,23 +140,32 @@ public abstract class TCP_IP_Transport
     // implementation of org.jacorb.orb.connection.Transport interface
 
     /**
+     * Read a GIOP message from the stream. This will first try to
+     * read in the fixed-length GIOP message header to determine the
+     * message size, and the read the rest. It also checks the leading
+     * four magic bytes of the message header. This method <b>is not
+     * thread safe<b> and only expected to be called by a single
+     * thread.
      *
-     * @return <description>
-     * @exception java.io.IOException <description>
+     * @return a GIOP message or null.
+     * @exception IOException passed through from the underlying IO layer.  
      */
     public byte[] getMessage() 
         throws IOException 
     {
+        //Wait until the actual socket connection is established. This
+        //is necessary for the client side, so opening up a new
+        //connection can be delayed until the first message is to be
+        //sent.
         waitUntilConnected();
 
         int read = readToBuffer( msg_header, 0, Messages.MSG_HEADER_SIZE );
 
         if( read == -1 )
         {
-            //transport closed. Try again to wait until it reopens
             return null;
         }
-
+        
         if( read != Messages.MSG_HEADER_SIZE )
         {
             //TODO: resynching?
@@ -150,14 +197,17 @@ public abstract class TCP_IP_Transport
 
 		return null;
 	    }
-	    
+
+	    //get a large enough buffer from the pool
 	    byte[] inbuf = buff_mg.getBuffer( msg_size + 
                                               Messages.MSG_HEADER_SIZE );
 	    
-	    /* copy header */
+	    //copy header
 	    System.arraycopy( msg_header, 0, inbuf, 0, Messages.MSG_HEADER_SIZE );
 
+            //read "body"
             read = readToBuffer( inbuf, Messages.MSG_HEADER_SIZE, msg_size );
+
             if( read != msg_size )
             {
                 Debug.output( 1, "ERROR: Failed to read GIOP message" );
@@ -185,12 +235,6 @@ public abstract class TCP_IP_Transport
         }            
     }
 
-    /**
-     *
-     * @param message <description>
-     * @param size <description>
-     * @exception java.io.IOException <description>
-     */
     public void addOutgoingMessage( byte[] message,
                                     int start,
                                     int size ) 

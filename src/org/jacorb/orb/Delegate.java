@@ -58,8 +58,6 @@ public final class Delegate
     private byte[] oid;
     private String adport;
 
-    /** code set service Context */
-    ServiceContext[] ctx = new ServiceContext[0];
 
     /** SSL tagged component */
     private org.omg.SSLIOP.SSL ssl;
@@ -741,11 +739,16 @@ public final class Delegate
             info.delegate = this;
         
             info.request_id = ros.requestId();
-            InterceptorManager manager = ((org.jacorb.orb.ORB) orb).getInterceptorManager();
+            InterceptorManager manager = 
+                ((org.jacorb.orb.ORB) orb).getInterceptorManager();
+
             info.current = manager.getCurrent();
 
             //allow interceptors access to request output stream
             info.request_os = ros;
+
+            //allow (BiDir) interceptor to inspect the connection
+            info.connection = connection;
     
             invokeInterceptors(info, ClientInterceptorIterator.SEND_REQUEST);
 

@@ -148,11 +148,6 @@ public class RequestInputStream
         {
 	    throw new Error( "Error: not a request!" );
         }
-        System.out.println(">>>>>>>>>received request for op " + 
-                           req_hdr.operation + 
-                           " with GIOP 1." + 
-                           giop_minor);
-        
     }
 
     public ServiceContext getServiceContext( int id )

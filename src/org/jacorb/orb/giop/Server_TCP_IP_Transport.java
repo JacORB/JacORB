@@ -63,49 +63,25 @@ public class Server_TCP_IP_Transport
 
     }
 
-    private void close()
+    protected void close( int reason )
+        throws IOException
     {
-        if( out_stream != null )
-        {
-            try
-            {
-                out_stream.close();
-            }
-            catch( IOException ioe )
-            {
-                Debug.output( 1, ioe );
-            }
-            
-            out_stream = null;
-        }
-
-        if( in_stream != null )
-        {
-            try
-            {
-                in_stream.close();
-            }
-            catch( IOException ioe )
-            {
-                Debug.output( 1, ioe );
-            }
-            
-            in_stream = null;
-        }
-
+        //ignore the reasons since this transport can never be
+        //reestablished.
         if( socket != null )
         {
-            try
-            {
-                socket.close();
-            }
-            catch( IOException ioe )
-            {
-                Debug.output( 1, ioe );
-            }
-            
-            socket = null;
+            socket.close();
+                
+            //this will cause exceptions when trying to read from
+            //the streams. Better than "nulling" them.
+            socket.shutdownInput();
+            socket.shutdownOutput();
         }
+
+        Debug.output( 2, "Closed server-side TCP/IP transport to " +
+                      connection_info );
+        
+        throw new CloseConnectionException();
     }
     
     protected void waitUntilConnected()
@@ -117,27 +93,6 @@ public class Server_TCP_IP_Transport
     protected void connect()
     {
         //can't reconnect
-    }
-
-    /**
-     * close TCP connection down. This will generate exceptions to
-     * free the thread that is handling incoming messages.  
-     */
-    public void connectionTerminated()
-    {
-        close();
-
-        Debug.output( 2, "Closed server-side TCP/IP transport to " +
-                      connection_info );
-    }
-    
-    public void transportClosed()
-        throws CloseConnectionException
-    {
-        //we can't reconnect, so just dump this transport
-        close();
-
-        throw new CloseConnectionException();
     }
 
     public boolean isSSL()

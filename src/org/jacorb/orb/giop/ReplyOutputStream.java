@@ -51,9 +51,6 @@ public class ReplyOutputStream
 
         setGIOPMinor( giop_minor );
  
-        System.out.println(">>>>>>>>>Created reply with GIOP 1." + 
-                           giop_minor);
-
         writeGIOPMsgHeader( MsgType_1_1._Reply,
                             giop_minor );
         

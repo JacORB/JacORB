@@ -55,7 +55,7 @@ public class MessageReceptor
         }
         catch( CloseConnectionException cce )
         {
-            Debug.output( 2, "Connection Closed" );
+            //ignore
         }
         catch( Exception e )
         {

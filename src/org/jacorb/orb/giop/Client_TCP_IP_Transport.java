@@ -26,6 +26,8 @@ import java.net.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.factory.*;
 
+import org.omg.CORBA.COMM_FAILURE;
+
 /**
  * Client_TCP_IP_Transport.java
  *
@@ -47,7 +49,7 @@ public class Client_TCP_IP_Transport
 
     private Socket socket = null;
 
-    private boolean terminated = false;
+    private boolean closed = false;
     private boolean connected = false;
     
     public Client_TCP_IP_Transport( String target_host,
@@ -83,7 +85,7 @@ public class Client_TCP_IP_Transport
         throws IOException
     {
         while( ! connected && 
-               ! terminated )
+               ! closed )
         {
             try
             {
@@ -94,7 +96,7 @@ public class Client_TCP_IP_Transport
             }
         }
         
-        if( terminated )
+        if( closed )
         {
             throw new CloseConnectionException();
         }
@@ -148,7 +150,9 @@ public class Client_TCP_IP_Transport
                     {
                         Thread.sleep( Environment.retryInterval() );
                     } 
-                    catch ( InterruptedException i ){}
+                    catch( InterruptedException i )
+                    {
+                    }
 
                     retries--;
                 }
@@ -163,84 +167,51 @@ public class Client_TCP_IP_Transport
     }
 
     /**
-     * close TCP connection down.
-     */
-    public synchronized void connectionTerminated()
+     * Close socket layer down.
+     */    
+    protected synchronized void close( int reason )
+        throws IOException
     {
-        //means: "close transport"
-        try
+        if( connected && socket != null )
         {
-            transportClosed();
+            socket.close();
+            
+            //this will cause exceptions when trying to read from
+            //the streams. Better than "nulling" them.
+            socket.shutdownInput();
+            socket.shutdownOutput();
+
+            Debug.output( 2, "Closed client-side TCP/IP transport to " +
+                          connection_info );
         }
-        catch( CloseConnectionException cce )
+       
+        connected = false;
+
+        if( reason == GIOP_CONNECTION_CLOSED )
         {
-            //can't happen
+            //terminate this transport
+            closed = true;
+
+            notifyAll();
         }
-
-        Debug.output( 2, "Closed client-side TCP/IP transport to " +
-                      connection_info );
-
-        terminated = true;            
-        notifyAll();
-    }
-
-    protected synchronized void transportClosed()
-        throws CloseConnectionException
-    {
-        if( terminated )
+        else if( reason == READ_TIMED_OUT )
         {
-            //this will be propagated up to the MessageReceptor thread
-            //who will stop trying to receive messages on this
-            //connection
+            //terminate this transport
+            closed = true;
+
+            notifyAll();
+
             throw new CloseConnectionException();
         }
+        /*
+          This transport can be reestablished if it has been closed
+          from the server side. Therefore ignore the reason where the
+          server side closed the TCP/IP connection.
 
-        if( ! connected )
-        {
-            //do nothing if already closed
-            return;
-        }
-/*
-        if( out_stream != null )
-        {
-            try
-            {
-                out_stream.close();
-            }
-            catch( IOException ioe )
-            {
-                Debug.output( 1, ioe );
-            }
-        }
-
-        if( in_stream != null )
-        {
-            try
-            {
-                in_stream.close();
-            }
-            catch( IOException ioe )
-            {
-                Debug.output( 1, ioe );
-            }
-        }
-*/
-        if( socket != null )
-        {
-            try
-            {
-                socket.close();
-                
-                socket.shutdownInput();
-                socket.shutdownOutput();
-            }
-            catch( IOException ioe )
-            {
-                Debug.output( 1, ioe );
-            }
-        }
-        
-        connected = false;
+          else if( reason == STREAM_CLOSED )
+          {          
+          } 
+        */
     }
     
     public boolean isSSL()
@@ -248,6 +219,15 @@ public class Client_TCP_IP_Transport
         return socket_factory.isSSL( socket );
     }
 }// Client_TCP_IP_Transport
+
+
+
+
+
+
+
+
+
 
 
 
