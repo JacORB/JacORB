@@ -24,6 +24,7 @@ import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.util.*;
 
 import org.omg.GIOP.*;
+import org.omg.IOP.*;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.PortableServer.ForwardRequest;
@@ -137,6 +138,22 @@ public class ReplyInputStream
         }
     }
 
+    /**
+     * Returns the ServiceContext with the given id, if one is present.
+     * If there is no such ServiceContext, returns null.
+     */
+    public ServiceContext getServiceContext(int id)
+    {
+        if (rep_hdr.service_context != null)
+        {
+            for (int i=0; i<rep_hdr.service_context.length; i++)
+            {
+                if (rep_hdr.service_context[i].context_id == id)
+                    return rep_hdr.service_context[i];
+            }
+        }
+        return null;
+    }
 
     /**
      * Returns a copy of the body of this reply.  This does not include
