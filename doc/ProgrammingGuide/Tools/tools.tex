@@ -1,15 +1,16 @@
-
-In this chapter, we will briefly explain the executables that come
-with JacORB. These include the IDL--compiler, the JacORB name server.
+In this chapter we  briefly explain the executables that come
+with JacORB. These include the IDL-compiler, a utility to decode IORs
+and print their components, the JacORB name server, a utility to test
+a remote object's liveness, etc.
 
 \section{idl}
 
-The IDL compiler parses IDL specifications  and maps these to a set of
-Java classes. IDL interfaces  are translated into Java interfaces, and
-typedefs,   structs,   const  declarations   etc.   are  mapped   onto
-corresponding Java  classes.  Using {\tt idl},  stubs and
-skeletons  for  all interface  types  in  the  IDL specification  will
-automatically be generated.
+The IDL compiler parses IDL specifications and maps these to Java
+classes as specified by the OMG IDL/Java language mapping. IDL
+interfaces are translated into Java interfaces, and typedefs, structs,
+const declarations etc.  are mapped onto corresponding Java classes.
+Using {\tt idl} command, stubs and skeletons for all interface types
+in the IDL specification are generated.
 
 \subsection*{Usage}
 
@@ -21,28 +22,22 @@ automatically be generated.
   [-sloppy\_forward] [-sloppy\_names] [-syntax]
   <filelist>}
 
-The option {\tt -v} prints out a short version  string while {\tt -h}
-or {\tt -help} displays brief usage information.
-
-With the  {\tt -D} option you can  define symbols that can  be used by
-the  preprocessor while  processing  the  IDL file.   If  no value  is
-specified, the  symbol will be  defined with a  value of 1. The {\tt
-  -U} option lets you undefine symbols again.
-
-The {\tt -I} options allows you to specify one or more search paths for
-IDL files included from within  {\tt <filelist>}. If no path is given,
-only the  current directory will  be considered.
-
-The {\tt -W} option specifies the amount of debug information the IDL
- compiler will output.
-
-The  compiler  does  not,  by  default,  generate  code  for  included
-files. If that is desired, you have to use the {\tt -all} option which
-causes code to be generated  for every IDL file directly or indirectly
-included from within  {\tt <filelist>}. If you want  to make sure that
-for a given IDL no code will  be generated even if this option is set,
-you  can use  the  (proprietary) preprocessor  directive {\tt \#pragma
-inhibit\_code\_generation}.
+\begin{itemize}
+\item[\tt -v] prints out a short version string 
+\item[\tt -h] or {\tt -help} displays brief usage information.
+\item[\tt -D] defines a preprocessor symbol, e.g., {\tt idl -Dx=y}. If
+  no value is specified, the symbol will be defined with a value of 1.
+\item[\tt -U] undefines symbols again.
+\item[\tt -I] specifies one or more search paths for
+IDL files. If no path is given, only the  current directory will  be considered.
+\item[\tt -W] specifies the amount of debug information the IDL
+ compiler will output. Verbosity is between 0 and 4.
+\item[\tt -all] generates code for included IDL files (not done by
+  default). If you want to make sure that for a given IDL no code will
+  be generated even if this option is set, you can use the
+  (proprietary) preprocessor directive {\tt \#pragma
+    inhibit\_code\_generation}.
+\end{itemize}
 
 The {\tt -ami\_callback} flag allows you to use the callback model of
 Asynchronous Method Invocation. See chapter \ref{ch:AMI}.

@@ -1,0 +1,244 @@
+UL {
+   font-size : 10pt; 
+   font-family : "Verdana", "Arial", "Helvetica", "Helv"; 
+}
+
+TT {
+   font-size : 10pt; 
+   font-family : "Andale Mono", "Courier New", "Courier", "Helv"; 
+   color : #0000c0; 
+}
+
+TH {
+   font-size : 10pt; 
+   font-family : "Verdana", "Arial", "Helvetica"; 
+}
+
+TD.xmpcode1 {
+   background-color : #ffff99; 
+   border-width : 1pt; 
+   border-style : solid; 
+   border-color : #999999; 
+}
+
+TD.xmpcode0 {
+   background-color : #ffffff; 
+   border-width : 1pt; 
+   border-style : solid; 
+   border-color : #999999; 
+}
+
+TD.xmpcode {
+   background-color : #ffffe0; 
+   border-width : 1pt; 
+   border-style : solid; 
+   border-color : #999999; 
+}
+
+TD {
+   font-size : 10pt; 
+   font-family : "Verdana", "Arial", "Helvetica", "Helv"; 
+}
+
+PRE {
+   font-size : 10pt; 
+   font-family : "Andale Mono", "Courier New", Courier; 
+   color : #0000c0; 
+}
+
+P {
+   font-size : 10pt; 
+   font-family : "Verdana", "Arial", "Helvetica", "Helv"; 
+}
+
+OL {
+   font-size : 10pt; 
+   font-family : verdana, arial, helvetica; 
+}
+
+NOBR {
+   font-size : 10pt; 
+   font-family : verdana, arial, helvetica; 
+}
+
+LI {
+   font-size : 10pt; 
+   font-family : "Verdana", "Arial", "Helvetica", "Helv"; 
+}
+
+I {
+   font-family : "Verdana", "Arial", "Helvetica", "Helv"; 
+}
+
+HR {
+   width : 90%;
+}
+
+H4 {
+   font-weight : bold; 
+   font-size : 10pt; 
+   font-family : "verdana", "arial", "helvetica"; 
+   color : #000066; 
+}
+
+H3 {
+   font-weight : bold; 
+   font-size : 11pt; 
+   font-family : "verdana", "arial", "helvetica"; 
+   color : #000066; 
+}
+
+H2 {
+   font-weight : bold; 
+   font-size : 12pt; 
+   font-family : "verdana", "arial", "helvetica"; 
+   color : #000066; 
+}
+
+H1 {
+   font-weight : bold; 
+   font-size : 16pt; 
+   font-family : "verdana", "arial", "helvetica"; 
+   color : #000066; 
+   padding : 2pt; 
+   border-color : #000066; 
+   border-bottom-width : 1pt; 
+   border-bottom-style : solid; 
+   width : 90%; 
+}
+
+DT {
+   font-size : 10pt; 
+   font-family : verdana, arial, helvetica; 
+}
+
+DL {
+   list-style-image : url("pics/red_dart.gif"); 
+}
+
+DIV {
+   font-size : 10pt; 
+   font-family : verdana, arial, helvetica; 
+}
+
+BODY.paper {
+   margin : 15%; 
+}
+
+BODY {
+   margin-top : 15; 
+   margin-width : 20px;
+   background-image: url("pics/bg.jpg");
+   background-attachment:fixed;
+}
+
+BODY.frametop {
+   margin-top : 3px; 
+   margin-width : 0px;
+   background-image: url("pics/bg.jpg");
+   background-attachment:fixed;
+}
+
+
+BLOCKQUOTE {
+   font-size : 10pt; 
+   font-family : "Verdana", "Arial", "Helvetica"; 
+}
+
+B {
+   font-weight : bold; 
+   font-family : "Verdana", "Arial", "Helvetica"; 
+   color : #000066; 
+}
+
+ADDRESS {
+   font-size : 10pt; 
+   font-family : verdana, arial, helvetica; 
+}
+
+A:visited {
+   font-weight : bold; 
+   color : #3333ff; 
+   text-decoration : none; 
+}
+
+A:link {
+   font-weight : bold; 
+   color : #3333ff; 
+   text-decoration : none; 
+}
+
+A.jacorb {
+   font-weight : bold; 
+   font-size : 13pt; 
+   color : #000066; 
+   text-decoration : none; 
+}
+
+A:hover {
+   font-weight : bold; 
+   color : #ff0000; 
+   text-decoration : underline; 
+   border-color : #000066; 
+   border-bottom-width : 1pt; 
+   border-bottom-style : solid; 
+}
+
+A:active {
+   font-weight : bold; 
+   color : #0000ff; 
+   text-decoration : none; 
+}
+
+
+.white {
+   color : #ffffff; 
+}
+
+.underline {
+   border-color : silver; 
+   border-bottom-width : 3pt; 
+   border-bottom-style : solid; 
+   width : 96%; 
+}
+
+.title {
+   font-size : 20pt; 
+   color : #006600; 
+}
+
+.small {
+   font-size : 9pt; 
+}
+
+.main {
+   font-size : 20pt; 
+}
+
+.lborder {
+   border-color : #eeeeee; 
+   border-bottom-width : 3pt; 
+   border-bottom-style : solid; 
+   width : 96%; 
+}
+
+.border {
+   padding : 1em; 
+   border-width : 0.2em; 
+   border-style : solid; 
+   border-color : #cc0000; 
+}
+
+.bottompar{
+   color : #000066; 
+   padding : 2pt; 
+   border-color : #000066; 
+   border-top-width : 1pt; 
+   border-top-style : solid; 
+   width : 90%; 
+}
+
+#initial {
+   font-size : 20pt; 
+   color : #cc0000; 
+}
