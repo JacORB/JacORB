@@ -242,4 +242,9 @@ class StructuredEventMessage extends AbstractMessage
     public boolean match(MappingFilter filter, AnyHolder value) throws UnsupportedFilterableData {
         return filter.match_structured(toStructuredEvent(), value);
     }
+
+
+    public String toString() {
+        return structuredEventValue_.toString();
+    }
 }
