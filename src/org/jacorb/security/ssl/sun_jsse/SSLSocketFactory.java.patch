@@ -1,13 +1,28 @@
 Index: SSLSocketFactory.java
 ===================================================================
 RCS file: /cvsroot/jacorb/JacORB/src/org/jacorb/security/ssl/sun_jsse/SSLSocketFactory.java,v
-retrieving revision 1.9
-diff -r1.9 SSLSocketFactory.java
-43c43
-< //import com.sun.net.ssl.*;
----
+retrieving revision 1.17
+diff -r1.17 SSLSocketFactory.java
+35a36
 > import com.sun.net.ssl.*;
-123c123
-<         //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
----
+98,108d98
+<         if (configuration.getAttribute("jacorb.security.ssl.client.protocols", null) != null)
+<         {
+<             enabledProtocols = (String[]) ((org.jacorb.config.Configuration)configuration).getAttributeList
+<                                             ("jacorb.security.ssl.client.protocols").toArray();
+<             if (logger.isDebugEnabled())
+<             {
+<                 logger.debug("Setting user specified client enabled protocols : " + 
+<                              configuration.getAttribute("jacorb.security.ssl.client.protocols", ""));
+<             }
+<         }     
+< 
+168,172d157
+<         if (enabledProtocols != null)
+<         {
+<             s.setEnabledProtocols(enabledProtocols);
+<         }
+<         
+183a169,170
 >         Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+> 
