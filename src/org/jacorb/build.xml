@@ -20,7 +20,7 @@
    </target>
 
    <target name="subdirs"
-               depends="orb,utils,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
+               depends="orb,utils,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security,notification">
    </target>
 
 <!--proxy-->
@@ -78,6 +78,10 @@
 
    <target name="tracing" depends="init">
       <ant antfile="${src}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
+   </target>
+
+   <target name="notification" depends="init">
+      <ant antfile="${src}/org/jacorb/notification/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="clean">

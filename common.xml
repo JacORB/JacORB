@@ -33,6 +33,9 @@
        <path>
           <pathelement location="${dirs.base}/classes"/>
           <pathelement location="${lib}/logkit.jar"/>
+          <pathelement location="${lib}/concurrent.jar"/>
+          <pathelement location="${lib}/antlr.jar"/>
+
           <pathelement location="${java.class.path}"/>
        </path>
     </pathconvert>
@@ -43,6 +46,9 @@
           <pathelement location="${dirs.base}/classes"/>
           <pathelement location="${sun.boot.class.path}"/>
           <pathelement location="${lib}/logkit.jar"/>
+          <pathelement location="${lib}/concurrent.jar"/>
+          <pathelement location="${lib}/antlr.jar"/>
+
           <pathelement location="${java.class.path}"/>
        </path>
     </pathconvert>

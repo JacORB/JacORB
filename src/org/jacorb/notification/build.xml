@@ -16,38 +16,6 @@
   <property name="notification.dir"
     value="${basedir}/src/org/jacorb/notification" />
 
-  <!-- load user specified properties -->
-  <property file="${notification.dir}/notification_build.properties" />
-
-
-  <!-- ================= -->
-  <!-- check environment -->
-  <!-- ================= -->
-  <target name="check-antlr" unless="antlr.home">
-    <fail>
-      Property "antlr.home" is not set. 
-      Please use the file "notification_build.properties" in the
-      directory ${notification.dir} to set this property. The
-      property must point to the directory which contains the file
-      antlr.jar and the directory antlr.
-
-      antlr is available at http://www.antlr.org
-    </fail>
-  </target>      
-
-  <target name="check-util.concurrent" unless="concurrent.home">
-    <fail>
-      Property "concurrent.home" is not set.
-      Please use the file "notification_build.properties" in the
-      directory ${notification.dir} to set this property. The
-      property must point to the directory which contains the compiled
-      classes of util.concurrent.
-
-      util.concurrent is available at 
-      http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
-    </fail>
-  </target>
-
   <!-- check wether to use java.util.regexp or gnu.regexp -->
   <target name="check-regexp">
 
@@ -77,46 +45,11 @@
 
 
   <target name="check-environment">
-    <antcall target="check-util.concurrent" />
-    <antcall target="check-antlr" />
     <antcall target="check-regexp" />
   </target>
 
-  <!-- ===== -->  
-  <target name="pre_init" >
 
-    <!-- taken from common.xml        -->
-    <!-- set custom classpath here    -->
-    <!-- before common.init is called -->
-    <property name="architecture" value="unix"/>
-    <condition property="architecture" value="windows">
-       <or>
-          <os family="windows"/>
-          <os family="dos"/>
-       </or>
-    </condition>
-
-    <path id="notification.classpath" >
-      <pathelement location="${basedir}/classes" />
-      <pathelement location="${sun.boot.class.path}"/>
-      <pathelement location="${antlr.home}/" />
-      <pathelement location="${antlr.home}/antlr.jar" />
-      <pathelement location="${concurrent.home}/classes" />
-      <pathelement location="${basedir}/lib/logkit.jar" />
-      <pathelement location="${gnu.regexp.jar}" />      
-    </path>
-
-    <pathconvert 
-      property="xbootclasspath" 
-      targetos="${architecture}"
-      refid="notification.classpath" />
-
-    <property name="debug" value="true" />
-
-  </target>
-
-
-  <target name="notification.init" depends="pre_init, init, check-environment">
+  <target name="notification.init" depends="init, check-environment">
 
     <!-- directory where the antlr grammar is located -->
     <property name="grammar.dir" value="${notification.dir}/grammar" />
@@ -163,18 +96,22 @@
     <copy file="${grammar.dir}/CommonTokenTypes.txt"
       todir="${src}/generated/${antlr.target.package}" />
     
-    <java classname="antlr.Tool"  fork="yes" failonerror="yes" classpathref="notification.classpath">
+    <java classname="antlr.Tool"  fork="yes" failonerror="yes" >
       <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/tcl-lexer.g" />
     </java>
     
-    <java classname="antlr.Tool" fork="yes" failonerror="yes"
-      classpathref="notification.classpath">
+    <java classname="antlr.Tool" fork="yes" failonerror="yes" >
       <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/comp-lexer.g" />
     </java>
 
-    <echo message="The Warnings 'Redefinition of token in tokens {...}: TOKEN' can be ignored" />
+    <echo/>
+    <echo message="*****************************************************************" />
+    <echo message="* The Warnings 'Redefinition of token in tokens {...}: TOKEN'   *" />
+    <echo message="* can be ignored. Unfortunately there is no way to disable them *" />
+    <echo message="*****************************************************************" />
+    <echo/>
     
-    <java classname="antlr.Tool" fork="yes" failonerror="yes" classpathref="notification.classpath">
+    <java classname="antlr.Tool" fork="yes" failonerror="yes" >
       <arg line="-o ${src}/generated/${antlr.target.package} ${grammar.dir}/tcl.g" />
     </java>    
     
@@ -187,7 +124,7 @@
   </target>
 
   <!-- compile generated parser and AST Classes -->
-  <target name="antlr.compile" depends="notification.init, notification.idl, antlr.generate">
+  <target name="antlr.compile" depends="notification.init, antlr.generate">
     <antcall target="jacorb-javac">
       <param name="javac-includes"
 	value="org/jacorb/notification/node/*.java, generated/org/jacorb/notification/parser/*.java" />
@@ -198,7 +135,6 @@
 
   <target name="server.compile" 
     depends="notification.init, 
-             notification.idl, 
              check-regexp,
              notification.compile.regexp.gnu, 
              notification.compile.regexp.jdk" >
@@ -233,60 +169,17 @@
       </antcall>
   </target>
 
-  <target name="notification.idl" 
-    depends="notification.init,
-             load-taskdef,
-             cos_notification.depend,
-             cos_notification.compile" />
-
-  <target name="cos_notification.depend" depends="notification.init">
-    <condition property="cos_notification.generate.notRequired">
-      <and>
-
-	<available classpathref="notification.classpath" 
-	  classname="org.omg.CosNotification.StructuredEvent" />
-	
-	<available classpathref="notification.classpath" 
-	  classname="org.omg.CosNotification.Property" />
-
-      </and>
-    </condition>
-  </target>
-
-  <target name="cos_notification.compile" 
-        depends="notification.init, cos_notification.generate" 
-         unless="cos_notification.generate.notRequired">
-
-    <antcall target="jacorb-javac">
-      <param name="javac-includes"
-	value="org/omg/CosEvent*/**.java,org/omg/CosNotif*/**.java" />
-    </antcall>
-
-  </target>
-
-  <target name="cos_notification.generate" 
-       depends="notification.init"
-        unless="cos_notification.generate.notRequired" >
-    
-    <jacidl generateir="true"
-      srcdir="${idl}/omg"
-      omgprefix="true"
-      destdir="${src}/generated"
-      includepath="${idl}/omg"
-      includes="CosNotif*.idl, CosEvent*.idl" />
-
-  </target>
 
   <!-- clean -->
   <target name="clean" depends="notification.init">
     <delete>
       <fileset dir="${src}/generated"
-	includes="org/jacorb/notification/**/*.*" />
+	       includes="org/jacorb/notification/**/*.*" />
     </delete>
 
     <delete>
       <fileset dir="${classdir}"
-	includes="org/jacorb/notification/**/*.*" />
+	       includes="org/jacorb/notification/**/*.*" />
     </delete>
 
   </target>
