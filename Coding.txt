@@ -9,6 +9,11 @@ Gerald Brose
  performance or personal style. Performance-related code obfuscation should
  be limited to a few sensitive places - and explained in comments!)
 
+The astyle tool (http://astyle.sourceforge.net/) can be used to format 
+source code:
+
+       astyle -j -s4 -b -P --convert-tabs --break-blocks 
+
 
 1) Use whitespace to make the text more readable.
 
@@ -30,10 +35,12 @@ Gerald Brose
 
     d) write: x = y, not: x=y
 
-    e) Include extra spaces between parenthesis and expression.
+    e) Include extra spaces between parenthesis and expression, and
+       around operators
        For example:
  
              if( foo )
+             a = b * c
 
     e) break lines that get too long  (around column 100)
 
