@@ -3112,7 +3112,7 @@ When a client wants to invoke a remote object, it needs to send the request
 over a connection to the server. If the connection isn't present, it has to be
 created. In JacORB, this will only happen once for every combination of host
 name and port. Once the connection is established, all requests and replies
-bewteen client and server will use the same connection. This saves resources
+between client and server will use the same connection. This saves resources
 while adding a thin layer of necessary synchronization, and is the recommended
 approach of the OMG. Occasionally people have requested to allow for multiple
 connections to the same server, but nobody has yet presented a good argument
@@ -3137,7 +3137,7 @@ connection limit, the question arises on which of the connection to close. To
 allow for maximum flexibility, JacORB provides the interface {\tt
   SelectionStrategy} that allows for a custom way to select a connection to
 close. Because selecting a connection usually requires some sort of
-statistical data about the {\tt Transport}, the interface {\tt
+statistical data about it, the interface {\tt
   StatisticsProvider} allows to implement a class that collects statistical
 data.
 
@@ -3147,7 +3147,8 @@ package org.jacorb.orb.connection;
 
 public interface SelectionStrategy
 {
-    public Transport selectForClose( java.util.List transports );
+    public ServerGIOPConnection 
+        selectForClose( java.util.List connections );
 }
 
 public interface StatisticsProvider 
@@ -3160,43 +3161,43 @@ public interface StatisticsProvider
 \end{small}
 
 The interface {\tt SelectionStrategy} has only the single method of {\tt
-  selectForClose()}. This is called by the class {\tt TransportManager} when a
-{\tt Transport} needs to be closed. The argument is a {\tt List} containing
-objects of type {\tt Transport}. The call itself is synchronized in the {\tt
-  TransportManager}, so no additional synchronization has to be done by the
-implementor of {\tt SelectionStrategy}. When examining the {\tt Transport}s,
-the strategy can get hold of the {\tt StatisticsProvider} via the method {\tt
-  getStatisticsProvider()} of the interface {\tt Transport}. The strategy
-implementor should take care only to return idle connections. While the
-connection state is checked anyway while closing (it may have changed in the
-meantime), it seems to be more efficient to avoid cycling through the
-connections. When no suitable {\tt Transport} is available, the strategy may
-return {\tt null}. The {\tt TransportManager} will then wait for a
-configurable time, and try again. This goes on until a {\tt Transport} can be
+  selectForClose()}. This is called by the class {\tt GIOPConnectionManager}
+when a connection needs to be closed. The argument is a {\tt List} containing
+objects of type {\tt ServerGIOPConnection}. The call itself is synchronized in
+the {\tt GIOPConnectionManager}, so no additional synchronization has to be
+done by the implementor of {\tt SelectionStrategy}. When examining the
+connections, the strategy can get hold of the {\tt StatisticsProvider} via the
+method {\tt getStatisticsProvider()} of the class {\tt GIOPConnection}. The
+strategy implementor should take care only to return idle connections. While
+the connection state is checked anyway while closing (it may have changed in
+the meantime), it seems to be more efficient to avoid cycling through the
+connections. When no suitable connection is available, the strategy may
+return {\tt null}. The {\tt GIOPConnectionManager} will then wait for a
+configurable time, and try again. This goes on until a connection can be
 closed.
   
-  The interface {\tt StatisticsProvider} is used to collect statistical data
-  about a {\tt Transport} and provide it to the {\tt SelectionStrategy}.
-  Because the nature of this data may vary, there is no standard access to the
-  data via the interface. Therefore, {\tt StatisticsProvider} and {\tt
-    SelectionStrategy} usually need to be implemented together. Whenever a new
-  {\tt Transport} is created\footnote{Currently, connection management is only
-    implemented for the server side. Therefore, only accepted {\tt Transport}s
-    will get a {\tt StatisticsProvider}}, a new {\tt StatisticsProvider}
-  object is instanciated and stored with the {\tt Transport}\footnote{This is
-    actually only done when a {\tt StatisticsProvider} is configured}. The
-  {\tt StatisticsProvider} interface is oriented along the mode of use of the
-  {\tt Transport}. For efficiency reasons, messages are not sent as one big
-  byte array. Instead, they are sent piecewise over the wire. When such a
-  chunk is sent, the method {\tt messageChunkSent(int size)} will be
-  called. After the message has been completely sent, method {\tt flush()} is
-  called. This whole process is synchronized, so all consecutive {\tt
-  messageChunkSent}s until a {\tt flush()} form a single message. Therefore,
-  no synchronization on this level is necessary. However, access to gathered
-  statistical date by the {\tt SelectionStrategy} is concurrent, so care has
-  to be taken. Receiving messages is done only on the whole, so there exists
-  only one method, {\tt messageReceived(int size)}, to notify the {\tt
-  StatisticsProvider} of such an event.
+The interface {\tt StatisticsProvider} is used to collect statistical data
+about a connection and provide it to the {\tt SelectionStrategy}.  Because the
+nature of this data may vary, there is no standard access to the data via the
+interface. Therefore, {\tt StatisticsProvider} and {\tt SelectionStrategy}
+usually need to be implemented together. Whenever a new connection is
+created\footnote{Currently, connection management is only implemented for the
+  server side. Therefore, only accepted {\tt ServerGIOPConnections}s will get
+  a {\tt StatisticsProvider}}, a new {\tt StatisticsProvider} object is
+instanciated and stored with the {\tt Transport}\footnote{This is actually
+  only done when a {\tt StatisticsProvider} is configured}. The {\tt
+  StatisticsProvider} interface is oriented along the mode of use of the {\tt
+  Transport}. For efficiency reasons, messages are not sent as one big byte
+array. Instead, they are sent piecewise over the wire. When such a chunk is
+sent, the method {\tt messageChunkSent(int size)} will be called. After the
+message has been completely sent, method {\tt flush()} is called. This whole
+process is synchronized, so all consecutive {\tt messageChunkSent}s until a
+{\tt flush()} form a single message. Therefore, no synchronization on this
+level is necessary. However, access to gathered statistical data by the {\tt
+  SelectionStrategy} is concurrent, so care has to be taken. Receiving
+messages is done only on the whole, so there exists only one method, {\tt
+  messageReceived(int size)}, to notify the {\tt StatisticsProvider} of such
+an event.
 
 JacORB comes with two pre-implemented strategies: least frequently used and
 least recently used. LFU and LRU are implemented by the classes {\tt
@@ -3217,31 +3218,36 @@ To configure connection management, the following properties are provided:
   the {\tt Selection\-Strategy}.
 \item {\tt jacorb.connection.statistics\_provider\_class} This property sets
   the {\tt Statistics\-Provider}.
-\item {\tt jacorb.connection.comm\_failure\_retries} This property sets the
-  number of retries that will be made, until a {\tt COMM\_FAILURE} exception
-  is propagated back up to the application code. See also section
-  \ref{connection_management_limitations}.
+\item {\tt jacorb.connection.delay\_close} If turned on, JacORB will delay
+  closing of TCP/IP connections to avoid certain situations, where message
+  loss can occur. See also section \ref{connection_management_limitations}.
 \end{description}
 
 \subsection{Limitations}
 \label{connection_management_limitations}
 No sunshine without rain. When trying to close a connection, it is first
 checked that the connection is idle, i.e.~has no pending messages.
-Additionally, it is checked that no thread is currently reading from or
-writing to the socket. Since blocking IO is used, the reader thread blocks on
-the socket input stream until it has read data. The problem here is that there
-is no way to determine if data is available at the socket, but the thread just
-hasn't yet read it (or, is actually reading, but hasn't yet returned from the
-call). If a connection close happens at this time, the client will see that
-the connection is closed, but it hasn't yet received a reply.  Therefore, it
-will consider the message lost and usually throw an exception.
+If this is the case, a GIOP CloseConnection message is sent, and the
+TCP/IP connection is closed. Under high load, this can lead to the following
+situation:
 
-To compensate for that, JacORB allows to to retry sending the message if a
-socket error occurs. This behaviour is controlled by the property {\tt
-  jacorb.connection.comm\_failure\_retries}. If set, JacORB will try to resend
-the message the configured number of times, and only then propagate the
-exception back up if retries are exceeded. If not set, all errors from the
-socket layer will get right back into the application code.
+\begin{enumerate}
+\item Server sends the CloseConnection message.
+\item Server closes the TCP/IP connection.
+\item The client sends a new request into the connection, because it hasn't
+  yet read and acted on the CloseConnection message.
+\item The server--side OS will send a TCP RST, which cancels out the
+  CloseConnection message.
+\item The client finds the connection closed and must consider the request lost.
+\end{enumerate}
+
+To get by this situation, JacORB takes the following approach. Instead of
+closing the connection right after sending the CloseConnection message, we
+delay closing and wait for the client to close the connection. This behaviour
+is turned off by default, but can be enabled by setting the property {\tt
+  jacorb.connection.delay\_close} to ``yes''. When non-JacORB clients are used
+care has to be taken that these ORBs do actively close the connection upon
+receiving a CloseConnection message.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -3573,10 +3579,10 @@ to configure JacORB are given in the following tables.
 \verb"istics_provider_class" & This property sets
   the {\tt Statistics\-Provider} & class \\
 \hline
-\verb"jacorb.connection.comm"
-\verb"_failure_retries" & This property sets the
-  number of retries that will be made, until a {\tt COMM\_FAILURE} exception
-  is propagated back up to the application code. Default is off. & integer \\
+\verb"jacorb.connection.del"
+\verb"ay_close" & This property controls the behaviour after sending a GIOP
+CloseConnection messsage. If set to ``on'', the TCP/IP connection won't be
+closed directly. Instead, it is waited for the client to do so first. Default is off. & boolean \\
 \hline
 \verb"jacorb.reference_cachi"
 \verb"ng" & Whether or not JacORB caches objects references. Not set by default. & boolean \\
