@@ -641,6 +641,13 @@ public class TypeCode
         case   TCKind._tk_short: return "short";
         case   TCKind._tk_float: return "float";
         case   TCKind._tk_double: return "double";
+        case   TCKind._tk_fixed: 
+            try
+            {
+              return "fixed <" + fixed_digits() + "," + fixed_scale()  + ">";
+            } 
+            catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
+            {}
         case   TCKind._tk_boolean: return "boolean";
         case   TCKind._tk_octet: return "octet";
         case   TCKind._tk_char: return "char";
