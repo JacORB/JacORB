@@ -73,7 +73,7 @@ public abstract class AbstractAdmin
      * the default InterFilterGroupOperator used.
      */
     protected static final InterFilterGroupOperator
-    DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
+        DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
 
     protected static final int NO_ID = Integer.MIN_VALUE;
 
@@ -94,7 +94,8 @@ public abstract class AbstractAdmin
     protected Map allProxies_;
     private Map servantCache_ = Collections.EMPTY_MAP;
 
-    protected Logger logger_ = Debug.getNamedLogger( getClass().getName() );
+    protected Logger logger_ =
+        Debug.getNamedLogger( getClass().getName() );
 
     protected PropertyManager qosProperties_;
     protected PropertyManager adminProperties_;
@@ -149,7 +150,8 @@ public abstract class AbstractAdmin
         applicationContext_ = aApplicationContext;
         channelContext_ = aChannelContext;
 
-        filterManager_ = new FilterManager();
+        filterManager_ =
+            new FilterManager(applicationContext_);
 
         pullServants_ = new Hashtable();
         pushServants_ = new Hashtable();
