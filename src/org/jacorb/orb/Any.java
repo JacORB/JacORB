@@ -713,6 +713,14 @@ public final class Any
             insert_Value 
                 (((org.omg.CORBA_2_3.portable.InputStream)input).read_value());
             break;
+        case TCKind._tk_abstract_interface:
+	    java.lang.Object obj = 
+		((org.omg.CORBA_2_3.portable.InputStream)input).read_abstract_interface();
+	    if (obj instanceof org.omg.CORBA.Object)
+		insert_Object((org.omg.CORBA.Object)obj);
+	    else
+		insert_Value((java.io.Serializable)obj);
+            break;
         default:
             throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
         }
@@ -837,6 +845,10 @@ public final class Any
         case TCKind._tk_value:
             ((org.omg.CORBA_2_3.portable.OutputStream)output)
                 .write_value ((java.io.Serializable)value);
+            break;
+        case TCKind._tk_abstract_interface:
+            ((org.omg.CORBA_2_3.portable.OutputStream)output)
+                .write_abstract_interface (value);
             break;
         default:
             throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
