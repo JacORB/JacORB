@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class OBJ_ADAPTER extends org.omg.CORBA.SystemException {
+public final class OBJ_ADAPTER extends org.omg.CORBA.SystemException {
 
     public OBJ_ADAPTER() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public OBJ_ADAPTER(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public OBJ_ADAPTER(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public OBJ_ADAPTER(String reason, int minor, CompletionStatus completed) {

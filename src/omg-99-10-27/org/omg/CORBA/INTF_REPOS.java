@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class INTF_REPOS extends org.omg.CORBA.SystemException {
+public final class INTF_REPOS extends org.omg.CORBA.SystemException {
 
     public INTF_REPOS() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INTF_REPOS(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public INTF_REPOS(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INTF_REPOS(String reason, int minor, CompletionStatus completed) {

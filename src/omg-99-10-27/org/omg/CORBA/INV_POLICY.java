@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class INV_POLICY extends org.omg.CORBA.SystemException {
+public final class INV_POLICY extends org.omg.CORBA.SystemException {
 
     public INV_POLICY() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_POLICY(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public INV_POLICY(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_POLICY(String reason, int minor, CompletionStatus completed) {

@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class INVALID_TRANSACTION extends org.omg.CORBA.SystemException {
+public final class INVALID_TRANSACTION extends org.omg.CORBA.SystemException {
 
     public INVALID_TRANSACTION() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INVALID_TRANSACTION(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public INVALID_TRANSACTION(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INVALID_TRANSACTION(String reason,

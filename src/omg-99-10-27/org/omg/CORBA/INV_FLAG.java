@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class INV_FLAG extends org.omg.CORBA.SystemException {
+public final class INV_FLAG extends org.omg.CORBA.SystemException {
 
     public INV_FLAG() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_FLAG(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public INV_FLAG(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_FLAG(String reason, int minor, CompletionStatus completed) {

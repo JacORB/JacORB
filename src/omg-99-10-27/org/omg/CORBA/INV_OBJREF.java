@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class INV_OBJREF extends org.omg.CORBA.SystemException {
+public final class INV_OBJREF extends org.omg.CORBA.SystemException {
 
     public INV_OBJREF() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_OBJREF(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public INV_OBJREF(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_OBJREF(String reason, int minor, CompletionStatus completed) {

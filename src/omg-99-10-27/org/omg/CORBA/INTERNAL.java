@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class INTERNAL extends org.omg.CORBA.SystemException {
+public final class INTERNAL extends org.omg.CORBA.SystemException {
 
     public INTERNAL() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INTERNAL(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public INTERNAL(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INTERNAL(String reason, int minor, CompletionStatus completed) {

@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class DATA_CONVERSION extends org.omg.CORBA.SystemException {
+public final class DATA_CONVERSION extends org.omg.CORBA.SystemException {
 
   public DATA_CONVERSION() {
-    super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+    super("", 0, CompletionStatus.COMPLETED_NO);
   }
 
   public DATA_CONVERSION(int minor, CompletionStatus completed) {
-    super(null, minor, completed);
+    super("", minor, completed);
   }
 
   public DATA_CONVERSION(String reason) {
-    super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+    super(reason, 0, CompletionStatus.COMPLETED_NO);
   }
 
   public DATA_CONVERSION(String reason, int minor, CompletionStatus completed) {

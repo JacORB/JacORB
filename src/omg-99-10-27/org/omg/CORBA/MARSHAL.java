@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class MARSHAL extends org.omg.CORBA.SystemException {
+public final class MARSHAL extends org.omg.CORBA.SystemException {
 
     public MARSHAL() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public MARSHAL(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public MARSHAL(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public MARSHAL(String reason, int minor, CompletionStatus completed) {

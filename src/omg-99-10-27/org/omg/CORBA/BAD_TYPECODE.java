@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class BAD_TYPECODE extends org.omg.CORBA.SystemException {
+public final class BAD_TYPECODE extends org.omg.CORBA.SystemException {
 
   public BAD_TYPECODE() {
-    super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+    super("", 0, CompletionStatus.COMPLETED_NO);
   }
 
   public BAD_TYPECODE(int minor, CompletionStatus completed) {
-    super(null, minor, completed);
+    super("", minor, completed);
   }
 
   public BAD_TYPECODE(String reason) {
-    super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+    super(reason, 0, CompletionStatus.COMPLETED_NO);
   }
 
   public BAD_TYPECODE(String reason, int minor, CompletionStatus completed) {

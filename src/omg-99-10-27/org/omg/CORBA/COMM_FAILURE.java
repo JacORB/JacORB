@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class COMM_FAILURE extends org.omg.CORBA.SystemException {
+public final class COMM_FAILURE extends org.omg.CORBA.SystemException {
 
   public COMM_FAILURE() {
-    super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+    super("", 0, CompletionStatus.COMPLETED_NO);
   }
 
   public COMM_FAILURE(int minor, CompletionStatus completed) {
-    super(null, minor, completed);
+    super("", minor, completed);
   }
 
   public COMM_FAILURE(String reason) {
-    super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+    super(reason, 0, CompletionStatus.COMPLETED_NO);
   }
 
   public COMM_FAILURE(String reason, int minor, CompletionStatus completed) {

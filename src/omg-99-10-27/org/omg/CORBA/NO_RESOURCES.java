@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class NO_RESOURCES extends org.omg.CORBA.SystemException {
+public final class NO_RESOURCES extends org.omg.CORBA.SystemException {
 
     public NO_RESOURCES() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public NO_RESOURCES(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public NO_RESOURCES(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public NO_RESOURCES(String reason, int minor, CompletionStatus completed) {

@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class TRANSIENT extends org.omg.CORBA.SystemException {
+public final class TRANSIENT extends org.omg.CORBA.SystemException {
 
     public TRANSIENT() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TRANSIENT(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public TRANSIENT(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TRANSIENT(String reason, int minor, CompletionStatus completed) {

@@ -5,18 +5,18 @@
 
 package org.omg.CORBA;
 
-public class OBJECT_NOT_EXIST extends org.omg.CORBA.SystemException {
+public final class OBJECT_NOT_EXIST extends org.omg.CORBA.SystemException {
 
     public OBJECT_NOT_EXIST() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, CompletionStatus.COMPLETED_NO);
     }
 
     public OBJECT_NOT_EXIST(int minor, CompletionStatus completed) {
-        super(null, minor, completed);
+        super("", minor, completed);
     }
 
     public OBJECT_NOT_EXIST(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public OBJECT_NOT_EXIST(String reason,
