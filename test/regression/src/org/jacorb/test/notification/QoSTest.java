@@ -21,31 +21,34 @@ package org.jacorb.test.notification;
  *
  */
 
+import org.jacorb.test.common.TestUtils;
+
+import org.omg.CORBA.Any;
+import org.omg.CORBA.IntHolder;
+import org.omg.CosNotification.AnyOrder;
+import org.omg.CosNotification.BestEffort;
+import org.omg.CosNotification.ConnectionReliability;
+import org.omg.CosNotification.DeadlineOrder;
+import org.omg.CosNotification.DiscardPolicy;
+import org.omg.CosNotification.EventReliability;
+import org.omg.CosNotification.FifoOrder;
+import org.omg.CosNotification.LifoOrder;
+import org.omg.CosNotification.MaxEventsPerConsumer;
+import org.omg.CosNotification.OrderPolicy;
+import org.omg.CosNotification.Persistent;
+import org.omg.CosNotification.Priority;
+import org.omg.CosNotification.PriorityOrder;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+
+import java.util.Iterator;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.test.common.TestUtils;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CORBA.IntHolder;
-import org.omg.CosNotification.ConnectionReliability;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.BestEffort;
-import org.omg.CORBA.Any;
-import org.omg.CosNotification.EventReliability;
-import org.omg.CosNotification.Persistent;
-import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotification.FifoOrder;
-import org.omg.CosNotification.LifoOrder;
-import org.omg.CosNotification.DeadlineOrder;
-import org.omg.CosNotification.PriorityOrder;
-import org.omg.CosNotification.AnyOrder;
-import org.omg.CosNotification.DiscardPolicy;
-import org.omg.CosNotification.OrderPolicy;
-import org.omg.CosNotification.MaxEventsPerConsumer;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotification.Priority;
-import java.util.Iterator;
 
 /**
  * Created: Mon Aug 11 21:21:21 2003
@@ -226,7 +229,7 @@ public class QoSTest extends NotificationTestCase
         NotificationTestCaseSetup _setup =
             new NotificationTestCaseSetup(_suite);
 
-        String[] methodNames = TestUtils.getTestMethods( QoSTest.class, "testPriorityOrder");
+        String[] methodNames = TestUtils.getTestMethods( QoSTest.class );
 
         for (int x=0; x<methodNames.length; ++x) {
             _suite.addTest(new QoSTest(methodNames[x], _setup));
