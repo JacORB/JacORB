@@ -144,16 +144,34 @@ For  more  application--specific  properties,  you  can  pass  a  {\tt
 \end{verbatim}
 }
 
-The third way  of specifying properties is by  setting the JVMs system
-properties.  These  properties  must  be  set prior  to  calling  {\tt
-ORB.init()},  and will override  both properties  that are  loaded via
-file and  an additional {\tt Proerties} object.  System properties can
-also be set using the {\tt -D<prop name>=<prop value>} comman line arg
-to the {\tt java} command.   This option has the disadvantage that you
-cannot use {\tt jaco} to  start the Java interpreter, which means that
-you must pass in the properties that this script sets.
+The next way of specifying properties is by setting the JVMs system
+properties.  These properties must be set prior to calling {\tt ORB.init()},
+and will override both properties that are loaded via file and an additional
+{\tt Proerties} object.  System properties can also be set using the {\tt
+  -D<prop name>=<prop value>} comman line arg. This is a command line argument
+to the java command (and not something we invented), but can be used with the
+{\tt jaco} script as well. The only thing you have to take care of is that
+this argument must be placed somewhere in front of the class name argument.
+Anything that follows after the class name is interpreted (by {\tt java}) as a
+command line argument to the class and will be visible in the {\tt args}
+parameter of the classes main method.
 
-\cmdline{java -DOAPort=4711 -D... -D... jacorb.naming.NameServer ...}
+If you want to set more than one property on the command line, you can use the
+special property ``custom.props''. The value of this property has to be the
+filename to a properties file, which contains the properties you want to load.
+The filename is used ``as is'', and not interpreted to be relative to any
+other directory as the current one. The properties contained in the specified
+file will override any properties already set by the ``normal'' properties
+file. As an example, imagine that you usually use plain TCP/IP connections,
+but in some cases want to use SSL (see section \ref{SSL}). If you use just one
+properties file, you always have to edit that if you want to switch between
+SSL and plaintext connections. If you don't want to edit the properties file
+all the time, you can also add every different property in the way described
+in the previous paragraph, which may lead to very long commands. If you use a
+custom properties file, you have all the additional properties to set in one
+single file, and you only have to add one command line property, for example:
+
+\cmdline{jaco -Dcustom.props=ssl\_props MyServer}
 
 We are now ready to have a look at the most basic JacORB configuration
 properties.  Here is an example {\tt jacorb\_properties} file: 
