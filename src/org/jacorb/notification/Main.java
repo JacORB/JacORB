@@ -49,7 +49,7 @@ public class Main
     public Integer start(String[] stringArray)
     {
 	try {
-	    application_ = EventChannelFactoryImpl.startFactory(stringArray);
+	    application_ = EventChannelFactoryImpl.newFactory(stringArray);
 
 	    return null;
 	} catch (Exception e) {

@@ -564,7 +564,11 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	System.exit(0);
     }    
 
-    static EventChannelFactoryImpl startFactory( String[] args ) throws Exception
+    public static EventChannelFactoryImpl newFactory() throws Exception {
+	return newFactory(new String[0]);
+    }
+    
+    public static EventChannelFactoryImpl newFactory( String[] args ) throws Exception
     {
     	boolean doHelp = false;
     	boolean doPrintIOR = false;
@@ -607,7 +611,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 
 	final ORB _orb = ORB.init( new String[0], props );
 	
-	setLogLevel("org.jacorb.notification", Priority.INFO);
+	setLogLevel("org.jacorb.notification", Priority.NONE);
 
         EventChannelFactoryImpl _factory = new EventChannelFactoryImpl(_orb);
 
@@ -628,7 +632,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     }
 
     public static void main(String[] args) throws Exception {
-	startFactory(args);
+	newFactory(args);
     }
 
 } 
