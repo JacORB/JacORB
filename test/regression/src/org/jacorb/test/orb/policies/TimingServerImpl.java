@@ -45,4 +45,20 @@ public class TimingServerImpl extends TimingServerPOA
             return ch;
     }
 
+    public long server_time(int delay)
+    {
+        long time = System.currentTimeMillis();
+        synchronized (this)
+        {
+            try
+            {
+                if (delay > 0) this.wait (delay);
+            }
+            catch (InterruptedException ex)
+            {
+                System.out.println ("wait interrupted");
+            }
+        }
+        return time; 
+    }
 }
