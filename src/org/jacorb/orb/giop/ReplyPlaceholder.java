@@ -54,11 +54,6 @@ public abstract class ReplyPlaceholder
             orb.getConfiguration().getAttributeAsInteger("jacorb.connection.client.pending_reply_timeout", 0);
     }
 
-
-    public ReplyPlaceholder()
-    {
-    }
-
     public synchronized void replyReceived( MessageInputStream in )
     {
         if( ! timeoutException )
