@@ -28,6 +28,7 @@ import org.omg.GIOP.*;
 import org.omg.IOP.*;
 
 import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ContextID;
 import org.jacorb.util.Debug;
 
 /**
@@ -56,7 +57,7 @@ public class ServiceContextTransportingOutputStream
     // service_context array is the last attribute of the
     // [Request|Reply]Header, and the body is per spec aligned to an 8
     // byte boundary.
-    protected static ServiceContext[] alignment_ctx = new ServiceContext[0];
+    protected static ServiceContext[] service_context = new ServiceContext[0];
 
     //The end of the GIOP message header. Only valid if 
     //header_padding != 0
@@ -66,10 +67,11 @@ public class ServiceContextTransportingOutputStream
     private int header_padding = 0;
 
     //If ServiceContexts are actually added, this will be the last
-    //contexts, and the context_data is used to fill up to the next 8
+    //context, and the context_data is used to fill up to the next 8
     //byte boundary.
-    private static ServiceContext padding_ctx = new ServiceContext( 0x4A414301,
-                                                                    new byte[0] );
+
+    private static ServiceContext padding_ctx =
+        new ServiceContext (ContextID.SERVICE_PADDING_CONTEXT, new byte[0]);
 
     private Vector contexts = null;
 
@@ -339,12 +341,3 @@ public class ServiceContextTransportingOutputStream
     }
 
 }// ServiceContextTransportingOutputStream
-
-
-
-
-
-
-
-
-

@@ -74,7 +74,7 @@ public class RequestOutputStream
             { 
                 // GIOP 1.0
                 RequestHeader_1_0 req_hdr = 
-                    new RequestHeader_1_0( alignment_ctx,
+                    new RequestHeader_1_0( service_context,
                                            request_id,
                                            response_expected,
                                            object_key,
@@ -88,7 +88,7 @@ public class RequestOutputStream
             {
                 //GIOP 1.1
                 RequestHeader_1_1 req_hdr = 
-                    new RequestHeader_1_1( alignment_ctx,
+                    new RequestHeader_1_1( service_context,
                                            request_id,
                                            response_expected,
                                            reserved,
@@ -112,7 +112,7 @@ public class RequestOutputStream
                                            reserved,
                                            addr,
                                            operation,
-                                           alignment_ctx );
+                                           service_context );
 
                 RequestHeader_1_2Helper.write( this, req_hdr );
 
@@ -157,9 +157,3 @@ public class RequestOutputStream
         return connection;
     }
 }
-
-
-
-
-
-
