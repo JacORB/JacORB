@@ -45,7 +45,7 @@ public class CDRInputStream
 
     /** the stack for saving/restoring encapsulation information */
     private Stack encaps_stack = new Stack();
-    private Hashtable TCTable = new Hashtable();
+    private Hashtable recursiveTCMap = new Hashtable();
 
     /** indexes to support mark/reset */
     private int marked_pos;
@@ -124,8 +124,8 @@ public class CDRInputStream
 	}
 
 	encaps_stack.removeAllElements();
-        //	TCTable.clear();
 	BufferManager.getInstance().returnBuffer(buffer);
+        recursiveTCMap.clear();
 	closed = true;
     }
 	
@@ -640,6 +640,7 @@ public class CDRInputStream
 	    id = read_string();
 
             //  Debug.output(4, "** remember " + id + " at pos " + start_pos );
+
             tcMap.put( new Integer( start_pos ), id );
 
 	    name = read_string();
@@ -653,6 +654,8 @@ public class CDRInputStream
 	    }
 	    closeEncapsulation();
 	    result_tc = orb.create_struct_tc(id, name, struct_members );
+
+            recursiveTCMap.put( id , result_tc );
 
 	    return result_tc;
 	case TCKind._tk_except:
@@ -671,6 +674,7 @@ public class CDRInputStream
 	    }
 	    closeEncapsulation();
 	    result_tc = orb.create_struct_tc(id, name, members );
+            recursiveTCMap.put( id , result_tc );
 	    return result_tc;
 	case TCKind._tk_enum:
 	    openEncapsulation();
@@ -736,6 +740,7 @@ public class CDRInputStream
 		closeEncapsulation();
 		result_tc = 
                     orb.create_union_tc( id, name, discriminator_type, union_members );
+                recursiveTCMap.put( id , result_tc );
 		return result_tc;
 	    }
 	case TCKind._tk_string: 
@@ -1105,19 +1110,6 @@ public class CDRInputStream
 
     final void read_value( org.omg.CORBA.TypeCode tc, CDROutputStream out)
     {
-        Hashtable tcMap = new Hashtable();
-        read_value( tc, out, tcMap );           
-        tcMap.clear();
-    }
-
-    /**
-     * internal read_value
-     */
-
-    private final void read_value( org.omg.CORBA.TypeCode tc, 
-                                   CDROutputStream out, 
-                                   Hashtable tcMap )
-    {
 	int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
 
 	switch (kind)
@@ -1184,8 +1176,10 @@ public class CDRInputStream
 	    {
 		int length = tc.length();
 		for( int i = 0; i < length; i++ )
-		    read_value( tc.content_type(), out, tcMap);
-	    } catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+		    read_value( tc.content_type(), out );
+	    } 
+            catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+            {} 
 	    break;
 	case TCKind._tk_sequence: 
 	    try
@@ -1193,9 +1187,10 @@ public class CDRInputStream
 		int len = read_long();
 		out.write_long(len);
 		for( int i = 0; i < len; i++ )
-		    read_value( tc.content_type(), out, tcMap);
+		    read_value( tc.content_type(), out );
 	    } 
-	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+            {} 
 	    break;
 	case TCKind._tk_except:
 	    out.write_string( read_string());
@@ -1203,25 +1198,26 @@ public class CDRInputStream
 	case TCKind._tk_struct: 
 	    try
 	    {
-                tcMap.put( tc.id(), tc );
 		for( int i = 0; i < tc.member_count(); i++)
-		    read_value( tc.member_type(i), out, tcMap);
+		    read_value( tc.member_type(i), out );
 	    } 
-	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
-	    catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
+	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+            {
+                b.printStackTrace();
+            } 
+	    catch ( org.omg.CORBA.TypeCodePackage.Bounds b )
+            {
+                b.printStackTrace();
+            }
+
 	    break;
 	case TCKind._tk_enum:
 	    out.write_long( read_long() );
 	    break;
 	case TCKind._tk_alias:
-	    //	    out.write_string( read_string());
-	    //	    out.write_string( read_string());
-	    //	    out.write_TypeCode( read_TypeCode());
 	    try
 	    {
-                tcMap.put( tc.id(), tc );
-                read_value( tc.content_type(), out, tcMap );
-                //		out.write_value( tc.content_type(), this, tcMap );
+                read_value( tc.content_type(), out  );
 	    }
 	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
             {
@@ -1231,7 +1227,6 @@ public class CDRInputStream
 	case TCKind._tk_union:
 	    try
 	    {
-                tcMap.put( tc.id(), tc );
 		org.omg.CORBA.TypeCode disc = tc.discriminator_type();
 		int def_idx = tc.default_index();
 		int member_idx = -1;
@@ -1400,11 +1395,11 @@ public class CDRInputStream
 
 		if( member_idx != -1 )
                 {
-		    read_value( tc.member_type( member_idx ), out, tcMap);
+		    read_value( tc.member_type( member_idx ), out );
                 }
 		else if( def_idx != -1 )
                 {
-		    read_value( tc.member_type( def_idx ), out, tcMap);
+		    read_value( tc.member_type( def_idx ), out );
 		}
 	    } 
 	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
@@ -1415,7 +1410,8 @@ public class CDRInputStream
             try
             {
                 org.omg.CORBA.TypeCode _tc = 
-                    (org.omg.CORBA.TypeCode)tcMap.get(tc.id());
+                    (org.omg.CORBA.TypeCode)recursiveTCMap.get(tc.id());
+
 
                 if( _tc == null )
                 {
@@ -1423,9 +1419,12 @@ public class CDRInputStream
                                                tc.id());
                 }
 
-                read_value( _tc , out, tcMap );
+                // Debug.output(4, "++ found recursive tc " + tc.id()  );
+
+                read_value( _tc , out );
             } 
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){
+            catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+            {
                 b.printStackTrace();
             } 
 	    break;
