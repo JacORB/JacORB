@@ -20,19 +20,35 @@
 
 package org.jacorb.orb.util;
 
-import org.jacorb.orb.giop.CodeSet;
-import org.jacorb.orb.iiop.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+
+import org.ietf.jgss.GSSManager;
+import org.ietf.jgss.GSSName;
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.IIOPAddress;
+import org.jacorb.orb.ORBConstants;
 import org.jacorb.orb.ParsedIOR;
-import org.jacorb.orb.*;
-import java.util.*;
-
-import org.omg.IOP.*;
-import org.omg.SSLIOP.*;
-import org.omg.CSIIOP.*;
-import org.omg.CONV_FRAME.*;
-
-
-import java.io.*;
+import org.jacorb.orb.TaggedComponentList;
+import org.jacorb.orb.giop.CodeSet;
+import org.jacorb.orb.iiop.IIOPProfile;
+import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;
+import org.omg.CSIIOP.CompoundSecMechList;
+import org.omg.CSIIOP.CompoundSecMechListHelper;
+import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
+import org.omg.CSIIOP.TAG_NULL_TAG;
+import org.omg.CSIIOP.TAG_SECIOP_SEC_TRANS;
+import org.omg.CSIIOP.TAG_TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANS;
+import org.omg.CSIIOP.TLS_SEC_TRANSHelper;
+import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS;
+import org.omg.IOP.TAG_CODE_SETS;
+import org.omg.IOP.TAG_JAVA_CODEBASE;
+import org.omg.IOP.TAG_ORB_TYPE;
+import org.omg.IOP.TaggedComponent;
+import org.omg.SSLIOP.TAG_SSL_SEC_TRANS;
 
 /**
  * @author Gerald Brose
@@ -237,26 +253,64 @@ public class PrintIOR
                 {
                     case TAG_TLS_SEC_TRANS.value:
                         System.out.println("TAG_TLS_SEC_TRANS");
+                        printTlsSecTrans(csmList.mechanism_list[i].transport_mech.component_data);
                         break;
-                          case TAG_NULL_TAG.value:
+                    case TAG_NULL_TAG.value:
                         System.out.println("TAG_NULL_TAG");
                         break;
                    default:
                         System.out.println("Unknown tag : " +
                                            csmList.mechanism_list[i].transport_mech.tag );
                 }
-                if( csmList.mechanism_list[i].as_context_mech.target_supports == 0 )
-                    System.out.println("\t\t\tNo AS_ContextSec Mechanism.: ");
-                else
-                {
-                    System.out.print("\t\t\tAS_ContextSec mech: " );
+				System.out.println("\t\t\tAS_ContextSec target_supports: " + csmList.mechanism_list[i].as_context_mech.target_supports );
+				System.out.println("\t\t\tAS_ContextSec target_requires: " + csmList.mechanism_list[i].as_context_mech.target_requires );
+                System.out.print("\t\t\tAS_ContextSec mech: " );
                     dumpHex(csmList.mechanism_list[i].as_context_mech.client_authentication_mech);
-                    System.out.println();
-                }
+                System.out.println();
+				try {
+					GSSManager gssManager = GSSManager.getInstance();
+					GSSName myTarget = gssManager.createName(csmList.mechanism_list[i].as_context_mech.target_name, GSSName.NT_EXPORT_NAME);
+					System.out.println("\t\t\tAS_ContextSec target_name: " + myTarget);
+				} catch (Exception e) {
+					System.out.print("\t\t\tAS_ContextSec target_name: " );
+					dumpHex(csmList.mechanism_list[i].as_context_mech.target_name);
+					System.out.println();
+				}
+                //}
+				System.out.println("\t\t\tSAS_ContextSec target_supports: " + csmList.mechanism_list[i].sas_context_mech.target_supports );
+				System.out.println("\t\t\tSAS_ContextSec target_requires: " + csmList.mechanism_list[i].sas_context_mech.target_requires );
 
-
+				for (int j = 0; j < csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms.length; j++) {
+					System.out.print("\t\t\tSAS_ContextSec Naming mech: " );
+					dumpHex(csmList.mechanism_list[i].sas_context_mech.supported_naming_mechanisms[j]);
+					System.out.println();
+				}
+				System.out.println("\t\t\tSAS_ContextSec Naming types: " + csmList.mechanism_list[i].sas_context_mech.supported_identity_types);
+				System.out.println();
             }
         }
+    }
+    
+    private static void printTlsSecTrans(byte[] tagData) {
+		CDRInputStream in = new CDRInputStream( (org.omg.CORBA.ORB)null, tagData );
+		try
+		{
+			in.openEncapsulatedArray();
+			TLS_SEC_TRANS tls = TLS_SEC_TRANSHelper.read( in );
+			System.out.println("\t\t\tTLS SEC TRANS target requires: " + tls.target_requires);
+			System.out.println("\t\t\tTLS SEC TRANS target supports: " + tls.target_supports);
+			for (int i = 0; i < tls.addresses.length; i++) {
+				int ssl_port = tls.addresses[i].port;
+				if( ssl_port < 0 ) ssl_port += 65536;
+				System.out.println("\t\t\tTLS SEC TRANS address: " + tls.addresses[i].host_name+":"+ssl_port);	
+			}
+		}
+		catch ( Exception ex )
+		{
+			System.out.print("\t\t\tTLS SEC TRANS: " );
+			dumpHex(tagData);
+			System.out.println();
+		}
     }
 
     private static void printCodeSetComponent( TaggedComponent taggedComponent )
