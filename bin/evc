@@ -1,9 +1,0 @@
-#!/bin/sh 
-
-# JacORB v1.0 event channel server
-# Gerald Brose, Freie Universitaet Berlin
-# brose@inf.fu-berlin.de
-
-# Starts the JacORB event channel
-
-jaco org.jacorb.events.EventChannelImpl "$@"

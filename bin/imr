@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# Starts the JacORB  v1.0 implementation repository
-
-jaco org.jacorb.imr.ImplementationRepositoryImpl "$@"
