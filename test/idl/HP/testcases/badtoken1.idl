@@ -1,0 +1,9 @@
+/**
+ * This sample IDL exercises the tokenizer. The identifier _paul
+ * is illegal; beginning, as it does, with an underscore. 
+ * The compiler should output an error message. 
+ * RESULT: FAILURE
+ * REMARK: Run-time exception raised by compiler. 
+ */
+ 
+ const long _paul = 10;

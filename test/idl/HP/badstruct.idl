@@ -1,0 +1,20 @@
+
+/**
+ * The following IDL has identified two bugs in your compiler.
+ * <ol>
+ * <li>The initial underscore is illegal as the start of an identifier
+ *     and should be trapped. However, it has been pruned from the generated
+ *     field name in the s_MyStruct.java file. This suggests a problem
+ *     with the lexical analyser.</li>
+ * <li>Just as seriously, the repeated use of _l should have
+ *     been trapped by the compiler as they are used in the same scope.</li>
+ * </ol>
+ * RESULT: passed by the idl compiler. 
+ */
+struct s_MyStruct {
+  long _l, m, _l;
+};
+
+interface Paul {
+  s_MyStruct foo();
+};

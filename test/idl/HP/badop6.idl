@@ -1,0 +1,15 @@
+
+/**
+ * Another bad operation in which the operation raises 
+ * an exception of an interface type. 
+ * RESULT: Jacorb compiler goes into an infinite loop whilst
+ *         Openorb correctly states that Bill is not an exception
+ *         type. Commenting out the raises clause still gives the
+ *         infinite loop which suggests that this is caused by not
+ *         providing a definition of the Bill interface proper. 
+ */
+
+interface Bill; // forward reference
+interface Paul {
+  void baz() raises ( Bill );
+};

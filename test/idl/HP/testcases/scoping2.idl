@@ -1,0 +1,36 @@
+/**
+ * Another test of the name resolution algorithm. 
+ * Interface Paul employs ThingList but this ought to 
+ * pick up the global one. Interface Peter, on the other
+ * hand, should pick up the local one. 
+ * RESULT: FAILURE
+ * REMARK: Runtime error in Jacorb compiler (Undefined name Thing
+ *         in reference to sequence definition). IDL passed by OpenORB
+ *         compiler
+ */
+ 
+typedef struct s_Thing {
+  string name;
+} Thing;
+
+typedef sequence <::Thing> ThingList;
+
+module Mod0 {
+
+  struct Thing {
+    long lVal;
+    short sVal;
+    ::Thing thing;
+  };
+  
+  interface Paul {
+    Thing pop( in ThingList tl );
+  };
+  
+  typedef sequence <Thing> ThingList;
+
+  interface Peter {
+    Thing pop( in ThingList tl );
+  };
+
+};

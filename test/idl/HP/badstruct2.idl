@@ -1,0 +1,16 @@
+
+/**
+ * The following IDL should fail for the same reasons as
+ * badstruct.idl should have failed. The repeated use of l should 
+ * be caught. 
+ * RESULT: passed by the idl compiler. 
+ */
+struct s_MyStruct {
+  long l;
+  long m;
+  long l;
+};
+
+interface Paul {
+  s_MyStruct foo();
+};

@@ -1,0 +1,15 @@
+/**
+ * Another bad operation definition.
+ * This time, I have defined an operation whose raises
+ * clause references an integer type.  
+ * RESULT: FAILURE. 
+ * REMARK: The IDL is accepted by the JacORB compiler. 
+ *         OpenORB compiler does flag an error for this. 
+ */
+ 
+typedef short ShortAlias;
+
+interface Paul {
+    ShortAlias getShortAlias() raises (ShortAlias);
+};
+

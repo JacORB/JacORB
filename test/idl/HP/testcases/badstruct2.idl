@@ -1,0 +1,19 @@
+
+/**
+ * The following IDL should fail for the same reasons as
+ * badstruct.idl should have failed. The repeated use of l should 
+ * be caught. 
+ * RESULT: FAILURE
+ * REMARK: The jacorb compiler does not detect that the second use
+ *         of l in scope ::s_MyStruct is illegal. Code is generated
+ *         that will not compile. 
+ */
+struct s_MyStruct {
+  long l;
+  long m;
+  long l;
+};
+
+interface Paul {
+  s_MyStruct foo();
+};

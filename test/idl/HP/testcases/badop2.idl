@@ -1,0 +1,19 @@
+
+/**
+ * Another bad operation definition. 
+ * In my view, this IDL should be illegal as exception
+ * types are being used as parameters and arguments to
+ * operations. This could be up for debate but, as a purist,
+ * I think we should regard exceptions as "special" types. 
+ * CORBA spec does not. however forbid this. 
+ * RESULT: SUCCESS
+ * REMARK: This IDL is accepted by the compiler and code generated.
+ *         Java itself does permit exceptions to be passed as
+ *         parameters and returned from methods. 
+ */
+
+exception Ex_1 {};
+
+interface Paul {
+  Ex_1 foo( in Ex_1 arg1 );
+};

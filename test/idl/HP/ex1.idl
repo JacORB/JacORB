@@ -1,0 +1,14 @@
+
+module Mod0 {
+  typedef enum eColour { red, orange, york, blue } Colour;
+  
+  typedef struct sMyStruct {
+    string name;
+    string address;
+    long name;
+  } MyStruct;
+  
+  interface Paul {
+    attribute Colour col;
+  };
+};

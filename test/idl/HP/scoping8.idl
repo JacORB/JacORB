@@ -1,0 +1,15 @@
+/**
+ * A struct type containing identically named fields. 
+ */
+
+#ifdef RUN_ONE
+struct MyStruct {
+  string name, name;
+};
+#endif
+#ifdef RUN_TWO
+struct MyStruct {
+  string name; 
+  string name;
+};
+#endif

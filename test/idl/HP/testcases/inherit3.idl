@@ -1,0 +1,35 @@
+/**
+ * An interface Paul is declared which inherits from two other
+ * interfaces: one of which has been defined, the other of which
+ * hasn't.
+ * RESULT: FAILURE
+ * REMARK: Runtime exception in Jacorb compiler. Correct error reported
+ *         in openorb compiler. 
+ */
+
+interface Fred {
+
+    exception Ex1 {};
+
+  void foo1(in long arg1) raises (Ex1);
+  void foo2(in long arg1);
+  void foo3(in long arg1);
+  void foo4(in long arg1);
+};
+
+interface John{
+  void baz();
+
+};
+
+interface Bill: John {
+  void foo5(in long arg1);
+  void foo6(in long arg1);
+  void foo7(in long arg1);
+  void foo8(in long arg1);
+};
+
+
+interface Paul : Fred, Bill {
+  void bar();
+};

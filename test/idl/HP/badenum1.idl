@@ -1,0 +1,13 @@
+
+/**
+ * Duplication of "red" in the enumerated type definition
+ * should be caught. 
+ * RESULT: error is trapped by the idl compiler. 
+ */
+
+typedef enum eColour { red, yellow, red } Colour;
+
+struct s_MyStruct {
+  string name;
+  Colour favouriteColour;
+};

@@ -1,0 +1,37 @@
+#
+# 15 March, results of these tests with JacORB IDL 1.3.15
+#
+
+badex1.idl: : test ok, fixed.
+badex2.idl: : test ok, fixed.
+
+badop3.idl: : test ok, fixed.
+badop4.idl: : test ok, fixed.
+badop5.idl: : test ok, fixed.
+badop6.idl: : test ok, fixed. 
+        (claims infinite loop in compiler, but that does not seem to happen)
+
+badraises1.idl: test ok, fixed.
+
+badstruct.idl:  test ok, fixed.
+badstruct2.idl:  test ok, fixed.
+
+badtoken1.idl: test not ok (underscore is legal)
+badtoken2.idl: test not ok (underscore is legal)
+badtoken3.idl: test ok, fixed.
+
+forward1.idl: test ok, 
+        (claims infinite loop in compiler, but that does not happen)
+
+inherit1.idl: test ok, fixed.
+inherit2.idl: test ok, fixed. 
+        (claims runtime *exception*, could not find one, did you
+         mean "compiler emits an error"?)
+
+parseconst.idl: test ok, fixed
+        claims runtime exception, could not find one
+
+scoping2.idl: test ok, fixed
+scoping3.idl: test ok, fixed
+scoping4.idl: test ok, fixed
+scoping6.idl: test ok, fixed

@@ -1,0 +1,10 @@
+/**
+ * Does the compiler allow constant declarations?
+ * This looks like legal IDL. 
+ * RESULT: FAILURE
+ * REMARK: this causes a run-time exception in the JACORB compiler. 
+ *         The OPENORB compiler passes it, though. 
+ */
+ 
+const long LCONST = 20;
+

@@ -1,0 +1,12 @@
+
+/**
+ * This interface definition defines a type called "package"
+ * which is a java reserved word. That aside, the IDL is correct.
+ * The IDL compiler should generate code that renames the identifier
+ * "package" to something legal in Java. 
+ * RESULT: Correct behaviour. Compiler prepends underscore to "package"
+ */
+ 
+ interface Paul {
+   void package( in string name );
+ };

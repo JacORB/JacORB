@@ -1,0 +1,11 @@
+/**
+ * Another bad operation definition.
+ * This time, I have defined an operation whose raises
+ * clause references an enumerated type. 
+ * RESULT: passed by the IDL compiler
+ */
+
+interface Paul {
+  enum Colour { black, white };
+  void foo() raises ( Colour );
+};

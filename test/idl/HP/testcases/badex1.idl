@@ -1,0 +1,14 @@
+
+/**
+ * Another test of ensuring name uniqueness within a scope. 
+ * Here we have an exception definition containing identically-named
+ * fields. 
+ * RESULT: FAILURE
+ * REMARK: idl accepted incorrectly by the jacorb idl compiler
+ */
+ 
+ exception BadEx_1 {
+   string reason, reason;
+ };
+ 
+ 

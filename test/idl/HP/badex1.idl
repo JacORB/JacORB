@@ -1,0 +1,13 @@
+
+/**
+ * Another test of ensuring name uniqueness within a scope. 
+ * Here we have an exception definition containing identically-named
+ * fields. 
+ * RESULT: passed by the idl compiler
+ */
+ 
+ exception BadEx_1 {
+   string reason, reason;
+ };
+ 
+ 

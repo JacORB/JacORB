@@ -1,0 +1,20 @@
+/**
+ * Scoping test. I want to see if the compiler allows
+ * the use of "Thing" as the sequence element type or
+ * whether it requires the use of s_Thing. Both should
+ * be permissible. 
+ * RESULT: FAILURE
+ * REMARK: Neither sequence definition is passed. Instead, a 
+ *         run-time exception is raised by the JacORB compiler. 
+ *         OPENORB compiler permits these. 
+ */
+
+
+
+typedef struct s_Thing {
+  string name;
+} Thing;
+
+//typedef sequence < Thing > ThingList;
+
+typedef sequence < s_Thing > ThingList;

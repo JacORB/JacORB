@@ -1,0 +1,10 @@
+/**
+ * This IDL example comprises merely a forward declaration
+ * of an interface. No proper declaration is provided. 
+ * This is syntactically correct IDL though semantically
+ * vacuous. The compiler should at least parse correctly. 
+ * RESULT: FAILURE
+ * REMARK: infinite loop in Jacorb compiler. Completion
+ *         in OpenORB compiler (though obviously no code generation)
+ */
+interface Fred;

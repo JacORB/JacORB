@@ -1,0 +1,30 @@
+/**
+ * Through use of the scope resolution operator, it is quite simple
+ * to list several references to the same exception type within
+ * a raises clause. 
+ * If a catch clause is generated for equivalent types, however,
+ * this results in unreachable (and therefore uncompilable) code. 
+ * This test case is aimed to check whether the compiler is
+ * canny enough to prune the "raises" clause of an operation
+ * definition and ensure uniqueness of exceptions. 
+ * RESULT: The code is passed by the idl compiler. 
+ */
+ 
+ 
+ module Mod0 {
+ 
+     exception Ex_1 {
+         long severity;
+     };
+     
+     module Mod1 {
+       exception Ex_2 {
+         string reason;
+       };
+       
+       interface Paul {
+         void foo() raises (Ex_1, ::Mod0::Ex_1, Ex_2, ::Mod0::Mod1::Ex_2);
+       };
+     };
+ };
+ 

@@ -1,0 +1,12 @@
+
+/**
+ * Repeated use of l in the scope ::Paul should
+ * be caught. 
+ * RESULT: SUCCESS
+ * REMARK: Error trapped by idl compiler. 
+ */
+ 
+interface Paul {
+  readonly attribute long l;
+  void l(in short arg1);
+};

@@ -1,0 +1,16 @@
+
+/**
+ * Define a struct type at file scope and alias it. 
+ * Then define a sequence type for it. 
+ * RESULT: FAILURE
+ * REMARK: Runtime exception. Clearly the rules for name resolution
+ *         is working differently for types defined in file scope
+ *         as compared with types defined inside modules. 
+ */ 
+
+typedef struct s_MyStruct {
+  string name;
+  string address;
+} MyStruct;
+
+typedef sequence <MyStruct> MyStructList;

@@ -1,0 +1,11 @@
+/**
+ * The identifier _paul is illegal as it begins with an
+ * underscore character. 
+ * RESULT: FAILURE
+ * REMARK: The idl is accepted by the compiler and code is generated.
+ *         The initial underscore has been pruned from the identifier.
+ */
+ 
+interface _paul {
+  void foo();
+};
