@@ -512,7 +512,6 @@ public class DynamicEvaluator
     {
         try
         {
-            ResultExtractor _resultExtractor = context.getResultExtractor();
             DynSequence _dynSequence = DynSequenceHelper.narrow( toDynAny( sequence ) );
             DynAny _currentComponent;
 

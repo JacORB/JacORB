@@ -25,87 +25,98 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.node.EvaluationResult;
+
 import org.omg.CORBA.Any;
-import org.omg.DynamicAny.DynAnyFactory;
 
 /**
- * EvaluationContext.java
- *
- *
- * Created: Sat Nov 30 16:02:34 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class EvaluationContext extends AbstractPoolable {
-
+public class EvaluationContext extends AbstractPoolable
+{
     private DynamicEvaluator dynamicEvaluator_;
-    private ResultExtractor resultExtractor_;
     private Message event_;
     private Map resultCache_;
     private Map anyCache_;
 
-    public EvaluationContext() {
+    ////////////////////////////////////////
+
+    public EvaluationContext()
+    {
         resultCache_ = new Hashtable();
         anyCache_ = new Hashtable();
     }
 
-    public void reset() {
+    ////////////////////////////////////////
+
+    public void reset()
+    {
         resultCache_.clear();
         anyCache_.clear();
     }
 
-    public void setDynamicEvaluator(DynamicEvaluator e) {
+
+    public void setDynamicEvaluator(DynamicEvaluator e)
+    {
         dynamicEvaluator_ = e;
     }
 
-    public void setResultExtractor(ResultExtractor r) {
-        resultExtractor_ = r;
-    }
 
-    public DynamicEvaluator getDynamicEvaluator() {
+    public DynamicEvaluator getDynamicEvaluator()
+    {
         return dynamicEvaluator_;
     }
 
-    public ResultExtractor getResultExtractor() {
-        return resultExtractor_;
-    }
 
-    public Message getNotificationEvent() {
+    public Message getNotificationEvent()
+    {
         return event_;
     }
 
-    public void setEvent(Message event) {
+
+    public void setEvent(Message event)
+    {
         event_ = event;
     }
 
-    public void storeResult(String name, EvaluationResult value) {
+
+    public void storeResult(String name, EvaluationResult value)
+    {
         resultCache_.put(name, value);
     }
 
-    public EvaluationResult lookupResult(String name) {
+
+    public EvaluationResult lookupResult(String name)
+    {
         return (EvaluationResult)resultCache_.get(name);
     }
 
-    public void eraseResult(String name) {
+
+    public void eraseResult(String name)
+    {
         resultCache_.remove(name);
     }
 
-    public void storeAny(String name, Any any) {
+
+    public void storeAny(String name, Any any)
+    {
         anyCache_.put(name, any);
     }
 
-    public Any lookupAny(String name) {
+
+    public Any lookupAny(String name)
+    {
         return (Any)anyCache_.get(name);
     }
 
-    public void eraseAny(String name) {
+
+    public void eraseAny(String name)
+    {
         anyCache_.remove(name);
     }
 
-}// EvaluationContext
+}
