@@ -34,7 +34,6 @@ import org.omg.CORBA.*;
  * 
  */
 
-
 public final class Any 
     extends org.omg.CORBA.Any
 {
@@ -42,150 +41,151 @@ public final class Any
     private java.lang.Object value;
     private org.omg.CORBA.ORB orb;
 
-    Any( org.omg.CORBA.ORB orb )
+    Any (org.omg.CORBA.ORB orb)
     {
         this.orb = orb;
-        typeCode = orb.get_primitive_tc( org.omg.CORBA.TCKind.tk_null );
+        typeCode = orb.get_primitive_tc (org.omg.CORBA.TCKind.tk_null);
     }
         
-    public TCKind kind()
+    public TCKind kind ()
     {
-        return typeCode.kind();
+        return typeCode.kind ();
     }
 
-    public org.omg.CORBA.TypeCode type()
+    public org.omg.CORBA.TypeCode type ()
     {
         return typeCode;
     }
 
-    public void type(org.omg.CORBA.TypeCode t)
+    public org.omg.CORBA.TypeCode originalType ()
+    {
+        return ((org.jacorb.orb.TypeCode)typeCode).originalType ();
+    }
+
+    public void type (org.omg.CORBA.TypeCode t)
     {
         typeCode = t;
         value = null;
     }
 
-    public java.lang.Object value()
+    public java.lang.Object value ()
     {
         return value;
     }
 
-    public int _get_TCKind() 
+    public int _get_TCKind () 
     {
         return org.omg.CORBA.TCKind._tk_any;
     }
 
-    private void tc_error()
+    private void tc_error (String s)
     {
-        throw new BAD_OPERATION();
+        throw new BAD_OPERATION (s);
     }
 
-    private void tc_error(String s)
+    private void checkExtract (int value, String s)
     {
-        throw new BAD_OPERATION(s);
+       if (originalType().kind().value() != value)
+       {
+           throw new BAD_OPERATION (s);
+       }
     }
 
-    public boolean equal(org.omg.CORBA.Any a)
+    public boolean equal (org.omg.CORBA.Any a)
     {   
-        if( a == null )
+        if (a == null)
         {
-            //            org.jacorb.util.Debug.output( 3, "Any.equal(), a == null"); 
-            return false;
+           throw new BAD_PARAM ("Null passed to Any equal operation");
         }
 
-        if( !typeCode.equal( a.type()) )
-            return false;
-
-        else
+        if (!typeCode.equal (a.type ()))
         {
-            int kind = kind().value();
-            switch (kind)
+            return false; 
+        }
+
+        int kind = originalType().kind().value();
+        switch (kind)
+        {
+            case TCKind._tk_null: 
+            case TCKind._tk_void:
+                return true;
+            case TCKind._tk_short:
+                return extract_short() == a.extract_short();
+            case TCKind._tk_long:
+                return extract_long() == a.extract_long();
+            case TCKind._tk_longlong:
+                return extract_longlong() == a.extract_longlong();
+            case TCKind._tk_ushort:
+                return extract_ushort() == a.extract_ushort();
+            case TCKind._tk_ulong:
+                return extract_ulong() == a.extract_ulong();
+            case TCKind._tk_ulonglong:
+                return extract_ulonglong() == a.extract_ulonglong();
+            case TCKind._tk_float:
+                return extract_float() == a.extract_float();
+            case TCKind._tk_double:
+                return extract_double() == a.extract_double();
+            case TCKind._tk_fixed:
+                return extract_fixed().equals( a.extract_fixed() );
+            case TCKind._tk_boolean:
+                return extract_boolean() == a.extract_boolean();
+            case TCKind._tk_char:
+                return extract_char() == a.extract_char();
+            case TCKind._tk_octet:
+                return extract_octet() == a.extract_octet();
+            case TCKind._tk_any:
+                return extract_any().equals( a.extract_any() );
+            case TCKind._tk_TypeCode:
+                return extract_TypeCode().equal( a.extract_TypeCode() );
+            case TCKind._tk_Principal:
+                throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
+            case TCKind._tk_objref: 
+                return extract_Object().equals( a.extract_Object() );
+            case TCKind._tk_string: 
+                return extract_string().equals( a.extract_string() );
+            case TCKind._tk_wstring: 
+                return extract_wstring().equals( a.extract_wstring() );
+            case TCKind._tk_array: 
+            case TCKind._tk_sequence: 
+            case TCKind._tk_struct: 
+            case TCKind._tk_except:
+            case TCKind._tk_enum:
+            case TCKind._tk_union:
             {
-                case TCKind._tk_null: 
-                case TCKind._tk_void:
-                    return true;
-                case TCKind._tk_short:
-                    return extract_short() == a.extract_short();
-                case TCKind._tk_long:
-                    return extract_long() == a.extract_long();
-                case TCKind._tk_longlong:
-                    return extract_longlong() == a.extract_longlong();
-                case TCKind._tk_ushort:
-                    return extract_ushort() == a.extract_ushort();
-                case TCKind._tk_ulong:
-                    return extract_ulong() == a.extract_ulong();
-                case TCKind._tk_ulonglong:
-                    return extract_ulonglong() == a.extract_ulonglong();
-                case TCKind._tk_float:
-                    return extract_float() == a.extract_float();
-                case TCKind._tk_double:
-                    return extract_double() == a.extract_double();
-                case TCKind._tk_fixed:
-                    return extract_fixed().equals( a.extract_fixed() );
-                case TCKind._tk_boolean:
-                    return extract_boolean() == a.extract_boolean();
-                case TCKind._tk_char:
-                    return extract_char() == a.extract_char();
-                case TCKind._tk_octet:
-                    return extract_octet() == a.extract_octet();
-                case TCKind._tk_any:
-                    return extract_any().equals( a.extract_any() );
-                case TCKind._tk_TypeCode:
-                    return extract_TypeCode().equal( a.extract_TypeCode() );
-                case TCKind._tk_Principal:
-                    return extract_Principal().equals( a.extract_Principal() );
-                case TCKind._tk_objref: 
-                    return extract_Object().equals( a.extract_Object() );
-                case TCKind._tk_string: 
-                    return extract_string().equals( a.extract_string() );
-                case TCKind._tk_wstring: 
-                    return extract_wstring().equals( a.extract_wstring() );
-                case TCKind._tk_array: 
-                case TCKind._tk_sequence: 
-                case TCKind._tk_struct: 
-                case TCKind._tk_except:
-                case TCKind._tk_enum:
-                case TCKind._tk_union:
+                CDROutputStream out1, out2;
+                if( !( orb instanceof org.jacorb.orb.ORB ))
                 {
-                    CDROutputStream out1, out2;
-                    if( !( orb instanceof org.jacorb.orb.ORB ))
-                    {
-                        out1 = new CDROutputStream();
-                        out2 = new CDROutputStream();
-                    }
-                    else
-                    {
-                        out1 = new CDROutputStream(orb);
-                        out2 = new CDROutputStream(orb);
-                    }
-                    write_value( out1 );
-                    a.write_value( out2 );
-
-                    if( out1.size() != out2.size() )
-                        return false;
-
-                    for( int i = 0; i < out1.size(); i++ )
-                    {
-                        if( out1.getInternalBuffer()[ i ] !=
-                            out2.getInternalBuffer()[ i ] )
-                        {
-                            return false;
-                        }
-                    }
-
-                    return true;
+                    out1 = new CDROutputStream();
+                    out2 = new CDROutputStream();
                 }
-                case TCKind._tk_alias:
-                    return true;
-        default:
-            throw new RuntimeException("Cannot compare anys with type kind " 
-                                       + kind);
-        }           
- 
-//              return ((org.jacorb.orb.Any)a).value().equals(value()); // compare values
-        }
+                else
+                {
+                    out1 = new CDROutputStream(orb);
+                    out2 = new CDROutputStream(orb);
+                }
+                write_value( out1 );
+                a.write_value( out2 );
+
+                if( out1.size() != out2.size() )
+                    return false;
+
+                for( int i = 0; i < out1.size(); i++ )
+                {
+                    if( out1.getInternalBuffer()[ i ] !=
+                        out2.getInternalBuffer()[ i ] )
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            default:
+                throw new RuntimeException ("Cannot compare anys with type kind " + kind);
+        } 
     }
 
-    public boolean equals( java.lang.Object obj )
+    public boolean equals (java.lang.Object obj)
     {
         if( obj instanceof org.omg.CORBA.Any)
             return equal((org.omg.CORBA.Any)obj);
@@ -193,9 +193,9 @@ public final class Any
             return false;
     }
 
-    public int hashCode()
+    public int hashCode ()
     {
-        return value.hashCode();
+        return value.hashCode ();
     }
 
     public String toString()
@@ -206,261 +206,236 @@ public final class Any
             return "null";
     }
 
-  
     // short
 
-    public void insert_short(short s)
+    public void insert_short (short s)
     {
-        value = new Short( s );
-        typeCode = orb.get_primitive_tc( TCKind.tk_short );
+        value = new Short (s);
+        typeCode = orb.get_primitive_tc (TCKind.tk_short);
     }
 
-    public short extract_short()
+    public short extract_short ()
         throws org.omg.CORBA.BAD_OPERATION
     {
-        if( typeCode.kind().value() != TCKind._tk_short )
-            tc_error("Cannot extract short!");
-
-        return ((Short)value).shortValue();
+        checkExtract (TCKind._tk_short, "Cannot extract short");
+        return ((Short)value).shortValue ();
     }
 
     // ushort
 
-    public void insert_ushort ( short s )
+    public void insert_ushort (short s)
     {
-        value = new Short( s );
-        typeCode = orb.get_primitive_tc( TCKind.tk_ushort );
+        value = new Short (s);
+        typeCode = orb.get_primitive_tc (TCKind.tk_ushort);
     }
 
     public short extract_ushort ()
     {
-        if( typeCode.kind().value() != TCKind._tk_ushort )
-            tc_error("Cannot extract ushort!");
-
-        return ((Short)value).shortValue();
+        checkExtract (TCKind._tk_ushort, "Cannot extract ushort");
+        return ((Short)value).shortValue ();
     }
 
     // long
 
-    public void insert_long( int i )
+    public void insert_long (int i)
     {
-        value = new Integer( i );
-        typeCode = orb.get_primitive_tc( TCKind.tk_long );
+        value = new Integer (i);
+        typeCode = orb.get_primitive_tc (TCKind.tk_long);
     }
 
-    public int extract_long() 
+    public int extract_long () 
     {
-        if( typeCode.kind().value() != TCKind._tk_long )
-            tc_error("Cannot extract long!");
-
-        return ((Integer)value).intValue();
+        checkExtract (TCKind._tk_long, "Cannot extract long");
+        return ((Integer)value).intValue ();
     }
 
     // ulong
 
     public void insert_ulong (int i)
     {
-        value = new Integer( i );
+        value = new Integer (i);
         typeCode = orb.get_primitive_tc( TCKind.tk_ulong );
     }
 
-    public int extract_ulong() 
+    public int extract_ulong () 
     {
-        if( typeCode.kind().value() != TCKind._tk_ulong )
-            tc_error("Cannot extract ulong!");
-
-        return ((Integer)value).intValue();
+        checkExtract (TCKind._tk_ulong, "Cannot extract ulong");
+        return ((Integer)value).intValue ();
     }
-
 
     // longlong
 
     public void insert_longlong (long l)
     {
-        value = new Long( l );
-        typeCode = orb.get_primitive_tc( TCKind.tk_longlong );
+        value = new Long (l);
+        typeCode = orb.get_primitive_tc (TCKind.tk_longlong);
     }
 
-    public long extract_longlong() 
+    public long extract_longlong () 
     {
-        if( typeCode.kind().value() != TCKind._tk_longlong )
-            tc_error("Cannot extract longlong! (TC is " + typeCode.kind().value() + ")");
-        return ((Long)value).longValue();
+        checkExtract (TCKind._tk_longlong, "Cannot extract longlong");
+        return ((Long)value).longValue ();
     }
 
     // ulonglong
 
     public void insert_ulonglong (long l)
     {
-        value = new Long( l );
-        typeCode = orb.get_primitive_tc( TCKind.tk_ulonglong );
+        value = new Long (l);
+        typeCode = orb.get_primitive_tc (TCKind.tk_ulonglong);
     }
 
-    public long extract_ulonglong() 
+    public long extract_ulonglong () 
     {
-        if( typeCode.kind().value() != TCKind._tk_ulonglong )
-            tc_error("Cannot extract ulonglong!");
-        return ((Long)value).longValue();
+        checkExtract (TCKind._tk_ulonglong, "Cannot extract ulonglong");
+        return ((Long)value).longValue ();
     }
-
 
     // float
 
-    public float extract_float() 
+    public float extract_float () 
     {
-        if( typeCode.kind().value() != TCKind._tk_float )
-            tc_error("Cannot extract float!");
-        return ((Float)value).floatValue();
+        checkExtract (TCKind._tk_float, "Cannot extract float");
+        return ((Float)value).floatValue ();
     }
 
-    public void insert_float(float f)
+    public void insert_float (float f)
     {
-        value = new Float( f );
-        typeCode = orb.get_primitive_tc( TCKind.tk_float );
+        value = new Float (f);
+        typeCode = orb.get_primitive_tc (TCKind.tk_float);
     }
-
 
     // double
 
-    public double extract_double() 
+    public double extract_double () 
     {
-
-        if( typeCode.kind().value() != TCKind._tk_double )
-            tc_error("Cannot extract double!");
-        return ((Double)value).doubleValue();
+        checkExtract (TCKind._tk_double, "Cannot extract double");
+        return ((Double)value).doubleValue ();
     }
 
-    public void insert_double( double d)
+    public void insert_double (double d)
     {
-        value = new Double(d);
-        typeCode = orb.get_primitive_tc( TCKind.tk_double );
+        value = new Double (d);
+        typeCode = orb.get_primitive_tc (TCKind.tk_double);
     }
 
     // boolean
 
-    public boolean extract_boolean() 
+    public boolean extract_boolean () 
     {
-        if( typeCode.kind().value() != TCKind._tk_boolean )
-            tc_error("Cannot extract boolean!");
-        return ((Boolean)value).booleanValue();
+        checkExtract (TCKind._tk_boolean, "Cannot extract boolean");
+        return ((Boolean)value).booleanValue ();
     }
 
-    public void insert_boolean( boolean b)
+    public void insert_boolean (boolean b)
     {
-        value = new Boolean(b);
-        typeCode = orb.get_primitive_tc( TCKind.tk_boolean );
+        value = new Boolean (b);
+        typeCode = orb.get_primitive_tc (TCKind.tk_boolean);
     }
 
     // char
 
-    public char extract_char() 
+    public char extract_char () 
     {
-        if( typeCode.kind().value() != TCKind._tk_char )
-            tc_error("Cannot extract char!"); 
-        return ((Character)value).charValue();
+        checkExtract (TCKind._tk_char, "Cannot extract char");
+        return ((Character)value).charValue ();
     }
 
-    public void insert_char( char c)
+    public void insert_char (char c)
     {
-        value = new Character( c );
-        typeCode = orb.get_primitive_tc( TCKind.tk_char );
+        value = new Character (c);
+        typeCode = orb.get_primitive_tc (TCKind.tk_char);
     }
 
     public void insert_wchar( char c)
     {
-        value = new Character( c );
-        typeCode = orb.get_primitive_tc( TCKind.tk_wchar );
+        value = new Character (c);
+        typeCode = orb.get_primitive_tc (TCKind.tk_wchar);
     }
 
-    public char extract_wchar() 
+    public char extract_wchar () 
     {
-        if( typeCode.kind().value() != TCKind._tk_wchar )
-            tc_error("Cannot extract char!"); 
-        return ((Character)value).charValue();
+        checkExtract (TCKind._tk_wchar, "Cannot extract wchar");
+        return ((Character)value).charValue ();
     }
 
-    // octets
+    // octet
 
-    public byte extract_octet() 
+    public byte extract_octet () 
     {
-        if( typeCode.kind().value() != TCKind._tk_octet )
-            tc_error("Cannot extract octet!"); 
-        return ((Byte)value).byteValue();
+        checkExtract (TCKind._tk_octet, "Cannot extract octet");
+        return ((Byte)value).byteValue ();
     }
 
-    public void insert_octet(byte b)
+    public void insert_octet (byte b)
     {
-        value = new Byte(b);
-        typeCode = orb.get_primitive_tc( TCKind.tk_octet );
+        value = new Byte (b);
+        typeCode = orb.get_primitive_tc (TCKind.tk_octet);
     }
 
-    // anys
+    // any
 
-    public org.omg.CORBA.Any extract_any() 
+    public org.omg.CORBA.Any extract_any () 
     {
-        if( typeCode.kind().value() != TCKind._tk_any )
-            tc_error("Cannot extract any!"); 
+        checkExtract (TCKind._tk_any, "Cannot extract any");
         return (org.omg.CORBA.Any)value;
-
     }
 
-    public void insert_any(org.omg.CORBA.Any a)
+    public void insert_any (org.omg.CORBA.Any a)
     {
         value = a;
-        typeCode = orb.get_primitive_tc( TCKind.tk_any );
+        typeCode = orb.get_primitive_tc (TCKind.tk_any);
     }
 
     // TypeCode
 
-    public org.omg.CORBA.TypeCode extract_TypeCode() 
+    public org.omg.CORBA.TypeCode extract_TypeCode () 
     {
-        if( typeCode.kind().value() != TCKind._tk_TypeCode )
-            tc_error("Cannot extract TypeCode!"); 
+        checkExtract (TCKind._tk_TypeCode, "Cannot extract TypeCode");
         return (TypeCode)value;
     }
 
-    public void insert_TypeCode(org.omg.CORBA.TypeCode tc)
+    public void insert_TypeCode (org.omg.CORBA.TypeCode tc)
     {
         value = tc;
-        typeCode = orb.get_primitive_tc( TCKind.tk_TypeCode );
+        typeCode = orb.get_primitive_tc (TCKind.tk_TypeCode);
     }
 
     // string
 
-    public String extract_string() 
+    public String extract_string () 
     {
-        if( typeCode.kind().value() != TCKind._tk_string )
-            tc_error("Cannot extract string!"); 
-        return value.toString();
+        checkExtract (TCKind._tk_string, "Cannot extract string");
+        return value.toString ();
     }
 
-    public void insert_string(String s)
+    public void insert_string (String s)
     { 
         value = s;
-        typeCode = orb.create_string_tc(0);
+        typeCode = orb.create_string_tc (0);
     }
 
-    public void insert_wstring(String s)
+    public void insert_wstring (String s)
     {
         value = s;
-        typeCode = orb.create_wstring_tc(0);
+        typeCode = orb.create_wstring_tc (0);
     }
 
-    public String extract_wstring() 
+    public String extract_wstring () 
     {
-        if( typeCode.kind().value() != TCKind._tk_wstring )
-            tc_error("Cannot extract string!"); 
-        return value.toString();
+        checkExtract (TCKind._tk_wstring, "Cannot extract wstring");
+        return value.toString ();
     }
 
-    public java.math.BigDecimal extract_fixed() 
+    // fixed
+
+    public java.math.BigDecimal extract_fixed () 
     {
-        if( typeCode.kind().value() != TCKind._tk_fixed )
-            tc_error("Cannot extract fixed!"); 
+        checkExtract (TCKind._tk_fixed, "Cannot extract fixed");
         return (java.math.BigDecimal)value;
     }
 
-    public void insert_fixed(java.math.BigDecimal _value) 
+    public void insert_fixed (java.math.BigDecimal _value) 
     {
         value = _value;
         typeCode = (new org.omg.CORBA.FixedHolder(_value))._type();
@@ -475,7 +450,7 @@ public final class Any
 
     // obj refs
 
-    public void insert_Object(org.omg.CORBA.Object o)
+    public void insert_Object (org.omg.CORBA.Object o)
     { 
         value = o;
 
@@ -496,7 +471,7 @@ public final class Any
         typeCode = orb.create_interface_tc( typeId , name );
     }
 
-    public void insert_Object( org.omg.CORBA.Object o, 
+    public void insert_Object (org.omg.CORBA.Object o, 
                                org.omg.CORBA.TypeCode type)
     { 
         if( type.kind().value() != TCKind._tk_objref )
@@ -514,39 +489,34 @@ public final class Any
         typeCode = type;
     }
 
-    public org.omg.CORBA.Object extract_Object()
+    public org.omg.CORBA.Object extract_Object ()
     {
-        if( typeCode.kind().value() != TCKind._tk_objref )
-            tc_error("Cannot extract object!"); 
-                
+        checkExtract (TCKind._tk_objref, "Cannot extract object");
         return (org.omg.CORBA.Object)value;
     }
 
     // workaround: as long as local objects don't have stubs, we need to 
     // return *Java* objects
 
-    public java.lang.Object extract_objref()
+    public java.lang.Object extract_objref ()
     {
-        if( !typeCode.kind().equals( TCKind.tk_objref ))
-            tc_error();
+        checkExtract (TCKind._tk_objref, "Cannot extract object");
         return value;
     }
 
+    // Principal (deprecated)
 
-    public void insert_Principal(org.omg.CORBA.Principal p)
+    public void insert_Principal (org.omg.CORBA.Principal p)
     {
-        value = p;
-        typeCode = orb.get_primitive_tc( TCKind.tk_Principal );
+        throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
     }
 
-    public org.omg.CORBA.Principal extract_Principal()
+    public org.omg.CORBA.Principal extract_Principal ()
     {
-        if( !typeCode.kind().equals( TCKind.tk_Principal ))
-            tc_error();
-        return (org.omg.CORBA.Principal)value;
+        throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
     }
 
-    public void insert_Streamable(org.omg.CORBA.portable.Streamable s)
+    public void insert_Streamable (org.omg.CORBA.portable.Streamable s)
     {
         value = s;
         typeCode = s._type();
@@ -564,7 +534,6 @@ public final class Any
             throw new org.omg.CORBA.BAD_INV_ORDER();
         }
     }
-
 
     public java.io.Serializable extract_Value() 
         throws org.omg.CORBA.BAD_OPERATION
@@ -628,9 +597,8 @@ public final class Any
         }
     }
 
-
-    public void read_value(org.omg.CORBA.portable.InputStream input, 
-                           org.omg.CORBA.TypeCode type)
+    public void read_value (org.omg.CORBA.portable.InputStream input, 
+                            org.omg.CORBA.TypeCode type)
         throws org.omg.CORBA.MARSHAL
     {
         typeCode = type;
@@ -684,8 +652,7 @@ public final class Any
             insert_TypeCode( input.read_TypeCode());
             break;
         case TCKind._tk_Principal:
-            insert_Principal( input.read_Principal());
-            break;
+            throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
         case TCKind._tk_objref: 
             insert_Object( input.read_Object());
             break;
@@ -726,9 +693,6 @@ public final class Any
         }
         //        org.jacorb.util.Debug.output( 4, "Any.read_value: kind " + type().kind().value() );
     }
-
-
-
 
     public void write_value( org.omg.CORBA.portable.OutputStream output )
     {
@@ -783,8 +747,7 @@ public final class Any
             output.write_TypeCode(extract_TypeCode());
             break;
         case TCKind._tk_Principal:
-            output.write_Principal(extract_Principal());
-            break;
+            throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
         case TCKind._tk_objref: 
             output.write_Object(extract_Object());
             break;
@@ -857,10 +820,10 @@ public final class Any
 
     // other, proprietary
 
-    public void insert_void()
+    public void insert_void ()
     {
         value = null;
-        typeCode = orb.get_primitive_tc( TCKind.tk_void );
+        typeCode = orb.get_primitive_tc (TCKind.tk_void);
     }
    
     /**
@@ -886,11 +849,3 @@ public final class Any
     }
 
 }
-
-
-
-
-
-
-
-
