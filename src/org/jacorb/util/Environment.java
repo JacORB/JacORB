@@ -68,7 +68,6 @@ public class Environment
     private static long                 _retry_interval = 700;
     private static int                  _outbuf_size = 4096;
     private static int                  maxManagedBufSize = 18;
-    private static int                  _charset_flags = 0x0D;
 
     private static String               _default_context = "<undefined>";
 
@@ -125,7 +124,7 @@ public class Environment
     {
         try
         {
-            _props = new Properties();// System.getProperties() );
+            _props = new Properties();
             
             String customPropertyFileNames = 
                 System.getProperty( "custom.props" );
@@ -234,13 +233,11 @@ public class Environment
                 } 
                 catch ( IOException e ) 
                 {                    
+                    //ignore
                 }
             }
 
-
-            merge( _props, System.getProperties() );
-
-            //   _props.putAll(System.getProperties()); 
+            _props.putAll( System.getProperties() ); 
 
             //read prop values to set fields ov this class
             readValues();
@@ -280,40 +277,22 @@ public class Environment
     {
         if( _props == null )
             _props = new java.util.Properties();
+
         if( other_props != null )
         {
             try
             {
-                merge( _props, System.getProperties());
+                _props.putAll( System.getProperties() );
             }
             catch( SecurityException se )
             {
                 // not allowed for applets
+                se.printStackTrace();
             }
-            merge( _props, other_props );
-            //_props.putAll( other_props );
-            //_props.putAll(System.getProperties()); 
+            
+            _props.putAll( other_props );
+
             readValues();
-            //      _props.list( System.out );
-        }
-    }
-
-    /**
-     * Merges two sets of properties into the first argument.
-     * If a key appears on both Properties, the value from the 
-     * second Properties object takes precedence.
-     * 
-     * Replaces calls to properties.putAll(), which is JDK 1.2 only
-     */
-
-    private static void merge( java.util.Properties target, 
-                               java.util.Properties source )
-    {
-        for( Enumeration e = source.propertyNames(); e.hasMoreElements();  )
-        {
-            String key = (String) e.nextElement();
-            //although nicer, setProperty doesn't exist in jdk1.1
-            target.put( key, source.getProperty(key) );
         }
     }
 
@@ -391,8 +370,6 @@ public class Environment
 			_use_httptunneling_for.put(s,new Object());
 		}
 	}
-        else    if( varName.equals("_charset_flags"))
-            _charset_flags = Integer.parseInt(o);
         else    if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
     }
@@ -442,34 +419,10 @@ public class Environment
         readValue("_use_appligator_for_applications", jacorbPrefix+"use_appligator_for_applications", null);
         readValue("_use_httptunneling_for",jacorbPrefix+"use_httptunneling_for", null);
 
-        // devik: load charset_flags, bits have this meaning:
-        // 1 - insert CHARSET profile into MULTICOMPONENT part of IOR
-        // 2 - insert CHARSET profile into IOP part of IOR
-        // 4 - send negotiated contexts to server
-        // 8 - switch TCS on charset context receipt
-        readValue("_charset_flags","charset_flags",jacorbPrefix+"charset_flags");
-
         readValue("_impl_name","implname",jacorbPrefix+"implname");
-
-        // bnv: read SSL policy and default user alias and passphrase for accessing the key store
-        readValue("_enforce_ssl", jacorbPrefix + "security.enforce_ssl",null);
-        readValue("_supported_options", jacorbPrefix + "security.ssl.supported_options",null);
-        readValue("_required_options", jacorbPrefix + "security.ssl.required_options",null);
-        readValue("_support_ssl", jacorbPrefix + "security.support_ssl",null);
-        readValue("_default_user",jacorbPrefix+"security.default_user",null);
-        readValue("_default_password",jacorbPrefix+"security.default_password",null);
-        readValue("_change_ssl_roles", jacorbPrefix + "security.change_ssl_roles",null); // rt
-        // the name of the Java keystore file
-        readValue("_keyStore",jacorbPrefix+"security.keystore",null);
-
     }
 
     // value getters
-    public static final boolean charsetUpdateMulti() { return (_charset_flags & 1)!=0;  }
-    public static final boolean charsetUpdateIOP() { return (_charset_flags & 2)!=0;  }
-    public static final boolean charsetSendCtx() { return (_charset_flags & 4)!=0;  }
-    public static final boolean charsetScanCtx() { return (_charset_flags & 8)!=0;  }
-
     public static final  boolean isMonitoringOn() { return _monitoring_on;   }
     public static final  Properties jacorbProperties() { return _props;   }
     public static final  PrintWriter logFileOut() {     return _log_file_out;  }
