@@ -9,18 +9,36 @@ module org
       {
          module idl
          {
-            interface CharTester
-            {
-               union CharUnionDef switch(char) {
-                  case 'c':
-                  char neg_mem;
-                  case 'a':
-                  case 'b':
-                  case 'd':
-                  default:
-                  string default_mem;
-               };
-            };
+             const char c1 = 'x';
+             const char c2 = '\n';
+             const char c3 = '\t';
+             const char c4 = '\v';
+             const char c5 = '\b';
+             const char c6 = '\r';
+             const char c7 = '\f';
+             const char c8 = '\a';
+             const char c9 = '\\';
+             const char c10 = '\?';
+             const char c11 = '\'';
+             const char c12 = '\111';
+             const char c13 = '\x88';
+
+             const wstring str1 = L"xxx";
+             const wchar c14 = L'\u002E';
+
+             
+             interface CharTester
+             {
+                 union CharUnionDef switch(char) {
+                     case 'c':
+                         char neg_mem;
+                     case 'a':
+                     case 'b':
+                     case 'd':
+                     default:
+                         string default_mem;
+                 };
+             };
          };
       };
    };
