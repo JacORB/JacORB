@@ -79,6 +79,10 @@ public class GIOPConnectionTest
         {
             closed = true;
         }
+
+        public void setIdle()
+        {
+        }
     
         public boolean isSSL()
         {
