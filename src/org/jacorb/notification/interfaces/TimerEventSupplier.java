@@ -29,7 +29,7 @@ import org.omg.CosEventComm.Disconnected;
  *
  * Created: Sun Feb 09 18:21:59 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 

@@ -30,7 +30,7 @@ import org.omg.CosNotifyChannelAdmin.NotConnected;
  *
  * Created: Thu Jan 30 01:18:24 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
