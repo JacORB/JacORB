@@ -67,6 +67,10 @@ public final class Delegate
     
     private boolean use_interceptors = false;
 
+    /** set after the first attempt to determine whether 
+        this reference is to a local object */
+    private boolean resolved_locality = false;
+
     private boolean location_forward_permanent = true;
 
     private Hashtable pending_replies = new Hashtable();
@@ -617,9 +621,14 @@ public final class Delegate
         return (org.jacorb.poa.POA)poa;
     }
 
-    public org.omg.CORBA.portable.ObjectImpl getReference(org.jacorb.poa.POA _poa)
+    /**
+     */
+
+    public org.omg.CORBA.portable.ObjectImpl getReference( org.jacorb.poa.POA _poa )
     {
-        if( _poa != null && _poa._localStubsSupported())
+        Debug.output( 3, "Delegate.getReference with POA <" + 
+                      ( _poa != null ? _poa._getQualifiedName() : " empty" ) + ">");
+        if( _poa != null ) // && _poa._localStubsSupported())
             poa = _poa;
         org.omg.CORBA.portable.ObjectImpl o = 
             new org.jacorb.orb.Reference( typeId() );
@@ -1077,8 +1086,23 @@ public final class Delegate
         //    return  hashCode() == obj.hashCode();
     }
 
+    /** 
+     * @return true iff this object lives on a local POA
+     */
+
     public boolean is_local(org.omg.CORBA.Object self) 
     {     
+        if( ! resolved_locality )
+        {
+            org.jacorb.poa.POA local_poa = 
+                ((org.jacorb.orb.ORB)orb).findPOA( this, self );
+            if( local_poa != null ) // && local_poa._localStubsSupported() )
+                poa = local_poa;
+            Debug.output(3, "Delegate.is_local found " + 
+                         ( local_poa != null ? " a " : " no ") + " local POA");
+        }
+        resolved_locality = true;
+        Debug.output(3, "Delegate.is_local returns " + (poa != null ));
         return poa != null;
     }
 
@@ -1203,6 +1227,8 @@ public final class Delegate
     }
 
     /**
+     * @overrides servant_postinvoke() in org.omg.CORBA.portable.Delegate<BR>
+     * called from generated stubs after a local operation
      */
 
 
@@ -1212,11 +1238,13 @@ public final class Delegate
     }
 
     /**
+     * @overrides servant_preinvoke() in org.omg.CORBA.portable.Delegate<BR>
+     * called from generated stubs before a local operation
      */
 
-    public ServantObject servant_preinvoke(org.omg.CORBA.Object self, 
-                                           String operation, 
-                                           Class expectedType) 
+    public ServantObject servant_preinvoke( org.omg.CORBA.Object self, 
+                                            String operation, 
+                                            Class expectedType) 
     {     
         if (poa != null) 
         {
@@ -1243,7 +1271,38 @@ public final class Delegate
             try 
             {
                 ServantObject so = new ServantObject();
-                so.servant = poa.reference_to_servant(self);
+                if( poa.isRetain() || poa.useDefaultServant() )
+                {
+                    so.servant = poa.reference_to_servant(self);
+                }
+                else if( poa.isUseServantManager() )
+                {
+                    byte [] oid = 
+                        org.jacorb.poa.util.POAUtil.extractOID(getParsedIOR().get_object_key());
+                    org.omg.PortableServer.ServantManager sm = 
+                        poa.get_servant_manager();
+
+                    if( poa.isRetain() )
+                    {
+                        org.omg.PortableServer.ServantActivator sa = 
+                            org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
+                        so.servant = sa.incarnate( oid, poa );
+
+                    }
+                    else
+                    {
+                        org.omg.PortableServer.ServantLocator sl = 
+                            org.omg.PortableServer.ServantLocatorHelper.narrow( sm );
+                        so.servant = 
+                            sl.preinvoke( oid, poa, operation, 
+                                          new org.omg.PortableServer.ServantLocatorPackage.CookieHolder() );
+                    }                   
+                }
+                else
+                {
+                    //
+                }
+
                 if (!expectedType.isInstance(so.servant)) 
                     return null;
                 else 
