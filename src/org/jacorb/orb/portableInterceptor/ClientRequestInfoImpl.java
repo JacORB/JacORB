@@ -335,7 +335,7 @@ public class ClientRequestInfoImpl
                                  CompletionStatus.COMPLETED_MAYBE);
         try
         {
-            return delegate.get_policy_no_intercept(target, type);
+            return delegate.get_policy (target, type);
         }
         catch(INV_POLICY _e)
         {
