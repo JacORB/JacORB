@@ -944,9 +944,9 @@ public final class Delegate
                 //reply returned (with whatever result)
                 synchronized( pending_replies )
                 {
-                    if( rep != null )
+                    if( placeholder != null )
                     {
-                        pending_replies.remove( rep );
+                        pending_replies.remove( placeholder );
                     }
                 }
     
