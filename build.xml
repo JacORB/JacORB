@@ -79,7 +79,7 @@
    <target name="libs" depends="init,jar,jaco"/>
 
    <target name="jar" depends="init">
-      <delete file="${lib}/jacorb.jar"/>
+      <delete file="${lib}/jacorb.jar" failonerror="false"/>
        <jar jarfile="${lib}/jacorb.jar"
       basedir="${classdir}"
       includes="org/jacorb/**,org/omg/**, HTTPClient/**"
