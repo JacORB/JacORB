@@ -25,9 +25,12 @@ import java.io.*;
 import java.lang.Object;
 import java.net.*;
 
+import org.jacorb.imr.*;
 import org.jacorb.util.*;
-import org.jacorb.orb.connection.*;
 import org.jacorb.poa.POAConstants;
+import org.jacorb.poa.util.POAUtil;
+import org.jacorb.orb.connection.*;
+import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.orb.portableInterceptor.*;
 
 import org.omg.CORBA.portable.*;
@@ -53,11 +56,14 @@ public final class Delegate
     private ParsedIOR _pior = null;
     private ClientConnection connection = null;
 
-    /* save last ior for fallback */
+    /* save original ior for fallback */
     private ParsedIOR piorOriginal = null;
 
-    /* save first forwarded ior to detect dead objects */
-    private ParsedIOR piorFirst = null;
+    /* save iors to detect and prevent locate forward loop */
+    private ParsedIOR piorLastFailed = null;
+
+    /* flag to indicate if this is the delegate for the ImR */
+    private boolean isImR = false;
 
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
@@ -98,6 +104,7 @@ public final class Delegate
 
     /* constructors: */
 
+
     private Delegate ()
     {}
 
@@ -105,6 +112,7 @@ public final class Delegate
     {
         this.orb = orb;
         _pior = pior;
+        checkIfImR( _pior.getTypeId() );
 
         conn_mg = orb.getConnectionManager();
     }
@@ -122,6 +130,7 @@ public final class Delegate
                                                 object_reference );
         }
 
+        checkIfImR( _pior.getTypeId() );
         conn_mg = orb.getConnectionManager();
     }
 
@@ -129,6 +138,7 @@ public final class Delegate
     {
         this.orb = orb;
         _pior = new ParsedIOR( _ior );
+        checkIfImR( _pior.getTypeId() );
 
         conn_mg = orb.getConnectionManager();
     }
@@ -139,6 +149,25 @@ public final class Delegate
         this(orb, object_reference);
         doNotCheckExceptions = _donotcheckexceptions; 
     }
+
+
+    /**
+     * Method to determine if this delegate is the delegate for the ImR.
+     * This information is needed when trying to determine if the ImR has
+     * gone down and come back up at a different addresss.  All delegates
+     * except the delegate of the ImR itself will try to determine if the
+     * ImR has gone down and come back up at a new address if a connection
+     * to the ImR can't be made.  If the delegate of the ImR itself has
+     * failed to connect then the ImR hasn't come back up!
+     */
+    private void checkIfImR( String typeId )
+    {
+        if( typeId.equals( "IDL:org/jacorb/imr/ImplementationRepository:1.0" ) )
+        {
+            isImR = true;
+        }
+    }
+
 
     public int _get_TCKind() 
     {
@@ -153,7 +182,7 @@ public final class Delegate
      * ClientConnection from the ConnectionsManager. This will *NOT*
      * open up a TCP connection, but the connection is needed for the
      * GIOP message ids. The actual TCP connection is automatically
-     * opend up by the ClientConnection, when the first request is
+     * opened up by the ClientConnection, when the first request is
      * sent. This has the advantage, that COMM_FAILURES can only occur
      * inside of _invoke, where they get handled properly (falling
      * back, etc.)
@@ -214,12 +243,12 @@ public final class Delegate
                         }
                         case LocateStatusType_1_2._OBJECT_FORWARD :
                         {
-			    //fall through
+             //fall through
                         }
                         case LocateStatusType_1_2._OBJECT_FORWARD_PERM :
                         {
-			    //_OBJECT_FORWARD_PERM is actually more or
-			    //less deprecated
+             //_OBJECT_FORWARD_PERM is actually more or
+             //less deprecated
                             Debug.output(3,"Locate Reply: Forward");
                             
                             rebind( orb.object_to_string( lris.read_Object()) );
@@ -228,27 +257,27 @@ public final class Delegate
                         }
                         case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION :
                         {
-			    throw SystemExceptionHelper.read( lris );
+             throw SystemExceptionHelper.read( lris );
 
-			    //break;
-			}
+             //break;
+         }
                         case LocateStatusType_1_2._LOC_NEEDS_ADDRESSING_MODE :
                         {
-			    throw new org.omg.CORBA.NO_IMPLEMENT( "Server responded to LocateRequest with a status of LOC_NEEDS_ADDRESSING_MODE, but this isn't yet implemented by JacORB" );
+             throw new org.omg.CORBA.NO_IMPLEMENT( "Server responded to LocateRequest with a status of LOC_NEEDS_ADDRESSING_MODE, but this isn't yet implemented by JacORB" );
 
-			    //break;
-			}
+             //break;
+         }
                         default :
                         {
                             throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.rep_hdr.locate_status.value());
                         }
                     }
                 }
-		catch( org.omg.CORBA.SystemException se )
-		{
-		    //rethrow
-		    throw se;
-		}
+      catch( org.omg.CORBA.SystemException se )
+      {
+          //rethrow
+          throw se;
+      }
                 catch( Exception e )
                 {
                     Debug.output( 1, e );
@@ -280,25 +309,23 @@ public final class Delegate
     {
         synchronized( bind_sync )
         {
-            if( p.equals( _pior ))
+            if( p.equals( _pior ) )
             {
-                //already bound to target, so just return
+                //already bound to target so just return
                 return;
             }
 
-            if (piorFirst == null)
+            if( piorLastFailed != null && piorLastFailed.equals( p ) )
             {
-               // keep first forwarded ior to detect dead objects
-               piorFirst = p;
-            }
-            else if (piorFirst.equals (p))
-            {
-               // if we've already tried to bind to this object then it's dead
-               throw new org.omg.CORBA.TRANSIENT ();
+                //we've already failed to bind to the ior
+                throw new org.omg.CORBA.TRANSIENT();
             }
 
-            //keep last pior for fallback
-            piorOriginal = _pior;
+            if( piorOriginal == null )
+            {
+                //keep original pior for fallback
+                piorOriginal = _pior;
+            }
             
             _pior = p;
 
@@ -536,7 +563,7 @@ public final class Delegate
         {
             bind();
 
-            return org.jacorb.poa.util.POAUtil.extractOID( getParsedIOR().get_object_key() );
+            return POAUtil.extractOID( getParsedIOR().get_object_key() );
         }
     }
 
@@ -733,27 +760,109 @@ public final class Delegate
                 invokeInterceptors(info,
                                    ClientInterceptorIterator.RECEIVE_EXCEPTION);
             }
-                
+
             if ( cfe instanceof org.omg.CORBA.TRANSIENT )
             {
-               // if the exception is a TRANSIENT then we may want to retry
+                //if the exception is a TRANSIENT then we may want to retry
 
-               synchronized( bind_sync )
-               {
-                  if( piorOriginal != null )
-                  {
-                     Debug.output(2, "Delegate: falling back to last IOR");
-                     rebind( piorOriginal );
+                synchronized( bind_sync )
+                {
+                    if( piorOriginal != null )
+                    {
+                        Debug.output(2, "Delegate: falling back to original IOR");
 
-                     //clean up
-                     piorOriginal = null;
+                        //keep last failed ior to detect forwarding loops
+                        piorLastFailed = getParsedIOR();
 
-                     //now cause this invocation to be repeated by the
-                     //caller of invoke(), i.e. the stub 
-                     throw new RemarshalException();
-                  }
-               }
+                        //rebind to the original ior
+                        rebind( piorOriginal );
+
+                        //clean up and start fresh
+                        piorOriginal = null;
+
+                        //now cause this invocation to be repeated by the
+                        //caller of invoke(), i.e. the stub 
+                        throw new RemarshalException();
+                    }
+                    else if( Environment.useImR() && ! isImR )
+                    {
+                        Integer orbTypeId = getParsedIOR().getORBTypeId();
+
+                        // only lookup ImR if IOR is generated by JacORB
+                        if( orbTypeId == null ||
+                            orbTypeId.intValue() != ORBConstants.JACORB_ORB_ID )
+                        {
+                            Debug.output(2, "Delegate: foreign IOR detected");
+                            throw cfe;
+                        }
+                        Debug.output(2, "Delegate: JacORB IOR detected");
+
+                        byte[] object_key = getParsedIOR().get_object_key();
+                        byte flag = POAUtil.extractKeyFlag( object_key );
+
+                        // only lookup ImR if object is persistent
+                        if ( ! POAUtil.isPersistent( flag ) )
+                        {
+                            Debug.output(2, "Delegate: object is transient");
+                            throw cfe;
+                        }
+                        Debug.output(2, "Delegate: object is persistent");
+
+                        // No backup IOR so it may be that the ImR is down
+                        // Attempt to resolve the ImR again to see if it has
+                        // come back up at a different address
+                        Debug.output(2, "Delegate: attempting to contact ImR");
+
+                        org.omg.CORBA.Object obj = null;
+                        try
+                        {
+                            obj = orb.resolve_initial_references( "ImplementationRepository" );
+                        }
+                        catch ( Exception e )
+                        {
+                            Debug.output(2, "Delegate: failed to resolve ImR");
+                            throw cfe;
+                        }
+
+                        ImplementationRepository imr = null;
+                        try
+                        {
+                            imr = ImplementationRepositoryHelper.narrow( obj );
+                        }
+                        catch ( Exception e )
+                        {
+                            Debug.output(2, "Delegate: failed to narrow object reference to ImR");
+                            throw cfe;
+                        }
+
+                        if( imr == null )
+                        {
+                            Debug.output(2, "Delegate: ImR reference is null");
+                            throw cfe;
+                        }
+
+                        ImRInfo imrInfo = imr.get_imr_info();
+                        String imrAddr = imrInfo.host + ":" + imrInfo.port;
+
+                        //create a corbaloc URL to use to contact the server
+                        StringBuffer corbaloc = new StringBuffer( "corbaloc:iiop:" );
+                        corbaloc.append( imrAddr );
+                        corbaloc.append( "/" );
+                        corbaloc.append( CorbaLoc.parseKey( object_key ) );
+
+                        //rebind to the new IOR
+                        rebind( new ParsedIOR( corbaloc.toString() ) );
+
+                        //clean up and start fresh
+                        piorOriginal = null;
+                        
+                        //now cause this invocation to be repeated by the
+                        //caller of invoke(), i.e. the stub 
+                        throw new RemarshalException();
+                    }
+                }
             }
+
             throw cfe;
         }
 
@@ -772,9 +881,9 @@ public final class Delegate
                 
                 //this will check the reply status and throw arrived
                 //exceptions
-     		if (!doNotCheckExceptions)
-                	rep.checkExceptions();
-                	
+         if (!doNotCheckExceptions)
+                  rep.checkExceptions();
+                  
                 if (useInterceptors && (info != null) )
                 {
                     ReplyHeader_1_2 _header = rep.rep_hdr;
@@ -962,8 +1071,8 @@ public final class Delegate
         }
         catch (org.omg.PortableInterceptor.ForwardRequest fwd)
         {
-            rebind(orb.object_to_string(fwd.forward));    
-            throw new RemarshalException();            
+            rebind(orb.object_to_string(fwd.forward));
+            throw new RemarshalException();
         }
         catch (org.omg.CORBA.UserException ue)
         {
@@ -1237,7 +1346,7 @@ public final class Delegate
                 else if( poa.isUseServantManager() )
                 {
                     byte [] oid = 
-                        org.jacorb.poa.util.POAUtil.extractOID(getParsedIOR().get_object_key());
+                        POAUtil.extractOID(getParsedIOR().get_object_key());
                     org.omg.PortableServer.ServantManager sm = 
                         poa.get_servant_manager();
 
@@ -1340,34 +1449,34 @@ public final class Delegate
                 org.omg.CORBA.Policy[] policies,
                 org.omg.CORBA.SetOverrideType set_add) 
     {
-	if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
-	{
-	    policy_overrides.clear();
-	}
-	for (int i = 0; i < policies.length; i++)
-	{
-	    if (orb.hasPolicyFactoryForType( policies[i].policy_type() ) )
-	    {
-		policy_overrides.put(new Integer(policies[i].policy_type()), policies[i]);
-	    }
-	}
-	ParsedIOR pior = getParsedIOR();
-	org.omg.IOP.IOR ior = orb.createIOR( pior.getIOR().type_id, 
-								   pior.get_object_key(), 
-								   !poa.isPersistent(), 
-								   poa,
-								   policy_overrides);
+   if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
+   {
+       policy_overrides.clear();
+   }
+   for (int i = 0; i < policies.length; i++)
+   {
+       if (orb.hasPolicyFactoryForType( policies[i].policy_type() ) )
+       {
+      policy_overrides.put(new Integer(policies[i].policy_type()), policies[i]);
+       }
+   }
+   ParsedIOR pior = getParsedIOR();
+   org.omg.IOP.IOR ior = orb.createIOR( pior.getIOR().type_id, 
+                           pior.get_object_key(), 
+                           !poa.isPersistent(), 
+                           poa,
+                           policy_overrides);
         synchronized( bind_sync )
         {
-	    _pior = new ParsedIOR( ior );
-	    getParsedIOR().init();
-	}
-	return self;
+       _pior = new ParsedIOR( ior );
+       getParsedIOR().init();
+   }
+   return self;
     }
 
     public String get_codebase(org.omg.CORBA.Object self)
     {
-	return getParsedIOR().getCodebaseComponent();
+   return getParsedIOR().getCodebaseComponent();
     }
 
     private class Barrier
@@ -1402,12 +1511,3 @@ public final class Delegate
         }
     }
 }
-
-
-
-
-
-
-
-
-
