@@ -36,6 +36,7 @@ public class AllTest extends TestCase
       suite.addTest (org.jacorb.test.idl.AllTest.suite ());
       suite.addTest (org.jacorb.test.orb.AllTest.suite ());
       suite.addTest (org.jacorb.test.naming.AllTest.suite ());
+      suite.addTest (org.jacorb.test.rmi.AllTest.suite ());
 
       return suite;
    }

@@ -29,6 +29,9 @@
       <!-- Add JacORB classes -->
       <property name="classdir" value="${basedir}/test/regression/classes"/>
       <property name="classpath" value="${classdir}:${basedir}/classes:${java.class.path}"/>
+      <property name="rmic.stubVersion" value="1.2"/>
+      <property name="rmic.iiop" value="yes"/>
+      <property name="rmic.iiopopts" value="-poa"/>
 
       <mkdir dir="${src}/generated"/>
       <mkdir dir="${dirs.output}"/>
@@ -44,13 +47,33 @@
    <target name="build-all" depends="test-init">
       <antcall target="compile-idl"/>
       <antcall target="compile-src"/>
+      <antcall target="compile-rmi"/>
+      <antcall target="compile-src2"/>
    </target>
 
 
    <target name="compile-src">
       <antcall target="jacorb-javac">
          <param name="javac-includes" value="**"/>
-         <param name="javac-excludes" value="generated/**"/>
+         <param name="javac-excludes" value="generated/**,**/RMITestServant.java"/>
+      </antcall>
+   </target>
+
+
+   <target name="compile-rmi" depends="test-init, compile-src">
+      <rmic base="${classdir}"
+         classname="org.jacorb.test.rmi.RMITestImpl"
+         verify="${rmic.verify}"
+         iiop="${rmic.iiop}"
+         iiopopts="${rmic.iiopopts}"
+         debug="${rmic.debug}">
+      </rmic>
+   </target>
+
+
+   <target name="compile-src2" depends="compile-rmi">
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="**/RMITestServant.java"/>
       </antcall>
    </target>
 
@@ -60,6 +83,31 @@
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
+         <jvmarg value="-Dtestdir=${testdir}"/>
+         <jvmarg value="-Djavax.rmi.CORBA.UtilClass=org.jacorb.test.rmi.FixSunDelegateBug"/>
+         <classpath path="${classpath}"/>
+         <formatter type="plain"/>
+         <test name="${test}" todir="${dirs.output}"/>
+      </junit>
+   </target>
+
+   <target name="run-no-build" depends="test-init">
+      <junit fork="yes" printsummary="withOutAndErr">
+           <!-- ant 1.4.1 doesn't support showoutput, -->
+           <!-- so I removed it for now, AS           -->
+         <jvmarg value="-Xbootclasspath/p:${classpath}"/>
+         <jvmarg value="-Dtestdir=${testdir}"/>
+         <jvmarg value="-Djavax.rmi.CORBA.UtilClass=org.jacorb.test.rmi.FixSunDelegateBug"/>
+         <classpath path="${classpath}"/>
+         <formatter type="plain"/>
+         <test name="${test}" todir="${dirs.output}"/>
+      </junit>
+   </target>
+
+   <target name="run-jdk-orb-no-build" depends="test-init">
+      <junit fork="yes" printsummary="withOutAndErr">
+           <!-- ant 1.4.1 doesn't support showoutput, -->
+           <!-- so I removed it for now, AS           -->
          <jvmarg value="-Dtestdir=${testdir}"/>
          <classpath path="${classpath}"/>
          <formatter type="plain"/>
@@ -258,6 +306,33 @@
    <target name="run-all-orb-separate"
            description="Run all Jacorb tests in the orb package and its subpackages, logging results in separate files">
       <antcall target="run-all-dynany-separate"/>
+   </target>
+
+
+   <!-- ==================================================== -->
+   <!--                  run rmi tests                       -->
+   <!-- ==================================================== -->
+
+
+   <target name="run-all-rmi"
+           description="Run all Jacorb tests in the rmi package and its subpackages">
+      <antcall target="run">
+         <param name="test" value="org.jacorb.test.rmi.AllTest"/>
+      </antcall>
+      <antcall target="run-jdk-orb-no-build">
+         <param name="test" value="org.jacorb.test.rmi.AllTest"/>
+      </antcall>
+   </target>
+
+
+   <target name="run-all-rmi-no-build"
+           description="Run all Jacorb tests in the rmi package and its subpackages">
+      <antcall target="run-no-build">
+         <param name="test" value="org.jacorb.test.rmi.AllTest"/>
+      </antcall>
+      <antcall target="run-jdk-orb-no-build">
+         <param name="test" value="org.jacorb.test.rmi.AllTest"/>
+      </antcall>
    </target>
 
 
