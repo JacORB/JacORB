@@ -35,8 +35,8 @@ public class CallbackTestCase extends ClientServerTestCase
                             ( "no reply within timeout (" 
                               + timeout + "ms)" );
                 }
-                System.out.println( "waiting time: " +
-                                    ( System.currentTimeMillis() - start ) );
+                //System.out.println( "waiting time: " +
+                //                    ( System.currentTimeMillis() - start ) );
                 if ( testFailed )
                     junit.framework.Assert.fail( failureMessage );
                 else
@@ -80,6 +80,19 @@ public class CallbackTestCase extends ClientServerTestCase
                 fail( "unexpected exception: " 
                       + methodName + ", " + e );
             }   
+        }
+
+        public Exception getException( ExceptionHolder excep_holder )
+        {
+            try
+            {
+                excep_holder.raise_exception();
+                return null;
+            }
+            catch( Exception e )
+            {
+                return e;
+            }
         }
 
         public synchronized void pass()
