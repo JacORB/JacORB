@@ -34,8 +34,7 @@ public class IIOPFactories extends org.omg.ETF._FactoriesLocalBase
 {
     public Connection create_connection (ProtocolProperties props)
     {
-        // TODO Auto-generated method stub
-        return null;
+        return new ClientIIOPConnection();
     }
 
     public Listener create_listener (ProtocolProperties props,
