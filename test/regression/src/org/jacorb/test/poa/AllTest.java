@@ -37,6 +37,7 @@ public class AllTest extends TestCase
         suite.addTest (org.jacorb.test.poa.Deactivate.suite());
         suite.addTest (org.jacorb.test.poa.QueueNoWaitTest.suite());
         suite.addTest (org.jacorb.test.poa.QueueWaitTest.suite());
+        suite.addTest (org.jacorb.test.poa.POAActivateTest.suite());
 
         return suite;
    }
