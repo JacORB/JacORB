@@ -501,50 +501,7 @@ class ForwarderImpl
         return orb.object_to_string(o);
     }
 
-    public static void  main(String[] args)
-    {   
-        if (args.length != 2)
-        {
-            Debug.output(0,"usage: appligator <port> <IOR-File>");
-            System.exit(1);
-        }       
-        try
-        {
-            java.util.Properties props = new java.util.Properties();
-            props.put("OAPort", args[0] );
-            ORB orb = org.omg.CORBA.ORB.init(args, props);
 
-            POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-            rootPOA.the_POAManager().activate();
-            Servant forwarder = new ForwarderPOATie(new ForwarderImpl(orb));
-            org.omg.CORBA.Object forwarderRef = rootPOA.servant_to_reference(forwarder);
-
-            java.io.FileWriter fout = new java.io.FileWriter(args[1]);
-            fout.write(orb.object_to_string(forwarderRef));
-            fout.close();
-
-            NamingContextExt nc =
-                NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
-
-            if(nc==null)
-            {
-                Debug.output(1,"Nameserver not present. Trying without");
-            }
-            else
-            {
-                nc.bind(nc.to_name("proxyserver"),forwarderRef);
-            }
-            orb.run();
-        }
-        catch(org.omg.CORBA.UserException ue)
-        {
-            ue.printStackTrace();
-        }       
-        catch(java.io.IOException ioe)
-        {
-            Debug.output(1,"Could not write IOR File:"+ioe.toString());
-        }
-    }
 
     public synchronized void release(/*in*/String uid)
     {
@@ -575,6 +532,66 @@ class ForwarderImpl
         Debug.output(3,"Release ends");
 
     }
+
+
+    /**
+     * Server main line
+     */
+
+    public static void  main(String[] args)
+    {   
+        if (args.length != 2)
+        {
+            Debug.output(0,"usage: appligator <port> <IOR-File>");
+            System.exit(1);
+        }
+
+        try
+        {
+            java.util.Properties props = new java.util.Properties();
+            props.put("OAPort", args[0] );
+            ORB orb = org.omg.CORBA.ORB.init(args, props);
+
+            POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            rootPOA.the_POAManager().activate();
+            Servant forwarder = new ForwarderPOATie(new ForwarderImpl(orb));
+            org.omg.CORBA.Object forwarderRef = rootPOA.servant_to_reference(forwarder);
+
+            java.io.FileWriter fout = new java.io.FileWriter(args[1]);
+            fout.write(orb.object_to_string(forwarderRef));
+            fout.close();
+
+            try
+            {
+                NamingContextExt nc =
+                    NamingContextExtHelper.narrow
+                    (orb.resolve_initial_references("NameService"));
+            }
+            catch( org.omg.CORBA.BAD_PARAM bp)
+            {
+                Debug.output( 2, bp );
+            }  
+
+            if(nc==null)
+            {
+                Debug.output(1,"Nameserver not present. Trying without");
+            }
+            else
+            {
+                nc.bind( nc.to_name("proxyserver"),forwarderRef);
+            }
+            orb.run();
+        }
+        catch(org.omg.CORBA.UserException ue)
+        {
+            ue.printStackTrace();
+        }       
+        catch(java.io.IOException ioe)
+        {
+            Debug.output(1,"Could not write IOR File:"+ioe.toString());
+        }
+    }
+
 }
 
 
