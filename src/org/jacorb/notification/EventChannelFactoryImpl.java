@@ -182,7 +182,7 @@ public class EventChannelFactoryImpl
 
                    );
 
-        t.setDaemon( true );
+        t.setDaemon( false );
         t.start();
 
         ior_ = _orb.object_to_string( notificationPOA_.id_to_reference( oid ) );
@@ -586,7 +586,7 @@ public class EventChannelFactoryImpl
 
                    );
 
-        t.setDaemon( true );
+        t.setDaemon( false );
         t.start();
 
         ior_ = _orb.object_to_string( notificationPOA_.id_to_reference( oid ) );
