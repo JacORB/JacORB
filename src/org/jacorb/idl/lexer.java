@@ -126,6 +126,9 @@ public class lexer
     /** currently active pragma prefix */
     public static String currentPragmaPrefix = "";
 
+    /** current file name */
+    public static String currentFile = "";
+
     /** reset the scanner state */
 
     public static void reset()
@@ -357,9 +360,10 @@ public class lexer
         return (String)defines.get( symbol );
     }
 
-    /** record information about the last lexical scope so that it can be
-     restored later */
-
+    /** 
+     *   record information about the last lexical scope so that it can be
+     *  restored later 
+     */
 
     public static int currentLine()
     {
@@ -367,15 +371,16 @@ public class lexer
     }
 
     /**
-     * asks the lexer to return its own
+     * return the current reading position
      */
 
     public static PositionInfo getPosition()
     {
         return new PositionInfo( current_line,
-                current_position,
-                currentPragmaPrefix,
-                line.toString() );
+                                 current_position,
+                                 currentPragmaPrefix,
+                                 line.toString(),
+                                 GlobalInputStream.currentFile() );
     }
 
     public static void restorePosition( PositionInfo p )
@@ -391,7 +396,7 @@ public class lexer
      */
 
     protected static void advance()
-            throws java.io.IOException
+        throws java.io.IOException
     {
         int old_char;
 
@@ -846,10 +851,10 @@ public class lexer
                             );
                         }
                     }
-                    if (parser.currentScopeData().versionMap.get (iname) != null)
+                    if( parser.currentScopeData().versionMap.get( iname ) != null )
                     {
-                        if (((String)parser.currentScopeData().versionMap.get (iname)).equals
-                            (id.substring (1 + id.lastIndexOf (':'))) == false)
+                        if( ((String)parser.currentScopeData().versionMap.get( iname )).equals
+                            ( id.substring (1 + id.lastIndexOf (':'))) == false )
                         {
                             emit_error ("Declaring ID with different version to already declared version for " + name, null);
                         }
@@ -982,8 +987,8 @@ public class lexer
         }
 
         // check if it's a keyword
-        if( parser.getLogger().isInfoEnabled() )
-            parser.getLogger().info( "Advancing after symbol " + result_str );
+//          if( parser.getLogger().isInfoEnabled() )
+//              parser.getLogger().info( "Advancing after symbol " + result_str );
 
         keyword_num = (Integer)keywords.get( result_str );
         if( keyword_num != null )
