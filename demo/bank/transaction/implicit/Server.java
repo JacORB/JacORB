@@ -12,7 +12,7 @@ public class Server
     {
         java.util.Properties props = new java.util.Properties();
         props.put("org.omg.PortableInterceptor.ORBInitializerClass.TSClientInit",
-                  "jacorb.transaction.ClientInitializer");
+                  "org.jacorb.transaction.ClientInitializer");
 
         org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, props);
         try

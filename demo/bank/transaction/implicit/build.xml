@@ -37,7 +37,7 @@
          </java>
    </target>
 
-   <target name="clean">
+   <target name="clean" depends="init">
    <deltree dir="${classdir}/demo/${name}"/>
    <deltree dir="${dirs.base}/demo/${name}/generated"/>
    </target>
