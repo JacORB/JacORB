@@ -33,10 +33,10 @@ import org.jacorb.imr.util.ImRManager;
 //#endif
 
 /**
- *	The name server application
+ *  The name server application
  *
- *	@author Gerald Brose, FU Berlin
- *	@version $Id$
+ *  @author Gerald Brose, FU Berlin
+ *  @version $Id$
  */
 
 
@@ -56,97 +56,97 @@ public class NameServer
     static class NameServantActivatorImpl
         extends _ServantActivatorLocalBase
     {
-	private org.omg.CORBA.ORB orb = null;
+        private org.omg.CORBA.ORB orb = null;
 
-	public NameServantActivatorImpl(org.omg.CORBA.ORB orb)
-	{
-	    this.orb = orb;
-	}
+        public NameServantActivatorImpl(org.omg.CORBA.ORB orb)
+        {
+            this.orb = orb;
+        }
 
-	/**
-	 * @returns - a servant initialized from a file
-	 */
+        /**
+         * @returns - a servant initialized from a file
+         */
 
-	public Servant incarnate( byte[] oid, POA adapter )
-	    throws ForwardRequest
-	{
-	    String oidStr = new String(oid);
+        public Servant incarnate( byte[] oid, POA adapter )
+            throws ForwardRequest
+        {
+            String oidStr = new String(oid);
 
-	    NamingContextImpl n = null;
-	    try
-	    {
-		File f = new File( filePrefix + oidStr );
-		if( f.exists() )
-		{
-		    org.jacorb.util.Debug.output( 2,"Reading in  context state from file");
-		    FileInputStream f_in = new FileInputStream(f);
+            NamingContextImpl n = null;
+            try
+            {
+                File f = new File( filePrefix + oidStr );
+                if( f.exists() )
+                {
+                    org.jacorb.util.Debug.output( 2,"Reading in  context state from file");
+                    FileInputStream f_in = new FileInputStream(f);
 
-		    if( f_in.available() > 0 )
-		    {
-			ObjectInputStream in = new ObjectInputStream(f_in);
-			n = (NamingContextImpl)in.readObject();
-			in.close();
-		    }
-		    f_in.close();
-		}
-		else
-		    org.jacorb.util.Debug.output(2,"No naming context state, starting empty");
+                    if( f_in.available() > 0 )
+                    {
+                        ObjectInputStream in = new ObjectInputStream(f_in);
+                        n = (NamingContextImpl)in.readObject();
+                        in.close();
+                    }
+                    f_in.close();
+                }
+                else
+                    org.jacorb.util.Debug.output(2,"No naming context state, starting empty");
 
-	    }
-	    catch( IOException io )
-	    {
-		org.jacorb.util.Debug.output(2,"File seems corrupt, starting empty");
-	    }
-	    catch( java.lang.ClassNotFoundException c )
-	    {
-		System.err.println("Could not read object from file, class not found!");
-		System.exit(1);
-	    }
-	    if( n == null )
-	    {
-		n = new NamingContextImpl();
-	    }
+            }
+            catch( IOException io )
+            {
+                org.jacorb.util.Debug.output(2,"File seems corrupt, starting empty");
+            }
+            catch( java.lang.ClassNotFoundException c )
+            {
+                System.err.println("Could not read object from file, class not found!");
+                System.exit(1);
+            }
+            if( n == null )
+            {
+                n = new NamingContextImpl();
+            }
 
             n.init( orb, adapter);
-	    return n;
-	}
+            return n;
+        }
 
-	/**
-	 * Saves the servant's  state in a file
-	 */
+        /**
+         * Saves the servant's  state in a file
+         */
 
-	public void etherealize(byte[] oid, POA adapter,
+        public void etherealize(byte[] oid, POA adapter,
                                 Servant servant,
-				boolean cleanup_in_progress, boolean remaining_activations)
-	{
-	    String oidStr = new String(oid);
+                                boolean cleanup_in_progress, boolean remaining_activations)
+        {
+            String oidStr = new String(oid);
 
-	    try
-	    {
-		File f = new File(filePrefix + oidStr);
+            try
+            {
+                File f = new File(filePrefix + oidStr);
                 FileOutputStream fout = new FileOutputStream(f);
 
-		ObjectOutputStream out =
-		    new ObjectOutputStream(fout);
+                ObjectOutputStream out =
+                new ObjectOutputStream(fout);
 
-		/* save state */
+                /* save state */
                 out.writeObject((NamingContextImpl)servant);
-		org.jacorb.util.Debug.output(2,"Saved state for servant " + oidStr);
-	    }
-	    catch( IOException io )
-	    {
-		io.printStackTrace();
-		System.err.println("Error opening output file " + filePrefix + oidStr );
-		//		System.exit(1);
-	    }
-  	}
+                org.jacorb.util.Debug.output(2,"Saved state for servant " + oidStr);
+            }
+            catch( IOException io )
+            {
+                io.printStackTrace();
+                System.err.println("Error opening output file " + filePrefix + oidStr );
+                //  System.exit(1);
+            }
+        }
     }
 
 
     private static void usage()
     {
-	System.err.println("Usage: java org.jacorb.naming.NameServer [<ior_filename>] [-p <ns_port>] [-t <time_out> [imr_register] ]");
-	System.exit(1);
+        System.err.println("Usage: java org.jacorb.naming.NameServer [<ior_filename>] [-p <ns_port>] [-t <time_out> [imr_register] ]");
+        System.exit(1);
     }
 
     /** Main */
@@ -157,13 +157,13 @@ public class NameServer
         boolean imr_register = false;
         String fileName = null;
 
-	try
-	{
-	    /* get time out value if any */
-	    int time_out = 0;
+        try
+        {
+            /* get time out value if any */
+            int time_out = 0;
 
-	    if( args.length > 6 )
-	    {
+            if( args.length > 6 )
+            {
                 usage();
             }
 
@@ -203,18 +203,18 @@ public class NameServer
                         }
                         if( idx +1 < args.length && args[idx +1].equals("imr_register") )
                             //#ifjdk 1.2
-                                imr_register = true;
-                            //#else
-                            //# throw new RuntimeException ("Sorry, imr_register not supported in this release");
-                            //#endif
+                            imr_register = true;
+                        //#else
+                        //# throw new RuntimeException ("Sorry, imr_register not supported in this release");
+                        //#endif
                     }
                     else
                         usage();
                 }
-	    }
+            }
 
-	    java.util.Properties props = new java.util.Properties();
-	    props.put("jacorb.implname","StandardNS");
+            java.util.Properties props = new java.util.Properties();
+            props.put("jacorb.implname","StandardNS");
 
             /*
              * by setting the following property, the ORB will
@@ -223,10 +223,10 @@ public class NameServer
              * can be used
              */
 
-  	    props.put("jacorb.orb.objectKeyMap.NameService",
-                  "StandardNS/NameServer-POA/_root");
+            props.put("jacorb.orb.objectKeyMap.NameService",
+                      "StandardNS/NameServer-POA/_root");
 
-	    /*
+            /*
              * set a connection time out : after 30 secs. idle time,
              * the adapter will close connections
              */
@@ -255,106 +255,106 @@ public class NameServer
                 props.put ("OAPort", port);
             }
 
-	    /* which directory to store/load in? */
+            /* which directory to store/load in? */
 
-	    String directory =
-                org.jacorb.util.Environment.getProperty("jacorb.naming.db_dir");
+            String directory =
+            org.jacorb.util.Environment.getProperty("jacorb.naming.db_dir");
 
-	    if( directory != null )
-		filePrefix = directory + File.separatorChar + filePrefix;
+            if( directory != null )
+                filePrefix = directory + File.separatorChar + filePrefix;
 
-	    /* intialize the ORB and Root POA */
+            /* intialize the ORB and Root POA */
 
-	    orb = org.omg.CORBA.ORB.init(args, props);
+            orb = org.omg.CORBA.ORB.init(args, props);
 
-	    if ( org.jacorb.util.Environment.useImR() && imr_register)
+            if ( org.jacorb.util.Environment.useImR() && imr_register)
             {
                 //#ifjdk 1.2
-                    // don't supply "imr_register", so a ns started by an imr_ssd
-                    // won't try to register himself again.
-                    String command = Environment.getProperty("jacorb.java_exec") +
-                        " org.jacorb.naming.NameServer " + args[0] + " " + args[1];
+                // don't supply "imr_register", so a ns started by an imr_ssd
+                // won't try to register himself again.
+                String command = Environment.getProperty("jacorb.java_exec") +
+                " org.jacorb.naming.NameServer " + args[0] + " " + args[1];
 
-                    ImRManager.autoRegisterServer(orb, "StandardNS", command,
-                                                  ImRManager.getLocalHostName(),
-                                                  true); //edit existing
+                ImRManager.autoRegisterServer(orb, "StandardNS", command,
+                                              ImRManager.getLocalHostName(),
+                                              true); //edit existing
                 //#endif
-	    }
+            }
 
-	    org.omg.PortableServer.POA rootPOA =
-		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+            org.omg.PortableServer.POA rootPOA =
+            org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-	    /* create a user defined poa for the naming contexts */
+            /* create a user defined poa for the naming contexts */
 
-	    org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[3];
+            org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[3];
 
-	    policies[0] =
-                rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
-	    policies[1] =
-                rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+            policies[0] =
+            rootPOA.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+            policies[1] =
+            rootPOA.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
 
-	    policies[2] =
-                rootPOA.create_request_processing_policy(
-				       RequestProcessingPolicyValue.USE_SERVANT_MANAGER);
+            policies[2] =
+            rootPOA.create_request_processing_policy(
+                RequestProcessingPolicyValue.USE_SERVANT_MANAGER);
 
-	    POA nsPOA = rootPOA.create_POA("NameServer-POA",
+            POA nsPOA = rootPOA.create_POA("NameServer-POA",
                                            rootPOA.the_POAManager(),
                                            policies);
 
-	    NameServer.NameServantActivatorImpl servantActivator =
-		new NameServer.NameServantActivatorImpl( orb );
+            NameServer.NameServantActivatorImpl servantActivator =
+            new NameServer.NameServantActivatorImpl( orb );
 
-	    nsPOA.set_servant_manager( servantActivator );
-	    nsPOA.the_POAManager().activate();
+            nsPOA.set_servant_manager( servantActivator );
+            nsPOA.the_POAManager().activate();
 
-	    for (int i = 0; i < policies.length; i++)
-		policies[i].destroy();
+            for (int i = 0; i < policies.length; i++)
+                policies[i].destroy();
 
 
-	    /* export the root context's reference to a file */
+            /* export the root context's reference to a file */
 
-	    byte[] oid = ( new String("_root").getBytes() );
-	    try
-	    {
-		org.omg.CORBA.Object obj =
-		    nsPOA.create_reference_with_id( oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
+            byte[] oid = ( new String("_root").getBytes() );
+            try
+            {
+                org.omg.CORBA.Object obj =
+                nsPOA.create_reference_with_id( oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
 
                 if( fileName != null )
                 {
                     PrintWriter out =
-                        new PrintWriter( new FileOutputStream( fileName ), true );
+                    new PrintWriter( new FileOutputStream( fileName ), true );
 
                     out.println( orb.object_to_string(obj) );
                     out.close();
                 }
-	    }
-	    catch ( Exception e )
-	    {
-		e.printStackTrace();
-		throw new RuntimeException(e.getMessage());
-	    }
+            }
+            catch ( Exception e )
+            {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
 
-	    org.jacorb.util.Debug.output(2,"NS up");
+            org.jacorb.util.Debug.output(2,"NS up");
 
-	    /* either block indefinitely or time out */
+            /* either block indefinitely or time out */
 
-	    if( time_out == 0 )
-		orb.run();
-	    else
-		Thread.sleep(time_out);
+            if( time_out == 0 )
+                orb.run();
+            else
+                Thread.sleep(time_out);
 
 
-	    /* shutdown. This will etherealize all servants, thus
+            /* shutdown. This will etherealize all servants, thus
                saving their state */
-	    orb.shutdown( true );
+            orb.shutdown( true );
 
-            //	    System.exit(0);
-	}
-	catch( Exception e )
-	{
-	    e.printStackTrace();
-	    System.exit(1);
-	}
+            //      System.exit(0);
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
 
