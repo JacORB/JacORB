@@ -69,6 +69,9 @@ gerald.brose@acm.org
                - send_multiple_requests_oneway
                - poll_next_response
                - get_next_response
+         - Added property "jacorb.suppress_no_props_warning" that will
+           suppress the warning message when no properties file can be
+           found (if set to "on").
 
    - DynAny:
          - Implemented DynFixed interface.
