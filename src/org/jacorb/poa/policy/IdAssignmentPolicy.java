@@ -19,32 +19,45 @@ package org.jacorb.poa.policy;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 /**
  * This class implements the id assignment policy.
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99, RT
  */
-public class IdAssignmentPolicy 
-    extends org.omg.CORBA.LocalObject 
+public class IdAssignmentPolicy
+    extends org.omg.CORBA.LocalObject
     implements org.omg.PortableServer.IdAssignmentPolicy
 {
+
     private org.omg.PortableServer.IdAssignmentPolicyValue value;
-    private IdAssignmentPolicy() {
+
+    private IdAssignmentPolicy()
+    {
     }
-    public IdAssignmentPolicy(org.omg.PortableServer.IdAssignmentPolicyValue _value) {
+
+    public IdAssignmentPolicy( org.omg.PortableServer.IdAssignmentPolicyValue _value )
+    {
         value = _value;
     }
-    public org.omg.CORBA.Policy copy() {
-        return new IdAssignmentPolicy(value());
+
+    public org.omg.CORBA.Policy copy()
+    {
+        return new IdAssignmentPolicy( value() );
     }
-    public void destroy() {
+
+    public void destroy()
+    {
     }
-    public int policy_type() {
+
+    public int policy_type()
+    {
         return org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID.value;
     }
-    public org.omg.PortableServer.IdAssignmentPolicyValue value() {
+
+    public org.omg.PortableServer.IdAssignmentPolicyValue value()
+    {
         return value;
     }
 }
