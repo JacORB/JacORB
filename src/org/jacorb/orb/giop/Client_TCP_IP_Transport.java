@@ -109,7 +109,7 @@ public class Client_TCP_IP_Transport
 
             int retries = Environment.noOfRetries();
 
-            while( retries > 0 )
+            while( retries >= 0 )
             {
                 try
                 {
@@ -144,21 +144,27 @@ public class Client_TCP_IP_Transport
                 }
                 catch ( IOException c )
                 {
-                    Debug.output( 1, "Retrying to connect to " +
-                                     connection_info );
-                    try
+                    Debug.output( 3, c );
+
+                    //only sleep and print message if we're actually going to retry
+                    if( retries >= 0 )
                     {
-                        Thread.sleep( Environment.retryInterval() );
-                    }
-                    catch( InterruptedException i )
-                    {
+                        Debug.output( 1, "Retrying to connect to " +
+                                      connection_info );
+                        try
+                        {
+                            Thread.sleep( Environment.retryInterval() );
+                        }
+                        catch( InterruptedException i )
+                        {
+                        }
                     }
 
                     retries--;
                 }
             }
 
-            if( retries == 0 )
+            if( retries < 0 )
             {
                 throw new org.omg.CORBA.TRANSIENT("Retries exceeded, couldn't reconnect to " +
                                                   connection_info );
