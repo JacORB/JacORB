@@ -115,7 +115,7 @@ public class ConnectionManager
 
     public final ClientConnection _getConnection( Delegate delegate )
         {
-            return _getConnection( delegate.get_adport(), delegate.port_is_ssl());
+            return _getConnection( delegate.get_adport(), delegate.useSSL());
         }
 
 

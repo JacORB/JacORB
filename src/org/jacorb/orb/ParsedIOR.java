@@ -28,6 +28,7 @@ import org.jacorb.orb.util.*;
 import org.jacorb.util.*;
 
 import org.omg.IOP.*;
+import org.omg.IIOP.*;
 import org.omg.CosNaming.*;
 
 /**
@@ -40,26 +41,29 @@ import org.omg.CosNaming.*;
 public class ParsedIOR 
 {
     private int effectiveProfileBody = 0;
-    protected org.omg.IIOP.ProfileBody_1_1[] profileBodies = null; 
+    private ProfileBody_1_1[] profileBodies = null; 
 
     /** top-level tagged componenents, i.e. not part of IOP components    */
-    public TaggedComponent [] taggedComponents = new TaggedComponent[0];
-    public TaggedProfile []  effectiveProfile;
+    public TaggedComponent[] taggedComponents = new TaggedComponent[0];
+    public TaggedProfile[]  effectiveProfile;
 
     protected boolean endianness = false;
     protected String ior_str = null;
     protected IOR ior = null;
     
-    private org.jacorb.orb.ORB orb;
+    private ORB orb = null;
+
+    private String adport = null;
+    private boolean use_ssl = false;
+
 
     /* static part */
 
     /** 
      * factory method
      */
-
     public static org.omg.IOP.IOR createIOR( String typeId, 
-					     org.omg.IIOP.ProfileBody_1_0 profileBody )
+					     ProfileBody_1_0 profileBody )
     {
 	org.omg.IOP.IOR ior = new org.omg.IOP.IOR();
 	ior.type_id = typeId;
@@ -68,16 +72,16 @@ public class ParsedIOR
 	ior.profiles[0].tag = 0; // IIOP
 	CDROutputStream out = new CDROutputStream();
 	out.write_boolean(false);
-	org.omg.IIOP.ProfileBody_1_0Helper.write( out, profileBody );
+	ProfileBody_1_0Helper.write( out, profileBody );
 	ior.profiles[0].profile_data = out.getBufferCopy();
 	return ior;
     }
 
 
-    public static org.omg.IIOP.ProfileBody_1_1 getProfileBody( byte [] profile, 
+    public static ProfileBody_1_1 getProfileBody( byte[] profile, 
 							       int min_minor )
     {
-	org.omg.IIOP.ProfileBody_1_1 _profile_body = null;
+	ProfileBody_1_1 _profile_body = null;
 	CDRInputStream in = new CDRInputStream((org.omg.CORBA.ORB)null, profile);
 	try
         {
@@ -90,7 +94,7 @@ public class ParsedIOR
       
 	    // first read the version and observe if we have already
 	    // decoded newer version of IIOP IOR
-	    int minor = org.omg.IIOP.VersionHelper.read(in).minor;
+	    int minor = VersionHelper.read(in).minor;
       
 	    if( ( minor < min_minor) || (minor > 2) ) 
 		return null;
@@ -101,15 +105,15 @@ public class ParsedIOR
 	    switch(minor){
 	    case 2: // 1.2 is compatible with 1.1
 	    case 1:
-		_profile_body = org.omg.IIOP.ProfileBody_1_1Helper.read(in);
+		_profile_body = ProfileBody_1_1Helper.read(in);
 		break;
 	    case 0:
 		// convert profile body 1.0 -> 1.1 by adding empty or existing tagged
 		// components (should be always empty because if we already read >1.0
 		// profile version, we should never encounter these lines)
-		org.omg.IIOP.ProfileBody_1_0 pb0;
-		pb0 = org.omg.IIOP.ProfileBody_1_0Helper.read(in);
-		_profile_body = new org.omg.IIOP.ProfileBody_1_1(pb0.iiop_version,
+		ProfileBody_1_0 pb0;
+		pb0 = ProfileBody_1_0Helper.read(in);
+		_profile_body = new ProfileBody_1_1(pb0.iiop_version,
 								 pb0.host,
 								 pb0.port,
 								 pb0.object_key,
@@ -156,7 +160,7 @@ public class ParsedIOR
 
 
     public static org.omg.SSLIOP.SSL getSSLTaggedComponent( 
-                                   org.omg.IIOP.ProfileBody_1_1 profileBody )
+                                   ProfileBody_1_1 profileBody )
     {
         if ( profileBody == null ||
              profileBody.iiop_version == null ||
@@ -244,6 +248,56 @@ public class ParsedIOR
     }
 
     /**
+     * Init must be deferred from the constructor because it must be
+     * possible to have IORs without an effective profile. The
+     * exception may only be thrown on the first invocation of that
+     * reference.  
+     */
+    public void init()
+    {
+        ProfileBody_1_1 pb = getProfileBody();
+        
+        if( pb == null )
+        {
+            throw new org.omg.CORBA.INV_OBJREF( "No TAG_INTERNET_IOP found in object_reference" );
+        }
+            
+        int port = pb.port;
+            
+        // bnv: consults SSL tagged component
+        org.omg.SSLIOP.SSL ssl = getSSLTaggedComponent( pb );    
+
+        if( ssl != null &&
+            ( Environment.enforceSSL() ||
+              ( Environment.supportSSL() && 
+                (ssl.target_requires > 1) )))
+        {
+            //      for policy expected serverside
+            use_ssl = true; 
+            port = ssl.port; 
+        }                
+        else 
+        { 
+            use_ssl = false; 
+        } 
+            
+        if( port < 0 ) 
+            port += 65536;
+        
+        adport = pb.host + ":" + port;        
+    }
+
+    public String getAdPort()
+    {
+        return adport;
+    }
+
+    public boolean useSSL()
+    {
+        return use_ssl;
+    }
+
+    /**
      * When multiple internet IOP tags are present, they will probably
      * have different versions, we will use the highest version
      * between 0 and 1.  
@@ -273,7 +327,7 @@ public class ParsedIOR
 		org.jacorb.util.Debug.output(4, "TAG_INTERNET_IOP found in IOR");
                 // decode Internet IOP profile
 
-                org.omg.IIOP.ProfileBody_1_1 body = 
+                ProfileBody_1_1 body = 
                     getProfileBody( _ior.profiles[i].profile_data, 0 );
           
                 if ( body != null )
@@ -295,7 +349,7 @@ public class ParsedIOR
 //  	    throw new org.omg.CORBA.INV_OBJREF("no TAG_INTERNET_IOP found in object_reference");
 
         profileBodies = 
-            new org.omg.IIOP.ProfileBody_1_1[ internetProfiles.size() ];
+            new ProfileBody_1_1[ internetProfiles.size() ];
         internetProfiles.copyInto( profileBodies );
 
         effectiveProfileBody = 0;
@@ -339,8 +393,8 @@ public class ParsedIOR
 	}
 	else if( address.protocol_identifier.equals("iiop"))
 	{
-	    org.omg.IIOP.ProfileBody_1_0 profile_body = 
-		new org.omg.IIOP.ProfileBody_1_0( address.getVersion(),
+	    ProfileBody_1_0 profile_body = 
+		new ProfileBody_1_0( address.getVersion(),
 						  address.host,
 						  (short)address.port,
 						  corbaLoc.getKey());
@@ -404,7 +458,7 @@ public class ParsedIOR
 	return profileBodies[ effectiveProfileBody ].object_key;
     }
 
-    public org.omg.IIOP.ProfileBody_1_1 getProfileBody() // chg by devik
+    public ProfileBody_1_1 getProfileBody() // chg by devik
     {
         if( profileBodies.length > effectiveProfileBody )
         {
@@ -416,7 +470,7 @@ public class ParsedIOR
         }            
     }
 
-    public org.omg.IIOP.ProfileBody_1_1[] getProfileBodies()
+    public ProfileBody_1_1[] getProfileBodies()
     {
         return profileBodies;
     }

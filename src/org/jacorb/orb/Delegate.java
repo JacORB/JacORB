@@ -53,21 +53,12 @@ public final class Delegate
     // OF THE REFERENCE.
     private ParsedIOR _pior = null;
     private ClientConnection connection = null;
-    
-    private byte[] object_key;
-    private byte[] oid;
-    private String adport;
-
+ 
     /** code set service Context */
     org.omg.IOP.ServiceContext[] ctx = new org.omg.IOP.ServiceContext[0];
 
-    /** SSL tagged component */
-    private org.omg.SSLIOP.SSL ssl;
-
     /** domain service used to implement get_policy and get_domain_managers */
     private static Domain _domainService = null;
-
-    private boolean uses_ssl = false; // bnv
 
     /* save original ior for fall-back */
     private ParsedIOR piorOriginal = null;
@@ -75,11 +66,11 @@ public final class Delegate
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
 
-    //private int client_count = 1;
-    protected org.omg.CORBA.ORB orb;
+    private org.omg.CORBA.ORB orb = null;
     private org.jacorb.poa.InvocationContext context;
 
     private boolean use_interceptors = false;
+
     private boolean location_forward_permanent = true;
 
     private Hashtable pending_replies = new Hashtable();
@@ -167,42 +158,12 @@ public final class Delegate
             if( bound )
                 return;
 
-            org.omg.IIOP.ProfileBody_1_1 pb = _pior.getProfileBody();
+            _pior.init();
             
-            if( pb == null )
-            {
-                throw new org.omg.CORBA.INV_OBJREF( "No TAG_INTERNET_IOP found in object_reference" );
-            }
-            
-            int port = pb.port;
-            
-            // bnv: consults SSL tagged component
-            ssl = ParsedIOR.getSSLTaggedComponent( pb );    
-
-            if( ssl != null &&
-                ( Environment.enforceSSL() ||
-                  ( Environment.supportSSL() && 
-                    (ssl.target_requires > 1) )))
-            {
-                //      for policy expected serverside
-                uses_ssl = true; 
-                port = ssl.port; 
-            }                
-            else 
-            { 
-                uses_ssl = false; 
-            } 
-            
-            if( port < 0 ) 
-                port += 65536;
-            
-            object_key = pb.object_key;
-            adport = pb.host + ":" + port;
-            
-            if( uses_ssl )
-                Debug.output( 3, "Delegate bound to SSL " + adport );
+            if( _pior.useSSL() )
+                Debug.output( 3, "Delegate bound to SSL " + _pior.getAdPort() );
             else
-                Debug.output( 3, "Delegate bound to " + adport );
+                Debug.output( 3, "Delegate bound to " + _pior.getAdPort() );
         
     
             connection = 
@@ -226,7 +187,7 @@ public final class Delegate
                 locate_on_bind_performed = true;
 
                 LocateRequestOutputStream lros = 
-                    new LocateRequestOutputStream( object_key, 
+                    new LocateRequestOutputStream( _pior.get_object_key(), 
                                                    connection.getId() );
                 LocateReplyInputStream lris = 
                     connection.sendLocateRequest( lros );
@@ -335,7 +296,7 @@ public final class Delegate
         return new org.jacorb.orb.dii.Request( self, 
                                                orb, 
                                                connection, 
-                                               object_key, 
+                                               getParsedIOR().get_object_key(), 
                                                operation, 
                                                args, 
                                                ctx, 
@@ -390,7 +351,7 @@ public final class Delegate
 
     public String get_adport()
     {
-        return adport;
+        return getParsedIOR().getAdPort();
     }
 
     private org.jacorb.orb.domain.Domain _domainService()
@@ -460,22 +421,26 @@ public final class Delegate
     public org.omg.CORBA.Policy get_policy_no_intercept(org.omg.CORBA.Object self, 
                                                         int policy_type)
     {
-        bind();
-        
-        // devik: if connection's tcs was not negotiated yet, mark all requests
-        // with codeset servicecontext.
-        ctx = connection.addCodeSetContext( ctx, 
-                                            getParsedIOR() );
+        synchronized( bind_sync )
+        {
+            bind();
+            
+            ParsedIOR p = getParsedIOR();
+            
+            // devik: if connection's tcs was not negotiated yet, mark all requests
+            // with codeset servicecontext.
+            ctx = connection.addCodeSetContext( ctx, p );
     
-        RequestOutputStream _os = 
-             new RequestOutputStream( orb, 
-                                     connection.getId(),
-                                     "_get_policy", 
-                                     true, 
-                                     object_key, 
-                                     ctx);
-    
-        return get_policy(self, policy_type, _os);
+            RequestOutputStream _os = 
+                new RequestOutputStream( orb, 
+                                         connection.getId(),
+                                         "_get_policy", 
+                                         true, 
+                                         p.get_object_key(), 
+                                         ctx);
+
+            return get_policy(self, policy_type, _os);
+        }
     }
 
 
@@ -576,10 +541,7 @@ public final class Delegate
         {
             bind();
 
-            if( oid == null )
-                oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
-
-            return oid;
+            return org.jacorb.poa.util.POAUtil.extractOID( getParsedIOR().get_object_key() );
         }
     }
 
@@ -589,7 +551,7 @@ public final class Delegate
         {
             bind();
 
-            return object_key;
+            return getParsedIOR().get_object_key();
         }
     }
 
@@ -614,30 +576,6 @@ public final class Delegate
     public org.jacorb.poa.POA getPOA()
     {
         return (org.jacorb.poa.POA)poa;
-    }
-
-    public boolean port_is_ssl()
-    {
-        synchronized( bind_sync )
-        {
-            // check invariant
-            if( uses_ssl && 
-                 (connection != null) &&
-                 ! connection.isSSL() )
-            {
-                // invariant violated: this a fatal error!
-                Debug.output( 1, "SSL socket expected. FATAL ERROR." );
-                // return org.omg.Security.AssociationStatus.SecAssocFailure;
-                System.exit (0);
-            }
-            
-            return uses_ssl;
-        }
-    }
-
-    public org.omg.SSLIOP.SSL ssl()
-    {
-        return ssl;
     }
 
     public org.omg.CORBA.portable.ObjectImpl getReference(org.jacorb.poa.POA _poa)
@@ -1149,23 +1087,11 @@ public final class Delegate
 
     public synchronized void release(org.omg.CORBA.Object self)
     {
-        /*
-        decrementClientCount();
-        if( noMoreClients() )
-        {
-            ((org.jacorb.orb.ORB)orb)._release( this );
-            Debug.output(2, "releasing a delegate connected to " + adport );
-
-            if( bound )
-                unbind();
-        }
-        */
     }
 
     /**
      * releases the InputStream
      */
-
     public void releaseReply( org.omg.CORBA.Object self, 
                               org.omg.CORBA.portable.InputStream is)
     {
@@ -1183,12 +1109,16 @@ public final class Delegate
     public synchronized org.omg.CORBA.Request request(org.omg.CORBA.Object self,
                                                       String operation )
     {
-        bind();
-    
-        return new org.jacorb.orb.dii.Request( self, orb, 
-                                               connection, 
-                                               object_key, 
-                                               operation );
+        synchronized( bind_sync )
+        {
+            bind();
+            
+            return new org.jacorb.orb.dii.Request( self, 
+                                                   orb, 
+                                                   connection, 
+                                                   getParsedIOR().get_object_key(), 
+                                                   operation );
+        }
     }
 
     /**
@@ -1204,22 +1134,27 @@ public final class Delegate
           
         // Delegate d =
         // (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
+        synchronized( bind_sync )
+        {
+            bind();
+     
+            ParsedIOR p = getParsedIOR();
 
-        bind();
+            // devik: if connection's tcs was not negotiated yet, mark all
+            // requests with codeset servicecontext.
+            ctx = connection.addCodeSetContext( ctx, p );
+            
+            RequestOutputStream ros = new RequestOutputStream( orb, 
+                                                               connection.getId(),
+                                                               operation, 
+                                                               responseExpected, 
+                                                               p.get_object_key(),
+                                                               ctx, 
+                                                               use_interceptors);
+            ros.setCodeSet( connection.TCS, connection.TCSW );
         
-        // devik: if connection's tcs was not negotiated yet, mark all
-        // requests with codeset servicecontext.
-        ctx = connection.addCodeSetContext( ctx, getParsedIOR() );
-
-        RequestOutputStream ros = new RequestOutputStream( orb, 
-                                        connection.getId(),
-                                        operation, 
-                                        responseExpected, 
-                                        object_key,
-                                        ctx, 
-                                        use_interceptors);
-        ros.setCodeSet( connection.TCS, connection.TCSW );
-        return ros;
+            return ros;
+        }
     }
 
     /**
@@ -1296,8 +1231,8 @@ public final class Delegate
 
     public void set_adport_and_key( String ap, byte[] _key )
     {
-        adport = ap;
-        object_key = _key;
+        //adport = ap;
+        //object_key = _key;
     }
 
     public void setIOR(org.omg.IOP.IOR _ior)
@@ -1331,6 +1266,11 @@ public final class Delegate
     public String typeId()
     {
         return getParsedIOR().getIOR().type_id;
+    }
+
+    public boolean useSSL()
+    {
+        return getParsedIOR().useSSL();
     }
         
     public void initInterceptors()
