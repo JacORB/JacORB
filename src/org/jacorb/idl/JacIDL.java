@@ -65,13 +65,12 @@ public class JacIDL
     private List _defines = new ArrayList();
     private List _undefines = new ArrayList();
     private File _compileList[] = new File[ 0 ];
+    private List _i2jpackages = new ArrayList();
+
+    private I2JPackageTagHandler i2jHandler = new I2JPackageTagHandler();
 
     public JacIDL()
     {
-        parser.command_line = null;
-        parser.pack_replace = new Hashtable();
-        parser.scopes = new java.util.Stack();
-        parser.include_state = false;
         _destdir = new File(".");
         _srcdir = new File(".");
         _parseonly = false;
@@ -122,7 +121,6 @@ public class JacIDL
      */
     public void setDebuglevel(int level)
     {
-
         _debuglevel = level;
     }
 
@@ -176,7 +174,6 @@ public class JacIDL
      */
     public void setNoskel(boolean flag)
     {
-
         _noskel = flag;
     }
 
@@ -231,7 +228,6 @@ public class JacIDL
     /**
      * Sets the flag to overwrite existing files.
      */
-
     public void setForceOverwrite(boolean flag)
     {
         _force_overwrite = flag;
@@ -253,6 +249,28 @@ public class JacIDL
     {
         // The variable can only be evaluated in the execute() method
         _undefines.add(def);
+    }
+
+    /**
+    * Will be called whenever an <i2jpackage> nested PCDATA element is encountered.
+    */
+    public org.jacorb.idl.JacIDL.I2JPackageTagHandler createI2jpackage()
+    {
+        return i2jHandler;
+    }
+
+    /**
+    * Inner class that will read the PCDATA i2jpackage tags.
+    *
+    * The format for these will be <i2jpackage>x:y</i2jpackage>.
+    * @see #createI2jpackage()
+    */
+    public class I2JPackageTagHandler
+    {
+        public void addText(String text)
+        {
+            _i2jpackages.add(text);
+        }
     }
 
     // *****************************************************************
@@ -329,6 +347,15 @@ public class JacIDL
         {
             parser.package_prefix = "org.omg";
         }
+
+        // Add the i2jpackage values to the parser
+        for (int i = 0; i < _i2jpackages.size(); i++)
+        {
+            parser.addI2JPackage((String) _i2jpackages.get(i));
+        }
+
+        // Set the logging priority
+        parser.getLogger().setPriority(org.jacorb.util.LogKitLoggerFactory.intToPriority(_debuglevel));
 
         // setup input file lists
         resetFileLists();
@@ -448,7 +475,7 @@ public class JacIDL
             prop = (org.apache.tools.ant.types.Environment.Variable)
                 _defines.get(i);
             value = prop.getValue();
-            if (value == null) 
+            if (value == null)
                 value = "1";
             lexer.define(prop.getKey(), value);
         }

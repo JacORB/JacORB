@@ -249,27 +249,9 @@ parser code
                         usage(argv, "-W");
 
                     int level = Integer.parseInt( argv[++i] );
-                    Priority p = null;
-                    switch( level )
-                    {
-                            case 1:
-                                p = Priority.ERROR;
-                                break;
-                            case 2:
-                                p = Priority.WARN;
-                                break;
-                            case 3:
-                                p = Priority.INFO;
-                                break;
-                            case 4:
-                                p = Priority.DEBUG;
-                                break;
-                            default:
-                                p = Priority.FATAL_ERROR;
-                    }
-
-                    logger.setPriority( p );
-                    org.jacorb.idl.Environment.verbosityLevel( level );
+                    
+                    logger.setPriority(org.jacorb.util.Environment.intToPriority(level));
+                    
                     continue;
                 }
                 if( argv[i].startsWith("-D"))
@@ -439,7 +421,7 @@ parser code
 
 
 
-    private static void addI2JPackage( String mapping )
+    static void addI2JPackage( String mapping )
     {
        int split_idx = mapping.indexOf(':');
        if( split_idx  < 0 )
