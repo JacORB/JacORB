@@ -15,7 +15,7 @@ public class RelativeRequestTimeoutPolicy
 
     public RelativeRequestTimeoutPolicy (org.omg.CORBA.Any value)
     {
-        this.relative_expiry = value.extract_long();
+        this.relative_expiry = value.extract_ulonglong();
     }
 
     public long relative_expiry()
