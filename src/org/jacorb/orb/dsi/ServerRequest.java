@@ -70,8 +70,9 @@ public class ServerRequest
     public ServerRequest( org.jacorb.orb.ORB orb, byte[] _buf, ServerConnection _connection )
     {
 	this.orb = orb;
-	in = new RequestInputStream(_connection,_buf);
+	in = new RequestInputStream( orb,_buf);
 	connection = _connection;
+        in.setCodeSet( connection.TCS, connection.TCSW );
 
 	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key);
     }
@@ -244,11 +245,11 @@ public class ServerRequest
 		{ 
 		    out = 
                         new ReplyOutputStream(
-                                 connection,
                                  new org.omg.IOP.ServiceContext[0],
                                  requestId(), 
                                  org.omg.GIOP.ReplyStatusType_1_0.from_int(status),
-                                 orb.hasServerRequestInterceptors());		       
+                                 orb.hasServerRequestInterceptors());
+                    out.setCodeSet( connection.TCS, connection.TCSW );
 		}
 
 		/* DSI-based servers set results and user exceptions using anys, so 
@@ -344,12 +345,11 @@ public class ServerRequest
 	    throw new Error("Internal: ServerRequest not stream-based!");
 
 	out = 
-            new ReplyOutputStream(
-                                  connection,
-                                  new org.omg.IOP.ServiceContext[0],
+            new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                   requestId(),
                                   org.omg.GIOP.ReplyStatusType_1_0.NO_EXCEPTION,
                                   orb.hasServerRequestInterceptors());
+        out.setCodeSet( connection.TCS, connection.TCSW );
 	return out;
     }
 
@@ -367,10 +367,11 @@ public class ServerRequest
 	  ctx = new org.omg.IOP.ServiceContext[0];
 
 	out = 
-            new ReplyOutputStream(connection, ctx,
+            new ReplyOutputStream(ctx,
                                   requestId(),
                                   org.omg.GIOP.ReplyStatusType_1_0.USER_EXCEPTION,
                                   orb.hasServerRequestInterceptors());
+        out.setCodeSet( connection.TCS, connection.TCSW );
 	return out;
     }
 
@@ -392,7 +393,7 @@ public class ServerRequest
 	else
             ctx = new org.omg.IOP.ServiceContext[0];
 
-	out = new ReplyOutputStream(connection, ctx,
+	out = new ReplyOutputStream(ctx,
                                     requestId(),
                                     org.omg.GIOP.ReplyStatusType_1_0.SYSTEM_EXCEPTION,
                                     orb.hasServerRequestInterceptors());
@@ -411,7 +412,7 @@ public class ServerRequest
 	else
 	  ctx = new org.omg.IOP.ServiceContext[0];
 
-	out = new ReplyOutputStream(connection, ctx,
+	out = new ReplyOutputStream(ctx,
                                     requestId(),
                                     org.omg.GIOP.ReplyStatusType_1_0.LOCATION_FORWARD,
                                     orb.hasServerRequestInterceptors());
@@ -495,7 +496,7 @@ public class ServerRequest
     public void updateBuffer( byte[] _buf )
     {
 	RequestInputStream rin = 
-            new RequestInputStream(connection,_buf);
+            new RequestInputStream( orb,_buf);
 	//  	byte[] n_oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key);
 	//  	if( oid != n_oid )
 	//  	    throw new org.omg.CORBA.UNKNOWN("Invalid message buffer update");
@@ -516,12 +517,12 @@ public class ServerRequest
     {
         if (out == null)
             out = 
-                new ReplyOutputStream(connection,
-                                      new org.omg.IOP.ServiceContext[0],
+                new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                       requestId(),
                                       org.omg.GIOP.ReplyStatusType_1_0.NO_EXCEPTION,
                                       orb.hasServerRequestInterceptors());
-      return out;
+        out.setCodeSet( connection.TCS, connection.TCSW );
+        return out;
     }
 
     public void setServerRequestInfo(ServerRequestInfoImpl info)
@@ -545,10 +546,10 @@ public class ServerRequest
     public void reply(byte[] buf,int len)
     {
 	if( out == null )
-	    out = new ReplyOutputStream(connection, 
-                                        new org.omg.IOP.ServiceContext[0],
+	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
                                         requestId(), 
                                         org.omg.GIOP.ReplyStatusType_1_0.from_int(status));
+        out.setCodeSet( connection.TCS, connection.TCSW );
     
 
 	out.setBuffer(buf);
@@ -577,15 +578,6 @@ public class ServerRequest
     }
 
 }
-
-
-
-
-
-
-
-
-
 
 
 

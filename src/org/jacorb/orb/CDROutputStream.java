@@ -24,7 +24,7 @@ import java.io.*;
 import java.lang.*;
 import java.util.*;
 
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.connection.CodeSet;
 
 import org.omg.CORBA.TCKind;
 import org.omg.PortableServer.*;
@@ -46,12 +46,18 @@ public class CDROutputStream
                                                       1, 0, 0 } ;
     private int index = 0;
     private int pos = 0;
-    public byte[] buffer;
+    public  byte[] buffer;
     private int BUF_SIZE;
     private int NET_BUF_SIZE = 1024;
+
     private static final int MEM_BUF_SIZE = 64;
     private boolean closed = false;
     private boolean released = false;
+
+    /* character encoding code sets for char and wchar, default ISO8859_1 */
+    private int codeSet =  CodeSet.UTF8;
+    private int codeSetW=  CodeSet.UTF16;
+    private int minorGIOPVersion = 1; // needed to determine size in chars
 
     private BufferManager bufMgr;
 
@@ -65,14 +71,14 @@ public class CDROutputStream
     private final static org.omg.IOP.IOR null_ior = 
         new org.omg.IOP.IOR("", new org.omg.IOP.TaggedProfile[0]);
 
-    private ORB orb;
+    private org.omg.CORBA.ORB orb;
         
     /**
      * Associated connection. Can be null only if stream is used
      * for data encapsulation which should not use connection's
      * properties such as CodeSet.
      */
-    protected AbstractConnection connection;
+    // protected AbstractConnection connection = null;
 
     /**
      * This stream contains the separated header
@@ -88,9 +94,8 @@ public class CDROutputStream
     public CDROutputStream()
     {
         bufMgr = BufferManager.getInstance();
-        connection = null;
-        buffer = new byte[MEM_BUF_SIZE];
-    }
+        buffer = new byte[MEM_BUF_SIZE]; 
+   }
 
     /** 
      * OutputStreams created using this constructor 
@@ -100,46 +105,45 @@ public class CDROutputStream
 
     public CDROutputStream( org.omg.CORBA.ORB orb )
     {
+        this.orb = orb;
         bufMgr = BufferManager.getInstance();
-        connection = null;
-        buffer = bufMgr.getBuffer(MEM_BUF_SIZE);
+        buffer = bufMgr.getBuffer( MEM_BUF_SIZE );
     }
         
-    /** 
-     *  Class constructor using a default buffer size
-     */
 
-    public CDROutputStream( AbstractConnection c )
-    {
-        connection = c;
-        bufMgr = BufferManager.getInstance();
-        buffer = bufMgr.getBuffer(NET_BUF_SIZE);
-    }
-    
     /** 
      *  Class constructor setting the buffer size for the message
+     *  and the character encoding sets
      */
-    public CDROutputStream( AbstractConnection c,byte [] buf )
+
+    public CDROutputStream(  byte [] buf )
     {
-        connection = c;
         bufMgr = BufferManager.getInstance();
         buffer = buf;
+    }
+
+
+    public void setCodeSet( int codeSet, int codeSetWide )
+    {
+        this.codeSet = codeSet;
+        this.codeSetW = codeSetWide;
     }
 
     /**
      * Returns codeset OSF registry number used for this stream.
      */
 
-    protected int codeSet(boolean wide)
-    {
-        if( connection == null )
-        {
-            if(wide) 
-                throw new RuntimeException("Wide codeset can't be used without associated connection");
-            return CodeSet.ISO8859_1;                   
-        }
-        return wide ? connection.TCSW : connection.TCS;
-    }
+//      protected int codeSet( boolean wide )
+//      {
+//          return codeSet;
+//          if( connection == null )
+//          {
+//              if( wide )  
+//                  throw new RuntimeException("Wide codeset can't be used without associated connection");
+//              return CodeSet.ISO8859_1;                   
+//          }
+//          return wide ? connection.TCSW : connection.TCS;
+//      }
 
     /**
      * Writes a GIOPMessageHeader of the required type to the beginning of
@@ -449,28 +453,24 @@ public class CDROutputStream
         }
     }
 
-    public final void write_char (char c)
-    {
-        check(3); 
-        write_char(c,codeSet(false));
-    }
-        
+  
     /**
      * Writes char according to specified encoding. Note that check is not
      * called so call it before using this method. Each character can take
      * up to 3 bytes.
      */
-    private final void write_char (char c,int codeset)
+    public final void write_char( char c )
     {
-        //check(3);
-        switch(codeset)
+        check(3);
+        switch( codeSet )
         {
         case 0:
         case CodeSet.ISO8859_1:
             short x = (short)c;
             if( x > 255 || x < 0 )
                 throw new org.omg.CORBA.MARSHAL("char ("+x+") out of range for ISO8859_1");
-            index++; buffer[pos++] = (byte)c;
+            index++; 
+            buffer[pos++] = (byte)c;
             break;
         case CodeSet.UTF8:
             if (c <= 0x007F) 
@@ -496,7 +496,7 @@ public class CDROutputStream
             buffer[pos++] = (byte)(c & 0xFF);
             index+=2; 
             break;
-        default: throw new Error("Bad codeset");
+        default: throw new Error("Bad codeset: " + codeSet);
         }
     }
 
@@ -504,9 +504,9 @@ public class CDROutputStream
     {
         if( value == null ) 
             throw new org.omg.CORBA.MARSHAL("Null References");
-        check(length*3);
+        check( length*3 );
         for( int i = offset; i < offset+length; i++) 
-            write_char(value[i],codeSet(false));
+            write_char( value[i] );
     }
         
     public  final void write_string (String s)
@@ -521,20 +521,53 @@ public class CDROutputStream
         index += 4;             // reserve for length indicator
                 
         // write characters in current encoding, add null terminator
-        int cs=codeSet(false);
-        for(int i=0;i<size;i++) 
-            write_char(s.charAt(i),cs);
-        write_char((char)0,cs);
+        for(int i=0; i<size;i++) 
+            write_char( s.charAt(i) );
+        write_char( (char)0 );
                         
         _write4int(buffer,startPos,pos-startPos-4); // write length indicator
-        //Connection.dumpBA(buffer);
     }
 
         
     public  final void write_wchar (char c)
     {
-        check(3); 
-        write_char(c,codeSet(true));
+        check(3);
+        switch( codeSetW )
+        {
+        case 0:
+        case CodeSet.ISO8859_1:
+            short x = (short)c;
+            if( x > 255 || x < 0 )
+                throw new org.omg.CORBA.MARSHAL("char ("+x+") out of range for ISO8859_1");
+            index++; 
+            buffer[pos++] = (byte)c;
+            break;
+        case CodeSet.UTF8:
+            if (c <= 0x007F) 
+            {
+                buffer[pos++]=(byte)c; index++; 
+            } 
+            else if (c > 0x07FF) 
+            {
+                buffer[pos++]=(byte)(0xE0 | ((c >> 12) & 0x0F));
+                buffer[pos++]=(byte)(0x80 | ((c >>  6) & 0x3F));
+                buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
+                index+=3; 
+            } 
+            else 
+            {
+                buffer[pos++]=(byte)(0xC0 | ((c >>  6) & 0x1F));
+                buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
+                index+=2; 
+            }
+            break;
+        case CodeSet.UTF16:
+            buffer[pos++] = (byte)((c >>>  8) & 0xFF);
+            buffer[pos++] = (byte)(c & 0xFF);
+            index+=2; 
+            break;
+        default: throw new Error("Bad codeset: " + codeSet);
+        }
     }
 
     public  final void write_wchar_array(char[] value, int offset, int length)
@@ -545,7 +578,7 @@ public class CDROutputStream
         check(length*3);
 
         for( int i = offset; i < offset+length; i++)
-            write_char(value[i],codeSet(true));
+            write_char( value[i] );
     }
         
     public final void write_wstring (String s)
@@ -561,28 +594,26 @@ public class CDROutputStream
         index += 4;             // reserve for length indicator
                 
         // write characters in current wide encoding, add null terminator
-        int cs=codeSet(true);
-        for(int i=0;i<size;i++) 
-            write_char(s.charAt(i),cs);
-        write_char((char)0,cs);
+        for( int i=0; i < size; i++ ) 
+            write_wchar( s.charAt(i));
+
+        write_wchar( (char)0 );
                         
         boolean sizeInChars = 
-            ( connection != null && 
-              connection.IIOPVersion.minor<2 && 
-              cs==CodeSet.UTF16 );
+            ( minorGIOPVersion < 2 && codeSetW == CodeSet.UTF16 );
 
         _write4int( buffer, 
                     startPos, 
-                    pos-startPos-4 >> (sizeInChars?1:0) ); // write length indicator
-        //Connection.dumpBA(buffer);
+                    pos-startPos-4 >> ( sizeInChars ? 1 : 0 ) ); // write length indicator
+
     }
 
     public  final void write_double (double value)
     {
-        write_longlong(Double.doubleToLongBits(value));
+        write_longlong( Double.doubleToLongBits(value) );
     }
 
-    public  final void write_double_array(double[] value, int offset, int length)
+    public  final void write_double_array( double[] value, int offset, int length)
     {
         /* align to 8 byte boundary */
                 
@@ -640,7 +671,6 @@ public class CDROutputStream
         b = representation[representation.length-1] << 4;
 
         representation[representation.length-1] = (byte)((value.signum() < 0 )? (b | 0xD) : (b | 0xC));
-        //Connection.dumpBA( representation );
 
         check(representation.length);
         System.arraycopy(representation,0,buffer,pos,representation.length);
@@ -888,6 +918,10 @@ public class CDROutputStream
                 case 11:
                 case 12:
                 case 13:
+                case 23:
+                case 24:
+                case 25:
+                case 26:
                     break;
                 case TCKind._tk_objref: 
                     beginEncapsulation();
@@ -952,6 +986,7 @@ public class CDROutputStream
                         endEncapsulation();
                         break;
                     }
+                case TCKind._tk_wstring: 
                 case TCKind._tk_string: 
                     write_long(value.length());
                     break;
@@ -979,13 +1014,14 @@ public class CDROutputStream
                     write_TypeCode( value.content_type(), tcMap);
                     endEncapsulation();
                     break;
-                default: break;
+                default: 
+                    throw new RuntimeException("Cannot handle TypeCode, kind: " + _kind);
                 }
             }
-
         }
         catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
         { 
+            bk.printStackTrace();
             throw new RuntimeException("org.omg.CORBA.TypeCodePackage.BadKind");
         }
         catch (org.omg.CORBA.TypeCodePackage.Bounds bds)
@@ -1016,7 +1052,7 @@ public class CDROutputStream
         write_longlong_array(value, offset, length);
     }
 
-    public  final void write_ushort (short value)
+    public  final void write_ushort(short value)
     {
         write_short(value);
     }
@@ -1084,14 +1120,17 @@ public class CDROutputStream
         case TCKind._tk_char:
             write_char( in.read_char());
             break;
+        case TCKind._tk_wchar:
+            write_wchar( in.read_wchar());
+            break;
         case TCKind._tk_octet:
             write_octet( in.read_octet());
             break;          
-        case TCKind._tk_ushort:
-            write_ushort( in.read_ushort());
-            break;
         case TCKind._tk_short:
-            write_short(in.read_short());
+            write_short( in.read_short());
+            break;
+        case TCKind._tk_ushort:
+            write_ushort(in.read_ushort());
             break;
         case TCKind._tk_long:
             {
@@ -1127,6 +1166,9 @@ public class CDROutputStream
             break;
         case TCKind._tk_string: 
             write_string( in.read_string());
+            break;
+        case TCKind._tk_wstring: 
+            write_wstring( in.read_wstring());
             break;
         case TCKind._tk_array: 
             try
@@ -1400,19 +1442,17 @@ public class CDROutputStream
         pos = buffer.length;
     }
   
-    public void reset(){
+    public void reset() 
+    {
         pos = 0;
         index = 0;
     }
 
-    public void write_to(java.io.OutputStream out)
+    public void write_to( java.io.OutputStream out )
         throws java.io.IOException
     {
-
-        if( out == null )
-            throw new Error( "out is null!" );
-
-        if (header_stream != null){
+        if (header_stream != null)
+        {
             header_stream.insertMsgSize(header_stream.size() + size() - 12);
             out.write(header_stream.buffer, 0, header_stream.pos);
         }
@@ -1421,20 +1461,16 @@ public class CDROutputStream
         out.flush();
     }
   
-    public boolean separateHeader(){
+    public boolean separateHeader()
+    {
         return (header_stream != null);
     }
 
-    public CDROutputStream getHeaderStream(){
+    public CDROutputStream getHeaderStream()
+    {
         return header_stream;
     }
 }
-
-
-
-
-
-
 
 
 

@@ -1,4 +1,4 @@
-package org.jacorb.orb.connection;
+package jacorb.orb.connection;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,8 +21,8 @@ package org.jacorb.orb.connection;
  */
 
 import java.io.*;
-import org.jacorb.orb.*;
-import org.jacorb.orb.connection.*;
+import jacorb.orb.*;
+import jacorb.orb.connection.*;
 
 import org.omg.GIOP.*;
 import org.omg.CORBA.portable.ApplicationException;
@@ -38,13 +38,12 @@ public class LocateReplyInputStream
     extends CDRInputStream
 {
     private org.omg.GIOP.LocateReplyHeader_1_0 rep_hdr;
-    private ClientConnection _connection;
     private int _request_id;
     private boolean ready = false;
 
-    public LocateReplyInputStream( ClientConnection connection, int request_id)
+    public LocateReplyInputStream(org.omg.CORBA.ORB orb,  int request_id)
     {
-	super( connection,new byte[0]);
+	super( orb,new byte[0]);
 	_request_id = request_id;
     }
 
@@ -96,12 +95,6 @@ public class LocateReplyInputStream
 	return rep_hdr.locate_status;
     }
 }
-
-
-
-
-
-
 
 
 

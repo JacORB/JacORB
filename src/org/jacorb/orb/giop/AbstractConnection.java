@@ -159,7 +159,7 @@ public abstract class AbstractConnection
 		org.omg.CONV_FRAME.CodeSetComponentInfoHelper.read(is);
 		
 	    // char data, try UTF8 and ISO8859_1
-	    TCS = selectCodeSet(inf.ForCharData,CodeSet.UTF8);
+	    TCS = selectCodeSet(inf.ForCharData, CodeSet.UTF8);
 	    if( TCS == 0 ) 
 		TCS = CodeSet.ISO8859_1;
 			

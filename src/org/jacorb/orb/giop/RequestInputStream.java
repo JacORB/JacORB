@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2000  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,9 +18,9 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.connection;
+package jacorb.orb.connection;
 
-import org.jacorb.orb.*;
+import jacorb.orb.*;
 
 /**
  * 
@@ -30,19 +30,25 @@ import org.jacorb.orb.*;
  */
 
 public class RequestInputStream
-    extends org.jacorb.orb.CDRInputStream
+    extends jacorb.orb.CDRInputStream
 {
     public org.omg.GIOP.RequestHeader_1_0 req_hdr;
     public org.omg.GIOP.MessageHeader_1_0 msg_hdr=null;
 
-    protected RequestInputStream( ServerConnection c, byte [] buf, boolean flag )
+    /**
+     * used by subclass, flag is a dummy
+     */
+
+    protected RequestInputStream( org.omg.CORBA.ORB orb, 
+                                  byte [] buf, 
+                                  boolean flag )
     {
-	super( c, buf);
+	super(  orb, buf );
     }
 
-    public RequestInputStream( ServerConnection c, byte [] buf )
+    public RequestInputStream( org.omg.CORBA.ORB orb, byte [] buf )
     {
-	super( c, buf);
+	super( orb,  buf);
 
 	if( buffer[7] != (byte)org.omg.GIOP.MsgType_1_0._Request )
 	    throw new RuntimeException("Error: not a request!");
@@ -59,12 +65,6 @@ public class RequestInputStream
 	req_hdr = org.omg.GIOP.RequestHeader_1_0Helper.read(this);	   
     }
 }
-
-
-
-
-
-
 
 
 

@@ -18,7 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.connection;
+package jacorb.orb.connection;
 
 /**
  * 
@@ -41,9 +41,9 @@ public class LocateRequestInputStream
 {
     public org.omg.GIOP.LocateRequestHeader_1_0 locate_req_hdr;
 
-    public LocateRequestInputStream( ServerConnection c,byte [] buf )
+    public LocateRequestInputStream( org.omg.CORBA.ORB orb, byte [] buf )
     {
-	super( c, buf, true );
+	super( orb, buf, true );
 	if( buffer[7] != (byte)org.omg.GIOP.MsgType_1_0._LocateRequest )
 	    throw new RuntimeException("Error: not a locate request!");
 	setLittleEndian( buffer[6]!=0);
@@ -60,12 +60,6 @@ public class LocateRequestInputStream
                                                 null ); 
     }
 }
-
-
-
-
-
-
 
 
 

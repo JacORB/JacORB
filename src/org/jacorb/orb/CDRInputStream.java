@@ -21,9 +21,11 @@ package org.jacorb.orb;
  */
 
 import java.io.*;
-import org.omg.CORBA.*;
 import java.util.*;
-import org.jacorb.orb.connection.*;
+
+import org.omg.CORBA.*;
+import org.jacorb.util.*;
+import org.jacorb.orb.connection.CodeSet;
 
 /**
  * Read CDR encoded data 
@@ -39,26 +41,25 @@ public class CDRInputStream
     int read_index;
 
     /** the stack for saving/restoring encapsulation information */
-    private java.util.Stack encaps_stack = new java.util.Stack();
+    private Stack encaps_stack = new Stack();
     private Hashtable TCTable = new Hashtable();
 
     /** indexes to support mark/reset */
     private int marked_pos;
     private int marked_index;
 
+    /* character encoding code sets for char and wchar, default ISO8859_1 */
+    private int codeSet =  CodeSet.UTF8;
+    private int codeSetW=  CodeSet.UTF16;
+    private int minorGIOPVersion = 1; // needed to determine size in chars
+
     private boolean closed = false;
 
     public boolean littleEndian = false;
 	
-    /**
-     * Associated connection. Can be null only if stream is used
-     * for data encapsulation which should not use connection's
-     * properties such as CodeSet.
-     */
-    protected AbstractConnection connection;
 
     /** indices into the actual buffer */
-    protected byte [] buffer = null;
+    protected byte[] buffer = null;
     protected int pos = 0;
     protected int index = 0;
 
@@ -67,29 +68,18 @@ public class CDRInputStream
 	is used only to demarshal base type data, the Singleton is enough
     */
     public org.omg.CORBA.ORB orb = null;
-
-    /**
-     * Constructor with connection.
-     */
-    public CDRInputStream( AbstractConnection c, byte [] buf )
-    {
-	connection=c;
-	this.orb = c.orb;
-	buffer = buf;
-    }
-	
-    public CDRInputStream( org.omg.CORBA.ORB orb, byte [] buf )
+ 
+    public CDRInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
 	this.orb = orb;
 	buffer = buf;
     }
 
     public CDRInputStream( org.omg.CORBA.ORB orb, 
-                           byte [] buf, 
+                           byte[] buf, 
                            boolean littleEndian )
     {       
-	this.orb = orb;
-	buffer = buf;
+        this( orb, buf );
 	this.littleEndian = littleEndian;
     }
 
@@ -105,23 +95,14 @@ public class CDRInputStream
 	closed = true;
     }
 	
-    /**
-     * Returns codeset OSF registry number used for this stream.
-     */
-
-    protected int codeSet(boolean wide)
+    public void setCodeSet( int codeSet, int codeSetWide )
     {
-	if( connection==null )
-	{
-	    if( wide ) 
-                throw new RuntimeException("Wide codeset can't be used without accociated connection");
-            else
-                return CodeSet.ISO8859_1;			
-	}
-	return wide ? connection.TCSW : connection.TCS;
+        this.codeSet = codeSet;
+        this.codeSetW = codeSetWide;
     }
 
-    private static final int _read4int(boolean _littleEndian, byte [] _buffer, int _pos)
+
+    private static final int _read4int(boolean _littleEndian, byte[] _buffer, int _pos)
     {
 	if (_littleEndian)
 	    return (((_buffer[_pos+3] & 0xff) << 24) +
@@ -135,7 +116,7 @@ public class CDRInputStream
 		    ((_buffer[_pos+3] & 0xff) << 0));
     }    
 
-    private static final short _read2int(boolean _littleEndian, byte [] _buffer, int _pos)
+    private static final short _read2int(boolean _littleEndian, byte[] _buffer, int _pos)
     {
 	if (_littleEndian)
 	    return  (short)(((_buffer[_pos+1] & 0xff) << 8) +
@@ -169,7 +150,7 @@ public class CDRInputStream
 
 	index = ei.index + size;
 
-	org.jacorb.util.Debug.output(8,"Closing Encapsulation at pos: " + pos  + " littleEndian now: " + littleEndian + ",  index now " + index );
+	Debug.output(8,"Closing Encapsulation at pos: " + pos  + " littleEndian now: " + littleEndian + ",  index now " + index );
 	//+ "\nnext bytes: " + buffer[pos] + " " + buffer[pos+1] + " " + buffer[pos+2]);
     }
 
@@ -190,8 +171,8 @@ public class CDRInputStream
 
 	encaps_stack.push(new EncapsInfo(old_endian, index, pos, size ));
 
-        org.jacorb.util.Debug.output(8,"Opening Encapsulation at pos: " + _pos + " size: " + size);
-	// org.jacorb.util.Debug.output(8,"( saved " + (index ) + " littleEndian was : " + old_endian + " previously");
+        Debug.output(8,"Opening Encapsulation at pos: " + _pos + " size: " + size);
+	// Debug.output(8,"( saved " + (index ) + " littleEndian was : " + old_endian + " previously");
         openEncapsulatedArray();	
     }
 
@@ -203,7 +184,7 @@ public class CDRInputStream
     }
 
 
-    public byte [] getBuffer()
+    public byte[] getBuffer()
     {
 	return buffer;
     }
@@ -293,31 +274,31 @@ public class CDRInputStream
 	switch(tcs)
 	{
 	case 0:
-
 	case CodeSet.ISO8859_1: 
 	    index++; 
-	    return (char)(0xff & buffer[pos++]);
-			
+	    return (char)(0xff & buffer[pos++]);	       	
 	case CodeSet.UTF8:
-	    short b=(short)buffer[pos++]; 
+	    short b=(short)(0xff & buffer[pos++]); 
 	    index++;
 	    //System.out.print("{"+b+"}");
-	    if ((b & 0x80) == 0) 
+	    if ( (b & 0x80) == 0) 
             {
 		return (char)b;
             }
 	    else if((b & 0xe0) == 0xc0) 
 	    { 
 		index++; 
-		return (char)(((b & 0x1F) << 6) | ((short)buffer[pos++] & 0x3F)); 
+                return (char)(((b & 0x1F) << 6) | 
+                              ((short)buffer[pos++] & 0x3F)); 
 	    }
 	    else 
             {
-		index+=2; 
-		short b2=(short)buffer[pos++];	
-		return (char)(((b & 0x0F) << 12) | ((b2 & 0x3F) << 6) | ((short)buffer[pos++] & 0x3F));
+		index += 2; 
+		short b2 = (short)(0xff & buffer[pos++]);	
+                return (char)(( ( b & 0x0F) << 12) | 
+                              ( (b2 & 0x3F) << 6) | 
+                              ( (short)buffer[pos++] & 0x3F));
 	    }
-
 	case CodeSet.UTF16:
 	    index += 2; 
 	    pos += 2;
@@ -331,13 +312,13 @@ public class CDRInputStream
 	
     public final char read_char()
     {
-	return read_char(codeSet(false));
+	return read_char(codeSet);
     }
 
     public final void read_char_array(char[] value, int offset, int length)
     {
 	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_char(codeSet(false)); // inlining later...
+	    value[j] = read_char(codeSet ); // inlining later...
     }
 
     public final double read_double() 
@@ -371,7 +352,8 @@ public class CDRInputStream
 	    index++;
 	}
 
-	java.math.BigDecimal result = new java.math.BigDecimal( new java.math.BigInteger( sb.toString()));
+	java.math.BigDecimal result =
+            new java.math.BigDecimal( new java.math.BigInteger( sb.toString()));
 
 	if( c == 0xD )
 	    return result.negate();
@@ -485,8 +467,8 @@ public class CDRInputStream
 	{
 	    if( ! (orb instanceof org.jacorb.orb.ORB))
 		throw new java.lang.RuntimeException(
-                   "Can not use the singleton ORB to receive object references" + 
-                   ", please initialize a full ORB instead.");
+                                                     "Can not use the singleton ORB to receive object references" + 
+                                                     ", please initialize a full ORB instead.");
 	    else
 		return ((org.jacorb.orb.ORB)orb)._getObject( pior );
 	}
@@ -495,7 +477,6 @@ public class CDRInputStream
     public final byte read_octet()
     {
 	index++;
-	//Connection.dumpHex(b1);
 	return buffer[pos++];
     }
 
@@ -542,10 +523,10 @@ public class CDRInputStream
 
     public final String read_string()
     {
-	return read_string(codeSet(false));
+	return read_string( codeSet );
     }
 	
-    public final String read_string(int tcs)
+    public final String read_string( int tcs )
     {
 	int remainder = 4 - (index % 4);
 	if (remainder != 4)
@@ -556,11 +537,11 @@ public class CDRInputStream
 
 	// read size, size is in bytes not chars, but in GIOP prior to
 	// 1.2, UTF16 wstring length is encoded as char count !!
-	int size = _read4int(littleEndian,buffer,pos);
+	int size = _read4int( littleEndian, buffer, pos);
 	index += 4; 
 	pos += 4;
 
-	if(size <= 0) 
+	if( size <= 0 ) 
 	    return ""; // not allowed by specs, but possible :-)
 	
 	// performace, devik: the next code is one of fastest ways how
@@ -571,20 +552,20 @@ public class CDRInputStream
 	// but the performance gain will not be so big expecially on Java Hotspot
 	// engine.
 
-	char [] buf = new char[size];
+	char[] buf = new char[size];
 	int i;
 	int endPos = pos + 
-	    ((tcs==CodeSet.UTF16 && connection!=null && connection.IIOPVersion.minor<2) ? size*2 : size);
+	    ((tcs==CodeSet.UTF16 &&  minorGIOPVersion < 2 ) ? size*2 : size);
 
-	for(i=0; pos < endPos; i++) 
-	    buf[i] = read_char(tcs);
+	for( i=0; pos < endPos; i++ ) 
+	    buf[i] = read_char( tcs );
 	
 	// devik: detect optional terminating zero, it's not optional in spec.
 	// but clever orb should be able to handle missing terminator
 	if( buf[i-1] ==0 ) 
 	    i--; 
 	
-	return new String(buf,0,i);
+	return new String( buf, 0, i);
     }
 
     /**
@@ -612,10 +593,10 @@ public class CDRInputStream
     {
 	int start_pos = pos;
 	int kind = read_long();
-	org.jacorb.util.Debug.output(4,"Read Type code of kind " + kind + " at pos: " + start_pos );
+	Debug.output(4,"Read Type code of kind " + kind + " at pos: " + start_pos );
 
 	String id, name;
-	String [] member_names;
+	String[] member_names;
 	org.omg.CORBA.TypeCode[] member_types;
 	int member_count, length;
 	org.omg.CORBA.TypeCode content_type;
@@ -653,7 +634,7 @@ public class CDRInputStream
             tcMap.put( new Integer( start_pos ), id );
 	    name = read_string();
 	    member_count = read_long();
-	    StructMember [] struct_members = new StructMember[member_count];
+	    StructMember[] struct_members = new StructMember[member_count];
 	    for( int i = 0; i < member_count; i++)
 	    {
 		struct_members[i] = new StructMember( read_string(),
@@ -670,7 +651,7 @@ public class CDRInputStream
             tcMap.put( new Integer( start_pos ), id );
 	    name = read_string();
 	    member_count = read_long();
-	    StructMember [] members = new StructMember[member_count];
+	    StructMember[] members = new StructMember[member_count];
 	    for( int i = 0; i < member_count; i++)
 	    {
 		members[i] = new StructMember( read_string(),read_TypeCode(), null);
@@ -692,61 +673,63 @@ public class CDRInputStream
 	    return orb.create_enum_tc(id, name, member_names);
 	case TCKind._tk_union:
 	    {
-		org.jacorb.util.Debug.output(4, "TC Union at pos" + 
-                                         pos, buffer, pos, buffer.length );
+		Debug.output(4, "TC Union at pos" + 
+                             pos, buffer, pos, buffer.length );
 
 		openEncapsulation();
 		id = read_string();
                 tcMap.put( new Integer(start_pos), id ); // remember this TC's id and start_pos
 
 		name = read_string();
-		org.jacorb.util.Debug.output(4, "TC Union has name " + name + " at pos" + pos );
+		Debug.output(4, "TC Union has name " + name + " at pos" + pos );
 		org.omg.CORBA.TypeCode discriminator_type = read_TypeCode(tcMap);
 
 		int default_index = read_long();
-		org.jacorb.util.Debug.output(4, "TC Union has default idx: " +  
-                                         default_index +  "  (at pos " + pos );
+		Debug.output(4, "TC Union has default idx: " +  
+                             default_index +  "  (at pos " + pos );
 
 		member_count = read_long();
 
-		org.jacorb.util.Debug.output(4, "TC Union has " + member_count + 
-                                         " members  (at pos " + pos );
-		UnionMember [] union_members = new UnionMember[member_count];
+		Debug.output(4, "TC Union has " + member_count + 
+                             " members at pos " + pos );
+		UnionMember[] union_members = new UnionMember[member_count];
 		for( int i = 0; i < member_count; i++)
 		{
-		    org.jacorb.util.Debug.output(4, "Member " + i + "in  union " + 
-                                             id + " , " + name + ", start reading TC at pos " + pos );
+		    Debug.output(4, "Member " + i + "in  union " + 
+                                 id + " , " + name + ", start reading TC at pos " + pos );
 		    org.omg.CORBA.Any label = orb.create_any();
 		    
 		    if( i == default_index )
 		    {
-			//org.jacorb.util.Debug.output(4, "Default discr.");
-			    label.insert_octet( read_octet());
+			//Debug.output(4, "Default discr.");
+                        label.insert_octet( read_octet());
 		    } 
 		    else 
 		    {
 			label.read_value( this,discriminator_type  );
 
-			org.jacorb.util.Debug.output(4, "non-default discr.: " + 
-                                                 ((org.jacorb.orb.Any)label).type().kind().value() + 
-                                                 " " + ((org.jacorb.orb.Any)label).value() );
+			Debug.output(4, "non-default discr.: " + 
+                                     ((org.jacorb.orb.Any)label).type().kind().value() + 
+                                     " " + ((org.jacorb.orb.Any)label).value() );
 		    }
-		    org.jacorb.util.Debug.output(4, "Member " + i + 
-                                             "  start to read name at pos " + pos ); 
+		    Debug.output(4, "Member " + i + 
+                                 "  start to read name at pos " + pos ); 
 		    String mn = read_string();
-		    org.jacorb.util.Debug.output(4, "Member " + i + " , read name at pos " + 
-                                             pos + " : " + mn); 
+		    Debug.output(4, "Member " + i + " , read name at pos " + 
+                                 pos + " : " + mn); 
 		    union_members[i] = 
                         new UnionMember( mn, label, read_TypeCode(tcMap), null);
-		    org.jacorb.util.Debug.output(4, "Member " + i + " created " ); 
+		    Debug.output(4, "Member " + i + " created " ); 
 		}		
 		closeEncapsulation();
 		result_tc = orb.create_union_tc( id, name, discriminator_type, union_members );
-		org.jacorb.util.Debug.output(4, "Done with union " + id + " at pos " + pos ); 
+		Debug.output(4, "Done with union " + id + " at pos " + pos ); 
 		return result_tc;
 	    }
 	case TCKind._tk_string: 
 	    return orb.create_string_tc(read_long());
+	case TCKind._tk_wstring: 
+	    return orb.create_wstring_tc(read_long());
 	case TCKind._tk_fixed: 
 	    return orb.create_fixed_tc(read_ushort(), read_short() );
 	case TCKind._tk_array: 
@@ -775,18 +758,18 @@ public class CDRInputStream
 	    /* recursive TC */
 	    int offset = pos + read_long();
             String recursiveId = (String)tcMap.get( new Integer(offset));
-            org.jacorb.util.Debug.assert( recursiveId != null,
-                                       "Could not resolve for recursive TypeCode!");
+            Debug.assert( recursiveId != null,
+                          "Could not resolve for recursive TypeCode!");
 	    org.omg.CORBA.TypeCode rec_tc = 
                 orb.create_recursive_tc( recursiveId );
 
 	    return rec_tc;
 	default:
 	    // error, dump buffer contents for diagnosis
-	   	    System.out.println("=========== buffer contents ============ ");
-	   	    org.jacorb.util.Debug.dumpBA(buffer);
-	    	    System.out.println("Pos : " + pos ); 
-	    	    System.out.println("=========================== ============ ");
+            Debug.output( 2, 
+                          "CDRInputStream Buffer Content",
+                          buffer);
+            Debug.output(2, "Pos : " + pos ); 
 	    throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
 	}
     }
@@ -820,53 +803,24 @@ public class CDRInputStream
 
     public final void read_ushort_array(short[] value, int offset, int length)
     {
-	for(int j=offset; j < offset+length; j++)
+	for( int j = offset; j < offset+length; j++ )
 	    value[j] = read_ushort(); // inlining later...
     }
 
     public final char read_wchar()
     {
-
-	return read_char(codeSet(true));
-	//return (char)_read2int(littleEndian,buffer,pos);
+	return read_char( codeSetW );
     }
 
     public final void read_wchar_array(char[] value, int offset, int length)
     {
 	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_char(codeSet(true)); // inlining later...
+	    value[j] = read_char( codeSetW ); // inlining later...
     }
 
     public final String read_wstring()
     {
-	return read_string(codeSet(true));
-	/*
-	  int size = 0;
-	  int remainder = 4 - (index % 4);
-
-	  if (remainder != 4)
-	  {
-	  index += remainder;
-	  pos+=remainder;
-	  // org.jacorb.util.Debug.output(4, "Padding " + remainder);
-	  }
-
-	  size = _read4int(littleEndian,buffer,pos)*2;
-
-
-	  index += 4;
-	  pos += 4;
-
-	  byte[] b1 = new byte[size];
-	  System.arraycopy( buffer, pos, b1, 0, size );
-	  pos+= size;
-	  index += size;
-
-	  if( size > 0 )
-	  return new String( b1, 0, b1.length-1 );
-	  else
-	  return "";
-	*/
+	return read_string( codeSetW );
     }
 
     public boolean markSupported()
@@ -919,6 +873,9 @@ public class CDRInputStream
 	    break;
 	case TCKind._tk_char:
 	    out.write_char( read_char());
+	    break;
+	case TCKind._tk_wchar:
+	    out.write_wchar( read_wchar());
 	    break;
 	case TCKind._tk_octet:
 	    out.write_octet( read_octet());
@@ -1013,7 +970,7 @@ public class CDRInputStream
 	    {
 		org.omg.CORBA.TypeCode disc = tc.discriminator_type();
 		int def_idx = tc.default_index();
-		org.jacorb.util.Debug.output(4, "Union Default index " + def_idx ); 
+		Debug.output(4, "Union Default index " + def_idx ); 
 		int member_idx = -1;
 		switch( disc.kind().value() )
 		{
@@ -1141,8 +1098,8 @@ public class CDRInputStream
 		case TCKind._tk_enum:
 		    {
 			int s = read_long();
-                        org.jacorb.util.Debug.output(10, 
-                                                 "Input  switch: " + s + " at pos " + pos );
+                        Debug.output(10, 
+                                     "Input  switch: " + s + " at pos " + pos );
 			out.write_long(s);
 			for(int i = 0 ; i < tc.member_count() ; i++)
 			{
@@ -1150,7 +1107,7 @@ public class CDRInputStream
 			    {
 				int label = tc.member_label(i).create_input_stream().read_long();
 
-				org.jacorb.util.Debug.output(10, "Input label: " +label + " switch: " + s );
+				Debug.output(10, "Input label: " +label + " switch: " + s );
 
 				if(s == label)
 				{
@@ -1171,7 +1128,7 @@ public class CDRInputStream
 		{
 		    if( def_idx == -1 )
 		    {
-                        org.jacorb.util.Debug.output(4, " -- TC error ", buffer );
+                        Debug.output(4, " -- TC error ", buffer );
 			throw new RuntimeException("Error in Union, no member and no default!");
 		    }
 		    read_value( tc.member_type( def_idx ), out);
@@ -1188,21 +1145,15 @@ public class CDRInputStream
 	}
     }
 
-//      public byte[]  get_buffer(){
-//  	return buffer;
-//      }
+    //      public byte[]  get_buffer(){
+    //  	return buffer;
+    //      }
 
     public int get_pos(){
 	return pos;
     }
 
 }
-
-
-
-
-
-
 
 
 
