@@ -693,15 +693,19 @@ public class ImplementationRepositoryImpl
                                               " of missing startup command");
             }
             else{
-                // we have to synchronize here to avoid a server to be restarted multiple
-                // times by requests that are received in the gap between the first try to 
+                // we have to synchronize here to avoid a server to be
+                // restarted multiple times by requests that are
+                // received in the gap between the first try to
                 // restart and the reactivation of the POAs.
-                // restarting is set back to false when the first POA is reactivated and
-                // the server goes back to active (see ImRPOAInfo.reactivate()).
+                // restarting is set back to false when the first POA
+                // is reactivated and the server goes back to active
+                // (see ImRPOAInfo.reactivate()).
                 if (server.shouldBeRestarted()){
                     try{
-                        // If there is no SSD for the host, we get an NullPointerException.
-                        // In a further version, we might choose another random SSD .
+                        // If there is no SSD for the host, we get an
+                        // NullPointerException.  In a further
+                        // version, we might choose another random
+                        // SSD.
                         ImRHostInfo _host = server_table.getHost(server.host);
 
                         Debug.output(Debug.IMR | Debug.INFORMATION, 
@@ -740,9 +744,11 @@ public class ImplementationRepositoryImpl
     }
     
     /**
-     * Inner class SocketListener, responsible for accepting connection requests.
-     * *Very* close to inner class Listener in orb/BasicAdapter.java. 
-     * <br> When a connection is accepted a new RequestReceptor thread is started.
+     * Inner class SocketListener, responsible for accepting
+     * connection requests.  *Very* close to inner class Listener in
+     * orb/BasicAdapter.java.  
+     * <br> When a connection is accepted a
+     * new RequestReceptor thread is started.  
      */
     private class SocketListener extends Thread {
 	private java.net.ServerSocket server_socket;
@@ -757,27 +763,32 @@ public class ImplementationRepositoryImpl
 	/**
 	 * The constructor. It sets up the ServerSocket and starts the thread.
 	 */
-	public SocketListener(){
-	    try {
-		server_socket = new java.net.ServerSocket(default_port);
+	public SocketListener()
+        {
+	    try 
+            {
+		server_socket = 
+                    new java.net.ServerSocket( default_port );
+
 		address = java.net.InetAddress.getLocalHost().toString();
-		if (address.indexOf("/") > 0)
+
+		if( address.indexOf("/") > 0 )
 		    address = address.substring(address.indexOf("/") + 1);
 		
 		port = server_socket.getLocalPort();
-		if( port <0)
-		    port += 65536;
 
 		Debug.output(Debug.IMR | Debug.INFORMATION,
                              "ImR Listener at " + port + ", " + address );
 	    } 
-	    catch (Exception e){
+	    catch (Exception e)
+            {
 		Debug.output(Debug.IMR | Debug.IMPORTANT, e);
 		Debug.output(Debug.IMR | Debug.IMPORTANT, 
                              "Listener: Couldn't init");
 
 		System.exit(1);
 	    }
+
 	    setDaemon(true);
 
             pool = new ThreadPool( new ConsumerFactory(){
@@ -832,22 +843,26 @@ public class ImplementationRepositoryImpl
 	public void run() 
 	{
 	    Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-	    while (run)
+	    while( run )
             {
 		try
                 {
 		    pool.putJob( server_socket.accept() );
 		}
-                catch (Exception _e){
-		    // when finishing, we do a close() on server_socket from "outside" and
-		    // that causes an exception here. But since we wanted it this way, we don't
-		    // display the Exception to avoid confusing users.
+                catch (Exception _e)
+                {
+		    // when finishing, we do a close() on
+		    // server_socket from "outside" and that causes an
+		    // exception here. But since we wanted it this
+		    // way, we don't display the Exception to avoid
+		    // confusing users.
 		    if (run)
 			Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 		}
 	    }
 	    
-	    // doing the actual shutdown of the implementation repository here
+	    // doing the actual shutdown of the implementation
+	    // repository here
 	    orb.shutdown(wait);
 	    System.exit(0);	    
 	}
@@ -857,13 +872,17 @@ public class ImplementationRepositoryImpl
 	 *
 	 * @param wait for ORB.shutdown().
 	 */
-	public void stopListening(boolean wait){
+	public void stopListening(boolean wait)
+        {
 	    run = false;
 	    this.wait = wait;
 
-	    try{
+	    try
+            {
 		server_socket.close();
-	    }catch (Exception _e){
+	    }
+            catch (Exception _e)
+            {
 		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 	    }	   
 	}
@@ -903,100 +922,89 @@ public class ImplementationRepositoryImpl
 	    try 
             {
 		connection = 
-                    new ServerConnection(orb, 
-                                         false, //no ssl
-                                         client_socket);
-		if (timeout != 0) 
-                {
-		    try{
-			connection.setTimeOut (timeout);
-		    } 
-		    catch(SocketException _s){
-                        Debug.output(Debug.IMR | Debug.INFORMATION, _s);
-		    }
-		}
+                    new ServerConnection( orb, 
+                                          false, //no ssl
+                                          client_socket );
+
+                connection.setTimeOut( timeout );
 	    }
 	    catch(Exception _e)
 	    {
 		Debug.output(Debug.IMR | Debug.IMPORTANT, _e); 
 		Debug.output(Debug.IMR | Debug.IMPORTANT,
                              "Fatal error in session setup.");
-		System.exit(1);
+		
+                return;
 	    }
 
-	    /* receive requests */
+	    /* receive request */
 
-	    try {
-		while (true){
-		    byte [] _buf = connection.readBuffer();
+	    try
+            {
+                byte[] _buf = connection.readBuffer();
 		    
-		    // debug:
-		    // System.out.println("BasicAdapter: got Buffer");
+                int _msg_type = _buf[7];
 		    
-		    int _msg_type = _buf[7];
-		    
-		    switch (_msg_type){
-		    case org.omg.GIOP.MsgType_1_0._Request:
-			{
-			    // debug:
-			    // System.out.println("BasicAdapter: got request");
-			    replyNewLocation(_buf);
-			    break;
-			    
-			} 
-		    case org.omg.GIOP.MsgType_1_0._CancelRequest:
-			{
-			    //	org.omg.GIOP.CancelRequestHeader cancel_req_hdr =
-			    //	org.omg.GIOP.CancelRequestHeaderHelper.read( ois );			
-			    break;
-			}
-		    case org.omg.GIOP.MsgType_1_0._LocateRequest:
-			{
-			    replyNewLocation(_buf);
-			    break;
-			}
-		    default:
-			{
-			    Debug.output(Debug.IMR | Debug.IMPORTANT,
-                                         "SessionServer, message_type " + 
-                                         _msg_type + " not understood.");
-			}
-		    }
+                switch( _msg_type )
+                {
+                case org.omg.GIOP.MsgType_1_0._Request:		  
+                    {
+                        replyNewLocation( _buf );
+                        break;			    
+                    } 
+                case org.omg.GIOP.MsgType_1_0._CancelRequest:
+                    {
+                            break;
+                    }
+                case org.omg.GIOP.MsgType_1_0._LocateRequest:
+                    {
+                        replyNewLocation( _buf );
+                        break;
+                    }
+                default:
+                    {
+                        Debug.output( Debug.IMR | Debug.IMPORTANT,
+                                      "SessionServer, message_type " + 
+                                      _msg_type + " not understood." );
+                    }		    
 		} 
 	    }
-
-	    catch ( java.io.EOFException eof )
+	    catch( java.io.EOFException eof )
 	    {
-		Debug.output(Debug.IMR | Debug.DEBUG1,eof);
-	        close();
+		Debug.output( Debug.IMR | Debug.DEBUG1,eof );
 	    } 
-	    catch ( org.omg.CORBA.COMM_FAILURE cf )
+	    catch( org.omg.CORBA.COMM_FAILURE cf )
 	    {
 		Debug.output(Debug.IMR | Debug.IMPORTANT,cf);
-		close();
 	    } 
-	    catch ( java.io.IOException i )
+	    catch( java.io.IOException i )
 	    {
-		Debug.output(Debug.IMR | Debug.DEBUG1,i);
-		close();
+		Debug.output(Debug.IMR | Debug.DEBUG1,i);		
 	    }
+
+            close();
 	}	
 	
 	
         public void close()
-        {
-	    try{
-		if (client_socket != null)
+        {            
+	    try
+            {
+                if( connection != null )
                 {
-		    //connection.releaseConnection();
-		    client_socket.close();
-		}
+                    connection.sendCloseConnection();
+                }
 	    } 
-	    catch (Exception e){
+	    catch( Exception e )
+            {
 		Debug.output(Debug.IMR | Debug.INFORMATION, e);
-		// ignore exceptions on closing sockets which would occur e.g.
-		// when closing sockets without ever having opened one...
+		// ignore exceptions on closing sockets which would
+		// occur e.g.  when closing sockets without ever
+		// having opened one...
 	    }
+
+            client_socket = null;
+            connection = null;
 	}
 
 	/**
@@ -1004,28 +1012,36 @@ public class ImplementationRepositoryImpl
 	 * Causes servers to start, looks up new POA locations in
 	 * the server table.
 	 */
-
-	private void replyNewLocation(byte[] buffer)
+	private void replyNewLocation( byte[] buffer )
         {
-	    in = new RequestInputStream( orb, buffer);
-	    String _poa_name = POAUtil.extractImplName(in.req_hdr.object_key) +
+	    in = new RequestInputStream( orb, buffer );
+	    String _poa_name = 
+                POAUtil.extractImplName(in.req_hdr.object_key) +
                 "/" + POAUtil.extractPOAName(in.req_hdr.object_key);
 
 	    // look up POA in table
-	    ImRPOAInfo _poa = server_table.getPOA(_poa_name);
-	    if (_poa == null){
-		sendSysException(new org.omg.CORBA.OBJECT_NOT_EXIST("POA " + _poa_name + " unknown"));
+	    ImRPOAInfo _poa = server_table.getPOA( _poa_name );
+	    if (_poa == null)
+            {
+		sendSysException( 
+                   new org.omg.CORBA.OBJECT_NOT_EXIST( "POA " + 
+                                                       _poa_name + 
+                                                       " unknown" ));
 		return;
 	    }
 
 	    // get server of POA
 	    ImRServerInfo _server = _poa.server;
-	    Debug.output(Debug.IMR | Debug.INFORMATION, 
-                         "ImR: Looking up: " + _server.name);
 
-	    try{
-                restartServer(_server);
-	    }catch(ServerStartupFailed ssf){
+	    Debug.output( Debug.IMR | Debug.INFORMATION, 
+                          "ImR: Looking up: " + _server.name );
+
+	    try
+            {
+                restartServer( _server );
+	    }
+            catch( ServerStartupFailed ssf )
+            {
                 sendSysException(new org.omg.CORBA.TRANSIENT(ssf.reason));
                 return;
 	    }
@@ -1034,7 +1050,8 @@ public class ImplementationRepositoryImpl
 	    boolean _old_poa_state = _poa.active;
 
 	    // wait for POA to be reregistered.
-	    if (!_poa.awaitActivation()){
+	    if( ! _poa.awaitActivation() )
+            {
 		// timeout reached
 		sendSysException(new org.omg.CORBA.TRANSIENT("Timeout exceeded"));
 		return;
@@ -1042,36 +1059,48 @@ public class ImplementationRepositoryImpl
 
 	    // profile body contains new host and port of POA
 	    // Version is just a dummy
-	    ProfileBody_1_0 _body = new ProfileBody_1_0(new Version((byte) 1, (byte) 0), 
-							_poa.host,
-							(short) _poa.port,
-							in.req_hdr.object_key);    
+	    ProfileBody_1_0 _body = 
+                new ProfileBody_1_0( new Version((byte) 1, (byte) 0), 
+                                     _poa.host,
+                                     (short) _poa.port,
+                                     in.req_hdr.object_key );    
+            
+	    out = new ReplyOutputStream( new org.omg.IOP.ServiceContext[0],
+                                         in.req_hdr.request_id,
+                                         org.omg.GIOP.ReplyStatusType_1_0.LOCATION_FORWARD);
 
-	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
-                                        in.req_hdr.request_id,
-                                        org.omg.GIOP.ReplyStatusType_1_0.LOCATION_FORWARD);
+	    // The typecode is for org.omg.CORBA.Object, but avoiding 
+            // creation of new ObjectHolder Instance.
+	    org.omg.IOP.IOR _ior = 
+                ParsedIOR.createIOR( "org.omg/CORBA/Object", _body );
 
-	    // The typecode is for org.omg.CORBA.Object, but avoiding creation of new
-	    // ObjectHolder Instance.
-	    org.omg.IOP.IOR _ior = ParsedIOR.createIOR("org.omg/CORBA/Object", _body);
+	    if( !_old_poa_state )
+            {
+		// if POA has been reactivated, we have to wait for
+		// the requested object to become ready again. This is
+		// for avoiding clients to get confused by
+		// OBJECT_NOT_EXIST exceptions which they might get
+		// when trying to contact the server too early.
 
-	    if (!_old_poa_state){
-		// if POA has been reactivated, we have to wait for the requested 
-		// object to become ready again. This is for avoiding clients to get
-		// confused by OBJECT_NOT_EXIST exceptions which they might get when
-		// trying to contact the server too early.
+		org.omg.CORBA.Object _object = 
+                    orb.string_to_object(
+                        (new ParsedIOR( _ior )).getIORString());
 
-		org.omg.CORBA.Object _object = orb.string_to_object((new ParsedIOR(_ior)).getIORString());
-
-		// Sort of busy waiting here, no other way possible		
-		for(int _i = 0; _i < object_activation_retries; _i++){
-		    try{
-			Thread.sleep(object_activation_sleep);
+		// Sort of busy waiting here, no other way possible
+		for( int _i = 0; _i < object_activation_retries; _i++ )
+                {
+		    try
+                    {
+			Thread.sleep( object_activation_sleep );
 
 			// This will usually throw an OBJECT_NOT_EXIST
-			if (!_object._non_existent()) // "CORBA ping"
+			if( ! _object._non_existent() ) // "CORBA ping"
+                        {
 			    break; 
-		    }catch(Exception _e){
+                        }
+		    }
+                    catch(Exception _e)
+                    {
 			Debug.output(Debug.IMR | Debug.DEBUG1, _e);
 		    }
 		}		
@@ -1083,11 +1112,14 @@ public class ImplementationRepositoryImpl
 		out.write_IOR(_ior);
 		out.close();
 
-		Debug.output(Debug.IMR | Debug.INFORMATION,
-                             "ImR: Sending location forward for " + _server.name);
+		Debug.output( Debug.IMR | Debug.INFORMATION,
+                              "ImR: Sending location forward for " + 
+                              _server.name );
 
 		connection.sendReply(out);
-	    }catch (Exception _e){
+	    }
+            catch (Exception _e)
+            {
 		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 		sendSysException(new org.omg.CORBA.UNKNOWN(_e.toString()));
 	    }
@@ -1099,7 +1131,6 @@ public class ImplementationRepositoryImpl
 	 *
 	 * @param the exception to send back.
 	 */
-
 	private void sendSysException(org.omg.CORBA.SystemException sys_ex)
         {
 	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
@@ -1120,11 +1151,3 @@ public class ImplementationRepositoryImpl
     }
 
 } // ImplementationRepositoryImpl
-
-
-
-
-
-
-
-
