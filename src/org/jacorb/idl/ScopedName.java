@@ -673,8 +673,6 @@ class ScopedName
 
     public static void addRecursionScope( String typeName )
     {
-        if( staticLogger.isWarnEnabled() )
-            staticLogger.warn( "addRecursionScope " + typeName );
         recursionStack.push( typeName );
     }
 
@@ -690,10 +688,6 @@ class ScopedName
 
     public static boolean isRecursionScope( String typeName )
     {
-        if( staticLogger.isWarnEnabled() )
-            staticLogger.warn( "Check isRecursionScope " + typeName +
-                               " " + recursionStack.search( typeName ) );
-
         return ( recursionStack.search( typeName ) != -1 );
     }
 

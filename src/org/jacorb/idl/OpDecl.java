@@ -104,12 +104,12 @@ class OpDecl
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
-        if( logger.isWarnEnabled() )
-		 logger.warn( "opDecl.setEnclosingSymbol " + s  );
+        if( logger.isDebugEnabled() )
+            logger.debug( "opDecl.setEnclosingSymbol " + s  );
 
         if( enclosing_symbol != null && enclosing_symbol != s )
             throw new RuntimeException( "Compiler Error: trying to reassign container for "
-                    + name );
+                                        + name );
         if( s == null )
             throw new RuntimeException( "Compiler Error: enclosing symbol is null!");
 
@@ -170,7 +170,7 @@ class OpDecl
 //              else
 //              {
 //                  if( logger.isWarnEnabled() )
-		 logger.warn( "addImportedName " + param.paramTypeSpec.toString()  );
+//		 logger.warn( "addImportedName " + param.paramTypeSpec.toString()  );
 //                  myInterface.addImportedName( param.paramTypeSpec.toString() );
 //              }
 
@@ -779,8 +779,8 @@ class OpDecl
         //       if( enter )
         irInfoTable.put( name, sb.toString() );
 
-        if( logger.isWarnEnabled() )
-		 logger.warn( "OpInfo for " + name + " : " + sb.toString() );
+        if( logger.isDebugEnabled() )
+            logger.debug( "OpInfo for " + name + " : " + sb.toString() );
     }
 
 

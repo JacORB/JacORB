@@ -107,7 +107,7 @@ parser code
 
         finalString = FINAL;
 
-        String pattern = "[%.8{category}] %.7{priority} : %{message}\\n%{throwable}";
+        String pattern = "[%.11{category}] %.7{priority} : %{message}\\n%{throwable}";
         PatternFormatter formatter = new PatternFormatter( pattern );
         logWriter = new OutputStreamWriter( System.err );
         WriterTarget writerTarget = new WriterTarget( logWriter, formatter );
