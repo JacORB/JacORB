@@ -1,5 +1,5 @@
 
-// Copyright (C) 1998-1999
+// Copyright (C) 1998-2001
 // Object Oriented Concepts, Inc.
 
 // **********************************************************************
@@ -13,6 +13,9 @@
 
 /*
  * $Log$
+ * Revision 1.3  2001/03/19 11:10:03  brose
+ * *** empty log message ***
+ *
  * Revision 1.2  2001/03/17 18:45:24  brose
  * *** empty log message ***
  *

@@ -3,7 +3,7 @@ package org.jacorb.transaction;
 /*
  *        JacORB transaction service - a free TS for JacORB
  *
- *   Copyright (C) 1999-2000  LogicLand group Alex Sinishin.
+ *   Copyright (C) 1999-2001  LogicLand group Alex Sinishin.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public

@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2000  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -1406,7 +1406,12 @@ public class CDROutputStream
     }
 
     public void write_to(java.io.OutputStream out)
-        throws java.io.IOException{
+        throws java.io.IOException
+    {
+
+        if( out == null )
+            throw new Error( "out is null!" );
+
         if (header_stream != null){
             header_stream.insertMsgSize(header_stream.size() + size() - 12);
             out.write(header_stream.buffer, 0, header_stream.pos);
