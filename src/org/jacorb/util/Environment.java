@@ -83,8 +83,6 @@ public class Environment
 
     private static String               _default_context = "<undefined>";
 
-    /** domain-specific */
-
     private static int                  _verbosity = 2;
 
     private static boolean              _locate_on_bind = false;
@@ -96,24 +94,6 @@ public class Environment
     private static long                  _max_log_size = 0;
     private static boolean              append = false;
     private static long                  _current_log_size = 0;
-
-    // domain service configuration
-    /** indicates whether the domain service is used or not */
-    private static boolean          _use_domain= false;
-
-    /** if set to true (default), every orb domain gets mounted as child domain to
-     *  the domain server on creation */
-    private static boolean          _mount_orb_domain= true;
-
-    /** the filename to which the IOR of the orb domain (local domain service) is written
-     *  if set to null or the empty string (""), no IOR is written */
-    private static String           _orb_domain_filename= null;
-
-    /** the time how long an entry in the policy cache is valid, value in ms */
-    private static long _cache_entry_lifetime  = 1000 * 60 * 5;      // 5 minutes
-
-    /** the pathname of the domains the poa maps newly created object references by default */
-    private static String           _default_domains= null;
 
     /** threading properties */
     private static boolean              _monitoring_on = false;
@@ -380,8 +360,6 @@ public class Environment
             _retry_interval = Integer.parseInt(o);
         else if (varName.equals("_client_pending_reply_timeout"))
             _client_pending_reply_timeout = Integer.parseInt(o);
-        else if( varName.equals("_cache_entry_lifetime"))
-            _cache_entry_lifetime = Long.parseLong(o);
         else if( varName.equals("_outbuf_size"))
             _outbuf_size = Integer.parseInt(o);
         else if( varName.equals("_max_managed_bufsize"))
@@ -390,10 +368,6 @@ public class Environment
             compactTypecodes = Integer.parseInt(o);
         else if( varName.equals("_default_context"))
             _default_context = o;
-        else    if( varName.equals("_orb_domain_filename"))
-            _orb_domain_filename = o;
-        else    if( varName.equals("_default_domains"))
-            _default_domains= o;
         else    if( varName.equals("_verbosity"))
             _verbosity = Integer.parseInt(o);
         else    if( varName.equals("_locate_on_bind"))
@@ -406,11 +380,6 @@ public class Environment
             _use_imr =  (o.equalsIgnoreCase("on")? true : false);
         else  if( varName.equals("_use_imr_endpoint"))
             _use_imr_endpoint =  (o.equalsIgnoreCase("on")? true : false);
-        else  if( varName.equals("_use_domain"))
-            _use_domain =  (o.equalsIgnoreCase("on")? true : false);
-        else  if( varName.equals("_mount_orb_domain"))
-            _mount_orb_domain =
-                (o.equalsIgnoreCase("off")? false : true);
         else    if( varName.equals("_thread_pool_max"))
             _thread_pool_max = Integer.parseInt(o);
         else    if( varName.equals("_thread_pool_min"))
@@ -447,20 +416,15 @@ public class Environment
         readValue("_client_pending_reply_timeout", jacorbPrefix + "connection.client.pending_reply_timeout");
         readValue("_retries","retries",jacorbPrefix+"retries");
         readValue("_retry_interval","retry_interval",jacorbPrefix+"retry_interval");
-        readValue("_cache_entry_lifetime","_cache_entry_lifetime",jacorbPrefix+"domain.cache_entry.lifetime");
         readValue("_outbuf_size","outbuf_size",jacorbPrefix+"outbuf_size");
         readValue("_max_managed_bufsize","maxManagedBufSize",jacorbPrefix+"maxManagedBufSize");
         readValue("_compactTypecodes","compactTypecodes",jacorbPrefix+"compactTypecodes");
-        readValue("_orb_domain_filename","ds",jacorbPrefix+"orb_domain.filename");
-        readValue("_default_domains","ds",jacorbPrefix+"poa.default_domains");
         readValue("_locate_on_bind","locate_on_bind",jacorbPrefix+"locate_on_bind");
         readValue("_cache_references","reference_caching",jacorbPrefix+"reference_caching");
         readValue("_monitoring_on","monitoring",poaPrefix+"monitoring");
         readValue("_use_imr","use_imr",jacorbPrefix+"use_imr");
         readValue("_impl_name","implname",jacorbPrefix+"implname");
         readValue("_use_imr_endpoint","use_imr_endpoint",jacorbPrefix+"use_imr_endpoint");
-        readValue("_use_domain","use_domain",jacorbPrefix+"use_domain");
-        readValue("_mount_orb_domain","_mount_orb_domain", jacorbPrefix+"orb_domain.mount");
         readValue("_thread_pool_max","thread_pool_max",poaPrefix+"thread_pool_max");
         readValue("_thread_pool_min","thread_pool_min",poaPrefix+"thread_pool_min");
         readValue("_queue_max","queue_max",poaPrefix+"queue_max");
@@ -643,15 +607,8 @@ public class Environment
     public static final int queueMax() { return _queue_max;  }
     public static final long retryInterval() { return _retry_interval; }
 
-    public static final String ORBDomainFilename()    { return _orb_domain_filename;  }
-    public static final String DefaultDomains()       { return _default_domains;  }
-    public static final long   LifetimeOfCacheEntry() { return _cache_entry_lifetime; }
-
     public static final boolean useImR()    { return _use_imr;    }
-    public static final boolean useImREndpoint()    { return _use_imr_endpoint;    }
-    public static final boolean useDomain()      { return _use_domain; }
-    public static final boolean mountORBDomain() { return _mount_orb_domain; }
-
+    public static final boolean useImREndpoint()    { return _use_imr_endpoint;}
 
     public static final  int threadPoolMax() { return _thread_pool_max; }
     public static final  int threadPoolMin() { return _thread_pool_min; }
