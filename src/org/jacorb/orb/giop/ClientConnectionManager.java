@@ -44,7 +44,7 @@ public class ClientConnectionManager
     private org.jacorb.orb.ORB orb = null;
 
     /** connection mgmt. */
-    private Hashtable connections = new Hashtable();
+    private Map connections = new HashMap();
 
     private SocketFactory socket_factory = null;
     private SocketFactory ssl_socket_factory = null;
@@ -136,44 +136,18 @@ public class ClientConnectionManager
      * @param <code>String host_and_port</code> - in "host:xxx" notation
      * @return <code>Connection</code> */
 
-    public synchronized ClientConnection getConnection( String host_and_port, 
+    public synchronized ClientConnection getConnection( InternetIOPProfile profile,
                                                         boolean use_ssl )
     {
-        host_and_port = unifyTargetAddress( host_and_port );
-        
-        int separator_index = host_and_port.indexOf( ":" );
-
-        String host = host_and_port.substring( 0, separator_index );
-        String port = host_and_port.substring( separator_index + 1 );
-        
         /* look for an existing connection */
         
         ClientConnection c = 
-            (ClientConnection)connections.get( host_and_port );
+            (ClientConnection)connections.get( profile );
 
-        if( c == null )
+        if (c == null)
         {
-            int _port = -1;
-            try
-            {
-                _port = Integer.parseInt( port );
-            }
-            catch( NumberFormatException nfe )
-            {
-                Debug.output( 1, "Unable to create port int from string >" +
-                              port + '<' );
-                
-                throw new org.omg.CORBA.BAD_PARAM();
-            }
-            
-            if( _port < 0)
-            {
-                _port += 65536;
-            }
-            
             Transport transport = 
-                transport_manager.createClientTransport( host, 
-                                                         _port,
+                transport_manager.createClientTransport( profile,
                                                          use_ssl );
 
             GIOPConnection connection = 
@@ -182,12 +156,13 @@ public class ClientConnectionManager
                     request_listener,
                     null );
             
-            c = new ClientConnection( connection, orb, this, host_and_port, true );
+            c = new ClientConnection( connection, orb, this, 
+                                      profile.getAddress().toString(), true );
 
             Debug.output( 2, "ClientConnectionManager: created new conn to target " +
                           c.getInfo() );
             
-            connections.put( c.getInfo(), c );
+            connections.put( profile, c );
 
             receptor_pool.connectionCreated( connection );
         }
@@ -210,26 +185,27 @@ public class ClientConnectionManager
         {
             c.close();
 
-            connections.remove( c.getInfo() );
+            connections.remove (c.get_server_profile()); 
         }
     }
 
     public synchronized void removeConnection( ClientConnection c )
     {
-        connections.remove( c.getInfo() );
+        connections.remove( c.get_server_profile() );
     }
 
 
-    public synchronized void addConnection( GIOPConnection connection, 
-                                            String info )
+    public synchronized void addConnection( GIOPConnection connection )
     {
-        if( ! connections.containsKey( info ))
+        Client_TCP_IP_Transport t = (Client_TCP_IP_Transport)connection.getTransport();
+        InternetIOPProfile profile = t.get_server_profile(); 
+            
+        if( !connections.containsKey( profile ))
         {
 
-            info = unifyTargetAddress( info );
-
             ClientConnection c = 
-                new ClientConnection( connection, orb, this, info, false );
+                new ClientConnection( connection, orb, this, 
+                                      profile.getAddress().toString(), false );
 
             //this is a bit of a hack: the bidirectional client
             //connections have to persist until their underlying GIOP
@@ -239,7 +215,7 @@ public class ClientConnectionManager
         
             c.incClients();
         
-            connections.put( info, c );
+            connections.put( profile, c );
         }
     }
 
@@ -247,9 +223,9 @@ public class ClientConnectionManager
     {
         /* release all open connections */
         
-        for( Enumeration e = connections.elements(); e.hasMoreElements(); )
+        for( Iterator i = connections.values().iterator(); i.hasNext(); )
         {
-            ((ClientConnection) e.nextElement()).close();
+            ((ClientConnection) i.next()).close();
         }
         
         Debug.output(3,"ClientConnectionManager shut down (all connections released)");
