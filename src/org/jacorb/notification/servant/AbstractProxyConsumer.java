@@ -305,10 +305,11 @@ abstract class AbstractProxyConsumer
                                         logger_.error("invalid event type", e);
                                     }
                                 }
+                            catch (Exception e) {
+                                logger_.error("subscription change failed", e);
+                            }
                         }
                     };
-
-
                 subscriptionManager_.addListener(proxySubscriptionListener_);
             }
         }
@@ -383,8 +384,6 @@ abstract class AbstractProxyConsumer
 
         _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
                             getConfiguration());
-
-
 
         return _servant;
     }
