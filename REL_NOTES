@@ -56,7 +56,7 @@ brose@inf.fu-berlin.de
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
-1.3.20
+1.3.21
         - internal redesign: all package names now begin with "org.jacorb"
           NOTE: You MUST change existing jacorb.properties files to 
           reflect these changes where property values point to JacORB
