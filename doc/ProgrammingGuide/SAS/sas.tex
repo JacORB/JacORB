@@ -1,15 +1,28 @@
 
 The Security Attribute Service (SAS) is part of the Common Secure 
 Interoperability Specification, Version 2 (CSIv2) CORBA specification.
+It is defined in the Secure Interoperability chapter (chapter 24) of the
+CORBA 3.0.2 Specification.
 
 \section{Overview}
 
-The SAS service is implemented as a series of standard CORBA interceptors.
+The SAS specification defines the interchange between a Client Security 
+Service (CSS) and a Target Security Service (TSS)
+for the exchange of security authentication and authorization
+elements. This information is exchanged in the Service Context of the GIOP
+request and reply messages. The SAS may be used in conjunction with SSL to
+provide privacy of the messages being sent and received.
+
+The SAS service is implemented as a series of standard CORBA interceptors,
+one for the CSS and one for the TSS. The service also uses a user specified
+SAS context class to support different authentication mechanisms, such as
+GSSUP and Kerberos.
+
 The SAS service is activated based on entries in the JacORB properties file.
-The properties are slightly different for a client and a target application.
+The properties are slightly different for a CSS and a TSS application.
 
 The following is a part of the JacORB properties file that is used by 
-the SAS client.
+the CSS.
 
 \begin{scriptsize}
 \begin{verbatim}
@@ -58,7 +71,7 @@ GSSUPProviderInitializer
 
 
 The following is a part of the JacORB properties file that is used by 
-the SAS target.
+the TSS.
 
 \begin{scriptsize}
 \begin{verbatim}
@@ -105,9 +118,23 @@ jacorb.security.sas.tss.target_requires=EstablishTrustInTarget
 \end{verbatim}
 \end{scriptsize}
 
+In some cases, an application may act as both a CSS and a TSS. 
+In these cases, a single properties file may be used with both the
+CSS and TSS interceptors included.
+
 \section{GSSUP Example}
 
-The following describes a complete SAS example using GSSUP.
+The GSSUP (GSS Username/Password) example demonstraites the simplest 
+usage of the SAS service. In this example, username and password
+pairs are send via the SAS service. The client registers its username
+and password with the GSSUP Context which is later used CSS interceptor
+to generate the user's authentication information.
+The TSS retrieves the username and password
+without validating them. It is assumed by the TSS that the username
+and password are correct and/or will be further validated by a later
+interceptor or application code.
+
+The following describes a SAS example using GSSUP.
 
 \subsection{GSSUP IDL Example}
 
@@ -124,8 +151,7 @@ module demo{
 \end{scriptsize}
 
 The IDL contains a single interface. This interface is used to print out
-the user principal used to connect to the server. The principal is derived
-from the SAS level.
+the user principal sent and received by the SAS service.
 
 \subsection{GSSUP Client Example}
 
@@ -135,11 +161,12 @@ The following is a sample GSSUP client.
 \begin{verbatim}
 package demo.sas;
 
-import java.io.*;
-import java.util.*;
-import org.omg.CORBA.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
 import org.jacorb.security.sas.GssUpContext;
-import org.jacorb.util.*;
+import org.omg.CORBA.ORB;
 
 public class GssUpClient {
     public static void main(String args[]) {
@@ -184,8 +211,17 @@ public class GssUpClient {
 \end{verbatim}
 \end{scriptsize}
 
-The following is JacORB properties section for the client SAS.
+The key to the client is the call to:
+\begin{scriptsize}
+\begin{verbatim}
+    GssUpContext.setUsernamePassword(args[1], args[2]);
+\end{verbatim}
+\end{scriptsize}
+This call registers the client's username and password with the GSSUP context.
+This information will then later be used by the CSS interceptor as the user's
+authentication information.
 
+The following is JacORB properties section for the client SAS.
 
 \begin{scriptsize}
 \begin{verbatim}
@@ -206,13 +242,12 @@ The following is a sample GSSUP target.
 \begin{verbatim}
 package demo.sas;
 
-import java.io.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
+import org.jacorb.security.sas.GssUpContext;
 import org.omg.PortableServer.POA;
-import org.omg.Security.*;
-import org.jacorb.security.sas.*;
 import org.omg.CORBA.ORB;
-import org.jacorb.util.*;
 
 public class GssUpServer extends SASDemoPOA {
     private ORB orb;
@@ -241,9 +276,6 @@ public class GssUpServer extends SASDemoPOA {
         }
 
         try {
-            // set security credentials
-            GssUpContext.setUsernamePassword("Server", "");
-
             // initialize the ORB and POA.
             ORB orb = ORB.init(args, null);
             POA poa = (POA) orb.resolve_initial_references("RootPOA");

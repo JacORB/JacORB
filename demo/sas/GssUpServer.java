@@ -1,12 +1,11 @@
 package demo.sas;
 
-import java.io.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
+import org.jacorb.security.sas.GssUpContext;
 import org.omg.PortableServer.POA;
-import org.omg.Security.*;
-import org.jacorb.security.sas.*;
 import org.omg.CORBA.ORB;
-import org.jacorb.util.*;
 
 /**
  * This is the server part of the sas demo. It demonstrates
@@ -44,9 +43,6 @@ public class GssUpServer extends SASDemoPOA {
 		}
 
 		try {
-			// set security credentials
-			GssUpContext.setUsernamePassword("Server", "");
-
 			// initialize the ORB and POA.
 			ORB orb = ORB.init(args, null);
 			POA poa = (POA) orb.resolve_initial_references("RootPOA");

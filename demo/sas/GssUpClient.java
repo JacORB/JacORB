@@ -1,10 +1,11 @@
 package demo.sas;
 
-import java.io.*;
-import java.util.*;
-import org.omg.CORBA.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+
 import org.jacorb.security.sas.GssUpContext;
-import org.jacorb.util.*;
+import org.omg.CORBA.ORB;
 
 /**
  * This is the client side of the sas demo. It just calls the single

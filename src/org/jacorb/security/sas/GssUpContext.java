@@ -28,8 +28,8 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 public class GssUpContext implements ISASContext
 {
 	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
-	private static String username = null;
-	private static String password = null;
+	private static String username = "";
+	private static String password = "";
     private InitialContextToken initialContextToken = null;
     
     public static void setUsernamePassword(String username, String password) {
