@@ -106,7 +106,7 @@ public class ClientConnection
 
         //if the other side only talks GIOP 1.0, don't send a codeset
         //context and don't try again
-        if( pior.getProfileBody().iiop_version.minor == 0 )
+        if( pior.getEffectiveProfile().version().minor == 0 )
         {
             connection.markTCSNegotiated();
             return null;
