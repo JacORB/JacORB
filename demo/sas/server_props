@@ -36,7 +36,8 @@
 # DRR #
 # CSI Properties
 
-org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.sas.TSSInitializer
+org.omg.PortableInterceptor.ORBInitializerClass.TSS=org.jacorb.security.sas.TSSInitializer
+org.omg.PortableInterceptor.ORBInitializerClass.GSSUP=org.jacorb.security.sas.GSSUPProviderInitializer
 jacorb.security.support_sas=on
 jacorb.security.sas.mechanism.1.oid=2.23.130.1.1.1
 jacorb.security.sas.mechanism.1.provider=org.jacorb.security.sas.GSSUPProvider

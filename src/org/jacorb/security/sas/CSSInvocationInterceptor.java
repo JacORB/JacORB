@@ -48,9 +48,9 @@ public class CSSInvocationInterceptor
     extends org.omg.CORBA.LocalObject
     implements ClientRequestInterceptor
 {
-    public static final String DEFAULT_NAME = "CSSInvocationInterceptor";
-    public static final int SecurityAttributeService = 15;
-    private static byte[] contextToken;
+    private static final String DEFAULT_NAME = "CSSInvocationInterceptor";
+    private static final int SecurityAttributeService = 15;
+    private static GSSCredential myCredential;
 
     private Codec codec = null;
     private String name = null;
@@ -70,8 +70,8 @@ public class CSSInvocationInterceptor
     {
     }
 
-    public static void setInitialContext(byte[] token) {
-        contextToken = token;
+    public static void setMyCredential(GSSCredential cred) {
+        myCredential = cred;
     }
 
     public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri) throws org.omg.PortableInterceptor.ForwardRequest
@@ -84,6 +84,12 @@ public class CSSInvocationInterceptor
         org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
         try
         {
+            GSSManager gssManager = CSSInitializer.gssManager;
+            Oid myMechOid = myCredential.getMechs()[0];
+            GSSName myPeer = gssManager.createName("".getBytes(), GSSName.NT_ANONYMOUS, myMechOid);
+            GSSContext myContext = gssManager.createContext(myPeer, myMechOid, myCredential, GSSContext.DEFAULT_LIFETIME);
+            byte[] contextToken = new byte[0];
+            contextToken = myContext.initSecContext(contextToken, 0, contextToken.length);
             IdentityToken identityToken = new IdentityToken();
             identityToken.absent(true);
             EstablishContext establishContext = new EstablishContext(0, new AuthorizationElement[0], identityToken, contextToken);
@@ -96,6 +102,7 @@ public class CSSInvocationInterceptor
         catch (Exception e)
         {
             Debug.output(1, "Could not set security service context: " + e);
+            e.printStackTrace();
         }
     }
 
@@ -106,13 +113,13 @@ public class CSSInvocationInterceptor
 
     public void receive_reply(org.omg.PortableInterceptor.ClientRequestInfo ri)
     {
-        //System.out.println("receive_reply");
+        System.out.println("receive_reply");
     }
 
     public void receive_exception(org.omg.PortableInterceptor.ClientRequestInfo ri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
-        //System.out.println("receive_exception");
+        System.out.println("receive_exception");
     }
 
     public void receive_other(org.omg.PortableInterceptor.ClientRequestInfo ri)

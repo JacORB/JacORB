@@ -28,7 +28,6 @@ import org.omg.Security.*;
 import org.jacorb.util.*;
 import org.omg.IOP.*;
 import org.omg.IOP.CodecFactoryPackage.*;
-import org.ietf.jgss.*;
 
 import org.jacorb.util.Environment;
 
@@ -39,44 +38,23 @@ import org.jacorb.util.Environment;
  * @version $Id$
  */
 
-public class CSSInitializer
+public class GSSUPProviderInitializer
         extends org.omg.CORBA.LocalObject
         implements ORBInitializer
 {
-    public static GSSManager gssManager = GSSManager.getInstance();
-
     /**
     * This method registers the interceptors.
     */
     public void post_init( ORBInitInfo info )
     {
+        // save ORB
+        org.jacorb.security.sas.GSSUPProvider.orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
 
-        // load any GSS mechanism providors
-        for (int i = 1; i <= 16; i++) {
-            String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".oid");
-            String mechProvider = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".provider");
-            if (mechOID == null || mechProvider == null) continue;
-            try {
-                Oid oid = new org.ietf.jgss.Oid(mechOID);
-                Class cls = Class.forName (mechProvider);
-                java.lang.Object provider = cls.newInstance ();
-                gssManager.addProviderAtFront((java.security.Provider)provider, oid);
-                Debug.output(1, "Adding GSS SPI Provider: " + oid + " " + mechProvider);
-            } catch (Exception e) {
-                Debug.output( 1, "GSSProvider "+mechOID+" "+mechProvider + " error: " +e );
-            }
-        }
-
-        // install the CSS interceptor
+        // save Codec
         try
         {
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
-            Codec codec = info.codec_factory().create_codec(encoding);
-            info.add_client_request_interceptor(new CSSInvocationInterceptor(codec));
-        }
-        catch (DuplicateName duplicateName)
-        {
-            Debug.output( Debug.SECURITY | Debug.IMPORTANT, duplicateName);
+            org.jacorb.security.sas.GSSUPProvider.codec = info.codec_factory().create_codec(encoding);
         }
         catch (UnknownEncoding unknownEncoding)
         {

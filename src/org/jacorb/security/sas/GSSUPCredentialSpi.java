@@ -43,6 +43,7 @@ public final class GSSUPCredentialSpi implements GSSCredentialSpi
 
     public GSSUPCredentialSpi (Provider myProvider, Oid myMechOid, GSSNameSpi name, int initLifetime, int acceptLifetime, int usage)
     {
+        //System.out.println("GSSUPCredentialSpi");
         this.myProvider = myProvider;
         this.myMechOid = myMechOid;
         this.name = name;
@@ -93,4 +94,3 @@ public final class GSSUPCredentialSpi implements GSSCredentialSpi
         return myMechOid;
     }
 }
-

@@ -40,11 +40,9 @@ import org.omg.CORBA.Any;
 
 public final class GSSUPContextSpi implements GSSContextSpi
 {
-    private Provider myProvider = null;
-    private Oid myMechOid = null;
+    private Provider provider = null;
+    private Oid mechOid = null;
     private int lifetime;
-    private int initContextState = 0;
-    private byte[] innerToken = null;
     private boolean mutualAuth = false;
     private boolean relayDet = false;
     private boolean sequenceDet = false;
@@ -55,31 +53,21 @@ public final class GSSUPContextSpi implements GSSContextSpi
     private boolean established = false;
     private ChannelBinding channelBinding = null;
 
-    private InitialContextToken subject = GSSUPProvider.getDefaultSubject();
+    private GSSNameSpi targetName;
+    private GSSCredentialSpi sourceCred;
 
-    public GSSUPContextSpi (Provider myProvider, Oid myMechOid, int lifetime)
+    public GSSUPContextSpi (Provider provider, Oid mechOid, GSSNameSpi nameSpi, GSSCredentialSpi credSpi, int lifetime)
     {
-        this.myProvider = myProvider;
-        this.myMechOid = myMechOid;
+        this.provider = provider;
+        this.mechOid = mechOid;
+        this.targetName = nameSpi;
+        this.sourceCred = credSpi;
         this.lifetime = lifetime;
     }
 
     public Provider getProvider()
     {
-        return myProvider;
-    }
-
-    public void setSubject(String username, String password, String target)
-    {
-        subject = new InitialContextToken();
-        subject.username = username.getBytes();
-        subject.password = password.getBytes();
-        subject.target_name = target.getBytes();
-    }
-
-    public InitialContextToken getSubject()
-    {
-        return subject;
+        return provider;
     }
 
     public void requestLifetime(int lifetime) throws GSSException
@@ -154,13 +142,13 @@ public final class GSSUPContextSpi implements GSSContextSpi
 
     public boolean isTransferable() throws GSSException
     {
-        System.out.println("GSSUPContextSpi.isTransferable");
+        //System.out.println("GSSUPContextSpi.isTransferable");
         return true;
     }
 
     public boolean isProtReady()
     {
-        System.out.println("GSSUPContextSpi.isProtReady");
+        //System.out.println("GSSUPContextSpi.isProtReady");
         return false;
     }
 
@@ -186,80 +174,46 @@ public final class GSSUPContextSpi implements GSSContextSpi
 
     public GSSNameSpi getSrcName() throws GSSException
     {
-        System.out.println("GSSUPContextSpi.getSrcName");
-        return new GSSUPNameSpi(this.myProvider, this.myMechOid, "Source".getBytes(), null);
+        //System.out.println("GSSUPContextSpi.getSrcName");
+        return sourceCred.getName();
     }
 
     public GSSNameSpi getTargName() throws GSSException
     {
-        System.out.println("GSSUPContextSpi.getTargName");
-        return new GSSUPNameSpi(this.myProvider, this.myMechOid, "Target".getBytes(), null);
+        //System.out.println("GSSUPContextSpi.getTargName");
+        return targetName;
     }
 
     public Oid getMech() throws GSSException
     {
-        return myMechOid;
+        return mechOid;
     }
 
     public GSSCredentialSpi getDelegCred() throws GSSException
     {
-        System.out.println("GSSUPContextSpi.getDelegCred");
+        //System.out.println("GSSUPContextSpi.getDelegCred");
         return null;
     }
 
     public byte[] initSecContext(InputStream inStream, int inLen) throws GSSException {
         established = true;
-        try
-        {
-            Codec_CDR_1_0_Impl codec = new Codec_CDR_1_0_Impl(GSSUPProvider.orb);
-            Any any = GSSUPProvider.orb.create_any();
-            InitialContextTokenHelper.insert( any, subject );
-            return codec.encode(any);
-        }
-        catch (Exception unknownEncoding)
-        {
-            Debug.output( Debug.SECURITY | Debug.IMPORTANT, unknownEncoding);
-        }
-        return null;
-
-
-        //byte[] newBytes = null;
-        //initContextState++;
-        //switch (initContextState) {
-        //case 1: newBytes = GSSUPProvider.getDefaultSubject().username; break;
-        //case 2: newBytes = GSSUPProvider.getDefaultSubject().password; break;
-        //case 3: newBytes = GSSUPProvider.getDefaultSubject().target_name; established = true; break;
-        //}
-        //byte[] outBytes = new byte[inLen + newBytes.length];
-        //try
-        //{
-        //    if (inLen > 0) inStream.read(outBytes, 0, inLen);
-        //}
-        //catch (java.io.IOException e)
-        //{
-        //    System.out.println("Error reading context: "+e);
-        //}
-        //System.arraycopy(newBytes, 0, outBytes, inLen, newBytes.length);
-        //innerToken = outBytes;
-        //return outBytes;
+        return sourceCred.getName().toString().getBytes();
     }
 
     public byte[] acceptSecContext(InputStream inStream, int inLen) throws GSSException
     {
-        System.out.println("GSSUPContextSpi.acceptSecContext");
+        //System.out.println("GSSUPContextSpi.acceptSecContext");
         established = true;
         try
         {
-System.out.println("InputStream avail="+inStream.available());
-            Codec_CDR_1_0_Impl codec = new Codec_CDR_1_0_Impl(GSSUPProvider.orb);
-            byte[] b = new byte[inStream.available()];
-            inStream.read(b);
-            Any any = codec.decode(b);
-            subject = InitialContextTokenHelper.extract( any );
+            byte[] inBytes = new byte[inStream.available()];
+            inStream.read(inBytes);
+            GSSNameSpi sourceName = new GSSUPNameSpi(provider, mechOid, inBytes, null);
+            sourceCred = new GSSUPCredentialSpi(provider, mechOid, sourceName, GSSCredential.DEFAULT_LIFETIME, GSSCredential.DEFAULT_LIFETIME, GSSCredential.ACCEPT_ONLY);
         }
-        catch (Exception unknownEncoding)
+        catch (Exception e)
         {
-            Debug.output( Debug.SECURITY | Debug.IMPORTANT, unknownEncoding);
+            Debug.output( 1, "Error acceptSecContext: " + e);
         }
         return null;
     }
@@ -338,16 +292,15 @@ System.out.println("InputStream avail="+inStream.available());
 
     public byte[] export() throws GSSException
     {
-        System.out.println("GSSUPContextSpi.export");
-        return innerToken;
+        //System.out.println("GSSUPContextSpi.export");
+        return null;
     }
 
     public void dispose() throws GSSException
     {
-        channelBinding = null;
-        myProvider = null;
-        myMechOid = null;
         //System.out.println("GSSUPContextSpi.dispose");
+        channelBinding = null;
+        provider = null;
+        mechOid = null;
     }
 }
-

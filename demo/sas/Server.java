@@ -26,69 +26,12 @@ import org.jacorb.security.level2.*;
 public class Server
     extends SASDemoPOA
 {
-    //the Security Level 2 Current
-    //private Current current = null;
+    private ORB orb;
 
-    /*
-     * This class from package org.jacorb.security.level2
-     * contains the actual contents of the security attributes
-     */
-    private SecAttributeManager attrib_mgr = null;
-
-    //the single attribute type array, that is used
-    //for getting the SecAttributes from the Credentials
-    private AttributeType[] access_id = null;
-
-
-    public Server( /*Current current*/ )
+    public Server(ORB orb)
     {
-        //this.current = current;
-
-        attrib_mgr = SecAttributeManager.getInstance();
-
-        AttributeType attribute_type =
-            new AttributeType(new ExtensibleFamily((short) 0,
-                                                   (short) 1),
-                              AccessId.value);
-
-        access_id = new AttributeType[] {attribute_type};
+        this.orb = orb;
     }
-
-    /**
-     * This method retrievs the received client certificate
-     * from the Credentials.
-     */
-    private X509Certificate getClientCert()
-    {
-        //get the ReceivedCredentials
-        ReceivedCredentials creds = null;//current.received_credentials();
-
-        if (creds == null)
-        {
-            return null;
-        }
-
-        //get the SecAttributes we're interested in
-        SecAttribute[] attribs = creds.get_attributes( access_id );
-
-        if( attribs.length == 0 )
-        {
-            return null;
-        }
-
-        //get the actual contents of the SecAttributes via
-        //the SecAttributeManager
-        KeyAndCert kac = attrib_mgr.getAttributeCertValue( attribs[0] );
-
-        if( kac == null )
-        {
-            return null;
-        }
-
-        //return the first (self-signed) certificate of the chain
-        return (X509Certificate) kac.chain[0];
-    }
-
 
     /**
      * This method is from the IDL--interface. It prints out the
@@ -96,18 +39,17 @@ public class Server
      */
     public void printSAS()
     {
-        System.out.println("printSAS");
-        //X509Certificate client_cert = getClientCert();
-
-        //if( client_cert == null )
-        //{
-        //    System.out.println( "No client certificate available" );
-        //}
-        //else
-        //{
-        //    System.out.println( "Received a client certificate:" );
-        //    System.out.println( client_cert );
-        //}
+        try
+        {
+            org.omg.PortableInterceptor.Current current = (org.omg.PortableInterceptor.Current) orb.resolve_initial_references( "PICurrent" );
+            org.omg.CORBA.Any any = current.get_slot( org.jacorb.security.sas.TSSInitializer.sourceNameSlotID );
+            org.omg.GSSUP.InitialContextToken token = org.jacorb.security.sas.GSSUPNameSpi.decode(any.extract_string().getBytes());
+            System.out.println("printSAS for user " + (new String(token.username)));
+        }
+        catch (Exception e)
+        {
+            System.out.println("printSAS Error: " + e);
+        }
     }
 
     public static void main( String[] args )
@@ -122,48 +64,27 @@ public class Server
         {
             ORB orb = ORB.init( args, null );
 
-            try {
-                java.security.Provider p = new org.jacorb.security.sas.GSSUPProvider();
-                Oid mechOid = new Oid(org.omg.GSSUP.GSSUPMechOID.value.replaceFirst("oid:",""));
-                GSSManager gssManager = GSSManager.getInstance();
-                // load any mechanism providors
-                for (int i = 1; i <= 16; i++) {
-                    String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".oid");
-                    if (mechOID == null) continue;
-                    String mechProvider = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".provider");
-                    if (mechProvider == null) continue;
-                    try {
-                        org.ietf.jgss.Oid oid = new org.ietf.jgss.Oid(mechOID);
-                        Class cls = Class.forName (mechProvider);
-                        java.lang.Object provider = cls.newInstance ();
-                        gssManager.addProviderAtFront((java.security.Provider)provider, oid);
-                        Debug.output(1, "Adding GSS SPI Provider: " + oid + " " + mechProvider);
-                    } catch (Exception e) {
-                        Debug.output( 1, "GSSProvider "+mechOID+" "+mechProvider + " error: " +e );
-                    }
-                }
-                org.jacorb.security.sas.GSSUPProvider.setORB(orb);
-                org.jacorb.orb.standardInterceptors.SASComponentInterceptor.setGSSManager(gssManager);
-                org.jacorb.security.sas.TSSInvocationInterceptor.setGSSManager(gssManager);
-            } catch (GSSException e) {
-                System.out.println("GSSException "+e.getMessage()+": "+e.getMajorString()+": "+e.getMinorString());
-                e.printStackTrace();
-                System.exit(1);
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-
             POA poa = (POA)
                 orb.resolve_initial_references( "RootPOA" );
 
+            try
+            {
+                // create my identity
+                GSSManager gssManager = org.jacorb.security.sas.TSSInitializer.gssManager;
+                Oid myMechOid = new Oid(org.omg.GSSUP.GSSUPMechOID.value.replaceFirst("oid:", ""));
+                GSSName myName = gssManager.createName("".getBytes(), GSSName.NT_ANONYMOUS, myMechOid);
+                GSSCredential myCred = gssManager.createCredential(myName, GSSCredential.DEFAULT_LIFETIME, myMechOid, GSSCredential.ACCEPT_ONLY);
+                org.jacorb.security.sas.TSSInvocationInterceptor.setMyCredential(myCred);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
             poa.the_POAManager().activate();
 
-            //Current current = (org.omg.SecurityLevel2.Current)
-            //    orb.resolve_initial_references( "SecurityCurrent" );
-
             org.omg.CORBA.Object demo =
-                poa.servant_to_reference( new Server( /*current*/ ));
+                poa.servant_to_reference( new Server( orb ));
 
             PrintWriter pw =
                 new PrintWriter( new FileWriter( args[ 0 ] ));
