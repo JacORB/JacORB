@@ -24,11 +24,6 @@ package org.jacorb.notification.queue;
 import org.jacorb.notification.interfaces.Message;
 
 /**
- * EventQueue.java
- *
- *
- * Created: Sat Aug  9 11:43:26 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -43,7 +38,7 @@ public interface EventQueue
      * @param wait a <code>boolean</code> value. If this parameter is
      * set to true the queue will block until an element is
      * available. If the parameter is set to false the queue will
-     * return false in case it is empty.
+     * return null in case it is empty.
      *
      * @exception InterruptedException
      */
