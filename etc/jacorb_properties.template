@@ -166,9 +166,6 @@ jacorb.retries=5
 # how many msecs. do we wait between retries
 jacorb.retry_interval=500
 
-# size of network buffers for outgoing messages
-jacorb.outbuf_size=2048
-
 # log2 of maximum buffer size managed by the internal
 # buffer manager.
 #
