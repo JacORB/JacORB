@@ -644,6 +644,10 @@ jacorb.notification.order_policy = PriorityOrder
 
 jacorb.notification.discard_policy = PriorityOrder
 
+jacorb.notification.backout_interval = 5000
+
+jacorb.notification.eventconsumer_error_threshold = 3
+
 jacorb.logging.NOTIFY = console
 jacorb.logging.NOTIFY.priority = WARN
 jacorb.logging.NOTIFY.category = org.jacorb.notification
