@@ -1,0 +1,83 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            valuetype ForDeclOpOnly;
+            valuetype ForDeclOpOnly
+            {
+               private boolean byte_order;
+               void validateMessageContent();
+            };
+
+            valuetype ForDeclMemOnly;
+            valuetype ForDeclMemOnly
+            {
+               private boolean byte_order;
+            };
+
+
+            valuetype ForDeclFacOnly;
+            valuetype ForDeclFacOnly
+            {
+               factory init(in unsigned long w);
+            };
+
+
+            valuetype ForDeclBoth;
+            valuetype ForDeclBoth
+            {
+               private boolean byte_order;
+               void validateMessageContent();
+            };
+
+            valuetype TestValueType {};
+
+            abstract valuetype Message
+            {
+               void validateMessageContent();
+            };
+
+            valuetype ArbQueueEntry
+            {
+               private Message m_message;
+
+               Message getMessage();
+            };
+
+            // Should Fail
+            //    valuetype ForDeclFail;
+
+            // a) base types
+            valuetype boxedInt long;
+            valuetype boxedLong long long;
+            valuetype boxedShort short;
+            valuetype boxedByte octet;
+            valuetype boxedChar char;
+            valuetype boxedWChar wchar;
+            valuetype boxedFloat float;
+            valuetype boxedBoolean boolean;
+
+            // b) complex types
+
+            interface foo {
+               void bar_in( in boxedLong number );
+               void bar_inout( inout boxedLong number );
+            };
+
+            valuetype StringBox string;
+
+
+            interface i {
+               void op();
+            } ;
+
+            abstract valuetype v supports i {};
+
+         };
+      };
+   };
+};

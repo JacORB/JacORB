@@ -1,0 +1,11 @@
+module jacorb
+{
+    typedef struct Lime6{
+        char WaterMelon6[13];
+    } Coconut6[15];
+    
+    typedef struct Sultana7{
+        sequence<sequence<sequence<Lime6,9> ,7> ,4>  GaliaMelon7;
+    } Turnip7;
+
+};

@@ -1,0 +1,6 @@
+
+module testinclude
+{
+    typedef string s;
+};
+#include "const.idl"

@@ -1,0 +1,51 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            module Reflective
+            {
+               interface RefBaseObject;
+               interface RefObject;
+               interface RefPackage;
+
+
+               interface RefBaseObject
+               {
+               };
+
+               interface RefObject : RefBaseObject
+               {
+               };
+
+               interface RefPackage : RefBaseObject
+               {
+                  RefPackage get_nested_package ();
+               };
+
+               abstract interface BaseObject
+               {
+                  boolean getStatus();
+               };
+
+               interface DomainObject : BaseObject
+               {
+                  string getDomain();
+               };
+
+               abstract interface Subject
+               {
+                  readonly attribute string id;
+                  readonly attribute string name;
+                  readonly attribute string comment;
+                  readonly attribute boolean valid;
+               };
+            };
+         };
+      };
+   };
+};

@@ -1,0 +1,73 @@
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            enum Color { red, green, blue };
+            typedef enum myEnum { yes, no } myTypeDefedEnum;
+            typedef string<10> mystring;
+            typedef long mylong;
+            typedef double doublearray[10];
+            typedef sequence<float> myfloat;
+
+            interface myInterface
+            {
+               const long MYLONG = -214;
+               const long MYSHORT = 4;
+
+               struct myStruct
+               {
+                  mystring theString;
+                  mylong theLong;
+                  myfloat theFloat;
+                  doublearray theDouble;
+               };
+            };
+
+
+            module TypedefTesting
+            {
+               const long MYLONG2 = -314;
+               const long MYSHORT2 = 5;
+
+               interface A
+               {
+
+                  typedef long longArray2d[20][20];
+                  struct sVariable {
+                     string s1;
+                  };
+                  union uFixed switch (long) {
+                     default:
+                     // long array[20][20];
+                     longArray2d array;
+                  };
+                  union uVariable switch (char) {
+                     // case 0:   sFixed u;
+                     case 'b':    long v;
+                     case 'c':    sVariable w;
+                     case 'd':    uFixed  x;
+                  };
+                  typedef uVariable arr_uVariable[4];
+                  typedef uVariable arrarr_uVariable[4][8];
+                  typedef sequence <arr_uVariable> seq_arr_uVariable;
+                  typedef sequence <sequence<arr_uVariable> > seqseq_arr_uVariable;
+                  typedef sequence <sequence<sequence<arr_uVariable> > > seqseqseq_arr_uVariable;
+
+                  const long FOO = TypedefTesting::MYLONG2;
+                  struct B
+                  {
+                     mystring theStringNested2;
+                     mylong theLongNested;
+                     myfloat theFloatNested;
+                     doublearray theDoubleNested;
+                  };
+               };
+            };
+         };
+      };
+   };
+};
