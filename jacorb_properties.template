@@ -24,7 +24,6 @@ ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
 
 # JacORB-specific URLs
-jacorb.ImplementationRepositoryURL=http://www.x.y.z/~user/ImR_Ref
 jacorb.ProxyServerURL=http://www.x.y.z/~user/Appligator_Ref
 
 
@@ -180,6 +179,8 @@ org.omg.PortableInterceptor.ORBInitializerClass.standard_init=org.jacorb.orb.sta
 jacorb.use_imr=off
 
 jacorb.imr.allow_auto_register=off
+
+ORBInitRef.ImplementationRepository=http://www.x.y.z/~user/ImR_Ref
 
 jacorb.imr.table_file=Z:\table.dat
 jacorb.imr.backup_file=z:\backup.dat
