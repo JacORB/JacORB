@@ -1769,17 +1769,47 @@ public class CDRInputStream
         }
         else // RMI
         {
-            // ValueHandler wants class, repository_id, and sending context.
-            // I wonder why it wants all of these.
-            // If we settle down on this implementation, compute these 
-            // values more efficiently elsewhere.
+            // Load the value's class, using the context class loader
+            // of the current thread if possible.  Here's Francisco
+            // Reverbel's <reverbel@ime.usp.br> explanation of why
+            // this is needed in JBoss:
+
+            // "It seems that ValueHandler.loadClass() uses the thread
+            // context classloader only after it looks for other
+            // classloaders in the call stack (weird). In some
+            // situations (when EJBs are undeployed and then
+            // redeployed) it finds in the call stack a classloader
+            // used for an undeployed EJB. A value of class Foo is
+            // then unmarshalled with type
+            // classloaderOfEJB1:Foo, when the expected type is
+            // classloaderOfEJB2:Foo. I am getting ClassCastExceptions is this
+            // situation.
+            // Explicitly using the thread context class loader in the
+            // first place solves the problem."
+
             String className = 
                 org.jacorb.ir.RepositoryID.className (repository_id);
             Class c = null;
+            ClassLoader ctxcl = Thread.currentThread().getContextClassLoader();
             try 
             {
-                c = ValueHandler.loadClass(className, codebase, null);
-            } 
+                if (ctxcl != null)
+                {
+                    try
+                    {
+                        c = ctxcl.loadClass(className);
+                    }
+                    catch (ClassNotFoundException cnfe)
+                    {
+                        c = ValueHandler.loadClass(className, codebase, null);
+                    }
+                }
+                else
+                {
+                    c = ValueHandler.loadClass(className, codebase, null);
+      
+                }
+            }
             catch (ClassNotFoundException e) 
             {
                 throw new org.omg.CORBA.MARSHAL ("class not found: " + className);
