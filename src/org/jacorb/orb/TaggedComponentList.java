@@ -146,7 +146,7 @@ public class TaggedComponentList
 		catch (InvocationTargetException ex)
 		{
 			throw new RuntimeException ("Exception while reading component data: " 
-			                            + ex.getCause());
+			                            + ex.getTargetException());
 		}
 	}
 
