@@ -1,0 +1,27 @@
+***********************************************
+*                                             *
+*  Special instructions for building with a   *
+*  JDK < 1.4 and the downloadable jsse 1.0.2  *
+*                                             *
+***********************************************
+
+To be able to compile the classes in this package with a JDK < 1.4 and
+the downloadable jsse 1.0.2, you have to take the following steps:
+
+1.) Edit SSLSocketFactory:
+    a) uncomment the line "import com.sun.net.ssl.*;"
+    b) optionally uncomment 
+       "Security.addProvider( new
+        com.sun.net.ssl.internal.ssl.Provider() );",
+       if you don't register the provider in any other way.
+
+2.) Edit SSLSocketFactory:
+    a) uncomment the line "import com.sun.net.ssl.*;"
+    b) optionally uncomment 
+       "Security.addProvider( new
+        com.sun.net.ssl.internal.ssl.Provider() );",
+       if you don't register the provider in any other way.
+ 
+3.) Remove the files "ServerInvocationInterceptor.java" and
+    "SecurityServiceInitializer.java" because accessing the peers
+    certificates isn't implemented for the separate jsse 1.0.2
