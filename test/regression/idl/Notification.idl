@@ -48,6 +48,10 @@ module org {
 	case 5: NamedValue named_value_array[1];
 	default:  Person default_person;
 	};
+
+	interface EchoServer {
+	  void acceptAny(in any param);
+	};
       };
     };
   };
