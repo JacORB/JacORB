@@ -253,6 +253,11 @@ public class ORBSingleton
     public org.omg.CORBA.TypeCode create_fixed_tc( short digits, 
                                                    short scale)
     {
+        if (digits <= 0 || scale < 0 || scale > digits)
+        {
+            throw new org.omg.CORBA.BAD_PARAM
+               ("Invalid combination of digits and scale factor");
+        }
         return new org.jacorb.orb.TypeCode(digits, scale);
     }
 
