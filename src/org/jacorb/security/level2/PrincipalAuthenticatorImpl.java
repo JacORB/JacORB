@@ -27,21 +27,8 @@ public class PrincipalAuthenticatorImpl
     extends org.jacorb.orb.LocalityConstrainedObject
     implements org.omg.SecurityLevel2.PrincipalAuthenticator
 {  
-    private LoginData loginData = null;
-    private KeyStore keyStore = null;
-
-    private SecAttributeManager attrib_mgr = null;
-    
-    // rt: orb param removed (this simplyfies the using with java reflection)
-
     public PrincipalAuthenticatorImpl()
     {
-        loginData = new LoginData();
-    	loginData.keyStoreLocation = 
-            Environment.getProperty( "jacorb.security.keystore" );
-        loginData.storePassphrase = 
-            Environment.getProperty("jacorb.security.keystore_password");
-        attrib_mgr = SecAttributeManager.getInstance();
     }  
 
     public int[] get_supported_authen_methods(java.lang.String mechanism)
@@ -64,60 +51,59 @@ public class PrincipalAuthenticatorImpl
 	{	
 	    registerProvider();
 
-            loginData.alias = security_name;
+            String keyStoreLocation = 
+                Environment.getProperty( "jacorb.security.keystore" );
+            if ( keyStoreLocation == null ) 
+            {
+                System.out.print("Please enter key store file name: ");
+                keyStoreLocation = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+            }
 
+            String storePassphrase = 
+                Environment.getProperty("jacorb.security.keystore_password");
+            if ( storePassphrase == null ) 
+            {
+                System.out.print("Please enter store pass phrase: ");
+                storePassphrase = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+            }
+
+            String alias = security_name;
+            if ( alias == null ) 
+            {
+                System.out.print("Please enter alias  name: ");
+                alias = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+            }
+
+            String password = null;
             if ( auth_data == null )
             {
-                loginData.password = null;
+                System.out.print("Please enter password: ");
+                password = (new BufferedReader(new InputStreamReader(System.in))).readLine();
             }
             else
             {
-                loginData.password = new String( auth_data );
+                password = new String( auth_data );
             }
 
-            if ( loginData.keyStoreLocation == null ) 
-            {
-                System.out.print("Please enter key store file name: ");
-                loginData.keyStoreLocation = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            if ( loginData.storePassphrase == null ) 
-            {
-                System.out.print("Please enter store pass phrase: ");
-                loginData.storePassphrase = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            if ( loginData.alias == null ) 
-            {
-                System.out.print("Please enter alias  name: ");
-                loginData.alias = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-            if ( loginData.password == null ) 
-            {
-                System.out.print("Please enter password: ");
-                loginData.password = (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-              
-
-            if (( loginData.keyStoreLocation == null ) || 
-                ( loginData.storePassphrase == null ) ||
-                ( loginData.alias == null ) || 
-                ( loginData.password == null ))
+            if (( keyStoreLocation == null ) || 
+                ( storePassphrase == null ) ||
+                ( alias == null ) || 
+                ( password == null ))
             {
                 return AuthenticationStatus.SecAuthFailure;
             }
 
-            keyStore = KeyStoreUtil.getKeyStore (loginData.keyStoreLocation, 
-                                                 loginData.storePassphrase.toCharArray());
+            KeyStore keyStore = 
+                KeyStoreUtil.getKeyStore( keyStoreLocation, 
+                                          storePassphrase.toCharArray() );
 
             X509Certificate[] cert_chain = (X509Certificate[]) 
-                keyStore.getCertificateChain( loginData.alias );
+                keyStore.getCertificateChain( alias );
 
             if( cert_chain == null )
             {
                 Debug.output( 0, "No keys found in keystore for alias \""+
-                              loginData.alias + "\"!" );
+                              alias + "\"!" );
 
                 if( Environment.getProperty( "jacorb.security.default_user" ) != null )
                 {
@@ -128,8 +114,8 @@ public class PrincipalAuthenticatorImpl
             }
             
             PrivateKey priv_key = (PrivateKey) 
-                keyStore.getKey ( loginData.alias, 
-                                  loginData.password.toCharArray() );
+                keyStore.getKey ( alias, 
+                                  password.toCharArray() );
 
 
             KeyAndCert k_a_c = new KeyAndCert( priv_key, cert_chain );
@@ -140,6 +126,8 @@ public class PrincipalAuthenticatorImpl
                   AccessId.value );
 
 
+
+            SecAttributeManager attrib_mgr = SecAttributeManager.getInstance();
             SecAttribute attrib = attrib_mgr.createAttribute( k_a_c,
                                                               type );
                 
