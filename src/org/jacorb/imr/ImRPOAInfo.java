@@ -25,6 +25,9 @@ import org.jacorb.imr.AdminPackage.*;
 
 import org.jacorb.util.*;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 /**
  * This class stores information about a POA. It also provides methods 
  * for reactivation, conversion, and for waiting for reactivation.
@@ -42,21 +45,11 @@ public class ImRPOAInfo
     protected String host;
     protected String name;
     protected boolean active;
-    protected static long timeout = 120000; // 2 min.
+    protected long timeout; // 2 min.
 
-    static
-    {
-	// read in timeout from Environment
-	String _tmp = Environment.getProperty("jacorb.imr.timeout");
-	if (_tmp != null)
-	    try
-            {
-		timeout = Integer.parseInt(_tmp);
-	    }
-            catch(Exception _e)
-            {}
-    }
-    
+    private org.jacorb.config.Configuration configuration;
+    private Logger logger;
+
     /**
      * The constructor of this class.
      *
@@ -80,6 +73,16 @@ public class ImRPOAInfo
 	this.server = server;
 	this.active = true;
     }
+
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.imr");
+        // default timeout is 2 mins.
+        timeout = configuration.getAttributeAsInteger( "jacorb.imr.timeout",120000);
+    }
+
 
     /**
      * "Converts" this Object to an instance of the POAInfo class.
@@ -128,16 +131,19 @@ public class ImRPOAInfo
 		if (!active && 
                     (System.currentTimeMillis() - _sleep_begin) > timeout)
 		{
-		    Debug.output(4, "awaitActivation, time_out");
+                    if (logger.isDebugEnabled())
+                        logger.debug("awaitActivation, time_out");
 		    return false;
 		}
 	    }
-            catch (java.lang.Exception _e)
+            catch (java.lang.Exception e)
             {
-		Debug.output(4, _e);
+                if (logger.isDebugEnabled())
+                    logger.debug("awaitActivation: " + e.getMessage());
 	    }
 	}
-        Debug.output(4, "awaitActivation, returns true");
+        if (logger.isDebugEnabled())
+            logger.debug("awaitActivation, returns true");
 
 	return true;
     }

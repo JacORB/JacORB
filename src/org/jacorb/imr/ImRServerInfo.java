@@ -24,7 +24,6 @@ import java.util.*;
 
 import org.jacorb.imr.RegistrationPackage.*;
 import org.jacorb.imr.AdminPackage.*;
-import org.jacorb.util.Debug;
 
 /**
  * This class contains the information about a logical server.
@@ -179,7 +178,6 @@ public class ImRServerInfo
 	    }
             catch (java.lang.Exception _e)
             {
-		Debug.output(4, _e);
 	    }
 	}	
     }

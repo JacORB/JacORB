@@ -20,6 +20,9 @@
 
 package org.jacorb.imr;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.GIOP.*;
 
 import org.jacorb.imr.RegistrationPackage.*;
@@ -31,8 +34,6 @@ import org.jacorb.orb.iiop.*;
 
 import org.jacorb.poa.util.POAUtil;
 
-import org.jacorb.util.Environment;
-import org.jacorb.util.Debug;
 
 import org.omg.PortableServer.*;
 
@@ -57,14 +58,13 @@ public class ImplementationRepositoryImpl
     extends ImplementationRepositoryPOA
 {
     /**
-     * <code>default_port</code> is the port number for the IMR endpoint. It may
-     * be fixed by the jacorb.imr.endpoint_port_number configuration property.
+     * <code>default_port</code> is the port number for the IMR endpoint.
      */
     private static int default_port;
 
     /**
      * <code>default_host</code> is the host name for the IMR. It defaults to
-     * localhost. It may be set by jacorb.imr.host configuration property.
+     * localhost.
      */
     private static String default_host;
 
@@ -72,6 +72,12 @@ public class ImplementationRepositoryImpl
      * <code>orb</code> is the ORB instance for the IMR.
      */
     private static org.omg.CORBA.ORB orb;
+
+    private static org.jacorb.config.Configuration configuration = null;
+
+    /** the specific logger for this component */
+    private static Logger logger = null;
+
 
     private File table_file;
     private ServerTable server_table;
@@ -87,6 +93,20 @@ public class ImplementationRepositoryImpl
     private WriteThread wt;
     private boolean updatePending;
     private Shutdown shutdownThread;
+
+    public static void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.imr");
+
+        default_port = 
+            configuration.getAttributeAsInteger("jacorb.imr.endpoint_port_number",0);
+        port = 
+            configuration.getAttributeAsInteger("OAPort", 0);
+
+    }
+
 
     /**
      * The constructor.
@@ -734,128 +754,23 @@ public class ImplementationRepositoryImpl
      * The main method. "Parses" the arguments and sets the corresponding attributes up,
      * creates a new ImplementationRepositoryImpl instance and runs the ORB.
      */
-    public static void main(String[] args) {
-        // evaluate args
-        if (args.length > 8)
-            usage();
+    public static void main(String[] args) 
+    {
+        // translate any properties set on the commandline but after the 
+        // class name to a properties
+        java.util.Properties argProps = ObjectUtil.argsToProps( args );
+        
+        java.util.Properties props = new java.util.Properties();
+        props.setProperty("jacorb.implname", "the_ImR");
+        props.setProperty("jacorb.use_imr", "off");
 
         String _table_file_str = null;
         boolean _new_table = false;
         String _ior_file_str = null;
         String _backup_file_str = null;
         String port = null;
-        java.util.Properties props = null;
         File _backup_file = null;
 
-        System.setProperty ("jacorb.implname", "the_ImR");
-        System.setProperty ("jacorb.use_imr", "off");
-        try
-        {
-            for (int i = 0; i < args.length ; i++)
-            {
-                // Tru64 insists on passing space as a parameter; check for that
-                // before doing the charAt.
-                if (args[i] == null || args[i].length() < 2)
-                {
-                    System.out.println
-                        ("Ignoring argument '" + args[i] + "' as it is not valid.");
-                    continue;
-                }
-                switch (args[i].charAt(1))
-                {
-                    case 'h':
-                    {
-                        usage();
-                    }
-                    case 'p':
-                    {
-                        default_port = Integer.parseInt(args[++i]);
-                        break;
-                    }
-                    case 'f':
-                    {
-                        if (_new_table)
-                        {
-                            System.out.println("ERROR: -n and -f not allowed together");
-                            usage();
-                        }
-                        if ((i + 1) >= args.length)
-                        {
-                            System.out.println("ERROR: Supply filename with -f switch");
-                            usage();
-                        }
-                        _table_file_str = args[++i];
-                        break;
-                    }
-                    case 'n':
-                    {
-                        if (_table_file_str != null)
-                        {
-                            System.out.println("ERROR: -n and -f not allowed together");
-                            usage();
-                        }
-                        _new_table = true;
-                        break;
-                    }
-                    case 'i':
-                    {
-                        if ((i + 1) >= args.length)
-                        {
-                            System.out.println("ERROR: Supply IOR filename with -i switch");
-                            usage();
-                        }
-                        _ior_file_str = args[++i];
-                        break;
-                    }
-                    case 'b':
-                    {
-                        if ((i + 1) >= args.length)
-                        {
-                            System.out.println("ERROR: Supply filename with -b switch");
-                            usage();
-                        }
-                        _backup_file_str = args[++i];
-                        break;
-                    }
-                    case 'a':
-                    {
-                        Environment.setProperty( "jacorb.imr.allow_auto_register",
-                                                 "on" );
-                        break;
-                    }
-
-                    default:
-                    usage();
-                }
-            }
-        }
-        catch (Exception _e)
-        {
-            usage();
-        }
-
-        // If port hasn't been set try retrieving from the Environment
-        if (default_port == 0)
-        {
-            port = Environment.getProperty ("jacorb.imr.endpoint_port_number");
-
-            if (port != null && port.length () > 0)
-            {
-                default_port = Integer.parseInt(port);
-
-                Debug.output(4, "ImR: Using endpoint port number " + default_port);
-            }
-        }
-
-        port = Environment.getProperty ("jacorb.imr.port_number");
-
-        if (port != null && port.length () > 0)
-        {
-            props = new java.util.Properties ();
-            props.setProperty ("OAPort", port);
-
-            Debug.output(4, "ImR: Using port number " + port);
-        }
 
         default_host = Environment.getProperty ("jacorb.imr.host");
 

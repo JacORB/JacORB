@@ -21,7 +21,9 @@
 package org.jacorb.imr.util;
 
 import org.jacorb.imr.*;
-import org.jacorb.util.Debug;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.config.Configuration;
 
 /**
  * This class is a command-line tool for administering 
@@ -35,6 +37,7 @@ import org.jacorb.util.Debug;
 public class ImRManager
 {
     private static org.jacorb.orb.ORB m_orb;
+    private static Logger logger;
 
     /**
      * This method registers a server with the imr. To be called from within
@@ -55,6 +58,9 @@ public class ImRManager
             Admin admin = 
                 AdminHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
 
+            Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
+            Logger logger = config.getNamedLogger("jacorb.imr.manager");
+
             ServerInfo info = null;
 
             try
@@ -63,7 +69,8 @@ public class ImRManager
             }
             catch (UnknownServerName n)
             {
-                Debug.output(3, n);
+                if (logger.isWarnEnabled())
+                    logger.warn("Unknown Server name: " + n.getMessage());
             }
 
             if (info == null)
@@ -77,7 +84,8 @@ public class ImRManager
         }
         catch (Exception e)
         {
-            Debug.output(3, e);
+            if (logger.isWarnEnabled())
+                logger.warn(e.getMessage());
         }
     }
 
@@ -93,7 +101,7 @@ public class ImRManager
         }
         catch (java.net.UnknownHostException e)
         {
-            Debug.output(3, e);
+            // ignore, was: Debug.output(3, e);
         }
 
         return "";
@@ -110,6 +118,9 @@ public class ImRManager
             Admin admin = 
                 AdminHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
 
+            Configuration config = ((org.jacorb.orb.ORB)orb).getConfiguration();
+            Logger logger = config.getNamedLogger("jacorb.imr.manager");
+
             HostInfo[] hosts = admin.list_hosts();
 
             if (hosts.length > 0)
@@ -119,7 +130,8 @@ public class ImRManager
         }
         catch (Exception e)
         {
-            Debug.output(3, e);
+             if (logger.isWarnEnabled())
+                logger.warn(e.getMessage());
         }
 
         return "";
@@ -127,7 +139,6 @@ public class ImRManager
 
     private static Admin getAdmin()
     {
-
         Admin _admin = null;
         try
         {
@@ -136,8 +147,10 @@ public class ImRManager
         }
         catch( org.omg.CORBA.ORBPackage.InvalidName in )
         {
-            Debug.output(0, "WARNING: Could not contact Impl. Repository!");
+             if (logger.isWarnEnabled())
+                logger.warn("Could not contact Impl. Repository!");
         }
+
         if (_admin == null)
         {
             System.out.println("Unable to connect to repository process!");
@@ -633,6 +646,7 @@ public class ImRManager
         }
 
         m_orb = (org.jacorb.orb.ORB) org.omg.CORBA.ORB.init(args, null);
+        logger = m_orb.getConfiguration().getNamedLogger("jacorb.imr.manager");
 
         try
         {

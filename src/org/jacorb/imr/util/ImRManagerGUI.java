@@ -1,3 +1,5 @@
+package org.jacorb.imr.util;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.imr.util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,39 +32,20 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
 import org.jacorb.imr.*;
 
 /**
  * The GUI'ed version of the ImRManager.
  *
  * @author Nicolas Noffke
- * 
- * $Log$
- * Revision 1.5  2002/07/01 07:54:16  nicolas
- * updated or inserted Copyright notice
- *
- * Revision 1.4  2002/03/19 09:25:10  nicolas
- * updated copyright to 2002
- *
- * Revision 1.3  2002/03/19 11:08:00  brose
- * *** empty log message ***
- *
- * Revision 1.2  2002/03/17 18:44:00  brose
- * *** empty log message ***
- *
- * Revision 1.7  1999/11/25 16:05:47  brose
- * cosmetics
- *
- * Revision 1.6  1999/11/21 20:15:51  noffke
- * GUI data is now updated periodically by a thread
- *
- * Revision 1.5  1999/11/14 17:15:39  noffke
- * Cosmetics and commenting
- *
+ * @version $Id$
  *
  */
 
-public class ImRManagerGUI extends JFrame{
+public class ImRManagerGUI 
+    extends JFrame
+{
     private JMenuItem m_exit_mi;
     private JMenuItem m_about_mi;
     private JMenuItem m_refresh_all_mi;
@@ -105,15 +87,18 @@ public class ImRManagerGUI extends JFrame{
     /**
      * The constructor. Instanciates all components and brings up the window.
      */
-    public ImRManagerGUI() {
+    public ImRManagerGUI() 
+    {
 	super("ImR Manager");
-
 	m_handler = new EventHandler();
 	m_model = new ImRModel();
 	
-	try {
+	try 
+        {
 	    UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-	} catch (Exception e) { }
+	} 
+        catch (Exception e) 
+        { }
 	
 	GridBagConstraints _constraints = new GridBagConstraints();
 
@@ -611,11 +596,5 @@ public class ImRManagerGUI extends JFrame{
     }//EventHandler
 	
 } // ImRManagerGUI
-
-
-
-
-
-
 
 
