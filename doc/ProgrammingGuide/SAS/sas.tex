@@ -1,0 +1,287 @@
+
+The Security Attribute Service (SAS) is part of the Common Secure 
+Interoperability Specification, Version 2 (CSIv2) CORBA specification.
+
+\section{Overview}
+
+The SAS service is implemented as a series of standard CORBA interceptors.
+The SAS service is activated based on entries in the JacORB properties file.
+The properties are slightly different for a client and a target application.
+
+The following is a part of the JacORB properties file that is used by 
+the SAS client.
+
+\begin{scriptsize}
+\begin{verbatim}
+########################################
+#                                      #
+#   SAS configuration                  #
+#                                      #
+########################################
+
+# This option initializes SAS support in the ORB and sets the logging level
+jacorb.security.support_sas=on
+jacorb.SAS.log.verbosity=3
+
+# This option configures the SAS to support stateful sessions (default=true)
+jacorb.security.sas.tss.stateful=true
+
+# This option defines the specific SAS context generator/validator
+# Currently supported contexts include:
+#    GssUpContext      - Uses GSSUP security
+#    KerberosContext   - uses Kerberos security
+jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
+#jacorb.security.sas.contextClass=org.jacorb.security.sas.KerberosContext
+
+# This initializer installs the SAS Target Security Service (TSS)
+#org.omg.PortableInterceptor.ORBInitializerClass.SASTarget=org.jacorb.security.sas.SASTargetInitializer
+
+# This initializer installs the SAS Client Security Service (CSS)
+org.omg.PortableInterceptor.ORBInitializerClass.SASClient=org.jacorb.security.sas.SASClientInitializer
+
+# This option is used for GSSUP security and sets up the GSS Provider
+org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.
+GSSUPProviderInitializer
+
+# This option identifies the layered security attributes required by the target
+# Attributes are entered in a comma-separated list. Valid attributes are:
+#       Integrity
+#       Confidentiality
+#       EstablishTrustInTarget
+#       EstablishTrustInClient
+#       IdentityAssertion
+#       DelegationByClient
+#jacorb.security.sas.tss.target_supports=EstablishTrustInTarget
+#jacorb.security.sas.tss.target_requires=EstablishTrustInTarget
+\end{verbatim}
+\end{scriptsize}
+
+
+The following is a part of the JacORB properties file that is used by 
+the SAS target.
+
+\begin{scriptsize}
+\begin{verbatim}
+########################################
+#                                      #
+#   SAS configuration                  #
+#                                      #
+########################################
+
+# This option initializes SAS support in the ORB and sets the logging level
+jacorb.security.support_sas=on
+jacorb.SAS.log.verbosity=3
+
+# This option configures the SAS to support stateful sessions (default=true)
+jacorb.security.sas.tss.stateful=true
+
+# This option defines the specific SAS context generator/validator
+# Currently supported contexts include:
+#    GssUpContext      - Uses GSSUP security
+#    KerberosContext   - uses Kerberos security
+jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
+#jacorb.security.sas.contextClass=org.jacorb.security.sas.KerberosContext
+
+# This initializer installs the SAS Target Security Service (TSS)
+org.omg.PortableInterceptor.ORBInitializerClass.SASTarget=org.jacorb.security.sas.SASTargetInitializer
+
+# This initializer installs the SAS Client Security Service (CSS)
+#org.omg.PortableInterceptor.ORBInitializerClass.SASClient=org.jacorb.security.sas.SASClientInitializer
+
+# This option is used for GSSUP security and sets up the GSS Provider
+org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.
+GSSUPProviderInitializer
+
+# This option identifies the layered security attributes required by the target
+# Attributes are entered in a comma-separated list. Valid attributes are:
+#       Integrity
+#       Confidentiality
+#       EstablishTrustInTarget
+#       EstablishTrustInClient
+#       IdentityAssertion
+#       DelegationByClient
+jacorb.security.sas.tss.target_supports=EstablishTrustInTarget
+jacorb.security.sas.tss.target_requires=EstablishTrustInTarget
+\end{verbatim}
+\end{scriptsize}
+
+\section{GSSUP Example}
+
+The following describes a complete SAS example using GSSUP.
+
+\subsection{GSSUP IDL Example}
+
+\begin{scriptsize}
+\begin{verbatim}
+module demo{
+  module sas{
+    interface SASDemo{
+      void printSAS();
+    };
+  };
+};
+\end{verbatim}
+\end{scriptsize}
+
+The IDL contains a single interface. This interface is used to print out
+the user principal used to connect to the server. The principal is derived
+from the SAS level.
+
+\subsection{GSSUP Client Example}
+
+The following is a sample GSSUP client.
+
+\begin{scriptsize}
+\begin{verbatim}
+package demo.sas;
+
+import java.io.*;
+import java.util.*;
+import org.omg.CORBA.*;
+import org.jacorb.security.sas.GssUpContext;
+import org.jacorb.util.*;
+
+public class GssUpClient {
+    public static void main(String args[]) {
+        if (args.length != 3) {
+            System.out.println("Usage: java demo.sas.GssUpClient <ior_file> <username> <password>");
+            System.exit(1);
+        }
+
+        try {
+            // set security credentials
+            GssUpContext.setUsernamePassword(args[1], args[2]);
+
+            // initialize the ORB.
+            ORB orb = ORB.init(args, null);
+
+            // get the server
+            File f = new File(args[0]);
+            if (!f.exists()) {
+                System.out.println("File " + args[0] + " does not exist.");
+                System.exit(-1);
+            }
+            if (f.isDirectory()) {
+                System.out.println("File " + args[0] + " is a directory.");
+                System.exit(-1);
+            }
+            BufferedReader br = new BufferedReader(new FileReader(f));
+            org.omg.CORBA.Object obj = orb.string_to_object(br.readLine());
+            br.close();
+            SASDemo demo = SASDemoHelper.narrow(obj);
+
+            //call single operation
+            demo.printSAS();
+            demo.printSAS();
+            demo.printSAS();
+
+            System.out.println("Call to server succeeded");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+\end{verbatim}
+\end{scriptsize}
+
+The following is JacORB properties section for the client SAS.
+
+
+\begin{scriptsize}
+\begin{verbatim}
+jacorb.security.support_sas=on
+jacorb.SAS.log.verbosity=3
+jacorb.security.sas.tss.stateful=true
+jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
+org.omg.PortableInterceptor.ORBInitializerClass.SASClient=org.jacorb.security.sas.SASClientInitializer
+org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
+\end{verbatim}
+\end{scriptsize}
+
+\subsection{GSSUP Target Example}
+
+The following is a sample GSSUP target.
+
+\begin{scriptsize}
+\begin{verbatim}
+package demo.sas;
+
+import java.io.*;
+
+import org.omg.PortableServer.POA;
+import org.omg.Security.*;
+import org.jacorb.security.sas.*;
+import org.omg.CORBA.ORB;
+import org.jacorb.util.*;
+
+public class GssUpServer extends SASDemoPOA {
+    private ORB orb;
+
+    public GssUpServer(ORB orb) {
+        this.orb = orb;
+    }
+
+    public void printSAS() {
+        try {
+            org.omg.PortableInterceptor.Current current = 
+                (org.omg.PortableInterceptor.Current) orb.resolve_initial_references("PICurrent");
+            org.omg.CORBA.Any anyName = 
+                current.get_slot(org.jacorb.security.sas.SASTargetInitializer.sasPrincipalNamePIC);
+            String name = anyName.extract_string();
+            System.out.println("printSAS for user " + name);
+        } catch (Exception e) {
+            System.out.println("printSAS Error: " + e);
+        }
+    }
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java demo.sas.GssUpServer <ior_file>");
+            System.exit(-1);
+        }
+
+        try {
+            // set security credentials
+            GssUpContext.setUsernamePassword("Server", "");
+
+            // initialize the ORB and POA.
+            ORB orb = ORB.init(args, null);
+            POA poa = (POA) orb.resolve_initial_references("RootPOA");
+            poa.the_POAManager().activate();
+			
+            // create object and write out IOR
+            org.omg.CORBA.Object demo = poa.servant_to_reference(new GssUpServer(orb));
+            PrintWriter pw = new PrintWriter(new FileWriter(args[0]));
+            pw.println(orb.object_to_string(demo));
+            pw.flush();
+            pw.close();
+			
+            // run the ORB
+            orb.run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+\end{verbatim}
+\end{scriptsize}
+
+The following is JacORB properties section for the target SAS.
+
+\begin{scriptsize}
+\begin{verbatim}
+jacorb.security.support_sas=on
+jacorb.SAS.log.verbosity=3
+jacorb.security.sas.tss.stateful=true
+jacorb.security.sas.contextClass=org.jacorb.security.sas.GssUpContext
+org.omg.PortableInterceptor.ORBInitializerClass.SASTarget=org.jacorb.security.sas.SASTargetInitializer
+org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
+jacorb.security.sas.tss.target_supports=EstablishTrustInTarget
+jacorb.security.sas.tss.target_requires=EstablishTrustInTarget
+\end{verbatim}
+\end{scriptsize}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 
