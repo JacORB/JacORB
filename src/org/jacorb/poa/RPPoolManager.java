@@ -43,9 +43,13 @@ public class RPPoolManager
     // the current for (un)registering the invocation contexts
     private Current current;
     /**
-     * <code>pool</code> represents the total number of request processors.
+     * <code>pool</code> is the set of currently available (inactive) request processors
      */
     private Vector pool;
+    /**
+     * <code>activeProcessors</code> is the set of currently active processors
+     */
+    private Vector activeProcessors;
     /**
      * <code>unused_size</code> represents the current number of unused request processors
      * in the pool.
@@ -103,6 +107,20 @@ public class RPPoolManager
     protected synchronized void destroy()
     {
         if (pool == null || inUse == false) return;
+        
+        // wait until all active processors complete
+        while (!activeProcessors.isEmpty())
+        {
+        	try
+			{
+        		wait();
+			}
+        	catch (InterruptedException ex)
+			{
+        		// ignore
+			}
+        }
+        
         RequestProcessor[] rps = new RequestProcessor[pool.size()];
         pool.copyInto(rps);
         for (int i=0; i<rps.length; i++)
@@ -180,7 +198,8 @@ public class RPPoolManager
             }
         }
         RequestProcessor rp = (RequestProcessor) pool.remove( pool.size() - 1 );
-
+        activeProcessors.add (rp);
+        
         // notify a pool manager listener
         if (pmListener != null)
             pmListener.processorRemovedFromPool(rp, pool.size(), unused_size);
@@ -190,6 +209,7 @@ public class RPPoolManager
     private void init()
     {
         pool = new Vector(max_pool_size);
+        activeProcessors = new Vector(max_pool_size);
         for (int i = 0; i < min_pool_size; i++)
         {
             addProcessor();
@@ -204,10 +224,11 @@ public class RPPoolManager
 
     protected synchronized void releaseProcessor(RequestProcessor rp)
     {
+    	activeProcessors.remove (rp);
+    	
         if (pool.size() < min_pool_size)
         {
             pool.addElement(rp);
-            notifyAll();
         }
         else
         {
@@ -218,6 +239,9 @@ public class RPPoolManager
         // notify a pool manager listener
         if (pmListener != null)
             pmListener.processorAddedToPool(rp, pool.size(), unused_size);
+
+        // notify whoever is waiting for the release of active processors
+        notifyAll();
     }
 
     protected synchronized void removeRPPoolManagerListener(RPPoolManagerListener listener)
