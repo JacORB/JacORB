@@ -45,42 +45,42 @@ public class KeyStoreUtil
         throws IOException, java.security.GeneralSecurityException
     {
         InputStream in = null;
-        
-        //try unchanged name first
-        File f = new File( file_name );        
-        if( ! f.exists() )
-        {
-            //try to prepend home dir
-            String name = 
-                System.getProperty( "user.home" ) +
-                System.getProperty( "file.separator" ) +
-                file_name;
 
-            f = new File( name );
-            
-            if(f.exists())
+        java.net.URL url = 
+            Thread.currentThread().getContextClassLoader().getResource(file_name);
+        if (url != null)           
+        {
+            in = url.openStream();
+        }
+        else
+        {        
+            //try unchanged name first
+            File f = new File( file_name );        
+            if( ! f.exists() )
+            {
+                //try to prepend home dir
+                String name = 
+                    System.getProperty( "user.home" ) +
+                    System.getProperty( "file.separator" ) +
+                    file_name;
+                
+                f = new File( name );
+                
+                if(f.exists())
+                {
+                    in = new FileInputStream( f );
+                }
+            }
+            else
             {
                 in = new FileInputStream( f );
             }
         }
-        else
-        {
-            in = new FileInputStream( f );
-        }
 
         if (in == null)
         {
-            java.net.URL url = 
-                Thread.currentThread().getContextClassLoader().getResource(file_name);
-            if (url != null)           
-            {
-                in = url.openStream();
-            }
-            else
-            {
                 throw new IOException("Unable to find keystore file " + 
                                       file_name);
-            }        
         }
 
         KeyStore ks = KeyStore.getInstance( "JKS" );	
