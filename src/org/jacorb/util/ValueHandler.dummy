@@ -1,0 +1,32 @@
+package org.jacorb.util;
+
+/**
+ * A static wrapper around javax.rmi.CORBA.ValueHandler, dummy version.
+ */
+public class ValueHandler {
+
+  public static String getRMIRepositoryID (Class clz)
+  {
+      throw new org.omg.CORBA.NO_IMPLEMENT();
+  }
+
+  public static org.omg.SendingContext.RunTime getRunTimeCodeBase() 
+  {
+      throw new org.omg.CORBA.NO_IMPLEMENT();
+  }
+
+  public static java.io.Serializable readValue 
+      (org.omg.CORBA.portable.InputStream in,
+       int offset, Class clz, String repositoryID, 
+       org.omg.SendingContext.RunTime sender)
+  {
+      throw new org.omg.CORBA.NO_IMPLEMENT();
+  }
+
+  public static void writeValue (org.omg.CORBA.portable.OutputStream out,
+                                 java.io.Serializable value)
+  {
+      throw new org.omg.CORBA.NO_IMPLEMENT();
+  }
+
+}
