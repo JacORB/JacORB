@@ -179,35 +179,28 @@ public class Environment
              * 
              * supported by Per Bockman (pebo@enea.se)
              */
-            ClassLoader cl = ClassLoader.getSystemClassLoader();
             try
             {
-                java.io.InputStream is =                 
-                    cl.getSystemResourceAsStream( propertiesFile1 );
+                java.net.URL url = null;
 
-                if( is != null )
+                //try first file name
+                url = 
+                    ClassLoader.getSystemResource( propertiesFile1 );
+
+                if( url == null )
                 {
-                    _props.load( is );
+                    //first is not found, so try second
+                    url = 
+                        ClassLoader.getSystemResource( propertiesFile2 );
+                }
+                
+                if( url != null )
+                {                    
+                    _props.load( url.openStream() );
 
-                    sConfigFile = 
-                        cl.getSystemResource( propertiesFile1 ).toString();
+                    sConfigFile = url.toString();
 
                     loaded = true;
-                }
-                else
-                {                    
-                    //try second props file name
-                    is = cl.getSystemResourceAsStream( propertiesFile2 );
-
-                    if( is != null )
-                    {
-                        _props.load( is );
-                        
-                        sConfigFile = 
-                            cl.getSystemResource( propertiesFile2 ).toString();
-                        
-                        loaded = true;
-                    }
                 }
             }
             catch(java.io.IOException ioe)
@@ -269,8 +262,9 @@ public class Environment
 
             //   _props.putAll(System.getProperties()); 
 
-            if( ! loaded && _verbosity >= 1 )
+            if( ! loaded )
             {
+                //not loaded implies that the default verbosity is used
                 System.err.println( "#####################################################################" );
 
                 System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets. A file file called \"jacorb.properties\" or \n\".jacorb_properties\" should be present in the classpath, \nthe home directory (" + home + "), the current directory (.) or \nin Javas lib directory (" + lib + ')'  );
@@ -278,13 +272,14 @@ public class Environment
                 System.err.println( "#####################################################################\n" );
             }             
 
-            if( _verbosity > 1 && sConfigFile != null)
+            //read prop values to set fields ov this class
+            readValues();
+
+            if( _verbosity > 2 && sConfigFile != null)
             {
                 System.err.println("Setup Info: properties was file loaded from: " + sConfigFile );
             } 
 
-            //read prop values to set fields ov this class
-            readValues();
 
             if ( _enforce_ssl )
             {
