@@ -411,7 +411,7 @@ parser code
        String jp = mapping.substring(split_idx+1);
 
        pack_replace.put( idlp, jp );
-       Environment.output(3,"Replace pack " + idlp + " with " + jp );
+       logger.debug( "Replace pack " + idlp + " with " + jp );
     }
 
 
@@ -436,7 +436,6 @@ parser code
         System.out.println("\t-nofinal\tgenerated Java code will contain no final class definitions");
         System.out.println("\t-noskel\t\tdisables generation of POA skeletons");
         System.out.println("\t-nostub\t\tdisables generation of client stubs");
-        System.out.println("\t-p pack\t\tapply pack as prefix to all names in generated Java code and put code into package <pack>");
         System.out.println("\t-sloppy_forward\tallow forward declarations wo. later definitions");
         System.out.println("\t-sloppy_names\tless strict checking of module name scoping");
         System.out.println("\t-syntax\t\tsyntax check only, no code generation");
