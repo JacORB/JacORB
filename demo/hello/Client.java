@@ -62,7 +62,7 @@ public class Client
         }
         catch( Exception ex ) 
 	{
-            System.err.println( ex );
+            ex.printStackTrace();
         }
     }
 }

@@ -36,7 +36,9 @@ public class BankImpl
                                    "service");
             lockSetFactory = 
                 LockSetFactoryHelper.narrow( nc.resolve(name) );
-        } catch( Exception n ) {
+        } 
+        catch( Exception n ) 
+        {
             n.printStackTrace();
             System.exit(1);
         } 
@@ -56,7 +58,7 @@ public class BankImpl
 	}
 	catch( Exception e )
 	{
-	    org.jacorb.util.Debug.output(1,e);
+            e.printStackTrace();
 	    throw new org.omg.CORBA.UNKNOWN();
 	}
     }

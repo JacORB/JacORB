@@ -53,11 +53,11 @@ public class Client
         }
         catch (Exception e) 
         {
-            e.getMessage();
-            org.jacorb.util.Debug.output(2, e);
+            e.printStackTrace();
 	  
             if (e instanceof org.omg.CosNaming.NamingContextPackage.NotFound)
-                System.out.println("Reason: " + ((org.omg.CosNaming.NamingContextPackage.NotFound) e).why.value());
+                System.out.println("Reason: " + 
+                                   ((org.omg.CosNaming.NamingContextPackage.NotFound) e).why.value());
         }
     }
 }
