@@ -21,7 +21,7 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
+
 import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
 import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
@@ -39,8 +39,7 @@ public class GSSUPProviderInitializer
     extends org.omg.CORBA.LocalObject
     implements ORBInitializer
 {
-    /** the logger used by the naming service implementation */
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger = null;
 
     /**
      * This method registers the interceptors.
@@ -48,17 +47,20 @@ public class GSSUPProviderInitializer
     public void pre_init( ORBInitInfo info )
     {
         // save ORB
-        org.jacorb.security.sas.GSSUPProvider.orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
+        org.jacorb.security.sas.GSSUPProvider.orb = 
+            ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
 
         // save Codec
         try
         {
-            Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
-            org.jacorb.security.sas.GSSUPProvider.codec = info.codec_factory().create_codec(encoding);
+            Encoding encoding = 
+                new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
+            org.jacorb.security.sas.GSSUPProvider.codec = 
+                info.codec_factory().create_codec(encoding);
         }
         catch (UnknownEncoding unknownEncoding)
         {
-            logger.error("UnknownEncoding", unknownEncoding);
+            // logger.error("UnknownEncoding", unknownEncoding);
         }
     }
 

@@ -25,31 +25,42 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLSocket;
 
 import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-import org.jacorb.util.Debug;
+
 import org.omg.CSI.IdentityToken;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public class JsseContext implements ISASContext
+public class JsseContext 
+    implements ISASContext
 {
     /** the logger used by the naming service implementation */
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
+    private  Logger logger = null;
 
     private X509Certificate client_cert = null;
+    
+    public JsseContext(Logger logger)
+    {
+        this.logger = logger;
+    }
 
-    public boolean validate(ServerRequestInfo ri, byte[] contextToken) {
+    public boolean validate(ServerRequestInfo ri, byte[] contextToken) 
+    {
         client_cert = getClientCert(ri);
-        if (client_cert == null) return false;
+        if (client_cert == null)
+            return false;
         return true;
     }
 
-    public String getPrincipalName() {
-        if (client_cert == null) return null;
+    public String getPrincipalName() 
+    {
+        if (client_cert == null) 
+            return null;
         return client_cert.getSubjectDN().getName();
     }
 
@@ -66,7 +77,8 @@ public class JsseContext implements ISASContext
         // lookup for context
         if (connection == null)
         {
-            logger.warn("target has no connection!");
+            if (logger.isWarnEnabled())
+                logger.warn("target has no connection!");
             return null;
         }
 
@@ -85,7 +97,8 @@ public class JsseContext implements ISASContext
         }
         catch( javax.net.ssl.SSLPeerUnverifiedException pue )
         {
-            Debug.output( 2, pue );
+            if (logger.isDebugEnabled())
+                logger.debug("SSLPeerUnverifiedException", pue );
             return null;
         }
 

@@ -26,8 +26,6 @@ import org.omg.PortableInterceptor.ORBInitInfoPackage.*;
 import org.omg.SecurityReplaceable.*;
 import org.omg.Security.*;
 
-import org.jacorb.util.Environment;
-
 public class SecurityServiceInitializer
     extends org.omg.CORBA.LocalObject 
     implements ORBInitializer

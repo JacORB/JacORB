@@ -25,11 +25,10 @@ import java.security.*;
 import java.security.cert.*;
 import java.io.*;
 
-import org.jacorb.util.Debug;
 /**
  * A class with utility methods that help managing a key store.
  *
- * @author Gerald Brose, FU Berlin
+ * @author Gerald Brose
  * @version $Id$
  */
 
@@ -43,47 +42,31 @@ public class KeyStoreUtil
 
     public static KeyStore getKeyStore( String file_name, 
 					char[] storepass )
+        throws IOException, java.security.GeneralSecurityException
     {
-	try
-	{
-	    //try unchanged name first
-	    File f = new File( file_name );
-        
-	    if( ! f.exists() )
-	    {
-		//try to prepend home dir
-		String name = 
-		    System.getProperty( "user.home" ) +
-		    System.getProperty( "file.separator" ) +
-		    file_name;
+        //try unchanged name first
+        File f = new File( file_name );        
+        if( ! f.exists() )
+        {
+            //try to prepend home dir
+            String name = 
+                System.getProperty( "user.home" ) +
+                System.getProperty( "file.separator" ) +
+                file_name;
 
-		f = new File( name );
+            f = new File( name );
+            
+            if( ! f.exists() )
+            {
+                throw new IOException("Unable to find keystore file" + 
+                                      (new File( file_name )).getAbsolutePath() );
+            }
+        }
 
-		if( ! f.exists() )
-		{
-		    Debug.output( 1, "ERROR: Unable to find keystore file" );
-		    Debug.output( 1, "It neither isn't in " + 
-				  (new File( file_name )).getAbsolutePath() );
-		    Debug.output( 1, "nor in " + f.getAbsolutePath() );
-
-		    return null;
-		}
-	    }
-
-	    FileInputStream in = new FileInputStream( f );
-
-	    KeyStore ks = KeyStore.getInstance( "JKS" );
-	
-	    ks.load( in, storepass );
-	    in.close();
-
-	    return ks;
-	}
-	catch( Exception e )
-	{
-	    Debug.output( 1, e );
-	}
-	
-	return null;
+        FileInputStream in = new FileInputStream( f );
+        KeyStore ks = KeyStore.getInstance( "JKS" );	
+        ks.load( in, storepass );
+        in.close();
+        return ks;
     }
 }

@@ -21,14 +21,7 @@
 package org.jacorb.security.ssl.sun_jsse;
 
 import org.apache.avalon.framework.logger.Logger;
-
-import org.jacorb.util.*;
-
-import org.apache.avalon.framework.logger.Logger;
-
-//uncomment this line if you want to compile with the separately
-//available jsse1.0.2
-//import com.sun.net.ssl.*;
+import org.apache.avalon.framework.configuration.*;
 
 import java.net.*;
 import java.io.*;
@@ -44,33 +37,43 @@ import javax.net.*;
  */
 
 public class SSLServerSocketFactory 
-    implements org.jacorb.orb.factory.SSLServerSocketFactory
+    implements org.jacorb.orb.factory.SSLServerSocketFactory, Configurable
 {
     private ServerSocketFactory factory = null;
     private boolean require_mutual_auth = false;
     private boolean request_mutual_auth = false;
     private boolean change_roles = false;
+    private boolean trusteesFromKS = false;
     private String[] cipher_suites = null;
-
+    private int serverSupportedOptions = 0;
+    private int serverRequiredOptions = 0;
+    private String keystore_location = null;
+    private String keystore_passphrase = null;
     private Logger logger;
 
     public SSLServerSocketFactory( org.jacorb.orb.ORB orb )
+        throws ConfigurationException
     {
-        logger = Debug.getNamedLogger("jacorb.security.jsse");
+        configure( orb.getConfiguration());
+    }
 
-        //uncomment this line if you want to compile with the separately
-        //available jsse1.0.2
-        //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.jsse");
 
-	factory = createServerSocketFactory();
+ 
+        trusteesFromKS = 
+            configuration.getAttribute("jacorb.security.jsse.trustees_from_ks","off").equals("on");
 
-	if( factory == null )
-	{
-            if (logger.isErrorEnabled())
-                logger.error("Unable to create ServerSocketFactory!" );
-	}
+        serverSupportedOptions = 
+            configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options", 16 );
 
-	if( (Environment.getIntProperty( "jacorb.security.ssl.server.supported_options", 16 ) & 0x40) != 0 )
+        serverRequiredOptions = 
+            configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options", 16 );
+
+	if( ( serverSupportedOptions & 0x40) != 0 )
 	{
 	    // would prefer to establish trust in client.  If client can support
 	    // authentication, it will, otherwise we will continue
@@ -80,7 +83,7 @@ public class SSLServerSocketFactory
 	    request_mutual_auth = true;
 	}
 
-	if( (Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 )
+	if( (configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 )
 	{
 	    //required: establish trust in client
 	    //--> force other side to authenticate
@@ -91,13 +94,37 @@ public class SSLServerSocketFactory
 	}
 
 	change_roles = 
-            Environment.isPropertyOn( "jacorb.security.change_ssl_roles" );
+            configuration.getAttribute("jacorb.security.change_ssl_roles","off").equals("on");
+
+        keystore_location = 
+            configuration.getAttribute("jacorb.security.keystore");
+
+        keystore_passphrase = 
+            configuration.getAttribute("jacorb.security.keystore_password" );
+ 
+        try
+        {
+            factory = createServerSocketFactory();
+        }
+        catch( Exception e )
+        {
+            if (logger.isWarnEnabled())
+                logger.warn("Exception", e );
+        }
+
+	if( factory == null )
+	{
+            if (logger.isErrorEnabled())
+                logger.error("Unable to create ServerSocketFactory!" );
+            throw new ConfigurationException("Unable to create ServerSocketFactory!");
+	}
+
 
         // Andrew T. Finnell
         // We need to obtain all the cipher suites to use from the
         // properties file.
 	String cipher_suite_list =
-		Environment.getProperty("jacorb.security.ssl.server.cipher_suites" );
+            configuration.getAttribute("jacorb.security.ssl.server.cipher_suites" );
 	
 	if ( cipher_suite_list != null )
 	{
@@ -217,68 +244,41 @@ public class SSLServerSocketFactory
     }
     
     private ServerSocketFactory createServerSocketFactory() 
+        throws IOException, java.security.GeneralSecurityException
     {
         Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
 
-	try 
-	{
-            String keystore_location = 
-                Environment.getProperty( "jacorb.security.keystore" );
-            if( keystore_location == null ) 
-            {
-                System.out.print( "Please enter key store file name: " );
-                keystore_location = 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
+        KeyStore key_store = 
+            KeyStoreUtil.getKeyStore( keystore_location,
+                                      keystore_passphrase.toCharArray() );
 
-            String keystore_passphrase = 
-                Environment.getProperty( "jacorb.security.keystore_password" );
-            if( keystore_passphrase == null ) 
-            {
-                System.out.print( "Please enter store pass phrase: " );
-                keystore_passphrase= 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
-            }
-
-	    KeyStore key_store = 
-		KeyStoreUtil.getKeyStore( keystore_location,
-					  keystore_passphrase.toCharArray() );
-
-	    KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
-            kmf.init( key_store, keystore_passphrase.toCharArray() );
-
-            TrustManagerFactory tmf = null;
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
+        kmf.init( key_store, keystore_passphrase.toCharArray() );
+        TrustManagerFactory tmf = null;
 	    
-	    //only add trusted certs, if establish trust in client
-            //is required
-            if((Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 ||
-               (Environment.getIntProperty( "jacorb.security.ssl.server.supported_options", 16 ) & 0x40) != 0) 
-            {     
-		tmf = TrustManagerFactory.getInstance( "SunX509" );
+        //only add trusted certs, if establish trust in client
+        //is required
+        if(( serverRequiredOptions & 0x40) != 0 ||
+           ( serverSupportedOptions & 0x40) != 0) 
+        {     
+            tmf = TrustManagerFactory.getInstance( "SunX509" );
 	    
-		if( Environment.isPropertyOn( "jacorb.security.jsse.trustees_from_ks" ))
-		{
-		    tmf.init( key_store );
-		}
-		else
-		{
-		    tmf.init( (KeyStore) null );
-		}
-	    }
+            if( trusteesFromKS )
+            {
+                tmf.init( key_store );
+            }
+            else
+            {
+                tmf.init( (KeyStore) null );
+            }
+        }
 		
-            SSLContext ctx = SSLContext.getInstance( "TLS" );
-            ctx.init( kmf.getKeyManagers(), 
-		      (tmf == null)? null : tmf.getTrustManagers(), 
-		      null );
-
-            return ctx.getServerSocketFactory();
-	} 
-	catch( Exception e ) 
-	{
-            if (logger.isWarnEnabled())
-                logger.warn("Exception " + e.getMessage() + " in SSLServerSocketFactory");
-	}
-
-	return null;
+        SSLContext ctx = SSLContext.getInstance( "TLS" );
+        ctx.init( kmf.getKeyManagers(), 
+                  (tmf == null)? null : tmf.getTrustManagers(), 
+                  null );
+        
+        return ctx.getServerSocketFactory();
+        
     }
 }

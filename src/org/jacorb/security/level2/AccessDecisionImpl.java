@@ -24,8 +24,6 @@ import org.omg.CORBA.*;
 import org.omg.Security.*;
 import org.omg.SecurityLevel2.*;
 
-import org.jacorb.util.Debug;
-
 import java.util.*;
 import java.lang.reflect.*;
 

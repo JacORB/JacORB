@@ -24,13 +24,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.Provider;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.ChannelBinding;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.MessageProp;
 import org.ietf.jgss.Oid;
-import org.jacorb.util.Debug;
+
 import sun.security.jgss.spi.GSSContextSpi;
 import sun.security.jgss.spi.GSSCredentialSpi;
 import sun.security.jgss.spi.GSSNameSpi;
@@ -42,11 +41,9 @@ import sun.security.jgss.spi.GSSNameSpi;
  * @version $Id$
  */
 
-public final class GSSUPContextSpi implements GSSContextSpi
+public final class GSSUPContextSpi 
+    implements GSSContextSpi
 {
-    /** the logger used by the naming service implementation */
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
-
     private Provider provider = null;
     private Oid mechOid = null;
     private int lifetime;
@@ -63,7 +60,11 @@ public final class GSSUPContextSpi implements GSSContextSpi
     private GSSNameSpi targetName;
     private GSSCredentialSpi sourceCred;
 
-    public GSSUPContextSpi (Provider provider, Oid mechOid, GSSNameSpi nameSpi, GSSCredentialSpi credSpi, int lifetime)
+    public GSSUPContextSpi(Provider provider, 
+                           Oid mechOid, 
+                           GSSNameSpi nameSpi, 
+                           GSSCredentialSpi credSpi, 
+                           int lifetime)
     {
         this.provider = provider;
         this.mechOid = mechOid;
@@ -77,7 +78,8 @@ public final class GSSUPContextSpi implements GSSContextSpi
         return provider;
     }
 
-    public void requestLifetime(int lifetime) throws GSSException
+    public void requestLifetime(int lifetime) 
+        throws GSSException
     {
         this.lifetime = lifetime;
     }
@@ -197,24 +199,34 @@ public final class GSSUPContextSpi implements GSSContextSpi
         return null;
     }
 
-    public byte[] initSecContext(InputStream inStream, int inLen) throws GSSException {
+    public byte[] initSecContext(InputStream inStream, int inLen) 
+        throws GSSException
+    {
         established = true;
         return sourceCred.getName().toString().getBytes();
     }
 
-    public byte[] acceptSecContext(InputStream inStream, int inLen) throws GSSException
+    public byte[] acceptSecContext(InputStream inStream, int inLen) 
+        throws GSSException
     {
         established = true;
         try
         {
             byte[] inBytes = new byte[inStream.available()];
             inStream.read(inBytes);
-            GSSNameSpi sourceName = new GSSUPNameSpi(provider, mechOid, inBytes, null);
-            sourceCred = new GSSUPCredentialSpi(provider, mechOid, sourceName, GSSCredential.DEFAULT_LIFETIME, GSSCredential.DEFAULT_LIFETIME, GSSCredential.ACCEPT_ONLY);
+            GSSNameSpi sourceName = 
+                new GSSUPNameSpi(provider, mechOid, inBytes, null);
+            sourceCred = 
+                new GSSUPCredentialSpi(provider, 
+                                       mechOid, 
+                                       sourceName, 
+                                       GSSCredential.DEFAULT_LIFETIME, 
+                                       GSSCredential.DEFAULT_LIFETIME, 
+                                       GSSCredential.ACCEPT_ONLY);
         }
         catch (Exception e)
         {
-            logger.error("Error acceptSecContext: " + e);
+            // logger.error("Error acceptSecContext: " + e);
         }
         return null;
     }

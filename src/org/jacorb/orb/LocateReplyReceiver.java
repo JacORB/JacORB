@@ -37,9 +37,9 @@ import org.omg.CORBA.portable.RemarshalException;
 public class LocateReplyReceiver
     extends org.jacorb.orb.giop.ReplyPlaceholder
 {
-    public LocateReplyReceiver()
+    public LocateReplyReceiver(ORB orb)
     {
-        super();
+        super(orb);
     }
 
     /**

@@ -30,7 +30,6 @@ import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.ORBPackage.*;
 import org.omg.CORBA.Any;
 
-import org.jacorb.util.*;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.security.level2.*;
 import org.jacorb.orb.dsi.ServerRequest;
@@ -78,9 +77,8 @@ public class ServerInvocationInterceptor
         type = new AttributeType
             ( new ExtensibleFamily( (short) 0,
                                     (short) 1 ),
-              AccessId.value );   
-
-        logger = Debug.getNamedLogger("jacorb.security.jsse");
+              AccessId.value );  
+        logger = ((org.jacorb.security.level2.CurrentImpl)current).getLogger();
     }
 
     public String name()
@@ -101,8 +99,7 @@ public class ServerInvocationInterceptor
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        ServerRequest request = ((ServerRequestInfoImpl) ri).request;
-        
+        ServerRequest request = ((ServerRequestInfoImpl) ri).request;       
         GIOPConnection connection = request.getConnection();
         
         // lookup for context
@@ -128,7 +125,7 @@ public class ServerInvocationInterceptor
         try
         {
             kac = 
-                new KeyAndCert( null,  sslSocket.getSession().getPeerCertificates() );
+                new KeyAndCert( null, sslSocket.getSession().getPeerCertificates() );
         }
         catch( javax.net.ssl.SSLPeerUnverifiedException pue )
         {

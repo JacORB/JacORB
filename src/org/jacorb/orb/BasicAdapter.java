@@ -115,10 +115,12 @@ public class BasicAdapter
 
                     ssl_socket_factory = 
                         (SSLServerSocketFactory)constr.newInstance( new Object[]{ orb });
+
+                    ((Configurable)ssl_socket_factory).configure(configuration);
                 }
                 catch (Exception e)
                 {
-                    logger.warn(e.getMessage());
+                    logger.warn("Exception",e);
 
                     throw new org.omg.CORBA.INITIALIZE( "SSL support is on, but the ssl server socket factory can't be instanciated (see trace)!" );
                 }

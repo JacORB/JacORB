@@ -21,40 +21,56 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
+
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
-import org.jacorb.util.Debug;
+
 import org.omg.CSI.KRB5MechOID;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public class KerberosContext implements ISASContext
+public class KerberosContext 
+    implements ISASContext
 {
     /** the logger used by the naming service implementation */
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger;
 
     //private GSSManager gssManager = GSSManager.getInstance();
     private GSSContext validatedContext = null;
     private GSSCredential targetCreds = null;
     private GSSCredential clientCreds = null;
 
-    public void initClient() {
+    public KerberosContext(Logger logger)
+    {
+        this.logger = logger;
+    }
+
+    public void initClient() 
+    {
         String principal = "";
-        try {
+        try 
+        {
             Oid krb5Oid = new Oid(KRB5MechOID.value.substring(4));
             GSSManager gssManager = GSSManager.getInstance();
-            clientCreds = gssManager.createCredential(null, GSSCredential.INDEFINITE_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
-        } catch (Exception e) {
+            clientCreds = 
+                gssManager.createCredential(null, 
+                                            GSSCredential.INDEFINITE_LIFETIME, 
+                                            krb5Oid, 
+                                            GSSCredential.INITIATE_ONLY);
+        } 
+        catch (Exception e) 
+        {
             logger.warn("Error getting created principal: "+e);
         }
     }
 
-    public String getMechOID() {
+    public String getMechOID() 
+    {
         return KRB5MechOID.value.substring(4);
     }
 

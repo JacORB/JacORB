@@ -275,7 +275,7 @@ public final class Delegate
                               ( int ) _pior.getEffectiveProfile().version().minor );
 
                     LocateReplyReceiver receiver =
-                        new LocateReplyReceiver();
+                        new LocateReplyReceiver(orb);
 
                     connection.sendRequest( lros,
                                             receiver,

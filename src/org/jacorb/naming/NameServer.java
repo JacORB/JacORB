@@ -52,8 +52,16 @@ public class NameServer
     private static Logger logger = null;
     private static boolean imr_register = false;
 
+    /** the file name int which the IOR will be stored */
+    private static String fileName = null;
+
     private static String filePrefix = "_nsdb";
     private static String commandSuffix = "";
+
+    /** if this value is != 0, the name server will automatically shut
+        down after the given time */
+    private static int time_out = 0;
+
     static String name_delimiter = "/";
 
 
@@ -63,17 +71,25 @@ public class NameServer
         configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.naming");
 
-        /* which directory to store/load in? */
+        time_out = 
+            configuration.getAttributeAsInteger("jacorb.naming.time_out",0);
 
-        String directory = configuration.getAttribute("jacorb.naming.db_dir");
+        fileName = 
+            configuration.getAttribute("jacorb.naming.ior_filename");
+
+        /* which directory to store/load in? */
+        String directory = 
+            configuration.getAttribute("jacorb.naming.db_dir");
         
         if( directory != null )
             filePrefix = directory + File.separatorChar + filePrefix;
 
         if ( configuration.getAttribute("jacorb.use_imr","off").equals("on") && imr_register)
         {
+
             // don't supply "imr_register", so a ns started by an imr_ssd
             // won't try to register himself again.
+
             String command = 
                 configuration.getAttribute("jacorb.java_exec") + commandSuffix;
             
@@ -211,7 +227,7 @@ public class NameServer
 
     private static void usage()
     {
-        System.err.println("Usage: java org.jacorb.naming.NameServer [<ior_filename>] [-p <ns_port>] [-t <time_out> [imr_register] ]");
+        System.err.println("Usage: java org.jacorb.naming.NameServer [-Djacorb.naming.ior_filename=fname] [-Djacorb.naming.time_out=x][-Djacorb.use_imr=on/off][-Djacorb.naming.purge=on/off ]");
         System.exit(1);
     }
 
@@ -219,65 +235,14 @@ public class NameServer
 
     public static void main( String args[] )
     {
-        String port = null;
-        String fileName = null;
-
         try
         {
-            /* get time out value if any */
-            int time_out = 0;
+            // TODO: is this correct? needs testing
+            commandSuffix = " org.jacorb.naming.NameServer";
 
-            if( args.length > 6 )
-            {
-                usage();
-            }
-
-            int idx = 0;
-
-            if( args.length > 0 )
-            {
-                if( !args[0].startsWith("-p"))
-                {
-                    fileName = args[0];
-                    idx++;
-                }
-
-                if( idx < args.length  && args[idx].startsWith("-p"))
-                {
-                    if( idx+1 < args.length )
-                    {
-                        port = args[ ++idx ];
-                        idx++;
-                    }
-                    else
-                        usage();
-                }
-
-                if( idx < args.length  && args[ idx ].startsWith("-t"))
-                {
-                    if( idx+1 < args.length )
-                    {
-                        try
-                        {
-                            time_out = Integer.parseInt( args[ ++idx] );
-                            idx++;
-                        }
-                        catch( NumberFormatException nf )
-                        {
-                        }
-                        if( idx +1 < args.length && args[idx +1].equals("imr_register") )
-                        {
-                            imr_register = true;
-                        }
-                    }
-                    else
-                        usage();
-                }
-            }
-
-
-            commandSuffix = " org.jacorb.naming.NameServer " + args[0] + " " + args[1];
-
+            // translate any properties set on the commandline but after the 
+            // class name to a properties
+            java.util.Properties argProps = ObjectUtil.argsToProps( args );
 
             java.util.Properties props = new java.util.Properties();
             props.put("jacorb.implname", "StandardNS");
@@ -292,17 +257,15 @@ public class NameServer
             props.put("jacorb.orb.objectKeyMap.NameService",
                       "StandardNS/NameServer-POA/_root");
 
-            if (port != null)
-            {
-                props.put("OAPort", port);
-            }
-
+            /* any command line properties set _after_ the class name will also 
+               be considered */
+            props.putAll( argProps );
 
             /* intialize the ORB and Root POA */
-
             orb = org.omg.CORBA.ORB.init(args, props);
-            configure( ((org.jacorb.orb.ORB)orb).getConfiguration());
 
+            /* configure the name service using the ORB configuration */
+            configure( ((org.jacorb.orb.ORB)orb).getConfiguration());
 
             org.omg.PortableServer.POA rootPOA =
             org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -376,6 +339,10 @@ public class NameServer
             orb.shutdown( true );
 
             //      System.exit(0);
+        }
+        catch( ConfigurationException e )
+        {
+            usage();
         }
         catch( Exception e )
         {

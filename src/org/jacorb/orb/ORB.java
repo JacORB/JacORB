@@ -182,6 +182,7 @@ public final class ORB
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
+        super.configure(myConfiguration);
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.orb");
 
@@ -1176,21 +1177,28 @@ public final class ORB
                         Class currentClass = 
                             ObjectUtil.classForName( "org.jacorb.security.level2.CurrentImpl" );
 
-                        Constructor constr = currentClass.getConstructor( new Class[]{
-                            org.omg.CORBA.ORB.class });
+                        Constructor constr = 
+                            currentClass.getConstructor( new Class[]{ org.omg.CORBA.ORB.class });
 
-                        securityCurrent = (org.omg.SecurityLevel2.Current)
-                            constr.newInstance( new Object[]{ this });
+                        securityCurrent = 
+                            (org.omg.SecurityLevel2.Current)constr.newInstance( new Object[]{ this });
 
-                        Method init = currentClass.getDeclaredMethod( "init",
-                                                                      new Class[0] );
+                        Method configureMethod = 
+                            currentClass.getDeclaredMethod( "configure", 
+                                                            new Class[]{ Configuration.class } );
+
+                        configureMethod.invoke( securityCurrent, new Object[]{ configuration });
+                        
+                        Method init = 
+                            currentClass.getDeclaredMethod( "init", new Class[0] );
+
                         init.invoke( securityCurrent, new Object[0] );
                     }
                     catch (Exception e)
                     {
                         if (logger.isWarnEnabled())
                         {
-                            logger.warn(e.getMessage());
+                            logger.warn("Exception",e);
                         }
                     }
                 }
@@ -1407,10 +1415,13 @@ public final class ORB
         }
         catch( ConfigurationException ce )
         {
-            if (logger.isErrorEnabled())
+            if ( logger != null && logger.isErrorEnabled())
             {
                 logger.error( ce.getMessage());
             }
+            else
+                ce.printStackTrace();
+
             throw new org.omg.CORBA.INITIALIZE( ce.getMessage() );
         }
 

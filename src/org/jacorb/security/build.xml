@@ -17,7 +17,8 @@
    </target>
 
 
-   <target name="all" depends="init,leveltwo,aux,ssl,sas"/>
+<!--   <target name="all" depends="init,leveltwo,aux,ssl,sas"/> -->
+   <target name="all" depends="init,leveltwo,aux,ssl"/>
 
 
    <target name="ssl">

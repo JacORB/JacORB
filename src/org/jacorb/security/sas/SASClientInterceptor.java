@@ -24,30 +24,18 @@ import java.net.URLDecoder;
 import java.util.Hashtable;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
-import org.jacorb.util.Debug;
-import org.omg.ATLAS.ATLASProfile;
-import org.omg.ATLAS.ATLASProfileHelper;
-import org.omg.ATLAS.AuthTokenData;
-import org.omg.ATLAS.AuthTokenDispenser;
-import org.omg.ATLAS.AuthTokenDispenserHelper;
-import org.omg.ATLAS.SCS_ATLAS;
+
+import org.omg.ATLAS.*;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
-import org.omg.CSI.AuthorizationElement;
-import org.omg.CSI.CompleteEstablishContext;
-import org.omg.CSI.ContextError;
-import org.omg.CSI.EstablishContext;
-import org.omg.CSI.IdentityToken;
-import org.omg.CSI.MTCompleteEstablishContext;
-import org.omg.CSI.MTContextError;
-import org.omg.CSI.MessageInContext;
-import org.omg.CSI.SASContextBody;
-import org.omg.CSI.SASContextBodyHelper;
+import org.omg.CSI.*;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.ServiceConfiguration;
@@ -70,15 +58,14 @@ import org.omg.PortableInterceptor.ORBInitInfo;
 
 public class SASClientInterceptor
     extends org.omg.CORBA.LocalObject
-    implements ClientRequestInterceptor
+    implements ClientRequestInterceptor, Configurable
 {
     protected static final int SecurityAttributeService = 15;
     protected final String DEFAULT_NAME = "SASClientInterceptor";
     protected Codec codec = null;
     protected String name = null;
 
-    /** the logger used by the naming service implementation */
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS.CSS");
+    private  Logger logger = null;
 
     protected byte[] contextToken = new byte[0];
     protected boolean useStateful = true;
@@ -86,25 +73,56 @@ public class SASClientInterceptor
 
     protected ISASContext sasContext = null;
 
-    public SASClientInterceptor(ORBInitInfo info) throws UnknownEncoding
+    public SASClientInterceptor(ORBInitInfo info) 
+        throws UnknownEncoding, ConfigurationException
     {
         name = DEFAULT_NAME;
         Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
         codec = info.codec_factory().create_codec(encoding);
-        useStateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.stateful", "true")).booleanValue();
 
-        String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
-        if (contextClass != null) {
-            try {
-                Class c = org.jacorb.util.Environment.classForName(contextClass);
+        org.jacorb.orb.ORB orb = 
+            ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB ();
+        configure( orb.getConfiguration());
+    }
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.sas.CSS");
+
+        useStateful = 
+            configuration.getAttribute("jacorb.security.sas.stateful","true").equals("true");
+
+        String contextClass = null;
+        try
+        {
+            configuration.getAttribute("jacorb.security.sas.contextClass");
+            try 
+            {
+                Class c = 
+                    org.jacorb.util.ObjectUtil.classForName(contextClass);
                 sasContext = (ISASContext)c.newInstance();
-            } catch (Exception e) {
-                logger.error("Could not instantiate class " + contextClass + ": " + e);
+            }
+            catch (Exception e) 
+            {
+                if (logger.isErrorEnabled())
+                    logger.error("Could not instantiate class " + contextClass + ": " + e);
             }
         }
-        if (sasContext == null) {
-            logger.error("Could not load SAS context class: "+contextClass);
-        } else {
+        catch(ConfigurationException ce) 
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("ConfigurationException", ce);
+        }
+
+        if (sasContext == null) 
+        {
+            if (logger.isErrorEnabled())
+                logger.error("Could not load SAS context class: "+contextClass);
+        } 
+        else 
+        {
             sasContext.initClient();
         }
     }
@@ -140,13 +158,18 @@ public class SASClientInterceptor
         }
         catch (BAD_PARAM e)
         {
-            logger.debug("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+ri.operation());
+            if (logger.isDebugEnabled())
+                logger.debug("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+
+                             ri.operation());
         }
         catch (Exception e)
         {
-            logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
+            if (logger.isWarnEnabled())
+                logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
         }
-        if (csmList == null) return;
+        if (csmList == null) 
+            return;
+
         if (csmList.mechanism_list[0].as_context_mech.target_supports == 0 &&
             csmList.mechanism_list[0].as_context_mech.target_requires == 0 &&
             csmList.mechanism_list[0].sas_context_mech.target_supports == 0 &&
@@ -157,8 +180,13 @@ public class SASClientInterceptor
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
 
         long client_context_id = 0;
-        if (useStateful) client_context_id = connection.cacheSASContext("css".getBytes());
-        if (client_context_id < 0) logger.info("New SAS Context: " + (-client_context_id));
+        if (useStateful) 
+            client_context_id = connection.cacheSASContext("css".getBytes());
+        if (client_context_id < 0) 
+        {
+            if (logger.isInfoEnabled())
+                logger.info("New SAS Context: " + (-client_context_id));
+        }
 
         // get ATLAS tokens
         AuthorizationElement[] authorizationList = getATLASTokens(orb, csmList);
@@ -172,7 +200,11 @@ public class SASClientInterceptor
                 IdentityToken identityToken = new IdentityToken();
                 identityToken.absent(true);
                 contextToken = sasContext.createClientContext(ri, csmList);
-                msg = makeEstablishContext(orb, -client_context_id, authorizationList, identityToken, contextToken);
+                msg = makeEstablishContext(orb, 
+                                           -client_context_id, 
+                                           authorizationList, 
+                                           identityToken, 
+                                           contextToken);
             }
             else
             {
@@ -182,8 +214,11 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            logger.warn("Could not set security service context: " + e);
-            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not set security service context: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_NO);
+            if (logger.isWarnEnabled())
+                logger.warn("Could not set security service context: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not set security service context: " + e, 
+                                                  MinorCodes.SAS_CSS_FAILURE,
+                                                  CompletionStatus.COMPLETED_NO);
         }
     }
 
@@ -202,11 +237,13 @@ public class SASClientInterceptor
         }
         catch (BAD_PARAM e)
         {
-            logger.debug("No SAS security context found: "+ri.operation());
+            if (logger.isDebugEnabled())
+                logger.debug("No SAS security context found: "+ri.operation());
         }
         catch (Exception e)
         {
-            logger.warn("No SAS security context found: "+e);
+            if (logger.isWarnEnabled())
+                logger.warn("No SAS security context found: "+e);
         }
         if (ctx == null || ctx.context_data.length <= 1) return;
 
@@ -217,25 +254,32 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            logger.warn("Could not parse SAS reply: " + e);e.printStackTrace();
-            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
+            if (logger.isWarnEnabled())
+                logger.warn("Could not parse SAS reply: " + e);e.printStackTrace();
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, 
+                                                  MinorCodes.SAS_CSS_FAILURE, 
+                                                  CompletionStatus.COMPLETED_MAYBE);
         }
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
 
         // process CompleteEstablishContext message
-        if (contextBody.discriminator() == MTCompleteEstablishContext.value) {
+        if (contextBody.discriminator() == MTCompleteEstablishContext.value)
+        {
             CompleteEstablishContext reply = contextBody.complete_msg();
 
             // if not stateful, remove from connection
-            if (reply.client_context_id > 0 && !reply.context_stateful) connection.purgeSASContext(reply.client_context_id);
+            if (reply.client_context_id > 0 && !reply.context_stateful) 
+                connection.purgeSASContext(reply.client_context_id);
         }
 
         // process ContextError message
-        if (contextBody.discriminator() == MTContextError.value) {
+        if (contextBody.discriminator() == MTContextError.value) 
+        {
             ContextError reply = contextBody.error_msg();
 
             // if stateful, remove from connection
-            if (reply.client_context_id > 0) connection.purgeSASContext(reply.client_context_id);
+            if (reply.client_context_id > 0) 
+                connection.purgeSASContext(reply.client_context_id);
         }
     }
 
@@ -251,11 +295,13 @@ public class SASClientInterceptor
         }
         catch (BAD_PARAM e)
         {
-            logger.debug("No SAS security context found (exception): "+ri.operation());
+            if (logger.isDebugEnabled())
+                logger.debug("No SAS security context found (exception): "+ri.operation());
         }
         catch (Exception e)
         {
-            logger.warn("No SAS security context found (exception): "+e);
+            if (logger.isWarnEnabled())
+                logger.warn("No SAS security context found (exception): "+e);
         }
         if (ctx == null) return;
 
@@ -266,25 +312,32 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            logger.warn("Could not parse SAS reply: " + e);
-            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
+            if (logger.isWarnEnabled())
+                logger.warn("Could not parse SAS reply: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not parse SAS reply: " + e, 
+                                                  MinorCodes.SAS_CSS_FAILURE, 
+                                                  CompletionStatus.COMPLETED_MAYBE);
         }
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
 
         // process CompleteEstablishContext message
-        if (contextBody.discriminator() == MTCompleteEstablishContext.value) {
+        if (contextBody.discriminator() == MTCompleteEstablishContext.value) 
+        {
             CompleteEstablishContext reply = contextBody.complete_msg();
 
             // if not stateful, remove from connection
-            if (reply.client_context_id > 0 && !reply.context_stateful) connection.purgeSASContext(reply.client_context_id);
+            if (reply.client_context_id > 0 && !reply.context_stateful) 
+                connection.purgeSASContext(reply.client_context_id);
         }
 
         // process ContextError message
-        if (contextBody.discriminator() == MTContextError.value) {
+        if (contextBody.discriminator() == MTContextError.value) 
+        {
             ContextError reply = contextBody.error_msg();
 
             // if stateful, remove from connection
-            if (reply.client_context_id > 0) connection.purgeSASContext(reply.client_context_id);
+            if (reply.client_context_id > 0) 
+                connection.purgeSASContext(reply.client_context_id);
         }
     }
 
@@ -293,7 +346,11 @@ public class SASClientInterceptor
     {
     }
 
-    protected Any makeEstablishContext(org.omg.CORBA.ORB orb, long client_context_id, AuthorizationElement[] authorization_token, IdentityToken identity_token, byte[] client_authentication_token)
+    protected Any makeEstablishContext(org.omg.CORBA.ORB orb, 
+                                       long client_context_id, 
+                                       AuthorizationElement[] authorization_token, 
+                                       IdentityToken identity_token, 
+                                       byte[] client_authentication_token)
     {
         EstablishContext msg = new EstablishContext();
         msg.client_context_id = client_context_id;
@@ -307,7 +364,9 @@ public class SASClientInterceptor
         return any;
     }
 
-    protected Any makeMessageInContext(org.omg.CORBA.ORB orb, long client_context_id, boolean discard_context)
+    protected Any makeMessageInContext(org.omg.CORBA.ORB orb, 
+                                       long client_context_id, 
+                                       boolean discard_context)
     {
         MessageInContext msg = new MessageInContext();
         msg.client_context_id = client_context_id;
@@ -319,29 +378,39 @@ public class SASClientInterceptor
         return any;
     }
 
-    protected AuthorizationElement[] getATLASTokens(org.omg.CORBA.ORB orb, CompoundSecMechList csmList) throws org.omg.CORBA.NO_PERMISSION
+    protected AuthorizationElement[] getATLASTokens(org.omg.CORBA.ORB orb, 
+                                                    CompoundSecMechList csmList) 
+        throws org.omg.CORBA.NO_PERMISSION
     {
         // find the ATLAS profile in the IOR
         ATLASProfile atlasProfile = null;
         try
         {
-            ServiceConfiguration authorities[] = csmList.mechanism_list[0].sas_context_mech.privilege_authorities;
+            ServiceConfiguration authorities[] = 
+                csmList.mechanism_list[0].sas_context_mech.privilege_authorities;
             for (int i = 0; i < authorities.length; i++)
             {
-                if (authorities[i].syntax != SCS_ATLAS.value) continue;
+                if (authorities[i].syntax != SCS_ATLAS.value)
+                    continue;
                 Any any = codec.decode(authorities[i].name);
                 atlasProfile = ATLASProfileHelper.extract(any);
             }
         }
         catch (Exception e)
         {
-            logger.warn("Error parsing ATLAS from IOR: " + e);
-            throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing ATLAS from IOR: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
+            if (logger.isWarnEnabled())
+                logger.warn("Error parsing ATLAS from IOR: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing ATLAS from IOR: " + e, 
+                                                  MinorCodes.SAS_ATLAS_FAILURE,
+                                                  CompletionStatus.COMPLETED_NO);
         }
-        if (atlasProfile == null) return new AuthorizationElement[0];
+        if (atlasProfile == null) 
+            return new AuthorizationElement[0];
+
         String cacheID = new String(atlasProfile.the_cache_id);
         String locator = atlasProfile.the_locator.the_url();
-        if (locator != null) locator = URLDecoder.decode(locator);
+        if (locator != null) 
+            locator = URLDecoder.decode(locator);
 
         // see if the tokens are in the ATLAS cache
         synchronized (atlasCache)
@@ -354,7 +423,8 @@ public class SASClientInterceptor
 
         // contact the ATLAS server and get the credentials
         AuthTokenDispenser dispenser = null;
-        try {
+        try 
+        {
             org.omg.CORBA.Object obj = orb.string_to_object(locator);
             dispenser = AuthTokenDispenserHelper.narrow(obj);
         }
@@ -365,8 +435,11 @@ public class SASClientInterceptor
         }
         if (dispenser == null)
         {
-            logger.warn("SAS found null ATLAS server " + locator);
-            throw new org.omg.CORBA.NO_PERMISSION("SAS found null ATLAS server "+locator, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
+            if (logger.isWarnEnabled())
+                logger.warn("SAS found null ATLAS server " + locator);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS found null ATLAS server "+locator, 
+                                                  MinorCodes.SAS_ATLAS_FAILURE, 
+                                                  CompletionStatus.COMPLETED_NO);
         }
 
         AuthTokenData data = null;
@@ -376,8 +449,12 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-            logger.warn("Error getting ATLAS tokens from server " + locator + ": " + e);
-            throw new org.omg.CORBA.NO_PERMISSION("SAS Error getting ATLAS tokens from server: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
+            if (logger.isWarnEnabled())
+                logger.warn("Error getting ATLAS tokens from server " + 
+                            locator + ": " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error getting ATLAS tokens from server: " + e, 
+                                                  MinorCodes.SAS_ATLAS_FAILURE, 
+                                                  CompletionStatus.COMPLETED_NO);
         }
         synchronized (atlasCache)
         {

@@ -29,7 +29,6 @@ import org.jacorb.orb.util.CorbaLoc;
 
 import org.apache.avalon.framework.logger.Logger;
 
-import org.jacorb.util.Environment;
 import org.jacorb.util.ObjectUtil;
 import org.omg.CONV_FRAME.CodeSetComponentInfo;
 import org.omg.CONV_FRAME.CodeSetComponentInfoHelper;

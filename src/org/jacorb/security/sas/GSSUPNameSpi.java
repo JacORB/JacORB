@@ -25,7 +25,7 @@ import java.security.Provider;
 import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.Oid;
-import org.jacorb.util.Debug;
+
 import org.omg.CORBA.Any;
 import org.omg.GSSUP.InitialContextToken;
 import org.omg.GSSUP.InitialContextTokenHelper;
@@ -39,11 +39,9 @@ import sun.security.jgss.spi.GSSNameSpi;
  * @version $Id$
  */
 
-public final class GSSUPNameSpi implements GSSNameSpi
+public final class GSSUPNameSpi 
+    implements GSSNameSpi
 {
-    /** the logger used by the naming service implementation */
-    private static Logger logger = Debug.getNamedLogger("jacorb.SAS.GSSUP");
-
     private static Oid mechOid;
 
     private Provider provider;
@@ -59,11 +57,10 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (GSSException e)
         {
-            logger.error("GSSUPMechanism: " + e);
         }
     }
 
-    public GSSUPNameSpi (Provider provider, Oid mechOid, byte[] name ,Oid nameTypeOid)
+    public GSSUPNameSpi(Provider provider, Oid mechOid, byte[] name ,Oid nameTypeOid)
     {
         this.provider = provider;
         this.nameTypeOid = nameTypeOid;
@@ -74,12 +71,14 @@ public final class GSSUPNameSpi implements GSSNameSpi
         {
             try
             {
-                Any any = GSSUPProvider.codec.decode_value( name, InitialContextTokenHelper.type() );
+                Any any = 
+                    GSSUPProvider.codec.decode_value( name, 
+                                                      InitialContextTokenHelper.type());
                 subject = InitialContextTokenHelper.extract(any);
             }
             catch (Exception e)
             {
-                logger.error("Error creating GSSNameSpi: " + e);
+                // logger.error("Error creating GSSNameSpi: " + e);
                 subject = new InitialContextToken(new byte[0], new byte[0], new byte[0]);
             }
         }
@@ -101,7 +100,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         catch(java.io.UnsupportedEncodingException e)
         {
             //should never happen
-            logger.error("Error creating InitialContextToken: " + e);
+            // logger.error("Error creating InitialContextToken: " + e);
             return new byte[0];
         }
         byte[] out = null;
@@ -113,7 +112,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            logger.error("Error encoding for GSSNameSpi: " + e);
+            // logger.error("Error encoding for GSSNameSpi: " + e);
             return new byte[0];
         }
 
@@ -124,7 +123,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch(org.ietf.jgss.GSSException e)
         {
-            logger.error("Error retrieving mechOid DER: " + e);
+            // logger.error("Error retrieving mechOid DER: " + e);
             return new byte[0];
         }
 
@@ -195,7 +194,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
     {
         if(gssToken[0] != 0x60)
         {
-            logger.error("GSSToken doesn't start with expected value '0x60'");
+            // logger.error("GSSToken doesn't start with expected value '0x60'");
             return null;
         }
 
@@ -212,7 +211,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         if(index == gssToken.length)
         {
             //end not found
-            logger.error("GSSToken doesn't contain valid length");
+            // logger.error("GSSToken doesn't contain valid length");
             return null;
         }
 
@@ -223,7 +222,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch(org.ietf.jgss.GSSException e)
         {
-            logger.error("Error retrieving mechOid DER: " + e);
+            // logger.error("Error retrieving mechOid DER: " + e);
             return null;
         }
 
@@ -232,7 +231,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
 
         if((index + mechOidArray.length) >= gssToken.length)
         {
-            logger.error("GSSToken doesn't contain OID");
+            // logger.error("GSSToken doesn't contain OID");
             return null;
         }
 
@@ -240,7 +239,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         {
             if(mechOidArray[i] != gssToken[index + i])
             {
-                logger.error("GSSToken doesn't contain GSSUPMechOID");
+                // logger.error("GSSToken doesn't contain GSSUPMechOID");
                 return null;
             }
         }
@@ -261,7 +260,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            logger.error("Error decoding for GSSNameSpi: " + e);
+            // logger.error("Error decoding for GSSNameSpi: " + e);
         }
         return null;
     }
@@ -288,7 +287,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            logger.error("Error encoding for GSSNameSpi: " + e);
+            // logger.error("Error encoding for GSSNameSpi: " + e);
         }
         return out;
     }
@@ -309,7 +308,7 @@ public final class GSSUPNameSpi implements GSSNameSpi
         }
         catch (Exception e)
         {
-            logger.error("Error encoding for GSSNameSpi: " + e);
+            // logger.error("Error encoding for GSSNameSpi: " + e);
         }
         return new String(out);
     }

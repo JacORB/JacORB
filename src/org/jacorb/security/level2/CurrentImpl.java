@@ -24,12 +24,13 @@ import org.omg.Security.*;
 import org.omg.SecurityLevel2.*;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 import java.util.*;
 import java.io.*;
 import java.lang.reflect.*;
 
-import org.jacorb.util.*;
+import org.jacorb.util.ObjectUtil;
 
 /**
  *
@@ -40,7 +41,7 @@ import org.jacorb.util.*;
 
 public class CurrentImpl
     extends org.omg.CORBA.LocalObject
-    implements org.omg.SecurityLevel2.Current
+    implements org.omg.SecurityLevel2.Current, Configurable
 {
     private CredentialsImpl[] own_credentials;
 
@@ -54,39 +55,77 @@ public class CurrentImpl
     private Hashtable ts_credentials = null;
     private Hashtable ts_received_credentials = null;
     
+    private String defaultSecurityName = null;
+    private String defaultPassword = null;
+    private List authenticators = new Vector();
+
     private org.omg.CORBA.ORB orb = null;  
-    
     private Logger logger;
 
     public CurrentImpl(org.omg.CORBA.ORB orb)
     {
-        this.orb = orb;
-        logger = Debug.getNamedLogger("jacorb.security");
-        
+        this.orb = orb;        
         attrib_mgr = SecAttributeManager.getInstance();
 
         ts_credentials = new Hashtable();
         ts_received_credentials = new Hashtable();
         policies = new Hashtable();
+    }
 
-        //build access decision
-        try
-        {
-            Class ad_class = 
-                Environment.classForName(
-                    Environment.getProperty("jacorb.security.access_decision"));
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        org.jacorb.config.Configuration configuration = 
+            (org.jacorb.config.Configuration)myConfiguration;
 
-            access_decision = (AccessDecision) ad_class.newInstance();
-        }
-        catch (Exception e)
+        logger = configuration.getNamedLogger("jacorb.security.current");
+
+        defaultSecurityName = 
+            configuration.getAttribute("jacorb.security.default_user" );
+        defaultPassword = 
+            configuration.getAttribute( "jacorb.security.default_password" );
+
+        String accDecClassName = 
+            configuration.getAttribute("jacorb.security.access_decision");
+
+        if ( accDecClassName!= null )
         {
-            if (logger.isWarnEnabled())
+            //build access decision
+            try
             {
-                logger.warn("Class " + Environment.getProperty("jacorb.security.access_decision") +
-                            " not found! Please check property \"jacorb.security.access_decision\"" );
+                Class ad_class = ObjectUtil.classForName(accDecClassName);
+                access_decision = (AccessDecision) ad_class.newInstance();
             }
-            
+            catch (Exception e)
+            {
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn("Class " + accDecClassName +
+                                " not found! Please check property \"jacorb.security.access_decision\"" );
+                }            
+                access_decision = new AccessDecisionImpl();
+            }
+        }
+        else
             access_decision = new AccessDecisionImpl();
+
+        String s = 
+            configuration.getAttribute("jacorb.security.principal_authenticator");
+ 
+        if( s != null )
+        {
+            StringTokenizer st = new StringTokenizer( s, "," );
+            
+            while( st.hasMoreTokens() )
+            {
+                PrincipalAuthenticator pa = 
+                    createAuthenticator( st.nextToken() );
+                
+                if( pa != null )
+                {
+                    authenticators.add( pa );
+                }
+            }
         }
     }
 
@@ -94,6 +133,16 @@ public class CurrentImpl
     {
 	authenticate();
     }
+
+    /**
+     * used by interceptors
+     */
+
+    public Logger getLogger()
+    {
+        return logger;
+    }
+
 
     /**
      * Create a PrincipalAuthenticator for a given class name.
@@ -107,8 +156,7 @@ public class CurrentImpl
     {
         try
         {
-            Class pa_class = Environment.classForName( class_name );
-            
+            Class pa_class = ObjectUtil.classForName( class_name );            
             Constructor[] constructors = pa_class.getConstructors();
             
             if( constructors.length != 1 )
@@ -116,14 +164,12 @@ public class CurrentImpl
                 if (logger.isErrorEnabled())
                 {
                     logger.error("PrincAuth " + class_name + 
-                                " must have exactly one constructor that takes either no arg or one arg of type org.omg.CORBA.ORB" );                    
+                                " must have exactly one constructor that takes either no args or org.omg.CORBA.ORB" );                    
                 }
-
                 return null;
             }
 
             Class[] params = constructors[0].getParameterTypes();
-
             if( params.length == 0 )
             {
                 return (PrincipalAuthenticator) pa_class.newInstance();
@@ -179,25 +225,6 @@ public class CurrentImpl
 
     private void authenticate()
     {
-        String s = Environment.getProperty("jacorb.security.principal_authenticator");
-        List authenticators = new Vector();
-
-        if( s != null )
-        {
-            StringTokenizer st = new StringTokenizer( s, "," );
-            
-            while( st.hasMoreTokens() )
-            {
-                PrincipalAuthenticator pa = 
-                    createAuthenticator( st.nextToken() );
-                
-                if( pa != null )
-                {
-                    authenticators.add( pa );
-                }
-            }
-        }
-
         if( authenticators.size() == 0 )
         {
             if (logger.isWarnEnabled())
@@ -205,31 +232,23 @@ public class CurrentImpl
                 logger.warn("No PrincipalAuthenticator set. Will not authenticate!");
             }
             own_credentials = new CredentialsImpl[ 0 ];
-
-                return;
+            return;
         }
 
-        principalAuthenticator = 
-            (PrincipalAuthenticator) authenticators.get( 0 );
-
-        String security_name = 
-            Environment.getProperty( "jacorb.security.default_user" );
-        String password = 
-            Environment.getProperty( "jacorb.security.default_password" );
-        byte[] pwd = (password == null)? null : password.getBytes();
-
+        principalAuthenticator = (PrincipalAuthenticator)authenticators.get(0);
+        byte[] pwd = (defaultPassword == null)? null : defaultPassword.getBytes();
         Vector own_creds = new Vector();
 
         for( int i = 0; i < authenticators.size(); i++ )
         {
             PrincipalAuthenticator pa = 
-                (PrincipalAuthenticator) authenticators.get( i );
+                (PrincipalAuthenticator)authenticators.get( i );
 
             CredentialsHolder coh = new CredentialsHolder();
         
             if( pa.authenticate( 0, 
                                  null, 
-                                 security_name, 
+                                 defaultSecurityName, 
                                  pwd,
                                  null,
                                  coh, 
@@ -310,8 +329,7 @@ public class CurrentImpl
         //ignoring DelegationMode
         ts_received_credentials.remove( Thread.currentThread() );
     }
-
-    
+   
 
     /* thread specific*/
     public Credentials[] get_credentials(CredentialType cred_type)
@@ -498,7 +516,7 @@ public class CurrentImpl
     public void close()
     {
         if (logger.isDebugEnabled())
-            logger.debug( "Closing Current");
+            logger.debug("Closing Current");
         
 	principalAuthenticator = null; // rt: use the gc for finalize
         policies.clear();

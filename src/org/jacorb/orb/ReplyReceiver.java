@@ -77,7 +77,6 @@ public class ReplyReceiver
     private boolean retry_on_failure = false;
 
 
-
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
                           String                         operation,
                           org.omg.TimeBase.UtcT          replyEndTime,

@@ -189,9 +189,9 @@ public class OperationDef
                     ExceptionDef ex =  new ExceptionDef( ex_classes[ ix ],
                                                          defined_in,
                                                          containing_repository,
-                                                         this.logger,
-                                                         this.loader,
-                                                         this.poa);
+                                                         this.loader, 
+                                                         this.poa,
+                                                         this.logger);
                     org.omg.CORBA.ExceptionDef exRef =
                         org.omg.CORBA.ExceptionDefHelper.narrow(
                               this.poa.servant_to_reference(
