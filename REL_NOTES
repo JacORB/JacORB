@@ -1,22 +1,23 @@
 gerald.brose@acm.org
 
 
-                JacORB 1.4 RELEASE NOTES
+                 JacORB 2.0 RELEASE NOTES
 
                       www.jacorb.org
         ________________________________________
 
  Features
 
-        - free CORBA 2.0/2.3 implementation (LGPL license)
+        - free CORBA 2.0/2.3/3.0 implementation (LGPL license)
 
         - 100% Java, no native code
         - fully multithreaded, very good performance
 
         - IDL compiler, complies to rev. 2.3 of the Java language mapping
-        - DII, DSI,
+        - DII, DSI
         - native IIOP, supports IIOP 1.2 Code sets and IIOP over SSL
         - GIOP 1.2, Bidirectional GIOP
+        - ETF
         - POA
         - AMI (callback model)
         - OBV
@@ -40,23 +41,29 @@ gerald.brose@acm.org
  -------------------------------------------
 
       - Logging:
-        - Added property 'jacorb.logfile.append' to support appending to rather
-          than overwriting an existing log file.
+        - Added property 'jacorb.logfile.append' to support appending to 
+          rather than overwriting an existing log file.
         - Added property 'jacorb.logfile.maxLogSize' to support rolling logs.
-        - Added property 'jacorb.log.timestamp' to control whether log messages
-          are timestamped or not.
+        - Added property 'jacorb.log.timestamp' to control whether log 
+          messages are timestamped or not.
 
       - ORB:
         - Added property 'jacorb.interop.indirection_encoding_disable' to turn
           off indirection encoding for repeated typecodes.
-        - Added property 'jacorb.dns.enable' to control use of DNS when support
-          is included.
-        - AMI (Asynchronous Method Invocation) is now implemented.
+        - Added property 'jacorb.dns.enable' to control whether DNS
+          names should be used in IORs.
+        - AMI (Asynchronous Method Invocation) is implemented.
           At present, there is only support for the callback model.
-          QoS policies are being worked on.  At this time, only
-          RelativeRoundtripTimeout and ReplyStartTime work.
+        - All QoS timing policies are implemented.
+        - SyncScopePolicy is implemented.
+        - The transport layer now conforms to the draft of the
+          Extensible Transport Framework (ETF, mars/2003-02-01)
+          (see Programming Guide for details).
+        - Two new properties, jacorb.poa.queue_wait and 
+          jacorb.poa.queue_min allow the server to block when the
+          request queue is full.
         - Fix for ClientRequestInfo target field value.
-        - Fix for marshalling of negative fixed values.
+        - Fix for marshaling of negative fixed values.
         - Fix for reply status value for server side portable interceptors.
         - Fix for generation of some basic type sequence holders.
         - Fix for connection idle timeouts: These timeouts will now
@@ -69,7 +76,8 @@ gerald.brose@acm.org
         - Added port range server socket factory support.
 
       - IMR:
-        - Added property 'jacorb.imr.endpoint_port_number' for port IMR runs on.
+        - Added property 'jacorb.imr.endpoint_port_number' for port IMR 
+          runs on.
 
 1.4.1
 =====
