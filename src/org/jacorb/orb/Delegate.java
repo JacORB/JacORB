@@ -22,7 +22,6 @@ package org.jacorb.orb;
 
 import java.util.*;
 import java.io.*;
-import java.lang.Object;
 import java.net.*;
 
 import org.jacorb.imr.*;
@@ -38,6 +37,7 @@ import org.omg.PortableInterceptor.*;
 import org.omg.IOP.ServiceContext;
 import org.omg.GIOP.*;
 import org.omg.CORBA.SystemException;
+import org.omg.CORBA._AliasDefStub;
 import org.omg.PortableServer.POAPackage.*;
 
 /**
@@ -697,66 +697,47 @@ public final class Delegate
     }
 
     /**
-     * invoke an operation using this object reference by sending 
-     * the request marshalled in the OutputStream
+     * Invokes an asynchronous operation using this object reference by
+     * sending the request marshalled in the OutputStream.  The reply
+     * will be directed to the ReplyHandler.
      */
+    public void invoke( org.omg.CORBA.Object self,
+                        org.omg.CORBA.portable.OutputStream os,
+                        org.omg.Messaging.ReplyHandler replyHandler )
+      throws ApplicationException, RemarshalException
+    {
+        // discard result, it is always null
+        invoke_internal (self, os, replyHandler);
+    }
 
-    public org.omg.CORBA.portable.InputStream invoke( org.omg.CORBA.Object self,
-            org.omg.CORBA.portable.OutputStream os )
+    /**
+     * Invokes a synchronous operation using this object reference 
+     * by sending the request marshalled in the OutputStream.
+     * @return the reply, if a reply is expected for this request.
+     * If no reply is expected, returns null.
+     */
+    public org.omg.CORBA.portable.InputStream invoke
+                                       ( org.omg.CORBA.Object self,
+                                         org.omg.CORBA.portable.OutputStream os )
+      throws ApplicationException, RemarshalException
+    {
+        return invoke_internal (self, os, null);
+    }
+
+    private org.omg.CORBA.portable.InputStream invoke_internal
+                                ( org.omg.CORBA.Object self,
+                                  org.omg.CORBA.portable.OutputStream os,
+                                  org.omg.Messaging.ReplyHandler replyHandler )
     throws ApplicationException, RemarshalException
     {
         ClientRequestInfoImpl info = null;
-        RequestOutputStream ros = null;
+        RequestOutputStream ros = ( RequestOutputStream ) os;
         boolean useInterceptors = orb.hasClientRequestInterceptors ();
-
-        ros = ( RequestOutputStream ) os;
 
         if ( useInterceptors )
         {
-            //set up info object
-            info = new ClientRequestInfoImpl();
-            info.orb = orb;
-            info.operation = ros.operation();
-            info.response_expected = ros.response_expected();
-            info.received_exception = orb.create_any();
-
-            if ( ros.getRequest() != null )
-                info.setRequest( ros.getRequest() );
-
-            info.effective_target = self;
-
-            ParsedIOR pior = getParsedIOR();
-
-            if ( piorOriginal != null )
-                info.target = orb._getObject( piorOriginal );
-            else
-                info.target = self;
-
-            info.effective_profile = pior.getEffectiveProfile();
-
-            // bnv: simply call pior.getProfileBody()
-            org.omg.IIOP.ProfileBody_1_1 _body = pior.getProfileBody();
-
-            if ( _body != null )
-                info.effective_components = _body.components;
-
-            if ( info.effective_components == null )
-            {
-                info.effective_components = new org.omg.IOP.TaggedComponent[ 0 ];
-            }
-
-            info.delegate = this;
-
-            info.request_id = ros.requestId();
-            InterceptorManager manager = orb.getInterceptorManager();
-
-            info.current = manager.getCurrent();
-
-            //allow interceptors access to request output stream
-            info.request_os = ros;
-
-            //allow (BiDir) interceptor to inspect the connection
-            info.connection = connection;
+            info = new ClientRequestInfoImpl( orb, ros, self, this, 
+                                              piorOriginal, connection );
 
             invokeInterceptors( info, ClientInterceptorIterator.SEND_REQUEST );
 
@@ -776,7 +757,7 @@ public final class Delegate
         {
             if ( ros.response_expected() )
             {
-                placeholder = new ReplyPlaceholder();
+                placeholder = new ReplyPlaceholder( replyHandler );
 
                 //store pending replies, so in the case of a
                 //LocationForward a RemarshalException can be thrown
