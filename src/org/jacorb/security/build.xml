@@ -39,7 +39,7 @@
    <target name="principal_authenticator" depends="init" if="iaik.present">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-               includes="org/jacorb/security/level2/PrincipalAuthenticator.java"
+               includes="org/jacorb/security/level2/PrincipalAuthenticatorImpl.java"
         />
    </target>
 
