@@ -1237,7 +1237,7 @@ public class POA
             threadPolicy.value() == ThreadPolicyValue.SINGLE_THREAD_MODEL;
     }
 
-    protected boolean isSystemId() 
+    public boolean isSystemId() 
     {
         return idAssignmentPolicy == null || 
             idAssignmentPolicy.value() == IdAssignmentPolicyValue.SYSTEM_ID;
