@@ -1,3 +1,41 @@
+2004-05-06  Nicolas Noffke <Nicolas.Noffke@web.de>
+
+	* security/ssl/iaik/SSLServerSocketFactory.java:
+	(c'tor) removed call to configure(), is done by the BasicAdapter; removed
+	"role change" feature; pretty printed
+
+	* security/ssl/iaik/SSLSocketFactory.java:
+	removed "role change" feature; pretty printed
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java:
+	(switchToClientMode) removed this feature
+
+	* security/ssl/sun_jsse/SSLSocketFactory.java:
+	removed "change roles" feature; pretty printed
+
+	* orb/factory/SSLServerSocketFactory.java:
+	(switchToClientMode) removed this feature
+
+	* orb/iiop/IIOPListener.java:
+	(SSLAcceptor.setup) removed completely, because
+	SSLServerSocketFactory.switchToClientMode() has been removed as well
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java:
+	(c'tor) removed call to configure, it is called by the BasicAdapter; Pretty printed
+
+	* orb/iiop/ClientIIOPConnection.java:
+	(createSocket) fixed bug: method would always use plain TCP/IP socket factory
+	even if SSL should have been used
+
+	* ChangeLog: updated
+
+2004-05-06  Gerald Brose  <gerald.brose@acm.org>
+
+	* config/Configuration.java: pretty printing only
+
+	* orb/BasicAdapter.java:
+	(return_result) removed superflous synchronization for better scalability.
+
 2004-05-06  Gerald Brose  <gerald.brose@acm.org>
 
 	* config/Configuration.java: pretty printing only
