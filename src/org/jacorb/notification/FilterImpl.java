@@ -792,7 +792,7 @@ public class FilterImpl
     {
         ++matchCalled_;
 
-        return match_internal( anyEvent ) != NO_CONSTRAINTS_MATCH;
+        return match_internal( anyEvent ) >= 0;
     }
 
 
@@ -842,7 +842,7 @@ public class FilterImpl
     {
         ++matchStructuredCalled_;
 
-        return match_structured_internal(structuredevent) != NO_CONSTRAINTS_MATCH;
+        return match_structured_internal(structuredevent) >= 0;
     }
 
 

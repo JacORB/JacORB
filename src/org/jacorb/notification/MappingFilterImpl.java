@@ -247,7 +247,7 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
     {
         int _filterId = filterImpl_.match_internal( any );
 
-        if ( _filterId != FilterImpl.NO_CONSTRAINTS_MATCH )
+        if ( _filterId >= 0 )
         {
             anyHolder.value = valueMap_.get( _filterId );
 
@@ -266,7 +266,7 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
     {
         int _filterId = filterImpl_.match_structured_internal( structuredEvent );
 
-        if ( _filterId != FilterImpl.NO_CONSTRAINTS_MATCH )
+        if ( _filterId >= 0 )
         {
             anyHolder.value = valueMap_.get( _filterId );
 
