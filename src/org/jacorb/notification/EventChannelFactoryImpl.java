@@ -119,7 +119,7 @@ public class EventChannelFactoryImpl
         Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
 
     protected String ior_;
-    protected Vector listEventChannelCreatedEventListener_ = new Vector();
+    protected Vector listEventChannelEventListener_ = new Vector();
     protected String corbaLoc_;
     private POA notificationPOA_;
 
@@ -266,7 +266,7 @@ public class EventChannelFactoryImpl
     {
         EventChannelEvent _event = new EventChannelEvent( servant );
 
-        Iterator _i = listEventChannelCreatedEventListener_.iterator();
+        Iterator _i = listEventChannelEventListener_.iterator();
 
         while ( _i.hasNext() )
         {
@@ -360,14 +360,16 @@ public class EventChannelFactoryImpl
         EventChannelImpl _channel =
             ( EventChannelImpl ) allChannels_.remove( new Integer( id ) );
 
-        EventChannelEvent _event =
-            new EventChannelEvent( _channel );
+        if (!listEventChannelEventListener_.isEmpty()) {
+            EventChannelEvent _event =
+                new EventChannelEvent( _channel );
 
-        Iterator i = listEventChannelCreatedEventListener_.iterator();
+            Iterator i = listEventChannelEventListener_.iterator();
 
-        while ( i.hasNext() )
-        {
-            ( ( EventChannelEventListener ) i.next() ).actionEventChannelDestroyed( _event );
+            while ( i.hasNext() )
+                {
+                    ( ( EventChannelEventListener ) i.next() ).actionEventChannelDestroyed( _event );
+                }
         }
     }
 
@@ -422,12 +424,12 @@ public class EventChannelFactoryImpl
 
     public void addEventChannelEventListener( EventChannelEventListener listener )
     {
-        listEventChannelCreatedEventListener_.add( listener );
+        listEventChannelEventListener_.add( listener );
     }
 
     public void removeEventChannelEventListener( EventChannelEventListener listener )
     {
-        listEventChannelCreatedEventListener_.remove( listener );
+        listEventChannelEventListener_.remove( listener );
     }
 
     public void shutdown( ShutdownCallback cb )
@@ -446,7 +448,7 @@ public class EventChannelFactoryImpl
 
     public void dispose()
     {
-        listEventChannelCreatedEventListener_.clear();
+        listEventChannelEventListener_.clear();
 
         Iterator _i = allChannels_.entrySet().iterator();
 
