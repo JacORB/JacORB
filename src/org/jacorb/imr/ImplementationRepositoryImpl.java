@@ -1256,7 +1256,8 @@ public class ImplementationRepositoryImpl
                 GIOPConnection connection =
                     new ClientGIOPConnection( transport,
                                               request_listener,
-                                              reply_listener );
+                                              reply_listener,
+                                              null);
 
                 receptor_pool.connectionCreated( connection );
             }
@@ -1312,7 +1313,7 @@ public class ImplementationRepositoryImpl
 
         cm = ((org.jacorb.orb.ORB)orb).getClientConnectionManager ();
         address = new IIOPAddress (host, port);
-        connection = cm.getConnection 
+        connection = cm.getConnection
         (
             new InternetIOPProfile (address, object_key),
             false
