@@ -1,13 +1,16 @@
 package org.jacorb.test.bugs.bug387;
 
 import org.omg.CORBA.*;
+import org.omg.CORBA.portable.InputStream;
+import org.omg.CORBA.portable.OutputStream;
+import org.omg.CORBA.portable.ResponseHandler;
 import org.omg.PortableServer.*;
 
 public class TestInterfaceImpl extends TestInterfacePOA {
     
     public Any test_return_value() 
     {
-        TestStruct testStruct = new TestStruct("STRINGTEST", 1);
+        TestStruct testStruct = new TestStruct("STRINGTEST", null, 1);
         Any any = _orb().create_any();
         TestStructHelper.insert(any, testStruct);
         return any;
@@ -15,7 +18,7 @@ public class TestInterfaceImpl extends TestInterfacePOA {
     
     public Any test_return_null()
     {
-        TestStruct testStruct = new TestStruct(null, 1);
+        TestStruct testStruct = new TestStruct(null, null, 1);
         Any any = _orb().create_any();
         TestStructHelper.insert(any, testStruct);
         return any;
@@ -31,6 +34,12 @@ public class TestInterfaceImpl extends TestInterfacePOA {
     {
         TestStruct testStruct = TestStructHelper.extract(a);
         return testStruct.name == null;
+    }
+
+    public boolean test_pass_shared(Any a)
+    {
+        TestStruct t = TestStructHelper.extract(a);
+        return t.name == t.other;
     }
         
 }
