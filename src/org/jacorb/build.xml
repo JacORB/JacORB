@@ -31,7 +31,7 @@
 	<javac srcdir="${jsrc}/generated/"
                destdir="${classdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	       includes="org/jacorb/proxy/**,org/jacorb/imr/**,org/jacorb/events/**,org/jacorb/orb/**"
+	       includes="org/jacorb/proxy/**,org/jacorb/imr/**,org/jacorb/events/**,org/jacorb/orb/**,org/jacorb/util/tracing/**"
 	/>
    </target>
 
@@ -46,6 +46,7 @@
 -->
                  <arg file="${include}/jacorb/imr.idl"/>
                  <arg file="${include}/jacorb/channel.idl"/>
+                 <arg file="${include}/jacorb/Tracing.idl"/>
            </java>           
 
 	   <java classname="org.jacorb.idl.parser" 
@@ -79,7 +80,7 @@
    </target>
 
    <target name="subdirs"
-               depends="utils,orb,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
+               depends="orb,utils,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
    </target>
 
 <!--proxy-->

@@ -18,6 +18,7 @@
    <target name="compile">
 	<javac srcdir="${src}"
                destdir="${classdir}"
+               bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
 	       includes="org/jacorb/ir/*.java,org/jacorb/ir/**/*.java"
 	        />
    </target>
