@@ -503,7 +503,7 @@ public class RequestProcessor
                                              servant);
 
             InterceptorManager manager = controller.getORB().getInterceptorManager();
-            info.current = manager.getEmptyCurrent();
+            info.setCurrent (manager.getEmptyCurrent());
 
             if(! invokeInterceptors( info,
                                      ServerInterceptorIterator.
@@ -523,7 +523,7 @@ public class RequestProcessor
                 return;
             }
 
-            manager.setTSCurrent(info.current);
+            manager.setTSCurrent(info.current());
         }
 
         // TODO: The exception replies below should also trigger interceptors.
@@ -614,32 +614,32 @@ public class RequestProcessor
         {
             InterceptorManager manager =
                 controller.getORB().getInterceptorManager();
-            info.current = manager.getCurrent();
+            info.setCurrent (manager.getCurrent());
 
             short op = 0;
             switch(request.status().value())
             {
                 case ReplyStatusType_1_2._NO_EXCEPTION :
                     op = ServerInterceptorIterator.SEND_REPLY;
-                    info.reply_status = SUCCESSFUL.value;
+                    info.setReplyStatus (SUCCESSFUL.value);
                     break;
 
                 case ReplyStatusType_1_2._USER_EXCEPTION :
-                    info.reply_status = USER_EXCEPTION.value;
+                    info.setReplyStatus (USER_EXCEPTION.value);
                     SystemExceptionHelper.insert(info.sending_exception,
                                                  new org.omg.CORBA.UNKNOWN("Stream-based UserExceptions are not available!"));
                     op = ServerInterceptorIterator.SEND_EXCEPTION;
                     break;
 
                 case ReplyStatusType_1_2._SYSTEM_EXCEPTION :
-                    info.reply_status = SYSTEM_EXCEPTION.value;
+                    info.setReplyStatus (SYSTEM_EXCEPTION.value);
                     SystemExceptionHelper.insert(info.sending_exception,
                                                  request.getSystemException());
                     op = ServerInterceptorIterator.SEND_EXCEPTION;
                     break;
 
                 case ReplyStatusType_1_2._LOCATION_FORWARD :
-                    info.reply_status = LOCATION_FORWARD.value;
+                    info.setReplyStatus (LOCATION_FORWARD.value);
                     op = ServerInterceptorIterator.SEND_OTHER;
                     break;
             }
