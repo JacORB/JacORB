@@ -281,10 +281,10 @@ public class TimingTest extends CallbackTestCase
     public void test_request_end_time_sync_ok()
     {
         clearPolicies (server);
-        setRequestEndTime (server, System.currentTimeMillis() + 300);
+        setRequestEndTime (server, System.currentTimeMillis() + 400);
         try
         {
-            int result = server.operation (434, 400);
+            int result = server.operation (434, 500);
         }
         catch (org.omg.CORBA.TIMEOUT t)
         {
