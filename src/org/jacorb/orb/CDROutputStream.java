@@ -1381,6 +1381,7 @@ public class CDROutputStream
 
       try
       {
+
          if( (value instanceof org.jacorb.orb.TypeCode) &&
              ((org.jacorb.orb.TypeCode)value).is_recursive() &&
              tcMap != null &&
@@ -2029,7 +2030,7 @@ public class CDROutputStream
                 try
                 {
                     org.omg.CORBA.TypeCode _tc =
-                        (org.omg.CORBA.TypeCode)recursiveTCMap.get(tc.id());
+                        (org.omg.CORBA.TypeCode)( getRecursiveTCMap().get( tc.id() ) );
                     if( _tc == null )
                     {
                         throw new org.omg.CORBA.MARSHAL("Recursive TypeCode not found for " + tc.id());
