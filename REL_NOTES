@@ -49,6 +49,15 @@ gerald.brose@acm.org
 
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
+1.?.??  - modified the property "jacorb.security.keystore". It now allows
+          three ways of specifying the keystore location:
+             a) absolute path 
+             b) relative path to current dir
+             c) relative path to users home dir
+          These possibilities are searched in the order give above.
+        
+        - Using the standard SSL mode now allows mutual authentication,
+          which previously was only possible using the role change mode.
 
 1.3.30
 
