@@ -62,8 +62,12 @@ public class IdlSymbol
 
     Logger logger;
 
+    /** the posizion in the IDL file where this symbol was found by the lexer,
+        needed for better error messages */
+    PositionInfo myPosition = null;
+
     /**
-     * class contstructor
+     * class constructor
      */
 
     public IdlSymbol( int num )
@@ -71,6 +75,7 @@ public class IdlSymbol
         super( num );
         inhibitionFlag = parser.getInhibitionState();
         logger = parser.getLogger();
+        myPosition = lexer.getPosition();
     }
 
 
