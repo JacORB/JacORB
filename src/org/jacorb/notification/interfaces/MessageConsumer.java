@@ -80,4 +80,6 @@ public interface MessageConsumer extends Disposable {
     int incErrorCounter();
 
     int getErrorThreshold();
+
+    boolean isDisposed();
 }
