@@ -544,7 +544,7 @@ non terminal Definition export;
 non terminal ScopedName scopename;
 
 non terminal Value value;
-non terminal IdlSymbol value_box_dcl;
+non terminal ValueBoxDecl value_box_dcl;
 non terminal IdlSymbol value_abs_dcl;
 non terminal IdlSymbol value_body;
 non terminal IdlSymbol value_dcl;
