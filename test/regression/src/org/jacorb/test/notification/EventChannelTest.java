@@ -19,6 +19,7 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.FilterFactory;
 
 import junit.framework.Test;
+import junit.framework.Assert;
 
 /**
  * @author Alphonse Bendt
@@ -91,13 +92,13 @@ public class EventChannelTest extends NotificationTestCase {
 
         int[] _allKeys = channel_.get_all_consumeradmins();
 
-        assertTrue(isIn(0, _allKeys));
+        assertContains(0, _allKeys);
 
         IntHolder ih = new IntHolder();
         channel_.new_for_consumers(InterFilterGroupOperator.AND_OP, ih);
 
         _allKeys = channel_.get_all_consumeradmins();
-        assertTrue(isIn(ih.value, _allKeys));
+        assertContains(ih.value, _allKeys);
 
         try {
             channel_.get_consumeradmin(Integer.MIN_VALUE);
@@ -116,13 +117,13 @@ public class EventChannelTest extends NotificationTestCase {
 
         int[] _allKeys = channel_.get_all_supplieradmins();
 
-        assertTrue(isIn(0, _allKeys));
+        assertContains(0, _allKeys);
 
         IntHolder ih = new IntHolder();
         channel_.new_for_suppliers(InterFilterGroupOperator.AND_OP, ih);
 
         _allKeys = channel_.get_all_supplieradmins();
-        assertTrue(isIn(ih.value, _allKeys));
+        assertContains(ih.value, _allKeys);
 
         try {
             channel_.get_supplieradmin(Integer.MIN_VALUE);
@@ -134,14 +135,14 @@ public class EventChannelTest extends NotificationTestCase {
     }
 
 
-    static boolean isIn(int i, int[] is) {
+    static void assertContains(int i, int[] is) {
         boolean seen = false;
         for (int x=0; x<is.length; ++x) {
             if (is[x] == i) {
                 seen = true;
             }
         }
-        return seen;
+        Assert.assertTrue(seen);
     }
 
 
