@@ -444,7 +444,9 @@ public class TaskProcessor implements Disposable
      * Some MessageConsumers (namely SequenceProxyPushSuppliers) need to
      * push Messages regularely to its
      * connected Consumer. Schedule a Task to call
-     * deliverPendingEvents on the specified MessageConsumer
+     * deliverPendingEvents on the specified MessageConsumer.
+     * Also used after a disabled MessageConsumer is enabled again to
+     * push the pending Messages.
      */
     public void scheduleTimedPushTask( MessageConsumer consumer )
         throws InterruptedException
