@@ -1,5 +1,14 @@
 2004-12-11  Andre Spiegel  <spiegel@gnu.org>
 
+	* poa/RequestProcessor.java (invokeIncarnate, invokeOperation):
+	For unexpected Throwables, log the stack trace along with the
+	exception name. Raise the log level for these events from "warn"
+	to "error". This was suggested by Alec Cawley and Christoper
+	McDermott.
+
+	* orb/portableInterceptor/ClientRequestInfoImpl.java (ctor):
+	Remove no-arg constructor, it is not used.
+
 	* util/threadpool/ThreadPool.java (getJob, putJob): Apply patch by
 	Marcel Gosselin, fixing bug #445.
 
