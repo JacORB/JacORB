@@ -110,6 +110,7 @@ public abstract class AbstractMessage
             addReference();
         }
 
+
         /**
          * copy ctor. adds a reference to the underlying message.
          */
@@ -130,7 +131,6 @@ public abstract class AbstractMessage
             isTimeoutSet_ = timeoutOverride;
         }
 
-        ////////////////////
 
         /**
          * set the Inital FilterStage (the ProxyConsumer that has
@@ -196,10 +196,9 @@ public abstract class AbstractMessage
                                                        String variable)
             throws EvaluationException
         {
-            return
-                AbstractMessage.this.extractFilterableData(context,
-                                                           componentRootNode,
-                                                           variable);
+            return AbstractMessage.this.extractFilterableData(context,
+                                                              componentRootNode,
+                                                              variable);
         }
 
 
@@ -362,7 +361,7 @@ public abstract class AbstractMessage
 
         public String toString()
         {
-            return "-->" + AbstractMessage.this.toString();
+            return "[Message/" + AbstractMessage.this + "]";
         }
 
 
