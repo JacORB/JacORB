@@ -135,7 +135,7 @@ public class TaskProcessor implements Disposable
                               + " will be processed now");
             }
 
-            processEventInternal( message_ );
+            processMessageInternal( message_ );
         }
     }
 
@@ -348,6 +348,7 @@ public class TaskProcessor implements Disposable
         if ( mesg.hasStopTime() )
         {
             logger_.debug("Message has StopTime");
+
             if ( mesg.getStopTime().getTime() <= System.currentTimeMillis() )
             {
                 fireEventDiscarded( mesg );
@@ -377,15 +378,18 @@ public class TaskProcessor implements Disposable
         }
         else
         {
-            processEventInternal( mesg );
+            processMessageInternal( mesg );
         }
     }
+
 
     /**
      * process a Message. create FilterTask and schedule it.
      */
-    protected void processEventInternal( Message event )
+    protected void processMessageInternal( Message event )
     {
+        logger_.debug("processMessageInternal");
+
         AbstractFilterTask _task = taskFactory_.newFilterProxyConsumerTask( event );
 
         try
