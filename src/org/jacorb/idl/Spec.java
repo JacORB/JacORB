@@ -29,10 +29,10 @@ import java.util.*;
  * @version $Id$
  */
 
-class Spec
-        extends IdlSymbol
-{
 
+public class Spec
+    extends IdlSymbol
+{
     public Vector definitions;
 
     public Spec( int num )
@@ -65,6 +65,17 @@ class Spec
         while( e.hasMoreElements() )
             ( (IdlSymbol)e.nextElement() ).print( ps );
     }
+
+    /**
+     * @overrides accept in IdlSymbol
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitSpec( this );
+    }
+
+
 }
 
 
