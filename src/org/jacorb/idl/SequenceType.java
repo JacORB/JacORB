@@ -558,9 +558,11 @@ public class SequenceType
 		{
 		    if( !dir.mkdirs())
 		    {
-                        org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
+			System.err.println("Unable to create " + path );
+			System.exit(1);
 		    }
 		}
+
 
 		String fname = className + "Holder.java";
 		PrintWriter ps = new PrintWriter(new java.io.FileWriter(new File(dir,fname)));

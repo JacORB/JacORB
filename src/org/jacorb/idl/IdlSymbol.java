@@ -330,8 +330,9 @@ class IdlSymbol
                     ScopeData sd = ((Scope)enc).getScopeData();
                     if( sd == null )
                     {
-                        org.jacorb.idl.parser.fatal_error( "ScopeDate null for " + name + " " +
-                                                           this.getClass().getName(), null );
+                        System.err.println("ScopeDate null for " + name + " " +
+                                           this.getClass().getName());
+                        System.exit(1);
                     }
                     Hashtable h = sd.versionMap;
 

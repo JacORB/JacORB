@@ -42,7 +42,6 @@ public class ReplyInputStream
     private boolean ready = false;
     private boolean communicationException = false;
     private boolean remarshalException = false;
-    private boolean timeoutException = false;
     private org.omg.CORBA.Object target;
     public org.omg.GIOP.MessageHeader_1_0 msg_hdr=null;
 
@@ -99,14 +98,12 @@ public class ReplyInputStream
      * of a communication error
      */
 
-    public synchronized void cancel( boolean timeout )
+    public synchronized void cancel()
     {
-	timeoutException = timeout;
 	communicationException = true;
 	ready = true;
 	this.notify();
     }
-
 
     public synchronized void retry()
     {
@@ -151,10 +148,7 @@ public class ReplyInputStream
 	}	
         else if( communicationException )
 	{
-            if( timeoutException )
-                throw new org.omg.CORBA.IMP_LIMIT("Client timeout reached.");
-            else
-                throw new org.omg.CORBA.COMM_FAILURE();
+	    throw new org.omg.CORBA.COMM_FAILURE();
 	}
 
 	wakeup();

@@ -146,7 +146,7 @@ public class ConnectionManager
         }
         catch( java.net.UnknownHostException uhe )
         {
-            throw new org.omg.CORBA.TRANSIENT("Unknown host " + host);
+            throw new org.omg.CORBA.COMM_FAILURE("Unknown host " + host);
         }
 
         /* look for an existing connection */
@@ -280,7 +280,7 @@ public class ConnectionManager
             }
         }
         if( retries < 0 )
-            throw new org.omg.CORBA.TRANSIENT("Retries exceeded, couldn't connect to " + 
+            throw new org.omg.CORBA.COMM_FAILURE("Retries exceeded, couldn't connect to " + 
                                                  host_and_port);
         return e;
     }
@@ -352,7 +352,7 @@ public class ConnectionManager
         }
         catch( java.net.UnknownHostException uhe )
         {
-            throw new org.omg.CORBA.TRANSIENT("Unknown host " + host);
+            throw new org.omg.CORBA.COMM_FAILURE("Unknown host " + host);
         }
 
         return host_and_port;

@@ -75,7 +75,7 @@ public final class ClientConnection
 	{
 	    ReplyInputStream client =
 		(ReplyInputStream)replies.get(keys.nextElement());
-	    client.cancel( false );
+	    client.cancel();
 	    lost_replies++;
 	}
 

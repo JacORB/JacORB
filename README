@@ -7,10 +7,10 @@ file COPYING, which contains the GNU Public Library License.
 
 For  installation instructions  please see  the file  INSTALL  and the
 programming   guide   available  from   the   JacORB   web  pages   at
-http://www.jacorb.org.  For release notes  see the file REL_NOTES. The
-build file in  this directory can be used to  remake and recompile all
-of  CORBA  and  the  CorbaServices Naming,  Trading,  Transaction  and
-Events.
+http://www.inf.fu-berlin.de/~brose/jacorb.  For  release notes see the
+file REL_NOTES. The build file in this directory can be used to remake
+and  recompile all  of CORBA  and the  CorbaServices  Naming, Trading,
+Transaction and Events.
 
 In idl/omg we provide the complete IDL  text of all of COSS for you to
 play with, in  src/java_cup there are a few  classes from the Java_Cup

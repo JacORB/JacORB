@@ -1145,9 +1145,10 @@ public final class Delegate
     /**
      */
 
-    public synchronized org.omg.CORBA.portable.OutputStream request( org.omg.CORBA.Object self,
-                                                                     String operation,
-                                                                     boolean responseExpected )
+    public synchronized org.omg.CORBA.portable.OutputStream request(
+                                                                    org.omg.CORBA.Object self,
+                                                                    String operation,
+                                                                    boolean responseExpected )
     {    
         // NOTE: When making changes to this method which are outside of the 
         // Interceptor-if-statement, please make shure to update 

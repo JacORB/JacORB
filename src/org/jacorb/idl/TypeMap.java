@@ -99,8 +99,9 @@ class TypeMap
 	    catch ( NameAlreadyDefined nad )
 	    {
 		// serious error, should never happen
+		System.err.println("TypeMap.replaceForwardDeclaration, serious error!");
 		nad.printStackTrace();
-                org.jacorb.idl.parser.fatal_error( "TypeMap.replaceForwardDeclaration, serious error!", null);
+		System.exit(1);
 	    }
 	}
 	else
