@@ -38,19 +38,23 @@
        </path>
     </pathconvert>
 
+
+    <path id="path.base" >
+       <pathelement location="${dirs.base}/classes"/>
+       <pathelement location="${basedir}/classes"/>
+       <pathelement location="${lib}/logkit-1.2.jar"/>
+       <pathelement location="${lib}/idl.jar"/>
+       <pathelement location="${lib}/antlr-2.7.2.jar"/>
+       <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
+       <pathelement location="${lib}/concurrent-1.3.2.jar"/>
+       <pathelement location="${sun.boot.class.path}"/>
+       <pathelement location="${java.class.path}"/>
+    </path>
+	    
+
     <!-- The 'classpath' property is used as the run time for some tests -->
     <pathconvert property="classpath" targetos="${architecture}">
-       <path>
-          <pathelement location="${dirs.base}/classes"/>
-          <pathelement location="${basedir}/classes"/>
-          <pathelement location="${lib}/logkit-1.2.jar"/>
-          <pathelement location="${lib}/idl.jar"/>
-          <pathelement location="${lib}/antlr-2.7.2.jar"/>
-          <pathelement location="${lib}/avalon-framework-4.1.5.jar"/>
-          <pathelement location="${lib}/concurrent-1.3.2.jar"/>
-          <pathelement location="${sun.boot.class.path}"/>
-          <pathelement location="${java.class.path}"/>
-       </path>
+	      <path refid="path.base" />
     </pathconvert>
 
     <mkdir dir="${classdir}"/>
@@ -69,15 +73,18 @@
    <condition property="available.regexp.jdk" value="true" >
       <or>
          <equals arg2="${ant.java.version}" arg1="1.4"/>
-         <available classname="java.util.regex.Pattern" />
+         <available classname="java.util.regex.Pattern"
+         classpathref="path.base" />
       </or>
    </condition>
 
   <available classname="gnu.regexp.RE"
-    property="available.regexp.gnu" />
+    property="available.regexp.gnu"
+    classpathref="path.base" />
 
-  <available classname="org.apache.regexp.RE"
-    property="available.regexp.jakarta-regexp" />
+    <available classname="org.apache.regexp.RE"
+      property="available.regexp.jakarta-regexp"
+      classpathref="path.base" />
 
   <condition property="regexp.available">
     <or>
@@ -90,7 +97,7 @@
 
 
 <target name="load-taskdef" depends="init">
-   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpath="${classpath}"/>
+   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpathref="path.base"/>
 </target>
 
 <target name="ant-version" unless="ant15">
@@ -139,7 +146,7 @@
    <javac srcdir="${javac-src}"
           destdir="${classdir}"
           debug="${debug}"
-          classpath="${classpath}"
+          classpathref="path.base"
           debuglevel="${debuglevel}"
           sourcepath="${javac-sourcepath}"
           includes="${javac-includes}"
