@@ -218,6 +218,10 @@ public final class Any
         throws org.omg.CORBA.BAD_OPERATION
     {
         checkExtract (TCKind._tk_short, "Cannot extract short");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_short ();
+        }
         return ((Short)value).shortValue ();
     }
 
@@ -232,6 +236,10 @@ public final class Any
     public short extract_ushort ()
     {
         checkExtract (TCKind._tk_ushort, "Cannot extract ushort");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_ushort ();
+        }
         return ((Short)value).shortValue ();
     }
 
@@ -246,6 +254,10 @@ public final class Any
     public int extract_long () 
     {
         checkExtract (TCKind._tk_long, "Cannot extract long");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_long ();
+        }
         return ((Integer)value).intValue ();
     }
 
@@ -260,6 +272,10 @@ public final class Any
     public int extract_ulong () 
     {
         checkExtract (TCKind._tk_ulong, "Cannot extract ulong");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_ulong ();
+        }
         return ((Integer)value).intValue ();
     }
 
@@ -274,6 +290,10 @@ public final class Any
     public long extract_longlong () 
     {
         checkExtract (TCKind._tk_longlong, "Cannot extract longlong");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_longlong ();
+        }
         return ((Long)value).longValue ();
     }
 
@@ -288,16 +308,14 @@ public final class Any
     public long extract_ulonglong () 
     {
         checkExtract (TCKind._tk_ulonglong, "Cannot extract ulonglong");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_ulonglong ();
+        }
         return ((Long)value).longValue ();
     }
 
     // float
-
-    public float extract_float () 
-    {
-        checkExtract (TCKind._tk_float, "Cannot extract float");
-        return ((Float)value).floatValue ();
-    }
 
     public void insert_float (float f)
     {
@@ -305,13 +323,17 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_float);
     }
 
-    // double
-
-    public double extract_double () 
+    public float extract_float () 
     {
-        checkExtract (TCKind._tk_double, "Cannot extract double");
-        return ((Double)value).doubleValue ();
+        checkExtract (TCKind._tk_float, "Cannot extract float");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_float ();
+        }
+        return ((Float)value).floatValue ();
     }
+
+    // double
 
     public void insert_double (double d)
     {
@@ -319,13 +341,17 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_double);
     }
 
-    // boolean
-
-    public boolean extract_boolean () 
+    public double extract_double () 
     {
-        checkExtract (TCKind._tk_boolean, "Cannot extract boolean");
-        return ((Boolean)value).booleanValue ();
+        checkExtract (TCKind._tk_double, "Cannot extract double");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_double ();
+        }
+        return ((Double)value).doubleValue ();
     }
+
+    // boolean
 
     public void insert_boolean (boolean b)
     {
@@ -333,13 +359,17 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_boolean);
     }
 
-    // char
-
-    public char extract_char () 
+    public boolean extract_boolean () 
     {
-        checkExtract (TCKind._tk_char, "Cannot extract char");
-        return ((Character)value).charValue ();
+        checkExtract (TCKind._tk_boolean, "Cannot extract boolean");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_boolean ();
+        }
+        return ((Boolean)value).booleanValue ();
     }
+
+    // char
 
     public void insert_char (char c)
     {
@@ -347,7 +377,17 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_char);
     }
 
-    public void insert_wchar( char c)
+    public char extract_char () 
+    {
+        checkExtract (TCKind._tk_char, "Cannot extract char");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_char ();
+        }
+        return ((Character)value).charValue ();
+    }
+
+    public void insert_wchar (char c)
     {
         value = new Character (c);
         typeCode = orb.get_primitive_tc (TCKind.tk_wchar);
@@ -356,16 +396,14 @@ public final class Any
     public char extract_wchar () 
     {
         checkExtract (TCKind._tk_wchar, "Cannot extract wchar");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_wchar ();
+        }
         return ((Character)value).charValue ();
     }
 
     // octet
-
-    public byte extract_octet () 
-    {
-        checkExtract (TCKind._tk_octet, "Cannot extract octet");
-        return ((Byte)value).byteValue ();
-    }
 
     public void insert_octet (byte b)
     {
@@ -373,13 +411,17 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_octet);
     }
 
-    // any
-
-    public org.omg.CORBA.Any extract_any () 
+    public byte extract_octet () 
     {
-        checkExtract (TCKind._tk_any, "Cannot extract any");
-        return (org.omg.CORBA.Any)value;
+        checkExtract (TCKind._tk_octet, "Cannot extract octet");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_octet ();
+        }
+        return ((Byte)value).byteValue ();
     }
+
+    // any
 
     public void insert_any (org.omg.CORBA.Any a)
     {
@@ -387,13 +429,17 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_any);
     }
 
-    // TypeCode
-
-    public org.omg.CORBA.TypeCode extract_TypeCode () 
+    public org.omg.CORBA.Any extract_any () 
     {
-        checkExtract (TCKind._tk_TypeCode, "Cannot extract TypeCode");
-        return (TypeCode)value;
+        checkExtract (TCKind._tk_any, "Cannot extract any");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_any ();
+        }
+        return (org.omg.CORBA.Any)value;
     }
+
+    // TypeCode
 
     public void insert_TypeCode (org.omg.CORBA.TypeCode tc)
     {
@@ -401,18 +447,28 @@ public final class Any
         typeCode = orb.get_primitive_tc (TCKind.tk_TypeCode);
     }
 
-    // string
-
-    public String extract_string () 
+    public org.omg.CORBA.TypeCode extract_TypeCode () 
     {
-        checkExtract (TCKind._tk_string, "Cannot extract string");
-        return value.toString ();
+        checkExtract (TCKind._tk_TypeCode, "Cannot extract TypeCode");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_TypeCode ();
+        }
+        return (TypeCode)value;
     }
+
+    // string
 
     public void insert_string (String s)
     { 
         value = s;
         typeCode = orb.create_string_tc (0);
+    }
+
+    public String extract_string () 
+    {
+        checkExtract (TCKind._tk_string, "Cannot extract string");
+        return value.toString ();
     }
 
     public void insert_wstring (String s)
@@ -429,16 +485,20 @@ public final class Any
 
     // fixed
 
-    public java.math.BigDecimal extract_fixed () 
-    {
-        checkExtract (TCKind._tk_fixed, "Cannot extract fixed");
-        return (java.math.BigDecimal)value;
-    }
-
     public void insert_fixed (java.math.BigDecimal _value) 
     {
         value = _value;
         typeCode = (new org.omg.CORBA.FixedHolder(_value))._type();
+    }
+
+    public java.math.BigDecimal extract_fixed () 
+    {
+        checkExtract (TCKind._tk_fixed, "Cannot extract fixed");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_fixed ();
+        }
+        return (java.math.BigDecimal)value;
     }
         
     public void insert_fixed(java.math.BigDecimal _value, org.omg.CORBA.TypeCode type) 
@@ -492,6 +552,10 @@ public final class Any
     public org.omg.CORBA.Object extract_Object ()
     {
         checkExtract (TCKind._tk_objref, "Cannot extract object");
+        if (value instanceof CDROutputStream)
+        {
+           return create_input_stream().read_Object ();
+        }
         return (org.omg.CORBA.Object)value;
     }
 
@@ -847,5 +911,4 @@ public final class Any
             this.orb = orb;
         this.value = value;
     }
-
 }
