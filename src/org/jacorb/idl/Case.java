@@ -259,6 +259,7 @@ class Case
                 }
             }
         } // for
+
     }
 
     IdlSymbol[] getLabels()
