@@ -8,6 +8,8 @@ module Tests
 	{
 		long operation (in long id, in long delay);
 		char ex_op     (in char ch, in long delay) raises (EmptyException);
+
+		long long server_time (in long delay);
     };
 
 };
