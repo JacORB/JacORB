@@ -21,9 +21,7 @@ package org.jacorb.idl;
  */
 
 import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * @author Gerald Brose
@@ -171,6 +169,11 @@ class InterfaceBody
 
         for( Enumeration e = v.elements(); e.hasMoreElements(); )
             ( (IdlSymbol)e.nextElement() ).setPackage( s );
+    }
+
+    public void addDefinition (Declaration d)
+    {
+        this.v.add (new Definition (d));
     }
 
     public void parse()
@@ -331,21 +334,13 @@ class InterfaceBody
                     }
                 }
             }
-            if( my_interface.inheritanceSpec.v.size() > 0 )
+            for (Iterator i = my_interface.inheritanceSpec.v.iterator(); 
+                 i.hasNext(); )
             {
-                for( Enumeration e = my_interface.inheritanceSpec.v.elements(); e.hasMoreElements(); )
+                TypeSpec ts = ((ScopedName)i.next()).resolvedTypeSpec();
+                if (ts instanceof ConstrTypeSpec)
                 {
-                    ScopedName sn = ( (ScopedName)e.nextElement() );
-                    Interface base = null;
-                    try
-                    {
-                        base = (Interface)( (ConstrTypeSpec)sn.resolvedTypeSpec() ).c_type_spec;
-                    }
-                    catch( Exception ex )
-                    {
-                        ex.printStackTrace();
-                        parser.fatal_error( "Cannot find base interface " + sn, token );
-                    }
+                    Interface base = (Interface)((ConstrTypeSpec)ts).c_type_spec;
                     Operation[] base_ops = base.getBody().getMethods();
                     for( int j = 0; j < base_ops.length; j++ )
                     {
