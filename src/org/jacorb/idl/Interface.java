@@ -384,7 +384,7 @@ class Interface
                 ScopedName sn = (ScopedName)e.nextElement();
                 if( sn.resolvedName().indexOf('.') < 0 )
                 {
-                    ps.print("import " + sn + ";");
+                    ps.println("import " + sn + "Operations;");
                 }
             }
         }
