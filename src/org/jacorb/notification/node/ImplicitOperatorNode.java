@@ -21,14 +21,15 @@ package org.jacorb.notification.node;
  *
  */
 
-import antlr.Token;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.jacorb.notification.evaluate.EvaluationException;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TypeCodePackage.BadKind;
+import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+
+import antlr.Token;
 
 /**
  * ImplictOperatorNode.java

@@ -21,10 +21,9 @@ package org.jacorb.notification.node;
  *
  */
 
-import org.omg.CORBA.Any;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.evaluate.EvaluationException;
+import org.omg.CORBA.Any;
 
 /**
  * Operator.java

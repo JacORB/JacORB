@@ -28,7 +28,7 @@ import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
  *
  * Created: Wed Feb 12 18:20:58 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 

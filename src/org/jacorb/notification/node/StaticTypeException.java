@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 /**
  * StaticTypeException.java
@@ -26,8 +27,8 @@ package org.jacorb.notification.node;
  *
  * Created: Fri Jul 05 21:55:02 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version
+ * @author Alphonse Bendt
+ * @version $Id$
  */
 
 public class StaticTypeException extends VisitorException {

@@ -21,8 +21,6 @@ package org.jacorb.notification.evaluate;
  *
  */
 
-import antlr.RecognitionException;
-import antlr.TokenStreamException;
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
 import org.jacorb.notification.EvaluationContext;
@@ -34,12 +32,14 @@ import org.jacorb.notification.node.StaticTypeException;
 import org.jacorb.notification.node.TCLCleanUp;
 import org.jacorb.notification.node.TCLNode;
 import org.jacorb.notification.parser.TCLParser;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+
+import antlr.RecognitionException;
+import antlr.TokenStreamException;
 
 /**
  * Representation of a Constraint. 

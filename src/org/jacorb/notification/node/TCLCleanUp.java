@@ -21,10 +21,11 @@ package org.jacorb.notification.node;
  *
  */
 
-import antlr.collections.AST;
-import org.jacorb.notification.parser.TCLParserTokenTypes;
-import org.apache.log.Logger;
 import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.jacorb.notification.parser.TCLParserTokenTypes;
+
+import antlr.collections.AST;
 
 /**
  * Visitor for TCL Trees. Does some Restructuration of a TCL Tree.

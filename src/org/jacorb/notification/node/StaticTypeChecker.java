@@ -21,10 +21,9 @@ package org.jacorb.notification.node;
  *
  */
 
-import org.omg.CORBA.TCKind;
-import org.jacorb.notification.parser.TCLParserTokenTypes;
-import org.apache.log.Logger;
 import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.jacorb.notification.parser.TCLParserTokenTypes;
 
 /**
  * StaticTypeChecker.java

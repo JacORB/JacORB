@@ -21,14 +21,14 @@ package org.jacorb.notification.node;
  *
  */
 
-import antlr.Token;
 import org.jacorb.notification.EvaluationContext;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.NotificationEvent;
-import org.jacorb.notification.NotificationEventUtils;
+import org.jacorb.notification.evaluate.EvaluationException;
+import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+
+import antlr.Token;
 
 /** 
  * a simple node to represent COMPONENT Name

@@ -21,18 +21,19 @@ package org.jacorb.notification.node;
  *
  */
 
-import org.jacorb.notification.parser.TCLParserTokenTypes;
-import org.omg.CORBA.Any;
+import java.lang.reflect.Field;
+
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.interfaces.Poolable;
 import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.interfaces.Poolable;
+import org.jacorb.notification.parser.TCLParserTokenTypes;
+import org.jacorb.notification.util.ObjectPoolBase;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
-import org.jacorb.notification.util.ObjectPoolBase;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
-import org.omg.CORBA.TCKind;
-import java.lang.reflect.Field;
 
 /**
  * EvaluationResult.java

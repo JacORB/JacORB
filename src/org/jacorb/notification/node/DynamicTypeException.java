@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 /**
  * DynamicTypeException.java
@@ -26,11 +27,12 @@ package org.jacorb.notification.node;
  *
  * Created: Sat Jul 06 02:13:01 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class DynamicTypeException extends Exception {
+
     public DynamicTypeException() {
 	super();
     }
@@ -39,4 +41,4 @@ public class DynamicTypeException extends Exception {
 	super(msg);
     }
 
-}// DynamicTypeException
+}

@@ -21,20 +21,13 @@ package org.jacorb.notification.node;
  *
  */
 
-import org.jacorb.notification.node.ComponentName;
-import org.omg.CosNotification.StructuredEvent;
 import org.jacorb.notification.EvaluationContext;
-import org.omg.CORBA.Any;
 import org.jacorb.notification.NotificationEvent;
-import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.EvaluationException;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.jacorb.notification.parser.TCLParser;
-import antlr.TokenStreamException;
+
 import antlr.RecognitionException;
+import antlr.TokenStreamException;
 
 /**
  * PropertyShorthandNode.java

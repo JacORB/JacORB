@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 /**
  * VisitorException.java
@@ -26,11 +27,12 @@ package org.jacorb.notification.node;
  *
  * Created: Sat Jul 06 18:59:07 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version
+ * @author Alphonse Bendt
+ * @version $Id$
  */
 
 public class VisitorException extends Exception {
+
     public VisitorException() {
 	super();
     }
@@ -39,5 +41,4 @@ public class VisitorException extends Exception {
 	super(msg);
     }
 
-
-}// VisitorException
+}

@@ -21,16 +21,13 @@ package org.jacorb.notification.node;
  *
  */
 
-import antlr.BaseAST;
-import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
-import org.omg.CORBA.TCKind;
 import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.evaluate.EvaluationException;
+import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.jacorb.notification.evaluate.EvaluationException;
+
+import antlr.Token;
 
 /** A simple node to represent LTE operation */
 public class LteOperator extends TCLNode {
