@@ -80,12 +80,12 @@ public abstract class ReplyPlaceholder
         notify();
     }
 
-    public synchronized void timeout()
-    {
-        timeoutException = true;
-        ready = true;
-        notify();
-    }
+//     public synchronized void timeout()
+//     {
+//         timeoutException = true;
+//         ready = true;
+//         notify();
+//     }
 
     /**
      * Non-public implementation of the blocking method that
