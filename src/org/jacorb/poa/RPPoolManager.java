@@ -19,9 +19,10 @@ package org.jacorb.poa;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import org.jacorb.poa.except.*;
-  
+
+import org.jacorb.poa.except.POAInternalError;
 import java.util.*;
 
 /**
@@ -33,16 +34,28 @@ import java.util.*;
  * @see		jacorb.poa.RequestProcessor
  */
 
-public class RPPoolManager 
+public class RPPoolManager
 {
     private RPPoolManagerListener pmListener;
 
     // the current for (un)registering the invocation contexts
     private Current current;
-    // pool management stuff
+    /**
+     * <code>pool</code> represents the total number of request processors.
+     */
     private Vector pool;
-    private int pool_size;
+    /**
+     * <code>unused_size</code> represents the current number of unused request processors
+     * in the pool.
+     */
+    private int unused_size;
+    /**
+     * <code>max_pool_size</code> is the maximum size of the pool.
+     */
     private int max_pool_size;
+    /**
+     * <code>min_pool_size</code> is the minimum number of request processors.
+     */
     private int min_pool_size;
     // a flag for delay the pool initialization
     private boolean inUse = false;
@@ -50,48 +63,48 @@ public class RPPoolManager
     private RPPoolManager() {
     }
 
-    protected RPPoolManager(Current _current, int min, int max) 
+    protected RPPoolManager(Current _current, int min, int max)
     {
         current = _current;
         max_pool_size = max;
         min_pool_size = min;
     }
 
-    private void addProcessor() 
-        throws IllegalAccessException, InstantiationException 
+    private void addProcessor()
+        throws IllegalAccessException, InstantiationException
     {
         RequestProcessor rp = new RequestProcessor(this);
         current._addContext(rp, rp);
         rp.setDaemon(true);
         pool.addElement(rp);
-        pool_size++;
+        unused_size++;
         rp.start();
     }
 
-    protected synchronized void addRPPoolManagerListener(RPPoolManagerListener listener) 
+    protected synchronized void addRPPoolManagerListener(RPPoolManagerListener listener)
     {
         pmListener = EventMulticaster.add(pmListener, listener);
     }
 
-    synchronized protected void destroy() 
+    protected synchronized void destroy()
     {
         if (pool == null || inUse == false) return;
         RequestProcessor[] rps = new RequestProcessor[pool.size()];
         pool.copyInto(rps);
-        for (int i=0; i<rps.length; i++) 
+        for (int i=0; i<rps.length; i++)
         {
-            if (rps[i].isActive()) 
+            if (rps[i].isActive())
             {
                 throw new POAInternalError("error: request processor is active (RequestProcessorPM.destroy)");
-				
+
             }
-            else 
+            else
             {
                 pool.removeElement(rps[i]);
-                pool_size--;
+                unused_size--;
 				current._removeContext(rps[i]);
                 rps[i].stop();
-            }		
+            }
         }
         inUse = false;
     }
@@ -100,7 +113,7 @@ public class RPPoolManager
      * returns the number of unused processors contained in the pool
      */
 
-    protected int getPoolCount() 
+    protected int getPoolCount()
     {
         return (pool == null) ? 0 : pool.size();
     }
@@ -109,9 +122,9 @@ public class RPPoolManager
      * returns the size of the processor pool (used and unused processors)
      */
 
-    protected int getPoolSize() 
+    protected int getPoolSize()
     {
-        return pool_size;
+        return unused_size;
     }
 
     /**
@@ -119,60 +132,59 @@ public class RPPoolManager
      * the initialization of the processor pool,
      * if no processor available the number of processors
      * will increased until the max_pool_size is reached,
-     * this method blocks if no processor available and the 
+     * this method blocks if no processor available and the
      * max_pool_size is reached until a processor will released
      */
 
-    synchronized protected RequestProcessor getProcessor() 
+    protected synchronized RequestProcessor getProcessor()
     {
-        if (!inUse) 
+        if (!inUse)
         {
             init();
             inUse = true;
         }
 
-        if (pool.size() == 0 && pool_size < max_pool_size) 
+        if (pool.size() == 0 && unused_size < max_pool_size)
         {
-            try 
+            try
             {
                 addProcessor();
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
         }
 
-        while (pool.size() == 0) 
+        while (pool.size() == 0)
         {
-            try 
+            try
             {
                 wait();
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
         }
-        RequestProcessor rp = (RequestProcessor) pool.lastElement();
-        pool.removeElement(rp);
+        RequestProcessor rp = (RequestProcessor) pool.remove( pool.size() - 1 );
 
-        // notify a pool manager listener		
-        if (pmListener != null) 
-            pmListener.processorRemovedFromPool(rp, pool.size(), pool_size);
+        // notify a pool manager listener
+        if (pmListener != null)
+            pmListener.processorRemovedFromPool(rp, pool.size(), unused_size);
         return rp;
     }
 
-    private void init() 
+    private void init()
     {
         pool = new Vector(max_pool_size);
-        for (int i = 0; i < min_pool_size; i++) 
+        for (int i = 0; i < min_pool_size; i++)
         {
-            try 
+            try
             {
                 addProcessor();
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
@@ -185,25 +197,25 @@ public class RPPoolManager
      * otherwise the processor will terminated
      */
 
-    synchronized protected void releaseProcessor(RequestProcessor rp) 
+    protected synchronized void releaseProcessor(RequestProcessor rp)
     {
-        if (pool.size() < min_pool_size) 
+        if (pool.size() < min_pool_size)
         {
             pool.addElement(rp);
             notifyAll();
         }
-        else 
+        else
         {
-            pool_size--;
+            unused_size--;
             current._removeContext(rp);
-            rp.end();		
+            rp.end();
         }
-        // notify a pool manager listener		
-        if (pmListener != null) 
-            pmListener.processorAddedToPool(rp, pool.size(), pool_size);		
+        // notify a pool manager listener
+        if (pmListener != null)
+            pmListener.processorAddedToPool(rp, pool.size(), unused_size);
     }
 
-    protected synchronized void removeRPPoolManagerListener(RPPoolManagerListener listener) 
+    protected synchronized void removeRPPoolManagerListener(RPPoolManagerListener listener)
     {
         pmListener = EventMulticaster.remove(pmListener, listener);
     }
@@ -212,27 +224,20 @@ public class RPPoolManager
      * resets the values for min_pool_size and max_pool_size
      */
 
-    synchronized protected void setPoolSize(int min, int max) 
+    protected synchronized void setPoolSize(int min, int max)
     {
         min_pool_size = min;
         max_pool_size = max;
-        while (pool_size < min_pool_size) 
+        while (unused_size < min_pool_size)
         {
-            try 
+            try
             {
                 addProcessor();
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
         }
     }
 }
-
-
-
-
-
-
-

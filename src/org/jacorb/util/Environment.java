@@ -69,6 +69,14 @@ public class Environment
     private static long                 _retry_interval = 700;
     private static int                  _outbuf_size = 4096;
     private static int                  maxManagedBufSize = 18;
+    /**
+     * <code>compactTypecodes</code> denotes whether to compact typecodes.
+     * Levels are:
+     * 0: No compaction (off) [Default].
+     * 1: Compact all but member_names.
+     * 2: Compact all
+     */
+    private static int                  compactTypecodes = 0;
 
     private static String               _default_context = "<undefined>";
 
@@ -284,7 +292,7 @@ public class Environment
 
     /** creating an object ensures that Environment is properly initialized*/
 
-    public Environment()
+    private Environment()
     {
     }
 
@@ -348,6 +356,8 @@ public class Environment
             _outbuf_size = Integer.parseInt(o);
         else if( varName.equals("_max_managed_bufsize"))
             maxManagedBufSize = Integer.parseInt(o);
+        else if( varName.equals("_compactTypecodes"))
+            compactTypecodes = Integer.parseInt(o);
         else if( varName.equals("_default_context"))
             _default_context = o;
         else    if( varName.equals("_orb_domain_filename"))
@@ -459,6 +469,7 @@ public class Environment
         readValue("_cache_entry_lifetime","_cache_entry_lifetime",jacorbPrefix+"domain.cache_entry.lifetime");
         readValue("_outbuf_size","outbuf_size",jacorbPrefix+"outbuf_size");
         readValue("_max_managed_bufsize","maxManagedBufSize",jacorbPrefix+"maxManagedBufSize");
+        readValue("_compactTypecodes","compactTypecodes",jacorbPrefix+"compactTypecodes");
         readValue("_orb_domain_filename","ds",jacorbPrefix+"orb_domain.filename");
         readValue("_default_domains","ds",jacorbPrefix+"poa.default_domains");
 
@@ -565,6 +576,11 @@ public class Environment
     public static int getMaxManagedBufSize()
     {
         return maxManagedBufSize;
+    }
+
+    public static int getCompactTypecodes ()
+    {
+        return compactTypecodes;
     }
 
     /**
@@ -915,11 +931,4 @@ public class Environment
             return properties;
         }
     }
-
-    public static boolean doMapObjectKeys()
-    {
-        Hashtable h = getProperties( "jacorb.orb.objectKeyMap", true );
-        return !h.isEmpty();
-    }
-
 }

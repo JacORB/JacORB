@@ -22,7 +22,7 @@ package org.jacorb.orb;
 
 import java.util.*;
 
-/** 
+/**
  * information the has to be saved for each encapsulation and
  * restored later
  * @author Gerald Brose
@@ -35,12 +35,12 @@ public class EncapsInfo
     public int index;
     public int start;
     public int size;
-    public Map valueMap;
-    public Map repIdMap;
-    public Map codebaseMap;
+    public HashMap valueMap;
+    public HashMap repIdMap;
+    public HashMap codebaseMap;
 
     /** constructor used by CDRInputStream */
-    
+
     public EncapsInfo(boolean le, int index, int start, int size)
     {
 	littleEndian = le;
@@ -49,31 +49,36 @@ public class EncapsInfo
 	this.size = size;
     }
 
-    /** 
+    /**
      * constructor used by CDROutputStream:
      * record the index a new encapsulation starts with
      * and the start position in the buffer. CORBA specifies that "indirections
      * may not cross encapsulation boundaries", so the new encapsulation must
-     * set up its own indirection maps for values, repository ids and codebase 
+     * set up its own indirection maps for values, repository ids and codebase
      * strings. The maps currently in use are also recorded, to be restored at
      * the end of the encapsulation.
      */
-    
-    public EncapsInfo(int index, int start, 
-                      Map valueMap, Map repIdMap, Map codebaseMap)
+
+    public EncapsInfo(int index, int start,
+                      HashMap valueMap, HashMap repIdMap, HashMap codebaseMap)
     {
 	this.index = index;
 	this.start = start;
         this.valueMap = valueMap;
         this.repIdMap = repIdMap;
         this.codebaseMap = codebaseMap;
+
+        if (valueMap == null)
+        {
+            valueMap = new HashMap ();
+        }
+        if (repIdMap == null)
+        {
+            repIdMap = new HashMap ();
+        }
+        if (codebaseMap == null)
+        {
+            codebaseMap = new HashMap ();
+        }
     }
 }
-
-
-
-
-
-
-
-

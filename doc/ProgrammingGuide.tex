@@ -3872,6 +3872,13 @@ closed directly. Instead, it is waited for the client to do so first. Default is
 \hline
 \verb"jacorb.dns.enable" & Use DNS when DNS support has been included in build. Default is on. & boolean \\
 \hline
+\verb"jacorb.compactTypecode"
+\verb"s" & Whether to send compact typecodes. Options are 0 (off), 1 (Partial compaction), 2 (full compaction of all optional parameters) Default is 2. & integer \\
+\hline
+\verb"jacorb.cacheTypecodes" & Whether to cache read typecodes. Default is off. & boolean \\
+\hline
+\verb"jacorb.cachePoaNames" & Whether to cache scoped poa names. Default is off. & boolean \\
+\hline
 \verb"jacorb.interop.indirec"
 \verb"tion_encoding_disable" & Turn off indirection encoding for repeated typecodes. This fixes interoperability with certain broken ORB's eg. Orbix 2000. Default is off. & boolean \\
 \hline

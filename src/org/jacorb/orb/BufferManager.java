@@ -1,5 +1,4 @@
 package org.jacorb.orb;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,7 +20,8 @@ package org.jacorb.orb;
  */
 
 import java.util.*;
-import org.jacorb.util.*;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
 import org.omg.CORBA.NO_MEMORY;
 
 /**
@@ -36,7 +36,6 @@ import org.omg.CORBA.NO_MEMORY;
 
 public final class BufferManager
 {
-
     /** the buffer pool */
     private Stack[] bufferPool;
     // The 'extra-large' buffer cache.
@@ -59,9 +58,6 @@ public final class BufferManager
     private static final int THRESHOLD = 20;
     private static final int MEM_BUFSIZE = 256;
     private static final int MIN_PREFERRED_BUFS = 10;
-
-    private int hits = 0;
-    private int calls = 0;
 
     // Purge thread for QoS purging of the bufferMax cache.
     private Reaper reaper;
@@ -180,7 +176,6 @@ public final class BufferManager
     {
         byte [] result;
         Stack s;
-        calls++;
 
         int log = log2up(initial);
 
@@ -218,7 +213,6 @@ public final class BufferManager
 
             if( ! s.isEmpty() )
             {
-                hits++;
                 result = (byte [])s.pop ();
             }
             else
@@ -277,21 +271,6 @@ public final class BufferManager
         }
     }
 
-    public void printStatistics()
-    {
-	System.out.println( "BufferManager statistics: " + ( hits * 100 / calls) + "%");
-	System.out.println("\t get Buffer called: " +  calls);
-	System.out.println("\t buffers found in pool: " + hits);
-	System.out.println( "\t buffer sizes: ");
-
-	for( int i= MAX; i > 0; )
-	{
-	    i--;
-	    System.out.println( "\t size 2**" + (5+i) + " # " + bufferPool[i].size());;
-	}
-    }
-
-
     public void release()
     {
         // printStatistics();
@@ -305,17 +284,6 @@ public final class BufferManager
             reaper.done = true;
             reaper.wake ();
         }
-    }
-
-
-    public static void main(String[] args)
-    {
-	for( int i = 0; i < args.length; i++ )
-	{
-	    int l = Integer.parseInt(args[i]);
-	    System.out.println("log2up(" + l + "): " + log2up(l));
-	    System.out.println("log2down(" + l + "): " + log2down(l));
-	}
     }
 
 
@@ -356,12 +324,15 @@ public final class BufferManager
                     break;
                 }
 
-                org.jacorb.util.Debug.output
-                (
-                    4,
-                    "Reaper thread purging maxBufferCache. It had size: " +
-                    (bufferMax == null ? 0 : bufferMax.length)
-                );
+                if ( Debug.isDebugEnabled() )
+                {
+                    org.jacorb.util.Debug.output
+                    (
+                        4,
+                        "Reaper thread purging maxBufferCache. It had size: " +
+                        (bufferMax == null ? 0 : bufferMax.length)
+                    );
+                }
                 bufferMax = null;
             }
         }

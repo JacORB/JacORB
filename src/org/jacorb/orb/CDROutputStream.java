@@ -22,14 +22,12 @@ package org.jacorb.orb;
 
 import java.io.*;
 import java.util.*;
-
-import org.jacorb.orb.connection.CodeSet;
 import org.jacorb.ir.RepositoryID;
-import org.jacorb.util.*;
-
+import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.jacorb.util.ValueHandler;
 import org.omg.CORBA.TCKind;
-import org.omg.CORBA.INTERNAL;
-import org.omg.PortableServer.*;
 
 /**
  * @author Gerald Brose,  1999
@@ -43,54 +41,75 @@ public class CDROutputStream
     extends org.omg.CORBA_2_3.portable.OutputStream
 {
     /** needed for alignment purposes */
-    private int index = 0;
+    private int index;
 
     /** the current write position in the buffer */
-    private int pos = 0;
+    private int pos;
 
     /** the number of bytes that will only make up the final buffer
         size, but that have not yet been written */
-    private int deferred_writes = 0;
+    private int deferred_writes;
 
-    private BufferManager bufMgr = null;
-    private byte[] buffer = null;
+    private BufferManager bufMgr;
+    private byte[] buffer;
 
-    private boolean closed = false;
-    private boolean released = false;
+    private boolean closed;
+    private boolean released;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
 
-
     private int resize_factor = 1;
     private int encaps_start = -1;
-    private Stack encaps_stack = new java.util.Stack();
-
-    /** hashtable to remember the original  TCs for a given ID that is
-        used in a recursive/repeated TC */
-    private Hashtable recursiveTCMap = new Hashtable();
 
     /**
-     * Maps all value objects that have already been written to this stream
-     * to their position within the buffer.  The position is stored as
-     * a java.lang.Integer.
+     * <code>encaps_stack</code> is used to store encapsulations. Do NOT
+     * access this variable directly. It is initialized on demand. Use the
+     * method {@link #getEncapsStack() getEncapsStack()}
      */
-    private Map valueMap = new HashMap();
+    private Stack encaps_stack;
 
     /**
-     * Maps all repository ids that have already been written to this
-     * stream to their position within the buffer.  The position is
-     * stored as a java.lang.Integer.
+     * <code>recursiveTCMap</code> is used to remember the original TCs for a
+     * given ID that is used in a recursive/repeated TC. Do NOT access this
+     * variable directly. It is initialised on demand. Use the method
+     * {@link #getRecursiveTCMap() getRecursiveTCMap()}
      */
-    private Map repIdMap = new HashMap();
+    private HashMap recursiveTCMap;
 
     /**
-     * Maps all codebase strings that have already been written to this
-     * stream to their position within the buffer.  The position is
-     * stored as a java.lang.Integer.
+     * <code>valueMap</code> is used to maps all value objects that have
+     * already been written to this stream to their position within the
+     * buffer. The position is stored as a java.lang.Integer. Do NOT access
+     * this variable directly. It is initialised on demand. Use the method
+     * {@link #getValueMap() getValueMap()}
      */
-    private Map codebaseMap = new HashMap();
+    private HashMap valueMap;
+
+    /**
+     * <code>repIdMap</code> is used to map all repository ids that have already
+     * been written to this stream to their position within the buffer.  The
+     * position is stored as a java.lang.Integer. Do NOT access this variable
+     * directly. It is initialised on demand. Use the method
+     * {@link #getRepIdMap() getRepIdMap()}
+     */
+    private HashMap repIdMap;
+
+    /**
+     * <code>codebaseMap</code> is used to maps all codebase strings that have
+     * already been written to this stream to their position within the buffer.
+     * The position is stored as a java.lang.Integer. Do NOT access this variable
+     * directly. It is initialised on demand. Use the method
+     * {@link #getCodebaseMap() getCodebaseMap()}
+     */
+    private HashMap codebaseMap;
+
+    /**
+     * <code>cachedTypecodes</code> is used to cache compacted typecodes when
+     * writing to the stream. This variable is initialised on demand.
+     */
+    private static Hashtable cachedTypecodes;
 
     /** Remembers the starting position of the current chunk. */
     private int chunk_size_tag_pos = -1;   // -1 means we're not within a chunk
@@ -99,6 +118,12 @@ public class CDROutputStream
 
     /** Nesting level of chunked valuetypes */
     private int valueNestingLevel = 0;
+
+    private List deferredArrayQueue = new Vector();
+
+    private org.omg.CORBA.ORB orb = null;
+
+    protected int giop_minor = 2;
 
     /** The chunking flag is either 0 (no chunking) or 0x00000008 (chunking),
         to be bitwise or'ed into value tags. */
@@ -130,18 +155,10 @@ public class CDROutputStream
        }
     }
 
-    private List deferredArrayQueue = new Vector();
-
-
     private final static String null_ior_str =
         "IOR:00000000000000010000000000000000";
     private final static org.omg.IOP.IOR null_ior =
         new org.omg.IOP.IOR("", new org.omg.IOP.TaggedProfile[0]);
-
-    private org.omg.CORBA.ORB orb = null;
-
-    //public access, so derived classes can access this field
-    public int giop_minor = 2;
 
     /**
      * OutputStreams created using  the empty constructor are used for
@@ -186,6 +203,85 @@ public class CDROutputStream
 
 
     /**
+     * <code>getEncapsStack</code> is used to initialize encaps_stack
+     * on demand.
+     *
+     * @return a <code>Stack</code> value
+     */
+    private Stack getEncapsStack ()
+    {
+        if (encaps_stack == null)
+        {
+            encaps_stack = new Stack ();
+        }
+        return encaps_stack;
+    }
+
+
+    /**
+     * <code>getRecursiveTCMap</code> is used to initialize recursiveTCMap
+     * on demand.
+     *
+     * @return a <code>HashMap</code> value
+     */
+    private HashMap getRecursiveTCMap ()
+    {
+        if (recursiveTCMap == null)
+        {
+            recursiveTCMap = new HashMap ();
+        }
+        return recursiveTCMap;
+    }
+
+
+    /**
+     * <code>getValueMap</code> is used to initialize valueMap
+     * on demand.
+     *
+     * @return a <code>HashMap</code> value
+     */
+    private HashMap getValueMap ()
+    {
+        if (valueMap == null)
+        {
+            valueMap = new HashMap ();
+        }
+        return valueMap;
+    }
+
+
+    /**
+     * <code>getRepIdMap</code> is used to initialize valueMap
+     * on demand.
+     *
+     * @return a <code>HashMap</code> value
+     */
+    private HashMap getRepIdMap ()
+    {
+        if (repIdMap == null)
+        {
+            repIdMap = new HashMap ();
+        }
+        return repIdMap;
+    }
+
+    /**
+     * <code>getCodebaseMap</code> is used to initialize valueMap
+     * on demand.
+     *
+     * @return a <code>HashMap</code> value
+     */
+    private HashMap getCodebaseMap ()
+    {
+        if (codebaseMap == null)
+        {
+            codebaseMap = new HashMap ();
+        }
+        return codebaseMap;
+    }
+
+
+    /**
      * write the contents of this CDR stream to the output stream,
      * includes all deferred writes (e.g., for byte arrays)...
      * called by, e.g. GIOPConnection to write directly to the
@@ -208,7 +304,7 @@ public class CDROutputStream
 //          Debug.output( 1, "--- write( " + this + "), start " + start + " length " + length );
 //          Debug.output( 1, "--- "  +  deferredArrayQueue.size() + " frames ");
 
-        if( deferredArrayQueue.size() > 0 )
+        if( deferredArrayQueue != null && deferredArrayQueue.size() > 0 )
         {
             // find the first frame that falls within the current window,
             // i.e. that need s to be written
@@ -237,7 +333,7 @@ public class CDROutputStream
             {
                 if ( ! (next_frame.length <= start + length - write_idx))
                 {
-                    throw new INTERNAL ("Deferred array does not fit");
+                    throw new org.omg.CORBA.MARSHAL ("Deferred array does not fit");
                 }
 
                 // write a frame, i.e. a byte array
@@ -250,7 +346,8 @@ public class CDROutputStream
                 next_frame = null;
 
                 // and look up the next frame
-                if( list_idx < deferredArrayQueue.size() )
+                if( deferredArrayQueue != null &&
+                    list_idx < deferredArrayQueue.size() )
                 {
                     next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
                     if( next_frame.write_pos > start + length )
@@ -315,7 +412,10 @@ public class CDROutputStream
         bufMgr.returnBuffer( buffer, true );
         buffer = null;
 
-        deferredArrayQueue.clear ();
+        if (deferredArrayQueue != null)
+        {
+            deferredArrayQueue.clear ();
+        }
         deferred_writes = 0;
         released = true;
     }
@@ -333,7 +433,6 @@ public class CDROutputStream
         if (remainder != align)
         {
             // Clear padding. Allowing for possible buffer end.
-
             int topad = Math.min (buffer.length - pos, 8);
             int j = 0;
             switch (topad)
@@ -380,6 +479,7 @@ public class CDROutputStream
             }
             // Change buffer size so return the old one.
             bufMgr.returnBuffer (buffer, true);
+
             buffer = new_buf;
             new_buf = null;
         }
@@ -422,8 +522,11 @@ public class CDROutputStream
            Also, remember the current index and the indirection maps because
            we need to restore these when closing the encapsulation */
 
-        encaps_stack.push(new EncapsInfo(index, encaps_start,
-                                         valueMap, repIdMap, codebaseMap));
+        getEncapsStack ().push
+        (
+            new EncapsInfo
+            (index, encaps_start, valueMap, repIdMap, codebaseMap)
+        );
 
         // set up new indirection maps for this encapsulation
 
@@ -465,6 +568,10 @@ public class CDROutputStream
     {
         if( encaps_start == -1 )
             throw new IOException("too many end-of-encapsulations");
+        if( encaps_stack == null )
+        {
+            throw new org.omg.CORBA.MARSHAL( "Internal Error - closeEncapsulation failed" );
+        }
 
         // determine the size of this encapsulation
 
@@ -479,13 +586,12 @@ public class CDROutputStream
 
         /* restore index and encaps_start information and indirection maps */
 
-        EncapsInfo ei = (EncapsInfo)encaps_stack.pop();
+        EncapsInfo ei = (EncapsInfo)getEncapsStack ().pop();
         encaps_start = ei.start;
         index = ei.index + encaps_size;
         valueMap = ei.valueMap;
         repIdMap = ei.repIdMap;
         codebaseMap = ei.codebaseMap;
-
     }
 
     public byte[] getBufferCopy()
@@ -526,7 +632,10 @@ public class CDROutputStream
 
     public void reset()
     {
-        deferredArrayQueue.clear();
+        if (deferredArrayQueue != null)
+        {
+            deferredArrayQueue.clear();
+        }
         pos = 0;
         deferred_writes = 0;
         index = 0;
@@ -1201,11 +1310,45 @@ public class CDROutputStream
         }
     }
 
-    public final void write_TypeCode (final org.omg.CORBA.TypeCode value)
+    public final void write_TypeCode (org.omg.CORBA.TypeCode value)
     {
-        Hashtable tcMap = new Hashtable();
-        write_TypeCode( value, tcMap );
-        tcMap.clear();
+        String   id     = null;
+        TypeCode cached = null;
+
+        try
+        {
+            // Get the id for this typecode.
+            id = value.id ();
+        }
+        catch (org.omg.CORBA.TypeCodePackage.BadKind e)
+        {
+        }
+
+        if (Environment.getCompactTypecodes () > 0 && id != null)
+        {
+            if (cachedTypecodes == null)
+            {
+                cachedTypecodes = new Hashtable ();
+            }
+            else
+            {
+                // We may previously have already compacted and cached this
+                // typecode.
+                cached = (TypeCode)cachedTypecodes.get (id);
+            }
+            // If we don't have a cached value get the compact form and
+            // cache it.
+            if (cached == null)
+            {
+                value = value.get_compact_typecode ();
+                cachedTypecodes.put (id, value);
+            }
+            else
+            {
+                value = cached;
+            }
+        }
+        write_TypeCode (value, null);
     }
 
     private final void writeRecursiveTypeCode
@@ -1226,12 +1369,13 @@ public class CDROutputStream
     }
 
    private final void write_TypeCode
-       (final org.omg.CORBA.TypeCode value, final Hashtable tcMap)
+       (final org.omg.CORBA.TypeCode value, Hashtable tcMap)
    {
       if (value == null)
       {
          throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
       }
+
       int _kind = value.kind().value();
       int _mc; // member count
 
@@ -1239,6 +1383,7 @@ public class CDROutputStream
       {
          if( (value instanceof org.jacorb.orb.TypeCode) &&
              ((org.jacorb.orb.TypeCode)value).is_recursive() &&
+             tcMap != null &&
              tcMap.containsKey( value.id()) )
          {
             writeRecursiveTypeCode( value, tcMap );
@@ -1277,15 +1422,19 @@ public class CDROutputStream
                break;
             case TCKind._tk_struct:
             case TCKind._tk_except:
-               if (useIndirection && tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
                else
                {
                   write_long( _kind  );
+                  if (tcMap == null)
+                  {
+                      tcMap = new Hashtable ();
+                  }
                   tcMap.put( value.id(), new Integer( pos ) );
-                  recursiveTCMap.put(  value.id(), value );
+                  getRecursiveTCMap().put( value.id(), value );
 
                   beginEncapsulation();
                   write_string(value.id());
@@ -1301,15 +1450,19 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_enum:
-               if (useIndirection && tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
                else
                {
                   write_long( _kind  );
+                  if (tcMap == null)
+                  {
+                      tcMap = new Hashtable ();
+                  }
                   tcMap.put( value.id(), new Integer( pos ) );
-                  recursiveTCMap.put(  value.id(), value );
+                  getRecursiveTCMap().put( value.id(), value );
 
                   beginEncapsulation();
                   write_string( value.id());
@@ -1324,15 +1477,19 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_union:
-               if (useIndirection && tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
                else
                {
                   write_long( _kind  );
+                  if (tcMap == null)
+                  {
+                      tcMap = new Hashtable ();
+                  }
                   tcMap.put( value.id(), new Integer( pos ) );
-                  recursiveTCMap.put(  value.id() , value );
+                  getRecursiveTCMap().put( value.id() , value );
 
                   beginEncapsulation();
                   write_string( value.id() );
@@ -1372,26 +1529,24 @@ public class CDROutputStream
             case TCKind._tk_sequence:
                write_long( _kind  );
                beginEncapsulation();
-               //                      if( ((TypeCode)value.content_type()).is_recursive())
-               //                      {
-               //                          Integer enclosing_tc_pos = (Integer)recursiveTCStack.peek();
-               //                          write_long( enclosing_tc_pos.intValue() - pos );
-               //                      }
-               //                      else
                write_TypeCode( value.content_type(), tcMap);
                write_long(value.length());
                endEncapsulation();
                break;
             case TCKind._tk_alias:
-               if (useIndirection && tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
                else
                {
                   write_long( _kind  );
+                  if (tcMap == null)
+                  {
+                      tcMap = new Hashtable ();
+                  }
                   tcMap.put( value.id(), new Integer( pos ) );
-                  recursiveTCMap.put( value.id(), value );
+                  getRecursiveTCMap().put( value.id(), value );
 
                   beginEncapsulation();
                   write_string(value.id());
@@ -1401,15 +1556,19 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_value:
-               if (useIndirection && tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
                else
                {
                   write_long( _kind  );
+                  if (tcMap == null)
+                  {
+                      tcMap = new Hashtable ();
+                  }
                   tcMap.put( value.id(), new Integer( pos ) );
-                  recursiveTCMap.put( value.id(), value );
+                  getRecursiveTCMap().put( value.id(), value );
 
                   beginEncapsulation();
                   write_string(value.id());
@@ -1424,9 +1583,6 @@ public class CDROutputStream
                   write_long(_mc);
                   for( int i = 0; i < _mc; i++)
                   {
-                     Debug.output(3,"value member name " +
-                                  value.member_name(i)  );
-
                      write_string( value.member_name(i) );
                      write_TypeCode( value.member_type(i), tcMap );
                      write_short( value.member_visibility(i) );
@@ -1435,15 +1591,19 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_value_box:
-               if (useIndirection && tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
                else
                {
                   write_long( _kind  );
+                  if (tcMap == null)
+                  {
+                      tcMap = new Hashtable ();
+                  }
                   tcMap.put( value.id(), new Integer( pos ) );
-                  recursiveTCMap.put( value.id(), value );
+                  getRecursiveTCMap().put( value.id(), value );
 
                   beginEncapsulation();
                   write_string(value.id());
@@ -1453,15 +1613,20 @@ public class CDROutputStream
                }
                break;
             case TCKind._tk_abstract_interface:
-               if (useIndirection && tcMap.containsKey (value.id ()))
+               if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
                {
                   writeRecursiveTypeCode( value, tcMap );
                }
                else
                {
                   write_long( _kind  );
+                  if (tcMap == null)
+                  {
+                      tcMap = new Hashtable ();
+                  }
                   tcMap.put( value.id(), new Integer( pos ) );
-                  recursiveTCMap.put( value.id(), value );
+                  getRecursiveTCMap().put( value.id(), value );
+
                   beginEncapsulation();
                   write_string(value.id());
                   write_string(value.name());
@@ -1899,7 +2064,7 @@ public class CDROutputStream
         if (!write_special_value (value))
         {
             check(7,4);
-            valueMap.put (value, new Integer(pos));
+            getValueMap ().put (value, new Integer(pos));
             write_previous_chunk_size();
             if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
                 (value instanceof java.lang.String))
@@ -1955,7 +2120,7 @@ public class CDROutputStream
         }
         else
         {
-            Integer index = (Integer)valueMap.get (value);
+            Integer index = (Integer)getValueMap ().get (value);
             if (index != null)
             {
 
@@ -1974,7 +2139,7 @@ public class CDROutputStream
      */
     private void write_repository_id (final String repository_id)
     {
-        Integer _index = (Integer)repIdMap.get (repository_id);
+        Integer _index = (Integer)getRepIdMap ().get (repository_id);
         if ( _index == null)
         {
             // a new repository id -- write it
@@ -1988,7 +2153,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            repIdMap.put (repository_id, new Integer(pos));
+            getRepIdMap ().put (repository_id, new Integer(pos));
             write_string (repository_id);
         }
         else
@@ -2004,7 +2169,15 @@ public class CDROutputStream
      */
     private void write_codebase (final String codebase)
     {
-        Integer _index = (Integer)codebaseMap.get (codebase);
+        Integer _index = null;
+        if (codebaseMap == null)
+        {
+            codebaseMap = new HashMap ();
+        }
+        else
+        {
+            _index = (Integer)getCodebaseMap ().get (codebase);
+        }
         if ( _index == null)
         {
             // a new codebase -- write it#
@@ -2018,7 +2191,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            codebaseMap.put (codebase, new Integer(pos));
+            getCodebaseMap ().put (codebase, new Integer(pos));
             write_string (codebase);
         }
         else
@@ -2117,7 +2290,7 @@ public class CDROutputStream
                                        final String repository_id)
     {
         check(7,4);
-        valueMap.put (value, new Integer(pos));
+        getValueMap ().put (value, new Integer(pos));
 
         if (value.getClass() == String.class)
         {

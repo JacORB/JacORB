@@ -21,27 +21,33 @@ package org.jacorb.orb;
  */
 
 import java.util.*;
-
 import org.jacorb.imr.ImRAccessImpl;
-import org.jacorb.util.*;
-import org.jacorb.poa.POAConstants;
-import org.jacorb.poa.util.POAUtil;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.SystemExceptionHelper;
+import org.jacorb.orb.connection.ClientConnection;
+import org.jacorb.orb.connection.ClientConnectionManager;
+import org.jacorb.orb.connection.LocateReplyInputStream;
+import org.jacorb.orb.connection.LocateRequestOutputStream;
+import org.jacorb.orb.connection.ReplyInputStream;
+import org.jacorb.orb.connection.ReplyPlaceholder;
+import org.jacorb.orb.connection.RequestOutputStream;
+import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
+import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.util.CorbaLoc;
-import org.jacorb.orb.policies.*;
-import org.jacorb.orb.portableInterceptor.*;
-
-import org.omg.CORBA.portable.*;
-import org.omg.PortableInterceptor.*;
-import org.omg.IOP.ServiceContext;
-import org.omg.GIOP.*;
+import org.jacorb.poa.util.POAUtil;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.jacorb.util.Time;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.TIMEOUT;
-import org.omg.TimeBase.*;
+import org.omg.CORBA.INTERNAL;
+import org.omg.CORBA.portable.*;
+import org.omg.GIOP.LocateStatusType_1_2;
+import org.omg.IOP.ServiceContext;
 import org.omg.Messaging.*;
-import org.omg.CORBA.SystemException;
-import org.omg.PortableServer.POAPackage.*;
+import org.omg.PortableInterceptor.SUCCESSFUL;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.TimeBase.UtcT;
 
 /**
  * JacORB implementation of CORBA object reference
@@ -87,7 +93,7 @@ public final class Delegate
 
     private ClientConnectionManager conn_mg = null;
 
-    private Hashtable policy_overrides = new Hashtable();
+    private Hashtable policy_overrides;
 
     private boolean doNotCheckExceptions = false; //Setting for Appligator
     /**
@@ -117,8 +123,8 @@ public final class Delegate
     {
         this.orb = orb;
         _pior = pior;
-        checkIfImR( _pior.getTypeId() );
 
+        checkIfImR( _pior.getTypeId() );
         conn_mg = orb.getClientConnectionManager();
     }
 
@@ -144,8 +150,8 @@ public final class Delegate
     {
         this.orb = orb;
         _pior = new ParsedIOR( _ior );
-        checkIfImR( _pior.getTypeId() );
 
+        checkIfImR( _pior.getTypeId() );
         conn_mg = orb.getClientConnectionManager();
     }
 
@@ -256,8 +262,6 @@ public final class Delegate
 
                     case LocateStatusType_1_2._OBJECT_HERE :
                         {
-                            Debug.output( 3, "object here" );
-
                             break;
                         }
 
@@ -270,10 +274,12 @@ public final class Delegate
                         {
                             //_OBJECT_FORWARD_PERM is actually more or
                             //less deprecated
-                            Debug.output( 3, "Locate Reply: Forward" );
+                            if ( Debug.isDebugEnabled() )
+                            {
+                                Debug.output( 3, "Locate Reply: Forward" );
+                            }
 
                             rebind( orb.object_to_string( lris.read_Object() ) );
-
                             break;
                         }
 
@@ -433,8 +439,10 @@ public final class Delegate
 
         orb._release( this );
 
-
-        Debug.output( 3, " Delegate gc'ed!" );
+        if ( Debug.isDebugEnabled() )
+        {
+            Debug.output( 3, " Delegate gc'ed!" );
+        }
     }
 
     public org.omg.CORBA.DomainManager[] get_domain_managers
@@ -464,6 +472,10 @@ public final class Delegate
         // Currently, we only check for object-specific client-side
         // overrides.  We should actually look for policies at the
         // ORB and Thread level as well.
+        if (policy_overrides == null)
+        {
+            return null;
+        }
         Integer key    = new Integer (policy_type);
         return (Policy)policy_overrides.get (key);
     }
@@ -705,8 +717,11 @@ public final class Delegate
 
     public org.omg.CORBA.portable.ObjectImpl getReference( org.jacorb.poa.POA _poa )
     {
-        Debug.output( 3, "Delegate.getReference with POA <" +
-                      ( _poa != null ? _poa._getQualifiedName() : " empty" ) + ">" );
+        if ( Debug.isDebugEnabled() )
+        {
+            Debug.output( 3, "Delegate.getReference with POA <" +
+                          ( _poa != null ? _poa._getQualifiedName() : " empty" ) + ">" );
+        }
 
         if ( _poa != null )   // && _poa._localStubsSupported())
             poa = _poa;
@@ -1453,6 +1468,10 @@ public final class Delegate
                                                      org.omg.CORBA.Policy[] policies,
                                                      org.omg.CORBA.SetOverrideType set_add )
     {
+        if (policy_overrides == null)
+        {
+            policy_overrides = new Hashtable ();
+        }
         if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
         {
             policy_overrides.clear();

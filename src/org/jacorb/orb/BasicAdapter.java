@@ -20,28 +20,24 @@
 
 package org.jacorb.orb;
 
+import java.lang.reflect.Constructor;
+import java.net.*;
+import org.jacorb.orb.connection.*;
+import org.jacorb.orb.factory.SSLServerSocketFactory;
+import org.jacorb.orb.factory.ServerSocketFactory;
+import org.jacorb.orb.factory.SocketFactory;
+import org.jacorb.orb.factory.SocketFactoryManager;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.omg.PortableServer.POA;
+
 /**
  *
  * Class BasicAdapter, used by the POA.
  *
  * @author Gerald Brose, FU Berlin
  * @version $Id$
- */
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
-import java.lang.reflect.Constructor;
-
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
-
-import org.jacorb.orb.factory.*;
-import org.jacorb.orb.connection.*;
-import org.jacorb.util.*;
-
-public class BasicAdapter
+ */public class BasicAdapter
 {
     private static SSLServerSocketFactory ssl_socket_factory = null;
     private static ServerSocketFactory socket_factory = null;
@@ -458,7 +454,10 @@ public class BasicAdapter
 
                     if( timeout > 0 )
                     {
-                        Debug.output( 3, "Socket timeout: " + timeout );
+                        if ( Debug.isDebugEnabled() )
+                        {
+                            Debug.output( 3, "Socket timeout: " + timeout );
+                        }
                         socket.setSoTimeout(timeout);
                     }
 

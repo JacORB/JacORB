@@ -28,6 +28,7 @@ import org.jacorb.util.Debug;
 
 import org.omg.IOP.*;
 import org.omg.CONV_FRAME.*;
+
 /**
  * ClientConnection.java
  *
@@ -44,10 +45,10 @@ public class ClientConnection
     private GIOPConnection connection = null;
     private org.omg.CORBA.ORB orb = null;
 
-    private Hashtable replies = null;
+    private HashMap replies;
 
     // support for SAS Stateful contexts
-    private Hashtable sasContexts = null;
+    private HashMap sasContexts;
     private static long last_client_context_id = 0;
 
     /* how many clients use this connection? */
@@ -92,8 +93,8 @@ public class ClientConnection
         connection.setReplyListener( this );
         connection.setConnectionListener( this );
 
-        replies = new Hashtable();
-        sasContexts = new Hashtable();
+        replies = new HashMap();
+        sasContexts = new HashMap();
     }
 
     public ServiceContext setCodeSet( ParsedIOR pior )
@@ -306,7 +307,7 @@ public class ClientConnection
      * Received a CloseConnection message. Remarshal all pending
      * messages. The close mechanism will be invoked separately by the
      * actual closing of the Transport and will trigger the
-     * remarshaling.  
+     * remarshaling.
      */
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection )
@@ -317,7 +318,7 @@ public class ClientConnection
         {
             gracefulStreamClose = true;
             ((ClientGIOPConnection) connection).closeAllowReopen();
-            
+
             //since this is run on the message receptor thread itself, it
             //will not try to read again after returning, because it just
             //closed the transport itself. Therefore, no exception goes
@@ -354,7 +355,7 @@ public class ClientConnection
             {
                 if( gracefulStreamClose )
                 {
-                    Debug.output( 2, "Stream closed. Will remarshal " + 
+                    Debug.output( 2, "Stream closed. Will remarshal " +
                                   replies.size() + " messages" );
                 }
                 else
@@ -363,12 +364,13 @@ public class ClientConnection
                                   replies.size() + " outstanding replie(s)!");
                 }
 
-                for( Enumeration keys = replies.keys();
-                     keys.hasMoreElements(); )
+                Iterator entries = replies.values().iterator();
+                ReplyPlaceholder placeholder;
+
+                while( entries.hasNext() )
                 {
-                    ReplyPlaceholder placeholder =
-                        (ReplyPlaceholder) replies.remove( keys.nextElement() );
-                    
+                    placeholder = (ReplyPlaceholder)entries.next();
+
                     if( gracefulStreamClose )
                     {
                         placeholder.retry();
@@ -377,18 +379,17 @@ public class ClientConnection
                     {
                         placeholder.cancel();
                     }
+                    entries.remove();
                 }
             }
         }
-        
+
         gracefulStreamClose = false;
     }
-    
+
     public org.omg.ETF.Profile get_server_profile()
     {
-        Client_TCP_IP_Transport t 
-            = (Client_TCP_IP_Transport)connection.getTransport();
-        return t.get_server_profile();
+        return connection.getTransport().get_server_profile();
     }
 
     public long cacheSASContext(byte[] client_authentication_token)
@@ -417,18 +418,18 @@ public class ClientConnection
     {
         synchronized ( sasContexts )
         {
-            Enumeration enum = sasContexts.keys();
-            while (enum.hasMoreElements())
+            Iterator entries = sasContexts.keySet().iterator();
+            while( entries.hasNext() )
             {
-                Object key = enum.nextElement();
-                if (((Long)sasContexts.get(key)).longValue() != client_context_id) continue;
-                sasContexts.remove(key);
+                Object key = entries.next();
+                if (((Long)sasContexts.get(key)).longValue() != client_context_id)
+                {
+                    continue;
+                }
+                entries.remove();
                 break;
             }
         }
         return client_context_id;
     }
 }// ClientConnection
-
-
-

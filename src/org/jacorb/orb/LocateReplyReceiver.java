@@ -34,34 +34,20 @@ import org.omg.CORBA.portable.RemarshalException;
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
-public class LocateReplyReceiver 
+public class LocateReplyReceiver
     extends org.jacorb.orb.connection.ReplyPlaceholder
 {
     public LocateReplyReceiver()
-    {        
+    {
         super();
     }
 
     /**
      * This method blocks until a reply becomes available.
-     */    
-    public synchronized LocateReplyInputStream getReply() 
+     */
+    public synchronized LocateReplyInputStream getReply()
 	throws RemarshalException
     {
-        return (LocateReplyInputStream)super.getInputStream();
+        return (LocateReplyInputStream)getInputStream();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

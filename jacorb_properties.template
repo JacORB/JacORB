@@ -233,6 +233,15 @@ jacorb.giop.add_1_0_profiles=off
 # Enable DNS if built with DNS support
 jacorb.dns.enable=on
 
+# Compact Typecodes (0 - off, 1 - partial (not member_names), 2 - all)
+jacorb.compactTypecodes=0
+
+# Cache typecode on read
+jacorb.cacheTypecodes=off
+
+# Cache poa names
+jacorb.cachePoaNames=off
+
 ###########################################
 #                                         #
 #         Interoperability                #
@@ -256,7 +265,7 @@ jacorb.interop.lax_boolean_encoding=off
 # Control whether the method create_abstract_interface_tc performs
 # a validity check on the name parameter or not. Turning this check
 # off circumvents a bug in Sun's implementation of javax.rmi.CORBA.ValueHander,
-# which occasionally passes an invalid name (an empty string) to 
+# which occasionally passes an invalid name (an empty string) to
 # ORBSingleton.create_abstract_interface_tc. If you are using RMI valuetypes,
 # you should turn this property off.
 jacorb.interop.strict_check_on_tc_creation=on

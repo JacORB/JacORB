@@ -20,6 +20,7 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.util.Environment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -434,9 +435,6 @@ public class TypeCode
                 return equal( jtc.actualTypecode );
             }
 
-            //org.jacorb.util.Debug.output(4, "Comparing this " + kind().value()
-            //                             + " with tc " + tc.kind().value());
-
             if ( kind().value() != tc.kind().value() )
             {
                 return false;
@@ -783,9 +781,67 @@ public class TypeCode
         return scale;
     }
 
+    /**
+     * <code>get_compact_typecode</code> returns a new TypeCode with all
+     * type and member information removed. RepositoryID and alias are
+     * preserved.
+     * This method effectively clones the original typecode - simpler than
+     * trying to work out what type so what to duplicate (and compact).
+     *
+     * @return an <code>org.omg.CORBA.TypeCode</code> value
+     */
     public org.omg.CORBA.TypeCode get_compact_typecode()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        // New typecode with same kind, id and a blank name.
+        TypeCode result = new TypeCode (kind, id, "");
+
+        // Duplicate the original typecode.
+        result.member_count = member_count;
+
+        // Member names are optional, so compact them down for transmission.
+        // Check whether we are doing full compaction or not.
+        if (Environment.getCompactTypecodes () > 1 && member_name != null)
+        {
+            result.member_name = new String [member_name.length];
+            for (int i = 0; i < result.member_name.length; i++)
+            {
+                result.member_name[i] = "";
+            }
+        }
+        else
+        {
+            result.member_name = member_name;
+        }
+
+        // Compact the member types down as well.
+        if (member_type != null)
+        {
+            result.member_type = new TypeCode [member_type.length];
+            for (int i = 0; i < result.member_type.length; i++)
+            {
+                result.member_type[i] = (TypeCode)member_type[i].get_compact_typecode ();
+            }
+        }
+
+        result.member_visibility = member_visibility;
+        result.member_label = member_label;
+        result.value_modifier = value_modifier;
+
+        result.discriminator_type = discriminator_type;
+        result.default_index = default_index;
+        result.length = length;
+        result.content_type = content_type;
+
+        result.scale = scale;
+        result.digits = digits;
+
+        result.recursive = recursive;
+        result.actualTypecode = actualTypecode;
+        result.secondIteration = secondIteration;
+
+        result.resolveRecursion ();
+
+        return result;
     }
 
     public short member_visibility(int index)

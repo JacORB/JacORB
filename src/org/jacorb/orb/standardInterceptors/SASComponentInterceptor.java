@@ -185,6 +185,9 @@ public class SASComponentInterceptor
                 sasDataStream.beginEncapsulatedArray();
                 CompoundSecMechListHelper.write( sasDataStream , compoundSecMechList );
                 tc = new TaggedComponent( TAG_CSI_SEC_MECH_LIST.value, sasDataStream.getBufferCopy() );
+
+                sasDataStream.release ();
+                sasDataStream = null;
             }
 
             info.add_ior_component_to_profile (tc, TAG_INTERNET_IOP.value);

@@ -34,7 +34,7 @@ import org.omg.CORBA.portable.RemarshalException;
  * @author Nicolas Noffke
  * @version $Id$
  */
-public abstract class ReplyPlaceholder 
+public abstract class ReplyPlaceholder
 {
     protected boolean ready = false;
     protected boolean communicationException = false;
@@ -48,9 +48,9 @@ public abstract class ReplyPlaceholder
     public ReplyPlaceholder()
     {
         //get the client-side timeout property value
-        String prop = 
+        String prop =
             Environment.getProperty( "jacorb.client.pending_reply_timeout" );
-        
+
         if( prop != null )
         {
             try
@@ -66,26 +66,26 @@ public abstract class ReplyPlaceholder
         }
 
     }
-    
+
     public synchronized void replyReceived( MessageInputStream in )
     {
         if( ! timeoutException )
         {
             this.in = in;
-        
+
             ready = true;
-            
+
             notifyAll();
         }
     }
-        
+
     public synchronized void cancel()
     {
         if( in == null )
         {
             communicationException = true;
             ready = true;
-            this.notify();
+            notify();
         }
     }
 
@@ -94,14 +94,14 @@ public abstract class ReplyPlaceholder
     {
         remarshalException = true;
         ready = true;
-        this.notify();
+        notify();
     }
 
     public synchronized void timeout()
     {
         timeoutException = true;
         ready = true;
-        this.notify();
+        notify();
     }
 
     /**
@@ -111,17 +111,17 @@ public abstract class ReplyPlaceholder
      * name, that does any specific processing of the reply before
      * returning it to the caller.
      */
-    protected synchronized MessageInputStream getInputStream() 
+    protected synchronized MessageInputStream getInputStream()
         throws RemarshalException
     {
-        while( !ready ) 
+        while( !ready )
         {
             try
             {
                 if( timeout > 0 )
                 {
                     wait( timeout ); //wait only "timeout" long
-                    
+
                     //timeout
                     if( ! ready )
                     {
@@ -133,7 +133,7 @@ public abstract class ReplyPlaceholder
                 {
                     wait(); //wait infinitely
                 }
-            } 
+            }
             catch( InterruptedException e )
             {}
         }
@@ -141,12 +141,12 @@ public abstract class ReplyPlaceholder
         if( remarshalException )
         {
             throw new org.omg.CORBA.portable.RemarshalException();
-        }	
+        }
 
         if( communicationException )
         {
             throw new org.omg.CORBA.COMM_FAILURE(
-                0, 
+                0,
                 org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE );
         }
 
@@ -154,21 +154,7 @@ public abstract class ReplyPlaceholder
         {
             throw new org.omg.CORBA.TIMEOUT ("client timeout reached");
         }
-                
+
         return in;
     }
 }// ReplyPlaceholder
-
-
-
-
-
-
-
-
-
-
-
-
-
-

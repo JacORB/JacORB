@@ -30,7 +30,6 @@ import java.util.*;
 class TypeMap
 {
     static Hashtable typemap = new Hashtable( 5000 );
-    static org.apache.log.Logger logger;
 
     public static void init()
     {
@@ -39,8 +38,6 @@ class TypeMap
         typemap.put( "org.omg.CORBA.TypeCode", new TypeCodeTypeSpec( IdlSymbol.new_num() ) );
         typemap.put( "CORBA.Object", new ObjectTypeSpec( IdlSymbol.new_num() ) );
         typemap.put( "CORBA.TypeCode", new TypeCodeTypeSpec( IdlSymbol.new_num() ) );
-
-        logger = parser.getLogger();
     }
 
     // return the type spec associated with a name, if any
@@ -57,8 +54,8 @@ class TypeMap
     public static void typedef( String name, TypeSpec type )
         throws NameAlreadyDefined
     {
-        if( logger.isInfoEnabled() )
-            logger.info( "Typedef'ing " + name +
+        if( parser.getLogger().isInfoEnabled() )
+            parser.getLogger().info( "Typedef'ing " + name +
                                           " , hash: " + type.hashCode() );
 
         if( typemap.containsKey( name ) )
@@ -77,16 +74,16 @@ class TypeMap
                 else
                     typemap.put( name, type.typeSpec() );
 
-                if( logger.isInfoEnabled() )
-                    logger.info(" resolved " + 
+                if( parser.getLogger().isInfoEnabled() )
+                    parser.getLogger().info(" resolved " +
                                                  ((ScopedName)type.typeSpec()).resolvedTypeSpec());
             }
             else
             {
                 typemap.put( name, type.typeSpec() );
 
-                if( logger.isInfoEnabled() )
-                    logger.info( " (not a resolved scoped name) " 
+                if( parser.getLogger().isInfoEnabled() )
+                    parser.getLogger().info( " (not a resolved scoped name) "
                                                   + type.typeSpec().full_name() );
             }
         }
@@ -115,8 +112,3 @@ class TypeMap
 
 
 }
-
-
-
-
-

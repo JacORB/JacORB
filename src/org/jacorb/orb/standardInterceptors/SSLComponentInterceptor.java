@@ -34,18 +34,18 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class SSLComponentInterceptor 
+public class SSLComponentInterceptor
     extends org.omg.CORBA.LocalObject
     implements IORInterceptor
 {
     private ORB orb = null;
     private TaggedComponent tc = null;
 
-    public SSLComponentInterceptor( ORB orb ) 
+    public SSLComponentInterceptor( ORB orb )
     {
         this.orb = orb;
     }
-  
+
     // implementation of org.omg.PortableInterceptor.IORInterceptorOperations interface
 
     public String name()
@@ -55,7 +55,7 @@ public class SSLComponentInterceptor
 
     public void destroy()
     {
-    } 
+    }
 
     /**
      * Builds an ssl TaggedComponent.
@@ -77,7 +77,7 @@ public class SSLComponentInterceptor
         const AssociationOptions CompositeDelegation = 512; 0x200
      */
 
-    public void establish_components(IORInfo info) 
+    public void establish_components(IORInfo info)
     {
         try
         {
@@ -89,7 +89,7 @@ public class SSLComponentInterceptor
                 short required = (short)
                     Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 );
 
-                SSL ssl = 
+                SSL ssl =
                     new SSL ( supported,
                               required,
                               (short) orb.getBasicAdapter().getSSLPort());
@@ -101,16 +101,19 @@ public class SSLComponentInterceptor
 
                 //this is SSLs default behaviour, included for completeness
                 ssl.target_supports |= 0x20; //establish trust in target
-       
-                CDROutputStream sslDataStream = 
+
+                CDROutputStream sslDataStream =
                     new CDROutputStream( orb );
-  
+
                 sslDataStream.beginEncapsulatedArray();
 
                 SSLHelper.write( sslDataStream , ssl );
 
                 tc = new TaggedComponent( TAG_SSL_SEC_TRANS.value,
                                           sslDataStream.getBufferCopy() );
+
+                sslDataStream.release ();
+                sslDataStream = null;
             }
 
             info.add_ior_component_to_profile (tc, TAG_INTERNET_IOP.value);
@@ -121,5 +124,3 @@ public class SSLComponentInterceptor
         }
     }
 } // SSLComponentInterceptor
-
-

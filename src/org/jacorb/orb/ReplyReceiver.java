@@ -227,7 +227,17 @@ public class ReplyReceiver extends ReplyPlaceholder
     {
         try
         {
-            super.getInputStream();  // block until reply is available
+           // On NT connection closure due to service shutdown is not
+           // detected until this point, resulting in a COMM_FAILURE.
+           // Map to RemarshalException to force rebind attempt.
+           try
+           {
+               getInputStream();  // block until reply is available
+           }
+           catch (org.omg.CORBA.COMM_FAILURE ex)
+           {
+              throw new RemarshalException();
+           }
         }
         catch ( SystemException se )
         {
