@@ -1,0 +1,37 @@
+module org {
+  module jacorb {
+    module test {
+      module orb {
+        module value {
+
+          valuetype boxedLong   long;
+          valuetype boxedString string;
+
+          valuetype Record {
+            public long id;
+            public string text;
+          };
+
+          typedef sequence<Record> RecordSeq;
+
+          valuetype Node {
+            public long id;
+            public double price;
+            public Node next;
+          };
+
+          interface ValueServer {
+            string receive_long   (in boxedLong p1, in boxedLong p2);
+            string receive_string (in boxedString s1, in boxedString s2);
+
+            string receive_record_sequence (in RecordSeq list);
+            RecordSeq return_record_sequence (in long length);
+
+            string receive_list   (in Node node);
+          };
+
+        };
+      };
+    };
+  };
+};
