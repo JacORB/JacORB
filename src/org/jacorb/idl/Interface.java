@@ -843,7 +843,12 @@ class Interface
         ps.println( "\npublic class " + className + "IRHelper" );
         ps.println( "{" );
 
-        ps.println( "\tpublic static java.util.Hashtable irInfo = new java.util.Hashtable();" );
+        String HASHTABLE = System.getProperty ("java.version").startsWith ("1.1")
+                           ? "com.sun.java.util.collections.Hashtable"
+                           : "java.util.Hashtable";
+
+        ps.println( "\tpublic static " + HASHTABLE 
+                          + " irInfo = new " + HASHTABLE + "();" );
         ps.println( "\tstatic" );
         ps.println( "\t{" );
         body.getIRInfo( irInfoTable );
