@@ -87,17 +87,19 @@ Installation:
            with appropriate values. For J2SE < 1.4 this would be
            something like :
            -Xbootclasspath/p:${JACORB_HOME}/lib/jacorb.jar:\
-            ${JACORB_HOME}/lib/logkit.jar:\
-            ${JACORB_HOME}/lib/concurrent.jar:\
-            ${JACORB_HOME}/lib/antlr.jar:\
+            ${JACORB_HOME}/lib/logkit-1.2.jar:\
+            ${JACORB_HOME}/lib/avalon-framework-4.1.5.jar:\
+            ${JACORB_HOME}/lib/concurrent-1.3.2.jar:\
+            ${JACORB_HOME}/lib/antlr-2.7.2.jar:\
             ${JRE_HOME}/lib/rt.jar
            
            For J2SE 1.4 this should be like :
            -Djava.endorsed.dirs=${JACORB_HOME}/lib \
             -classpath ${JACORB_HOME}/lib/jacorb.jar:\
-            ${JACORB_HOME}/lib/logkit.jar:\
-            ${JACORB_HOME}/lib/concurrent.jar:\
-            ${JACORB_HOME}/lib/antlr.jar            
+            ${JACORB_HOME}/lib/logkit-1.2.jar:\
+            ${JACORB_HOME}/lib/avalon-framework-4.1.5.jar:\
+            ${JACORB_HOME}/lib/concurrent-1.3.2.jar:\
+            ${JACORB_HOME}/lib/antlr-2.7.2.jar            
 
 6. Generate or edit the IDL compiler scripts idl and idl.bat if you
    plan to use the IDL compiler.
