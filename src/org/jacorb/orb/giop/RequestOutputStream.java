@@ -20,7 +20,6 @@ package org.jacorb.orb.connection;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
 import java.util.*;
 
 import org.omg.GIOP.*;
@@ -45,6 +44,7 @@ public class RequestOutputStream
 
     private int request_id = -1;
     private boolean response_expected = true;
+    private short syncScope = org.omg.Messaging.SYNC_WITH_SERVER.value;
     private String operation = null;
 
     /**
@@ -73,6 +73,7 @@ public class RequestOutputStream
                                 int request_id,
                                 String operation, 
                                 boolean response_expected,
+                                short syncScope,
                                 UtcT requestStartTime,
                                 UtcT requestEndTime,
                                 UtcT replyEndTime,
@@ -86,6 +87,7 @@ public class RequestOutputStream
         
         this.request_id = request_id;
         this.response_expected = response_expected;
+        this.syncScope = syncScope;
         this.operation = operation;
         this.connection = connection;
         
@@ -179,7 +181,28 @@ public class RequestOutputStream
                 // inlined RequestHeader_1_2Helper.write method 
 
                 write_ulong( request_id);
-		write_octet( (byte) ((response_expected)? 0x03 : 0x00) );
+                if (response_expected)
+                {
+                	write_octet ((byte)0x03);
+                }
+                else 
+                {
+                	switch (syncScope)
+                	{
+                		case org.omg.Messaging.SYNC_NONE.value:
+                		case org.omg.Messaging.SYNC_WITH_TRANSPORT.value:
+                			write_octet ((byte)0x00);
+                			break;
+                		case org.omg.Messaging.SYNC_WITH_SERVER.value:
+                			write_octet ((byte)0x01);
+                			break;
+                		case org.omg.Messaging.SYNC_WITH_TARGET.value:
+                			write_octet ((byte)0x03);
+                			break;
+                		default:
+                			throw new org.omg.CORBA.MARSHAL ("Invalid SYNC_SCOPE: " + syncScope);
+                	}
+                }
                 if( reserved.length < 3)
                     throw new org.omg.CORBA.MARSHAL("Incorrect array size "+
                                                      reserved.length + ", expecting 3");
@@ -209,6 +232,11 @@ public class RequestOutputStream
     {
         return response_expected;
     }
+
+	public short syncScope()
+	{
+		return syncScope;
+	}
    
     public String operation()
     {
