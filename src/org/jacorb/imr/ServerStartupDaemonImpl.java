@@ -62,7 +62,7 @@ public class ServerStartupDaemonImpl
         _registration =
         RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
         if( _registration == null )
-            throw new java.lang.Error("ImR not found");
+            throw new RuntimeException("ImR not found");
 
         _this_object( orb );
 
