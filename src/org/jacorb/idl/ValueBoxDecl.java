@@ -31,7 +31,7 @@ import java.util.*;
  * @version $Id$
  */
 
-class ValueBoxDecl
+public class ValueBoxDecl
     extends Value
 {
     private boolean written = false;
@@ -415,5 +415,17 @@ class ValueBoxDecl
             i.printStackTrace();
         }
     }
+
+
+    /**
+     * @overrides accept in TypeDeclaration
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitValue( this );
+    }
+
+
 }
 
