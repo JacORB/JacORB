@@ -30,12 +30,12 @@ import org.omg.PortableServer.*;
 /**
  * Tests that the _is_a() operation on object references gives correct
  * results for both local and non-local objects.
- * 
+ *
  * @author Gerald Brose
  * @version $Id$
  */
 
-public class TestCase 
+public class TestCase
     extends ClientServerTestCase
 {
     private org.omg.CORBA.Object testObject;
@@ -47,7 +47,7 @@ public class TestCase
     {
         super( name, setup );
     }
-    
+
     public void setUp()
     {
         testObject = setup.getServerObject();
@@ -55,10 +55,10 @@ public class TestCase
 	try
 	{
 	    poa = POAHelper.narrow( orb.resolve_initial_references("RootPOA"));
-	
+
 	    poa.the_POAManager().activate();
 
-	    localTestObject = 
+	    localTestObject =
                 poa.servant_to_reference( new TestObjectImpl());
         }
         catch( Exception e )
@@ -66,7 +66,7 @@ public class TestCase
             e.printStackTrace();
         }
     }
-    
+
 
     public static Test suite()
     {
@@ -80,6 +80,7 @@ public class TestCase
 
             suite.addTest( new TestCase( "testNonLocalIsA", setup ));
             suite.addTest( new TestCase( "testLocalIsA", setup ));
+            suite.addTest( new TestCase( "testMarshall", setup ));
 
             return setup;
         }
@@ -92,7 +93,7 @@ public class TestCase
 
     public void testNonLocalIsA()
     {
-        assertTrue( "Is_a incorrectly returns false for non-local object", 
+        assertTrue( "Is_a incorrectly returns false for non-local object",
                      testObject._is_a( "IDL:org/jacorb/test/bugs/bug384/TestObject:1.0") );
 
         assertFalse( "Is_a incorrectly returns true for non-local object",
@@ -101,11 +102,24 @@ public class TestCase
 
     public void testLocalIsA()
     {
-        assertTrue( "Is_a incorrectly returns false for non-local object", 
+        assertTrue( "Is_a incorrectly returns false for non-local object",
                      localTestObject._is_a( "IDL:org/jacorb/test/bugs/bug384/TestObject:1.0") );
 
         assertFalse( "Is_a incorrectly returns true for non-local object",
                     localTestObject._is_a( "IDL:omg.org/CosNaming/NamingContext:1.0" ));
+    }
+
+    public void testMarshall()
+    {
+        TestObject serverObj = TestObjectHelper.narrow( testObject );
+        try
+        {
+            A[] result = serverObj.testMarshall();
+        }
+        catch (Exception e)
+        {
+            fail( "Caught an exception " + e );
+        }
     }
 
 

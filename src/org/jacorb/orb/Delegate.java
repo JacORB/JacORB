@@ -1106,9 +1106,34 @@ public final class Delegate
         }
         else
         {
-            // removed code that tries to avoid a remote call, but
-            // delivers incorrect results (always true), bug #384.
-            // (There did not seem to be a way of fixing that code.)
+            // Try to avoid remote call - is it a derived type?
+            try
+            {
+                // Retrieve the local stub for the object in question. Then call the _ids method
+                // and see if any match the logical_type_id otherwise fall back to remote.
+                String classname = RepositoryID.className( ids[0], "Stub" );
+                int lastDot = classname.lastIndexOf( '.' );
+                StringBuffer scn = new StringBuffer( classname.substring( 0, lastDot + 1) );
+                scn.append( '_' );
+                scn.append( classname.substring( lastDot + 1 ) );
+
+                // This will only work if there is a correspondence between the Java class
+                // name and the Repository ID. If prefixes have been using then this mapping
+                // may have been lost.
+                Class stub = Class.forName( scn.toString());
+                Method idm = stub.getMethod ( "_ids", null );
+                String newids[] = (String[] )idm.invoke( stub.newInstance(),  new Object[] { } );
+
+                for ( int i = 0; i < newids.length ; i++ )
+                {
+                    if (newids[i].equals( logical_type_id ) )
+                    {
+                        return true;
+                    }
+                }
+            }
+            // If it fails fall back to a remote call.
+            catch (Throwable e) {}
 
             org.omg.CORBA.portable.OutputStream os;
             org.omg.CORBA.portable.InputStream is;
