@@ -27,7 +27,7 @@ public class serverImpl
 
     public void op3(my_structHolder/*out*/ m)
     {
-	m.value = new my_struct("hallo", 4711);
+	m.value = new my_struct("hallo", 4711, null);
     }
 
     public void op4(stringArrayHolder sah)

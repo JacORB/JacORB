@@ -10,8 +10,9 @@ module outparam
 
 	struct my_struct 
 	{
-		string s;
-		long l;
+            string s;
+            long l;
+            Object o;
 	};
 		
 	interface MyServer 
