@@ -108,7 +108,7 @@ public class ORBSingleton
      * @throw org.omg.CORBA.BAD_PARAM
      */
 
-    private void checkTCRepositorId( String repId )
+    private void checkTCRepositoryId( String repId )
         throws BAD_PARAM
     {
         if( repId == null || repId.indexOf( ':' ) < 0 )
@@ -149,17 +149,19 @@ public class ORBSingleton
                                      String name, 
                                      TypeCode original_type)
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         checkTCName( name );
+        checkTCMemberType( original_type );
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_alias, 
                                             id, name, original_type);
     }
 
     public TypeCode create_array_tc( int length, TypeCode element_type)
     {
+        checkTCMemberType( element_type );
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_array,
-                                        length,
-                                        element_type);
+                                            length,
+                                            element_type);
     }
 
     /**
@@ -170,7 +172,7 @@ public class ORBSingleton
                                     String name, 
                                     String[] members)
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         checkTCName( name );
 
         // check that member names are legal and unique
@@ -206,15 +208,15 @@ public class ORBSingleton
                                          String name, 
                                          org.omg.CORBA.StructMember[] members)
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         checkTCName( name );
 
         // check that member names are legal and unique
         Hashtable names = new Hashtable() ;
         for( int i = 0; i < members.length; i++ )
         {
-            boolean fault = false;
             checkTCMemberType( members[i].type );
+            boolean fault = false;
             try
             {
                 checkTCName( members[i].name );
@@ -235,14 +237,14 @@ public class ORBSingleton
 
 
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_except,
-                                        id,
-                                        name,
-                                        members);
+                                            id,
+                                            name,
+                                            members);
     }
 
     public TypeCode create_interface_tc( String id, String name)
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         checkTCName( name );
         return new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_objref, 
 					   id, name);
@@ -256,7 +258,7 @@ public class ORBSingleton
 
     public org.omg.CORBA.TypeCode create_recursive_tc( String id ) 
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         return new org.jacorb.orb.TypeCode( id );
     }  
  
@@ -274,8 +276,8 @@ public class ORBSingleton
         checkTCMemberType( element_type );
         org.jacorb.orb.TypeCode tc = 
             new org.jacorb.orb.TypeCode( org.omg.CORBA.TCKind._tk_sequence,
-                                     bound, 
-                                     element_type);
+                                         bound, 
+                                         element_type);
         return tc;
     }
 
@@ -297,15 +299,15 @@ public class ORBSingleton
                                      String name,
                                      org.omg.CORBA.StructMember[] members)
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         checkTCName( name );
 
         // check that member names are legal and unique
         Hashtable names = new Hashtable() ;
         for( int i = 0; i < members.length; i++ )
         {
-            boolean fault = false;
             checkTCMemberType( members[i].type );
+            boolean fault = false;
             try
             {
                 checkTCName( members[i].name );
@@ -344,7 +346,7 @@ public class ORBSingleton
                                      TypeCode discriminator_type, 
                                      org.omg.CORBA.UnionMember[] members)
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         checkTCName( name );
 
         // check discriminator type
@@ -373,7 +375,6 @@ public class ORBSingleton
         
         for( int i = 0; i < members.length; i++ )
         {
-            boolean fault = false;
             checkTCMemberType( members[i].type );
             try
             {
@@ -436,9 +437,8 @@ public class ORBSingleton
                                                   TypeCode concrete_base,
                                                   org.omg.CORBA.ValueMember[] members) 
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         checkTCName( name );
-
         return new org.jacorb.orb.TypeCode (id, 
                                             name, 
                                             type_modifier,
@@ -450,9 +450,8 @@ public class ORBSingleton
                                                       String name,
                                                       TypeCode boxed_type) 
     {
-        checkTCRepositorId( id );
+        checkTCRepositoryId( id );
         checkTCName( name );
-
         return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_value_box,
                                             id,
                                             name,
@@ -462,7 +461,7 @@ public class ORBSingleton
     public org.omg.CORBA.TypeCode create_abstract_interface_tc(String id,
                                                                String name) 
     {
-       checkTCRepositorId( id );
+       checkTCRepositoryId( id );
        checkTCName( name );
        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_abstract_interface,
                                            id, 
@@ -472,7 +471,7 @@ public class ORBSingleton
     public org.omg.CORBA.TypeCode create_native_tc(String id,
                                                    String name) 
     {
-       checkTCRepositorId( id );
+       checkTCRepositoryId( id );
        checkTCName( name );
        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_native,
                                            id, 
