@@ -1,3 +1,5 @@
+package org.jacorb.orb.giop;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,17 +20,15 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.giop;
-
-import org.jacorb.orb.*;
+import org.jacorb.orb.ParsedIOR;
+import org.omg.CORBA.MARSHAL;
 import org.omg.GIOP.*;
-import org.omg.IOP.ServiceContext;
 
 /**
- * 
+ *
  * @author Gerald Brose, FU Berlin
  * @version $Id$
- * 
+ *
  */
 
 public class LocateRequestInputStream
@@ -43,48 +43,48 @@ public class LocateRequestInputStream
         if( Messages.getMsgType( buffer ) == MsgType_1_1._LocateRequest )
         {
             switch( giop_minor )
-            { 
-                case 0 : 
+            {
+                case 0 :
                 {
                     //GIOP 1.0 = GIOP 1.1, fall through
                 }
-                case 1 : 
+                case 1 :
                 {
                     //GIOP 1.1
-                    LocateRequestHeader_1_0 locate_req_hdr = 
+                    LocateRequestHeader_1_0 locate_req_hdr =
                         LocateRequestHeader_1_0Helper.read( this );
 
                     TargetAddress addr = new TargetAddress();
                     addr.object_key( locate_req_hdr.object_key );
 
-                    req_hdr = 
-                        new LocateRequestHeader_1_2( locate_req_hdr.request_id, 
-                                                     addr ); 
+                    req_hdr =
+                        new LocateRequestHeader_1_2( locate_req_hdr.request_id,
+                                                     addr );
                     break;
                 }
-                case 2 : 
+                case 2 :
                 {
                     //GIOP 1.2
-                    req_hdr = 
+                    req_hdr =
                         LocateRequestHeader_1_2Helper.read( this );
-                
+
                     ParsedIOR.unfiyTargetAddress( req_hdr.target );
 
                     break;
                 }
-                default : 
+                default :
                 {
-                    throw new Error( "Unknown GIOP minor version: " + giop_minor );
+                    throw new MARSHAL("Unknown GIOP minor version: " + giop_minor);
                 }
             }
         }
         else
         {
-            throw new Error( "Error: not a Locate request!" );
+            throw new MARSHAL("Not a Locate request!");
         }
     }
 
-    public void finalize()
+    protected void finalize() throws Throwable
     {
         try
         {
@@ -94,11 +94,9 @@ public class LocateRequestInputStream
         {
             //ignore
         }
+        finally
+        {
+            super.finalize();
+        }
     }
 }
-
-
-
-
-
-
