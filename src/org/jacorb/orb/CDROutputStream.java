@@ -117,7 +117,7 @@ public class CDROutputStream
      * <code>cachedTypecodes</code> is used to cache compacted typecodes when
      * writing to the stream. This variable is initialised on demand.
      */
-    private static Hashtable cachedTypecodes;
+    private static Map cachedTypecodes;
 
     /** Remembers the starting position of the current chunk. */
     private int chunk_size_tag_pos = -1;   // -1 means we're not within a chunk
@@ -1336,7 +1336,7 @@ public class CDROutputStream
         {
             if (cachedTypecodes == null)
             {
-                cachedTypecodes = new Hashtable ();
+                cachedTypecodes = new HashMap();
             }
             else
             {
@@ -1360,7 +1360,7 @@ public class CDROutputStream
     }
 
     private final void writeRecursiveTypeCode
-        (final org.omg.CORBA.TypeCode value, final Hashtable tcMap) throws BadKind
+        (final org.omg.CORBA.TypeCode value, final Map tcMap) throws BadKind
     {
         write_long( -1 ); // recursion marker
         int negative_offset =
@@ -1370,7 +1370,7 @@ public class CDROutputStream
     }
 
     private final void write_TypeCode
-        (final org.omg.CORBA.TypeCode value, Hashtable tcMap)
+        (final org.omg.CORBA.TypeCode value, Map tcMap)
     {
         if (value == null)
         {
@@ -1431,7 +1431,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new Hashtable ();
+                            tcMap = new HashMap ();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1459,7 +1459,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new Hashtable ();
+                            tcMap = new HashMap ();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1486,7 +1486,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new Hashtable ();
+                            tcMap = new HashMap ();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id() , value );
@@ -1543,7 +1543,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new Hashtable ();
+                            tcMap = new HashMap ();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1565,7 +1565,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new Hashtable ();
+                            tcMap = new HashMap ();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1600,7 +1600,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new Hashtable ();
+                            tcMap = new HashMap ();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1622,7 +1622,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new Hashtable ();
+                            tcMap = new HashMap ();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
