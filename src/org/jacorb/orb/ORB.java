@@ -153,7 +153,7 @@ public final class ORB
 
         if( o != null )
         {
-            Debug.output( 5, "Found a reference for key " + key + " in cache ");
+            //            Debug.output( 5, "Found a reference for key " + key + " in cache ");
             org.jacorb.orb.Delegate del = (org.jacorb.orb.Delegate) o._get_delegate();
             if (del != null)
             {
@@ -178,9 +178,10 @@ public final class ORB
         
         org.jacorb.orb.Delegate d = new Delegate(this, pior );
         o = d.getReference( null );
+
         if( Environment.cacheReferences() )
         {
-            Debug.output(5,"Caching reference for key " + key);
+            // Debug.output(5,"Caching reference for key " + key);
             knownReferences.put( key, o );
         }
         return o;
@@ -199,7 +200,7 @@ public final class ORB
         // if no POAs activated, we don't look further
         if( rootpoa == null || basicAdapter == null )
         {
-            Debug.output(3, "ORB.findPOA: no local root/base adapters");
+            // Debug.output(3, "ORB.findPOA: no local root/base adapters");
             return null;
         }
 
@@ -456,8 +457,8 @@ public final class ORB
                 // set host and port to ImR's values
                 address = imr_info.host;
                 port =  imr_info.port;
-                Debug.output(2,"New persistent IOR created with ImR at " + 
-                             address + ":" + port );
+                Debug.output( 2, "New persistent IOR created with ImR at " + 
+                              address + ":" + port );
                 
             }
             catch (Exception _e)
@@ -727,14 +728,13 @@ public final class ORB
      * created, the ORB is notified. 
      */
 
-    public void poaCreated(org.jacorb.poa.POA poa)
+    public void poaCreated( org.jacorb.poa.POA poa )
     {
         /* 
          * Add this orb as the child poa's event listener. This means that the
          * ORB is always a listener to all poa events!
          */
         poa._addPOAEventListener(this);
-
 
         /* If the new POA has a persistent lifetime policy, it is registered
          * with the implementation repository if there is one and the 
@@ -783,11 +783,13 @@ public final class ORB
                 }
                 catch( org.jacorb.imr.RegistrationPackage.IllegalPOAName e )
                 {
-                    throw new org.omg.CORBA.INTERNAL( "The ImR replied that the POA name >>" + e.name + "<< is illegal!" );
+                    throw new org.omg.CORBA.INTERNAL( "The ImR replied that the POA name >>" + 
+                                                      e.name + "<< is illegal!" );
                 }
                 catch( org.jacorb.imr.UnknownServerName e )
                 {
-                    throw new org.omg.CORBA.INTERNAL( "The ImR replied that the server name >>" + e.name + "<< is unknown!" );
+                    throw new org.omg.CORBA.INTERNAL( "The ImR replied that the server name >>" + 
+                                                      e.name + "<< is unknown!" );
                 }
                 catch (Exception _e)
                 {
