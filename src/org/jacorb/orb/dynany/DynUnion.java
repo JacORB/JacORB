@@ -106,6 +106,63 @@ public final class DynUnion
       }   	
    }
 
+   DynUnion( org.omg.DynamicAny.DynAnyFactory dynFactory,
+           org.omg.CORBA.TypeCode tc, org.omg.CORBA.ORB orb  )
+    throws InvalidValue, TypeMismatch
+   {
+    org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
+
+    if( _type.kind() != org.omg.CORBA.TCKind.tk_union )
+       throw new TypeMismatch();
+
+    type = _type;
+
+    this.orb = orb;
+    this.dynFactory = dynFactory;
+
+    pos = 0;
+    limit = 2;
+
+    try
+    {
+       for( int i = 0; i < type.member_count(); i++ )
+       {
+          discriminator = type.member_label(i);
+
+          if( discriminator.type().kind().value() != 
+              org.omg.CORBA.TCKind._tk_octet )
+          {
+             break;
+          }
+       }
+
+       // rare case when the union only has a default case label
+       if( discriminator.type().kind().value() ==
+           org.omg.CORBA.TCKind._tk_octet )
+       {
+          try
+          {
+             set_to_unlisted_label ();
+          }
+          catch (TypeMismatch ex)
+          {
+             // should never happen         
+             ex.printStackTrace ();
+          }
+       }
+
+       select_member();
+    }
+    catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+    {
+       bk.printStackTrace();
+    }
+    catch( org.omg.CORBA.TypeCodePackage.Bounds b )
+    {
+       b.printStackTrace();
+    }   	
+   }
+  
    /**
     * Overrides from_any() in DynAny
     */

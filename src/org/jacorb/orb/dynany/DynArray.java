@@ -24,6 +24,7 @@ import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
 
 import org.jacorb.orb.*;
+
 import java.util.*;
 
 /**
@@ -78,6 +79,44 @@ public final class DynArray
       }
    }
 
+   DynArray( org.omg.DynamicAny.DynAnyFactory dynFactory,
+             org.omg.CORBA.TypeCode tc, org.omg.CORBA.ORB orb)
+    throws InvalidValue, TypeMismatch
+ {
+    org.omg.CORBA.TypeCode _type = 
+       TypeCode.originalType( tc );
+    
+    if(  _type.kind() != org.omg.CORBA.TCKind.tk_array )
+       throw new TypeMismatch();	
+
+    try
+    {
+       type = _type;
+       this.orb = orb;
+       this.dynFactory = dynFactory;
+       elementType = TypeCode.originalType( type.content_type() );
+
+       limit = type.length();
+       members = new Any[limit];
+       try
+       {
+          for( int i = limit; i-- > 0;)
+          {
+             members[i] = dynFactory.create_dyn_any_from_type_code( elementType ).to_any();
+          }
+       }
+       catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+       {
+          // should never happen
+          itc.printStackTrace();
+       }
+    }
+    catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+    {
+       bk.printStackTrace();
+    }
+ 	}   
+   
    public void from_any(org.omg.CORBA.Any value) 
       throws InvalidValue, TypeMismatch
    {

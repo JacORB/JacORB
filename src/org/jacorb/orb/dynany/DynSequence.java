@@ -25,6 +25,7 @@ import org.omg.DynamicAny.*;
 
 import org.omg.CORBA.INTERNAL;
 import org.jacorb.orb.*;
+
 import java.util.*;
 
 /**
@@ -74,6 +75,37 @@ public final class DynSequence
       }
    }
 
+   DynSequence( org.omg.DynamicAny.DynAnyFactory dynFactory,
+           org.omg.CORBA.TypeCode tc, org.omg.CORBA.ORB orb )
+           throws InvalidValue, TypeMismatch
+   {
+       org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
+
+       if( _type.kind() != org.omg.CORBA.TCKind.tk_sequence )
+    throw new TypeMismatch();
+
+	 try
+	 {
+	    type = _type;
+	
+	    this.orb = orb;
+	    this.dynFactory = dynFactory;
+	
+	    elementType = TypeCode.originalType( type().content_type() );
+	    limit = type.length();
+	    length = 0;
+	    members = new Vector();
+	 }
+	 catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+	 {
+	    bk.printStackTrace();
+	 }
+	 if (elementType == null)
+	 {
+	     throw new INTERNAL ("DynSequence.set_length, elementType null");
+	 }
+	}
+   
    public void from_any( org.omg.CORBA.Any value )
       throws InvalidValue, TypeMismatch
    {

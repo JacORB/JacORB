@@ -57,7 +57,18 @@ public class DynAny
       type = TypeCode.originalType( _type );
       anyRepresentation = defaultValue( type );
    }
-
+   
+   DynAny( org.omg.DynamicAny.DynAnyFactory dynFactory,
+           org.omg.CORBA.TypeCode _type,
+           org.omg.CORBA.ORB orb)
+      throws TypeMismatch
+   {
+      this.orb = orb;
+      this.dynFactory = dynFactory;
+      type = TypeCode.originalType( _type );
+      anyRepresentation = defaultValue( type );
+   }
+   
    public org.omg.CORBA.TypeCode type()
    {
       checkDestroyed ();

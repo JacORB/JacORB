@@ -91,7 +91,57 @@ public final class DynStruct
             b.printStackTrace();
         }   	
     }
+    DynStruct( org.omg.DynamicAny.DynAnyFactory dynFactory, 
+            org.omg.CORBA.TypeCode tc,org.omg.CORBA.ORB orb)
+     throws InvalidValue, TypeMismatch
+    {
+     org.omg.CORBA.TypeCode _type = TypeCode.originalType( tc );
 
+     if( _type.kind().value() != org.omg.CORBA.TCKind._tk_except && 
+         _type.kind().value() != org.omg.CORBA.TCKind._tk_struct )
+         throw new TypeMismatch();
+
+     this.orb = orb;
+     this.dynFactory = dynFactory;
+
+     type = _type;
+
+     try
+     {
+         /* initialize position for all except empty exceptions */	
+         if( !isEmptyEx () )
+         {
+             pos = 0;
+         }
+         if( _type.kind().value() == org.omg.CORBA.TCKind._tk_except )
+             exception_msg = type.id();
+
+         limit = type.member_count();
+         members = new NameValuePair[limit];
+         for( int i = 0 ; i < limit; i++ )
+         {		
+             org.omg.CORBA.TypeCode _tc = 
+                 TypeCode.originalType( type.member_type(i) );
+             members[i] =
+                 new NameValuePair(
+                                   type.member_name(i),
+                                   dynFactory.create_dyn_any_from_type_code( _tc ).to_any());
+
+         }
+     }
+     catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
+     {
+         itc.printStackTrace();
+     }
+     catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+     {
+         bk.printStackTrace();
+     }
+     catch( org.omg.CORBA.TypeCodePackage.Bounds b )
+     {
+         b.printStackTrace();
+     }   	
+    }    
 
     public void from_any(org.omg.CORBA.Any value) 
         throws InvalidValue, TypeMismatch
