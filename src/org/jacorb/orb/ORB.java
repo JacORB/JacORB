@@ -66,6 +66,7 @@ public final class ORB
     private InterceptorManager interceptor_manager = null;
     private boolean hasClientInterceptors = false;
     private boolean hasServerInterceptors = false;
+    private org.omg.PortableInterceptor.Current piCurrent = new PICurrent();
 
     /** reference caching */
     private Hashtable knownReferences = null;
@@ -1027,10 +1028,7 @@ public final class ORB
             }
             else if( identifier.equals("PICurrent") )
             {
-                if (interceptor_manager == null)
-                    return InterceptorManager.EMPTY_CURRENT;
-                else
-                    return interceptor_manager.getCurrent();
+                return piCurrent;
             }
             else if( identifier.equals("CodecFactory") )
             {
@@ -1936,6 +1934,40 @@ public final class ORB
         // else:
         return originalKey;
                             
+    }
+
+    /**
+     * Inner class that implements org.omg.PortableInterceptor.Current
+     * by forwarding each invocation to a thread-dependent target.
+     */
+    private class PICurrent 
+        extends org.omg.CORBA.LocalObject
+        implements org.omg.PortableInterceptor.Current 
+    {
+        // Helper method that returns the actual
+        // target of a PICurrent invocation
+        private Current getTarget() 
+        {
+            if (interceptor_manager == null)
+                return InterceptorManager.EMPTY_CURRENT;
+            else
+                return interceptor_manager.getCurrent();
+        }
+
+        // org.omg.PortableInterceptor.Current implementation ---
+
+        public org.omg.CORBA.Any get_slot(int id) 
+            throws InvalidSlot 
+        {
+            return getTarget().get_slot(id);
+        }
+  
+        public void set_slot(int id, org.omg.CORBA.Any data) 
+            throws InvalidSlot 
+        {
+            getTarget().set_slot(id, data);
+        }
+
     }
 
 }
