@@ -1,0 +1,7 @@
+
+interface Paul {
+  const double PI = 3.14159;
+  const double TWOPI = PI + PI;
+  const double SIXPI_1 = TWOPI * 3;
+  const double SIXPI_2 = (TWOPI) * 3;
+};

@@ -382,7 +382,7 @@ public class CDROutputStream
     {
         byte[] result = null;
 
-        if (header_stream != null)
+        if( header_stream != null )
         {
             result = new byte[pos + header_stream.pos];
       
@@ -403,7 +403,9 @@ public class CDROutputStream
      * WARNING: the buffer returned here might only be the data part,
      * without the GIOP header.
      */
-    public byte[] getInternalBuffer(){
+
+    public byte[] getInternalBuffer()
+    {
         return buffer;
     }
 
@@ -509,14 +511,14 @@ public class CDROutputStream
             write_char( value[i] );
     }
         
-    public  final void write_string (String s)
+    public final void write_string (String s)
     {
-        if (s==null) 
+        if ( s==null )
             throw new org.omg.CORBA.MARSHAL("Null References");
                 
-        check(7 + s.length()*3,4);      // the worst case
+        check(7 + s.length()*3,4);    // the worst case
         int size = s.length();
-        int startPos = pos;                     // store position for length indicator
+        int startPos = pos;           // store position for length indicator
         pos += 4; 
         index += 4;             // reserve for length indicator
                 
@@ -529,7 +531,7 @@ public class CDROutputStream
     }
 
         
-    public  final void write_wchar (char c)
+    public final void write_wchar (char c)
     {
         check(3);
         switch( codeSetW )
@@ -586,12 +588,12 @@ public class CDROutputStream
         if ( s==null ) 
             throw new org.omg.CORBA.MARSHAL("Null References");
                 
-        check(7 + s.length()*3,4);      // the worst case
+        check(7 + s.length()*3, 4);  // the worst case
 
-        int size=s.length();
-        int startPos=pos;                       // store position for length indicator
+        int size = s.length();
+        int startPos = pos;         // store position for length indicator
         pos += 4; 
-        index += 4;             // reserve for length indicator
+        index += 4;                 // reserve for length indicator
                 
         // write characters in current wide encoding, add null terminator
         for( int i=0; i < size; i++ ) 

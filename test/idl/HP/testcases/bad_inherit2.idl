@@ -1,0 +1,20 @@
+
+/**
+ * The sample IDL, though syntactically correct, is wrong because
+ * the interface ::Mod2::Peter inherits from an interface that
+ * has not yet been defined. 
+ * @idlCompileOK FALSE
+ */
+ 
+module Mod1 {
+  interface Paul; // forward declaration
+};
+
+module Mod2 {
+  interface Peter : ::Mod1::Paul {
+    readonly attribute double dAttr;
+  };
+};
+
+
+ 

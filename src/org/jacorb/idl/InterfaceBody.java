@@ -449,7 +449,7 @@ class InterfaceBody
         ps.println("\t\treturn _out;");
     }
 
-    void getIRInfo(Hashtable irInfoTable )
+    void getIRInfo( Hashtable irInfoTable )
     {
 	for(Enumeration e = v.elements(); e.hasMoreElements();)
 	{

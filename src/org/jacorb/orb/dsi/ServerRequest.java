@@ -99,15 +99,24 @@ public class ServerRequest
 	return rest_of_name;
     }
 	
-    public java.lang.String operation()
+    public String operation()
     {
 	return in.req_hdr.operation;
     }
 
+    /**
+     * The resulting any must be used to create an input stream from
+     * which the result value can be read.
+     */
+
     public org.omg.CORBA.Any result()
     {
 	if( stream_based )
-	    throw new RuntimeException("This ServerRequest is stream-based!");
+        {
+            org.omg.CORBA.Any any = orb.create_any();
+            ((CDROutputStream)any.create_output_stream()).setBuffer( out.getBodyBufferCopy() );
+            return any;
+        }
 	return result;
     }
 
@@ -137,8 +146,6 @@ public class ServerRequest
 
     public void arguments(org.omg.CORBA.NVList p)
     {
-	if( stream_based )
-	    throw new RuntimeException("This ServerRequest is stream-based!");
 	args = (org.jacorb.orb.NVList)p;
 	// unmarshal
 
@@ -174,11 +181,14 @@ public class ServerRequest
 		throw new org.omg.CORBA.UNKNOWN("Could not reset input stream");
 	    }
 	    
-	    if (info != null){
+	    if (info != null)
+            {
 		//invoke interceptors
 		org.omg.Dynamic.Parameter[] params = new org.omg.Dynamic.Parameter[args.count()];
-		for (int i = 0; i < params.length; i++){
-		    try{
+		for (int i = 0; i < params.length; i++)
+                {
+		    try
+                    {
 			org.omg.CORBA.NamedValue value = args.item(i);
 
 			org.omg.CORBA.ParameterMode mode = null;
@@ -190,7 +200,9 @@ public class ServerRequest
 			    mode = org.omg.CORBA.ParameterMode.PARAM_INOUT;
 		  
 			params[i] = new org.omg.Dynamic.Parameter(value.value(), mode);
-		    }catch (Exception e){
+		    }
+                    catch (Exception e)
+                    {
 			org.jacorb.util.Debug.output(2, e);
 		    }
 		}
@@ -200,19 +212,25 @@ public class ServerRequest
 		ServerInterceptorIterator intercept_iter = 
 		    orb.getInterceptorManager().getServerIterator();      
 	      
-		try{
+		try
+                {
 		    intercept_iter.iterate(info, ServerInterceptorIterator.RECEIVE_REQUEST);
-		} catch(org.omg.CORBA.UserException ue){
-		  if (ue instanceof org.omg.PortableInterceptor.
-		      ForwardRequest){
-		    
-		    org.omg.PortableInterceptor.ForwardRequest fwd =
-		      (org.omg.PortableInterceptor.ForwardRequest) ue;
-
-		    setLocationForward(new org.omg.PortableServer.
-				       ForwardRequest(fwd.forward));
-		  }    
-		} catch (org.omg.CORBA.SystemException _sys_ex) {
+		} 
+                catch(org.omg.CORBA.UserException ue)
+                {
+                    if (ue instanceof org.omg.PortableInterceptor.
+                        ForwardRequest)
+                    {
+                        
+                        org.omg.PortableInterceptor.ForwardRequest fwd =
+                            (org.omg.PortableInterceptor.ForwardRequest) ue;
+                        
+                        setLocationForward(new org.omg.PortableServer.
+                            ForwardRequest(fwd.forward));
+                    }    
+		} 
+                catch (org.omg.CORBA.SystemException _sys_ex) 
+                {
 		    setSystemException(_sys_ex);
 		}
 	      
@@ -546,7 +564,7 @@ public class ServerRequest
 	reply(buf, buf.length);
     }
 
-    public void reply(byte[] buf,int len)
+    public void reply( byte[] buf, int len )
     {
 	if( out == null )
 	    out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],

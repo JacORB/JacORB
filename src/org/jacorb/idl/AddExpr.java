@@ -3,7 +3,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -60,8 +60,10 @@ class AddExpr
         mult_expr.setPackage( s);
     }
 
-    public void parse()  {
-        if( add_expr != null ){
+    public void parse()  
+    {
+        if( add_expr != null )
+        {
             add_expr.parse();
         }
         mult_expr.parse();
@@ -70,41 +72,39 @@ class AddExpr
     int pos_int_const()
     {
         int y = mult_expr.pos_int_const();
-        if( add_expr != null ){
+        if( add_expr != null )
+        {
             int z = add_expr.pos_int_const();
             if( operator.equals("-"))
                 z *= -1;
             return z + y;
-        } else
+        }
+        else
             return y;
     }
 
     public String  value() 
     {
         String x = "";
-        if( add_expr != null ){
+        if( add_expr != null )
+        {
             x = add_expr.value() + operator;
         }
         return x + mult_expr.value();
     }
+
+
+    public String  toString() 
+    {
+        String x = "";
+        if( add_expr != null )
+        {
+            x = add_expr + operator;
+        }
+        return x + mult_expr;
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

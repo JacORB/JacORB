@@ -20,7 +20,6 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 import org.jacorb.util.Debug;
 
 import java.lang.reflect.*;
@@ -31,8 +30,14 @@ import org.omg.CORBA.IDLType;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
+import org.omg.CORBA.ContainerPackage.*;
+import org.omg.CORBA.OperationDescription;
+import org.omg.CORBA.AttributeDescription;
+import org.omg.CORBA.ConstantDescription;
 
 /**
+ * JacORB implementation of org.omg.CORBA.InterfaceDef
+ *
  * @author Gerald Brose
  * @version $Id$
  */
@@ -62,14 +67,14 @@ public class InterfaceDef
     private String [] 		                 base_names;
     private FullInterfaceDescription             fullDescription;
     /** local references to contained objects */
-    private Hashtable		    containedLocals = new Hashtable();
+    private Hashtable		                 containedLocals = new Hashtable();
 
     /** CORBA references to contained objects */
     private java.util.Hashtable	                 contained = new java.util.Hashtable();
 
     /* reference to my container as a contained object */
-    private org.omg.CORBA.Contained       myContainer;
-    private org.omg.CORBA.InterfaceDef myReference;
+    private org.omg.CORBA.Contained              myContainer;
+    private org.omg.CORBA.InterfaceDef           myReference;
 
     private File 		                 my_dir;
     private Hashtable                            op = new Hashtable();
@@ -123,7 +128,8 @@ public class InterfaceDef
                 name = classId.substring( classId.lastIndexOf('.')+1);
 
                 Debug.assert( defined_in != null, 
-                              "InterfaceDef " + name + " path " + path + " has no defined_in repository");
+                              "InterfaceDef " + name + " path " + path + 
+                              " has no defined_in repository");
 
                 if( containedClass.isAssignableFrom( defined_in.getClass() ))
                     absolute_name = myContainer.absolute_name() + "::" + name;
@@ -137,12 +143,14 @@ public class InterfaceDef
                 absolute_name = "::" + name;
             }
 
-            org.jacorb.util.Debug.output(2, "InterfaceDef: " + absolute_name + " path: " + path);
+            org.jacorb.util.Debug.output(2, "InterfaceDef: " + absolute_name + 
+                                         " path: " + path);
 
 
             /* get directory for nested definitions' classes */
-            File f = new File( path + fileSeparator + 
-                               classId.replace('.', fileSeparator) + "Package" );
+            File f = 
+                new File( path + fileSeparator + 
+                          classId.replace('.', fileSeparator) + "Package" );
 
             if( f.exists() && f.isDirectory() )
                 my_dir = f;
@@ -152,11 +160,12 @@ public class InterfaceDef
         catch ( Exception e ) 
         {
             e.printStackTrace();
-            throw new org.omg.CORBA.INTF_REPOS(
-                                               ErrorMsg.IR_Not_Implemented,
-                                               org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+            throw new org.omg.CORBA.INTF_REPOS( ErrorMsg.IR_Not_Implemented,
+                                                org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
     }
+
+
 
     public void loadContents()
     {
@@ -197,10 +206,10 @@ public class InterfaceDef
 
                         Class cl = 
                             loader.loadClass( 
-                                   ( full_name.replace('.', fileSeparator) + "Package" + fileSeparator + 
+                                   ( full_name.replace('.', fileSeparator) + 
+                                     "Package" + fileSeparator + 
                                      classes[j].substring( 0, classes[j].indexOf(".class"))
-                                     ).replace( fileSeparator, '/') );
-                        
+                                     ).replace( fileSeparator, '/') );                        
 
                         Contained containedObject = 
                             Contained.createContained( cl, 
@@ -387,7 +396,6 @@ public class InterfaceDef
         Class class_interfaces [] = theClass.getInterfaces();
         Hashtable si = new Hashtable();
 	
-
         Class objectClass = null;
         try 
         {
@@ -407,8 +415,8 @@ public class InterfaceDef
         
         Enumeration e = si.keys();
         base_names = new String[ si.size() ];
-        base_interfaces = new org.omg.CORBA.InterfaceDef[ si.size() ];
         int i = 0;
+        Vector v = new Vector();
         while( e.hasMoreElements() )
         {
             try
@@ -416,12 +424,23 @@ public class InterfaceDef
                 Class baseClass = (Class)e.nextElement();
                 base_names[i] = baseClass.getName();
                 Class helperClass = 
-                    RepositoryImpl.loader.loadClass(  base_names[i] + "Helper");
+                    RepositoryImpl.loader.loadClass( base_names[i] + "Helper");
                 String baseId = 
-                    (String)helperClass.getDeclaredMethod("id",null).invoke(null,null);
-                base_interfaces[i] =       
+                    (String)helperClass.getDeclaredMethod( "id", null).invoke(null,null);
+                org.omg.CORBA.InterfaceDef base_interface =       
                     org.omg.CORBA.InterfaceDefHelper.narrow(
-                        containing_repository.lookup_id(baseId));
+                        containing_repository.lookup_id( baseId ));
+                if( base_interface == null )
+                {
+                    org.jacorb.util.Debug.output( 1,
+                                                  "Base interface def " + 
+                                                  baseId + " is null!!!");
+                }
+                else
+                {
+                    v.addElement( base_interface );
+                }
+                    
                 i++;
             }
             catch( Exception exc )
@@ -429,6 +448,8 @@ public class InterfaceDef
                 exc.printStackTrace();
             }
         }			
+        base_interfaces = new org.omg.CORBA.InterfaceDef[ v.size() ];
+        v.copyInto( base_interfaces );
 
         defined = true;
         org.jacorb.util.Debug.output(2, "Interface " + name +  " defined ]");
@@ -444,11 +465,10 @@ public class InterfaceDef
     {
     }
 
-
     /**
-     * @returns - an array containing interface definitions of the superclass and 
-     * the interfaces extended by this class. This array is of length 0 if this class
-     * is java.lang.Object.
+     * @returns  an array containing interface definitions of the superclass and 
+     * the interfaces extended by this class. Has length 0 if this class
+     * is Object.
      */
 
     public org.omg.CORBA.InterfaceDef[] base_interfaces() 
@@ -456,7 +476,7 @@ public class InterfaceDef
         return base_interfaces;
     }
 
-    public org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription describe_interface()
+    public FullInterfaceDescription describe_interface()
     {
         Debug.assert( defined, "InterfaceDef " + name + " not defined.");
 
@@ -466,37 +486,103 @@ public class InterfaceDef
             if( defined_in instanceof org.omg.CORBA.Contained )
                 def_in = ((org.omg.CORBA.Contained)defined_in).id();
             
-            operations = new org.omg.CORBA.OperationDescription[ op_defs.length ];
-            for( int c = 0; c < operations.length; c++ )
+            /* before  assembling descriptions, get hold  of all super
+               types' FullInterfaceDescriptions */
+
+            FullInterfaceDescription [] baseDescriptions = 
+                new FullInterfaceDescription[ base_interfaces().length ];
+
+            for( int b = 0; b < base_interfaces.length; b++ )
             {
-                operations[c] = op_defs[c].describe_operation();
+                baseDescriptions[b] = base_interfaces[b].describe_interface();
             }
-            
-            attributes = new org.omg.CORBA.AttributeDescription[ att_defs.length ];
+
+            /* build operation descriptions */
+
+            Hashtable ops = new Hashtable();
+
+            for( int c = 0; c < op_defs.length; c++ )
+            {
+                OperationDescription operation = op_defs[c].describe_operation();
+                ops.put( operation.name, operation );
+            }
+
+            /* get operation descriptions from super types, potentially duplicate
+               descriptions due to diamond inheritance are removed by hashing
+             */
+
+            for( int baseOps = 0; baseOps < baseDescriptions.length; baseOps++ )
+            { 
+                for( int bbaseOps = 0; 
+                     bbaseOps < baseDescriptions[baseOps].operations.length; 
+                     bbaseOps++ )
+                {
+                    OperationDescription base_op = 
+                        baseDescriptions[baseOps].operations[bbaseOps];
+
+                    if( !ops.containsKey( base_op.name ))
+                        ops.put( base_op.name, base_op );
+                }
+            }            
+
+            operations = new OperationDescription[ ops.size() ];
+
+            int opsCount = 0;
+            for( Enumeration e = ops.elements(); e.hasMoreElements(); opsCount++ )
+            {
+                operations[ opsCount ] = (OperationDescription)e.nextElement();
+            }
+            ops.clear();
+
+            /* build attribute descriptions */
+            Hashtable atts = new Hashtable();
+
             for( int a = 0; a < att_defs.length; a++ )
             {
-                attributes[a] = att_defs[a].describe_attribute();
+                AttributeDescription att = att_defs[a].describe_attribute();
+                atts.put( att.name, att );
             }
-            
+
+            /* get attribute descriptions from super types */
+
+            for( int baseAtts = 0; baseAtts < baseDescriptions.length; baseAtts++ )
+            { 
+                for( int bbaseAtts = 0; 
+                     bbaseAtts < baseDescriptions[ baseAtts ].attributes.length; 
+                     bbaseAtts++ )
+                {
+                    AttributeDescription base_att = 
+                        baseDescriptions[ baseAtts ].attributes[ bbaseAtts ];
+
+                    if( !atts.containsKey( base_att.name ))
+                        atts.put( base_att.name, base_att );
+                }
+            }            
+
+            attributes = new AttributeDescription[ atts.size() ];
+
+            int attsCount = 0;
+            for( Enumeration e = atts.elements(); e.hasMoreElements(); attsCount++ )
+            {
+                attributes[ attsCount ] = (AttributeDescription)e.nextElement();
+            }
+            atts.clear();
+
+            /* build constant descriptions */
+
             constants = new org.omg.CORBA.ConstantDescription[ constant_defs.length ];
             for( int b = 0; b < constant_defs.length; b++ )
             {
                 constants[b] = constant_defs[b].describe_constant();
-            }
-            
+            }           
+
             Debug.assert( operations != null, "operations null!");
             Debug.assert( attributes != null, "attributes null!");
             
             fullDescription =
-                new org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription(name, 
-                                                                               id, 
-                                                                           def_in, 
-                                                                           version, 
-                                                                           operations, 
-                                                                           attributes, 
-                                                                           base_names, 
-                                                                              typeCode, 
-                                                                           false );
+                new FullInterfaceDescription( name, id, def_in, version, 
+                                              operations, attributes, base_names, 
+                                              typeCode, false );
         }
         return fullDescription;
     }
@@ -523,7 +609,7 @@ public class InterfaceDef
     // write methods on an InterfaceDef, 
     // these are not supported at the moment !!
 
-    public void base_interfaces(org.omg.CORBA.InterfaceDef[] a)
+    public void base_interfaces( org.omg.CORBA.InterfaceDef[] a )
     {
         throw new org.omg.CORBA.INTF_REPOS(ErrorMsg.IR_Not_Implemented,
                                            org.omg.CORBA.CompletionStatus.COMPLETED_NO);
@@ -540,8 +626,7 @@ public class InterfaceDef
                                             org.omg.CORBA.CompletionStatus.COMPLETED_NO);
     }
     
-    public org.omg.CORBA.OperationDef create_operation( 
-                                                       String id, 
+    public org.omg.CORBA.OperationDef create_operation( String id, 
                                                        String name, 
                                                        String version, 
                                                        org.omg.CORBA.IDLType result,
@@ -551,9 +636,8 @@ public class InterfaceDef
                                                        String[] contexts
                                                        )
     {
-        throw new org.omg.CORBA.INTF_REPOS( 
-                                           ErrorMsg.IR_Not_Implemented,
-                                           org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+        throw new org.omg.CORBA.INTF_REPOS( ErrorMsg.IR_Not_Implemented,
+                                            org.omg.CORBA.CompletionStatus.COMPLETED_NO);
     }
     
 
@@ -561,7 +645,8 @@ public class InterfaceDef
 
     public org.omg.CORBA.Contained lookup( String scopedname )
     {
-        org.jacorb.util.Debug.output(2,"Interface " + this.name + " lookup " + scopedname );
+        org.jacorb.util.Debug.output(2,"Interface " + this.name + 
+                                     " lookup " + scopedname );
 
         String top_level_name;
         String rest_of_name;
@@ -592,7 +677,8 @@ public class InterfaceDef
 
             if( top == null )
             {
-                org.jacorb.util.Debug.output(2,"Interface " + this.name + " top " + top_level_name + " not found ");
+                org.jacorb.util.Debug.output(2,"Interface " + this.name + 
+                                             " top " + top_level_name + " not found ");
                 return null;
             }
 	
@@ -608,7 +694,8 @@ public class InterfaceDef
                 }
                 else
                 {
-                    org.jacorb.util.Debug.output(2,"Interface " + this.name +" " + scopedname + " not found ");
+                    org.jacorb.util.Debug.output(2,"Interface " + this.name +
+                                                 " " + scopedname + " not found ");
                     return null;		
                 }
             }
@@ -695,38 +782,62 @@ public class InterfaceDef
         return result;
     }
 
-    public org.omg.CORBA.ContainerPackage.Description[] describe_contents( 
-                                        org.omg.CORBA.DefinitionKind limit_type, 
-                                        boolean exclude_inherited, 
-                                        int max_returned_objs)
+
+    public Description[] describe_contents(org.omg.CORBA.DefinitionKind limit_type, 
+                                           boolean exclude_inherited, 
+                                           int max_returned_objs)
     {
         return null;
     }
 
+
     // write interface not supported!
 
-    public org.omg.CORBA.ModuleDef create_module(String id, String name, String version)
-	{
+    public org.omg.CORBA.ModuleDef create_module( String id, 
+                                                  String name, 
+                                                  String version)
+    {
         return null;
     }
 
-    public org.omg.CORBA.ConstantDef create_constant(/*RepositoryId*/ String id, /*Identifier*/ String name, /*VersionSpec*/ String version, IDLType type, org.omg.CORBA.Any value){
+    public org.omg.CORBA.ConstantDef create_constant( /*RepositoryId*/ String id, 
+                                                      /*Identifier*/ String name, 
+                                                      /*VersionSpec*/ String version, 
+                                                      IDLType type, org.omg.CORBA.Any value)
+    {
         return null;
     }
 
-    public org.omg.CORBA.StructDef create_struct(/*RepositoryId*/ String id, /*Identifier*/ String name, /*VersionSpec*/ String version, /*StructMemberSeq*/ org.omg.CORBA.StructMember[] members){
+    public org.omg.CORBA.StructDef create_struct(/*RepositoryId*/ String id, 
+                                                 /*Identifier*/ String name, 
+                                                 /*VersionSpec*/ String version,
+                                                 /*StructMemberSeq*/ org.omg.CORBA.StructMember[] members)
+    {
         return null;
     }
 
-    public org.omg.CORBA.UnionDef create_union(/*RepositoryId*/ String id, /*Identifier*/ String name, /*VersionSpec*/ String version, org.omg.CORBA.IDLType discriminator_type, /*UnionMemberSeq*/ org.omg.CORBA.UnionMember[] members){
+    public org.omg.CORBA.UnionDef create_union( /*RepositoryId*/ String id, 
+                                                /*Identifier*/ String name, 
+                                                /*VersionSpec*/ String version,
+                                                org.omg.CORBA.IDLType discriminator_type, 
+                                                /*UnionMemberSeq*/ org.omg.CORBA.UnionMember[] members)
+    {
         return null;
     }
 
-    public org.omg.CORBA.EnumDef create_enum(/*RepositoryId*/ String id, /*Identifier*/ String name, /*VersionSpec*/ String version, /*EnumMemberSeq*/ /*Identifier*/ String[] members){
+    public org.omg.CORBA.EnumDef create_enum(/*RepositoryId*/ String id, 
+                                             /*Identifier*/ String name, 
+                                             /*VersionSpec*/ String version, 
+                                             /*EnumMemberSeq*/ /*Identifier*/ String[] members)
+    {
         return null;
     }
 
-    public org.omg.CORBA.AliasDef create_alias(/*RepositoryId*/ String id, /*Identifier*/ String name, /*VersionSpec*/ String version, org.omg.CORBA.IDLType original_type){
+    public org.omg.CORBA.AliasDef create_alias(/*RepositoryId*/ String id, 
+                                               /*Identifier*/ String name, 
+                                               /*VersionSpec*/ String version, 
+                                               org.omg.CORBA.IDLType original_type)
+    {
         return null;
     }
 
@@ -735,7 +846,10 @@ public class InterfaceDef
      * not supported
      */
 
-    public org.omg.CORBA.ExceptionDef create_exception(java.lang.String id, java.lang.String name , java.lang.String version, org.omg.CORBA.StructMember[] member ) 
+    public org.omg.CORBA.ExceptionDef create_exception(String id, 
+                                                       String name , 
+                                                       String version, 
+                                                       org.omg.CORBA.StructMember[] member ) 
     {
         return null;
     }
@@ -744,8 +858,7 @@ public class InterfaceDef
      * not supported
      */
 
-    public org.omg.CORBA.InterfaceDef create_interface(
-                                                       /*RepositoryId*/ String id, 
+    public org.omg.CORBA.InterfaceDef create_interface(/*RepositoryId*/ String id, 
                                                        /*Identifier*/ String name,
                                                        /*VersionSpec*/ String version, 
                                                        /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces,
@@ -758,9 +871,9 @@ public class InterfaceDef
      * not supported
      */
 
-    public org.omg.CORBA.ValueBoxDef create_value_box(java.lang.String id, 
-                                                      java.lang.String name, 
-                                                      java.lang.String version, 
+    public org.omg.CORBA.ValueBoxDef create_value_box(String id, 
+                                                      String name, 
+                                                      String version, 
                                                       org.omg.CORBA.IDLType type)
     {
         return null;
@@ -771,10 +884,9 @@ public class InterfaceDef
      * not supported
      */
 
-    public  org.omg.CORBA.ValueDef create_value(
-                                                java.lang.String id, 
-                                                java.lang.String name, 
-                                                java.lang.String version,
+    public  org.omg.CORBA.ValueDef create_value(String id, 
+                                                String name, 
+                                                String version,
                                                 boolean is_custom, 
                                                 boolean is_abstract, 
                                                 org.omg.CORBA.ValueDef base_value, 
@@ -791,9 +903,9 @@ public class InterfaceDef
      * not supported
      */
 
-    public org.omg.CORBA.NativeDef create_native(java.lang.String id, 
-                                                 java.lang.String name, 
-                                                 java.lang.String version)
+    public org.omg.CORBA.NativeDef create_native(String id, 
+                                                 String name, 
+                                                 String version)
     {
         return null;
     }
@@ -813,8 +925,7 @@ public class InterfaceDef
         else
             def_in = myContainer.id();
 	
-        org.omg.CORBA.InterfaceDescriptionHelper.insert( 
-                                a, 
+        org.omg.CORBA.InterfaceDescriptionHelper.insert( a, 
                                 new org.omg.CORBA.InterfaceDescription( name, 
                                                                         id, 
                                                                         def_in, 

@@ -23,54 +23,54 @@ package org.jacorb.naming.namemanager;
 public class NSTableModel 
 	extends javax.swing.table.DefaultTableModel 
 {
-/**
- * NSTableModel constructor comment.
- */
-public NSTableModel() 
-{
+    /**
+     * NSTableModel constructor comment.
+     */
+    public NSTableModel() 
+    {
 	super();
 	String [] colNames = {"Name", "Kind", "Type","Host"};
 	super.setColumnIdentifiers(convertToVector(colNames));
-}
-/**
- * getColumnCount method comment.
- */
-public int getColumnCount() 
-{
+    }
+    /**
+     * getColumnCount method comment.
+     */
+    public int getColumnCount() 
+    {
 	return 4;
-}
-/**
- * always returns false to make this table non-editable
- * @return boolean
- * @param r int
- * @param c int
- */
-public boolean isCellEditable(int r, int c) 
-{
+    }
+    /**
+     * always returns false to make this table non-editable
+     * @return boolean
+     * @param r int
+     * @param c int
+     */
+    public boolean isCellEditable(int r, int c) 
+    {
 	return false;
-}
-/**
- * 
- * @param data java.util.Vector
- */
-public void setDataVector(java.util.Vector newData) 
-{
-		if (newData == null)
-			throw new IllegalArgumentException("setDataVector() - Null parameter");
-
-		// Clear all the previous data.
-		dataVector = new java.util.Vector(0);
-
-		fireTableStructureChanged();
-
-		// Add the new rows.
-		dataVector = newData;
-
-		// Make all the new rows the right length and generate a notification.
-		newRowsAdded(new javax.swing.event.TableModelEvent(this, 0, getRowCount()-1,
-							 javax.swing.event.TableModelEvent.ALL_COLUMNS, 
-							 javax.swing.event.TableModelEvent.INSERT));
-}
+    }
+    /**
+     * 
+     * @param data java.util.Vector
+     */
+    public void setDataVector(java.util.Vector newData) 
+    {
+        if (newData == null)
+            throw new IllegalArgumentException("setDataVector() - Null parameter");
+        
+        // Clear all the previous data.
+        dataVector = new java.util.Vector(0);
+        
+        fireTableStructureChanged();
+        
+        // Add the new rows.
+        dataVector = newData;
+        
+        // Make all the new rows the right length and generate a notification.
+        newRowsAdded(new javax.swing.event.TableModelEvent(this, 0, getRowCount()-1,
+                                                           javax.swing.event.TableModelEvent.ALL_COLUMNS, 
+                                                           javax.swing.event.TableModelEvent.INSERT));
+    }
 }
 
 

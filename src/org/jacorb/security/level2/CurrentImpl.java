@@ -487,10 +487,3 @@ public class CurrentImpl
 
 
 
-
-
-
-
-
-
-

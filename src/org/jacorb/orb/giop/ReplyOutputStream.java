@@ -35,6 +35,7 @@ public class ReplyOutputStream
     extends org.jacorb.orb.CDROutputStream
 {
     private org.omg.GIOP.ReplyHeader_1_0 rep_hdr;
+    private int bodyBeginMarker;
 
     /**
      * To be called only from derived classes.
@@ -74,7 +75,9 @@ public class ReplyOutputStream
         if (separate_header)
             header_stream = new CDROutputStream();
         else
-            writeHeader(this);
+            writeHeader( this );
+
+        bodyBeginMarker = size();
     }
 
     private void writeHeader(CDROutputStream out)
@@ -87,6 +90,29 @@ public class ReplyOutputStream
     {
         return rep_hdr.request_id;
     }
+
+    /**
+     * a copy of the data part of the reply body, might be empty in 
+     * case of a void return type or oneway operations
+     */
+
+    public byte[] getBodyBufferCopy()
+    {
+        byte[] buf = getInternalBuffer();
+        byte[] result = null;
+        if ( header_stream != null )
+        {
+            result = new byte[ size() ];
+            System.arraycopy( buf, 0, result, 0, result.length);
+        }
+        else
+        {
+            result = new byte[ size() - bodyBeginMarker ];
+            System.arraycopy( buf, bodyBeginMarker, result, 0, result.length );
+        }
+        return result;
+    }
+
 
     public org.omg.IOP.ServiceContext[] getServiceContexts()
     {

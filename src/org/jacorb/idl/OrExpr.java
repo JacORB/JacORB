@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -70,35 +70,31 @@ class OrExpr
 	xor_expr.parse();
 	}
 
-    int pos_int_const(){
+    int pos_int_const()
+    {
 	return xor_expr.pos_int_const();
     }
 
     public String  value() 
     {
 	String x = "";
-	if( or_expr != null ){
+	if( or_expr != null )
+        {
 	    x = or_expr.value() + "|";
 	}
 	return x + xor_expr.value();
     }
+
+    public String toString() 
+    {
+	String x = "";
+	if( or_expr != null )
+        {
+	    x = or_expr + "|";
+	}
+	return x + xor_expr;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

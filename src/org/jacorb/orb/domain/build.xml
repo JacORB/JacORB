@@ -16,7 +16,7 @@
 	<property name="lib" value="${base}/lib"/>
 	<property name="include" value="${base}/idl"/>
 	<property name="idlflags" 
-                value="-I${include}/omg -I${include}/jacorb -d
+                value="-I${include}/omg -I${include}/jacorb -ir -d
 	${dsrc}/generated"/>
 	<property name="DSURL"
 	value="/home/troll/kiefer/public_html/jacorb/DS_Ref" />

@@ -3,7 +3,7 @@ package org.jacorb.idl;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -45,7 +45,7 @@ class ConstExpr
 
     public void print(PrintWriter ps)
     {
-        or_expr.print(ps);
+        or_expr.print( ps );
     }
 
     int pos_int_const()
@@ -55,7 +55,9 @@ class ConstExpr
 
     public String toString()
     {
-        return new String(value());
+        //        return value();
+        return or_expr.toString();
+
     }
 
     public String value() 
@@ -73,8 +75,6 @@ class ConstExpr
         or_expr.setPackage(s);
     }
 }
-
-
 
 
 

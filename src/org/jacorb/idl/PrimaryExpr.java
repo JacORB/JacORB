@@ -31,7 +31,6 @@ class PrimaryExpr
     extends IdlSymbol
 {
     public IdlSymbol symbol;
-    private boolean parsed = false;
 
     public PrimaryExpr(int num)
     {
@@ -48,7 +47,8 @@ class PrimaryExpr
         } 
         else if( symbol instanceof ScopedName)
         {
-            ps.print( ConstDecl.namedValue( (ScopedName)symbol));
+            ps.print(((ScopedName)symbol).resolvedName() );
+            //            ps.print( ConstDecl.namedValue( (ScopedName)symbol));
         } 
         else // Literal
             symbol.print(ps);
@@ -73,14 +73,13 @@ class PrimaryExpr
 
     int pos_int_const()
     {
-
         if( symbol instanceof ConstExpr)
         {
             return ((ConstExpr)symbol).pos_int_const();
         } 
         else if( symbol instanceof ScopedName)
         {       
-            return Integer.parseInt(ConstDecl.namedValue( (ScopedName)symbol));
+            return Integer.parseInt( ConstDecl.namedValue( (ScopedName)symbol));
         } 
         else 
             return Integer.parseInt( ((Literal)symbol).string );
@@ -99,6 +98,22 @@ class PrimaryExpr
         else 
             return ((Literal)symbol).string;
     }
+
+    public String toString()
+    {
+        if( symbol instanceof ConstExpr)
+        {
+            return "(" + ((ConstExpr)symbol).toString()+")";
+        } 
+        else if( symbol instanceof ScopedName)
+        {
+            //            return ConstDecl.namedValue( (ScopedName)symbol);
+            return ((ScopedName)symbol).resolvedName();
+        } 
+        else 
+            return ((Literal)symbol).string;
+    }
+
 
 }
 

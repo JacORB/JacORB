@@ -3,7 +3,7 @@ module inherit
     interface A {
     };
 
-     interface B: A
+    interface B: A
      {
          oneway void notify();
 
@@ -45,7 +45,5 @@ module inherit
 	};
      };
 
-
-     interface XX;
 
 }; 

@@ -95,16 +95,16 @@ public class OperationDef
 
 
             StringTokenizer strtok = 
-                new StringTokenizer(opInfo.substring(opInfo.indexOf("(") + 1, 
-                                                     opInfo.lastIndexOf(")")), ",");
+                new StringTokenizer( opInfo.substring( opInfo.indexOf("(") + 1, 
+                                                       opInfo.lastIndexOf(")")), ",");
 
             paramTypeNames = new String[strtok.countTokens()];
             for( int i = 0; i < paramTypeNames.length; i++ )
             {
                 String token = strtok.nextToken();
+                
                 paramTypeNames[i] = ( !token.equals(",") ? token : null );
             }
-
         }
 
         if( mode == null )
@@ -215,6 +215,7 @@ public class OperationDef
                     if( paramInfo != null && paramInfo.indexOf(' ') > 0 )
                     {
                         parameterTypeName = paramInfo.substring( paramInfo.indexOf(' ')+1);
+                        name = paramInfo.substring(paramInfo.indexOf(':')+1, paramInfo.indexOf(' '));
                     }
                 }
                 else
@@ -222,18 +223,23 @@ public class OperationDef
                     Debug.assert( paramInfo != null && (paramInfo.indexOf(' ') > 0),
                                   "No param info for " + parameterTypeName);
                    
-                    if( paramInfo.substring(0, (paramInfo.indexOf(' ')-1)).equals("inout"))
+                    if( paramInfo.substring(0, (paramInfo.indexOf(' ')-1)).startsWith("inout:"))
                         mode = org.omg.CORBA.ParameterMode.PARAM_INOUT;
                     else
                         mode = org.omg.CORBA.ParameterMode.PARAM_OUT;
+
+                    name = paramInfo.substring(paramInfo.indexOf(':')+1, paramInfo.indexOf(' '));
 
                     parameterTypeName =  
                        parameterTypeName.substring(0, parameterTypeName.indexOf("Holder"));
                 }
 
+
+
                 org.jacorb.util.Debug.output(2,"Operation " + name() + ", param #"+ i + 
-                                         ", paramTypeName " + parameterTypeName + 
-                                         paramInfo );
+                                             "name: " + name + 
+                                             ", paramTypeName " + parameterTypeName + 
+                                             paramInfo );
 
                 tc = TypeCodeUtil.getTypeCode( m_params[i], 
                                                RepositoryImpl.loader,

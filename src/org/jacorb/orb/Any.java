@@ -42,9 +42,9 @@ public final class Any
     private java.lang.Object value;
     private org.omg.CORBA.ORB orb;
 
-    Any( org.omg.CORBA.ORB _orb )
+    Any( org.omg.CORBA.ORB orb )
     {
-        orb = _orb;
+        this.orb = orb;
         typeCode = orb.get_primitive_tc( org.omg.CORBA.TCKind.tk_null );
     }
         

@@ -55,7 +55,7 @@ public class SequenceDef
 
         org.jacorb.util.Debug.assert( element_type_def != null, 
                                       "Element type " + name  + 
-                                      " null in sequence def");
+                                      " null in SequenceDef " + name );
 
         org.jacorb.util.Debug.output(2, "New SequenceDef");
     }

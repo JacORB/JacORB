@@ -16,7 +16,8 @@
 	<property name="jsrc" value="${dirs.base}/src"/>
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
-	<property name="jidlflags" value="-I${include}/omg -I${include}/jacorb -d ${jsrc}/generated"/>
+	<property name="jidlflags" value="-I${include}/omg
+	-I${include}/jacorb -ir -d ${jsrc}/generated"/>
 	<available classname="iaik.x509.X509Certificate" property="iaik.present" />
         <available classname="javax.swing.JFrame" property="swing.present" />
    </target>

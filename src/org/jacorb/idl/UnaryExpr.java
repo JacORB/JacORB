@@ -74,8 +74,15 @@ class UnaryExpr
     {
         return unary_op + primary_expr.value();
     }
-}
 
+    public String toString() 
+    {
+        return unary_op.toString() + primary_expr.toString();
+    }
+
+
+
+}
 
 
 

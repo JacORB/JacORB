@@ -1,0 +1,12 @@
+module test
+{
+   interface X;
+
+  interface Y : X
+    {
+      void op();
+    };
+  
+ interface X { void op2(); };
+
+};

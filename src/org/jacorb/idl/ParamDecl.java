@@ -63,7 +63,7 @@ class ParamDecl
 	}
     }
 
-    public void print(PrintWriter ps)
+    public void print( PrintWriter ps )
     {
 	switch(paramAttribute)
 	{
@@ -92,23 +92,6 @@ class ParamDecl
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
