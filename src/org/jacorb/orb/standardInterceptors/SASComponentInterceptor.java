@@ -86,18 +86,32 @@ public class SASComponentInterceptor
             if( tc == null )
             {
                 // parse required association options
+		String targetSupportsNames = Environment.getProperty( "jacorb.security.sas.tss.target_supports", "" );
+                short targetSupports = (short)0;
+                StringTokenizer nameTokens = new StringTokenizer(targetSupportsNames, ":;, ");
+                while (nameTokens.hasMoreTokens())
+                {
+                    String token = nameTokens.nextToken();
+                    if (token.equals("Integrity")) targetSupports |= Integrity.value;
+                    else if (token.equals("Confidentiality"))        targetSupports |= Confidentiality.value;
+                    else if (token.equals("EstablishTrustInTarget")) targetSupports |= EstablishTrustInTarget.value;
+                    else if (token.equals("EstablishTrustInClient")) targetSupports |= EstablishTrustInClient.value;
+                    else if (token.equals("IdentityAssertion"))      targetSupports |= IdentityAssertion.value;
+                    else if (token.equals("DelegationByClient"))     targetSupports |= DelegationByClient.value;
+                    else org.jacorb.util.Debug.output(1, "Unknown SAS Association Taken: " + token);
+                }
 		String targetRequiresNames = Environment.getProperty( "jacorb.security.sas.tss.target_requires", "" );
                 short targetRequires = (short)0;
-                StringTokenizer nameTokens = new StringTokenizer(targetRequiresNames, ":;, ");
+                nameTokens = new StringTokenizer(targetRequiresNames, ":;, ");
                 while (nameTokens.hasMoreTokens())
                 {
                     String token = nameTokens.nextToken();
                     if (token.equals("Integrity")) targetRequires |= Integrity.value;
-                    else if (token.equals("Confidentiality")) targetRequires |= Confidentiality.value;
+                    else if (token.equals("Confidentiality"))        targetRequires |= Confidentiality.value;
                     else if (token.equals("EstablishTrustInTarget")) targetRequires |= EstablishTrustInTarget.value;
                     else if (token.equals("EstablishTrustInClient")) targetRequires |= EstablishTrustInClient.value;
-                    else if (token.equals("IdentityAssertion")) targetRequires |= IdentityAssertion.value;
-                    else if (token.equals("DelegationByClient")) targetRequires |= DelegationByClient.value;
+                    else if (token.equals("IdentityAssertion"))      targetRequires |= IdentityAssertion.value;
+                    else if (token.equals("DelegationByClient"))     targetRequires |= DelegationByClient.value;
                     else org.jacorb.util.Debug.output(1, "Unknown SAS Association Taken: " + token);
                 }
 
@@ -106,7 +120,7 @@ public class SASComponentInterceptor
 
                 // the AS_ContextSec
                 byte[] targetName = Environment.getProperty( "jacorb.security.sas.tss.target_name").getBytes();
-                short asTargetSupports = targetRequires;
+                short asTargetSupports = targetSupports;
                 short asTargetRequires = targetRequires;
 
                 // the SAS_ContextSec
