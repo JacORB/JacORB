@@ -63,6 +63,8 @@ public final class ORB
 
     /** interceptor handling */
     private InterceptorManager interceptor_manager = null;
+    private boolean hasClientInterceptors = false;
+    private boolean hasServerInterceptors = false;
   
     /** reference caching */
     private Hashtable knownReferences = null;
@@ -1318,70 +1320,61 @@ public final class ORB
     private void interceptorInit()
     {
         // get instances from Environment
-        Vector orb_initializers = Environment.getORBInitializers();
+        Vector orb_initializers = Environment.getORBInitializers ();
 
-        if (orb_initializers.size() > 0)
+        if (orb_initializers.size () > 0)
         {
-            ORBInitInfoImpl info = new ORBInitInfoImpl(this);
+            ORBInitInfoImpl info = new ORBInitInfoImpl (this);
+            ORBInitializer init;
 
             // call pre_init in ORBInitializers
             for (int i = 0; i < orb_initializers.size(); i++)
             {
                 try
                 {
-                    ORBInitializer init = (ORBInitializer) orb_initializers.elementAt(i);
-                    init.pre_init(info);
+                    init = (ORBInitializer) orb_initializers.elementAt (i);
+                    init.pre_init (info);
                 }
                 catch (Exception e)
                 {
-                    Debug.output(0, e);
+                    Debug.output (0, e);
                 }
             }
      
             //call post_init on ORBInitializers
-            for (int i = 0; i < orb_initializers.size(); i++)
+            for (int i = 0; i < orb_initializers.size (); i++)
             {
                 try
                 {
-                    ORBInitializer init = (ORBInitializer) orb_initializers.elementAt(i);
-                    init.post_init(info);
+                    init = (ORBInitializer) orb_initializers.elementAt (i);
+                    init.post_init (info);
                 }
-                catch (Exception e){
-                    Debug.output(0, e);
+                catch (Exception e)
+                {
+                    Debug.output (0, e);
                 } 
             }
 
             //allow no more access to ORBInitInfo from ORBInitializers
-            info.setInvalid();
+            info.setInvalid ();
 
-            Vector client_interceptors = info.getClientInterceptors();
-            Vector server_interceptors = info.getServerInterceptors();
-            Vector ior_intercept = info.getIORInterceptors();
+            Vector client_interceptors = info.getClientInterceptors ();
+            Vector server_interceptors = info.getServerInterceptors ();
+            Vector ior_intercept = info.getIORInterceptors ();
 
-            if ((server_interceptors.size() > 0) || 
-                (client_interceptors.size() > 0) ||
-                (ior_intercept.size() > 0))
+            hasClientInterceptors = (client_interceptors.size () > 0);
+            hasServerInterceptors = (server_interceptors.size () > 0);
+
+            if (hasClientInterceptors || hasServerInterceptors || (ior_intercept.size () > 0))
             {
-                interceptor_manager = new InterceptorManager(client_interceptors,
-                                                             server_interceptors,
-                                                             ior_intercept,
-                                                             info.getSlotCount(),
-                                                             this);
-
-                /**
-                 * reinitialize cached references. This is needed
-                 * since references that have been created in an
-                 * ORBInitializer will have no interceptors called 
-                 * on invocation.
-                 */
-                Enumeration e = knownReferences.elements();
-
-                while(e.hasMoreElements())
-                {
-                    Reference r = (Reference) e.nextElement();
-                    if( r != null )
-                        ((Delegate) r._get_delegate()).initInterceptors();
-                }
+                interceptor_manager = new InterceptorManager
+                (
+                    client_interceptors,
+                    server_interceptors,
+                    ior_intercept,
+                    info.getSlotCount (),
+                    this
+                );
             }
       
             // add PolicyFactories to ORB
@@ -1722,10 +1715,9 @@ public final class ORB
      * Called by Delegate.
      */
 
-    public boolean hasClientRequestInterceptors()
+    public boolean hasClientRequestInterceptors ()
     {
-        return (interceptor_manager != null) &&
-            interceptor_manager.hasClientRequestInterceptors();
+        return hasClientInterceptors;
     }
 
     /**
@@ -1733,10 +1725,9 @@ public final class ORB
      * Called by poa.RequestProcessor.
      */
 
-    public boolean hasServerRequestInterceptors()
+    public boolean hasServerRequestInterceptors ()
     {
-        return (interceptor_manager != null) &&
-            interceptor_manager.hasServerRequestInterceptors();
+        return hasServerInterceptors;
     }
   
     /**
@@ -1749,7 +1740,6 @@ public final class ORB
     {
         return interceptor_manager;
     }
-
    
     public void mountORBDomain()
     {

@@ -66,10 +66,8 @@ public final class Delegate
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
 
-    private org.omg.CORBA.ORB orb = null;
+    private org.jacorb.orb.ORB orb = null;
     
-    private boolean use_interceptors = false;
-
     /** set after the first attempt to determine whether 
         this reference is to a local object */
     private boolean resolved_locality = false;
@@ -103,20 +101,19 @@ public final class Delegate
      */
 
     /* constructors: */
-    public Delegate()
+
+    private Delegate ()
     {}
 
-    public Delegate(org.omg.CORBA.ORB orb, ParsedIOR pior )
+    public Delegate (org.jacorb.orb.ORB orb, ParsedIOR pior)
     {
         this.orb = orb;
         _pior = pior;
 
-        conn_mg = ((ORB) orb).getConnectionManager();
-
-        initInterceptors();
+        conn_mg = orb.getConnectionManager();
     }
 
-    public Delegate(org.omg.CORBA.ORB orb, String object_reference ) 
+    public Delegate (org.jacorb.orb.ORB orb, String object_reference) 
     {
         this.orb = orb;
         if ( object_reference.indexOf("IOR:") == 0)
@@ -129,23 +126,19 @@ public final class Delegate
                                                 object_reference );
         }
 
-        conn_mg = ((ORB) orb).getConnectionManager();
-
-        initInterceptors();
+        conn_mg = orb.getConnectionManager();
     }
 
-    public Delegate(org.omg.CORBA.ORB orb, org.omg.IOP.IOR _ior )
+    public Delegate (org.jacorb.orb.ORB orb, org.omg.IOP.IOR _ior)
     {
         this.orb = orb;
         _pior = new ParsedIOR( _ior );
 
-        conn_mg = ((ORB) orb).getConnectionManager();
-
-        initInterceptors();
+        conn_mg = orb.getConnectionManager();
     }
 
     //special constructor for appligator
-    public Delegate(org.omg.CORBA.ORB orb, String object_reference, boolean _donotcheckexceptions )
+    public Delegate (org.jacorb.orb.ORB orb, String object_reference, boolean _donotcheckexceptions)
     {
         this(orb, object_reference);
         doNotCheckExceptions = _donotcheckexceptions; 
@@ -382,7 +375,7 @@ public final class Delegate
             conn_mg.releaseConnection( connection );
         }
 
-        ((org.jacorb.orb.ORB)orb)._release( this );
+        orb._release( this );
 
 
         Debug.output(3," Delegate gc'ed!");
@@ -676,14 +669,15 @@ public final class Delegate
     {
         ClientRequestInfoImpl info = null;
         RequestOutputStream ros = null;
+        boolean useInterceptors = orb.hasClientRequestInterceptors ();
 
         ros = (RequestOutputStream) os;
     
-        if ( use_interceptors )
+        if (useInterceptors)
         {
             //set up info object
             info = new ClientRequestInfoImpl();
-            info.orb = (org.jacorb.orb.ORB) orb;
+            info.orb = orb;
             info.operation = ros.operation();
             info.response_expected = ros.response_expected();
             info.received_exception = orb.create_any();
@@ -696,7 +690,7 @@ public final class Delegate
             ParsedIOR pior = getParsedIOR();
 
             if( piorOriginal != null )
-                info.target = ((org.jacorb.orb.ORB) orb)._getObject(pior);
+                info.target = orb._getObject(pior);
             else
                 info.target = self;
     
@@ -715,8 +709,7 @@ public final class Delegate
             info.delegate = this;
         
             info.request_id = ros.requestId();
-            InterceptorManager manager = 
-                ((org.jacorb.orb.ORB) orb).getInterceptorManager();
+            InterceptorManager manager = orb.getInterceptorManager();
 
             info.current = manager.getCurrent();
 
@@ -777,7 +770,7 @@ public final class Delegate
         } 
         catch( org.omg.CORBA.SystemException cfe )
         {
-            if (use_interceptors && (info != null)) {
+            if (useInterceptors && (info != null)) {
                 SystemExceptionHelper.insert(info.received_exception, cfe);
 
                 try 
@@ -837,7 +830,7 @@ public final class Delegate
      		if (!doNotCheckExceptions)
                 	rep.checkExceptions();
                 	
-                if ( use_interceptors && (info != null) )
+                if (useInterceptors && (info != null) )
                 {
                     ReplyHeader_1_2 _header = rep.rep_hdr;
               
@@ -853,8 +846,7 @@ public final class Delegate
                         //result will first be available there
                         if (ros.getRequest() == null) 
                         {
-                            InterceptorManager manager = 
-                                ((org.jacorb.orb.ORB) orb).getInterceptorManager();
+                            InterceptorManager manager = orb.getInterceptorManager();
                             info.current = manager.getCurrent();
 
                             //allow interceptors access to reply input stream
@@ -880,7 +872,7 @@ public final class Delegate
             }
             catch( org.omg.PortableServer.ForwardRequest f )
             {
-                if ( use_interceptors && (info != null) )
+                if (useInterceptors && (info != null) )
                 {
                     info.reply_status = LOCATION_FORWARD.value;
                     info.setReplyServiceContexts(rep.rep_hdr.service_context);
@@ -922,7 +914,7 @@ public final class Delegate
             }
             catch( SystemException _sys_ex )
             {
-                if( use_interceptors && (info != null))
+                if(useInterceptors && (info != null))
                 {
                     info.reply_status = SYSTEM_EXCEPTION.value;
                     
@@ -950,7 +942,7 @@ public final class Delegate
             }
             catch(ApplicationException _user_ex)
             {
-                if (use_interceptors && (info != null))
+                if (useInterceptors && (info != null))
                 {
                     info.reply_status = USER_EXCEPTION.value;
                     info.setReplyServiceContexts(rep.rep_hdr.service_context);
@@ -1001,7 +993,7 @@ public final class Delegate
         }
         else
         {
-            if ( use_interceptors && (info != null) )
+            if (useInterceptors && (info != null) )
             {
                 //oneway call
                 info.reply_status = SUCCESSFUL.value;
@@ -1017,7 +1009,7 @@ public final class Delegate
         throws RemarshalException
     {
         ClientInterceptorIterator intercept_iter = 
-            ((org.jacorb.orb.ORB) orb).getInterceptorManager().getClientIterator();
+            orb.getInterceptorManager().getClientIterator();
         
         try
         {
@@ -1116,8 +1108,7 @@ public final class Delegate
     {     
         if( ! resolved_locality )
         {
-            org.jacorb.poa.POA local_poa = 
-                ((org.jacorb.orb.ORB)orb).findPOA( this, self );
+            org.jacorb.poa.POA local_poa = orb.findPOA( this, self );
             if( local_poa != null ) // && local_poa._localStubsSupported() )
                 poa = local_poa;
 //              Debug.output( 3, "Delegate.is_local found " + 
@@ -1256,7 +1247,7 @@ public final class Delegate
 
     public void servant_postinvoke(org.omg.CORBA.Object self, ServantObject servant) 
     {
-        ((org.jacorb.orb.ORB)orb).getPOACurrent()._removeContext(Thread.currentThread());
+        orb.getPOACurrent()._removeContext(Thread.currentThread());
     }
 
     /**
@@ -1272,7 +1263,7 @@ public final class Delegate
         {
             /* make sure that no proxified IOR is used for local invocations */
             /*
-            if( ((org.jacorb.orb.ORB)orb).isApplet())
+            if (orb.isApplet())
             {
                 Debug.output(1, "Unproxyfying IOR:");
                 org.jacorb.orb.Delegate d =
@@ -1280,7 +1271,7 @@ public final class Delegate
         
                 //ugly workaround for setting the object key.
                 org.jacorb.orb.ParsedIOR divpior =
-                    new org.jacorb.orb.ParsedIOR(((org.jacorb.orb.ORB)orb).unproxyfy( d.getIOR() ));
+                    new org.jacorb.orb.ParsedIOR(orb.unproxyfy( d.getIOR() ));
     
                 d.setIOR(divpior.getIOR());
                 d.set_adport_and_key( divpior.getProfileBody().host+":" +
@@ -1330,7 +1321,7 @@ public final class Delegate
                     return null;
                 else 
                 {                           
-                    ((org.jacorb.orb.ORB)orb).getPOACurrent()._addContext(
+                    orb.getPOACurrent()._addContext(
                         Thread.currentThread(),
                         new org.jacorb.poa.LocalInvocationContext(
                             orb, 
@@ -1398,11 +1389,6 @@ public final class Delegate
         return getParsedIOR().useSSL();
     }
         
-    public void initInterceptors()
-    {
-        use_interceptors = ((org.jacorb.orb.ORB) orb).hasClientRequestInterceptors();
-    }
-
     public org.omg.CORBA.Object set_policy_override(org.omg.CORBA.Object self,
                 org.omg.CORBA.Policy[] policies,
                 org.omg.CORBA.SetOverrideType set_add) 
@@ -1413,13 +1399,13 @@ public final class Delegate
 	}
 	for (int i = 0; i < policies.length; i++)
 	{
-	    if ( ((org.jacorb.orb.ORB)orb).hasPolicyFactoryForType( policies[i].policy_type() ) )
+	    if (orb.hasPolicyFactoryForType( policies[i].policy_type() ) )
 	    {
 		policy_overrides.put(new Integer(policies[i].policy_type()), policies[i]);
 	    }
 	}
 	ParsedIOR pior = getParsedIOR();
-	org.omg.IOP.IOR ior = ((org.jacorb.orb.ORB)orb).createIOR( pior.getIOR().type_id, 
+	org.omg.IOP.IOR ior = orb.createIOR( pior.getIOR().type_id, 
 								   pior.get_object_key(), 
 								   !poa.isPersistent(), 
 								   poa,
