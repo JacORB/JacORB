@@ -1,24 +1,24 @@
 <?xml version="1.0"?>
 
-<project name="printer" default="all" basedir="../../..">
+<project name="demo" default="all" basedir="../..">
 
   <!-- ==================================================== -->
-  <!--             Demo build file                         -->
+  <!--                  Demo build file                     -->
   <!-- ==================================================== -->
 
    <target name="init">
-	<property name="name" value="domain/printer"/>
+	<property name="name" value="imr"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
 	<property name="include" value="${dirs.base}/idl"/>
-	<property name="idlflags" value="-I${include}/omg -p demo -d ${dirs.base}/demo/domain/printer/generated"/>
+	<property name="idlflags" value="-I${include}/omg -ir  -d ${dirs.base}/demo/${name}/generated"/>
    </target>
 
    <target name="all" depends="init,idl">
 	<javac srcdir="${dirs.base}/demo/${name}/generated"
                destdir="${classdir}"
-	       includes="**/*.java"
+	       includes="demo/${name}/**/*.java"
 	        />
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
@@ -26,20 +26,19 @@
 	        />
    </target>
 
-
    <target name="idl" depends="init">
         <java classname="org.jacorb.idl.parser" 
               fork="yes" 
               classpath="${lib}/idl.jar;${java.class.path}">
 
 	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/Printer.idl"/>
+	      ${dirs.base}/demo/${name}/server.idl"/>
          </java>
    </target>
 
    <target name="clean">
-   <deltree dir="${classdir}/demo/domain/printer"/>
-   <deltree dir="${dirs.base}/demo/domain/printer/generated"/>
+	   <deltree dir="${classdir}/demo/${name}"/>
+	   <deltree dir="${dirs.base}/demo/${name}/generated"/>
    </target>
 
 </project>
