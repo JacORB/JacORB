@@ -161,7 +161,8 @@ class ValueDecl
                 {
                     justAnotherOne = true;
                 }
-                if( ! full_name().equals( "org.omg.CORBA.TypeCode" ) && stateMembers.size () != 0 )
+                if( ! full_name().equals( "org.omg.CORBA.TypeCode" ) && 
+                    stateMembers.size () != 0 )
                 {
                     TypeMap.replaceForwardDeclaration( full_name(), ctspec );
                 }
@@ -191,6 +192,9 @@ class ValueDecl
                         operations.add( e.nextElement() );
                 }
             }
+
+            for( Iterator i = factories.iterator(); i.hasNext(); )
+                ( (IdlSymbol)i.next() ).parse();
 
             // check inheritance rules
 
