@@ -179,6 +179,8 @@ org.omg.PortableInterceptor.ORBInitializerClass.standard_init=org.jacorb.orb.sta
 # Switch off to avoid contacting the ImR on every server start-up
 jacorb.use_imr=off
 
+jacorb.imr.allow_auto_register=off
+
 jacorb.imr.table_file=Z:\table.dat
 jacorb.imr.backup_file=z:\backup.dat
 jacorb.imr.ior_file=/home/bwana/brose/public_html/ImR_Ref
