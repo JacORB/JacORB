@@ -23,6 +23,7 @@ package org.jacorb.orb;
 import org.omg.CORBA.*;
 import org.omg.CORBA.portable.*;
 import java.lang.reflect.*;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * This class provides a method for inserting an arbirtary
@@ -41,48 +42,38 @@ public class ApplicationExceptionHelper
      * All exceptions are propagated upward to be handled there.
      */
 
-    public static void insert(org.omg.CORBA.Any any, ApplicationException  s)
+    public static void insert (org.omg.CORBA.Any any, ApplicationException  s)
         throws ClassNotFoundException, 
         NoSuchMethodException, 
         IllegalAccessException,
         InvocationTargetException
-    {
-
-        String name = s.getId();
-        org.jacorb.util.Debug.output(2, "Trying to build Helper for >>" + name + 
-                                     "<< (" + s.getClass().getName() + ")");
-
-        // Why does this not use RepositoryID.className()?
-        name = name.replace ('/', '.');
-        // strip "IDL:" and ":1.0"
-        name = name.substring (name.indexOf(':')+1, name.lastIndexOf(':'));
-
-        StringBuffer name_strbuf = new StringBuffer( name );
-
+    { 
+        String name = ObjectUtil.reposIdToClassName (s.getId ());
+        StringBuffer strbuf = new StringBuffer (name);;
         Class _helper = null;
 
-        name = name_strbuf.toString();
+        // First, try for helper
 
-        //first, try with unmodified name
         try
         {
-            _helper = Class.forName( name + "Helper" );
+            _helper = Class.forName (name + "Helper");
         }
-        catch( ClassNotFoundException cnf )
+        catch (ClassNotFoundException cnf)
         {
         }
         
-        //not found, try with "Package" inserted
-        if( _helper == null )
+        // If not found, try for package helper
+
+        if (_helper == null)
         {
-            name_strbuf.insert( name.lastIndexOf( '.' ),
-                                "Package" );
+            strbuf.insert (name.lastIndexOf ('.'), "Package");
             
-            name = name_strbuf.toString();
+            name = strbuf.toString ();
             
             //don't try-catch here, so the exception will make this
             //method return
-            _helper = Class.forName( name + "Helper" );
+
+            _helper = Class.forName (name + "Helper");
         }
 
         //_helper must not be null from here on
@@ -107,8 +98,3 @@ public class ApplicationExceptionHelper
         _insert.invoke( null, new java.lang.Object[]{any, _user_ex} );
     }
 } // ApplicationExceptionHelper
-
-
-
-
-
