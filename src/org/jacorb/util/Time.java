@@ -185,9 +185,7 @@ public class Time
                     }
                     catch (InterruptedException e)
                     {
-                        Debug.output 
-                            (Debug.ORB_MISC | Debug.IMPORTANT,
-                            "interrupted while waiting on timer");
+                        Debug.output( 4, "interrupted while waiting on timer");
                     }
                 }
             }

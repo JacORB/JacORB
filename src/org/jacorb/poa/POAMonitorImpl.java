@@ -298,10 +298,10 @@ public class POAMonitorImpl
     }
 
 
-    public boolean test(int logLevel) 
-    {
-        return Environment.verbosityLevel() >= (Debug.POA | logLevel);
-    }
+//     public boolean test(int logLevel) 
+//     {
+//         return Environment.verbosityLevel() >= (Debug.POA | logLevel);
+//     }
 
 
     private synchronized void printMessage(String str) 

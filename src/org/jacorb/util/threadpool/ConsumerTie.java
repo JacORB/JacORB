@@ -71,7 +71,7 @@ public  class ConsumerTie
         }
         catch( Exception e )
         {
-            Debug.output( Debug.IMPORTANT | Debug.TOOLS, e );
+            Debug.output(3, e );
             return;
         }
     }

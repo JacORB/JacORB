@@ -126,7 +126,7 @@ public class ThreadPool
             }
             catch( InterruptedException e )
             {
-                Debug.output( Debug.IMPORTANT | Debug.TOOLS, e );
+                Debug.output( 3, e );
             }
         }
 

@@ -83,7 +83,7 @@ public class Environment
 
     private static String               _default_context = "<undefined>";
 
-    private static int                  _verbosity = 2;
+    //    private static int                  _verbosity = 2;
 
     private static boolean              _locate_on_bind = false;
     private static boolean              _use_imr = false;
@@ -273,21 +273,21 @@ public class Environment
             if( logger == null )
                 throw new Error("Logger is null!");
 
-            if( _verbosity > 0 &&
-                    ! loaded &&
-                    ! _props.getProperty( "jacorb.suppress_no_props_warning", "off" ).equals( "on" )) // rt
-            {
-                System.err.println( "#####################################################################" );
+//             if( _verbosity > 0 &&
+//                     ! loaded &&
+//                     ! _props.getProperty( "jacorb.suppress_no_props_warning", "off" ).equals( "on" )) // rt
+//             {
+//                 System.err.println( "#####################################################################" );
 
-                System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets or suppressed by setting jacorb.suppress_no_props_warning\nto on. A file called \"jacorb.properties\" or \".jacorb_properties\"\nshould be present in the classpath, the home directory (" + home + "), \nthe current directory (.) or in Javas lib directory (" + lib + ')'  );
+//                 System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets or suppressed by setting jacorb.suppress_no_props_warning\nto on. A file called \"jacorb.properties\" or \".jacorb_properties\"\nshould be present in the classpath, the home directory (" + home + "), \nthe current directory (.) or in Javas lib directory (" + lib + ')'  );
 
-                System.err.println( "#####################################################################\n" );
-            }
+//                 System.err.println( "#####################################################################\n" );
+//             }
 
-            if( _verbosity > 2 && sConfigFile != null)
-            {
-                System.err.println("Setup Info: properties was file loaded from: " + sConfigFile );
-            }
+//             if( _verbosity > 2 && sConfigFile != null)
+//             {
+//                 System.err.println("Setup Info: properties was file loaded from: " + sConfigFile );
+//             }
         }
         catch(SecurityException secex)
         {
@@ -368,8 +368,8 @@ public class Environment
             compactTypecodes = Integer.parseInt(o);
         else if( varName.equals("_default_context"))
             _default_context = o;
-        else    if( varName.equals("_verbosity"))
-            _verbosity = Integer.parseInt(o);
+//         else    if( varName.equals("_verbosity"))
+//             _verbosity = Integer.parseInt(o);
         else    if( varName.equals("_locate_on_bind"))
             _locate_on_bind = (o.equalsIgnoreCase("on")? true : false);
         else    if( varName.equals("_cache_references"))
@@ -412,7 +412,7 @@ public class Environment
 
     private static void readValues()
     {
-        readValue("_verbosity", "verbosity", jacorbPrefix + "verbosity");
+        //        readValue("_verbosity", "verbosity", jacorbPrefix + "verbosity");
         readValue("_client_pending_reply_timeout", jacorbPrefix + "connection.client.pending_reply_timeout");
         readValue("_retries","retries",jacorbPrefix+"retries");
         readValue("_retry_interval","retry_interval",jacorbPrefix+"retry_interval");
@@ -613,10 +613,10 @@ public class Environment
     public static final  int threadPoolMax() { return _thread_pool_max; }
     public static final  int threadPoolMin() { return _thread_pool_min; }
 
-    public static final int verbosityLevel()
-    {
-        return _verbosity;
-    }
+//     public static final int verbosityLevel()
+//     {
+//         return _verbosity;
+//     }
 
     public static final byte[] implName()
     {
