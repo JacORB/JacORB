@@ -70,7 +70,7 @@ public class TestCase
 
     public static Test suite()
     {
-        TestSuite suite = new TestSuite( "bug 384, wrong is_a results" );
+        TestSuite suite = new TestSuite( "bug 384 wrong is_a results" );
 
         try
         {
