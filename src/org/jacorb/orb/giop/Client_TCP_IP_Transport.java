@@ -65,7 +65,7 @@ public class Client_TCP_IP_Transport
 
         //get the client-side timeout property value
         String prop = 
-            Environment.getProperty( "jacorb.connection.client_timeout" );
+            Environment.getProperty( "jacorb.connection.client_idle_timeout" );
 
         if( prop != null )
         {
@@ -77,7 +77,7 @@ public class Client_TCP_IP_Transport
             {
                 Debug.output( 1, "Unable to create int from string >" +
                               prop + '<' );
-                Debug.output( 1, "Please check property \"jacorb.connection.client_timeout\"" );
+                Debug.output( 1, "Please check property \"jacorb.connection.client_idle_timeout\"" );
             }
         }
     }
@@ -221,20 +221,14 @@ public class Client_TCP_IP_Transport
 
             notifyAll();
         }
-        else if( reason == READ_TIMED_OUT )
-        {
-            //terminate this transport
-            closed = true;
 
-            notifyAll();
-
-            throw new CloseConnectionException();
-        }
         /*
           This transport can be reestablished if it has been closed
-          from the server side. Therefore ignore the reason where the
-          server side closed the TCP/IP connection.
+          from the server side or reached the idle timeout.
 
+          else if( reason == READ_TIMED_OUT )
+          {
+          }
           else if( reason == STREAM_CLOSED )
           {          
           } 

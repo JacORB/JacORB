@@ -51,7 +51,7 @@ public class ReplyPlaceholder
     {        
         //get the client-side timeout property value
         String prop = 
-            Environment.getProperty( "jacorb.connection.client_timeout" );
+            Environment.getProperty( "jacorb.client.pending_reply_timeout" );
         
         if( prop != null )
         {
@@ -63,7 +63,7 @@ public class ReplyPlaceholder
             {
                 Debug.output( 1, "Unable to create int from string >" +
                               prop + '<' );
-                Debug.output( 1, "Please check property \"jacorb.connection.client_timeout\"" );
+                Debug.output( 1, "Please check property \"jacorb.client.pending_reply_timeout\"" );
             }
         }
 
