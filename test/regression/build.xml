@@ -90,7 +90,8 @@
       <param name="javac-includes"
 	value="org/jacorb/test/notification/**"/>     
       <param name="javac-excludes" 
-	value="org/jacorb/test/notification/util/regexp/**"/>
+	value="org/jacorb/test/notification/util/regexp/**,
+	       org/jacorb/test/notification/plugins/**"/>
       <param name="javac-src" value="${src}" />
       <param name="javac-sourcepath" value="${src}/generated" />
     </antcall>
