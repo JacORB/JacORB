@@ -864,11 +864,17 @@ public class CDRInputStream
                        "No recursive TypeCode! (pos: " + 
                        (pos-4-1+negative_offset) + ")");
             
-       //org.omg.CORBA.TypeCode rec_tc = orb.create_recursive_tc( recursiveId );
+       // look up TypeCode in map to check if it's repeated
        org.omg.CORBA.TypeCode rec_tc =
           (org.omg.CORBA.TypeCode) recursiveTCMap.get (recursiveId);
 
        // Debug.output(4, "** found type code in map " + recursiveId );
+
+       if (rec_tc == null)
+       {
+          // TypeCode is not in map so it is recursive
+          rec_tc = orb.create_recursive_tc( recursiveId );
+       }
 
 	    return rec_tc;
 	default:
@@ -1778,6 +1784,3 @@ public class CDRInputStream
 //  	}
 //      }
 }
-
-
-
