@@ -22,8 +22,12 @@ package org.jacorb.security.sas;
 
 
 import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public interface ISASContextCreator
+public interface ISASContext
 {
-	public byte[] create(ClientRequestInfo ri);
+	public byte[] createContext(ClientRequestInfo ri);
+	public String getCreatedPrincipal();
+	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken);
+	public String getValidatedPrincipal();
 }

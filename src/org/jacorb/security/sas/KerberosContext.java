@@ -22,26 +22,30 @@ package org.jacorb.security.sas;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
 import org.jacorb.orb.CDRInputStream;
-import org.jacorb.util.Debug;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
 import org.omg.IOP.TaggedComponent;
 import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public class KerberosContextCreator implements ISASContextCreator
+public class KerberosContext implements ISASContext
 {
 	/** the logger used by the naming service implementation */
 	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
 
-	public byte[] create(ClientRequestInfo ri) {
+	//private GSSManager gssManager = GSSManager.getInstance(); 
+	private GSSContext validatedContext = null;
+
+	public byte[] createContext(ClientRequestInfo ri) {
 		byte[] contextToken = new byte[0];
 		try {
-			// get target
 			TaggedComponent tc = ri.get_effective_component(TAG_CSI_SEC_MECH_LIST.value);
 			CDRInputStream is = new CDRInputStream( (org.omg.CORBA.ORB)null, tc.component_data);
 			is.openEncapsulatedArray();
@@ -58,4 +62,45 @@ public class KerberosContextCreator implements ISASContextCreator
 		}
 		return contextToken;
     }
+    
+	public String getCreatedPrincipal() {
+		String principal = "";
+		try {
+			GSSManager gssManager = GSSManager.getInstance();
+			Oid krb5Oid = new Oid("1.2.840.113554.1.2.2");
+			GSSCredential myCred = gssManager.createCredential(null, GSSCredential.DEFAULT_LIFETIME, krb5Oid, GSSCredential.INITIATE_ONLY);
+			principal = myCred.getName().toString();
+		} catch (Exception e) {
+			logger.error("Error getting created principal: "+e);
+		}
+		return principal;
+	}
+
+	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+		byte[] token = null;
+		
+		try {
+			GSSManager gssManager = GSSManager.getInstance();
+			validatedContext = gssManager.createContext((GSSCredential)null);
+			token = validatedContext.acceptSecContext(contextToken, 0, contextToken.length);
+		} catch (GSSException e) {
+			logger.error("Error accepting Kerberos context: "+e);
+		}
+		if (token == null) {
+			logger.warn("Could not accept token");
+			return false;
+		} 
+
+		return true;
+	}
+
+	public String getValidatedPrincipal() {
+		if (validatedContext == null) return null;
+		try {
+			return validatedContext.getSrcName().toString();
+		} catch (GSSException e) {
+			logger.error("Error getting name: "+e);
+		}
+		return null;
+	}
 }

@@ -76,7 +76,7 @@ public class SASTargetInterceptor
 	protected static short targetSupports = (short)0;
     protected static boolean useSsl = false;
 
-    protected ISASContextValidator contextValidator = null;
+    protected ISASContext sasContext = null;
 
     public SASTargetInterceptor(ORBInitInfo info) throws UnknownEncoding
     {
@@ -120,15 +120,18 @@ public class SASTargetInterceptor
 
 		useSsl = Boolean.getBoolean(org.jacorb.util.Environment.getProperty( "jacorb.security.sas.tss.requires_sas", "false" ));
 
-        String validatorClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.tss.context_validator");
-        if (validatorClass != null) {
+        String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
+        if (contextClass != null) {
             try {
-              Class c = Environment.classForName(validatorClass);
-              contextValidator = (ISASContextValidator)c.newInstance();
+              Class c = Environment.classForName(contextClass);
+			  sasContext = (ISASContext)c.newInstance();
             } catch (Exception e) {
-              logger.error("Could not instantiate class " + validatorClass + ": " + e);
+              logger.error("Could not instantiate class " + contextClass + ": " + e);
             }
         }
+		if (sasContext == null) {
+			logger.error("Could not load SAS context class: "+contextClass);
+		}
     }
 
     public String name()
@@ -213,32 +216,12 @@ public class SASTargetInterceptor
             String principalName = null;
             try
             {
-            	logger.error("START");
                 msg = contextBody.establish_msg();
-            	logger.error("Msg="+msg);
                 client_context_id = msg.client_context_id;
-            	logger.error("client_context_id="+client_context_id);
                 contextToken = msg.client_authentication_token;
-            	logger.error("contextToken="+contextToken);
 
-                // verify context
-                //Oid myMechOid = myCredential.getMechs()[0];
-                //GSSContext context = gssManager.createContext(myCredential);
-                //context.acceptSecContext(msg.client_authentication_token, 0, msg.client_authentication_token.length);
-                //GSSName sourceName = context.getSrcName();
-                //contextToken = sourceName.toString().getBytes();
-                //JBuffer cssBuffer = new JBuffer();
-                //cssBuffer.Allocate(msg.client_authentication_token.length, JBuffer.bo_lib);
-                //cssBuffer.SetContents(msg.client_authentication_token, msg.client_authentication_token.length);
-//byte[] b = (byte[])cssBuffer.GetBufferForRecv().clone();
-//for (int i=0;i<b.length;i++) System.out.print(Integer.toHexString((int)b[i])+" ");System.out.println();
-                //int ok = tssContext.Authenticate ( cssBuffer, tssBuffer );
-//System.out.println("OK="+ok);
-                //if (ok != JServerContext.as_ok) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-                if (contextValidator != null && !contextValidator.validate(ri, contextToken)) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-            	logger.error("OK1");
-                if (contextValidator != null) principalName = contextValidator.getPrincipalName();
-            	logger.error("principalName="+principalName);
+                if (sasContext != null && !sasContext.validateContext(ri, contextToken)) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+                if (sasContext != null) principalName = sasContext.getValidatedPrincipal();
             }
             catch (org.omg.CORBA.NO_PERMISSION e)
             {
@@ -263,12 +246,6 @@ public class SASTargetInterceptor
         // set slots
         try
         {
-            //Any source_any = orb.create_any();
-            //source_any.insert_string(new String(contextToken));
-            //Any msg_any = orb.create_any();
-            //EstablishContextHelper.insert(msg_any, getSASContextMsg(connection, client_context_id));
-            //ri.set_slot( sourceNameSlotID, source_any);
-            //ri.set_slot( contextMsgSlotID, msg_any);
             ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id));
             Any nameAny = orb.create_any();
             nameAny.insert_string(getSASContextPrincipalName(connection, client_context_id));

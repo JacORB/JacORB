@@ -30,9 +30,10 @@ import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
 import org.jacorb.util.Debug;
+import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public class JsseContextValidator implements ISASContextValidator
+public class JsseContext implements ISASContext
 {
 	/** the logger used by the naming service implementation */
 	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
@@ -165,4 +166,36 @@ public class JsseContextValidator implements ISASContextValidator
         return (X509Certificate) kac.chain[0];
         */
     }
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
+	 */
+	public byte[] createContext(ClientRequestInfo ri) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
+	 */
+	public String getCreatedPrincipal() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
+	 */
+	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
+	 */
+	public String getValidatedPrincipal() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

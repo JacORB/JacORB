@@ -22,9 +22,10 @@ package org.jacorb.security.sas;
 
 import org.apache.avalon.framework.logger.Logger;
 import org.omg.GSSUP.InitialContextToken;
+import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
-public class GssUpContextValidator implements ISASContextValidator
+public class GssUpContext implements ISASContext
 {
 	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
     private InitialContextToken initialContextToken = null;
@@ -38,4 +39,36 @@ public class GssUpContextValidator implements ISASContextValidator
         if (initialContextToken == null) return null;
         return new String(initialContextToken.username);
     }
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
+	 */
+	public byte[] createContext(ClientRequestInfo ri) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
+	 */
+	public String getCreatedPrincipal() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
+	 */
+	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
+	 */
+	public String getValidatedPrincipal() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

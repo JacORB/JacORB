@@ -83,7 +83,7 @@ public class SASClientInterceptor
     protected boolean useStateful = true;
     protected Hashtable atlasCache = new Hashtable();
 
-	protected ISASContextCreator contextCreator = null;
+	protected ISASContext sasContext = null;
 
     public SASClientInterceptor(ORBInitInfo info) throws UnknownEncoding
     {
@@ -92,14 +92,17 @@ public class SASClientInterceptor
         codec = info.codec_factory().create_codec(encoding);
         useStateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.stateful", "true")).booleanValue();
 
-		String creatorClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.css.context_creator");
-		if (creatorClass != null) {
+		String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
+		if (contextClass != null) {
 			try {
-                          Class c = org.jacorb.util.Environment.classForName(creatorClass);
-			  contextCreator = (ISASContextCreator)c.newInstance();
+                Class c = org.jacorb.util.Environment.classForName(contextClass);
+				sasContext = (ISASContext)c.newInstance();
 			} catch (Exception e) {
-			  logger.error("Could not instantiate class " + creatorClass + ": " + e);
+			  logger.error("Could not instantiate class " + contextClass + ": " + e);
 			}
+		}
+		if (sasContext == null) {
+			logger.error("Could not load SAS context class: "+contextClass);
 		}
     }
 
@@ -160,7 +163,7 @@ public class SASClientInterceptor
             {
                 IdentityToken identityToken = new IdentityToken();
                 identityToken.absent(true);
-                if (contextCreator != null) contextToken = contextCreator.create(ri);
+                if (sasContext != null) contextToken = sasContext.createContext(ri);
                 msg = makeEstablishContext(orb, -client_context_id, authorizationList, identityToken, contextToken);
             }
             else
