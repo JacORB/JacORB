@@ -157,6 +157,7 @@
       <antcall target="idl-iiopaddress"/>
       <antcall target="idl-recursive"/>
       <antcall target="idl-notification"/>
+      <antcall target="idl-bugs"/>
    </target>
 
 
@@ -190,6 +191,7 @@
               srcdir="${idl}"
               ami_callback="${callback.idl}"
               destdir="${src}/generated"
+              includepath="${basedir}/idl/omg"
               includes="${file.idl}"/>
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${src}/generated"/>
@@ -300,6 +302,13 @@
     <antcall target="process-idl" />
   </target>
 
+  <target name="idl-bugs">
+      <property name="props.idl" value="Bugs"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
+      <property name="callback.idl" value="false"/>
+      <property name="file.idl" value="bug*.idl"/>
+      <antcall target="process-idl"/>
+  </target>
 
    <!-- ==================================================== -->
    <!--                  run all tests                       -->
