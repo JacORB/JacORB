@@ -52,6 +52,16 @@ public class TimingTest extends CallbackTestCase
             wrong_reply ("operation");
         }
 
+        public void server_time_excep(ExceptionHolder excep_holder)
+        {
+            wrong_exception ("server_time_excep", excep_holder);
+        }
+
+        public void server_time(long ami_return_val)
+        {
+            wrong_reply ("server_time");
+        }
+
     }
 
     private AMI_TimingServerHandler ref ( ReplyHandler handler )
@@ -88,6 +98,10 @@ public class TimingTest extends CallbackTestCase
                   
         suite.addTest (new TimingTest ("test_sync_no_timing", setup));
         suite.addTest (new TimingTest ("test_async_no_timing", setup));
+        
+        suite.addTest (new TimingTest ("test_request_start_time_sync_expired", setup));
+        suite.addTest (new TimingTest ("test_request_start_time_sync_wait", setup));
+        
         suite.addTest (new TimingTest ("test_reply_start_time_sync_expired", setup));
         suite.addTest (new TimingTest ("test_reply_start_time_sync_wait", setup));
         suite.addTest (new TimingTest ("test_reply_start_time_async_expired", setup));
@@ -95,6 +109,11 @@ public class TimingTest extends CallbackTestCase
 
         suite.addTest (new TimingTest ("test_reply_end_time_sync_pre_expired", setup));
         //suite.addTest (new TimingTest ("test_reply_end_time_async_pre_expired", setup));
+
+        suite.addTest (new TimingTest ("test_reply_end_time_sync_ok", setup));
+        suite.addTest (new TimingTest ("test_reply_end_time_sync_expired", setup));
+        suite.addTest (new TimingTest ("test_reply_end_time_async_ok", setup));
+        suite.addTest (new TimingTest ("test_reply_end_time_async_expired", setup));
         
         suite.addTest (new TimingTest ("test_relative_roundtrip_sync_ok", setup));
         suite.addTest (new TimingTest ("test_relative_roundtrip_sync_expired", setup));
@@ -185,6 +204,40 @@ public class TimingTest extends CallbackTestCase
         };
         ((_TimingServerStub)server).sendc_ex_op (ref (handler), '$', 50);
         handler.wait_for_reply (300);
+    }
+
+    /**
+     * Sets a RequestStartTime which will already have expired
+     * when the request arrives.
+     */    
+    public void test_request_start_time_sync_expired()
+    {
+        clearPolicies (server);
+        long start = System.currentTimeMillis();
+        setRequestStartTime (server, start);
+        long result = server.server_time (10);
+
+        long delta = System.currentTimeMillis() - start;
+        if (delta > 200)
+            fail ("reply too late (" + delta + "ms)");
+    }
+
+    /**
+     * Sets a RequestStartTime which will not have been reached
+     * when the request arrives.
+     */
+    public void test_request_start_time_sync_wait()
+    {
+        clearPolicies (server);
+        long start = System.currentTimeMillis();
+        setRequestStartTime (server, start + 200);
+        long time = server.server_time (100);
+
+        long delta = time - start;
+        if (delta < 200)
+            fail ("request started too early (" + delta + "ms)");
+        else if (delta > 250)
+            fail ("request started too late (" + delta + "ms)");
     }
 
     /**
@@ -293,6 +346,95 @@ public class TimingTest extends CallbackTestCase
     }
 
     /**
+     * Sets a ReplyEndTime which will
+     * be met by the invocation.
+     */
+    public void test_reply_end_time_async_ok()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void operation (int ami_return_val)
+            {
+                assertEquals (765, ami_return_val);
+                pass();
+            }
+        };
+        
+        clearPolicies (server);
+        setReplyEndTime (server, System.currentTimeMillis() + 200);
+        ((_TimingServerStub)server).sendc_operation (ref (handler), 765, 50);
+        handler.wait_for_reply (150);
+        
+    }    
+
+
+    /**
+     * Sets a ReplyEndTime which will
+     * expire during the invocation.
+     */
+    public void test_reply_end_time_async_expired()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void operation (int ami_return_val)
+            {
+                fail ("should have raised TIMEOUT");
+            }
+            
+            public void operation_excep (ExceptionHolder excep_holder)
+            {
+                assertEquals (org.omg.CORBA.TIMEOUT.class,
+                              getException (excep_holder).getClass());
+                pass();
+            }
+        };
+        
+        clearPolicies (server);
+        setReplyEndTime (server, System.currentTimeMillis() + 50);
+        ((_TimingServerStub)server).sendc_operation (ref (handler), 767, 100);
+        handler.wait_for_reply (200);
+    }    
+
+    /**
+     * Sets a ReplyEndTime which will
+     * be met by the invocation.
+     */
+    public void test_reply_end_time_sync_ok()
+    {
+        clearPolicies (server);
+        setReplyEndTime (server, System.currentTimeMillis() + 200);
+        try
+        {
+            int result = server.operation (434, 50);
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            fail ("should not have been a TIMEOUT");
+        }
+    }
+
+
+    /**
+     * Sets a ReplyEndTime which will
+     * expire during invocation.
+     */    
+    public void test_reply_end_time_sync_expired()
+    {
+        clearPolicies (server);
+        setReplyEndTime (server, System.currentTimeMillis() + 200);
+        try
+        {
+            int result = server.operation (343, 300);
+            fail ("should have raised TIMEOUT");
+        }
+        catch (org.omg.CORBA.TIMEOUT t)
+        {
+            // ok
+        }
+    }
+
+
+    /**
      * Sets a RelativeRoundtripTimeout which will
      * be met by the invocation.
      */
@@ -388,6 +530,65 @@ public class TimingTest extends CallbackTestCase
     private void clearPolicies (TimingServer server)
     {
         server._set_policy_override (new Policy[]{}, SetOverrideType.SET_OVERRIDE);
+    }
+
+    private void setRequestStartTime (TimingServer server, long unixTime)
+    {
+        UtcT corbaTime = Time.corbaTime (unixTime);
+
+        org.omg.CORBA.ORB orb = setup.getClientOrb();
+        org.omg.CORBA.Any a   = orb.create_any();
+        UtcTHelper.insert (a, corbaTime);
+        try
+        {
+            Policy p =
+                orb.create_policy (REQUEST_START_TIME_POLICY_TYPE.value, a);
+            server._set_policy_override (new Policy[]{ p }, 
+                                         SetOverrideType.ADD_OVERRIDE);   
+        }
+        catch (PolicyError e)
+        {
+            throw new RuntimeException ("policy error: " + e);
+        }
+    }
+
+    private void setRequestEndTime (TimingServer server, long unixTime)
+    {
+        UtcT corbaTime = Time.corbaTime (unixTime);
+
+        org.omg.CORBA.ORB orb = setup.getClientOrb();
+        org.omg.CORBA.Any a   = orb.create_any();
+        UtcTHelper.insert (a, corbaTime);
+        try
+        {
+            Policy p =
+                orb.create_policy (REQUEST_END_TIME_POLICY_TYPE.value, a);
+            server._set_policy_override (new Policy[]{ p }, 
+                                         SetOverrideType.ADD_OVERRIDE);   
+        }
+        catch (PolicyError e)
+        {
+            throw new RuntimeException ("policy error: " + e);
+        }
+    }
+
+    private void setRelativeRequestTimeout (TimingServer server, 
+                                              long millis)
+    {
+        org.omg.CORBA.ORB orb = setup.getClientOrb();
+        org.omg.CORBA.Any a   = orb.create_any();
+        a.insert_ulonglong (millis * 10000);
+        try
+        {
+            Policy p =
+                orb.create_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value, a);
+            server._set_policy_override (new Policy[]{ p }, 
+                                         SetOverrideType.ADD_OVERRIDE);   
+        }
+        catch (PolicyError e)
+        {
+            throw new RuntimeException ("policy error: " + e);
+        }
     }
 
     private void setReplyStartTime (TimingServer server, long unixTime)
