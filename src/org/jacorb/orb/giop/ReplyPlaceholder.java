@@ -137,7 +137,8 @@ public class ReplyPlaceholder
 
         if( communicationException )
 	{
-            throw new org.omg.CORBA.COMM_FAILURE();
+            throw new org.omg.CORBA.COMM_FAILURE
+                (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
 	}
 
         if( timeoutException )

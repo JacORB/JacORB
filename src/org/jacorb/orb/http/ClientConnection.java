@@ -180,7 +180,8 @@ public final class ClientConnection
 	    catch ( Exception e )
 	    {
 		org.jacorb.util.Debug.output(2,e);
-		throw new org.omg.CORBA.COMM_FAILURE();
+		throw new org.omg.CORBA.COMM_FAILURE
+                    (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
 	    }		
 	    return rep;
 	}
@@ -237,7 +238,8 @@ public final class ClientConnection
 	    catch ( Exception e )
 	    {		    
 		org.jacorb.util.Debug.output(2,e);
-		throw new org.omg.CORBA.COMM_FAILURE();
+		throw new org.omg.CORBA.COMM_FAILURE
+                    (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
 	    }		
 	    
 	
@@ -286,7 +288,8 @@ public final class ClientConnection
 	    catch ( Exception e )
 	    {		    
 		org.jacorb.util.Debug.output(2,e);
-		throw new org.omg.CORBA.COMM_FAILURE();
+		throw new org.omg.CORBA.COMM_FAILURE
+                    (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
 	    }			    		  
         }
     }

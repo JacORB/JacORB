@@ -213,12 +213,13 @@ public class ClientConnection
     {
         try
         {
-            connection.sendMessage( os );
+            connection.sendMessage (os);
         }
-        catch( java.io.IOException e )
+        catch (java.io.IOException e)
         {
-            Debug.output(2,e);
-            throw new org.omg.CORBA.COMM_FAILURE();
+            Debug.output (2,e);
+            throw new org.omg.CORBA.COMM_FAILURE 
+                (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
         }		
     }
 

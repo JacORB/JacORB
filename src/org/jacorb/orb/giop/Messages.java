@@ -59,7 +59,12 @@ public class Messages
 	catch ( Exception e )
 	{
 	    org.jacorb.util.Debug.output(2,e);
-	    throw new org.omg.CORBA.COMM_FAILURE("Error marshalling GIOP reply");
+	    throw new org.omg.CORBA.COMM_FAILURE
+            (
+                "Error marshalling GIOP reply"
+                0,
+                org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE
+            );
 	}
     }
 
