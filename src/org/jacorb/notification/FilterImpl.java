@@ -59,7 +59,6 @@ import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.log.Hierarchy;
 
 /**
  * FilterImpl.java
@@ -278,17 +277,16 @@ public class FilterImpl extends FilterPOA implements Disposable
 
             try
             {
-                // protected section
 
                 for ( int _x = 0; _x < constraintExp.length; _x++ )
                 {
-                    // we do not create the constraint id's in the upper loop
-                    // therefor they are still available if one constraint is invalid
+                    // we did not create the constraint id's in the
+                    // loop above. therefor no constraint id gets
+                    // created if one constraint is invalid.
                     int _constraintId = getConstraintId();
 
                     _arrayConstraintInfo[ _x ] =
                         new ConstraintInfo( constraintExp[ _x ], _constraintId );
-
 
                     ConstraintEntry _entry =
                         new ConstraintEntry( _constraintId,
@@ -350,7 +348,7 @@ public class FilterImpl extends FilterPOA implements Disposable
 
             try
             {
-                // first check if all id's that should be deleted exist
+                // check if all id's that should be deleted exist
                 Integer[] _deleteKeys = new Integer[ deleteIds.length ];
 
                 for ( int _x = 0; _x < deleteIds.length; ++_x )
@@ -703,8 +701,6 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     public int match_internal( Any anyEvent ) throws UnsupportedFilterableData
     {
-        logger_.debug("match()");
-
         EvaluationContext _evaluationContext = null;
         Message _event = null;
 
@@ -744,9 +740,6 @@ public class FilterImpl extends FilterPOA implements Disposable
     public int match_structured_internal( StructuredEvent structuredEvent )
         throws UnsupportedFilterableData
     {
-
-        logger_.debug("match_structured");
-
         EvaluationContext _evaluationContext = null;
         Message _event = null;
 
