@@ -39,7 +39,6 @@ class TypeMap
         typemap.put( "org.omg.CORBA.TypeCode", new TypeCodeTypeSpec( IdlSymbol.new_num() ) );
         typemap.put( "CORBA.Object", new ObjectTypeSpec( IdlSymbol.new_num() ) );
         typemap.put( "CORBA.TypeCode", new TypeCodeTypeSpec( IdlSymbol.new_num() ) );
-        typemap.put( "org.omg.Messaging.ReplyHandler", new ReplyHandlerTypeSpec( IdlSymbol.new_num() ) );
     }
 
     // return the type spec associated with a name, if any
