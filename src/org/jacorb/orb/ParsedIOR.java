@@ -1,3 +1,4 @@
+
 package org.jacorb.orb;
 
 /*
@@ -808,7 +809,7 @@ public class ParsedIOR
         {
             ior = createObjectIOR( address.host,
                                    (short) address.port,
-                                   corbaLoc.getKey(),
+                                   orb.mapObjectKey (corbaLoc.getKey ()),
                                    address.minor );
         }
         else if( address.protocol_identifier.equals("ssliop") )
@@ -883,7 +884,7 @@ public class ParsedIOR
 
             ior =  createObjectIOR( address.host,
                                     (short) address.port,
-                                    corbaLoc.getKey(),
+                                    orb.mapObjectKey (corbaLoc.getKey ()),
                                     address.minor,
                                     new TaggedComponent[]{ssl_c});
         }
