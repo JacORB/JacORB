@@ -22,6 +22,7 @@ package org.jacorb.naming.namemanager;
 
 import org.omg.CosNaming.*;
 import org.jacorb.naming.*;
+import org.jacorb.orb.*;
 
 import java.util.*;
 import javax.swing.tree.*;
@@ -244,7 +245,8 @@ public class ContextNode
 		row.addElement( last.id );
 		row.addElement( last.kind);
 		row.addElement( pior.getTypeId() );
-		row.addElement( pior.getProfileBody().host );
+		InternetIOPProfile p = (InternetIOPProfile)pior.getEffectiveProfile();
+		row.addElement( p.getAddress().getHost() );
 					
 		bindingData.addElement( row );
 	    }
