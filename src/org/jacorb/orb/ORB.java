@@ -1299,6 +1299,19 @@ public final class ORB
         return false;
     }
 
+    public org.omg.CORBA.portable.ValueFactory lookup_value_factory 
+                                                         (String repositoryId) 
+    {
+        String className = org.jacorb.ir.RepositoryID.className (repositoryId);
+        
+        return new org.omg.CORBA.portable.ValueFactory() {
+                public java.io.Serializable read_value 
+                    (org.omg.CORBA_2_3.portable.InputStream is) {
+                    return null;
+                }
+            };
+    }
+                                                        
     /**
      * Test, if the ORB has ClientRequestInterceptors <br>
      * Called by Delegate.
