@@ -39,7 +39,7 @@ import org.apache.avalon.framework.logger.Logger;
 import java.util.*;
 
 /**
- * The main POA class, an implementation of 
+ * The main POA class, an implementation of
  * <code>org.omg.PortableServer.POA</code>
  *
  * @author Reimo Tiedemann, FU Berlin
@@ -262,6 +262,7 @@ public class POA
         checkDestructionApparent ();
 
         POA child = (POA) childs.get(adapter_name);
+
         if (child == null || child.isDestructionApparent())
         {
 
@@ -366,7 +367,6 @@ public class POA
     public void _invoke(ServerRequest request)
         throws WrongAdapter
     {
-
         synchronized(poaDestructionLog)
         {
             checkDestructionApparent ();
@@ -379,10 +379,10 @@ public class POA
                 {
                     if (logger.isWarnEnabled())
                     {
-                    	logger.warn(logPrefix + 
+                    	logger.warn(logPrefix +
                                     "rid: " + request.requestId() +
-                                    " _invoke: object key not previously generated!, opname: " +
-                                    request.operation() );
+                                    " opname: " + request.operation() +
+                                    " _invoke: object key not previously generated!");
                     }
                     throw new WrongAdapter();
                 }
@@ -390,19 +390,28 @@ public class POA
                 {
                     if (logger.isWarnEnabled())
                     {
-                    	logger.warn(logPrefix + 
+                    	logger.warn(logPrefix +
                                     "rid: " + request.requestId() +
-                                    " _invoke: object key not previously generated!,  opname: " +
-                                    request.operation());
+                                    " opname: " + request.operation() +
+                                    " _invoke: object key not previously generated!");
                     }
                     throw new WrongAdapter();
                 }
             }
+
+
             try
             {
                 //  pass the  request  to the  request controller  the
                 // operation returns  immediately after the request is
                 // queued
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug(logPrefix +
+                                "rid: " + request.requestId() +
+                                " opname: " + request.operation() +
+                                " _invoke: queuing request");
+                }
                 requestController.queueRequest(request);
             }
             catch (ResourceLimitReachedException e)
@@ -492,7 +501,7 @@ public class POA
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn(logPrefix + "oid: " + POAUtil.convert(oid) + 
+                logger.warn(logPrefix + "oid: " + POAUtil.convert(oid) +
                             " - activate_object_with_id: oid not previously generated!");
             }
             throw new org.omg.CORBA.BAD_PARAM();
@@ -569,7 +578,7 @@ public class POA
         requestController.waitForCompletion();
 
         /* etherialize all active objects */
-        if (etherealize && isRetain() && useServantManager()) 
+        if (etherealize && isRetain() && useServantManager())
         {
             if (logger.isInfoEnabled())
                 logger.info(logPrefix + "etherialize all servants ...");
@@ -579,13 +588,13 @@ public class POA
             if (logger.isInfoEnabled())
                 logger.info(logPrefix + "etherialize all servants ...");
 
-            if (monitor != null) 
+            if (monitor != null)
                 monitor.changeState("inactive (etherialization completed)");
 
-        } 
-        else 
+        }
+        else
         {
-            if (monitor != null) 
+            if (monitor != null)
                 monitor.changeState("inactive (no etherialization)");
         }
     }
@@ -717,13 +726,13 @@ public class POA
         return (getReference (generateObjectId (), intf_rep_id, false));
     }
 
-    
+
     /**
      * The specified repository id, which may be a null string, will become the
      * type_id of the generated object reference
      */
-    
-    public org.omg.CORBA.Object create_reference_with_id(byte[] oid, 
+
+    public org.omg.CORBA.Object create_reference_with_id(byte[] oid,
                                                          String intf_rep_id)
         throws WrongPolicy
     {
@@ -733,7 +742,7 @@ public class POA
         {
             if (logger.isWarnEnabled())
             {
-                logger.warn(logPrefix + "oid: " + POAUtil.convert(oid) + 
+                logger.warn(logPrefix + "oid: " + POAUtil.convert(oid) +
                             "create_reference_with_id : object key not previously generated!");
             }
 
@@ -774,9 +783,9 @@ public class POA
     public synchronized void deactivate_object(byte[] oid)
         throws ObjectNotActive, WrongPolicy
     {
-        if (!isRetain()) 
+        if (!isRetain())
             throw new WrongPolicy();
-        
+
         aom.remove(
                    oid,
                    requestController,
@@ -784,7 +793,7 @@ public class POA
                    this,
                    false
         );
-        
+
         createdReferences.remove( new ByteArrayKey(oid));
     }
 
@@ -864,7 +873,6 @@ public class POA
      * that  the poa  returned goes shutdown  but the orb  will notice
      * this situation if he will proceed with request processing.
      */
-
     public org.omg.PortableServer.POA find_POA( String adapter_name,
                                                 boolean activate_it)
         throws AdapterNonExistent
@@ -1322,7 +1330,7 @@ public class POA
                     logger.debug(logPrefix + "etherialize all servants ...");
 
                 aom.removeAll((ServantActivator) servantManager, this, true);
-                
+
                 if (logger.isDebugEnabled())
                     logger.debug(logPrefix + "... done");
             }
@@ -1417,7 +1425,7 @@ public class POA
         byte[] objectId = POAUtil.extractOID(reference);
 
         /* not spec (isSystemId) */
-        if (isSystemId() && !previouslyGeneratedObjectId(objectId)) 
+        if (isSystemId() && !previouslyGeneratedObjectId(objectId))
         {
             if (logger.isWarnEnabled())
                 logger.warn(logPrefix + "oid: " + POAUtil.convert(objectId) +
@@ -1433,21 +1441,21 @@ public class POA
     {
         checkDestructionApparent();
         checkNotLocal(reference);
-        
+
         if (!isRetain() && !isUseDefaultServant())
             throw new WrongPolicy();
-        
+
         byte[] objectId = POAUtil.extractOID(reference);
-        
+
         /* not spec (isSystemId) */
-        if (isSystemId() && !previouslyGeneratedObjectId(objectId)) 
+        if (isSystemId() && !previouslyGeneratedObjectId(objectId))
         {
             if (logger.isWarnEnabled())
                 logger.warn(logPrefix + "oid: " + POAUtil.convert(objectId) +
                             "reference_to_servant: oid not previously generated!");
             throw new WrongAdapter();
         }
-        
+
         ByteArrayKey oid = new ByteArrayKey (objectId);
 
         if ( ( aom != null && aom.isDeactivating (oid) )
@@ -1463,11 +1471,11 @@ public class POA
         Servant servant = null;
 
         /* is active servant */
-        if (isRetain() && (servant = aom.getServant(objectId)) != null) 
+        if (isRetain() && (servant = aom.getServant(objectId)) != null)
         {
             return servant;
-        } 
-        else if (useDefaultServant()) 
+        }
+        else if (useDefaultServant())
         {
             return defaultServant;
         }
@@ -1475,7 +1483,7 @@ public class POA
         throw new ObjectNotActive();
     }
 
-    protected synchronized void removePOAListener(POAListener listener) 
+    protected synchronized void removePOAListener(POAListener listener)
     {
         poaListener = EventMulticaster.remove(poaListener, listener);
     }
@@ -1569,8 +1577,8 @@ public class POA
             {
                 throw new POAInternalError("error: not in invocation context (servant_to_reference)");
             }
-            return getReference(objectId, 
-                                servant._all_interfaces(this, objectId)[0], 
+            return getReference(objectId,
+                                servant._all_interfaces(this, objectId)[0],
                                 true);
         }
 
@@ -1612,8 +1620,8 @@ public class POA
 
                 orb.set_delegate(servant);
 
-                return getReference(objectId, 
-                                    servant._all_interfaces(this, objectId)[0], 
+                return getReference(objectId,
+                                    servant._all_interfaces(this, objectId)[0],
                                     true);
             }
         }
@@ -1667,7 +1675,7 @@ public class POA
     }
 
 
-    protected void setMonitor(POAMonitor _monitor) 
+    protected void setMonitor(POAMonitor _monitor)
     {
         monitor = _monitor;
     }
