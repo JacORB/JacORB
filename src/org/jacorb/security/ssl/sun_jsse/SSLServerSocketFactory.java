@@ -43,7 +43,8 @@ public class SSLServerSocketFactory
     implements org.jacorb.orb.factory.SSLServerSocketFactory
 {
     private ServerSocketFactory factory = null;
-    private boolean mutual_auth = false;
+    private boolean require_mutual_auth = false;
+    private boolean request_mutual_auth = false;
     private boolean change_roles = false;
     private String[] cipher_suites = null;
 
@@ -60,11 +61,21 @@ public class SSLServerSocketFactory
 	    Debug.output( 1, "ERROR: Unable to create ServerSocketFactory!" );
 	}
 
+	if( (Environment.getIntProperty( "jacorb.security.ssl.server.supported_options", 16 ) & 0x40) != 0 )
+	{
+	    // would prefer to establish trust in client.  If client can support
+	    // authentication, it will, otherwise we will continue
+	    Debug.output( 3, "Will create SSL sockets that request client authentication" );
+	    request_mutual_auth = true;
+	}
+
 	if( (Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 )
 	{
 	    //required: establish trust in client
 	    //--> force other side to authenticate
-	    mutual_auth = true;
+	    require_mutual_auth = true;
+            request_mutual_auth = false;
+	    Debug.output( 3, "Will create SSL sockets that require client authentication" );
 	}
 
 	change_roles = 
@@ -105,7 +116,11 @@ public class SSLServerSocketFactory
 	SSLServerSocket s = (SSLServerSocket) 
 	    factory.createServerSocket( port );
 
-	s.setNeedClientAuth( mutual_auth );
+        if (request_mutual_auth) {
+            s.setWantClientAuth( request_mutual_auth );
+        } else if (require_mutual_auth) {
+            s.setNeedClientAuth( require_mutual_auth );
+        }
 
 	// Andrew T. Finnell / Change made for e-Security Inc. 2002 
         // We need a way to enable the cipher suites that we would
@@ -125,7 +140,11 @@ public class SSLServerSocketFactory
 	SSLServerSocket s = (SSLServerSocket) 
 	    factory.createServerSocket( port, backlog );
 
-	s.setNeedClientAuth( mutual_auth );
+        if (request_mutual_auth) {
+            s.setWantClientAuth( request_mutual_auth );
+        } else if (require_mutual_auth) {
+            s.setNeedClientAuth( require_mutual_auth );
+        }
 
 	// Andrew T. Finnell / Change made for e-Security Inc. 2002 
         // We need a way to enable the cipher suites that we would
@@ -146,7 +165,11 @@ public class SSLServerSocketFactory
 	SSLServerSocket s = (SSLServerSocket) 
 	    factory.createServerSocket( port, backlog, ifAddress );
 
-	s.setNeedClientAuth( mutual_auth );
+        if (request_mutual_auth) {
+            s.setWantClientAuth( request_mutual_auth );
+        } else if (require_mutual_auth) {
+            s.setNeedClientAuth( require_mutual_auth );
+        }
 
 	// Andrew T. Finnell / Change made for e-Security Inc. 2002 
         // We need a way to enable the cipher suites that we would
@@ -207,7 +230,8 @@ public class SSLServerSocketFactory
 	    
 	    //only add trusted certs, if establish trust in client
             //is required
-            if((Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 ) 
+            if((Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 ) & 0x40) != 0 ||
+               (Environment.getIntProperty( "jacorb.security.ssl.server.supported_options", 16 ) & 0x40) != 0) 
             {     
 		tmf = TrustManagerFactory.getInstance( "SunX509" );
 	    
