@@ -35,7 +35,7 @@ import java.io.*;
  * parameters is done in Environment, however.
  *
  * @author Gerald Brose
- * @version $Id$ 
+ * @version $Id$
  */
 
 public final class Debug
@@ -44,8 +44,6 @@ public final class Debug
     //for byte -> hexchar
     private static final char[] lookup =
     new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-    
-    private static boolean timestamp = Environment.isPropertyOn ("jacorb.log.timestamp");
 
     /** the root logger instance */
     private static Logger logger;
@@ -83,12 +81,6 @@ public final class Debug
 
     public static void output (String msg)
     {
-        if (timestamp)
-        {
-            msg = 
-                Environment.date() + ':' + Environment.time() + "> " + msg;
-        }
-
         if (logger == null)
         {
             System.out.println(msg);
@@ -116,12 +108,6 @@ public final class Debug
 
     public static final void output (int msg_level, String msg)
     {
-        if (timestamp)
-        {
-            msg = Environment.date () + ':' +
-                Environment.time() + "> " + msg;
-        }
-        
         if ( logger == null)
         {
             System.out.println (msg);
@@ -169,7 +155,7 @@ public final class Debug
     /**
      * Output a buffer in hex format to System.out. Note that output
      * synchronizes the calling threads in order to avoid garbled
-     * debug output.  
+     * debug output.
      */
 
     public static synchronized void output(int msg_level,
@@ -184,7 +170,7 @@ public final class Debug
     /**
      * Output a buffer in hex format to System.out. Note that output
      * synchronizes the calling threads in order to avoid garbled
-     * debug output.  
+     * debug output.
      */
 
     public static synchronized void output( int msg_level,
@@ -304,14 +290,14 @@ public final class Debug
                 catch (IOException io )
                 {
                 }
-            }               
+            }
         }
     }
 
     /**
      * Convenience method.
      * Factory for logger instances, delegates to the actual factory
-     * set up in org.jacorb.util.Environment. 
+     * set up in org.jacorb.util.Environment.
      */
 
     public static Logger getNamedLogger(String name)
@@ -322,7 +308,7 @@ public final class Debug
     /**
      * Convenience method.
      * Factory for logger instances, delegates to the actual factory
-     * set up in org.jacorb.util.Environment. 
+     * set up in org.jacorb.util.Environment.
      */
 
     public static Logger getNamedRootLogger(String name)

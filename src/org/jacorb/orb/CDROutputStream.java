@@ -137,13 +137,11 @@ public class CDROutputStream
     private int chunkingFlag = 0;
 
     private static boolean useBOM = false;
-    private static boolean useIndirection = true;
     private static boolean chunkCustomRmiValuetypes = false;
 
     static
     {
         useBOM = Environment.isPropertyOn ("jacorb.use_bom");
-        useIndirection = Environment.isPropertyOff ("jacorb.interop.indirection_encoding_disable");
         chunkCustomRmiValuetypes =
         Environment.isPropertyOn("jacorb.interop.chunk_custom_rmi_valuetypes");
     }
@@ -1409,7 +1407,8 @@ public class CDROutputStream
                     break;
                     case TCKind._tk_struct:
                     case TCKind._tk_except:
-                    if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
+                    if (Environment.getUseIndirection() && tcMap != null &&
+                        tcMap.containsKey (value.id ()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1437,7 +1436,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_enum:
-                    if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
+                    if (Environment.getUseIndirection() && tcMap != null &&
+                        tcMap.containsKey (value.id ()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1464,7 +1464,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_union:
-                    if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
+                    if (Environment.getUseIndirection() && tcMap != null &&
+                        tcMap.containsKey (value.id ()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1521,7 +1522,8 @@ public class CDROutputStream
                     endEncapsulation();
                     break;
                     case TCKind._tk_alias:
-                    if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
+                    if (Environment.getUseIndirection() && tcMap != null &&
+                        tcMap.containsKey (value.id ()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1543,7 +1545,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_value:
-                    if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
+                    if (Environment.getUseIndirection() && tcMap != null &&
+                        tcMap.containsKey (value.id ()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1578,7 +1581,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_value_box:
-                    if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
+                    if (Environment.getUseIndirection() && tcMap != null &&
+                        tcMap.containsKey (value.id ()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1600,7 +1604,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_abstract_interface:
-                    if (useIndirection && tcMap != null && tcMap.containsKey (value.id ()))
+                    if (Environment.getUseIndirection() && tcMap != null &&
+                        tcMap.containsKey (value.id ()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }

@@ -309,7 +309,7 @@ public class POAMonitorImpl
         {
             try
             {
-                view._printMessage(Environment.time()+"> "+str);
+                view._printMessage(str);
             }
             catch (Throwable exception)
             {

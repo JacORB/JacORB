@@ -41,14 +41,14 @@ SSL (see section \ref{ch:SSL}). The different ways of achieving this are
 \begin{itemize}
 \item Use just one properties file, but you will have to edit that
   file if you want to switch between SSL and
-plaintext connections. 
+plaintext connections.
 \item Use commandline properties exclusively (cf. below), which may lead to very long
 commands
 \item Use a command property file for all applications and different
   custom properties files for each application.
 \end{itemize}
 
-For example, you could   start a JacORB program like this: 
+For example, you could   start a JacORB program like this:
 
 \cmdline{jaco -Dcustom.props=c:/tmp/ns.props org.jacorb.naming.NameServer
   c:/NS\_Ref}
@@ -168,8 +168,8 @@ previous JacORB versions!):
 ##################################
 
 # Name of the factory class that plugs in a given log kit
-# The default value is JacORB's own factory for the Apache 
-# LogKit. Only edit (or uncomment) if you want a different 
+# The default value is JacORB's own factory for the Apache
+# LogKit. Only edit (or uncomment) if you want a different
 # log kit.
 #jacorb.log.loggerFactory=org.jacorb.util.LogKitLoggerFactory
 
@@ -488,9 +488,6 @@ existing log file or overwrite (if file logging) & boolean & off \\
 \verb"ize" & If appending to a file sets the size in kilobytes at
 which the file is rolled over & integer & 0 \\
 \hline
-\verb"jacorb.log.timestamp" & Whether to timestamp log messages &
-boolean & off \\
-\hline
 \verb"jacorb.debug.dump_outg"
 \verb"oing_messages" & Hex dump outgoing messages & boolean & off \\
 \hline
@@ -689,7 +686,7 @@ no more than queue\_min requests. Default is 10. & integer \\
 \end{longtable}
 \end{small}
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "../ProgrammingGuide"
-%%% End: 
+%%% End:

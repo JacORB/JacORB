@@ -168,7 +168,7 @@ public class POAManagerMonitorImpl
     public synchronized void printMessage(String str) {
         if (view != null) {
             try {
-                view._printMessage(Environment.time()+"> "+str);
+                view._printMessage(str);
             } catch (Throwable exception) {
                 org.jacorb.util.Debug.output(0, "Exception occurred in printMessage() of POAManagerMonitor");
                 org.jacorb.util.Debug.output(0, exception);

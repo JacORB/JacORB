@@ -104,6 +104,12 @@ public class Environment
     private static long                  _max_log_size = 0;
     private static boolean              append = false;
     private static long                  _current_log_size = 0;
+    /*
+     * <code>_useIndirection</code> is whether to turn off indirection
+     * for repeated typecodes to fix interop issue with broken ORBs
+     */
+    private static boolean              _useIndirection = false;
+
 
     /* threading properties */
     private static boolean              _monitoring_on = false;
@@ -125,9 +131,6 @@ public class Environment
     /* properties with a given prefix */
     private static Map untrimmedPrefixProps = new HashMap();
     private static Map trimmedPrefixProps = new HashMap();
-
-    private static SimpleDateFormat dateFormatter;
-    private static SimpleDateFormat timeFormatter;
 
     private static boolean strict_check_on_tc_creation;
 
@@ -322,6 +325,7 @@ public class Environment
         _impl_name = getProperty("jacorb.impl_name", "").getBytes();
         strict_check_on_tc_creation = isPropertyOn("jacorb.strict_check_on_tc_creation", "on");
         _retry_on_failure = isPropertyOn("jacorb.connection.client.retry_on_failure");
+        _useIndirection = ! isPropertyOn("jacorb.interop.indirection_encoding_disable");
     }
 
     /**
@@ -439,11 +443,6 @@ public class Environment
         return _monitoring_on;
     }
 
-    public static final  Properties jacorbProperties()
-    {
-        return configurationProperties;
-    }
-
     /**
      * @return the root logger object for JacORB
      */
@@ -453,15 +452,6 @@ public class Environment
         return logger;
     }
 
-//     /**
-//      * @return the root logger object for JacORB
-//      * @deprecated
-//      */
-
-//     public static final Logger logFileOut()
-//     {
-//         return getLogger();
-//     }
 
     /**
      * @return the max size of the log file in kilo bytes. A size of 0
@@ -520,6 +510,15 @@ public class Environment
     public static int getCompactTypecodes ()
     {
         return compactTypecodes;
+    }
+
+    /*
+     * <code>getUseIndirection</code> returns value of _useIndirection
+     * @return a boolean value
+     */
+    public static boolean getUseIndirection ()
+    {
+        return _useIndirection;
     }
 
     public static String imrProxyHost()
@@ -589,11 +588,6 @@ public class Environment
     {
         String s = configurationProperties.getProperty (key, def);
         return "on".equals (s);
-    }
-
-    public static boolean isPropertyOff(String key)
-    {
-        return (!isPropertyOn (key));
     }
 
     public static long getLongProperty(String key, int base, long def)
@@ -750,33 +744,6 @@ public class Environment
 
         return result;
 
-    }
-
-    /**
-     * returns a copy of the org.jacorb properties.
-     */
-
-    public static Properties getProperties()
-    {
-        return (Properties)configurationProperties.clone();
-    }
-
-    public static final String date()
-    {
-        if (dateFormatter == null)
-        {
-            dateFormatter = new SimpleDateFormat ("dd:MM:yyyy");
-        }
-        return dateFormatter.format (new Date ());
-    }
-
-    public static final String time()
-    {
-        if (timeFormatter == null)
-        {
-            timeFormatter = new SimpleDateFormat ("H:mm:ss:SSS");
-        }
-        return timeFormatter.format (new Date ());
     }
 
     public static final void readFromURL(java.net.URL _url)

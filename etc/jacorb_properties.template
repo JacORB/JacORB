@@ -130,10 +130,6 @@ jacorb.logfile.append=off
 # A value of 0 implies no rolling log
 jacorb.logfile.maxLogSize=0
 
-# Whether to timestamp log entries
-jacorb.log.timestamp=off
-
-
 # hexdump outgoing messages
 jacorb.debug.dump_outgoing_messages=off
 

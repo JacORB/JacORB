@@ -34,18 +34,18 @@ import org.jacorb.util.Environment;
 
 /**
  *      The actual implementation for the CORBAService Naming
- * 
+ *
  *      @author Gerald Brose, FU Berlin
  *      @version $Id$
  *
  */
 
-public class NamingContextImpl 
+public class NamingContextImpl
     extends NamingContextExtPOA
     implements java.io.Serializable
 {
     /** table of all name bindings in this contexts, ie. name -> obj ref. */
-    private Hashtable names = new Hashtable(); 
+    private Hashtable names = new Hashtable();
 
     /** table of all subordinate naming contexts, ie. name -> obj ref. */
     private Hashtable contexts = new Hashtable();
@@ -61,13 +61,13 @@ public class NamingContextImpl
     private int child_count;
     private boolean destroyed = false;
 
-    /** 
+    /**
      *  bind a name (an array of name components) to an object
-     */ 
+     */
 
-    public void bind( NameComponent[] nc, org.omg.CORBA.Object obj) 
+    public void bind( NameComponent[] nc, org.omg.CORBA.Object obj)
         throws NotFound, CannotProceed, InvalidName, AlreadyBound
-    {   
+    {
         if( destroyed )
             throw new CannotProceed();
 
@@ -82,7 +82,7 @@ public class NamingContextImpl
         NameComponent nb = n.baseNameComponent();
         if( ctx == null )
         {
-            if( names.containsKey( n )) 
+            if( names.containsKey( n ))
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)names.get(n);
@@ -93,7 +93,7 @@ public class NamingContextImpl
                 }
                 throw new AlreadyBound();
             }
-            else if( contexts.containsKey( n )) 
+            else if( contexts.containsKey( n ))
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)contexts.get(n);
@@ -111,8 +111,8 @@ public class NamingContextImpl
             {
                 logger.info("Bound name: " + n.toString());
             }
-        } 
-        else 
+        }
+        else
         {
             NameComponent[] ncx = new NameComponent[1];
             ncx[0] = nb;
@@ -125,7 +125,7 @@ public class NamingContextImpl
      * Bind an object to a name that's already in use, i.e. rebind the name
      */
 
-    public void rebind(NameComponent[] nc, org.omg.CORBA.Object obj) 
+    public void rebind(NameComponent[] nc, org.omg.CORBA.Object obj)
         throws NotFound, CannotProceed, InvalidName
     {
         if( destroyed )
@@ -156,14 +156,14 @@ public class NamingContextImpl
         if( ctx == null )
         {
             // do the rebinding in this context
-            
+
             names.put( n, obj );
             if( logger.isInfoEnabled() )
             {
                 logger.info("re-Bound name: " + n.toString());
             }
-        } 
-        else 
+        }
+        else
         {
             // rebind in the correct context
 
@@ -181,7 +181,7 @@ public class NamingContextImpl
      * Bind an context to a name that's already in use, i.e. rebind the name
      */
 
-    public void rebind_context(NameComponent[] nc, NamingContext obj) 
+    public void rebind_context(NameComponent[] nc, NamingContext obj)
         throws NotFound, CannotProceed, InvalidName
     {
         if( destroyed )
@@ -214,7 +214,7 @@ public class NamingContextImpl
             contexts.put( n, obj );
             if (logger.isInfoEnabled())
             {
-                logger.info("Re-Bound context: " + 
+                logger.info("Re-Bound context: " +
                             n.baseNameComponent().id);
             }
         }
@@ -223,11 +223,11 @@ public class NamingContextImpl
 
 
     /**
-     * Bind a context to a name 
+     * Bind a context to a name
      */
 
-    public void bind_context(NameComponent[] nc, 
-                             NamingContext obj) 
+    public void bind_context(NameComponent[] nc,
+                             NamingContext obj)
         throws NotFound, CannotProceed, InvalidName, AlreadyBound
     {
         if( destroyed )
@@ -239,7 +239,7 @@ public class NamingContextImpl
 
         if( ctx == null )
         {
-            if( names.containsKey( n )) 
+            if( names.containsKey( n ))
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)names.get(n);
@@ -250,7 +250,7 @@ public class NamingContextImpl
                 else
                     throw new AlreadyBound();
             }
-            else if( contexts.containsKey( n )) 
+            else if( contexts.containsKey( n ))
             {
                 // if the name is still in use, try to ping the object
                 org.omg.CORBA.Object s = (org.omg.CORBA.Object)contexts.get(n);
@@ -262,16 +262,16 @@ public class NamingContextImpl
                 throw new AlreadyBound();
             }
 
-            if( (contexts.put( n, obj )) != null ) 
+            if( (contexts.put( n, obj )) != null )
                 throw new CannotProceed( _this(), n.components());
             contexts.put( n, obj );
 
             if (logger.isInfoEnabled())
             {
-                logger.info("Bound context: " + n.toString());                
+                logger.info("Bound context: " + n.toString());
             }
         }
-        else 
+        else
         {
             NameComponent[] ncx = new NameComponent[1];
             ncx[0] = nb;
@@ -279,7 +279,7 @@ public class NamingContextImpl
         }
     }
 
-    public NamingContext bind_new_context(NameComponent[] nc ) 
+    public NamingContext bind_new_context(NameComponent[] nc )
         throws NotFound, CannotProceed, InvalidName, AlreadyBound
     {
         if( destroyed )
@@ -289,8 +289,8 @@ public class NamingContextImpl
             throw new InvalidName();
 
         NamingContextExt ns = NamingContextExtHelper.narrow(new_context());
-        bind_context( nc, ns ); 
-        
+        bind_context( nc, ns );
+
         if( ns == null )
         {
             throw new CannotProceed();
@@ -364,7 +364,7 @@ public class NamingContextImpl
         if( destroyed )
             return;
 
-        if(!names.isEmpty() || !contexts.isEmpty() ) 
+        if(!names.isEmpty() || !contexts.isEmpty() )
             throw new NotEmpty();
         else
         {
@@ -374,9 +374,9 @@ public class NamingContextImpl
         }
     }
 
-    /** 
+    /**
      *  @return numer of bindings in this context
-     */ 
+     */
 
     public int how_many()
     {
@@ -385,15 +385,15 @@ public class NamingContextImpl
         return names.size() + contexts.size();
     }
 
- 
- 
+
+
     /**
      *  list all bindings
      */
 
     private Binding[] list()
     {
-        Binding[] result; 
+        Binding[] result;
         cleanup();
 
         int how_many = how_many();
@@ -404,15 +404,15 @@ public class NamingContextImpl
         result = new Binding[how_many];
         for( ; n.hasMoreElements() && how_many > 0; how_many-- )
         {
-            result[how_many-1] = 
-                new Binding(((Name)n.nextElement()).components(), 
+            result[how_many-1] =
+                new Binding(((Name)n.nextElement()).components(),
                             BindingType.nobject );
         }
 
         for( ; c.hasMoreElements() && how_many > 0; how_many-- )
         {
-            result[how_many-1] = 
-                new Binding(((Name)c.nextElement()).components(), 
+            result[how_many-1] =
+                new Binding(((Name)c.nextElement()).components(),
                             BindingType.ncontext);
         }
 
@@ -428,7 +428,7 @@ public class NamingContextImpl
         if( destroyed )
             return;
 
-        Binding[] result; 
+        Binding[] result;
 
         cleanup();
 
@@ -447,13 +447,13 @@ public class NamingContextImpl
             result = new Binding[how_many];
             for( ; n.hasMoreElements() && how_many_ctr > 0; how_many_ctr-- )
             {
-                result[how_many_ctr-1] = new Binding(((Name)n.nextElement()).components(), 
+                result[how_many_ctr-1] = new Binding(((Name)n.nextElement()).components(),
                                                  BindingType.nobject );
             }
 
             for( ; c.hasMoreElements() && how_many_ctr > 0; how_many_ctr-- )
             {
-                result[how_many_ctr-1] = new Binding(((Name)c.nextElement()).components(), 
+                result[how_many_ctr-1] = new Binding(((Name)c.nextElement()).components(),
                                                  BindingType.ncontext);
             }
 
@@ -463,13 +463,13 @@ public class NamingContextImpl
             Binding[] rest = new Binding[ size ];
             for( ; n.hasMoreElements() && size > 0; size-- )
             {
-                rest[size-1] = new Binding(((Name)n.nextElement()).components(), 
+                rest[size-1] = new Binding(((Name)n.nextElement()).components(),
                                            BindingType.nobject );
             }
 
             for( ; c.hasMoreElements() && size > 0; size-- )
             {
-                rest[size-1] = new Binding(((Name)c.nextElement()).components(), 
+                rest[size-1] = new Binding(((Name)c.nextElement()).components(),
                                            BindingType.ncontext);
             }
 
@@ -479,28 +479,28 @@ public class NamingContextImpl
                 // Iterators are activated with the RootPOA (transient)
                 byte[] oid = rootPoa.activate_object( new BindingIteratorImpl( rest ) );
                 o = rootPoa.id_to_reference(oid);
-            } 
+            }
             catch ( Exception ue )
             {
                 ue.printStackTrace();
             }
-                        
+
             bi.value = BindingIteratorHelper.narrow(o);
-        } 
-        else 
+        }
+        else
         {
             result = new Binding[size];
             for( ; n.hasMoreElements() && size > 0; size-- )
             {
-                result[size-1] = 
-                    new Binding(((Name)n.nextElement()).components(), 
+                result[size-1] =
+                    new Binding(((Name)n.nextElement()).components(),
                                 BindingType.nobject );
             }
 
             for( ; c.hasMoreElements() && size > 0; size-- )
             {
-                result[size-1] = 
-                    new Binding(((Name)c.nextElement()).components(), 
+                result[size-1] =
+                    new Binding(((Name)c.nextElement()).components(),
                                 BindingType.ncontext);
             }
         }
@@ -516,7 +516,7 @@ public class NamingContextImpl
         org.omg.CORBA.Object ctx = null;
         try
         {
-            byte[] oid = (new String(poa.servant_to_id(this)) +  
+            byte[] oid = (new String(poa.servant_to_id(this)) +
                           "_ctx" + (++child_count)).getBytes();
 
             ctx = poa.create_reference_with_id( oid, "IDL:omg.org/CosNaming/NamingContextExt:1.0");
@@ -524,7 +524,7 @@ public class NamingContextImpl
             {
                 logger.info("New context.");
             }
-        } 
+        }
         catch ( Exception ue )
         {
             ue.printStackTrace();
@@ -535,11 +535,11 @@ public class NamingContextImpl
 
 
 
-    /** 
+    /**
      * resolve a name
      */
 
-    public org.omg.CORBA.Object resolve(NameComponent[] nc) 
+    public org.omg.CORBA.Object resolve(NameComponent[] nc)
         throws NotFound, CannotProceed, InvalidName
     {
         if( destroyed )
@@ -551,7 +551,7 @@ public class NamingContextImpl
         Name n = new Name( nc[0] );
         if( nc.length > 1 )
         {
-            NamingContextExt next_context = 
+            NamingContextExt next_context =
                 NamingContextExtHelper.narrow((org.omg.CORBA.Object)contexts.get(n));
 
 
@@ -560,7 +560,7 @@ public class NamingContextImpl
                 throw new NotFound(NotFoundReason.missing_node,nc);
             }
 
-            NameComponent[] nc_prime = 
+            NameComponent[] nc_prime =
                 new NameComponent[nc.length-1];
 
             for( int i = 1; i < nc.length; i++)
@@ -575,26 +575,26 @@ public class NamingContextImpl
             result = (org.omg.CORBA.Object)contexts.get(n);
 
             if( result == null )
-                result = (org.omg.CORBA.Object)names.get(n);           
+                result = (org.omg.CORBA.Object)names.get(n);
 
 			if (result == null)
 				throw new NotFound(NotFoundReason.missing_node, n.components());
 
-			if (Environment.isPropertyOff ("jacorb.naming.noping") && 
+			if (! Environment.isPropertyOn ("jacorb.naming.noping") &&
                             result._non_existent())
                         {
                             throw new NotFound(NotFoundReason.missing_node, n.components());
                         }
 
-            return result;      
-        }                 
+            return result;
+        }
     }
 
     /**
      * unbind a name
      */
 
-    public void unbind(NameComponent[] nc ) 
+    public void unbind(NameComponent[] nc )
         throws NotFound, CannotProceed, InvalidName
     {
         if( destroyed )
@@ -617,7 +617,7 @@ public class NamingContextImpl
                 {
                     logger.info("Unbound: " + n.toString());
                 }
-            } 
+            }
             else if( contexts.containsKey(n))
             {
                 org.omg.CORBA.Object o = (org.omg.CORBA.Object)contexts.remove( n );
@@ -627,14 +627,14 @@ public class NamingContextImpl
                 {
                     logger.info("Unbound: " + n.toString());
                 }
-            } 
-            else 
+            }
+            else
             {
                 if (logger.isWarnEnabled())
                 {
                     logger.warn("Unbind failed for " + n.toString() );
                 }
-                throw new NotFound(NotFoundReason.not_context, 
+                throw new NotFound(NotFoundReason.not_context,
                                    n.components());
             }
         }
@@ -646,13 +646,13 @@ public class NamingContextImpl
         }
     }
 
-    /** 
+    /**
      * POA-related,
      */
 
-    public org.omg.PortableServer.POA default_POA() 
-    {     
-        return poa;  
+    public org.omg.PortableServer.POA default_POA()
+    {
+        return poa;
     }
 
 
@@ -669,29 +669,29 @@ public class NamingContextImpl
          */
 
         for( Enumeration e = contexts.keys(); e.hasMoreElements();)
-        {          
+        {
             Name key = (Name)e.nextElement();
             org.omg.CORBA.Object o = (org.omg.CORBA.Object)contexts.remove( key );
             contexts.put( key, orb.object_to_string( o ));
         }
 
         for( Enumeration e = names.keys(); e.hasMoreElements();)
-        {          
+        {
             Name key = (Name)e.nextElement();
             org.omg.CORBA.Object o = (org.omg.CORBA.Object)names.remove(key);
             names.put( key, orb.object_to_string( o ));
         }
-        
+
         out.defaultWriteObject();
     }
 
     /**
-     *   This method needs to be called once to initialize 
+     *   This method needs to be called once to initialize
      *   the static fields orb and rootPoa.
      *
      */
 
-    public static void init(org.omg.CORBA.ORB orb, 
+    public static void init(org.omg.CORBA.ORB orb,
                             org.omg.PortableServer.POA rootPoa)
     {
         NamingContextImpl.orb = orb;
@@ -707,21 +707,21 @@ public class NamingContextImpl
     void init(org.omg.PortableServer.POA poa)
     {
         this.poa = poa;
-        
-        /** 
-         * Recreate tables. For serialization, object references 
+
+        /**
+         * Recreate tables. For serialization, object references
          * have been transformed into strings
          */
 
         for( Enumeration e = contexts.keys(); e.hasMoreElements();)
-        {          
+        {
             Name key = (Name)e.nextElement();
             String ref = (String)contexts.remove(key);
             contexts.put( key, orb.string_to_object( ref ));
         }
 
         for( Enumeration e = names.keys(); e.hasMoreElements();)
-        {          
+        {
             Name key = (Name)e.nextElement();
             String ref = (String)names.remove(key);
             names.put( key, orb.string_to_object( ref ));
@@ -735,7 +735,7 @@ public class NamingContextImpl
      * convert a name into its string representation
      */
 
-    public String to_string(NameComponent[] n) 
+    public String to_string(NameComponent[] n)
         throws InvalidName
     {
         return Name.toString(n);
@@ -746,7 +746,7 @@ public class NamingContextImpl
      * @throws InvalidName
      */
 
-    public NameComponent[] to_name( String sn ) 
+    public NameComponent[] to_name( String sn )
         throws InvalidName
     {
         return Name.toName( sn );
@@ -756,7 +756,7 @@ public class NamingContextImpl
     /**
      *
      */
-    
+
     public String to_url(String addr, String sn)
         throws InvalidAddress, InvalidName
     {
@@ -776,8 +776,8 @@ public class NamingContextImpl
     /**
      *
      */
-    
-    public org.omg.CORBA.Object resolve_str(String n) 
+
+    public org.omg.CORBA.Object resolve_str(String n)
         throws NotFound, CannotProceed, InvalidName
     {
         return resolve( to_name(n));
