@@ -26,9 +26,8 @@ import java.util.*;
 
 import org.apache.log.*;
 
-
 /**
- * Base class for all classes of the abstract syntax tree
+ * Base class for all classes of the abstract IDL syntax tree
  *
  * @author Gerald Brose
  * @version $Id$
@@ -79,15 +78,28 @@ public class IdlSymbol
         included = i;
     }
 
+
+    /**
+     *
+     */
+
     public boolean is_included()
     {
         return included;
     }
 
+    /**
+     *
+     */
+
     public void set_pseudo()
     {
         is_pseudo = true;
     }
+
+    /**
+     * is this a PIDL symbol?
+     */
 
     public boolean is_pseudo()
     {
@@ -112,10 +124,17 @@ public class IdlSymbol
         return token;
     }
 
+
+    /**
+     *  get this symbol's  name
+     */
+
     public String name()
     {
         return name;
     }
+
+ 
 
     /**
      * A number of IDL constructs need to have their names

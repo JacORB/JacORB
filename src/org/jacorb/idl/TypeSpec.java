@@ -47,10 +47,34 @@ public class TypeSpec
         return ts;
     }
 
+    /**
+     * @deprecated, use either getJavaTypeName() or getIDLTypeName()
+     */
+
+
     public String typeName()
     {
         return type_spec.typeName();
     }
+
+    /**
+     * get this types's mapped Java name
+     */
+
+    public String getJavaTypeName()
+    {
+        return typeName();
+    }
+
+    /**
+     * get this symbol's IDL type name
+     */
+
+    public String getIDLTypeName()
+    {
+        return typeName();
+    }
+
 
     public TypeSpec typeSpec()
     {

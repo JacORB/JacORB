@@ -26,7 +26,7 @@ package org.jacorb.idl;
  */
 
 class LongType
-        extends IntType
+    extends IntType
 {
 
     public LongType( int num )
@@ -48,6 +48,29 @@ class LongType
     {
         return "int";
     }
+
+   /**
+     * get this types's mapped Java name
+     */
+
+    public String getJavaTypeName()
+    {
+        return "int";
+    }
+
+
+    /**
+     * get this symbol's IDL type name
+     */
+
+    public String getIDLTypeName()
+    {
+        if( unsigned )
+            return "ulong";
+        else
+            return "long";
+    }
+
 
     public boolean basic()
     {

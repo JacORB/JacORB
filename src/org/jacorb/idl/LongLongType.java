@@ -21,12 +21,14 @@
 package org.jacorb.idl;
 
 /**
+ * Represents IDL long long and unsigned long long types
+ *
  * @author Gerald Brose
  * @version $Id$
  */
 
 class LongLongType
-        extends IntType
+    extends IntType
 {
 
     public LongLongType( int num )
@@ -47,6 +49,28 @@ class LongLongType
     public String typeName()
     {
         return "long";
+    }
+
+    /**
+     * get this types's mapped Java name
+     */
+
+    public String getJavaTypeName()
+    {
+        return typeName();
+    }
+
+
+    /**
+     * get this symbol's IDL type name
+     */
+
+    public String getIDLTypeName()
+    {
+        if( unsigned )
+            return "ulonglong";
+        else
+            return "longlong";
     }
 
     public boolean basic()
