@@ -100,7 +100,7 @@ public class TSSInvocationInterceptor
             GSSManager gssManager = TSSInitializer.gssManager;
             ServiceContext ctx = ri.get_request_service_context(SecurityAttributeService);
             Any ctx_any = codec.decode( ctx.context_data );
-            contextBody = org.omg.CSI.SASContextBodyHelper.extract(ctx_any);
+            contextBody = SASContextBodyHelper.extract(ctx_any);
 
             // get GSS Context and credentials
             Oid myMechOid = myCredential.getMechs()[0];
@@ -165,8 +165,12 @@ public class TSSInvocationInterceptor
         msg.client_context_id = client_context_id;
         msg.context_stateful = context_stateful;
         msg.final_context_token = new byte[0];
+        //Any any = orb.create_any();
+        //CompleteEstablishContextHelper.insert(any, msg);
+        SASContextBody contextBody = new SASContextBody();
+        contextBody.complete_msg(msg);
         Any any = orb.create_any();
-        CompleteEstablishContextHelper.insert(any, msg);
+        SASContextBodyHelper.insert( any, contextBody );
         return any;
     }
 
@@ -176,8 +180,12 @@ public class TSSInvocationInterceptor
         msg.error_token = error_token;
         msg.major_status = major_status;
         msg.minor_status = minor_status;
+        //Any any = orb.create_any();
+        //ContextErrorHelper.insert(any, msg);
+        SASContextBody contextBody = new SASContextBody();
+        contextBody.error_msg(msg);
         Any any = orb.create_any();
-        ContextErrorHelper.insert(any, msg);
+        SASContextBodyHelper.insert( any, contextBody );
         return any;
     }
 }

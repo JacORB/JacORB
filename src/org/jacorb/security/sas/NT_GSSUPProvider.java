@@ -38,8 +38,6 @@ public class NT_GSSUPProvider extends Provider
 
     /**
      * Returns the default GSSManager implementation.
-     *
-     * @return a GSSManager implementation
      */
     public NT_GSSUPProvider()
     {
