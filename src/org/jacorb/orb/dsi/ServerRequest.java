@@ -399,7 +399,10 @@ public class ServerRequest
         stream_based = true;
 
         if( out != null )
-            throw new Error("Internal: reply already created!");
+            // The reply was already created.  This happens in oneway
+            // operations using SyncScope SYNC_WITH_SERVER, and does
+            // not do any harm.
+            return out;
 
         if( !stream_based )
             throw new Error("Internal: ServerRequest not stream-based!");
