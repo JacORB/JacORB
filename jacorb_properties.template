@@ -51,8 +51,8 @@ ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #jacorb.ProxyServer.Netmask=255.255.255.0
 #jacorb.ProxyServer.Network=160.45.110.0
 #jacorb.ProxyServer.URL=<url>
-#jacorb.ProxyServer.URL:<network1>:<netmask1>=<url1>
-#jacorb.ProxyServer.URL:<network2>:<netmask2>=<url2>
+#jacorb.ProxyServer.URL-<network1>-<netmask1>=<url1>
+#jacorb.ProxyServer.URL-<network2>-<netmask2>=<url2>
 
 
 ##################################
