@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2000  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,16 +21,16 @@ package org.jacorb.orb;
  */
  
 import java.util.Vector;
+import org.jacorb.util.*;
 
 /**
- * A BufferManager is used to share a pool of buffers
- * and to implement a buffer allocation policy. This
- * should reduce the number of memory allocations and 
- * deallocations and the overall memory footprint.
+ * A BufferManager is used to share a pool of buffers and to implement
+ *  a buffer  allocation policy.  This  reduces the  number of  memory
+ * allocations and deallocations and the overall memory footprint.
  *
  * @author Gerald Brose, FU Berlin
- * @version $Id$
- */
+ * @version $Id$ 
+*/
 
 public class BufferManager
 {
@@ -42,10 +42,11 @@ public class BufferManager
     /** the maximal buffer size managed since the buffer
 	pool is ordered by buffer size in log2 steps */
 
-    private static final int MAX = 20;
+    private static  int MAX;
 
     /** the buffer at pos n has size 2**(n+MIN_OFFSET)
-	so the smallest available buffer is 2**MIN_OFFSET
+	so the smallest available buffer is 2**MIN_OFFSET,
+        the largest buffers managed are 2**(MIN_OFFSET+MAX-1)
     */
 
     private static final int MIN_OFFSET = 5;
@@ -60,7 +61,8 @@ public class BufferManager
 
     private BufferManager()
     {
-	bufferPool = new Vector[MAX];
+        MAX = Environment.getMaxManagedBufSize();
+	bufferPool = new Vector[ MAX ];
 	for( int i= MAX; i > 0; )
 	    bufferPool[--i]=new Vector();	
     }
@@ -113,10 +115,10 @@ public class BufferManager
 
 	int log = log2up(initial);
 
-	if( log > MAX+MIN_OFFSET  )
+	if( log >= MAX+MIN_OFFSET  )
 	    return new byte[initial];
 
-	Vector v= bufferPool[log > MIN_OFFSET ? log-MIN_OFFSET : 0 ];
+	Vector v = bufferPool[log > MIN_OFFSET ? log-MIN_OFFSET : 0 ];
 
 	if( ! v.isEmpty() )
 	{
@@ -187,9 +189,5 @@ public class BufferManager
 
 
 }
-
-
-
-
 
 

@@ -67,7 +67,7 @@ public class Environment
     private static int                  _retries = 10;
     private static long                 _retry_interval = 700;
     private static int                  _outbuf_size = 4096;
-        
+    private static int                  maxManagedBufSize = 18;
     private static int                  _charset_flags = 0x0D;
 
     /** domain-specific */
@@ -316,6 +316,8 @@ public class Environment
             _cache_entry_lifetime = Long.parseLong(o); 
         else if( varName.equals("_outbuf_size"))
             _outbuf_size = Integer.parseInt(o); 
+        else if( varName.equals("_max_managed_bufsize"))
+            maxManagedBufSize = Integer.parseInt(o); 
         else if( varName.equals("_default_context"))
             _default_context = o;
         else    if( varName.equals("_ir_server"))
@@ -431,6 +433,7 @@ public class Environment
         readValue("_retry_interval","retry_interval",jacorbPrefix+"retry_interval");
         readValue("_cache_entry_lifetime","_cache_entry_lifetime",jacorbPrefix+"domain.cache_entry.lifetime");
         readValue("_outbuf_size","outbuf_size",jacorbPrefix+"outbuf_size");
+        readValue("_max_managedbufsize","maxManagedBufSize",jacorbPrefix+"maxManagedBufSize");
         readValue("_default_context","ns",jacorbPrefix+"NameServerURL");
         readValue("_attributeProvider",jacorbPrefix+"AttributeProviderURL",null);
         readValue("_attributeProvider",jacorbPrefix+"AttributeProviderURL",null);
@@ -569,6 +572,12 @@ public class Environment
     public static void  setRootNsURL(String ns) 
     { 
         _default_context=ns; 
+    }
+
+
+    public static int getMaxManagedBufSize()
+    {
+        return maxManagedBufSize;
     }
 
     /**

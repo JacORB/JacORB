@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-2000  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -1288,14 +1288,19 @@ public final class ORB
         }
     }
 
-    public void set_delegate(java.lang.Object wrapper) 
+    public void set_delegate( java.lang.Object wrapper ) 
     {
         if( ! (wrapper instanceof org.omg.PortableServer.Servant) )
             throw new org.omg.CORBA.BAD_PARAM("Argument must be of type org.omg.PortableServer.Servant");
         else
         {
-            org.jacorb.orb.ServantDelegate delegate = new org.jacorb.orb.ServantDelegate(this);
-            ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
+            // only set the delegate if it has not been set already
+            if( ((org.omg.PortableServer.Servant)wrapper)._get_delegate() == null )
+            {
+                org.jacorb.orb.ServantDelegate delegate = 
+                    new org.jacorb.orb.ServantDelegate( this );
+                ((org.omg.PortableServer.Servant)wrapper)._set_delegate(delegate);
+            }
         }
     }
 

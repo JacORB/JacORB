@@ -17,20 +17,21 @@ import org.jacorb.util.*;
  * This class represents a frame of the domain browser.
  * It contains most of the application code of the domain browser.
  * Only the data shared by all browsers is obtained via a SharedData-Object.
+ *
  * @author Herbert Kiefer
  * @version 1.0
  * @see org.jacorb.orb.domain.gui.SharedData
  */
+
 public class BrowserFrame 
     extends JFrame 
 {
-    // public class BrowserFrame extends JFrame implements MouseListener {
     JPanel contentPane;
-    JMenuBar menuBar1 = new JMenuBar();
-    JMenu DomainMenu = new JMenu();
-    JMenuItem ExitMenuItem = new JMenuItem();
-    JMenu HelpMenu = new JMenu();
-    JMenuItem AboutMenuItem = new JMenuItem();
+    JMenuBar menuBar1 =         new JMenuBar();
+    JMenu DomainMenu =          new JMenu();
+    JMenuItem ExitMenuItem =    new JMenuItem();
+    JMenu HelpMenu =            new JMenu();
+    JMenuItem AboutMenuItem =   new JMenuItem();
     BorderLayout borderLayout1 = new BorderLayout();
     JSplitPane outerSplitPane = new JSplitPane();
     JScrollPane TreeScrollPane = new JScrollPane();
@@ -72,7 +73,6 @@ public class BrowserFrame
 
     /** the invisible root node of the member list */
     private MemberListRootNode memberListRoot;
-
 
     /** reference to the data all browser (frames) share. */
     private SharedData theSharedData;
@@ -996,12 +996,12 @@ public class BrowserFrame
             int type = pol.policy_type();
             String key = Integer.toString(type);
             String EditorClassName = 
-                theSharedData.getPolicyEditors().getValueOfProperty(key);
+                theSharedData.getPolicyEditors().getValueOfProperty( key );
 
             Debug.output(Debug.DOMAIN | 3, "class name for policy type " + type
                          + " is "+ EditorClassName);
 
-            if ( EditorClassName == null)
+            if( EditorClassName.length() == 0 )
             { 
                 // only show with IOR and Reflection tab, skip rest
                 Debug.output(Debug.DOMAIN | 2,
