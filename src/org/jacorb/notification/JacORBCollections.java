@@ -24,7 +24,6 @@ package org.jacorb.notification;
 
 import java.util.List;
 import java.util.AbstractList;
-import java.util.RandomAccess;
 import java.io.Serializable;
 
 /**
@@ -47,7 +46,7 @@ public class JacORBCollections implements CollectionsWrapper.CollectionsOperatio
     }
     
     private static class SingletonList extends AbstractList
-	implements RandomAccess, Serializable {
+	implements Serializable {
 
 	private final Object singletonElement_;
 

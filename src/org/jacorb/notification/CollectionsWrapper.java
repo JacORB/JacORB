@@ -22,9 +22,6 @@ package org.jacorb.notification;
  */
 
 import java.util.List;
-import java.util.AbstractList;
-import java.util.RandomAccess;
-import java.io.Serializable;
 import java.lang.Class;
 import java.util.Collections;
 
