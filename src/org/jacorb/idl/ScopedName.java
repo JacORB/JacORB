@@ -340,7 +340,7 @@ public class ScopedName
         }
 
         java.util.StringTokenizer strtok =
-                new java.util.StringTokenizer( s, "." );
+            new java.util.StringTokenizer( s, "." );
         String s_scopes[] = new String[ strtok.countTokens() ];
 
         for( int i = 0; strtok.hasMoreTokens(); i++ )
@@ -492,7 +492,7 @@ public class ScopedName
         }
         String res = unMap( prefix + buf.toString() ) + suffix;
         if( logger.isDebugEnabled() )
-		 logger.debug( "ScopedName.resolve (at end) returns: " + res );
+            logger.debug( "ScopedName.resolve (at end) returns: " + res );
         return res;
     }
 
@@ -535,8 +535,15 @@ public class ScopedName
 
     private String unMap( String _name )
     {
+        if( logger.isDebugEnabled() )
+            logger.debug( "ScopedName.unmap: " + _name );
+
         String tmp = null;
         TypeSpec y = TypeMap.map( _name );
+
+        if( logger.isDebugEnabled() )
+            logger.debug( "ScopedName.unmap: " + _name + ", Type.map( " + _name + " ) is : " + y);
+
         TypeSpec x = null;
 
         while( y != null && !( y instanceof ScopedName )
@@ -544,8 +551,10 @@ public class ScopedName
         {
             x = y;
             y = y.typeSpec();
-            if( x.equals( y ) ) break; // necessary?
+            if( x.equals( y ) ) 
+                break; // necessary?
         }
+
         if( y == null )
         {
             if( x != null )
