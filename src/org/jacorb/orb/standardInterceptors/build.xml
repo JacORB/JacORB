@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="standardInterceptor" default="all" basedir="../../../..">
+<project name="standardInterceptor" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
   <!--      JacORB Standard Interceptors build file         -->
