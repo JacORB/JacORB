@@ -73,7 +73,6 @@
       <mkdir dir="${src}/generated/org"/>
 
       <copy todir="${src}/generated">
-         <!-- <fileset dir="${src}/omg-99-10-27"> -->
          <fileset dir="${src}/omg-02-01-02">
              <include name="**/*.java"/>
          </fileset>
