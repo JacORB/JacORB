@@ -37,7 +37,7 @@ import java.io.IOException;
  * from the ANT build tool.
  *
  * @author Wei-ju Wu
- * @version 1.0
+ * @version $Id$
  */
 public class JacIDL extends MatchingTask
 {
@@ -58,6 +58,7 @@ public class JacIDL extends MatchingTask
     private boolean _sloppynames;
     private boolean _includestate;
     private boolean _nofinal;
+    private boolean _ami_callback;
 
     private List _defines = new ArrayList();
     private List _undefines = new ArrayList();
@@ -80,6 +81,7 @@ public class JacIDL extends MatchingTask
         _nostub = false;
         _generateincluded = false;
         _nofinal = false;
+        _ami_callback = false;
         _debuglevel = 0;
     }
 
@@ -227,6 +229,13 @@ public class JacIDL extends MatchingTask
         _nofinal = flag;
     }
 
+    /**
+     * Sets the flag to generate AMI callbacks.
+     */
+    public void setAmi_callback( boolean flag )
+    {
+        _ami_callback = flag;
+    }
 
     // ****************************************************************
     // **** Nested elements
@@ -291,6 +300,9 @@ public class JacIDL extends MatchingTask
 
         // nofinal
         parser.setGenerateFinalCode(!_nofinal);
+        
+        // AMI callback model
+        parser.generate_ami_callback = _ami_callback;
 
         // include path
         if( _includepath != null )
