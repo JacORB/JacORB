@@ -437,28 +437,28 @@ class NameTable
     }
 
 
-    static Enumeration getGlobalTypes()
-    {
-        Vector v = new Vector();
+//      static Enumeration getGlobalTypes()
+//      {
+//          Vector v = new Vector();
 
-        for( Enumeration e = h.keys(); e.hasMoreElements(); )
-        {
-            String str = (String)e.nextElement();
-            if( str.indexOf( '.' ) == -1 && !baseType( str ) &&
-                    ( ( (String)h.get( str ) ).startsWith( "type" ) ||
-                    ( (String)h.get( str ) ).equals( "interface" ) )
-            )
-            {
-                v.addElement( str );
-            }
-            else
-            {
-                Environment.output( 4, "Not a global type: " + str );
-            }
-        }
+//          for( Enumeration e = h.keys(); e.hasMoreElements(); )
+//          {
+//              String str = (String)e.nextElement();
+//              if( str.indexOf( '.' ) == -1 && !baseType( str ) &&
+//                      ( ( (String)h.get( str ) ).startsWith( "type" ) ||
+//                      ( (String)h.get( str ) ).equals( "interface" ) )
+//              )
+//              {
+//                  v.addElement( str );
+//              }
+//              else
+//              {
+//                  Environment.output( 4, "Not a global type: " + str );
+//              }
+//          }
 
-        return v.elements();
-    }
+//          return v.elements();
+//      }
 
 
     /**

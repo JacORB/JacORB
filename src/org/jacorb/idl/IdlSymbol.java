@@ -182,7 +182,15 @@ class IdlSymbol
     String full_name()
     {
         if( name.length() == 0 )
+        {
+//              IdlSymbol enc = enclosing_symbol;
+//              lexer.emit_warn( "Empty full_name for " + this.getClass().getName() +
+//                               ( enc != null ? 
+//                                 " at " + enc.get_token() :
+//                                 " in pack " + pack_name ));
+
             return null;
+        }
 
         if( pack_name.length() > 0 )
         {
@@ -241,12 +249,12 @@ class IdlSymbol
     {
         if( !pack_name.equals( "" ) )
         {
-            for( Enumeration e = parser.import_list.elements(); e.hasMoreElements(); )
-            {
-                ps.println( "import " + (String)e.nextElement() + ";" );
-            }
+//              for( Enumeration e = parser.import_list.elements(); e.hasMoreElements(); )
+//              {
+//                  ps.println( "import " + (String)e.nextElement() + ";" );
+//              }
 
-            ps.println();
+//              ps.println();
 
             for( Enumeration e = imports.keys(); e.hasMoreElements(); )
             {
@@ -284,15 +292,27 @@ class IdlSymbol
 
     public void addImportedName( String name )
     {
-        Environment.output( 2, "addImportedName " + name );
-        if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
+        if( name != null && name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
+        {
             addImportedName( name, null );
+        }
     }
+
+    /**
+     * Called by  derived classes to potentially add  the name and the
+     * nameHelper to the generated  Java class's import list, which is
+     * necessary in case the mapped code is in the unnamed package.
+     *
+     * @param name
+     * @param type
+     */
 
     public void addImportedName( String name, TypeSpec type )
     {
-        if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
+        if( name != null && name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
+            Environment.output( 2, "addImportedName " + name );
+
             // If we have a typedef for a basic type we only want
             // to import the helper class.
 
@@ -317,9 +337,11 @@ class IdlSymbol
     {
         if( name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
+            Environment.output( 2, "addImportedNameHolder " + name );
+
             imports.put( name, "" );
-            imports.put( name + "Helper", "" );
-            imports.put( name + "Holder", "" );
+//              imports.put( name + "Helper", "" );
+//              imports.put( name + "Holder", "" );
         }
     }
 

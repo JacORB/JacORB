@@ -53,7 +53,7 @@ public class JacIDL extends MatchingTask
     private boolean _generateir;
     private boolean _generateincluded;
     private boolean _parseonly;
-    private boolean _globalimport;
+    //    private boolean _globalimport;
     private boolean _noskel;
     private boolean _nostub;
     private boolean _sloppyforward;
@@ -76,7 +76,7 @@ public class JacIDL extends MatchingTask
         _srcdir = new File( "." );
         _packageprefix = null;
         _parseonly = false;
-        _globalimport = false;
+        //        _globalimport = false;
         _generateir = false;
         _noskel = false;
         _nostub = false;
@@ -173,11 +173,11 @@ public class JacIDL extends MatchingTask
      * Set the flag to use global imports.
      * @param flag the flag
      */
-    public void setGlobalimport( boolean flag )
-    {
+//      public void setGlobalimport( boolean flag )
+//      {
 
-        _globalimport = flag;
-    }
+//          _globalimport = flag;
+//      }
 
     /**
      * Set the flag to leave out skeleton generation.
@@ -274,7 +274,7 @@ public class JacIDL extends MatchingTask
         parser.generateIR = _generateir;
 
         // global import
-        parser.global_import = _globalimport;
+        //        parser.global_import = _globalimport;
 
         // parse only
         parser.parse_only = _parseonly;

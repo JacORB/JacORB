@@ -28,9 +28,8 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 
 class ParamDecl
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public int paramAttribute;
     public TypeSpec paramTypeSpec;
     public SimpleDeclarator simple_declarator;
@@ -56,10 +55,10 @@ class ParamDecl
         while( paramTypeSpec.typeSpec() instanceof ScopedName )
         {
             TypeSpec ts = ( (ScopedName)paramTypeSpec.typeSpec() ).resolvedTypeSpec();
-
             if( ts != null )
                 paramTypeSpec = ts;
         }
+        //simple_declarator.print(ps);
     }
 
     public void print( PrintWriter ps )

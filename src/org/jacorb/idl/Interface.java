@@ -670,7 +670,6 @@ class Interface
             ps.println( "package " + pack_name + ";\n" );
 
         printImport( ps );
-
         printClassComment( classname, ps );
 
         ps.println( "public class _" + classname + "Stub" );

@@ -129,9 +129,9 @@ public class AliasTypeSpec
         }
 
         if( originalType instanceof ConstrTypeSpec ||
-                originalType instanceof FixedPointType ||
-                originalType instanceof SequenceType ||
-                originalType instanceof ArrayTypeSpec )
+            originalType instanceof FixedPointType ||
+            originalType instanceof SequenceType ||
+            originalType instanceof ArrayTypeSpec )
         {
             originalType.parse();
             if( originalType.typeName().indexOf( '.' ) < 0 )
