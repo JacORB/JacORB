@@ -22,18 +22,20 @@ package org.jacorb.notification.interfaces;
  */
 
 import java.util.List;
+
 import org.omg.CosNotifyFilter.MappingFilter;
 
 /**
  * Abstraction of a ProxyConsumer, SupplierAdmin, ConsumerAdmin,
  * ProxySupplier. This Interface provides uniform access to use
- * these Classes during processing of an event. 
+ * these Classes during processing of an event.
  *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface FilterStage {
+public interface FilterStage
+{
 
     /**
      * check if this FilterStage has been disposed.
