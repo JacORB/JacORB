@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -10,13 +12,12 @@ import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplier;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierHelper;
 import org.omg.CosNotifyComm.SequencePullConsumerHelper;
 import org.omg.CosNotifyComm.SequencePullConsumerOperations;
 import org.omg.CosNotifyComm.SequencePullConsumerPOATie;
-
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 class SequencePullReceiver extends Thread implements SequencePullConsumerOperations, TestClientOperations
 {
@@ -49,7 +50,7 @@ class SequencePullReceiver extends Thread implements SequencePullConsumerOperati
 
         pullSupplier_ = SequenceProxyPullSupplierHelper.narrow(_consumerAdmin.obtain_notification_pull_supplier(ClientType.SEQUENCE_EVENT, _proxyId));
 
-        testCase_.assertEquals(ProxyType._PULL_SEQUENCE,
+        Assert.assertEquals(ProxyType._PULL_SEQUENCE,
                                pullSupplier_.MyType().value());
 
 

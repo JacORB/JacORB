@@ -23,12 +23,13 @@ package org.jacorb.test.notification;
 
 import java.util.Date;
 
+import junit.framework.Test;
+
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxyConsumerI;
 import org.jacorb.util.Time;
-
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -40,8 +41,6 @@ import org.omg.CosNotification.Timeout;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.TimeBase.TimeTHelper;
 import org.omg.TimeBase.UtcTHelper;
-
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt

@@ -22,13 +22,13 @@ package org.jacorb.test.notification.engine;
  */
 
 import junit.framework.Test;
+
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.engine.PushToConsumerTask;
 import org.jacorb.test.notification.MockMessage;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 
 
 /**

@@ -20,15 +20,14 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.OfferManager;
-
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyComm.NotifyPublishOperations;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
+
+import org.jacorb.notification.OfferManager;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotifyComm.NotifyPublishOperations;
 
 /**
  * @author Alphonse Bendt

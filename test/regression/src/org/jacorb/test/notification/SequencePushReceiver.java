@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -76,7 +78,7 @@ class SequencePushReceiver extends Thread implements SequencePushConsumerOperati
 
         pushSupplier_ = SequenceProxyPushSupplierHelper.narrow(_consumerAdmin.obtain_notification_push_supplier(ClientType.SEQUENCE_EVENT, _proxyIdHolder));
 
-        testCase_.assertEquals(ProxyType._PUSH_SEQUENCE,
+        Assert.assertEquals(ProxyType._PUSH_SEQUENCE,
                            pushSupplier_.MyType().value());
 
 

@@ -21,6 +21,8 @@ package org.jacorb.test.notification;
  *
  */
 
+import junit.framework.Test;
+
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
@@ -29,8 +31,6 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
-
-import junit.framework.Test;
 
 /**
  * Test the various InterFilterGroupOperator settings.

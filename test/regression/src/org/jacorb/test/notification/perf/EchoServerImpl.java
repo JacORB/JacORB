@@ -22,11 +22,8 @@ package org.jacorb.test.notification.perf;
  */
 
 import org.jacorb.test.notification.EchoServerPOA;
-
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
-import org.omg.CosNaming.NamingContextExt;
-import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 

@@ -21,20 +21,17 @@ package org.jacorb.test.notification.evaluate;
  *
  */
 
+import junit.framework.Test;
+
+import org.jacorb.notification.filter.DynamicEvaluator;
+import org.jacorb.test.notification.NotificationTestCase;
+import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertyHelper;
 import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
-
-import org.jacorb.notification.filter.DynamicEvaluator;
-import org.jacorb.test.notification.NotificationTestCase;
-import org.jacorb.test.notification.NotificationTestCaseSetup;
-
-import junit.framework.TestSuite;
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt

@@ -20,13 +20,12 @@ package org.jacorb.test.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.notification.engine.PushOperation;
+
+import org.jacorb.notification.engine.MessagePushOperation;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.test.notification.MockMessage;
-import org.jacorb.notification.engine.MessagePushOperation;
 
 /**
  * @author Alphonse Bendt

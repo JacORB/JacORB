@@ -20,16 +20,15 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CORBA.ORB;
-import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactory;
-import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryHelper;
-
-import org.jacorb.notification.AbstractChannelFactory;
-import org.jacorb.notification.conf.Attributes;
-
 import java.util.Properties;
 
 import junit.framework.Test;
+
+import org.jacorb.notification.AbstractChannelFactory;
+import org.jacorb.notification.conf.Attributes;
+import org.omg.CORBA.ORB;
+import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactory;
+import org.omg.CosTypedNotifyChannelAdmin.TypedEventChannelFactoryHelper;
 
 /**
  * @author Alphonse Bendt

@@ -1,11 +1,11 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Test;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-
-import junit.framework.Test;
 
 /**
  *  Unit Test for class EventChannel.

@@ -20,19 +20,16 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.TypedEventMessage;
+import junit.framework.Test;
 
+import org.jacorb.notification.TypedEventMessage;
+import org.jacorb.test.notification.typed.CoffeeHelper;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.TCKind;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.EventTypeHelper;
 import org.omg.CosNotification.Property;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
-
-import junit.framework.Test;
 import org.omg.CosNotification.PropertySeqHelper;
-import org.jacorb.test.notification.typed.CoffeeHelper;
+import org.omg.CosNotification.StructuredEvent;
 
 /**
  * @author Alphonse Bendt

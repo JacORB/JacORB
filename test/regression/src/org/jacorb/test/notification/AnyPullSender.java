@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
@@ -17,8 +19,6 @@ import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.PullSupplierPOA;
-
-import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -63,20 +63,20 @@ public class AnyPullSender extends PullSupplierPOA implements TestClientOperatio
         if (useOrSemantic)
         {
             myAdmin_ = channel.new_for_suppliers(InterFilterGroupOperator.OR_OP, _adminId);
-            testCase_.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
+            Assert.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
         }
         else
         {
             myAdmin_ = channel.new_for_suppliers(InterFilterGroupOperator.AND_OP, _adminId);
-            testCase_.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
+            Assert.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
         }
 
-        testCase_.assertEquals(myAdmin_, channel.get_supplieradmin(_adminId.value));
+        Assert.assertEquals(myAdmin_, channel.get_supplieradmin(_adminId.value));
 
         myConsumer_ =
             ProxyPullConsumerHelper.narrow(myAdmin_.obtain_notification_pull_consumer(ClientType.ANY_EVENT, _proxyId));
 
-        testCase_.assertEquals(ProxyType._PULL_ANY, myConsumer_.MyType().value());
+        Assert.assertEquals(ProxyType._PULL_ANY, myConsumer_.MyType().value());
 
 
         myConsumer_.connect_any_pull_supplier(_this(testCase_.getORB()));

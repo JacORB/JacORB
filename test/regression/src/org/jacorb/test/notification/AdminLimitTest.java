@@ -21,25 +21,22 @@ package org.jacorb.test.notification;
  *
  */
 
-import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
-import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
-import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
-import org.omg.CosNotifyChannelAdmin.ClientType;
-import org.omg.CosNotifyChannelAdmin.ProxySupplier;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.engine.TaskProcessor;
+import junit.framework.Test;
+
 import org.jacorb.notification.interfaces.ApplicationEvent;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.ConsumerAdminImpl;
 import org.jacorb.notification.util.QoSPropertySet;
+import org.omg.CORBA.IntHolder;
+import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
+import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
+import org.omg.CosNotifyChannelAdmin.ClientType;
+import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import junit.framework.Test;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 /**

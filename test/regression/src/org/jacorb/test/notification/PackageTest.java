@@ -21,8 +21,8 @@ package org.jacorb.test.notification;
  *
  */
 
-import junit.framework.TestCase;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**

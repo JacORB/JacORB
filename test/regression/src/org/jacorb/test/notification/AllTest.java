@@ -24,8 +24,6 @@ package org.jacorb.test.notification;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import junit.swingui.TestRunner;
-import org.omg.CORBA.ORBPackage.InvalidName;
 
 /**
  * @author Alphonse Bendt

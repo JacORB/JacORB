@@ -1,10 +1,11 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Test;
+
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxyConsumerI;
-
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
@@ -12,8 +13,6 @@ import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
-
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt

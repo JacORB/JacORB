@@ -21,8 +21,6 @@ package org.jacorb.test.notification;
  *
  */
 
-import org.jacorb.notification.CollectionsWrapper;
-
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,6 +29,8 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import org.jacorb.notification.CollectionsWrapper;
 
 /**
  * @author Alphonse Bendt

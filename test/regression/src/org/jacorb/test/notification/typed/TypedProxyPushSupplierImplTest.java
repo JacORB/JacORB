@@ -20,15 +20,19 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.Assert;
+import junit.framework.Test;
+
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.StructuredEventMessage;
 import org.jacorb.notification.TypedEventMessage;
 import org.jacorb.notification.servant.TypedProxyPushSupplierImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
-
 import org.omg.CORBA.Any;
-import org.omg.CORBA.Object;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.EventType;
@@ -40,13 +44,6 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
 import org.omg.CosTypedNotifyComm.TypedPushConsumer;
 import org.omg.CosTypedNotifyComm.TypedPushConsumerPOA;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import junit.framework.Assert;
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt

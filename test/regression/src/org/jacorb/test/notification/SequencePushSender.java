@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.EventType;
@@ -7,6 +9,7 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumer;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
@@ -14,8 +17,6 @@ import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.SequencePushSupplierHelper;
 import org.omg.CosNotifyComm.SequencePushSupplierOperations;
 import org.omg.CosNotifyComm.SequencePushSupplierPOATie;
-
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 class SequencePushSender
     extends Thread
@@ -97,7 +98,7 @@ class SequencePushSender
         pushConsumer_ =
             SequenceProxyPushConsumerHelper.narrow(supplierAdmin.obtain_notification_push_consumer(ClientType.SEQUENCE_EVENT,_proxyIdHolder));
 
-        testCase_.assertEquals(ProxyType._PUSH_SEQUENCE,
+        Assert.assertEquals(ProxyType._PUSH_SEQUENCE,
                            pushConsumer_.MyType().value());
 
         pushConsumer_.connect_sequence_push_supplier(SequencePushSupplierHelper.narrow(senderTie._this(testCase_.getORB())));

@@ -21,13 +21,13 @@ package org.jacorb.test.notification;
  *
  */
 
+import java.io.PrintWriter;
+import java.net.Socket;
+
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.Servant;
-
-import java.io.PrintWriter;
-import java.net.Socket;
 
 /**
  * @author Alphonse Bendt

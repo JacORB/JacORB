@@ -1,9 +1,9 @@
 package org.jacorb.test.notification;
 
-import org.jacorb.notification.util.QoSPropertySet;
+import junit.framework.Test;
 
+import org.jacorb.notification.util.QoSPropertySet;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.BestEffort;
 import org.omg.CosNotification.ConnectionReliability;
 import org.omg.CosNotification.DiscardPolicy;
@@ -13,10 +13,6 @@ import org.omg.CosNotification.Priority;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.QoSError_code;
 import org.omg.CosNotification.UnsupportedQoS;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public class PropertyValidatorTest
     extends NotificationTestCase

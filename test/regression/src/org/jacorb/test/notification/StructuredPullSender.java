@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -17,7 +19,6 @@ import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumer;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
 import org.omg.CosNotifyComm.StructuredPullSupplierHelper;
 import org.omg.CosNotifyComm.StructuredPullSupplierOperations;
 import org.omg.CosNotifyComm.StructuredPullSupplierPOATie;
@@ -134,9 +135,9 @@ public class StructuredPullSender
         pullConsumer_ =
             StructuredProxyPullConsumerHelper.narrow(_supplierAdmin.obtain_notification_pull_consumer(ClientType.STRUCTURED_EVENT, _proxyId));
 
-        testCase_.assertEquals(_supplierAdmin, channel.get_supplieradmin(_supplierAdmin.MyID()));
+        Assert.assertEquals(_supplierAdmin, channel.get_supplieradmin(_supplierAdmin.MyID()));
 
-        testCase_.assertEquals(pullConsumer_.MyType(), ProxyType.PULL_STRUCTURED);
+        Assert.assertEquals(pullConsumer_.MyType(), ProxyType.PULL_STRUCTURED);
 
 
         pullConsumer_.connect_structured_pull_supplier(StructuredPullSupplierHelper.narrow(_senderTie._this(testCase_.getORB())));
@@ -145,7 +146,7 @@ public class StructuredPullSender
 
     public void shutdown() {
         pullConsumer_.disconnect_structured_pull_consumer();
-        testCase_.assertTrue(pullConsumer_._non_existent());
+        Assert.assertTrue(pullConsumer_._non_existent());
     }
 
     public boolean isConnected() {

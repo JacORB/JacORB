@@ -21,6 +21,13 @@ package org.jacorb.test.notification;
  *
  */
 
+import junit.framework.Test;
+
+import org.jacorb.notification.AbstractFilter;
+import org.jacorb.notification.ApplicationContext;
+import org.jacorb.notification.FilterFactoryImpl;
+import org.jacorb.notification.MappingFilterImpl;
+import org.jacorb.notification.filter.etcl.ETCLFilter;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CosNotification.EventType;
@@ -31,16 +38,6 @@ import org.omg.CosNotifyFilter.MappingConstraintInfo;
 import org.omg.CosNotifyFilter.MappingConstraintPair;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.MappingFilterOperations;
-
-import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.FilterFactoryImpl;
-
-import org.jacorb.notification.AbstractFilter;
-import org.jacorb.notification.filter.etcl.ETCLFilter;
-import org.jacorb.notification.MappingFilterImpl;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt

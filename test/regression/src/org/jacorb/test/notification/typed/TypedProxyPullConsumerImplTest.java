@@ -20,31 +20,28 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import junit.framework.Assert;
+import junit.framework.Test;
+
+import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.TypedProxyPullConsumerImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
-
+import org.jacorb.test.notification.mocks.NullTaskProcessor;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
-import org.omg.CORBA.Object;
 import org.omg.CORBA.StringHolder;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.EventTypeHelper;
+import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
 import org.omg.CosTypedNotifyComm.TypedPullSupplierPOA;
-
-import junit.framework.Assert;
-import junit.framework.Test;
-import org.jacorb.test.notification.mocks.NullTaskProcessor;
-import org.jacorb.notification.interfaces.Message;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.EventTypeHelper;
-import org.jacorb.test.notification.TypedEventMessageTest;
 
 /**
  * @author Alphonse Bendt

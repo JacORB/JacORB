@@ -1,10 +1,7 @@
 package org.jacorb.test.notification.mocks;
 
-import org.omg.CosNotifyComm.NotifySubscribeOperations;
-import org.omg.CosEventComm.PushSupplierOperations;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.PushSupplier;
 import org.omg.CosNotifyComm.PushSupplierPOA;
 
 

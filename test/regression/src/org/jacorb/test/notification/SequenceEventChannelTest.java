@@ -1,6 +1,7 @@
 package org.jacorb.test.notification;
 
 import junit.framework.Test;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventComm.Disconnected;

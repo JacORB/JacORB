@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -84,14 +86,14 @@ public class AnyPushReceiver
 
     public void addAdminFilter(Filter filter)
     {
-        testCase_.assertNotNull(myAdmin_);
+        Assert.assertNotNull(myAdmin_);
         myAdmin_.add_filter(filter);
     }
 
 
     public void addProxyFilter(Filter filter)
     {
-        testCase_.assertNotNull(mySupplier_);
+        Assert.assertNotNull(mySupplier_);
         mySupplier_.add_filter(filter);
     }
 
@@ -147,20 +149,20 @@ public class AnyPushReceiver
         if (useOrSemantic)
         {
             myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.OR_OP, _adminId);
-            testCase_.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
+            Assert.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
         }
         else
         {
             myAdmin_ = channel.new_for_consumers(InterFilterGroupOperator.AND_OP, _adminId);
-            testCase_.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
+            Assert.assertEquals(InterFilterGroupOperator.AND_OP, myAdmin_.MyOperator());
         }
 
-        testCase_.assertEquals(myAdmin_, channel.get_consumeradmin(_adminId.value));
+        Assert.assertEquals(myAdmin_, channel.get_consumeradmin(_adminId.value));
 
         mySupplier_ =
             ProxyPushSupplierHelper.narrow(myAdmin_.obtain_notification_push_supplier(ClientType.ANY_EVENT, _proxyId));
 
-        testCase_.assertEquals(ProxyType._PUSH_ANY,
+        Assert.assertEquals(ProxyType._PUSH_ANY,
                                mySupplier_.MyType().value());
 
 

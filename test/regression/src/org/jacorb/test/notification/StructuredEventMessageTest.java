@@ -20,14 +20,12 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.AbstractMessage;
-import org.jacorb.notification.StructuredEventMessage;
+import junit.framework.Test;
 
+import org.jacorb.notification.NoTranslationException;
+import org.jacorb.notification.StructuredEventMessage;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
-
-import junit.framework.Test;
-import org.jacorb.notification.*;
 
 /**
  * @author Alphonse Bendt

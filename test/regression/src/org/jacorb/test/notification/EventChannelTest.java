@@ -1,5 +1,8 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+import junit.framework.Test;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.TRANSIENT;
@@ -12,14 +15,9 @@ import org.omg.CosNotifyChannelAdmin.AdminNotFound;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyFilter.FilterFactory;
-
-import junit.framework.Test;
-import junit.framework.Assert;
 
 /**
  * @author Alphonse Bendt

@@ -1,5 +1,7 @@
 package org.jacorb.test.notification.node;
 
+import junit.framework.Test;
+
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
@@ -22,18 +24,13 @@ import org.jacorb.test.notification.PersonHelper;
 import org.jacorb.test.notification.Profession;
 import org.jacorb.test.notification.TestUnion;
 import org.jacorb.test.notification.TestUnionHelper;
-
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-
-import org.omg.CosNotification.PropertySeqHelper;
 
 /**
  * JUnit TestCase. Test Parsing and Evaluation of various ETCL

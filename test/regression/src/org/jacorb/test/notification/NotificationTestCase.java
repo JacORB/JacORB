@@ -26,6 +26,7 @@ import java.lang.reflect.Constructor;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.config.Configuration;
 import org.jacorb.notification.ChannelContext;
@@ -37,10 +38,10 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.PortableServer.POA;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
 
 /**

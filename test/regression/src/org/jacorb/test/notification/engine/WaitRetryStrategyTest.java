@@ -20,16 +20,14 @@ package org.jacorb.test.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.engine.WaitRetryStrategy;
-import org.jacorb.notification.engine.PushOperation;
-import org.jacorb.notification.engine.RetryException;
-
-import org.omg.CORBA.TRANSIENT;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.notification.engine.MessagePushOperation;
+
+import org.jacorb.notification.engine.PushOperation;
+import org.jacorb.notification.engine.RetryException;
+import org.jacorb.notification.engine.WaitRetryStrategy;
+import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt

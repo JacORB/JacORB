@@ -1,11 +1,11 @@
 package org.jacorb.test.notification;
 
 import org.omg.CORBA.ORB;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotification.FixedEventHeader;
-import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.EventHeader;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StructuredEvent;
 
 public class StructuredGenerator {
     AnyGenerator anyGenerator_;

@@ -5,10 +5,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+import junit.framework.Assert;
+import junit.framework.Test;
+import junit.framework.TestCase;
+
 import org.jacorb.notification.FilterFactoryImpl;
-
 import org.jacorb.notification.TypedEventMessage;
-
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
@@ -16,10 +18,6 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.Assert;
 
 /**
  * @author Alphonse Bendt

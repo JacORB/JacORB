@@ -1,6 +1,8 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
+
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.DynamicEvaluator;
@@ -221,7 +223,7 @@ public class TestUtils {
 
         _res = _evaluator.evaluate(_context, event);
 
-        testCase.assertEquals("expected "
+        Assert.assertEquals("expected "
                               + _root.toStringTree()
                               + " == "
                               + _expect.toStringTree(),

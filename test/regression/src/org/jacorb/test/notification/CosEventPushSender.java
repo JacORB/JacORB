@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.Any;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.EventChannel;
@@ -44,15 +46,15 @@ public class CosEventPushSender extends PushSupplierPOA implements TestClientOpe
     public void connect(org.omg.CosNotifyChannelAdmin.EventChannel channel,
                         boolean useOrSemantic) throws AlreadyConnected {
 
-        testCase_.assertNotNull(channel);
+        Assert.assertNotNull(channel);
         EventChannel _channel = EventChannelHelper.narrow(channel);
-        testCase_.assertNotNull(_channel);
+        Assert.assertNotNull(_channel);
 
         SupplierAdmin _admin = _channel.for_suppliers();
-        testCase_.assertNotNull(_admin);
+        Assert.assertNotNull(_admin);
 
         myConsumer_ = _admin.obtain_push_consumer();
-        testCase_.assertNotNull(myConsumer_);
+        Assert.assertNotNull(myConsumer_);
 
         myConsumer_.connect_push_supplier(_this(testCase_.getORB()));
 

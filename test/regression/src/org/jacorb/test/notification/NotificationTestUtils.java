@@ -1,14 +1,16 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
+
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.filter.FilterConstraint;
-import org.jacorb.notification.filter.etcl.ETCLFilterConstraint;
 import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.ETCLFilterConstraint;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
 import org.jacorb.notification.interfaces.Message;
@@ -221,7 +223,7 @@ public class NotificationTestUtils {
 
         _res = _evaluator.evaluate(_context, event);
 
-        testCase.assertEquals("expected "
+        Assert.assertEquals("expected "
                               + _root.toStringTree()
                               + " == "
                               + _expect.toStringTree(),

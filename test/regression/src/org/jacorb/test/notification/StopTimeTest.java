@@ -24,7 +24,6 @@ package org.jacorb.test.notification;
 import java.util.Date;
 import java.util.HashSet;
 
-
 import junit.framework.Test;
 
 import org.jacorb.notification.MessageFactory;
@@ -43,9 +42,6 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
-
-
-import junit.framework.Test;
 
 
 /**

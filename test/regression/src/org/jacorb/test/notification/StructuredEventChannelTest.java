@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Test;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -16,7 +18,6 @@ import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt

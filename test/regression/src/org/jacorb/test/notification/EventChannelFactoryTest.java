@@ -1,13 +1,12 @@
 package org.jacorb.test.notification;
 
-import org.jacorb.notification.AbstractChannelFactory;
-
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
-
 import java.util.Properties;
 
 import junit.framework.Test;
+
+import org.jacorb.notification.AbstractChannelFactory;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
 /**
  * @author Alphonse Bendt

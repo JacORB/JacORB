@@ -21,16 +21,17 @@ package org.jacorb.test.notification;
  *
  */
 
-import org.jacorb.notification.MessageFactory;
+import java.util.Date;
 
+import junit.framework.Test;
+
+import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxyConsumerI;
 import org.jacorb.util.Time;
-
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
@@ -40,10 +41,7 @@ import org.omg.CosNotification.StructuredEvent;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
-import java.util.Date;
-
 import EDU.oswego.cs.dl.util.concurrent.Latch;
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt

@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -13,12 +15,11 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumer;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerHelper;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.PushSupplierPOA;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.PortableServer.POA;
-
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 public class AnyPushSender
     extends PushSupplierPOA
@@ -76,14 +77,14 @@ public class AnyPushSender
 
     public void addAdminFilter(Filter filter)
     {
-        testCase_.assertNotNull(myAdmin_);
+        Assert.assertNotNull(myAdmin_);
         myAdmin_.add_filter(filter);
     }
 
 
     public void addProxyFilter(Filter filter)
     {
-        testCase_.assertNotNull(myConsumer_);
+        Assert.assertNotNull(myConsumer_);
         myConsumer_.add_filter(filter);
     }
 
@@ -186,19 +187,19 @@ public class AnyPushSender
         if (useOrSemantic)
         {
             myAdmin_ = channel.new_for_suppliers(InterFilterGroupOperator.OR_OP, _adminId);
-            testCase_.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
+            Assert.assertEquals(InterFilterGroupOperator.OR_OP, myAdmin_.MyOperator());
         }
         else
         {
             myAdmin_ = channel.new_for_suppliers(InterFilterGroupOperator.AND_OP, _adminId);
         }
 
-        testCase_.assertEquals(myAdmin_, channel.get_supplieradmin(_adminId.value));
+        Assert.assertEquals(myAdmin_, channel.get_supplieradmin(_adminId.value));
 
         myConsumer_ =
             ProxyPushConsumerHelper.narrow(myAdmin_.obtain_notification_push_consumer(ClientType.ANY_EVENT, _proxyId));
 
-        testCase_.assertEquals(ProxyType._PUSH_ANY, myConsumer_.MyType().value());
+        Assert.assertEquals(ProxyType._PUSH_ANY, myConsumer_.MyType().value());
 
         myConsumer_.connect_any_push_supplier(_this(testCase_.getORB()));
 

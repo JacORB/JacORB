@@ -1,4 +1,4 @@
-package org.jacorb.test.notification;
+package org.jacorb.test.notification.plugins;
 
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
@@ -8,6 +8,8 @@ import org.omg.CosNotifyFilter.InvalidConstraint;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.filter.bsh.BSHFilter;
+import org.jacorb.test.notification.NotificationTestCase;
+import org.jacorb.test.notification.NotificationTestCaseSetup;
 
 import junit.framework.Test;
 

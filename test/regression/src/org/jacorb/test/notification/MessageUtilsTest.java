@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Test;
+
 import org.jacorb.notification.MessageFactory;
 import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
@@ -8,10 +10,7 @@ import org.jacorb.notification.filter.etcl.ETCLComponentName;
 import org.jacorb.notification.filter.etcl.TCLCleanUp;
 import org.jacorb.notification.filter.etcl.TCLParser;
 import org.jacorb.notification.interfaces.Message;
-
 import org.omg.DynamicAny.DynAnyFactoryHelper;
-
-import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt

@@ -1,8 +1,8 @@
 package org.jacorb.test.notification;
 
-import java.util.StringTokenizer;
-import java.io.StringWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.StringTokenizer;
 
 public class CallerResolver {
 

@@ -1,19 +1,17 @@
 package org.jacorb.test.notification;
 
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyFilter.ConstraintExp;
-import org.omg.CosNotifyFilter.ConstraintInfo;
-
-import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.ConstraintEntry;
-import org.jacorb.notification.FilterFactoryImpl;
-import org.jacorb.notification.AbstractFilter;
-import org.jacorb.notification.filter.etcl.ETCLFilter;
-import org.jacorb.notification.filter.FilterUtils;
-
 import java.util.Iterator;
 
 import junit.framework.Test;
+
+import org.jacorb.notification.AbstractFilter;
+import org.jacorb.notification.ApplicationContext;
+import org.jacorb.notification.ConstraintEntry;
+import org.jacorb.notification.filter.FilterUtils;
+import org.jacorb.notification.filter.etcl.ETCLFilter;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotifyFilter.ConstraintExp;
+import org.omg.CosNotifyFilter.ConstraintInfo;
 
 /**
  * @author Alphonse Bendt

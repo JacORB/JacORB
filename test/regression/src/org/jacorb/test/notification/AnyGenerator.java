@@ -24,9 +24,6 @@ package org.jacorb.test.notification;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 
-import org.jacorb.test.notification.TimingTest;
-import org.jacorb.test.notification.TimingTestHelper;
-
 /**
  * @author Alphonse Bendt
  */

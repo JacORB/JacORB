@@ -21,27 +21,16 @@ package org.jacorb.test.notification.perf;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 
-import org.omg.CORBA.Any;
-import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyFilter.ConstraintExp;
-import org.omg.CosNotifyFilter.ConstraintInfo;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.jacorb.test.notification.AnyGenerator;
 import org.jacorb.test.notification.AnyPushReceiver;
 import org.jacorb.test.notification.AnyPushSender;
@@ -55,15 +44,23 @@ import org.jacorb.test.notification.StructuredPushReceiver;
 import org.jacorb.test.notification.StructuredPushSender;
 import org.jacorb.test.notification.TestEventGenerator;
 import org.jacorb.test.notification.TestUtils;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.IntHolder;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyFilter.ConstraintExp;
+import org.omg.CosNotifyFilter.ConstraintInfo;
+import org.omg.CosNotifyFilter.Filter;
+import org.omg.CosNotifyFilter.FilterFactory;
 
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
 import EDU.oswego.cs.dl.util.concurrent.Latch;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Alphonse Bendt

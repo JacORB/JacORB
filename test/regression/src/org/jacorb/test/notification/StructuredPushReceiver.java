@@ -1,6 +1,9 @@
 package org.jacorb.test.notification;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import junit.framework.Assert;
 
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -23,7 +26,6 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
 
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import java.util.ArrayList;
 
 public class StructuredPushReceiver extends Thread
     implements StructuredPushConsumerOperations,
@@ -146,9 +148,9 @@ public class StructuredPushReceiver extends Thread
         pushSupplier_ =
             StructuredProxyPushSupplierHelper.narrow(_consumerAdmin.obtain_notification_push_supplier(ClientType.STRUCTURED_EVENT, _proxyIdHolder));
 
-        testCase_.assertNotNull(pushSupplier_);
-        testCase_.assertNotNull(pushSupplier_.MyType());
-        testCase_.assertEquals(pushSupplier_.MyType(), ProxyType.PUSH_STRUCTURED);
+        Assert.assertNotNull(pushSupplier_);
+        Assert.assertNotNull(pushSupplier_.MyType());
+        Assert.assertEquals(pushSupplier_.MyType(), ProxyType.PUSH_STRUCTURED);
 
         pushSupplier_.connect_structured_push_consumer(StructuredPushConsumerHelper.narrow(receiverTie._this(testCase_.getORB())));
 
@@ -175,7 +177,7 @@ public class StructuredPushReceiver extends Thread
         if (filterId_ != Integer.MIN_VALUE) {
             pushSupplier_.remove_filter(filterId_);
         }
-        testCase_.assertTrue(!pushSupplier_._non_existent());
+        Assert.assertTrue(!pushSupplier_._non_existent());
         pushSupplier_.disconnect_structured_push_supplier();
         //      testCase_.assertTrue(pushSupplier_._non_existent());
 

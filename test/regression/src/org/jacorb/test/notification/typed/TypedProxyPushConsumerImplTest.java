@@ -20,24 +20,22 @@ package org.jacorb.test.notification.typed;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import junit.framework.Test;
+
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.TypedProxyPushConsumerImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
-import org.jacorb.test.notification.mocks.*;
-
+import org.jacorb.test.notification.mocks.MockPushSupplier;
+import org.jacorb.test.notification.mocks.MockTaskProcessor;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.NO_IMPLEMENT;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.EventTypeHelper;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerHelper;
-
-import junit.framework.Test;
-import org.jacorb.test.notification.TypedEventMessageTest;
 
 /**
  * @author Alphonse Bendt

@@ -1,5 +1,7 @@
 package org.jacorb.test.notification;
 
+import junit.framework.Assert;
+
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
@@ -53,16 +55,16 @@ public class StructuredPullReceiver
 
         pullSupplier_ = StructuredProxyPullSupplierHelper.narrow(_consumerAdmin.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId));
 
-        testCase_.assertEquals(pullSupplier_.MyType(), ProxyType.PULL_STRUCTURED);
+        Assert.assertEquals(pullSupplier_.MyType(), ProxyType.PULL_STRUCTURED);
 
         pullSupplier_.connect_structured_pull_consumer(StructuredPullConsumerHelper.narrow(_receiverTie._this(testCase_.getORB())));
         connected_ = true;
     }
 
     public void shutdown() {
-        testCase_.assertTrue(!pullSupplier_._non_existent());
+        Assert.assertTrue(!pullSupplier_._non_existent());
         pullSupplier_.disconnect_structured_pull_supplier();
-        testCase_.assertTrue(pullSupplier_._non_existent());
+        Assert.assertTrue(pullSupplier_._non_existent());
         pullSupplier_ = null;
     }
 

@@ -1,5 +1,10 @@
 package org.jacorb.test.notification;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.Assert;
+
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.EventType;
@@ -16,9 +21,6 @@ import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.StructuredPushSupplier;
 import org.omg.CosNotifyComm.StructuredPushSupplierOperations;
 import org.omg.CosNotifyComm.StructuredPushSupplierPOATie;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class StructuredPushSender
@@ -100,7 +102,7 @@ public class StructuredPushSender
             try {
                 pushConsumer_.push_structured_event(events_[x]);
             } catch (Exception e) {
-                testCase_.fail();
+                Assert.fail();
             }
         }
     }
@@ -145,7 +147,7 @@ public class StructuredPushSender
                AlreadyConnected,
                AdminNotFound {
 
-        testCase_.assertNotNull(channel);
+        Assert.assertNotNull(channel);
 
         StructuredPushSupplierPOATie senderTie =
             new StructuredPushSupplierPOATie(this);
@@ -156,9 +158,9 @@ public class StructuredPushSender
         SupplierAdmin supplierAdmin =
             channel.default_supplier_admin();
 
-        testCase_.assertNotNull(supplierAdmin);
+        Assert.assertNotNull(supplierAdmin);
 
-        testCase_.assertEquals(supplierAdmin,
+        Assert.assertEquals(supplierAdmin,
                                channel.get_supplieradmin(supplierAdmin.MyID()));
 
         IntHolder _proxyIdHolder = new IntHolder();
@@ -166,7 +168,7 @@ public class StructuredPushSender
         pushConsumer_ =
             StructuredProxyPushConsumerHelper.narrow(supplierAdmin.obtain_notification_push_consumer(ClientType.STRUCTURED_EVENT,_proxyIdHolder));
 
-        testCase_.assertEquals(pushConsumer_.MyType(),
+        Assert.assertEquals(pushConsumer_.MyType(),
                                ProxyType.PUSH_STRUCTURED);
 
         pushConsumer_.connect_structured_push_supplier(sender);
