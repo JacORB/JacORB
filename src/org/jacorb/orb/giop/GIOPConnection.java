@@ -725,7 +725,8 @@ public abstract class GIOPConnection
         {
             synchronized (connect_sync)
             {
-                transport.connect (profile, 0);
+               long timeout = Environment.getIntPropertyWithDefault("jacorb.connection.client.pending_reply_timeout", 0);
+                transport.connect (profile, timeout);
                 connect_sync.notifyAll();
             }
         }
