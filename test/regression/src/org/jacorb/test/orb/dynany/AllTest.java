@@ -22,6 +22,8 @@ package org.jacorb.test.orb.dynany;
 
 import junit.framework.*;
 
+import org.jacorb.test.common.*;
+
 public class AllTest extends TestCase
 {
    public AllTest (String name)
@@ -32,9 +34,10 @@ public class AllTest extends TestCase
    public static Test suite ()
    {
       TestSuite suite = new TestSuite ("All dynany");
+      ORBSetup setup = new ORBSetup (suite);
 
       suite.addTest (PackageTest.suite ());
 
-      return suite;
+      return setup;
    }
 }
