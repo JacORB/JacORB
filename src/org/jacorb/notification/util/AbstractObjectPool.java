@@ -23,7 +23,6 @@ package org.jacorb.notification.util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -32,18 +31,17 @@ import org.apache.avalon.framework.configuration.Configurable;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.interfaces.Disposable;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
- * Abstract Base Class for Simple Pooling Mechanism. Subclasses must at least
- * implement the method newInstance. To use a Object call lendObject. After use
- * the Object must be returned with returnObject(Object). An Object must not be
- * used after it has been returned to its pool!
+ * Abstract Base Class for Simple Pooling Mechanism. Subclasses must at least implement the method
+ * newInstance. To use a Object call lendObject. After use the Object must be returned with
+ * returnObject(Object). An Object must not be used after it has been returned to its pool!
  * 
  * @author Alphonse Bendt
- * @version $Id: AbstractObjectPool.java,v 1.12 2004/07/12 11:20:15
- *          alphonse.bendt Exp $
+ * @version $Id$
  */
 
 public abstract class AbstractObjectPool implements Runnable, Configurable
@@ -74,11 +72,13 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
 
     private final static AbstractObjectPool[] ARRAY_TEMPLATE = new AbstractObjectPool[0];
 
-    private static Thread sCleanerThread;
+    static Thread sCleanerThread;
+
+    static final Logger sLogger_ = LogUtil.getLogger(AbstractObjectPool.class.getName());
 
     private static ListCleaner sListCleaner;
 
-    private static AbstractObjectPool[] getAllPools()
+    static AbstractObjectPool[] getAllPools()
     {
         synchronized (sPoolsToLookAfter)
         {
@@ -111,7 +111,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
             {
                 // this cleans up the asArray_ array for the GC.
                 getAllPools();
-                
+
                 stopListCleaner();
             }
         }
@@ -145,8 +145,12 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
                     try
                     {
                         runLoop();
+                    } catch (InterruptedException e)
+                    {
+                        sLogger_.info("PoolCleaner was interrupted");
                     } catch (Exception e)
                     {
+                        sLogger_.error("Error cleaning Pool", e);
                     }
                 }
             } finally
@@ -167,6 +171,9 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
                     sleep(SLEEP);
                 } catch (InterruptedException ie)
                 {
+                    // ignore here.
+                    // ensureIsActive is called below to see if this Thread should
+                    // still be active.
                 }
 
                 ensureIsActive();
@@ -175,13 +182,13 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
 
                 for (int x = 0; x < poolsToCheck.length; ++x)
                 {
-
                     try
                     {
                         poolsToCheck[x].run();
                     } catch (Throwable t)
                     {
-                        t.printStackTrace();
+                        // should not happen
+                        sLogger_.error("Error cleaning up Pool", t);
                     }
                 }
             }
@@ -227,32 +234,32 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
         }
     }
 
-    private String name_;
+    private final String name_;
 
-    private LinkedList pool_;
+    private final DisposableManager disposeHooks_ = new DisposableManager();
+
+    private final LinkedList pool_;
 
     /**
-     * @todo check synchronization
-     * @see news://news.gmane.org:119/200406041629.48096.Farrell_John_W@cat.com
+     * Set that contains all objects that were created by this pool and are in use. Problems occured
+     * as access to this member used to be non-synchronized see
+     * news://news.gmane.org:119/200406041629.48096.Farrell_John_W@cat.com
      */
-    private Set active_ = Collections.synchronizedSet(new HashSet());
+    private final Set active_ = Collections.synchronizedSet(new WeakHashSet());
 
     /**
-     * lower watermark. if pool size is below that value, create sizeIncrease_
-     * new elements.
+     * lower watermark. if pool size is below that value, create sizeIncrease_ new elements.
      */
     private int lowerWatermark_;
 
     /**
-     * how many instances should the pool maximal keep. instances that are
-     * returned to a pool which size is greater than maxWatermark_ are discarded
-     * and left for the Garbage Collector.
+     * how many instances should the pool maximal keep. instances that are returned to a pool which
+     * size is greater than maxWatermark_ are discarded and left for the Garbage Collector.
      */
     private int maxWatermark_;
 
     /**
-     * how many instances should be created if pool size falls below
-     * lowerWatermark_.
+     * how many instances should be created if pool size falls below lowerWatermark_.
      */
     private int sizeIncrease_;
 
@@ -290,6 +297,11 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
         maxWatermark_ = maxsize;
     }
 
+    public void addDisposeHook(Disposable d)
+    {
+        disposeHooks_.addDisposable(d);
+    }
+
     public void run()
     {
         synchronized (pool_)
@@ -323,8 +335,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     }
 
     /**
-     * Initialize this Pool. An initial Number of Objects is created. Cleanup
-     * Thread is started.
+     * Initialize this Pool. An initial Number of Objects is created. Cleanup Thread is started.
      */
     public void init()
     {
@@ -347,6 +358,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
         deregisterPool(this);
         pool_.clear();
         active_.clear();
+
+        disposeHooks_.dispose();
     }
 
     /**
@@ -377,12 +390,11 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
             // no worries, just don't configure
         } catch (ConfigurationException ce)
         {
+            throw new RuntimeException("Could not configure instance");
         }
 
         activateObject(_ret);
         active_.add(_ret);
-
-        //        logger_.debug("lendObject " + _ret);
 
         return _ret;
     }
@@ -392,8 +404,6 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
      */
     public void returnObject(Object o)
     {
-        //logger_.debug("returnObject " + o);
-
         if (active_.remove(o))
         {
             passivateObject(o);
@@ -413,7 +423,6 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
         }
         else
         {
-
             // ignore
             //                 logger_.warn( "Object " + o + " was not in pool " + name_ +".
             // multiple release?" );
@@ -423,8 +432,8 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
     }
 
     /**
-     * This method is called by the Pool to create a new Instance. Subclasses
-     * must override appropiately .
+     * This method is called by the Pool to create a new Instance. Subclasses must override
+     * appropiately .
      */
     public abstract Object newInstance();
 
@@ -433,6 +442,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
      */
     public void passivateObject(Object o)
     {
+        // No Op
     }
 
     /**
@@ -440,6 +450,7 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
      */
     public void activateObject(Object o)
     {
+        // No Op
     }
 
     /**
@@ -447,5 +458,6 @@ public abstract class AbstractObjectPool implements Runnable, Configurable
      */
     public void destroyObject(Object o)
     {
+        // No Op
     }
 }

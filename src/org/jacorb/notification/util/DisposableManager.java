@@ -1,9 +1,7 @@
-package org.jacorb.notification.util;
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,44 +16,39 @@ package org.jacorb.notification.util;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
-import org.omg.CosNotification.EventType;
+package org.jacorb.notification.util;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.jacorb.notification.interfaces.Disposable;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class EventTypeUtil
+public class DisposableManager implements Disposable
 {
-    private EventTypeUtil()
-    {}
-
-    ////////////////////////////////////////
-
-    public static String toString(EventType et)
+    private final List disposables_ = new ArrayList();
+    
+    public void addDisposable(Disposable d)
     {
-        return et.domain_name + "/" + et.type_name;
+        disposables_.add(d);
     }
-
-
-    public static String toString(EventType[] ets)
+    
+    public void dispose()
     {
-        StringBuffer b = new StringBuffer("[");
-
-        for (int x = 0; x < ets.length; ++x)
+        Iterator i = disposables_.iterator();
+        
+        while(i.hasNext())
         {
-            b.append(toString(ets[x]));
-
-            if (x < ets.length - 1 )
-            {
-                b.append(", ");
-            }
+            ((Disposable)i.next()).dispose();
         }
-
-        b.append("]");
-
-        return b.toString();
+        
+        disposables_.clear();
     }
 }

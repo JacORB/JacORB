@@ -33,26 +33,22 @@ public class JDK14PatternWrapper extends PatternWrapper
 {
     private Pattern pattern_;
 
-    public void compile( String patternString )
+    public void compile(String patternString)
     {
-        pattern_ = java.util.regex.Pattern.compile( patternString );
+        pattern_ = java.util.regex.Pattern.compile(patternString);
     }
 
-
-    public int match( String text )
+    public int match(String text)
     {
-        Matcher _m = pattern_.matcher( text );
+        Matcher _m = pattern_.matcher(text);
 
-        if ( _m.find() )
+        if (_m.find())
         {
             return _m.end();
         }
-        else
-        {
-            return 0;
-        }
-    }
 
+        return 0;
+    }
 
     public String toString()
     {

@@ -21,11 +21,12 @@ package org.jacorb.notification.util;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.omg.CORBA.Any;
@@ -46,40 +47,35 @@ import org.omg.CosNotification.UnsupportedAdmin;
 public class AdminPropertySet
     extends PropertySet {
 
-    private static HashSet sAdminPropertyNames_;
+    private final static Set sAdminPropertyNames_;
 
-    private static ORB sOrb_ = ORB.init();
+    private final static ORB sOrb_ = ORB.init();
 
-    private Property[] defaultProperties_;
+    private final Property[] defaultProperties_;
 
     static {
-        sAdminPropertyNames_ = new HashSet();
+        HashSet _adminProps = new HashSet();
 
-        sAdminPropertyNames_.add(MaxQueueLength.value);
-        sAdminPropertyNames_.add(MaxConsumers.value);
-        sAdminPropertyNames_.add(MaxSuppliers.value);
-        sAdminPropertyNames_.add(RejectNewEvents.value);
+        _adminProps.add(MaxQueueLength.value);
+        _adminProps.add(MaxConsumers.value);
+        _adminProps.add(MaxSuppliers.value);
+        _adminProps.add(RejectNewEvents.value);
+        
+        sAdminPropertyNames_ = Collections.unmodifiableSet(_adminProps);
     }
 
     ////////////////////////////////////////
 
-    private HashSet validNames_ = sAdminPropertyNames_;
+    private final Set validNames_ = sAdminPropertyNames_;
 
     ////////////////////////////////////////
 
-    public AdminPropertySet(Configuration configuration) throws ConfigurationException
+    public AdminPropertySet(Configuration config)
     {
         super();
-
-        configure(configuration);
-    }
-
-    ////////////////////////////////////////
-
-    private void configure(Configuration conf) throws ConfigurationException {
-
+    
         int _maxConsumersDefault =
-            conf.getAttributeAsInteger(Attributes.MAX_NUMBER_CONSUMERS,
+            config.getAttributeAsInteger(Attributes.MAX_NUMBER_CONSUMERS,
                                        Default.DEFAULT_MAX_NUMBER_CONSUMERS);
 
         Any _maxConsumersDefaultAny = sOrb_.create_any();
@@ -88,7 +84,7 @@ public class AdminPropertySet
         //////////////////////////////
 
         int _maxSuppliersDefault =
-            conf.getAttributeAsInteger(Attributes.MAX_NUMBER_SUPPLIERS,
+            config.getAttributeAsInteger(Attributes.MAX_NUMBER_SUPPLIERS,
                                        Default.DEFAULT_MAX_NUMBER_SUPPLIERS);
 
         Any _maxSuppliersDefaultAny = sOrb_.create_any();
@@ -97,7 +93,7 @@ public class AdminPropertySet
         //////////////////////////////
 
         int _maxQueueLength =
-            conf.getAttributeAsInteger(Attributes.MAX_QUEUE_LENGTH,
+            config.getAttributeAsInteger(Attributes.MAX_QUEUE_LENGTH,
                                        Default.DEFAULT_MAX_QUEUE_LENGTH);
 
         Any _maxQueueLengthAny = sOrb_.create_any();
@@ -106,7 +102,7 @@ public class AdminPropertySet
         //////////////////////////////
 
         boolean _rejectNewEvents =
-            conf.getAttribute(Attributes.REJECT_NEW_EVENTS,
+            config.getAttribute(Attributes.REJECT_NEW_EVENTS,
                               Default.DEFAULT_REJECT_NEW_EVENTS).equals("on");
 
         Any _rejectNewEventsAny = sOrb_.create_any();
@@ -125,7 +121,7 @@ public class AdminPropertySet
     }
 
 
-    public HashSet getValidNames()
+    public Set getValidNames()
     {
         return validNames_;
     }

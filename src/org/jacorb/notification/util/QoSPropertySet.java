@@ -21,8 +21,10 @@ package org.jacorb.notification.util;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.jacorb.notification.conf.Attributes;
@@ -71,39 +73,39 @@ public class QoSPropertySet extends PropertySet
     private Property[] defaultChannelQoS_;
     private Property[] defaultAdminQoS_;
 
-    private static final HashSet sValidChannelQoSNames_;
-    private static final HashSet sValidAdminQoSNames_;
-    private static final HashSet sValidProxyQoSNames_;
-    private static final HashSet sValidMessageQoSNames_;
+    private static final Set sValidChannelQoSNames_;
+    private static final Set sValidAdminQoSNames_;
+    private static final Set sValidProxyQoSNames_;
+    private static final Set sValidMessageQoSNames_;
 
-    static final Any connectionReliabilityLow_;
-    static final Any connectionReliabilityHigh_;
+    private static final Any connectionReliabilityLow_;
+    private static final Any connectionReliabilityHigh_;
 
-    static final Any eventReliabilityLow_;
-    static final Any eventReliabilityHigh_;
+    private static final Any eventReliabilityLow_;
+    private static final Any eventReliabilityHigh_;
 
-    static Any orderPolicyLow_;
-    Any orderPolicyDefault_;
-    static Any orderPolicyHigh_;
+    private static Any orderPolicyLow_;
+    //private Any orderPolicyDefault_;
+    private static Any orderPolicyHigh_;
 
-    static Any discardPolicyLow_;
-    static Any discardPolicyHigh_;
+    private static Any discardPolicyLow_;
+    private static Any discardPolicyHigh_;
 
-    static Any priorityLow_;
-    static Any priorityDefault_;
-    static Any priorityHigh_;
+    private static Any priorityLow_;
+    private static Any priorityDefault_;
+    private static Any priorityHigh_;
 
-    Any maxEventsPerConsumerLow_;
-    Any maxEventsPerConsumerDefault_;
-    Any maxEventsPerConsumerHigh_;
+    private Any maxEventsPerConsumerLow_;
+    private Any maxEventsPerConsumerDefault_;
+    private Any maxEventsPerConsumerHigh_;
 
-    Any timeoutHigh_;
-    Any timeoutDefault_;
-    Any timeoutLow_;
+    //private Any timeoutHigh_;
+    private Any timeoutDefault_;
+    //private Any timeoutLow_;
 
     private static final Any trueAny;
     private static final Any falseAny;
-
+    
     ////////////////////////////////////////
 
     static {
@@ -114,35 +116,42 @@ public class QoSPropertySet extends PropertySet
 
         //////////////////////////////
 
-        sValidChannelQoSNames_ = new HashSet();
-        sValidChannelQoSNames_.add(EventReliability.value);
-        sValidChannelQoSNames_.add(ConnectionReliability.value);
-        sValidChannelQoSNames_.add(Priority.value);
-        sValidChannelQoSNames_.add(Timeout.value);
-        sValidChannelQoSNames_.add(StartTimeSupported.value);
-        sValidChannelQoSNames_.add(StopTimeSupported.value);
-        sValidChannelQoSNames_.add(MaxEventsPerConsumer.value);
-        sValidChannelQoSNames_.add(OrderPolicy.value);
-        sValidChannelQoSNames_.add(DiscardPolicy.value);
-        sValidChannelQoSNames_.add(MaximumBatchSize.value);
-        sValidChannelQoSNames_.add(PacingInterval.value);
+        HashSet _validChannelQoS = new HashSet();
+        _validChannelQoS.add(EventReliability.value);
+        _validChannelQoS.add(ConnectionReliability.value);
+        _validChannelQoS.add(Priority.value);
+        _validChannelQoS.add(Timeout.value);
+        _validChannelQoS.add(StartTimeSupported.value);
+        _validChannelQoS.add(StopTimeSupported.value);
+        _validChannelQoS.add(MaxEventsPerConsumer.value);
+        _validChannelQoS.add(OrderPolicy.value);
+        _validChannelQoS.add(DiscardPolicy.value);
+        _validChannelQoS.add(MaximumBatchSize.value);
+        _validChannelQoS.add(PacingInterval.value);
 
+        sValidChannelQoSNames_ = Collections.unmodifiableSet(_validChannelQoS);
+        
         ////////////////////
 
-        sValidAdminQoSNames_ = new HashSet(sValidChannelQoSNames_);
-        sValidAdminQoSNames_.remove(EventReliability.value);
-
+        HashSet _adminNames = new HashSet(sValidChannelQoSNames_);
+        _adminNames.remove(EventReliability.value);
+        sValidAdminQoSNames_ = Collections.unmodifiableSet(_adminNames);
+    
         ////////////////////
 
-        sValidProxyQoSNames_ = new HashSet(sValidAdminQoSNames_);
+        sValidProxyQoSNames_ = sValidAdminQoSNames_;
 
-        sValidMessageQoSNames_ = new HashSet();
-        sValidMessageQoSNames_.add(EventReliability.value);
-        sValidMessageQoSNames_.add(Priority.value);
-        sValidMessageQoSNames_.add(StartTime.value);
-        sValidMessageQoSNames_.add(StopTime.value);
-        sValidMessageQoSNames_.add(Timeout.value);
+        ////////////////////
+        
+        HashSet _validMessageQoS = new HashSet();
+        _validMessageQoS.add(EventReliability.value);
+        _validMessageQoS.add(Priority.value);
+        _validMessageQoS.add(StartTime.value);
+        _validMessageQoS.add(StopTime.value);
+        _validMessageQoS.add(Timeout.value);
 
+        sValidMessageQoSNames_ = Collections.unmodifiableSet(_validMessageQoS);
+        
         ////////////////////
 
         connectionReliabilityHigh_ = sORB.create_any();
@@ -185,8 +194,6 @@ public class QoSPropertySet extends PropertySet
 
         priorityHigh_ = sORB.create_any();
         priorityHigh_.insert_short(Short.MAX_VALUE);
-
-        ////////////////////
     }
 
 
@@ -203,17 +210,7 @@ public class QoSPropertySet extends PropertySet
         maxEventsPerConsumerLow_ = sORB.create_any();
 
         maxEventsPerConsumerLow_.insert_long(0);
-        maxEventsPerConsumerHigh_.insert_long(Integer.MAX_VALUE);
-
-        ////////////////////
-
-        String _orderPolicy =
-            conf.getAttribute (Attributes.ORDER_POLICY,
-                               Default.DEFAULT_ORDER_POLICY);
-
-        String _discardPolicy =
-            conf.getAttribute (Attributes.DISCARD_POLICY,
-                               Default.DEFAULT_DISCARD_POLICY);
+        maxEventsPerConsumerHigh_.insert_long(Integer.MAX_VALUE);        
 
         ////////////////////
 
@@ -227,7 +224,7 @@ public class QoSPropertySet extends PropertySet
         boolean _isStartTimeSupported =
             conf.getAttribute(Attributes.START_TIME_SUPPORTED,
                               Default.DEFAULT_START_TIME_SUPPORTED).
-            equals("on");
+            equalsIgnoreCase("on");
 
         _isStartTimeSupportedDefault.insert_boolean(_isStartTimeSupported);
 
@@ -238,7 +235,7 @@ public class QoSPropertySet extends PropertySet
         boolean _isStopTimeSupported =
             conf.getAttribute(Attributes.STOP_TIME_SUPPORTED,
                               Default.DEFAULT_STOP_TIME_SUPPORTED).
-            equals("on");
+            equalsIgnoreCase("on");
         _isStopTimeSupportedDefault.insert_boolean(_isStopTimeSupported);
 
         ////////////////////
@@ -285,7 +282,7 @@ public class QoSPropertySet extends PropertySet
 
     ////////////////////////////////////////
 
-    private HashSet validNames_;
+    private final Set validNames_;
 
     ////////////////////////////////////////
 
@@ -294,13 +291,7 @@ public class QoSPropertySet extends PropertySet
         super();
 
         configure(configuration);
-
-        init(type);
-    }
-
-
-    private void init(int type)
-    {
+        
         switch (type)
             {
             case CHANNEL_QOS:
@@ -323,7 +314,7 @@ public class QoSPropertySet extends PropertySet
 
     ////////////////////////////////////////
 
-    HashSet getValidNames()
+    protected Set getValidNames()
     {
         return validNames_;
     }
@@ -381,9 +372,9 @@ public class QoSPropertySet extends PropertySet
                           Any high,
                           Any low) {
 
-//         if (logger_.isErrorEnabled()) {
-//             logger_.error("wrong value for Property '" +name + "': " + value);
-//         }
+         if (logger_.isInfoEnabled()) {
+             logger_.info("wrong value for Property '" +name + "': " + value);
+         }
 
         errors.add(new PropertyError(error_code,
                                      name,
@@ -440,7 +431,7 @@ public class QoSPropertySet extends PropertySet
 
                     short _oPolicy = checkIsShort(_propertyName, _value, errors);
 
-                    switch (ps[x].value.extract_short())
+                    switch (_oPolicy)
                         {
                         case AnyOrder.value:
                             break;
