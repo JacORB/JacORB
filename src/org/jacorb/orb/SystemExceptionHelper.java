@@ -130,9 +130,14 @@ public class SystemExceptionHelper
 	    Class ex = Class.forName( className );
 	    Constructor constr = 
                 ex.getConstructor( 
-                                  new Class[]{ String.class, int.class, org.omg.CORBA.CompletionStatus.class});
+                                  new Class[]{ String.class, 
+                                               int.class, 
+                                               org.omg.CORBA.CompletionStatus.class});
 
-	    return (org.omg.CORBA.SystemException)constr.newInstance(new Object[]{"",new Integer(minor), completed});
+	    return (org.omg.CORBA.SystemException)constr.newInstance(
+                           new Object[]{"This exception was reported by the server, it is only re-thrown here.",
+                                        new Integer(minor), 
+                                        completed});
 	}
 	catch (Exception e )
 	{
