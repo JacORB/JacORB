@@ -46,6 +46,7 @@ public class FixIOR
     {
         org.omg.CORBA.ORB orb;
         String iorString;
+        String outFile;
         String host;
         BufferedReader br;
         BufferedWriter bw;
@@ -59,18 +60,27 @@ public class FixIOR
         short port;
         int iport;
     
-        if (args.length != 4)
+        if (args.length < 3 || args.length > 4)
         {
-            System.err.println ("Usage: FixIOR ior_file ior_out_file host port");
+            System.err.println ("Usage: FixIOR host port ior_file [ior_out_file]");
             System.exit( 1 );
         }
-        host = args[2];
+        host = args[0];
+
+        if (args.length == 4)
+        {
+            outFile = args[3];
+        }
+        else
+        {
+            outFile = args[2];
+        }
 
         orb = org.omg.CORBA.ORB.init (args, null);
 
         // Read in IOR from file
 
-        br = new BufferedReader (new FileReader (args[0]));
+        br = new BufferedReader (new FileReader (args[2]));
         iorString = br.readLine ();
         br.close ();
     
@@ -80,7 +90,7 @@ public class FixIOR
             System.exit (1);
         }
 
-        iport = Integer.parseInt (args[3]);
+        iport = Integer.parseInt (args[1]);
         if (iport > 32767)
         {
            iport = iport - 65536;
@@ -134,7 +144,7 @@ public class FixIOR
         
         // Write out new IOR to file
         
-        bw = new BufferedWriter (new OutputStreamWriter (new FileOutputStream (args[1])));
+        bw = new BufferedWriter (new OutputStreamWriter (new FileOutputStream (outFile)));
         bw.write (pior.getIORString ());
         bw.close ();
     }
