@@ -92,8 +92,8 @@ public class Main implements WrapperListener
             //  handle the event ourselves.
 
             if ( ( event == WrapperManager.WRAPPER_CTRL_C_EVENT ) ||
-                    ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT ) ||
-                    ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
+                 ( event == WrapperManager.WRAPPER_CTRL_CLOSE_EVENT ) ||
+                 ( event == WrapperManager.WRAPPER_CTRL_SHUTDOWN_EVENT ) )
             {
                 WrapperManager.stop( 0 );
             }

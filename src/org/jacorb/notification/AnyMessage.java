@@ -140,7 +140,8 @@ public class AnyMessage extends AbstractMessage
 
     public EvaluationResult extractFilterableData( EvaluationContext context,
                                                    ComponentName root,
-                                                   String v ) throws EvaluationException
+                                                   String v )
+        throws EvaluationException
     {
 
         return extractValue( context, root );
@@ -194,7 +195,8 @@ public class AnyMessage extends AbstractMessage
         return DEFAULT_PRIORITY;
     }
 
-    public boolean match( MappingFilter filter, AnyHolder value ) throws UnsupportedFilterableData
+    public boolean match( MappingFilter filter,
+                          AnyHolder value ) throws UnsupportedFilterableData
     {
         return filter.match( toAny(), value );
     }

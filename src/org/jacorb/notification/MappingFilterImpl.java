@@ -146,10 +146,12 @@ public class MappingFilterImpl extends MappingFilterPOA
 
         for ( int x = 0; x < mappingConstraintPairArray.length; ++x )
         {
-            _constraintExpArray[ x ] = mappingConstraintPairArray[ x ].constraint_expression;
+            _constraintExpArray[ x ] =
+                mappingConstraintPairArray[ x ].constraint_expression;
         }
 
-        ConstraintInfo[] _constraintInfo = filterImpl_.add_constraints( _constraintExpArray );
+        ConstraintInfo[] _constraintInfo =
+            filterImpl_.add_constraints( _constraintExpArray );
 
         MappingConstraintInfo[] _mappingConstraintInfo =
             new MappingConstraintInfo[ _constraintInfo.length ];
