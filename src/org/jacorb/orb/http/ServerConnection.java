@@ -18,7 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.orb.connection.http;
+package org.jacorb.orb.http;
 
 import java.net.*;
 import java.util.*;
@@ -26,7 +26,7 @@ import java.io.*;
 
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 
 //Note: HTTPServerConnections are good for one incoming Request only!
 
@@ -38,7 +38,7 @@ public final class ServerConnection
     private boolean readyParsed = false;
     Object oldrequest;
     Object requestwait = new Object();
-    org.jacorb.orb.connection.http.httpserver.ServeConnection realCon;
+    org.jacorb.orb.http.httpserver.ServeConnection realCon;
     Socket mysock;
     
     private ORB orb = null;
@@ -56,7 +56,7 @@ public final class ServerConnection
 
 	in_stream = new BufferedInputStream(_in_stream);
 	realCon = 
-            new org.jacorb.orb.connection.http.httpserver.ServeConnection(s,_in_stream);	
+            new org.jacorb.orb.http.httpserver.ServeConnection(s,_in_stream);	
 	String ip = mysock.getInetAddress().getHostAddress();
 	if( ip.indexOf('/') > 0)
 	    ip = ip.substring( ip.indexOf('/') + 1 );
