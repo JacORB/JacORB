@@ -726,9 +726,25 @@ public class CDROutputStream
 
     public org.omg.CORBA.portable.InputStream create_input_stream()
     {
-        byte[] result = new byte[index+1];
-        System.arraycopy(buffer, 0, result, 0, result.length);
-        return new CDRInputStream( orb, result );
+        if (deferred_writes > 0)
+        {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream(index + 1);
+            try
+            {
+                write(baos, 0, index);
+            }
+            catch (IOException e)
+            {
+                throw new MARSHAL(e.toString());
+            }
+            return new CDRInputStream(orb, baos.toByteArray());
+        }
+        else
+        {
+            byte[] result = new byte[index + 1];
+            System.arraycopy(buffer, 0, result, 0, result.length);
+            return new CDRInputStream(orb, result);
+        }
     }
 
     public final void write_any(final org.omg.CORBA.Any value)
