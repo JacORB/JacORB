@@ -33,6 +33,7 @@ public class AllTest extends TestCase
    {
         TestSuite suite = new TestSuite ("All ORB Tests");
 
+        suite.addTest (org.jacorb.test.orb.ORBInitTest.suite());
         suite.addTest (org.jacorb.test.orb.BasicTest.suite());
         suite.addTest (org.jacorb.test.orb.CharTest.suite());
         suite.addTest (org.jacorb.test.orb.CallbackTest.suite());
