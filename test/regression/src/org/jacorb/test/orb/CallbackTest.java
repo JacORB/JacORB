@@ -229,7 +229,7 @@ public class CallbackTest extends CallbackTestCase
         {
             public void return_char( char ami_return_val )
             {
-                assertEquals( 'a', ami_return_val );
+                this.assertEquals( 'a', ami_return_val );
                 pass();
             }
         };
@@ -244,7 +244,7 @@ public class CallbackTest extends CallbackTestCase
         {
             public void return_char_excep( ExceptionHolder excep_holder )
             {
-                assertEquals( org.omg.CORBA.DATA_CONVERSION.class, 
+                this.assertEquals( org.omg.CORBA.DATA_CONVERSION.class, 
                               getException( excep_holder ).getClass() );
                 pass();
             }
@@ -260,9 +260,9 @@ public class CallbackTest extends CallbackTestCase
         {
             public void operation( int ami_return_val, char p1, int p2 )
             {
-                assertEquals( 'A', p1 );
-                assertEquals( 4321, p2 );
-                assertEquals( p2, ami_return_val );     
+                this.assertEquals( 'A', p1 );
+                this.assertEquals( 4321, p2 );
+                this.assertEquals( p2, ami_return_val );     
                 pass();
             }
         };
@@ -277,7 +277,7 @@ public class CallbackTest extends CallbackTestCase
         {
             public void ex_1_excep( ExceptionHolder excep_holder )
             {
-                assertEquals( EmptyException.class,
+                this.assertEquals( EmptyException.class,
                               getException( excep_holder ).getClass() );
                 pass();
             }
@@ -310,7 +310,7 @@ public class CallbackTest extends CallbackTestCase
                 Exception ex = getException( excep_holder );
                 if ( !(ex instanceof NonEmptyException) )
                 {
-                    fail( "wrong exception type: " + ex );
+                    this.fail( "wrong exception type: " + ex );
                 }
                 else
                 {
@@ -324,8 +324,8 @@ public class CallbackTest extends CallbackTestCase
 
                     // assertTrue( nex.getMessage().endsWith( " just do it" ) );
 
-                    assertEquals( 17, nex.field1 );
-                    assertEquals( "xxx", nex.field2 );
+                    this.assertEquals( 17, nex.field1 );
+                    this.assertEquals( "xxx", nex.field2 );
                     pass();
                 }
             }
@@ -341,7 +341,7 @@ public class CallbackTest extends CallbackTestCase
         {
             public void ex_3_excep( ExceptionHolder excep_holder )
             {
-                assertEquals( EmptyException.class,
+                this.assertEquals( EmptyException.class,
                               getException( excep_holder ).getClass() );
                 pass();
             }
@@ -357,7 +357,7 @@ public class CallbackTest extends CallbackTestCase
         {
             public void ex_3_excep( ExceptionHolder excep_holder )
             {
-                assertEquals( NonEmptyException.class,
+                this.assertEquals( NonEmptyException.class,
                               getException( excep_holder ).getClass() );
                 pass();
             }

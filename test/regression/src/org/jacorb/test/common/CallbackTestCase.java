@@ -122,6 +122,9 @@ public class CallbackTestCase extends ClientServerTestCase
         private boolean testFailed     = false;
         private String  failureMessage = null;
 
+	protected ReplyHandler() {
+	}
+
         public synchronized void wait_for_reply(long timeout)
         {
             try 

@@ -184,7 +184,7 @@ public class TimingTest extends CallbackTestCase
         {
             public void operation (int ami_return_val)
             {
-                assertEquals (7, ami_return_val);
+                this.assertEquals (7, ami_return_val);
                 pass();
             }
         };
@@ -195,7 +195,7 @@ public class TimingTest extends CallbackTestCase
         {
             public void ex_op_excep (ExceptionHolder excep_holder)
             {
-                assertEquals (EmptyException.class,
+                this.assertEquals (EmptyException.class,
                               getException (excep_holder).getClass());
                 pass();
             }
@@ -207,7 +207,7 @@ public class TimingTest extends CallbackTestCase
         {
             public void ex_op_excep (ExceptionHolder excep_holder)
             {
-                assertEquals (org.omg.CORBA.DATA_CONVERSION.class,
+                this.assertEquals (org.omg.CORBA.DATA_CONVERSION.class,
                               getException (excep_holder).getClass());
                 pass();
             }
@@ -396,12 +396,12 @@ public class TimingTest extends CallbackTestCase
         {
             public void operation (int ami_return_val)
             {
-                fail ("should have raised TIMEOUT");
+                this.fail ("should have raised TIMEOUT");
             }
 
             public void operation_excep (ExceptionHolder excep_holder)
             {
-                assertEquals (org.omg.CORBA.TIMEOUT.class,
+                this.assertEquals (org.omg.CORBA.TIMEOUT.class,
                               getException (excep_holder).getClass());
                 pass();
             }
@@ -458,7 +458,7 @@ public class TimingTest extends CallbackTestCase
         {
             public void operation (int ami_return_val)
             {
-                assertEquals (19, ami_return_val);
+                this.assertEquals (19, ami_return_val);
                 pass();
             }
         };
@@ -484,7 +484,7 @@ public class TimingTest extends CallbackTestCase
         {
             public void operation (int ami_return_val)
             {
-                assertEquals (19, ami_return_val);
+                this.assertEquals (19, ami_return_val);
                 pass();
             }
         };
@@ -510,7 +510,7 @@ public class TimingTest extends CallbackTestCase
         {
             public void operation (int ami_return_val)
             {
-                assertEquals (765, ami_return_val);
+                this.assertEquals (765, ami_return_val);
                 pass();
             }
         };
@@ -533,12 +533,12 @@ public class TimingTest extends CallbackTestCase
         {
             public void operation (int ami_return_val)
             {
-                fail ("should have raised TIMEOUT");
+                this.fail ("should have raised TIMEOUT");
             }
 
             public void operation_excep (ExceptionHolder excep_holder)
             {
-                assertEquals (org.omg.CORBA.TIMEOUT.class,
+                this.assertEquals (org.omg.CORBA.TIMEOUT.class,
                               getException (excep_holder).getClass());
                 pass();
             }
@@ -653,7 +653,7 @@ public class TimingTest extends CallbackTestCase
         {
             public void operation (int ami_return_val)
             {
-                assertEquals (765, ami_return_val);
+                this.assertEquals (765, ami_return_val);
                 pass();
             }
         };
@@ -675,12 +675,12 @@ public class TimingTest extends CallbackTestCase
         {
             public void operation (int ami_return_val)
             {
-                fail ("should have raised TIMEOUT");
+                this.fail ("should have raised TIMEOUT");
             }
 
             public void operation_excep (ExceptionHolder excep_holder)
             {
-                assertEquals (org.omg.CORBA.TIMEOUT.class,
+                this.assertEquals (org.omg.CORBA.TIMEOUT.class,
                               getException (excep_holder).getClass());
                 pass();
             }
