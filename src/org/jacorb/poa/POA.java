@@ -1389,7 +1389,8 @@ public class POA
 
         ByteArrayKey oid = new ByteArrayKey (objectId);
 
-        if (aom.isDeactivating (oid) || requestController.isDeactivating (oid))
+        if ( ( aom != null && aom.isDeactivating (oid) ) 
+             || requestController.isDeactivating (oid))
         {
             if (logTrace.test(0))
                 logTrace.printLog(objectId, "cannot process request, because object is already in the deactivation process");
