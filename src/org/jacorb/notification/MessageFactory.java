@@ -48,9 +48,7 @@ public class MessageFactory implements Disposable
         {
             public Object newInstance()
             {
-                AbstractPoolable _p =
-                    new AnyMessage();
-                return _p;
+                return new AnyMessage();
             }
 
             public void activateObject( Object o )
@@ -66,8 +64,7 @@ public class MessageFactory implements Disposable
         {
             public Object newInstance()
             {
-                AbstractPoolable _p = new StructuredEventMessage();
-                return _p;
+                return new StructuredEventMessage();
             }
 
             public void activateObject( Object o )
@@ -82,12 +79,14 @@ public class MessageFactory implements Disposable
     public void init()
     {
         anyMessagePool_.init();
+
         structuredEventMessagePool_.init();
     }
 
     public void dispose()
     {
         structuredEventMessagePool_.dispose();
+
         anyMessagePool_.dispose();
     }
 
@@ -98,9 +97,7 @@ public class MessageFactory implements Disposable
     public Message newMessage( Any any,
                                AbstractProxyConsumerI consumer )
     {
-        TypeCode _typeCode = any.type();
-
-        if (StructuredEventHelper.type().equals(_typeCode)) {
+        if (StructuredEventHelper.type().equals(any.type())) {
             // received a StructuredEvent wrapped inside an Any
             // see Spec. 2-11
             return newMessage(StructuredEventHelper.extract(any), consumer);
@@ -143,9 +140,7 @@ public class MessageFactory implements Disposable
 
     public Message newMessage( Any any )
     {
-        TypeCode _typeCode = any.type();
-
-        if (StructuredEventHelper.type().equals(_typeCode)) {
+        if (StructuredEventHelper.type().equals(any.type())) {
             return newMessage(StructuredEventHelper.extract(any));
         } else {
             AnyMessage _mesg =
