@@ -496,6 +496,7 @@ public class TypeCode
         switch( kind )
         {
         case   TCKind._tk_struct:
+        case   TCKind._tk_except: 
         case   TCKind._tk_union:
         case   TCKind._tk_value:
         case   TCKind._tk_enum : return member_count;
@@ -510,6 +511,7 @@ public class TypeCode
         switch( kind )
         {
         case TCKind._tk_struct:
+        case TCKind._tk_except: 
         case TCKind._tk_union:
         case TCKind._tk_enum: 
         case TCKind._tk_value: 
@@ -526,9 +528,13 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind,
                org.omg.CORBA.TypeCodePackage.Bounds
     {
-        if( kind != TCKind._tk_struct && kind != TCKind._tk_union &&
-            kind != TCKind._tk_value )
+        if( kind != TCKind._tk_struct && 
+            kind != TCKind._tk_union &&
+            kind != TCKind._tk_value && 
+            kind != TCKind._tk_except )
+        {
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        }
         if( index > member_count )
             throw new  org.omg.CORBA.TypeCodePackage.Bounds();
         return member_type[index];
@@ -538,7 +544,7 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind,  
                org.omg.CORBA.TypeCodePackage.Bounds
     {
-        if( kind != TCKind._tk_struct && kind != TCKind._tk_union )
+        if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         if( index > member_count )
             throw new  org.omg.CORBA.TypeCodePackage.Bounds();
@@ -548,7 +554,7 @@ public class TypeCode
     public org.omg.CORBA.TypeCode discriminator_type() 
         throws org.omg.CORBA.TypeCodePackage.BadKind
     {
-        if( kind != TCKind._tk_struct && kind != TCKind._tk_union )
+        if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         return discriminator_type;
     }
@@ -557,7 +563,7 @@ public class TypeCode
     public int default_index() 
         throws org.omg.CORBA.TypeCodePackage.BadKind 
     {
-        if( kind != TCKind._tk_struct && kind != TCKind._tk_union )
+        if( kind != TCKind._tk_union )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         return default_index;
     }
