@@ -132,33 +132,56 @@ public class Configuration
        String separator = System.getProperty("file.separator");
        String home = System.getProperty("user.home");
        String lib = System.getProperty("java.home");
-       
+       int logLevel = 0;
+
        // 1) include system properties
        setAttributes( System.getProperties() );
-       
-       // 2) look for orb.common.properties
-       
+
+       // 2) look for orb.common.properties       
        // look for common properties files in java.home/lib first
        Properties commonProps = 
            loadPropertiesFromFile( lib + separator + "lib" + separator + COMMON_PROPS);
        
        if (commonProps!= null)
-           setAttributes(commonProps);
+       {
+            setAttributes(commonProps);
+            // we don't have proper logging at this stage yet, so we can only
+            // log to the console, but we check if that is explicitly disallowed
+            logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+            
+            if (logLevel > 2)
+                System.out.println("[ base configuration loaded from file " + 
+                                   lib + separator + "lib" + separator + COMMON_PROPS + " ]");
+       }
        
        // look for common properties files in user.home next
        commonProps = 
            loadPropertiesFromFile( home + separator + COMMON_PROPS );
        
        if (commonProps!= null)
+       {
            setAttributes(commonProps);
+
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+           if (logLevel > 2)
+               System.out.println("[ base configuration loaded from file " + 
+                                   home + separator + COMMON_PROPS + " ]");
+       }
        
        // look for common properties files on the classpath next
        commonProps = 
            loadPropertiesFromClassPath( COMMON_PROPS );
        
        if (commonProps!= null)
+       {
            setAttributes(commonProps);
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+           if (logLevel > 2)
+               System.out.println("[ base configuration loaded from classpath " + 
+                                    COMMON_PROPS + " ]");
+       }
        
+ 
        // 3) look for specific properties file
        String configDir = 
            getAttribute("jacorb.config.dir", "");
@@ -170,7 +193,8 @@ public class Configuration
            configDir += separator + "etc";
        else
        {
-           System.err.println("[ jacorb.home unset! Will use '.']");
+           if (logLevel > 0)
+               System.err.println("[ jacorb.home unset! Will use '.']");
            configDir = ".";
        }
        
@@ -181,14 +205,18 @@ public class Configuration
        
        if (orbConfig!= null)
        {
-           System.out.println("[ configuration " + name + 
-                              " loaded from file " + propFileName + " ]");
            setAttributes(orbConfig);
+
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+           if (logLevel > 2)
+               System.out.println("[ configuration " + name + 
+                                  " loaded from file " + propFileName + " ]");
        }
        else
        {
-           System.out.println("[ configuration " + name + 
-                              " not found in "  + propFileName + " ]");
+           if (logLevel > 0)
+               System.err.println("[ configuration " + name + 
+                                  " not found in "  + propFileName + " ]");
        }
        
        // 4) look for additional custom properties files
@@ -202,14 +230,18 @@ public class Configuration
                 Properties customProps = loadPropertiesFromFile(fileName);
                 if (customProps!= null)
                 {
-                    System.out.println("[ custom properties loaded from file " + 
-                                       fileName + " ]");
                     setAttributes(customProps);
+
+                    logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+                    if (logLevel > 2)
+                        System.out.println("[ custom properties loaded from file " + 
+                                           fileName + " ]");
                 }
                 else
                 {
-                    System.out.println("[ custom properties not found in "  + 
-                                       fileName + " ]");
+                    if (logLevel > 0)
+                        System.err.println("[ custom properties not found in "  + 
+                                           fileName + " ]");
                 }
            }
        }
@@ -218,8 +250,11 @@ public class Configuration
        orbConfig = loadPropertiesFromClassPath( name +  fileSuffix );
        if (orbConfig!= null)
        {
-           System.out.println("[configuration " + name + " loaded from classpath]");
            setAttributes(orbConfig);
+
+           logLevel = getAttributeAsInteger("jacorb.config.log.verbosity",0);
+           if (logLevel > 2)
+               System.out.println("[ configuration " + name + " loaded from classpath]");
        }
        
        // 4) load properties passed to ORB.init(), these will override any
