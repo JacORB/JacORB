@@ -1849,7 +1849,27 @@ public final class ORB
         }
     }
 
+    /* DII helper methods */
+
+    public org.omg.CORBA.ExceptionList create_exception_list ()
+    {
+        return new org.jacorb.orb.dii.ExceptionList ();
+    }
+
+    public org.omg.CORBA.NVList create_list (int count)
+    {
+        return new org.jacorb.orb.NVList (this);
+    }
+
+    public org.omg.CORBA.NamedValue create_named_value
+        (String name, org.omg.CORBA.Any value, int flags)
+    {
+        return new org.jacorb.orb.NamedValue (name, value, flags);
+    }
+
+    public org.omg.CORBA.NVList create_operation_list
+        (org.omg.CORBA.OperationDef oper)
+    {
+        return null;
+    }
 }
-
-
-

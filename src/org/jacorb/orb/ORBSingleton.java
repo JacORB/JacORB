@@ -263,7 +263,7 @@ public class ORBSingleton
 
     public TypeCode create_recursive_sequence_tc( int bound, int offset)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        throw new org.omg.CORBA.NO_IMPLEMENT ();
     }
 
     public TypeCode create_sequence_tc( int bound, TypeCode element_type)
@@ -448,133 +448,123 @@ public class ORBSingleton
                                             name);
     }
 
-    /* DII helper methods */
+    /* not allowed on the singleton: */
 
     public org.omg.CORBA.ExceptionList create_exception_list()
     {
-        return new org.jacorb.orb.dii.ExceptionList();
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
-    public org.omg.CORBA.NVList create_list(int count)
+    public org.omg.CORBA.NVList create_list (int count)
     {
-        return new org.jacorb.orb.NVList(this);
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
-    public org.omg.CORBA.NamedValue create_named_value( String name,
-                                                        org.omg.CORBA.Any value, 
-                                                        int flags )
+    public org.omg.CORBA.NamedValue create_named_value
+        (String name, org.omg.CORBA.Any value, int flags)
     {
-        return new org.jacorb.orb.NamedValue( name, value, flags );
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
-    public org.omg.CORBA.NVList create_operation_list(org.omg.CORBA.OperationDef oper)
+    public org.omg.CORBA.NVList create_operation_list
+        (org.omg.CORBA.OperationDef oper)
     {
-        return null;
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
-
-
-    /* not allowed on the singleton: */
 
     public org.omg.CORBA.Object string_to_object(String str) 
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public  org.omg.CORBA.Environment create_environment()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
  
     public  org.omg.CORBA.ContextList create_context_list()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public org.omg.CORBA.portable.OutputStream create_output_stream()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public org.omg.CORBA.Current get_current()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public  org.omg.CORBA.Context get_default_context()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
+
     public org.omg.CORBA.Request get_next_response()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public String[] list_initial_services()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public String object_to_string( org.omg.CORBA.Object obj)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public  boolean poll_next_response()
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public org.omg.CORBA.Object resolve_initial_references(String identifier) 
         throws org.omg.CORBA.ORBPackage.InvalidName 
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public  void send_multiple_requests_deferred(org.omg.CORBA.Request[] req)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public  void send_multiple_requests_oneway(org.omg.CORBA.Request[] req)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     protected void set_parameters(String[] args, java.util.Properties props)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     protected void set_parameters(java.applet.Applet app, java.util.Properties  props)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public void run() 
     {   
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public void shutdown(boolean wait_for_completion) 
     {    
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }      
 
     public boolean work_pending() 
     {     
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
 
     public void perform_work() 
     {     
-        throw new org.omg.CORBA.NO_IMPLEMENT("The Singleton ORB only permits factory methods");
+        throw new org.omg.CORBA.NO_IMPLEMENT ("The Singleton ORB only permits factory methods");
     }
-
-
 }
-
-
-
-
-
-
