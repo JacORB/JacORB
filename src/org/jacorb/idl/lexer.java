@@ -1161,7 +1161,7 @@ public class lexer
                     int digit = 0;
                     advance();
 
-                    if( next_char == '.' )
+                    if (next_char == '.')
                     {
                         StringBuffer f_string = new StringBuffer("0.");
                         advance();
@@ -1185,7 +1185,7 @@ public class lexer
                             radix = 16;
                         }
 
-                        StringBuffer val = new StringBuffer ();
+                        StringBuffer val = new StringBuffer ("0");
                         digit = Character.digit ((char) next_char, radix);
                         while (digit != -1 )
                         {
