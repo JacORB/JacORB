@@ -529,6 +529,8 @@ public class NamingContextImpl
             NamingContextExt next_context = 
                 NamingContextExtHelper.narrow((org.omg.CORBA.Object)contexts.get(n));
 
+org.jacorb.util.Debug.output(1,"Resolve for " + nc.length );
+
             if ((next_context == null)||(next_context._non_existent()))
             {
                 throw new NotFound(NotFoundReason.missing_node,nc);
@@ -551,8 +553,12 @@ public class NamingContextImpl
             if( result == null )
                 result = (org.omg.CORBA.Object)names.get(n);           
 
-            if( result == null || result._non_existent())
-                throw new NotFound(NotFoundReason.missing_node, n.components());
+			if( result == null)
+				throw new NotFound(NotFoundReason.missing_node, n.components());
+
+			org.jacorb.util.Debug.output(1,"Resolve for " + Environment.getProperty("jacorb.naming.noping", "off") );
+			if(Environment.isPropertyOff ("jacorb.naming.noping") && result._non_existent())
+				throw new NotFound(NotFoundReason.missing_node, n.components());
 
             return result;      
         }                 

@@ -562,6 +562,7 @@ jacorb.poa.queue_max=100
 # when list operation is invoked.
 
 jacorb.naming.purge=on
+jacorb.naming.noping=on
 
 # Port on which to run service
 
