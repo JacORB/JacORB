@@ -37,56 +37,65 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
 public class FilterProxySupplierTask extends AbstractFilterTask
 {
-    static class AlternateMessageMap {
+    static class AlternateMessageMap
+    {
 
         private Map alternateMessages_;
 
         //////////////////////////////
 
-        public AlternateMessageMap() {
+        public AlternateMessageMap()
+        {
             this(new HashMap());
         }
 
-        AlternateMessageMap(Map m) {
+        AlternateMessageMap(Map m)
+        {
             alternateMessages_ = m;
         }
 
         //////////////////////////////
 
-        public Message getAlternateMessage(FilterStage s) {
-            if (alternateMessages_.containsKey(s)) {
-                return (Message)alternateMessages_.get(s);
+        public Message getAlternateMessage(FilterStage s)
+        {
+            if (alternateMessages_.containsKey(s))
+            {
+                return (Message) alternateMessages_.get(s);
             }
             return null;
         }
 
-
-        public void putAlternateMessage(FilterStage s, Message e) {
+        public void putAlternateMessage(FilterStage s, Message e)
+        {
             alternateMessages_.put(s, e);
         }
 
-
-        public void clear() {
+        public void clear()
+        {
             alternateMessages_.clear();
         }
     }
 
-    public static final AlternateMessageMap EMPTY_MAP =
-        new AlternateMessageMap(Collections.EMPTY_MAP) {
-            public void clear() {
-            }
-        };
+    public static final AlternateMessageMap EMPTY_MAP = new AlternateMessageMap(
+            Collections.EMPTY_MAP)
+    {
+        public void clear()
+        {
+        }
+    };
 
     ////////////////////////////////////////
 
     AlternateMessageMap changedMessages_ = new AlternateMessageMap();
 
     private static int sCount = 0;
+
     private int id_ = ++sCount;
 
     ////////////////////////////////////////
 
-    FilterProxySupplierTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+    FilterProxySupplierTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
+    {
         super(te, tp, tc);
     }
 
@@ -97,116 +106,132 @@ public class FilterProxySupplierTask extends AbstractFilterTask
         return "[FilterProxySupplierTask#" + id_ + "]";
     }
 
-
     /**
-     * Initialize this FilterOutgoingTask with the Configuration of
-     * another FilterTask.
+     * Initialize this FilterOutgoingTask with the Configuration of another
+     * FilterTask.
      */
-    public void setFilterStage(AbstractFilterTask task) {
+    public void setFilterStage(AbstractFilterTask task)
+    {
         arrayCurrentFilterStage_ = task.getFilterStageToBeProcessed();
     }
 
-
-    public void reset() {
+    public void reset()
+    {
         super.reset();
 
         arrayCurrentFilterStage_ = null;
         changedMessages_.clear();
     }
 
-
     public void doWork() throws InterruptedException
     {
-        filter();
+        if (arrayCurrentFilterStage_.length > 0)
+        {
+            filter();
 
-        AbstractDeliverTask.scheduleTasks(getTaskFactory().newPushToConsumerTask( this ) );
-
+            AbstractDeliverTask.scheduleTasks(getTaskFactory().newPushToConsumerTask(this));
+        }
+        else
+        {
+            logger_.debug("No Consumer connected");
+            
+            message_.dispose();
+        }
         dispose();
     }
 
-
-    private Message updatePriority(int indexOfCurrentEvent, Message m) {
+    private Message updatePriority(int indexOfCurrentEvent, Message m)
+    {
         AnyHolder _priorityFilterResult = new AnyHolder();
 
         Message _currentMessage = m;
 
-        try {
-            boolean priorityMatch =
-                m.match(arrayCurrentFilterStage_[indexOfCurrentEvent].getPriorityFilter(),
-                        _priorityFilterResult);
+        try
+        {
+            boolean priorityMatch = m.match(arrayCurrentFilterStage_[indexOfCurrentEvent]
+                    .getPriorityFilter(), _priorityFilterResult);
 
-            if (priorityMatch) {
-                _currentMessage = (Message)message_.clone();
+            if (priorityMatch)
+            {
+                _currentMessage = (Message) message_.clone();
 
                 _currentMessage.setPriority(_priorityFilterResult.value.extract_long());
             }
-        } catch (UnsupportedFilterableData e) {
-//             logger_.error("error evaluating PriorityFilter", e);
+        } catch (UnsupportedFilterableData e)
+        {
+            //             logger_.error("error evaluating PriorityFilter", e);
         }
 
         return _currentMessage;
     }
 
-
-    private Message updateTimeout(int indexOfCurrentFilterStage, Message event) {
+    private Message updateTimeout(int indexOfCurrentFilterStage, Message event)
+    {
         AnyHolder _lifetimeFilterResult = new AnyHolder();
         Message _currentEvent = event;
 
-        try {
-            boolean lifetimeMatch =
-                _currentEvent.match(arrayCurrentFilterStage_[indexOfCurrentFilterStage].getLifetimeFilter(),
-                                    _lifetimeFilterResult);
+        try
+        {
+            boolean lifetimeMatch = _currentEvent.match(
+                    arrayCurrentFilterStage_[indexOfCurrentFilterStage].getLifetimeFilter(),
+                    _lifetimeFilterResult);
 
-            if (lifetimeMatch && (_currentEvent == message_)) {
+            if (lifetimeMatch && (_currentEvent == message_))
+            {
                 // LifeTime Mapping Filter matched and current Message
                 // was not copied yet. This depends on the fact that
                 // updatePriority was run before.
 
-                _currentEvent = (Message)message_.clone();
+                _currentEvent = (Message) message_.clone();
 
                 _currentEvent.setTimeout(_lifetimeFilterResult.value.extract_long());
             }
 
-        } catch (UnsupportedFilterableData e) {
-//             logger_.error("error evaluating PriorityFilter", e);
+        } catch (UnsupportedFilterableData e)
+        {
+            //             logger_.error("error evaluating PriorityFilter", e);
         }
 
         return _currentEvent;
     }
 
-
-    private void filter() {
-        for (int x = 0; x < arrayCurrentFilterStage_.length; ++x) {
+    private void filter()
+    {
+        for (int x = 0; x < arrayCurrentFilterStage_.length; ++x)
+        {
 
             boolean _forward = false;
 
-            if (!arrayCurrentFilterStage_[x].isDisposed()) {
+            if (!arrayCurrentFilterStage_[x].isDisposed())
+            {
 
                 Message _currentMessage = message_;
 
-                if (arrayCurrentFilterStage_[x].hasPriorityFilter()) {
+                if (arrayCurrentFilterStage_[x].hasPriorityFilter())
+                {
                     _currentMessage = updatePriority(x, _currentMessage);
                 }
 
-                if (arrayCurrentFilterStage_[x].hasLifetimeFilter()) {
+                if (arrayCurrentFilterStage_[x].hasLifetimeFilter())
+                {
                     _currentMessage = updateTimeout(x, _currentMessage);
                 }
 
-                if (_currentMessage != message_) {
-                    // MappingFilter attached to  a particular
+                if (_currentMessage != message_)
+                {
+                    // MappingFilter attached to a particular
                     // FilterStage did change (Timeout or Priority)
                     // the current Message.
                     // store changed Message in Map for later use.
-                    changedMessages_.
-                        putAlternateMessage(arrayCurrentFilterStage_[x],
-                                            _currentMessage);
+                    changedMessages_.putAlternateMessage(arrayCurrentFilterStage_[x],
+                            _currentMessage);
                 }
 
-                _forward =
-                    _currentMessage.match(arrayCurrentFilterStage_[x]);
+                _forward = _currentMessage.match(arrayCurrentFilterStage_[x]);
             }
 
-            if (_forward) {
+            if (_forward)
+            {
                 // the subsequent destination filters need to be eval'd
                 addFilterStage(arrayCurrentFilterStage_[x].getSubsequentFilterStages());
             }

@@ -34,8 +34,7 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 public class FilterConsumerAdminTask extends AbstractFilterTask
 {
-    private static final FilterStage[] NO_CURRENT_FILTER_STAGE =
-        new FilterStage[ 0 ];
+    private static final FilterStage[] NO_CURRENT_FILTER_STAGE = new FilterStage[0];
 
     private static int sCount = 0;
 
@@ -49,42 +48,40 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
     ////////////////////////////////////////
 
-    FilterConsumerAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc) {
+    FilterConsumerAdminTask(TaskExecutor te, TaskProcessor tp, TaskFactory tc)
+    {
         super(te, tp, tc);
     }
 
     ////////////////////////////////////////
 
-    public String toString() {
+    public String toString()
+    {
         return "[FilterConsumerAdminTask#" + id_ + "]";
     }
 
-
     /**
-     * Initialize this FilterOutgoingTask with the Configuration of
-     * another FilterTask.
+     * Initialize this FilterOutgoingTask with the Configuration of another
+     * FilterTask.
      */
-    public void setFilterStage( AbstractFilterTask other )
+    public void setFilterStage(AbstractFilterTask other)
     {
         arrayCurrentFilterStage_ = other.getFilterStageToBeProcessed();
     }
-
 
     /**
      * access the FilterStages that have a Event Consumer associated.
      */
     public FilterStage[] getFilterStagesWithMessageConsumer()
     {
-        return ( FilterStage[] )
-               listOfFilterStageWithMessageConsumer_.toArray( FILTERSTAGE_ARRAY_TEMPLATE );
+        return (FilterStage[]) listOfFilterStageWithMessageConsumer_
+                .toArray(FILTERSTAGE_ARRAY_TEMPLATE);
     }
-
 
     private void clearFilterStagesWithMessageConsumer()
     {
         listOfFilterStageWithMessageConsumer_.clear();
     }
-
 
     public void reset()
     {
@@ -94,56 +91,66 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
         arrayCurrentFilterStage_ = NO_CURRENT_FILTER_STAGE;
     }
 
-
     public void doWork() throws InterruptedException
     {
-        filter();
+        logger_.debug("doWork");
+        
+        if (arrayCurrentFilterStage_.length > 0)
+        {
+            filter();
 
+            pushToConsumers();
+        } else {
+            logger_.debug("No ConsumerAdmin connected");
+            
+            message_.dispose();
+        }
+
+        dispose();
+    }
+
+    private void pushToConsumers() throws InterruptedException
+    {
         // if we are filtering Outgoing events its
         // possible that deliveries can be made as soon as
         // the ConsumerAdmin Filters are eval'd
         // (if InterFilterGroupOperator.OR_OP is set !)
 
-        FilterStage[] _filterStagesWithMessageConsumer =
-            getFilterStagesWithMessageConsumer();
+        FilterStage[] _filterStagesWithMessageConsumer = getFilterStagesWithMessageConsumer();
 
         AbstractFilterTask _filterTaskToBeScheduled = null;
 
-        if (_filterStagesWithMessageConsumer.length > 0) {
+        if (_filterStagesWithMessageConsumer.length > 0)
+        {
             AbstractDeliverTask[] _listOfPushToConsumerTaskToBeScheduled = null;
 
-            _listOfPushToConsumerTaskToBeScheduled =
-                getTaskFactory().newPushToConsumerTask(_filterStagesWithMessageConsumer,
-                                                       copyMessage());
+            _listOfPushToConsumerTaskToBeScheduled = getTaskFactory().newPushToConsumerTask(
+                    _filterStagesWithMessageConsumer, copyMessage());
 
             AbstractDeliverTask.scheduleTasks(_listOfPushToConsumerTaskToBeScheduled);
         }
 
-        _filterTaskToBeScheduled = getTaskFactory().newFilterProxySupplierTask( this );
+        _filterTaskToBeScheduled = getTaskFactory().newFilterProxySupplierTask(this);
 
         _filterTaskToBeScheduled.schedule();
-
-        dispose();
     }
-
 
     private void filter() throws InterruptedException
     {
-        for ( int x = 0; x < arrayCurrentFilterStage_.length; ++x )
+        for (int x = 0; x < arrayCurrentFilterStage_.length; ++x)
         {
             checkInterrupt();
 
             boolean _filterForCurrentFilterStageMatched = false;
 
-            if ( !arrayCurrentFilterStage_[ x ].isDisposed() )
+            if (!arrayCurrentFilterStage_[x].isDisposed())
             {
-                _filterForCurrentFilterStageMatched =
-                    message_.match( arrayCurrentFilterStage_[ x ] );
+                _filterForCurrentFilterStageMatched = message_.match(arrayCurrentFilterStage_[x]);
             }
 
-            if ( _filterForCurrentFilterStageMatched )
+            if (_filterForCurrentFilterStageMatched)
             {
-                if ( arrayCurrentFilterStage_[ x ].hasInterFilterGroupOperatorOR() )
+                if (arrayCurrentFilterStage_[x].hasInterFilterGroupOperatorOR())
                 {
                     // if the destinations
                     // InterFilterGroupOperator equals OR_OP
@@ -151,15 +158,15 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
                     // listOfFilterStageWithMessageConsumer_ as the
                     // corresponding filters dont need to be eval'd
 
-                    listOfFilterStageWithMessageConsumer_.
-                        addAll( arrayCurrentFilterStage_[ x ].getSubsequentFilterStages() );
+                    listOfFilterStageWithMessageConsumer_.addAll(arrayCurrentFilterStage_[x]
+                            .getSubsequentFilterStages());
                 }
                 else
                 {
                     // the Filters of the ProxySupplier need to be
                     // eval'd
 
-                    addFilterStage( arrayCurrentFilterStage_[ x ].getSubsequentFilterStages() );
+                    addFilterStage(arrayCurrentFilterStage_[x].getSubsequentFilterStages());
                 }
             }
             else
@@ -170,16 +177,15 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
                 // Case add it to the list of ProxySupplier to be
                 // eval'd by the next task.
 
-                Iterator _i =
-                    arrayCurrentFilterStage_[ x ].getSubsequentFilterStages().iterator();
+                Iterator _i = arrayCurrentFilterStage_[x].getSubsequentFilterStages().iterator();
 
-                while ( _i.hasNext() )
+                while (_i.hasNext())
                 {
-                    FilterStage _n = ( FilterStage ) _i.next();
+                    FilterStage _n = (FilterStage) _i.next();
 
-                    if ( _n.hasInterFilterGroupOperatorOR() )
+                    if (_n.hasInterFilterGroupOperatorOR())
                     {
-                        addFilterStage( _n );
+                        addFilterStage(_n);
                     }
                 }
             }
