@@ -56,6 +56,8 @@ public interface Message extends Disposable
 
     public void setMessageStateListener(MessageStateListener listener);
 
+    public MessageStateListener removeMessageStateListener();
+
     public String getConstraintKey();
 
     public Any toAny();
