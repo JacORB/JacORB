@@ -1,0 +1,25 @@
+Objective:
+    This example show how to create and handle (implement) Dynamic Interface 
+    Invocations. The client creates requests dynamically and invokes them.
+    DiiServer shows how to resolve these dynamic invocations, including 
+    throwing exceptions. Here two different client are provided one is normal 
+    stand alone client and anothet is applet client.
+    
+How to Run:
+    Compile:
+        ant
+    Run NamingServer:
+        ns.bat c:/prahalad/NS_Ref
+    Run Server:
+        jacotemplate.bat demo.dii.DiiServer
+    Run Client:
+        jacotemplate.bat demo.dii.Client
+
+
+Note:
+    Make sure ns.bat is using jacotemplate.bat because there is no jaco.bat in
+    this cvs version of the JacORB.
+
+    Make sure that jacorb.properties is in place(in the current dir) and has 
+    the name server reference such as -
+    ORBInitRef.NameService=file:/c:/prahalad/NS_Ref
