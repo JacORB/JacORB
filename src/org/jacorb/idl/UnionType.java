@@ -87,7 +87,10 @@ class UnionType
         if( enclosing_symbol != null && enclosing_symbol != s )
             throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
         enclosing_symbol = s;
-        switch_body.setEnclosingSymbol( s );
+        if (switch_body != null)
+        {
+            switch_body.setEnclosingSymbol( s );
+        }
     }
 
     public String typeName()
@@ -144,11 +147,21 @@ class UnionType
     {
         s = parser.pack_replace( s );
         if( pack_name.length() > 0 )
-            pack_name = new String( s + "." + pack_name );
+        {
+           pack_name = new String( s + "." + pack_name);
+        }
         else
-            pack_name = s;
-        switch_type_spec.setPackage( s );
-        switch_body.setPackage( s );
+        {
+           pack_name = s;
+        }
+        if (switch_type_spec != null)
+        {
+           switch_type_spec.setPackage (s);
+        }
+        if (switch_body != null)
+        {
+            switch_body.setPackage( s );
+        }
     }
 
     public boolean basic()
@@ -158,18 +171,43 @@ class UnionType
 
     public void parse()
     {
+        boolean justAnotherOne = false;
+
         escapeName();
 
+        ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
         try
         {
             ScopedName.definePseudoScope( full_name() );
-            ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
             ctspec.c_type_spec = this;
             NameTable.define( full_name(), "type-union" );
             TypeMap.typedef( full_name(), ctspec );
+        }
+        catch (NameAlreadyDefined nad)
+        {
+            if (parser.get_pending (full_name ()) != null)
+            {
+                if (switch_type_spec == null )
+                {
+                    justAnotherOne = true;
+                }
+                // else actual definition
 
+                if( !full_name().equals( "org.omg.CORBA.TypeCode" ) && switch_type_spec != null )
+                {
+                    TypeMap.replaceForwardDeclaration( full_name(), ctspec );
+                }
+            }
+            else
+            {
+                Environment.output( 4, nad );
+                parser.error( "Union " + full_name() + " already defined", token );
+            }
+        }
+
+        if (switch_type_spec != null)
+        {
             // Resolve scoped names and aliases
-
             TypeSpec ts;
             if( switch_type_spec.type_spec instanceof ScopedName )
             {
@@ -225,12 +263,18 @@ class UnionType
                 Case c = (Case)e.nextElement();
                 c.element_spec.t = getElementType( c.element_spec );
             }
+
+            NameTable.parsed_interfaces.put( full_name(), "" );
+            parser.remove_pending( full_name() );
         }
-        catch( NameAlreadyDefined p )
+        else if( !justAnotherOne )
         {
-            parser.error( "Union " + full_name() + " already defined", token );
+            // i am forward declared, must set myself as
+            // pending further parsing
+            parser.set_pending( full_name() );
         }
     }
+
 
     /**
      * @returns a string for an expression of type TypeCode that describes this type
@@ -1073,53 +1117,58 @@ class UnionType
             return;
 
         /** only write once */
-
         if( written )
+        {
             return;
-
-        try
-        {
-            switch_body.print( ps );
-
-            String className = className();
-
-            String path = parser.out_dir + fileSeparator +
-                    pack_name.replace( '.', fileSeparator );
-
-            File dir = new File( path );
-            if( !dir.exists() )
-                if( !dir.mkdirs() )
-                {
-                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
-                }
-
-            /** print the mapped java class */
-
-            String fname = className + ".java";
-            PrintWriter decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
-            printUnionClass( className, decl_ps );
-            decl_ps.close();
-
-            /** print the holder class */
-
-            fname = className + "Holder.java";
-            decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
-            printHolderClass( className, decl_ps );
-            decl_ps.close();
-
-            /** print the helper class */
-
-            fname = className + "Helper.java";
-            decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
-            printHelperClass( className, decl_ps );
-            decl_ps.close();
-
-            written = true;
         }
-        catch( java.io.IOException i )
+
+        // Forward declaration
+        if (switch_type_spec != null)
         {
-            System.err.println( "File IO error" );
-            i.printStackTrace();
+            try
+            {
+                switch_body.print( ps );
+
+                String className = className();
+
+                String path = parser.out_dir + fileSeparator +
+                pack_name.replace( '.', fileSeparator );
+
+                File dir = new File( path );
+                if( !dir.exists() )
+                    if( !dir.mkdirs() )
+                    {
+                        org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
+                    }
+
+                /** print the mapped java class */
+
+                String fname = className + ".java";
+                PrintWriter decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
+                printUnionClass( className, decl_ps );
+                decl_ps.close();
+
+                /** print the holder class */
+
+                fname = className + "Holder.java";
+                decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
+                printHolderClass( className, decl_ps );
+                decl_ps.close();
+
+                /** print the helper class */
+
+                fname = className + "Helper.java";
+                decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
+                printHelperClass( className, decl_ps );
+                decl_ps.close();
+
+                written = true;
+            }
+            catch( java.io.IOException i )
+            {
+                System.err.println( "File IO error" );
+                i.printStackTrace();
+            }
         }
     }
 
