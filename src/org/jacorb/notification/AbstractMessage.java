@@ -45,6 +45,7 @@ import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.interfaces.Message.MessageStateListener;
 
 /**
  * @author Alphonse Bendt
@@ -439,7 +440,7 @@ public abstract class AbstractMessage
     }
 
     /**
-     * Add a reference on this NotificationEvent. After Usage release
+     * Add a reference on this NotificationEvent. After Usage removeReference 
      * must be called.
      */
     public synchronized void addReference()
@@ -500,7 +501,6 @@ public abstract class AbstractMessage
         {
             _ret = runtimeVariable.evaluate(context);
 
-
             _ret =
                 context.extractFromMessage(this, _ret, componentRootNode, runtimeVariable);
 
@@ -515,6 +515,7 @@ public abstract class AbstractMessage
                                                            String variable)
         throws EvaluationException;
 
+
     public abstract EvaluationResult extractVariableHeader(EvaluationContext context,
                                                            ComponentName componentRootNode,
                                                            String variable)
@@ -524,7 +525,6 @@ public abstract class AbstractMessage
     public EvaluationResult extractValue( EvaluationContext evaluationContext,
                                           ComponentName componentRootNode )
         throws EvaluationException
-
     {
         EvaluationResult _ret = null;
 
@@ -599,7 +599,8 @@ public abstract class AbstractMessage
     public abstract boolean match(Filter filter) throws UnsupportedFilterableData;
 
 
-    public boolean match(FilterStage filterStage) {
+    public boolean match(FilterStage filterStage) 
+    {
         List _filterList = filterStage.getFilters();
 
         if ( _filterList.isEmpty() )
