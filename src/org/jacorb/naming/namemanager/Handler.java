@@ -51,17 +51,20 @@ public class Handler
 
     public Handler(Component fr,NSTree tr) 
     { 
-	frame=fr;
-	tree=tr;
+	frame = fr;
+	tree = tr;
 		
-	popup=new JPopupMenu();
-	JMenuItem bind=new JMenuItem("New context");
+	popup = new JPopupMenu();
+	JMenuItem bindContext = new JMenuItem("BindNewContext");
+	JMenuItem bindObject = new JMenuItem("Bind object");
 	JMenuItem unbind=new JMenuItem("Unbind name");
 
-	popup.add(bind);
+	popup.add(bindContext);
+	popup.add(bindObject);
 	popup.add(unbind);
 		
-	bind.addActionListener(this);
+	bindContext.addActionListener(this);
+	bindObject.addActionListener(this);
 	unbind.addActionListener(this);
 
 	updateInterval = 10;		
@@ -79,12 +82,33 @@ public class Handler
 	{
 	    tree.unbind();
 	}
-	else if (e.getActionCommand().equals("New context")) 
+	else if (e.getActionCommand().equals("Bind object")) 
+	{
+	    ObjectDialog dialog = new ObjectDialog((Frame) frame, updateInterval);
+	    dialog.pack(); 
+	    dialog.show();
+	    if (dialog.isOk)
+            {
+                try
+                {
+                    tree.bindObject( dialog.getName(), dialog.getIOR());
+                }               
+                catch ( org.omg.CORBA.UserException ue )
+                {
+                    JOptionPane.showMessageDialog( frame, 
+                                                   ue.getClass().getName() + 
+                                                  (ue.getMessage() != null ? (":" + ue.getMessage()):""),
+                                                  "Exception", 
+                                                   JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+	}
+	else if (e.getActionCommand().equals("BindNewContext")) 
 	{
 	    try
 	    {
 		tree.bind(JOptionPane.showInputDialog(frame,
-						      "Name of the new context", "Create new context",
+						      "Name of the new context", "BindNewContext",
 						      JOptionPane.QUESTION_MESSAGE));
 	    } 
 	    catch ( org.omg.CORBA.UserException ue )
@@ -97,12 +121,12 @@ public class Handler
 	else if (e.getActionCommand().equals("About..."))
 	{
 	    JOptionPane.showMessageDialog(frame,
-					  "JacORB NameManager 1.1\n(C) 1998-2003 Gerald Brose, Wei-ju Wu & Volker Siegel\nFreie Universitaet Berlin",
+					  "JacORB NameManager 1.2\n(C) 1998-2004 Gerald Brose, Wei-ju Wu & Volker Siegel\nFreie Universitaet Berlin",
 					  "About",JOptionPane.INFORMATION_MESSAGE);
 	}
 	else if (e.getActionCommand().equals("Options"))
 	{
-	    NSPrefsDlg dlg=new NSPrefsDlg((Frame) frame, updateInterval);
+	    NSPrefsDlg dlg = new NSPrefsDlg((Frame) frame, updateInterval);
 	    dlg.pack(); 
 	    dlg.show();
 	    if (dlg.isOk)

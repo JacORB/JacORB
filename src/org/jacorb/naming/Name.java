@@ -265,7 +265,7 @@ public class Name
 	    v.addElement( getComponent( sn.substring( start, i )));
 	
 	org.omg.CosNaming.NameComponent[] result = 
-	new org.omg.CosNaming.NameComponent[v.size()];
+            new org.omg.CosNaming.NameComponent[v.size()];
 	
 	for( int j = 0; j < result.length; j++ )
 	{	

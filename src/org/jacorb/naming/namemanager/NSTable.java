@@ -26,71 +26,71 @@ public class NSTable
     extends javax.swing.JTable 
 {
     private ContextNode current;
+
     /**
      * NSTable constructor comment.
      */
+    
     public NSTable() 
-	{
-	    super(new NSTableModel());
-	    setShowGrid(false);
-	    setAutoCreateColumnsFromModel(false);
-	    setDoubleBuffered(true);
-	    setCellSelectionEnabled(false);
-	    setColumnSelectionAllowed(false);
-	}
+    {
+        super(new NSTableModel());
+        setShowGrid(false);
+        setAutoCreateColumnsFromModel(false);
+        setDoubleBuffered(true);
+        setCellSelectionEnabled(false);
+        setColumnSelectionAllowed(false);
+    }
+
     /**
      * @return the context node that is the source for this table
      */
     public ContextNode currentSource() 
-	{
-	    return current;
-	}
+    {
+        return current;
+    }
+
     /**
      * 
      * @param newData Vector
      */
     public void setData(Vector newData, ContextNode currentSource) 
-	{
-	    current = currentSource;
-	    ((NSTableModel)super.getModel()).setDataVector( newData );
-	}
+    {
+        current = currentSource;
+        ((NSTableModel)super.getModel()).setDataVector( newData );
+    }
+
     /**
      * unbind a name and remove it from the table
      */
     public void unbind() 
-	{
-	    int row = getSelectedRow();
-	    if( row > -1 )
-	    {
-		try
-		{
-		    org.omg.CosNaming.NameComponent[] ncs = 
-			new org.omg.CosNaming.NameComponent[1];
-		    ncs[0] = 
-			new org.omg.CosNaming.NameComponent(
-							    (String)getValueAt(row,0),
-							    (String)getValueAt(row,1));
-		    current.unbind(ncs);
-		    update();
-		}
-		catch( Exception e)
-		{}
-	    } 
-	}
+    {
+        int row = getSelectedRow();
+        if( row > -1 )
+        {
+            try
+            {
+                org.omg.CosNaming.NameComponent[] ncs = 
+                    new org.omg.CosNaming.NameComponent[1];
+                ncs[0] = 
+                    new org.omg.CosNaming.NameComponent(
+                                                        (String)getValueAt(row,0),
+                                                        (String)getValueAt(row,1));
+                current.unbind(ncs);
+                update();
+            }
+            catch( Exception e)
+            {}
+        } 
+    }
     /**
      * 
      */
     public void update() 
-	{
-	    if( current != null )
-		current.display();
-	}
+    {
+        if( current != null )
+            current.display();
+    }
 }
-
-
-
-
-
 
 
 

@@ -578,14 +578,14 @@ public class NamingContextImpl
             if( result == null )
                 result = (org.omg.CORBA.Object)names.get(n);
 
-			if (result == null)
-				throw new NotFound(NotFoundReason.missing_node, n.components());
-
-			if (! Environment.isPropertyOn ("jacorb.naming.noping") &&
-                            result._non_existent())
-                        {
-                            throw new NotFound(NotFoundReason.missing_node, n.components());
-                        }
+            if (result == null)
+                throw new NotFound(NotFoundReason.missing_node, n.components());
+            
+            if (! Environment.isPropertyOn ("jacorb.naming.noping") &&
+                result._non_existent())
+            {
+                throw new NotFound(NotFoundReason.missing_node, n.components());
+            }
 
             return result;
         }

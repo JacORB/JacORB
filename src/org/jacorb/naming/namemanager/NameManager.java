@@ -56,11 +56,13 @@ public class NameManager
         fileMenu.add(quit);
 
         JMenuItem options = new JMenuItem("Options");
-        JMenuItem create =  new JMenuItem("New context");
+        JMenuItem create =  new JMenuItem("BindNewContext");
+	JMenuItem bindObject = new JMenuItem("Bind object");
         JMenuItem unbind =  new JMenuItem("Unbind name");
 
         editMenu.add(options);
         editMenu.add(create);
+        editMenu.add(bindObject);
         editMenu.add(unbind);
 
         JMenuItem about = new JMenuItem("About...");
@@ -96,11 +98,11 @@ public class NameManager
         // set up tree and table
 
         NSTable nstable = new NSTable();
-        JScrollPane tableScrollPane=new JScrollPane(nstable);
+        JScrollPane tableScrollPane= new JScrollPane(nstable);
         nstable.setPreferredScrollableViewportSize(new Dimension(300,250));
 
-        NSTree tree=new NSTree(300,200,nstable, rootContext);
-        JScrollPane treeScrollPane=new JScrollPane(tree);
+        NSTree tree= new NSTree(300, 200, nstable, rootContext, orb);
+        JScrollPane treeScrollPane = new JScrollPane(tree);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setLeftComponent( treeScrollPane );
@@ -111,11 +113,12 @@ public class NameManager
         frame.getContentPane().add(splitPane);
         tree.update();
 
-        Handler handler=new Handler(frame,tree);
+        Handler handler= new Handler(frame,tree);
         TableHandler tableHandler = new TableHandler(frame, nstable);
         quit.addActionListener(handler);
         options.addActionListener(handler);
         create.addActionListener(handler);
+        bindObject.addActionListener(handler);
         unbind.addActionListener(handler);
         about.addActionListener(handler);
 

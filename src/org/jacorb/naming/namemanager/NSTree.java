@@ -42,21 +42,25 @@ public class NSTree
     private ContextNode rootNode;
     private Dimension size;
     private boolean created;
+    private org.omg.CORBA.ORB orb;
 
     public static NSTable nsTable;
-    public NSTree(int width, int height, NSTable theTable, NamingContextExt rootCntxt)
+
+    public NSTree(int width, int height, NSTable theTable, NamingContextExt rootCntxt, org.omg.CORBA.ORB orb)
     {
-	DefaultMutableTreeNode root=new DefaultMutableTreeNode("RootContext");
+        this.orb = orb;
+	DefaultMutableTreeNode root = new DefaultMutableTreeNode("RootContext");
 	root.setAllowsChildren(true);
 	setModel(new DefaultTreeModel(root,true));
-	created=false;
-	size=new Dimension(width,height);
+	created = false;
+	size = new Dimension(width,height);
 	nsTable = theTable;
-	rootContext=rootCntxt;
+	rootContext = rootCntxt;
 	ContextNode cn = new ContextNode(rootContext,(DefaultTreeModel)getModel());
 	cn.setNode(root);
 	root.setUserObject(cn);	
     }
+
     /**
      * Bind a new name context and insert it
      */
@@ -108,10 +112,67 @@ public class NSTree
 	}
 	else 
 	{
-	    JOptionPane.showMessageDialog(this,"Please select a naming context",
-					  "Selection error",JOptionPane.ERROR_MESSAGE);
+	    JOptionPane.showMessageDialog(this,
+                                          "Please select a naming context",
+					  "Selection error", JOptionPane.ERROR_MESSAGE);
 	}
     }
+
+
+    public void bindObject( String name, String ior)
+	throws NotFound,CannotProceed,InvalidName, AlreadyBound
+    {
+	TreePath path=null;
+	int length=0;
+	try 
+	{ 
+	    path = getSelectionPath(); 
+	    length = path.getPathCount();
+	}
+	catch (Exception e)
+	{
+	    JOptionPane.showMessageDialog(this,"Nothing selected",
+					  "Selection error",JOptionPane.ERROR_MESSAGE);
+	    return;
+	}
+
+	DefaultMutableTreeNode node=(DefaultMutableTreeNode) getModel().getRoot();
+	NamingContextExt context = rootContext;
+
+	if (length>1)
+	{
+	    for (int i=1;i<length;i++)
+	    {
+		node=(DefaultMutableTreeNode) path.getPathComponent(i);
+		ContextNode bind=(ContextNode) node.getUserObject();
+		context=NamingContextExtHelper.narrow(context.resolve(bind.getName()));
+		if( context == null )
+		{
+		    System.err.println("Naming context narrow failed!");
+		    System.exit(1);
+		}
+	    }
+	}
+	if (node.getAllowsChildren())
+	{
+	    Name bindname=new Name(name);
+	    if( context == null )
+		System.err.println("context null ");
+
+	    if( bindname.components() == null )
+		System.err.println("name is null ");
+
+	    context.bind(bindname.components(), orb.string_to_object( ior ));
+	    update();
+	}
+	else 
+	{
+	    JOptionPane.showMessageDialog(this,
+                                          "Please select a naming context",
+					  "Selection error", JOptionPane.ERROR_MESSAGE);
+	}
+    }
+
 
 
     public Dimension getPreferredSize() 
@@ -178,12 +239,6 @@ public class NSTree
 	nsTable.update();
     }
 }
-
-
-
-
-
-
 
 
 

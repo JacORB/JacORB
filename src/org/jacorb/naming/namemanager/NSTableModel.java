@@ -34,6 +34,7 @@ public class NSTableModel
 	String [] colNames = {"Name", "Kind", "Type","Host"};
 	super.setColumnIdentifiers(convertToVector(colNames));
     }
+
     /**
      * getColumnCount method comment.
      */
@@ -41,6 +42,7 @@ public class NSTableModel
     {
 	return 4;
     }
+
     /**
      * always returns false to make this table non-editable
      * @return boolean
@@ -74,11 +76,6 @@ public class NSTableModel
                                                            javax.swing.event.TableModelEvent.INSERT));
     }
 }
-
-
-
-
-
 
 
 

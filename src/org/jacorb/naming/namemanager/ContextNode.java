@@ -101,7 +101,7 @@ public class ContextNode
 	else
 	{
 	    NameComponent[] name=binding.binding_name;
-	    return name[name.length-1].id;
+	    return name[name.length-1].id + "." + name[name.length-1].kind;
 	}
     }
 
@@ -201,10 +201,12 @@ public class ContextNode
 		model.removeNodeFromParent((DefaultMutableTreeNode)removeList.elementAt(i));
 	    }
 	
+            bindingData = new Vector();
+
             // Insert new context nodes found in the list as
             // children of this tree node
-				
-	    for (int i=0;i<contexts.length;i++)
+
+	    for (int i=0; i<contexts.length; i++)
 	    {
 		if (!contexts[i].matched) 
 		{
@@ -218,9 +220,36 @@ public class ContextNode
 		    node.setAllowsChildren(true);
 		    model.insertNodeInto(node,myDefaultNode,0);
 		}
+		NameComponent last =
+                    contexts[i].binding.binding_name[ contexts[i].binding.binding_name.length-1];
+		NameComponent[] ncs = {last};
+
+		org.jacorb.orb.ParsedIOR pior = null;
+		try
+		{
+		    pior = 
+                        ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve(
+		      		       			       ncs ))._get_delegate()).getParsedIOR();
+		}
+		catch( org.omg.CosNaming.NamingContextPackage.NotFound nf )
+		{
+		    // the named object could have disappeared from the 
+		    // naming context in the meantime. If it has, we simply
+		    // continue
+		    continue;
+		}
+		Vector row = new Vector();
+
+		row.addElement( last.id );
+		row.addElement( last.kind);
+		row.addElement( pior.getTypeId() );
+		IIOPProfile p = (IIOPProfile)pior.getEffectiveProfile();
+		row.addElement( p.getAddress().getIP() );
+					
+		bindingData.addElement( row );
+
 	    }
 	
-	    bindingData = new Vector();
 	
 	    for( int i = 0; i < objects.length; i++ )
 	    {
