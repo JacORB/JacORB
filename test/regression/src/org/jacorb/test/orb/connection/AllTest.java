@@ -33,7 +33,9 @@ public class AllTest extends TestCase
    {
       TestSuite suite = new TestSuite ("All orb/connection");
 
-      suite.addTest( org.jacorb.test.orb.connection.GIOPConnectionTest.suite() );
+      suite.addTest( GIOPConnectionTest.suite() );
+      suite.addTest( ClientConnectionTimeoutTest.suite() );
+      suite.addTest( ServerConnectionTimeoutTest.suite() );
 
       return suite;
    }
