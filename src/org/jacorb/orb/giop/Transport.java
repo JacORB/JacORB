@@ -34,18 +34,6 @@ import java.io.IOException;
 
 public interface Transport 
 {
-    /**
-     * Receive a GIOP message. This message must be complete, i.e. not
-     * fragmented.
-     *
-     * @return a message or null, if an ill-formatted message has been
-     * received.  
-     *
-     * @throws IOException If the transport layer has shut down
-     * irrevokably.  
-     */
-    public byte[] getMessage()
-        throws IOException;
 
     /**
      * Writes to the wire. The buffer may only be a fragment of a
@@ -108,6 +96,9 @@ public interface Transport
      * the next time.  
      */
     public void turnOnFinalTimeout();
+    
+    public org.omg.ETF.Profile get_server_profile(); 
+   
 }// Transport
 
 
