@@ -60,7 +60,7 @@ public class RequestQueue
     {
         this.controller = controller;
     }
-   
+
     public void configure(Configuration myConfiguration)
         throws ConfigurationException
     {
@@ -68,7 +68,7 @@ public class RequestQueue
         logger = configuration.getNamedLogger("jacorb.poa.queue");
         queueMax = configuration.getAttributeAsInteger("jacorb.poa.queue_max", 100);
         queueMin = configuration.getAttributeAsInteger("jacorb.poa.queue_min", 10);
-        queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait");
+        queueWait = configuration.getAttributeAsBoolean("jacorb.poa.queue_wait",false);
     }
 
     /**
