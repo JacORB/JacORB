@@ -1,5 +1,8 @@
 package org.jacorb.imr.util;
 
+import org.jacorb.imr.*;
+import org.jacorb.util.Debug;
+
 /**
  * This class is a command-line tool for administering 
  * the implementation repository.
@@ -8,9 +11,6 @@ package org.jacorb.imr.util;
  * 
  * $Id$
  */
-
-import org.jacorb.imr.*;
-import org.jacorb.util.Debug;
 
 public class ImRManager
 {
@@ -631,7 +631,7 @@ public class ImRManager
             else  if (args[0].equals("setdown"))
                 setDown(args);
             else  if (args[0].equals("gui"))
-                Class.forName("jacorb.imr.util.ImRManagerGUI").newInstance();
+                Class.forName("org.jacorb.imr.util.ImRManagerGUI").newInstance();
             else  if (args[0].equals("help"))
                 usage();
             else 

@@ -55,7 +55,7 @@ public class POAMonitorLightImpl implements POAMonitor {
 	public void openMonitor() {
 		if (Environment.isMonitoringOn()) {
 			try {
-				POAMonitor newMonitor = (POAMonitor)Class.forName("jacorb.poa.POAMonitorImpl").newInstance();
+				POAMonitor newMonitor = (POAMonitor)Class.forName("org.jacorb.poa.POAMonitorImpl").newInstance();
 				newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, isSystemId, logTrace);
 				poaModel.setMonitor(newMonitor);
 				newMonitor.openMonitor();

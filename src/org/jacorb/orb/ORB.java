@@ -927,7 +927,7 @@ public final class ORB
                 {
                     try
                     {
-                        Class ssl = Class.forName( "jacorb.security.level2.CurrentImpl" );
+                        Class ssl = Class.forName( "org.jacorb.security.level2.CurrentImpl" );
 
                         Constructor constr = ssl.getConstructor( new Class[]{
                             org.omg.CORBA.ORB.class });

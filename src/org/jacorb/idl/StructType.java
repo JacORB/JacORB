@@ -29,7 +29,6 @@ import java.io.*;
  * @version $Id$
  */
 
-
 class StructType 
     extends TypeDeclaration 
     implements Scope
@@ -358,7 +357,30 @@ class StructType
 	    ps.println("\textends org.omg.CORBA.UserException");
 	else
 	    ps.println("\timplements org.omg.CORBA.portable.IDLEntity");
+
 	ps.println("{");
+
+        // print an empty constructor
+        
+        if( exc )
+        {
+            ps.println("\tpublic " + className + "()");
+            ps.println("\t{");
+            ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
+            ps.println("\t}");
+            ps.println();	
+            if( memberlist == null )
+            {
+                ps.println("\tpublic " + className + "(String value)");
+                ps.println("\t{");
+                ps.println("\t\tsuper(value);");
+                ps.println("\t}");
+            }
+        }
+        else
+        {
+            ps.println("\tpublic " + className + "(){}");
+        }
 
 	if( memberlist != null )
 	{
@@ -370,19 +392,7 @@ class StructType
 		ps.println();
 	    }
 
-	    // print an empty constructor
 
-	    if( exc )
-	    {
-		ps.println("\tpublic " + className + "()");
-		ps.println("\t{");
-		ps.println("\t\tsuper(" + fullClassName + "Helper.id());");
-		ps.println("\t}");
-	    }
-	    else
-	    {
-		ps.println("\tpublic " + className + "(){}");
-	    }
 
 	    // print a constructor for class member initialization
 
