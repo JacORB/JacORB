@@ -462,7 +462,6 @@ public class NamingContextImpl
             catch ( Exception ue )
             {
                 ue.printStackTrace();
-                System.exit(1);
             }
                         
             bi.value = BindingIteratorHelper.narrow(o);
