@@ -182,7 +182,9 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
         if (listener instanceof IIOPListener)
         {
             IIOPProfile profile = (IIOPProfile)listener.endpoint();
-            return profile.getAddress().getHost();
+            return Environment.isPropertyOn ("jacorb.dns.enable")
+                   ? profile.getAddress().getHostname()
+                   : profile.getAddress().getIP();
         }
         else
         {
