@@ -31,14 +31,13 @@
               fork="yes" 
               classpath="${lib}/idl.jar;${java.class.path}">
 
-	      <arg line="${idlflags}
-	      ${dirs.base}/demo/${name}/server.idl"/>
+	      <arg line="${idlflags} ${dirs.base}/demo/${name}/server.idl"/>
          </java>
    </target>
 
-   <target name="clean">
-	   <deltree dir="${classdir}/demo/${name}"/>
-	   <deltree dir="${dirs.base}/demo/${name}/generated"/>
+   <target name="clean" depends="init">
+	   <delete dir="${classdir}/demo/${name}"/>
+	   <delete dir="${dirs.base}/demo/${name}/generated"/>
    </target>
 
 </project>
