@@ -15,13 +15,13 @@ public class Client
     public static void main( String args[] ) 
     {
         if( args.length != 3 ) 
-	{
+        {
             System.out.println( "Usage: jaco test.maxConnectionEnforcement.Client <ior_file> <call interval> <# of threads>" );
             System.exit( 1 );
         }
 
         try 
-	{
+        {
             File f = new File( args[ 0 ] );
 
             //check if file exists
@@ -66,10 +66,10 @@ public class Client
                     {
                         public void run()
                         {
-                            while( true )
-                            {                                   
-                                try
-                                {                                
+                            try
+                            {                                
+                                while( true )
+                                {                                   
                                     //call remote op
                                     remoteObj.op();
                                     System.out.println(
@@ -79,11 +79,13 @@ public class Client
                                     
                                     Thread.sleep( Math.abs( rnd.nextLong() ) % callInterval );
                                 }
-                                catch( Exception e )
-                                {
-                                    e.printStackTrace();
-                                }
                             }
+                            catch( Exception e )
+                            {
+                                e.printStackTrace();
+                            }
+
+                            System.exit( -1 );
                         }
                     })).start();
             }
@@ -91,7 +93,7 @@ public class Client
             Thread.sleep( Long.MAX_VALUE );
         }
         catch( Exception ex ) 
-	{
+        {
             ex.printStackTrace();
         }
     }
