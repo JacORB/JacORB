@@ -1204,9 +1204,9 @@ public class ImplementationRepositoryImpl
                                                              false ); //no ssl
                 
                 GIOPConnection connection =
-                    new GIOPConnection( transport,
-                                        request_listener,
-                                        reply_listener );
+                    new ClientGIOPConnection( transport,
+                                              request_listener,
+                                              reply_listener );
                 
                 receptor_pool.connectionCreated( connection );
             }
