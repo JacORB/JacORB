@@ -208,8 +208,6 @@ public class lexer
         keywords.put( "wchar", new Integer( sym.WCHAR ) );
         keywords.put( "wstring", new Integer( sym.WSTRING ) );
 
-        keywords.put( "int", new Integer( sym.INT ) );
-
         keywords.put( "::", new Integer( sym.DBLCOLON ) );
         keywords.put( "<<", new Integer( sym.LSHIFT ) );
         keywords.put( ">>", new Integer( sym.RSHIFT ) );

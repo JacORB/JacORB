@@ -595,7 +595,6 @@ terminal org.jacorb.idl.str_token ID;
  */
 
 terminal java_cup.runtime.char_token CH;
-terminal java_cup.runtime.int_token  INT;
 terminal java_cup.runtime.int_token  NUMBER;
 terminal java_cup.runtime.long_token LONG_NUMBER;
 terminal java_cup.runtime.float_token  FLOAT_NUMBER;
