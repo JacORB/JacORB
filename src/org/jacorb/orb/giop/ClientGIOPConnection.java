@@ -29,8 +29,8 @@ import org.jacorb.util.*;
  * @version $Id$
  */
 
-public class ClientGIOPConnection 
-    extends GIOPConnection 
+public class ClientGIOPConnection
+    extends GIOPConnection
 {
     public ClientGIOPConnection( Transport transport,
                                  RequestListener request_listener,
@@ -39,9 +39,9 @@ public class ClientGIOPConnection
     {
         super( transport, request_listener, reply_listener, statistics_provider );
     }
-    
 
-    
+
+
     public void readTimedOut()
     {
         synchronized( pendingUndecidedSync )
@@ -55,13 +55,13 @@ public class ClientGIOPConnection
 
     /**
      * We're server side and can't reopen, therefore close completely
-     * if stream closed.  
+     * if stream closed.
      */
     public void streamClosed()
     {
         /**
          * We're server side and can't reopen, therefore close completely
-         * if stream closed.  
+         * if stream closed.
          */
         closeAllowReopen();
 
@@ -75,19 +75,12 @@ public class ClientGIOPConnection
         try
         {
             transport.close();
-            transport = new Client_TCP_IP_Transport ((Client_TCP_IP_Transport)transport);            
-        }
-        catch( IOException e )
-        {
-            //Debug.output( 1, e );
+            transport = new Client_TCP_IP_Transport ((Client_TCP_IP_Transport)transport);
         }
         finally
         {
             releaseWriteLock();
-        }        
+        }
     }
 
 }// ClientGIOPConnection
-
-
-
