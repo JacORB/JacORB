@@ -1896,10 +1896,10 @@ public final class ORB
      * <code>addObjectKey </code> is a proprietary method that allows the internal
      * objectKeyMap to be altered programmatically. The objectKeyMap allows more
      * readable corbaloc URLs by mapping the actual object key to an arbitary string.
-     * See the jacorb.properties file for mroe information.
+     * See the jacorb.properties file for more information.
      *
-     * @param id a <code>String</code> value e.g. NameService
-     * @param result an <code>String</code> value e.g. file:/home/rnc/NameSingleton.ior
+     * @param key_name a <code>String</code> value e.g. NameService
+     * @param full_path an <code>String</code> value e.g. file:/home/rnc/NameSingleton.ior
      */
     public void addObjectKey(String key_name, String full_path)
     {
