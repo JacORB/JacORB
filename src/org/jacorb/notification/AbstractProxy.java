@@ -25,12 +25,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.log.Hierarchy;
-import org.apache.log.Logger;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
+
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
@@ -48,6 +47,10 @@ import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
+
 /**
  * ProxyBase.java
  *
@@ -60,6 +63,8 @@ public abstract class AbstractProxy implements FilterAdminOperations,
                                            QoSAdminOperations,
                                            FilterStage,
                                            Disposable {
+
+    private SynchronizedInt errorCounter_ = new SynchronizedInt(0);
 
     protected final static Integer NO_KEY = null;
 
@@ -331,5 +336,18 @@ public abstract class AbstractProxy implements FilterAdminOperations,
     public MappingFilter getPriorityFilter() {
         return priorityFilter_;
     }
+
+    public void resetErrorCounter() {
+        errorCounter_.set(0);
+    }
+
+    public int getErrorCounter() {
+        return errorCounter_.get();
+    }
+
+    public int incErrorCounter() {
+        return errorCounter_.increment();
+    }
+
 
 }
