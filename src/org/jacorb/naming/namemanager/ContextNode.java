@@ -247,7 +247,7 @@ public class ContextNode
 		row.addElement( last.kind);
 		row.addElement( pior.getTypeId() );
 		IIOPProfile p = (IIOPProfile)pior.getEffectiveProfile();
-		row.addElement( p.getAddress().getHost() );
+		row.addElement( p.getAddress().getIP() );
 					
 		bindingData.addElement( row );
 	    }
