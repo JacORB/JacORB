@@ -79,7 +79,7 @@ public final class Debug
      * @param message a <code>String</code> value
      */
 
-    public static void output (String msg)
+    public static void output(String msg)
     {
         if (logger == null)
         {
@@ -106,7 +106,7 @@ public final class Debug
      *             }
      */
 
-    public static final void output (int msg_level, String msg)
+    public static final void output(int msg_level, String msg)
     {
         if ( logger == null)
         {
@@ -114,7 +114,7 @@ public final class Debug
         }
         else
         {
-            logger.debug(msg);
+            output(logger,msg_level,msg) ;
         }
     }
 
@@ -173,13 +173,13 @@ public final class Debug
      * debug output.
      */
 
-    public static synchronized void output( int msg_level,
-                                            String name,
-                                            byte bs[],
-                                            int start,
-                                            int len)
+    public static synchronized void output(int msg_level,
+                                           String name,
+                                           byte bs[],
+                                           int start,
+                                           int len)
     {
-        if (logger != null && logger.isDebugEnabled() )
+        if (logger != null && logger.isDebugEnabled())
         {
 
             System.out.print("\nHexdump ["+name+"] len="+len+","+bs.length);
@@ -234,7 +234,7 @@ public final class Debug
      * @return a <code>String</code> value
      */
 
-    public static final String toHex( byte b )
+    public static final String toHex(byte b)
     {
         StringBuffer sb = new StringBuffer();
 
@@ -263,34 +263,81 @@ public final class Debug
     }
 
     /**
-     * convenience method to output stack traces
+     * helper method to test log levels against numeric log priorities
+     * (If you think you should be using this outside Debug.java then think
+     * again!)
+     */
+
+    private static final boolean isEnabled(Logger logger, int level)
+    {
+        return (level == 0 && logger.isFatalErrorEnabled() ||
+                level == 1 && logger.isErrorEnabled() ||
+                level == 2 && logger.isWarnEnabled() ||
+                level == 3 && logger.isInfoEnabled() ||
+                level == 4 && logger.isDebugEnabled());
+    }
+
+    /**
+     * helper method to map old-style logging to new logger while we are
+     * still in the transition period.
+     */
+
+    private static final void output(Logger logger, int level, String message)
+    {
+        if (level == 0 && logger.isFatalErrorEnabled())
+            logger.fatalError(message);
+        else if (level == 1 && logger.isErrorEnabled())
+            logger.error(message);
+        else if (level == 2 && logger.isWarnEnabled())
+            logger.warn(message);
+        else if (level == 3 && logger.isInfoEnabled())
+            logger.info(message);
+        else if (level == 4 && logger.isDebugEnabled())
+            logger.debug(message);
+        else
+            logger.warn( message + "(logged at unknown log level, defaults to WARN)");
+    }
+
+    /**
+     * convenience method to output stack traces to loggers
+     */
+    
+    public static final void output(Logger logger, int msg_level, Throwable e)
+    {
+        if (isEnabled( logger, msg_level))
+        {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            try
+            {
+                PrintStream pos = new PrintStream( bos);
+                e.printStackTrace( pos );
+                bos.close();
+                pos.close();
+            }
+            catch (IOException io )
+            {
+            }            
+            output( logger, msg_level, bos.toString());
+        }
+    }
+
+
+    /**
+     * convenience method to output stack traces, will be output to
+     * default logger
      */
 
     public static final void output(int msg_level, Throwable e)
     {
-        if (logger == null || msg_level == 0)
+        if (logger == null )
         {
             System.out.println("############################ StackTrace ############################");
             e.printStackTrace(System.out);
             System.out.println("####################################################################");
         }
-        if (logger != null)
+        else
         {
-            if (logger.isErrorEnabled())
-            {
-                try
-                {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    PrintStream pos = new PrintStream( bos);
-                    e.printStackTrace( pos );
-                    bos.close();
-                    pos.close();
-                    logger.error( bos.toString() );
-                }
-                catch (IOException io )
-                {
-                }
-            }
+            output(logger, msg_level, e);
         }
     }
 
