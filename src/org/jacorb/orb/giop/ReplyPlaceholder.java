@@ -47,6 +47,11 @@ public abstract class ReplyPlaceholder
 
     protected boolean remarshalOnCF = false;
 
+    public ReplyPlaceholder()
+    {
+        this( false );
+    }
+
     public ReplyPlaceholder( boolean remarshalOnCF )
     {        
         this.remarshalOnCF = remarshalOnCF;
