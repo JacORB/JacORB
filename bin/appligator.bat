@@ -4,4 +4,4 @@
 
 # Starts the JacORB appligator
 
-start jaco org.jacorb.proxy.ForwarderImpl %*
+start jaco org.jacorb.proxy.ProxyImpl %*
