@@ -63,6 +63,7 @@ public class BiDirConnectionClientInterceptor
     {
         //only send a BiDir service context if our orb allows it, and
         //the connection was initiated in this process
+
         if( orb.useBiDirGIOP() && 
             ((ClientRequestInfoImpl) ri).connection.isClientInitiated() )
         {
@@ -102,6 +103,14 @@ public class BiDirConnectionClientInterceptor
             }
             
             ri.add_request_service_context( bidir_ctx, true );
+
+            //if this connection isn't "bidir'ed" yet, do so now
+            GIOPConnection conn = ((ClientRequestInfoImpl) ri).connection.getGIOPConnection();
+            if(conn.getRequestListener() instanceof
+               NoBiDirClientRequestListener)
+            {
+                conn.setRequestListener(orb.getBasicAdapter().getRequestListener());
+            }
         }
     }
 } // BiDirConnectionClientInterceptor
