@@ -7,6 +7,6 @@ How to Run:
     Compile:
         ant
     Run Server:
-        jacotemplate.bat demo.hello.Server <IOR-file>
+        jaco demo.hello.Server <IOR-file>
     Run Client:
-        jacotemplate.bat demo.hello.Client <IOR-file>
+        jaco demo.hello.Client <IOR-file>
