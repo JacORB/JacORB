@@ -42,12 +42,14 @@
 
 
   <target name="all-fail" unless="regexp.available">
-    <echo message="A Patternmatcher is necessary to build and use this "/>
-    <echo message="NotificationService. Use JDK 1.4 or install Jakarta" />
-    <echo message="Regexp or gnu.regexp"/>
-    <echo message="and make it available in the classpath."/>
-    <echo message="Jakarta Regexp is available at http://jakarta.apache.org/regexp"/>
-    <echo message="gnu.regexp is available at http://www.cacas.org/java/gnu/regexp/"/>
+    <echo>
+      A Patternmatcher is necessary to build and use this
+      NotificationService. Use JDK 1.4 or install Jakarta
+      Regexp or gnu.regexp
+      and make it available in the classpath.
+      Jakarta Regexp is available at http://jakarta.apache.org/regexp
+      gnu.regexp is available at http://www.cacas.org/java/gnu/regexp
+    </echo>
   </target>
 
 
