@@ -84,6 +84,12 @@ public class CDRInputStream
      */
     private Hashtable repIdMap = new Hashtable();
 
+    /**
+     * Maps indices within the buffer (java.lang.Integer) to codebase strings
+     * that appear at these indices.
+     */
+    private Hashtable codebaseMap = new Hashtable();
+
     public boolean littleEndian = false;
 
     /** indices into the actual buffer */
@@ -508,6 +514,15 @@ public class CDRInputStream
 	}
     }
 
+    public org.omg.CORBA.Object read_Object (java.lang.Class clz)
+    {
+        if (clz.isInterface() && java.rmi.Remote.class.isAssignableFrom(clz))
+            return (org.omg.CORBA.Object)
+                javax.rmi.PortableRemoteObject.narrow(read_Object(), clz);
+        else
+            throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
     public final byte read_octet()
     {
 	index++;
@@ -821,6 +836,12 @@ public class CDRInputStream
 	    content_type = read_TypeCode( tcMap );
 	    closeEncapsulation();
             return orb.create_value_box_tc( id, name, content_type );
+	case TCKind._tk_abstract_interface: 
+	    openEncapsulation();
+	    id = read_string();
+	    name = read_string();
+	    closeEncapsulation();
+            return orb.create_abstract_interface_tc( id, name );
 	case 0xffffffff:
 	    /* recursive TC */
 	    int negative_offset = read_long();
@@ -1446,47 +1467,101 @@ public class CDRInputStream
 
     public java.io.Serializable read_value() 
     {
+	int start_offset = pos;
         int tag = read_long();
+
+        if (tag == 0xffffffff)
+            // indirection
+            return read_indirect_value();
+        else if (tag == 0x00000000) 
+            // null tag
+            return null;
+   
+        String codebase = ((tag & 1) != 0) ? read_codebase() : null;
+
+        tag = tag & 0xfffffffe;
+
         if (tag == 0x7fffff00)
             throw new org.omg.CORBA.MARSHAL ("missing value type information");
         else if (tag == 0x7fffff02)
-            return read_typed_value();
+            return read_typed_value(start_offset, codebase);
         else
-            return read_special_value (tag);
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+                                             + Integer.toHexString(tag));
     }
 
     public java.io.Serializable read_value (String rep_id) 
     {
+	int start_offset = pos;
         int tag = read_long();
+
+        if (tag == 0xffffffff)
+            // indirection
+            return read_indirect_value();
+        else if (tag == 0x00000000) 
+            // null tag
+            return null;
+   
+        String codebase = ((tag & 1) != 0) ? read_codebase() : null;
+
+        tag = tag & 0xfffffffe;
+
         if (tag == 0x7fffff00)
-            return read_untyped_value (rep_id, pos - 4);
+            return read_untyped_value (rep_id, start_offset, codebase);
         else if (tag == 0x7fffff02)
-            return read_typed_value();
+            return read_typed_value(start_offset, codebase);
         else
-            return read_special_value (tag);
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+                                             + Integer.toHexString(tag));
     }
 
     public java.io.Serializable read_value (java.lang.Class clz) 
     {
+	int start_offset = pos;
         int tag = read_long();
+
+        if (tag == 0xffffffff)
+            // indirection
+            return read_indirect_value();
+        else if (tag == 0x00000000) 
+            // null tag
+            return null;
+   
+        String codebase = ((tag & 1) != 0) ? read_codebase() : null;
+
+        tag = tag & 0xfffffffe;
+
         if (tag == 0x7fffff00)
             return read_untyped_value (org.jacorb.ir.RepositoryID.repId (clz),
-                                       pos - 4);
+                                       start_offset, codebase);
         else if (tag == 0x7fffff02)
-            return read_typed_value();
+            return read_typed_value(start_offset, codebase);
         else
-            return read_special_value (tag);
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+                                             + Integer.toHexString(tag));
     }
 
     public java.io.Serializable read_value (
       org.omg.CORBA.portable.BoxedValueHelper factory) 
     {
+	int start_offset = pos;
         int tag = read_long();
+
+        if (tag == 0xffffffff)
+            // indirection
+            return read_indirect_value();
+        else if (tag == 0x00000000) 
+            // null tag
+            return null;
+   
+        String codebase = ((tag & 1) != 0) ? read_codebase() : null;
+
+        tag = tag & 0xfffffffe;
+
         if (tag == 0x7fffff00) 
         {
-            int index = pos - 4;
             java.io.Serializable result = factory.read_value (this);
-            valueMap.put (new Integer(index), result);
+            valueMap.put (new Integer(start_offset), result);
             return result;
         } 
         else if (tag == 0x7fffff02)
@@ -1494,9 +1569,10 @@ public class CDRInputStream
             // Possible optimization: ignore type info and use factory for
             // reading the value anyway, since the type information is 
             // most likely redundant.
-            return read_typed_value(); 
+            return read_typed_value(start_offset, codebase); 
         else 
-            return read_special_value (tag);
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
+                                             + Integer.toHexString(tag));
     }
 
     /**
@@ -1506,7 +1582,8 @@ public class CDRInputStream
      * `index'.
      */
     private java.io.Serializable read_untyped_value (String repository_id,
-                                                     int index)
+                                                     int index, 
+						     String codebase)
     {
         java.io.Serializable result;
 	if (repository_id.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
@@ -1535,17 +1612,16 @@ public class CDRInputStream
             String className = 
                 org.jacorb.ir.RepositoryID.className (repository_id);
             Class c = null;
-            try {
-	        c = Thread.currentThread().getContextClassLoader().loadClass
-		                                                   (className);
-            } catch (ClassNotFoundException e) {
+            try 
+	    {
+                c = javax.rmi.CORBA.Util.loadClass(className, codebase, null);
+            } 
+            catch (ClassNotFoundException e) 
+            {
                 throw new RuntimeException ("class not found: " + className);
             }
-            result = ValueHandler.readValue(this, index, 
-                                            c,
-                                            repository_id, 
-                                            // use our own code base for now
-                                            ValueHandler.getRunTimeCodeBase());
+            result = ValueHandler.readValue(this, index, c, 
+					    repository_id, null);
         }
         
         valueMap.put (new Integer (index), result);
@@ -1554,13 +1630,12 @@ public class CDRInputStream
 
     /**
      * Reads a value with type information, i.e. one that is preceded 
-     * by a RepositoryID.  It is assumed that the tag of the value
-     * has already been read.
+     * by a RepositoryID.  It is assumed that the tag and the codebase 
+     * of the value have already been read.
      */
-    private java.io.Serializable read_typed_value() 
+    private java.io.Serializable read_typed_value(int index, String codebase) 
     {
-        int index = pos - 4;
-        return read_untyped_value (read_repository_id(), index);
+        return read_untyped_value (read_repository_id(), index, codebase);
     }
 
     /**
@@ -1593,25 +1668,73 @@ public class CDRInputStream
         }
     }
 
-    private java.io.Serializable read_special_value (int tag) {
-        if (tag == 0x00000000) 
-            // null tag
-            return null;
-        else if (tag == 0xffffffff) 
+    /**
+     * Reads a codebase from the buffer, either directly or via
+     * indirection.
+     */
+    private String read_codebase() 
+    {
+        int tag = read_long();
+        if (tag == 0xffffffff)  
         {
             // indirection
             int index = read_long();
             index = index + pos - 4;
-            java.lang.Object value = valueMap.get (new Integer(index));
-            if (value == null)
-                throw new org.omg.CORBA.MARSHAL ("stale value indirection");
+            String codebase = (String)codebaseMap.get (new Integer(index));
+            if (codebase == null)
+                throw 
+                 new org.omg.CORBA.MARSHAL ("stale codebase indirection");
             else
-                return (java.io.Serializable)value;
-        } 
+                return codebase;
+        }
         else
-            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " 
-					     + Integer.toHexString(tag));
+        {
+            // a new codebase string
+            pos -= 4;
+            int index = pos;
+            String codebase = read_string();
+            codebaseMap.put (new Integer(index), codebase);
+            return codebase;
+        }
+    }
+
+    /**
+     * Reads an indirect value from this stream. It is assumed that the
+     * value tag (0xffffffff) has already been read.
+     */
+    private java.io.Serializable read_indirect_value () 
+    {
+        // indirection
+        int index = read_long();
+        index = index + pos - 4;
+        java.lang.Object value = valueMap.get (new Integer(index));
+        if (value == null)
+            throw new org.omg.CORBA.MARSHAL ("stale value indirection");
+        else
+            return (java.io.Serializable)value;
     } 
+
+    /**
+     * Reads an abstract interface from this stream. The abstract interface 
+     * appears as a union with a boolean discriminator, which is true if the
+     * union contains a CORBA object reference, or false if the union contains
+     * a value. 
+     */
+    public java.lang.Object read_abstract_interface() {
+	return read_boolean() ? (java.lang.Object)read_Object() 
+	                      : (java.lang.Object)read_value();
+    }
+
+    /**
+     * Reads an abstract interface from this stream. The abstract interface 
+     * appears as a union with a boolean discriminator, which is true if the
+     * union contains a CORBA object reference, or false if the union contains
+     * a value. 
+     */
+    public java.lang.Object read_abstract_interface(java.lang.Class clz) {
+	return read_boolean() ? (java.lang.Object)read_Object(clz) 
+	                      : (java.lang.Object)read_value(clz);
+    }
 
     //      public byte[]  get_buffer(){
     //  	return buffer;
