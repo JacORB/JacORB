@@ -60,7 +60,7 @@ public class LogKitLoggerFactory
     private int defaultPriority = 0;
 
     /** cache of created loggers */
-    private final Hashtable namedLoggers = new Hashtable();
+    private final Map namedLoggers = new HashMap();
 
     /**  append to a log file or overwrite ?*/
     private boolean append = false;
