@@ -20,6 +20,8 @@
 
 package org.jacorb.imr;
 
+import org.omg.GIOP.*;
+
 import org.jacorb.imr.RegistrationPackage.*;
 import org.jacorb.imr.AdminPackage.*;
 
@@ -177,7 +179,7 @@ public class ImplementationRepositoryImpl
             check_object_liveness = "on".equals( _tmp );
         }
 
-	listener = new SocketListener();
+        listener = new SocketListener();
     }
 
     // implementation of org.jacorb.imr.RegistrationOperations interface
@@ -223,9 +225,18 @@ public class ImplementationRepositoryImpl
     public void register_poa(String name, String server, String host, int port)
 	throws IllegalPOAName, DuplicatePOAName, UnknownServerName
     {
+        ConnectionManager         cm           = null;
+        ClientConnection          connection   = null;
+        LocateRequestOutputStream lros         = null;
+        ReplyPlaceholder          place_holder = null;
+        LocateReplyInputStream    lris         = null;
+        ImRServerInfo             _server      = null;
+        ImRPOAInfo                _poa         = null;
+        boolean                   remap        = false;
+
         updatePending = true;
 
-	Debug.output(Debug.IMR | Debug.INFORMATION,
+        Debug.output(Debug.IMR | Debug.INFORMATION,
                      "ImR: registering poa " + name + " for server: " +
                      server + " on " + host );
 
@@ -246,31 +257,94 @@ public class ImplementationRepositoryImpl
             }
         }
 
-        ImRServerInfo _server = server_table.getServer(server);
+        _server = server_table.getServer(server);
+	_poa = server_table.getPOA(name);
 
-	ImRPOAInfo _poa = server_table.getPOA(name);
-
-	if (_poa == null)
+        if (_poa == null)
         {
 	    //New POAInfo is to be created
 	    _poa = new ImRPOAInfo(name, host, port, _server);
 	    _server.addPOA(_poa);
 	    server_table.putPOA(name, _poa);
-	    Debug.output(Debug.IMR | Debug.INFORMATION,
-                         "ImR: new poa registered");
-
+	    Debug.output
+                (Debug.IMR | Debug.INFORMATION, "ImR: new poa registered");
 	}
 	else
         {
-	    //Existing POA is reactivated
-            if ((_poa.active) ||  (! server.equals(_poa.server.name)))
-                throw new DuplicatePOAName("POA " + name +
-                                           " has already been registered " +
-                                           "for server " + _poa.server.name);
+	    // Existing POA is reactivated
 
-	    _poa.reactivate(host, port);
-	    Debug.output(Debug.IMR | Debug.INFORMATION,
-                         "ImR: register_poa, reactivated");
+            // Need to check whether the old server is alive. if it is then throw an exception
+            // otherwise we can remap the currently registered name.
+            if ((_poa.active) ||  (! server.equals(_poa.server.name)))
+            {
+                cm = ((org.jacorb.orb.ORB)orb).getConnectionManager ();
+                connection = cm.getConnection (_poa.host + ':' + _poa.port, false);
+
+                try
+                {
+                    lros = new LocateRequestOutputStream (new byte[0], connection.getId(), 2);
+                    place_holder = new ReplyPlaceholder ();
+
+                    connection.sendRequest
+                    (
+                        lros,
+                        place_holder,
+                        lros.getRequestId ()
+                    );
+                    lris = (LocateReplyInputStream) place_holder.getInputStream ();
+
+                    switch (lris.rep_hdr.locate_status.value ())
+                    {
+                        case LocateStatusType_1_2._UNKNOWN_OBJECT:
+                        case LocateStatusType_1_2._OBJECT_HERE:
+                        case LocateStatusType_1_2._OBJECT_FORWARD:
+                        case LocateStatusType_1_2._OBJECT_FORWARD_PERM:
+                        case LocateStatusType_1_2._LOC_SYSTEM_EXCEPTION:
+                        case LocateStatusType_1_2._LOC_NEEDS_ADDRESSING_MODE:
+                        default:
+                        {
+                            remap = false;
+			    break;
+                        }
+                    }
+                }
+		catch (org.omg.CORBA.SystemException se)
+		{
+                    remap = true;
+		}
+                catch (Throwable ex)
+                {
+                    remap = true;
+                }
+                finally
+                {
+                    cm.releaseConnection (connection);
+                    cm.shutdown ();
+                }
+
+                if (remap == false)
+                {
+                    throw new DuplicatePOAName
+                    (
+                        "POA " + name +
+                        " has already been registered " +
+                        "for server " + _poa.server.name
+                    );
+                }
+                else
+                {
+                    Debug.output
+                        (Debug.IMR | Debug.INFORMATION, "ImR: Remapping server/port");
+
+                }
+            }
+
+            _poa.reactivate(host, port);
+	    Debug.output
+            (
+                Debug.IMR | Debug.INFORMATION,
+                "ImR: register_poa, reactivated"
+            );
 	}
         try
         {
@@ -536,7 +610,23 @@ public class ImplementationRepositoryImpl
             wt.shutdown ();
             wt.notify ();
         }
-        listener.stopListening(wait);
+        if (listener != null)
+        {
+            listener.stopListening (wait);
+            try
+            {
+                synchronized (listener)
+                {
+                    // Wait at most 5 seconds for the listener to shutdown.
+                    listener.join (5000);
+                }
+            }
+            catch (InterruptedException e)
+            {
+                Debug.output (Debug.IMR | Debug.INFORMATION, e);
+            }
+        }
+        Debug.output (Debug.IMR | Debug.INFORMATION, "ImR: Finished shutting down");
     }
 
     /**
@@ -606,6 +696,7 @@ public class ImplementationRepositoryImpl
 	boolean _new_table = false;
 	String _ior_file_str = null;
 	String _backup_file_str = null;
+        String port = null;
 
         System.setProperty ("jacorb.implname", "the_ImR");
         System.setProperty ("jacorb.use_imr", "off");
@@ -655,6 +746,21 @@ public class ImplementationRepositoryImpl
 	    _e.printStackTrace();
 	    usage();
 	}
+
+
+        // If port hasn't been set try retrieving from the Environment
+        if (default_port == 0)
+        {
+           port = Environment.getProperty ("jacorb.imr.port_number");
+
+           if (port != null && port.length () > 0)
+           {
+              default_port = Integer.parseInt(port);
+
+              Debug.output
+                  (Debug.IMR | Debug.INFORMATION, "ImR: Using port number " + default_port);
+           }
+        }
 
 	// table file not specified, try via property
 	if (_table_file_str == null){
@@ -1074,7 +1180,6 @@ public class ImplementationRepositoryImpl
 	    // doing the actual shutdown of the implementation
 	    // repository here
 	    orb.shutdown(wait);
-	    System.exit(0);
 	}
 
 	/**
@@ -1150,7 +1255,6 @@ public class ImplementationRepositoryImpl
 
         public void connectionClosed()
         {
-
         }
 
 	/**
@@ -1167,7 +1271,7 @@ public class ImplementationRepositoryImpl
             POAUtil.extractImplName( object_key ) + '/' +
             POAUtil.extractPOAName( object_key );
 
-	    // look up POA in table
+            // look up POA in table
 	    ImRPOAInfo _poa = server_table.getPOA( _poa_name );
 	    if (_poa == null)
             {
@@ -1413,7 +1517,7 @@ public class ImplementationRepositoryImpl
     {
         public synchronized void run ()
         {
-            Debug.output (Debug.IMR | Debug.INFORMATION, "Shutting down IMR");
+            Debug.output (Debug.IMR | Debug.INFORMATION, "ImR: Shutting down");
             shutdown (true);
         }
     }
