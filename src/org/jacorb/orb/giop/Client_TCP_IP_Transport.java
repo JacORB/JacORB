@@ -50,7 +50,6 @@ public class Client_TCP_IP_Transport
     private int sslPort = -1;
 
     private boolean closed = false;
-    private boolean connected = false;
 
     //for testing purposes only: # of open transports
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
@@ -111,8 +110,8 @@ public class Client_TCP_IP_Transport
 
     public synchronized boolean waitUntilConnected()
     {
-        while( ! connected &&
-               ! closed )
+        while( ! connected && 
+               ! closed)
         {
             try
             {
@@ -123,10 +122,10 @@ public class Client_TCP_IP_Transport
             }
         }
 
-        return ! closed;
+        return !closed;
      }
 
-    protected synchronized void connect()
+    public synchronized void connect (org.omg.ETF.Profile server_profile, long time_out)
     {
         if( ! connected )
         {
