@@ -1308,7 +1308,7 @@ public class parser extends org.jacorb.idl.runtime.lr_parser {
                 }
 
                 // else:
-                usage(argv, "Unrecognized option");
+                usage(argv, "Unrecognized option: " + argv[i]);
 
             }
             for( int j=i; j < argv.length; j++)
