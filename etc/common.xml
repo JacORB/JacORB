@@ -107,7 +107,7 @@
    <fail message="Pass javac-includes to target"/>
 </target>
 
-<target name="check-sourcepath" unless="javac-sourcepath">
+<target name="check-sourcepath" depends="init" unless="javac-sourcepath">
 
   <pathconvert property="cp.default" targetos="${architecture}">
     <path>
