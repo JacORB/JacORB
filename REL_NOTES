@@ -55,6 +55,19 @@ brose@inf.fu-berlin.de
 
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
+next
+        - added support for inverse DNS lookup of IP addresses, so IORs
+          contain fully qualified host names instead of IP numbers.
+        
+        - added properties "jacorb.ior_proxy_[host|port]" that replace
+          the actual host/port where the ORB listens for requests. This
+          is for cases where servers are hidden behind proxies / firewalls.
+        
+        - fixed a bug where a release() or a LocationForward on a shared
+          object reference caused the irregular termination of other 
+          concurrent requests over that reference.
+  
+
 
 1.3.21
         - internal redesign: all package names now begin with "org.jacorb"
