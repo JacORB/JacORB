@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                        %
 % Uncomment the follwing, if you want to use pdfTeX      %
-%                                                        % 
+%                                                        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage[pdftex]{graphicx}
@@ -20,7 +20,7 @@ urlcolor = blue]{hyperref}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                        %
 % Uncomment the follwing, if you want to use plain LaTeX %
-%                                                        % 
+%                                                        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \usepackage{graphicx}
 % \newcommand{\href}[2]{{\tt #1}}
@@ -29,7 +29,7 @@ urlcolor = blue]{hyperref}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                        %
 % Common section for both plain LaTeX and pdfTex         %
-%                                                        % 
+%                                                        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{a4wide}
@@ -3023,7 +3023,7 @@ use the tie approach), as with any CORBA object:
            System.out.println ("operation reply received");
        }
 
-       public void operation_excep 
+       public void operation_excep
                 (org.omg.Messaging.ExceptionHolder excep_holder)
        {
            System.out.println ("received an exception");
@@ -3107,13 +3107,13 @@ try
 {
     Policy p =
         orb.create_policy(SYNC_SCOPE_POLICY_TYPE.value, a);
-    server._set_policy_override (new Policy[]{ p }, 
-                                 SetOverrideType.ADD_OVERRIDE);   
+    server._set_policy_override (new Policy[]{ p },
+                                 SetOverrideType.ADD_OVERRIDE);
 }
 catch (PolicyError e)
 {
     throw new RuntimeException ("policy error: " + e);
-}        
+}
 \end{verbatim}
 
 Because this is somewhat cumbersome to write, JacORB allows you to
@@ -3210,7 +3210,7 @@ invocations alike.
 \end{figure}
 
 Figure \ref{fig:timing} shows how JacORB interprets the timing
-policies in the course of a single request.  
+policies in the course of a single request.
 
 \begin{itemize}
 \item As soon as the ORB receives control (prior to marshalling), it
@@ -3293,14 +3293,14 @@ SomeCorbaType server  = ...  // the object for which we want to set
 org.omg.CORBA.ORB orb = ...
 org.omg.CORBA.Any a   = orb.create_any();
 
-org.omg.TimeBase.UtcT replyEndTime 
+org.omg.TimeBase.UtcT replyEndTime
     = org.jacorb.util.Time.corbaFuture (1000);  // one second
 
 org.omg.TimeBase.UtcTHelper.insert (a, replyEndTime);
 
 try
 {
-    Policy p 
+    Policy p
         = orb.create_policy (REPLY_END_TIME_POLICY_TYPE.value, a);
     server._set_policy_override (new Policy[]{ p },
                                  SetOverrideType.ADD_OVERRIDE);
@@ -3317,7 +3317,7 @@ this becomes less verbose:
 \begin{verbatim}
 SomeCorbaType server  = ...
 
-Policy p = new org.jacorb.orb.policies.ReplyEndTimePolicy 
+Policy p = new org.jacorb.orb.policies.ReplyEndTimePolicy
                          (org.jacorb.util.Time.corbaFuture (1000));
 
 server._set_policy_override (new Policy[]{ p },
@@ -3330,7 +3330,7 @@ write:
 \begin{verbatim}
 SomeCorbaType server  = ...
 
-Policy p = 
+Policy p =
     new org.jacorb.orb.policies.RelativeRoundtripTimeoutPolicy (1000);
 
 server._set_policy_override (new Policy[]{ p },
@@ -3352,10 +3352,10 @@ since only an absolute time was specified to the ORB.
 \label{connection_management_timeouts}
 
 JacORB offers a certain level of control over connections and timeouts. You
-can 
+can
 \begin{itemize}
 \item set connection idle timeouts.
-\item set request timing. 
+\item set request timing.
 \item set the maximum number of accepted TCP/IP connections on the server.
 \end{itemize}
 
@@ -3415,11 +3415,11 @@ package org.jacorb.orb.connection;
 
 public interface SelectionStrategy
 {
-    public ServerGIOPConnection 
+    public ServerGIOPConnection
         selectForClose( java.util.List connections );
 }
 
-public interface StatisticsProvider 
+public interface StatisticsProvider
 {
     public void messageChunkSent( int size );
     public void flushed();
@@ -3443,7 +3443,7 @@ connections. When no suitable connection is available, the strategy may
 return {\tt null}. The {\tt GIOPConnectionManager} will then wait for a
 configurable time, and try again. This goes on until a connection can be
 closed.
-  
+
 The interface {\tt StatisticsProvider} is used to collect statistical data
 about a connection and provide it to the {\tt SelectionStrategy}.  Because the
 nature of this data may vary, there is no standard access to the data via the
@@ -3539,7 +3539,7 @@ automatically be generated.
 \noindent{\tt idl
   [-h|-help] [-v|-version] [-syntax] [-all] [-Idir] [-Dsymbol[=value]]
   [-d <Output Dir>] [-p <package\_prefix>] [-i2jpackage <mapping>]
-  [-W debug\_level] [-nofinal]   <filelist>}
+  [-i2jpackagefile <file> ] [-W debug\_level] [-nofinal]   <filelist>}
 
 The option {\tt  -v} prints out a short version  string while {\tt -h}
 or {\tt -help} displays brief usage information.
@@ -3611,7 +3611,8 @@ scope x can be replaced by one (or more) Java packages y. Specifying
 {\tt -i2jpackage X:a.b.c} will thus cause code generated for IDL
 definitions within a scope x to end up in a Java package {\tt a.b.c},
 e.g. an IDL identifier {\tt X::Y::ident} will be mapped to {\tt
-  a.b.c.y.ident} in Java.
+  a.b.c.y.ident} in Java. It is also possible to specify a file
+containing these mappings using the {\tt -i2jpackagefile} switch.
 
 (The  IDL  parser  was   generated  with  Scott  Hudson's  CUP  parser
 generator.  The  LALR grammar for  the CORBA IDL  is in the  file {\tt
@@ -3823,8 +3824,15 @@ to configure JacORB are given in the following tables.
 \verb"jacorb.maxManagedBufSi"
 \verb"ze" & This is NOT the maximum buffer size that can be used, but just the largest size of buffers that will be kept and managed. This value will be added to an internal constant of 5, so the real value in bytes is 2** (5 + maxManagedBufSize - 1). You only need to increase this value if you are dealing with LOTS of LARGE data structures. You may decrease it to make the buffer manager release large buffers immediately rather than keeping them for later reuse. Default is 18. & integer \\
 \hline
+\verb"jacorb.bufferManagerFl"
+\verb"ushMax" & Whether to use an additional unlimited size buffer cache for CDROutputStreams. If -1 then off, if zero then this is feature is enabled, if greater than zero then it is enabled and flushed every x seconds. Default is -1. & integer \\
+\hline
 \verb"jacorb.connection.clie"
-\verb"nt_timeout" & Client-side timeout. This is set to non-zero in order to stop blocking after specified number of milliseconds. Not set by default. & millisec. \\
+\verb"nt.pending_reply_timeo"
+\verb"ut" &  Wait the specified number of msecs for a reply to a request. If exceeded, a org.omg.CORBA.TIMEOUT exception will be thrown. Not set by default. Default to zero & millisec. \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt_idle_timeout" & Client-side timeout. This is set to non-zero in order to stop blocking after specified number of milliseconds. Not set by default. & millisec. \\
 \hline
 \verb"jacorb.connection.serv"
 \verb"er_timeout" & Maximum time in milliseconds that a server keeps a connection open if nothing happens. Not set by default. & millisec. \\
@@ -3863,6 +3871,14 @@ closed directly. Instead, it is waited for the client to do so first. Default is
 \verb"ofiles" & Add additional IIOP 1.0 profiles even if using IIOP 1.2. Default is off. & boolean \\
 \hline
 \verb"jacorb.dns.enable" & Use DNS when DNS support has been included in build. Default is on. & boolean \\
+\hline
+\verb"jacorb.interop.indirec"
+\verb"tion_encoding_disable" & Turn off indirection encoding for repeated typecodes. This fixes interoperability with certain broken ORB's eg. Orbix 2000. Default is off. & boolean \\
+\hline
+\verb"jacorb.interop.comet" & Enable additional buffer length checking and adjustment for interoperability with Comet CORBA/COM bridge which can incorrectly encode buffer lengths. Default is off. & boolean \\
+\hline
+\verb"jacorb.interop.lax_"
+\verb"boolean_encoding" & Treat any non zero CDR encoded boolean value as true (strictly should be 1 not non zero). Default is off. & boolean \\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
