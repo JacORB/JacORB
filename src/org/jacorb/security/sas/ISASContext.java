@@ -27,13 +27,13 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public interface ISASContext
 {
-	public String getMechOID();
-	
-	public void initClient();
-	public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList);
-	public String getClientPrincipal();
-	
-	public void initTarget();
-	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken);
-	public String getValidatedPrincipal();
+    public String getMechOID();
+
+    public void initClient();
+    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList);
+    public String getClientPrincipal();
+
+    public void initTarget();
+    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken);
+    public String getValidatedPrincipal();
 }

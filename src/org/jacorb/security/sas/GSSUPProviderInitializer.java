@@ -35,15 +35,15 @@ import org.omg.PortableInterceptor.ORBInitializer;
  */
 
 public class GSSUPProviderInitializer
-        extends org.omg.CORBA.LocalObject
-        implements ORBInitializer
+    extends org.omg.CORBA.LocalObject
+    implements ORBInitializer
 {
-	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    /** the logger used by the naming service implementation */
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
 
     /**
-    * This method registers the interceptors.
-    */
+     * This method registers the interceptors.
+     */
     public void pre_init( ORBInitInfo info )
     {
         // save ORB
@@ -65,9 +65,3 @@ public class GSSUPProviderInitializer
     {
     }
 }
-
-
-
-
-
-

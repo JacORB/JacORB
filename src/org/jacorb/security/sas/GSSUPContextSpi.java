@@ -44,8 +44,8 @@ import sun.security.jgss.spi.GSSNameSpi;
 
 public final class GSSUPContextSpi implements GSSContextSpi
 {
-	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    /** the logger used by the naming service implementation */
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
 
     private Provider provider = null;
     private Oid mechOid = null;

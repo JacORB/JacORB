@@ -37,8 +37,8 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class JsseContext implements ISASContext
 {
-	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    /** the logger used by the naming service implementation */
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
 
     private X509Certificate client_cert = null;
 
@@ -95,24 +95,24 @@ public class JsseContext implements ISASContext
 
         try
         {
-            kac =
-                new KeyAndCert( null,  sslSocket.getSession().getPeerCertificates() );
+        kac =
+        new KeyAndCert( null,  sslSocket.getSession().getPeerCertificates() );
         }
         catch( javax.net.ssl.SSLPeerUnverifiedException pue )
         {
-            Debug.output( 2, pue );
-            return;
+        Debug.output( 2, pue );
+        return;
         }
 
         if( kac.chain == null )
         {
-            Debug.output( 2, "Client sent no certificate chain!" );
+        Debug.output( 2, "Client sent no certificate chain!" );
 
-            return;
+        return;
         }
 
         SecAttribute [] atts = new SecAttribute[] {
-            attrib_mgr.createAttribute( kac, type ) } ;
+        attrib_mgr.createAttribute( kac, type ) } ;
 
         current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
 
@@ -122,18 +122,18 @@ public class JsseContext implements ISASContext
         SecAttributeManager attrib_mgr = SecAttributeManager.getInstance();
 
         AttributeType attribute_type =
-            new AttributeType(new ExtensibleFamily((short) 0,
-                                                   (short) 1),
-                              AccessId.value);
+        new AttributeType(new ExtensibleFamily((short) 0,
+        (short) 1),
+        AccessId.value);
 
         AttributeType[] access_id = new AttributeType[] {attribute_type};
 
         org.omg.SecurityLevel2.Current current = null;
         try {
-          current = (org.omg.SecurityLevel2.Current)orb.resolve_initial_references( "SecurityCurrent" );
+        current = (org.omg.SecurityLevel2.Current)orb.resolve_initial_references( "SecurityCurrent" );
         } catch (Exception e) {
-            Debug.output(1, "Error getting current: " + e);
-            return null;
+        Debug.output(1, "Error getting current: " + e);
+        return null;
         }
 
         //get the ReceivedCredentials
@@ -141,8 +141,8 @@ public class JsseContext implements ISASContext
 
         if (creds == null)
         {
-            System.out.println("No received credentials in Current");
-            return null;
+        System.out.println("No received credentials in Current");
+        return null;
         }
 
         //get the SecAttributes we're interested in
@@ -150,8 +150,8 @@ public class JsseContext implements ISASContext
 
         if( attribs.length == 0 )
         {
-            System.out.println("No attributes in Current credentials");
-            return null;
+        System.out.println("No attributes in Current credentials");
+        return null;
         }
 
         //get the actual contents of the SecAttributes via
@@ -160,8 +160,8 @@ public class JsseContext implements ISASContext
 
         if( kac == null )
         {
-            System.out.println("Could not get Cert Attribute Value for "+attribs[0]);
-            return null;
+        System.out.println("Could not get Cert Attribute Value for "+attribs[0]);
+        return null;
         }
 
         //return the first (self-signed) certificate of the chain
@@ -169,63 +169,63 @@ public class JsseContext implements ISASContext
         */
     }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
-	 */
-	public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
+     */
+    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
-	 */
-	public String getClientPrincipal() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
+     */
+    public String getClientPrincipal() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
-	 */
-	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
+     */
+    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
-	 */
-	public String getValidatedPrincipal() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
+     */
+    public String getValidatedPrincipal() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#initClient()
-	 */
-	public void initClient() {
-		// TODO Auto-generated method stub
-		
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#initClient()
+     */
+    public void initClient() {
+        // TODO Auto-generated method stub
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#initTarget()
-	 */
-	public void initTarget() {
-		// TODO Auto-generated method stub
-		
-	}
-    
-	public String getMechOID() {
-		return "";
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#createIdentityToken(org.omg.PortableInterceptor.ClientRequestInfo, org.omg.CSIIOP.CompoundSecMechList)
-	 */
-	public IdentityToken createIdentityToken(ClientRequestInfo ri, CompoundSecMechList csmList) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#initTarget()
+     */
+    public void initTarget() {
+        // TODO Auto-generated method stub
+
+    }
+
+    public String getMechOID() {
+        return "";
+    }
+
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#createIdentityToken(org.omg.PortableInterceptor.ClientRequestInfo, org.omg.CSIIOP.CompoundSecMechList)
+     */
+    public IdentityToken createIdentityToken(ClientRequestInfo ri, CompoundSecMechList csmList) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

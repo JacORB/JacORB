@@ -30,12 +30,12 @@ public class ATLASPolicyImpl extends org.omg.CORBA.LocalObject implements ATLASP
 
 {
     private ATLASPolicyValues value;
-    
+
     public ATLASPolicyImpl (ATLASPolicyValues value)
     {
         this.value = value;
     }
-    
+
     public ATLASPolicyImpl (org.omg.CORBA.Any value)
     {
         this.value = ATLASPolicyValuesHelper.extract (value);
@@ -53,9 +53,9 @@ public class ATLASPolicyImpl extends org.omg.CORBA.LocalObject implements ATLASP
 
     public Policy copy()
     {
-		ATLASPolicyValues copy_values = 
-                                new ATLASPolicyValues (value.atlasURL,
-		                                             value.atlasCache);
+        ATLASPolicyValues copy_values =
+        new ATLASPolicyValues (value.atlasURL,
+                               value.atlasCache);
         return new ATLASPolicyImpl (copy_values);
     }
 

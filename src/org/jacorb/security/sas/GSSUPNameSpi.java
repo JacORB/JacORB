@@ -40,27 +40,27 @@ import sun.security.jgss.spi.GSSNameSpi;
 
 public final class GSSUPNameSpi implements GSSNameSpi
 {
-	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.GSSUP");
+    /** the logger used by the naming service implementation */
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.GSSUP");
 
-	private static Oid mechOid;
+    private static Oid mechOid;
 
     private Provider provider;
     private Oid nameTypeOid;
 
     private InitialContextToken subject = null;
-    
-	static
-	{
-	    try
-	    {
-	        mechOid = new Oid("2.23.130.1.1.1");
-	    }
-	    catch (GSSException e)
-	    {
-	        System.out.println("GSSUPMechanism: " + e);
-	    }
-	}
+
+    static
+    {
+        try
+        {
+            mechOid = new Oid("2.23.130.1.1.1");
+        }
+        catch (GSSException e)
+        {
+            System.out.println("GSSUPMechanism: " + e);
+        }
+    }
 
     public GSSUPNameSpi (Provider provider, Oid mechOid, byte[] name ,Oid nameTypeOid)
     {
@@ -90,22 +90,22 @@ public final class GSSUPNameSpi implements GSSNameSpi
 
     public static byte[] encode(String username, String password, byte[] target_name)
     {
-		InitialContextToken subject = null;
-		try
-		{
-		    subject = new InitialContextToken( username.getBytes("UTF-8"), 
-		                                       password.getBytes("UTF-8"), 
-		                                       target_name);
-		}
-		catch(java.io.UnsupportedEncodingException e)
-		{
-		    //should never happen
-		    logger.error("Error creating InitialContextToken: " + e);
-		    return new byte[0];
-		}
+        InitialContextToken subject = null;
+        try
+        {
+            subject = new InitialContextToken( username.getBytes("UTF-8"),
+                                               password.getBytes("UTF-8"),
+                                               target_name);
+        }
+        catch(java.io.UnsupportedEncodingException e)
+        {
+            //should never happen
+            logger.error("Error creating InitialContextToken: " + e);
+            return new byte[0];
+        }
         byte[] out = null;
-		Any any = GSSUPProvider.orb.create_any();
-		InitialContextTokenHelper.insert( any, subject );
+        Any any = GSSUPProvider.orb.create_any();
+        InitialContextTokenHelper.insert( any, subject );
         try
         {
             out = GSSUPProvider.codec.encode_value( any );
@@ -115,147 +115,147 @@ public final class GSSUPNameSpi implements GSSNameSpi
             logger.error("Error encoding for GSSNameSpi: " + e);
             return new byte[0];
         }
-		
-		byte[] mechOidArray = null;
-		try
-		{
-		    mechOidArray = mechOid.getDER();
-		}
-		catch(org.ietf.jgss.GSSException e)
-		{
-		    logger.error("Error retrieving mechOid DER: " + e);
-		    return new byte[0];
-		}
-		
-		int length = out.length + mechOidArray.length;
-		byte[] encodedLength = null;
-		
-		if((length >> 7) == 0)
-		{
-		    //length fits into 7 bit
-		    encodedLength = new byte[]{(byte) 0x60, 
-		                               (byte) length};
-		}
-		else if((length >> 14) == 0)
-		{
-		    //length fits into 14 bit
-		    encodedLength = new byte[]{(byte) 0x60, 
-		                               (byte) ((length >> 7) | 0x80),
-		                               (byte)  (length & 0x7F)};
-		}
-		else if((length >> 21) == 0)
-		{
-		    //length fits into 21 bit
-		    encodedLength = new byte[]{(byte) 0x60, 
-		                               (byte)  ((length >> 14)         | 0x80),
-		                               (byte) (((length >>  7) & 0x7F) | 0x80),
-		                               (byte)   (length        & 0x7F)};
-		}
-		else if((length >> 28) == 0)
-		{
-		    //length fits into 28 bit
-		    encodedLength = new byte[]{(byte) 0x60, 
-		                               (byte)  ((length >> 21)         | 0x80),
-		                               (byte) (((length >> 14) & 0x7F) | 0x80),
-		                               (byte) (((length >>  7) & 0x7F) | 0x80),
-		                               (byte)  (length         & 0x7F)};
-		}
-		else
-		{
-		    //length fits into 32 bit
-		    encodedLength = new byte[]{(byte) 0x60, 
-		                               (byte)  ((length >> 28)         | 0x80),
-		                               (byte) (((length >> 21) & 0x7F) | 0x80),
-		                               (byte) (((length >> 14) & 0x7F) | 0x80),
-		                               (byte) (((length >>  7) & 0x7F) | 0x80),
-		                               (byte)   (length        & 0x7F)};
-		}
-		 
-		byte[] completeContext = new byte[length + encodedLength.length];
-		System.arraycopy(encodedLength, 0,
-		                 completeContext, 0,
-		                 encodedLength.length);
-		System.arraycopy(mechOidArray, 0,
-		                 completeContext, encodedLength.length,
-		                 mechOidArray.length); 
-		System.arraycopy(out, 0,
-		                 completeContext, encodedLength.length + mechOidArray.length,
-		                 out.length);
-		 
-		return completeContext;
+
+        byte[] mechOidArray = null;
+        try
+        {
+            mechOidArray = mechOid.getDER();
+        }
+        catch(org.ietf.jgss.GSSException e)
+        {
+            logger.error("Error retrieving mechOid DER: " + e);
+            return new byte[0];
+        }
+
+        int length = out.length + mechOidArray.length;
+        byte[] encodedLength = null;
+
+        if((length >> 7) == 0)
+        {
+            //length fits into 7 bit
+            encodedLength = new byte[]{(byte) 0x60,
+                                       (byte) length};
+        }
+        else if((length >> 14) == 0)
+        {
+            //length fits into 14 bit
+            encodedLength = new byte[]{(byte) 0x60,
+                                       (byte) ((length >> 7) | 0x80),
+                                       (byte)  (length & 0x7F)};
+        }
+        else if((length >> 21) == 0)
+        {
+            //length fits into 21 bit
+            encodedLength = new byte[]{(byte) 0x60,
+                                       (byte)  ((length >> 14)         | 0x80),
+                                       (byte) (((length >>  7) & 0x7F) | 0x80),
+                                       (byte)   (length        & 0x7F)};
+        }
+        else if((length >> 28) == 0)
+        {
+            //length fits into 28 bit
+            encodedLength = new byte[]{(byte) 0x60,
+                                       (byte)  ((length >> 21)         | 0x80),
+                                       (byte) (((length >> 14) & 0x7F) | 0x80),
+                                       (byte) (((length >>  7) & 0x7F) | 0x80),
+                                       (byte)  (length         & 0x7F)};
+        }
+        else
+        {
+            //length fits into 32 bit
+            encodedLength = new byte[]{(byte) 0x60,
+                                       (byte)  ((length >> 28)         | 0x80),
+                                       (byte) (((length >> 21) & 0x7F) | 0x80),
+                                       (byte) (((length >> 14) & 0x7F) | 0x80),
+                                       (byte) (((length >>  7) & 0x7F) | 0x80),
+                                       (byte)   (length        & 0x7F)};
+        }
+
+        byte[] completeContext = new byte[length + encodedLength.length];
+        System.arraycopy(encodedLength, 0,
+                         completeContext, 0,
+                         encodedLength.length);
+        System.arraycopy(mechOidArray, 0,
+                         completeContext, encodedLength.length,
+                         mechOidArray.length);
+        System.arraycopy(out, 0,
+                         completeContext, encodedLength.length + mechOidArray.length,
+                         out.length);
+
+        return completeContext;
     }
 
     public static byte[] encode(String username, char[] password, String target_name)
     {
-		return encode(username, new String(password), target_name.getBytes());
-	}
-	 
-	public static InitialContextToken decode(byte[] gssToken)
-	{
-		if(gssToken[0] != 0x60)
-	   	{
-		    logger.error("GSSToken doesn't start with expected value '0x60'");
-		    return null;
-		}
-		 
-		//skip total size, the GSSToken already has the correct length
-		 
-		//find first octet where the MSB is zero
-		int index = 1;
-		while(index < gssToken.length &&
-		      (gssToken[index] & 0x80) == 1)
-		{
-		    ++index;
-		}
-		     
-		if(index == gssToken.length)
-		{
-		    //end not found
-		    logger.error("GSSToken doesn't contain valid length");
-		    return null;
-		}
-		 
-		byte[] mechOidArray = null;
+        return encode(username, new String(password), target_name.getBytes());
+    }
+
+    public static InitialContextToken decode(byte[] gssToken)
+    {
+        if(gssToken[0] != 0x60)
+        {
+            logger.error("GSSToken doesn't start with expected value '0x60'");
+            return null;
+        }
+
+        //skip total size, the GSSToken already has the correct length
+
+        //find first octet where the MSB is zero
+        int index = 1;
+        while(index < gssToken.length &&
+              (gssToken[index] & 0x80) == 1)
+        {
+            ++index;
+        }
+
+        if(index == gssToken.length)
+        {
+            //end not found
+            logger.error("GSSToken doesn't contain valid length");
+            return null;
+        }
+
+        byte[] mechOidArray = null;
         try
         {
-			mechOidArray = mechOid.getDER();
+            mechOidArray = mechOid.getDER();
         }
-		catch(org.ietf.jgss.GSSException e)
+        catch(org.ietf.jgss.GSSException e)
         {
-			logger.error("Error retrieving mechOid DER: " + e);
-			return null;
+            logger.error("Error retrieving mechOid DER: " + e);
+            return null;
         }
-        
-		//skip last octet of length
-		++index;
-		 
-		if((index + mechOidArray.length) >= gssToken.length)
-		{
-		    logger.error("GSSToken doesn't contain OID");
-		    return null;
-		}
-		         
-		for(int i = 0; i < mechOidArray.length; ++i)
-		{
-		    if(mechOidArray[i] != gssToken[index + i])
-		    {
-		        logger.error("GSSToken doesn't contain GSSUPMechOID");
-		        return null;
-		    }
-		}
-		
-		//skip oid
-		index += mechOidArray.length;
-		         
-		byte[] icToken = new byte[gssToken.length - index];
-		System.arraycopy(gssToken, index, icToken, 0, icToken.length);
-		 
+
+        //skip last octet of length
+        ++index;
+
+        if((index + mechOidArray.length) >= gssToken.length)
+        {
+            logger.error("GSSToken doesn't contain OID");
+            return null;
+        }
+
+        for(int i = 0; i < mechOidArray.length; ++i)
+        {
+            if(mechOidArray[i] != gssToken[index + i])
+            {
+                logger.error("GSSToken doesn't contain GSSUPMechOID");
+                return null;
+            }
+        }
+
+        //skip oid
+        index += mechOidArray.length;
+
+        byte[] icToken = new byte[gssToken.length - index];
+        System.arraycopy(gssToken, index, icToken, 0, icToken.length);
+
         try
         {
-			Any any = 
-			    GSSUPProvider.codec.decode_value(
-			        icToken, 
-			        InitialContextTokenHelper.type());
+            Any any =
+            GSSUPProvider.codec.decode_value(
+                icToken,
+                InitialContextTokenHelper.type());
             return InitialContextTokenHelper.extract(any);
         }
         catch (Exception e)

@@ -66,8 +66,8 @@ public class SASTargetInterceptor
     extends org.omg.CORBA.LocalObject
     implements ServerRequestInterceptor
 {
-	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.TSS");
+    /** the logger used by the naming service implementation */
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.TSS");
 
     private static final String name = "SASTargetInterceptor";
     protected org.jacorb.orb.ORB orb = null;
@@ -89,22 +89,22 @@ public class SASTargetInterceptor
         codec = info.codec_factory().create_codec(encoding);
         orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
 
-		useSsl = Boolean.valueOf(org.jacorb.util.Environment.getProperty( "jacorb.security.sas.tss.requires_sas", "false" )).booleanValue();
+        useSsl = Boolean.valueOf(org.jacorb.util.Environment.getProperty( "jacorb.security.sas.tss.requires_sas", "false" )).booleanValue();
 
         String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
         if (contextClass != null) {
             try {
-              Class c = Environment.classForName(contextClass);
-			  sasContext = (ISASContext)c.newInstance();
+                Class c = Environment.classForName(contextClass);
+                sasContext = (ISASContext)c.newInstance();
             } catch (Exception e) {
-              logger.error("Could not instantiate class " + contextClass + ": " + e);
+                logger.error("Could not instantiate class " + contextClass + ": " + e);
             }
         }
-		if (sasContext == null) {
-			logger.error("Could not load SAS context class: "+contextClass);
-		} else {
-			sasContext.initTarget();
-		}
+        if (sasContext == null) {
+            logger.error("Could not load SAS context class: "+contextClass);
+        } else {
+            sasContext.initTarget();
+        }
     }
 
     public String name()
@@ -116,148 +116,20 @@ public class SASTargetInterceptor
     {
     }
 
-	public void receive_request_service_contexts( ServerRequestInfo ri )
-        throws ForwardRequest
-    {
-		if (ri.operation().equals("_is_a")) return;
-		if (ri.operation().equals("_non_existent")) return;
-		if (sasContext == null) return;
-		GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
-
-		// verify SSL requirements
-		if (useSsl && !connection.isSSL())
-		{
-			logger.error("SSL required for operation " + ri.operation());
-			throw new org.omg.CORBA.NO_PERMISSION("SSL Required!", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-		}
-
-		// parse service context
-		SASContextBody contextBody = null;
-		long client_context_id = 0;
-		byte[] contextToken = null;
-		try
-		{
-			ServiceContext ctx = ri.get_request_service_context(SASInitializer.SecurityAttributeService);
-			Any ctx_any = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
-			contextBody = SASContextBodyHelper.extract(ctx_any);
-		}
-		catch (BAD_PARAM e)
-		{
-		}
-		catch (Exception e)
-		{
-			logger.warn("Could not parse service context: " + e);
-			throw new org.omg.CORBA.NO_PERMISSION("Could not parse service context: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-		}
-		if (contextBody == null) return;
-
-		// process MessageInContext
-		if (contextBody.discriminator() == MTMessageInContext.value)
-		{
-			MessageInContext msg = null;
-			try
-			{
-				msg = contextBody.in_context_msg();
-				client_context_id = msg.client_context_id;
-				contextToken = getSASContext(connection, msg.client_context_id);
-			}
-			catch (Exception e)
-			{
-				logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + e);
-				throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-			}
-			if (contextToken == null)
-			{
-				logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + msg.client_context_id);
-				throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-			}
-		}
-
-		// process EstablishContext
-		String principalName = null;
-		if (contextBody.discriminator() == MTEstablishContext.value)
-		{
-			EstablishContext msg = null;
-			try
-			{
-				msg = contextBody.establish_msg();
-				client_context_id = msg.client_context_id;
-				contextToken = msg.client_authentication_token;
-
-				if (!sasContext.validateContext(ri, contextToken)) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-				principalName = sasContext.getValidatedPrincipal();
-			}
-			catch (org.omg.CORBA.NO_PERMISSION e)
-			{
-				logger.error("Err " + ri.operation() + ": " + e);
-				throw e;
-			}
-			catch (Exception e)
-			{
-				logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + e);
-				throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-			}
-			if (contextToken == null)
-			{
-				logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + msg.client_context_id);
-				throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-			}
-		}
-
-		// set slots
-		try
-		{
-			Any nameAny = orb.create_any();
-			if (principalName == null) principalName = getSASContextPrincipalName(connection, client_context_id);
-			nameAny.insert_string(principalName);
-			ri.set_slot( SASInitializer.sasPrincipalNamePIC, nameAny);
-		}
-		catch (Exception e)
-		{
-			logger.error("Error inserting service context into slots for " + ri.operation() + ": " + e);
-			try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
-			throw new org.omg.CORBA.NO_PERMISSION("SAS Error insert service context into slots: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-		}
-    }
-
-	public void receive_request( ServerRequestInfo ri )
+    public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
         if (ri.operation().equals("_is_a")) return;
         if (ri.operation().equals("_non_existent")) return;
-		if (sasContext == null) return;
+        if (sasContext == null) return;
         GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
-        
-        // check policy
-		SASPolicyValues sasValues = null;
-		try {
-			ObjectImpl oi = (ObjectImpl)((ServerRequestInfoImpl) ri).target();
-			org.jacorb.orb.Delegate d = (org.jacorb.orb.Delegate)oi._get_delegate();
-			SASPolicy policy = (SASPolicy)d.getPOA().getPolicy(SAS_POLICY_TYPE.value);
-			//SASPolicy policy = (SASPolicy)ri.get_server_policy(SAS_POLICY_TYPE.value);
-			if (policy != null) sasValues = policy.value();
-		} catch (BAD_PARAM e) {
-			logger.debug("No SAS Policy for "+ri.operation());
-		} catch (Exception e) {
-			logger.warn("Error fetching SAS policy for "+ri.operation()+": "+e);
-			throw new org.omg.CORBA.NO_PERMISSION("Error fetching SAS policy: "+e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-		}
-		if (sasValues == null) return;
-		if (sasValues.targetRequires == 0 && sasValues.targetSupports == 0) return;
 
-		ATLASPolicyValues atlasValues = null;
-		try {
-			ObjectImpl oi = (ObjectImpl)((ServerRequestInfoImpl) ri).target();
-			org.jacorb.orb.Delegate d = (org.jacorb.orb.Delegate)oi._get_delegate();
-			ATLASPolicy policy = (ATLASPolicy)d.getPOA().getPolicy(ATLAS_POLICY_TYPE.value);
-			//SASPolicy policy = (SASPolicy)ri.get_server_policy(SAS_POLICY_TYPE.value);
-			if (policy != null) atlasValues = policy.value();
-		} catch (BAD_PARAM e) {
-			logger.debug("No ATLAS Policy for "+ri.operation());
-		} catch (Exception e) {
-			logger.warn("Error fetching ATLAS policy for "+ri.operation()+": "+e);
-			throw new org.omg.CORBA.NO_PERMISSION("Error fetching ATLAS policy: "+e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-		}
+        // verify SSL requirements
+        if (useSsl && !connection.isSSL())
+        {
+            logger.error("SSL required for operation " + ri.operation());
+            throw new org.omg.CORBA.NO_PERMISSION("SSL Required!", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+        }
 
         // parse service context
         SASContextBody contextBody = null;
@@ -269,21 +141,149 @@ public class SASTargetInterceptor
             Any ctx_any = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
             contextBody = SASContextBodyHelper.extract(ctx_any);
         }
-		catch (BAD_PARAM e)
-		{
-			logger.warn("Could not parse service context for operation " + ri.operation());
-		}
-		catch (Exception e)
-		{
-			logger.warn("Could not parse service context for operation " + ri.operation() + ": " + e);
-		}
+        catch (BAD_PARAM e)
+        {
+        }
+        catch (Exception e)
+        {
+            logger.warn("Could not parse service context: " + e);
+            throw new org.omg.CORBA.NO_PERMISSION("Could not parse service context: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+        }
+        if (contextBody == null) return;
+
+        // process MessageInContext
+        if (contextBody.discriminator() == MTMessageInContext.value)
+        {
+            MessageInContext msg = null;
+            try
+            {
+                msg = contextBody.in_context_msg();
+                client_context_id = msg.client_context_id;
+                contextToken = getSASContext(connection, msg.client_context_id);
+            }
+            catch (Exception e)
+            {
+                logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + e);
+                throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+            }
+            if (contextToken == null)
+            {
+                logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + msg.client_context_id);
+                throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+            }
+        }
+
+        // process EstablishContext
+        String principalName = null;
+        if (contextBody.discriminator() == MTEstablishContext.value)
+        {
+            EstablishContext msg = null;
+            try
+            {
+                msg = contextBody.establish_msg();
+                client_context_id = msg.client_context_id;
+                contextToken = msg.client_authentication_token;
+
+                if (!sasContext.validateContext(ri, contextToken)) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+                principalName = sasContext.getValidatedPrincipal();
+            }
+            catch (org.omg.CORBA.NO_PERMISSION e)
+            {
+                logger.error("Err " + ri.operation() + ": " + e);
+                throw e;
+            }
+            catch (Exception e)
+            {
+                logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + e);
+                throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+            }
+            if (contextToken == null)
+            {
+                logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + msg.client_context_id);
+                throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+            }
+        }
+
+        // set slots
+        try
+        {
+            Any nameAny = orb.create_any();
+            if (principalName == null) principalName = getSASContextPrincipalName(connection, client_context_id);
+            nameAny.insert_string(principalName);
+            ri.set_slot( SASInitializer.sasPrincipalNamePIC, nameAny);
+        }
+        catch (Exception e)
+        {
+            logger.error("Error inserting service context into slots for " + ri.operation() + ": " + e);
+            try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Error insert service context into slots: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+        }
+    }
+
+    public void receive_request( ServerRequestInfo ri )
+        throws ForwardRequest
+    {
+        if (ri.operation().equals("_is_a")) return;
+        if (ri.operation().equals("_non_existent")) return;
+        if (sasContext == null) return;
+        GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
+
+        // check policy
+        SASPolicyValues sasValues = null;
+        try {
+            ObjectImpl oi = (ObjectImpl)((ServerRequestInfoImpl) ri).target();
+            org.jacorb.orb.Delegate d = (org.jacorb.orb.Delegate)oi._get_delegate();
+            SASPolicy policy = (SASPolicy)d.getPOA().getPolicy(SAS_POLICY_TYPE.value);
+            //SASPolicy policy = (SASPolicy)ri.get_server_policy(SAS_POLICY_TYPE.value);
+            if (policy != null) sasValues = policy.value();
+        } catch (BAD_PARAM e) {
+            logger.debug("No SAS Policy for "+ri.operation());
+        } catch (Exception e) {
+            logger.warn("Error fetching SAS policy for "+ri.operation()+": "+e);
+            throw new org.omg.CORBA.NO_PERMISSION("Error fetching SAS policy: "+e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+        }
+        if (sasValues == null) return;
+        if (sasValues.targetRequires == 0 && sasValues.targetSupports == 0) return;
+
+        ATLASPolicyValues atlasValues = null;
+        try {
+            ObjectImpl oi = (ObjectImpl)((ServerRequestInfoImpl) ri).target();
+            org.jacorb.orb.Delegate d = (org.jacorb.orb.Delegate)oi._get_delegate();
+            ATLASPolicy policy = (ATLASPolicy)d.getPOA().getPolicy(ATLAS_POLICY_TYPE.value);
+            //SASPolicy policy = (SASPolicy)ri.get_server_policy(SAS_POLICY_TYPE.value);
+            if (policy != null) atlasValues = policy.value();
+        } catch (BAD_PARAM e) {
+            logger.debug("No ATLAS Policy for "+ri.operation());
+        } catch (Exception e) {
+            logger.warn("Error fetching ATLAS policy for "+ri.operation()+": "+e);
+            throw new org.omg.CORBA.NO_PERMISSION("Error fetching ATLAS policy: "+e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+        }
+
+        // parse service context
+        SASContextBody contextBody = null;
+        long client_context_id = 0;
+        byte[] contextToken = null;
+        try
+        {
+            ServiceContext ctx = ri.get_request_service_context(SASInitializer.SecurityAttributeService);
+            Any ctx_any = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
+            contextBody = SASContextBodyHelper.extract(ctx_any);
+        }
+        catch (BAD_PARAM e)
+        {
+            logger.warn("Could not parse service context for operation " + ri.operation());
+        }
+        catch (Exception e)
+        {
+            logger.warn("Could not parse service context for operation " + ri.operation() + ": " + e);
+        }
         if (contextBody == null && (sasValues.targetRequires & org.omg.CSIIOP.EstablishTrustInClient.value) != 0) {
-			logger.error("Did not parse service context for operation " + ri.operation());
-			throw new org.omg.CORBA.NO_PERMISSION("No SAS service context found", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+            logger.error("Did not parse service context for operation " + ri.operation());
+            throw new org.omg.CORBA.NO_PERMISSION("No SAS service context found", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         if (contextBody == null) {
-        	logger.debug("No context found, but not required");
-        	return;
+            logger.debug("No context found, but not required");
+            return;
         }
 
         // process MessageInContext
@@ -298,12 +298,12 @@ public class SASTargetInterceptor
             }
             catch (Exception e)
             {
-				logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + e);
+                logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + e);
                 throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
             }
             if (contextToken == null)
             {
-				logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + msg.client_context_id);
+                logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + msg.client_context_id);
                 throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
             }
         }
@@ -324,17 +324,17 @@ public class SASTargetInterceptor
             }
             catch (org.omg.CORBA.NO_PERMISSION e)
             {
-				logger.error("Err " + ri.operation() + ": " + e);
+                logger.error("Err " + ri.operation() + ": " + e);
                 throw e;
             }
             catch (Exception e)
             {
-				logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + e);
+                logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + e);
                 throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
             }
             if (contextToken == null)
             {
-				logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + msg.client_context_id);
+                logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + msg.client_context_id);
                 throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
             }
 
@@ -352,7 +352,7 @@ public class SASTargetInterceptor
         }
         catch (Exception e)
         {
-			logger.error("Error inserting service context into slots for " + ri.operation() + ": " + e);
+            logger.error("Error inserting service context into slots for " + ri.operation() + ": " + e);
             try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error insert service context into slots: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
@@ -360,19 +360,19 @@ public class SASTargetInterceptor
 
     public void send_reply( ServerRequestInfo ri )
     {
-		//if (!useSAS) return;
+        //if (!useSAS) return;
         Any slot_any = null;
         try {
             slot_any = ri.get_slot(sasReplySlotID);
         }
-		catch (BAD_PARAM e)
-		{
-			logger.debug("No SAS reply found " + ri.operation() + ": ");
-		}
-		catch (Exception e)
-		{
-			logger.warn("No SAS reply found " + ri.operation() + ": ");
-		}
+        catch (BAD_PARAM e)
+        {
+            logger.debug("No SAS reply found " + ri.operation() + ": ");
+        }
+        catch (Exception e)
+        {
+            logger.warn("No SAS reply found " + ri.operation() + ": ");
+        }
         if (slot_any == null) return;
 
         try
@@ -381,7 +381,7 @@ public class SASTargetInterceptor
         }
         catch (Exception e)
         {
-			logger.error("Error setting reply service context " + ri.operation() + ": " + e);
+            logger.error("Error setting reply service context " + ri.operation() + ": " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error setting reply service contex: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
     }
@@ -389,20 +389,20 @@ public class SASTargetInterceptor
     public void send_exception( ServerRequestInfo ri )
         throws ForwardRequest
     {
-		//if (!useSAS) return;
-		Any slot_any = null;
-		try {
-			slot_any = ri.get_slot(sasReplySlotID);
-		}
-		catch (BAD_PARAM e)
-		{
-			logger.debug("No SAS reply found " + ri.operation() + ": ");
-		}
-		catch (Exception e)
-		{
-			logger.warn("No SAS reply found " + ri.operation() + ": ");
-		}
-		if (slot_any == null) return;
+        //if (!useSAS) return;
+        Any slot_any = null;
+        try {
+            slot_any = ri.get_slot(sasReplySlotID);
+        }
+        catch (BAD_PARAM e)
+        {
+            logger.debug("No SAS reply found " + ri.operation() + ": ");
+        }
+        catch (Exception e)
+        {
+            logger.warn("No SAS reply found " + ri.operation() + ": ");
+        }
+        if (slot_any == null) return;
 
         try
         {
@@ -410,7 +410,7 @@ public class SASTargetInterceptor
         }
         catch (Exception e)
         {
-			logger.error("Error setting reply service context:" + e);
+            logger.error("Error setting reply service context:" + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error setting reply service context: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_MAYBE);
         }
     }

@@ -27,49 +27,49 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class NullContext implements ISASContext
 {
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
-    
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+
     public String getMechOID() {
-    	return "";
+        return "";
     }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
-	 */
-	public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
-		return new byte[0];
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
+     */
+    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
+        return new byte[0];
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
-	 */
-	public String getClientPrincipal() {
-		return "";
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
+     */
+    public String getClientPrincipal() {
+        return "";
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
-	 */
-	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
-		return true;
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
+     */
+    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+        return true;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
-	 */
-	public String getValidatedPrincipal() {
-		return "";
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
+     */
+    public String getValidatedPrincipal() {
+        return "";
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#initClient()
-	 */
-	public void initClient() {
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#initClient()
+     */
+    public void initClient() {
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#initTarget()
-	 */
-	public void initTarget() {
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#initTarget()
+     */
+    public void initTarget() {
+    }
 }

@@ -76,14 +76,14 @@ public class SASClientInterceptor
     protected Codec codec = null;
     protected String name = null;
 
-	/** the logger used by the naming service implementation */
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.CSS");
+    /** the logger used by the naming service implementation */
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.CSS");
 
     protected byte[] contextToken = new byte[0];
     protected boolean useStateful = true;
     protected Hashtable atlasCache = new Hashtable();
 
-	protected ISASContext sasContext = null;
+    protected ISASContext sasContext = null;
 
     public SASClientInterceptor(ORBInitInfo info) throws UnknownEncoding
     {
@@ -92,20 +92,20 @@ public class SASClientInterceptor
         codec = info.codec_factory().create_codec(encoding);
         useStateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.stateful", "true")).booleanValue();
 
-		String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
-		if (contextClass != null) {
-			try {
+        String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
+        if (contextClass != null) {
+            try {
                 Class c = org.jacorb.util.Environment.classForName(contextClass);
-				sasContext = (ISASContext)c.newInstance();
-			} catch (Exception e) {
-			  logger.error("Could not instantiate class " + contextClass + ": " + e);
-			}
-		}
-		if (sasContext == null) {
-			logger.error("Could not load SAS context class: "+contextClass);
-		} else {
-			sasContext.initClient();
-		}
+                sasContext = (ISASContext)c.newInstance();
+            } catch (Exception e) {
+                logger.error("Could not instantiate class " + contextClass + ": " + e);
+            }
+        }
+        if (sasContext == null) {
+            logger.error("Could not load SAS context class: "+contextClass);
+        } else {
+            sasContext.initClient();
+        }
     }
 
     public void setContextToken(byte[] contextToken) {
@@ -124,8 +124,8 @@ public class SASClientInterceptor
     public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
-		if (ri.operation().equals("_is_a")) return;
-		if (ri.operation().equals("_non_existent")) return;
+        if (ri.operation().equals("_is_a")) return;
+        if (ri.operation().equals("_non_existent")) return;
         org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
 
         // see if target requires protected requests by looking into the IOR
@@ -137,24 +137,24 @@ public class SASClientInterceptor
             is.openEncapsulatedArray();
             csmList = CompoundSecMechListHelper.read( is );
         }
-		catch (BAD_PARAM e)
-		{
-			logger.debug("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+ri.operation());
-		}
-		catch (Exception e)
-		{
-			logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
-		}
+        catch (BAD_PARAM e)
+        {
+            logger.debug("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+ri.operation());
+        }
+        catch (Exception e)
+        {
+            logger.warn("Did not find tagged component TAG_CSI_SEC_MECH_LIST: "+e);
+        }
         if (csmList == null) return;
         if (csmList.mechanism_list[0].as_context_mech.target_supports == 0 &&
-			csmList.mechanism_list[0].as_context_mech.target_requires == 0 && 
-			csmList.mechanism_list[0].sas_context_mech.target_supports == 0 && 
-			csmList.mechanism_list[0].sas_context_mech.target_requires == 0)
-			return;
+            csmList.mechanism_list[0].as_context_mech.target_requires == 0 &&
+            csmList.mechanism_list[0].sas_context_mech.target_supports == 0 &&
+            csmList.mechanism_list[0].sas_context_mech.target_requires == 0)
+            return;
 
         // ask connection for client_context_id
         ClientConnection connection = ((ClientRequestInfoImpl) ri).connection;
-		
+
         long client_context_id = 0;
         if (useStateful) client_context_id = connection.cacheSASContext("css".getBytes());
         if (client_context_id < 0) logger.info("New SAS Context: " + (-client_context_id));
@@ -170,7 +170,7 @@ public class SASClientInterceptor
             {
                 IdentityToken identityToken = new IdentityToken();
                 identityToken.absent(true);
-				contextToken = sasContext.createClientContext(ri, csmList);
+                contextToken = sasContext.createClientContext(ri, csmList);
                 msg = makeEstablishContext(orb, -client_context_id, authorizationList, identityToken, contextToken);
             }
             else
@@ -181,7 +181,7 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-			logger.warn("Could not set security service context: " + e);
+            logger.warn("Could not set security service context: " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Could not set security service context: " + e, MinorCodes.SAS_CSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
     }
@@ -199,16 +199,16 @@ public class SASClientInterceptor
         {
             ctx = ri.get_request_service_context(SecurityAttributeService);
         }
-		catch (BAD_PARAM e)
-		{
-			logger.debug("No SAS security context found: "+ri.operation());
-		}
-		catch (Exception e)
-		{
-			logger.warn("No SAS security context found: "+e);
-		}
+        catch (BAD_PARAM e)
+        {
+            logger.debug("No SAS security context found: "+ri.operation());
+        }
+        catch (Exception e)
+        {
+            logger.warn("No SAS security context found: "+e);
+        }
         if (ctx == null) return;
-        
+
         try
         {
             Any msg = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
@@ -248,16 +248,16 @@ public class SASClientInterceptor
         {
             ctx = ri.get_request_service_context(SecurityAttributeService);
         }
-		catch (BAD_PARAM e)
-		{
-			logger.debug("No SAS security context found (exception): "+ri.operation());
-		}
-		catch (Exception e)
-		{
-			logger.warn("No SAS security context found (exception): "+e);
-		}
+        catch (BAD_PARAM e)
+        {
+            logger.debug("No SAS security context found (exception): "+ri.operation());
+        }
+        catch (Exception e)
+        {
+            logger.warn("No SAS security context found (exception): "+e);
+        }
         if (ctx == null) return;
-        
+
         try
         {
             Any msg = codec.decode_value( ctx.context_data, SASContextBodyHelper.type() );
@@ -364,7 +364,7 @@ public class SASClientInterceptor
         }
         if (dispenser == null)
         {
-			logger.warn("SAS found null ATLAS server " + locator);
+            logger.warn("SAS found null ATLAS server " + locator);
             throw new org.omg.CORBA.NO_PERMISSION("SAS found null ATLAS server "+locator, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
 
@@ -375,7 +375,7 @@ public class SASClientInterceptor
         }
         catch (Exception e)
         {
-			logger.warn("Error getting ATLAS tokens from server " + locator + ": " + e);
+            logger.warn("Error getting ATLAS tokens from server " + locator + ": " + e);
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error getting ATLAS tokens from server: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         synchronized (atlasCache)
@@ -386,10 +386,3 @@ public class SASClientInterceptor
     }
 
 }
-
-
-
-
-
-
-

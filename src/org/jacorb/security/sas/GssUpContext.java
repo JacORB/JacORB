@@ -29,62 +29,62 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class GssUpContext implements ISASContext
 {
-	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
-	private static String username = "";
-	private static String password = "";
+    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    private static String username = "";
+    private static String password = "";
     private InitialContextToken initialContextToken = null;
-    
+
     public static void setUsernamePassword(String username, String password) {
-		GssUpContext.username = username;
-		GssUpContext.password = password;
+        GssUpContext.username = username;
+        GssUpContext.password = password;
     }
-    
+
     public String getMechOID() {
-    	return GSSUPMechOID.value.substring(4);
+        return GSSUPMechOID.value.substring(4);
     }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
-	 */
-	public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
-		byte[] target = csmList.mechanism_list[0].as_context_mech.target_name;
-		byte[] contextToken = GSSUPNameSpi.encode(username, password, target);
-		initialContextToken = GSSUPNameSpi.decode(contextToken);
-		return contextToken;
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
+     */
+    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
+        byte[] target = csmList.mechanism_list[0].as_context_mech.target_name;
+        byte[] contextToken = GSSUPNameSpi.encode(username, password, target);
+        initialContextToken = GSSUPNameSpi.decode(contextToken);
+        return contextToken;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
-	 */
-	public String getClientPrincipal() {
-		return username;
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#getCreatedPrincipal()
+     */
+    public String getClientPrincipal() {
+        return username;
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
-	 */
-	public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
-		initialContextToken = GSSUPNameSpi.decode(contextToken);
-		return (initialContextToken != null);
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
+     */
+    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+        initialContextToken = GSSUPNameSpi.decode(contextToken);
+        return (initialContextToken != null);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
-	 */
-	public String getValidatedPrincipal() {
-		if (initialContextToken == null) return null;
-		return new String(initialContextToken.username);
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#getValidatedPrincipal()
+     */
+    public String getValidatedPrincipal() {
+        if (initialContextToken == null) return null;
+        return new String(initialContextToken.username);
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#initClient()
-	 */
-	public void initClient() {
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#initClient()
+     */
+    public void initClient() {
+    }
 
-	/* (non-Javadoc)
-	 * @see org.jacorb.security.sas.ISASContext#initTarget()
-	 */
-	public void initTarget() {
-	}
+    /* (non-Javadoc)
+     * @see org.jacorb.security.sas.ISASContext#initTarget()
+     */
+    public void initTarget() {
+    }
 }

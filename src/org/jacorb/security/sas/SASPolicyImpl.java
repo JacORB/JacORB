@@ -30,12 +30,12 @@ public class SASPolicyImpl extends org.omg.CORBA.LocalObject implements SASPolic
 
 {
     private SASPolicyValues value;
-    
+
     public SASPolicyImpl (SASPolicyValues value)
     {
         this.value = value;
     }
-    
+
     public SASPolicyImpl (org.omg.CORBA.Any value)
     {
         this.value = SASPolicyValuesHelper.extract (value);
@@ -53,10 +53,10 @@ public class SASPolicyImpl extends org.omg.CORBA.LocalObject implements SASPolic
 
     public Policy copy()
     {
-		SASPolicyValues copy_values = 
-                                new SASPolicyValues (value.targetRequires,
-		                                             value.targetSupports,
-													 value.stateful);
+        SASPolicyValues copy_values =
+        new SASPolicyValues (value.targetRequires,
+                             value.targetSupports,
+                             value.stateful);
         return new SASPolicyImpl (copy_values);
     }
 
