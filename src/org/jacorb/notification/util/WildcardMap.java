@@ -21,11 +21,11 @@ package org.jacorb.notification.util;
  *
  */
 
-import java.util.Vector;
-
 import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * An Object that maps String Keys to Values. A WildcardMap cannot
@@ -66,12 +66,13 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class WildcardMap
 {
-
     static Logger logger_ = Debug.getNamedLogger( WildcardMap.class.getName() );
 
     static final int DEFAULT_TOPLEVEL_SIZE = 4;
 
-    EntryList topLevel_;
+    private EntryList topLevel_;
+
+    ////////////////////////////////////////
 
     public WildcardMap( int topLevelSize, int secondLevelSize )
     {
@@ -90,13 +91,20 @@ public class WildcardMap
         this( DEFAULT_TOPLEVEL_SIZE );
     }
 
+    ////////////////////////////////////////
+
+    /**
+     * clear this map
+     */
     public void clear()
     {
         topLevel_.clear();
     }
 
-    public Object remove
-        ( Object key )
+    /**
+     * remove the specified key from this Map.
+     */
+    public Object remove( Object key )
     {
         char[] _key = key.toString().toCharArray();
         return topLevel_.remove( _key, 0, _key.length );
@@ -176,14 +184,21 @@ public class WildcardMap
 
             ++x;
         }
-
         return _starCount;
     }
 }
 
+/**
+ * the idea for this implementation is based on extensible hashing and
+ * trie's.
+ * an EntryList maps Strings to values. common prefixes of Strings are
+ * only stored once.<br>
+ * See section 4.1.10 and section 4.2.5 in my masters thesis available
+ * at http://www.jacorb.org/docs/DAbendt-web.pdf (in german) for a
+ * broader description of what has been implemented here.
+ */
 class EntryList
 {
-
     static Logger logger_ = Debug.getNamedLogger( EntryList.class.getName() );
 
     static int DEFAULT_INITIAL_SIZE = 2;
@@ -191,8 +206,11 @@ class EntryList
     PatternWrapper myPattern_;
 
     char[] key_;
+
     int start_;
+
     int end_;
+
     int depth_;
 
     int splitted = 0;
@@ -242,21 +260,27 @@ class EntryList
 
     ////////////////////////////////////////
 
-
+    /**
+     * check if this EntryList has an Entry associated
+     */
     boolean hasEntry()
     {
         return myEntry_ != null;
     }
 
-    synchronized void clear()
+    void clear()
     {
         entries_ = new EntryList[ DEFAULT_INITIAL_SIZE ];
     }
 
-    synchronized Object put( WCEntry entry )
+    /**
+     * add an Entry to this List.
+     */
+    Object put( WCEntry entry )
     {
         char _first = entry.key_[ 0 ];
-        ensureIndexIsEmpty( _first );
+
+        ensureIndexIsAvailable( _first );
 
         int _idx = computeHashIndex( _first );
 
@@ -273,7 +297,6 @@ class EntryList
 
     Object put( char[] key, int start, int stop, int depth, WCEntry value, boolean addLeadingStar )
     {
-
         if ( logger_.isDebugEnabled() )
         {
             logger_.debug( "put("
@@ -334,7 +357,7 @@ class EntryList
         else
         {
             char _firstRemainingChar = key[ start + _prefixLength ];
-            ensureIndexIsEmpty( _firstRemainingChar );
+            ensureIndexIsAvailable( _firstRemainingChar );
 
             int idx = computeHashIndex( _firstRemainingChar );
 
@@ -365,7 +388,7 @@ class EntryList
         return null;
     }
 
-    synchronized Object getSingle( char[] key, int start, int stop )
+    Object getSingle( char[] key, int start, int stop )
     {
         Object _result = null;
         EntryList _entryList = lookup( key[ start ] );
@@ -403,162 +426,170 @@ class EntryList
         return null;
     }
 
+    /**
+     * check if the Key for this List ends with a star.
+     */
     boolean endsWithStar()
     {
         return key_[ end_ -1 ] == '*';
     }
 
-    synchronized Object[]
-    getMultiple( char[] key, int start, int stop )
+    /**
+     * lookup a key in this list. thereby perform Wildcard expansion.
+     */
+    Object[] getMultiple( char[] key, int start, int stop )
     {
+        List _toBeProcessed = new ArrayList();
 
-        Vector _nodes = new Vector();
-        Vector _result = new Vector();
-        EntryList _list = lookup( key[ start ] );
+        List _resultList = new ArrayList();
+
         Cursor _startCursor;
+
+        // first try exact match
+
+        EntryList _list = lookup( key[ start ] );
 
         if ( _list != null )
         {
             if ( logger_.isDebugEnabled() )
             {
-                logger_.debug( "outgoing edge labelled: " + key[ start ] );
+                logger_.debug( "outgoing edge with label: '" + key[ start ] + "'");
             }
 
-            _startCursor = new Cursor();
-            _startCursor.cursor = start;
-            _startCursor.list = _list;
-            _nodes.add( _startCursor );
+            // add EntryList to nodes to be processed
+
+            _toBeProcessed.add( new Cursor(start, _list) );
         }
+
+        // next try '*'
 
         if ( ( _list = lookup( '*' ) ) != null )
         {
-            logger_.debug( "outgoing edge labelled: *" );
+            logger_.debug( "outgoing edge with label: '*'" );
 
-            _startCursor = new Cursor();
+            // add EntryList to nodes to be processed
 
-            _startCursor.cursor = start;
-            _startCursor.list = _list;
+            _startCursor = new Cursor(start, _list);
 
-            _nodes.add( _startCursor );
+            _toBeProcessed.add( _startCursor );
         }
 
-        while ( !_nodes.isEmpty() )
-        {
-            Cursor _currentCursor = ( Cursor ) _nodes.firstElement();
+        // process all found nodes
 
-            int _currentSubKeyLength = _currentCursor.list.end_ - _currentCursor.list.start_;
-            int _remainingKeyLength = stop - _currentCursor.cursor;
+        while ( !_toBeProcessed.isEmpty() )
+        {
+            Cursor _currentCursor = ( Cursor ) _toBeProcessed.get(0);
+
+            int _currentSubKeyLength = _currentCursor.list_.end_ - _currentCursor.list_.start_;
+
+            int _remainingKeyLength = stop - _currentCursor.cursor_;
 
             // try to match the search key to the part of key which is
             // associated with the current node
-            int _devoured = _currentCursor.list.compare( key,
-                            start + _currentCursor.list.depth_,
-                            start + _currentCursor.list.depth_ + _remainingKeyLength,
-                            true );
+            int _devoured =
+                _currentCursor.list_.compare( key,
+                                             start + _currentCursor.list_.depth_,
+                                             start + _currentCursor.list_.depth_ + _remainingKeyLength,
+                                             true );
 
             if ( logger_.isDebugEnabled() )
             {
-                logger_.debug( "devoured " + _devoured + " chars" );
+                logger_.debug( "could match " + _devoured + " chars" );
             }
 
             if ( _devoured >= _remainingKeyLength )
             {
                 // the whole key could be matched
-                logger_.debug( "devoured >= remainingKey" );
+                logger_.debug( "matched >= remainingKey" );
 
-                if ( _currentCursor.list.hasEntry() )
+                if ( _currentCursor.list_.hasEntry() )
                 {
-                    // if the current node has a result add it.
-                    _result.add( _currentCursor.list.myEntry_.getValue() );
+                    // if the current node has a result add it to the
+                    // result set.
+                    _resultList.add( _currentCursor.list_.myEntry_.getValue() );
                 }
 
-                if ( ( _remainingKeyLength > 0 ) && _currentCursor.list.endsWithStar() )
+                if ( ( _remainingKeyLength > 0 ) && _currentCursor.list_.endsWithStar() )
                 {
                     // current key ends with *
                     // this means the last compare matched everything
                     // nontheless there still might be outgoing edges
-                    // which must be eval'd if we have some more chars in
+                    // which must be checked if we have some more chars in
                     // the key left.
                     logger_.debug( "ends with *" );
 
-                    for ( int x = 0; x < _currentCursor.list.entries_.length; ++x )
+                    for ( int x = 0; x < _currentCursor.list_.entries_.length; ++x )
                     {
-                        if ( _currentCursor.list.entries_[ x ] != null )
-                        {
-                            Cursor _newCursor = new Cursor();
-
-                            _newCursor.list = _currentCursor.list.entries_[ x ];
-                            _newCursor.cursor = _currentCursor.list.depth_ + 1;
-
-                            _nodes.add( _newCursor );
-                        }
+                        if ( _currentCursor.list_.entries_[ x ] != null )
+                            {
+                                _toBeProcessed.add( new Cursor(_currentCursor.list_.depth_ + 1,
+                                                               _currentCursor.list_.entries_[ x ]) );
+                            }
                     }
                 }
 
-                if ( _currentCursor.list.lookup( '*' ) != null )
+                if ( _currentCursor.list_.lookup( '*' ) != null )
                 {
+                    logger_.debug( "lookup(*) != null" );
+
                     // if there is a outgoing '*' visit it
                     // because it might match the end of a key
-                    logger_.debug( "lookup(*) != null" );
-                    _currentCursor.list = _currentCursor.list.lookup( '*' );
-                    _currentCursor.cursor += _devoured;
+
+                    _currentCursor.list_ = _currentCursor.list_.lookup( '*' );
+                    _currentCursor.cursor_ += _devoured;
                 }
                 else
                 {
                     logger_.debug( "remove cursor" );
-                    _nodes.removeElementAt( 0 );
+                    _toBeProcessed.remove( 0 );
                 }
             }
             else if ( _devoured > 0 )
             {
                 // a part could be matched
-                char _firstRemainingChar = key[ start + _currentCursor.list.depth_ + _devoured ];
+                char _firstRemainingChar = key[ start + _currentCursor.list_.depth_ + _devoured ];
 
-                int _oldDepth = _currentCursor.list.depth_;
+                int _oldDepth = _currentCursor.list_.depth_;
 
                 // * always matches
 
-                if ( _currentCursor.list.lookup( '*' ) != null )
+                if ( _currentCursor.list_.lookup( '*' ) != null )
                 {
-                    Cursor _newCursor = new Cursor();
+                    EntryList _entryList = _currentCursor.list_.lookup( '*' );
 
-                    _newCursor.list = _currentCursor.list.lookup( '*' );
-                    _newCursor.cursor = _currentCursor.cursor + _newCursor.list.depth_ - _oldDepth;
-
-                    _nodes.add( _newCursor );
+                    _toBeProcessed.add(new Cursor(_currentCursor.cursor_ + _entryList.depth_ - _oldDepth,
+                                                  _entryList) );
                 }
 
-                if ( ( _currentCursor.list = _currentCursor.list.lookup( _firstRemainingChar ) ) != null )
+                if ( ( _currentCursor.list_ = _currentCursor.list_.lookup( _firstRemainingChar ) ) != null )
                 {
                     // instead of removing the old and adding a new
                     // cursor we reuse the old cursor
-                    _currentCursor.cursor += _currentCursor.list.depth_ - _oldDepth;
+                    _currentCursor.cursor_ += _currentCursor.list_.depth_ - _oldDepth;
                 }
                 else
                 {
-                    _nodes.removeElementAt( 0 );
+                    _toBeProcessed.remove( 0 );
                 }
             }
             else
             {
                 // no part of the search key could be matched
-                _nodes.removeElementAt( 0 );
+                _toBeProcessed.remove( 0 );
             }
         }
 
-        return _result.toArray();
+        return _resultList.toArray();
     }
 
-    synchronized Object remove
-        ( char[] key, int start, int stop )
+
+    Object remove( char[] key, int start, int stop )
     {
-
-        return remove
-                   ( this, key, start, stop );
+        return remove( this, key, start, stop );
     }
 
-    static Object remove
-        ( EntryList l, char[] key, int start, int stop )
+
+    static Object remove( EntryList l, char[] key, int start, int stop )
     {
         int _cursor = start;
         EntryList _current = l;
@@ -603,12 +634,18 @@ class EntryList
 
     private static class Cursor
     {
-        int cursor;
-        EntryList list;
+        int cursor_;
+        EntryList list_;
+
+        Cursor(int cursor, EntryList list) {
+            cursor_ = cursor;
+            list_ = list;
+        }
 
         public String toString()
         {
-            String _rest = new String( list.key_, cursor, list.end_ - cursor );
+            String _rest = new String( list_.key_, cursor_, list_.end_ - cursor_ );
+
             return "Cursor: " + _rest;
         }
     }
@@ -648,7 +685,7 @@ class EntryList
         if ( _starCount > 0 )
         {
             char[] _pattern = new char[ stop - start + _starCount + 1 ];
-            _pattern[ 0 ] = '^';
+            _pattern[ 0 ] = '^'; // regexp to match begin of line
             int x = 0;
             int _offset = 1;
 
@@ -657,6 +694,7 @@ class EntryList
                 char _x = key[ start + x ];
                 _pattern[ x + _offset ] = _x;
 
+                // replace '*' with '.*'
                 if ( _pattern[ x + _offset ] == '*' )
                 {
                     _pattern[ x + _offset ] = '.';
@@ -672,15 +710,18 @@ class EntryList
         }
     }
 
+
     private char key()
     {
         return key_[ start_ ];
     }
 
+
     private int keyLength()
     {
         return end_ - start_;
     }
+
 
     private EntryList lookup( char key )
     {
@@ -696,7 +737,16 @@ class EntryList
         }
     }
 
-    private void ensureIndexIsEmpty( char key )
+    /**
+     * ensure that the index returned by computeHashIndex for a
+     * specified key is available.
+     * That means <ol>
+     * <li> The Index is empty
+     * <li> The Index contains an EntryList with the same Key as the
+     * specified one
+     * </ol>
+     */
+    private void ensureIndexIsAvailable( char key )
     {
         int idx = computeHashIndex( key );
 
@@ -710,26 +760,34 @@ class EntryList
             }
 
             doubleCapacity();
+
             idx = computeHashIndex( key );
         }
     }
 
+
+    /**
+     * double the capacity for our entries. copy entries from old list
+     * into the new one.
+     */
     private void doubleCapacity()
     {
         int _newSize = entries_.length * 2;
+
         EntryList[] _newList = new EntryList[ _newSize ];
 
         for ( int x = 0; x < entries_.length; ++x )
         {
             if ( entries_[ x ] != null )
             {
-                int _arrayPos = entries_[ x ].key() % _newSize;
+                int _arrayPos = computeHashIndex(entries_[ x ].key(), _newSize);
                 _newList[ _arrayPos ] = entries_[ x ];
             }
         }
 
         entries_ = _newList;
     }
+
 
     private int compare( char[] a, int start, int stop, boolean wildcard )
     {
@@ -743,10 +801,12 @@ class EntryList
         }
     }
 
+
     private int findCommonPrefix( char[] key, int start, int stop )
     {
         return findCommonPrefix( key, start, stop, key_, start_, end_ );
     }
+
 
     private void printToStringBuffer( StringBuffer sb, String offset )
     {
@@ -835,15 +895,18 @@ class EntryList
         list.initPattern();
     }
 
+
     private static int computeHashIndex( char c, int size )
     {
         return c % size;
     }
 
+
     private int computeHashIndex( char c )
     {
         return computeHashIndex( c, entries_.length );
     }
+
 
     static int compareKeyToKey( char[] firstKeyArray,
                                 int start1,
@@ -852,7 +915,6 @@ class EntryList
                                 int start2,
                                 int stop2 )
     {
-
         if ( logger_.isDebugEnabled() )
         {
             logger_.debug ( "compare(" + new String( firstKeyArray, start1, stop1 - start1 ) +
@@ -926,10 +988,8 @@ class EntryList
  * This Class represents a Entry within a WildcardMap.
  * Each Entry is identified by a key and has a value associated.
  */
-
 class WCEntry
 {
-
     static Logger logger_ = Debug.getNamedLogger( WCEntry.class.getName() );
 
     /**
@@ -952,10 +1012,7 @@ class WCEntry
      */
     private Object value_;
 
-    public Object getValue()
-    {
-        return value_;
-    }
+    ////////////////////////////////////////
 
     /**
      * Creates a new <code>WCEntry</code> instance.
@@ -972,6 +1029,17 @@ class WCEntry
         stop_ = stop;
         value_ = value;
     }
+
+    ////////////////////////////////////////
+
+    /**
+     * access the Value associated to this Entry
+     */
+    public Object getValue()
+    {
+        return value_;
+    }
+
 
     /**
      * Compare the Key of this entry to another Key.
@@ -1013,10 +1081,12 @@ class WCEntry
         return true;
     }
 
+
     public int hashCode() {
         return key_[start_];
 
     }
+
 
     public boolean equals( Object o )
     {
@@ -1040,6 +1110,7 @@ class WCEntry
             return false;
         }
     }
+
 
     public String toString()
     {
