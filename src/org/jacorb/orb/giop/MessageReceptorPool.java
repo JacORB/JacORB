@@ -32,13 +32,12 @@ import org.jacorb.util.threadpool.*;
  * @version $Id$
  */
 
-public class MessageReceptorPool 
+public class MessageReceptorPool
 {
     private static MessageReceptorPool singleton = null;
-
     private ThreadPool pool = null;
 
-    public MessageReceptorPool()
+    private MessageReceptorPool()
     {
         pool = new ThreadPool( new ConsumerFactory(){
                 public Consumer create()
@@ -59,11 +58,9 @@ public class MessageReceptorPool
 
         return singleton;
     }
-    
+
     public void connectionCreated( GIOPConnection conn )
     {
         pool.putJob( conn );
     }
 }// MessageReceptorPool
-
-
