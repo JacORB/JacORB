@@ -548,7 +548,7 @@ public final class Any
 
     // obj refs
 
-    public void insert_Object (org.omg.CORBA.Object o)
+    public void insert_Object(org.omg.CORBA.Object o)
     {
         value = o;
 
@@ -556,7 +556,7 @@ public final class Any
         String typeId = null;
         String name = "";
 
-        if( value == null )
+        if (value == null)
         {
            orb = org.omg.CORBA.ORB.init();
            typeId = "IDL:omg.org/CORBA/Object:1.0";
@@ -568,11 +568,23 @@ public final class Any
            typeId = ((org.omg.CORBA.portable.ObjectImpl)o)._ids()[0];
 
            // check if the repository Id is in IDL format
-           if (typeId.startsWith ("IDL:"))
+           if (typeId.startsWith("IDL:"))
            {
-              // parse the name from the repository Id string
-              name = typeId.substring (4, typeId.lastIndexOf (':'));
-              name = name.substring (name.lastIndexOf ('/') + 1);
+              // parse the interface name from a repository Id string 
+              // like "IDL:some.prefix/Some/Module/TheInterfaceName"
+              name = typeId.substring(4, typeId.lastIndexOf (':'));
+              name = name.substring(name.lastIndexOf ('/') + 1);
+           }
+           else if (typeId.startsWith("RMI:"))
+           {
+              // parse the interface name from a repository Id string
+              // like "RMI:some.java.package.TheInterfaceName"
+              name = typeId.substring(4, typeId.lastIndexOf(':'));
+              name = name.substring(name.lastIndexOf('.') + 1);
+           }
+           else
+           {
+              throw new org.omg.CORBA.BAD_PARAM("Unknown repository id format");
            }
         }
         typeCode = orb.create_interface_tc( typeId , name );
