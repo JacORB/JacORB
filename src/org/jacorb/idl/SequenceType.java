@@ -308,7 +308,7 @@ public class SequenceType
     public String helperName()
     {	
 	if( !typedefd )
-	    throw new RuntimeException("Compiler Error: should not be called (helpername on not typedef'd SequenceType)");
+	    throw new RuntimeException("Compiler Error: should not be called (helperName() on not typedef'd SequenceType)");
 
 	String s = full_name();
 	if( pack_name.length() > 0 )

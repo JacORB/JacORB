@@ -283,9 +283,14 @@ public class AliasTypeSpec
         ps.println(" */\n");
     }
 
+
+
     public String holderName()
     {
-	if( originalType.basic()  &&  !(originalType instanceof TemplateTypeSpec))
+	if( originalType.basic() && 
+           (  !(originalType instanceof TemplateTypeSpec) ||
+              originalType instanceof StringType )
+              )
 	{
 	    return originalType.holderName();
 	}
@@ -294,6 +299,7 @@ public class AliasTypeSpec
 	    return full_name() + "Holder";
 	}
     }
+
 
     private void printHolderClass(String className, PrintWriter ps)
     {
@@ -437,25 +443,7 @@ public class AliasTypeSpec
 	}
     }
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

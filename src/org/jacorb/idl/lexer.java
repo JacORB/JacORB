@@ -134,8 +134,8 @@ public class lexer
         warning_count = 0;
         currentPragmaPrefix = "" ;
         line = new StringBuffer();
-        ifStack.clear();
-        tokenStack.clear();
+        ifStack.removeAllElements();
+        tokenStack.removeAllElements();
         defines.clear();
    }
 
