@@ -75,7 +75,7 @@ public class ParsedIOR
 
     public static IOR createObjectIOR(org.omg.ETF.Profile profile)
     {
-        String repId = "IDL:org.omg/CORBA/Object:1.0";
+        String repId = "IDL:omg.org/CORBA/Object:1.0";
         TaggedComponentList components = new TaggedComponentList();
 
         CDROutputStream orbIDComponentDataStream = new CDROutputStream();
