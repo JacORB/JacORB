@@ -116,7 +116,7 @@ public class ServiceContextTransportingOutputStream
         return size() > getBodyBegin();
     }
 
-    protected void insertMsgSize()
+    public void insertMsgSize()
     {
         if( header_padding == 0 )
         {
