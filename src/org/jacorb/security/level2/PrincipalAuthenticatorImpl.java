@@ -10,7 +10,7 @@ import java.security.cert.*;
 import org.omg.SecurityLevel2.*;
 import org.omg.Security.*;
 
-import org.jacorb.util.Environment;
+import org.jacorb.util.*;
 import org.jacorb.security.util.*;
 
 /**
@@ -113,9 +113,22 @@ public class PrincipalAuthenticatorImpl
             X509Certificate[] cert_chain = (X509Certificate[]) 
                 keyStore.getCertificateChain( loginData.alias );
 
+            if( cert_chain == null )
+            {
+                Debug.output( 0, "No keys found for alias!" );
+
+                if( Environment.getProperty( "jacorb.security.default_user" ) != null )
+                {
+                    Debug.output( 0, "Please check property \"jacorb.security.default_user\"" );
+                }
+            
+                return org.omg.Security.AuthenticationStatus.SecAuthFailure;
+            }
+            
             PrivateKey priv_key = (PrivateKey) 
                 keyStore.getKey ( loginData.alias, 
                                   loginData.password.toCharArray() );
+
 
             KeyAndCert k_a_c = new KeyAndCert( priv_key, cert_chain );
 
