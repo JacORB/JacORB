@@ -112,7 +112,8 @@ Installation:
 Building JacORB (Optional)
 ==========================
 
-   Ensure Ant 1.2 or later is installed on your system.
+   Ensure Ant 1.2 or later is installed on your system and that you are
+   starting with a clean environment.
 
    To build JacORB you need to call "ant" in the installation
    directory:
@@ -124,6 +125,10 @@ Building JacORB (Optional)
    in the installation directory:
 
    $> ant -Ddebug=on
+
+   Under Ant1.5 and above the debuglevel may also be set e.g.
+
+   $> ant -Ddebug=on -Ddebuglevel=lines,source,vars
 
    NOTES:
 
