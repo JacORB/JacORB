@@ -7,6 +7,9 @@
    &common;
 
    <target name="all" depends="init">
+      <!-- This replace is safety addition so if parser.cup has been -->
+      <!-- regenerated then it will still build. Normally this will  -->
+      <!-- have no affect and not alter parser.java                  -->
       <replace file="${src}/org/jacorb/idl/parser.java" token="java_cup.runtime"
          value="org.jacorb.idl.runtime" />
       <antcall target="jacorb-javac">

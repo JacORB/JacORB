@@ -12,7 +12,7 @@ import org.apache.log.output.io.*;
  *
  * JavaCup Specification for CORBA IDL, to be processed like this:
  * java java_cup.Main < parser.cup
- * 
+ *
  * @author Gerald Brose <mailto:gerald.brose@acm.org>
  *
  * $Id$
@@ -27,7 +27,6 @@ parser code
 {:
     static String command_line[] = null;
 
-    public static Vector import_list = new Vector();
     public static Hashtable pack_replace = new Hashtable();
     public static Stack scopes = new Stack();
 
@@ -95,7 +94,6 @@ parser code
     protected static void init()
     {
         command_line = null;
-        import_list = new Vector();
         pack_replace = new Hashtable();
         scopes = new Stack();
 
@@ -176,7 +174,7 @@ parser code
     public static boolean compile( String argv[] )
         throws Exception
     {
-        return compile( argv, null );   
+        return compile( argv, null );
     }
 
     public static boolean compile( String argv[], StringWriter logWriter )
@@ -358,13 +356,6 @@ parser code
                         generateIR = true;
                         continue;
                 }
-                if( argv[i].equals("-i"))
-                {
-                    if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
-                            usage(argv, "-i");
-                    import_list.addElement( argv[++i]) ;
-                    continue;
-                }
                 if( argv[i].startsWith("-I"))
                 {
                     GlobalInputStream.setIncludePath(argv[i].substring(2));
@@ -447,7 +438,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i <import_package][-i2jpackage x:y][-i2jpackagefile <filename>][-j2me][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-unchecked_narrow][-i2jpackage x:y][-i2jpackagefile <filename>][-j2me][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax] <filelist>");
     }
 
 
@@ -496,9 +487,9 @@ parser code
         System.out.println("\t-ami_callback\t\tgenerate AMI reply handlers and sendc methods");
         System.out.println("\t-ami_polling\t\tgenerate AMI poller and sendp methods");
         System.out.println("\t-backend classname\t\tuse classname as code generator");
-        System.out.println("\t-i <x>\t\t(deprecated) generated Java code will include \"import <x>;\"");
         System.out.println("\t-i2jpackage x:a.b.c\t replace IDL package name x by a.b.c in generated Java code (e.g. CORBA:org.omg.CORBA)");
         System.out.println("\t-i2jpackagefile <filename>\t replace IDL package names using list from <filename>. Format as above.");
+        System.out.println("\t-j2me\t\tgenerate J2ME/CLDC1.0 compliant stubs");
         System.out.println("\t-ir\t\tgenerate information required by the Interface Repository");
         System.out.println("\t-nofinal\tgenerated Java code will contain no final class definitions");
         System.out.println("\t-unchecked_narrow\t\tuse unchecked_narrow in generated code for IOR parameters in operations");
@@ -668,11 +659,6 @@ parser code
     public static void set_included( boolean i )
     {
         include_state = i;
-    }
-
-    public static boolean hasImports()
-    {
-        return import_list.size() > 0 ;
     }
 
     public static String getFinalString()

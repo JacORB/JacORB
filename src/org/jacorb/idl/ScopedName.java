@@ -594,9 +594,6 @@ public class ScopedName
         if( n.endsWith( "PackagePackage" ) || !n.startsWith( "_" ) && n.endsWith( "Package" ) )
             n = n.substring( 0, n.lastIndexOf( "Package" ) );
 
-        int i = n.indexOf( '.' );
-        if( i > 0 && parser.hasImports() )
-            n = n.substring( i + 1 );
         return n;
     }
 

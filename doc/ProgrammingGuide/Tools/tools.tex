@@ -44,9 +44,6 @@ backend.  The default code generator \\
 \> \>  (c.f. API documentation). Custom generators must implement the
 interface\\
 \> \> {\tt org.jacorb.idl.IDLTreeVisitor}\\
-\>  -i x \> (deprecated) generated Java classes will contain an  "import
-x;" statement \\
-\> \> (default is off)\\
 \> -i2jpackage x:a.b.c \>  replace IDL package name x by a.b.c in
 generated Java code \\
 \> \> (e.g. CORBA:org.omg.CORBA)\\
@@ -57,6 +54,7 @@ from <filename>. \\
 Repository \\
 \> \> (One extra file for each IDL module, and another additional file per IDL interface.)\\
 \> \> (default is off)\\
+\> -j2me \>Generate J2ME/CLDC1.0 compliant stubs\\
 \> -nofinal  \> generated Java code will contain no final class
 definitions, which\\
 \> \> is the default to allow for compiler optimizations.\\

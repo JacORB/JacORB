@@ -158,8 +158,7 @@ public class GlobalInputStream
                 }
                 catch(java.io.IOException ioe)
                 {
-                    // should not happen
-                    ioe.printStackTrace();
+                    logger.error("Caught error finding file ", ioe);
                 }
 
                 if (logger.isInfoEnabled())
