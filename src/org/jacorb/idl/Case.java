@@ -39,7 +39,7 @@ class Case
     /** this case's element's type's spec */
     public ElementSpec element_spec = null;
 
-    String enum_type_name = null;
+    //    String enum_type_name = null;
 
     /** the switch type's spec */
     TypeSpec type_spec = null;
@@ -94,13 +94,40 @@ class Case
     public void setTypeSpec( TypeSpec s)
     { 
         // and enum type name if necessary
-        if(s.type_spec instanceof ConstrTypeSpec) 
+//          if(s.type_spec instanceof ConstrTypeSpec) 
+//          {
+//              enum_type_name = ((ConstrTypeSpec)s.type_spec).typeName();
+//          } 
+//          else if( s.type_spec instanceof ScopedName )
+//          {
+//              TypeSpec ts=((ScopedName)s.type_spec).resolvedTypeSpec();
+
+//              while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
+//              {
+//                  if( ts instanceof ScopedName )
+//                      ts = ((ScopedName)ts).resolvedTypeSpec();
+//                  if( ts instanceof AliasTypeSpec )          
+//                      ts = ((AliasTypeSpec)ts).originalType();
+//              }
+
+//              if( ts instanceof ConstrTypeSpec )
+//                  enum_type_name = ((ConstrTypeSpec)ts).c_type_spec.full_name();
+//          }
+        type_spec = s;
+        type_spec.setPackage( pack_name );
+    }
+
+    private String enumTypeName()
+    {
+        // and enum type name if necessary
+        if( type_spec.type_spec instanceof ConstrTypeSpec) 
         {
-            enum_type_name = ((ConstrTypeSpec)s.type_spec).typeName();
+            return ((ConstrTypeSpec)type_spec.type_spec).full_name();
+            //typeName();
         } 
-        else if( s.type_spec instanceof ScopedName )
+        else if( type_spec.type_spec instanceof ScopedName )
         {
-            TypeSpec ts=((ScopedName)s.type_spec).resolvedTypeSpec();
+            TypeSpec ts = ((ScopedName)type_spec.type_spec).resolvedTypeSpec();
 
             while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
             {
@@ -111,11 +138,12 @@ class Case
             }
 
             if( ts instanceof ConstrTypeSpec )
-                enum_type_name = ((ConstrTypeSpec)ts).c_type_spec.full_name();
+                return ((ConstrTypeSpec)ts).c_type_spec.full_name();
         }
-        type_spec = s;
-        type_spec.setPackage( pack_name );
+        // all else
+        return null;
     }
+
 
     public void parse()          
     {
@@ -191,16 +219,14 @@ class Case
                             return;
                         }
                     }
-
                 }
             }
-
 
             // if the switch type for the union we're part of
             // is an enumeration type, the enum type name has
             // been set. 
 
-            if( enum_type_name == null )
+            if( enumTypeName() == null )
             { 
                 // no enum
                 if( sym != null ) 
@@ -216,7 +242,8 @@ class Case
                 { 
                     // now, if this is not the default case label...
                     // get the case label (a const expr) as a scoped name
-                    ScopedName sn = (ScopedName)((ConstExpr)sym).or_expr.xor_expr.and_expr.
+                    ScopedName sn = 
+                        (ScopedName)((ConstExpr)sym).or_expr.xor_expr.and_expr.
                         shift_expr.add_expr.mult_expr.unary_expr.primary_expr.symbol;
 
                     // replace the original case label by a new, fully
@@ -225,7 +252,7 @@ class Case
                     int idx = case_label_list.v.indexOf(sym);
                     sym = new ScopedName( new_num() );
                     ((ScopedName)sym).setId( sn.typeName );
-                    sym.setPackage( enum_type_name );
+                    sym.setPackage( pack_name );
                     sym.parse();
                     case_label_list.v.setElementAt(sym,idx);
                 }
@@ -235,6 +262,7 @@ class Case
 
     IdlSymbol[] getLabels()
     {
+        Environment.doAssert( labels != null, "Case labels not initialized!");
         return labels;
     }
     
