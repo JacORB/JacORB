@@ -20,18 +20,39 @@
  */
 package org.jacorb.orb.standardInterceptors;
 
-import java.util.*;
+import java.util.StringTokenizer;
 
-import org.omg.PortableInterceptor.*;
-import org.omg.IOP.*;
-import org.omg.IOP.CodecFactoryPackage.*;
-import org.omg.CSIIOP.*;
-import org.omg.GSSUP.*;
-import org.ietf.jgss.*;
-import org.omg.ATLAS.*;
-
-import org.jacorb.orb.*;
-import org.jacorb.util.*;
+import org.ietf.jgss.Oid;
+import org.jacorb.orb.CDROutputStream;
+import org.jacorb.orb.ORB;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.omg.ATLAS.ATLASLocator;
+import org.omg.ATLAS.ATLASProfile;
+import org.omg.ATLAS.ATLASProfileHelper;
+import org.omg.ATLAS.SCS_ATLAS;
+import org.omg.CSIIOP.AS_ContextSec;
+import org.omg.CSIIOP.CompoundSecMech;
+import org.omg.CSIIOP.CompoundSecMechList;
+import org.omg.CSIIOP.CompoundSecMechListHelper;
+import org.omg.CSIIOP.Confidentiality;
+import org.omg.CSIIOP.DelegationByClient;
+import org.omg.CSIIOP.EstablishTrustInClient;
+import org.omg.CSIIOP.EstablishTrustInTarget;
+import org.omg.CSIIOP.IdentityAssertion;
+import org.omg.CSIIOP.Integrity;
+import org.omg.CSIIOP.SAS_ContextSec;
+import org.omg.CSIIOP.ServiceConfiguration;
+import org.omg.CSIIOP.TAG_CSI_SEC_MECH_LIST;
+import org.omg.CSIIOP.TAG_NULL_TAG;
+import org.omg.IOP.Codec;
+import org.omg.IOP.CodecFactory;
+import org.omg.IOP.ENCODING_CDR_ENCAPS;
+import org.omg.IOP.Encoding;
+import org.omg.IOP.TAG_INTERNET_IOP;
+import org.omg.IOP.TaggedComponent;
+import org.omg.PortableInterceptor.IORInfo;
+import org.omg.PortableInterceptor.IORInterceptor;
 
 /**
  * This interceptor creates an sas TaggedComponent
@@ -86,7 +107,7 @@ public class SASComponentInterceptor
             if( tc == null )
             {
                 // parse required association options
-		String targetSupportsNames = Environment.getProperty( "jacorb.security.sas.tss.target_supports", "" );
+				String targetSupportsNames = Environment.getProperty( "jacorb.security.sas.tss.target_supports", "" );
                 short targetSupports = (short)0;
                 StringTokenizer nameTokens = new StringTokenizer(targetSupportsNames, ":;, ");
                 while (nameTokens.hasMoreTokens())
@@ -98,9 +119,9 @@ public class SASComponentInterceptor
                     else if (token.equals("EstablishTrustInClient")) targetSupports |= EstablishTrustInClient.value;
                     else if (token.equals("IdentityAssertion"))      targetSupports |= IdentityAssertion.value;
                     else if (token.equals("DelegationByClient"))     targetSupports |= DelegationByClient.value;
-                    else org.jacorb.util.Debug.output(1, "Unknown SAS Association Taken: " + token);
+                    else org.jacorb.util.Debug.output("Unknown SAS Association Taken: " + token);
                 }
-		String targetRequiresNames = Environment.getProperty( "jacorb.security.sas.tss.target_requires", "" );
+				String targetRequiresNames = Environment.getProperty( "jacorb.security.sas.tss.target_requires", "" );
                 short targetRequires = (short)0;
                 nameTokens = new StringTokenizer(targetRequiresNames, ":;, ");
                 while (nameTokens.hasMoreTokens())
@@ -112,7 +133,7 @@ public class SASComponentInterceptor
                     else if (token.equals("EstablishTrustInClient")) targetRequires |= EstablishTrustInClient.value;
                     else if (token.equals("IdentityAssertion"))      targetRequires |= IdentityAssertion.value;
                     else if (token.equals("DelegationByClient"))     targetRequires |= DelegationByClient.value;
-                    else org.jacorb.util.Debug.output(1, "Unknown SAS Association Taken: " + token);
+                    else org.jacorb.util.Debug.output("Unknown SAS Association Taken: " + token);
                 }
 
                 // for now, no transport mechanizms
@@ -124,7 +145,6 @@ public class SASComponentInterceptor
                 short asTargetRequires = targetRequires;
 
                 // the SAS_ContextSec
-                //String atlasLocator = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.locator", "URL");
                 String atlasURL = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.url");
                 String atlasCache = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.cacheid");
                 ServiceConfiguration[] serviceConfiguration = null;
@@ -136,30 +156,14 @@ public class SASComponentInterceptor
                 {
                     if (atlasCache == null) atlasCache = "";
                     ATLASLocator atlasLoc = new ATLASLocator();
-                    //String atlasLocator = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.URL");
-                    //if (atlasLocator != null)
-                    //{
-                        atlasLoc.the_url(atlasURL);
-                    //}
-                    //atlasLocator = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.Naming");
-                    //if (atlasLocator != null)
-                    //{
-                    //    atlasLoc.naming_locator(atlasLocator);
-                    //}
+                    atlasLoc.the_url(atlasURL);
                     ATLASProfile profile = new ATLASProfile();
                     profile.the_cache_id = atlasCache.getBytes();
                     profile.the_locator = atlasLoc;
                     byte[] cdrProfile = new byte[0];
-                    //try
-                    //{
-                        org.omg.CORBA.Any any = orb.create_any();
-                        ATLASProfileHelper.insert( any, profile );
-                        cdrProfile = codec.encode(any);
-                    //}
-                    //catch (UnknownEncoding unknownEncoding)
-                    //{
-                    //    Debug.output( Debug.SECURITY | Debug.IMPORTANT, unknownEncoding);
-                    //}
+                    org.omg.CORBA.Any any = orb.create_any();
+                    ATLASProfileHelper.insert( any, profile );
+                    cdrProfile = codec.encode(any);
                     serviceConfiguration = new ServiceConfiguration[1];
                     serviceConfiguration[0] = new ServiceConfiguration(SCS_ATLAS.value, cdrProfile);
                 }
