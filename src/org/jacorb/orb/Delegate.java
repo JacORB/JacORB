@@ -1256,7 +1256,8 @@ public final class Delegate
             try 
             {
                 ServantObject so = new ServantObject();
-                if( poa.isRetain() || poa.useDefaultServant() )
+                if( ( poa.isRetain() && !poa.isUseServantManager() ) || 
+                    poa.useDefaultServant() )
                 {
                     so.servant = poa.reference_to_servant(self);
                 }
