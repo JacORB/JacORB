@@ -4,7 +4,6 @@ package demo.outparam;
  * An example for using out paramters
  */ 
 
-import jacorb.orb.*;
 import org.omg.CORBA.*;
 import org.omg.CosNaming.*;
 
@@ -17,8 +16,14 @@ public class Client
 	    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
 
 	    // get hold of the naming service
-	    NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
-	    NameComponent [] name = new NameComponent[]{ new NameComponent("ParamServer", "service")};
+	    NamingContextExt nc = 
+                NamingContextExtHelper.narrow(
+                       orb.resolve_initial_references("NameService"));
+
+	    NameComponent [] name = 
+                new NameComponent[]{ 
+                    new NameComponent("ParamServer", "service")
+                        };
 
 	    // resolve name to get a reference to our server
 	    MyServer s = MyServerHelper.narrow(nc.resolve(name));

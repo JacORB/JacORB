@@ -23,17 +23,22 @@ package org.jacorb.concurrency;
 import org.omg.CosTransactions.*;
 import org.omg.CosConcurrencyControl.*;
 
-public class TransactionLocks {
+public class TransactionLocks 
+{
     TransactionCoordinator current;
     private int read = 0;
     private int write = 0;
     private int upgrade = 0;
     private int intention_read = 0;
     private int intention_write = 0;
-    TransactionLocks( TransactionCoordinator current ){
+
+    TransactionLocks( TransactionCoordinator current )
+    {
         this.current = current;
     };
-    synchronized boolean no_conflict( lock_mode mode ){
+
+    synchronized boolean no_conflict( lock_mode mode )
+    {
         if( mode.equals( lock_mode.read ) ){
             return write == 0 && intention_write == 0;
         } else if( mode.equals( lock_mode.write ) ) {
@@ -47,7 +52,9 @@ public class TransactionLocks {
         }
         return false;
     };
-    synchronized void lock( lock_mode mode ){
+
+    synchronized void lock( lock_mode mode )
+    {
         if( mode.equals( lock_mode.read ) ) {
             read++;
         } else if( mode.equals( lock_mode.write ) ) {
@@ -60,7 +67,10 @@ public class TransactionLocks {
             intention_write++;
         }
     };
-    synchronized void unlock( lock_mode mode ) throws LockNotHeld {
+
+    synchronized void unlock( lock_mode mode ) 
+        throws LockNotHeld 
+    {
         if( mode.equals( lock_mode.read ) ) {
             check_held( read );
             read--;
@@ -78,12 +88,17 @@ public class TransactionLocks {
             intention_write--;
         }
     }
-    private void check_held( int i )  throws LockNotHeld {
+
+    private void check_held( int i )  
+        throws LockNotHeld 
+    {
         if ( i == 0 ){
             throw new LockNotHeld();
         }
     };
-    boolean is_held( lock_mode mode ) {
+
+    boolean is_held( lock_mode mode ) 
+    {
         if( mode.equals( lock_mode.read ) ) {
             return read > 0;
         } else if( mode.equals( lock_mode.write ) ) {
@@ -97,10 +112,14 @@ public class TransactionLocks {
         }
         return false;
     };
-    boolean any_locks(){
+
+    boolean any_locks()
+    {
         return read!=0 || write!=0 || upgrade!=0 || intention_read!=0 || intention_write!=0;
     };
-    public String toString() {
+
+    public String toString() 
+    {
         return current.get_coordinator().get_transaction_name()+": "+
             " read="+read+
             " write="+write+
@@ -110,7 +129,6 @@ public class TransactionLocks {
     };
 
 
-
-
+}
 
 

@@ -133,8 +133,9 @@ class EqualityKeySortedIteratorImpl extends KeySortedIteratorImpl
                 return true;
             }
         }
-    };
-/* ------------------------------------------------------------------------- */
+    }
+}
+
 
 
 

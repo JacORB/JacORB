@@ -1,7 +1,5 @@
 package demo.mtclient;
 
-import jacorb.naming.NameServer;
-
 class ClientThread 
     extends Thread 
     implements ObserverOperations
@@ -37,7 +35,8 @@ class ClientThread
 	    {       
 		lifeTime--;
 		String a[] = srv.arryfy( msg,5 );
-		System.out.println( id + ", " + lifeTime + " to go." + srv.writeMessages( a, me ));
+		System.out.println( id + ", " + lifeTime + 
+                                    " to go." + srv.writeMessages( a, me ));
 		sleep(500);
 	    }
 	}

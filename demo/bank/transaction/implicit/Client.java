@@ -4,21 +4,26 @@ import java.io.*;
 import org.omg.CosNaming.*;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
+
 public class Client 
 {
 
-    public static Account open(String name, float initial_deposit,
-                               POA poa, ORB orb, boolean nasty)
+    public static Account open(String name, 
+                               float initial_deposit,
+                               POA poa, 
+                               ORB orb, boolean nasty)
     {
         try
         {
-            AccountImpl acc = new AccountImpl(orb, name, initial_deposit, nasty);
+            AccountImpl acc = 
+                new AccountImpl(orb, name, initial_deposit, nasty);
+
             org.omg.CORBA.Object o = poa.servant_to_reference(acc);
             return acc._this(orb);
         }
         catch( Exception e )
         {
-            jacorb.util.Debug.output(1,e);
+            org.jacorb.util.Debug.output(1,e);
             throw new org.omg.CORBA.UNKNOWN();
         }
     }
@@ -29,16 +34,19 @@ public class Client
         {
             Bank bank;
             AccountManager acc_mgr;
-            java.util.Properties props = new java.util.Properties();
+            java.util.Properties props = 
+                new java.util.Properties();
             props.put("org.omg.PortableInterceptor.ORBInitializerClass.TSServerInit",
-                               "jacorb.transaction.ServerInitializer");
+                               "org.jacorb.transaction.ServerInitializer");
 
             ORB orb = ORB.init(args,props);
 		
             NamingContextExt nc = NamingContextExtHelper.narrow
                 (orb.resolve_initial_references("NameService"));
-            NameComponent [] name = new NameComponent[1];
-            name[0] = new NameComponent("DigiBank", "server");
+            NameComponent [] name = 
+                new NameComponent[1];
+            name[0] = 
+                new NameComponent("DigiBank", "server");
 
             acc_mgr = AccountManagerHelper.narrow( nc.resolve(name));
 	    

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="orb" default="all" basedir=".">
+<project name="orb" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!--             Collection build file                    -->
@@ -8,7 +8,7 @@
   <!-- ==================================================== -->
 
    <target name="init">
-	<property name="dirs.base" value="../../.."/>
+	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${basedir}/src"/>
    </target>
@@ -16,7 +16,7 @@
    <target name="all" depends="init">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/collection/util/*.java,jacorb/collection/*.java"
+	       includes="org/jacorb/collection/util/*.java,org/jacorb/collection/*.java"
 	        />
    </target>
 

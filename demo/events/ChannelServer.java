@@ -6,7 +6,7 @@ package demo.events;
  *
  */
 
-import jacorb.events.*;
+import org.jacorb.events.*;
 import org.omg.CosEventChannelAdmin.*;
 import org.omg.CosNaming.*;
 
@@ -18,14 +18,18 @@ public class ChannelServer
 	try 
 	{           
 	    org.omg.PortableServer.POA poa = 
-		org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+		org.omg.PortableServer.POAHelper.narrow(
+                         orb.resolve_initial_references("RootPOA"));
+
 	    EventChannelImpl channel = new EventChannelImpl(orb,poa);
 
 	    poa.the_POAManager().activate();
 
 	    org.omg.CORBA.Object o = poa.servant_to_reference(channel);
 
-	    NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+	    NamingContextExt nc = 
+                NamingContextExtHelper.narrow(
+                      orb.resolve_initial_references("NameService"));
 	
 	    nc.bind(nc.to_name("eventchannel.example"), o);
 	    orb.run();

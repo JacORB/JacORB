@@ -1,7 +1,7 @@
 package demo.concurrency;
 
-import jacorb.concurrency.*;
-import jacorb.transaction.*;
+import org.jacorb.concurrency.*;
+import org.jacorb.transaction.*;
 import org.omg.CosNaming.*;
 
 import org.omg.CosConcurrencyControl.*;
@@ -23,13 +23,18 @@ public class Server
 
 	    //            SessionService.start(poa, 5);
 	    //            org.omg.CosNaming.NamingContextExt nc = SessionService._get_naming();
-            NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+            NamingContextExt nc = 
+                NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
             NameComponent [] name = new NameComponent[1];
-            name[0] = new NameComponent( "LogicLand", "transaction");
-            if( nc == null ){
+            name[0] = 
+                new NameComponent( "LogicLand", "transaction");
+
+            if( nc == null )
+            {
                 System.out.println( "null" );
                 System.exit(0);
             };
+
             nc.bind(name, TransactionService.get_reference());
 
             LockSetFactoryImpl lsf = new LockSetFactoryImpl( poa );

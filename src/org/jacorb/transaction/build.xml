@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="security" default="all" basedir="../../..">
+<project name="security" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!--            TransactionService build file            -->
@@ -19,7 +19,7 @@
    <target name="base">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/transaction/**/*.java"
+	       includes="org/jacorb/transaction/**/*.java"
         />
    </target>
 

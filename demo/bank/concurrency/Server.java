@@ -5,8 +5,9 @@ import org.omg.CORBA.ORBPackage.*;
 import org.omg.CosTransactions.*;
 import org.omg.CosNaming.*;
 import java.io.*;
-import jacorb.concurrency.*;
-import jacorb.transaction.*;
+
+import org.jacorb.concurrency.*;
+import org.jacorb.transaction.*;
 
 public class Server 
 {
@@ -20,18 +21,25 @@ public class Server
 
 	    poa.the_POAManager().activate();
             
-            NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+            NamingContextExt nc = 
+                NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
             NameComponent [] name = new NameComponent[1];
 
             TransactionService.start( poa, 100 );
-            name[0] = new NameComponent( "TransactionService", "service");
+            name[0] = 
+                new NameComponent( "TransactionService", 
+                                   "service");
             nc.bind(name, TransactionService.get_reference());
 
             LockSetFactoryImpl lsf = new LockSetFactoryImpl( poa );
-            name[0] = new NameComponent( "ConcurrencyControlService", "service");
+            name[0] = 
+                new NameComponent( "ConcurrencyControlService", 
+                                   "service");
+
             nc.bind(name, poa.servant_to_reference( lsf ));
 
-            org.omg.CORBA.Object o = poa.servant_to_reference(new BankImpl(orb,poa));
+            org.omg.CORBA.Object o = 
+                poa.servant_to_reference(new BankImpl(orb,poa));
             name[0] = new NameComponent( "DigiBank", "server");
             nc.bind(name, o);
 
@@ -46,5 +54,6 @@ public class Server
 
 
 }
+
 
 

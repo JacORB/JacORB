@@ -1,6 +1,7 @@
 package demo.domain.printer;
 
-import jacorb.orb.domain.*;
+import org.jacorb.orb.domain.*;
+
 /**
  * SpoolerImpl.java
  * Created: Fri Sep  8 19:17:38 2000
@@ -12,42 +13,45 @@ import jacorb.orb.domain.*;
  * @version $Revision$
  */
 
-public class SpoolerImpl extends SpoolerPOA 
+public class SpoolerImpl 
+    extends SpoolerPOA 
 {
-  private static int PRICE_POLICY_TYPE= 300;
+    private static int PRICE_POLICY_TYPE= 300;
   
-  public SpoolerImpl() 
-  {} 
+    public SpoolerImpl() 
+    {} 
   
-  public int getPriceOfPrintJob(demo.domain.printer.Printer printer, java.lang.String data)
-  {
-    // get price policy of  printer object
-    try 
-      {
-	// here is the important call !!!
-	PropertyPolicy price= PropertyPolicyHelper.narrow
-	  (printer._get_policy( PRICE_POLICY_TYPE ));
+    public int getPriceOfPrintJob( demo.domain.printer.Printer printer, 
+                                   java.lang.String data)
+    {
+        // get price policy of  printer object
+        try 
+        {
+            // here is the important call !!!
+            PropertyPolicy price = 
+                PropertyPolicyHelper.narrow(printer._get_policy( PRICE_POLICY_TYPE ));
 
-	int pricePerByte= Integer.parseInt( price.getValueOfProperty("Byte") );
-	return pricePerByte * data.length();
+            int pricePerByte = 
+                Integer.parseInt( price.getValueOfProperty("Byte") );
+            return pricePerByte * data.length();
 
-      }
-    catch (org.omg.CORBA.INV_POLICY inv)
-      { // no price policy defined, so printing costs nothing 
-	return 0;
-      }
-    catch (java.lang.NumberFormatException e)
-      { 
-	return 0;
-      }
-
-  } // getPriceOfPrintJob
+        }
+        catch (org.omg.CORBA.INV_POLICY inv)
+        {
+            // no price policy defined, so printing costs nothing 
+            return 0;
+        }
+        catch (java.lang.NumberFormatException e)
+        { 
+            return 0;
+        }
+    }
 	
-  public int doPrintJob(demo.domain.printer.Printer printer, java.lang.String data)
-  {
-    printer.printFile(data);
-
-    return getPriceOfPrintJob(printer, data);
-  } // doPrintJob
+    public int doPrintJob(demo.domain.printer.Printer printer, 
+                          java.lang.String data)
+    {
+        printer.printFile(data);
+        return getPriceOfPrintJob(printer, data);
+    } 
 
 } // SpoolerImpl

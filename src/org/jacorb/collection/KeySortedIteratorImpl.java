@@ -17,17 +17,17 @@ class KeySortedIteratorImpl extends OrderedIteratorImpl
     KeySortedIteratorImpl( KeySortedCollectionImpl collection ){
         super( collection );
         key_collection = collection;
-    };
+    }
 /* ------------------------------------------------------------------------- */
     KeySortedIteratorImpl( KeySortedCollectionImpl collection, boolean read_only ){
         super( collection, read_only );
         key_collection = collection;
-    };
+    }
 /* ------------------------------------------------------------------------- */
     KeySortedIteratorImpl( KeySortedCollectionImpl collection, boolean read_only, boolean reverse ){
         super( collection, read_only, reverse );
         key_collection = collection;
-    };
+    }
 /* ========================================================================= */
 /* ------------------------------------------------------------------------- */
 // ---- Key Iterator 
@@ -51,7 +51,7 @@ class KeySortedIteratorImpl extends OrderedIteratorImpl
                 throw new org.omg.CORBA.INTERNAL();
             }
         }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean set_to_next_element_with_key( Any key ) throws IteratorInvalid,KeyInvalid {
         synchronized( collection ){
@@ -76,7 +76,7 @@ class KeySortedIteratorImpl extends OrderedIteratorImpl
                 throw new org.omg.CORBA.INTERNAL();
             }
         }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean set_to_next_element_with_different_key() throws IteratorInBetween, IteratorInvalid {
         synchronized( collection ){
@@ -99,7 +99,7 @@ class KeySortedIteratorImpl extends OrderedIteratorImpl
                 throw new org.omg.CORBA.INTERNAL();
             }
         }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean retrieve_key( AnyHolder key ) throws IteratorInBetween, IteratorInvalid {
         synchronized( collection ){
@@ -107,21 +107,21 @@ class KeySortedIteratorImpl extends OrderedIteratorImpl
             key.value = collection.ops.key( (Any)collection.data.elementAt( get_pos() ) );
             return true;
         }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean retrieve_next_n_keys( AnySequenceHolder keys ) throws IteratorInBetween, IteratorInvalid {
         throw new org.omg.CORBA.NO_IMPLEMENT();
-    };
+    }
 /* ------------------------------------------------------------------------- */
 // ---- Key Sorted Iterator 
 /* ------------------------------------------------------------------------- */
     public boolean set_to_first_element_with_key( Any key, LowerBoundStyle style) throws KeyInvalid {
         throw new org.omg.CORBA.NO_IMPLEMENT();
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean set_to_last_element_with_key( Any key, UpperBoundStyle style) throws KeyInvalid {
         throw new org.omg.CORBA.NO_IMPLEMENT();
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean set_to_previous_element_with_key( Any key ) throws IteratorInvalid, KeyInvalid {
         synchronized( collection ){
@@ -146,7 +146,7 @@ class KeySortedIteratorImpl extends OrderedIteratorImpl
                 throw new org.omg.CORBA.INTERNAL();
             }
         }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean set_to_previous_element_with_different_key() throws IteratorInBetween, IteratorInvalid {
         synchronized( collection ){
@@ -169,14 +169,13 @@ class KeySortedIteratorImpl extends OrderedIteratorImpl
                 throw new org.omg.CORBA.INTERNAL();
             }
         }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean retrieve_previous_n_keys( AnySequenceHolder keys ) throws IteratorInBetween, IteratorInvalid {
         throw new org.omg.CORBA.NO_IMPLEMENT();
-    };
-/* ------------------------------------------------------------------------- */
+    }
 
-
+}
 
 
 

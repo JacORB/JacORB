@@ -2,7 +2,8 @@ package org.jacorb.collection.util;
 
 import java.util.*; 
 
-public class DynArray {
+public class DynArray 
+{
     protected Object elementData[];
     protected int elementCount = 0;
     public DynArray(int initialCapacity) {

@@ -19,17 +19,23 @@ public class BankImpl
     {
 	this.orb = orb;
 	this.poa = poa;
-        try {
+        try 
+        {
             // obtain transaction factory object from naming service
             NamingContextExt nc = 
                 NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
             NameComponent [] name = new NameComponent[1];
-            name[0] = new NameComponent( "TransactionService", "service");
-            transactionFactory = TransactionFactoryHelper.narrow( nc.resolve(name));
+            name[0] = 
+                new NameComponent( "TransactionService", "service");
+            transactionFactory = 
+                TransactionFactoryHelper.narrow( nc.resolve(name));
 
             // obtain LockSet factory object from naming service
-            name[0] = new NameComponent( "ConcurrencyControlService", "service");
-            lockSetFactory = LockSetFactoryHelper.narrow( nc.resolve(name) );
+            name[0] = 
+                new NameComponent( "ConcurrencyControlService", 
+                                   "service");
+            lockSetFactory = 
+                LockSetFactoryHelper.narrow( nc.resolve(name) );
         } catch( Exception n ) {
             n.printStackTrace();
             System.exit(1);
@@ -40,7 +46,8 @@ public class BankImpl
     {
 	try
 	{
-            TransactionalLockSet lock_set = lockSetFactory.create_transactional();
+            TransactionalLockSet lock_set = 
+                lockSetFactory.create_transactional();
 	    AccountImpl acc = 
                   new AccountImpl( lock_set, name, 
                         initial_deposit, 0);
@@ -49,7 +56,7 @@ public class BankImpl
 	}
 	catch( Exception e )
 	{
-	    jacorb.util.Debug.output(1,e);
+	    org.jacorb.util.Debug.output(1,e);
 	    throw new org.omg.CORBA.UNKNOWN();
 	}
     }
@@ -122,5 +129,6 @@ public class BankImpl
 
 
 }
+
 
 

@@ -1,14 +1,16 @@
 package demo.outparam;
 
+
+import org.omg.CORBA.*;
+import org.omg.CosNaming.*;
+
 /**
  * An example for using out paramters
  */ 
 
-import jacorb.orb.*;
-import org.omg.CORBA.*;
-import org.omg.CosNaming.*;
-
-public class AppletClient extends java.applet.Applet{
+public class AppletClient 
+    extends java.applet.Applet
+{
 
     static org.omg.CORBA.ORB orb =null;
 
@@ -19,8 +21,14 @@ public class AppletClient extends java.applet.Applet{
 	{	
 
 	    // get hold of the naming service
-	    NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
-	    NameComponent [] name = new NameComponent[]{ new NameComponent("ParamServer", "service")};
+	    NamingContextExt nc = 
+                NamingContextExtHelper.narrow(
+                        orb.resolve_initial_references("NameService"));
+
+	    NameComponent [] name = 
+                new NameComponent[]{ 
+                    new NameComponent("ParamServer", "service")
+                        };
 
 	    // resolve name to get a reference to our server
 	    MyServer s = MyServerHelper.narrow(nc.resolve(name));

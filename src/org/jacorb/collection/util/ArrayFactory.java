@@ -1,6 +1,5 @@
 package org.jacorb.collection.util;
 
-
 public class ArrayFactory {
     private static final int MAX = 16;
     private static final int MIN_OFFSET = 4;
@@ -64,6 +63,10 @@ public class ArrayFactory {
 
 
 
+
+
+
+}
 
 
 

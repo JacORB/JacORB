@@ -4,6 +4,7 @@ import org.omg.CORBA.*;
 import org.omg.CORBA.ORBPackage.*;
 import org.omg.CosTransactions.*;
 import org.omg.CosNaming.*;
+
 import java.io.*;
 
 public class BankImpl 
@@ -29,7 +30,7 @@ public class BankImpl
 	}
 	catch( Exception e )
 	{
-	    jacorb.util.Debug.output(1,e);
+	    org.jacorb.util.Debug.output(1,e);
 	    throw new org.omg.CORBA.UNKNOWN();
 	}
     }

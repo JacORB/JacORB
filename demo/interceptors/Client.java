@@ -54,7 +54,7 @@ public class Client
         catch (Exception e) 
         {
             e.getMessage();
-            jacorb.util.Debug.output(2, e);
+            org.jacorb.util.Debug.output(2, e);
 	  
             if (e instanceof org.omg.CosNaming.NamingContextPackage.NotFound)
                 System.out.println("Reason: " + ((org.omg.CosNaming.NamingContextPackage.NotFound) e).why.value());

@@ -23,7 +23,8 @@ package org.jacorb.concurrency;
 import org.omg.CosConcurrencyControl.*;
 import org.omg.CosTransactions.*;
 
-public class Request {
+public class Request 
+{
     public static final int LOCK    = 1;
     public static final int CHANGE  = 3;
    
@@ -32,25 +33,34 @@ public class Request {
     public int to_do;
     public lock_mode set_mode;
     public lock_mode reset_mode;
-    public String toString() {
-        String s = current.get_coordinator().get_transaction_name()+
-               ": state="+state+" to_do="+(to_do==LOCK?"lock":"chng")+" set=";
-        if( set_mode==null ){ 
+
+    public String toString() 
+    {
+        String s = 
+            current.get_coordinator().get_transaction_name()+
+            ": state="+state+" to_do="+(to_do==LOCK?"lock":"chng")+" set=";
+
+        if( set_mode==null )
+        { 
             s = s + "null";
-        } else { 
+        }
+        else 
+        { 
             s = s + set_mode.value();
         } 
         s =s +" reset=";
-        if( reset_mode==null ) { 
+        if( reset_mode==null ) 
+        { 
             s = s +"null"; 
-        } else { 
+        } 
+        else 
+        {
             s = s + reset_mode.value();
         }
         return s;
     };
 
 
-
-
+}
 
 

@@ -80,9 +80,9 @@ policy from the domain call "get_domain_policy(PRICE_POLICY_TYPE).
 
 Prices  are subject to  change. To  change the  price for  the printer
 object   you  can   use   a  graphical   tool,   the  domain   browser
-(jaocrb.orb.domain.gui.Browser).   Simply start  it  with the  command
+(org.jacorb.orb.domain.gui.Browser).  Simply start it with the command
 line  arguments  "-f  printerDemo_ORBDomain".   The  server  writes  a
-reference to the  created domain into this file.  With the browser you
+reference to the created domain  into this file.  With the browser you
 can navigate to the price policy  of the printer object and change the
 prices.
 

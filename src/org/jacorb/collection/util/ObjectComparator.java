@@ -7,7 +7,7 @@ public interface ObjectComparator{
     public int compare_with( Object obj ) throws ObjectInvalid;
     public boolean equal( Object obj1, Object obj2 ) throws ObjectInvalid;
     public boolean equal( Object obj1 ) throws ObjectInvalid;
-
+}
 
 
 

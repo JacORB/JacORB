@@ -13,34 +13,38 @@ class EqualityKeySortedCollectionImpl
     implements EqualityKeySortedCollectionOperations 
 {
 
-/* ========================================================================= */
+    /* ========================================================================= */
     EqualityKeySortedCollectionImpl( OperationsOperations ops, 
 				     POA poa, 
 				     IteratorFactory iterator_factory )
     {
         super( ops, poa, iterator_factory );
-    };
+    }
 
-/* ========================================================================= */
+    /* ========================================================================= */
     public synchronized boolean contains_element(Any element) 
 	throws ElementInvalid
     {
         check_element( element );
-        try { 
+        try 
+        { 
             return data.indexOf( element ) >= 0;
-        } catch ( ObjectInvalid e ){
+        } 
+        catch ( ObjectInvalid e )
+        {
             throw new ElementInvalid( ElementInvalidReason.element_type_invalid );
         }
-    };
+    }
 
-/* ------------------------------------------------------------------------- */
+    /* ------------------------------------------------------------------------- */
 
     public synchronized boolean contains_all_from(org.omg.CosCollection.Collection collector) 
 	throws ElementInvalid
     {
         throw new org.omg.CORBA.NO_IMPLEMENT();
-    };
-/* ------------------------------------------------------------------------- */
+    }
+
+    /* ------------------------------------------------------------------------- */
     public synchronized boolean locate_or_add_element(Any element) throws ElementInvalid{
         check_element( element );
         try {
@@ -52,8 +56,8 @@ class EqualityKeySortedCollectionImpl
         } catch ( ObjectInvalid e ){
             throw new ElementInvalid( ElementInvalidReason.element_type_invalid );
         }
-    };
-/* ------------------------------------------------------------------------- */
+    }
+    /* ------------------------------------------------------------------------- */
     public synchronized boolean locate_or_add_element_set_iterator(Any element, org.omg.CosCollection.Iterator where) throws ElementInvalid,IteratorInvalid{
         check_element( element );
         PositionalIteratorImpl i = check_iterator( where );
@@ -72,8 +76,8 @@ class EqualityKeySortedCollectionImpl
         } catch ( ObjectInvalid e ){
             throw new ElementInvalid( ElementInvalidReason.element_type_invalid );
         }
-    };
-/* ------------------------------------------------------------------------- */
+    }
+    /* ------------------------------------------------------------------------- */
     public synchronized boolean locate_element(Any element, org.omg.CosCollection.Iterator where) throws ElementInvalid,IteratorInvalid{
         check_element( element );
         PositionalIteratorImpl i = check_iterator( where );
@@ -90,8 +94,8 @@ class EqualityKeySortedCollectionImpl
         } catch ( ObjectInvalid e ){
             throw new ElementInvalid( ElementInvalidReason.element_type_invalid );
         }
-    };
-/* ------------------------------------------------------------------------- */
+    }
+    /* ------------------------------------------------------------------------- */
     public synchronized boolean locate_next_element(Any element, org.omg.CosCollection.Iterator where) throws ElementInvalid,IteratorInvalid{
         check_element( element );
         PositionalIteratorImpl i = check_iterator( where );
@@ -114,9 +118,11 @@ class EqualityKeySortedCollectionImpl
         } catch ( ObjectInvalid e ){
             throw new ElementInvalid( ElementInvalidReason.element_type_invalid );
         }
-    };
-/* ------------------------------------------------------------------------- */
-    public synchronized boolean locate_next_different_element(org.omg.CosCollection.Iterator where) throws IteratorInvalid,IteratorInBetween{
+    }
+    /* ------------------------------------------------------------------------- */
+    public synchronized boolean locate_next_different_element(org.omg.CosCollection.Iterator where) 
+        throws IteratorInvalid,IteratorInBetween
+    {
         PositionalIteratorImpl i = check_iterator( where );
         i.check_iterator();
         int pos = i.get_pos();
@@ -125,7 +131,7 @@ class EqualityKeySortedCollectionImpl
             int new_pos = pos+1; 
             while( new_pos < data.size() ){
                 if( ops.compare( element, (Any)data.elementAt( new_pos ) ) != 0 
-                  || !ops.equal( element, (Any)data.elementAt( new_pos ) ) ){
+                    || !ops.equal( element, (Any)data.elementAt( new_pos ) ) ){
                     i.set_pos( new_pos );
                     i.set_in_between( false );
                     return true;
@@ -135,9 +141,11 @@ class EqualityKeySortedCollectionImpl
         } 
         i.invalidate();
         return false;
-    };
-/* ------------------------------------------------------------------------- */
-    public synchronized boolean remove_element(Any element) throws ElementInvalid{
+    }
+    /* ------------------------------------------------------------------------- */
+    public synchronized boolean remove_element(Any element) 
+        throws ElementInvalid
+    {
         check_element( element );
         try {
             int pos = data.indexOf( element );
@@ -151,9 +159,10 @@ class EqualityKeySortedCollectionImpl
         } catch ( Exception e ){
             e.printStackTrace( System.out );
             throw new org.omg.CORBA.INTERNAL();
-        };
-    };
-/* ------------------------------------------------------------------------- */
+        }
+    }
+
+    /* ------------------------------------------------------------------------- */
     public synchronized int remove_all_occurrences(Any element) throws ElementInvalid{
         check_element( element );
         try {
@@ -169,28 +178,28 @@ class EqualityKeySortedCollectionImpl
         } catch ( Exception e ){
             e.printStackTrace( System.out );
             throw new org.omg.CORBA.INTERNAL();
-        };
-    };
-/* ------------------------------------------------------------------------- */
+        }
+    }
+
+    /* ------------------------------------------------------------------------ */
     public synchronized int number_of_different_elements(){
         throw new org.omg.CORBA.NO_IMPLEMENT();
-    };
-/* ------------------------------------------------------------------------- */
+    }
+
+    /* ------------------------------------------------------------------------- */
     public synchronized int number_of_occurrences(Any element) throws ElementInvalid{
         throw new org.omg.CORBA.NO_IMPLEMENT();
-    };
-/* ========================================================================= */
-/* Overrided                                                                 */
-/* ========================================================================= */
+    }
+
+    /* ========================================================================= */
+    /* Overrided                                                                 */
+    /* ========================================================================= */
+
     public synchronized org.omg.CosCollection.Iterator create_iterator(boolean read_only) 
     {
         return create_ordered_iterator( read_only, false );
-    };
-
-};
+    }
 
 
-
-
-
+}
 

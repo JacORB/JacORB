@@ -3,7 +3,6 @@ package demo.dynany;
 import org.omg.DynamicAny.*;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
-import jacorb.orb.*;
 import org.omg.CosNaming.*;
 
 public class Server 

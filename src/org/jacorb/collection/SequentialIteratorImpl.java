@@ -15,15 +15,15 @@ class SequentialIteratorImpl extends OrderedIteratorImpl
 /* ========================================================================= */
     SequentialIteratorImpl( SequentialCollectionImpl collection ){
         super( collection );
-    };
+    }
 /* ------------------------------------------------------------------------- */
     SequentialIteratorImpl( SequentialCollectionImpl collection, boolean read_only ){
         super( collection, read_only );
-    };
+    }
 /* ------------------------------------------------------------------------- */
     SequentialIteratorImpl( SequentialCollectionImpl collection, boolean read_only, boolean reverse ){
         super( collection, read_only, reverse );
-    };
+    }
 /* ========================================================================= */
     public boolean add_element_as_next_set_iterator( Any element ) throws IteratorInvalid,ElementInvalid {
         synchronized( collection ){
@@ -34,16 +34,16 @@ class SequentialIteratorImpl extends OrderedIteratorImpl
             } catch ( PositionInvalid e ){
                 invalidate();
                 throw new IteratorInvalid( IteratorInvalidReason.is_invalid );
-            };
+            }
             return true;
         }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public void add_n_elements_as_next_set_iterator( Any[] elements ) throws IteratorInvalid,ElementInvalid {
         throw new org.omg.CORBA.NO_IMPLEMENT();
 //        synchronized( collection ){
 //        }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public boolean add_element_as_previous_set_iterator( Any element ) throws IteratorInvalid, ElementInvalid {
         synchronized( collection ){
@@ -54,17 +54,21 @@ class SequentialIteratorImpl extends OrderedIteratorImpl
             } catch ( PositionInvalid e ){
                 invalidate();
                throw new IteratorInvalid( IteratorInvalidReason.is_invalid );
-            };
+            }
             return true;
         }
-    };
+    }
 /* ------------------------------------------------------------------------- */
     public void add_n_elements_as_previous_set_iterator( Any[] elements ) throws IteratorInvalid, ElementInvalid {
         throw new org.omg.CORBA.NO_IMPLEMENT();
 //        synchronized( collection ){
 //        }
-    };
-/* ------------------------------------------------------------------------- */
+    }
+
+}
+
+
+
 
 
 

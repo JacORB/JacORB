@@ -7,7 +7,6 @@ package demo.events;
  *
  */
 
-import jacorb.events.*;
 import org.omg.CosNaming.*;
 import org.omg.CosEventChannelAdmin.*;
 import org.omg.CosEventComm.*;

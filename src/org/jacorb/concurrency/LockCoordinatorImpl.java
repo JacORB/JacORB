@@ -23,17 +23,25 @@ package org.jacorb.concurrency;
 import org.omg.CosConcurrencyControl.*;
 import org.omg.CosTransactions.*;
 
-class LockCoordinatorImpl extends LockCoordinatorPOA{
+class LockCoordinatorImpl
+    extends LockCoordinatorPOA
+{
     private TransactionCoordinator tc;
     private TransactionalLockSetImpl ls;
-    LockCoordinatorImpl( TransactionCoordinator tc, TransactionalLockSetImpl ls ){
+
+    LockCoordinatorImpl( TransactionCoordinator tc, 
+                         TransactionalLockSetImpl ls )
+    {
         this.tc = tc;
         this.ls = ls;
     }
-    public void drop_locks(){
+
+    public void drop_locks()
+    {
         ls.transaction_finished( tc );
     };
 
+}
 
 
 
