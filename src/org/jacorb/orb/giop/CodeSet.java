@@ -29,28 +29,19 @@ import org.jacorb.orb.CDROutputStream;
 public class CodeSet
 {
     public static final int ISO8859_1=0x00010001;   /* standard ASCII */
-    public static final int UCS4 = 0x00010106;      /* 4 bytes for
-                                                       every character */
-    public static final int UCS2 = 0x00010102;      /*                */
     public static final int UTF16= 0x00010109;      /* extended UCS2,
                                                        2 or 4 bytes
                                                        for every char */
     public static final int UTF8 = 0x05010001;      /* 1-6 bytes for
                                                        every character */
-    public static final int UTF7 = 0xffff0007;      /* Internet
-                                                       conform ASCII7
-                                                       representation */
 
     public static String csName(int cs)
     {
         switch(cs)
         {
-        case ISO8859_1: return "ISO8859_1";
-        case UTF16: return  "UTF16";
-        case UTF8: return  "UTF8";
-        case UCS4: return  "UCS4";
-        case UCS2: return  "UCS2";
-        case 0: return  "NOTCS";
+            case ISO8859_1: return "ISO 8859-1";
+            case UTF16: return  "UTF-16";
+            case UTF8: return  "UTF-8";
         }
         return "Unknown TCS: " + Integer.toHexString(cs);
     }
@@ -76,7 +67,8 @@ public class CodeSet
      */
     public static int selectTCS( CodeSetComponentInfo cs_info )
     {
-        int with_native = selectCodeSet( cs_info.ForCharData, getTCSDefault() );
+        int with_native = selectCodeSet( cs_info.ForCharData, 
+                                         getTCSDefault() );
         
         if( with_native == -1 )
         {
@@ -97,14 +89,16 @@ public class CodeSet
      */
     public static int selectTCSW( CodeSetComponentInfo cs_info )
     {
-        int with_native = selectCodeSet( cs_info.ForWcharData, getTCSWDefault() );
+        int with_native = selectCodeSet( cs_info.ForWcharData, 
+                                         getTCSWDefault() );
         
         if( with_native == -1 )
         {
             //no match with native codeset, so try with conversion
             //codeset
             
-            return selectCodeSet( cs_info.ForWcharData, getConversionDefault() );
+            return selectCodeSet( cs_info.ForWcharData, 
+                                  getConversionDefault() );
         }
         else
         {
@@ -113,7 +107,7 @@ public class CodeSet
     }
 
     private static int selectCodeSet( CodeSetComponent cs_component,
-                                 int native_cs )
+                                      int native_cs )
     {
         // check if we support server's native sets
 	if( cs_component.native_code_set == native_cs ) 
@@ -152,8 +146,9 @@ public class CodeSet
 	    if( contexts[i].context_id == TAG_CODE_SETS.value )
             {
                 // TAG_CODE_SETS found, demarshall
-                CDRInputStream is = new CDRInputStream( (org.omg.CORBA.ORB) null,
-                                                        contexts[i].context_data );
+                CDRInputStream is = 
+                    new CDRInputStream( (org.omg.CORBA.ORB) null,
+                                        contexts[i].context_data );
                 is.openEncapsulatedArray();
 
                 return CodeSetContextHelper.read( is );

@@ -110,17 +110,26 @@ public class ServerRequestListener
 
         if( ! connection.isTCSNegotiated() )
         {
-            CodeSetContext ctx = 
-                CodeSet.getCodeSetContext( in.req_hdr.service_context );
-            
-            if( ctx != null )
+            //If GIOP 1.0 is used don't check for a codeset context
+            if( in.getGIOPMinor() == 0 )
             {
-                connection.setCodeSets( ctx.char_data, ctx.wchar_data );
-
-                Debug.output( 3, "Received CodeSetContext. Using " +
-                              CodeSet.csName( ctx.char_data ) + " as TCS and " +
-                              CodeSet.csName( ctx.wchar_data ) + " as TCSW" );
-
+                connection.markTCSNegotiated();
+            }
+            else
+            {
+                CodeSetContext ctx = 
+                    CodeSet.getCodeSetContext( in.req_hdr.service_context );
+                
+                if( ctx != null )
+                {
+                    connection.setCodeSets( ctx.char_data, ctx.wchar_data );
+                    
+                    Debug.output( 3, "Received CodeSetContext. Using " +
+                                  CodeSet.csName( ctx.char_data ) + 
+                                  " as TCS and " +
+                                  CodeSet.csName( ctx.wchar_data ) + 
+                                  " as TCSW" );
+                }
             }
         }
         

@@ -633,7 +633,6 @@ public final class ORB
         }
 
         // now fill the last IOR profile with components (if any)
-
         if( components_multi_profile.size() > 0 )
         {
             components = new TaggedComponent[ components_multi_profile.size() ];

@@ -40,7 +40,16 @@ public class IORInterceptorInitializer
                 info.add_ior_interceptor(new SSLComponentInterceptor(orb));
             }
 
-            info.add_ior_interceptor(new CodeSetInfoInterceptor(orb));
+            int giop_minor = 
+                Integer.parseInt( 
+                    Environment.getProperty( 
+                        "jacorb.giop_minor_version",
+                        "2" ));
+                
+            if( giop_minor > 0 )
+            {
+                info.add_ior_interceptor(new CodeSetInfoInterceptor(orb));
+            }
         }
         catch (Exception e)
         {
