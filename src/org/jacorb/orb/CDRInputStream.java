@@ -2490,22 +2490,63 @@ public class CDRInputStream
     {
         java.io.Serializable result = null;
 
-        if ( chunkedValue || valueNestingLevel > 0 )
+        if (chunkedValue || valueNestingLevel > 0)
         {
             valueNestingLevel++;
             int chunk_size_tag = read_long();
             chunk_end_pos = pos + chunk_size_tag;
         }
 
-        for( int r = 0; r < repository_ids.length; r++ )
+        for (int r = 0; r < repository_ids.length; r++)
         {
-            if ( repository_ids[r].equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+            if (repository_ids[r].equals("IDL:omg.org/CORBA/WStringValue:1.0"))
             {
                 // special handling of strings, according to spec
                 result = read_wstring();
                 break;
             }
-            else if( repository_ids[r].startsWith ("IDL:"))
+            else if (repository_ids[r].startsWith("RMI:javax.rmi.CORBA.ClassDesc:"))
+            {
+                // special handling of java.lang.Class instances
+                String classCodebase = (String)read_value(String.class);
+                String reposId = (String)read_value(String.class);
+                String className = 
+                    org.jacorb.ir.RepositoryID.className(reposId, null);
+                ClassLoader ctxcl = 
+                    Thread.currentThread().getContextClassLoader();
+
+                try
+                {
+                    if (ctxcl != null)
+                    {
+                        try
+                        {
+                            result = ctxcl.loadClass(className);
+                        }
+                        catch (ClassNotFoundException cnfe)
+                        {
+                            result = ValueHandler.loadClass(className, 
+                                                            classCodebase, 
+                                                            null);
+                        }
+                    }
+                    else
+                    {
+                        result = ValueHandler.loadClass(className, 
+                                                        classCodebase, 
+                                                        null);
+                    }
+                }
+                catch (ClassNotFoundException e)
+                {
+                    if( r < repository_ids.length-1 )
+                        continue;
+                    else
+                        throw new MARSHAL("class not found: " + className);
+                }
+                break;
+            }
+            else if (repository_ids[r].startsWith ("IDL:"))
             {
                 org.omg.CORBA.portable.ValueFactory factory =
                     ((org.omg.CORBA_2_3.ORB)orb()).lookup_value_factory (repository_ids[r]);
