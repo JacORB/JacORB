@@ -196,6 +196,11 @@ jacorb.bufferManagerMaxFlush=-1
 # close the connection after so many msecs.
 #jacorb.connection.client.idle_timeout=0
 
+# shall the orb ignore pending messages when a connection idle timeout
+# is detected? If "on", the connection is closed and all pending
+# messages are cancelled. Default is "off"
+#jacorb.connection.client.timeout_ignores_pending_messages=off
+
 # max time (msecs) a server keeps a connection open if nothing happens
 #jacorb.connection.server.timeout=10000
 
