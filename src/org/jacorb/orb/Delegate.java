@@ -659,6 +659,9 @@ public final class Delegate
             info.request_id = ros.requestId();
             InterceptorManager manager = ((org.jacorb.orb.ORB) orb).getInterceptorManager();
             info.current = manager.getCurrent();
+
+            //allow interceptors access to request output stream
+            info.request_os = ros;
     
             invokeInterceptors(info, ClientInterceptorIterator.SEND_REQUEST);
               
@@ -669,7 +672,7 @@ public final class Delegate
         {          
             os.close(); 
 
-            rep = (ReplyInputStream)connection.sendRequest(self,ros);
+            rep = (ReplyInputStream) connection.sendRequest( self,ros );
  
             // devik: if tcs was not negotiated yet, in every context we will send
             // tcs wanted. After first such request was sent (and it is here) we can
@@ -794,7 +797,10 @@ public final class Delegate
                             InterceptorManager manager = 
                                 ((org.jacorb.orb.ORB) orb).getInterceptorManager();
                             info.current = manager.getCurrent();
-    
+
+                            //allow interceptors access to reply input stream
+                            info.reply_is = rep;
+
                             invokeInterceptors(info,
                                                ClientInterceptorIterator.RECEIVE_REPLY);
                         }
@@ -822,6 +828,10 @@ public final class Delegate
                     info.setReplyServiceContexts(rep.getHeader().service_context);
             
                     info.forward_reference = f.forward_reference;
+
+                    //allow interceptors access to reply input stream
+                    info.reply_is = rep;
+
     
                     invokeInterceptors(info,
                                        ClientInterceptorIterator.RECEIVE_OTHER);
@@ -882,6 +892,10 @@ public final class Delegate
                     {
                         org.jacorb.util.Debug.output(2, _bk);
                     }
+
+                    //allow interceptors access to reply input stream
+                    info.reply_is = rep;
+
     
                     invokeInterceptors(info,
                                        ClientInterceptorIterator.RECEIVE_EXCEPTION);
@@ -919,7 +933,10 @@ public final class Delegate
                         //shouldn't happen anyway
                         org.jacorb.util.Debug.output(2, _e);
                     }
-    
+
+                    //allow interceptors access to reply input stream
+                    info.reply_is = rep;    
+
                     invokeInterceptors(info,
                                        ClientInterceptorIterator.RECEIVE_EXCEPTION);
                 }    

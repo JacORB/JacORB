@@ -32,6 +32,8 @@ public class ClientRequestInfoImpl
     public org.jacorb.orb.Delegate delegate = null;
     public org.jacorb.orb.ORB orb = null;
 
+    public org.jacorb.orb.connection.RequestOutputStream request_os = null;
+    public org.jacorb.orb.connection.ReplyInputStream reply_is = null;
 
     public ClientRequestInfoImpl() 
     {
