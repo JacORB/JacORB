@@ -44,8 +44,16 @@ public class CDROutputStream
     private static final int NET_BUF_SIZE = 1024;
     private static final int MEM_BUF_SIZE = 256;
 
+    /** needed for alignment purposes */
     private int index = 0;
+
+    /** the current write position in the buffer */
     private int pos = 0;
+
+    /** the number of bytes that will only make up the final buffer
+        size, but that have not yet been written */
+    private int deferred_writes = 0;
+
     private byte[] buffer = null;
 
     private boolean closed = false;
@@ -87,6 +95,27 @@ public class CDROutputStream
      * stored as a java.lang.Integer.  
      */
     private Map codebaseMap = new HashMap();
+
+
+
+    private class DeferredWriteFrame
+    {
+        public int write_pos = 0;
+        public int start = 0;
+        public int length = 0;
+        public byte[] buf = null;
+
+        public DeferredWriteFrame( int write_pos, int start, int length, byte[] buf )
+        {
+            this.write_pos = write_pos;
+            this.start = start;
+            this.length = length;
+            this.buf = buf;
+       }
+    }
+
+    private List deferredArrayQueue = new Vector();
+
 
     private final static String null_ior_str = 
         "IOR:00000000000000010000000000000000";
@@ -136,6 +165,103 @@ public class CDROutputStream
         buffer = buf;
     }
 
+    /**
+     * write the contents of this CDR stream to the output stream, 
+     * includes all deferred writes (e.g., for byte arrays)...
+     * called by, e.g. GIOPConnection to write directly to the
+     * wire.
+     */
+
+    public void write( OutputStream out, int start, int length )
+        throws IOException
+    {
+        int write_idx = start;
+        int read_idx = start;
+
+        // needed to calculate the actual read position in the 
+        // current buffer, 
+        int skip_count = 0;
+
+        int list_idx = 0;
+
+        DeferredWriteFrame next_frame = null;
+//          Debug.output( 1, "--- write( " + this + "), start " + start + " length " + length );
+//          Debug.output( 1, "--- "  +  deferredArrayQueue.size() + " frames ");
+
+        if( deferredArrayQueue.size() > 0 )
+        {
+            // find the first frame that falls within the current window, 
+            // i.e. that need s to be written
+            next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
+
+            // skip all frames beginning before the current start pos, but
+            // record their length 
+            while( next_frame.write_pos < start && list_idx < deferredArrayQueue.size() )
+            {
+                skip_count += next_frame.length; 
+                next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
+            }
+
+            // skip 
+            if( next_frame.write_pos < start && list_idx >= deferredArrayQueue.size() )
+            {
+                skip_count += next_frame.length;
+                next_frame = null;
+            }
+        }
+
+//          Debug.myAssert( 1, skip_count <= read_idx, " skip count " + 
+//                          skip_count + " > read_idx " + read_idx + "  !");
+
+        while( write_idx < start + length )
+        {
+
+            if( next_frame != null && write_idx == next_frame.write_pos )
+            {
+                Debug.myAssert( next_frame.length <= start + length - write_idx, 
+                                "Deferred array does not fit!!!");
+                    
+                // write a frame, i.e. a byte array 
+                out.write( next_frame.buf, next_frame.start, next_frame.length );
+
+                // advance
+                write_idx += next_frame.length;
+
+                // clear the fram variable...
+                next_frame = null;
+
+                // and look up the next frame
+                if( list_idx < deferredArrayQueue.size() )
+                {
+                    next_frame = (DeferredWriteFrame)deferredArrayQueue.get( list_idx++ );
+                    if( next_frame.write_pos > start + length )
+                    {
+                        // unset, frame is beyond our current reach
+                        next_frame = null;
+                    }
+                }
+            }
+
+            if( write_idx < start + length )
+            {
+                // write data that was previously marshaled
+                
+                int write_now =
+                    Math.min( start + length, 
+                              ( next_frame != null ? next_frame.write_pos : start + length ));
+
+                write_now -= write_idx; // calculate length
+
+                // 
+                out.write( buffer, read_idx-skip_count , write_now ); 
+
+                // advance
+                read_idx += write_now;
+                write_idx += write_now;
+            }
+        }
+    }
+
     public void setCodeSet (final int codeSet, final int codeSetWide)
     {
         this.codeSet = codeSet;
@@ -173,6 +299,7 @@ public class CDROutputStream
             bufMgr.returnBuffer( buffer );
         }
 
+        deferredArrayQueue.clear();
         released = true;
     }
 
@@ -334,18 +461,35 @@ public class CDROutputStream
 
     public byte[] getBufferCopy()
     {
-        byte[] result = null;
+        ByteArrayOutputStream bos = 
+            new ByteArrayOutputStream();
 
-        result = new byte[pos];
-        System.arraycopy(buffer,0,result,0,result.length);
+        try
+        {
+            write( bos, 0, size());
+        }
+        catch( IOException io )
+        {
+            Debug.output(1, io );
+        }
 
-        return result;
+        return bos.toByteArray();
     }
+
+    /**
+     * don't use this one...
+     */
 
     public byte[] getInternalBuffer()
     {
         return buffer;
     }
+
+//      public byte[] getInternalBufferCopy()
+//      {
+//          // TODO : make copy
+//          return getBufferCopy();
+//      }
 
     private void resetIndex()
     {
@@ -354,12 +498,14 @@ public class CDROutputStream
 
     public int size()
     {
-        return pos;
+        return pos + deferred_writes;
     }
 
     public void reset() 
     {
+        deferredArrayQueue.clear();
         pos = 0;
+        deferred_writes = 0;
         index = 0;
     }
 
@@ -675,28 +821,28 @@ public class CDROutputStream
             write_wchar( (char)0, false, false ); //no BOM
         }
                         
-        int size = 0;
+        int str_size = 0;
         if( giop_minor == 2 )
         {
             //size in bytes (without the size ulong)
-            size = pos - startPos - 4;
+            str_size = pos - startPos - 4;
         }
         else
         {
             if( codeSetW == CodeSet.UTF8 )
             {
                 //size in bytes (without the size ulong)
-                size = pos - startPos - 4;
+                str_size = pos - startPos - 4;
             }
             else if( codeSetW == CodeSet.UTF16 )
             {
                 //size in chars (+ NUL char)
-                size = s.length() + 1;
+                str_size = s.length() + 1;
             }
         }
 
         // write length indicator
-        _write4int( buffer, startPos, size );
+        _write4int( buffer, startPos, str_size );
     }
 
     public final void write_double (final double value)
@@ -762,7 +908,8 @@ public class CDROutputStream
         }
         b = representation[representation.length-1] << 4;
 
-        representation[representation.length-1] = (byte)((value.signum() < 0 )? (b | 0xD) : (b | 0xC));
+        representation[representation.length-1] = 
+            (byte)((value.signum() < 0 )? (b | 0xD) : (b | 0xC));
 
         check(representation.length);
         System.arraycopy(representation,0,buffer,pos,representation.length);
@@ -908,15 +1055,27 @@ public class CDROutputStream
         buffer[pos++] = value;
     }
 
-    public final void write_octet_array
-        (final byte[] value, final int offset, final int length)
+//      public final void write_octet_array
+//          (final byte[] value, final int offset, final int length)
+//      {
+//          if( value != null )
+//          {
+//              check(length);
+//              System.arraycopy(value,offset,buffer,pos,length);
+//              index += length;
+//              pos += length;
+//          }
+//      }
+
+    public final void write_octet_array( final byte[] value, 
+                                         final int offset, 
+                                         final int length)
     {
         if( value != null )
         {
-            check(length);
-            System.arraycopy(value,offset,buffer,pos,length);
+            deferredArrayQueue.add( new DeferredWriteFrame( index, offset, length, value ));
             index += length;
-            pos += length;
+            deferred_writes += length;
         }
     }
 
