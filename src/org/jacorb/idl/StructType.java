@@ -311,10 +311,6 @@ class StructType
 
 	String type = typeName();
 
-	ps.println("\tpublic " + className + "Helper ()");
-	ps.println("\t{");
-	ps.println("\t}");
-
 	TypeSpec.printHelperClassMethods(className, ps, type);
 
 	printIdMethod( ps ); // inherited from IdlSymbol

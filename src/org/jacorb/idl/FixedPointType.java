@@ -100,10 +100,6 @@ class FixedPointType
 	ps.println("{");
 	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";");
 
-	ps.println("\tpublic " + className + "Helper ()");
-	ps.println("\t{");
-	ps.println("\t}");
-
 	ps.println("\tpublic static void insert(org.omg.CORBA.Any any, java.math.BigDecimal s)");
 	ps.println("\t{");
 	ps.println("\t\tany.insert_fixed(s, type());");

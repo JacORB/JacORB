@@ -410,10 +410,6 @@ public class AliasTypeSpec
 
 	String type = originalType.typeName();
 
-	ps.println("\tpublic " + className + "Helper ()");
-	ps.println("\t{");
-	ps.println("\t}");
-
 	ps.println("\tpublic static void insert (final org.omg.CORBA.Any any, final " + type + " s)");
 	ps.println("\t{");
         ps.println("\t\tany.type (type ());");       

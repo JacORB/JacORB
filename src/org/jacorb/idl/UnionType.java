@@ -670,10 +670,6 @@ class UnionType
 	
 	String _type = typeName();
 
-	ps.println("\tpublic " + className + "Helper ()");
-	ps.println("\t{");
-	ps.println("\t}");
-
 	ps.println("\tpublic static void insert (org.omg.CORBA.Any any, " + _type + " s)");
 	ps.println("\t{");
 	ps.println("\t\tany.type (type ());");
