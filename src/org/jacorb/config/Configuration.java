@@ -159,12 +159,12 @@ public class Configuration
        
        // 3) look for specific properties file
        String configDir = 
-           System.getProperty("jacorb.config.dir");
+           getAttribute("jacorb.config.dir", "");
        
-       if (configDir == null)
-           configDir = System.getProperty("jacorb.home");
+       if (configDir.length() == 0)
+           configDir = getAttribute("jacorb.home", "");
        
-       if (configDir != null )
+       if (configDir.length() != 0 )
            configDir += separator + "etc";
        else
        {
