@@ -71,7 +71,7 @@
    <target name="compile-src">
       <antcall target="jacorb-javac">
          <param name="javac-includes" value="**"/>
-         <param name="javac-excludes" value="generated/**,**/RMITestServant.java"/>
+         <param name="javac-excludes" value="notification/**,generated/**,**/RMITestServant.java"/>
       </antcall>
    </target>
 
@@ -139,7 +139,7 @@
    <!-- ==================================================== -->
 
 
-   <target name="compile-idl">
+   <target name="compile-idl" >
       <antcall target="idl-tests"/>
       <antcall target="idl-basicserver"/>
       <antcall target="idl-charserver"/>
@@ -151,6 +151,7 @@
       <antcall target="idl-bidir"/>
       <antcall target="idl-iiopaddress"/>
       <antcall target="idl-recursive"/>
+      <antcall target="idl-notification"/>
    </target>
 
 
@@ -284,6 +285,15 @@
       <property name="file.idl" value="RecursiveParamServer.idl"/>
       <antcall target="process-idl"/>
   </target>
+
+  <target name="idl-notification">
+    <property name="props.idl" value="Notification" />
+    <property name="pkg.idl" value="org/jacorb/test/notification" />
+    <property name="callback.idl" value="false"/>
+    <property name="file.idl" value="Notification.idl" />
+    <antcall target="process-idl" />
+  </target>
+
 
    <!-- ==================================================== -->
    <!--                  run all tests                       -->
@@ -420,6 +430,27 @@
       </antcall>
       <antcall target="run">
          <param name="test" value="org.jacorb.test.orb.dynany.DynAnyUnionTest"/>
+      </antcall>
+   </target>
+
+
+   <!-- ==================================================== -->
+   <!--                 run notification tests               -->
+   <!-- ==================================================== -->
+
+
+   <target name="run-all-notification"
+           description="Run all Jacorb tests in the notification package and its subpackages">
+      <antcall target="run">
+         <param name="test" value="org.jacorb.test.notification.AllTest"/>
+      </antcall>
+   </target>
+
+
+   <target name="run-all-notification-no-build"
+           description="Run all Jacorb tests in the notification package and its subpackages">
+      <antcall target="run-no-build">
+         <param name="test" value="org.jacorb.test.notification.AllTest"/>
       </antcall>
    </target>
 
