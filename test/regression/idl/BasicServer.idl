@@ -1,5 +1,3 @@
-#pragma prefix "jacorb.org"
-
 
 module org
 {

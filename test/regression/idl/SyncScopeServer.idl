@@ -1,5 +1,3 @@
-#pragma prefix "org.jacorb"
-
 #include "Tests.idl"
 
 module org

@@ -1,7 +1,5 @@
 // Tests.idl contains examples of various IDL types
 
-#pragma prefix "jacorb.org"
-
 module org
 {
    module jacorb
