@@ -1344,8 +1344,8 @@ public class CDROutputStream
                      write_string( value.member_name(i) );
                   }
                   endEncapsulation();
-                  break;
                }
+               break;
             case TCKind._tk_union:
                if (Environment.indirectionEncoding () &&
                    tcMap.containsKey (value.id ()))
