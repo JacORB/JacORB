@@ -56,7 +56,7 @@ public class NameServer
 
 
     static class NameServantActivatorImpl 
-        extends ServantActivatorPOA 
+        extends _ServantActivatorLocalBase
     {
 	private org.omg.CORBA.ORB orb = null;
  
@@ -69,7 +69,7 @@ public class NameServer
 	 * @returns - a servant initialized from a file
 	 */
 
-	public Servant incarnate(byte[] oid, POA adapter) 
+	public Servant incarnate( byte[] oid, POA adapter ) 
 	    throws ForwardRequest 
 	{
 	    String oidStr = new String(oid);
@@ -77,10 +77,10 @@ public class NameServer
 	    NamingContextImpl n = null;		
 	    try
 	    {
-		File f = new File(filePrefix + oidStr );
+		File f = new File( filePrefix + oidStr );
 		if( f.exists() )
 		{
-		    org.jacorb.util.Debug.output(2,"Reading in  context state from file");
+		    org.jacorb.util.Debug.output( 2,"Reading in  context state from file");
 		    FileInputStream f_in = new FileInputStream(f);
 		    
 		    if( f_in.available() > 0 )
@@ -107,9 +107,9 @@ public class NameServer
 	    if( n == null )
 	    {
 		n = new NamingContextImpl();
-	    }
-
-	    n.init( orb, adapter);
+	    }		    
+	    
+            n.init( orb, adapter);
 	    return n;
 	}
 
@@ -228,7 +228,7 @@ public class NameServer
 	    NameServer.NameServantActivatorImpl servantActivator = 
 		new NameServer.NameServantActivatorImpl( orb );
 
-	    nsPOA.set_servant_manager( servantActivator._this(orb) );
+	    nsPOA.set_servant_manager( servantActivator );
 	    nsPOA.the_POAManager().activate();
 
 	    for (int i=0; i<policies.length; i++) 

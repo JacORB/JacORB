@@ -646,12 +646,11 @@ public class NamingContextImpl
      *
      */
 
-    void init(org.omg.CORBA.ORB orb, org.omg.PortableServer.POA poa)
+    void init(org.omg.CORBA.ORB orb, org.omg.PortableServer.POA poa )
     {
-        _this_object(orb);
-        this.poa=poa;
+        this.poa = poa;
         this.orb = orb;
-        
+
         try
         {
             this.rootPoa = 
