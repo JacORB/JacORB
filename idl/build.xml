@@ -131,6 +131,7 @@
 
       <copy todir="${src}/generated">
          <fileset dir="${src}/generated/temp">
+            <include name="**/CompletionStatus*.java"/>
 		      <include name="**/*Helper.java"/>
          </fileset>
       </copy>      
