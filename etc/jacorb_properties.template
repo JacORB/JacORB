@@ -698,8 +698,7 @@ jtrader.max_link_follow_policy=
 ########################################################
 #                                                      #
 #   Notification Service configuration, please see     #
-#   src/org/jacorb/notification/README.PROPERTIES for  #
-#   explanation                                        #
+#   the JacORB ProgrammingGuide for a explanation      #
 #                                                      #
 ########################################################
 
@@ -709,7 +708,7 @@ jacorb.notification.proxyconsumer.thread_pool_size = 2
 
 jacorb.notification.proxysupplier.thread_pool_size = 4
 
-jacorb.notification.proxyconsumer.poll_intervall = 1000
+jacorb.notification.supplier.poll_intervall = 1000
 
 jacorb.notification.max_batch_size = 1
 
@@ -728,15 +727,16 @@ jacorb.notification.proxysupplier.threadpolicy = ThreadPool
 
 jacorb.notification.default_filter_factory = builtin
 
-# Notification Service log levels:
-# 0 = fatal errors only = "almost off" (FATAL ERRORS)
-# 1 = non-fatal errors and exceptions (ERROR)
-# 2 = important messages (WARN)
-# 3 = informational messages and exceptions (INFO)
-# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
+# jacorb.notification.supplier.max_number = 10
 
-org.jacorb.notification.log.verbosity = 3
-org.jacorb.test.notification.log.verbosity = 3
+# jacorb.notification.start_time_supported = 10
+
+jacorb.notification.stop_time_supported = on
+
+jacorb.notification.proxy.destroy_causes_disconnect = on
+
+# Notification Service log levels:
+org.jacorb.notification.log.verbosity = INFO
 
 ########################################
 #                                      #
