@@ -36,6 +36,14 @@ module org
                {
                   string getDomain();
                };
+
+               abstract interface Subject
+               {
+                  readonly attribute string id;
+                  readonly attribute string name;
+                  readonly attribute string comment;
+                  readonly attribute boolean valid;
+               };
             };
          };
       };
