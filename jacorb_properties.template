@@ -226,7 +226,7 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 
 #org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
 
-# IIOP/SSL parameters (numbers are decimal values):
+# IIOP/SSL parameters (numbers are hex values, without the leading "0x"):
 # EstablishTrustInClient = 40
 # EstablishTrustInTarget = 20
 # mutual authentication = 60
