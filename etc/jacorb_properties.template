@@ -179,6 +179,9 @@ jacorb.maxManagedBufSize=18
 # Max no of accepted connections on the server.
 #jacorb.connection.max_server_connections=
 
+# Max number of connection threads.
+#jacorb.connection.max_threads=
+
 # The number of msecs that are waited until the next attempt to find
 # an idle connection is made (i.e. do not continuously spin)
 #jacorb.connection.wait_for_idle_interval=500
