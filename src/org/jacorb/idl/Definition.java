@@ -28,10 +28,9 @@ package org.jacorb.idl;
 import java.io.PrintWriter;
 
 
-class Definition
-        extends IdlSymbol
+public class Definition
+    extends IdlSymbol
 {
-
     private Declaration declaration;
 
     public Definition( int num )
@@ -90,6 +89,17 @@ class Definition
     {
         declaration.parse();
     }
+
+    /**
+     * @overrides accept in IdlSymbol
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitDefinition( this );
+    }
+
+
 }
 
 
