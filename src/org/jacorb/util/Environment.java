@@ -118,6 +118,8 @@ public class Environment
     private static int                  _thread_pool_max = 20;
     private static int                  _thread_pool_min = 10;
     private static int                  _queue_max = 100;
+    private static int                  _queue_min = 10;
+    private static boolean              _queue_wait = false;
 
     /** IIOP proxy/appligator */
     private static boolean              _use_appligator_for_applets = true;
@@ -389,6 +391,10 @@ public class Environment
             _thread_pool_min = Integer.parseInt(o);
         else    if( varName.equals("_queue_max"))
             _queue_max = Integer.parseInt(o);
+        else if (varName.equals("_queue_min"))
+            _queue_min = Integer.parseInt(o);
+        else if (varName.equals("_queue_wait"))
+            _queue_wait = o.equalsIgnoreCase("off") ? false : true;
         else if( varName.equals("_use_appligator_for_applets"))
             _use_appligator_for_applets = (o.equalsIgnoreCase("off")? false : true );
         else if( varName.equals("_use_appligator_for_applications"))
@@ -489,6 +495,8 @@ public class Environment
         readValue("_thread_pool_max","thread_pool_max",poaPrefix+"thread_pool_max");
         readValue("_thread_pool_min","thread_pool_min",poaPrefix+"thread_pool_min");
         readValue("_queue_max","queue_max",poaPrefix+"queue_max");
+        readValue("_queue_min","queue_min",poaPrefix+"queue_min");
+        readValue("_queue_wait","queue_wait",poaPrefix+"queue_wait");
         readValue("_use_appligator_for_applets", jacorbPrefix+"use_appligator_for_applets", null);
         readValue("_use_appligator_for_applications", jacorbPrefix+"use_appligator_for_applications", null);
         readValue("_use_httptunneling_for",jacorbPrefix+"use_httptunneling_for", null);
@@ -534,6 +542,8 @@ public class Environment
     public static final boolean locateOnBind() { return _locate_on_bind; }
     public static final boolean cacheReferences() { return _cache_references; }
 
+    public static final boolean queueWait() { return _queue_wait;  }
+    public static final int queueMin() { return _queue_min;  }
     public static final int queueMax() { return _queue_max;  }
     public static final long retryInterval() { return _retry_interval; }
 
