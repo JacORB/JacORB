@@ -171,7 +171,7 @@ public final class ORB
 
     synchronized void _release( org.jacorb.orb.Delegate delegate )
     {
-        knownReferences.remove( delegate.pior.getIORString() );
+        knownReferences.remove( delegate.getParsedIOR().getIORString() );
     }
 
 

@@ -65,8 +65,12 @@ public class ClientConnection
 
     protected Socket mysock = null;
     protected ReplyReceptor repReceptor;
-    private byte [] header = new byte[ Messages.MSG_HEADER_SIZE ];
+    private byte[] header = new byte[ Messages.MSG_HEADER_SIZE ];
     protected SocketFactory socket_factory = null;
+    
+    private String target_host = null;
+    private int target_port = -1;
+
     
     /** 
      * dummy constructor
@@ -77,20 +81,47 @@ public class ClientConnection
 
     /**
      * class Constructor, establishes a connection over a given socket.
-     * It is called from ConnectionManager.getConnection for clients and
-     * from BasicAdapter for servers
+     * It is called from ConnectionManager.getConnection
      *
      * @param <code>Socket s</code>
-     * @param <code>boolean _is_server</code> - if opened from the server side.<br>
-     * @except <code>java.io.IOException</code>
+     * @param <code>boolean _is_server</code> - if opened from the
+     * server side.<br> 
+     * @except <code>java.io.IOException</code> 
      */
-	       
+	
     public ClientConnection ( ConnectionManager mgr, 
-                              java.net.Socket s, 
+                              String host,
+                              int port,
                               SocketFactory socket_factory )
-        throws IOException
     {
-        this( mgr, 
+        this.socket_factory = socket_factory;
+        manager = mgr;
+        orb = mgr.getORB();
+     
+        target_host = host;
+        target_port = port;
+
+        connection_info = target_host + ':' + target_port;
+
+        //get the client-side timeout property value
+        String prop = 
+            Environment.getProperty( "jacorb.connection.client_timeout" );
+        
+        if( prop != null )
+        {
+            try
+            {
+                timeout = Integer.parseInt(prop);
+            }
+            catch( NumberFormatException nfe )
+            {
+                Debug.output( 1, "Unable to create int from string >" +
+                              prop + '<' );
+                Debug.output( 1, "Please check property \"jacorb.connection.client_timeout\"" );
+            }
+        }
+    }
+/*        this( mgr, 
               s, 
               new BufferedInputStream( s.getInputStream()),
               socket_factory );
@@ -127,7 +158,7 @@ public class ClientConnection
         Debug.output(1, "New " + ssl + "connection to " + host_and_port);
         repReceptor = new ReplyReceptor( this );
 
-        /* get the client-side timeout property value */
+        //get the client-side timeout property value
 
         String prop = 
             Environment.getProperty("jacorb.connection.client_timeout");
@@ -137,7 +168,7 @@ public class ClientConnection
             timeout = Integer.parseInt(prop);
         }
     }
-
+*/
     ORB getORB()
     {
         return orb;
@@ -210,10 +241,8 @@ public class ClientConnection
 	    return true;
 	}
 
-	/* if we  are here then no tagged component was found
-        */
-
-	TCS = CodeSet.getTCSDefault();
+        //if we  are here then no tagged component was found
+        TCS = CodeSet.getTCSDefault();
 	TCSW = CodeSet.getTCSWDefault();
 		
 	// mark as negotiated, why if it's not true ? because we don't
@@ -250,7 +279,7 @@ public class ClientConnection
      * Adds code set service context to another contexts if needed.
      */
 
-    public org.omg.IOP.ServiceContext [] addCodeSetContext( org.omg.IOP.ServiceContext [] ctx,
+    public org.omg.IOP.ServiceContext[] addCodeSetContext( org.omg.IOP.ServiceContext[] ctx,
 							    ParsedIOR pior)
     {		
 	// if already negotiated, don't send any further cs contexts
@@ -343,7 +372,7 @@ public class ClientConnection
                      connection_info + " (sockets closed)");
 
 	manager.removeConnection( this );
-
+ 
 	// connection_info = null;
 
 	if( replies.size() > 0 )
@@ -611,14 +640,10 @@ public class ClientConnection
     public synchronized void reconnect()
 	throws org.omg.CORBA.COMM_FAILURE
     {	
-	Debug.output(1,"Trying to reconnect to " + connection_info);
+	Debug.output(1,"Trying to (re)connect to " + 
+                     target_host + ':' + target_port );
 
 	int retries = Environment.noOfRetries();
-
-	String host = 
-            connection_info.substring(0,connection_info.indexOf(":"));
-	int port = 
-            new Integer( connection_info.substring( connection_info.indexOf(":")+1)).intValue();
 
 	while( retries > 0 ) 
 	{
@@ -626,40 +651,43 @@ public class ClientConnection
 	    {
                 //noffke: by now, the factory knows if to provide
                 //ssl or not
-                mysock = socket_factory.createSocket( host, port );
+                mysock = socket_factory.createSocket( target_host, 
+                                                      target_port );
 
-		mysock.setTcpNoDelay(true);
+		//mysock.setTcpNoDelay(true);
 
                 if( timeout != 0 )
                 {
                     /* re-set the socket timeout */
-                    try
-                    {
-                        mysock.setSoTimeout( timeout );
-                    } 
-                    catch ( java.lang.NumberFormatException nfe )
-                    {
-                        // just ignore
-                    }
+                    //mysock.setSoTimeout( timeout );
                 }
 
 		in_stream = 
-		    new BufferedInputStream(mysock.getInputStream());
+		    new BufferedInputStream( mysock.getInputStream() );
 
 		out_stream = 
-		    new BufferedOutputStream(mysock.getOutputStream(), 
-					     Environment.outBufSize());
-		
+		    new BufferedOutputStream( mysock.getOutputStream(), 
+					      Environment.outBufSize() );
+
+/*
 		String ip = mysock.getInetAddress().getHostAddress();
 
 		if( ip.indexOf('/') > 0)
 		    ip = ip.substring( ip.indexOf('/') + 1 );
 
 		String host_and_port = ip + ":"+ mysock.getPort();
-		manager.addConnection( this );
 		connection_info = host_and_port;
+*/
+		manager.addConnection( this );
 
-		Debug.output(1,"Reconnected to " + host_and_port);
+		Debug.output( 1,"(Re)connected " + 
+                              (( isSSL() )? "via SSL " : "" ) 
+                              + "to " + connection_info );
+
+                if( repReceptor != null )
+                {
+                    repReceptor.stopReceptor();
+                }
 
 		repReceptor = new ReplyReceptor( this );
 

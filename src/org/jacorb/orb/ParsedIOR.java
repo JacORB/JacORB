@@ -237,12 +237,17 @@ public class ParsedIOR
 	decode( _ior );
     }
 
+    public boolean equals( Object o )
+    {
+        return o instanceof ParsedIOR &&
+            ((ParsedIOR) o).ior_str.equals( ior_str );
+    }
 
     /**
      * When multiple internet IOP tags are present, they will probably
-     * have different versions, we will use the highest version between 0 and 1.
+     * have different versions, we will use the highest version
+     * between 0 and 1.  
      */
-
     public void decode( IOR _ior) 
     {
 	boolean iiopFound = false;

@@ -48,28 +48,28 @@ import org.omg.CORBA.SystemException;
 public final class Delegate
     extends org.omg.CORBA.portable.Delegate
 {
-    // these need to be accessible to the ORB
-    public ParsedIOR pior;
-    public ClientConnection connection;
+    // WARNING: DO NOT USE _pior DIRECTLY, BECAUSE THAT IS NOT MT
+    // SAFE. USE getParsedIOR() INSTEAD, AND KEEP A METHOD-LOCAL COPY
+    // OF THE REFERENCE.
+    private ParsedIOR _pior = null;
+    private ClientConnection connection = null;
     
     private byte[] object_key;
     private byte[] oid;
     private String adport;
-    private org.omg.IOP.IOR ior;
 
     /** code set service Context */
-    org.omg.IOP.ServiceContext [] ctx = new org.omg.IOP.ServiceContext[0];
+    org.omg.IOP.ServiceContext[] ctx = new org.omg.IOP.ServiceContext[0];
 
     /** SSL tagged component */
     private org.omg.SSLIOP.SSL ssl;
 
     /** domain service used to implement get_policy and get_domain_managers */
-    private static Domain _domainService= null;
+    private static Domain _domainService = null;
 
     private boolean uses_ssl = false; // bnv
 
     /* save original ior for fall-back */
-    private org.omg.IOP.IOR iorOriginal = null;
     private ParsedIOR piorOriginal = null;
 
     private boolean bound = false;
@@ -85,18 +85,36 @@ public final class Delegate
     private Hashtable pending_replies = new Hashtable();
     private Barrier pending_replies_sync = new Barrier();
 
-    private boolean do_init = true;
+    private Object bind_sync = new Object();
+
+    private boolean locate_on_bind_performed = false;
+
+    /**
+     * A general note on the synchronization concept
+     *
+     * The main problem that has to be addressed by synchronization
+     * means is the case when an object reference is shared by
+     * threads, and LocationForwards (e.g. thrown by the ImR) or
+     * ForwardRequest (thrown by ClientInterceptors) involved. In
+     * these cases, the rebinding to another target can occur while
+     * there are still other requests active. Therefore, the act of
+     * rebinding must be synchronized, so every thread sees a
+     * consistent state.  
+     *
+     * Synchronization is done via the bind_sync object. Please also
+     * have a look at the comment for opration bind().  
+     */
 
     /* constructors: */
     public Delegate()
     {}
 
-    protected Delegate(org.omg.CORBA.ORB orb, org.jacorb.orb.ParsedIOR _pior )
+    protected Delegate(org.omg.CORBA.ORB orb, ParsedIOR pior )
     {
         this.orb = orb;
-        ior = _pior.getIOR();
-        pior = _pior;
-        //_init();
+        _pior = pior;
+
+        initInterceptors();
     }
 
     protected Delegate(org.omg.CORBA.ORB orb, String object_reference ) 
@@ -104,20 +122,23 @@ public final class Delegate
         this.orb = orb;
         if ( object_reference.indexOf("IOR:") == 0)
         {
-            pior = new ParsedIOR( object_reference );
-            ior =  pior.getIOR();
+            _pior = new ParsedIOR( object_reference );
         }
         else
-            throw new org.omg.CORBA.INV_OBJREF("Not an IOR: "+object_reference);
-        //_init();
+        {
+            throw new org.omg.CORBA.INV_OBJREF( "Not an IOR: " + 
+                                                object_reference );
+        }
+
+        initInterceptors();
     }
 
     protected Delegate(org.omg.CORBA.ORB orb, org.omg.IOP.IOR _ior )
     {
         this.orb = orb;
-        ior = _ior;
-        pior = new ParsedIOR( ior );
-        //_init();
+        _pior = new ParsedIOR( _ior );
+
+        initInterceptors();
     }
 
 
@@ -126,144 +147,181 @@ public final class Delegate
         return org.omg.CORBA.TCKind._tk_objref;
     }
 
-    /*
-     * bnv: client-side policy enforcement
-     */
 
-    private boolean useSSL ( org.omg.SSLIOP.SSL ssl )
-    {
-        if (ssl == null)
-        {
-            return false;
-        }
-        else
-        {   
-            // if  need it do it, or, if I support it and the others want it, ditto
-            return( Environment.enforceSSL() ||
-                    ( Environment.supportSSL() && ( ssl.target_requires > 1 )) );
-        }
-    } 
-
-    private void _init()
-    {
-        org.omg.IIOP.ProfileBody_1_1 pb = pior.getProfileBody();
-
-        if( pb == null )
-        {
-            throw new org.omg.CORBA.INV_OBJREF( "No TAG_INTERNET_IOP found in object_reference" );
-        }
-
-
-
-        int port = pb.port;
-
-        // bnv: consults SSL tagged component
-        ssl = ParsedIOR.getSSLTaggedComponent( pb );    
-    
-        if( useSSL( ssl ) ) 
-        {
-            //      for policy expected serverside
-            uses_ssl = true; 
-            port = ssl.port; 
-        }                
-        else 
-        { 
-            uses_ssl = false; 
-        } 
-
-        if( port < 0 ) 
-            port += 65536;
-
-        object_key = pb.object_key;
-        adport = pb.host + ":" + port;
-
-        if( uses_ssl )
-            org.jacorb.util.Debug.output( 3, "Delegate bound to SSL " + adport );
-        else
-            org.jacorb.util.Debug.output( 3, "Delegate bound to " + adport );
-
-        initInterceptors();
-        
-        do_init = false;
-    }
-
-    public synchronized void bind() 
+    /**
+     * This bind is a combination of the old _init() and bind()
+     * operations. It first inits this delegate with the information
+     * supplied by the (parsed) IOR. The it requests a new
+     * ClientConnection from the ConnectionsManager. This will *NOT*
+     * open up a TCP connection, but the connection is needed for the
+     * GIOP message ids. The actual TCP connection is automatically
+     * opend up by the ClientConnection, when the first request is
+     * sent. This has the advantage, that COMM_FAILURES can only occur
+     * inside of _invoke, where they get handled properly (falling
+     * back, etc.)
+     *  */
+    private void bind() 
     { 
-        if( bound )
-            return;
+        synchronized( bind_sync )
+        {
+            if( bound )
+                return;
 
-        if( do_init )
-            _init();
-        
-        /*    
-        if( noMoreClients() )
-            throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
-        */
-    
-        connection = ((org.jacorb.orb.ORB)orb).getConnectionManager().getConnection( this );
-        bound = true;
-        
-        //tell conn, that one more *instance* of delegate is bound to it
-        connection.duplicate();
-    
-        /* The delegate could query the server for the object location using
-           a GIOP locate request to make sure the first call will get through
-           without redirections (provided the server's answer is definite):
-        */
-    
-        if( org.jacorb.util.Environment.locateOnBind())
-        {        
-            LocateRequestOutputStream lros = 
-                new LocateRequestOutputStream( object_key, connection.getId());
-            LocateReplyInputStream lris = 
-                connection.sendLocateRequest( lros );
-    
-            switch ( lris.status().value() )
+            org.omg.IIOP.ProfileBody_1_1 pb = _pior.getProfileBody();
+            
+            if( pb == null )
             {
-            case org.omg.GIOP.LocateStatusType_1_0._OBJECT_HERE:
-                org.jacorb.util.Debug.output(3,"object here");
-                break;
-            case org.omg.GIOP.LocateStatusType_1_0._OBJECT_FORWARD:
-                org.jacorb.util.Debug.output(3,"Locate Reply: Forward");
-                unbind();
-                bind( orb.object_to_string( lris.read_Object()) );    
-                // ignore this for the moment...
-                break;
-            case org.omg.GIOP.LocateStatusType_1_0._UNKNOWN_OBJECT :
-                throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
-            default:
-                throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.status().value());
+                throw new org.omg.CORBA.INV_OBJREF( "No TAG_INTERNET_IOP found in object_reference" );
+            }
+            
+            int port = pb.port;
+            
+            // bnv: consults SSL tagged component
+            ssl = ParsedIOR.getSSLTaggedComponent( pb );    
+
+            if( ssl != null &&
+                ( Environment.enforceSSL() ||
+                  ( Environment.supportSSL() && 
+                    (ssl.target_requires > 1) )))
+            {
+                //      for policy expected serverside
+                uses_ssl = true; 
+                port = ssl.port; 
+            }                
+            else 
+            { 
+                uses_ssl = false; 
+            } 
+            
+            if( port < 0 ) 
+                port += 65536;
+            
+            object_key = pb.object_key;
+            adport = pb.host + ":" + port;
+            
+            if( uses_ssl )
+                Debug.output( 3, "Delegate bound to SSL " + adport );
+            else
+                Debug.output( 3, "Delegate bound to " + adport );
+        
+    
+            connection = 
+                ((ORB) orb).getConnectionManager().getConnection( this );
+            bound = true;
+        
+            //tell conn, that one more *instance* of delegate is bound
+            //to it            
+            connection.duplicate();
+            
+            /* The delegate could query the server for the object
+             *  location using a GIOP locate request to make sure the
+             *  first call will get through without redirections
+             *  (provided the server's answer is definite): 
+             */
+            if( (! locate_on_bind_performed) &&
+                Environment.locateOnBind() )
+            {  
+                //only locate once, because bind is called from the
+                //swith statement below again.
+                locate_on_bind_performed = true;
+
+                LocateRequestOutputStream lros = 
+                    new LocateRequestOutputStream( object_key, 
+                                                   connection.getId() );
+                LocateReplyInputStream lris = 
+                    connection.sendLocateRequest( lros );
+    
+                switch( lris.status().value() )
+                {
+                    case org.omg.GIOP.LocateStatusType_1_0._OBJECT_HERE:
+                        Debug.output(3,"object here");
+                        break;
+                    case org.omg.GIOP.LocateStatusType_1_0._OBJECT_FORWARD:
+                        Debug.output(3,"Locate Reply: Forward");
+                        rebind( orb.object_to_string( lris.read_Object()) );
+                        // ignore this for the moment...
+                        break;
+                    case org.omg.GIOP.LocateStatusType_1_0._UNKNOWN_OBJECT :
+                        throw new org.omg.CORBA.UNKNOWN("Could not bind to object, server does not know it!");
+                    default:
+                        throw new RuntimeException("Unknown reply status for LOCATE_REQUEST: " + lris.status().value());
+                }
+            }
+            
+            //wake up threads waiting for the pior
+            bind_sync.notifyAll();
+        }
+    }
+    
+    private void rebind( String object_reference ) 
+    {
+        synchronized( bind_sync )
+        {
+            if( object_reference.indexOf("IOR:") == 0 )
+            {
+                rebind( new ParsedIOR( object_reference ));
+            }
+            else
+            {
+                throw new org.omg.CORBA.INV_OBJREF( "Not an IOR: " + 
+                                                    object_reference );
             }
         }
     }
 
-    public synchronized void bind( String object_reference ) 
-    { 
-        if( bound )
-            return;
-        if (object_reference.indexOf("IOR:") == 0)
-        {
-            pior = new ParsedIOR( object_reference );
-            ior =  pior.getIOR();
-        }
-        _init();
-        bind();
-    }
-
-
-    /**
-     * Unbind this reference
-     */ 
-    
-    public synchronized void unbind()
+    private void rebind( ParsedIOR p )
     {
-        if( ! bound )
-            return;
-        pior = null;
-        adport = null;
-        if( connection != null )
-            connection.releaseConnection();
-        bound = false;
+        synchronized( bind_sync )
+        {
+            if( p.equals( _pior ))
+            {
+                //already bound to target, so just return
+                return;
+            }
+
+            //keep "old" pior for fallback
+            piorOriginal = _pior;
+            
+            _pior = p;
+
+            if( connection != null )
+            {
+                connection.releaseConnection();                
+            }
+
+            //to tell bind() that it has to take action
+            bound = false;
+
+            bind();
+        }
+    }    
+        
+    /**
+     * Fallback is a rebind() to the piorOriginal, with nulling that
+     * attribute afterwards.  
+     * 
+     * @return true, if piorOriginal was not null. false, otherwise
+     */
+    private boolean fallback() 
+    {
+        synchronized( bind_sync )
+        {
+            if( piorOriginal != null )
+            {
+                Debug.output(2, "Delegate: falling back to original IOR");
+
+                rebind( piorOriginal );
+                
+                //clean up;
+                piorOriginal = null;
+                
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
     public org.omg.CORBA.Request create_request(org.omg.CORBA.Object self,
@@ -272,8 +330,7 @@ public final class Delegate
                                                 org.omg.CORBA.NVList args, 
                                                 org.omg.CORBA.NamedValue result)
     {
-        if( !bound )
-            bind();
+        bind();
 
         return new org.jacorb.orb.dii.Request( self, 
                                                orb, 
@@ -299,50 +356,8 @@ public final class Delegate
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
-    /*
-    private synchronized void incrementClientCount()
-    {
-        client_count++;
-    }
-
-    private synchronized void decrementClientCount()
-    {
-        client_count--;
-    }
-
-    private synchronized boolean noMoreClients()
-    {
-        return (client_count <= 0 );
-    }
-
-    */
-
-
     public synchronized org.omg.CORBA.Object duplicate(org.omg.CORBA.Object self)
     {
-        /*
-        if( !bound )
-            bind();
-        try
-        {
-            incrementClientCount();
-            if( connection == null )
-            {
-                bound = false;
-                throw new org.omg.CORBA.COMM_FAILURE();
-            }
-            connection.duplicate();
-            org.jacorb.util.Debug.output(4,"Reference count for " + adport + 
-                                         " : " + client_count );
-            return self;
-        } 
-        catch ( Exception e )
-        {
-            org.jacorb.util.Debug.output(3,e);
-            return null;
-        }
-        */
-
         return self;
     }
 
@@ -365,8 +380,10 @@ public final class Delegate
     {
         ((org.jacorb.orb.ORB)orb)._release( this );
 
-        if( bound )
-            unbind();
+        if( connection != null )
+        {
+            connection.releaseConnection();
+        }
 
         Debug.output(3," Delegate gc'ed!");
     }
@@ -383,18 +400,19 @@ public final class Delegate
             try 
             { 
 
-                org.jacorb.util.Debug.output
-                    (Debug.DOMAIN | Debug.DEBUG1, "Delegate._domainService: fetching "
-                     +"global domain service reference from orb");
+                Debug.output(Debug.DOMAIN | Debug.DEBUG1, 
+                             "Delegate._domainService: fetching "
+                             +"global domain service reference from orb");
+
                 _domainService= org.jacorb.orb.domain.DomainHelper.narrow
                     ( this.orb.resolve_initial_references("DomainService") );
             }
             catch (Exception e) 
             {
-
-                org.jacorb.util.Debug.output(Debug.DOMAIN | Debug.IMPORTANT, e);
+                Debug.output(Debug.DOMAIN | Debug.IMPORTANT, e);
             }
         }
+
         return _domainService;
     } // _domainService
 
@@ -407,10 +425,12 @@ public final class Delegate
         {
             try
             {
-                org.omg.CORBA.portable.OutputStream os = request
-                    (self, "_get_domain_managers", true );
+                org.omg.CORBA.portable.OutputStream os = 
+                    request(self, "_get_domain_managers", true );
+
                 os.write_Object(self);
                 org.omg.CORBA.portable.InputStream is = invoke( self, os );
+
                 return org.jacorb.orb.domain.DomainListHelper.read( is );
             }
             catch ( RemarshalException r ){}
@@ -423,7 +443,7 @@ public final class Delegate
             //   catch (org.omg.CORBA.BAD_OPERATION e)
             //              { // object implementation does not support domain service
             //              // therefore ask global domain service 
-            //              org.jacorb.util.Debug.output
+            //              Debug.output
             //                  (2,"Delegate: catched BAD_OPERATION exception, resuming "
             //                   + "operation _domain_managers() by getting domains from "
             //                   + "global domain service");
@@ -440,13 +460,12 @@ public final class Delegate
     public org.omg.CORBA.Policy get_policy_no_intercept(org.omg.CORBA.Object self, 
                                                         int policy_type)
     {
-
-        if( !bound ) 
-            bind();
+        bind();
         
         // devik: if connection's tcs was not negotiated yet, mark all requests
         // with codeset servicecontext.
-        ctx = connection.addCodeSetContext(ctx,pior);
+        ctx = connection.addCodeSetContext( ctx, 
+                                            getParsedIOR() );
     
         RequestOutputStream _os = 
              new RequestOutputStream( orb, 
@@ -464,7 +483,9 @@ public final class Delegate
     public org.omg.CORBA.Policy get_policy(org.omg.CORBA.Object self, 
                                            int policy_type)
     {
-        return get_policy(self, policy_type,  request(self, "_get_policy", true ));
+        return get_policy( self, 
+                           policy_type,  
+                           request(self, "_get_policy", true ));
     }
 
 
@@ -496,7 +517,6 @@ public final class Delegate
     /**
      * @deprecated Deprecated by CORBA 2.3
      */
-
     public org.omg.CORBA.InterfaceDef get_interface(org.omg.CORBA.Object self)
     {
         return org.omg.CORBA.InterfaceDefHelper.narrow(get_interface_def(self)) ;
@@ -509,8 +529,12 @@ public final class Delegate
         {
             try
             {       
-                org.omg.CORBA.portable.OutputStream os = request(self, "_interface", true);
-                org.omg.CORBA.portable.InputStream is = invoke( self, os );
+                org.omg.CORBA.portable.OutputStream os = 
+                    request(self, "_interface", true);
+
+                org.omg.CORBA.portable.InputStream is = 
+                    invoke( self, os );
+                
                 return is.read_Object();
             }
             catch ( RemarshalException r ){}
@@ -523,42 +547,68 @@ public final class Delegate
   
     ClientConnection getConnection()
     {
-        /*
-        if( noMoreClients() )
-            throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
-        */
+         synchronized( bind_sync )
+        {
+            bind();
 
-        return connection;
+            return connection;
+        }
     }
 
     public org.omg.IOP.IOR getIOR()
     {
-        /*        if( ior == null )
-                  return org.jacorb.orb.CDROutputStream.null_ior;
-                  else
-        */
-
-        if( iorOriginal != null )
-            return iorOriginal;
-        else
-            return ior;
+        synchronized( bind_sync )
+        {
+            if( piorOriginal != null )
+            {
+                return piorOriginal.getIOR();
+            }
+            else
+            {
+                return getParsedIOR().getIOR();
+            }
+        }
     }
 
     public byte[] getObjectId()
     {
-        if( oid == null )
-            oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
-        return oid;
+        synchronized( bind_sync )
+        {
+            bind();
+
+            if( oid == null )
+                oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
+
+            return oid;
+        }
     }
 
     public byte[] getObjectKey()
     {
-        return object_key;
+        synchronized( bind_sync )
+        {
+            bind();
+
+            return object_key;
+        }
     }
 
     public ParsedIOR getParsedIOR()
     {
-        return pior;
+        synchronized( bind_sync )
+        {
+            while( _pior == null )
+            {
+                try
+                {
+                    bind_sync.wait();
+                }
+                catch( InterruptedException ie )
+                {}
+            }
+
+            return _pior;
+        }
     }
 
     public org.jacorb.poa.POA getPOA()
@@ -568,17 +618,21 @@ public final class Delegate
 
     public boolean port_is_ssl()
     {
-        // check invariant
-        if ( uses_ssl && 
-             (connection != null) &&
-             ! connection.isSSL() )
+        synchronized( bind_sync )
         {
-            // invariant violated: this a fatal error!
-            org.jacorb.util.Debug.output( 1, "SSL socket expected. FATAL ERROR." );
-            // return org.omg.Security.AssociationStatus.SecAssocFailure;
-            System.exit (0);
+            // check invariant
+            if( uses_ssl && 
+                 (connection != null) &&
+                 ! connection.isSSL() )
+            {
+                // invariant violated: this a fatal error!
+                Debug.output( 1, "SSL socket expected. FATAL ERROR." );
+                // return org.omg.Security.AssociationStatus.SecAssocFailure;
+                System.exit (0);
+            }
+            
+            return uses_ssl;
         }
-        return uses_ssl;
     }
 
     public org.omg.SSLIOP.SSL ssl()
@@ -624,9 +678,6 @@ public final class Delegate
         ClientRequestInfoImpl info = null;
         RequestOutputStream ros = null;
 
-        if( !bound )
-            bind();
-            
         ros = (RequestOutputStream) os;
     
         if ( use_interceptors && ros.separateHeader() )
@@ -643,8 +694,10 @@ public final class Delegate
                 info.setRequest(ros.getRequest());
     
             info.effective_target = self;
-    
-            if (iorOriginal != null)
+
+            ParsedIOR pior = getParsedIOR();
+
+            if( piorOriginal != null )
                 info.target = ((org.jacorb.orb.ORB) orb)._getObject(pior);
             else
                 info.target = self;
@@ -695,7 +748,7 @@ public final class Delegate
                 pending_replies.put( rep, rep );
             }
         } 
-        catch (org.omg.CORBA.SystemException cfe)
+        catch( org.omg.CORBA.SystemException cfe )
         {
             if (use_interceptors && (info != null)) {
                 SystemExceptionHelper.insert(info.received_exception, cfe);
@@ -706,7 +759,7 @@ public final class Delegate
                 } 
                 catch(org.omg.CORBA.TypeCodePackage.BadKind _bk) 
                 {
-                    org.jacorb.util.Debug.output(2, _bk);
+                    Debug.output(2, _bk);
                 }
                 
                 info.reply_status = SYSTEM_EXCEPTION.value;
@@ -716,30 +769,23 @@ public final class Delegate
                                    ClientInterceptorIterator.RECEIVE_EXCEPTION);
             }
                 
-            // suggested by Markus Lindermeier: Catch COMM_FAILURE and
-            // fall-back to the original ior if the current one was
-            // forwarded, else throw exception.
-            if( iorOriginal != null ) 
+            if( fallback() )
             {
-                unbind();
-                ior = iorOriginal;
-                /* retry only once */
-                iorOriginal = null; 
-                piorOriginal = null; 
-                pior = new ParsedIOR( ior );
-                _init();
-                bind();    
-                /* now cause this invocation to be repeated by the caller 
-                   of invoke(), i.e. the stub */
+                /* now cause this invocation to be repeated by the
+                   caller of invoke(), i.e. the stub 
+                */
                 throw new RemarshalException();
             } 
             else
+            {
                 throw cfe;
+            }
         }
         catch (java.io.IOException ioe)
         {
-            org.jacorb.util.Debug.output(0, ioe);
-            ApplicationException _e = new ApplicationException(ioe.getMessage(), null);
+            Debug.output(0, ioe);
+            ApplicationException _e = 
+                new ApplicationException(ioe.getMessage(), null);
     
             if (use_interceptors && (info != null))
             {
@@ -755,12 +801,14 @@ public final class Delegate
                 invokeInterceptors(info,
                                    ClientInterceptorIterator.RECEIVE_EXCEPTION);
             }
+
             throw _e;
         }
         catch (Exception e)
         {        
-            org.jacorb.util.Debug.output(0, e);
-            ApplicationException _e = new ApplicationException(e.getMessage(), null);
+            Debug.output(0, e);
+            ApplicationException _e = 
+                new ApplicationException(e.getMessage(), null);
           
             if ( use_interceptors && (info != null) )
             {
@@ -849,14 +897,8 @@ public final class Delegate
                                        ClientInterceptorIterator.RECEIVE_OTHER);
                 }
               
-                if( iorOriginal == null ) // suggested by Markus Lindermeier:Save the 
-                {
-                    iorOriginal = ior;  // original IOR.
-                    piorOriginal = pior;
-                }
-    
                 /* retrieve the forwarded IOR and bind to it */
-                org.jacorb.util.Debug.output(3,"LocationForward");
+                Debug.output( 3, "LocationForward" );
 
                 //make other threads, that have unreturned replies, wait
                 pending_replies_sync.lockBarrier();
@@ -871,17 +913,16 @@ public final class Delegate
                 }
 
                 //do the actual rebind
-                unbind();
-                bind(orb.object_to_string(f.forward_reference));    
+                rebind(orb.object_to_string(f.forward_reference));    
 
                 //now other threads can safely remarshal
                 pending_replies_sync.openBarrier();
 
                 throw new RemarshalException();
             }
-            catch (SystemException _sys_ex)
+            catch( SystemException _sys_ex )
             {
-                if (use_interceptors && (info != null))
+                if( use_interceptors && (info != null))
                 {
                     info.reply_status = SYSTEM_EXCEPTION.value;
                     
@@ -902,7 +943,7 @@ public final class Delegate
                     }
                     catch(org.omg.CORBA.TypeCodePackage.BadKind _bk)
                     {
-                        org.jacorb.util.Debug.output(2, _bk);
+                        Debug.output(2, _bk);
                     }
 
                     //allow interceptors access to reply input stream
@@ -931,7 +972,7 @@ public final class Delegate
                     }
                     catch(Exception _e)
                     {
-                        org.jacorb.util.Debug.output(2, _e);
+                        Debug.output(2, _e);
               
                         SystemExceptionHelper.insert(info.received_exception, 
                                                      new org.omg.CORBA.UNKNOWN(_e.getMessage()));
@@ -943,7 +984,7 @@ public final class Delegate
                     catch (Exception _e)
                     {
                         //shouldn't happen anyway
-                        org.jacorb.util.Debug.output(2, _e);
+                        Debug.output(2, _e);
                     }
 
                     //allow interceptors access to reply input stream
@@ -998,12 +1039,9 @@ public final class Delegate
         }
         catch (org.omg.PortableInterceptor.ForwardRequest fwd)
         {
-            // suggested by Markus Lindermeier: Save the 
-            iorOriginal = ior;  // original IOR.
-            piorOriginal = pior;
             location_forward_permanent = fwd.permanent;
-            unbind();
-            bind(orb.object_to_string(fwd.forward));    
+         
+            rebind(orb.object_to_string(fwd.forward));    
             throw new RemarshalException();            
         }
         catch (org.omg.CORBA.UserException ue)
@@ -1027,10 +1065,12 @@ public final class Delegate
          * the most derived type. In this case, the ids returned by
          * the helper won't contain the most derived type
          */
-           
-        if( pior.getTypeId().equals( logical_type_id ))
-            return true;
+         
+        ParsedIOR pior = getParsedIOR();
 
+        if( pior.getTypeId().equals( logical_type_id ))
+                return true;
+        
         /*   The Ids in ObjectImpl will at least contain the type id 
              found in the object reference itself.
         */
@@ -1078,12 +1118,10 @@ public final class Delegate
 
     public boolean is_nil()    
     {
-        /*
-        if( noMoreClients() )
-            throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
-        */
+        ParsedIOR pior = getParsedIOR();
 
-        return( ior.type_id.equals("") && ior.profiles.length == 0 );
+        return( pior.getIOR().type_id.equals("") && 
+                pior.getIOR().profiles.length == 0 );
     }
 
     public boolean non_existent(org.omg.CORBA.Object self)
@@ -1116,7 +1154,7 @@ public final class Delegate
         if( noMoreClients() )
         {
             ((org.jacorb.orb.ORB)orb)._release( this );
-            org.jacorb.util.Debug.output(2, "releasing a delegate connected to " + adport );
+            Debug.output(2, "releasing a delegate connected to " + adport );
 
             if( bound )
                 unbind();
@@ -1145,13 +1183,12 @@ public final class Delegate
     public synchronized org.omg.CORBA.Request request(org.omg.CORBA.Object self,
                                                       String operation )
     {
-        if( !bound)
-            bind();
+        bind();
     
         return new org.jacorb.orb.dii.Request( self, orb, 
-                                           connection, 
-                                           object_key, 
-                                           operation );
+                                               connection, 
+                                               object_key, 
+                                               operation );
     }
 
     /**
@@ -1168,12 +1205,11 @@ public final class Delegate
         // Delegate d =
         // (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
 
-        if( !bound ) 
-            bind();
+        bind();
         
         // devik: if connection's tcs was not negotiated yet, mark all
         // requests with codeset servicecontext.
-        ctx = connection.addCodeSetContext( ctx, pior );
+        ctx = connection.addCodeSetContext( ctx, getParsedIOR() );
 
         RequestOutputStream ros = new RequestOutputStream( orb, 
                                         connection.getId(),
@@ -1208,7 +1244,7 @@ public final class Delegate
     
             if( ((org.jacorb.orb.ORB)orb).isApplet())
             {
-                org.jacorb.util.Debug.output(1, "Unproxyfying IOR:");
+                Debug.output(1, "Unproxyfying IOR:");
                 org.jacorb.orb.Delegate d =
                     (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
         
@@ -1247,7 +1283,7 @@ public final class Delegate
             }
             catch ( Throwable e ) 
             {
-                org.jacorb.util.Debug.output(2,e);
+                Debug.output(2,e);
             }
         }
         return null;   
@@ -1266,60 +1302,37 @@ public final class Delegate
 
     public void setIOR(org.omg.IOP.IOR _ior)
     {
-        ior=_ior;
-        pior=new org.jacorb.orb.ParsedIOR(ior);
-    
-        iorOriginal = null;
-        piorOriginal = null;
+        
+        synchronized( bind_sync )
+        {
+            _pior = new ParsedIOR( _ior );
+            piorOriginal = null;
+
+            bind_sync.notifyAll();
+        }
     }
 
     public String toString()
     {
-        //    if( client_count == 0 )
-        //        throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
-        if( piorOriginal != null )
-            return piorOriginal.ior_str;
-        else
-            return pior.ior_str;
+        synchronized( bind_sync )
+        {
+            if( piorOriginal != null )
+                return piorOriginal.ior_str;
+            else
+                return getParsedIOR().ior_str;
+        }
     }
     
     public String toString(org.omg.CORBA.Object self)
     {
         return toString();
-        //        return self.getClass().getName() + ":" + this.toString();
     }
     
     public String typeId()
     {
-        /*
-        if( noMoreClients() )
-            throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
-        */
-
-        return ior.type_id;
+        return getParsedIOR().getIOR().type_id;
     }
-    
-    private void fallback()
-    {
-        Debug.output(2, "Delegate: falling back to original IOR");
-                    
-        // falling back to original target,
-        // if location forward was only one-time
-        unbind();
-        ior = iorOriginal;
-        pior = piorOriginal;
         
-        iorOriginal = null;
-        piorOriginal = null;
-        location_forward_permanent = true;
-        
-        _init();
-        
-        //lazy bind :-), bind() will be called on the next invocation
-        //bind();          
-    }
-    
-    
     public void initInterceptors()
     {
         use_interceptors = ((org.jacorb.orb.ORB) orb).hasClientRequestInterceptors();
@@ -1357,6 +1370,8 @@ public final class Delegate
         }
     }
 }
+
+
 
 
 
