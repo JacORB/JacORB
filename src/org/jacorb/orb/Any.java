@@ -516,17 +516,40 @@ public final class Any
 
         org.omg.CORBA.ORB orb;
         String typeId = null;
-        String name = "*** don\'t know yet ***";
+        String name = "";
 
         if( value == null )
         {
             orb = org.omg.CORBA.ORB.init();
             typeId = "IDL:omg.org/CORBA/Object:1.0";
+            name = "Object";
         }
         else
         {            
             orb = ((org.omg.CORBA.portable.ObjectImpl)o)._orb();
             typeId = ((org.omg.CORBA.portable.ObjectImpl)o)._ids()[0];
+
+            // check if the repository Id is IDL format
+            if (typeId.startsWith ("IDL:"))
+            {
+               // parse the name from the repository Id string
+               try
+               {
+                  name = typeId.substring (0, typeId.lastIndexOf (':'));
+                  int start = name.lastIndexOf ('/');
+
+                  if (start == -1)
+                  {
+                     start = name.lastIndexOf (':');
+                  }
+                  name = name.substring (start + 1);
+               }
+               catch (Exception ex)
+               {
+                  name = null;
+                  ex.printStackTrace ();
+               }
+            }               
         }
         typeCode = orb.create_interface_tc( typeId , name );
     }
