@@ -48,8 +48,10 @@ gerald.brose@acm.org
 
         - bug fixes
                 ORB:
-                        - Passing null to object_to_string.
-                        - Passing local object to object_to_string.
+                        - Passing a null to object_to_string now returns the
+                          correct string for a null object reference.
+                        - Passing local object to object_to_string now
+                          throws a MARSHAL exception.
                 DynAnys:
                         - Operations called on a DynAny that has been 
                           destroyed now throw an OBJECT_NOT_EXIST exception
