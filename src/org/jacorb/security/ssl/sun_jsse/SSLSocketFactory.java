@@ -175,14 +175,12 @@ public class SSLSocketFactory
 
     public boolean isSSL ( java.net.Socket s )
     { 
-        return ( s instanceof SSLSocket); 
+        return (s instanceof SSLSocket); 
     }
 
     private SocketFactory createSocketFactory() 
         throws IOException, java.security.GeneralSecurityException
     {
-        //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
-
         KeyManagerFactory kmf = null;
         KeyStore key_store = null;
 
