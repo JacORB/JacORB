@@ -1,5 +1,7 @@
 // server.idl
 
+module demo
+{
 module outparam 
 {
 	typedef sequence < string > stringSeq;
@@ -27,4 +29,4 @@ module outparam
 	    boolean addNums(in double n1, in double n2, out double n3);
 	};	   
 };
-
+};
