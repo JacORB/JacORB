@@ -95,9 +95,10 @@ public class AnyMessage extends AbstractMessage
         anyValue_ = any;
     }
 
-    public synchronized void reset()
+    public void reset()
     {
         super.reset();
+
         anyValue_ = null;
         structuredEventValue_ = null;
     }
@@ -112,22 +113,16 @@ public class AnyMessage extends AbstractMessage
         return anyValue_;
     }
 
-    public StructuredEvent toStructuredEvent()
+    public synchronized StructuredEvent toStructuredEvent()
     {
         // the conversion should only be done once !
 
         if ( structuredEventValue_ == null )
         {
-            synchronized ( this )
-            {
-                if ( structuredEventValue_ == null )
-                {
-                    structuredEventValue_ = new StructuredEvent();
-                    structuredEventValue_.header = sEventHeader;
-                    structuredEventValue_.filterable_data = sFilterableData;
-                    structuredEventValue_.remainder_of_body = toAny();
-                }
-            }
+            structuredEventValue_ = new StructuredEvent();
+            structuredEventValue_.header = sEventHeader;
+            structuredEventValue_.filterable_data = sFilterableData;
+            structuredEventValue_.remainder_of_body = toAny();
         }
 
         return structuredEventValue_;

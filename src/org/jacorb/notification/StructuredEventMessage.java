@@ -98,7 +98,6 @@ class StructuredEventMessage extends AbstractMessage
         startTime_ = null;
         stopTime_ = null;
         priority_ = 0;
-
     }
 
     public int getType()
@@ -106,16 +105,13 @@ class StructuredEventMessage extends AbstractMessage
         return Message.TYPE_STRUCTURED;
     }
 
-    public Any toAny()
+    public synchronized Any toAny()
     {
         if (anyValue_ == null) {
-            synchronized(this) {
-                if (anyValue_ == null) {
-                    anyValue_ = sOrb.create_any();
-                    StructuredEventHelper.insert( anyValue_, structuredEventValue_ );
-                }
-            }
+            anyValue_ = sOrb.create_any();
+            StructuredEventHelper.insert( anyValue_, structuredEventValue_ );
         }
+
         return anyValue_;
     }
 
@@ -161,7 +157,6 @@ class StructuredEventMessage extends AbstractMessage
         for (int x=0; x < props.length; ++x) {
             if (StartTime.value.equals(props[x].name)) {
                 startTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
-                logger_.debug("StartTime: " + startTime_);
             } else if (StopTime.value.equals(props[x].name)) {
                 stopTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
             } else if (Timeout.value.equals(props[x].name)) {
@@ -207,8 +202,6 @@ class StructuredEventMessage extends AbstractMessage
     }
 
     private void setTimeout(long timeout) {
-        logger_.debug("set Timeout = " + timeout);
-
         isTimeoutSet_ = true;
         timeout_ = timeout;
     }
@@ -235,9 +228,10 @@ class StructuredEventMessage extends AbstractMessage
                     return true;
                 }
             }
-            catch ( UnsupportedFilterableData ufd )
+            catch ( UnsupportedFilterableData e )
             {
                 // error means false
+                logger_.error("unsupported filterable data", e);
             }
         }
 
