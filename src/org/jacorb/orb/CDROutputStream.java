@@ -999,10 +999,10 @@ public class CDROutputStream
                     }
                     else
                     {         
-                        write_long( _kind  );
                         tcMap.put( value.id(), new Integer( start_pos ) );
                         recursiveTCMap.put(  value.id(), value );
 
+                        write_long( _kind  );
                         beginEncapsulation();
                         write_string(value.id());
                         write_string(value.name());
@@ -1023,6 +1023,9 @@ public class CDROutputStream
                     }
                     else
                     {
+                        tcMap.put( value.id(), new Integer( start_pos ) );
+                        recursiveTCMap.put(  value.id(), value );
+
                         write_long( _kind  );
                         beginEncapsulation();
                         write_string( value.id());
@@ -1102,6 +1105,7 @@ public class CDROutputStream
                     }
                     else
                     {
+                        tcMap.put( value.id(), new Integer( start_pos ) );
                         recursiveTCMap.put( value.id(), value );
                         write_long( _kind  );
                         beginEncapsulation();
@@ -1119,9 +1123,10 @@ public class CDROutputStream
                     }
                     else
                     {
-                        write_long( _kind  );
                         tcMap.put( value.id(), new Integer( start_pos ) );
                         recursiveTCMap.put( value.id(), value );
+
+                        write_long( _kind  );
                         beginEncapsulation();
                         write_string(value.id());
                         write_string(value.name());
@@ -1146,12 +1151,21 @@ public class CDROutputStream
                     }
                     break;
                 case TCKind._tk_value_box: 
-                    write_long( _kind  );
-                    beginEncapsulation();
-                    write_string(value.id());
-                    write_string(value.name());
-                    write_TypeCode( value.content_type(), tcMap);
-                    endEncapsulation();
+                    if( tcMap.containsKey( value.id()) )
+                    {
+                        writeRecursiveTypeCode( value, tcMap );
+                    }
+                    else
+                    {
+                        tcMap.put( value.id(), new Integer( start_pos ) );
+                        recursiveTCMap.put( value.id(), value );
+                        write_long( _kind  );
+                        beginEncapsulation();
+                        write_string(value.id());
+                        write_string(value.name());
+                        write_TypeCode( value.content_type(), tcMap);
+                        endEncapsulation();
+                    }
                     break;
                 default: 
                     throw new RuntimeException("Cannot handle TypeCode, kind: " + _kind);
