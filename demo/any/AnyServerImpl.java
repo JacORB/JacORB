@@ -4,7 +4,6 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.StringSeqHelper;
 import org.omg.CORBA.OctetSeqHelper;
-import jacorb.orb.*;
 
 public class AnyServerImpl 
     extends AnyServerPOA
