@@ -1,18 +1,18 @@
 package org.jacorb.test.notification.node;
 
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.node.AbstractTCLNode;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.DynamicTypeException;
-import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.StaticTypeChecker;
-import org.jacorb.notification.node.StaticTypeException;
-import org.jacorb.notification.node.TCLCleanUp;
-import org.jacorb.notification.parser.TCLParser;
+import org.jacorb.notification.filter.DynamicEvaluator;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.ETCLComponentName;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.filter.ParseException;
+import org.jacorb.notification.filter.etcl.StaticTypeChecker;
+import org.jacorb.notification.filter.etcl.StaticTypeException;
+import org.jacorb.notification.filter.etcl.TCLCleanUp;
+import org.jacorb.notification.filter.etcl.TCLParser;
 import org.jacorb.test.notification.Address;
 import org.jacorb.test.notification.NamedValue;
 import org.jacorb.test.notification.NamedValueSeqHelper;
@@ -182,7 +182,7 @@ public class TCLTest extends TestCase
         dynAnyFactory_ =
             DynAnyFactoryHelper.narrow( orb_.resolve_initial_references( "DynAnyFactory" ) );
 
-        dynamicEvaluator_ = new DynamicEvaluator( orb_, dynAnyFactory_ );
+        dynamicEvaluator_ = new DynamicEvaluator(dynAnyFactory_ );
 
         Person _person = setUpPerson();
 
@@ -217,7 +217,7 @@ public class TCLTest extends TestCase
         runStaticTypeCheck( expr, true );
     }
 
-    void runStaticTypeCheck( String expr, boolean fails ) throws Exception
+    void runStaticTypeCheck( String expr, boolean shouldFail ) throws Exception
     {
         try
         {
@@ -227,7 +227,7 @@ public class TCLTest extends TestCase
 
             _checker.check( _root );
 
-            if ( fails )
+            if ( shouldFail )
             {
                 fail( "static type error should have occcured" );
             }
@@ -242,8 +242,6 @@ public class TCLTest extends TestCase
 
         AbstractTCLNode fstNode = TCLParser.parse( fst );
         AbstractTCLNode sndNode = TCLParser.parse( snd );
-
-        //      System.out.println(sndNode.toStringTree());
 
         EvaluationContext _context = new EvaluationContext();
 
@@ -539,7 +537,6 @@ public class TCLTest extends TestCase
 
     public void testUnion() throws Exception
     {
-
         runEvaluation( testUnion1_, "$.long_ > 54" );
         runEvaluation( testUnion1_, "$._d == 1 and $.(0) == 100" );
         runEvaluation( testUnion1_, "$._d == 1 and $.(1) == 100" );
@@ -638,7 +635,7 @@ public class TCLTest extends TestCase
             runEvaluation( testPerson_, "$.first_name + 1 == 10" );
             fail();
         }
-        catch ( DynamicTypeException e )
+        catch ( EvaluationException e )
         {}
 
         try
@@ -646,7 +643,7 @@ public class TCLTest extends TestCase
             runEvaluation( testPerson_, "$.age == '29'" );
             fail();
         }
-        catch ( DynamicTypeException e )
+        catch ( EvaluationException e )
         {}
 
         try
@@ -654,7 +651,7 @@ public class TCLTest extends TestCase
             runEvaluation( testPerson_, "$.age and true" );
             fail();
         }
-        catch ( DynamicTypeException e )
+        catch ( EvaluationException e )
         {}
 
     }
@@ -666,7 +663,7 @@ public class TCLTest extends TestCase
             TCLParser.parse( "$.." );
             fail();
         }
-        catch ( RecognitionException e )
+        catch ( ParseException e )
         {}
 
         try
@@ -674,7 +671,7 @@ public class TCLTest extends TestCase
             TCLParser.parse( "ab +-/ abc" );
             fail();
         }
-        catch ( RecognitionException e )
+        catch ( ParseException e )
         {}
 
     }
@@ -757,8 +754,8 @@ public class TCLTest extends TestCase
 
     public void testInsertComponentName() throws Exception
     {
-        ComponentName _comp =
-            ( ComponentName ) TCLParser.parse( "$.first_name.last_name" );
+        ETCLComponentName _comp =
+            ( ETCLComponentName ) TCLParser.parse( "$.first_name.last_name" );
 
         _comp.acceptInOrder( new TCLCleanUp() );
         assertEquals( "$.first_name.last_name", _comp.getComponentName() );
@@ -767,22 +764,22 @@ public class TCLTest extends TestCase
             ( AbstractTCLNode ) TCLParser.parse( "$.first_name.value + 5" );
 
         _root.acceptInOrder( new TCLCleanUp() );
-        _comp = ( ComponentName ) _root.getFirstChild();
+        _comp = ( ETCLComponentName ) _root.getFirstChild();
         assertEquals( "$.first_name.value", _comp.getComponentName() );
 
-        _comp = ( ComponentName ) TCLParser.parse( "$domain_name" );
+        _comp = ( ETCLComponentName ) TCLParser.parse( "$domain_name" );
         _comp.acceptInOrder( new TCLCleanUp() );
         assertEquals( "$domain_name", _comp.getComponentName() );
 
-        _comp = ( ComponentName ) TCLParser.parse( "$domain_name._type_id" );
+        _comp = ( ETCLComponentName ) TCLParser.parse( "$domain_name._type_id" );
         _comp.acceptInOrder( new TCLCleanUp() );
         assertEquals( "$domain_name._type_id", _comp.getComponentName() );
 
-        _comp = ( ComponentName ) TCLParser.parse( "$.(1)" );
+        _comp = ( ETCLComponentName ) TCLParser.parse( "$.(1)" );
         _comp.acceptInOrder( new TCLCleanUp() );
         assertEquals( "$.(1)", _comp.getComponentName() );
 
-        _comp = ( ComponentName ) TCLParser.parse( "$.()" );
+        _comp = ( ETCLComponentName ) TCLParser.parse( "$.()" );
         _comp.acceptInOrder( new TCLCleanUp() );
         assertEquals( "$.(default)", _comp.getComponentName() );
     }
@@ -801,16 +798,21 @@ public class TCLTest extends TestCase
     {
         Any _any = orb_.create_any();
         _any.insert_any( testPerson_ );
+
         runEvaluation( _any, "$.first_name == 'Firstname'" );
+
 
         Any _any2 = orb_.create_any();
         _any2.insert_any( _any );
+
         runEvaluation( _any, "$.first_name == 'Firstname'" );
 
         runEvaluation( _any, "$ == 'FirstName'", "FALSE" );
 
+
         Any _any3 = orb_.create_any();
         _any3.insert_long( 10 );
+
         runEvaluation( _any3, "$ == 10" );
 
         try
@@ -818,10 +820,10 @@ public class TCLTest extends TestCase
             runEvaluation( _any3, "$ == '10'" );
             fail();
         }
-        catch ( DynamicTypeException e )
+        catch ( EvaluationException e )
         {}
-
     }
+
 
     public void testVariableCurtime() throws Exception
     {
@@ -843,7 +845,7 @@ public class TCLTest extends TestCase
         AbstractTCLNode _root = TCLParser.parse( _expr );
         _root.acceptPostOrder( new TCLCleanUp() );
 
-        ComponentName _n = ( ComponentName ) _root.left();
+        ETCLComponentName _n = ( ETCLComponentName ) _root.left();
 
         assertEquals( "$.time", _n.getComponentName() );
     }
@@ -854,7 +856,7 @@ public class TCLTest extends TestCase
         {
             AbstractTCLNode _root = TCLParser.parse( visitorTestExpressions_[ x ] );
             _root.acceptPostOrder( new TCLCleanUp() );
-            ComponentName _n = ( ComponentName ) _root.left();
+            ETCLComponentName _n = ( ETCLComponentName ) _root.left();
 
             assertEquals( visitorTestExpressions_[ x ] + " failed", "$.value", _n.getComponentName() );
         }
@@ -866,7 +868,7 @@ public class TCLTest extends TestCase
         {
             AbstractTCLNode _root = TCLParser.parse( visitorTestExpressions_[ x ] );
             _root.acceptInOrder( new TCLCleanUp() );
-            ComponentName _n = ( ComponentName ) _root.left();
+            ETCLComponentName _n = ( ETCLComponentName ) _root.left();
 
             assertEquals( visitorTestExpressions_[ x ] + " failed", "$.value", _n.getComponentName() );
         }
@@ -878,7 +880,7 @@ public class TCLTest extends TestCase
         {
             AbstractTCLNode _root = TCLParser.parse( visitorTestExpressions_[ x ] );
             _root.acceptPreOrder( new TCLCleanUp() );
-            ComponentName _n = ( ComponentName ) _root.left();
+            ETCLComponentName _n = ( ETCLComponentName ) _root.left();
 
             assertEquals( visitorTestExpressions_[ x ] + " failed", "$.value", _n.getComponentName() );
         }
@@ -915,7 +917,7 @@ public class TCLTest extends TestCase
 
         suite = new TestSuite();
 
-        //suite.addTest(new TCLTest("testShorthandDefault"));
+        //suite.addTest(new TCLTest("testVariableCurtime"));
 
         suite = new TestSuite( TCLTest.class );
 

@@ -56,7 +56,9 @@ public class StopTimeTest extends NotificationTestCase
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
     MessageFactory notificationEventFactory_;
+
     ApplicationContext applicationContext_;
+
     StructuredEvent structuredEvent_;
 
     EventChannel eventChannel_;
@@ -158,12 +160,12 @@ public class StopTimeTest extends NotificationTestCase
     public void testStructuredEventWithoutStopTimeProperty() throws Exception {
         logger_.info("testStructuredEventWithoutStopTimeProperty");
 
-        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
         assertTrue(!_event.hasStopTime());
     }
 
     public void testAnyEventHasNoStopTime() throws Exception {
-        Message _event = notificationEventFactory_.newEvent(getORB().create_any());
+        Message _event = notificationEventFactory_.newMessage(getORB().create_any());
         assertTrue(!_event.hasStopTime());
     }
 
@@ -180,7 +182,7 @@ public class StopTimeTest extends NotificationTestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
 
-        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
         assertTrue(_event.hasStopTime());
         assertEquals(_now, _event.getStopTime());
     }
@@ -200,14 +202,16 @@ public class StopTimeTest extends NotificationTestCase
         final Date _time = new Date(System.currentTimeMillis() + offset);
 
         Any _any = getORB().create_any();
+
         UtcTHelper.insert(_any, Time.corbaTime(_time));
 
         logger_.debug("insert StopTime: " + _time);
+
         logger_.debug("now: " + new Date());
 
         structuredEvent_.header.variable_header[0] = new Property(StopTime.value, _any);
 
-        final Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        final Message _event = notificationEventFactory_.newMessage(structuredEvent_);
 
         final HashSet _received = new HashSet();
 

@@ -105,12 +105,12 @@ public class StartTimeTest extends TestCase
     }
 
     public void testStructuredEventWithoutStartTimeProperty() throws Exception {
-        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
         assertTrue(!_event.hasStartTime());
     }
 
     public void testAnyEventHasNoStartTime() throws Exception {
-        Message _event = notificationEventFactory_.newEvent(orb_.create_any());
+        Message _event = notificationEventFactory_.newMessage(orb_.create_any());
         assertTrue(!_event.hasStartTime());
     }
 
@@ -125,7 +125,7 @@ public class StartTimeTest extends TestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
 
-        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
         assertTrue(_event.hasStartTime());
         assertEquals(_now, _event.getStartTime());
     }
@@ -148,7 +148,7 @@ public class StartTimeTest extends TestCase
 
         structuredEvent_.header.variable_header[0] = new Property(StartTime.value, _startTimeAny);
 
-        final Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        final Message _event = notificationEventFactory_.newMessage(structuredEvent_);
 
         final Latch _latch = new Latch();
 

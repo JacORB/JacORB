@@ -32,11 +32,12 @@ import org.omg.PortableServer.POAHelper;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.ConsumerAdminTieImpl;
 import org.jacorb.notification.PropertyManager;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.ApplicationEvent;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
+import org.jacorb.notification.servant.ConsumerAdminTieImpl;
 
 import java.util.List;
 import java.util.Vector;
@@ -44,7 +45,6 @@ import java.util.Vector;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jacorb.notification.engine.TaskProcessor;
 
 /**
  *  Unit Test for class AdminLimit
@@ -71,13 +71,13 @@ public class AdminLimitTest extends TestCase {
 
         channelContext_ = new ChannelContext();
         channelContext_.setTaskProcessor(new TaskProcessor());
-
+        channelContext_.setORB(_orb);
 
         PropertyManager _adminProps = new PropertyManager(appContext_);
         PropertyManager _qosProps = new PropertyManager(appContext_);
 
         consumerAdmin_ =
-            new ConsumerAdminTieImpl(appContext_, channelContext_, _adminProps, _qosProps);
+            new ConsumerAdminTieImpl(channelContext_, _adminProps, _qosProps);
     }
 
     public void tearDown() throws Exception {

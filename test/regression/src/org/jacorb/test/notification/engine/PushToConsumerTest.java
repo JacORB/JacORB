@@ -44,8 +44,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import org.jacorb.notification.ConfigurableProperties;
-import org.jacorb.notification.Constants;
+import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.util.Environment;
 
 /**
@@ -82,8 +82,7 @@ public class PushToConsumerTest extends TestCase
         msg.setAny(any);
 
         PushToConsumerTask task =
-            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
-                                   taskProcessor_,
+            new PushToConsumerTask(taskProcessor_,
                                    taskProcessor_.getTaskFactory());
 
         task.setMessage(msg.getHandle());
@@ -126,22 +125,22 @@ public class PushToConsumerTest extends TestCase
             };
 
         eventConsumer.
-            setErrorThreshold(Environment.getIntPropertyWithDefault(ConfigurableProperties.EVENTCONSUMER_ERROR_THRESHOLD,
-                                                                    Constants.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD) );
+            setErrorThreshold(Environment.getIntPropertyWithDefault(Configuration.EVENTCONSUMER_ERROR_THRESHOLD,
+                                                                    Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD) );
 
         eventConsumer.expectedDisposeCalls = 1;
 
         task.setMessageConsumer(eventConsumer);
 
-        task.schedule(false);
+        task.schedule();
 
         //taskProcessor_.schedulePushToConsumerTask(task);
 
         long sleepTime =
-            Environment.getIntPropertyWithDefault( ConfigurableProperties.BACKOUT_INTERVAL,
-                                                   Constants.DEFAULT_BACKOUT_INTERVAL )
-            * (Environment.getIntPropertyWithDefault(ConfigurableProperties.EVENTCONSUMER_ERROR_THRESHOLD,
-                                                    Constants.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD)
+            Environment.getIntPropertyWithDefault( Configuration.BACKOUT_INTERVAL,
+                                                   Default.DEFAULT_BACKOUT_INTERVAL )
+            * (Environment.getIntPropertyWithDefault(Configuration.EVENTCONSUMER_ERROR_THRESHOLD,
+                                                    Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD)
             + 2);
 
         Thread.sleep(sleepTime);
@@ -166,8 +165,7 @@ public class PushToConsumerTest extends TestCase
         event2.setAny(any2);
 
         PushToConsumerTask task =
-            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
-                                   taskProcessor_,
+            new PushToConsumerTask(taskProcessor_,
                                    taskProcessor_.getTaskFactory());
 
 
@@ -175,8 +173,7 @@ public class PushToConsumerTest extends TestCase
 
 
         PushToConsumerTask task2 =
-            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
-                                   taskProcessor_,
+            new PushToConsumerTask(taskProcessor_,
                                    taskProcessor_.getTaskFactory());
 
 
@@ -199,13 +196,13 @@ public class PushToConsumerTest extends TestCase
 
         task2.setMessageConsumer(eventConsumer);
 
-        task.schedule(false);
+        task.schedule();
 
         //taskProcessor_.schedulePushToConsumerTask(task);
 
         Thread.sleep(100);
 
-        task2.schedule(false);
+        task2.schedule();
 
         //taskProcessor_.schedulePushToConsumerTask(task2);
 
@@ -220,8 +217,7 @@ public class PushToConsumerTest extends TestCase
     public void testPushFailDispose() throws Exception {
 
         PushToConsumerTask task =
-            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
-                                   taskProcessor_,
+            new PushToConsumerTask(taskProcessor_,
                                    taskProcessor_.getTaskFactory());
 
         MockMessage event =
@@ -243,7 +239,7 @@ public class PushToConsumerTest extends TestCase
 
         task.setMessageConsumer(eventConsumer);
 
-        task.schedule(false);
+        task.schedule();
 
         //taskProcessor_.schedulePushToConsumerTask(task);
 
@@ -258,8 +254,7 @@ public class PushToConsumerTest extends TestCase
     public void testPush() throws Exception {
 
         PushToConsumerTask task =
-            new PushToConsumerTask(taskProcessor_.getDeliverTaskExecutor(),
-                                   taskProcessor_,
+            new PushToConsumerTask(taskProcessor_,
                                    taskProcessor_.getTaskFactory());
 
         MockMessage event =
@@ -270,8 +265,6 @@ public class PushToConsumerTest extends TestCase
 
         event.setAny(any);
 
-//         task.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
-//         task.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
         task.setMessage(event.getHandle());
 
         MockEventConsumer eventConsumer = new MockEventConsumer();
@@ -280,9 +273,7 @@ public class PushToConsumerTest extends TestCase
 
         task.setMessageConsumer(eventConsumer);
 
-        task.schedule(false);
-
-        //taskProcessor_.schedulePushToConsumerTask(task);
+        task.schedule();
 
         Thread.sleep(1000);
 

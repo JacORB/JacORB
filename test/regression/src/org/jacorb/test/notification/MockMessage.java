@@ -22,10 +22,10 @@ package org.jacorb.test.notification;
  */
 
 import org.jacorb.notification.AbstractMessage;
-import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.interfaces.FilterStage;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.EvaluationResult;
+import org.jacorb.notification.filter.ComponentName;
+import org.jacorb.notification.filter.EvaluationResult;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;

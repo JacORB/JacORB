@@ -109,7 +109,7 @@ public class ReleaseTasksTest extends NotificationTestCase
 
         Message event = eventMock.getHandle();
 
-        eventChannelServant_.getChannelContext().processMessage(event);
+        eventChannelServant_.getChannelContext().getTaskProcessor().processMessage(event);
 
         pullReceiver.run();
 

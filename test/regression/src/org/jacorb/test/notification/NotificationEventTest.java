@@ -4,15 +4,15 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.TCLCleanUp;
-import org.jacorb.notification.node.AbstractTCLNode;
-import org.jacorb.notification.parser.TCLParser;
+import org.jacorb.notification.filter.DynamicEvaluator;
+import org.jacorb.notification.filter.etcl.ETCLComponentName;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.filter.etcl.TCLCleanUp;
+import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.TCLParser;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.StructuredEvent;
@@ -55,7 +55,7 @@ public class NotificationEventTest extends TestCase {
         DynAnyFactory _dynAnyFactory =
             DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
 
-        DynamicEvaluator _dynEval = new DynamicEvaluator(orb_, _dynAnyFactory);
+        DynamicEvaluator _dynEval = new DynamicEvaluator(_dynAnyFactory);
 
         evaluationContext_ = new EvaluationContext();
         evaluationContext_.setDynamicEvaluator(_dynEval);
@@ -79,7 +79,7 @@ public class NotificationEventTest extends TestCase {
     }
 
     public void testGetType() throws Exception {
-        Message _event = factory_.newEvent(testPerson_);
+        Message _event = factory_.newMessage(testPerson_);
 
         assertTrue(_event.getType() == Message.TYPE_ANY);
     }
@@ -90,31 +90,31 @@ public class NotificationEventTest extends TestCase {
 
         _root.acceptPreOrder(new TCLCleanUp());
 
-        Message _event = factory_.newEvent(testPerson_);
+        Message _event = factory_.newMessage(testPerson_);
 
         EvaluationResult _result =
             _event.extractValue(evaluationContext_,
-                            (ComponentName) _root);
+                            (ETCLComponentName) _root);
 
         assertEquals("firstname", _result.getString());
     }
 
     public void testEvaluate_Structured() throws Exception {
         String _expr = "$.header.fixed_header.event_type.domain_name";
-        Message _event = factory_.newEvent(testStructured_);
+        Message _event = factory_.newMessage(testStructured_);
         AbstractTCLNode _root = TCLParser.parse(_expr);
 
         _root.acceptPreOrder(new TCLCleanUp());
 
         EvaluationResult _result =
             _event.extractValue(evaluationContext_,
-                                (ComponentName) _root);
+                                (ETCLComponentName) _root);
 
         assertEquals("TESTING", _result.getString());
     }
 
     public void testToStructuredEvent() throws Exception {
-        Message _event = factory_.newEvent(testPerson_);
+        Message _event = factory_.newMessage(testPerson_);
         StructuredEvent _structuredEvent = _event.toStructuredEvent();
 
         assertEquals("", _structuredEvent.header.fixed_header.event_type.domain_name);

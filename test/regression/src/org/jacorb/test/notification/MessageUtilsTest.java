@@ -1,13 +1,13 @@
 package org.jacorb.test.notification;
 
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.node.AbstractTCLNode;
-import org.jacorb.notification.node.ComponentName;
-import org.jacorb.notification.node.TCLCleanUp;
-import org.jacorb.notification.parser.TCLParser;
+import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.ETCLComponentName;
+import org.jacorb.notification.filter.etcl.TCLCleanUp;
+import org.jacorb.notification.filter.etcl.TCLParser;
 
 import org.omg.CORBA.ORB;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
@@ -44,8 +44,7 @@ public class MessageUtilsTest extends TestCase
         testUtils_ = new NotificationTestUtils(_orb);
 
         context_ = new EvaluationContext();
-        context_.setDynamicEvaluator( new DynamicEvaluator( appContext_.getOrb(),
-                                                            DynAnyFactoryHelper.narrow( appContext_.getOrb().resolve_initial_references( "DynAnyFactory" ) ) ) );
+        context_.setDynamicEvaluator( new DynamicEvaluator(DynAnyFactoryHelper.narrow( appContext_.getOrb().resolve_initial_references( "DynAnyFactory" ) ) ) );
 
     }
 
@@ -59,12 +58,12 @@ public class MessageUtilsTest extends TestCase
         AbstractTCLNode _root = TCLParser.parse( "$.first_name" );
         _root.acceptPreOrder( new TCLCleanUp() );
 
-        Message _event = appContext_.getMessageFactory().newEvent(testUtils_.getTestPersonAny());
-        _event.extractValue( context_, ( ComponentName ) _root );
+        Message _event = appContext_.getMessageFactory().newMessage(testUtils_.getTestPersonAny());
+        _event.extractValue( context_, ( ETCLComponentName ) _root );
 
         assertNotNull( context_.lookupResult( "$.first_name" ) );
 
-        _event.extractValue(context_,  ( ComponentName ) _root );
+        _event.extractValue(context_,  ( ETCLComponentName ) _root );
 
         assertEquals( "firstname", context_.lookupResult( "$.first_name" ).getString() );
     }
@@ -74,18 +73,18 @@ public class MessageUtilsTest extends TestCase
         AbstractTCLNode _root = TCLParser.parse( "$.home_address.street" );
         _root.acceptPreOrder( new TCLCleanUp() );
 
-        Message _event = appContext_.getMessageFactory().newEvent(testUtils_.getTestPersonAny());
+        Message _event = appContext_.getMessageFactory().newMessage(testUtils_.getTestPersonAny());
 
-        _event.extractValue(context_, ( ComponentName ) _root );
+        _event.extractValue(context_, ( ETCLComponentName ) _root );
 
         assertNotNull( context_.lookupAny( "$.home_address" ) );
         assertNotNull( context_.lookupAny( "$.home_address.street" ) );
 
-        _event.extractValue( context_, ( ComponentName ) _root );
+        _event.extractValue( context_, ( ETCLComponentName ) _root );
 
         context_.eraseResult( "$.home_address.street" );
 
-        _event.extractValue( context_, ( ComponentName ) _root );
+        _event.extractValue( context_, ( ETCLComponentName ) _root );
     }
 
     public static Test suite()

@@ -11,8 +11,8 @@ import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.ConstraintEntry;
 import org.jacorb.notification.FilterFactoryImpl;
 import org.jacorb.notification.FilterImpl;
-import org.jacorb.notification.MessageUtils;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
+import org.jacorb.notification.filter.FilterUtils;
+import org.jacorb.notification.filter.DynamicEvaluator;
 
 import java.util.Iterator;
 
@@ -71,7 +71,7 @@ public class FilterImplTest extends TestCase {
         filter_.add_constraints(_exp);
 
         Iterator _i =
-            filter_.getIterator(MessageUtils.calcConstraintKey("domain1", "type1"));
+            filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
 
         int _count = 0;
         while (_i.hasNext()) {
@@ -94,7 +94,7 @@ public class FilterImplTest extends TestCase {
         filter_.add_constraints(_exp);
 
         Iterator _i =
-            filter_.getIterator(MessageUtils.calcConstraintKey("domain1", "type1"));
+            filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
 
         int _count = 0;
         while (_i.hasNext()) {
@@ -113,7 +113,7 @@ public class FilterImplTest extends TestCase {
         _exp2[0] = new ConstraintExp(_eventType2, "2");
         filter_.add_constraints(_exp2);
 
-        _i = filter_.getIterator(MessageUtils.calcConstraintKey("domain1", "type1"));
+        _i = filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
         _count = 0;
 
         while (_i.hasNext()) {
@@ -147,7 +147,7 @@ public class FilterImplTest extends TestCase {
 
         ConstraintInfo[] _info = filter_.add_constraints(_exp2);
 
-        Iterator _i = filter_.getIterator(MessageUtils.calcConstraintKey("domain1", "type1"));
+        Iterator _i = filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
         int _count = 0;
 
         while (_i.hasNext()) {
@@ -164,7 +164,7 @@ public class FilterImplTest extends TestCase {
         }
         filter_.modify_constraints(_delete_ids, new ConstraintInfo[0]);
 
-        _i = filter_.getIterator(MessageUtils.calcConstraintKey("domain1", "type1"));
+        _i = filter_.getIterator(FilterUtils.calcConstraintKey("domain1", "type1"));
         _count = 0;
         while (_i.hasNext()) {
             _count++;

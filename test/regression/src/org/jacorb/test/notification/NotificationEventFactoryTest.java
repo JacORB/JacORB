@@ -37,11 +37,11 @@ public class NotificationEventFactoryTest extends TestCase {
     StructuredEvent testStructured_;
 
     public void testNewEventStructured() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newEvent(testStructured_);
+        Message _notifyEvent = notificationEventFactory_.newMessage(testStructured_);
     }
 
     public void testStructuredToAny() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newEvent(testStructured_);
+        Message _notifyEvent = notificationEventFactory_.newMessage(testStructured_);
         assertNotNull(_notifyEvent);
         Any _any = _notifyEvent.toAny();
         StructuredEvent _event = StructuredEventHelper.extract(_any);
@@ -51,7 +51,7 @@ public class NotificationEventFactoryTest extends TestCase {
     }
 
     public void testStructuredToStructured() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newEvent(testStructured_);
+        Message _notifyEvent = notificationEventFactory_.newMessage(testStructured_);
         assertNotNull(_notifyEvent);
         StructuredEvent _event = _notifyEvent.toStructuredEvent();
         assertNotNull(_event);
@@ -60,12 +60,12 @@ public class NotificationEventFactoryTest extends TestCase {
     }
 
     public void testNewEventAny() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newEvent(testPerson_);
+        Message _notifyEvent = notificationEventFactory_.newMessage(testPerson_);
         assertNotNull(_notifyEvent);
     }
 
     public void testAnyToStructured() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newEvent(testPerson_);
+        Message _notifyEvent = notificationEventFactory_.newMessage(testPerson_);
         StructuredEvent _structured = _notifyEvent.toStructuredEvent();
         assertNotNull(_structured);
         assertEquals("%ANY", _structured.header.fixed_header.event_type.type_name);
@@ -79,7 +79,7 @@ public class NotificationEventFactoryTest extends TestCase {
     }
 
     public void testAnyToAny() throws Exception {
-        Message _notifyEvent = notificationEventFactory_.newEvent(testPerson_);
+        Message _notifyEvent = notificationEventFactory_.newMessage(testPerson_);
         Any _anyEvent = _notifyEvent.toAny();
         assertNotNull(_anyEvent);
 

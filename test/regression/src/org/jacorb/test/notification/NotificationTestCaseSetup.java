@@ -31,6 +31,7 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import org.apache.avalon.framework.logger.Logger;
 import org.jacorb.util.Debug;
+import java.util.Properties;
 
 /**
  * NotificationTestCaseSetup.java
@@ -57,6 +58,11 @@ public class NotificationTestCaseSetup extends TestSetup {
 
     public void setUp() throws Exception {
         super.setUp();
+
+        Properties props = new Properties();
+
+        props.put("jacorb.implname", "Ntfy-JUnit-Test");
+
         orb_ = ORB.init(new String[0], null);
         poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
         testUtils_ = new NotificationTestUtils(orb_);

@@ -2,15 +2,15 @@ package org.jacorb.test.notification;
 
 import junit.framework.TestCase;
 import org.jacorb.notification.ApplicationContext;
-import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.FilterConstraint;
-import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.TCLCleanUp;
-import org.jacorb.notification.node.AbstractTCLNode;
-import org.jacorb.notification.parser.TCLParser;
+import org.jacorb.notification.filter.DynamicEvaluator;
+import org.jacorb.notification.filter.FilterConstraint;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.filter.etcl.TCLCleanUp;
+import org.jacorb.notification.filter.etcl.AbstractTCLNode;
+import org.jacorb.notification.filter.etcl.parser.TCLParser;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.LongSeqHelper;
 import org.omg.CORBA.ORB;
@@ -154,7 +154,7 @@ public class TestUtils {
 
         Message _event = null;
         try {
-            _event = _notificationEventFactory.newEvent(any);
+            _event = _notificationEventFactory.newMessage(any);
             runEvaluation(testCase, appContext, _event, expr, expect);
 
         } finally {
@@ -182,7 +182,7 @@ public class TestUtils {
 
         Message _event = null;
         try {
-            _event = _notificationEventFactory.newEvent(event);
+            _event = _notificationEventFactory.newMessage(event);
             runEvaluation(testCase, appContext, _event, expr, expect);
 
         } finally {

@@ -60,5 +60,3 @@ public class AllTest extends TestCase
         junit.textui.TestRunner.run( suite() );
     }
 }
-
-

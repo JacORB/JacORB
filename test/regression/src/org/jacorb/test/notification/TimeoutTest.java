@@ -155,12 +155,12 @@ import org.jacorb.util.Debug;
 
 
     public void testStructuredEventWithoutTimeoutProperty() throws Exception {
-        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
         assertTrue(!_event.hasTimeout());
     }
 
     public void testAnyEventHasNoStopTime() throws Exception {
-        Message _event = notificationEventFactory_.newEvent(getORB().create_any());
+        Message _event = notificationEventFactory_.newMessage(getORB().create_any());
         assertTrue(!_event.hasTimeout());
     }
 
@@ -175,7 +175,7 @@ import org.jacorb.util.Debug;
 
         structuredEvent_.header.variable_header[0] = new Property(Timeout.value, _any);
 
-        Message _event = notificationEventFactory_.newEvent(structuredEvent_);
+        Message _event = notificationEventFactory_.newMessage(structuredEvent_);
         assertTrue(_event.hasTimeout());
         assertEquals(_timeout, _event.getTimeout());
     }
