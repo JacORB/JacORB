@@ -115,7 +115,7 @@ public class CDROutputStream
      * are used also for in memory marshaling, but do use the
      * ORB's output buffer manager
      */
-    public CDROutputStream( org.omg.CORBA.ORB orb )
+    public CDROutputStream (final org.omg.CORBA.ORB orb)
     {
         this.orb = orb;
 
@@ -130,27 +130,19 @@ public class CDROutputStream
      *  and the character encoding sets
      */
 
-    public CDROutputStream( byte[] buf )
+    public CDROutputStream (final byte[] buf)
     {
-        bufMgr = BufferManager.getInstance();
+        bufMgr = BufferManager.getInstance ();
         buffer = buf;
     }
 
-    /*
-    public org.omg.CORBA.ORB orb ()
-    {
-        if (orb == null) orb = org.omg.CORBA.ORB.init();
-        return orb;
-    }
-    */
-
-    public void setCodeSet( int codeSet, int codeSetWide )
+    public void setCodeSet (final int codeSet, final int codeSetWide)
     {
         this.codeSet = codeSet;
         this.codeSetW = codeSetWide;
     }
 
-    public void setGIOPMinor( int giop_minor )
+    public void setGIOPMinor (final int giop_minor)
     {
         this.giop_minor = giop_minor;
     }
@@ -188,7 +180,7 @@ public class CDROutputStream
      * This version of check does both array length checking and
      * data type alignment. It is a convenience method.
      */
-    private final void check( int i, int align )
+    private final void check (final int i, final int align)
     {
         int remainder = align - (index % align);
 
@@ -221,7 +213,7 @@ public class CDROutputStream
      * i more bytes. If it isn't, get a bigger buffer.
      */
 
-    private final void check(int i)
+    private final void check (final int i)
     {
         //if( closed )
         //   throw new java.lang.Error("Trying to write to a closed stream!");
@@ -248,7 +240,8 @@ public class CDROutputStream
         }
     }
 
-    private final static void _write4int(byte[] buf, int _pos, int value)
+    private final static void _write4int
+        (final byte[] buf, final int _pos, final int value)
     {
         buf[_pos]   = (byte)((value >> 24) & 0xFF);
         buf[_pos+1] = (byte)((value >> 16) & 0xFF);
@@ -263,7 +256,7 @@ public class CDROutputStream
      *  the size of the encapsulation. 
      */
 
-    public final void beginEncapsulation()
+    public final void beginEncapsulation ()
     {        
         // align to the next four byte boundary 
         // as a preparation for writing the size
@@ -375,13 +368,13 @@ public class CDROutputStream
 	release();
     }
 
-    public void skip( int step ) 
+    public final void skip (final int step) 
     {
         pos += step;
         index += step;
     }
 
-    public void reduceSize( int amount )
+    public final void reduceSize (final int amount)
     {
         pos -= amount;
     }
@@ -390,14 +383,14 @@ public class CDROutputStream
      * Add <tt>amount</tt> empty space
      */
 
-    public void increaseSize( int amount )
+    public final void increaseSize (final  int amount)
     {
         pos += amount;
         
         check( amount );
     }
 
-    public void setBuffer( byte[] b )
+    public void setBuffer (final byte[] b)
     {
         bufMgr.returnBuffer( buffer );
 
@@ -410,19 +403,19 @@ public class CDROutputStream
      * The following operations are from OutputStream *
      **************************************************/
 
-    public org.omg.CORBA.portable.InputStream create_input_stream()
+    public org.omg.CORBA.portable.InputStream create_input_stream ()
     {
         byte [] buf = (byte [])buffer.clone();
         return new CDRInputStream( orb, buf );
     }
 
-    public final void write_any( org.omg.CORBA.Any value )
+    public final void write_any (final org.omg.CORBA.Any value)
     {
         write_TypeCode( value.type() );
         value.write_value( this ) ;
     }
 
-    public  final void write_boolean (boolean value)
+    public final void write_boolean (final boolean value)
     {
         check(1);
 
@@ -433,9 +426,10 @@ public class CDROutputStream
         index++;
     }
 
-    public  final void write_boolean_array(boolean[] value, int offset, int length)
+    public final void write_boolean_array
+        (final boolean[] value, final int offset, final int length)
     {
-        if( value != null )
+        if (value != null )
         {
             check(length);
 
@@ -454,7 +448,7 @@ public class CDROutputStream
     /**
      * Writes char according to specified encoding.
      */
-    public final void write_char( char c )
+    public final void write_char (final char c)
     {
         check( 1 );
 
@@ -476,7 +470,8 @@ public class CDROutputStream
         }
     }
 
-    public final void write_char_array( char[] value, int offset, int length )
+    public final void write_char_array
+        (final char[] value, final int offset, final int length)
     {
         if( value == null ) 
             throw new org.omg.CORBA.MARSHAL( "Null References" );
@@ -503,7 +498,7 @@ public class CDROutputStream
         index += length; 
     }         
         
-    public final void write_string( String s )
+    public final void write_string (final String s)
     {
         if( s == null )
         {
@@ -539,14 +534,13 @@ public class CDROutputStream
         index += size;
     }
 
-    public final void write_wchar( char c )
+    public final void write_wchar (final char c)
     {
         write_wchar( c, use_BOM, true );//with length indicator
     }
 
-    private final void write_wchar( char c, 
-                                    boolean write_bom, 
-                                    boolean write_length_indicator )
+    private final void write_wchar
+        (final char c, final boolean write_bom, final boolean write_length_indicator)
     {
         check(3);
 
@@ -632,7 +626,8 @@ public class CDROutputStream
         }
     }
 
-    public  final void write_wchar_array(char[] value, int offset, int length)
+    public final void write_wchar_array
+        (final char[] value, final int offset, final int length)
     {
         if( value == null ) 
             throw new org.omg.CORBA.MARSHAL("Null References");
@@ -643,7 +638,7 @@ public class CDROutputStream
             write_wchar( value[i] );
     }
         
-    public final void write_wstring( String s )
+    public final void write_wstring (final String s)
     {      
         if( s == null ) 
         {
@@ -704,12 +699,13 @@ public class CDROutputStream
         _write4int( buffer, startPos, size );
     }
 
-    public  final void write_double (double value)
+    public final void write_double (final double value)
     {
-        write_longlong( Double.doubleToLongBits(value) );
+        write_longlong (Double.doubleToLongBits (value));
     }
 
-    public  final void write_double_array( double[] value, int offset, int length)
+    public final void write_double_array
+       (final double[] value, final int offset, final int length)
     {
         /* align to 8 byte boundary */
                 
@@ -734,7 +730,7 @@ public class CDROutputStream
         }
     }
 
-    public  final void write_fixed(java.math.BigDecimal value) 
+    public final void write_fixed (final java.math.BigDecimal value) 
     {    
         String v = value.movePointRight(value.scale()).toString();
         byte [] representation;
@@ -775,12 +771,13 @@ public class CDROutputStream
         
     }
 
-    public  final void write_float (float value)
+    public final void write_float (final float value)
     {
-        write_long(Float.floatToIntBits(value));
+        write_long (Float.floatToIntBits(value));
     }
 
-    public  final void write_float_array(float[] value, int offset, int length)
+    public final void write_float_array
+        (final float[] value, final int offset, final int length)
     {
         /* align to 4 byte boundary */
                 
@@ -797,7 +794,7 @@ public class CDROutputStream
         }
     }
 
-    public  final void write_long (int value)
+    public final void write_long (final int value)
     {
         check(7,4);
 
@@ -806,7 +803,8 @@ public class CDROutputStream
         pos += 4; index += 4;
     }
 
-    public final void write_long_array(int[] value, int offset, int length)
+    public final void write_long_array
+        (final int[] value, final int offset, final int length)
     {
         /* align to 4 byte boundary */
 
@@ -831,7 +829,7 @@ public class CDROutputStream
         }
     }
 
-    public  final void write_longlong (long value)
+    public final void write_longlong (final long value)
     {
         check(15,8);
 
@@ -848,7 +846,8 @@ public class CDROutputStream
         pos += 8;
     }
 
-    public  final void write_longlong_array(long[] value, int offset, int length)
+    public final void write_longlong_array
+        (final long[] value, final int offset, final int length)
     {
         check(7 + length*8,8);
 
@@ -870,7 +869,7 @@ public class CDROutputStream
         }
     }
 
-    public void write_Object (org.omg.CORBA.Object value)
+    public void write_Object (final org.omg.CORBA.Object value)
     {
 
         if( value == null )
@@ -889,7 +888,7 @@ public class CDROutputStream
     }
 
     ////////////////////////////////////////////// NEW!
-    public void write_IOR (org.omg.IOP.IOR ior)
+    public void write_IOR (final org.omg.IOP.IOR ior)
     {
         if( ior == null )
         {
@@ -902,14 +901,15 @@ public class CDROutputStream
     }
     ////////////////////////////////////////////// NEW!    
 
-    public  final void write_octet (byte value)
+    public final void write_octet (final byte value)
     {
         check(1);
         index++;
         buffer[pos++] = value;
     }
 
-    public  final void write_octet_array(byte[] value, int offset, int length)
+    public final void write_octet_array
+        (final byte[] value, final int offset, final int length)
     {
         if( value != null )
         {
@@ -920,12 +920,12 @@ public class CDROutputStream
         }
     }
 
-    public  final void write_Principal (org.omg.CORBA.Principal value)
+    public final void write_Principal (final org.omg.CORBA.Principal value)
     {
        throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
     }
 
-    public  final void write_short(short value)
+    public final void write_short (final short value)
     {
         check(3,2);
         
@@ -934,7 +934,8 @@ public class CDROutputStream
         index += 2; pos+=2;
     }
 
-    public  final void write_short_array(short[] value, int offset, int length)
+    public final void write_short_array
+        (final short[] value, final int offset, final int length)
     {
         /* align to 2-byte boundary */
 
@@ -959,37 +960,32 @@ public class CDROutputStream
         }
     }
 
-    public  final void write_TypeCode(org.omg.CORBA.TypeCode value)
+    public final void write_TypeCode (final org.omg.CORBA.TypeCode value)
     {
         Hashtable tcMap = new Hashtable();
         write_TypeCode( value, tcMap );
         tcMap.clear();
     }
 
-   private final void writeRecursiveTypeCode( org.omg.CORBA.TypeCode value, 
-                                              Hashtable tcMap )
-   {
-      try
-      {
-         //              Debug.output(4,"** Write recursive Type code for id " +
-         //                           value.id() + " pos " +
-         //                           (((Integer)tcMap.get( value.id())).intValue() - pos - 4 ) );
-        
-         write_long( -1 ); // recursion marker
-         int negative_offset = 
-            ((Integer) tcMap.get( value.id())).intValue() - pos - 4;
+    private final void writeRecursiveTypeCode
+        (final org.omg.CORBA.TypeCode value, final Hashtable tcMap)
+    {
+        try
+        {
+            write_long( -1 ); // recursion marker
+            int negative_offset = 
+               ((Integer) tcMap.get( value.id())).intValue() - pos - 4;
             
-         write_long( negative_offset );
-      }
-      catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-      {
-         // must not happen
-      }
-   }
+            write_long( negative_offset );
+        }
+        catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
+        {
+            // must not happen
+        }
+    }
 
-
-   private final void write_TypeCode( org.omg.CORBA.TypeCode value, 
-                                      Hashtable tcMap )
+   private final void write_TypeCode
+       (final org.omg.CORBA.TypeCode value, final Hashtable tcMap)
    {
       int _kind = value.kind().value();
       int _mc; // member count
@@ -1236,82 +1232,45 @@ public class CDROutputStream
       }
    }
 
-    public  final void write_ulong (int value)
+    public final void write_ulong (final int value)
     {
-        write_long(value);
+        write_long (value);
     }
 
-    public  final void write_ulong_array(int[] value, int offset, int length)
+    public final void write_ulong_array 
+        (final int[] value, final int offset, final int length)
     {
-        write_long_array(value, offset, length);
+        write_long_array (value, offset, length);
     }
 
-    public  final void write_ulonglong (long value)
+    public final void write_ulonglong (final long value)
     {        
-        write_longlong(value);
+        write_longlong (value);
     }
 
-    public  final void write_ulonglong_array(long[] value, int offset, int length)
+    public final void write_ulonglong_array
+        (final long[] value, final int offset, final int length)
     {
-        write_longlong_array(value, offset, length);
+        write_longlong_array (value, offset, length);
     }
 
-    public  final void write_ushort(short value)
+    public final void write_ushort (final short value)
     {
-        write_short(value);
+        write_short (value);
     }
 
-    public  final void write_ushort_array(short[] value, int offset, int length)
+    public final void write_ushort_array
+        (final short[] value, final int offset, final int length)
     {
-        write_short_array(value, offset, length);
+        write_short_array (value, offset, length);
     }
-
-    // old versions:
-
-    //      public  final void write_wchar (char value)
-    //      {
-    //          write_short((short)value);
-    //      }
-
-    //      public  final void write_wchar_array(char[] value, int offset, int length)
-    //      {
-    //          write_char_array( value, offset, length);
-    //      }
-
-    //      public  final void write_wstring (String s)
-    //      {
-    //          if (s==null) 
-    //              throw new org.omg.CORBA.MARSHAL("Null References");
-    //          else 
-    //          {
-    //              int size = 2*(s.getBytes().length + 1);
-    //              check(7 + size);
-
-    //              int remainder = 4 - (index % 4);
-    //              if (remainder != 4)
-    //              {
-    //                  index += remainder;
-    //                  pos+=remainder;
-    //              }
-
-    //              _write4int(buffer,pos,size);
-    //              pos += 4;
-    //              index += 4;
-
-    //              System.arraycopy( s.getBytes(), 0, buffer, pos, (size-2) );
-    //              pos += size;
-    //              buffer[pos-1]=0;
-    //              index += size;
-    //              //Connection.dumpBA(buffer);
-    //          }
-    //      }
 
     /** 
      *    called from Any 
      */
 
-    public  final void write_value( org.omg.CORBA.TypeCode tc, 
-                                    CDRInputStream in)
+    public final void write_value
+        (final org.omg.CORBA.TypeCode tc, final CDRInputStream in)
     {
         Debug.myAssert( tc != null, "Illegal null pointer for TypeCode");
         int kind = ((TypeCode)tc)._kind();
@@ -1668,15 +1627,15 @@ public class CDROutputStream
      * Writes the serialized state of `value' to this stream.
      */
 
-    public void write_value (java.io.Serializable value) 
+    public void write_value (final java.io.Serializable value) 
     {
         if (!write_special_value (value))
             write_value_internal (value, 
                                   RepositoryID.repId (value.getClass()));
     }
 
-    public void write_value (java.io.Serializable value,
-                             org.omg.CORBA.portable.BoxedValueHelper factory)
+    public void write_value (final java.io.Serializable value,
+                             final org.omg.CORBA.portable.BoxedValueHelper factory)
     {
         if (!write_special_value (value))
         {
@@ -1694,8 +1653,8 @@ public class CDROutputStream
         }
     }
 
-    public void write_value (java.io.Serializable value,
-                             java.lang.Class clz) 
+    public void write_value (final java.io.Serializable value,
+                             final java.lang.Class clz) 
     {
         if (!write_special_value (value))
         {
@@ -1711,8 +1670,8 @@ public class CDROutputStream
         }
     }
 
-    public void write_value (java.io.Serializable value,
-                             String repository_id)
+    public void write_value (final java.io.Serializable value,
+                             final String repository_id)
     {
         if (!write_special_value (value))
             write_value_internal (value, repository_id);
@@ -1723,7 +1682,7 @@ public class CDROutputStream
      * then this method writes that information to the stream and returns 
      * true, otherwise does nothing and returns false.
      */
-    private boolean write_special_value (java.io.Serializable value) 
+    private boolean write_special_value (final java.io.Serializable value) 
     {
         if (value == null)
         {
@@ -1749,7 +1708,7 @@ public class CDROutputStream
     /**
      * Writes `repository_id' to this stream, perhaps via indirection.
      */
-    private void write_repository_id (String repository_id)
+    private void write_repository_id (final String repository_id)
     {
         Integer index = (Integer)repIdMap.get (repository_id);
         if (index == null)
@@ -1769,7 +1728,7 @@ public class CDROutputStream
     /**
      * Writes `codebase' to this stream, perhaps via indirection.
      */
-    private void write_codebase (String codebase)
+    private void write_codebase (final String codebase)
     {
         Integer index = (Integer)codebaseMap.get (codebase);
         if (index == null)
@@ -1790,7 +1749,7 @@ public class CDROutputStream
      * Writes to this stream a value header with the specified `repository_id'
      * and no codebase string.
      */
-    private void write_value_header (String repository_id)
+    private void write_value_header (final String repository_id)
     {
         if (repository_id != null) 
         {
@@ -1805,7 +1764,8 @@ public class CDROutputStream
      * Writes to this stream a value header with the specified `repository_id'.
      * and `codebase' string.
      */
-    private void write_value_header (String repository_id, String codebase)
+    private void write_value_header
+        (final String repository_id, final String codebase)
     { 
 	if (codebase != null) 
 	{
@@ -1834,8 +1794,8 @@ public class CDROutputStream
      * Note: This method does not check for the special cases covered
      * by write_special_value().
      */
-    private void write_value_internal (java.io.Serializable value,
-                                       String repository_id) 
+    private void write_value_internal (final java.io.Serializable value,
+                                       final String repository_id) 
     {
         valueMap.put (value, new Integer(pos));
 
@@ -1865,7 +1825,7 @@ public class CDROutputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value. 
      */
-    public void write_abstract_interface(java.lang.Object object) 
+    public void write_abstract_interface (final java.lang.Object object) 
     {
 	if (object instanceof org.omg.CORBA.Object) 
 	{

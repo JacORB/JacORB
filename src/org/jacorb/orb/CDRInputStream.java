@@ -104,8 +104,7 @@ public class CDRInputStream
      */
     private org.omg.CORBA.ORB orb = null;
 
- 
-    public CDRInputStream( org.omg.CORBA.ORB orb, byte[] buf )
+    public CDRInputStream (final org.omg.CORBA.ORB orb, final byte[] buf)
     {
 	this.orb = orb;
 	buffer = buf;
@@ -113,15 +112,15 @@ public class CDRInputStream
         use_BOM = org.jacorb.util.Environment.isPropertyOn("jacorb.use_bom");
     }
 
-    public CDRInputStream( org.omg.CORBA.ORB orb, 
-                           byte[] buf, 
-                           boolean littleEndian )
+    public CDRInputStream (final org.omg.CORBA.ORB orb, 
+                           final byte[] buf, 
+                           final boolean littleEndian )
     {       
         this( orb, buf );
 	this.littleEndian = littleEndian;
     }
 
-    public void setGIOPMinor( int giop_minor )
+    public void setGIOPMinor (final  int giop_minor )
     {
         this.giop_minor = giop_minor;
     }
@@ -152,15 +151,14 @@ public class CDRInputStream
         return orb;
     }
 
-    public void setCodeSet( int codeSet, int codeSetWide )
+    public void setCodeSet (final int codeSet, final int codeSetWide)
     {
         this.codeSet = codeSet;
         this.codeSetW = codeSetWide;
     }
 
-    private static final int _read4int(boolean _littleEndian, 
-                                       byte[] _buffer, 
-                                       int _pos)
+    private static final int _read4int
+        (final boolean _littleEndian, final byte[] _buffer, final int _pos)
     {
 	if (_littleEndian)
 	    return (((_buffer[_pos+3] & 0xff) << 24) +
@@ -174,9 +172,8 @@ public class CDRInputStream
 		    ((_buffer[_pos+3] & 0xff) <<  0));
     }    
 
-    private static final short _read2int( boolean _littleEndian, 
-                                          byte[] _buffer, 
-                                          int _pos )
+    private static final short _read2int
+        (final boolean _littleEndian, final byte[] _buffer, final int _pos)
     {
 	if (_littleEndian)
 	    return  (short)(((_buffer[_pos+1] & 0xff) << 8) +
@@ -187,7 +184,7 @@ public class CDRInputStream
     }
 
 
-    protected final void skip(int distance)
+    protected final void skip (final int distance)
     {
 	pos += distance;
 	index += distance;
@@ -268,14 +265,14 @@ public class CDRInputStream
 	return pos - read_index;
     }
 
-    public int read( byte[] b )
+    public int read (final byte[] b)
 	throws java.io.IOException
     {
 	return read(b, 0, b.length);
     }
     
 
-    public int read(byte[] b, int off, int len)
+    public int read (final byte[] b, final int off, final int len)
 	throws java.io.IOException
     {
 	if( b == null )
@@ -328,43 +325,77 @@ public class CDRInputStream
 
     /** arrays */
 
-    public final  void read_boolean_array(boolean[] value, int offset, int length)
+    public final void read_boolean_array
+        (final boolean[] value, final int offset, final int length)
     {
-	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_boolean(); // inlining later...
+        byte bb;
+        for (int j = offset; j < offset + length; j++)
+        {
+           index++;
+           bb = buffer[pos++];
+           if (bb == 1)
+           {
+              value[j] = true;
+           }
+           else if (bb == 0)
+           {
+              value[j] = false;
+           }
+           else
+           {
+                Debug.output( 1, "", buffer );
+                throw new Error ("Unexpected boolean value: " + bb 
+                    + " pos: " + pos + " index: " + index);
+           }
+        }
     }
 
-	
-    public final char read_char()
+    public final char read_char ()
     {
-        if( codeSet == CodeSet.ISO8859_1 )
+        if (codeSet == CodeSet.ISO8859_1)
         {
 	    index++; 
-
 	    return (char)(0xff & buffer[pos++]);	       	
         }
         else
         {
-            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
-                                             CodeSet.csName( codeSet ) );
+            throw new org.omg.CORBA.MARSHAL
+                ("The char type only allows single-byte codesets, but the selected one is: "
+                + CodeSet.csName (codeSet));
         }
     }
 
-    public final void read_char_array(char[] value, int offset, int length)
+    public final void read_char_array
+        (final char[] value, final int offset, final int length)
     {
-	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_char(); // inlining later...
+        if (codeSet == CodeSet.ISO8859_1)
+        {
+           for (int j = offset; j < offset + length; j++)
+           {
+               index++; 
+               value[j] = (char) (0xff & buffer[pos++]);
+           }
+        }
+        else
+        {
+            throw new org.omg.CORBA.MARSHAL
+                ("The char type only allows single-byte codesets, but the selected one is: "
+                + CodeSet.csName (codeSet));
+        }
     }
 
-    public final double read_double() 
+    public final double read_double () 
     {
-	return Double.longBitsToDouble(read_longlong());
+        return Double.longBitsToDouble (read_longlong ());
     }
 
-    public final void read_double_array(double[] value, int offset, int length)
+    public final void read_double_array
+        (final double[] value, final int offset, final int length)
     {
-	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_double(); // inlining later...
+        for (int j = offset; j < offset + length; j++)
+        {
+            value[j] = Double.longBitsToDouble (read_longlong ());
+        }
     }
 
     public final java.math.BigDecimal read_fixed() 
@@ -397,18 +428,21 @@ public class CDRInputStream
 
     }
 
-    public final float read_float() 
+    public final float read_float () 
     {
-	return Float.intBitsToFloat(read_long());
+        return Float.intBitsToFloat (read_long ());
     }
 
-    public final void read_float_array(float[] value, int offset, int length)
+    public final void read_float_array
+        (final float[] value, final int offset, final int length)
     {
-	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_float(); // inlining later...
+        for (int j = offset; j < offset + length; j++)
+        {
+            value[j] = Float.intBitsToFloat (read_long ());
+        }
     }
 
-    public final int read_long() 
+    public final int read_long () 
     {
 	int result;
 
@@ -416,28 +450,29 @@ public class CDRInputStream
 	if (remainder != 4)
 	{
 	    index += remainder;
-	    pos+=remainder;
+	    pos += remainder;
 	}
 
-	result = _read4int(littleEndian,buffer,pos);
+	result = _read4int (littleEndian, buffer, pos);
 
 	index += 4;
 	pos += 4;
 	return result;
     }
 
-    public final void read_long_array(int[] value, int offset, int length)
+    public final void read_long_array
+        (final int[] value, final int offset, final int length)
     {
 	int remainder = 4 - (index % 4);
 	if (remainder != 4)
 	{
 	    index += remainder;
-	    pos+=remainder;
+	    pos += remainder;
 	}
 
-	for(int j=offset; j < offset+length; j++)
+	for (int j = offset; j < offset+length; j++)
 	{
-	    value[j] = _read4int(littleEndian,buffer,pos); // inlining read_long()
+	    value[j] = _read4int (littleEndian,buffer,pos);
 	    pos += 4;
 	}
 
@@ -445,28 +480,33 @@ public class CDRInputStream
     }
 
 
-    public final long read_longlong() 
+    public final long read_longlong () 
     {    
  	int remainder = 8 - (index % 8);
  	if (remainder != 8)
  	{
  	    index += remainder;
- 	    pos+=remainder;
+ 	    pos += remainder;
  	}
 
 	if (littleEndian)
+        {
 	    return ((long) read_long() & 0xFFFFFFFFL) + ((long) read_long() << 32);
+        }
 	else
+        {
 	    return ((long) read_long() << 32) + ((long) read_long() & 0xFFFFFFFFL);
+        }
     }
 
-    public final void read_longlong_array(long[] value, int offset, int length)
+    public final void read_longlong_array
+        (final long[] value, final int offset, final int length)
     {
  	int remainder = 8 - (index % 8);
  	if (remainder != 8)
  	{
  	    index += remainder;
- 	    pos+=remainder;
+ 	    pos += remainder;
  	}
         
 	if (littleEndian)
@@ -486,9 +526,7 @@ public class CDRInputStream
             }
         }
 
-        // not necessary as long as the read_long() stuff above is not inlined
-        //  	pos += 8 * length;
-        //  	index += 8 * length;
+        // Do not need to modify pos and index as use read_long above
     }
 
     public final org.omg.CORBA.Object read_Object()
@@ -514,7 +552,7 @@ public class CDRInputStream
 	}
     }
 
-    public org.omg.CORBA.Object read_Object (java.lang.Class clz)
+    public org.omg.CORBA.Object read_Object (final java.lang.Class clz)
     {
         if (clz.isInterface() && java.rmi.Remote.class.isAssignableFrom(clz))
             return (org.omg.CORBA.Object)
@@ -524,20 +562,18 @@ public class CDRInputStream
             throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
-    public final byte read_octet()
+    public final byte read_octet ()
     {
 	index++;
 	return buffer[pos++];
     }
 
-    public final void read_octet_array(byte[] value, int offset, int length)
+    public final void read_octet_array
+        (final byte[] value, final int offset, final int length)
     {
-	System.arraycopy(buffer,pos,value,offset,length);
+	System.arraycopy (buffer,pos,value,offset,length);
 	index += length;
 	pos += length;
-
-	//	for(int j=offset; j < offset+length; j++)
-	//  value[j] = read_octet(); // inlining later...
     }
 
     public final org.omg.CORBA.Principal read_Principal ()
@@ -550,25 +586,39 @@ public class CDRInputStream
      *   contributed by Mark Allerton <MAllerton@img.seagatesoftware.com>
      */
 
-    public final short read_short() 
+    public final short read_short () 
     {
 	int remainder = 2 - (index % 2);
 	if (remainder != 2)
 	{
 	    index += remainder;
-	    pos+=remainder;
+	    pos += remainder;
 	}
 
-	short result = _read2int(littleEndian,buffer,pos);
+	short result = _read2int (littleEndian,buffer,pos);
 	pos += 2;
 	index += 2;
 	return result;
     }
 
-    public final void read_short_array(short[] value, int offset, int length)
+    public final void read_short_array
+        (final short[] value, final int offset, final int length)
     {
-	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_short(); // inlining later...
+        int remainder = 2 - (index % 2);
+
+        if (remainder != 2)
+        {
+            index += remainder;
+            pos += remainder;
+        }
+
+        for (int j = offset; j < offset + length; j++)
+        {
+           value[j] = _read2int (littleEndian, buffer, pos);
+           pos += 2;
+        }
+
+        index += length * 2;
     }
 	
     public final String read_string()
@@ -621,7 +671,7 @@ public class CDRInputStream
         return result;
     }
 
-    private final org.omg.CORBA.TypeCode read_TypeCode( Hashtable tcMap )
+    private final org.omg.CORBA.TypeCode read_TypeCode (final  Hashtable tcMap )
     {
        int kind = read_long();
        int start_pos = pos - 4;
@@ -884,53 +934,141 @@ public class CDRInputStream
        }
     }
 
-    public final int read_ulong()
+    public final int read_ulong ()
     {
-	return read_long();
+	int result;
+
+	int remainder = 4 - (index % 4);
+	if (remainder != 4)
+	{
+	    index += remainder;
+	    pos += remainder;
+	}
+
+	result = _read4int (littleEndian, buffer, pos);
+
+	index += 4;
+	pos += 4;
+	return result;
     }
 
-    public final void read_ulong_array(int[] value, int offset, int length)
+    public final void read_ulong_array
+        (final int[] value, final int offset, final int length)
     {
-	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_ulong(); // inlining later...
+	int remainder = 4 - (index % 4);
+	if (remainder != 4)
+	{
+	    index += remainder;
+	    pos += remainder;
+	}
+
+	for (int j = offset; j < offset+length; j++)
+	{
+	    value[j] = _read4int (littleEndian,buffer,pos);
+	    pos += 4;
+	}
+
+	index += 4 * length;
     }
 
-    public final long read_ulonglong()
+    public final long read_ulonglong ()
     {
-	return read_longlong();
+ 	int remainder = 8 - (index % 8);
+ 	if (remainder != 8)
+ 	{
+ 	    index += remainder;
+ 	    pos += remainder;
+ 	}
+
+	if (littleEndian)
+        {
+	    return ((long) read_long() & 0xFFFFFFFFL) + ((long) read_long() << 32);
+        }
+	else
+        {
+	    return ((long) read_long() << 32) + ((long) read_long() & 0xFFFFFFFFL);
+        }
     }
 
-    public final void read_ulonglong_array(long[] value, int offset, int length)
+    public final void read_ulonglong_array
+        (final long[] value, final int offset, final int length)
     {
-	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_ulonglong(); // inlining later...
+ 	int remainder = 8 - (index % 8);
+ 	if (remainder != 8)
+ 	{
+ 	    index += remainder;
+ 	    pos += remainder;
+ 	}
+        
+	if (littleEndian)
+        {
+            for (int j = offset; j < offset+length; j++)
+            {
+                value[j] = ( (long) read_long() & 0xFFFFFFFFL) + 
+                            ((long) read_long() << 32);
+            }
+        }
+        else
+        {
+            for (int j = offset; j < offset+length; j++)
+            {
+                value[j] = ((long) read_long() << 32) + 
+                            ((long) read_long() & 0xFFFFFFFFL);
+            }
+        }
+
+        // Do not need to modify pos and index as use read_long above
     }
 
-    public final short read_ushort()
+    public final short read_ushort ()
     {
-	return read_short();
+	int remainder = 2 - (index % 2);
+	if (remainder != 2)
+	{
+	    index += remainder;
+	    pos += remainder;
+	}
+
+	short result = _read2int (littleEndian,buffer,pos);
+	pos += 2;
+	index += 2;
+	return result;
     }
 
-    public final void read_ushort_array(short[] value, int offset, int length)
+    public final void read_ushort_array
+        (final short[] value, final int offset, final int length)
     {
-	for( int j = offset; j < offset+length; j++ )
-	    value[j] = read_ushort(); // inlining later...
+        int remainder = 2 - (index % 2);
+
+        if (remainder != 2)
+        {
+            index += remainder;
+            pos += remainder;
+        }
+
+        for (int j = offset; j < offset + length; j++)
+        {
+           value[j] = _read2int (littleEndian, buffer, pos);
+           pos += 2;
+        }
+
+        index += length * 2;
     }
 
-    public final char read_wchar()
+    public final char read_wchar ()
     {
-        if( giop_minor == 2 )
+        if (giop_minor == 2)
         {
             //ignore size indicator
             read_wchar_size();
             
-            boolean wchar_little_endian = readBOM();
+            boolean wchar_little_endian = readBOM ();
             
-            return read_wchar( wchar_little_endian );
+            return read_wchar (wchar_little_endian);
         }
         else
         {
-            return read_wchar( littleEndian );
+            return read_wchar (littleEndian);
         }
     }
         
@@ -947,7 +1085,7 @@ public class CDRInputStream
     }
 
 
-    private final char read_wchar( boolean wchar_little_endian )
+    private final char read_wchar (final boolean wchar_little_endian)
     {
 	switch( codeSetW )
 	{
@@ -1047,7 +1185,8 @@ public class CDRInputStream
         }
     }
 
-    public final void read_wchar_array(char[] value, int offset, int length)
+    public final void read_wchar_array
+        (final char[] value, final int offset, final int length)
     {
 	for(int j=offset; j < offset+length; j++)
 	    value[j] = read_wchar(); // inlining later...
@@ -1130,7 +1269,7 @@ public class CDRInputStream
 	return true;
     }
 
-    public void mark( int readLimit )
+    public void mark (final int readLimit)
     {
 	marked_pos = pos;
 	marked_index = index;
@@ -1152,7 +1291,7 @@ public class CDRInputStream
 	index = 0;
     }
 
-    public final void setLittleEndian(boolean b)
+    public final void setLittleEndian (final boolean b)
     {
 	littleEndian = b;
     }
@@ -1161,7 +1300,8 @@ public class CDRInputStream
      * to be called from Any 
      */
 
-    final void read_value( org.omg.CORBA.TypeCode tc, CDROutputStream out)
+    final void read_value
+        (final org.omg.CORBA.TypeCode tc, final CDROutputStream out)
     {
 	int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
 
@@ -1510,7 +1650,7 @@ public class CDRInputStream
                                              + Integer.toHexString(tag));
     }
 
-    public java.io.Serializable read_value (String rep_id) 
+    public java.io.Serializable read_value (final String rep_id) 
     {
 	int start_offset = pos;
         int tag = read_long();
@@ -1535,7 +1675,7 @@ public class CDRInputStream
                                              + Integer.toHexString(tag));
     }
 
-    public java.io.Serializable read_value (java.lang.Class clz) 
+    public java.io.Serializable read_value (final java.lang.Class clz) 
     {
 	int start_offset = pos;
         int tag = read_long();
@@ -1561,8 +1701,8 @@ public class CDRInputStream
                                              + Integer.toHexString(tag));
     }
 
-    public java.io.Serializable read_value (
-      org.omg.CORBA.portable.BoxedValueHelper factory) 
+    public java.io.Serializable read_value
+        (final org.omg.CORBA.portable.BoxedValueHelper factory) 
     {
 	int start_offset = pos;
         int tag = read_long();
@@ -1601,9 +1741,9 @@ public class CDRInputStream
      * by `repository_id', and the index at which the value started is
      * `index'.
      */
-    private java.io.Serializable read_untyped_value (String repository_id,
-                                                     int index, 
-						     String codebase)
+    private java.io.Serializable read_untyped_value (final String repository_id,
+                                                     final int index, 
+						     final String codebase)
     {
         java.io.Serializable result;
 	if (repository_id.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
@@ -1653,7 +1793,8 @@ public class CDRInputStream
      * by a RepositoryID.  It is assumed that the tag and the codebase 
      * of the value have already been read.
      */
-    private java.io.Serializable read_typed_value(int index, String codebase) 
+    private java.io.Serializable read_typed_value
+        (final int index, final String codebase) 
     {
         return read_untyped_value (read_repository_id(), index, codebase);
     }
@@ -1751,7 +1892,7 @@ public class CDRInputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value. 
      */
-    public java.lang.Object read_abstract_interface(java.lang.Class clz) {
+    public java.lang.Object read_abstract_interface(final java.lang.Class clz) {
 	return read_boolean() ? (java.lang.Object)read_Object(clz) 
 	                      : (java.lang.Object)read_value(clz);
     }
@@ -1770,7 +1911,7 @@ public class CDRInputStream
      * store an object into the map before actually reading its state.
      * This is essential for unmarshalling recursive values.
      */
-    public void register_value (java.io.Serializable value)
+    public void register_value (final java.io.Serializable value)
     {
         valueMap.put (new Integer (currentValueIndex), value);
     }
