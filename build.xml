@@ -23,7 +23,7 @@
 
    <!-- top-level target -->
    <target name="all" depends="init,compiler,omg_idl,jacorb,libs"
-      description="Build JacORB.  Use -Ddebug=(on|off) option to switch debugging on or off (default is off)."/>
+      description="Build JacORB. Use -Ddebug=on to compile code with debug."/>
 
 
    <!-- ==================================================== -->
