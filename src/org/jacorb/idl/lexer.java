@@ -920,6 +920,7 @@ public class lexer
         }
 
         // check if it's a keyword
+        Environment.output(3, "Advancing after symbol " + result_str );
 
         keyword_num = (Integer)keywords.get(result_str);
         if ( keyword_num != null )
@@ -963,7 +964,7 @@ public class lexer
 
     public static String checkIdentifier( String str )
     {
-        //Environment.output(4, "checking identifier " + str );
+        Environment.output(3, "checking identifier " + str );
 
         /* if it is not an escaped identifier, look it up as a keyword */
         if( str.charAt(0) ==  '_' )
@@ -1119,12 +1120,34 @@ public class lexer
                     return new token(sym.LDBLQUOTE);
                 }
 
-                /* leading L for wide chars */
-                if (next_char == 'L' && next_char2 == '\'')
+                /* look for Shifts  */
+                if (next_char == '<')
                 {
-                   // Just eat the L and allow it to be a char
-                   wide = true;
-                   advance();
+                    if (next_char2 == '<')
+                    {
+                        advance();
+                        advance();
+                        return new token(sym.LSHIFT);
+                    }
+                    else
+                    {
+                        advance();
+                        return new token(sym.LESSTHAN);
+                    }
+                }
+                if (next_char == '>')
+                {
+                    if (next_char2 == '>')
+                    {
+                        advance();
+                        advance();
+                        return new token(sym.RSHIFT);
+                    }
+                    else
+                    {
+                        advance();
+                        return new token(sym.GREATERTHAN);
+                    }
                 }
 
 
