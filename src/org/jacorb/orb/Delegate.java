@@ -931,6 +931,17 @@ public final class Delegate
             if (logger.isDebugEnabled())
                 logger.debug("invoke: SystemException");
 
+            if( !async )
+            {
+               // Remove ReplyReceiver to break up reference cycle
+               // Otherwise gc will not detect this Delegate and
+               // will never finalize it.
+               synchronized (pending_replies)
+               {
+                   pending_replies.remove (receiver);
+               }
+            }
+
             interceptors.handle_receive_exception ( cfe );
 
             if ( cfe instanceof org.omg.CORBA.TRANSIENT )
