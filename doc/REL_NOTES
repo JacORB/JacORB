@@ -40,6 +40,22 @@
    H I S T O R Y      O F     C H A N G E S
  -------------------------------------------
 
+2.2
+====
+
+      - new:
+
+         * There is a new property jacorb.connection.client.connect_timeout,
+           which specifies a timeout for the initial TCP/IP connection attempt.
+
+         * The new property jacorb.poa.check_reply_end_time specifies
+           whether any ReplyEndTimePolicy (or RelativeRoundtripTimeoutPolicy)
+           should also be checked on the server side.  This requires that
+           the clocks of the client and server machine are synchronized to
+           the same order of magnitude as the timeout.  The default for
+           this property is off, unlike previous releases, where this check
+           was always done. 
+
 2.1
 ====
 
