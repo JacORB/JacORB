@@ -111,4 +111,6 @@ public interface Attributes
 
     String FILTER_PLUGIN_PREFIX =
         "jacorb.notification.filter.plugin";
+
+    String WILDCARDMAP_CLASS = "jacorb.notification.wildcardmap.implementation";
 }

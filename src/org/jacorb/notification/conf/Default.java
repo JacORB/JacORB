@@ -1,5 +1,7 @@
 package org.jacorb.notification.conf;
 
+import org.jacorb.notification.util.WeakCacheWildcardMap;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -81,4 +83,6 @@ public interface Default
      * 0 means no limit
      */
     int DEFAULT_MAX_QUEUE_LENGTH = 0;
+
+    String WILDCARDMAP_DEFAULT = WeakCacheWildcardMap.class.getName();
 }
