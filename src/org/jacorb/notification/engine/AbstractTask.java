@@ -24,7 +24,6 @@ package org.jacorb.notification.engine;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.util.TaskExecutor;
-import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
 
@@ -37,8 +36,6 @@ public abstract class AbstractTask
     extends AbstractPoolable
     implements Runnable
 {
-    protected Logger logger_ = Debug.getNamedLogger( getClass().getName() );
-
     protected Message message_;
 
     private TaskProcessor taskProcessor_;
