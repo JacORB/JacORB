@@ -46,7 +46,7 @@ public class SSLSocketFactory
     private String[] cipher_suites = null;
 
     private boolean trusteesFromKS = false;
-    private int clientSupportedOptions = 0;
+    private short clientSupportedOptions = 0;
     private String keystore_location = null;
     private String keystore_passphrase = null;
     private Logger logger;
@@ -66,7 +66,7 @@ public class SSLSocketFactory
             ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.jsse");
 
         trusteesFromKS = 
-            configuration.getAttribute("jacorb.security.jsse.trustees_from_ks","off").equals("on");
+            configuration.getAttributeAsBoolean("jacorb.security.jsse.trustees_from_ks",false);
 
         keystore_location = 
             configuration.getAttribute("jacorb.security.keystore","UNSET");
@@ -75,7 +75,9 @@ public class SSLSocketFactory
             configuration.getAttribute("jacorb.security.keystore_password","UNSET" );
 
         clientSupportedOptions = 
-            configuration.getAttributeAsInteger("jacorb.security.ssl.client.supported_options", 16 );
+            Short.parseShort(
+                configuration.getAttribute("jacorb.security.ssl.client.supported_options","0"),
+                16);
 
         try
         {
