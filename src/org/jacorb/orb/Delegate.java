@@ -22,11 +22,13 @@ package org.jacorb.orb;
 
 import java.util.*;
 
+import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.util.*;
-import org.jacorb.util.Time;
+import org.jacorb.poa.POAConstants;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.orb.connection.*;
 import org.jacorb.orb.util.CorbaLoc;
+import org.jacorb.orb.policies.*;
 import org.jacorb.orb.portableInterceptor.*;
 
 import org.omg.CORBA.portable.*;
@@ -38,6 +40,7 @@ import org.omg.CORBA.Policy;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.TimeBase.*;
 import org.omg.Messaging.*;
+import org.omg.CORBA.SystemException;
 import org.omg.PortableServer.POAPackage.*;
 
 /**
@@ -97,10 +100,10 @@ public final class Delegate
      * these cases, the rebinding to another target can occur while
      * there are still other requests active. Therefore, the act of
      * rebinding must be synchronized, so every thread sees a
-     * consistent state.  
+     * consistent state.
      *
      * Synchronization is done via the bind_sync object. Please also
-     * have a look at the comment for opration bind().  
+     * have a look at the comment for opration bind().
      */
 
 
@@ -125,7 +128,7 @@ public final class Delegate
 
         if ( object_reference.indexOf( "IOR:" ) == 0 )
         {
-            _pior = new ParsedIOR( object_reference );
+            _pior = new ParsedIOR( object_reference, orb );
         }
         else
         {
@@ -213,7 +216,7 @@ public final class Delegate
             /* The delegate could query the server for the object
              *  location using a GIOP locate request to make sure the
              *  first call will get through without redirections
-             *  (provided the server's answer is definite): 
+             *  (provided the server's answer is definite):
              */
             if ( ( ! locate_on_bind_performed ) &&
                     Environment.locateOnBind() )
@@ -229,7 +232,7 @@ public final class Delegate
                                                        connection.getId(),
                                                        ( int ) _pior.getProfileBody().iiop_version.minor );
 
-                    LocateReplyReceiver receiver = 
+                    LocateReplyReceiver receiver =
                         new LocateReplyReceiver();
 
                     connection.sendRequest( lros,
@@ -315,7 +318,7 @@ public final class Delegate
         {
             if ( object_reference.indexOf( "IOR:" ) == 0 )
             {
-                rebind( new ParsedIOR( object_reference ) );
+                rebind( new ParsedIOR( object_reference, orb ) );
             }
             else
             {
@@ -414,7 +417,7 @@ public final class Delegate
     }
 
     /**
-     * 
+     *
      */
 
     public void finalize()
@@ -533,7 +536,7 @@ public final class Delegate
         else
             return -1;
     }
-    
+
     public long getRelativeRequestTimeout()
     {
         Policy p = get_client_policy (RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value);
@@ -543,7 +546,7 @@ public final class Delegate
         else
             return -1;
     }
-    
+
     public short getSyncScope()
     {
     	Policy p = get_client_policy (SYNC_SCOPE_POLICY_TYPE.value);
@@ -552,7 +555,7 @@ public final class Delegate
     	else
 			return ((org.omg.Messaging.SYNC_NONE.value));
     }
-    
+
     /**
      * @deprecated Deprecated by CORBA 2.3
      */
@@ -742,7 +745,7 @@ public final class Delegate
     }
 
     /**
-     * Invokes a synchronous operation using this object reference 
+     * Invokes a synchronous operation using this object reference
      * by sending the request marshalled in the OutputStream.
      * @return the reply, if a reply is expected for this request.
      * If no reply is expected, returns null.
@@ -771,13 +774,13 @@ public final class Delegate
         RequestOutputStream ros      = ( RequestOutputStream ) os;
         ReplyReceiver       receiver = null;
 
-        ClientInterceptorHandler interceptors = 
-            new ClientInterceptorHandler ( orb, ros, self, this, 
+        ClientInterceptorHandler interceptors =
+            new ClientInterceptorHandler ( orb, ros, self, this,
                                            piorOriginal, connection );
 
         interceptors.handle_send_request();
 
-        try 
+        try
         {
             if ( !ros.response_expected() )  // oneway op
             {
@@ -791,16 +794,16 @@ public final class Delegate
                                                ros.getReplyEndTime(),
                                                interceptors,
                                                replyHandler );
-                                             
+
                 // Store the receiver in pending_replies, so in the
                 // case of a LocationForward a RemarshalException can
-                // be thrown to *all* waiting threads.                               
+                // be thrown to *all* waiting threads.
 
                 synchronized ( pending_replies )
                 {
-                    pending_replies.add ( receiver );                                              
+                    pending_replies.add ( receiver );
                 }
-                                               
+
                 synchronized ( bind_sync )
                 {
                     if ( ros.getConnection() == connection )
@@ -824,7 +827,7 @@ public final class Delegate
         catch ( org.omg.CORBA.SystemException cfe )
         {
             interceptors.handle_receive_exception ( cfe );
-            
+
             if ( cfe instanceof org.omg.CORBA.TRANSIENT )
             {
                 // The exception is a TRANSIENT, so try rebinding.
@@ -861,7 +864,7 @@ public final class Delegate
                 passToTransport (ros);
                 interceptors.handle_receive_other (SUCCESSFUL.value);
                 break;
-                
+
             case SYNC_WITH_TRANSPORT.value:
                 connection.sendRequest (ros, false);
                 interceptors.handle_receive_other (SUCCESSFUL.value);
@@ -878,12 +881,12 @@ public final class Delegate
                 ReplyInputStream in = rcv.getReply();
                 interceptors.handle_receive_reply (in);
                 break;
-            
+
             default:
-                throw new org.omg.CORBA.MARSHAL 
+                throw new org.omg.CORBA.MARSHAL
                     ("Illegal SYNC_SCOPE: " + ros.syncScope(),
                      0, CompletionStatus.COMPLETED_MAYBE);
-        }        
+        }
     }
 
     private void passToTransport (final RequestOutputStream ros)
@@ -941,8 +944,7 @@ public final class Delegate
 
                 try
                 {
-                    imr = ( ImRAccess ) Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
-                    imr.connect( orb );
+                    imr = ImRAccessImpl.connect (orb);
                 }
                 catch ( Exception e )
                 {
@@ -964,7 +966,7 @@ public final class Delegate
                 corbaloc.append( CorbaLoc.parseKey( object_key ) );
 
                 //rebind to the new IOR
-                rebind( new ParsedIOR( corbaloc.toString() ) );
+                rebind( new ParsedIOR( corbaloc.toString(), orb ) );
 
                 //clean up and start fresh
                 piorOriginal = null;
@@ -976,7 +978,7 @@ public final class Delegate
                 return false;
             }
         }
-    }        
+    }
 
     public void invokeInterceptors( ClientRequestInfoImpl info, short op )
     throws RemarshalException
@@ -1009,7 +1011,7 @@ public final class Delegate
         /* First, try to find out without a remote invocation. */
 
         /* check most derived type as defined in the IOR first
-         * (this type might otherwise not be found if the helper 
+         * (this type might otherwise not be found if the helper
          * is consulted and the reference was not narrowed to
          * the most derived type. In this case, the ids returned by
          * the helper won't contain the most derived type
@@ -1087,8 +1089,8 @@ public final class Delegate
 
         if ( self != obj )
         {
-            ParsedIOR pior1 = new ParsedIOR ( obj.toString () );
-            ParsedIOR pior2 = new ParsedIOR ( self.toString () );
+            ParsedIOR pior1 = new ParsedIOR ( obj.toString (), orb );
+            ParsedIOR pior2 = new ParsedIOR ( self.toString (), orb );
             result = pior2.getIDString().equals ( pior1.getIDString () );
         }
 
@@ -1241,22 +1243,22 @@ public final class Delegate
         // relative timing policies that have been specified.  Compute this
         // now, because it is the earliest possible time, and therefore any
         // relative timeouts will cover the entire invocation.
-        
+
         long request = getRelativeRequestTimeout();
         UtcT requestEndTime = Time.earliest (Time.corbaFuture (request),
                                              getRequestEndTime());
-                                        
+
         long roundtrip = getRelativeRoundtripTimeout();
         UtcT replyEndTime = Time.earliest (Time.corbaFuture (roundtrip),
                                            getReplyEndTime());
-                                      
+
         // Perhaps we're already too late?
         if (Time.hasPassed (requestEndTime))
             throw new TIMEOUT ("Request End Time exceeded prior to invocation",
                                0, CompletionStatus.COMPLETED_NO);
         else if (Time.hasPassed (replyEndTime))
             throw new TIMEOUT ("Reply End Time exceeded prior to invocation",
-                               0, CompletionStatus.COMPLETED_NO);        
+                               0, CompletionStatus.COMPLETED_NO);
 
         synchronized ( bind_sync )
         {
@@ -1366,11 +1368,11 @@ public final class Delegate
                             org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
                             so.servant = sa.incarnate( oid, poa );
                             orb.set_delegate (so.servant);
-                        }                        
+                        }
                     }
                     else
                     {
-                        // ServantManager is a ServantLocator: 
+                        // ServantManager is a ServantLocator:
                         // locate a servant
 
                         org.omg.PortableServer.ServantLocator sl =
@@ -1385,10 +1387,10 @@ public final class Delegate
                 {
                     System.err.println ("Internal error: we should have gotten to this piece of code!");
                 }
-                
+
                 if ( !expectedType.isInstance( so.servant ) )
                 {
-                    Debug.output(1, "Warning: expected " + expectedType + 
+                    Debug.output(1, "Warning: expected " + expectedType +
                                  " got " + so.servant.getClass() );
                     return null;
                 }
@@ -1403,7 +1405,7 @@ public final class Delegate
                                              ( org.omg.PortableServer.Servant ) so.servant
                                              )
                                   );
-                }                
+                }
                 return so;
             }
             catch ( Throwable e )
@@ -1416,153 +1418,127 @@ public final class Delegate
         return null;
     }
 
-        /**
-         * used only by ORB.getConnection ( Delegate ) when diverting
-         * connection to the proxy by Delegate.servant_preinvoke 
-         */
-        /*
-        public void set_adport_and_key( String ap, byte[] _key )
+    public String toString()
+    {
+        synchronized ( bind_sync )
         {
-            //adport = ap;
-            //object_key = _key;
+            if ( piorOriginal != null )
+                return piorOriginal.getIORString();
+            else
+                return getParsedIOR().getIORString();
+        }
+
     }
 
-        public void setIOR(org.omg.IOP.IOR _ior)
-        {        
-            synchronized( bind_sync )
-            {
-                _pior = new ParsedIOR( _ior );
-                piorOriginal = null;
-
-                bind_sync.notifyAll();
-            }     
+    public String toString( org.omg.CORBA.Object self )
+    {
+        return toString();
     }
-        */
-        public String toString()
+
+    public String typeId()
+    {
+        return getParsedIOR().getIOR().type_id;
+    }
+
+    public boolean useSSL()
+    {
+        return getParsedIOR().useSSL();
+    }
+
+    public org.omg.CORBA.Object set_policy_override( org.omg.CORBA.Object self,
+                                                     org.omg.CORBA.Policy[] policies,
+                                                     org.omg.CORBA.SetOverrideType set_add )
+    {
+        if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
         {
-            synchronized ( bind_sync )
+            policy_overrides.clear();
+        }
+
+        for ( int i = 0; i < policies.length; i++ )
+        {
+            policy_overrides.put( new Integer( policies[ i ].policy_type() ), policies[ i ] );
+        }
+
+        ParsedIOR pior = getParsedIOR();
+        org.omg.IOP.IOR ior = orb.createIOR( pior.getIOR().type_id,
+                                             pior.get_object_key(),
+                                             poa != null
+                                             ? !poa.isPersistent()
+                                             : false,
+                                             poa,
+                                             policy_overrides );
+
+        synchronized ( bind_sync )
+        {
+            _pior = new ParsedIOR( ior );
+            getParsedIOR().init();
+        }
+
+        return self;
+    }
+
+    public String get_codebase( org.omg.CORBA.Object self )
+    {
+        return getParsedIOR().getCodebaseComponent();
+    }
+
+    public Set get_pending_replies()
+    {
+        return pending_replies;
+    }
+
+    public void replyDone (ReplyPlaceholder placeholder)
+    {
+        synchronized (pending_replies)
+        {
+            pending_replies.remove (placeholder);
+        }
+    }
+
+    public void lockBarrier()
+    {
+        pending_replies_sync.lockBarrier();
+    }
+
+    public void waitOnBarrier()
+    {
+        pending_replies_sync.waitOnBarrier();
+    }
+
+    public void openBarrier()
+    {
+        pending_replies_sync.openBarrier();
+    }
+
+    private class Barrier
+    {
+        private boolean is_open = true;
+
+        public synchronized void waitOnBarrier()
+        {
+            while ( ! is_open )
             {
-                if ( piorOriginal != null )
-                    return piorOriginal.getIORString();
-                else
-                    return getParsedIOR().getIORString();
-            }
-
-        }
-
-        public String toString( org.omg.CORBA.Object self )
-        {
-            return toString();
-        }
-
-        public String typeId()
-        {
-            return getParsedIOR().getIOR().type_id;
-        }
-
-        public boolean useSSL()
-        {
-            return getParsedIOR().useSSL();
-        }
-
-        public org.omg.CORBA.Object set_policy_override( org.omg.CORBA.Object self,
-                org.omg.CORBA.Policy[] policies,
-                org.omg.CORBA.SetOverrideType set_add )
-        {
-            if ( set_add == org.omg.CORBA.SetOverrideType.SET_OVERRIDE )
-            {
-                policy_overrides.clear();
-            }
-
-            for ( int i = 0; i < policies.length; i++ )
-            {
-                // if ( orb.hasPolicyFactoryForType( policies[ i ].policy_type() ) )
-                // {
-                    policy_overrides.put( new Integer( policies[ i ].policy_type() ), policies[ i ] );
-                // }
-
-            }
-
-            ParsedIOR pior = getParsedIOR();
-            org.omg.IOP.IOR ior = orb.createIOR( pior.getIOR().type_id,
-                                                 pior.get_object_key(),
-                                                 poa != null 
-                                                     ? !poa.isPersistent()
-                                                     : false,
-                                                 poa,
-                                                 policy_overrides );
-
-            synchronized ( bind_sync )
-            {
-                _pior = new ParsedIOR( ior );
-                getParsedIOR().init();
-            }
-
-            return self;
-        }
-
-        public String get_codebase( org.omg.CORBA.Object self )
-        {
-            return getParsedIOR().getCodebaseComponent();
-        }
-
-        public Set get_pending_replies()
-        {
-            return pending_replies;
-        }
-        
-        public void replyDone (ReplyPlaceholder placeholder)
-        {
-            synchronized (pending_replies)
-            {
-                pending_replies.remove (placeholder);
-            }
-        }
-
-        public void lockBarrier()
-        {
-             pending_replies_sync.lockBarrier();
-        }
-        
-        public void waitOnBarrier()
-        {
-            pending_replies_sync.waitOnBarrier();
-        }            
-
-        public void openBarrier()
-        {
-            pending_replies_sync.openBarrier();
-        }
-
-        private class Barrier
-        {
-            private boolean is_open = true;
-
-            public synchronized void waitOnBarrier()
-            {
-                while ( ! is_open )
+                try
                 {
-                    try
-                    {
-                        this.wait();
-                    }
-                    catch ( InterruptedException e )
-                    {
-                        //ignore
-                    }
+                    this.wait();
+                }
+                catch ( InterruptedException e )
+                {
+                    //ignore
                 }
             }
+        }
 
-            public synchronized void lockBarrier()
-            {
-                is_open = false;
-            }
+        public synchronized void lockBarrier()
+        {
+            is_open = false;
+        }
 
-            public synchronized void openBarrier()
-            {
-                is_open = true;
+        public synchronized void openBarrier()
+        {
+            is_open = true;
 
-                this.notifyAll();
-            }
+            this.notifyAll();
         }
     }
+}
