@@ -147,8 +147,7 @@ jacorb.hashtable_class=java.util.Hashtable
 # object references). NOTE: Adresses like 127.0.0.X
 # will only be accessible from the same machine!
 #OAIAddr=1.2.3.4
-
-
+#OAPort=4711
 
 ################################
 #                              #
@@ -207,12 +206,19 @@ jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORB
 #                       #
 #########################
 
+#
+# The port number used by SSL, will be dynmically assigned
+# by default
+#
+
+#OASSLPort=4711
+
 # For using SSL, this interceptor *must* be set. Otherwise, it can
 # be left commented out.
 #org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
 
 #
-# numbers are hex values (omitting leading 0x)
+# numbers are decimal values !
 #
 jacorb.security.support_ssl=off
 jacorb.security.ssl.supported_options=64
