@@ -52,8 +52,8 @@ public class Server_TCP_IP_Transport
         this.socket = socket;
         this.is_ssl = is_ssl;
 
-        in_stream = socket.getInputStream();
-        out_stream = socket.getOutputStream();
+        in_stream = new BufferedInputStream(socket.getInputStream());
+        out_stream = new BufferedOutputStream(socket.getOutputStream());
         
         connection_info = socket.getInetAddress().getHostName() +
             ':' + socket.getPort();
