@@ -3251,46 +3251,43 @@ keeps the references until they are explicitly deleted by calling
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
-\verb"ass.bidir_init" & \verb"This portable interceptor must be"
-\verb"configured to support bi-directional"
-\verb"GIOP. Not set by default." & class \\
+\verb"ass.bidir_init" & This portable interceptor must be configured
+to support bi-directional GIOP. Not set by default. & class \\
 \hline
-\verb"jacorb.ior_proxy_host" & \verb"The jacorb.ior_proxy_host and"
-\verb"jacorb.ior_proxy_port properties"
-\verb"inform the ORB what IP/port IORs"
-\verb"should contain, if the ServerSockets"
-\verb"IP/port can't be used (e.g. for"
-\verb"traffic through a firewall). WARNING:"
-\verb"this is just ‘dumb’ replacing, so you"
-\verb"have to take care of your"
-\verb"configuration! Not set by default." & \verb"node" \\
+\verb"jacorb.ior_proxy_host" & The {\tt jacorb.ior\_proxy\_host} and
+{\tt jacorb.ior\_proxy\_port} properties inform the ORB what IP/port
+IORs should contain, if the ServerSockets IP/port can't be used
+(e.g. for traffic through a firewall). WARNING: this is just dumb
+replacing, so you have to take care of your configuration! Not set by default. & \verb"node" \\
 \hline
-\verb"jacorb.ior_proxy_port" & \verb"See jacorb.ior_proxy_host above. Not"
-\verb"set by default." & \verb"port" \\
+\verb"jacorb.ior_proxy_port" & See {\tt jacorb.ior\_proxy\_host} above. Not set by default. & port \\
 \hline
-\verb"OAIAddr" & \verb"The Object Adapter Internet Address:"
-\verb"IP address on multi-homed host (this"
-\verb"gets encoded in object references)."
-\verb"NOTE: Addresses like 127.0.0.X will"
-\verb"only be accessible from the same"
-\verb"machine! Not set by default." & \verb"node" \\
+\verb"OAIAddr" & The Object Adapter Internet Address: IP address on
+multi-homed host (this gets encoded in object references).  NOTE:
+Addresses like 127.0.0.X will only be accessible from the same machine! Not set by default. & \verb"node" \\
 \hline
-\verb"OAPort" & \verb"See OAIAddr above. Not set by default." & \verb"port" \\
+\verb"OAPort" & See {\tt OAIAddr} above. Not set by default. & port \\
 \hline
-\verb"jacorb.use_appligator" & \verb"Sets whether applets are supported via"
-\verb"the JacORB Appligator. If your applets"
-\verb"don't need appligator, switch this"
-\verb"off. Default is off." & boolean \\
+\verb"jacorb.net."
+\verb"socket_factory.port.min" & Minimum port number that
+can be used on the client side when opening new connections. This can
+be used to enable firewall traversal via a fixed port range. & port \\
 \hline
-\verb"org.omg.PortableInterc"
-\verb"eptor.ORBInitializerCl"
-\verb"ass.standard_init" & \verb"Standard portable interceptor. DO NOT"
-\verb"REMOVE." & class \\
+\verb"jacorb.net."
+\verb"socket_factory.port.max" & Maximum port number that
+can be used on the client side when opening new connections. (cf. above) & port \\
+\hline
+\verb"jacorb.use_appligator" & Sets whether applets are supported via
+the JacORB Appligator. If your applets don't need appligator, switch
+this off. Default is off. & boolean \\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
-\verb"ass.standard_init" & \verb"Standard portable interceptor. DO NOT"
-\verb"REMOVE." & class \\
+\verb"ass.standard_init" & Standard portable interceptor. DO NOT REMOVE. & class \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.standard_init" & Standard portable interceptor. DO NOT REMOVE. & class \\
 \hline
 
 \end{longtable}
@@ -3424,7 +3421,7 @@ keeps the references until they are explicitly deleted by calling
 
 \hline
 \verb"OASSLPort" & \verb"The port number used by SSL, will be"
-\verb"dynamically assigned by default." & \verb"port" \\
+\verb"dynamically assigned by default." & port \\
 \hline
 \verb"org.omg.PortableInterc"
 \verb"eptor.ORBInitializerCl"
