@@ -10,7 +10,7 @@ package org.jacorb.test.orb.connection;
  * @version $Id$
  */
 
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 import org.jacorb.orb.iiop.*;
 
 import java.io.*;

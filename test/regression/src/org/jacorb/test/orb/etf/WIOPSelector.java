@@ -23,7 +23,7 @@ package org.jacorb.test.orb.etf;
 import java.util.*;
 
 import org.jacorb.orb.ProfileSelector;
-import org.jacorb.orb.connection.ClientConnectionManager;
+import org.jacorb.orb.giop.ClientConnectionManager;
 import org.omg.ETF.Profile;
 
 /**
