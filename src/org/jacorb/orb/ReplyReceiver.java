@@ -115,26 +115,37 @@ public class ReplyReceiver
     }
 
 
-    public synchronized void replyReceived( MessageInputStream in )
+    public void replyReceived( MessageInputStream in )
     {
         if (timeoutException)
             return; // discard reply
         if (timer != null)
             timer.wakeup();
 
-        this.in = in;
-        delegate.replyDone (this);
+        // This internal synchronization prevents a deadlock
+        // when a timeout and a reply coincide, suggested
+        // by Jimmy Wilson, 2005-01.  It is only a temporary
+        // work-around though, until I can simplify this entire
+        // logic much more thoroughly, AS.
+        synchronized (this)
+        {
+            if (timeoutException)
+                return; // discard reply
+            
+            this.in = in;
+            delegate.replyDone (this);
 
-        if (replyHandler != null)
-        {
-            // asynchronous delivery
-            performCallback ((ReplyInputStream)in);
-        }
-        else
-        {
-            // synchronous delivery
-            ready = true;
-            notifyAll();
+            if (replyHandler != null)
+            {
+                // asynchronous delivery
+                performCallback ((ReplyInputStream)in);
+            }
+            else
+            {
+                // synchronous delivery
+                ready = true;
+                notifyAll();
+            }
         }
     }
 
