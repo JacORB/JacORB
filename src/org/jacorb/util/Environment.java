@@ -70,10 +70,10 @@ public class Environment
     private static final String poaPrefix             = jacorbPrefix + "poa.";
 
     /** root logger instance for JacORB */
-    private static LoggerFactory loggerFactory = null;
-
-    /**  logger factory used to create loggers */
     private static Logger logger = null;
+    
+    /**  logger factory used to create loggers */
+    private static LoggerFactory loggerFactory = null;
 
     /**  default class name for logger factory */
     private static final String loggerFactoryClzName = "org.jacorb.util.LogKitLoggerFactory";
