@@ -76,7 +76,7 @@ class OrderedIteratorImpl extends PositionalIteratorImpl
             }
             set_in_between( false );
             return is_valid();
-        };
+        }
     };
 /* ------------------------------------------------------------------------- */
     public void set_to_position(int position) throws PositionInvalid{
@@ -93,8 +93,8 @@ class OrderedIteratorImpl extends PositionalIteratorImpl
         synchronized( collection ){
             check_invalid();
             return get_pos();
-        };
-    };
+        }
+    }
 /* ------------------------------------------------------------------------- */
     public boolean retrieve_element_set_to_previous( AnyHolder element, BooleanHolder more) throws IteratorInvalid,IteratorInBetween{
         synchronized( collection ){

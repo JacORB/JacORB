@@ -135,8 +135,8 @@ class PositionalIteratorImpl
                 set_to_next_element();
                 return true;
             }
-        };
-    };
+        }
+    }
 /* ------------------------------------------------------------------------- */
     public void remove_element() throws IteratorInvalid,IteratorInBetween{
         synchronized( collection ){
@@ -169,8 +169,8 @@ class PositionalIteratorImpl
             }
             actual_number.value = count;
             return exist_next();
-        };
-    };
+        }
+    }
 /* ------------------------------------------------------------------------- */
     public boolean not_equal_remove_element_set_to_next(org.omg.CosCollection.Iterator test) 
 	throws IteratorInvalid,IteratorInBetween{
@@ -226,8 +226,8 @@ class PositionalIteratorImpl
                 replace_element_set_to_next( element );
                 return true;
             }
-        };
-    };
+        }
+    }
 /* ------------------------------------------------------------------------- */
     public boolean add_element_set_iterator(Any element) throws ElementInvalid{
         synchronized( collection ){
@@ -279,8 +279,8 @@ class PositionalIteratorImpl
                 throw new IteratorInvalid( IteratorInvalidReason.is_invalid );
             }
             return get_pos() == iter.get_pos();
-        };
-    };
+        }
+    }
 /* ------------------------------------------------------------------------- */
     public org.omg.CosCollection.Iterator _clone(){
         synchronized( collection ) {
@@ -292,9 +292,9 @@ class PositionalIteratorImpl
             } catch ( IteratorInvalid e ){
                 e.printStackTrace( System.out );
                 throw new org.omg.CORBA.INTERNAL();
-            };
-        };
-    };
+            }
+        }
+    }
 /* ------------------------------------------------------------------------- */
     public void assign(org.omg.CosCollection.Iterator from_where) throws IteratorInvalid{
         synchronized( collection ) {

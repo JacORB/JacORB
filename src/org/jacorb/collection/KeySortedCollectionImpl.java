@@ -96,7 +96,7 @@ class KeySortedCollectionImpl extends OrderedCollectionImpl implements KeySorted
             } else {
                 element_replace( pos, element );
                 return false;
-            };
+            }
         } catch ( ObjectInvalid e ) {
             throw new ElementInvalid( ElementInvalidReason.element_type_invalid );
         } catch ( PositionInvalid e ) {
@@ -118,7 +118,7 @@ class KeySortedCollectionImpl extends OrderedCollectionImpl implements KeySorted
                 i.set_pos(pos);
                 i.set_in_between( false );
                 return false;
-            };
+            }
         } catch ( ObjectInvalid e ){
             throw new ElementInvalid( ElementInvalidReason.element_type_invalid );
         } catch ( PositionInvalid e ) {
