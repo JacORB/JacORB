@@ -328,12 +328,12 @@ public class ORBSingleton
                                          id, 
                                          name, 
                                          members);
-        //        tc.resolve_recursion();
+        tc.resolveRecursion( tc );
         return tc;
     }
 
     /**
-     * create aa union TypeCode
+     * create a union TypeCode
      */ 
 
     public TypeCode create_union_tc( String id, 
@@ -415,7 +415,7 @@ public class ORBSingleton
                                         name,
                                         discriminator_type, 
                                         members);
-        // tc.resolve_recursion();
+        tc.resolveRecursion( tc );
         return tc;
     }
 
