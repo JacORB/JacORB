@@ -58,7 +58,7 @@ public class ConnectionManager
     private  Vector                     proxyEntries=new Vector();
 
     
-    public ConnectionManager(org.jacorb.orb.ORB orb)
+    public ConnectionManager(ORB orb)
     {
         this.orb = orb;
 
@@ -90,7 +90,7 @@ public class ConnectionManager
                 Class ssl = Class.forName( s );
 
                 Constructor constr = ssl.getConstructor( new Class[]{
-                    org.jacorb.orb.ORB.class });
+                    ORB.class });
    
                 ssl_socket_factory = (SocketFactory)constr.newInstance( new Object[]{ orb });
             }
@@ -112,7 +112,7 @@ public class ConnectionManager
      * @return <code>Connection</code>
      */
 
-    public final ClientConnection _getConnection( org.jacorb.orb.Delegate delegate )
+    public final ClientConnection _getConnection( Delegate delegate )
     {
         return _getConnection( delegate.get_adport(), delegate.port_is_ssl());
     }
@@ -129,7 +129,7 @@ public class ConnectionManager
     public final ClientConnection _getConnection( String host_and_port, 
                                             boolean target_ssl )
     {
-        int retries = org.jacorb.util.Environment.noOfRetries();
+        int retries = Environment.noOfRetries();
 
         if( host_and_port.indexOf('/') > 0)
         {
@@ -178,20 +178,32 @@ public class ConnectionManager
             return e;
         } 
 
+        int _port = -1;
+        try
+        {
+            _port = Integer.parseInt( port );
+        }
+        catch( NumberFormatException nfe )
+        {
+            Debug.output( 1, "Unable to create port int from string >" +
+                          port + '<' );
+
+            throw new org.omg.CORBA.BAD_PARAM();
+        }
+
+        if( _port < 0)
+            _port += 65536;
+
+
         /* create a new connection */
 
         while( retries + 1 > 0 )  // +1 for initial connection
         {
             try 
-            {
-                int _port = 
-                    new Integer( port ).intValue();
+            {                        
+                ClientConnection c = null;
 
-                if( _port < 0)
-                    _port += 65536;
-                        
-                ClientConnection c;
-		if ( org.jacorb.util.Environment.useHTTPTunneling( host ))
+		if ( Environment.useHTTPTunneling( host ))
                 {
                     c = (ClientConnection)
                         new org.jacorb.orb.connection.http.ClientConnection( this, 
@@ -232,7 +244,7 @@ public class ConnectionManager
 
                 s.setTcpNoDelay(true);
                 String prop = 
-                    org.jacorb.util.Environment.getProperty("jacorb.connection.client_timeout");
+                    Environment.getProperty("jacorb.connection.client_timeout");
 
                 if( prop != null )
                 {
@@ -261,7 +273,7 @@ public class ConnectionManager
                 Debug.output(1,"Retrying connection to " + host_and_port);
                 try 
                 {
-                    Thread.sleep( org.jacorb.util.Environment.retryInterval() );
+                    Thread.sleep( Environment.retryInterval() );
                 } 
                 catch ( InterruptedException i ){}
                 retries--;
@@ -285,12 +297,12 @@ public class ConnectionManager
      * @except <code>org.omg.CORBA.NO_PERMISSION</code>
      */
 
-    public String effective_host_and_port( org.jacorb.orb.Delegate delegate )
+    public String effective_host_and_port( Delegate delegate )
     {
         String host_and_port = null;
 
 	if( proxyConnectDirectly ||
-            !org.jacorb.util.Environment.useAppligator(orb.getApplet() != null) )
+            !Environment.useAppligator(orb.getApplet() != null) )
         {
             host_and_port = delegate.get_adport();
         }
@@ -310,7 +322,7 @@ public class ConnectionManager
                 proxyObj.forward(delegate.getParsedIOR().getIORString(),proxyEntryId);
 
             proxyEntries.addElement(proxyEntryId.value);
-            org.jacorb.orb.ParsedIOR divpior = new org.jacorb.orb.ParsedIOR(newIORString);
+            ParsedIOR divpior = new ParsedIOR(newIORString);
 
             //put in unproxyTable
             unproxyTable.put( divpior.getIORString(), 
@@ -346,10 +358,10 @@ public class ConnectionManager
         return host_and_port;
     }
 
-    public ClientConnection getConnection( org.jacorb.orb.Delegate delegate )
+    public ClientConnection getConnection( Delegate delegate )
     {
         if(  proxyConnectDirectly ||
-             !org.jacorb.util.Environment.useAppligator(orb.getApplet() != null) )
+             !Environment.useAppligator(orb.getApplet() != null) )
         {         
             return _getConnection( delegate );
         }
@@ -368,11 +380,12 @@ public class ConnectionManager
       
             org.omg.CORBA.StringHolder proxyEntryId = new org.omg.CORBA.StringHolder();
             String newIORString = 
-                proxyObj.forward( delegate.getParsedIOR().getIORString(), proxyEntryId );
+                proxyObj.forward( delegate.getParsedIOR().getIORString(), 
+                                  proxyEntryId );
 
             proxyEntries.addElement(proxyEntryId.value);
 
-            org.jacorb.orb.ParsedIOR divpior = new org.jacorb.orb.ParsedIOR(newIORString);
+            ParsedIOR divpior = new ParsedIOR(newIORString);
 
             // put in unproxyTable
             unproxyTable.put( divpior.getIORString(), 
@@ -429,7 +442,7 @@ public class ConnectionManager
     public void initProxy()
     {
         // check if proxy is to be used at all
-        if( ! org.jacorb.util.Environment.useAppligator( orb.getApplet() != null) )
+        if( ! Environment.useAppligator( orb.getApplet() != null) )
         {
             return;
         }
@@ -449,13 +462,13 @@ public class ConnectionManager
                 {
                     if (!applet_properties_read)
                     {
-                        org.jacorb.util.Environment.readFromURL(
+                        Environment.readFromURL(
                                   new java.net.URL( orb.getApplet().getCodeBase().toString()+
                                                     "jacorb.properties"));
                         applet_properties_read = true;
                         // reinitialize
-                        //jacorb.util.Debug.initialize( new org.jacorb.util.Environment() );
-                        org.jacorb.util.Debug.initialize( );
+                        //jacorb.util.Debug.initialize( new Environment() );
+                        Debug.initialize( );
                     }
                 }
                 catch (java.net.MalformedURLException mue)
@@ -499,7 +512,7 @@ public class ConnectionManager
 
                 try
                 {
-                    proxyURL = new java.net.URL(org.jacorb.util.Environment.proxyURL());
+                    proxyURL = new java.net.URL(Environment.proxyURL());
                     Debug.output(2,"ORB:Trying address (Environment):"+proxyURL.toString());
                     readProxyIOR(proxyURL);
                     return;
@@ -571,7 +584,7 @@ public class ConnectionManager
 
                     proxyURL = new java.net.URL("http://" +
                                                 codebase + "/" + 
-                                                org.jacorb.util.Environment.proxyURL() );
+                                                Environment.proxyURL() );
                     Debug.output(2,"ORB:Trying address (WebHome):" + proxyURL.toString());
                     readProxyIOR(proxyURL);
                     return;
@@ -664,7 +677,7 @@ public class ConnectionManager
     public org.omg.IOP.IOR proxyfy(String ior_str)
     {
         // if applet, return proxified IOR       
-        org.jacorb.util.Debug.output(4,"ORB.proxyfy(), proxifying original ior " +
+        Debug.output(4,"ORB.proxyfy(), proxifying original ior " +
                                  ior_str );
         
         org.omg.CORBA.StringHolder proxyEntryId = 
@@ -681,7 +694,7 @@ public class ConnectionManager
         unproxyTable.put( proxy_ior_str, ior_str );
         //        unproxyTable.put( proxy_ior_str, (new ParsedIOR(_ior)).getIORString() );
         
-        org.jacorb.util.Debug.output(4,"ORB.createIOR, returning proxifyed ior " + 
+        Debug.output(4,"ORB.createIOR, returning proxifyed ior " + 
                                  proxy_ior.hashCode());
         
         return proxy_ior;
