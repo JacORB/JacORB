@@ -160,9 +160,9 @@ module PortableServer
     //
     // **************************************************
 	
-    local interface ServantManager {};
+     interface ServantManager {};
 	
-    local interface ServantActivator : ServantManager 
+     interface ServantActivator : ServantManager 
     {
 	Servant incarnate (in ObjectId oid,
 			   in POA adapter)
