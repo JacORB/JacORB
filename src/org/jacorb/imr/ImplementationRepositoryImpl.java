@@ -660,7 +660,7 @@ public class ImplementationRepositoryImpl
 	    System.out.println("Please check " + _backup_file.getAbsolutePath());
 	}
         
-        System.setProperty( "jacorb.implName", "the_ImR" );
+        System.setProperty( "jacorb.implname", "the_ImR" );
 
 	orb = org.omg.CORBA.ORB.init(args,null);
 
