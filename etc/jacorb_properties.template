@@ -605,9 +605,7 @@ jacorb.naming.purge=on
 
 jacorb.naming.noping=on
 
-# Port on which to run service
-
-# jacorb.naming.port=
+# The file where the name server drops its IOR
 jacorb.naming.ior_filename=c:/NS_Ref
 
 ########################################
