@@ -140,6 +140,61 @@
            <chmod file="bin/jaco" perm="ugo+rx"/>
    </target> 
 
+   <!-- This target creates a jar file that contains the --> 
+   <!-- core ORB components and (genrated) OMG classes + -->
+   <!-- the Naming Service -->
+   <target name="core_jacorb_jar" depends="init">
+      <delete file="${lib}/core_jacorb.jar"/>
+       <jar jarfile="${lib}/core_jacorb.jar" 
+	    basedir="${classdir}"
+	    includes="org/jacorb/orb/**,org/jacorb/naming/*,org/jacorb/poa/**,org/jacorb/util/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/IOP_N/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**"
+            excludes="org/jacorb/orb/domain/gui/*,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/orb/connection/http/*"
+	    />	    
+   </target>
+
+   <!-- This target creates a jar file that contains the -->
+   <!-- following JacORB services and utilities: -->
+   <!-- ImR + GUI, IR + GUI, Domain GUI, POA GUI, Tracing, Proxy -->
+   <target name="jacorb_services_jar" depends="init">
+      <delete file="${lib}/jacorb_services.jar"/>
+       <jar jarfile="${lib}/jacorb_services.jar" 
+	    basedir="${classdir}"
+	    includes="org/jacorb/imr/**,org/jacorb/ir/**,org/jacorb/orb/domain/gui/*,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/proxy/*"
+	    />	    
+   </target>
+
+   <!-- This target creates a jar file that contains the -->
+   <!-- following OMG services: -->
+   <!-- Concurrency, Events, Trading, Transaction, but not Naming -->
+   <target name="omg_services_jar" depends="init">
+      <delete file="${lib}/omg_services.jar"/>
+       <jar jarfile="${lib}/omg_services.jar" 
+	    basedir="${classdir}"
+	    includes="org/jacorb/concurrency/**,org/jacorb/events/**,org/jacorb/trading/**,org/jacorb/transaction/**,org/omg/Cos*/**"
+            excludes="org/omg/CosNaming/**"
+	    />	    
+   </target>
+
+   <!-- This target creates a jar file that contains the -->
+   <!-- HTTP tunneling classes -->
+   <target name="http_tunneling_jar" depends="init">
+      <delete file="${lib}/http_tunneling.jar"/>
+       <jar jarfile="${lib}/http_tunneling.jar" 
+	    basedir="${classdir}"
+	    includes="HTTPClient/**,org/jacorb/orb/connection/http/*"
+	    />	    
+   </target>
+
+   <!-- This target creates a jar file that contains the -->
+   <!-- (genrated) OMG and JacORB security classes -->
+   <target name="security_jar" depends="init">
+      <delete file="${lib}/security.jar"/>
+       <jar jarfile="${lib}/security.jar" 
+	    basedir="${classdir}"
+	    includes="org/jacorb/security/**,org/omg/Security*/**,org/omg/SSLIOP/**,org/omg/TimeBase/**"
+	    />	    
+   </target>
+
    <!-- ==================================================== -->
    <!--                   clean up                           -->
    <!-- ==================================================== -->
@@ -175,6 +230,5 @@
                     </sourcepath> 
            </javadoc>
    </target>
-
 </project>
 
