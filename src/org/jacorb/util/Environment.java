@@ -382,8 +382,30 @@ public class Environment
         else if (_props.getProperty(jacorbPrefix+"logfile") != null)
             logFileName = _props.getProperty(jacorbPrefix+"logfile");
                     
-        if (logFileName != null && !logFileName.equals("")) 
+        if (logFileName != null && !logFileName.equals ("")) 
         {
+            // Comvert $implname postfix to implementation name
+ 
+            if (logFileName.endsWith ("$implname"))
+            {
+               logFileName = logFileName.substring (0, logFileName.length () - 9);
+
+               if (_props.getProperty ("implname") != null)
+               {
+                  logFileName += _props.getProperty ("implname");
+               }
+               else if (_props.getProperty (jacorbPrefix + "implname") != null)
+               {
+                  logFileName += _props.getProperty (jacorbPrefix + "implname");
+               }
+               else
+               {
+                  // Just in case implename has not been set
+
+                  logFileName += "log";
+               }
+            }
+
             try 
             {
                 _log_file_out = new PrintWriter(new FileOutputStream(logFileName));
