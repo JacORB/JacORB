@@ -1,3 +1,278 @@
+2004-10-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* poa/RPPoolManager.java: Changes to fix race condition when
+	destroying the pool manager, fixing bug #530.
+	(activeProcessors): New field.
+	(getProcessor, releaseProcessor): Update the list of
+	activeProcessors accordingly.
+	(init): Initialize activeProcessor list.
+	(destroy): Wait for all active processors to return.
+
+2004-10-26  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDRInputStream.java (read_string): Uncomment check for
+	NUL-terminated strings, fixing regression test failure
+	testGIOP_1_2_CorrectFragmentedRequest.
+
+2004-10-21  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* security/ssl/sun_jsse/SSLSocketFactory.java:
+	  - SSLSocketFactory is now using "SSLv3" instead of "TLS". The call
+
+	    Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+
+	    was removed from SSLSocketFactory. These changes solved an SSL
+	    handshaking problem in the J2EE CTS. Perhaps they should be
+	    configurable?
+
+	* orb/ParsedIOR.java:
+	  - Method parse_corbaloc does not use the object key map anymore.
+	    Should this be configurable? I don't think so, but may be missing
+	    something...
+
+	* orb/iiop/IIOPListener.java:
+	  - If there is an sslAcceptor, the previous version of the method
+	    createEndPointProfile always adds a component with TAG_SSL_SEC_TRANS
+	    to the new IIOPProfile. The new version also looks at the config
+	    property jacorb.security.ssl_components_added_by_ior_interceptor.
+	    If the property is set, createEndPoingtProfile does not add
+	    the SSL component to the IIOPProfile.
+
+	* orb/iiop/IIOPProfile.java:
+	  - Method getSSLPort looks also at the CSIv2 component, which is
+	    tagged with TAG_CSI_SEC_MECH_LIST.
+
+	* orb/util/PrintIOR.java:
+	  - Minor improvements in the method that prints a CSIv2 target
+	    name (printNTExportedName) and in the one that prints the
+	    alternate IIOP address (printAlternateAddress).
+
+	* poa/POA.java:
+	  - POA stores the value the new POA policy SSLPolicy (which is
+	    either SSL_REQUIRED or SSL_NOT_REQUIRED) and has new public
+	    method isSSLRequired().
+
+	* orb/ORB.java:
+	  - Implement the deprecated methods connect(obj) and
+	    disconnect(obj), because the server-side programming model
+	    traditionally used by RMI/IIOP strongly relies on them.
+
+	  - Method createIOR changed so that it sets to 0 the primary
+	    address port in the IIOP profile of an IOR created by a POA
+	    whose SSLPolicy is SSL_REQUIRED.
+
+	* security/ssl/build.xml:
+	  - Added ant target for compilation of new files
+	    src/org/jacorb/security/ssl/SSLPolicyFactory.java and
+	    src/org/jacorb/security/ssl/SSLPolicyImpl.java.
+
+	* security/ssl/SSLPolicyFactory.java, security/ssl/SSLPolicyImpl.java:
+	  - Added new JacORB-specific POA policy that serves the purpose
+	    of allowing SSL requirements to be specified in a per-POA basis.
+
+	* orb/CDROutputStream.java:
+	  - Handle java.lang.Class instances as a special case, as
+	    mandated by the spec.
+
+	  - Call ValueHandler.writeReplace only once for each RMI value
+	    marshalled, even in the presence of recursion.
+
+	  - Look at the value returned by ValueHandler.writeReplace and
+	    marshall it using an indirection if possible. It
+	    ValueHandler.writeReplace returns an org.omg.CORBA.Object,
+	    then marshal this object as an IOR.
+
+	* orb/CDRInputStream.java: 
+	  - Handle java.lang.Class instances as a
+	    special case, as mandated by the spec.
+
+2004-10-18  Simon McQueen  <sm@prismtechnologies.com>
+
+	* ir/Contained.java, ir/ExceptionDef.java, ir/IRServer.java,
+	ir/InterfaceDef.java, ir/StructDef.java, ir/TypeCodeUtil.java,
+	ir/UnionDef.java, orb/Delegate.java, orb/TypeCode.java: Java 1.5.0
+	compatibility changes. Suppress some varargs warnings.
+
+	* collection/util/Cach.java, concurrency/LockSetFactoryImpl.java,
+	concurrency/TransactionCoordinator.java,
+	concurrency/TransactionalLockSetImpl.java,
+	idl/IDLTreeVisitor.java, idl/UnionType.java, idl/ValueDecl.java,
+	idl/javamapping/JavaMappingGeneratingVisitor.java,
+	orb/dynany/DynUnion.java,
+	orb/portableInterceptor/ORBInitInfoImpl.java, poa/POA.java,
+	poa/RequestController.java, collection/CollectionImpl.java: Java
+	1.5.0 compatibility changes. Replace use of 'enum' as variable
+	name and qualify use of class 'State' to avoid confusion with
+	java.lang.State.
+
+	* orb/factory/SocketFactoryManager.java (getFactory): Configure
+	SocketFactory instances iff they are Configurable (as
+	PortRangeSocketFactory is).  This fixes bug # 522. Thanks to
+	Johannes Stamminger for raising the bug.
+
+2004-10-07  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/BufferManager.java (getBuffer): Nullify cached bufferMax
+	when the it's been given out to prevent another thread getting
+	hold of it and / or utter carnage when handling multiple nested
+	larged anys.
+
+	Thanks to John Farrell for suggesting this.
+
+2004-09-23  Simon McQueen  <sm@prismtechnologies.com>
+
+	* config/Configuration.java (getAttributeAsBoolean x 2): Added
+	trim()'s because of a very frustrating afternoon caused by a rogue
+	trailing space.
+
+	* orb/factory/PortRangeServerSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java (configure): Amended so
+	that you can specify a range of 1 port (i.e. MIN_PROP ==
+	MAX_PROP).
+
+	Thanks to Jay Colson for the report.
+
+2004-09-13  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/SASTargetInterceptor.java: Reply service context
+	was being overritten
+
+2004-09-02  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/servant/AbstractProxy.java (diposeInProgress_): new
+	member to indicate shutdown(dispose): set disposeInProgress_ as
+	first action(isConnected): only return true if dispose is not in
+	progress(tryDisconnectClient): check disposeInProgress_ instead
+	of isConnected(). otherwise consumer would not be disconnected
+
+2004-08-27  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/PushToConsumerTask.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java (PushToConsumerTask):
+	do not reset error counter here(*PushSupplierImpl): reset error
+	counter after remote push was invoked successfullythis should
+	fix a bug where dead consumer were not properly disconnected from
+	the channel
+
+	http://lists.spline.inf.fu-berlin.de/pipermail/jacorb-developer/2004-August/006737.html
+
+	thanks to John Farrell for reporting
+
+2004-08-26  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/iiop/IIOPProfile.java: Oops. Cut and paste error in previous fix.
+
+	* orb/iiop/IIOPProfile.java (equals): Fix for bug #507. No account
+	was taken of SSL listen port when caomparing profiles.
+
+	Thanks to Norrie Quinn for suggesting a fix.
+
+2004-08-25  Simon McQueen  <sm@prismtechnologies.com>
+
+	* orb/util/PrintIOR.java (printIOR): Use the new method
+	getOriginalHost rather than getHostname to display the actual
+	contents of the profile's host string.
+
+	* orb/IIOPAddress.java (getOriginalHost): Added this method for
+	use by org.jacorb.orb.util.PrintIOR so that it can print what is
+	actually encoded as the host string in an IOR.
+
+	* orb/etf/StreamConnectionBase.java:
+	Careless last minute change had broken compilation.
+
+	* config/Configuration.java, orb/ParsedIOR.java, orb/build.xml,
+	orb/etf/ConnectionBase.java, orb/etf/FactoriesBase.java,
+	orb/etf/ListenerBase.java, orb/etf/ProfileBase.java,
+	orb/etf/StreamConnectionBase.java,
+	orb/iiop/ClientIIOPConnection.java, orb/iiop/IIOPConnection.java,
+	orb/iiop/IIOPFactories.java, orb/iiop/IIOPListener.java,
+	orb/iiop/IIOPProfile.java, orb/iiop/ServerIIOPConnection.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java: Created
+	abstract base classes for ETF implementations and made the IIOP
+	implementation derive from them.
+
+2004-08-19  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/jmx/EventChannelFactoryControl.java,
+	notification/jmx/EventChannelFactoryMBean.java,
+	notification/jmx/JMXMain.java: code cleanupadded IOR and
+	Corbaloc Attributes
+
+	* notification/FilterFactoryImpl.java:
+	(ctor) removed exception from signature(loadFilterPlugins) use
+	ObjectUtil to load classes
+
+	* notification/build.xml,
+	notification/jmx/EventChannelFactoryControl.java,
+	notification/jmx/EventChannelFactoryMBean.java,
+	notification/jmx/JMXMain.java:
+	(*.java) initial work for a mgmt facility based on
+	JMX(build.xml) exclude from build for now
+
+	* notification/servant/AbstractProxySupplier.java:
+	(handleFailedPushOperation) dispose retry operation in case it fails
+
+	* notification/engine/TaskProcessorRetryStrategy.java: javadoc
+
+	* notification/AbstractChannelFactory.java,
+	notification/FilterFactoryImpl.java: moved FilterFactoryImpl class
+	to the ManageableServant IF and fixed Refs in
+	AbstractChannelFactory
+
+	* notification/util/AbstractObjectPool.java:
+	(stopListCleaner) empty the cached array to allow cached elements
+	to be GC'ed
+
+2004-08-17  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/engine/DefaultTaskProcessor.java,
+	notification/engine/TaskExecutor.java: allow pull worker threads
+	to die
+
+	* notification/ApplicationContext.java: comment out unused field
+
+	* notification/servant/AbstractProxySupplier.java: cleanup
+
+	* notification/util/AbstractObjectPool.java: organized imports
+
+	* notification/servant/StructuredProxyPushSupplierImpl.java:
+	(disconnect) instead of setting pushConsumer_ to null set to
+	NULL_CONSUMER
+
+	* notification/servant/AbstractProxy.java:
+	(checkDisposalstatus) do not throw OBJECT_NOT_EXIST
+
+	* notification/queue/EventQueue.java: added javadoc
+
+	* notification/interfaces/MessageConsumer.java:
+	commented out unused methods
+
+	* notification/engine/RetryStrategy.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/engine/WaitRetryStrategy.java: cleanup
+
+	* notification/engine/PushStructuredOperation.java: replaced class
+	StructuredPushConsumer with IF StructuredPushConsumerOperations
+
+	* notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterConsumerAdminTask.java:
+	(doWork, filter) dispose message if no ProxySuppliers are
+	connected
+
+	* notification/engine/AbstractTask.java:
+	(dipose) implement in this class. Call reset on dispose so that
+	referenced resources are freed
+
+2004-08-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/util/AbstractObjectPool.java:
+	(ListCleaner) longer interval between runs. use Array instead of
+	Iterator as the overuse of Iterator seemed to cause a memory
+	problem
+
 2004-08-14  Andre Spiegel  <spiegel@gnu.org>
 
 	* orb/CDROutputStream.java (write_repository_id,
