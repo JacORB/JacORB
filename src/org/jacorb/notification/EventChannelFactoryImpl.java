@@ -66,6 +66,8 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
+import java.io.PrintWriter;
+import java.io.FileWriter;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -559,7 +561,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     }
 
     private static void help() {
-	System.out.println("Usage: ntfy [-printIOR|-printCorbaloc|-help] [-port <oaPort>] [-channels <channels>]");
+	System.out.println("Usage: ntfy [-printIOR] [-printCorbaloc] [-writeIOR <filename>] [-port <oaPort>] [-channels <channels>] [-help]");
 	
 	System.exit(0);
     }    
@@ -573,6 +575,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
     	boolean doHelp = false;
     	boolean doPrintIOR = false;
     	boolean doPrintCorbaloc = false;
+	String iorFileName = null;
     	String oaPort = null;
     	int channels = 0;
     	
@@ -588,6 +591,8 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 		oaPort = args[++i];
 	    } else if (args[i].equals("-channels")) {
 		channels = Integer.parseInt(args[++i]);
+	    } else if (args[i].equals("-writeIOR")) {
+		iorFileName = args[++i];
 	    } else {
 		System.out.println("Unknown argument: "+args[i]);
 		help();
@@ -622,6 +627,13 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA implements D
 	
 	if (doPrintIOR) {
 	    System.out.println(_factory.getIOR());
+	}
+
+	if (iorFileName != null) {
+	    PrintWriter out = new PrintWriter(new FileWriter(iorFileName));
+	    out.println(_factory.getIOR());
+	    out.flush();
+	    out.close();
 	}
 
 	if (doPrintCorbaloc) {

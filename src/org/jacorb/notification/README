@@ -9,11 +9,21 @@ and make it available in the classpath
 
 to start the Notification Service run bin/ntfy or bin/ntfy.bat.
 
-ntfy[.bat] [-printIOR|-printCorbaloc|-help]
+ntfy[.bat] [-printIOR] [-printCorbaloc] [-writeIOR <filename>] 
+           [-port <oaPort>] [-channels <channels>] [-help]
 	
 The script starts a EventChannelFactory
-By specifying one of the Arguments -printIOR or -printCorbaloc the IOR
-resp. corbaloc of the Service is printed out to the Console
+
+* -printIOR: 		print the IOR to STDOUT
+
+* -printCorbaloc: 	print the Corbaloc to STDOUT
+
+* -writeIOR <filename>: write the IOR to a file
+
+* -port <oaport>:	try to start the service on a specific port
+
+* -channels <channels>:	create a number of EventChannels
+
 
 any comments/suggestions to the JacORB Developer Mailing List
 
