@@ -58,6 +58,17 @@ class ValueBoxDecl
     {
         if( typeName == null )
             setPrintPhaseNames();
+
+        if (typeSpec.typeSpec() instanceof BaseType)
+            return typeName;
+        else
+            return typeSpec.typeSpec().typeName();
+    }
+
+    public String boxTypeName()
+    {
+        if (typeName == null)
+            setPrintPhaseNames();
         return typeName;
     }
 
@@ -110,7 +121,7 @@ class ValueBoxDecl
     public void parse() 	
     {
 	if( parsed )
-	    throw new RuntimeException("Compiler error: Struct already parsed!");
+	    throw new RuntimeException("Compiler error: Value box already parsed!");
 
         escapeName();
 
@@ -127,7 +138,7 @@ class ValueBoxDecl
 	catch ( NameAlreadyDefined nad )
 	{
             Environment.output( 4, nad );
-	    parser.error("Struct " + typeName() + " already defined", token);
+	    parser.error("Value box " + typeName() + " already defined", token);
 	}
 
 	parsed = true;
@@ -147,19 +158,24 @@ class ValueBoxDecl
 	}
     }
 
-    public String printReadExpression(String Streamname)
+    public String printReadExpression(String streamname)
     {
-	return toString() + "Helper.read(" + Streamname +")" ;
+	return "(" + typeName() + ")((org.omg.CORBA_2_3.portable.InputStream)" + streamname + ").read_value (new " + helperName() + "())";
     }
 
     public String printWriteStatement(String var_name, String streamname)
     {
-	return toString()+"Helper.write(" + streamname +"," + var_name +");";
+        return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname + ").write_value (" + var_name + ", new " + helperName() + "());";
     }
 
     public String holderName()
     {
-	return typeName() + "Holder";
+        return boxTypeName() + "Holder";
+    }
+
+    public String helperName()
+    {
+        return boxTypeName() + "Helper";
     }
 
     /**
@@ -169,8 +185,11 @@ class ValueBoxDecl
     public String getTypeCodeExpression()
     {
 	StringBuffer sb = new StringBuffer();
+        String className = boxTypeName();
+        if (className.indexOf('.') > 0)
+            className = className.substring(className.lastIndexOf('.') + 1);
 	sb.append("org.omg.CORBA.ORB.init().create_value_box_tc(" + 
-                  typeName() + "Helper.id(),\"" + className()+ "\"," + 
+                  helperName() + ".id(),\"" + className+ "\"," + 
                   typeSpec.typeSpec().getTypeCodeExpression()+ ")" );
 
 	return  sb.toString(); 
@@ -198,17 +217,17 @@ class ValueBoxDecl
 
 	ps.println("\tpublic org.omg.CORBA.TypeCode _type()");
 	ps.println("\t{");
-	ps.println("\t\treturn " + typeName() + "Helper.type();");
+	ps.println("\t\treturn " + helperName() + ".type();");
 	ps.println("\t}");
 
 	ps.println("\tpublic void _read(org.omg.CORBA.portable.InputStream _in)");
 	ps.println("\t{");
-	ps.println("\t\tvalue = " + typeName() + "Helper.read(_in);");
+	ps.println("\t\tvalue = " + helperName() + ".read(_in);");
 	ps.println("\t}");
 
 	ps.println("\tpublic void _write(org.omg.CORBA.portable.OutputStream _out)");
 	ps.println("\t{");
-	ps.println("\t\t" + typeName() + "Helper.write(_out,value);");
+	ps.println("\t\t" + helperName() + ".write(_out,value);");
 	ps.println("\t}");
 
 	ps.println("}");
@@ -221,10 +240,11 @@ class ValueBoxDecl
 	    ps.println("package " + pack_name + ";" );
 
 	ps.println("public class " + className + "Helper");
+        ps.println("\timplements org.omg.CORBA.portable.BoxedValueHelper");
 	ps.println("{");
 	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = "+getTypeCodeExpression()+";");
 
-	String type = typeName();
+        String type = typeName();
 
 	ps.println("\tpublic " + className + "Helper ()");
 	ps.println("\t{");
@@ -237,19 +257,39 @@ class ValueBoxDecl
 	/* read */
 	ps.println("\tpublic static " +type+ " read(org.omg.CORBA.portable.InputStream in)");
 	ps.println("\t{");
+        if (typeSpec.typeSpec() instanceof BaseType)
 
-	ps.println("\t\t" + type+ " result = new " + type + "(" + typeSpec.typeSpec().printReadExpression("in") + ");");
-	
+            ps.println("\t\t" + type+ " result = new " + type + "(" + typeSpec.typeSpec().printReadExpression("in") + ");");
+	else
+            ps.println("\t\t" + type + " result = " + typeSpec.typeSpec().printReadExpression("in") + ";");
 	ps.println("\t\treturn result;");
 	ps.println("\t}");
 
 	/* write */
 	ps.println("\tpublic static void write(org.omg.CORBA.portable.OutputStream out, " + type + " s)");
-	ps.println("\t{");	
+	ps.println("\t{");
+        if (typeSpec.typeSpec() instanceof BaseType)
+            ps.println("\t\t" + typeSpec.typeSpec().printWriteStatement ("s.value", "out"));
+        else
+            ps.println("\t\t" + typeSpec.typeSpec().printWriteStatement ("s", "out"));
 	ps.println("\t}");
+
+        ps.println ("\tpublic java.io.Serializable read_value (org.omg.CORBA.portable.InputStream is)");
+        ps.println ("\t{");
+        ps.println ("\t\treturn " + helperName() + ".read (is);");
+        ps.println ("\t}");
+
+        ps.println ("\tpublic void write_value (org.omg.CORBA.portable.OutputStream os, java.io.Serializable value)");
+        ps.println ("\t{");
+        ps.println ("\t\t" + helperName() + ".write (os, (" + type + ")value);");
+        ps.println ("\t}");
+
+        ps.println ("\tpublic java.lang.String get_id()");
+        ps.println ("\t{");
+        ps.println ("\t\treturn " + helperName() + ".id();");
+        ps.println ("\t}");
 	ps.println("}");
     }
-
 
     private void printValueClass(String className, PrintWriter ps)
     {
@@ -300,8 +340,10 @@ class ValueBoxDecl
 
 	try
 	{
-	    String className = className();
-
+	    String className = boxTypeName();
+            if (className.indexOf('.') > 0)
+                className = className.substring(className.lastIndexOf('.') + 1);
+                
 	    String path = parser.out_dir + fileSeparator + 
 		pack_name.replace('.', fileSeparator );
 
