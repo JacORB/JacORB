@@ -35,7 +35,7 @@ import org.jacorb.orb.connection.CodeSet;
  */
 
 public class CDRInputStream
-    extends org.omg.CORBA.portable.InputStream
+    extends org.omg.CORBA_2_3.portable.InputStream
 {
     /** index for reading from the stream in plain java.io. style */
     int read_index;
@@ -54,6 +54,12 @@ public class CDRInputStream
     private int minorGIOPVersion = 1; // needed to determine size in chars
 
     private boolean closed = false;
+
+    /**
+     * Maps indexes within the buffer (java.lang.Integer) to the values that 
+     * appear at these indexes.
+     */
+    private Hashtable valueMap = new Hashtable();
 
     public boolean littleEndian = false;
 	
@@ -1143,6 +1149,75 @@ public class CDRInputStream
 	    throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
 	}
     }
+
+    public java.io.Serializable read_value() 
+    {
+        int tag = read_long();
+        if (tag == 0x7fffff00)
+            throw new org.omg.CORBA.MARSHAL ("missing value type information");
+        else
+            return read_special_value (tag);
+    }
+
+    public java.io.Serializable read_value (String rep_id) 
+    {
+        int tag = read_long();
+        if (tag == 0x7fffff00)
+        {
+            int index = pos - 4;
+            org.omg.CORBA.portable.ValueFactory factory =
+                ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory (rep_id);
+            java.io.Serializable result = factory.read_value (this);
+            valueMap.put (new Integer (index), result);
+            return result;
+        } 
+        else
+            return read_special_value (tag);
+    }
+
+    public java.io.Serializable read_value (java.lang.Class clz) 
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
+    public java.io.Serializable read_value (
+      org.omg.CORBA.portable.BoxedValueHelper factory) 
+    {
+        int tag = read_long();
+        if (tag == 0x7fffff00) 
+        {
+            int index = pos - 4;
+            java.io.Serializable result = factory.read_value (this);
+            valueMap.put (new Integer(index), result);
+            return result;
+        } 
+        else 
+            return read_special_value (tag);
+    }
+
+    private java.io.Serializable read_special_value (int tag) {
+        if (tag == 0x00000000) 
+            // null tag
+            return null;
+        else if (tag == 0xffffffff) 
+        {
+            // indirection
+            int index = read_long();
+            index = index + pos - 4;
+            java.lang.Object value = valueMap.get (new Integer(index));
+            if (value == null)
+                throw new org.omg.CORBA.MARSHAL ("stale value indirection");
+            else
+                return (java.io.Serializable)value;
+        } 
+        else if (tag == 0x7fffff02) 
+        {
+            // value with type information
+            throw new org.omg.CORBA.NO_IMPLEMENT ("typed values not implemented");
+        } 
+        else
+            throw new org.omg.CORBA.MARSHAL ("unknown value tag: " + tag);
+    } 
 
     //      public byte[]  get_buffer(){
     //  	return buffer;
