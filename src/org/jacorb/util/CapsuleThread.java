@@ -1,4 +1,9 @@
 package org.jacorb.util;
+
+import java.util.*;
+import java.net.*;
+import java.lang.reflect.*;
+
 /**
  * This class is intended to run applications in a single
  * VM with a maximum amount of separation between each other.
@@ -14,9 +19,6 @@ package org.jacorb.util;
  * @author Nicolas Noffke
  * $Id$
  */
-import java.util.*;
-import java.net.*;
-import java.lang.reflect.*;
 
 public class CapsuleThread 
     extends Thread 
@@ -61,9 +63,9 @@ public class CapsuleThread
             //set both orb properties, might have already
             //been done by the jaco script
             System.setProperty( "org.omg.CORBA.ORBClass",
-                                "jacorb.orb.ORB" );
+                                "org.jacorb.orb.ORB" );
             System.setProperty( "org.omg.CORBA.ORBSingletonClass",
-                                "jacorb.orb.ORBSingleton" );
+                                "org.jacorb.orb.ORBSingleton" );
 
             StringTokenizer tok = 
                 new StringTokenizer( System.getProperty( "java.class.path" ),
