@@ -99,7 +99,7 @@ public class Client_TCP_IP_Transport
         }
     }
 
-    protected synchronized boolean waitUntilConnected()
+    public synchronized boolean waitUntilConnected()
     {
         while( ! connected &&
                ! closed )

@@ -109,7 +109,7 @@ public class Server_TCP_IP_Transport
         throw new org.omg.CORBA.BAD_OPERATION();
     }
 
-    protected boolean waitUntilConnected()
+    public boolean waitUntilConnected()
     {
         //can't reconnect
         return true;
