@@ -260,7 +260,7 @@ parser code
 
                     int level = Integer.parseInt( argv[++i] );
                     
-                    logger.setPriority(org.jacorb.util.Environment.intToPriority(level));
+                    logger.setPriority(Environment.intToPriority(level));
                     
                     continue;
                 }
