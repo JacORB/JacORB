@@ -810,7 +810,7 @@ public class CDROutputStream
             ch = s.charAt (i);
             if ((ch & too_large_mask) != 0)
             {
-                throw new MARSHAL("char (" + buffer[ pos-1 ] +
+                throw new MARSHAL("char (0x" + Integer.toHexString(ch) +
                                   ") out of range for " +
                                   CodeSet.csName( codeSet ) );
             }
