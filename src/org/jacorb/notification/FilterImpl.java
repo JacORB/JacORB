@@ -32,8 +32,10 @@ import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.FilterConstraint;
+import org.jacorb.notification.filter.FilterUtils;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
 import org.jacorb.util.Debug;
@@ -47,22 +49,23 @@ import org.omg.CosNotifyComm.NotifySubscribe;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.ConstraintNotFound;
+import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterPOA;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
 
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.Sync;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 import org.apache.avalon.framework.logger.Logger;
 
 /**
- * FilterImpl.java
- *
  * The Filter interface defines the behaviors supported by objects
  * which encapsulate constraints used by the proxy objects associated
  * with an event channel in order to determine which events they
@@ -135,14 +138,22 @@ import org.apache.avalon.framework.logger.Logger;
  * @version $Id$
  */
 
-public class FilterImpl extends FilterPOA implements Disposable
+public class FilterImpl
+    extends FilterPOA
+    implements Disposable,
+               ManageableServant
 {
     static Logger logger_ = Debug.getNamedLogger( FilterImpl.class.getName() );
 
     final static RuntimeException NOT_SUPPORTED =
-        new UnsupportedOperationException();
+        new UnsupportedOperationException("this operation is not implemented yet");
 
-    public static final int NO_CONSTRAINT = Integer.MIN_VALUE;
+    public static final int NO_CONSTRAINTS_MATCH = -2;
+
+    public static final int CONSTRAINTS_EMPTY = -1;
+
+    private static final String EMPTY_EVENT_TYPE_CONSTRAINT_KEY =
+        FilterUtils.calcConstraintKey( "*" , "*" );
 
     ////////////////////////////////////////
 
@@ -161,11 +172,11 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected ReadWriteLock constraintsLock_;
 
+    private Runnable disposeHook_;
+
     private String constraintGrammar_;
 
-    protected int constraintIdPool_ = 0;
-
-    protected ApplicationContext applicationContext_;
+    private SynchronizedInt constraintIdPool_ = new SynchronizedInt(0);
 
     protected DynamicEvaluator dynamicEvaluator_;
 
@@ -173,9 +184,22 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected MessageFactory messageFactory_;
 
+    private long matchCalled_ = 0;
+
+    private long matchStructuredCalled_ = 0;
+
+    private POA poa_;
+
+    private ORB orb_;
+
+    private Filter thisRef_;
+
+    private ApplicationContext applicationContext_;
+
     ////////////////////////////////////////
 
-    public FilterImpl(ApplicationContext applicationContext, String constraintGrammar)
+    public FilterImpl(ApplicationContext applicationContext,
+                      String constraintGrammar)
     {
         super();
 
@@ -205,18 +229,46 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     ////////////////////////////////////////
 
-    public void init()
-    {}
+    public void setORB(ORB orb) {
+        orb_ = orb;
+    }
+
+    public void setPOA(POA poa) {
+        poa_ = poa;
+    }
+
+    public void preActivate() {}
+
+    public org.omg.CORBA.Object activate() {
+        if (thisRef_ == null) {
+            thisRef_ = _this( orb_ );
+        }
+        return thisRef_;
+    }
+
+    public void deactivate() {
+        try
+        {
+            poa_.deactivate_object( poa_.servant_to_id( this ) );
+        }
+        catch ( WrongPolicy e )
+        {
+            logger_.fatalError("error deactivating object", e);
+        }
+        catch ( ObjectNotActive e )
+        {
+            logger_.fatalError("error deactivating object", e);
+        }
+        catch ( ServantNotActive e) {
+            logger_.fatalError("error deactivating object", e);
+        }
+    }
 
 
     protected int getConstraintId()
     {
-        return ( ++constraintIdPool_ );
+        return constraintIdPool_.increment();
     }
-
-
-    protected void releaseConstraintId( int id )
-    {}
 
 
     /**
@@ -228,6 +280,23 @@ public class FilterImpl extends FilterPOA implements Disposable
     public String constraint_grammar()
     {
         return constraintGrammar_;
+    }
+
+
+    private void addConstraintEntryToWildcardMap(String constraintKey,
+                                                 ConstraintEntry constraintEntry) {
+        List _listOfConstraintEntry =
+            ( List ) wildcardMap_.getNoExpansion( constraintKey );
+
+        if ( _listOfConstraintEntry == null )
+            {
+                _listOfConstraintEntry = new LinkedList();
+
+                wildcardMap_.put( constraintKey,
+                                  _listOfConstraintEntry );
+            }
+
+        _listOfConstraintEntry.add( constraintEntry );
     }
 
 
@@ -270,15 +339,16 @@ public class FilterImpl extends FilterPOA implements Disposable
     public ConstraintInfo[] add_constraints( ConstraintExp[] constraintExp )
         throws InvalidConstraint
     {
-        FilterConstraint[] _arrayConstraintEvaluator =
+        FilterConstraint[] _arrayFilterConstraint =
             new FilterConstraint[ constraintExp.length ];
 
         // creation of the FilterConstraint's may cause a
         // InvalidConstraint Exception. Note that the State of the
-        // Filter has not been changed yet.
+        // Filter has not been changed yet. FilterConstraint c'tor may
+        // take some time as parsing of the expression is involved.
         for ( int _x = 0; _x < constraintExp.length; _x++ )
         {
-            _arrayConstraintEvaluator[ _x ] =
+            _arrayFilterConstraint[ _x ] =
                 new FilterConstraint( constraintExp[ _x ] );
         }
 
@@ -304,35 +374,27 @@ public class FilterImpl extends FilterPOA implements Disposable
 
                     ConstraintEntry _entry =
                         new ConstraintEntry( _constraintId,
-                                             _arrayConstraintEvaluator[ _x ],
+                                             _arrayFilterConstraint[ _x ],
                                              _arrayConstraintInfo[ _x ] );
 
                     int _eventTypeCount = _entry.getEventTypeCount();
 
-                    for ( int _y = 0; _y < _eventTypeCount; ++_y )
-                    {
-                        EventTypeIdentifier _eventTypeIdentifier =
-                            _entry.getEventTypeIdentifier( _y );
+                    if (_eventTypeCount == 0) {
+                        addConstraintEntryToWildcardMap(EMPTY_EVENT_TYPE_CONSTRAINT_KEY,
+                                                        _entry);
+                    } else {
+                        for ( int _y = 0; _y < _eventTypeCount; ++_y )
+                            {
+                                EventTypeIdentifier _eventTypeIdentifier =
+                                    _entry.getEventTypeIdentifier( _y );
 
-                        List _listOfConstraintEvaluator =
-                            ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier.getConstraintKey() );
-
-                        if ( _listOfConstraintEvaluator == null )
-                        {
-                            _listOfConstraintEvaluator = new LinkedList();
-
-                            wildcardMap_.put( _eventTypeIdentifier,
-                                              _listOfConstraintEvaluator );
-                        }
-
-                        _listOfConstraintEvaluator.add( _entry );
+                                addConstraintEntryToWildcardMap(_eventTypeIdentifier.getConstraintKey(),
+                                                                _entry);
+                            }
                     }
-
                     constraints_.put( new Integer( _constraintId ), _entry );
                 }
-
                 return _arrayConstraintInfo;
-                // end of protected section
             }
             finally
             {
@@ -698,15 +760,19 @@ public class FilterImpl extends FilterPOA implements Disposable
                                 catch ( EvaluationException e )
                                     {
                                         logger_.fatalError("Error evaluating filter", e);
+
+                                        throw new UnsupportedFilterableData(e.getMessage());
                                     }
                             }
                     }
                 else
                     {
                         logger_.info( "Filter has no Expressions" );
+
+                        return CONSTRAINTS_EMPTY;
                     }
 
-                return NO_CONSTRAINT;
+                return NO_CONSTRAINTS_MATCH;
             }
             finally
                 {
@@ -717,14 +783,16 @@ public class FilterImpl extends FilterPOA implements Disposable
             {
                 Thread.currentThread().interrupt();
 
-                return NO_CONSTRAINT;
+                return NO_CONSTRAINTS_MATCH;
             }
     }
 
 
     public boolean match( Any anyEvent ) throws UnsupportedFilterableData
     {
-        return match_internal( anyEvent ) != NO_CONSTRAINT;
+        ++matchCalled_;
+
+        return match_internal( anyEvent ) != NO_CONSTRAINTS_MATCH;
     }
 
 
@@ -772,7 +840,9 @@ public class FilterImpl extends FilterPOA implements Disposable
     public boolean match_structured( StructuredEvent structuredevent)
         throws UnsupportedFilterableData
     {
-        return match_structured_internal(structuredevent) != NO_CONSTRAINT;
+        ++matchStructuredCalled_;
+
+        return match_structured_internal(structuredevent) != NO_CONSTRAINTS_MATCH;
     }
 
 
@@ -812,9 +882,6 @@ public class FilterImpl extends FilterPOA implements Disposable
     }
 
 
-    /**
-     * not implemented yet.
-     */
     public boolean match_typed( Property[] properties )
         throws UnsupportedFilterableData
     {
@@ -848,17 +915,15 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     public void dispose()
     {
-        try
-        {
-            _poa().deactivate_object( _object_id() );
+        deactivate();
+
+        if (disposeHook_ != null) {
+            disposeHook_.run();
         }
-        catch ( WrongPolicy e )
-        {
-            logger_.fatalError("error deactivating object", e);
-        }
-        catch ( ObjectNotActive e )
-        {
-            logger_.fatalError("error deactivating object", e);
-        }
+    }
+
+
+    public void setDisposeHook(Runnable disposeHook) {
+        disposeHook_ = disposeHook;
     }
 }

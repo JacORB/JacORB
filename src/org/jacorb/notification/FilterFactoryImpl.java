@@ -21,7 +21,7 @@ package org.jacorb.notification;
  *
  */
 
-import java.io.IOException;
+import java.util.List;
 
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.util.Debug;
@@ -32,6 +32,7 @@ import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosNotifyFilter.FilterFactoryPOA;
+import org.omg.CosNotifyFilter.FilterHelper;
 import org.omg.CosNotifyFilter.InvalidGrammar;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
@@ -39,47 +40,63 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 
 import org.apache.avalon.framework.logger.Logger;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
+public class FilterFactoryImpl
+    extends FilterFactoryPOA
+    implements Disposable
 {
     public final static String CONSTRAINT_GRAMMAR = "EXTENDED_TCL";
 
-    protected Logger logger_ = Debug.getNamedLogger(getClass().getName());
+    ////////////////////////////////////////
 
-    protected ApplicationContext applicationContext_;
+    private Logger logger_ = Debug.getNamedLogger(getClass().getName());
 
-    protected boolean isApplicationContextCreatedHere_;
+    private ApplicationContext applicationContext_;
+
+    private ORB orb_;
+
+    private POA poa_;
+
+    private boolean isApplicationContextCreatedHere_;
+
+    private List allFilters_ = new ArrayList();
+
+    private Object allFiltersLock_ = allFilters_;
 
     private FilterFactory thisRef_;
 
-    public FilterFactoryImpl() throws InvalidName, IOException, AdapterInactive
+    ////////////////////////////////////////
+
+    public FilterFactoryImpl() throws InvalidName, AdapterInactive
     {
         super();
 
-        final ORB _orb = ORB.init( new String[ 0 ], null );
+        orb_ = ORB.init( new String[ 0 ], null );
 
-        POA _poa =
-            POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
+        poa_ =
+            POAHelper.narrow( orb_.resolve_initial_references( "RootPOA" ) );
 
-        applicationContext_ = new ApplicationContext( _orb, _poa, true );
+        applicationContext_ = new ApplicationContext( orb_, poa_, true );
 
         isApplicationContextCreatedHere_ = true;
 
         getFilterFactory();
 
-        _poa.the_POAManager().activate();
+        poa_.the_POAManager().activate();
 
         Thread t =
             new Thread( new Runnable()
                         {
                             public void run()
                             {
-                                _orb.run();
+                                orb_.run();
                             }
                         }
                       );
@@ -96,34 +113,53 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
 
         applicationContext_ = applicationContext;
 
+        poa_ = applicationContext.getPoa();
+
+        orb_ = applicationContext.getOrb();
+
         isApplicationContextCreatedHere_ = false;
     }
 
+    ////////////////////////////////////////
 
     public Filter create_filter( String grammar )
         throws InvalidGrammar
     {
+        final FilterImpl _servant = create_filter_servant( grammar );
 
-        FilterImpl _servant = create_filter_servant( grammar );
+        _servant.setORB(orb_);
 
-        Filter _filter = _servant._this( applicationContext_.getOrb() );
+        _servant.setPOA(poa_);
+
+        _servant.preActivate();
+
+        Filter _filter = FilterHelper.narrow(_servant.activate());
+
+        synchronized(allFiltersLock_) {
+            allFilters_.add(_servant);
+
+            _servant.setDisposeHook(new Runnable() {
+                    public void run() {
+                        synchronized(allFiltersLock_) {
+                            allFilters_.remove(_servant);
+                        }
+                    }
+                });
+        }
 
         return _filter;
     }
 
 
-    FilterImpl create_filter_servant( String grammar )
+    private FilterImpl create_filter_servant( String grammar )
         throws InvalidGrammar
     {
-
         if ( CONSTRAINT_GRAMMAR.equals( grammar ) )
         {
 
             FilterImpl _filterServant =
                 new FilterImpl( applicationContext_,
                                 CONSTRAINT_GRAMMAR );
-
-            _filterServant.init();
 
             return _filterServant;
         }
@@ -147,7 +183,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
                                    any );
 
         MappingFilter _filter =
-            _mappingFilterServant._this( applicationContext_.getOrb() );
+            _mappingFilterServant._this( orb_ );
 
         return _filter;
     }
@@ -155,9 +191,17 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
 
     public void dispose()
     {
+        Iterator i = getAllFilters().iterator();
+
+        while (i.hasNext()) {
+            Disposable d = (Disposable)i.next();
+            i.remove();
+            d.dispose();
+        }
+
         if ( isApplicationContextCreatedHere_ )
         {
-            applicationContext_.getOrb().shutdown( true );
+            orb_.shutdown( true );
             applicationContext_.dispose();
         }
     }
@@ -167,7 +211,7 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
     {
         if ( thisRef_ == null )
             {
-                thisRef_ = _this( applicationContext_.getOrb() );
+                thisRef_ = _this( orb_ );
             }
 
         return thisRef_;
@@ -176,7 +220,11 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
 
     public POA _default_POA()
     {
-        return applicationContext_.getPoa();
+        return poa_;
     }
 
+
+    public List getAllFilters() {
+        return allFilters_;
+    }
 }

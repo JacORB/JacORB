@@ -40,10 +40,10 @@ import org.omg.CosNotifyFilter.MappingConstraintPair;
 import org.omg.CosNotifyFilter.MappingFilterPOA;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 
+import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.util.Debug;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.interfaces.Disposable;
 
 /**
  * @author Alphonse Bendt
@@ -83,11 +83,15 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
 
     ////////////////////////////////////////
 
-    Logger logger_ = Debug.getNamedLogger( getClass().getName() );
+    private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
 
     private FilterImpl filterImpl_;
+
     private Any defaultValue_;
+
     private ValueMap valueMap_ = new ValueMap();
+
+    ////////////////////////////////////////
 
     public MappingFilterImpl( ApplicationContext context,
                               FilterImpl filterImpl,
@@ -97,6 +101,7 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
         defaultValue_ = defaultValue;
     }
 
+    ////////////////////////////////////////
 
     public void destroy()
     {
@@ -110,35 +115,24 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
         defaultValue_ = null;
     }
 
-    /**
-     * Describe <code>constraint_grammar</code> method here.
-     *
-     * @return a <code>String</code> value
-     */
+
     public String constraint_grammar()
     {
         return filterImpl_.constraint_grammar();
     }
 
-    /**
-     * Describe <code>value_type</code> method here.
-     *
-     * @return a <code>TypeCode</code> value
-     */
+
     public TypeCode value_type()
     {
         return defaultValue_.type();
     }
 
-    /**
-     * Describe <code>default_value</code> method here.
-     *
-     * @return an <code>Any</code> value
-     */
+
     public Any default_value()
     {
         return defaultValue_;
     }
+
 
     public MappingConstraintInfo[] add_mapping_constraints( MappingConstraintPair[] mcp )
         throws InvalidValue, InvalidConstraint
@@ -172,57 +166,42 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
         return _mappingConstraintInfo;
     }
 
-    /**
-     * Describe <code>modify_mapping_constraints</code> method here.
-     *
-     * @param intArray an <code>int[]</code> value
-     * @param mappingConstraintInfoArray a
-     * <code>MappingConstraintInfo[]</code> value
-     * @exception ConstraintNotFound if an error occurs
-     * @exception InvalidValue if an error occurs
-     * @exception InvalidConstraint if an error occurs
-     */
+
     public void modify_mapping_constraints( int[] intArray,
-                                            MappingConstraintInfo[] mappingConstraintInfoArray )
+                                            MappingConstraintInfo[] mappingConstraintInfos )
         throws ConstraintNotFound,
                InvalidValue,
                InvalidConstraint
     {
         ConstraintInfo[] _constraintInfo =
-            new ConstraintInfo[ mappingConstraintInfoArray.length ];
+            new ConstraintInfo[ mappingConstraintInfos.length ];
 
         for ( int x = 0; x < _constraintInfo.length; ++x )
         {
             _constraintInfo[ x ] =
-                new ConstraintInfo( mappingConstraintInfoArray[ x ].constraint_expression,
-                                    mappingConstraintInfoArray[ x ].constraint_id );
+                new ConstraintInfo( mappingConstraintInfos[ x ].constraint_expression,
+                                    mappingConstraintInfos[ x ].constraint_id );
 
-            valueMap_.remove( mappingConstraintInfoArray[ x ].constraint_id );
+            valueMap_.remove( mappingConstraintInfos[ x ].constraint_id );
         }
 
         filterImpl_.modify_constraints( intArray, _constraintInfo );
 
-        for ( int x = 0; x < mappingConstraintInfoArray.length; ++x )
+        for ( int x = 0; x < mappingConstraintInfos.length; ++x )
         {
-            valueMap_.put( mappingConstraintInfoArray[ x ].constraint_id ,
-                           mappingConstraintInfoArray[ x ].value );
+            valueMap_.put( mappingConstraintInfos[ x ].constraint_id ,
+                           mappingConstraintInfos[ x ].value );
         }
     }
 
-    /**
-     * Describe <code>get_mapping_constraints</code> method here.
-     *
-     * @param intArray an <code>int[]</code> value
-     * @return a <code>MappingConstraintInfo[]</code> value
-     * @exception ConstraintNotFound if an error occurs
-     */
-    public MappingConstraintInfo[] get_mapping_constraints( int[] intArray ) throws ConstraintNotFound
+
+    public MappingConstraintInfo[] get_mapping_constraints( int[] constraintIds )
+        throws ConstraintNotFound
     {
-        ConstraintInfo[] _constraintInfo = filterImpl_.get_constraints( intArray );
+        ConstraintInfo[] _constraintInfo = filterImpl_.get_constraints( constraintIds );
 
         MappingConstraintInfo[] _mappingConstraintInfo =
             new MappingConstraintInfo[ _constraintInfo.length ];
-
 
         for ( int x = 0; x < _constraintInfo.length; ++x )
         {
@@ -235,11 +214,7 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
         return _mappingConstraintInfo;
     }
 
-    /**
-     * Describe <code>get_all_mapping_constraints</code> method here.
-     *
-     * @return a <code>MappingConstraintInfo[]</code> value
-     */
+
     public MappingConstraintInfo[] get_all_mapping_constraints()
     {
         ConstraintInfo[] _constraintInfo = filterImpl_.get_all_constraints();
@@ -258,29 +233,21 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
         return _mappingConstraintInfo;
     }
 
-    /**
-     * Describe <code>remove_all_mapping_constraints</code> method here.
-     *
-     */
+
     public void remove_all_mapping_constraints()
     {
         filterImpl_.remove_all_constraints();
+
         valueMap_.dispose();
     }
 
-    /**
-     * Describe <code>match</code> method here.
-     *
-     * @param any an <code>Any</code> value
-     * @param anyHolder an <code>AnyHolder</code> value
-     * @return a <code>boolean</code> value
-     * @exception UnsupportedFilterableData if an error occurs
-     */
-    public boolean match( Any any, AnyHolder anyHolder ) throws UnsupportedFilterableData
+
+    public boolean match( Any any, AnyHolder anyHolder )
+        throws UnsupportedFilterableData
     {
         int _filterId = filterImpl_.match_internal( any );
 
-        if ( _filterId != FilterImpl.NO_CONSTRAINT )
+        if ( _filterId != FilterImpl.NO_CONSTRAINTS_MATCH )
         {
             anyHolder.value = valueMap_.get( _filterId );
 
@@ -292,20 +259,14 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
         }
     }
 
-    /**
-     * Describe <code>match_structured</code> method here.
-     *
-     * @param structuredEvent a <code>StructuredEvent</code> value
-     * @param anyHolder an <code>AnyHolder</code> value
-     * @return a <code>boolean</code> value
-     * @exception UnsupportedFilterableData if an error occurs
-     */
+
     public boolean match_structured( StructuredEvent structuredEvent,
-                                     AnyHolder anyHolder ) throws UnsupportedFilterableData
+                                     AnyHolder anyHolder )
+        throws UnsupportedFilterableData
     {
         int _filterId = filterImpl_.match_structured_internal( structuredEvent );
 
-        if ( _filterId != FilterImpl.NO_CONSTRAINT )
+        if ( _filterId != FilterImpl.NO_CONSTRAINTS_MATCH )
         {
             anyHolder.value = valueMap_.get( _filterId );
 
@@ -317,16 +278,10 @@ public class MappingFilterImpl extends MappingFilterPOA implements Disposable
         }
     }
 
-    /**
-     * Describe <code>match_typed</code> method here.
-     *
-     * @param propertyArray a <code>Property[]</code> value
-     * @param anyHolder an <code>AnyHolder</code> value
-     * @return a <code>boolean</code> value
-     * @exception UnsupportedFilterableData if an error occurs
-     */
+
     public boolean match_typed( Property[] propertyArray,
-                                AnyHolder anyHolder ) throws UnsupportedFilterableData
+                                AnyHolder anyHolder )
+        throws UnsupportedFilterableData
     {
         throw new NO_IMPLEMENT();
     }
