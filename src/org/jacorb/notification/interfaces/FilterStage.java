@@ -36,7 +36,6 @@ import org.omg.CosNotifyFilter.MappingFilter;
 
 public interface FilterStage
 {
-
     /**
      * check if this FilterStage has been disposed.
      */
@@ -58,9 +57,9 @@ public interface FilterStage
     boolean hasMessageConsumer();
 
     /**
-     * check if this DistributorNode has OR Semantic enabled.
+     * check if this FilterStage has OR Semantic enabled.
      */
-    boolean hasOrSemantic();
+    boolean hasInterFilterGroupOperatorOR();
 
     /**
      * get the associated MessageConsumer or null.

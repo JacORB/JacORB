@@ -142,7 +142,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
         boolean _filterMatch = filter();
 
-        if ( !_filterMatch && arrayCurrentFilterStage_[ 0 ].hasOrSemantic() )
+        if ( !_filterMatch && arrayCurrentFilterStage_[ 0 ].hasInterFilterGroupOperatorOR() )
         {
             if ( logger_.isDebugEnabled() )
             {
@@ -185,7 +185,7 @@ public class FilterProxyConsumerTask extends AbstractFilterTask
 
         // check if this destination has OR enabled
         // if this is the case the filtering in the next run can be skipped
-        if ( arrayCurrentFilterStage_[ 0 ].hasOrSemantic() )
+        if ( arrayCurrentFilterStage_[ 0 ].hasInterFilterGroupOperatorOR() )
         {
             orSemantic_ = true;
         }

@@ -29,9 +29,6 @@ import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.util.TaskExecutor;
 
 /**
- * FilterConsumerAdminTask.java
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -147,9 +144,9 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
 
             if ( _filterForCurrentFilterStageMatched )
             {
-                if ( arrayCurrentFilterStage_[ x ].hasOrSemantic() )
+                if ( arrayCurrentFilterStage_[ x ].hasInterFilterGroupOperatorOR() )
                 {
-                    // if the subsequent destinations
+                    // if the destinations
                     // InterFilterGroupOperator equals OR_OP
                     // we can add it to
                     // listOfFilterStageWithMessageConsumer_ as the
@@ -164,7 +161,6 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
                     // eval'd
 
                     addFilterStage( arrayCurrentFilterStage_[ x ].getSubsequentFilterStages() );
-
                 }
             }
             else
@@ -182,7 +178,7 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
                 {
                     FilterStage _n = ( FilterStage ) _i.next();
 
-                    if ( _n.hasOrSemantic() )
+                    if ( _n.hasInterFilterGroupOperatorOR() )
                     {
                         addFilterStage( _n );
                     }
