@@ -57,7 +57,7 @@ class TypeMap
     public static void typedef( String name, TypeSpec type ) 
 	throws NameAlreadyDefined
     {
-	Environment.output(3,"Typedef'ing " + name + " for " + 
+	Environment.output(3,"Typedef'ing " + name +
                            //                           type.typeName() + 
                            " , hash: " + type.hashCode() );
 

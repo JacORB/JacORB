@@ -1020,7 +1020,7 @@ value_abs_dcl ::=
           ABSTRACT VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_body:b RCBRACE
                 {:
                         RESULT.name = i.str_val;
-                        RESULT.inheritanceSpec = is;
+                        RESULT.setInheritanceSpec( is );
                         RESULT.body = b;
                         b.set_name(i.str_val);  
                         b.myAbsValue = RESULT;
@@ -1044,15 +1044,17 @@ value_body ::=
 value_dcl ::= 
           CUSTOM VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
                 {:
+                        RESULT.name = i.str_val;
                         RESULT.set_token (i);
-                        // RESULT.setInheritanceSpec (is);
+                        RESULT.setInheritanceSpec (is);
                         RESULT.setValueElements (ve);
                         RESULT.isCustomMarshalled (true);
                 :}
         | VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
                 {:
+                        RESULT.name = i.str_val;
                         RESULT.set_token (i);
-                        // RESULT.setInheritanceSpec (is);
+                        RESULT.setInheritanceSpec (is);
                         RESULT.setValueElements (ve);
                         RESULT.isCustomMarshalled (false);
                 :} 
@@ -1061,7 +1063,7 @@ value_dcl ::=
 value_inheritance_spec ::= 
           COLON truncatable:t scopename_list:vn 
                 {:
-                        RESULT.truncatable = t.int_val;      
+                        RESULT.truncatable = true;      
                         RESULT.v = (Vector)vn.v.clone(); 
                 :}
         | SUPPORTS scopename_list:interface_names
@@ -1070,7 +1072,7 @@ value_inheritance_spec ::=
                 :}
         | COLON truncatable:t scopename_list:vn SUPPORTS scopename_list:interface_names
                 {:      
-                        RESULT.truncatable = t.int_val;              
+                        RESULT.truncatable = true;              
                         RESULT.v = (Vector)vn.v.clone(); 
                         RESULT.supports = (Vector)interface_names.v.clone(); 
                 :}

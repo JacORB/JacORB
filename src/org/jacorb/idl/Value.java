@@ -65,16 +65,6 @@ class Value
 	return value.signature();
     }
 
-   /**
-     *	we have to be able to distinguish between explicitly typedef'd
-     *	type names and anonymously defined type names
-     */
-
-//      public void markTypeDefd(String alias)
-//      {
-//  	value_decl.markTypeDefd(alias);
-//      }
-
     /**
      * @returns a string for an expression of type TypeCode 
      * 			that describes this type
@@ -140,7 +130,7 @@ class Value
 
     public String printReadStatement(String var_name, String streamname)
     {
-	return var_name + "=" + printReadExpression(streamname) + ";";
+	return value.printReadStatement( var_name, streamname );
     }
 
     public String printWriteStatement(String var_name, String streamname)

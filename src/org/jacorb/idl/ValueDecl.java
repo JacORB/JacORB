@@ -34,6 +34,7 @@ class ValueDecl
     private List       operations;
     private List       exports;
     private List       factories;
+    private ValueInheritanceSpec inheritanceSpec;
 
     private boolean    isCustomMarshalled = false;
     
@@ -62,6 +63,16 @@ class ValueDecl
         }
     }
 
+    public void setInheritanceSpec( ValueInheritanceSpec spec )
+    {
+        inheritanceSpec = spec;
+    }
+
+    public ValueInheritanceSpec setInheritanceSpec()
+    {
+        return inheritanceSpec;
+    }
+
     public void isCustomMarshalled (boolean flag)
     {
         this.isCustomMarshalled = flag;
@@ -87,6 +98,9 @@ class ValueDecl
 
         for (Iterator i = exports.iterator(); i.hasNext();)
             ((IdlSymbol)i.next()).setPackage (s);
+
+        for (Iterator i = factories.iterator(); i.hasNext();)
+            ((IdlSymbol)i.next()).setPackage (s);
     }
 
     public TypeDeclaration declaration()
@@ -98,6 +112,9 @@ class ValueDecl
     {	
 	try
 	{
+            escapeName();
+            ScopedName.definePseudoScope( full_name());
+
 	    ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
 	    ctspec.c_type_spec = this;
 
@@ -273,6 +290,7 @@ class ValueDecl
     /**
      * Prints the abstract Java class to which this valuetype is mapped.
      */
+
     private void printClass (File dir) throws IOException
     {
         File        outfile = new File (dir, name + ".java");
@@ -290,6 +308,15 @@ class ValueDecl
             out.println ("\timplements org.omg.CORBA.portable.StreamableValue");
         
         out.println ("{");
+        out.print ("\tprivate String[] _truncatable_ids = {");        
+        String[] ids = inheritanceSpec.getTruncatableIds();
+        for( int j = 0; j < ids.length; j++ )
+        {
+            if( j > 0 )
+                out.print(", ");
+            out.print("\"" + ids[j] + "\"" );
+        }
+        out.println("};");
 
         for (Iterator i = stateMembers.v.iterator(); i.hasNext();)
         {
@@ -311,7 +338,7 @@ class ValueDecl
 
         out.println ("\tpublic String[] _truncatable_ids()");
         out.println ("\t{");
-        out.println ("\t\treturn null;");  // FIXME
+        out.println ("\t\treturn _truncatable_ids;");  // FIXME
         out.println ("\t}");
 
         out.println ("\tpublic org.omg.CORBA.TypeCode _type()");
