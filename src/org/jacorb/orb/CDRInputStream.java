@@ -1965,7 +1965,7 @@ public class CDRInputStream
                 {
                     String id = tc.id();
                     org.omg.CORBA.portable.BoxedValueHelper helper =
-                                  RepositoryID.createBoxedValueHelper(id);
+                        ((org.jacorb.orb.ORB)orb).getBoxedValueHelper(id);
                     if (helper == null)
                         throw new RuntimeException
                             ("No BoxedValueHelper for id " + id);
