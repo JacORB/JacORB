@@ -132,11 +132,15 @@ abstract public class ORB {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
+    public org.omg.CORBA.TypeCode create_local_interface_tc(
+                                    String id,
+                                    String name) {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
 
     public org.omg.CORBA.TypeCode create_fixed_tc(short digits, short scale) {
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
-
 
     public org.omg.CORBA.TypeCode create_value_tc(String id,
                                     String name,
