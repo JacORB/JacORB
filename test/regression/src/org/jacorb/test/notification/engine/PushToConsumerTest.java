@@ -1,4 +1,4 @@
-package org.jacorb.test.notification.engine;
+epackage org.jacorb.test.notification.engine;
 
 /*
  *        JacORB - a free Java ORB
@@ -44,6 +44,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 /**
  *  Unit Test for class PushToConsumer
@@ -69,6 +70,67 @@ public class PushToConsumerTest extends TestCase
 
     public void tearDown() throws Exception {
         taskProcessor_.dispose();
+    }
+
+    public void testRepeatedDeliveryErrorsCauseTheConsumerToBeDisconnected() throws Exception {
+        MockMessage msg = new MockMessage();
+
+        Any any = orb.create_any();
+
+        msg.setAny(any);
+
+        PushToConsumerTask task = new PushToConsumerTask();
+
+        task.setTaskFinishHandler(taskProcessor_.getTaskConfigurator().deliverTaskFinishHandler_);
+        task.setTaskErrorHandler(taskProcessor_.getTaskConfigurator().deliverTaskErrorHandler_);
+        task.setMessage(msg.getHandle());
+
+        MockEventConsumer eventConsumer = new MockEventConsumer() {
+                int counter = 0;
+                boolean enabled = true;
+
+                public boolean hasPendingEvents() {
+                    return true;
+                }
+
+                public void deliverPendingEvents() {
+                    throw new TRANSIENT();
+                }
+
+                public void deliverEvent(Message event) {
+                    counter++;
+                    if (enabled) {
+                        throw new TRANSIENT();
+                    }
+                }
+
+                public void enableDelivery() {
+                    super.enableDelivery();
+
+                    enabled = true;
+                }
+
+                public void disableDelivery() {
+                    super.disableDelivery();
+
+                    enabled = false;
+                }
+
+                public void check() {
+                    super.check();
+                    Assert.assertTrue(counter > 0);
+                }
+            };
+
+        eventConsumer.expectedDisposeCalls = 1;
+
+        task.setEventConsumer(eventConsumer);
+
+        taskProcessor_.schedulePushToConsumerTask(task);
+
+        Thread.sleep(10000);
+
+        eventConsumer.check();
     }
 
     public void testPushFailRetry() throws Exception {
@@ -103,7 +165,7 @@ public class PushToConsumerTest extends TestCase
         task2.setMessage(event2.getHandle());
 
 
-        MockEventConsumer eventConsumer = new MockEventConsumer()  {
+        MockEventConsumer eventConsumer = new MockEventConsumer() {
                 boolean once = false;
                 public void deliverEvent(Message event) {
                     if (!once) {
@@ -214,90 +276,18 @@ public class PushToConsumerTest extends TestCase
     {
         TestSuite suite = new TestSuite(PushToConsumerTest.class);
 
+        suite = new TestSuite();
+        suite.addTest(new PushToConsumerTest("testRepeatedDeliveryErrorsCauseTheConsumerToBeDisconnected"));
+
         return suite;
     }
 
     /**
      * Entry point
      */
-public static void main(String[] args)
+    public static void main(String[] args)
     {
         junit.textui.TestRunner.run(suite());
     }
-}// PushToConsumerTest
 
-class MockEventConsumer implements EventConsumer {
-
-    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
-
-
-    EventQueue eventQueue =
-        new BoundedPriorityEventQueue(10,
-                                      EventQueueOverflowStrategy.LEAST_PRIORITY);
-
-    Vector eventsReceived = new Vector();
-    boolean deliverPossible = true;
-    boolean enabled = true;
-    int disposeCalled = 0;
-    Vector expectedEvents = new Vector();
-
-    public void addToExcepectedEvents(Object event) {
-        expectedEvents.add(event);
-    }
-
-    public void check() {
-        if (expectedEvents.size() > 0) {
-            checkExceptedEvents();
-        }
-    }
-
-    private void checkExceptedEvents() {
-        Iterator i = expectedEvents.iterator();
-        while(i.hasNext()) {
-            Object o = i.next();
-            Assert.assertTrue(expectedEvents + " does not contain " + o,
-                              eventsReceived.contains(o));
-        }
-    }
-
-    public void enableDelivery() {
-        enabled = true;
-    }
-
-    public void disableDelivery() {
-        enabled = false;
-    }
-
-    public void deliverEvent(Message event) {
-        if (enabled) {
-            if (deliverPossible) {
-                eventsReceived.add(event.toAny());
-            } else {
-                throw new RuntimeException();
-            }
-        } else {
-            eventQueue.put(event);
-        }
-    }
-
-    public void dispose() {
-        disposeCalled++;
-    }
-
-    public void deliverPendingEvents() {
-        logger_.debug("deliverPendingEvents");
-
-        try {
-            Message[] events = eventQueue.getAllEvents(true);
-            for (int x=0; x<events.length; ++x) {
-                eventsReceived.add(events[x].toAny());
-            }
-        } catch (Exception e) {
-
-        }
-    }
-
-    public boolean hasPendingEvents() {
-        return (!eventQueue.isEmpty());
-    }
 }
