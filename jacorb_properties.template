@@ -121,6 +121,22 @@ jacorb.maxManagedBufSize=18
 jacorb.hashtable_class=java.util.Hashtable
 
 
+###########################################
+#                                         #
+#       Proxy address in IOR              #
+#                                         #
+###########################################
+
+#
+# with these two properties it is possible to 
+# tell the ORB what IP/port IORs should contain,
+# if the ServerSockets IP/port can't be used
+# (e.g. for traffic through a firewall)
+#
+
+#jacorb.ior_proxy_host=1.2.3.4
+#jacorb.ior_proxy_port=4711
+
 
 ###########################################
 #                                         #
