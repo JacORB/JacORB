@@ -124,8 +124,8 @@ public class Environment
     private static byte[]               _server_id = null;
 
     /* properties with a given prefix */
-    private static Hashtable untrimmedPrefixProps = new Hashtable();
-    private static Hashtable trimmedPrefixProps = new Hashtable();
+    private static Map untrimmedPrefixProps = new HashMap();
+    private static Map trimmedPrefixProps = new HashMap();
 
     private static SimpleDateFormat dateFormatter;
     private static SimpleDateFormat timeFormatter;
