@@ -82,11 +82,20 @@
    </target>
 
 
-  <target name="compile-src">
+  <target name="compile-src-notification" if="regexp.available">
+    <antcall target="jacorb-javac">
+      <param name="javac-includes" value="org/jacorb/test/notification/**"/>
+
+      </antcall>
+  </target>
+
+
+  <target name="compile-src" depends="check-regexp">
     <antcall target="jacorb-javac">
       <param name="javac-includes" value="**"/>
-      <param name="javac-excludes" value="generated/**,**/RMITestServant.java"/>
-      </antcall>
+      <param name="javac-excludes" value="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**"/>
+    </antcall>
+    <antcall target="compile-src-notification" inheritRefs="true"/>
   </target>
 
 
@@ -521,7 +530,7 @@
 
   <target name="run-package-notification-seperate">
     <antcall target="build-all" />
-    
+
     <antcall target="run-package-notification-seperate-no-build" />
   </target>
 

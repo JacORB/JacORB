@@ -16,26 +16,6 @@
   <property name="notification.dir"
       value="${basedir}/src/org/jacorb/notification" />
 
-  <!-- check whether to use java.util.regexp or gnu.regexp -->
-  <target name="check-regexp">
-
-    <condition property="available.regexp.jdk" value="true" >
-      <or>
-        <equals arg2="${ant.java.version}" arg1="1.4"/>
-        <available classname="java.util.regex.Pattern" />
-      </or>
-    </condition>
-
-    <available classname="gnu.regexp.RE" property="available.regexp.gnu" />
-
-    <condition property="regexp.available">
-      <or>
-      <isset property="available.regexp.jdk" />
-      <isset property="available.regexp.gnu" />
-      </or>
-    </condition>
-  </target>
-
 
   <target name="notification.init" depends="init, check-regexp">
 
