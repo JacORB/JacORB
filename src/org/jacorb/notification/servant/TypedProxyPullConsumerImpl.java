@@ -3,7 +3,7 @@ package org.jacorb.notification.servant;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,8 +20,13 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.ARG_OUT;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.InterfaceDef;
+import org.omg.CORBA.InterfaceDefHelper;
+import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
 import org.omg.CORBA.NVList;
+import org.omg.CORBA.OperationDescription;
 import org.omg.CORBA.Request;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -34,16 +39,9 @@ import org.omg.PortableServer.Servant;
 
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
-import org.omg.CORBA.InterfaceDef;
-import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
-import java.util.List;
-import org.omg.CORBA.InterfaceDefHelper;
-import java.util.ArrayList;
-import java.util.Map;
+
 import java.util.HashMap;
-import org.omg.CORBA.OperationDescription;
-import org.omg.CORBA.ParameterMode;
-import org.omg.CORBA.ARG_OUT;
+import java.util.Map;
 
 /**
  * @Author Alphonse Bendt
@@ -67,11 +65,18 @@ public class TypedProxyPullConsumerImpl
 
     private org.omg.CORBA.Object typedPullSupplier_;
 
+    private InterfaceDef interfaceDef_;
+
+    private Map fullQualifiedOperationNames_ = new HashMap();
+
+    //////////////////////////////
+
     public TypedProxyPullConsumerImpl(String expectedInterface)
     {
         expectedInterface_ = expectedInterface;
     }
 
+    //////////////////////////////
 
     public void connect_typed_pull_supplier(TypedPullSupplier typedPullSupplier)
         throws AlreadyConnected,
@@ -87,6 +92,8 @@ public class TypedProxyPullConsumerImpl
 
         typedPullSupplier_ = pullSupplier_.get_typed_supplier();
 
+        interfaceDef_ = InterfaceDefHelper.narrow(typedPullSupplier_._get_interface_def());
+
         if (!typedPullSupplier_._is_a(expectedInterface_))
         {
             throw new TypeError();
@@ -96,10 +103,7 @@ public class TypedProxyPullConsumerImpl
 
     private String[] getTryPullOperations() {
         if (tryPullOperations_ == null) {
-
-            InterfaceDef _ifDef = InterfaceDefHelper.narrow(typedPullSupplier_._get_interface_def());
-
-            FullInterfaceDescription _fullIfDescription = _ifDef.describe_interface();
+            FullInterfaceDescription _fullIfDescription = interfaceDef_.describe_interface();
 
             for (int x=0; x<_fullIfDescription.operations.length; ++x) {
                 if (_fullIfDescription.operations[x].name.startsWith("try_")) {
@@ -122,6 +126,17 @@ public class TypedProxyPullConsumerImpl
     private OperationDescription getOperationDescription(String operation) {
         return (OperationDescription)operationDescriptions_.get(operation);
     }
+
+
+    private String getFullQualifiedName(String operation) {
+        String _fullQualifiedName = (String)fullQualifiedOperationNames_.get(operation);
+        if (_fullQualifiedName == null) {
+            _fullQualifiedName = interfaceDef_.lookup(operation).absolute_name();
+            fullQualifiedOperationNames_.put(operation, _fullQualifiedName);
+        }
+        return _fullQualifiedName;
+    }
+
 
 
     private Request prepareRequest(String operation) {
@@ -162,9 +177,15 @@ public class TypedProxyPullConsumerImpl
             boolean _success = _result.extract_boolean();
 
             if (_success) {
+                OperationDescription _operationDescription =
+                    getOperationDescription(_tryPullOperations[x]);
+
+                String _operationNameWithoutTry = _tryPullOperations[x].substring(4);
+                String _operationName = getFullQualifiedName(_operationNameWithoutTry );
+
                 Message _mesg =
                     getMessageFactory().newMessage(expectedInterface_,
-                                                   _tryPullOperations[x],
+                                                   _operationName,
                                                    _request.arguments(),
                                                    this);
 

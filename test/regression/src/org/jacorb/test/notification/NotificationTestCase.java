@@ -88,8 +88,8 @@ public class NotificationTestCase extends TestCase
         if (defaultChannel_ == null)
         {
             defaultChannel_ = getFactory().create_channel(new Property[0],
-                              new Property[0],
-                              new IntHolder() );
+                                                          new Property[0],
+                                                          new IntHolder() );
         }
 
         return defaultChannel_;

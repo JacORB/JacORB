@@ -119,27 +119,48 @@ public class TypedProxyPushSupplierImpl
     }
 
 
+    public void isIDLAssignable(String ifName) throws IllegalArgumentException {
+        if (typedConsumer_._is_a(ifName) ) {
+            return;
+        }
+
+        if (ifName.indexOf("Pull") > 0) {
+            int idx = ifName.indexOf("Pull");
+
+            StringBuffer _nonPullIF = new StringBuffer();
+            _nonPullIF.append(ifName.substring(0, idx));
+            _nonPullIF.append(ifName.substring(idx + 4));
+
+            if (typedConsumer_._is_a(_nonPullIF.toString())) {
+                return;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
+
+
     public void deliverMessage(Message message) {
         try {
             Property[] _props = message.toTypedEvent();
 
-            String _operationName;
+            String _fullQualifiedOperation;
 
             if (TypedEventMessage.OPERATION_NAME.equals(_props[0].name)) {
-                _operationName = _props[0].value.extract_string();
+                _fullQualifiedOperation = _props[0].value.extract_string();
             } else if (TypedEventMessage.EVENT_TYPE.equals(_props[0].name)) {
-                _operationName = EventTypeHelper.extract(_props[0].value).type_name;
+                _fullQualifiedOperation = EventTypeHelper.extract(_props[0].value).type_name;
 
                 String _idlType = EventTypeHelper.extract(_props[0].value).domain_name;
 
-                if (!typedConsumer_._is_a(_idlType)) {
-                    throw new IllegalArgumentException();
-                }
+                isIDLAssignable(_idlType);
             } else {
                 throw new IllegalArgumentException();
             }
 
-            Request _request = typedConsumer_._request(_operationName);
+            int _idx = _fullQualifiedOperation.lastIndexOf("::");
+            String _operation = _fullQualifiedOperation.substring(_idx + 2);
+
+            Request _request = typedConsumer_._request(_operation);
 
             NVList _arguments = _request.arguments();
 
@@ -147,7 +168,7 @@ public class TypedProxyPushSupplierImpl
                 _arguments.add_value(_props[x].name, _props[x].value, ARG_IN.value);
             }
 
-            _request.set_return_type( TYPE_CODE_VOID);
+            _request.set_return_type( TYPE_CODE_VOID );
 
             try {
                 _request.invoke();

@@ -105,6 +105,7 @@ public class EventChannelTest extends NotificationTestCase {
         } catch (AdminNotFound e) {}
 
         ConsumerAdmin c3 = channel_.get_consumeradmin(ih.value);
+
         assertEquals(ih.value, c3.MyID());
     }
 

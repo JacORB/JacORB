@@ -1,4 +1,4 @@
-package org.jacorb.notification;
+package org.jacorb.notification.servant;
 
 /*
  *        JacORB - a free Java ORB
@@ -20,13 +20,12 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.jacorb.notification.interfaces.FilterStageSource;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public interface EventChannelFactoryDependency {
-    void setEventChannelFactory(org.omg.CORBA.Object factory);
+public abstract class AbstractSupplierAdmin extends AbstractAdmin {
+    public abstract void setSubsequentFilterStageSource(FilterStageSource source);
 }

@@ -24,16 +24,20 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.InterfaceDef;
 import org.omg.CORBA.InterfaceDefHelper;
 import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.NVList;
 import org.omg.CORBA.ORB;
+import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.OperationDescription;
 import org.omg.CORBA.ParameterMode;
 import org.omg.CORBA.Repository;
+import org.omg.CORBA.RepositoryHelper;
 import org.omg.CORBA.ServerRequest;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushSupplier;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosTypedEventChannelAdmin.InterfaceNotSupported;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerPOATie;
@@ -42,9 +46,9 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 import org.jacorb.notification.interfaces.Message;
-import org.omg.CORBA.NO_IMPLEMENT;
-import org.omg.CORBA.RepositoryHelper;
-import org.omg.CORBA.ORBPackage.InvalidName;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Alphonse Bendt
@@ -56,9 +60,13 @@ public class TypedProxyPushConsumerImpl
 
     private String supportedInterface_;
 
-    private TypedProxyPushConsumer typedProxyPushConsumerServant_;
+    private TypedProxyPushConsumer typedProxyPushConsumer_;
 
     private PushSupplier pushSupplier_;
+
+    private InterfaceDef interfaceDef_;
+
+    private Map fullQualifiedOperationNames_ = new HashMap();
 
     private FullInterfaceDescription interfaceDescription_;
 
@@ -74,8 +82,10 @@ public class TypedProxyPushConsumerImpl
 
             request.arguments(_params);
 
+            String _operationName = getFullQualifiedName(request.operation());
+
             Message _mesg = getMessageFactory().newMessage( supportedInterface_,
-                                                            request.operation(),
+                                                            _operationName,
                                                             _params,
                                                             TypedProxyPushConsumerImpl.this );
 
@@ -92,9 +102,17 @@ public class TypedProxyPushConsumerImpl
         }
     }
 
+    //////////////////////////////
+
+    public TypedProxyPushConsumerImpl( String supportedInterface) {
+        super();
+
+        supportedInterface_ = supportedInterface;
+    }
+
+    //////////////////////////////
 
     private OperationDescription getOperationDescription(String operation) {
-
         for (int x=0; x<interfaceDescription_.operations.length; ++x) {
 
             if (operation.equals(interfaceDescription_.operations[x].name)) {
@@ -103,6 +121,16 @@ public class TypedProxyPushConsumerImpl
         }
 
         return null;
+    }
+
+
+    private String getFullQualifiedName(String operation) {
+        String _fullQualifiedName = (String)fullQualifiedOperationNames_.get(operation);
+        if (_fullQualifiedName == null) {
+            _fullQualifiedName = interfaceDef_.lookup(operation).absolute_name();
+            fullQualifiedOperationNames_.put(operation, _fullQualifiedName);
+        }
+        return _fullQualifiedName;
     }
 
 
@@ -126,14 +154,7 @@ public class TypedProxyPushConsumerImpl
     }
 
 
-    public TypedProxyPushConsumerImpl( String supportedInterface) {
-        super();
-
-        supportedInterface_ = supportedInterface;
-    }
-
-
-    private void ensureOperationOnlyUsesInParams() throws IllegalArgumentException {
+    private void ensureOperationOnlyUsesInParams() throws InterfaceNotSupported {
         for (int x=0; x<interfaceDescription_.operations.length; ++x) {
             int _noOfParameters = interfaceDescription_.operations[x].parameters.length;
 
@@ -144,23 +165,27 @@ public class TypedProxyPushConsumerImpl
                 case ParameterMode._PARAM_INOUT:
                     // fallthrough
                 case ParameterMode._PARAM_OUT:
-                    throw new IllegalArgumentException("only IN params allowed");
+                    throw new InterfaceNotSupported("only IN params allowed");
                 }
             }
         }
     }
 
 
-    public void preActivate() throws Exception, InvalidName {
+    public void preActivate() throws Exception, InterfaceNotSupported {
         super.preActivate();
 
-        Repository _repository =
-            RepositoryHelper.narrow(getORB().resolve_initial_references("InterfaceRepository"));
+        try {
+            Repository _repository =
+                RepositoryHelper.narrow(getORB().resolve_initial_references("InterfaceRepository"));
 
-        InterfaceDef _interfaceDef =
-            InterfaceDefHelper.narrow(_repository.lookup_id(supportedInterface_));
+            interfaceDef_ =
+                InterfaceDefHelper.narrow(_repository.lookup_id(supportedInterface_));
+        } catch (InvalidName n) {
+            throw new InterfaceNotSupported("could not access InterfaceRepository");
+        }
 
-        interfaceDescription_ = _interfaceDef.describe_interface();
+        interfaceDescription_ = interfaceDef_.describe_interface();
 
         ensureOperationOnlyUsesInParams();
     }
@@ -189,11 +214,11 @@ public class TypedProxyPushConsumerImpl
 
 
     public org.omg.CORBA.Object get_typed_consumer() {
-        if (typedProxyPushConsumerServant_ == null) {
-            typedProxyPushConsumerServant_ = new TypedProxyPushConsumer();
+        if (typedProxyPushConsumer_ == null) {
+            typedProxyPushConsumer_ = new TypedProxyPushConsumer();
         }
 
-        return typedProxyPushConsumerServant_._this_object(getORB());
+        return typedProxyPushConsumer_._this_object(getORB());
     }
 
 

@@ -20,9 +20,11 @@ package org.jacorb.test.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.notification.servant.AbstractAdmin;
-import java.util.List;
 import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.servant.AbstractAdmin;
+
+import java.util.List;
+
 import org.omg.PortableServer.Servant;
 
 /**

@@ -43,11 +43,6 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
     ////////////////////////////////////////
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-    }
-
     public void setUp() throws Exception
     {
         channel_ = getDefaultChannel();

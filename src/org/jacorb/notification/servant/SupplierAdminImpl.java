@@ -53,7 +53,7 @@ import org.omg.PortableServer.Servant;
  */
 
 public class SupplierAdminImpl
-    extends AbstractAdmin
+    extends AbstractSupplierAdmin
     implements SupplierAdminOperations,
                Disposable
 {

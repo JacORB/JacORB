@@ -27,18 +27,17 @@ import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.jacorb.test.notification.mocks.*;
 
 import org.omg.CORBA.Any;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.Repository;
-import org.omg.CORBA.RepositoryHelper;
+import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.EventTypeHelper;
+import org.omg.CosNotification.Property;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerHelper;
 
 import junit.framework.Test;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.EventTypeHelper;
-import org.omg.CosNotification.EventType;
-import org.omg.CORBA.NO_IMPLEMENT;
+import org.jacorb.test.notification.TypedEventMessageTest;
 
 /**
  * @author Alphonse Bendt
@@ -50,7 +49,9 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase {
 
     TypedProxyPushConsumer consumer_;
 
-    Repository repository_;
+    private static String DRINKING_COFFEE_ID =
+        "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
+
 
     public void setUp() throws Exception {
         objectUnderTest_ =
@@ -89,7 +90,7 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase {
                         EventType et = EventTypeHelper.extract(_props[0].value);
 
                         assertEquals(CoffeeHelper.id(), et.domain_name);
-                        assertEquals("drinking_coffee", et.type_name);
+                        assertEquals(DRINKING_COFFEE_ID, et.type_name);
 
                         assertEquals("name", _props[1].name);
                         assertEquals("jacorb", _props[1].value.extract_string());
@@ -107,6 +108,9 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase {
         objectUnderTest_.setTaskProcessor(taskProcessor);
 
         org.omg.CORBA.Object coff = CoffeeHelper.narrow( consumer_.get_typed_consumer() );
+
+        // some extra steps involved as local invocations are not
+        // supported on dsi servants.
 
         String coffString = coff.toString();
 
@@ -134,6 +138,8 @@ public class TypedProxyPushConsumerImplTest extends NotificationTestCase {
 
         try {
             consumer_.push(any);
+
+            fail("TypedProxyPushConsumer shouldn't support untyped push");
         } catch (NO_IMPLEMENT e) {}
     }
 

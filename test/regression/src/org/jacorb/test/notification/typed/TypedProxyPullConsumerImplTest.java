@@ -26,8 +26,10 @@ import org.jacorb.test.notification.NotificationTestCaseSetup;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
+import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.Object;
+import org.omg.CORBA.StringHolder;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
@@ -36,14 +38,13 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
 import org.omg.CosTypedNotifyComm.TypedPullSupplierPOA;
 
-import junit.framework.Test;
-import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.StringHolder;
-import org.omg.CORBA.StringHolder;
-import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.StringHolder;
-import org.omg.CORBA.StringHolder;
 import junit.framework.Assert;
+import junit.framework.Test;
+import org.jacorb.test.notification.mocks.NullTaskProcessor;
+import org.jacorb.notification.interfaces.Message;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.EventTypeHelper;
+import org.jacorb.test.notification.TypedEventMessageTest;
 
 /**
  * @author Alphonse Bendt
@@ -69,6 +70,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase {
         super(name, setup);
     }
 
+
     public void testMyType() {
         assertEquals(ProxyType.PULL_TYPED, pullConsumer_.MyType());
     }
@@ -77,7 +79,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase {
     public void testConnect() throws Exception {
         final MockPullCoffee _coffee = new MockPullCoffee();
 
-        NullPullSupplier _supplier = new NullPullSupplier() {
+        NullTypedPullSupplier _supplier = new NullTypedPullSupplier() {
                 public org.omg.CORBA.Object get_typed_supplier() {
                     return _coffee._this(getORB());
                 }
@@ -93,7 +95,7 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase {
         _coffee.try_drinking_coffee_expect = 1;
         _coffee.try_cancel_coffee_expect = 1;
 
-        NullPullSupplier _supplier = new NullPullSupplier() {
+        NullTypedPullSupplier _supplier = new NullTypedPullSupplier() {
                 public org.omg.CORBA.Object get_typed_supplier() {
                     return _coffee._this(getORB());
                 }
@@ -107,17 +109,65 @@ public class TypedProxyPullConsumerImplTest extends NotificationTestCase {
     }
 
 
+    public void testFormat() throws Exception {
+        final MockPullCoffee _coffee = new MockPullCoffee() {
+                public boolean try_drinking_coffee(StringHolder name, IntHolder minutes) {
+                    super.try_drinking_coffee(name, minutes);
+
+                    name.value = "jacorb";
+                    minutes.value = 20;
+
+                    return true;
+                }
+            };
+
+        _coffee.try_drinking_coffee_expect = 1;
+        _coffee.try_cancel_coffee_expect = 1;
+
+        NullTypedPullSupplier _supplier = new NullTypedPullSupplier() {
+                public org.omg.CORBA.Object get_typed_supplier() {
+                    return _coffee._this(getORB());
+                }
+            };
+
+        pullConsumer_.connect_typed_pull_supplier(_supplier._this(getORB()));
+
+        objectUnderTest_.setTaskProcessor(new NullTaskProcessor() {
+                public void processMessage(Message mesg) {
+                    try {
+                        Property[] _props = mesg.toTypedEvent();
+
+                        assertEquals(3, _props.length);
+
+                        assertEquals("event_type", _props[0].name);
+                        EventType et = EventTypeHelper.extract(_props[0].value);
+                        assertEquals(PullCoffeeHelper.id(), et.domain_name);
+
+                        assertEquals("::org::jacorb::test::notification::typed::PullCoffee::drinking_coffee",
+                                     et.type_name);
+
+                        assertEquals("jacorb", _props[1].value.extract_string());
+                        assertEquals(20, _props[2].value.extract_long());
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+
+        objectUnderTest_.runPullMessage();
+    }
+
+
     public static Test suite() throws Exception {
         return NotificationTestCase.suite(TypedProxyPullConsumerImplTest.class);
     }
 }
 
-class NullPullSupplier extends TypedPullSupplierPOA {
+class NullTypedPullSupplier extends TypedPullSupplierPOA {
 
     public org.omg.CORBA.Object get_typed_supplier() {
         return null;
     }
-
 
     public Any pull() {
         throw new NO_IMPLEMENT();

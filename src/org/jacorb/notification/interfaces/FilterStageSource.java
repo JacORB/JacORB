@@ -29,4 +29,5 @@ import java.util.List;
 
 public interface FilterStageSource {
     List getSubsequentFilterStages();
+    //    void setSubsequentFilterStageSource(FilterStageSource source);
 }

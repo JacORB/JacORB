@@ -1,3 +1,23 @@
 the tests in this directoy partly depend on a running Interface
 Repository with the idl file TypedNotificationClient.idl loaded (in
 directory test/regression/idl).
+
+As I had problems running the JacORB IFR I am currently using the mico IFR
+
+1) add the entry ORBInitRef.InterfaceRepository=file:/tmp/IFR_Ref to jacorb.properties
+2) start the IFR with the following script
+3) run the tests
+--------------
+#!/bin/sh
+
+IFR_REF=/tmp/IFR_Ref
+
+ird --ior $IFR_REF &
+
+sleep 5  
+
+idl --feed-ir -ORBIfaceRepoIOR `cat $IFR_REF` ~/JacORB/test/regression/idl/TypedNotification.idl
+--------------
+
+alphonse bendt
+$Id$

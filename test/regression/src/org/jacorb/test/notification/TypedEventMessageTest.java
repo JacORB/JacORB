@@ -32,6 +32,7 @@ import org.omg.DynamicAny.DynAnyFactoryHelper;
 
 import junit.framework.Test;
 import org.omg.CosNotification.PropertySeqHelper;
+import org.jacorb.test.notification.typed.CoffeeHelper;
 
 /**
  * @author Alphonse Bendt
@@ -42,6 +43,9 @@ public class TypedEventMessageTest extends NotificationTestCase {
     private static final Property[] EMPTY_PROPS = new Property[0];
 
     private TypedEventMessage objectUnderTest_;
+
+    private static String DRINKING_COFFEE_ID =
+        "::org::jacorb::test::notification::typed::Coffee::drinking_coffee";
 
     public void setUp() throws Exception {
         objectUnderTest_ = new TypedEventMessage();
@@ -54,7 +58,7 @@ public class TypedEventMessageTest extends NotificationTestCase {
 
 
     public void testToProperty() {
-        objectUnderTest_.setTypedEvent("IDL:Coffee:1.0", "doSomething", EMPTY_PROPS);
+        objectUnderTest_.setTypedEvent(CoffeeHelper.id(), "drinking_coffee", EMPTY_PROPS);
 
         Property[] _props = objectUnderTest_.toTypedEvent();
 
@@ -62,28 +66,40 @@ public class TypedEventMessageTest extends NotificationTestCase {
         assertEquals("event_type", _props[0].name);
 
         EventType et = EventTypeHelper.extract(_props[0].value);
-        assertEquals("IDL:Coffee:1.0", et.domain_name);
-        assertEquals("doSomething", et.type_name);
+        assertEquals(CoffeeHelper.id(), et.domain_name);
+        assertEquals("drinking_coffee", et.type_name);
     }
 
 
     public void testToAny() {
-        objectUnderTest_.setTypedEvent("IDL:Coffee:1.0", "operation1", EMPTY_PROPS);
+        objectUnderTest_.setTypedEvent(CoffeeHelper.id(), DRINKING_COFFEE_ID, EMPTY_PROPS);
 
         Any _any = objectUnderTest_.toAny();
 
         assertEquals(PropertySeqHelper.type(), _any.type());
+
+        Property[] _props = PropertySeqHelper.extract(_any);
+
+        assertEquals(1, _props.length);
+
+        assertEquals("operation", _props[0].name);
+
+        assertEquals(DRINKING_COFFEE_ID,
+                     _props[0].value.extract_string());
     }
 
 
     public void testToStructured() {
-        objectUnderTest_.setTypedEvent("IDL:Coffee:1.0", "operationName", EMPTY_PROPS);
+        objectUnderTest_.setTypedEvent(CoffeeHelper.id(), DRINKING_COFFEE_ID, EMPTY_PROPS);
 
         StructuredEvent _structEvent = objectUnderTest_.toStructuredEvent();
 
         assertEquals(1, _structEvent.filterable_data.length);
+
         assertEquals("operation", _structEvent.filterable_data[0].name);
-        assertEquals("operationName", _structEvent.filterable_data[0].value.extract_string());
+
+        assertEquals(DRINKING_COFFEE_ID,
+                     _structEvent.filterable_data[0].value.extract_string());
 
         assertEquals("%TYPED", _structEvent.header.fixed_header.event_type.type_name);
     }
