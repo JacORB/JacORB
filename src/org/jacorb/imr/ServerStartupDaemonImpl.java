@@ -25,7 +25,7 @@ package org.jacorb.imr;
  * remote hosts. It has a thread for forwarding output of started servers.
  *
  * @author Nicolas Noffke
- * 
+ *
  * $Id$
  *
  */
@@ -40,8 +40,8 @@ import java.io.*;
 
 import org.omg.PortableServer.*;
 
-public class ServerStartupDaemonImpl 
-    extends org.jacorb.imr.ServerStartupDaemonPOA 
+public class ServerStartupDaemonImpl
+    extends org.jacorb.imr.ServerStartupDaemonPOA
 {
     private static ORB orb = null;
     private static final String out_prefix = ">> ";
@@ -54,38 +54,38 @@ public class ServerStartupDaemonImpl
      *
      * @exception Exception any exception that is thrown inside is propagated upwards.
      */
-    public ServerStartupDaemonImpl() 
-	throws Exception
+    public ServerStartupDaemonImpl()
+        throws Exception
     {
-	Registration _registration = null;
-        
-	_registration = 
-            RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
-	if( _registration == null )
-	    throw new java.lang.Error("ImR not found");
+        Registration _registration = null;
 
-	_this_object( orb );
+        _registration =
+        RegistrationHelper.narrow( orb.resolve_initial_references("ImplementationRepository"));
+        if( _registration == null )
+            throw new java.lang.Error("ImR not found");
 
-	HostInfo _me = new HostInfo(InetAddress.getLocalHost().getHostName(),_this(),
-				    orb.object_to_string(_this()));
+        _this_object( orb );
 
-	_registration.register_host(_me);
-        
+        HostInfo _me = new HostInfo(InetAddress.getLocalHost().getHostName(),_this(),
+                                    orb.object_to_string(_this()));
+
+        _registration.register_host(_me);
+
         stdout_pool = new ThreadPool( new OutputForwarderFactory( new InputStreamSelector(){
-                    public InputStream getInputStream( Process p )
-                    {
-                        return p.getInputStream();
-                    }
-                }),
+            public InputStream getInputStream( Process p )
+            {
+                return p.getInputStream();
+            }
+        }),
                                       100, //max threads
                                       10 );//max idle threads
 
         stderr_pool = new ThreadPool( new OutputForwarderFactory( new InputStreamSelector(){
-                    public InputStream getInputStream( Process p )
-                    {
-                        return p.getErrorStream();
-                    }
-                }),
+            public InputStream getInputStream( Process p )
+            {
+                return p.getErrorStream();
+            }
+        }),
                                       100, //max threads
                                       10 );//max idle threads
     }
@@ -95,111 +95,111 @@ public class ServerStartupDaemonImpl
      * @return 0 always
      */
 
-    public int get_system_load() 
+    public int get_system_load()
     {
-	// Dummy method, not supported yet.
-	return 0;
+        // Dummy method, not supported yet.
+        return 0;
     }
-    
+
     /**
      * This method starts a server on this host as specified by 'command'.
      *
      * @param command The server startup command, i.e. the servers class name and
      * parameters for its main method. The interpreter is inserted automatically.
      *
-     * @exception org.jacorb.imr.ServerStartupDaemonPackage.ServerStartupFailed Runtime.exec 
+     * @exception org.jacorb.imr.ServerStartupDaemonPackage.ServerStartupFailed Runtime.exec
      * failed to execute the command.
      */
 
-    public void start_server(String command) 
-        throws ServerStartupFailed 
+    public void start_server(String command)
+        throws ServerStartupFailed
     {
-	try
+        try
         {
-	    Debug.output(4, 
+            Debug.output(4,
                          "Starting: " + command );
 
-	    Process _server = Runtime.getRuntime().exec( command );
+            Process _server = Runtime.getRuntime().exec( command );
 
-	    stdout_pool.putJob(_server);
-	    stderr_pool.putJob(_server);
-	}
+            stdout_pool.putJob(_server);
+            stderr_pool.putJob(_server);
+        }
         catch (Exception _e)
         {
-	    Debug.output(4, _e);
-	    throw new ServerStartupFailed( _e.toString() );
-	}
+            Debug.output(4, _e);
+            throw new ServerStartupFailed( _e.toString() );
+        }
     }
 
     /**
      * main method. Creates a new ServerStartupDaemonImpl instance and runs the orb.
-     **/  
+     **/
     public static void main( String[] args )
     {
-	try
-	{
-	    orb = (org.jacorb.orb.ORB) ORB.init( args, null );	
-	    POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+        try
+        {
+            orb = (org.jacorb.orb.ORB) ORB.init( args, null );
+            POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
-	    poa.the_POAManager().activate();
+            poa.the_POAManager().activate();
 
-	    ServerStartupDaemonImpl _ssd = new ServerStartupDaemonImpl();
-	    
-	    orb.run();
-	}
+            ServerStartupDaemonImpl _ssd = new ServerStartupDaemonImpl();
+
+            orb.run();
+        }
         catch( Exception _e )
         {
-	    _e.printStackTrace();
-	}
+            _e.printStackTrace();
+        }
 
-	System.exit(0);
-    } 
-    
+        System.exit(0);
+    }
+
     /**
-     * Inner class used to forward output of servers, since that would be 
+     * Inner class used to forward output of servers, since that would be
      * invisible otherwise.
      */
-    private class OutputForwarder 
+    private class OutputForwarder
         implements Consumer
     {
-        /** 
-         * prefix to help distinguish between output of a 
-         * started server and output of this SSD 
+        /**
+         * prefix to help distinguish between output of a
+         * started server and output of this SSD
          */
         private InputStreamSelector selector = null;
 
-	public OutputForwarder( InputStreamSelector selector )
+        public OutputForwarder( InputStreamSelector selector )
         {
             this.selector = selector;
-	}
+        }
 
-	public void doWork( Object job )
+        public void doWork( Object job )
         {
             Process p = (Process) job;
 
-	    BufferedReader _in = new BufferedReader(new InputStreamReader(selector.getInputStream( p )));
-	    String _line = null;
-	                           
-	    try
+            BufferedReader _in = new BufferedReader(new InputStreamReader(selector.getInputStream( p )));
+            String _line = null;
+
+            try
             {
-		// If we get null from readLine() we assume that the process has exited.
-		// Unfortunately there is no exception thrown when trying to read from
-		// a dead processes output stream.
-		while((_line = _in.readLine()) != null)
+                // If we get null from readLine() we assume that the process has exited.
+                // Unfortunately there is no exception thrown when trying to read from
+                // a dead processes output stream.
+                while((_line = _in.readLine()) != null)
                 {
-		    System.out.println(out_prefix + _line);
+                    System.out.println(out_prefix + _line);
                 }
 
-		 _in.close();
-	    }
+                _in.close();
+            }
             catch( Exception _e )
             {
-		_e.printStackTrace();
-	    }
-	    
-	    Debug.output( 4, 
-                         "A server process exited" );
-	}
+                _e.printStackTrace();
+            }
+
+            Debug.output( 4,
+                          "A server process exited" );
+        }
     }//OutputForwarder
 
     private interface InputStreamSelector
@@ -223,11 +223,3 @@ public class ServerStartupDaemonImpl
         }
     }
 } // ServerStartupDaemonImpl
-
-
-
-
-
-
-
-
