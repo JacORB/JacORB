@@ -95,37 +95,26 @@ public class SupplierAdminTieImpl
                myOperator );
     }
 
-    public Servant getServant()
+    public synchronized Servant getServant()
     {
+
         if ( thisServant_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisServant_ == null )
-                {
-                    thisServant_ = new SupplierAdminPOATie( this );
-                }
+                thisServant_ = new SupplierAdminPOATie( this );
             }
-        }
 
         return thisServant_;
     }
 
-    SupplierAdmin getSupplierAdmin()
+    synchronized SupplierAdmin getSupplierAdmin()
     {
         if ( thisRef_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisRef_ == null )
-                {
-                    // sideeffect of getServant() is that
-                    // thisServant_ gets set.
-                    getServant();
-                    thisRef_ = thisServant_._this( getOrb() );
-                }
+                // sideeffect of getServant() is that
+                // thisServant_ gets set.
+                getServant();
+                thisRef_ = thisServant_._this( getOrb() );
             }
-        }
 
         return thisRef_;
     }

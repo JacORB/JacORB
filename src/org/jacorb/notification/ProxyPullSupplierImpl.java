@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.queue.EventQueue;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
@@ -45,14 +44,13 @@ import org.omg.PortableServer.Servant;
  */
 
 public class ProxyPullSupplierImpl
-    extends AbstractProxy
+    extends AbstractProxySupplier
     implements ProxyPullSupplierOperations,
                org.omg.CosEventChannelAdmin.ProxyPullSupplierOperations,
                EventConsumer {
 
     private PullConsumer pullConsumer_ = null;
     private boolean connected_ = false;
-    private EventQueue pendingEvents_;
     private static Any sUndefinedAny = null;
 
     ProxyPullSupplierImpl(ConsumerAdminTieImpl adminServant,
@@ -121,7 +119,6 @@ public class ProxyPullSupplierImpl
     public Any pull()
         throws Disconnected {
 
-
         if (!connected_) {
             throw new Disconnected();
         }
@@ -150,15 +147,15 @@ public class ProxyPullSupplierImpl
         hasEvent.value = false;
 
         try {
-            Message _notifyEvent =
+            Message _message =
                 pendingEvents_.getEvent(false);
 
-            if (_notifyEvent != null) {
+            if (_message != null) {
                 try {
                     hasEvent.value = true;
-                    return _notifyEvent.toAny();
+                    return _message.toAny();
                 } finally {
-                    _notifyEvent.dispose();
+                    _message.dispose();
                 }
             }
 
@@ -177,11 +174,15 @@ public class ProxyPullSupplierImpl
         pendingEvents_.put(event);
     }
 
-    public void connect_any_pull_consumer(PullConsumer pullConsumer) throws AlreadyConnected {
+    public void connect_any_pull_consumer(PullConsumer pullConsumer)
+        throws AlreadyConnected {
+
         connect_pull_consumer(pullConsumer);
     }
 
-    public void connect_pull_consumer(PullConsumer consumer) throws AlreadyConnected {
+    public void connect_pull_consumer(PullConsumer consumer)
+        throws AlreadyConnected {
+
         logger_.info("connect_pull_consumer()");
 
         if (connected_) {
@@ -228,13 +229,9 @@ public class ProxyPullSupplierImpl
         // as we do not actively deliver events we can ignore this
     }
 
-    public Servant getServant() {
+    public synchronized Servant getServant() {
         if (thisServant_ == null) {
-            synchronized(this) {
-                if (thisServant_ == null) {
-                    thisServant_ = new ProxyPullSupplierPOATie(this);
-                }
-            }
+            thisServant_ = new ProxyPullSupplierPOATie(this);
         }
         return thisServant_;
     }
