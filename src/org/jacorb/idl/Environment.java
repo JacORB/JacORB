@@ -38,7 +38,7 @@ public final class Environment
 
 
     /**
-     * @deprecated 
+     * @deprecated
      */
 
     static final boolean isEnabled( int msg_level )
@@ -47,7 +47,7 @@ public final class Environment
     }
 
     /**
-     * @deprecated 
+     * @deprecated
      */
 
     static final void output( int msg_level, String msg )
@@ -59,7 +59,7 @@ public final class Environment
     }
 
     /**
-     * @deprecated 
+     * @deprecated
      */
 
     static final void output( int msg_level, Throwable t )
@@ -71,6 +71,15 @@ public final class Environment
         t.printStackTrace();
     }
 
+
+    /**
+     * <code>intToPriority</code> returns the priority level for a given integer.
+     * It is a copy of the method in util/LogKitLoggerFactory copied to ensure
+     * that the idl compiler can be standalone.
+     *
+     * @param priority an <code>int</code> value
+     * @return an <code>org.apache.log.Priority</code> value
+     */
     public static org.apache.log.Priority intToPriority(int priority)
     {
         switch (priority)
@@ -88,11 +97,4 @@ public final class Environment
                 return org.apache.log.Priority.FATAL_ERROR;
         }
     }
-
-
-
 }
-
-
-
-

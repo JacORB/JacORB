@@ -222,7 +222,14 @@ public class LogKitLoggerFactory
 
         return result;
     }
-    
+
+
+    /**
+     * <code>intToPriority</code> returns the priority level for a given integer.
+     *
+     * @param priority an <code>int</code> value
+     * @return an <code>org.apache.log.Priority</code> value
+     */
     public static org.apache.log.Priority intToPriority(int priority)
     {
         switch (priority)
