@@ -40,111 +40,86 @@ import org.omg.CORBA.ORB;
 
 public class ChannelContext
 {
+    private ORB orb_;
+
     private POA poa_;
 
+    private MessageFactory messageFactory_;
+
     private Logger logger_ = Debug.getNamedLogger(getClass().getName());
+
     private EventChannel eventChannel;
+
     private EventChannelImpl eventChannelServant;
+
     private EventChannelFactory eventChannelFactory;
+
     private EventChannelFactoryImpl eventChannelFactoryServant;
+
     private FilterFactory defaultFilterFactory;
+
     private TaskProcessor taskProcessor_;
 
     private ProxyEventListener proxySupplierDisposedListener_;
+
     private ProxyEventListener proxyConsumerDisposedListener_;
 
-    /**
-     * @return the TaskProcessor for this Channel
-     */
+    ////////////////////////////////////////
+
     public TaskProcessor getTaskProcessor()
     {
         return taskProcessor_;
     }
 
-    /**
-     * sets the TaskProcessor for this Channel
-     */
+
     public void setTaskProcessor(TaskProcessor taskProcessor)
     {
         taskProcessor_ = taskProcessor;
     }
 
-    /**
-     * Gets the value of eventChannelFactory
-     *
-     * @return the value of eventChannelFactory
-     */
+
     private EventChannelFactory getEventChannelFactory()
     {
         return eventChannelFactory;
     }
 
-    /**
-     * Sets the value of eventChannelFactory
-     *
-     * @param argEventChannelFactory Value to assign to this.eventChannelFactory
-     */
+
     private void setEventChannelFactory(EventChannelFactory argEventChannelFactory)
     {
         eventChannelFactory = argEventChannelFactory;
     }
 
-    /**
-     * Gets the value of eventChannelFactoryServant
-     *
-     * @return the value of eventChannelFactoryServant
-     */
+
     public EventChannelFactoryImpl getEventChannelFactoryServant()
     {
         return eventChannelFactoryServant;
     }
 
-    /**
-     * Sets the value of eventChannelFactoryServant
-     *
-     * @param argEventChannelFactoryServant Value to assign to
-     * this.eventChannelFactoryServant
-     */
+
     public void setEventChannelFactoryServant(EventChannelFactoryImpl argEventChannelFactoryServant)
     {
         eventChannelFactoryServant = argEventChannelFactoryServant;
     }
 
-    /**
-     * Gets the value of defaultFilterFactory
-     *
-     * @return the value of defaultFilterFactory
-     */
+
     public FilterFactory getDefaultFilterFactory()
     {
         return defaultFilterFactory;
     }
 
-    /**
-     * Sets the value of defaultFilterFactory
-     *
-     * @param argDefaultFilterFactory Value to assign to this.defaultFilterFactory
-     */
+
     public void setDefaultFilterFactory(FilterFactory argDefaultFilterFactory)
     {
         defaultFilterFactory = argDefaultFilterFactory;
     }
 
-    /**
-     * Gets the value of eventChannelServant
-     *
-     * @return the value of eventChannelServant
-     */
+
     public EventChannelImpl getEventChannelServant()
     {
         return eventChannelServant;
     }
 
-    /**
-     * Sets the value of eventChannelServant
-     *
-     * @param argEventChannelServant Value to assign to this.eventChannelServant
-     */
+
     public void setEventChannelServant(EventChannelImpl argEventChannelServant)
     {
         logger_.debug("setEventChannelServant(" + argEventChannelServant + ")");
@@ -167,46 +142,50 @@ public class ChannelContext
         return _copy;
     }
 
+
     public void setProxyConsumerDisposedEventListener(ProxyEventListener listener)
     {
         proxyConsumerDisposedListener_ = listener;
     }
+
 
     public void setProxySupplierDisposedEventListener(ProxyEventListener listener)
     {
         proxySupplierDisposedListener_ = listener;
     }
 
+
     public ProxyEventListener getRemoveProxyConsumerListener()
     {
         return proxyConsumerDisposedListener_;
     }
+
 
     public ProxyEventListener getRemoveProxySupplierListener()
     {
         return proxySupplierDisposedListener_;
     }
 
+
     public void setPOA(POA poa) {
         poa_ = poa;
     }
+
 
     public POA getPOA() {
         return poa_;
     }
 
-    private ORB orb_;
 
     public void setORB(ORB orb) {
         orb_ = orb;
     }
 
+
     public ORB getORB() {
         return orb_;
     }
 
-
-    private MessageFactory messageFactory_;
 
     public void setMessageFactory(MessageFactory messageFactory) {
         messageFactory_ = messageFactory;
