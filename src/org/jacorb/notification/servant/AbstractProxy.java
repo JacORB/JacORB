@@ -398,6 +398,10 @@ public abstract class AbstractProxy
 
         //////////////////////////////
 
+        removeListener();
+
+        //////////////////////////////
+
         remove_all_filters();
 
         //////////////////////////////
@@ -572,4 +576,6 @@ public abstract class AbstractProxy
 
         dispose();
     }
+
+    protected abstract void removeListener();
 }
