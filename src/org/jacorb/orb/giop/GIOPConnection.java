@@ -385,8 +385,11 @@ public abstract class GIOPConnection
                 //check major version
                 if( Messages.getGIOPMajor( message ) != 1 )
                 {
-                    Debug.output( 1, "ERROR: Invalid GIOP major version encountered: " +
-                                  Messages.getGIOPMajor( message ) );
+                    if (logger.isErrorEnabled())
+                    {
+                        logger.error( "RInvalid GIOP major version encountered: " +
+                                     Messages.getGIOPMajor( message ) );
+                    }
 
                     Debug.output( 3, "GIOPConnection.receiveMessages()", message );
 
@@ -400,7 +403,10 @@ public abstract class GIOPConnection
                     //GIOP 1.0 messages aren't allowed to be fragmented
                     if( Messages.getGIOPMinor( message ) == 0 )
                     {
-                        Debug.output( 1, "WARNING: Received a GIOP 1.0 message of type Fragment" );
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn( "Received a GIOP 1.0 message of type Fragment" );
+                        }
 
                         MessageOutputStream out =
                             new MessageOutputStream();
@@ -416,7 +422,10 @@ public abstract class GIOPConnection
                     //GIOP 1.1 Fragmented messages currently not supported
                     if( Messages.getGIOPMinor( message ) == 1 )
                     {
-                        Debug.output( 1, "WARNING: Received a GIOP 1.1 Fragment message" );
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn( "Received a GIOP 1.1 Fragment message" );
+                        }
 
                         //Can't return a message in this case, because
                         //GIOP 1.1 fragments don't have request
@@ -434,7 +443,10 @@ public abstract class GIOPConnection
                     //sanity check
                     if( ! fragments.containsKey( request_id ))
                     {
-                        Debug.output( 1, "ERROR: No previous Fragment to this one" );
+                        if (logger.isErrorEnabled())
+                        {
+                            logger.error( "No previous Fragment to this one" );
+                        }
 
                         //Drop this one and continue
                         buf_mg.returnBuffer( message );
@@ -474,7 +486,10 @@ public abstract class GIOPConnection
                     //GIOP 1.0 messages aren't allowed to be fragmented
                     if( Messages.getGIOPMinor( message ) == 0 )
                     {
-                        Debug.output( 1, "WARNING: Received a GIOP 1.0 message with the \"more fragments follow\" bits set" );
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn( "Received a GIOP 1.0 message with the \"more fragments follow\" bits set" );
+                        }
 
                         MessageOutputStream out =
                             new MessageOutputStream();
@@ -493,7 +508,11 @@ public abstract class GIOPConnection
                         if( msg_type != MsgType_1_1._Request &&
                             msg_type != MsgType_1_1._Reply )
                         {
-                            Debug.output( 1, "WARNING: Received a GIOP 1.1 message of type " + msg_type + " with the \"more fragments follow\" bits set" );
+                            if (logger.isWarnEnabled())
+                            {
+                                logger.warn( "Received a GIOP 1.1 message of type " +
+                                             msg_type + " with the \"more fragments follow\" bits set" );
+                            }
 
                             MessageOutputStream out =
                                 new MessageOutputStream();
@@ -507,7 +526,10 @@ public abstract class GIOPConnection
                         }
                         else //GIOP 1.1 Fragmented messages currently not supported
                         {
-                            Debug.output( 1, "WARNING: Received a fragmented GIOP 1.1 message" );
+                            if (logger.isWarnEnabled())
+                            {
+                                logger.warn( "Received a fragmented GIOP 1.1 message" );
+                            }
 
                             int giop_minor = Messages.getGIOPMinor( message );
 
@@ -532,9 +554,12 @@ public abstract class GIOPConnection
                         msg_type == MsgType_1_1._CloseConnection ||
                         msg_type == MsgType_1_1._CancelRequest )
                     {
-                        Debug.output( 1, "WARNING: Received a GIOP message of type " + msg_type +
-                                      " with the \"more fragments follow\" bits set, but this " +
-                                      "message type isn't allowed to be fragmented" );
+                        if (logger.isWarnEnabled())
+                        {
+                            logger.warn( "Received a GIOP message of type " + msg_type +
+                                         " with the \"more fragments follow\" bits set, but this " +
+                                         "message type isn't allowed to be fragmented" );
+                        }
 
                         MessageOutputStream out =
                             new MessageOutputStream();
@@ -554,9 +579,13 @@ public abstract class GIOPConnection
                     //sanity check
                     if( fragments.containsKey( request_id ))
                     {
-                        Debug.output( 1, "ERROR, Received a message of type " +
-                                      msg_type + " with the more fragments follow bit set, but there is already an fragmented, incomplete message with the same request id " +
-                                      request_id + "!" );
+                        if (logger.isErrorEnabled())
+                        {
+                            logger.error( "Received a message of type " +
+                                          msg_type + 
+                                          " with the more fragments follow bit set, but there is already an fragmented, incomplete message with the same request id " +
+                                          request_id + "!" );
+                        }
 
                         //Drop this one and continue
                         buf_mg.returnBuffer( message );
@@ -630,7 +659,10 @@ public abstract class GIOPConnection
                     }
                     default:
                     {
-                        Debug.output(0, "ERROR: received message with unknown message type " + msg_type);
+                        if (logger.isErrorEnabled())
+                        {
+                            logger.error("received message with unknown message type " + msg_type);
+                        }
                         Debug.output( 3, "GIOPConnection.receiveMessages()", message );
                     }
                 }
@@ -787,7 +819,10 @@ public abstract class GIOPConnection
             connect_sync.notifyAll();
          }
 
-        Debug.output( 2, "GIOPConnection closed completely" );
+         if (logger.isDebugEnabled())
+         {
+             logger.debug("GIOPConnection closed (terminated)." );
+         }
     }
 
 
