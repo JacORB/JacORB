@@ -411,51 +411,21 @@ public class AliasTypeSpec
 	ps.println("\t{");
 	ps.println("\t}");
 
-        // no: 	TypeSpec.printHelperClassMethods(className, ps, type);
-
-	ps.println("\tpublic static void insert(org.omg.CORBA.Any any, " + type + " s)");
+	ps.println("\tpublic static void insert (org.omg.CORBA.Any any, " + type + " s)");
 	ps.println("\t{");
-
-//          if( originalType instanceof BaseType && !(originalType instanceof AnyType) || 
-//              originalType instanceof StringType  )
-//          {
-//              ps.println("\t\tany." + originalType.printInsertExpression() + "(s);");
-//          }
-//          else 
-            if( originalType instanceof AliasTypeSpec )
-        {
-            ps.println("\t\t" + originalType.full_name() + "Helper.insert(any,s);");
-        }
-        else
-        {
-            ps.println("\t\tany.type(type());");       
-            ps.println("\t\twrite( any.create_output_stream(),s);");
-        }
+        ps.println("\t\tany.type (type ());");       
+        ps.println("\t\twrite (any.create_output_stream (), s);");
         ps.println("\t}");
 
-	ps.println("\tpublic static " + type + " extract(org.omg.CORBA.Any any)");
+	ps.println("\tpublic static " + type + " extract (org.omg.CORBA.Any any)");
 	ps.println("\t{");
-//          if( originalType instanceof BaseType && !(originalType instanceof AnyType) || 
-//              originalType instanceof StringType )
-//          {
-//              ps.println("\t\treturn any." + originalType.printExtractExpression() + "();");
-//          }
-//          else 
-        if( originalType instanceof AliasTypeSpec )
-        {
-            ps.println("\t\treturn " + originalType.full_name() + "Helper.extract(any);");
-        }
-        else
-        {
-            ps.println("\t\treturn read(any.create_input_stream());");
-        }
+        ps.println("\t\treturn read (any.create_input_stream ());");
 	ps.println("\t}");
 
-	ps.println("\tpublic static org.omg.CORBA.TypeCode type()");
+	ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
 	ps.println("\t{");
 	ps.println("\t\treturn _type;");
 	ps.println("\t}");
-	
 
 	printIdMethod( ps ); // inherited from IdlSymbol
 
