@@ -1093,21 +1093,9 @@ public final class Delegate
         }
         else
         {
-            // Try to avoid remote call - is it a derived type?
-            try
-            {
-                Class derivedhelper = Class.forName( RepositoryID.className( pior.getTypeId(), "Helper" ) );
-                Method derivednarrow = derivedhelper.getMethod
-                    ( "narrow", new Class[] { org.omg.CORBA.Object.class } );
-                Object narrowedhelper = derivednarrow.invoke( null, new Object[] { self } );
-
-                if( narrowedhelper != null )
-                {
-                    return true;
-                }
-            }
-            // If it fails fall back to a remote call.
-            catch (Exception e) {}
+            // removed code that tries to avoid a remote call, but
+            // delivers incorrect results (always true), bug #384.
+            // (There did not seem to be a way of fixing that code.)
 
             org.omg.CORBA.portable.OutputStream os;
             org.omg.CORBA.portable.InputStream is;
