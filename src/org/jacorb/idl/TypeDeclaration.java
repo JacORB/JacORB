@@ -120,8 +120,7 @@ class TypeDeclaration
 	type_decl.set_included(i);
     }
 
-    public void parse() 
-	 
+    public void parse() 	 
     {
 	type_decl.parse();
     }

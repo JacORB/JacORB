@@ -99,19 +99,22 @@ public abstract class VectorType
 
     protected String elementTypeExpression()
     {        
-        if( type_spec.typeSpec() instanceof AliasTypeSpec )
+        TypeSpec ts = type_spec.typeSpec();
+
+        if( ts instanceof AliasTypeSpec )
         {
             return type_spec.full_name() + "Helper.type()";
         }
-        else if ( type_spec.typeSpec() instanceof BaseType || 
-                  type_spec.typeSpec() instanceof TypeCodeTypeSpec ||
-                  type_spec.typeSpec() instanceof TemplateTypeSpec  )
+        else if ( ts instanceof BaseType || 
+                  ts instanceof TypeCodeTypeSpec ||
+                  ts instanceof ConstrTypeSpec || // for value types
+                  ts instanceof TemplateTypeSpec  )
         {
-            return type_spec.getTypeCodeExpression() ;
+            return ts.getTypeCodeExpression() ;
         }
         else
         {
-            return type_spec.typeName()  + "Helper.type()";
+            return ts.typeName()  + "Helper.type()";
         }
     }
 

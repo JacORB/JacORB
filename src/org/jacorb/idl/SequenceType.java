@@ -119,7 +119,7 @@ public class SequenceType
 
     public String getTypeCodeExpression()
     {
-        Environment.output( 2, "Sequence getTypeCodeExpression " + name );
+        Environment.output( 1, "Sequence getTypeCodeExpression " + name );
 	String originalType = null;
 
 	if( recursive )

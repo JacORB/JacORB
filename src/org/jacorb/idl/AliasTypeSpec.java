@@ -163,14 +163,17 @@ public class AliasTypeSpec
 
     public String getTypeCodeExpression()
     {
+        TypeSpec ts = originalType.typeSpec();
+
         return "org.omg.CORBA.ORB.init().create_alias_tc( " + 
             full_name() + "Helper.id(), \"" + name + "\"," +
-            ( originalType.typeSpec() instanceof TemplateTypeSpec || 
-              originalType.typeSpec() instanceof BaseType || 
-              originalType.typeSpec() instanceof AliasTypeSpec || 
-              originalType.typeSpec() instanceof TypeCodeTypeSpec ? 
+            ( ts instanceof TemplateTypeSpec || 
+              ts instanceof BaseType || 
+              ts instanceof ConstrTypeSpec || // for value types
+              ts instanceof AliasTypeSpec || 
+              ts instanceof TypeCodeTypeSpec ? 
               originalType.getTypeCodeExpression() : 
-              originalType.typeSpec().typeName() + "Helper.type()" ) + " )";        
+              ts.typeName() + "Helper.type()" ) + " )";        
         //            originalType.getTypeCodeExpression() + ")";        
     }
 
@@ -422,8 +425,8 @@ public class AliasTypeSpec
 
 	printIdMethod( ps ); // inherited from IdlSymbol
 
-	if( originalType.basic() || originalType instanceof AnyType )
-	{
+	  //  if( originalType.basic() || originalType instanceof AnyType )
+	// {
 	    /* read */
 	    ps.println("\tpublic static " +type+ " read (final org.omg.CORBA.portable.InputStream _in)");
 	    ps.println("\t{");	
@@ -438,23 +441,23 @@ public class AliasTypeSpec
 	    ps.println("\t\t" + originalType.printWriteStatement("_s","_out"));
 	    ps.println("\t}");
 	    ps.println("}");    
-	}
-	else
-	{
-	    String helpername = ( originalType instanceof AliasTypeSpec ? 
-				  originalType.full_name() : originalType.typeName() ) + "Helper";
-	    /* read */
-	    ps.println("\tpublic static " +type+ " read (final org.omg.CORBA.portable.InputStream _in)");
-	    ps.println("\t{");	
-	    ps.println("\t\treturn " + helpername +".read(_in);");
-	    ps.println("\t}");
+//  	}
+//  	else
+//  	{
+//  	    String helpername = ( originalType instanceof AliasTypeSpec ? 
+//  				  originalType.full_name() : originalType.typeName() ) + "Helper";
+//  	    /* read */
+//  	    ps.println("\tpublic static " +type+ " read (final org.omg.CORBA.portable.InputStream _in)");
+//  	    ps.println("\t{");	
+//  	    ps.println("\t\treturn " + helpername +".read(_in);");
+//  	    ps.println("\t}");
 
-	    /* write */
-	    ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");
-	    ps.println("\t{");
-	    ps.println("\t\t" +helpername + ".write(_out,_s);");
-	    ps.println("\t}");
-	    ps.println("}");
-	}
+//  	    /* write */
+//  	    ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, " + type + " _s)");
+//  	    ps.println("\t{");
+//  	    ps.println("\t\t" +helpername + ".write(_out,_s);");
+//  	    ps.println("\t}");
+//  	    ps.println("}");
+//  	}
     }
 }

@@ -71,8 +71,7 @@ public class TypeCodeTypeSpec
     {
     }
 
-    public void parse() 
-		 
+    public void parse() 		 
     {
     }
 
