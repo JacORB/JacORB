@@ -383,6 +383,13 @@ public class ClientConnection
         
         gracefulStreamClose = false;
     }
+    
+    public org.omg.ETF.Profile get_server_profile()
+    {
+        Client_TCP_IP_Transport t 
+            = (Client_TCP_IP_Transport)connection.getTransport();
+        return t.get_server_profile();
+    }
 
     public long cacheSASContext(byte[] client_authentication_token)
     {
