@@ -20,42 +20,31 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.jacorb.notification.interfaces.EventConsumer;
 
 /**
- *
- *
- * Created: Thu Jan 30 01:31:47 2003
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class TimerDeliverTask extends AbstractDeliverTask
-{
-    public void doWork() throws Disconnected, NotConnected
-    {
-        if ( getEventConsumer().hasPendingEvents() )
-        {
-            getEventConsumer().deliverPendingEvents();
+public abstract class AbstractDeliverTask extends AbstractTask {
 
-            if ( getEventConsumer().hasPendingEvents() )
-            {
-                setStatus( RESCHEDULE );
-            }
-            else
-            {
-                setStatus( DONE );
-            }
-        } else {
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("Nothing to do as the Target:"
-                              + getEventConsumer()
-                              + " has no Pending Events.");
-            }
-        }
+    private EventConsumer target_;
+
+    public void reset()
+    {
+        super.reset();
+
+        target_ = null;
+    }
+
+    public EventConsumer getEventConsumer()
+    {
+        return target_;
+    }
+
+    public void setEventConsumer( EventConsumer dest )
+    {
+        target_ = dest;
     }
 }
