@@ -4,6 +4,8 @@
 \usepackage{a4wide}
 \usepackage{times}
 \usepackage{fancyhdr}
+% Note: next line required to enable longtable to work.
+\usepackage{longtable}
 
 \sloppy
 % page headings
@@ -2220,7 +2222,7 @@ at the bidir demo in the {\tt demo} directory.
 
 
 \section{Verifying that BiDirectional GIOP is used}
-From inside of your application, it is impossible to tell whether requests
+>From inside of your application, it is impossible to tell whether requests
 arrived over a unidirectional or BiDirectional connection. Therefore, to check
 if connections are used in both directions, you can either use a network
 monitoring tool or take a look at JacORBs output to tell you if your server
@@ -2537,6 +2539,412 @@ chapter \ref{SSL}
 \subsection*{Usage}
 
 \cmdline{ks}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Configuration Properties}
+
+A comprehensive listing and description of the properties which are used 
+to configure JacORB are given in the following tables.
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{ORB Configuration}\\
+\hline
+~ \hfill \textbf Property \hfill ~ & ~ \hfill \textbf Description \hfill ~ & ~ \hfill \textbf Type \hfill ~ \endhead
+
+\hline
+\verb"ORBInitRef.<Service>" & \verb"The ORBInitRef references are"
+\verb"configured initial service objects"
+\verb"that can be resolved via the ORB"
+\verb"resolve_intial_references operation."
+\verb"File and HTTP based URLs are"
+\verb"supported." & \verb"URL" \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializer.C"
+\verb"lass.<Name>" & \verb"A portable interceptor initializer"
+\verb"class instantiated at ORB creation." & \verb"class" \\
+\hline
+\verb"jacorb.ProxyServerURL" & \verb"When applets are supported via the"
+\verb"JacORB Appligator, this is the URL"
+\verb"from which the Appligator IOR can be"
+\verb"resolved." & \verb"URL" \\
+\hline
+\verb"jacorb.orb.print_versi"
+\verb"on" & \verb"If enabled, the ORB's version number"
+\verb"is printed whenever the ORB is"
+\verb"initialized. Default is on." & \verb"boolean" \\
+\hline
+\verb"jacorb.verbosity" & \verb"Diagnostic verbosity level:"
+\verb""
+\verb"0 = off"
+\verb"1 = important messages and exceptions"
+\verb">= 3 = debug-level output (output may"
+\verb"be extensive)" & \verb"integer" \\
+\hline
+\verb"jacorb.logfile" & \verb"Output destination for diagnostic log"
+\verb"file. If not set, then diagnostics are"
+\verb"sent to standard output." & \verb"file" \\
+\hline
+\verb"jacorb.debug.dump_outg"
+\verb"oing_messages" & \verb"Hex dump outgoing messages. Default is"
+\verb"off." & \verb"boolean" \\
+\hline
+\verb"jacorb.debug.dump_inco"
+\verb"ming_messages" & \verb"Hex dump incoming messages. Default is"
+\verb"off." & \verb"boolean" \\
+\hline
+\verb"jacorb.giop_minor_vers"
+\verb"ion" & \verb"The GIOP minor version number to use"
+\verb"for newly created IORs. Default is 2." & \verb"integer" \\
+\hline
+\verb"jacorb.retries" & \verb"Number of retries if connection cannot"
+\verb"directly be established. Default is 5." & \verb"integer" \\
+\hline
+\verb"jacorb.retry_interval" & \verb"Time in milliseconds to wait between"
+\verb"retries. Default is 500." & \verb"millisec." \\
+\hline
+\verb"jacorb.outbuf_size" & \verb"Size of network buffers for outgoing"
+\verb"messages in bytes. Default is 2048." & \verb"byte" \\
+\hline
+\verb"jacorb.maxManagedBufSi"
+\verb"ze" & \verb"This is NOT the maximum buffer size"
+\verb"that can be used, but just the largest"
+\verb"size of buffers that will be kept and"
+\verb"managed. This value will be added to"
+\verb"an internal constant of 5, so the real"
+\verb"value in bytes is 2** (5 +"
+\verb"maxManagedBufSize - 1). You only need"
+\verb"to increase this value if you are"
+\verb"dealing with LOTS of LARGE data"
+\verb"structures. You may decrease it to"
+\verb"make the buffer manager release large"
+\verb"buffers immediately rather than"
+\verb"keeping them for later reuse. Default"
+\verb"is 18." & \verb"integer" \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt_timeout" & \verb"Client-side timeout. This is set to"
+\verb"non-zero in order to stop blocking"
+\verb"after specified number of"
+\verb"milliseconds. Not set by default." & \verb"millisec." \\
+\hline
+\verb"jacorb.connection.serv"
+\verb"er_timeout" & \verb"Maximum time in milliseconds that a"
+\verb"server keeps a connection open if"
+\verb"nothing happens. Not set by default." & \verb"millisec." \\
+\hline
+\verb"jacorb.reference_cachi"
+\verb"ng" & \verb"Whether or not JacORB caches objects"
+\verb"references. Not set by default." & \verb"boolean" \\
+\hline
+\verb"jacorb.hashtable_class" & \verb"The following property specifies the"
+\verb"class which is used for reference"
+\verb"caching. WeakHashtable uses"
+\verb"WeakReferences, so entries get garbage"
+\verb"collected if only the Hashtable has a"
+\verb"reference to them. This is useful if"
+\verb"you have many references to"
+\verb"short-living non-persistent CORBA"
+\verb"objects. It is only available for java"
+\verb"1.2 and above. On the other hand the"
+\verb"standard Hashtable keeps the"
+\verb"references until they are explicitly"
+\verb"deleted by calling _release(). This is"
+\verb"useful for persistent and long-living"
+\verb"CORBA objects. Defaults to Hashtable." & \verb"class" \\
+\hline
+\verb"jacorb.use_bom" & \verb"Use GIOP 1.2 byte order markers, since"
+\verb"CORBA 2.4-5. Default is off." & \verb"boolean" \\
+\hline
+\verb"jacorb.giop.add_1_0_pr"
+\verb"ofiles" & \verb"Add additional IIOP 1.0 profiles even"
+\verb"if using IIOP 1.2. Default is off." & \verb"boolean" \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.bidir_init" & \verb"This portable interceptor must be"
+\verb"configured to support bi-directional"
+\verb"GIOP. Not set by default." & \verb"class" \\
+\hline
+\verb"jacorb.ior_proxy_host" & \verb"The jacorb.ior_proxy_host and"
+\verb"jacorb.ior_proxy_port properties"
+\verb"inform the ORB what IP/port IORs"
+\verb"should contain, if the ServerSockets"
+\verb"IP/port can't be used (e.g. for"
+\verb"traffic through a firewall). WARNING:"
+\verb"this is just ‘dumb’ replacing, so you"
+\verb"have to take care of your"
+\verb"configuration! Not set by default." & \verb"node" \\
+\hline
+\verb"jacorb.ior_proxy_port" & \verb"See jacorb.ior_proxy_host above. Not"
+\verb"set by default." & \verb"port" \\
+\hline
+\verb"OAIAddr" & \verb"The Object Adapter Internet Address:"
+\verb"IP address on multi-homed host (this"
+\verb"gets encoded in object references)."
+\verb"NOTE: Addresses like 127.0.0.X will"
+\verb"only be accessible from the same"
+\verb"machine! Not set by default." & \verb"node" \\
+\hline
+\verb"OAPort" & \verb"See OAIAddr above. Not set by default." & \verb"port" \\
+\hline
+\verb"jacorb.use_appligator" & \verb"Sets whether applets are supported via"
+\verb"the JacORB Appligator. If your applets"
+\verb"don't need appligator, switch this"
+\verb"off. Default is off." & \verb"boolean" \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.standard_init" & \verb"Standard portable interceptor. DO NOT"
+\verb"REMOVE." & \verb"class" \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.standard_init" & \verb"Standard portable interceptor. DO NOT"
+\verb"REMOVE." & \verb"class" \\
+\hline
+
+\end{longtable}
+\end{small}
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{POA Configuration}\\
+\hline
+~ \hfill \textbf Property \hfill ~ & ~ \hfill \textbf Description \hfill ~ & ~ \hfill \textbf Type \hfill ~ \endhead
+
+\hline
+\verb"jacorb.poa.monitoring" & \verb"Displays a GUI monitoring tool for"
+\verb"servers. Default is off." & \verb"boolean" \\
+\hline
+\verb"jacorb.poa.thread_pool"
+\verb"_max" & \verb"Maximum thread pool configuration for"
+\verb"request processing" & \verb"integer" \\
+\hline
+\verb"jacorb.poa.thread_pool"
+\verb"_min" & \verb"Minimum thread pool configuration for"
+\verb"request processing" & \verb"integer" \\
+\hline
+\verb"jacorb.poa.thread_prio"
+\verb"rity" & \verb"If set, request processing threads in"
+\verb"the POA will run at this priority. If"
+\verb"not set or invalid, MAX_PRIORITY will"
+\verb"be used. Not set by default." & \verb"integer" \\
+\hline
+\verb"jacorb.poa.queue_max" & \verb"The size of the request queue. Clients"
+\verb"will receive Corba.TRANSIENT"
+\verb"exceptions if load exceeds this limit."
+\verb"Default is 100." & \verb"integer" \\
+\hline
+\verb"jacorb.poa.queue_max" & \verb"The size of the request queue. Clients"
+\verb"will receive Corba.TRANSIENT"
+\verb"exceptions if load exceeds this limit."
+\verb"Default is 100." & \verb"integer" \\
+\hline
+
+\end{longtable}
+\end{small}
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{Implementation Repository Configuration}\\
+\hline
+~ \hfill \textbf Property \hfill ~ & ~ \hfill \textbf Description \hfill ~ & ~ \hfill \textbf Type \hfill ~ \endhead
+
+\hline
+\verb"jacorb.use_imr" & \verb"Switch on to contact the"
+\verb"Implementation Repository (IR) on"
+\verb"every server start-up. Default is off." & \verb"boolean" \\
+\hline
+\verb"jacorb.imr.allow_auto_"
+\verb"register" & \verb"If set to on servers that don't"
+\verb"already have an entry on their first"
+\verb"call to the IR, will get automatically"
+\verb"registered. Otherwise, an"
+\verb"UnknownServer exception is thrown."
+\verb"Default is off." & \verb"boolean" \\
+\hline
+\verb"jacorb.imr.check_objec"
+\verb"t_liveness" & \verb"If set on the IR will try to ping"
+\verb"every object reference that it is"
+\verb"going to return. If the reference is"
+\verb"not alive, then TRANSIENT is thrown."
+\verb"Default is off." & \verb"boolean" \\
+\hline
+\verb"ORBInitRef.Implementat"
+\verb"ionRepository" & \verb"The initial reference for the IR." & \verb"URL" \\
+\hline
+\verb"jacorb.imr.table_file" & \verb"File in which the IR stores data." & \verb"file" \\
+\hline
+\verb"jacorb.imr.backup_file" & \verb"Backup data file for the IR." & \verb"file" \\
+\hline
+\verb"jacorb.imr.ior_file" & \verb"File to which the IR writes its IOR."
+\verb"This is usually referred to by the"
+\verb"initial reference for the IR"
+\verb"(configured above)." & \verb"file" \\
+\hline
+\verb"jacorb.imr.timeout" & \verb"Time in milliseconds that the"
+\verb"implementation will wait for a started"
+\verb"server to register. After this timeout"
+\verb"is exceeded the IR assumes the server"
+\verb"has failed to start. Default is 2000"
+\verb"(2 seconds)." & \verb"millisec." \\
+\hline
+\verb"jacorb.imr.no_of_poas" & \verb"Initial number of POAs that can be"
+\verb"registered with the IR. This is an"
+\verb"optimization used to size internal"
+\verb"data structures. This value can be"
+\verb"exceeded. Default is 100." & \verb"integer" \\
+\hline
+\verb"jacorb.imr.no_of_serve"
+\verb"rs" & \verb"Initial number of servers that can be"
+\verb"registered with the IR. This is an"
+\verb"optimization used to size internal"
+\verb"data structures. This value can be"
+\verb"exceeded. Default is 5." & \verb"integer" \\
+\hline
+\verb"jacorb.imr.connection_"
+\verb"timeout" & \verb"Time in milliseconds that the IR waits"
+\verb"until a connection from an application"
+\verb"client is terminated. Default is 2000." & \verb"millisec." \\
+\hline
+\verb"jacorb.implname" & \verb"The implementation name for persistent"
+\verb"servers. Persistent servers should set"
+\verb"this to a unique name. This is the"
+\verb"service name that is registered in the"
+\verb"IR." & \verb"name" \\
+\hline
+\verb"jacorb.java_exec" & \verb"Command used by the IR to start"
+\verb"servers." & \verb"command" \\
+\hline
+\verb"jacorb.java_exec" & \verb"Command used by the IR to start"
+\verb"servers." & \verb"command" \\
+\hline
+
+\end{longtable}
+\end{small}
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{Security Configuration}\\
+\hline
+~ \hfill \textbf Property \hfill ~ & ~ \hfill \textbf Description \hfill ~ & ~ \hfill \textbf Type \hfill ~ \endhead
+
+\hline
+\verb"OASSLPort" & \verb"The port number used by SSL, will be"
+\verb"dynamically assigned by default." & \verb"port" \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.ForwardInit" & \verb"Portable interceptor required to"
+\verb"support SSL. Not set by default." & \verb"class" \\
+\hline
+\verb"jacorb.security.access"
+\verb"_decision" & \verb"The qualified classname of access"
+\verb"decision object." & \verb"class" \\
+\hline
+\verb"jacorb.security.princi"
+\verb"pal_authenticator" & \verb"A list of qualified classnames of"
+\verb"principle authenticator objects,"
+\verb"separated by commas (no whitespaces.)."
+\verb"The first entry (that can be"
+\verb"successfully created) will be"
+\verb"available through the"
+\verb"principal_authenticator property." & \verb"class" \\
+\hline
+\verb"jacorb.ssl.socket_fact"
+\verb"ory" & \verb"The qualified classname of the SSL"
+\verb"socket factory class." & \verb"class" \\
+\hline
+\verb"jacorb.ssl.server_sock"
+\verb"et_factory" & \verb"The qualified classname of the SSL"
+\verb"server socket factory class." & \verb"class" \\
+\hline
+\verb"jacorb.security.change"
+\verb"_ssl_roles" & \verb"Exchange SSL client server roles to"
+\verb"enforce client authentication. Beware:"
+\verb"this causes problems with peers that"
+\verb"not prepared to handle this role"
+\verb"change. Default is off." & \verb"boolean" \\
+\hline
+\verb"jacorb.security.suppor"
+\verb"t_ssl" & \verb"Whether SSL security is supported."
+\verb"Default is off." & \verb"boolean" \\
+\hline
+\verb"jacorb.security.ssl.cl"
+\verb"ient.supported_options" & \verb"SSL client supported options."
+\verb"IIOP/SSL parameters (numbers are hex"
+\verb"values, without the leading 0x):"
+\verb"NoProtection = 1"
+\verb""
+\verb"EstablishTrustInClient = 40"
+\verb"EstablishTrustInTarget = 20"
+\verb"mutual authentication = 60"
+\verb"Please see the programming guide for"
+\verb"more explanation." & \verb"integer" \\
+\hline
+\verb"jacorb.security.ssl.cl"
+\verb"ient.required_options" & \verb"SSL client required options (See"
+\verb"IIOP/SSL parameters above)." & \verb"integer" \\
+\hline
+\verb"jacorb.security.ssl.se"
+\verb"rver.supported_options" & \verb"SSL server supported options (See"
+\verb"IIOP/SSL parameters above)." & \verb"integer" \\
+\hline
+\verb"jacorb.security.ssl.se"
+\verb"rver.required_options" & \verb"SSL server required options (See"
+\verb"IIOP/SSL parameters above)." & \verb"integer" \\
+\hline
+\verb"jacorb.security.keysto"
+\verb"re" & \verb"The name and location of the keystore."
+\verb"This may be absolute or relative to"
+\verb"the home directory. NOTE (for Sun JSSE"
+\verb"users): The javax.net.ssl.trustStore"
+\verb"[Password] properties doesn't seem to"
+\verb"take effect, so you may want to add"
+\verb"trusted certificates to normal"
+\verb"keystores. In this case, please set"
+\verb"the property jacorb.security.jsse."
+\verb"trustees_from_ks to on, so trusted"
+\verb"certificates are taken from the"
+\verb"keystore instead of a dedicated"
+\verb"truststore." & \verb"file" \\
+\hline
+\verb"jacorb.security.keysto"
+\verb"re_password" & \verb"The keystore password." & \verb"string" \\
+\hline
+\verb"jacorb.security.truste"
+\verb"es" & \verb"Files with public key certificates of"
+\verb"trusted Certificate Authorities (CA)."
+\verb"WARNING: If no CA certificates are"
+\verb"present, the IAIK chain verifier will"
+\verb"accept ALL otherwise valid chains." & \verb"file" \\
+\hline
+\verb"jacorb.security.defaul"
+\verb"t_user" & \verb"The name of the default key alias to"
+\verb"look up in the keystore." & \verb"name" \\
+\hline
+\verb"jacorb.security.defaul"
+\verb"t_password" & \verb"The name of the default key alias to"
+\verb"look up in the keystore." & \verb"string" \\
+\hline
+\verb"jacorb.security.iaik_d"
+\verb"ebug" & \verb"Sets IAIKS SSL classes to print debug"
+\verb"output to standard output. Default is"
+\verb"off." & \verb"boolean" \\
+\hline
+\verb"jacorb.security.jsse.t"
+\verb"rustees_from_ks" & \verb"Sun JSSE specific settings: Use the"
+\verb"keystore to take trusted certificates"
+\verb"from. Default is off." & \verb"boolean" \\
+\hline
+
+\end{longtable}
+\end{small}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
