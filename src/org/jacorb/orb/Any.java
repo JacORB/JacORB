@@ -722,7 +722,7 @@ public final class Any
 
 
 
-    public void write_value(org.omg.CORBA.portable.OutputStream output)
+    public void write_value( org.omg.CORBA.portable.OutputStream output )
     {
         int kind = typeCode.kind().value();
         // org.jacorb.util.Debug.output(3, "Any.writeValue kind " + kind );
@@ -796,15 +796,20 @@ public final class Any
             try
             {
                 if( value instanceof org.omg.CORBA.portable.Streamable )
-                {
-                    org.omg.CORBA.portable.Streamable s = (org.omg.CORBA.portable.Streamable)value;
+                { 
+                    org.omg.CORBA.portable.Streamable s = 
+                        (org.omg.CORBA.portable.Streamable)value;
                     s._write(output);
                 }
                 else if ( value instanceof org.omg.CORBA.portable.OutputStream )
-                {
+                { 
+                    byte [] internal_buf = 
+                        ((CDROutputStream)value).getInternalBuffer();
+                    
                     CDRInputStream in = 
-                        new CDRInputStream(orb, ((CDROutputStream)value).getInternalBuffer());
-                    ((CDROutputStream)output).write_value(typeCode, in );
+                        new CDRInputStream( orb, internal_buf );
+
+                    ((CDROutputStream)output).write_value( typeCode, in );                    
                 }
                 break;
             } 

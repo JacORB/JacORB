@@ -116,7 +116,9 @@ public class ParsedIOR
                                                   int min_minor )
     {
 	ProfileBody_1_1 _profile_body = null;
-	CDRInputStream in = new CDRInputStream((org.omg.CORBA.ORB)null, profile);
+	CDRInputStream in = 
+            new CDRInputStream((org.omg.CORBA.ORB)null, profile);
+
 	try
         {
 	    // look for all profiles, if we found TaggedComponents
