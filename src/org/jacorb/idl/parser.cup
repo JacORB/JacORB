@@ -427,7 +427,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U <symbol>][-W debug_level][-all][-ami_callback][-ami_polling][-d <Output Dir>][-jdk14][-i <import_package][-i2jpackage x:y][-i2jpackagefile <filename>][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-syntax] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U <symbol>][-W debug_level ][-all][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-jdk14][-i <import_package][-i2jpackage x:y][-i2jpackagefile <filename>][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-syntax] <filelist>");
     }
 
 
@@ -460,6 +460,7 @@ parser code
         System.out.println("\t-all\t\tgenerate code for all IDL files, even included ones");
         System.out.println("\t-ami_callback\t\tgenerate AMI reply handlers and sendc methods");
         System.out.println("\t-ami_polling\t\tgenerate AMI poller and sendp methods");
+        System.out.println("\t-backend classname\t\tuse classname as code generator");
         System.out.println("\t-d dir\t\troot of directory tree for output");
         System.out.println("\t-jdk14 \t\tdo extra checks for generating JDK1.4 code");
         System.out.println("\t-i <x>\t\tgenerated Java code will include \"import <x>;\"");
@@ -1713,7 +1714,8 @@ float_pt_type ::=
           float_type:f
                 {:RESULT.type_spec = f; :}
         | double_type:d
-                {:RESULT.type_spec = d; :}
+                {: RESULT.type_spec = d;
+                 :}
         ;
 
 float_type ::=
@@ -1724,8 +1726,14 @@ fixed_pt_const_type ::=
         FIXED
         ;
 
+// 
 double_type ::=
           DOUBLE
+        | LONG DOUBLE
+          {: 
+                RESULT.setLongDouble();
+                lexer.emit_warn("IDL type long double not supported by standard IDL/Java mappings!");
+          :}
         ;
 
 // #39-45
