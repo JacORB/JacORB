@@ -218,7 +218,7 @@ public class CDROutputStream
 
             if( next_frame != null && write_idx == next_frame.write_pos )
             {
-                Debug.myAssert( next_frame.length <= start + length - write_idx, 
+                Debug.myAssert( next_frame.length <= start + length - write_idx,
                                 "Deferred array does not fit!!!");
                     
                 // write a frame, i.e. a byte array 
@@ -1146,6 +1146,10 @@ public class CDROutputStream
    private final void write_TypeCode
        (final org.omg.CORBA.TypeCode value, final Hashtable tcMap)
    {
+      if (value == null)
+      {
+         throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
+      }
       int _kind = value.kind().value();
       int _mc; // member count
 
@@ -1373,21 +1377,21 @@ public class CDROutputStream
                endEncapsulation();
                break;
             default: 
-               throw new RuntimeException("Cannot handle TypeCode, kind: " + _kind);
+               throw new org.omg.CORBA.MARSHAL ("Cannot handle TypeCode with kind: " + _kind);
             }
          }
       }
       catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
       { 
          bk.printStackTrace();
-         throw new RuntimeException("org.omg.CORBA.TypeCodePackage.BadKind");
       }
-      catch (org.omg.CORBA.TypeCodePackage.Bounds bds)
+      catch (org.omg.CORBA.TypeCodePackage.Bounds b)
       { 
-         throw new RuntimeException("org.omg.CORBA.TypeCodePackage.Bounds");
+         b.printStackTrace();
       }
       catch (java.io.IOException ioe)
       {
+         ioe.printStackTrace();
       }
    }
 
@@ -1434,7 +1438,11 @@ public class CDROutputStream
         final org.omg.CORBA.portable.InputStream in
     )
     {
-        Debug.myAssert( tc != null, "Illegal null pointer for TypeCode");
+        //Debug.myAssert( tc != null, "Illegal null pointer for TypeCode");
+        if (tc == null)
+        {
+           throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
+        }
         int kind = ((TypeCode)tc)._kind();
  
         //int kind = tc.kind().value();
@@ -1725,7 +1733,7 @@ public class CDROutputStream
                             break;
                         }           
                         default:
-                            throw new RuntimeException("Unfinished implementation for unions in anys, sorry.");
+                            throw new org.omg.CORBA.MARSHAL("Unfinished implementation for unions in anys");
                     }
 
                     // write the member or default value, if any
@@ -1744,7 +1752,7 @@ public class CDROutputStream
                         write_value( tc.member_type( def_idx ), in );
                     }
                 } 
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk ){} 
                 catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
                 //            recursiveTCStack.pop();
                 break;
@@ -1766,8 +1774,7 @@ public class CDROutputStream
                         (org.omg.CORBA.TypeCode)recursiveTCMap.get(tc.id());
                     if( _tc == null )
                     {
-                        throw new RuntimeException("Recursive TypeCode not found " 
-                                                   + tc.id());
+                        throw new org.omg.CORBA.MARSHAL("Recursive TypeCode not found for " + tc.id());
                     }
                     write_value( _tc , in );
                 } 
@@ -1778,8 +1785,7 @@ public class CDROutputStream
                 break;
             }
             default:
-                throw new RuntimeException("Cannot handle TypeCode with kind " + 
-                                           kind);
+                throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
         }
     }
 

@@ -531,25 +531,24 @@ public class CDRInputStream
 
     public final org.omg.CORBA.Object read_Object()
     {
-       	org.omg.IOP.IOR ior = org.omg.IOP.IORHelper.read(this);
-	ParsedIOR pior = new ParsedIOR( ior );
+       org.omg.IOP.IOR ior = org.omg.IOP.IORHelper.read(this);
+       ParsedIOR pior = new ParsedIOR( ior );
 
-	if( pior.isNull() ) 
-        {
-	    return null;
-        }
-	else
-	{
-	    if( ! (orb instanceof org.jacorb.orb.ORB))
-            {
-		throw new RuntimeException( "Can not use the singleton ORB to receive object references" + 
-                                            ", please initialize a full ORB instead.");
-            }
-	    else
-            {
-		return ((org.jacorb.orb.ORB)orb)._getObject( pior );
-            }
-	}
+       if( pior.isNull() ) 
+       {
+          return null;
+       }
+       else
+       {
+          if( ! (orb instanceof org.jacorb.orb.ORB))
+          {
+             throw new org.omg.CORBA.MARSHAL( "Cannot use the singleton ORB to receive object references, please initialize a full ORB instead.");
+          }
+          else
+          {
+             return ((org.jacorb.orb.ORB)orb)._getObject( pior );
+          }
+       }
     }
 
     public org.omg.CORBA.Object read_Object (final java.lang.Class clz)
@@ -1306,7 +1305,11 @@ public class CDRInputStream
        final org.omg.CORBA.portable.OutputStream out
    )
    {
-	int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
+   if (tc == null)
+   {
+      throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
+   }
+   int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
 
 	switch (kind)
 	{
@@ -1585,22 +1588,22 @@ public class CDRInputStream
 			break;
 		    }
 		default:
-		    throw new RuntimeException("Unfinished implementation for unions in anys, sorry.");
+		    throw new org.omg.CORBA.MARSHAL("Unfinished implementation for unions in anys");
 		} // switch
 
 		if( member_idx != -1 )
-                {
-		    read_value( tc.member_type( member_idx ), out );
-                }
+      {
+         read_value( tc.member_type( member_idx ), out );
+      }
 		else if( def_idx != -1 )
-                {
-		    read_value( tc.member_type( def_idx ), out );
+      {
+         read_value( tc.member_type( def_idx ), out );
 		}
-	    } 
-	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
-	    catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
+	 } 
+    catch ( org.omg.CORBA.TypeCodePackage.BadKind bk ){} 
+    catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
 
-	    break;	
+    break;	
 	case 0xffffffff:
             try
             {
@@ -1610,8 +1613,7 @@ public class CDRInputStream
 
                 if( _tc == null )
                 {
-                    throw new RuntimeException("No recursive TC found for " + 
-                                               tc.id());
+                    throw new org.omg.CORBA.MARSHAL("No recursive TC found for " + tc.id());
                 }
 
                 // Debug.output(4, "++ found recursive tc " + tc.id()  );
@@ -1624,7 +1626,7 @@ public class CDRInputStream
             } 
 	    break;
 	default:
-	    throw new RuntimeException("Cannot handle TypeCode with kind " + kind);
+	    throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
 	}
     }
 
@@ -1739,24 +1741,23 @@ public class CDRInputStream
     }
 
     /**
-     * Immediateley reads a value from this stream; i.e. without any
+     * Immediately reads a value from this stream; i.e. without any
      * repository id preceding it.  The expected type of the value is given
      * by `repository_id', and the index at which the value started is
      * `index'.
      */
     private java.io.Serializable read_untyped_value (final String repository_id,
                                                      final int index, 
-						     final String codebase)
+                                                     final String codebase)
     {
         java.io.Serializable result;
-	if (repository_id.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+        if (repository_id.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
             // special handling of strings, according to spec
-	    result = read_wstring();
+           result = read_wstring();
         else if (repository_id.startsWith ("IDL:")) 
         {
             org.omg.CORBA.portable.ValueFactory factory =
-                ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory 
-                                                            (repository_id);
+                ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory (repository_id);
             if (factory == null)
                 throw new org.omg.CORBA.MARSHAL 
                     ("could not find value factory for " + repository_id);
@@ -1776,12 +1777,12 @@ public class CDRInputStream
                 org.jacorb.ir.RepositoryID.className (repository_id);
             Class c = null;
             try 
-	    {
+            {
                 c = ValueHandler.loadClass(className, codebase, null);
             } 
             catch (ClassNotFoundException e) 
             {
-                throw new RuntimeException ("class not found: " + className);
+                throw new org.omg.CORBA.MARSHAL ("class not found: " + className);
             }
             result = ValueHandler.readValue(this, index, c, 
 					    repository_id, null);
