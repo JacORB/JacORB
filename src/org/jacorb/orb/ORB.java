@@ -414,54 +414,38 @@ public final class ORB
                                org.jacorb.poa.POA poa,
                                Hashtable policy_overrides)
     {
-        String address = Environment.getProperty( "jacorb.ior_proxy_host" );
+        // get the address of the server
+        String address;
+        int port;
 
-        if( address == null )
+        //the ImR is a special case
+        if( repId.equals( "IDL:org/jacorb/imr/ImplementationRepository:1.0") )
         {
-            //property not set
             address = basicAdapter.getAddress();
         }
         else
         {
-            Debug.output( Debug.INFORMATION | Debug.ORB_MISC, 
-                          "Using proxy host " + address + " in IOR" );
+            address = getServerAddress();
         }
 
-        String port_str = Environment.getProperty( "jacorb.ior_proxy_port" );
-        int port = -1;
-
-        if( port_str != null )
+        //the ImR is a special case
+        if( repId.equals( "IDL:org/jacorb/imr/ImplementationRepository:1.0") )
         {
-            try
-            {
-                port = Integer.parseInt( port_str );
-            }
-            catch( NumberFormatException nfe )
-            {
-                throw new Error( "Unable to create int from string >>" +
-                                 port_str + "<<. " +
-                                 "(check property \"jacorb.ior_proxy_port\")" );
-            }
-
-            if( port < 0 )
-            {
-                throw new Error( "Negative port numbers are not allowed! " +
-                                 "(check property \"jacorb.ior_proxy_port\")" );
-            }
+            port = basicAdapter.getPort();
         }
         else
         {
-            //property not set
-            port = basicAdapter.getPort();
+            port = getServerPort();
         }
 
         if( ! _transient &&
             Environment.useImR() &&
             Environment.useImREndpoint() )
         {
+            //attempt to override the server IOR address with the ImR address
             try
             {
-                if (imr == null)
+                if( imr == null )
                 {
                     try
                     {
@@ -779,26 +763,24 @@ public final class ORB
          * Add this orb as the child poa's event listener. This means that the
          * ORB is always a listener to all poa events!
          */
-        poa._addPOAEventListener(this);
+        poa._addPOAEventListener( this );
 
         /* If the new POA has a persistent lifetime policy, it is registered
          * with the implementation repository if there is one and the
          * use_imr policy is set via the "jacorb.orb.use_imr" property
          */
 
-        if( poa.isPersistent())
+        if( poa.isPersistent() )
         {
             persistentPOACount++;
 
             /* Lookup the implementation repository */
 
-            if (imr == null && Environment.useImR() )
+            if( imr == null && Environment.useImR() )
             {
                 try
                 {
-                    imr = (ImRAccess)
-                        Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
-
+                    imr = (ImRAccess) Class.forName( "org.jacorb.imr.ImRAccessImpl" ).newInstance();
                     imr.connect( this );
                 }
                 catch( Exception e )
@@ -817,18 +799,88 @@ public final class ORB
 
             if( imr != null )
             {
-                /* Register the POA  */
-                String server_name = new String(Environment.implName());
+                /* Register the POA */
+                String server_name = new String( Environment.implName() );
 
-                imr.registerPOA(server_name + "/" + poa._getQualifiedName(),
-                                server_name, // logical server name
-                                basicAdapter.getAddress(),
-                                basicAdapter.getPort());
+                imr.registerPOA( server_name + "/" + poa._getQualifiedName(),
+                                 server_name, // logical server name
+                                 getServerAddress(),
+                                 getServerPort() );
             }
         }
     }
 
+    /*
+     * Return the address to use to locate the server.  Note that this
+     * address will be overwritten by the ImR address in the IOR of
+     * persistent servers if the use_imr and use_imr_endpoint properties
+     * are switched on.
+     *
+     * @return the address for the server
+     */
 
+    private String getServerAddress()
+    {
+        String address = Environment.getProperty( "jacorb.ior_proxy_host" );
+
+        if( address == null )
+        {
+            //property not set
+            address = basicAdapter.getAddress();
+        }
+        else
+        {
+            Debug.output( Debug.INFORMATION | Debug.ORB_MISC, 
+                          "Using proxy host " + address + " in IOR" );
+        }
+
+        return address;
+    }
+
+    /*
+     * Return the port to use to locate the server.  Note that this
+     * port will be overwritten by the ImR port in the IOR of
+     * persistent servers if the use_imr and use_imr_endpoint properties
+     * are switched on.
+     *
+     * @return the port for the server
+     */
+
+    private int getServerPort()
+    {
+        String port_str = Environment.getProperty( "jacorb.ior_proxy_port" );
+        int port = -1;
+
+        if( port_str != null )
+        {
+            try
+            {
+                port = Integer.parseInt( port_str );
+            }
+            catch( NumberFormatException nfe )
+            {
+                throw new Error( "Unable to create integer from string >>" +
+                                 port_str + "<<. " +
+                                 "(check property \"jacorb.ior_proxy_port\")" );
+            }
+
+            if( port < 0 )
+            {
+                throw new Error( "Negative port numbers are not allowed! " +
+                                 "(check property \"jacorb.ior_proxy_port\")" );
+            }
+
+            Debug.output( Debug.INFORMATION | Debug.ORB_MISC, 
+                          "Using proxy port " + port + " in IOR" );
+        }
+        else
+        {
+            //property not set
+            port = basicAdapter.getPort();
+        }
+
+        return port;
+    }
 
     public void poaStateChanged(org.jacorb.poa.POA poa, int new_state)
     {
