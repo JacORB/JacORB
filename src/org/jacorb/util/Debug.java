@@ -304,29 +304,6 @@ public final class Debug
         }
     }
 
-    /** throws an myAssertion violation exception if the boolean expression
-     *  is not satisfied.
-     *  @param expression the expression to be checked
-     *  @param msg_level the message level of the myAssertion
-     *  @param msg the message to be printed
-     *  @exception AssertionViolation
-     */
-
-    public static void myAssert(int msg_level, boolean expression, String msg)
-    {
-        if( canOutput( msg_level ))
-        {
-            if (! expression)
-                throw new AssertionViolation(msg);
-        }
-    }
-
-    public static void myAssert(boolean expression, String msg)
-    {
-        myAssert( 1, expression, msg );
-    }
-
-
     private static boolean exceedsMaxLogSize (int length)
     {
         if ((length + currentLogSize) >= maxLogSize)
@@ -346,41 +323,4 @@ public final class Debug
             return false;
         }
     }
-
-    /**
-     * utility method,
-     */
-    /*
-      public static void dumpBA(byte bs[])
-      {
-      int len = bs.length;
-      for (int i = 0; i < len; i++)
-      {
-      if (0 == i%20)
-      {
-      java.lang.System.out.println();
-      }
-      dumpHex(bs[i]);
-      }
-      java.lang.System.out.println();
-      }
-    */
-    /**
-     * utility method,
-     */
-    /*
-      public static void dumpHex(byte b)
-      {
-      int n1 = (b & 0xff) / 16;
-      int n2 = (b & 0xff) % 16;
-      char c1 = (char)(n1>9 ? ('A'+(n1-10)) : ('0'+n1));
-      char c2 = (char)(n2>9 ? ('A'+(n2-10)) : ('0'+n2));
-      char c3;
-      if (b>(byte)31 && b<(byte)127)
-      c3 = (char)b;
-      else
-      c3 = ' ';
-      java.lang.System.out.print(c1+(c2+" ")+c3+"  ");
-      }
-    */
 }

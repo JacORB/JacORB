@@ -26,6 +26,7 @@ import java.util.*;
 import org.jacorb.orb.TypeCode;
 import org.jacorb.util.Debug;
 
+import org.omg.CORBA.INTF_REPOS;
 import org.omg.CORBA.Any;
 
 /**
@@ -34,13 +35,13 @@ import org.omg.CORBA.Any;
  * @version $Id$
  */
 
-public class ConstantDef 
+public class ConstantDef
     extends Contained
     implements org.omg.CORBA.ConstantDefOperations
 {
-    protected static char 	    fileSeparator = 
+    protected static char 	    fileSeparator =
         System.getProperty("file.separator").charAt(0);
-    
+
     private Field                       field;
     private org.omg.CORBA.TypeCode      typeCode;
     private org.omg.CORBA.IDLType       type_def;
@@ -53,7 +54,7 @@ public class ConstantDef
      * Constructor to create constants defined with an interface
      */
 
-    public ConstantDef( Field field, 
+    public ConstantDef( Field field,
                         org.omg.CORBA.Container _defined_in,
                         org.omg.CORBA.Repository _containing_repository )
     {
@@ -65,14 +66,16 @@ public class ConstantDef
         name( field.getName());
         version = "1.0";
 
-        myContainer = 
+        myContainer =
             org.omg.CORBA.ContainedHelper.narrow( defined_in );
 
-        org.jacorb.util.Debug.myAssert( myContainer != null , 
-                                  "Constant should be in an interface!");
+        if (myContainer == null)
+        {
+            throw new INTF_REPOS ("Constant should be in an interface!");
+        }
 
         String def_in_id = myContainer.id();
-        id = def_in_id.substring(0,def_in_id.lastIndexOf(":")) + 
+        id = def_in_id.substring(0,def_in_id.lastIndexOf(":")) +
             "/" + name + ":" + version;
 
         absolute_name = myContainer.absolute_name() + "::" + name;
@@ -84,7 +87,7 @@ public class ConstantDef
         }
         catch( ClassNotFoundException cnfe )
         {
-            org.jacorb.util.Debug.output( 0, "Error: ConstantDef " + 
+            org.jacorb.util.Debug.output( 0, "Error: ConstantDef " +
                                           absolute_name() + " could not be created!");
             cnfe.printStackTrace();
         }
@@ -95,7 +98,7 @@ public class ConstantDef
      * Constructor to create constants mapped to a separate class
      */
 
-    public ConstantDef( Class c, 
+    public ConstantDef( Class c,
                         org.omg.CORBA.Container _defined_in,
                         org.omg.CORBA.Repository ir )
     {
@@ -104,31 +107,31 @@ public class ConstantDef
         defined_in = _defined_in;
         myContainer = org.omg.CORBA.ContainedHelper.narrow( defined_in );
         try
-        { 
+        {
             field = c.getDeclaredField("value");
             version = "1.0";
             String classId = c.getName();
-            if( classId.indexOf('.') > 0 ) 
+            if( classId.indexOf('.') > 0 )
             {
                 name( classId.substring( classId.lastIndexOf('.')+1));
                 String path = classId.substring(0, classId.lastIndexOf('.'));
 				id = "IDL:" + path.replace('.','/') + "/" + name + ":" + version;
 				absolute_name = myContainer.absolute_name() + "::" + name;
-            } 
-            else 
+            }
+            else
             {
                 name( classId );
                 defined_in = containing_repository;
                 id = "IDL:" + name + ":" + version;
                 absolute_name = "::" + name;
-            }	
+            }
             typeCode = TypeCodeUtil.getTypeCode( field.getType(), null );
-        } 
+        }
         catch ( Exception e )
         {
             e.printStackTrace();
-            throw new org.omg.CORBA.INTF_REPOS( ErrorMsg.IR_Not_Implemented,
-                                               org.omg.CORBA.CompletionStatus.COMPLETED_NO);
+            throw new INTF_REPOS( ErrorMsg.IR_Not_Implemented,
+                                  org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
         org.jacorb.util.Debug.output( 2, "New ConstantDef " + absolute_name());
     }
@@ -139,15 +142,21 @@ public class ConstantDef
         org.jacorb.util.Debug.output( 2, "ConstantDef " + absolute_name() + " defining.");
         value = (org.jacorb.orb.Any) orb.create_any();
         type_def = IDLType.create( typeCode, containing_repository );
-        Debug.myAssert( typeCode != null, "typeCode null!");
-        Debug.myAssert( type_def != null, "type_def null!");
+        if (typeCode == null)
+        {
+            throw new INTF_REPOS ("typeCode is null!");
+        }
+        if (type_def == null)
+        {
+            throw new INTF_REPOS ("type_def is null!");
+        }
 
-        try 
-        { 
-            value.insert_object(typeCode, 
-                                orb, 
+        try
+        {
+            value.insert_object(typeCode,
+                                orb,
                                 field.get(null) );
-        } 
+        }
         catch ( Exception e )
         {
             e.printStackTrace();
@@ -182,7 +191,10 @@ public class ConstantDef
 
     org.omg.CORBA.ConstantDescription describe_constant()
     {
-        Debug.myAssert( defined , "ConstantDef " + name + " not defined!");
+        if ( ! defined)
+        {
+            throw new INTF_REPOS ("ConstantDef " + name + " not defined!");
+        }
         if( description == null )
         {
             String def_in = null;
@@ -190,12 +202,12 @@ public class ConstantDef
                 def_in = "Global";
             else
                 def_in = myContainer.id();
-            description = 
-                new org.omg.CORBA.ConstantDescription( name, 
-                                                       id, 
-                                                       def_in, 
-                                                       version, 
-                                                       typeCode, 
+            description =
+                new org.omg.CORBA.ConstantDescription( name,
+                                                       id,
+                                                       def_in,
+                                                       version,
+                                                       typeCode,
                                                        value);
         }
         return description;
@@ -207,7 +219,7 @@ public class ConstantDef
     {
         org.omg.CORBA.Any a = orb.create_any();
         org.omg.CORBA.ConstantDescriptionHelper.insert( a, describe_constant() );
-        return new org.omg.CORBA.ContainedPackage.Description( 
+        return new org.omg.CORBA.ContainedPackage.Description(
                      org.omg.CORBA.DefinitionKind.dk_Constant, a);
     }
 
@@ -217,7 +229,3 @@ public class ConstantDef
 
 
 }
-
-
-
-

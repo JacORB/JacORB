@@ -20,6 +20,8 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTF_REPOS;
+
 public class StringDef
     extends IDLType
     implements org.omg.CORBA.StringDefOperations
@@ -31,8 +33,11 @@ public class StringDef
 
     public StringDef(org.omg.CORBA.TypeCode tc)
     {
-        org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_string, 
-                                  "Precondition volation: TypeCode must be of kind string");
+        if (tc.kind () != org.omg.CORBA.TCKind.tk_string)
+        {
+            throw new INTF_REPOS ("Precondition volation: TypeCode must be of kind string");
+        }
+
         def_kind = org.omg.CORBA.DefinitionKind.dk_String;
         type = tc;
         try
@@ -64,5 +69,3 @@ public class StringDef
     }
 
 }
-
-

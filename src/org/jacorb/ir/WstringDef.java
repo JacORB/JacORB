@@ -20,15 +20,19 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTF_REPOS;
+
 public class WstringDef
     extends StringDef
     implements org.omg.CORBA.WstringDefOperations
 {
     public WstringDef(org.omg.CORBA.TypeCode tc)
     {
-        org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_wstring, 
-                                  "Precondition volation: TypeCode must be of kind wstring, but is " + 
-                                        tc.kind().value() );
+        if (tc.kind () != org.omg.CORBA.TCKind.tk_wstring)
+        {
+            throw new INTF_REPOS ("Precondition volation: TypeCode must be of kind wstring, but is " +
+                                        tc.kind().value());
+        }
         def_kind = org.omg.CORBA.DefinitionKind.dk_Wstring;
         type = tc;
         try
@@ -42,5 +46,3 @@ public class WstringDef
     }
 
 }
-
-

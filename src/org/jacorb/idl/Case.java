@@ -263,7 +263,10 @@ class Case
 
     IdlSymbol[] getLabels()
     {
-        Environment.doAssert( labels != null, "Case labels not initialized!" );
+        if (labels == null)
+        {
+            throw new RuntimeException ("Case labels not initialized!" );
+        }
         return labels;
     }
 
@@ -275,8 +278,3 @@ class Case
 
 
 }
-
-
-
-
-

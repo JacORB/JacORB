@@ -32,10 +32,9 @@ parser code
     public static Stack scopes = new Stack();
 
     public static String currentVersion = "";
-    
+
     // Compiles out leaving no runtime dependency on Version
-    public static final String compiler_version = 
-        org.jacorb.util.Version.longVersion + " Build " + "$Date$";
+    public static final String compiler_version = org.jacorb.util.Version.longVersion;
 
     private static final String yearString = "1997-2003";
 
@@ -60,7 +59,7 @@ parser code
     public static boolean generate_stubs = true;
 
     public static boolean generate_ami_callback = false;
-	public static boolean generate_ami_polling  = false;    
+	public static boolean generate_ami_polling  = false;
 
     protected static boolean generateIncluded = false;
     protected static boolean inhibitionState = false;
@@ -142,7 +141,7 @@ parser code
                     }
                     if( argv[i].equals("-ami_polling"))
                     {
-                        throw new RuntimeException 
+                        throw new RuntimeException
                           ("Sorry, the polling model is not yet implemented.");
                         // generate_ami_polling = true;
                         // continue;
@@ -197,7 +196,7 @@ parser code
                             usage(argv, "-p");
                         package_prefix = argv[++i];
                         continue;
-                    }   
+                    }
                     if( argv[i].equals("-global_import"))
                     {
                         System.err.println("The -global_import option has been deprecated. It is no longer necessary.");
@@ -312,7 +311,7 @@ parser code
         catch( Exception e )
         {
             System.err.println( "Error: " + e.getMessage());
-            org.jacorb.idl.Environment.output( 2, e );
+            Environment.output( 2, e );
             usage(argv, e.getMessage());
         }
         return true;
@@ -359,8 +358,8 @@ parser code
 
     private static void version()
     {
-        System.out.println("JacORB IDL compiler V" +  compiler_version + 
-                           ",\n   (C) Gerald Brose, FU Berlin/XTRADYNE Technologies, " + 
+        System.out.println("JacORB IDL compiler V" +  compiler_version +
+                           ",\n   (C) Gerald Brose, FU Berlin/XTRADYNE Technologies, " +
                            yearString + ".");
     }
 

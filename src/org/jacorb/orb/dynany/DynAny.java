@@ -49,7 +49,7 @@ public class DynAny
 
    protected DynAny() {}
 
-   DynAny( org.omg.DynamicAny.DynAnyFactory dynFactory,  
+   DynAny( org.omg.DynamicAny.DynAnyFactory dynFactory,
            org.omg.CORBA.TypeCode _type)
       throws TypeMismatch
    {
@@ -62,10 +62,10 @@ public class DynAny
    public org.omg.CORBA.TypeCode type()
    {
       checkDestroyed ();
-      return type;       
+      return type;
    }
 
-   public void assign(org.omg.DynamicAny.DynAny dyn_any) 
+   public void assign(org.omg.DynamicAny.DynAny dyn_any)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -88,7 +88,6 @@ public class DynAny
    {
       checkDestroyed ();
 
-      //org.jacorb.util.Debug.myAssert( getRepresentation() != null, "DynAny not initialized");
       if ( getRepresentation() == null )
       {
          throw new BAD_INV_ORDER ("DynAny not initialized");
@@ -97,7 +96,7 @@ public class DynAny
       return dyn_any.to_any().equal( getRepresentation() );
    }
 
-   public void from_any(org.omg.CORBA.Any value) 
+   public void from_any(org.omg.CORBA.Any value)
       throws InvalidValue, TypeMismatch
    {
       checkDestroyed ();
@@ -117,8 +116,8 @@ public class DynAny
          throw new InvalidValue();
       }
    }
-    
-   public org.omg.CORBA.Any to_any() 
+
+   public org.omg.CORBA.Any to_any()
    {
       checkDestroyed ();
       org.jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
@@ -132,7 +131,7 @@ public class DynAny
       checkDestroyed ();
       anyRepresentation = null;
       type = null;
-   }    
+   }
 
    public org.omg.DynamicAny.DynAny copy()
    {
@@ -140,16 +139,16 @@ public class DynAny
       try
       {
          return dynFactory.create_dyn_any( to_any() );
-      } 
+      }
       catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode tm )
       {
          tm.printStackTrace();
-      }       
+      }
       return null;
    }
 
    /**
-    * returns the DynAny's internal any representation, 
+    * returns the DynAny's internal any representation,
     * overwritten in subclasses that represent constructed
     * types and need to traverse structures.
     */
@@ -160,7 +159,7 @@ public class DynAny
    }
 
 
-   public void insert_boolean( boolean value ) 
+   public void insert_boolean( boolean value )
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -171,7 +170,7 @@ public class DynAny
    }
 
 
-   public void insert_octet( byte value ) 
+   public void insert_octet( byte value )
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -182,7 +181,7 @@ public class DynAny
    }
 
 
-   public void insert_char(char value) 
+   public void insert_char(char value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -193,7 +192,7 @@ public class DynAny
    }
 
 
-   public void insert_short(short value) 
+   public void insert_short(short value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -204,7 +203,7 @@ public class DynAny
    }
 
 
-   public void insert_ushort(short value) 
+   public void insert_ushort(short value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -215,7 +214,7 @@ public class DynAny
    }
 
 
-   public void insert_long(int value) 
+   public void insert_long(int value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -226,7 +225,7 @@ public class DynAny
    }
 
 
-   public void insert_ulong(int value) 
+   public void insert_ulong(int value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -237,7 +236,7 @@ public class DynAny
    }
 
 
-   public void insert_float(float value) 
+   public void insert_float(float value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -248,7 +247,7 @@ public class DynAny
    }
 
 
-   public void insert_double(double value) 
+   public void insert_double(double value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -259,7 +258,7 @@ public class DynAny
    }
 
 
-   public void insert_string(java.lang.String value) 
+   public void insert_string(java.lang.String value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -270,7 +269,7 @@ public class DynAny
    }
 
 
-   public void insert_reference(org.omg.CORBA.Object value) 
+   public void insert_reference(org.omg.CORBA.Object value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -281,7 +280,7 @@ public class DynAny
    }
 
 
-   public void insert_typecode(org.omg.CORBA.TypeCode value) 
+   public void insert_typecode(org.omg.CORBA.TypeCode value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -291,7 +290,7 @@ public class DynAny
       any.insert_TypeCode(value);
    }
 
-   public void insert_longlong(long value) 
+   public void insert_longlong(long value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -301,7 +300,7 @@ public class DynAny
       any.insert_longlong(value);
    }
 
-   public void insert_ulonglong(long value) 
+   public void insert_ulonglong(long value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -311,7 +310,7 @@ public class DynAny
       any.insert_ulonglong(value);
    }
 
-   public void insert_wchar(char value) 
+   public void insert_wchar(char value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -321,7 +320,7 @@ public class DynAny
       any.insert_wchar(value);
    }
 
-   public void insert_wstring(java.lang.String value) 
+   public void insert_wstring(java.lang.String value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -331,7 +330,7 @@ public class DynAny
       any.insert_wstring(value);
    }
 
-   public void insert_any(org.omg.CORBA.Any value) 
+   public void insert_any(org.omg.CORBA.Any value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -341,7 +340,7 @@ public class DynAny
       any.insert_any(value);
    }
 
-   public void insert_dyn_any(org.omg.DynamicAny.DynAny value) 
+   public void insert_dyn_any(org.omg.DynamicAny.DynAny value)
       throws TypeMismatch
    {
       checkDestroyed ();
@@ -353,7 +352,7 @@ public class DynAny
       checkDestroyed ();
       org.omg.CORBA.Any any = getRepresentation();
       try
-      {           
+      {
          return any.extract_boolean();
       }
       catch( org.omg.CORBA.BAD_OPERATION b )
@@ -492,7 +491,7 @@ public class DynAny
       checkDestroyed ();
       org.omg.CORBA.Any any = getRepresentation();
       try
-      {   
+      {
          return any.extract_Object();
       }
       catch( org.omg.CORBA.BAD_OPERATION b )
@@ -591,11 +590,11 @@ public class DynAny
       try
       {
          return dynFactory.create_dyn_any( get_any () );
-      } 
+      }
       catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode tm )
       {
          tm.printStackTrace();
-      }       
+      }
       return null;
    }
 
@@ -624,7 +623,7 @@ public class DynAny
       return false;
    }
 
-   public boolean seek(int index)    
+   public boolean seek(int index)
    {
       checkDestroyed ();
       if( index < 0 )
@@ -664,52 +663,52 @@ public class DynAny
       _any.type( tc );
       switch( tc.kind().value() )
       {
-      case TCKind._tk_boolean : 
+      case TCKind._tk_boolean :
          _any.insert_boolean(false);
          break;
-      case TCKind._tk_short: 
+      case TCKind._tk_short:
          _any.insert_short( (short)0 );
          break;
-      case TCKind._tk_ushort:  
+      case TCKind._tk_ushort:
          _any.insert_ushort( (short)0 );
          break;
-      case TCKind._tk_long:  
+      case TCKind._tk_long:
          _any.insert_long( 0 );
          break;
-      case TCKind._tk_double:  
+      case TCKind._tk_double:
          _any.insert_double( 0 );
          break;
-      case TCKind._tk_ulong:  
+      case TCKind._tk_ulong:
          _any.insert_long( 0 );
          break;
-      case TCKind._tk_longlong:  
+      case TCKind._tk_longlong:
          _any.insert_longlong(0);
          break;
-      case TCKind._tk_ulonglong: 
+      case TCKind._tk_ulonglong:
          _any.insert_ulonglong(0);
          break;
-      case TCKind._tk_float: 
+      case TCKind._tk_float:
          _any.insert_float(0);
          break;
-      case TCKind._tk_char: 
+      case TCKind._tk_char:
          _any.insert_char((char)0);
          break;
-      case TCKind._tk_wchar: 
+      case TCKind._tk_wchar:
          _any.insert_wchar((char)0);
          break;
-      case TCKind._tk_octet: 
+      case TCKind._tk_octet:
          _any.insert_octet((byte)0);
          break;
-      case TCKind._tk_string: 
+      case TCKind._tk_string:
          _any.insert_string("");
          break;
-      case TCKind._tk_wstring: 
+      case TCKind._tk_wstring:
          _any.insert_wstring("");
          break;
-      case TCKind._tk_objref: 
+      case TCKind._tk_objref:
          _any.insert_Object(null);
          break;
-      case TCKind._tk_TypeCode: 
+      case TCKind._tk_TypeCode:
          _any.insert_TypeCode( orb.get_primitive_tc( TCKind.tk_null ) );
          break;
       case TCKind._tk_any:
@@ -721,7 +720,7 @@ public class DynAny
       case TCKind._tk_void:
          // legal TypeCodes that have no associated value
          break;
-      default: 
+      default:
          throw new TypeMismatch();
       }
       return _any;

@@ -23,19 +23,20 @@ package org.jacorb.ir;
 import java.util.*;
 import java.io.*;
 import org.jacorb.util.Debug;
+import org.omg.CORBA.INTF_REPOS;
 
 public class Container
     extends IRObject
     implements org.omg.CORBA.ContainerOperations
 {
-    protected static char 	    fileSeparator = 
+    protected static char 	    fileSeparator =
         System.getProperty("file.separator").charAt(0);
 
     protected IRObject                delegator;
 
     /** CORBA references to contained objects */
     protected Hashtable		    contained = new Hashtable();
-    
+
     /** local references to contained objects */
     protected Hashtable		    containedLocals = new Hashtable();
 
@@ -55,23 +56,25 @@ public class Container
     /**
      */
 
-    public Container( IRObject delegator, 
-                      String path, 
+    public Container( IRObject delegator,
+                      String path,
                       String full_name )
     {
         this.delegator = delegator;
         this.path = path;
         this.full_name = full_name;
-            
-        my_dir = new File( path + fileSeparator + 
+
+        my_dir = new File( path + fileSeparator +
                            ( full_name != null ? full_name : "" ) );
 
-        Debug.myAssert( my_dir.isDirectory(), "no directory : " + 
-                          path + fileSeparator + full_name);
+        if ( ! my_dir.isDirectory())
+        {
+            throw new INTF_REPOS ("no directory : " + path + fileSeparator + full_name);
+        }
 
         this.name = delegator.getName();
 
-        org.jacorb.util.Debug.output(2, "New Container full_name " + 
+        org.jacorb.util.Debug.output(2, "New Container full_name " +
                                  full_name + " name : " + name + " path: " +  path);
 
         // else: get reference from delegator, but must be postponed until later
@@ -80,11 +83,14 @@ public class Container
     /**
      */
 
-    void loadContents() 
+    void loadContents()
     {
-        this_container = 
+        this_container =
             org.omg.CORBA.ContainerHelper.narrow( delegator.getReference());
-        Debug.myAssert( this_container != null , "no container !");
+        if (this_container == null)
+        {
+            throw new INTF_REPOS ("no container !");
+        }
 
         if( delegator instanceof Contained )
         {
@@ -92,14 +98,16 @@ public class Container
             defined_in = ((Contained)delegator).defined_in();
         }
         else
-        {           
+        {
             containing_repository = org.omg.CORBA.
                 RepositoryHelper.narrow( delegator.getReference());
             defined_in = containing_repository;
         }
 
-        Debug.myAssert( containing_repository != null , 
-                          "no containing repository ");
+        if (containing_repository == null)
+        {
+            throw new INTF_REPOS ("no containing repository");
+        }
 
         String[] classes;
         String[] dirs;
@@ -111,44 +119,44 @@ public class Container
         dirs = my_dir.list( new IRFilenameFilter( null ) );
 
         // load class files in this module/package
-        if( classes != null) 
+        if( classes != null)
         {
-            String prefix = 
+            String prefix =
                 ( full_name != null ? full_name + fileSeparator : "");
 
             for( int j = 0; j< classes.length; j++ )
             {
-                try 
-                { 
-                    org.jacorb.util.Debug.output(4, "Container " +name+ " tries " + 
-                                               prefix + 
-                                               classes[j].substring( 0, classes[j].indexOf(".class")) );                                       
-                    Class cl = 
-                        RepositoryImpl.loader.loadClass( 
-                                         ( prefix + 
+                try
+                {
+                    org.jacorb.util.Debug.output(4, "Container " +name+ " tries " +
+                                               prefix +
+                                               classes[j].substring( 0, classes[j].indexOf(".class")) );
+                    Class cl =
+                        RepositoryImpl.loader.loadClass(
+                                         ( prefix +
                                            classes[j].substring( 0, classes[j].indexOf(".class"))
                                            ).replace( fileSeparator, '.') );
-                                        
-                    Contained containedObject = 
-                        Contained.createContained( cl, 
+
+                    Contained containedObject =
+                        Contained.createContained( cl,
                                                    path,
-                                                   this_container, 
+                                                   this_container,
                                                    containing_repository );
                     if( containedObject == null )
                     {
-                        org.jacorb.util.Debug.output(4, "Container: nothing created for " 
+                        org.jacorb.util.Debug.output(4, "Container: nothing created for "
                                                      + cl.getClass().getName() );
                         continue;
                     }
 
-                    org.omg.CORBA.Contained containedRef = 
+                    org.omg.CORBA.Contained containedRef =
                         Contained.createContainedReference(containedObject);
-                                        
-                    containedRef.move( this_container, 
-                                       containedRef.name(), 
+
+                    containedRef.move( this_container,
+                                       containedRef.name(),
                                        containedRef.version() );
 
-                    org.jacorb.util.Debug.output(2, "Container " + prefix + 
+                    org.jacorb.util.Debug.output(2, "Container " + prefix +
                                              " loads "+ containedRef.name() );
 
                     contained.put( containedRef.name() , containedRef );
@@ -156,78 +164,78 @@ public class Container
                     if( containedObject instanceof ContainerType )
                         ((ContainerType)containedObject).loadContents();
 
-                } 
-                catch ( ClassNotFoundException e ) 
+                }
+                catch ( ClassNotFoundException e )
                 {
                     e.printStackTrace();
                 }
-                catch ( java.lang.Throwable t ) 
+                catch ( java.lang.Throwable t )
                 {
                     t.printStackTrace();
                 }
             }
         }
-    
+
         if( dirs != null)
         {
             for( int k = 0; k < dirs.length; k++ )
             {
                 if( !dirs[k].endsWith("Package"))
                 {
-                    File f = new File( my_dir.getAbsolutePath() + 
-                                       fileSeparator + 
+                    File f = new File( my_dir.getAbsolutePath() +
+                                       fileSeparator +
                                        dirs[k] );
-                    try 
+                    try
                     {
                         String [] classList = f.list();
                         if( classList != null && classList.length > 0)
                         {
-//                              org.jacorb.util.Debug.output(2, "Container " + 
-//                                                       full_name +  " inspecting "  +  
-//                                                       dirs[k] + " trying: " + 
+//                              org.jacorb.util.Debug.output(2, "Container " +
+//                                                       full_name +  " inspecting "  +
+//                                                       dirs[k] + " trying: " +
 //  (( full_name != null ? full_name + "." + dirs[k]: dirs[k] ) +
 //                                      "." + "_" + dirs[k] + "Module" ).replace( fileSeparator, '.') );
 
-                            Class moduleClass = 
-                                RepositoryImpl.loader.loadClass( 
+                            Class moduleClass =
+                                RepositoryImpl.loader.loadClass(
                                   (
                                    ( full_name != null ? full_name + "." + dirs[k]: dirs[k] ) +
                                    "." + "_" + dirs[k] + "Module" ).replace( fileSeparator, '.'));
-                            
-                            ModuleDef m = 
+
+                            ModuleDef m =
                                 new ModuleDef( path,
-                                               ( full_name != null ? 
-                                                 full_name + fileSeparator : 
-                                                 "" 
+                                               ( full_name != null ?
+                                                 full_name + fileSeparator :
+                                                 ""
                                                  ) + dirs[k],
                                                this_container,
                                                containing_repository );
-                            
-                            org.omg.CORBA.ModuleDef moduleRef = 
-                                org.omg.CORBA.ModuleDefHelper.narrow( 
-                                    RepositoryImpl.poa.servant_to_reference( 
+
+                            org.omg.CORBA.ModuleDef moduleRef =
+                                org.omg.CORBA.ModuleDefHelper.narrow(
+                                    RepositoryImpl.poa.servant_to_reference(
                                         new org.omg.CORBA.ModuleDefPOATie( m ) ));
 
                             m.setReference( moduleRef );
                             m.loadContents();
 
-                            org.jacorb.util.Debug.output(2, "Container " + 
-                                                     full_name + 
+                            org.jacorb.util.Debug.output(2, "Container " +
+                                                     full_name +
                                                      " puts module " + dirs[k] );
                             m.move( this_container, m.name(), m.version() );
                             contained.put( m.name() , moduleRef );
                             containedLocals.put( m.name(), m );
                         }
-                    } 
+                    }
                     catch( ClassNotFoundException c )
                     {
-                        org.jacorb.util.Debug.output(2, "No module meta data: " + 
+                        org.jacorb.util.Debug.output(2, "No module meta data: " +
                                                  c.getMessage() );
                         org.jacorb.util.Debug.output(4, c );
                     }
                     catch ( Exception e )
-                    {                       
-                        e.printStackTrace(); 
+                    {
+                        e.printStackTrace();
                     }
                 }
             }
@@ -248,24 +256,27 @@ public class Container
     }
 
 
-    public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type, 
+    public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type,
                                               boolean exclude_inherited)
     {
-        Debug.myAssert( defined , "contents undefined");
+        if ( ! defined)
+        {
+            throw new INTF_REPOS ("contents undefined");
+        }
 
         Hashtable filtered = new Hashtable();
 
         if( limit_type.value() == org.omg.CORBA.DefinitionKind._dk_all )
         {
             filtered = contained;
-        } 
-        else 
+        }
+        else
         {
             Enumeration f = contained.keys();
             while( f.hasMoreElements() )
             {
                 Object k = f.nextElement();
-                org.omg.CORBA.Contained c = 
+                org.omg.CORBA.Contained c =
                     (org.omg.CORBA.Contained)contained.get( k );
                 if( c.def_kind().value() == limit_type.value() )
                     filtered.put( k, c );
@@ -273,7 +284,7 @@ public class Container
         }
 
         Enumeration e = filtered.elements();
-        org.omg.CORBA.Contained[] result = 
+        org.omg.CORBA.Contained[] result =
             new org.omg.CORBA.Contained[ filtered.size() ];
 
         for( int i = 0; i < filtered.size(); i++ )
@@ -292,7 +303,7 @@ public class Container
         String rest_of_name;
         String name;
 
-        if( scopedname.startsWith("::") )       
+        if( scopedname.startsWith("::") )
         {
             name = scopedname.substring(2);
         }
@@ -303,19 +314,19 @@ public class Container
         {
             top_level_name = name.substring( 0, name.indexOf("::") );
             rest_of_name = name.substring( name.indexOf("::") + 2);
-        } 
-        else 
+        }
+        else
         {
             top_level_name = name;
             rest_of_name = null;
         }
-		
-        org.omg.CORBA.Contained top = 
+
+        org.omg.CORBA.Contained top =
             (org.omg.CORBA.Contained)contained.get( top_level_name );
 
         if( top == null )
         {
-            org.jacorb.util.Debug.output(2,"Container " + this.name + 
+            org.jacorb.util.Debug.output(2,"Container " + this.name +
                                      " top " + top_level_name + " not found ");
             return null;
         }
@@ -324,9 +335,9 @@ public class Container
         {
             return top;
         }
-        else 
+        else
         {
-            org.omg.CORBA.Container topContainer = 
+            org.omg.CORBA.Container topContainer =
                 org.omg.CORBA.ContainerHelper.narrow( top );
             if( topContainer != null )
             {
@@ -334,23 +345,23 @@ public class Container
             }
             else
             {
-                org.jacorb.util.Debug.output(2,"Container " + this.name +" " + 
-                                         scopedname + " not found, top " + 
+                org.jacorb.util.Debug.output(2,"Container " + this.name +" " +
+                                         scopedname + " not found, top " +
                                          top.getClass().getName());
-                return null;			
+                return null;
             }
         }
     }
 
-    public org.omg.CORBA.Contained[] lookup_name( String search_name, 
-                                                  int levels_to_search, 
-                                                  org.omg.CORBA.DefinitionKind limit_type, 
+    public org.omg.CORBA.Contained[] lookup_name( String search_name,
+                                                  int levels_to_search,
+                                                  org.omg.CORBA.DefinitionKind limit_type,
                                                   boolean exclude_inherited)
     {
         if( levels_to_search == 0 )
             return null;
 
-        org.omg.CORBA.Contained[] c = 
+        org.omg.CORBA.Contained[] c =
             contents( limit_type, exclude_inherited );
 
         Hashtable found = new Hashtable();
@@ -366,19 +377,19 @@ public class Container
             {
                 if( c[i] instanceof org.omg.CORBA.Container )
                 {
-                    org.omg.CORBA.Contained[] tmp_seq = 
-                        ((org.omg.CORBA.Container)c[i]).lookup_name( search_name, 
-                                                                     levels_to_search-1, 
-                                                                     limit_type, 
+                    org.omg.CORBA.Contained[] tmp_seq =
+                        ((org.omg.CORBA.Container)c[i]).lookup_name( search_name,
+                                                                     levels_to_search-1,
+                                                                     limit_type,
                                                                      exclude_inherited);
                     if( tmp_seq != null )
                         for( int j = 0; j < tmp_seq.length; j++)
                             found.put( tmp_seq[j], "" );
                 }
-            } 			
+            }
         }
 
-		
+
         org.omg.CORBA.Contained[] result = new org.omg.CORBA.Contained[ found.size() ];
         int idx = 0;
 
@@ -421,7 +432,7 @@ public class Container
      * not supported
      */
 
-    public org.omg.CORBA.ExceptionDef create_exception(java.lang.String id, java.lang.String name , java.lang.String version, org.omg.CORBA.StructMember[] member ) 
+    public org.omg.CORBA.ExceptionDef create_exception(java.lang.String id, java.lang.String name , java.lang.String version, org.omg.CORBA.StructMember[] member )
     {
         return null;
     }
@@ -431,9 +442,9 @@ public class Container
      */
 
     public org.omg.CORBA.InterfaceDef create_interface(
-                    /*RepositoryId*/ String id, 
+                    /*RepositoryId*/ String id,
                     /*Identifier*/ String name,
-                    /*VersionSpec*/ String version, 
+                    /*VersionSpec*/ String version,
                     /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces,
                     boolean is_abstract )
     {
@@ -444,9 +455,9 @@ public class Container
      * not supported
      */
 
-    public org.omg.CORBA.ValueBoxDef create_value_box(java.lang.String id, 
-                                                      java.lang.String name, 
-                                                      java.lang.String version, 
+    public org.omg.CORBA.ValueBoxDef create_value_box(java.lang.String id,
+                                                      java.lang.String name,
+                                                      java.lang.String version,
                                                       org.omg.CORBA.IDLType type)
     {
         return null;
@@ -458,15 +469,15 @@ public class Container
      */
 
     public  org.omg.CORBA.ValueDef create_value(
-                                     java.lang.String id, 
-                                     java.lang.String name, 
+                                     java.lang.String id,
+                                     java.lang.String name,
                                      java.lang.String version,
-                                     boolean is_custom, 
-                                     boolean is_abstract, 
-                                     org.omg.CORBA.ValueDef base_value, 
-                                     boolean is_truncatable, 
-                                     org.omg.CORBA.ValueDef[] abstract_base_values, 
-                                     org.omg.CORBA.InterfaceDef[] supported_interfaces, 
+                                     boolean is_custom,
+                                     boolean is_abstract,
+                                     org.omg.CORBA.ValueDef base_value,
+                                     boolean is_truncatable,
+                                     org.omg.CORBA.ValueDef[] abstract_base_values,
+                                     org.omg.CORBA.InterfaceDef[] supported_interfaces,
                                      org.omg.CORBA.Initializer[] initializers)
     {
         return null;
@@ -477,22 +488,14 @@ public class Container
      * not supported
      */
 
-    public org.omg.CORBA.NativeDef create_native(java.lang.String id, 
-                                                 java.lang.String name, 
+    public org.omg.CORBA.NativeDef create_native(java.lang.String id,
+                                                 java.lang.String name,
                                                  java.lang.String version)
     {
         return null;
     }
- 
+
     public void destroy(){}
 
 
 }
-
-
-
-
-
-
-
-

@@ -28,6 +28,7 @@ import org.jacorb.ir.RepositoryID;
 import org.jacorb.util.*;
 
 import org.omg.CORBA.TCKind;
+import org.omg.CORBA.INTERNAL;
 import org.omg.PortableServer.*;
 
 /**
@@ -103,7 +104,7 @@ public class CDROutputStream
 
     /** The chunking flag is either 0 (no chunking) or 0x00000008 (chunking),
         to be bitwise or'ed into value tags. */
-    private int chunkingFlag = 0; 
+    private int chunkingFlag = 0;
 
     private static boolean useBOM = false;
     private static boolean useIndirection = true;
@@ -232,16 +233,15 @@ public class CDROutputStream
             }
         }
 
-//          Debug.myAssert( 1, skip_count <= read_idx, " skip count " +
-//                          skip_count + " > read_idx " + read_idx + "  !");
-
         while( write_idx < start + length )
         {
 
             if( next_frame != null && write_idx == next_frame.write_pos )
             {
-                Debug.myAssert( next_frame.length <= start + length - write_idx,
-                                "Deferred array does not fit!!!");
+                if ( ! (next_frame.length <= start + length - write_idx))
+                {
+                    throw new INTERNAL ("Deferred array does not fit");
+                }
 
                 // write a frame, i.e. a byte array
                 out.write( next_frame.buf, next_frame.start, next_frame.length );
@@ -1559,7 +1559,6 @@ public class CDROutputStream
     public final void write_value ( final org.omg.CORBA.TypeCode tc,
                                     final org.omg.CORBA.portable.InputStream in )
     {
-        //Debug.myAssert( tc != null, "Illegal null pointer for TypeCode");
         if (tc == null)
         {
            throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
@@ -2179,56 +2178,56 @@ public class CDROutputStream
             if (value instanceof org.omg.CORBA.portable.IDLEntity)
             {
                 java.lang.reflect.Method writeMethod = null;
-                if (cls != org.omg.CORBA.Any.class) 
+                if (cls != org.omg.CORBA.Any.class)
                 {
                     String helperClassName = cls.getName() + "Helper";
-                    
-                    try 
+
+                    try
                     {
-                        Class helperClass = 
+                        Class helperClass =
                             cls.getClassLoader().loadClass(helperClassName);
-                        Class[] paramTypes = 
+                        Class[] paramTypes =
                             { org.omg.CORBA.portable.OutputStream.class, cls };
                         writeMethod = helperClass.getMethod("write", paramTypes);
                     }
-                    catch (ClassNotFoundException e) 
+                    catch (ClassNotFoundException e)
                     {
                         throw new org.omg.CORBA.MARSHAL(
-                                "Error loading class " + helperClassName 
+                                "Error loading class " + helperClassName
                                 + ": " + e);
                     }
-                    catch (NoSuchMethodException e) 
+                    catch (NoSuchMethodException e)
                     {
                         throw new org.omg.CORBA.MARSHAL(
-                                "No write method in helper class " 
+                                "No write method in helper class "
                                 + helperClassName + ": " + e);
                     }
                 }
                 write_value_header( repository_ids, codebase );
                 start_chunk();
-                if (writeMethod == null) 
+                if (writeMethod == null)
                 {
                     write_any((org.omg.CORBA.Any)value);
                 }
-                else 
+                else
                 {
-                    try 
+                    try
                     {
                         writeMethod.invoke(null, new Object[] { this, value });
                     }
-                    catch (IllegalAccessException e) 
+                    catch (IllegalAccessException e)
                     {
                         throw new org.omg.CORBA.MARSHAL("Internal error: " + e);
                     }
-                    catch (java.lang.reflect.InvocationTargetException e) 
+                    catch (java.lang.reflect.InvocationTargetException e)
                     {
                         throw new org.omg.CORBA.MARSHAL(
-                                "Exception marshaling IDLEntity: " 
+                                "Exception marshaling IDLEntity: "
                                 + e.getTargetException());
                     }
                 }
                 end_chunk();
-                
+
             }
             else
             {
@@ -2236,7 +2235,7 @@ public class CDROutputStream
                     chunkingFlag = 0x00000008;
                 write_value_header( repository_ids, codebase );
                 start_chunk();
-                ValueHandler.writeValue (this, 
+                ValueHandler.writeValue (this,
                                          ValueHandler.writeReplace(value));
                 end_chunk();
             }
@@ -2249,7 +2248,7 @@ public class CDROutputStream
 
     private void start_chunk()
     {
-        if (chunkingFlag > 0) 
+        if (chunkingFlag > 0)
         {
             write_previous_chunk_size();
             valueNestingLevel++;
@@ -2259,16 +2258,16 @@ public class CDROutputStream
 
     private void end_chunk()
     {
-        if (chunkingFlag > 0) 
+        if (chunkingFlag > 0)
         {
             write_previous_chunk_size();
-            write_long(-valueNestingLevel); 
-            if ( --valueNestingLevel == 0 ) 
+            write_long(-valueNestingLevel);
+            if ( --valueNestingLevel == 0 )
             {
                 // ending chunk for outermost value
                 chunkingFlag = 0;
             }
-            else 
+            else
             {
                 // start continuation chunk for outer value
                 skip_chunk_size_tag();
@@ -2290,7 +2289,7 @@ public class CDROutputStream
                 pos = chunk_size_tag_pos;      // the tag will be overwritten
                 index = chunk_size_tag_index;  //            by subsequent data
             }
-            else 
+            else
             {
                 // go to the beginning of the chunk and write the size tag
 
@@ -2298,14 +2297,14 @@ public class CDROutputStream
 
                 int current_pos = pos;
                 int current_idx = index;
-                
+
                 pos = chunk_size_tag_pos;
                 index = chunk_size_tag_index;
                 write_long( current_pos - chunk_octets_pos );
-                
+
                 pos = current_pos;
                 index = current_idx;
-                
+
             }
             chunk_size_tag_pos = -1; // no chunk is currently open
         }
@@ -2313,7 +2312,7 @@ public class CDROutputStream
 
     private void skip_chunk_size_tag()
     {
-        // remember where we are right now, 
+        // remember where we are right now,
         chunk_size_tag_pos = pos;
         chunk_size_tag_index = index;
 

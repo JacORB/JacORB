@@ -24,16 +24,16 @@ import org.jacorb.orb.TypeCode;
 import org.omg.CORBA.*;
 import java.lang.reflect.*;
 
-public abstract class Contained 
+public abstract class Contained
     extends IRObject
     implements org.omg.CORBA.ContainedOperations
 {
     protected String id;
 
     /* IDL name from the root of the class path to the leaf */
-    protected String absolute_name; 
+    protected String absolute_name;
     /* from the root of the class path to the leaf */
-    String full_name; 
+    String full_name;
     protected String version = "1.0";
 
     protected org.omg.CORBA.Container defined_in;
@@ -44,17 +44,17 @@ public abstract class Contained
     private static Class stubClass;
     private static Class exceptClass;
     private static boolean class_init;
-    
+
     public Contained()
     {
     }
- 
-    public Contained( String _id, 
-                      String _name, 
-                      String _version, 
-                      org.omg.CORBA.Container _defined_in, 
-                      String _absolute_name, 
-                      org.omg.CORBA.Repository _containing_repository ) 
+
+    public Contained( String _id,
+                      String _name,
+                      String _version,
+                      org.omg.CORBA.Container _defined_in,
+                      String _absolute_name,
+                      org.omg.CORBA.Repository _containing_repository )
     {
         id = _id;
         name = _name;
@@ -65,25 +65,25 @@ public abstract class Contained
     }
 
 
-    public static Contained createContained( Class c, 
+    public static Contained createContained( Class c,
                                              String path,
-                                             org.omg.CORBA.Container _defined_in, 
-                                             org.omg.CORBA.Repository ir ) 
+                                             org.omg.CORBA.Container _defined_in,
+                                             org.omg.CORBA.Repository ir )
     {
         if( !class_init )
         {
-            try 
+            try
             {
-                intfClass = 
+                intfClass =
                     RepositoryImpl.loader.loadClass("org.omg.CORBA.Object");
-                idlClass = 
+                idlClass =
                     RepositoryImpl.loader.loadClass("org.omg.CORBA.portable.IDLEntity");
-                stubClass = 
+                stubClass =
                     RepositoryImpl.loader.loadClass("org.omg.CORBA.portable.ObjectImpl");
-                exceptClass = 
+                exceptClass =
                     RepositoryImpl.loader.loadClass("org.omg.CORBA.UserException");
                 class_init = true;
-            } 
+            }
             catch ( ClassNotFoundException cnf )
             {
                 // debug:  cnf.printStackTrace();
@@ -94,13 +94,13 @@ public abstract class Contained
         {
             return null; // don't care for stubs
         }
-        else if( c.isInterface()) 
+        else if( c.isInterface())
         {
             if( intfClass.isAssignableFrom( c ) )
             {
-                try 
+                try
                 {
-                    Class helperClass = 
+                    Class helperClass =
                         RepositoryImpl.loader.loadClass(c.getName() + "Helper");
 
                     if( helperClass == null )
@@ -108,18 +108,18 @@ public abstract class Contained
                         return null;
                     }
 
-                    org.jacorb.ir.InterfaceDef idef = 
+                    org.jacorb.ir.InterfaceDef idef =
                         new org.jacorb.ir.InterfaceDef( c, helperClass, path, _defined_in, ir );
 
                     return idef;
-                } 
+                }
                 catch ( ClassNotFoundException e )
                 {
                     // debug: e.printStackTrace();
                     return null;
                 }
             }
-            else 
+            else
             {
                 try
                 {
@@ -132,61 +132,61 @@ public abstract class Contained
                     return null;
                 }
             }
-        } 
+        }
         else if( exceptClass.isAssignableFrom( c ))
         {
             /*
-            try 
-            { 
-            */         
+            try
+            {
+            */
                 return new ExceptionDef(c, _defined_in, ir);
                 /*
-            } 
+            }
             catch ( Exception e )
             {
-                // debug: 
+                // debug:
                 e.printStackTrace();
                 return null;
             }
                 */
-        } 
+        }
         else if( idlClass.isAssignableFrom( c ) )
         {
             try
             {
-                Class helperClass = 
+                Class helperClass =
                     RepositoryImpl.loader.loadClass( c.getName()+"Helper");
 
-                org.omg.CORBA.TypeCode tc = 
+                org.omg.CORBA.TypeCode tc =
                     (org.omg.CORBA.TypeCode)helperClass.getDeclaredMethod("type", null).invoke(null,null);
                 switch( tc.kind().value())
                 {
-                case org.omg.CORBA.TCKind._tk_struct:                      
+                case org.omg.CORBA.TCKind._tk_struct:
                     return new StructDef( c, path, _defined_in, ir );
-                case org.omg.CORBA.TCKind._tk_enum:                
+                case org.omg.CORBA.TCKind._tk_enum:
                     return new EnumDef( c, _defined_in, ir );
-                case org.omg.CORBA.TCKind._tk_union:         
+                case org.omg.CORBA.TCKind._tk_union:
                     return new UnionDef( c, path,  _defined_in, ir );
-                default: 
-                    return null;                            
+                default:
+                    return null;
                 }
             }
             catch( ClassNotFoundException  e )
-            {     
+            {
                 // may happen for pseudo IDL
                 org.jacorb.util.Debug.output(2, e );
             }
             catch( Exception  e )
-            {               
+            {
                 e.printStackTrace();
             }
             return null;
-        } 
+        }
         else if( c.getName().endsWith("Helper"))
         {
             try
             {
-                org.omg.CORBA.TypeCode tc = 
+                org.omg.CORBA.TypeCode tc =
                     (org.omg.CORBA.TypeCode)c.getDeclaredMethod("type",null).invoke(null,null);
                 if( tc.kind() == org.omg.CORBA.TCKind.tk_alias )
                 {
@@ -198,7 +198,7 @@ public abstract class Contained
             }
             return null;
         }
-        else 
+        else
         {
             return null;
         }
@@ -206,57 +206,59 @@ public abstract class Contained
 
     public static org.omg.CORBA.Contained createContainedReference( Contained containedObject )
     {
-        org.jacorb.util.Debug.myAssert( containedObject != null, 
-                                  "Precondition violated in Contained createContainedReference");
+        if ( containedObject == null)
+        {
+            throw new INTF_REPOS ("Precondition violated in Contained createContainedReference");
+        }
 
         org.omg.PortableServer.Servant servant = null;
-        
+
         switch ( containedObject.def_kind().value() )
         {
         case org.omg.CORBA.DefinitionKind._dk_Interface:
-            servant = 
+            servant =
                 new org.omg.CORBA.InterfaceDefPOATie( (org.omg.CORBA.InterfaceDefOperations)containedObject );
             break;
         case org.omg.CORBA.DefinitionKind._dk_Exception:
-            servant = 
+            servant =
                 new org.omg.CORBA.ExceptionDefPOATie( (org.omg.CORBA.ExceptionDefOperations)containedObject );
             break;
         case org.omg.CORBA.DefinitionKind._dk_Struct:
-            servant = 
+            servant =
                 new org.omg.CORBA.StructDefPOATie( (org.omg.CORBA.StructDefOperations)containedObject );
             break;
         case org.omg.CORBA.DefinitionKind._dk_Enum:
-            servant = 
+            servant =
                 new org.omg.CORBA.EnumDefPOATie( (org.omg.CORBA.EnumDefOperations)containedObject );
             break;
         case org.omg.CORBA.DefinitionKind._dk_Union:
-            servant = 
+            servant =
                 new org.omg.CORBA.UnionDefPOATie( (org.omg.CORBA.UnionDefOperations)containedObject );
             break;
         case org.omg.CORBA.DefinitionKind._dk_Module:
-            servant = 
+            servant =
                 new org.omg.CORBA.ModuleDefPOATie( (org.omg.CORBA.ModuleDefOperations)containedObject );
             break;
         case org.omg.CORBA.DefinitionKind._dk_Alias:
-            servant = 
+            servant =
                 new org.omg.CORBA.AliasDefPOATie( (org.omg.CORBA.AliasDefOperations)containedObject );
             break;
         case org.omg.CORBA.DefinitionKind._dk_Constant:
-            servant = 
+            servant =
                 new org.omg.CORBA.ConstantDefPOATie( (org.omg.CORBA.ConstantDefOperations)containedObject );
             break;
-        default: 
-            org.jacorb.util.Debug.output(1, 
-                           "WARNING, createContainedReference returns null for dk " + 
+        default:
+            org.jacorb.util.Debug.output(1,
+                           "WARNING, createContainedReference returns null for dk " +
                                          containedObject.def_kind().value() );
             return null;
         }
-        
+
         try
         {
-            org.omg.CORBA.Contained containedRef = 
+            org.omg.CORBA.Contained containedRef =
                 org.omg.CORBA.ContainedHelper.narrow(RepositoryImpl.poa.servant_to_reference( servant ));
-            
+
             containedObject.setReference( containedRef );
             return containedRef;
         }
@@ -308,15 +310,15 @@ public abstract class Contained
     }
 
     public org.omg.CORBA.Repository containing_repository()
-    {	
+    {
         return containing_repository;
     }
 
     public abstract org.omg.CORBA.ContainedPackage.Description describe();
 
 
-    public void move(org.omg.CORBA.Container new_container, 
-                     java.lang.String new_name, 
+    public void move(org.omg.CORBA.Container new_container,
+                     java.lang.String new_name,
                      java.lang.String new_version)
     {
         if( defined_in != null )
@@ -324,10 +326,6 @@ public abstract class Contained
 
         defined_in = new_container;
         version = new_version;
-        name = new_name; 
+        name = new_name;
     }
 }
-
-
-
-

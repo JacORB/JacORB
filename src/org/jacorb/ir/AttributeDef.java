@@ -25,9 +25,10 @@ import org.jacorb.util.Debug;
 import java.lang.reflect.*;
 import java.util.*;
 
+import org.omg.CORBA.INTF_REPOS;
 import org.omg.CORBA.TypeCode;
 
-public class AttributeDef 
+public class AttributeDef
     extends Contained
     implements org.omg.CORBA.AttributeDefOperations
 {
@@ -37,7 +38,7 @@ public class AttributeDef
     private Method method = null;
     private boolean defined = false;
 
-    public AttributeDef( java.lang.reflect.Method m, 
+    public AttributeDef( java.lang.reflect.Method m,
                          String attrTypeName,
                          org.omg.CORBA.AttributeMode mode,
                          org.omg.CORBA.Container _defined_in,
@@ -51,11 +52,11 @@ public class AttributeDef
 
         try
         {
-            typeCode = 
-                TypeCodeUtil.getTypeCode( m.getReturnType(), 
-                                          RepositoryImpl.loader, 
+            typeCode =
+                TypeCodeUtil.getTypeCode( m.getReturnType(),
+                                          RepositoryImpl.loader,
                                           null,
-                                          attrTypeName );            
+                                          attrTypeName );
         }
         catch( ClassNotFoundException cnfe )
         {
@@ -66,19 +67,24 @@ public class AttributeDef
         defined_in = _defined_in;
         containing_repository = _containing_repository;
 
-        Debug.myAssert( containing_repository != null, 
-                      "containing_repository null!");
-        Debug.myAssert( defined_in != null, "Defined?in null!");
+        if (containing_repository == null)
+        {
+            throw new INTF_REPOS ("containing_repository null");
+        }
+        if (defined_in == null)
+        {
+            throw new INTF_REPOS ("defined_in null");
+        }
 
-        org.omg.CORBA.Contained myContainer = 
+        org.omg.CORBA.Contained myContainer =
             org.omg.CORBA.ContainedHelper.narrow( defined_in );
         String interface_id = myContainer.id();
 
-        id = interface_id.substring(interface_id.lastIndexOf(':')-1)  + 
+        id = interface_id.substring(interface_id.lastIndexOf(':')-1)  +
             name() + ":" + version();
         absolute_name = myContainer.absolute_name() + "::" + name();
 
-        org.jacorb.util.Debug.output(2, "New AttributeDef, name: " + name() +  
+        org.jacorb.util.Debug.output(2, "New AttributeDef, name: " + name() +
                                  " " + absolute_name);
 
     }
@@ -95,7 +101,10 @@ public class AttributeDef
 
     public void type_def(org.omg.CORBA.IDLType a)
     {
-        Debug.myAssert( defined == true, "Attribute not defined" );
+        if (defined == false)
+        {
+            throw new INTF_REPOS ("Attribute not defined" );
+        }
         type_def = a;
     }
 
@@ -112,11 +121,11 @@ public class AttributeDef
     org.omg.CORBA.AttributeDescription describe_attribute()
     {
         return new org.omg.CORBA.AttributeDescription(
-                                        name(), 
-                                        id(), 
-                                        org.omg.CORBA.ContainedHelper.narrow(defined_in).id(), 
-                                        version(), 
-                                        type(), 
+                                        name(),
+                                        id(),
+                                        org.omg.CORBA.ContainedHelper.narrow(defined_in).id(),
+                                        version(),
+                                        type(),
                                         mode());
     }
 
@@ -132,7 +141,7 @@ public class AttributeDef
     {
         org.omg.CORBA.Any a = orb.create_any();
         org.omg.CORBA.AttributeDescriptionHelper.insert( a, describe_attribute() );
-        return new org.omg.CORBA.ContainedPackage.Description( 
+        return new org.omg.CORBA.ContainedPackage.Description(
               org.omg.CORBA.DefinitionKind.dk_Attribute, a);
     }
 
@@ -143,6 +152,3 @@ public class AttributeDef
 
 
 }
-
-
-

@@ -28,8 +28,9 @@ import org.jacorb.util.Debug;
 import java.lang.reflect.*;
 import java.util.*;
 import org.omg.CORBA.ExceptionDefPOATie;
+import org.omg.CORBA.INTF_REPOS;
 
-public class OperationDef 
+public class OperationDef
     extends Contained
     implements org.omg.CORBA.OperationDefOperations
 {
@@ -51,16 +52,22 @@ public class OperationDef
 
     private boolean defined = false;
 
-    public OperationDef( Method m, 
-                         Class def_in, 
-                         Class irHelper, 
+    public OperationDef( Method m,
+                         Class def_in,
+                         Class irHelper,
                          org.omg.CORBA.InterfaceDef i_def )
     {
         def_kind = org.omg.CORBA.DefinitionKind.dk_Operation;
         name( m.getName());
 
-        Debug.myAssert( def_in != null, "Class argument null" );
-        Debug.myAssert( i_def != null, "Idef argument null" );
+        if (def_in == null)
+        {
+           throw new INTF_REPOS ("Class argument null");
+        }
+        if (i_def == null)
+        {
+           throw new INTF_REPOS ("Idef argument null" );
+        }
 
         id( RepositoryID.toRepositoryID( RepositoryID.className( i_def.id())
                                          + "/" + name(), false));
@@ -72,7 +79,7 @@ public class OperationDef
         absolute_name = i_def.absolute_name() + "::" + name;
         method = m;
 
-        org.jacorb.util.Debug.output(2, "New OperationDef, name: " + name + 
+        org.jacorb.util.Debug.output(2, "New OperationDef, name: " + name +
                                  " "  + absolute_name );
         Hashtable irInfo = null;
         opInfo = null;
@@ -99,15 +106,15 @@ public class OperationDef
                 returnTypeName = opInfo.substring(0,opInfo.indexOf("("));
 
 
-            StringTokenizer strtok = 
-                new StringTokenizer( opInfo.substring( opInfo.indexOf("(") + 1, 
+            StringTokenizer strtok =
+                new StringTokenizer( opInfo.substring( opInfo.indexOf("(") + 1,
                                                        opInfo.lastIndexOf(")")), ",");
 
             paramTypeNames = new String[strtok.countTokens()];
             for( int i = 0; i < paramTypeNames.length; i++ )
             {
                 String token = strtok.nextToken();
-                
+
                 paramTypeNames[i] = ( !token.equals(",") ? token : null );
             }
         }
@@ -125,16 +132,16 @@ public class OperationDef
     {
         try
         {
-            result = 
-                TypeCodeUtil.getTypeCode( method.getReturnType(), 
+            result =
+                TypeCodeUtil.getTypeCode( method.getReturnType(),
                                           RepositoryImpl.loader,
-                                          null, 
+                                          null,
                                           returnTypeName );
 
             result_def = org.jacorb.ir.IDLType.create( result, containing_repository );
         }
         catch( Exception e )
-        { 
+        {
             e.printStackTrace();
         }
 
@@ -142,13 +149,13 @@ public class OperationDef
 
         Class [] ex_classes = method.getExceptionTypes();
         Class uexc = null;
-        try 
+        try
         {
             uexc = RepositoryImpl.loader.loadClass("org.omg.CORBA.UserException");
         }
         catch ( ClassNotFoundException e1)
         {
-            throw new org.omg.CORBA.INTF_REPOS(ErrorMsg.IR_Definition_Not_Found,
+            throw new INTF_REPOS(ErrorMsg.IR_Definition_Not_Found,
                                                org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         }
 
@@ -159,16 +166,16 @@ public class OperationDef
             {
                 try
                 {
-                    ExceptionDef ex =  new ExceptionDef( ex_classes[ ix ], 
-                                                         defined_in, 
+                    ExceptionDef ex =  new ExceptionDef( ex_classes[ ix ],
+                                                         defined_in,
                                                          containing_repository );
-                    org.omg.CORBA.ExceptionDef exRef = 
+                    org.omg.CORBA.ExceptionDef exRef =
                         org.omg.CORBA.ExceptionDefHelper.narrow(
-                              RepositoryImpl.poa.servant_to_reference( 
+                              RepositoryImpl.poa.servant_to_reference(
                                    new ExceptionDefPOATie (  ex )
 								   )
 							  );
-					
+
 					v.addElement( exRef );
 					ex.setReference( exRef );
                 }
@@ -191,23 +198,26 @@ public class OperationDef
         TypeCode tc = null;
         Class m_params[] = method.getParameterTypes();
 
-        org.omg.CORBA.ParameterDescription[] params = 
+        org.omg.CORBA.ParameterDescription[] params =
             new org.omg.CORBA.ParameterDescription[m_params.length];
 
         if( paramTypeNames.length > 0 )
         {
-            Debug.myAssert( paramTypeNames.length == m_params.length,
-                          "Different parameter type numbers! " + 
-                          paramTypeNames.length + " vs. " + m_params.length + 
-                          " inforString: " + opInfo);
+            if (paramTypeNames.length != m_params.length)
+            {
+                throw new INTF_REPOS ("Different parameter type numbers! " +
+                                      paramTypeNames.length + " vs. " + m_params.length +
+                                      " inforString: " + opInfo);
+            }
         }
+
 
         for( int i = 0; i < params.length; i++)
         {
             String name = "arg_" + i;
             String paramInfo = null;
             org.omg.CORBA.ParameterMode mode = null;
-            try 
+            try
             {
                 String parameterTypeName = m_params[i].getName();
 
@@ -219,51 +229,53 @@ public class OperationDef
                     mode = org.omg.CORBA.ParameterMode.PARAM_IN;
                     if( paramInfo != null && paramInfo.indexOf(' ') > 0 )
                     {
-                        parameterTypeName = 
+                        parameterTypeName =
                             paramInfo.substring( paramInfo.indexOf(' ')+1);
-                        name = 
-                            paramInfo.substring( paramInfo.indexOf(':')+1, 
+                        name =
+                            paramInfo.substring( paramInfo.indexOf(':')+1,
                                                  paramInfo.indexOf(' '));
                     }
                 }
                 else
                 {
-                    Debug.myAssert( paramInfo != null && (paramInfo.indexOf(' ') > 0),
-                                  "No param info for " + parameterTypeName);
-                   
+                    if ( ! (paramInfo != null && (paramInfo.indexOf(' ') > 0)))
+                    {
+                        throw new INTF_REPOS ("No param info for " + parameterTypeName);
+                    }
+
                     if( paramInfo.substring(0, (paramInfo.indexOf(' ')-1)).startsWith("inout:"))
                         mode = org.omg.CORBA.ParameterMode.PARAM_INOUT;
                     else
                         mode = org.omg.CORBA.ParameterMode.PARAM_OUT;
 
-                    name = paramInfo.substring( paramInfo.indexOf(':')+1, 
+                    name = paramInfo.substring( paramInfo.indexOf(':')+1,
                                                 paramInfo.indexOf(' '));
 
-                    parameterTypeName =  
+                    parameterTypeName =
                        parameterTypeName.substring(0, parameterTypeName.indexOf("Holder"));
                 }
 
 
 
-                org.jacorb.util.Debug.output(2,"Operation " + name() + ", param #"+ i + 
-                                             "name: " + name + 
-                                             ", paramTypeName " + parameterTypeName + 
+                org.jacorb.util.Debug.output(2,"Operation " + name() + ", param #"+ i +
+                                             "name: " + name +
+                                             ", paramTypeName " + parameterTypeName +
                                              paramInfo );
 
-                tc = TypeCodeUtil.getTypeCode( m_params[i], 
+                tc = TypeCodeUtil.getTypeCode( m_params[i],
                                                RepositoryImpl.loader,
-                                               null, 
+                                               null,
                                                parameterTypeName );
-            } 
+            }
             catch ( Exception e )
             {
                 e.printStackTrace();
-                throw new org.omg.CORBA.INTF_REPOS( ErrorMsg.IR_Definition_Not_Found, 
+                throw new INTF_REPOS( ErrorMsg.IR_Definition_Not_Found,
 						    org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             }
-            org.omg.CORBA.IDLType type_def = 
+            org.omg.CORBA.IDLType type_def =
                 IDLType.create( tc, containing_repository );
-            params[i] = 
+            params[i] =
                 new org.omg.CORBA.ParameterDescription( name, tc, type_def, mode);
         }
         return params;
@@ -271,9 +283,14 @@ public class OperationDef
 
     public org.omg.CORBA.IDLType result_def()
     {
-        Debug.myAssert( defined , "OperationDef undefined");
-        Debug.myAssert( result_def != null, 
-                      "Result def for op " + name() +" null");
+        if ( ! defined)
+        {
+            throw new INTF_REPOS ("OperationDef undefined");
+        }
+        if (result_def == null)
+        {
+            throw new INTF_REPOS ("Result def for op " + name () + " null");
+        }
         return result_def;
     }
 
@@ -294,14 +311,16 @@ public class OperationDef
 
     public org.omg.CORBA.TypeCode result()
     {
-        Debug.myAssert( defined , "OperationDeg undefined");
+        if ( ! defined)
+        {
+            throw new INTF_REPOS ("OperationDeg undefined");
+        }
 
         return result;
     }
 
     public org.omg.CORBA.ParameterDescription[] params()
     {
-        Debug.myAssert( defined , "OperationDeg undefined");
         if( !defined )
             define();
         return params;
@@ -314,9 +333,6 @@ public class OperationDef
 
     public java.lang.String[] contexts()
     {
-        Debug.myAssert( defined , "OperationDeg undefined");
-
-
         if( !defined )
             define();
         return contexts;
@@ -329,7 +345,6 @@ public class OperationDef
 
     public org.omg.CORBA.ExceptionDef[] exceptions()
     {
-        Debug.myAssert( defined , "OperationDeg undefined");
         if( !defined )
             define();
         return exceptions;
@@ -345,7 +360,7 @@ public class OperationDef
         if( !defined )
             define();
 
-        org.omg.CORBA.ExceptionDescription ex_des[] = 
+        org.omg.CORBA.ExceptionDescription ex_des[] =
             new org.omg.CORBA.ExceptionDescription[exceptions.length];
 
         for( int i = 0; i < exceptions.length; i++ )
@@ -354,15 +369,15 @@ public class OperationDef
 
             if( cd.kind != org.omg.CORBA.DefinitionKind.dk_Exception )
             {
-                throw new org.omg.CORBA.INTF_REPOS( ErrorMsg.IR_Unexpected_Definition_Kind,
+                throw new INTF_REPOS( ErrorMsg.IR_Unexpected_Definition_Kind,
                                                     org.omg.CORBA.CompletionStatus.COMPLETED_NO);
             }
             ex_des[i] = org.omg.CORBA.ExceptionDescriptionHelper.extract( cd.value );
         }
-        return new org.omg.CORBA.OperationDescription(name, 
-                                                      id, 
-                                                      org.omg.CORBA.ContainedHelper.narrow(defined_in).id(), 
-                                                      version, 
+        return new org.omg.CORBA.OperationDescription(name,
+                                                      id,
+                                                      org.omg.CORBA.ContainedHelper.narrow(defined_in).id(),
+                                                      version,
                                                       result,  mode,  contexts, params, ex_des);
     }
 
@@ -370,7 +385,7 @@ public class OperationDef
 
     public void destroy()
     {
-        throw new org.omg.CORBA.INTF_REPOS( 
+        throw new INTF_REPOS(
                                            ErrorMsg.IR_Not_Implemented,
                                            org.omg.CORBA.CompletionStatus.COMPLETED_NO);
     }
@@ -380,7 +395,11 @@ public class OperationDef
 
     public org.omg.CORBA.ContainedPackage.Description describe()
     {
-        Debug.myAssert( defined , "OperationDef undefined");
+        if ( ! defined)
+        {
+            throw new INTF_REPOS ("OperationDeg undefined");
+        }
+
 
         org.omg.CORBA.Any a = orb.create_any();
         org.omg.CORBA.OperationDescriptionHelper.insert( a, describe_operation() );
@@ -389,7 +408,3 @@ public class OperationDef
 
 
 }
-
-
-
-

@@ -23,6 +23,7 @@ package org.jacorb.orb.dynany;
 import org.omg.DynamicAny.DynAnyPackage.*;
 import org.omg.DynamicAny.*;
 
+import org.omg.CORBA.INTERNAL;
 import org.jacorb.orb.*;
 import java.util.*;
 
@@ -46,11 +47,11 @@ public final class DynSequence
                 org.omg.CORBA.TypeCode tc )
       throws InvalidValue, TypeMismatch
    {
-      org.jacorb.orb.TypeCode _type = 
+      org.jacorb.orb.TypeCode _type =
          ((org.jacorb.orb.TypeCode)tc).originalType();
 
       if( _type.kind() != org.omg.CORBA.TCKind.tk_sequence )
-         throw new TypeMismatch();   
+         throw new TypeMismatch();
 
       try
       {
@@ -68,10 +69,13 @@ public final class DynSequence
       {
          bk.printStackTrace();
       }
-      org.jacorb.util.Debug.myAssert( elementType != null, "DynSequence.set_length, elementType null");
+      if (elementType == null)
+      {
+          throw new INTERNAL ("DynSequence.set_length, elementType null");
+      }
    }
 
-   public void from_any( org.omg.CORBA.Any value ) 
+   public void from_any( org.omg.CORBA.Any value )
       throws InvalidValue, TypeMismatch
    {
       checkDestroyed ();
@@ -87,7 +91,7 @@ public final class DynSequence
 
          limit = type().length();
 
-         org.omg.CORBA.portable.InputStream is = 
+         org.omg.CORBA.portable.InputStream is =
             value.create_input_stream();
          length = is.read_long();
 
@@ -103,20 +107,23 @@ public final class DynSequence
          for( int i = 0 ; i < length; i++ )
          {
             Any a = (org.jacorb.orb.Any)orb.create_any();
-            a.read_value( is, elementType );  
-            members.addElement( a );         
-         }   
+            a.read_value( is, elementType );
+            members.addElement( a );
+         }
       }
       catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
       {
          // should not happen anymore
          bk.printStackTrace();
       }
-      org.jacorb.util.Debug.myAssert( elementType != null, "DynSequence.set_length, elementType null");
+      if (elementType == null)
+      {
+          throw new INTERNAL ("DynSequence.set_length, elementType null");
+      }
    }
 
 
-   public org.omg.CORBA.Any to_any() 
+   public org.omg.CORBA.Any to_any()
    {
       checkDestroyed ();
       org.jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
@@ -127,7 +134,7 @@ public final class DynSequence
 
       for( int i = 0; i < length; i++)
       {
-         os.write_value( elementType, 
+         os.write_value( elementType,
                          (CDRInputStream)((Any)members.elementAt(i)).create_input_stream());
       }
 
@@ -170,7 +177,7 @@ public final class DynSequence
    }
 
 
-   public void set_length(int len) 
+   public void set_length(int len)
       throws InvalidValue
    {
       checkDestroyed ();
@@ -183,8 +190,10 @@ public final class DynSequence
          pos = -1;
       }
 
-      org.jacorb.util.Debug.myAssert( elementType != null, 
-                                      "DynSequence.set_length, elementType null");
+      if (elementType == null)
+      {
+          throw new INTERNAL ("DynSequence.set_length, elementType null");
+      }
 
       if( len > length )
       {
@@ -226,7 +235,7 @@ public final class DynSequence
    }
 
 
-   public void set_elements( org.omg.CORBA.Any[] value ) 
+   public void set_elements( org.omg.CORBA.Any[] value )
       throws TypeMismatch, InvalidValue
    {
       checkDestroyed ();
@@ -235,7 +244,7 @@ public final class DynSequence
 
       for( int i = value.length; i-- > 0 ;)
       {
-         TypeCode tc = 
+         TypeCode tc =
             ((org.jacorb.orb.TypeCode)value[i].type()).originalType();
 
          if( tc.kind() != elementType.kind() )
@@ -255,7 +264,7 @@ public final class DynSequence
          pos = 0;
       else
          pos = -1;
-       
+
    }
 
    public org.omg.DynamicAny.DynAny[] get_elements_as_dyn_any()
@@ -278,7 +287,7 @@ public final class DynSequence
    }
 
 
-   public void set_elements_as_dyn_any(org.omg.DynamicAny.DynAny[] value) 
+   public void set_elements_as_dyn_any(org.omg.DynamicAny.DynAny[] value)
       throws TypeMismatch, InvalidValue
    {
       checkDestroyed ();
@@ -300,7 +309,7 @@ public final class DynSequence
 
 
    /**
-    * returns the DynAny's internal any representation, 
+    * returns the DynAny's internal any representation,
     * overwrites
     */
 
@@ -323,7 +332,7 @@ public final class DynSequence
       return false;
    }
 
-   public boolean seek(int index)    
+   public boolean seek(int index)
    {
       checkDestroyed ();
       if( index < 0 )
@@ -343,7 +352,7 @@ public final class DynSequence
    /* iteration interface */
 
    public org.omg.DynamicAny.DynAny current_component()
-   {   
+   {
       checkDestroyed ();
       if( pos == -1 )
       {
@@ -360,7 +369,7 @@ public final class DynSequence
       }
       return null;
    }
-   
+
    public int component_count()
    {
       checkDestroyed ();

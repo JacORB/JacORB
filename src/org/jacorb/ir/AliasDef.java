@@ -20,15 +20,16 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTF_REPOS;
 
 public class AliasDef
     extends TypedefDef
     implements org.omg.CORBA.AliasDefOperations
 {
-    private org.omg.CORBA.IDLType original_type_def;  
+    private org.omg.CORBA.IDLType original_type_def;
 
-    public AliasDef( org.omg.CORBA.TypeCode type, 
-                     org.omg.CORBA.Container defined_in, 
+    public AliasDef( org.omg.CORBA.TypeCode type,
+                     org.omg.CORBA.Container defined_in,
                      org.omg.CORBA.Repository containing_repository )
     {
         def_kind = org.omg.CORBA.DefinitionKind.dk_Alias;
@@ -49,11 +50,13 @@ public class AliasDef
         }
         org.jacorb.util.Debug.output( 2, "New AliasDef name: " + name() );
     }
-	
+
     public org.omg.CORBA.IDLType original_type_def()
     {
-        org.jacorb.util.Debug.myAssert( original_type_def != null, "Alias " + name() 
-                                  + " has null original_type_def" );
+        if (original_type_def == null)
+        {
+           throw new INTF_REPOS ("Alias " + name () + " has null original_type_def" );
+        }
         return original_type_def;
     }
 
@@ -66,8 +69,8 @@ public class AliasDef
     {
         try
         {
-            original_type_def( IDLType.create( type().content_type(), 
-                                               containing_repository, 
+            original_type_def( IDLType.create( type().content_type(),
+                                               containing_repository,
                                                true )
                                );
         }
@@ -86,18 +89,18 @@ public class AliasDef
         else
             containerId = "IDL::1.0"; // top level, IR
 
-        org.omg.CORBA.TypeDescription td =  
-            new org.omg.CORBA.TypeDescription( name, 
-                                               id(), 
-                                               containerId, 
+        org.omg.CORBA.TypeDescription td =
+            new org.omg.CORBA.TypeDescription( name,
+                                               id(),
+                                               containerId,
                                                version(),
                                                type() );
-        
+
         org.omg.CORBA.TypeDescriptionHelper.insert( a , td );
 
-        org.omg.CORBA.ContainedPackage.Description result = 
+        org.omg.CORBA.ContainedPackage.Description result =
             new org.omg.CORBA.ContainedPackage.Description(
-                  org.omg.CORBA.DefinitionKind.dk_Alias, a );     
+                  org.omg.CORBA.DefinitionKind.dk_Alias, a );
         return result;
     }
 
@@ -105,13 +108,3 @@ public class AliasDef
     {}
 
 }
-
-
-
-
-
-
-
-
-
-

@@ -22,12 +22,13 @@ package org.jacorb.ir;
 
 
 import org.jacorb.orb.TypeCode;
+import org.omg.CORBA.INTF_REPOS;
 
 /**
- * Base class for Interface Repository Objects 
+ * Base class for Interface Repository Objects
  */
 
-public abstract class IRObject 
+public abstract class IRObject
     implements org.omg.CORBA.IRObjectOperations
 {
     protected org.omg.CORBA.Object myRef;
@@ -56,7 +57,7 @@ public abstract class IRObject
     {
         if( myRef == null )
         {
-            throw new RuntimeException( "Reference undefined!");
+            throw new INTF_REPOS ("Reference undefined!");
         }
         return myRef;
     }
@@ -68,6 +69,3 @@ public abstract class IRObject
     }
 
 }
-
-
-

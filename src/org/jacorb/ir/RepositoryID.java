@@ -21,15 +21,15 @@ package org.jacorb.ir;
  */
 
 import java.util.StringTokenizer;
-
 import org.jacorb.orb.TypeCode;
+import org.omg.CORBA.INTF_REPOS;
 
 /**
- * This class builds CORBA repository IDs from Java classes 
+ * This class builds CORBA repository IDs from Java classes
  * or class names, or builds Java class names from repository
  * IDs
  */
-public class RepositoryID 
+public class RepositoryID
 {
     /**
      * Returns the fully qualified name of the Java class to which
@@ -50,7 +50,7 @@ public class RepositoryID
     {
         if (repId.startsWith ("RMI:"))
         {
-            return repId.substring (4, repId.indexOf (':', 4)) 
+            return repId.substring (4, repId.indexOf (':', 4))
                    + ( suffix != null ? suffix : "" );
         }
         else if (repId.startsWith ("IDL:"))
@@ -65,7 +65,7 @@ public class RepositoryID
                 String prefix     = id.substring (0, firstSlash);
 
                 if (prefix.equals ("omg.org"))
-                    return ir2scopes ("org.omg", 
+                    return ir2scopes ("org.omg",
                                       id.substring (firstSlash + 1));
                 else if (prefix.indexOf ('.') != -1)
                     return ir2scopes (reversePrefix (prefix),
@@ -76,7 +76,7 @@ public class RepositoryID
         }
         else
         {
-            throw new RuntimeException ("unrecognized RepositoryID: " + repId);
+           throw new INTF_REPOS ("Unrecognized RepositoryID: " + repId);
         }
     }
 
@@ -84,29 +84,29 @@ public class RepositoryID
     {
         StringTokenizer tok    = new StringTokenizer (prefix, ".");
         String          result = tok.nextToken();
-        
+
         while (tok.hasMoreTokens())
         {
             result = tok.nextToken() + '.' + result;
         }
         return result;
     }
-    
+
     /**
      * FIXME: This method needs documentation.
      * What does this algorithm do, and why is it necessary?  AS.
      */
-    private static String ir2scopes (String prefix, String s) 
+    private static String ir2scopes (String prefix, String s)
     {
         if( s.indexOf("/") < 0)
             return s;
-        java.util.StringTokenizer strtok = 
+        java.util.StringTokenizer strtok =
             new java.util.StringTokenizer( s, "/" );
-		
+
         int count = strtok.countTokens();
         StringBuffer sb = new StringBuffer();
         sb.append(prefix);
-		
+
         for( int i = 0; strtok.hasMoreTokens(); i++ )
         {
             String sc = strtok.nextToken();
@@ -144,14 +144,14 @@ public class RepositoryID
             if( className.startsWith("org.omg")  ||
                 className.startsWith("org/omg") )
             {
-                if( className.length() > 7 ) 
+                if( className.length() > 7 )
                     body = className.substring(7);
                 return "IDL:omg.org/" + scopesToIR(body) + ":1.0";
             }
             else
                 return "IDL:" + scopesToIR(className) + ":1.0" ;
         }
-	else    
+	else
             return org.jacorb.util.ValueHandler.getRMIRepositoryID (c);
     }
 
@@ -160,7 +160,7 @@ public class RepositoryID
     {
         if( s.indexOf(".") < 0)
             return s;
-        java.util.StringTokenizer strtok = 
+        java.util.StringTokenizer strtok =
             new java.util.StringTokenizer( s, "." );
 
         String scopes[] = new String[strtok.countTokens()];

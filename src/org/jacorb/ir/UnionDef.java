@@ -25,23 +25,22 @@ import java.util.*;
 import java.io.*;
 
 import org.jacorb.util.Debug;
-//import org.jacorb.orb.TypeCodeUtil;
-
+import org.omg.CORBA.INTF_REPOS;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.Any;
 
-public class UnionDef 
+public class UnionDef
     extends TypedefDef
     implements org.omg.CORBA.UnionDefOperations, ContainerType
 {
-    protected static char 	    fileSeparator = 
+    protected static char 	    fileSeparator =
         System.getProperty("file.separator").charAt(0);
 
     private org.omg.CORBA.UnionMember [] members;
     private org.omg.CORBA.TypeCode discriminator_type;
     private org.omg.CORBA.IDLType discriminator_type_def;
 
-    private Method memberMethods[]; 
+    private Method memberMethods[];
     private int member_size;
 
     /* reference to my container as a contained object */
@@ -54,7 +53,7 @@ public class UnionDef
     private File 		                 my_dir;
     private String                       path;
 
-    public UnionDef( Class c, 
+    public UnionDef( Class c,
  					 String path,
                     org.omg.CORBA.Container _defined_in,
                      org.omg.CORBA.Repository ir )
@@ -66,17 +65,17 @@ public class UnionDef
         String classId = c.getName();
         myContainer = org.omg.CORBA.ContainedHelper.narrow( defined_in );
 
-        if( classId.indexOf('.') > 0 ) 
+        if( classId.indexOf('.') > 0 )
         {
             name( classId.substring( classId.lastIndexOf('.')+1));
             absolute_name = myContainer.absolute_name() + "::" + name;
-        } 
-        else 
+        }
+        else
         {
             name( classId );
             defined_in = containing_repository;
             absolute_name = "::" + name;
-        }	
+        }
 
         Class helperClass;
         try
@@ -87,7 +86,7 @@ public class UnionDef
             members = new org.omg.CORBA.UnionMember[ type.member_count() ];
             for( int i = 0; i < members.length; i++ )
             {
-                members[i] = new org.omg.CORBA.UnionMember( type.member_name(i), 
+                members[i] = new org.omg.CORBA.UnionMember( type.member_name(i),
                                                             type.member_label(i),
                                                             type.member_type(i),
                                                             null );
@@ -102,31 +101,37 @@ public class UnionDef
 
     public void loadContents()
     {
-       // read from the  class (operations and atributes)
-        Debug.myAssert( getReference() != null, "my own ref null");
+        // read from the  class (operations and atributes)
+        if (getReference() == null)
+        {
+            throw new INTF_REPOS ("getReference returns null");
+        }
 
-        org.omg.CORBA.UnionDef myReference = 
+        org.omg.CORBA.UnionDef myReference =
             org.omg.CORBA.UnionDefHelper.narrow( getReference());
 
-        Debug.myAssert( myReference != null, "narrow failed for " + getReference() );
+        if (myReference == null)
+        {
+            throw new INTF_REPOS ("narrow failed for " + getReference() );
+        }
 
         /* load nested definitions from interfacePackage directory */
-        
+
         String[] classes = null;
 		if( my_dir != null )
         {
             classes = my_dir.list( new IRFilenameFilter(".class") );
 
             // load class files in this interface's Package directory
-            if( classes != null) 
+            if( classes != null)
             {
                 for( int j = 0; j < classes.length; j++ )
                 {
-                    try 
-                    { 
-                        org.jacorb.util.Debug.output(2, "Union " +name+ " tries " + 
-                                                 full_name.replace('.', fileSeparator) + 
-                                                 "Package" + fileSeparator + 
+                    try
+                    {
+                        org.jacorb.util.Debug.output(2, "Union " +name+ " tries " +
+                                                 full_name.replace('.', fileSeparator) +
+                                                 "Package" + fileSeparator +
                                                  classes[j].substring( 0, classes[j].indexOf(".class")) );
 
                         ClassLoader loader = getClass().getClassLoader();
@@ -135,34 +140,34 @@ public class UnionDef
                             loader = RepositoryImpl.loader;
                         }
 
-                        Class cl = 
-                            loader.loadClass( 
-                                   ( full_name.replace('.', fileSeparator) + "Package" + fileSeparator + 
+                        Class cl =
+                            loader.loadClass(
+                                   ( full_name.replace('.', fileSeparator) + "Package" + fileSeparator +
                                      classes[j].substring( 0, classes[j].indexOf(".class"))
                                      ).replace( fileSeparator, '/') );
-                        
 
-                        Contained containedObject = Contained.createContained( cl, 
+
+                        Contained containedObject = Contained.createContained( cl,
                                                                                path,
-                                                                               myReference, 
+                                                                               myReference,
                                                                                containing_repository );
                         if( containedObject == null )
                             continue;
-                        
-                        org.omg.CORBA.Contained containedRef = 
+
+                        org.omg.CORBA.Contained containedRef =
                             Contained.createContainedReference(containedObject);
-                        
+
                         if( containedObject instanceof ContainerType )
                             ((ContainerType)containedObject).loadContents();
-                        
+
                         containedRef.move( myReference, containedRef.name(), containedRef.version() );
-                        
-                        org.jacorb.util.Debug.output(2, "Union " + full_name + 
+
+                        org.jacorb.util.Debug.output(2, "Union " + full_name +
                                                  " loads "+ containedRef.name() );
                         contained.put( containedRef.name() , containedRef );
-                        containedLocals.put( containedRef.name(), containedObject );                        
-                    } 
-                    catch ( Exception e ) 
+                        containedLocals.put( containedRef.name(), containedObject );
+                    }
+                    catch ( Exception e )
                     {
                         e.printStackTrace();
                     }
@@ -176,7 +181,7 @@ public class UnionDef
     {
 		org.jacorb.util.Debug.output(2, "Union " + name +  " defining...");
 
-        discriminator_type_def = 
+        discriminator_type_def =
             IDLType.create( discriminator_type, containing_repository );
 
         for( Enumeration e = containedLocals.elements();
@@ -184,14 +189,14 @@ public class UnionDef
              ((IRObject)e.nextElement()).define())
             ;
 
-		try 
+		try
         {
 			for( int i = 0; i < members.length; i++ )
 			{
-				members[i].type_def = 
+				members[i].type_def =
 					IDLType.create( members[i].type, containing_repository );
-			} 
-		}            
+			}
+		}
 		catch ( Exception e )
 		{
 			e.printStackTrace();
@@ -237,12 +242,12 @@ public class UnionDef
         else
             def_in_name = "IDL:/:1.0";
 
-        org.omg.CORBA.TypeDescriptionHelper.insert( a, 
+        org.omg.CORBA.TypeDescriptionHelper.insert( a,
                                 new org.omg.CORBA.TypeDescription( name(),
                                                                    id(),
                                                                    def_in_name,
                                                                    version(),
-                                                                   type() 
+                                                                   type()
                                                                    ) );
         return new org.omg.CORBA.ContainedPackage.Description( org.omg.CORBA.DefinitionKind.dk_Union, a);
     }
@@ -252,7 +257,7 @@ public class UnionDef
     public void destroy(){}
 
 
-    public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type, 
+    public org.omg.CORBA.Contained[] contents(org.omg.CORBA.DefinitionKind limit_type,
                                               boolean exclude_inherited)
     {
         Hashtable filtered = new Hashtable();
@@ -260,8 +265,8 @@ public class UnionDef
         if( limit_type == org.omg.CORBA.DefinitionKind.dk_all )
         {
             filtered = contained;
-        } 
-        else 
+        }
+        else
         {
             Enumeration f = contained.keys();
             while( f.hasMoreElements() )
@@ -292,7 +297,7 @@ public class UnionDef
         String rest_of_name;
         String name;
 
-        if( scopedname.startsWith("::") )       
+        if( scopedname.startsWith("::") )
         {
             name = scopedname.substring(2);
         }
@@ -303,13 +308,13 @@ public class UnionDef
         {
             top_level_name = name.substring( 0, name.indexOf("::") );
             rest_of_name = name.substring( name.indexOf("::") + 2);
-        } 
-        else 
+        }
+        else
         {
             top_level_name = name;
             rest_of_name = null;
         }
-		
+
         org.omg.CORBA.Contained top = (org.omg.CORBA.Contained)contained.get( top_level_name );
         if( top == null )
         {
@@ -321,7 +326,7 @@ public class UnionDef
         {
             return top;
         }
-        else 
+        else
         {
             org.omg.CORBA.Container topContainer = org.omg.CORBA.ContainerHelper.narrow( top );
             if( topContainer != null )
@@ -331,14 +336,14 @@ public class UnionDef
             else
             {
                 org.jacorb.util.Debug.output(2,"Container " + this.name +" " + scopedname + " not found, top " + top.getClass().getName());
-                return null;			
+                return null;
             }
         }
     }
 
     public org.omg.CORBA.Contained[] lookup_name( String search_name, /*Identifier*/
-                                                  int levels_to_search, 
-                                                  org.omg.CORBA.DefinitionKind limit_type, 
+                                                  int levels_to_search,
+                                                  org.omg.CORBA.DefinitionKind limit_type,
                                                   boolean exclude_inherited)
     {
         if( levels_to_search == 0 )
@@ -358,17 +363,17 @@ public class UnionDef
             {
                 if( c[i] instanceof org.omg.CORBA.Container )
                 {
-                    org.omg.CORBA.Contained[] tmp_seq = 
-                        ((org.omg.CORBA.Container)c[i]).lookup_name( 
+                    org.omg.CORBA.Contained[] tmp_seq =
+                        ((org.omg.CORBA.Container)c[i]).lookup_name(
                                                                     search_name, levels_to_search-1, limit_type, exclude_inherited);
                     if( tmp_seq != null )
                         for( int j = 0; j < tmp_seq.length; j++)
                             found.put( tmp_seq[j], "" );
                 }
-            } 			
+            }
         }
 
-		
+
         org.omg.CORBA.Contained[] result = new org.omg.CORBA.Contained[ found.size() ];
         int idx = 0;
 
@@ -411,7 +416,7 @@ public class UnionDef
      * not supported
      */
 
-    public org.omg.CORBA.ExceptionDef create_exception(java.lang.String id, java.lang.String name , java.lang.String version, org.omg.CORBA.StructMember[] member ) 
+    public org.omg.CORBA.ExceptionDef create_exception(java.lang.String id, java.lang.String name , java.lang.String version, org.omg.CORBA.StructMember[] member )
     {
         return null;
     }
@@ -421,9 +426,9 @@ public class UnionDef
      */
 
     public org.omg.CORBA.InterfaceDef create_interface(
-                    /*RepositoryId*/ String id, 
+                    /*RepositoryId*/ String id,
                     /*Identifier*/ String name,
-                    /*VersionSpec*/ String version, 
+                    /*VersionSpec*/ String version,
                     /*InterfaceDefSeq*/ org.omg.CORBA.InterfaceDef[] base_interfaces,
                     boolean is_abstract )
     {
@@ -434,9 +439,9 @@ public class UnionDef
      * not supported
      */
 
-    public org.omg.CORBA.ValueBoxDef create_value_box(java.lang.String id, 
-                                                      java.lang.String name, 
-                                                      java.lang.String version, 
+    public org.omg.CORBA.ValueBoxDef create_value_box(java.lang.String id,
+                                                      java.lang.String name,
+                                                      java.lang.String version,
                                                       org.omg.CORBA.IDLType type)
     {
         return null;
@@ -448,15 +453,15 @@ public class UnionDef
      */
 
     public  org.omg.CORBA.ValueDef create_value(
-                                     java.lang.String id, 
-                                     java.lang.String name, 
+                                     java.lang.String id,
+                                     java.lang.String name,
                                      java.lang.String version,
-                                     boolean is_custom, 
-                                     boolean is_abstract, 
-                                     org.omg.CORBA.ValueDef base_value, 
-                                     boolean is_truncatable, 
-                                     org.omg.CORBA.ValueDef[] abstract_base_values, 
-                                     org.omg.CORBA.InterfaceDef[] supported_interfaces, 
+                                     boolean is_custom,
+                                     boolean is_abstract,
+                                     org.omg.CORBA.ValueDef base_value,
+                                     boolean is_truncatable,
+                                     org.omg.CORBA.ValueDef[] abstract_base_values,
+                                     org.omg.CORBA.InterfaceDef[] supported_interfaces,
                                      org.omg.CORBA.Initializer[] initializers)
     {
         return null;
@@ -467,13 +472,13 @@ public class UnionDef
      * not supported
      */
 
-    public org.omg.CORBA.NativeDef create_native(java.lang.String id, 
-                                                 java.lang.String name, 
+    public org.omg.CORBA.NativeDef create_native(java.lang.String id,
+                                                 java.lang.String name,
                                                  java.lang.String version)
     {
         return null;
     }
- 
+
 
 
 }

@@ -20,6 +20,8 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTF_REPOS;
+
 public class SequenceDef
     extends IDLType
     implements org.omg.CORBA.SequenceDefOperations
@@ -33,9 +35,11 @@ public class SequenceDef
 
     public SequenceDef( org.omg.CORBA.TypeCode tc, org.omg.CORBA.Repository ir )
     {
-        org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_sequence, 
-                                  "Precondition volation: TypeCode must be of kind sequence");
-       
+        if (tc.kind () != org.omg.CORBA.TCKind.tk_sequence)
+        {
+           throw new INTF_REPOS ("Precondition volation: TypeCode must be of kind sequence");
+        }
+
         type = tc;
         def_kind = org.omg.CORBA.DefinitionKind.dk_Sequence;
         this.ir = ir;
@@ -45,17 +49,18 @@ public class SequenceDef
             element_type = tc.content_type();
             bound = tc.length();
             name = element_type.name();
-        } 
+        }
         catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
         {
-            // cannot happen because of myAssertion
+            // cannot happen because of above test
         }
 
         element_type_def = IDLType.create( element_type, ir );
 
-        org.jacorb.util.Debug.myAssert( element_type_def != null, 
-                                      "Element type " + name  + 
-                                      " null in SequenceDef " + name );
+        if (element_type_def == null)
+        {
+            throw new INTF_REPOS ("Element type " + name  + " null in SequenceDef " + name );
+        }
 
         org.jacorb.util.Debug.output(2, "New SequenceDef");
     }
@@ -74,7 +79,7 @@ public class SequenceDef
     {
         return element_type;
     }
-    
+
     public org.omg.CORBA.IDLType element_type_def()
     {
         return element_type_def;
@@ -84,7 +89,7 @@ public class SequenceDef
     {
         element_type_def = a;
     }
-	
+
     public void destroy()
     {
         type = null;
@@ -97,6 +102,3 @@ public class SequenceDef
 
     }
 }
-
-
-

@@ -34,8 +34,8 @@ import org.jacorb.util.Debug;
  * $Id$
  */
 
-public class RemoteTypeSystem 
-    extends TypeSystem 
+public class RemoteTypeSystem
+    extends TypeSystem
 {
     Repository rep;
     ORB orb = ORB.init( new String[0], null);
@@ -47,25 +47,25 @@ public class RemoteTypeSystem
     /**
      */
 
-    public RemoteTypeSystem () 
+    public RemoteTypeSystem ()
     {
-	try 
+	try
         {
-            this.rep  = 
-                RepositoryHelper.narrow( 
+            this.rep  =
+                RepositoryHelper.narrow(
                    orb.resolve_initial_references("InterfaceRepository"));
 	}
-	catch (Exception e) 
+	catch (Exception e)
         {
             e.printStackTrace();
-	}		
+	}
     }
 
     /**
      * @param ior java.lang.String
      */
 
-    public RemoteTypeSystem (String ior) 
+    public RemoteTypeSystem (String ior)
     {
 	org.omg.CORBA.Object obj = orb.string_to_object(ior);
         try
@@ -76,7 +76,7 @@ public class RemoteTypeSystem
         {
             System.out.println("IOR is not a Repository, sorry.");
             System.exit(0);
-	}	
+	}
     }
 
     /**
@@ -85,22 +85,22 @@ public class RemoteTypeSystem
      *  getTreeExpansionListener(treeModel)  needs  to be  registered
      *  with JTree.
      * @return javax.swing.tree.DefaultTreeModel
-     * @param root org.jacorb.ir.gui.typesystem.ModelParticipant 
+     * @param root org.jacorb.ir.gui.typesystem.ModelParticipant
      */
 
-    public DefaultTreeModel createTreeModelRoot() 
+    public DefaultTreeModel createTreeModelRoot()
     {
-	if (treeModel!=null) 
+	if (treeModel!=null)
         {
             return treeModel;
-	}	
-	else 
+	}
+	else
         {
-            IRRepository startNode  = new IRRepository(rep); 
-            treeModel = 
+            IRRepository startNode  = new IRRepository(rep);
+            treeModel =
                 ModelBuilder.getSingleton().createTreeModelRoot(startNode);
             return treeModel;
-	}	
+	}
     }
 
     /**
@@ -108,10 +108,13 @@ public class RemoteTypeSystem
      * @param irNode org.omg.CORBA.IRObject
      */
 
-    public static TypeSystemNode createTypeSystemNode(java.lang.Object obj) 
+    public static TypeSystemNode createTypeSystemNode(java.lang.Object obj)
     {
-        Debug.myAssert( obj != null, 
-                        "A reference from the Repository is null... (but it should not)");
+        if (obj == null)
+        {
+            Debug.output (3, "A reference from the Repository is null... (but it should not)");
+            return null;
+        }
 	IRObject irObject = null;
 	TypeSystemNode result = null;
 
@@ -119,22 +122,22 @@ public class RemoteTypeSystem
 
 	// Typ-Unterscheidung für obj vornehmen und korrespondierendes
         // org.jacorb.ir.gui.typesystem-Objekt erzeugen.
-	// knownIRObjects: zu jedem Objekt des IR wird das 
+	// knownIRObjects: zu jedem Objekt des IR wird das
         // korrespondierende org.jacorb.ir.gui.typesystem-Objekt
-	// festgehalten, damit letzteres nicht mehrfach für 
+	// festgehalten, damit letzteres nicht mehrfach für
         /// das selbe IR-Objekt erzeugt wird
-	// (die Abbildung von IR-Objekten auf 
+	// (die Abbildung von IR-Objekten auf
         // org.jacorb.ir.gui.typesystem-Objekte wird sozusagen injektiv gehalten)
 
-	// Je nach Typ wird ein anderer Hashcode verwendet, 
+	// Je nach Typ wird ein anderer Hashcode verwendet,
         // um das obj in knownIRObjects abzulegen:
-	// die von Object geerbte hashcode() Methode reicht 
+	// die von Object geerbte hashcode() Methode reicht
         // hier nicht, weil sie equals() verwendet und
 	// diese Methode nicht für alle möglichen Typen von
         ///  obj korrekt redefiniert wurde (testet nur auf
 	// Objekt-Identität)
 
-	if ( obj instanceof IRObject ) 
+	if ( obj instanceof IRObject )
         {
             try
             {
@@ -146,7 +149,7 @@ public class RemoteTypeSystem
         }
         if( irObject != null )
         {
-            // insbesondere "echte" IRObjects können beim Aufbau 
+            // insbesondere "echte" IRObjects können beim Aufbau
             // des Trees mehrmals referenziert
             // und dieser Methode als Argument übergeben werden
             // if (knownIRObjects.get(ORB.init().object_to_string((org.omg.CORBA.Object)irObject))!=null) {
@@ -155,7 +158,7 @@ public class RemoteTypeSystem
 
             result = (TypeSystemNode)knownIRObjects.get(irObject);
 
-            if( result != null ) 
+            if( result != null )
             {
                 Debug.output(2, result.getInstanceNodeTypeName()+" "+
                              result.getAbsoluteName()+" (cached)");
@@ -165,28 +168,28 @@ public class RemoteTypeSystem
             // try again using Repository-ID
             try
             {
-                Contained contained = 
+                Contained contained =
                     ContainedHelper.narrow((org.omg.CORBA.Object)irObject);
 
                 result = (TypeSystemNode)knownIRObjects.get(contained.id());
-                if (result != null) 
+                if (result != null)
                 {
-                    Debug.output(2, 
+                    Debug.output(2,
                                  result.getInstanceNodeTypeName()+" "+
                                  result.getAbsoluteName()+" (cached by id)");
                     return result;
-                }	
+                }
             }
             catch( org.omg.CORBA.BAD_PARAM bp )
             {}
 
             try
-            {	
-                switch(irObject.def_kind().value()) 
-                {	
+            {
+                switch(irObject.def_kind().value())
+                {
                     // create IRObjects
                 case DefinitionKind._dk_Module:
-                    result = new IRModule(irObject);		
+                    result = new IRModule(irObject);
                     break;
                 case DefinitionKind._dk_Interface:
                     result = new IRInterface(irObject);
@@ -210,34 +213,34 @@ public class RemoteTypeSystem
                     break;
                 case DefinitionKind._dk_Struct:
                     result = new IRStruct(irObject);
-                    break;				
+                    break;
                 case DefinitionKind._dk_Union:
                     result = new IRUnion(irObject);
-                    break;				
+                    break;
                 case DefinitionKind._dk_Primitive:
                     result = new IRPrimitive(irObject);
                     break;
                 case DefinitionKind._dk_Fixed:
                     result = new IRFixed(irObject);
-                    break;		
+                    break;
                 case DefinitionKind._dk_String:
                     result = new IRString(irObject);
-                    break;		
+                    break;
                 case DefinitionKind._dk_Wstring:
                     result = new IRWstring(irObject);
-                    break;	
+                    break;
                 case DefinitionKind._dk_Alias:
                     result = new IRAlias(irObject);
-                    break;				
+                    break;
                 case DefinitionKind._dk_Sequence:
                     result = new IRSequence(irObject);
-                    break;				
+                    break;
                 case DefinitionKind._dk_Enum:
                     result = new IREnum(irObject);
-                    break;				
+                    break;
                 case DefinitionKind._dk_Array:
                     result = new IRArray(irObject);
-                    break;					
+                    break;
                 case DefinitionKind._dk_ValueBox:
                     result = new IRValueBox(irObject);
                     break;
@@ -250,110 +253,110 @@ public class RemoteTypeSystem
                 default:
                     System.out.println("Unknown/senseless DefinitionKind returned from Repository: "+irObject.def_kind().value());
                     break;
-                } // switch		
+                } // switch
             }
             catch( Exception exc )
             {
                 Debug.output( 3, exc );
             }
 
-            if ( result instanceof IRInterface && 
-                 ((IRInterface)result).getName().equals("Container")) 
+            if ( result instanceof IRInterface &&
+                 ((IRInterface)result).getName().equals("Container"))
             {
                 int nanu = ((IRNode)result).irObject.hashCode();
                 int nanu2 = irObject.hashCode();
-                if (test.equals(((IRInterface)result).getAbsoluteName())) 
+                if (test.equals(((IRInterface)result).getAbsoluteName()))
                 {
                     System.out.println("bug!");
-                }	
+                }
                 test = ((IRInterface)result).getAbsoluteName();
                 test2=((IRNode)result).irObject.hashCode();
             }
 
-            if (result != null) 
+            if (result != null)
             {
                 // knownIRObjects.put(ORB.init().object_to_string((org.omg.CORBA.Object)irObject),result);
                 knownIRObjects.put(irObject,result);
 
-                if (knownIRObjects.get(irObject) == null) 
+                if (knownIRObjects.get(irObject) == null)
                 {
                     System.out.println( "wasislos?");
-                }	
+                }
 
-                if (result instanceof IRNode && 
-                    (!((IRNode)result).repositoryID.equals(""))) 
+                if (result instanceof IRNode &&
+                    (!((IRNode)result).repositoryID.equals("")))
                 {
                     knownIRObjects.put(((IRNode)result).repositoryID,result);
-                }	
-            }	
+                }
+            }
 	}	// if (irObjectHelper.narrow...)
-	else 
-        {	
+	else
+        {
             // kein IRObject sondern lokales Objekt
             // members von Structs, Unions und Enums können nicht
             // von anderen IRObjects referenziert werden,
-            // wir wollen trotzdem für mögliche mehrfache Aufrufe 
+            // wir wollen trotzdem für mögliche mehrfache Aufrufe
             // das selbe org.jacorb.ir.gui.typesystem-Objekt zurückgeben
             if (knownIRObjects.get(obj)!=null) {
                 return (TypeSystemNode)knownIRObjects.get(obj);
-            }	
+            }
 
-            if (obj instanceof StructMember) 
+            if (obj instanceof StructMember)
             {
                 // als Hash-Key nehmen wir einen IR-weit eindeutigen String
                 StructMember structMember = (StructMember)obj;
-                if (knownIRObjects.get("structmember" + structMember.name + 
-                                       structMember.type.kind().toString())!=null) 
+                if (knownIRObjects.get("structmember" + structMember.name +
+                                       structMember.type.kind().toString())!=null)
                 {
-                    return (TypeSystemNode)knownIRObjects.get("structmember" + 
-                                                              structMember.name + 
+                    return (TypeSystemNode)knownIRObjects.get("structmember" +
+                                                              structMember.name +
                                                               structMember.type.kind().toString());
-                }	
+                }
                 result = new IRStructMember((StructMember)obj);
-                knownIRObjects.put("structmember" + structMember.name + 
+                knownIRObjects.put("structmember" + structMember.name +
                                    structMember.type.kind().toString(),result);
-            }	
-            else if (obj instanceof UnionMember) 
+            }
+            else if (obj instanceof UnionMember)
             {
                 UnionMember unionMember = (UnionMember)obj;
-                if (knownIRObjects.get("unionmember" + 
-                                       unionMember.name + 
-                                       unionMember.type.kind().toString())!=null) 
+                if (knownIRObjects.get("unionmember" +
+                                       unionMember.name +
+                                       unionMember.type.kind().toString())!=null)
                 {
-                    return (TypeSystemNode)knownIRObjects.get("unionmember" + 
-                                                              unionMember.name + 
+                    return (TypeSystemNode)knownIRObjects.get("unionmember" +
+                                                              unionMember.name +
                                                               unionMember.type.kind().toString());
-                }	
+                }
                 result = new IRUnionMember((UnionMember)obj);
-                knownIRObjects.put("unionmember" + unionMember.name + 
+                knownIRObjects.put("unionmember" + unionMember.name +
                                    unionMember.type.kind().toString(),result);
             }
-            else 	
-                if (obj instanceof ParameterDescription) 
+            else
+                if (obj instanceof ParameterDescription)
                 {
                     ParameterDescription parDesc = (ParameterDescription)obj;
-                    if (knownIRObjects.get("parameter" + parDesc.name + 
-                                           parDesc.type.kind().toString())!=null) 
+                    if (knownIRObjects.get("parameter" + parDesc.name +
+                                           parDesc.type.kind().toString())!=null)
                     {
-                        return (TypeSystemNode)knownIRObjects.get("parameter" + 
-                                                                  parDesc.name + 
+                        return (TypeSystemNode)knownIRObjects.get("parameter" +
+                                                                  parDesc.name +
                                                                   parDesc.type.kind().toString());
-                    }	
+                    }
                     result = new IRParameter(parDesc);
-                    knownIRObjects.put("parameter" + parDesc.name + 
+                    knownIRObjects.put("parameter" + parDesc.name +
                                        parDesc.type.kind().toString(),result);
                 }
-                else if (obj instanceof String) 
+                else if (obj instanceof String)
                 {
-                    if (knownIRObjects.get((String)obj)!=null) 
+                    if (knownIRObjects.get((String)obj)!=null)
                     {
                         return (IREnumMember)knownIRObjects.get((String)obj);
-                    }	
+                    }
                     result = new IREnumMember((String)obj);
                     knownIRObjects.put(obj,result);
-                }	
+                }
 	}	// else (obj war kein IRObject)
-        
+
         if( result != null )
         {
             Debug.output( 2, result.getInstanceNodeTypeName()+" "+
@@ -369,26 +372,26 @@ public class RemoteTypeSystem
      * @param node org.jacorb.ir.gui.typesystem.TypeSystemNode
      */
 
-    public DefaultTableModel getTableModel(DefaultMutableTreeNode treeNode) 
+    public DefaultTableModel getTableModel(DefaultMutableTreeNode treeNode)
     {
 	DefaultTableModel tableModel = new DefaultTableModel();
 	java.lang.Object[] colIdentifiers = {"Item","Type","Name"};
 
 	tableModel.setColumnIdentifiers(colIdentifiers);
 
-	if (treeNode!=null) 
+	if (treeNode!=null)
         {
-            if (treeNode.getUserObject() instanceof AbstractContainer) 
+            if (treeNode.getUserObject() instanceof AbstractContainer)
             {
-                for (int i=0; i<treeModel.getChildCount(treeNode); i++) 
+                for (int i=0; i<treeModel.getChildCount(treeNode); i++)
                 {
-                    TypeSystemNode childNode = 
+                    TypeSystemNode childNode =
                         (TypeSystemNode)((DefaultMutableTreeNode)(treeNode.getChildAt(i))).getUserObject();
                     String type = "";
-                    if (childNode instanceof TypeAssociator) 
+                    if (childNode instanceof TypeAssociator)
                     {
                         type = ((TypeAssociator)childNode).getAssociatedType();
-                    }	
+                    }
                     java.lang.Object[] row = {new NodeMapper(childNode,childNode.getInstanceNodeTypeName()),
                                               new NodeMapper(childNode,type),
                                               new NodeMapper(childNode,childNode.getName())};
@@ -397,7 +400,7 @@ public class RemoteTypeSystem
             }
 	}
 	return tableModel;
-    }	
+    }
 
     /**
      * @return javax.swing.event.TreeExpansionListener
@@ -412,25 +415,25 @@ public class RemoteTypeSystem
      * @param rootModPart org.jacorb.ir.gui.typesystem.ModelParticipant
      */
 
-    public TreeModel getTreeModel() 
+    public TreeModel getTreeModel()
     {
-	if (treeModel!=null) 
+	if (treeModel!=null)
         {
             return treeModel;
-	}	
-	else 
+	}
+	else
         {
-            try 
+            try
             {
-                IRRepository startNode 	= new IRRepository(rep); 
+                IRRepository startNode 	= new IRRepository(rep);
                 treeModel = ModelBuilder.getSingleton().buildTreeModelAsync(startNode);
                 return treeModel;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 e.printStackTrace();
-            }		
-	}	
+            }
+	}
 	return null;
     }
 
@@ -438,21 +441,10 @@ public class RemoteTypeSystem
      * @param args java.lang.String[]
      */
 
-    public static void main(String args[]) 
+    public static void main(String args[])
     {
 	TreeModel dummy = 	new RemoteTypeSystem().getTreeModel();
 	return;
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-

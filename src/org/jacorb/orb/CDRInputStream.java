@@ -220,14 +220,19 @@ public class CDRInputStream
 
                 // tag is an end tag
 
-                Debug.myAssert(-tag <= valueNestingLevel,
-                               "received end tag " + tag 
-                               + " with value nesting level " 
-                               + valueNestingLevel);
+                if ( ! (-tag <= valueNestingLevel))
+                {
+                    throw new INTERNAL
+                    (
+                        "received end tag " + tag +
+                        " with value nesting level " +
+                        valueNestingLevel
+                    );
+                }
                 valueNestingLevel = - tag;
                 valueNestingLevel--;
             }
-            else if (tag < 0x7fffff00) 
+            else if (tag < 0x7fffff00)
             {
                 // tag is the chunk size tag of another chunk
 
@@ -1026,9 +1031,15 @@ public class CDRInputStream
                 String recursiveId =
                     (String)tcMap.get( new Integer( pos - 4 + negative_offset ) );
 
-                Debug.myAssert( recursiveId != null,
-                                "No recursive TypeCode! (pos: " +
-                                (pos - 4 + negative_offset) + ")");
+                if (recursiveId == null)
+                {
+                    throw new INTERNAL
+                    (
+                        "No recursive TypeCode! (pos: " +
+                        (pos - 4 + negative_offset) +
+                        ")"
+                    );
+                }
 
                 // look up TypeCode in map to check if it's repeated
                 org.omg.CORBA.TypeCode rec_tc =
@@ -1793,7 +1804,7 @@ public class CDRInputStream
 
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
 	chunkedValue = ((tag & 8) != 0);
- 
+
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
@@ -1833,7 +1844,7 @@ public class CDRInputStream
 
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
 	chunkedValue = ((tag & 8) != 0);
- 
+
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
@@ -1889,7 +1900,7 @@ public class CDRInputStream
 
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
 	chunkedValue = ((tag & 8) != 0);
- 
+
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
@@ -1937,7 +1948,7 @@ public class CDRInputStream
 
         String codebase = ((tag & 1) != 0) ? read_codebase() : null;
 	chunkedValue = ((tag & 8) != 0);
- 
+
         tag = tag & 0xfffffff6;
 
         if (tag == 0x7fffff00)
@@ -1974,7 +1985,7 @@ public class CDRInputStream
     {
         java.io.Serializable result = null;
 
-	if ( chunkedValue || valueNestingLevel > 0 ) 
+	if ( chunkedValue || valueNestingLevel > 0 )
         {
 	    valueNestingLevel++;
             int chunk_size_tag = read_long();
@@ -2056,67 +2067,67 @@ public class CDRInputStream
                         c = ValueHandler.loadClass(className, codebase, null);
                     }
 
-                    if (IDLEntity.class.isAssignableFrom(c)) 
+                    if (IDLEntity.class.isAssignableFrom(c))
                     {
                         java.lang.reflect.Method readMethod = null;
-                        if (c != org.omg.CORBA.Any.class) 
+                        if (c != org.omg.CORBA.Any.class)
                         {
                             String helperClassName = c.getName() + "Helper";
-                            
-                            try 
+
+                            try
                             {
-                                Class helperClass = 
+                                Class helperClass =
                                     c.getClassLoader().loadClass(
                                                               helperClassName);
-                                Class[] paramTypes = { 
-                                    org.omg.CORBA.portable.InputStream.class 
+                                Class[] paramTypes = {
+                                    org.omg.CORBA.portable.InputStream.class
                                 };
-                                readMethod = 
+                                readMethod =
                                     helperClass.getMethod("read", paramTypes);
                             }
-                            catch (ClassNotFoundException e) 
+                            catch (ClassNotFoundException e)
                             {
                                 throw new org.omg.CORBA.MARSHAL(
-                                    "Error loading class " + helperClassName 
+                                    "Error loading class " + helperClassName
                                     + ": " + e);
                             }
-                            catch (NoSuchMethodException e) 
+                            catch (NoSuchMethodException e)
                             {
                                 throw new org.omg.CORBA.MARSHAL(
-                                    "No write method in helper class " 
+                                    "No write method in helper class "
                                     + helperClassName + ": " + e);
                             }
                         }
 
-                        if (readMethod == null) 
+                        if (readMethod == null)
                         {
                             result = read_any();
                         }
-                        else 
+                        else
                         {
-                            try 
+                            try
                             {
-                                result = 
+                                result =
                                     (java.io.Serializable) readMethod.invoke(
-                                            null, 
+                                            null,
                                             new java.lang.Object[] { this });
                             }
-                            catch (IllegalAccessException e) 
+                            catch (IllegalAccessException e)
                             {
                                 throw new org.omg.CORBA.MARSHAL(
                                     "Internal error: " + e);
                             }
-                            catch (java.lang.reflect.InvocationTargetException e) 
+                            catch (java.lang.reflect.InvocationTargetException e)
                             {
                                 throw new org.omg.CORBA.MARSHAL(
-                                    "Exception unmarshaling IDLEntity: " 
+                                    "Exception unmarshaling IDLEntity: "
                                     + e.getTargetException());
                             }
                         }
                     }
                     else
                         result = ValueHandler.readValue(this, index, c,
-                                                        repository_ids[r], 
+                                                        repository_ids[r],
                                                         null);
                 }
                 catch (ClassNotFoundException e)

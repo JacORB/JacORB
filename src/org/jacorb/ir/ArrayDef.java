@@ -20,6 +20,8 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.omg.CORBA.INTF_REPOS;
+
 public class ArrayDef
     extends IDLType
     implements org.omg.CORBA.ArrayDefOperations
@@ -28,11 +30,14 @@ public class ArrayDef
     org.omg.CORBA.TypeCode element_type;
     org.omg.CORBA.IDLType element_type_def;
     private org.omg.CORBA.Repository ir;
- 
+
     public ArrayDef( org.omg.CORBA.TypeCode tc, org.omg.CORBA.Repository ir )
     {
-         org.jacorb.util.Debug.myAssert( tc.kind() == org.omg.CORBA.TCKind.tk_array, 
-                                  "Precondition volation: TypeCode must be of kind arry");
+        if (tc.kind() != org.omg.CORBA.TCKind.tk_array)
+        {
+            throw new INTF_REPOS ("Precondition volation: TypeCode must be of kind array");
+        }
+
          def_kind = org.omg.CORBA.DefinitionKind.dk_Array;
          this.ir = ir;
          type = tc;
@@ -44,14 +49,17 @@ public class ArrayDef
          }
          catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
          {
-             // cannot happen because of myAssertion
+             // cannot happen because of above test
          }
-         
-         org.jacorb.util.Debug.myAssert( element_type_def != null, "Element type null in sequence def");
+
+        if (element_type_def == null)
+        {
+            throw new INTF_REPOS ("Precondition volation: TypeCode must be of kind array");
+        }
          org.jacorb.util.Debug.output(2, "New ArrayDef");
-         
+
     }
-    
+
     public int length()
     {
         return size;
@@ -65,18 +73,18 @@ public class ArrayDef
     public org.omg.CORBA.TypeCode element_type()
     {
         return element_type;
-	}
-    
+    }
+
     public org.omg.CORBA.IDLType element_type_def()
     {
         return element_type_def;
     }
-    
+
     public void element_type_def(org.omg.CORBA.IDLType a)
     {
         element_type_def = a;
     }
-    
+
     public void destroy()
     {
         type = null;
@@ -88,13 +96,3 @@ public class ArrayDef
 
     }
 }
-
-
-
-
-
-
-
-
-
-

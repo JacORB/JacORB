@@ -33,7 +33,7 @@ class ParamDecl
     public static final int MODE_IN    = 1;
     public static final int MODE_OUT   = 2;
     public static final int MODE_INOUT = 3;
-    
+
     public int paramAttribute;
     public TypeSpec paramTypeSpec;
     public SimpleDeclarator simple_declarator;
@@ -42,18 +42,18 @@ class ParamDecl
     {
         super( num );
     }
-    
+
     /**
      *  Constructs a new parameter declaration with the given characteristics.
      */
-    public ParamDecl (int paramAttribute, 
+    public ParamDecl (int paramAttribute,
                       TypeSpec paramTypeSpec,
                       SimpleDeclarator simple_declarator)
     {
         super (new_num());
         this.paramAttribute = paramAttribute;
         this.paramTypeSpec  = paramTypeSpec;
-        this.simple_declarator = simple_declarator;  
+        this.simple_declarator = simple_declarator;
     }
 
     /**
@@ -97,8 +97,11 @@ class ParamDecl
             if( ts != null )
                 paramTypeSpec = ts;
         }
-        
-        Environment.doAssert( paramTypeSpec != null , " paramTypeSpec is null " + name );
+
+        if (paramTypeSpec == null)
+        {
+            throw new RuntimeException ("paramTypeSpec is null " + name);
+        }
 
         //simple_declarator.print(ps);
     }
@@ -113,7 +116,7 @@ class ParamDecl
                 //else
                 ps.print( paramTypeSpec.toString() );
                 break;
-            case MODE_OUT: 
+            case MODE_OUT:
             case MODE_INOUT:
                 ps.print( paramTypeSpec.holderName() );
                 break;
@@ -141,7 +144,3 @@ class ParamDecl
     }
 
 }
-
-
-
-
