@@ -1450,7 +1450,14 @@ public final class ORB
 
     public String object_to_string( org.omg.CORBA.Object obj)
     {
-        return obj.toString();
+        Object delegate = 
+            ((org.omg.CORBA.portable.ObjectImpl)obj)._get_delegate();
+        if (delegate instanceof org.jacorb.orb.Delegate)
+            return delegate.toString();
+        else
+            throw new Error("Argument has a delegate whose class is "
+                            + delegate.getClass().getName()
+                            + ", a org.jacorb.orb.Delegate was expected");
     }
 
     public void perform_work() 
@@ -1462,6 +1469,19 @@ public final class ORB
         return false;
     }
 
+    public org.omg.CORBA.portable.ValueFactory lookup_value_factory 
+                                                         (String repositoryId) 
+    {
+        String className = org.jacorb.ir.RepositoryID.className (repositoryId);
+        
+        return new org.omg.CORBA.portable.ValueFactory() {
+                public java.io.Serializable read_value 
+                    (org.omg.CORBA_2_3.portable.InputStream is) {
+                    return null;
+                }
+            };
+    }
+                                                        
     /**
      * Test, if the ORB has ClientRequestInterceptors <br>
      * Called by Delegate.
