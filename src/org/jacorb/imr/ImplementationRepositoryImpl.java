@@ -1418,7 +1418,8 @@ public class ImplementationRepositoryImpl
 
             RequestInputStream in = new RequestInputStream( orb, request );
 
-            replyNewLocation( ((org.jacorb.orb.ORB)orb).mapObjectKey( in.req_hdr.target.object_key() ),
+            replyNewLocation( ((org.jacorb.orb.ORB)orb).mapObjectKey(
+                                    ParsedIOR.extractObjectKey(in.req_hdr.target, (org.jacorb.orb.ORB)orb)),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
                               connection );
@@ -1432,7 +1433,7 @@ public class ImplementationRepositoryImpl
             LocateRequestInputStream in =
             new LocateRequestInputStream( orb, request );
 
-            replyNewLocation( in.req_hdr.target.object_key(),
+            replyNewLocation( ParsedIOR.extractObjectKey(in.req_hdr.target, (org.jacorb.orb.ORB) orb),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
                               connection );
