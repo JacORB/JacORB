@@ -25,8 +25,8 @@ import org.omg.CosNaming.*;
 import org.omg.CORBA.Any;
 import org.jacorb.util.*;
 import org.omg.IOP.*;
-import org.omg.IOP.ServiceContext;
 import org.jacorb.orb.*;
+import org.jacorb.orb.iiop.*;
 import java.util.*;
 
 /**
@@ -173,7 +173,12 @@ public class ProxyClientForwardInterceptor
         org.jacorb.proxy.Proxy proxy = null;
         boolean redirect = false;
         ParsedIOR pior = new ParsedIOR (target.toString (), orb);
-        String host = pior.getIIOPAddress().getHost ();
+        org.omg.ETF.Profile profile = pior.getEffectiveProfile();
+        
+        if (!(profile instanceof IIOPProfile))
+            throw new RuntimeException ("cannot redirect non-IIOP transport");
+        
+        String host = ((IIOPProfile)profile).getAddress().getHost();
         long hostIP = ipToInt (host);
 
         // Determine whether to redirect to proxy
