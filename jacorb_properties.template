@@ -270,6 +270,10 @@ jacorb.interop.lax_boolean_encoding=off
 # you should turn this property off.
 jacorb.interop.strict_check_on_tc_creation=on
 
+# Custom-marshalled RMI valuetypes should be encoded as chunks, but some
+# ORBs are not able to decode chunked values. Disable this property for
+# interoperability with the ORB in Sun's JDK 1.4.2.
+jacorb.interop.chunk_custom_rmi_valuetypes=on
 ###########################################
 #                                         #
 #         Socket Factories                #
