@@ -154,8 +154,39 @@ public class RequestController
 
     synchronized void freeObject( byte[] oid ) 
     {
-        deactivationList.removeElement(POAUtil.oid_to_bak(oid));	
+        deactivationList.removeElement( POAUtil.oid_to_bak(oid) );	
     }
+
+    /**
+     * called from POA.deactivateObject() 
+     */
+
+    boolean deactivationInProgress( byte[] oid )
+    {
+        return deactivationList.contains( POAUtil.oid_to_bak(oid) );
+    }
+
+    /**
+     * called from POA.deactivate_object() to determine when to return
+     */
+
+    void waitForDeactivationStart( byte[] oid ) 
+    {
+        if ( !deactivationInProgress( oid ) && aom.contains( oid ) ) 
+        {
+            synchronized( oid )
+            {
+                try 
+                {
+                    oid.wait();
+                }
+                catch (InterruptedException e) 
+                {
+                }
+            }
+        }		
+    }
+
 
     AOM getAOM() 
     {
@@ -504,7 +535,13 @@ public class RequestController
         }		
         if (logTrace.test(6))
             logTrace.printLog(oid, "all active processors for this object have finished");		
-        deactivationList.addElement(oidbak);
+
+        deactivationList.addElement( oidbak );
+
+        synchronized( oid )
+        {
+            oid.notifyAll();
+        }
     }
 
     /**
