@@ -265,7 +265,7 @@ public class Interface
             // interface. We must replace that table entry with this type spec
             // unless this is yet another forward declaration
 
-            if (parser.get_pending (full_name ()) != null)
+            if (parser.get_pending (full_name()) != null)
             {
                 if (body == null)
                 {
@@ -442,9 +442,9 @@ public class Interface
     protected void printClassComment(String className, PrintWriter ps)
     {
         ps.println("/**");
-        ps.println(" *\tGenerated from IDL definition of interface " +
+        ps.println(" *\tGenerated from IDL interface " +
                    "\"" + className + "\"");
-        ps.println(" *\t@author JacORB IDL compiler ");
+        ps.println(" *\t@author JacORB IDL compiler V " + parser.compiler_version);
         ps.println(" */\n");
     }
 
@@ -664,7 +664,7 @@ public class Interface
         ps.println("{");
         ps.println("\t public " + name + " value;");
 
-        ps.println("\tpublic " + name + "Holder ()");
+        ps.println("\tpublic " + name + "Holder()");
         ps.println("\t{");
         ps.println("\t}");
 
@@ -673,9 +673,9 @@ public class Interface
         ps.println("\t\tvalue = initial;");
         ps.println("\t}");
 
-        ps.println("\tpublic org.omg.CORBA.TypeCode _type ()");
+        ps.println("\tpublic org.omg.CORBA.TypeCode _type()");
         ps.println("\t{");
-        ps.println("\t\treturn " + name + "Helper.type ();");
+        ps.println("\t\treturn " + name + "Helper.type();");
         ps.println("\t}");
 
         ps.println("\tpublic void _read (final org.omg.CORBA.portable.InputStream in)");
@@ -739,14 +739,14 @@ public class Interface
         ps.println("\t}");
 
         // Generate extract
-        ps.println("\tpublic static " + typeName() + " extract (final org.omg.CORBA.Any any)");
+        ps.println("\tpublic static " + typeName() + " extract(final org.omg.CORBA.Any any)");
         ps.println("\t{");
 
         if (is_abstract)
         {
             ps.println("\t\ttry");
             ps.println("\t\t{");
-            ps.println("\t\t\treturn narrow (any.extract_Object ());");
+            ps.println("\t\t\treturn narrow(any.extract_Object());");
             ps.println("\t\t}");
             ps.println("\t\tcatch (org.omg.CORBA.BAD_OPERATION ex)");
             ps.println("\t\t{");
@@ -762,13 +762,20 @@ public class Interface
         }
         else
         {
-            ps.println("\t\treturn narrow (any.extract_Object ());");
+            if( parser.useUncheckedNarrow )
+            {
+                ps.println( "\t\treturn unchecked_narrow(any.extract_Object());");
+            }
+            else
+            {
+                ps.println("\t\treturn narrow(any.extract_Object()) ;");
+            }
         }
 
         ps.println("\t}");
 
         // Generate the typecode
-        ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
+        ps.println("\tpublic static org.omg.CORBA.TypeCode type()");
         ps.println("\t{");
         ps.println("\t\treturn " + getTypeCodeExpression() + ";");
         ps.println("\t}");
@@ -776,34 +783,41 @@ public class Interface
         printIdMethod(ps);
 
         // Generate the read
-        ps.println("\tpublic static " + name + " read (final org.omg.CORBA.portable.InputStream in)");
+        ps.println("\tpublic static " + name + " read(final org.omg.CORBA.portable.InputStream in)");
         ps.println("\t{");
 
         if (is_local)
         {
-            ps.println("\t\tthrow new org.omg.CORBA.MARSHAL ();");
+            ps.println("\t\tthrow new org.omg.CORBA.MARSHAL();");
         }
         else
         {
             if (is_abstract)
             {
-                ps.println("\t\treturn narrow (((org.omg.CORBA_2_3.portable.InputStream)in).read_abstract_interface ());");
+                ps.println("\t\treturn narrow(((org.omg.CORBA_2_3.portable.InputStream)in).read_abstract_interface());");
             }
             else
             {
-                ps.println("\t\treturn narrow (in.read_Object ());");
+                if( parser.useUncheckedNarrow )
+                {
+                    ps.println( "\t\treturn unchecked_narrow(in.read_Object());" );
+                }
+                else
+                {
+                    ps.println("\t\treturn narrow(in.read_Object());");
+                }
             }
         }
 
         ps.println("\t}");
 
         // Generate the write
-        ps.println("\tpublic static void write (final org.omg.CORBA.portable.OutputStream _out, final " + typeName() + " s)");
+        ps.println("\tpublic static void write(final org.omg.CORBA.portable.OutputStream _out, final " + typeName() + " s)");
         ps.println("\t{");
 
         if (is_local)
         {
-            ps.println("\t\tthrow new org.omg.CORBA.MARSHAL ();");
+            ps.println("\t\tthrow new org.omg.CORBA.MARSHAL();");
         }
         else
         {
@@ -820,7 +834,7 @@ public class Interface
         ps.println("\t}");
 
         // Generate narrow - only used by abstract_interfaces.
-        ps.println("\tpublic static " + typeName() + " narrow (final java.lang.Object obj)");
+        ps.println("\tpublic static " + typeName() + " narrow(final java.lang.Object obj)");
         ps.println("\t{");
         ps.println("\t\tif (obj instanceof " + typeName() + ')');
         ps.println("\t\t{");
@@ -833,11 +847,9 @@ public class Interface
         ps.println("\t\tthrow new org.omg.CORBA.BAD_PARAM(\"Failed to narrow in helper\");");
         ps.println("\t}");
 
-
-
         // Generate narrow
 
-        ps.println("\tpublic static " + typeName() + " narrow (final org.omg.CORBA.Object obj)");
+        ps.println("\tpublic static " + typeName() + " narrow(final org.omg.CORBA.Object obj)");
         ps.println("\t{");
         ps.println("\t\tif (obj == null)");
         ps.println("\t\t\treturn null;");
@@ -888,7 +900,7 @@ public class Interface
         ps.println("\t}");
 
         // Generate the unchecked_narrow
-        ps.println("\tpublic static " + typeName() + " unchecked_narrow (final org.omg.CORBA.Object obj)");
+        ps.println("\tpublic static " + typeName() + " unchecked_narrow(final org.omg.CORBA.Object obj)");
         ps.println("\t{");
         ps.println("\t\tif (obj == null)");
         ps.println("\t\t\treturn null;");
@@ -955,7 +967,7 @@ public class Interface
                     }
                     else if (ts instanceof ReplyHandlerTypeSpec)
                     {
-                        base_ids.add ("IDL:omg.org/Messaging/ReplyHandler:1.0");
+                        base_ids.add("IDL:omg.org/Messaging/ReplyHandler:1.0");
                     }
                 }
             }
