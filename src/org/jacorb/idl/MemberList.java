@@ -35,7 +35,7 @@ class  MemberList
     extends SymbolList
 {
     Vector extendVector = new Vector();
-    private StructType containing_struct;
+    private TypeDeclaration containingType;
     private boolean parsed = false;
 
     public MemberList(int num)
@@ -43,14 +43,14 @@ class  MemberList
         super(num);
     }
 
-    public void setStruct(StructType s)
+    public void setContainingType (TypeDeclaration t)
     {
-        containing_struct = s;
+        containingType = t;
         Enumeration e = v.elements();
         for(; e.hasMoreElements(); )
         {
             Member m = (Member)e.nextElement();
-            m.setStruct( s );
+            m.setContainingType (t);
         }
     }
 
