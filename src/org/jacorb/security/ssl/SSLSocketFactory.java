@@ -133,7 +133,7 @@ public class SSLSocketFactory
                                                      kac[i].key );
 	    }
             
-            if( Environment.requiredBySSL & 0x20 != 0 )
+            if( (Environment.requiredBySSL() & 0x20) != 0 )
             {
                 //required: establish trust in target
                 //--> force other side to authenticate
