@@ -206,7 +206,8 @@ public final class RequestController
             {
                 if (singletonPoolManager == null)
                 {
-                    singletonPoolManager = new RPPoolManager(orb.getPOACurrent(), 1, 1);
+                    singletonPoolManager =
+                        new RPPoolManager(orb.getPOACurrent(), 1, 1, logger);
                 }
                 poolManager = singletonPoolManager;
 
@@ -216,7 +217,8 @@ public final class RequestController
                 poolManager =
                     new RPPoolManager(orb.getPOACurrent(),
                                       Environment.threadPoolMin(),
-                                      Environment.threadPoolMax());
+                                      Environment.threadPoolMax(),
+                                      logger);
             }
         }
         return poolManager;
