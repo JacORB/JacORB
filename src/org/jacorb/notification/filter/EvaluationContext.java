@@ -45,8 +45,11 @@ public class EvaluationContext extends AbstractPoolable
     Logger logger_ =  Debug.getNamedLogger(getClass().getName());
 
     private DynamicEvaluator dynamicEvaluator_;
-    private Message event_;
+
+    private Message message_;
+
     private Map resultCache_;
+
     private Map anyCache_;
 
     ////////////////////////////////////////
@@ -80,13 +83,13 @@ public class EvaluationContext extends AbstractPoolable
 
     public Message getCurrentMessage()
     {
-        return event_;
+        return message_;
     }
 
 
-    public void setCurrentMessagea(Message event)
+    public void setCurrentMessage(Message message)
     {
-        event_ = event;
+        message_ = message;
     }
 
 
@@ -125,12 +128,13 @@ public class EvaluationContext extends AbstractPoolable
         anyCache_.remove(name);
     }
 
+
     /**
      * resolve the RuntimeVariable (e.g. $curtime). then see if some
      * more work has to be done (e.g. $curtime._repos_id)
      */
-    public EvaluationResult extractFromMessage(AbstractMessage m,
-                                               EvaluationResult r,
+    public EvaluationResult extractFromMessage(AbstractMessage message,
+                                               EvaluationResult evaluationResult,
                                                ComponentName componentName,
                                                RuntimeVariable runtimeVariable)
         throws EvaluationException
@@ -140,26 +144,27 @@ public class EvaluationContext extends AbstractPoolable
         if (_componentName.right() != null) {
 
             return MessageUtils.extractFromAny(_componentName.right(),
-                                               r.getAny(),
+                                               evaluationResult.getAny(),
                                                this,
                                                runtimeVariable.toString());
         } else {
-            return r;
+            return evaluationResult;
         }
      }
+
 
     /**
      * fetch the values denoted by the provided ComponentName out of
      * the Message.
      */
-    public EvaluationResult extractFromMessage(AbstractMessage m,
+    public EvaluationResult extractFromMessage(AbstractMessage message,
                                                ComponentName componentRootNode)
         throws EvaluationException
     {
         ETCLComponentName _componentName = (ETCLComponentName)componentRootNode;
 
         return MessageUtils.extractFromAny(_componentName.left(),
-                                           m.toAny(),
+                                           message.toAny(),
                                            this,
                                            _componentName.toString());
     }

@@ -66,6 +66,7 @@ public class FilterConstraint
         rootNode_ = root;
     }
 
+
     public FilterConstraint( ConstraintExp constraintExp )
         throws InvalidConstraint
     {
@@ -105,6 +106,7 @@ public class FilterConstraint
         return constraint_;
     }
 
+
     public EvaluationResult evaluate( EvaluationContext evaluationContext,
                                       Message event )
         throws EvaluationException
@@ -117,12 +119,13 @@ public class FilterConstraint
             logger_.debug("evaluate()" + rootNode_.toStringTree());
         }
 
-        evaluationContext.setCurrentMessagea( event );
+        evaluationContext.setCurrentMessage( event );
 
         EvaluationResult _res = rootNode_.evaluate( evaluationContext );
 
         return _res;
     }
+
 
     public String toString()
     {
