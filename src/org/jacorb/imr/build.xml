@@ -37,7 +37,6 @@
    </target>
 
    <target name="idlcompile">
-   <echo message="imr.idlcompile, classdir ${classdir}"/>
       <java classname="org.jacorb.idl.parser" 
             classpath="${classpath}"
 	    fork="yes">
@@ -46,7 +45,6 @@
    </target>
 
    <target name="util" if="java2.present">
-	   <echo message="util"/>
 	<javac srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/imr/util/*.java"
