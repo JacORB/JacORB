@@ -590,6 +590,11 @@ jacorb.poa.queue_wait=off
 jacorb.poa.queue_max=100
 jacorb.poa.queue_min=10
 
+# Set this to on for server-side checking of expired ReplyEndTimePolicy.
+# (This also applies to RelativeRoundtripTimeoutPolicy.)  When this is on,
+# the clocks of the server and client machine need to be synchronized.
+#jacorb.poa.check_reply_end_time=off
+
 
 ###################################
 #                                 #
