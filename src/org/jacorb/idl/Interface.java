@@ -859,17 +859,17 @@ class Interface
         ps.println( "\t\t_delegate = delegate;" );
         ps.println( "\t}" );
 
-        //      ps.println("\tpublic POA _default_POA()");
-        //      ps.println("\t{");
-        //      ps.println("\t\tif( _poa != null )");
-        //      ps.println("\t\t{");
-        //      ps.println("\t\t\treturn _poa;");
-        //      ps.println("\t\t}");
-        //      ps.println("\t\telse");
-        //      ps.println("\t\t{");
-        //      ps.println("\t\t\treturn super._default_POA();");
-        //      ps.println("\t\t}");
-        //      ps.println("\t}");
+        ps.println("\tpublic POA _default_POA()");
+        ps.println("\t{");
+        ps.println("\t\tif( _poa != null )");
+        ps.println("\t\t{");
+        ps.println("\t\t\treturn _poa;");
+        ps.println("\t\t}");
+        ps.println("\t\telse");
+        ps.println("\t\t{");
+        ps.println("\t\t\treturn super._default_POA();");
+        ps.println("\t\t}");
+        ps.println("\t}");
 
         body.printDelegatedMethods( ps );
         ps.println( "}" );
