@@ -55,11 +55,11 @@ public class AOM
 
     // an ObjectID can appear only once, but an servant can have multiple ObjectId's
     // if MULTIPLE_ID is set
-    private Hashtable           objectMap = new Hashtable(); // oid -> servant
+    private Map               objectMap = new HashMap(); // oid -> servant
 
     // only meaningful if UNIQUE_ID is set
     // only for performance improvements (brose: is that still true?)
-    private Hashtable           servantMap;             // servant -> oid
+    private Map               servantMap;             // servant -> oid
 
     // for synchronisation of servant activator calls
     private List              etherealisationList = new ArrayList();
@@ -85,7 +85,7 @@ public class AOM
 
         if (unique)
         {
-            servantMap = new Hashtable();
+            servantMap = new HashMap();
         }
     }
 
@@ -178,7 +178,7 @@ public class AOM
         }
         else
         {
-            return objectMap.contains(servant);
+            return objectMap.containsValue(servant);
         }
     }
 
@@ -187,11 +187,11 @@ public class AOM
     {
         StringPair[] result = new StringPair[objectMap.size()];
         ByteArrayKey oidbak;
-        Enumeration en = objectMap.keys();
+        Iterator en = objectMap.keySet().iterator();
 
         for ( int i = 0; i < result.length; i++ )
         {
-            oidbak = (ByteArrayKey) en.nextElement();
+            oidbak = (ByteArrayKey) en.next();
             result[i] = new StringPair
             (
                 oidbak.toString(),
@@ -502,10 +502,10 @@ public class AOM
                               boolean cleanup_in_progress )
     {
         byte[] oid;
-        Enumeration en = objectMap.keys();
-        while (en.hasMoreElements())
+        Iterator en = objectMap.keySet().iterator();
+        while (en.hasNext())
         {
-            oid = ((ByteArrayKey) en.nextElement()).getBytes();
+            oid = ((ByteArrayKey) en.next()).getBytes();
             _remove(oid, null, servant_activator, poa, cleanup_in_progress);
         }
     }
