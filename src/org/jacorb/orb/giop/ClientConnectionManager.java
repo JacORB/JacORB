@@ -41,7 +41,7 @@ import org.jacorb.util.*;
  */
 
 public class ClientConnectionManager
-{    
+{
     public static final String FACTORY_PROP = "jacorb.net.socket_factory";
 
     private org.jacorb.orb.ORB orb = null;
@@ -76,14 +76,14 @@ public class ClientConnectionManager
             {
                 throw new RuntimeException( "SSL support is on, but the property \"jacorb.ssl.socket_factory\" is not set!" );
             }
-            
+
             try
             {
                 Class ssl = Class.forName( s );
-                
+
                 Constructor constr = ssl.getConstructor( new Class[]{
                     ORB.class });
-                
+
                 ssl_socket_factory = (SocketFactory)
                     constr.newInstance( new Object[]{ orb });
             }
@@ -91,7 +91,7 @@ public class ClientConnectionManager
             {
                 Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT,
                               e );
-                
+
                 throw new RuntimeException( "SSL support is on, but the ssl socket factory can't be instanciated (see trace)!" );
             }
         }
@@ -116,9 +116,9 @@ public class ClientConnectionManager
         try
         {
             /** make sure we have a raw IP address here */
-            InetAddress inet_addr = 
+            InetAddress inet_addr =
                 InetAddress.getByName( host );
-            
+
             host_and_port = inet_addr.getHostAddress() + ':' + port;
         }
         catch( UnknownHostException uhe )
@@ -135,12 +135,12 @@ public class ClientConnectionManager
         request_listener = listener;
     }
 
-    public synchronized ClientConnection getConnection 
+    public synchronized ClientConnection getConnection
                                               (org.omg.ETF.Profile profile)
     {
         /* look for an existing connection */
-        
-        ClientConnection c = 
+
+        ClientConnection c =
             (ClientConnection)connections.get( profile );
 
         if (c == null)
@@ -149,22 +149,22 @@ public class ClientConnectionManager
             Factories factories = transport_manager.getFactories (tag);
             if (factories == null)
             {
-                throw new RuntimeException 
+                throw new RuntimeException
                     ("No transport plugin for profile tag " + tag);
             }
-            GIOPConnection connection = 
-                giop_connection_manager.createClientGIOPConnection( 
+            GIOPConnection connection =
+                giop_connection_manager.createClientGIOPConnection(
                     profile,
                     factories.create_connection (null),
                     request_listener,
                     null );
-            
-            c = new ClientConnection( connection, orb, this, 
+
+            c = new ClientConnection( connection, orb, this,
                                       profile.toString(), true );
 
             Debug.output( 2, "ClientConnectionManager: created new conn to target " +
                           c.getInfo() );
-            
+
             connections.put( profile, c );
 
             receptor_pool.connectionCreated( connection );
@@ -182,13 +182,10 @@ public class ClientConnectionManager
 
     public synchronized void releaseConnection( ClientConnection c )
     {
-        c.decClients();
-        
-        if( c.hasNoMoreClients() )
+        // hasNoMoreClients now merged into decClients.
+        if ( c.decClients() )
         {
-            c.close();
-
-            connections.remove (c.get_server_profile()); 
+            connections.remove (c.get_server_profile());
         }
     }
 
@@ -212,10 +209,10 @@ public class ClientConnectionManager
         if( !connections.containsKey( profile ))
         {
             ClientConnection c = new ClientConnection
-            ( 
-                connection, orb, this, 
+            (
+                connection, orb, this,
                 profile.toString(),
-                false 
+                false
             );
 
             //this is a bit of a hack: the bidirectional client
@@ -223,9 +220,9 @@ public class ClientConnectionManager
             //connection is closed. Therefore, we set the initial
             //client count to 1, so the connection will be kept even
             //if there are currently no associated Delegates.
-        
+
             c.incClients();
-        
+
             connections.put( profile, c );
         }
     }
@@ -233,14 +230,14 @@ public class ClientConnectionManager
     public void shutdown()
     {
         /* release all open connections */
-        
+
         for( Iterator i = connections.values().iterator(); i.hasNext(); )
         {
             ((ClientConnection) i.next()).close();
         }
-        
+
         Debug.output(3,"ClientConnectionManager shut down (all connections released)");
-        
+
         connections.clear();
     }
 }
