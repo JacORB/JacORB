@@ -280,7 +280,8 @@ class ForwarderImpl
                                              inrequest.operation(),
                                              (0x03 & inrequest.get_in().req_hdr.response_flags) == 0x03,
                                              ior.get_object_key(),
-                                             inrequest.getServiceContext());
+                                             inrequest.getServiceContext(),
+                                             inrequest.get_in().getGIOPMinor() );
                 //data
                 synchronized(realCon.writeLock)
                 {
@@ -288,10 +289,10 @@ class ForwarderImpl
 
                     System.out.println( "[" + mycounter + 
                                         "]Incoming Request with size: " + 
-                                        (inrequest.get_in().msg_hdr.message_size+12 ));
+                                        (inrequest.get_in().getMsgSize()+12 ));
 
                     int datalength= 
-                        ((int) inrequest.get_in().msg_hdr.message_size + 12 )-
+                        ((int) inrequest.get_in().getMsgSize() + 12 )-
                         ((int) inrequest.get_in().get_pos() );
                     // inrequest.get_in().get_buffer().length
 
@@ -352,7 +353,7 @@ class ForwarderImpl
                     if (Environment.verbosityLevel()>=3)
                     {
                         Debug.output(3,"[Proxy:Incoming byte-stream:]");
-                        for(int i=0;i<inrequest.get_in().msg_hdr.message_size+12;i++)
+                        for(int i=0;i<inrequest.get_in().getMsgSize()+12;i++)
                             System.out.print(((byte)inrequest.get_in().getBuffer()[i])+"  ");
                         Debug.output(3,"[Proxy:Outgoing byte-stream:]");
                         for(int i=0;i<cdr.size();i++)
@@ -360,7 +361,7 @@ class ForwarderImpl
                             System.out.print(((byte)cdr.getInternalBuffer()[i])+"  ");
                         }
                         System.out.println("[The real Data:]");
-                        for(int i=inrequest.get_in().get_pos();i<inrequest.get_in().msg_hdr.message_size+12;i++)
+                        for(int i=inrequest.get_in().get_pos();i<inrequest.get_in().getMsgSize()+12;i++)
                         {
                             System.out.print(inrequest.get_in().getBuffer()[i]+"  ");
                         }
@@ -371,7 +372,6 @@ class ForwarderImpl
                         key = new Integer( cdr.requestId() );
                         //                      ((org.jacorb.orb.ClientSideConnection)realCon).get_buffers().put( key, cdr);
                         ((ClientConnection)realCon).get_replies().put( key, rep );
-                        ((ClientConnection)realCon).get_objects().put( key, poa_current.get_POA().servant_to_reference(this) ); 
                     }
                     //if (! realCon.connected()) done above
                     //  realCon.reconnect();
@@ -392,8 +392,7 @@ class ForwarderImpl
                     org.jacorb.orb.CDRInputStream xxx=((ReplyInputStream)rep.rawResult());
                     //              ((ClientConnection)realCon).get_buffers().remove(key);
                     ((ClientConnection)realCon).get_replies().remove(key);
-                    ((ClientConnection)realCon).get_objects().remove(key);
-                    inrequest.reply(xxx.getBuffer(),((ReplyInputStream)xxx).msg_hdr.message_size+12);
+                    inrequest.reply(xxx.getBuffer(),((ReplyInputStream)xxx).getMsgSize()+12);
                 }
             }
             catch (Exception e)
