@@ -42,6 +42,7 @@ import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
  * @author Alphonse Bendt
@@ -145,6 +146,8 @@ public class StartTimeTest extends NotificationTestCase
 
     public void processEventWithStartTime(long offset) throws Exception
     {
+        final SynchronizedBoolean failed = new SynchronizedBoolean(true);
+        
         structuredEvent_.header.variable_header = new Property[1];
 
         final Date _startTime = new Date(System.currentTimeMillis() + offset);
@@ -168,18 +171,21 @@ public class StartTimeTest extends NotificationTestCase
                     long _recvTime = System.currentTimeMillis();
                     assertEquals(event, _event);
                     assertTrue(_recvTime >= _startTime.getTime());
+                    
+                    failed.set(false);
                 } finally
                 {
                     _latch.release();
                 }
             }
-
         };
 
         _taskProcessor.processMessage(_event);
 
         _latch.acquire();
 
+        assertFalse(failed.get());
+        
         _taskProcessor.dispose();
     }
 

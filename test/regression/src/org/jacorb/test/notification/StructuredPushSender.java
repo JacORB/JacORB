@@ -30,7 +30,7 @@ public class StructuredPushSender
 
     PerformanceListener perfListener_;
     StructuredGenerator generator_;
-    StructuredProxyPushConsumer pushConsumer_;
+    public StructuredProxyPushConsumer pushConsumer_;
     StructuredEvent event_;
     StructuredEvent[] events_;
     int times_ = 1;
@@ -117,10 +117,13 @@ public class StructuredPushSender
                 }
             } catch (Exception e) {
                 error_ = true;
+                e.printStackTrace();
             }
             try {
                 Thread.sleep(interval_);
-            } catch (InterruptedException ie) {}
+            } catch (InterruptedException ie) {
+                // ignore
+            }
         }
     }
 

@@ -20,6 +20,7 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterFactory;
+import org.omg.CosNotifyFilter.FilterFactoryHelper;
 import org.picocontainer.MutablePicoContainer;
 
 /**
@@ -71,7 +72,7 @@ public class FilterTest extends NotificationTestCase
 
         factoryServant_.activate();
 
-        factory_ = factoryServant_.getFilterFactory();
+        factory_ = FilterFactoryHelper.narrow(factoryServant_.activate());
 
         testUtils_ = new NotificationTestUtils(getORB());
 

@@ -145,6 +145,7 @@ public class StructuredEventChannelTest extends NotificationTestCase
                     throw new NO_IMPLEMENT();
                 }
             };
+            
         StructuredPushReceiver _receiver = new StructuredPushReceiver(this);
 
         _sender.connect(channel_, false);

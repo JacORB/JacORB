@@ -87,7 +87,7 @@ public class MappingFilterTest extends NotificationTestCase
     public void testMatch() throws Exception {
         Any defaultValue = getORB().create_any();
 
-        MappingFilterOperations _mappingFilter = new MappingFilterImpl(getConfiguration(), filter_, defaultValue);
+        MappingFilterOperations _mappingFilter = new MappingFilterImpl(getORB(), getConfiguration(), filter_, defaultValue);
 
         AnyHolder anyHolder = new AnyHolder();
 
@@ -122,7 +122,7 @@ public class MappingFilterTest extends NotificationTestCase
     public void testMatch2() throws Exception {
         Any defaultValue = getORB().create_any();
 
-        MappingFilterOperations _mappingFilter = new MappingFilterImpl(getConfiguration(), filter_, defaultValue);
+        MappingFilterOperations _mappingFilter = new MappingFilterImpl(getORB(), getConfiguration(), filter_, defaultValue);
 
         AnyHolder anyHolder = new AnyHolder();
 
