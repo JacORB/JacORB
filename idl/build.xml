@@ -25,7 +25,7 @@
    <!-- ==================================================== -->
 
    <target name="corba"
-           depends="orb,sysex,dynany,portableserver,iop,iiop,giop,conf,interceptor,compile"/>
+           depends="orb,sysex,dynany,portableserver,iop,iiop,giop,conf,messaging,interceptor,compile"/>
 
    <target name="compile">
       <antcall target="jacorb-javac">
@@ -205,14 +205,25 @@
               destdir="${src}/generated"/>
    </target>
 
-   <target name="interceptor" depends="time">
+   <target name="messaging" depends="init,load-taskdef">
+     <jacidl generateir="true"
+              noskel="true"
+              nostub="true"
+              srcdir="idl"
+              packageprefix="org.omg"
+              includepath="${idl}/omg"
+              includes="**/omg/Messaging.idl"
+              destdir="${src}/generated"/>
+   </target>
+
+   <target name="interceptor" depends="time,messaging">
       <jacidl generateir="true"
               noskel="true"
               nostub="true"
               srcdir="idl"
               packageprefix="org.omg"
               includepath="${idl}/omg"
-              includes="**/omg/Dynamic.idl,**/omg/Messaging.idl,**/omg/PortableInterceptor.idl"
+              includes="**/omg/Dynamic.idl,**/omg/PortableInterceptor.idl"
               destdir="${src}/generated"/>
    </target>
 
