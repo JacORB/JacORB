@@ -1,5 +1,5 @@
---- JacORB1_4_beta2/src/org/jacorb/security/ssl/sun_jsse/SSLServerSocketFactory.java	2001/11/20 17:56:09	1.1
-+++ JacORB1_4_beta2/src/org/jacorb/security/ssl/sun_jsse/SSLServerSocketFactory.java	2001/11/20 17:56:18
+--- SSLServerSocketFactory.java	2002/02/25 20:51:07	1.6
++++ SSLServerSocketFactory.java	2002/02/28 08:14:51
 @@ -11,7 +11,7 @@
  
  //uncomment this line if you want to compile with the separately
@@ -9,3 +9,12 @@
  
  import java.net.*;
  import java.io.*;
+@@ -33,7 +33,7 @@
+     {
+         //uncomment this line if you want to compile with the separately
+         //available jsse1.0.2
+-        //Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
++        Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+ 
+ 	factory = createServerSocketFactory();
+ 
