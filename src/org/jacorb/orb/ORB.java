@@ -96,6 +96,9 @@ public final class ORB
     private boolean destroyed = false;
     private Object shutdown_synch = new Object();
 
+    /** do we always add GIOP 1.0 profiles in GIOP 1.2 IORs ? */
+    private boolean always_add_1_0_Profile = false;
+
     /** synchroniziation for orb domain creation */ 
     private static boolean ORBDomainCreationInProgress = false;
   
@@ -488,6 +491,7 @@ public final class ORB
         }
         
         TaggedProfile[] tps = null;
+        Vector taggedProfileVector = new Vector();
 
         boolean useMulti = components_multi_profile.size() > 0;
 
@@ -538,13 +542,16 @@ public final class ORB
                 org.omg.IIOP.ProfileBody_1_1Helper.write( profileDataStream, 
                                                           pb1 );
 
-                tps = new TaggedProfile[useMulti ? 3:2];
-                
-
                 byte[] data = profileDataStream.getBufferCopy();
 
-                tps[1] = new TaggedProfile( TAG_INTERNET_IOP.value, data );
-                // fall through
+                taggedProfileVector.addElement( 
+                          new TaggedProfile( TAG_INTERNET_IOP.value, data ));
+
+                // fall through only if we want to be beckwards compatible
+                // with GIOP 1.0 and thus always include an 1.0 profile
+
+                if( ! always_add_1_0_Profile )
+                    break;
             }
             case 0: 
             {
@@ -562,16 +569,13 @@ public final class ORB
                 org.omg.IIOP.ProfileBody_1_0Helper.write( profileDataStream, 
                                                           pb0 );
 
-                if(tps == null) 
-                    tps = new TaggedProfile[useMulti ? 2:1];
-
-                tps[0] = new TaggedProfile( TAG_INTERNET_IOP.value, 
-                                            profileDataStream.getBufferCopy() );
-            }      
-        }
+                taggedProfileVector.addElement( new TaggedProfile( TAG_INTERNET_IOP.value, 
+                                                 profileDataStream.getBufferCopy() ));
+            }                   
+        }            
 
         // now optionally fill the last IOR profile with multicomponent
-        if(useMulti)
+        if( useMulti )
         {
             TaggedComponent[] components = 
                 new TaggedComponent[ components_multi_profile.size() ];
@@ -584,26 +588,19 @@ public final class ORB
             MultipleComponentProfileHelper.write( profileDataStream, 
                                                   components );
             
-            tps[ tps.length - 1 ] = 
-                new TaggedProfile( TAG_MULTIPLE_COMPONENTS.value,
-                                   profileDataStream.getBufferCopy() );
+            taggedProfileVector.addElement(
+                     new TaggedProfile( TAG_MULTIPLE_COMPONENTS.value,
+                                   profileDataStream.getBufferCopy() ));
         }
 
+        tps = new TaggedProfile[ taggedProfileVector.size() ];
+        taggedProfileVector.copyInto( tps );
 
         IOR _ior = new IOR( repId, tps );
 
         return _ior;
     }
 
-    /** 
-     *  called by Delegate to retrieve an unproxyified, local IOR 
-     */
-    /*
-    org.omg.IOP.IOR unproxyfy(org.omg.IOP.IOR proxy_ior)
-    {
-        return getConnectionManager().unproxyfy(proxy_ior);
-    }
-    */
     public org.omg.CORBA.Current get_current()
     {
         return current;
@@ -1235,6 +1232,9 @@ public final class ORB
             if( obj != null )
                 initial_references.put( key.substring( key.indexOf('.')+1), obj);
         }
+
+        always_add_1_0_Profile = 
+            Environment.isPropertyOn( "jacorb.giop.add_1_0_profiles" );
 
         interceptorInit();
     }
