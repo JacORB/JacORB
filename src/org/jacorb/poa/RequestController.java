@@ -25,12 +25,10 @@ import org.jacorb.poa.except.*;
 
 import org.jacorb.util.Environment;
 import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.orb.BasicAdapter;
 
 import org.omg.PortableServer.POAManagerPackage.State;
 import org.omg.PortableServer.Servant;
 import org.omg.PortableServer.ServantManager;
-import org.omg.PortableServer.ServantActivator;
 
 import java.util.*;
 
@@ -356,19 +354,21 @@ public class RequestController
     }
 
     /**
-     * called from request processor if the request comes to an end,
-     * this method calls the basic adapter and removes
-     * the request from the active request table
+     * Sends the reply of the given request via the BasicAdapter.
      */
-
     void returnResult(ServerRequest request) 
     {
         orb.getBasicAdapter().return_result(request);
-        synchronized (this) 
-        {
-            activeRequestTable.remove(request);
-            notifyAll();
-        }
+    }
+
+    /**
+     * Called from RequestProcessor when the request has been handled.
+     * The request is removed from the active request table.
+     */
+    synchronized void finish (ServerRequest request)
+    {
+        activeRequestTable.remove (request);
+        notifyAll();
     }
 
     /**
