@@ -1,9 +1,0 @@
-include ..\..\Makefile.config
-
-OUTDIR		= ..\..\..\deployment\classes
-JAVACFLAGS	= -d $(CLASSOUTPUTDIR)
-IDLFLAGS 	= -p $(PACKAGE_PREFIX) -d $(OUTDIR)
-
-all:
-	$(JAVAC) $(JAVACFLAGS) *.java
-
