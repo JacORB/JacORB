@@ -1,7 +1,7 @@
 package test.interceptor.ctx_passing;
 
 import org.omg.PortableInterceptor.*;
-import org.omg.IOP_N.*;
+import org.omg.IOP.*;
 
 /**
  * ClientInitializer.java
