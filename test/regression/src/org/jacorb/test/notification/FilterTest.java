@@ -9,9 +9,10 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import org.jacorb.notification.FilterFactoryImpl;
 import org.jacorb.notification.IContainer;
 import org.jacorb.notification.TypedEventMessage;
+import org.jacorb.notification.filter.FilterFactoryImpl;
+import org.jacorb.notification.filter.DefaultFilterFactoryDelegate;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
@@ -62,11 +63,11 @@ public class FilterTest extends NotificationTestCase
             
             public void destroy()
             {
-                
+                // no operation
             }
         };
 
-        factoryServant_ = new FilterFactoryImpl(container, getORB(), getPOA(), getConfiguration());
+        factoryServant_ = new FilterFactoryImpl(getORB(), getPOA(), getConfiguration(), new DefaultFilterFactoryDelegate(container, getConfiguration()));
 
         factoryServant_.activate();
 
