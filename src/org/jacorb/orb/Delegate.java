@@ -537,12 +537,13 @@ public final class Delegate
         org.omg.CORBA.portable.InputStream is;
         org.omg.PortableServer.Servant servant;
         org.omg.CORBA.portable.ServantObject so;
+        boolean isLocal = is_really_local (self);
 
         while (true)
         {
             // If local object call _interface directly
 
-            if (is_really_local (self))
+            if (isLocal)
             {
                 so = servant_preinvoke (self, "_interface", java.lang.Object.class);
 
@@ -550,6 +551,11 @@ public final class Delegate
                 {
                     servant = (org.omg.PortableServer.Servant) so.servant;
                     return (servant._get_interface_def ());
+                }
+                catch (SystemException se)
+                {
+                    isLocal = false;
+                    continue;
                 }
                 finally
                 {
@@ -1187,20 +1193,25 @@ public final class Delegate
         org.omg.CORBA.portable.InputStream is;
         org.omg.PortableServer.Servant servant;
         org.omg.CORBA.portable.ServantObject so;
+        boolean isLocal = is_really_local (self);
 
         while (true)
         {
             // If local object call _is_a directly
 
-            if (is_really_local (self))
+            if (isLocal)
             {
-
                 so = servant_preinvoke (self, "_is_a", java.lang.Object.class);
 
                 try
                 {
                     servant = (org.omg.PortableServer.Servant) so.servant;
                     return (servant._is_a (logical_type_id));
+                }
+                catch (SystemException se)
+                {
+                    isLocal = false;
+                    continue;
                 }
                 finally
                 {
@@ -1292,6 +1303,7 @@ public final class Delegate
         org.omg.CORBA.portable.InputStream is;
         org.omg.PortableServer.Servant servant;
         org.omg.CORBA.portable.ServantObject so;
+        boolean isLocal = is_really_local (self);
 
         while (true)
         {
@@ -1305,6 +1317,11 @@ public final class Delegate
                 {
                     servant = (org.omg.PortableServer.Servant) so.servant;
                     return (servant._non_existent ());
+                }
+                catch (SystemException se)
+                {
+                    isLocal = false;
+                    continue;
                 }
                 finally
                 {
