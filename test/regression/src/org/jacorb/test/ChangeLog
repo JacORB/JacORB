@@ -1,3 +1,32 @@
+2004-01-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* common/ClientServerSetup.java (setUp): Revert previous change,
+	now calling Environment.init(), which was made public for this
+	purpose.
+
+2003-12-23  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* common/ClientServerSetup.java: Removed call to method
+	org.jacorb.util.Environment._init(), which does not exist
+	anymore. (Environment._init() was recently replaced by the private
+	method Environment.init(), called by a static initializer block in
+	class Environment.)
+
+2003-12-19  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/bugs/MultipleDeliveryBugTest.java (suite):
+	corrected reference to non existent class
+
+2003-12-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AllTest.java (suite): Add AlternateProfileTest.
+
+	* orb/AlternateIIOPAddressTest.java, orb/IIOPAddressInterceptor.java:
+	Add javadoc.
+
+	* orb/AlternateProfileTest.java, orb/IIOPProfileInterceptor.java,
+	orb/IIOPProfileORBInitializer.java: Initial revision.
+
 2003-11-26  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
 	* notification/AllTest.java,
