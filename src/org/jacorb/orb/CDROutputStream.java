@@ -132,6 +132,12 @@ public class CDROutputStream
     /** Nesting level of chunked valuetypes */
     private int valueNestingLevel = 0;
 
+    /** Nesting level of calls write_value_internal */
+    private int writeValueNestingLevel = 0;
+
+    /** True if write_value_internal called writeReplace */
+    private boolean writeReplaceCalled = false;
+    
     private List deferredArrayQueue = new ArrayList();
 
     private org.omg.CORBA.ORB orb = null;
@@ -2308,18 +2314,29 @@ public class CDROutputStream
                                        final String repository_id)
     {
         check(7,4);
-        getValueMap().put (value, new Integer(pos));
+        getValueMap().put(value, new Integer(pos));
 
         if (value.getClass() == String.class)
         {
             // special handling for strings required according to spec
             String[] repository_ids =
                 (repository_id == null) ? null : new String[]{ repository_id };
-            write_value_header( repository_ids );
+            write_value_header(repository_ids);
             start_chunk();
             write_wstring((String)value);
             end_chunk();
         }
+        else if (value.getClass() == Class.class)
+        {
+            String[] repository_ids = new String[] { 
+                    ValueHandler.getRMIRepositoryID(javax.rmi.CORBA.ClassDesc.class) 
+            };
+            write_value_header(repository_ids);
+            start_chunk();
+            write_value(ValueHandler.getCodebase((Class)value));
+            write_value(ValueHandler.getRMIRepositoryID((Class)value));
+            end_chunk();
+        }        
         else if (value instanceof org.omg.CORBA.portable.StreamableValue)
         {
             org.omg.CORBA.portable.StreamableValue streamable =
@@ -2389,14 +2406,59 @@ public class CDROutputStream
             }
             else
             {
-                if (chunkCustomRmiValuetypes
-                    && ValueHandler.isCustomMarshaled(cls))
-                    chunkingFlag = 0x00000008;
-                write_value_header( repository_ids, codebase );
-                start_chunk();
-                ValueHandler.writeValue (this,
-                                         ValueHandler.writeReplace(value));
-                end_chunk();
+                try
+                {
+                    writeValueNestingLevel++;
+                    if (chunkCustomRmiValuetypes
+                        && ValueHandler.isCustomMarshaled(cls))
+                        chunkingFlag = 0x00000008;
+                    write_value_header( repository_ids, codebase );
+                    start_chunk();
+                    if (!writeReplaceCalled)
+                    {
+                        // writeReplace must be called only once for this value
+                        java.io.Serializable newValue = 
+                            ValueHandler.writeReplace(value);
+                        writeReplaceCalled = true; // won't call it again
+                        
+                        if (newValue != value)
+                        {
+                            // look at the new value
+                            Integer index = (Integer)getValueMap().get(newValue);
+                            if (index != null)
+                            {
+                                // previously marshaled value -- make an indirection
+                                write_long (0xffffffff);
+                                write_long (index.intValue() - size());
+                            }
+                            else if (value instanceof org.omg.CORBA.Object)
+                            {
+                                write_Object((org.omg.CORBA.Object)newValue);
+                            }
+                            else
+                            {
+                                ValueHandler.writeValue(this, newValue);
+                            }
+                        }
+                        else
+                        {
+                            // writeReplace did't make a difference
+                            ValueHandler.writeValue(this, value);
+                        }
+                    }
+                    else
+                    {
+                        // Skip writeReplace call 
+                        // (writeReplace was already called for this value)
+                        ValueHandler.writeValue(this, value);
+                    }
+                    end_chunk();
+                }
+                finally
+                {
+                    if (--writeValueNestingLevel == 0)
+                        writeReplaceCalled = false;
+                }
             }
         }
     }
