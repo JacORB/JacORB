@@ -22,9 +22,10 @@ package org.jacorb.orb;
 
 import java.util.Enumeration;
 
+import org.apache.avalon.framework.logger.*;
+
 import org.jacorb.orb.giop.*;
 import org.jacorb.orb.portableInterceptor.*;
-import org.jacorb.util.Debug;
 
 import org.omg.CORBA.portable.ApplicationException;
 import org.omg.CORBA.portable.RemarshalException;
@@ -43,6 +44,7 @@ import org.omg.PortableInterceptor.*;
 public class ClientInterceptorHandler
 {
     private ClientRequestInfoImpl info = null;
+    private Logger logger;
     
     /**
      * Constructs an interceptor handler for the given parameters.
@@ -63,6 +65,8 @@ public class ClientInterceptorHandler
             info = new ClientRequestInfoImpl ( orb, ros, self, delegate,
                                                piorOriginal, connection );
         }
+        logger = 
+            orb.getConfiguration().getNamedLogger("jacorb.orb.client_interceptors");
     }
     
     public void handle_send_request() throws RemarshalException
@@ -165,7 +169,8 @@ public class ClientInterceptorHandler
             }
             catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
             {
-                Debug.output ( 4, bk );
+                if (logger.isDebugEnabled())
+                    logger.debug("BadKind: " + bk.getMessage());
             }
             info.reply_status = SYSTEM_EXCEPTION.value;
 
@@ -194,7 +199,8 @@ public class ClientInterceptorHandler
             }
             catch ( Exception e )
             {
-                Debug.output ( 4, e );
+                if (logger.isDebugEnabled())
+                    logger.debug(e.getMessage());
                 SystemExceptionHelper.insert ( info.received_exception,
                                                new org.omg.CORBA.UNKNOWN
                                                   ( e.getMessage() ) );
@@ -208,7 +214,8 @@ public class ClientInterceptorHandler
             catch ( Exception e )
             {
                 // shouldn't happen anyway
-                Debug.output ( 2, e);
+                if (logger.isWarnEnabled())
+                    logger.warn(e.getMessage()); 
             }                        
 
             info.setReplyServiceContexts ( reply.rep_hdr.service_context );
@@ -236,7 +243,8 @@ public class ClientInterceptorHandler
         }
         catch ( org.omg.CORBA.UserException ue )
         {
-            Debug.output( 2, ue );
+            if (logger.isWarnEnabled())
+                logger.warn("UserException: " + ue.getMessage()); 
         }
     }
 

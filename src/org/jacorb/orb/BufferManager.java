@@ -2,7 +2,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -20,15 +20,20 @@ package org.jacorb.orb;
  */
 
 import java.util.*;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
+
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.CORBA.NO_MEMORY;
+import org.omg.CORBA.BAD_INV_ORDER;
 
 /**
  * A BufferManager is used to share a pool of buffers and to implement
  * a buffer  allocation policy.  This  reduces the  number of  memory
  * allocations and deallocations and the overall memory footprint.
  * Buffers are generally created on demand.
+ *
+ * The BufferManager uses a singleton pattern, so will only be a single
+ * shared BuffferManager across all ORBs in a process.
  *
  * @author Gerald Brose, FU Berlin
  * @version $Id$
@@ -61,6 +66,7 @@ public final class BufferManager
 
     // Purge thread for QoS purging of the bufferMax cache.
     private Reaper reaper;
+
     /**
      * <code>time</code> denotes whether the maxCache will be active:
      * -1: Not active
@@ -69,20 +75,39 @@ public final class BufferManager
      */
     private static int time = 0;
 
-    static
-    {
-        if (Environment.hasProperty ("jacorb.bufferManagerMaxFlush"))
-        {
-            time = Environment.getIntProperty ("jacorb.bufferManagerMaxFlush", 10);
-        }
-    }
-
+    /** the singleton instance */
     private static BufferManager singleton = new BufferManager();
 
+    private static boolean configured = false;
+
+    /**
+     * configures the BufferManager, in turn configures the singleton.
+     * Must be called before getInstance() !
+     */
+    public static void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        singleton.singletonConfigure(configuration);
+        configured = true;
+    }
 
     private BufferManager()
     {
-        MAX = Environment.getMaxManagedBufSize();
+    }
+
+    /**
+     * configures the singleton
+     */
+ 
+    private void singletonConfigure(Configuration configuration)
+        throws ConfigurationException
+    {
+        time = 
+            configuration.getAttributeAsInteger("jacorb.bufferManagerMaxFlush", 0);
+
+        MAX = 
+            configuration.getAttributeAsInteger("jacorb.maxManagedBufSize", 18);
+
 	bufferPool = new List[ MAX ];
 
 	for( int i = 0; i < MAX; i++)
@@ -112,12 +137,20 @@ public final class BufferManager
             reaper = new Reaper (time);
             reaper.setName ("BufferManager MaxCache Reaper");
             reaper.setDaemon (true);
-            reaper.start ();
+            reaper.start();
         }
     }
 
+    /**
+     * May only be called after configure()
+     * @throws BAD_INV_ORDER if not previously configured
+     */
+
     public static BufferManager getInstance()
+        throws  BAD_INV_ORDER
     {
+        if (!configured)
+            throw new BAD_INV_ORDER("Buffer Manager not configured");
         return singleton;
     }
 
@@ -151,7 +184,7 @@ public final class BufferManager
     }
 
 
-    public  byte[] getPreferredMemoryBuffer()
+    public byte[] getPreferredMemoryBuffer()
     {
         return getBuffer( MEM_BUFSIZE );
     }
@@ -159,7 +192,7 @@ public final class BufferManager
 
     public synchronized byte[] getBuffer( int initial )
     {
-        return getBuffer (initial, false);
+        return getBuffer(initial, false);
     }
 
 
@@ -202,9 +235,7 @@ public final class BufferManager
             }
             catch (OutOfMemoryError e)
             {
-                org.jacorb.util.Debug.output
-                    (2, "BufferManager failed to allocate sufficient memory for byte array");
-                throw new NO_MEMORY ();
+                throw new NO_MEMORY();
             }
         }
         else
@@ -243,11 +274,6 @@ public final class BufferManager
         {
             int log_curr = log2down(current.length);
 
-            /*
-              org.jacorb.util.Debug.output( 4, "return buffer: " + current.length +
-              " bytes, log2: " + log_curr );
-            */
-
             if( log_curr >= MIN_OFFSET )
             {
                 if( log_curr > MAX )
@@ -283,7 +309,7 @@ public final class BufferManager
         if (reaper != null)
         {
             reaper.done = true;
-            reaper.wake ();
+            reaper.wake();
         }
     }
 
@@ -299,7 +325,7 @@ public final class BufferManager
             this.sleepInterval = (sleepInterval * 1000);
         }
 
-        public void run ()
+        public void run()
         {
             long time;
 
@@ -309,12 +335,12 @@ public final class BufferManager
 
                 try
                 {
-                    time = sleepInterval + System.currentTimeMillis ();
+                    time = sleepInterval + System.currentTimeMillis();
                     do
                     {
                         sleep (sleepInterval);
                     }
-                    while (System.currentTimeMillis () <= time);
+                    while (System.currentTimeMillis() <= time);
                 }
                 catch (InterruptedException ex) {}
 
@@ -325,23 +351,23 @@ public final class BufferManager
                     break;
                 }
 
-                if ( Debug.isDebugEnabled() )
-                {
-                    org.jacorb.util.Debug.output
-                    (
-                        4,
-                        "Reaper thread purging maxBufferCache. It had size: " +
-                        (bufferMax == null ? 0 : bufferMax.length)
-                    );
-                }
+ //                if ( Debug.isDebugEnabled() )
+//                 {
+//                     org.jacorb.util.Debug.output
+//                     (
+//                         4,
+//                         "Reaper thread purging maxBufferCache. It had size: " +
+//                         (bufferMax == null ? 0 : bufferMax.length)
+//                     );
+//                 }
                 bufferMax = null;
             }
         }
 
-        public synchronized void wake ()
+        public synchronized void wake()
         {
             // Only one thread waiting so safe to use notify rather than notifyAll.
-            notify ();
+            notify();
         }
     }
 }

@@ -21,9 +21,11 @@ package org.jacorb.orb.dynany;
  */
 
 import java.util.*;
+
 import org.omg.DynamicAny.*;
 import org.omg.CORBA.TCKind;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+
 import org.jacorb.orb.TypeCode;
 
 /**
@@ -132,7 +134,6 @@ public class DynAnyFactoryImpl
         }
         catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
         {
-            org.jacorb.util.Debug.output(3, itc);
             throw new InconsistentTypeCode();
         }
         return null;

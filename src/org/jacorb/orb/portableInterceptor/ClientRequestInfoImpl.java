@@ -29,9 +29,7 @@ import org.omg.ETF.*;
 import org.apache.avalon.framework.logger.*;
 
 import java.util.*;
-
 import org.jacorb.orb.iiop.IIOPProfile;
-import org.jacorb.util.Debug;
 
 /**
  * This class represents the type of info object,
@@ -46,6 +44,8 @@ public class ClientRequestInfoImpl
     extends RequestInfoImpl
     implements ClientRequestInfo
 {
+    private Logger logger;
+
     //from ClientRequestInfo
     public org.omg.CORBA.Object target = null;
     public org.omg.CORBA.Object effective_target = null;
@@ -75,6 +75,8 @@ public class ClientRequestInfoImpl
                         org.jacorb.orb.giop.ClientConnection connection )
     {
          this.orb = orb;
+         logger = orb.getConfiguration().getNamedLogger("jacorb.orb.interceptors");
+
          this.operation = ros.operation();
          this.response_expected = ros.response_expected();
          this.received_exception = orb.create_any();
@@ -138,7 +140,6 @@ public class ClientRequestInfoImpl
             }
             catch (Exception e)
             {
-                Logger logger = Debug.getNamedLogger("jacorb.orb.interceptors");
                 if( logger.isDebugEnabled() )
                 {
                     logger.debug(e.getMessage());

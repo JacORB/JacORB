@@ -28,14 +28,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
+import org.apache.avalon.framework.configuration.*;
+
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.giop.TransportManager;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
+
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.Confidentiality;
@@ -70,8 +69,9 @@ public class ClientIIOPConnection
 
     private boolean use_ssl  = false;
     private int     ssl_port = -1;
-
-    private Logger logger = Debug.getNamedLogger("jacorb.iiop.conn");
+    private int noOfRetries  = 5;
+    private int retryInterval = 0;
+    private boolean doSupportSSL = false;
 
 
     //for testing purposes only: # of open transports
@@ -79,28 +79,23 @@ public class ClientIIOPConnection
     public static int openTransports = 0;
 
     public ClientIIOPConnection()
+    {}
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
     {
-        super();
-
+        super.configure(configuration);
         //get the client-side timeout property value
-        String prop =
-            Environment.getProperty( "jacorb.connection.client.idle_timeout" );
 
-        if( prop != null )
-        {
-            try
-            {
-                timeout = Integer.parseInt( prop );
-            }
-            catch( NumberFormatException nfe )
-            {
-                if (logger.isErrorEnabled())
-                {
-                    logger.error("Unable to create int from string >" + prop + "< \n" +
-                                 "Please check property \"jacorb.connection.client.idle_timeout\"" );
-                }
-            }
-        }
+        timeout = 
+            configuration.getAttributeAsInteger("jacorb.connection.client.idle_timeout",0 );
+        noOfRetries = 
+            configuration.getAttributeAsInteger("jacorb.retries", 5);
+        retryInterval = 
+            configuration.getAttributeAsInteger("jacorb.retry_interval",500);
+        doSupportSSL =
+            configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
+
     }
 
     public ClientIIOPConnection (ClientIIOPConnection other)
@@ -121,7 +116,7 @@ public class ClientIIOPConnection
      * is successfully established it shall store the used Profile data.
      *
      */
-    public synchronized void connect (org.omg.ETF.Profile server_profile, long time_out)
+    public synchronized void connect(org.omg.ETF.Profile server_profile, long time_out)
     {
         if( ! connected )
         {
@@ -148,7 +143,7 @@ public class ClientIIOPConnection
                 logger.debug("Trying to connect to " + connection_info);
             }
 
-            int retries = Environment.noOfRetries();
+            int retries = noOfRetries;
 
             while( retries >= 0 )
             {
@@ -185,17 +180,19 @@ public class ClientIIOPConnection
                 }
                 catch ( IOException c )
                 {
-                    Debug.output( 3, c );
+                    if (logger.isDebugEnabled())
+                        logger.debug("Exception", c );
 
                     //only sleep and print message if we're actually
                     //going to retry
                     if( retries >= 0 )
                     {
-                        Debug.output( 1, "Retrying to connect to " +
-                                      connection_info );
+                        if (logger.isInfoEnabled())
+                            logger.info("Retrying to connect to " +
+                                        connection_info );
                         try
                         {
-                            Thread.sleep( Environment.retryInterval() );
+                            Thread.sleep( retryInterval );
                         }
                         catch( InterruptedException i )
                         {
@@ -380,21 +377,17 @@ public class ClientIIOPConnection
         int client_supported = 0;
 
         //only read in the properties if ssl is really supported.
-        if(  Environment.isPropertyOn( "jacorb.security.support_ssl" ))
+        if( doSupportSSL )
         {
-            client_required = Environment.getIntProperty
-            (
-                "jacorb.security.ssl.client.required_options", 16
-            );
-            client_supported = Environment.getIntProperty
-            (
-                "jacorb.security.ssl.client.supported_options", 16
-            );
+            client_required =
+                configuration.getAttributeAsInteger("jacorb.security.ssl.client.required_options", 16);
+            client_supported =
+                configuration.getAttributeAsInteger("jacorb.security.ssl.client.supported_options",16);
         }
 
         if( tls != null && // server knows about ssl...
             ((tls.target_supports & minimum_options) != 0) && //...and "really" supports it
-            Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+            doSupportSSL && //client knows about ssl...
             ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
             ( ((tls.target_requires & minimum_options) != 0) || //server ...
               ((client_required & minimum_options) != 0))) //...or client require it
@@ -410,7 +403,7 @@ public class ClientIIOPConnection
         }
         else if( ssl != null && // server knows about ssl...
             ((ssl.target_supports & minimum_options) != 0) && //...and "really" supports it
-            Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+            doSupportSSL && //client knows about ssl...
             ((client_supported & minimum_options) != 0 )&& //...and "really" supports it
             ( ((ssl.target_requires & minimum_options) != 0) || //server ...
               ((client_required & minimum_options) != 0))) //...or client require it
@@ -428,7 +421,7 @@ public class ClientIIOPConnection
         //prevent client policy violation, i.e. opening plain TCP
         //connections when SSL is required
         else if( // server doesn't know ssl...
-                 Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //client knows about ssl...
+                 doSupportSSL && //client knows about ssl...
                  ((client_required & minimum_options) != 0)) //...and requires it
         {
             throw new org.omg.CORBA.NO_PERMISSION( "Client-side policy requires SSL/TLS, but server doesn't support it" );

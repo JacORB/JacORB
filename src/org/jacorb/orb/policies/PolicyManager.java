@@ -46,8 +46,7 @@ public class PolicyManager
 {
     private org.jacorb.orb.ORB orb;
     private Map policy_overrides = null;
-    private Logger logger = 
-        org.jacorb.util.Debug.getNamedLogger("jacorb.orb.policies");
+    private Logger logger ;
 
     /**
      * public c'tor
@@ -57,6 +56,7 @@ public class PolicyManager
     {
         this.orb = orb;
         policy_overrides = new HashMap();
+        logger = orb.getConfiguration().getNamedLogger("jacorb.orb.policies");
     }
 
     /**

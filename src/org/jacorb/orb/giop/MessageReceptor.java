@@ -21,7 +21,6 @@
 package org.jacorb.orb.giop;
 
 import org.jacorb.util.threadpool.Consumer;
-import org.jacorb.util.*;
 
 /**
  * MessageReceptor.java
@@ -54,7 +53,6 @@ public class MessageReceptor
         }
         catch( Exception e )
         {
-            Debug.output( 3, e );
         }
     }    
 }// MessageReceptor

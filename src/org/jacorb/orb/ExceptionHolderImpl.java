@@ -23,6 +23,10 @@ package org.jacorb.orb;
 import java.io.*;
 import java.lang.reflect.*;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+
 import org.omg.GIOP.*;
 import org.omg.Messaging.ExceptionHolder;
 import org.omg.CORBA.ExceptionList;
@@ -31,8 +35,8 @@ import org.omg.CORBA.UnknownUserException;
 import org.omg.CORBA.UserException;
 
 import org.jacorb.ir.*;
-import org.jacorb.util.*;
 import org.jacorb.orb.giop.*;
+import org.jacorb.util.ObjectUtil;
 
 /**
  * JacORB-specific implementation of 
@@ -44,7 +48,10 @@ import org.jacorb.orb.giop.*;
  */
 public class ExceptionHolderImpl 
     extends org.omg.Messaging.ExceptionHolder
+    implements Configurable
 {
+    private Logger logger = null;
+
     /**
      * Constructs an ExceptionHolderImpl object from an input stream.
      * It is assumed that the reply status of this input stream is
@@ -71,13 +78,13 @@ public class ExceptionHolderImpl
         marshaled_exception = is.getBody();
     }
 
-    public ExceptionHolderImpl (org.omg.CORBA.SystemException ex)
+    public ExceptionHolderImpl(org.omg.CORBA.SystemException ex)
     {
         is_system_exception = true;
         byte_order          = false;
         
         CDROutputStream output = new CDROutputStream();
-        SystemExceptionHelper.write (output, ex);
+        SystemExceptionHelper.write(output, ex);
         marshaled_exception = output.getBufferCopy();
     }
 
@@ -89,7 +96,16 @@ public class ExceptionHolderImpl
         super();
     }
 
-    public void raise_exception() throws UserException
+    public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
+        throws org.apache.avalon.framework.configuration.ConfigurationException
+    {
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.exc_holder");
+    }
+
+
+    public void raise_exception() 
+        throws UserException
     {
         CDRInputStream input = 
             new CDRInputStream (null, marshaled_exception, byte_order);
@@ -107,7 +123,8 @@ public class ExceptionHolderImpl
             }
             catch( IOException ioe )
             {
-                Debug.output( 2, "Unexpected IOException: " + ioe );
+                if (logger.isWarnEnabled())
+                    logger.warn( "Unexpected IOException: " + ioe.getMessage() );
             }
 
             org.omg.CORBA.UserException result = null;

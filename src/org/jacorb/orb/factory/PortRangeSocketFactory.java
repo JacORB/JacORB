@@ -22,18 +22,38 @@ package org.jacorb.orb.factory;
 
 import java.net.*;
 import java.io.IOException;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
+
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
 
-public class PortRangeSocketFactory extends PortRangeFactory implements SocketFactory
+public class PortRangeSocketFactory 
+    extends PortRangeFactory 
+    implements SocketFactory
 {
     public static final String MIN_PROP = "jacorb.net.socket_factory.port.min";
     public static final String MAX_PROP = "jacorb.net.socket_factory.port.max";
 
-    public PortRangeSocketFactory ()
+    private Logger logger;
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
     {
-        super (MIN_PROP, MAX_PROP);
-    }                
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+        logger = this.configuration.getNamedLogger("jacorb.orb.port_range_fcty");
+
+       // Get configured max and min port numbers
+        portMin = getPortProperty(MIN_PROP);
+        portMax = getPortProperty(MAX_PROP);
+
+        // Check min < max
+        if (portMin >= portMax)
+        {
+            throw new ConfigurationException("PortRangeFactory: minimum port number not less than maximum");
+        }
+    }
 
     public Socket createSocket (String host, int port)
         throws IOException, UnknownHostException
@@ -47,9 +67,10 @@ public class PortRangeSocketFactory extends PortRangeFactory implements SocketFa
             try
             {
                 socket = new Socket (host, port, localHost, localPort);
-                Debug.output (2, "PortRangeSocketFactory: Created socket between "
-                    + localHost.getHostAddress () + ":" + localPort
-                    + " and " + host + ":" + port);
+                if (logger.isDebugEnabled())
+                    logger.debug("PortRangeSocketFactory: Created server socket at "
+                                 + ":" + localPort);
+
                 return socket;
             }
             catch (IOException ex)
@@ -58,10 +79,12 @@ public class PortRangeSocketFactory extends PortRangeFactory implements SocketFa
             }
         }
 
-        Debug.output(2,"Cannot bind socket between ports " + portMin + " and "
-                     + portMax + " to target " + host + ":" + port);
+        if (logger.isDebugEnabled())
+            logger.debug("Cannot bind socket between ports " + portMin + " and "
+                         + portMax + " to target " + host + ":" + port);
+
         throw new BindException ("PortRangeSocketFactory: no free port between "
-            + portMin + " and " + portMax);
+                                 + portMin + " and " + portMax);
     }
 
     public boolean isSSL (Socket socket)

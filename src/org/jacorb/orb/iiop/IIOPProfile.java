@@ -2,12 +2,13 @@ package org.jacorb.orb.iiop;
 
 import java.util.*;
 
+import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.TaggedComponentList;
-import org.jacorb.util.Environment;
-import org.jacorb.util.Debug;
 
 import org.omg.ETF.*;
 import org.omg.IOP.*;
@@ -21,13 +22,17 @@ import org.omg.CSIIOP.*;
  */
 public class IIOPProfile 
     extends _ProfileLocalBase
-    implements Cloneable
+    implements Cloneable, Configurable
 {
     private org.omg.GIOP.Version version = null;
     private IIOPAddress          primaryAddress = null; 
     private byte[]               objectKey = null;
     private TaggedComponentList  components = null;
-    
+
+    private org.jacorb.config.Configuration configuration;
+    private boolean dnsEnabled = false;
+    private Logger logger;
+
     public IIOPProfile(byte[] data)
     {
         CDRInputStream in = new CDRInputStream(null, data);
@@ -68,6 +73,7 @@ public class IIOPProfile
      * Constructs an IIOPProfile from a corbaloc URL.  Only to be used
      * from the corbaloc parser.
      */
+
     public IIOPProfile(String corbaloc)
     {
         this.version = null;
@@ -80,9 +86,20 @@ public class IIOPProfile
         }
         catch(Exception e)
         {
-            Debug.output(1,"could not create new IIOPProfile");
+            e.printStackTrace(); // debug
         }
     }
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+        logger = this.configuration.getNamedLogger("jacorb.iiop.profile");
+        dnsEnabled = configuration.getAttribute("jacorb.dns.enable","off").equals("on");
+        this.primaryAddress.configure(configuration);
+    }
+
+
 
     private void decode_corbaloc(String addr)
     {
@@ -169,28 +186,37 @@ public class IIOPProfile
 
     private short get_ssl_options(String propname)
     {
-        String option_str = Environment.getProperty(propname);
-        short value = EstablishTrustInTarget.value;
-        //For the time being, we only use EstablishTrustInTarget,
-        //because we don't handle any of the other options anyway.
-        // So this makes a reasonable default.
-
-        if( (option_str != null) &&
-            (! option_str.equals( "" )) )
+        try
         {
-            try
+            String option_str = configuration.getAttribute(propname);
+            short value = EstablishTrustInTarget.value;
+            //For the time being, we only use EstablishTrustInTarget,
+            //because we don't handle any of the other options anyway.
+            // So this makes a reasonable default.
+            
+            if( (option_str != null) &&
+                (! option_str.equals( "" )) )
             {
-                value = (short) Integer.parseInt( option_str, 16 );
+                try
+                {
+                    value = (short)Integer.parseInt( option_str, 16 );
+                }
+                catch( NumberFormatException nfe )
+                {
+                    if (logger.isErrorEnabled())
+                        logger.error("Invalid hex property >>" +
+                                     option_str + "<<" +
+                                     "Please check property \"" + propname + "\"" );
+                }
             }
-            catch( NumberFormatException nfe )
-            {
-                Debug.output( 0, "WARNING: Invalid hex property >>" +
-                              option_str + "<<" );
-                Debug.output( 0, "Please check property \"" +
-                                  propname + "\"" );
-            }
+            return value;
         }
-        return value;
+        catch( ConfigurationException ce )
+        {
+            if (logger.isErrorEnabled())
+                logger.error("ConfigurationException:", ce );
+            return 0;
+        }
     }
 
     /**
@@ -232,9 +258,7 @@ public class IIOPProfile
                 ProfileBody_1_1 pb1 = new ProfileBody_1_1
                 (
                     new org.omg.IIOP.Version( version.major, version.minor ),
-                    Environment.isPropertyOn("jacorb.dns.enable")
-                      ? primaryAddress.getHostname()
-                      : primaryAddress.getIP(),
+                    dnsEnabled ? primaryAddress.getHostname() : primaryAddress.getIP(),
                     (short)primaryAddress.getPort(),
                     objectKey,
                     allComponents
@@ -258,9 +282,7 @@ public class IIOPProfile
                 ProfileBody_1_0 pb0 = new ProfileBody_1_0
                 (
                     new org.omg.IIOP.Version( version.major, version.minor ),
-                    Environment.isPropertyOn("jacorb.dns.enable")
-                      ? primaryAddress.getHostname()
-                      : primaryAddress.getIP(),
+                    dnsEnabled ? primaryAddress.getHostname() : primaryAddress.getIP(),
                     (short)primaryAddress.getPort(),
                     objectKey
                 );

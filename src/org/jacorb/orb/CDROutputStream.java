@@ -3,7 +3,7 @@ package org.jacorb.orb;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1997-2004  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -22,15 +22,19 @@ package org.jacorb.orb;
 
 import java.io.*;
 import java.util.*;
+
+import org.apache.avalon.framework.configuration.*;
+
 import org.jacorb.ir.RepositoryID;
 import org.jacorb.orb.giop.CodeSet;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 import org.jacorb.util.ValueHandler;
+import org.jacorb.util.ObjectUtil;
+
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CODESET_INCOMPATIBLE;
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
@@ -49,6 +53,8 @@ import org.omg.IOP.TaggedProfile;
 public class CDROutputStream
     extends org.omg.CORBA_2_3.portable.OutputStream
 {
+    private final static IOR null_ior = new IOR("", new TaggedProfile[0]);
+
     /** needed for alignment purposes */
     private int index;
 
@@ -116,7 +122,7 @@ public class CDROutputStream
      * <code>cachedTypecodes</code> is used to cache compacted typecodes when
      * writing to the stream. This variable is initialised on demand.
      */
-    private static Map cachedTypecodes;
+    private Map cachedTypecodes;
 
     /** Remembers the starting position of the current chunk. */
     private int chunk_size_tag_pos = -1;   // -1 means we're not within a chunk
@@ -136,14 +142,30 @@ public class CDROutputStream
         to be bitwise or'ed into value tags. */
     private int chunkingFlag = 0;
 
-    private static boolean useBOM = false;
-    private static boolean chunkCustomRmiValuetypes = false;
+    /** configurable properties */
+    private boolean useBOM = false;
+    private boolean chunkCustomRmiValuetypes = false;
+    private int compactTypeCodes = 0;
+    private boolean useIndirection = true;
 
-    static
+    /**
+     * This stream is self-configuring, i.e. configure() is private
+     * and only called from the constructor 
+     */
+
+    private void configure(Configuration configuration)
+        throws ConfigurationException
     {
-        useBOM = Environment.isPropertyOn ("jacorb.use_bom");
+        useBOM = 
+            configuration.getAttribute("jacorb.use_bom","off").equals("on");
+
         chunkCustomRmiValuetypes =
-        Environment.isPropertyOn("jacorb.interop.chunk_custom_rmi_valuetypes");
+            configuration.getAttribute("jacorb.interop.chunk_custom_rmi_valuetypes","off").equals("on");
+        compactTypeCodes = 
+            configuration.getAttributeAsInteger("jacorb.compactTypecodes", 0);
+
+        useIndirection = 
+           !( configuration.getAttribute("jacorb.interop.indirection_encoding_disable","off").equals("on"));
     }
 
     private static class DeferredWriteFrame
@@ -163,17 +185,17 @@ public class CDROutputStream
         }
     }
 
-    private final static IOR null_ior = new IOR("", new TaggedProfile[0]);
 
     /**
      * OutputStreams created using  the empty constructor are used for
      * in  memory marshaling, but do  not use the  ORB's output buffer
-     * manager
+     * manager. A stream created with this c'tor is not explicitly
+     * configured, i.e. it will use default configuration only
      */
 
     public CDROutputStream()
     {
-        bufMgr = BufferManager.getInstance();
+        bufMgr = BufferManager.getInstance(); // the BufferManager will be configured by now!
         buffer = bufMgr.getPreferredMemoryBuffer();
     }
 
@@ -182,24 +204,34 @@ public class CDROutputStream
      * are used also for in memory marshaling, but do use the
      * ORB's output buffer manager
      */
-    public CDROutputStream (final org.omg.CORBA.ORB orb)
+    public CDROutputStream(final org.omg.CORBA.ORB orb)
     {
-        this ();
+        this();
         this.orb = orb;
+        try
+        {
+            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+        }
+        catch( ConfigurationException ce )
+        {
+            throw new INTERNAL("ConfigurationException: " + ce.getMessage());
+        }
     }
 
     /**
-     *  Class constructor setting the buffer size for the message
-     *  and the character encoding sets
+     *  Class constructor setting the buffer size for the message and
+     *  the character encoding sets. A stream created with this c'tor
+     *  is not explicitly configured, i.e. it will use default
+     *  configuration only!
      */
 
-    public CDROutputStream (final byte[] buf)
+    public CDROutputStream(final byte[] buf)
     {
-        bufMgr = BufferManager.getInstance ();
+        bufMgr = BufferManager.getInstance();
         buffer = buf;
     }
 
-    public org.omg.CORBA.ORB orb ()
+    public org.omg.CORBA.ORB orb()
     {
         if (orb == null)
             orb = org.omg.CORBA.ORB.init();
@@ -217,7 +249,7 @@ public class CDROutputStream
     {
         if (encaps_stack == null)
         {
-            encaps_stack = new Stack ();
+            encaps_stack = new Stack();
         }
         return encaps_stack;
     }
@@ -232,7 +264,7 @@ public class CDROutputStream
     {
         if (recursiveTCMap == null)
         {
-            recursiveTCMap = new HashMap ();
+            recursiveTCMap = new HashMap();
         }
         return recursiveTCMap;
     }
@@ -248,7 +280,7 @@ public class CDROutputStream
     {
         if (valueMap == null)
         {
-            valueMap = Environment.createIdentityHashMap();
+            valueMap = ObjectUtil.createIdentityHashMap();
         }
         return valueMap;
     }
@@ -274,7 +306,7 @@ public class CDROutputStream
      *
      * @return a <code>Map</code> value
      */
-    private Map getCodebaseMap ()
+    private Map getCodebaseMap()
     {
         if (codebaseMap == null)
         {
@@ -304,8 +336,6 @@ public class CDROutputStream
         int list_idx = 0;
 
         DeferredWriteFrame next_frame = null;
-//          Debug.output( 1, "--- write( " + this + "), start " + start + " length " + length );
-//          Debug.output( 1, "--- "  +  deferredArrayQueue.size() + " frames ");
 
         if( deferredArrayQueue != null && deferredArrayQueue.size() > 0 )
         {
@@ -381,13 +411,13 @@ public class CDROutputStream
         }
     }
 
-    public void setCodeSet (final int codeSet, final int codeSetWide)
+    public void setCodeSet(final int codeSet, final int codeSetWide)
     {
         this.codeSet = codeSet;
         this.codeSetW = codeSetWide;
     }
 
-    public void setGIOPMinor (final int giop_minor)
+    public void setGIOPMinor(final int giop_minor)
     {
         this.giop_minor = giop_minor;
     }
@@ -411,7 +441,7 @@ public class CDROutputStream
         closed = true;
         if (deferredArrayQueue != null)
         {
-            deferredArrayQueue.clear ();
+            deferredArrayQueue.clear();
         }
         deferred_writes = 0;
     }
@@ -420,7 +450,7 @@ public class CDROutputStream
      * This version of check does both array length checking and
      * data type alignment. It is a convenience method.
      */
-    private final void check (final int i, final int align)
+    private final void check(final int i, final int align)
     {
         int remainder = align - (index % align);
 
@@ -461,7 +491,7 @@ public class CDROutputStream
      * i more bytes. If it isn't, get a bigger buffer.
      */
 
-    private final void check (final int i)
+    private final void check(final int i)
     {
         byte [] new_buf;
 
@@ -482,7 +512,7 @@ public class CDROutputStream
     }
 
     private final static void _write4int
-        (final byte[] buf, final int _pos, final int value)
+       (final byte[] buf, final int _pos, final int value)
     {
         buf[_pos]   = (byte)((value >> 24) & 0xFF);
         buf[_pos+1] = (byte)((value >> 16) & 0xFF);
@@ -497,7 +527,7 @@ public class CDROutputStream
      *  the size of the encapsulation.
      */
 
-    public final void beginEncapsulation ()
+    public final void beginEncapsulation()
     {
         // align to the next four byte boundary
         // as a preparation for writing the size
@@ -528,7 +558,7 @@ public class CDROutputStream
 
         // set up new indirection maps for this encapsulation
 
-        valueMap = Environment.createIdentityHashMap();
+        valueMap = ObjectUtil.createIdentityHashMap();
         repIdMap = new HashMap();
         codebaseMap = new HashMap();
 
@@ -583,7 +613,7 @@ public class CDROutputStream
 
         /* restore index and encaps_start information and indirection maps */
 
-        EncapsInfo ei = (EncapsInfo)getEncapsStack ().pop();
+        EncapsInfo ei = (EncapsInfo)getEncapsStack().pop();
         encaps_start = ei.start;
         index = ei.index + encaps_size;
         valueMap = ei.valueMap;
@@ -594,7 +624,7 @@ public class CDROutputStream
     public byte[] getBufferCopy()
     {
         ByteArrayOutputStream bos =
-        new ByteArrayOutputStream();
+            new ByteArrayOutputStream();
 
         try
         {
@@ -602,7 +632,7 @@ public class CDROutputStream
         }
         catch( IOException io )
         {
-            Debug.output(1, io );
+            //            Debug.output(1, io );
         }
 
         return bos.toByteArray();
@@ -641,13 +671,13 @@ public class CDROutputStream
         }
     }
 
-    public final void skip (final int step)
+    public final void skip(final int step)
     {
         pos += step;
         index += step;
     }
 
-    public final void reduceSize (final int amount)
+    public final void reduceSize(final int amount)
     {
         pos -= amount;
     }
@@ -656,14 +686,14 @@ public class CDROutputStream
      * Add <tt>amount</tt> empty space
      */
 
-    public final void increaseSize (final  int amount)
+    public final void increaseSize(final  int amount)
     {
         pos += amount;
 
         check( amount );
     }
 
-    public void setBuffer (final byte[] b)
+    public void setBuffer(final byte[] b)
     {
         bufMgr.returnBuffer( buffer, true );
 
@@ -676,7 +706,7 @@ public class CDROutputStream
 
     public void setBufferWithoutReset (byte[] b, int size)
     {
-        close ();
+        close();
         buffer = b;
         pos = size;
     }
@@ -685,19 +715,19 @@ public class CDROutputStream
      * The following operations are from OutputStream *
      **************************************************/
 
-    public org.omg.CORBA.portable.InputStream create_input_stream ()
+    public org.omg.CORBA.portable.InputStream create_input_stream()
     {
         byte [] buf = (byte [])buffer.clone();
         return new CDRInputStream( orb, buf );
     }
 
-    public final void write_any (final org.omg.CORBA.Any value)
+    public final void write_any(final org.omg.CORBA.Any value)
     {
         write_TypeCode( value.type() );
         value.write_value( this ) ;
     }
 
-    public final void write_boolean (final boolean value)
+    public final void write_boolean(final boolean value)
     {
         check(1);
 
@@ -709,7 +739,7 @@ public class CDROutputStream
     }
 
     public final void write_boolean_array
-        (final boolean[] value, final int offset, final int length)
+       (final boolean[] value, final int offset, final int length)
     {
         if (value != null )
         {
@@ -731,7 +761,7 @@ public class CDROutputStream
     /**
      * Writes char according to specified encoding.
      */
-    public final void write_char (final char c)
+    public final void write_char(final char c)
     {
         check( 1 );
 
@@ -753,7 +783,7 @@ public class CDROutputStream
     }
 
     public final void write_char_array
-        (final char[] value, final int offset, final int length)
+       (final char[] value, final int offset, final int length)
     {
         if( value == null )
             throw new MARSHAL( "Null References" );
@@ -782,7 +812,7 @@ public class CDROutputStream
         index += length;
     }
 
-    public final void write_string (final String s)
+    public final void write_string(final String s)
     {
         if( s == null )
         {
@@ -803,7 +833,7 @@ public class CDROutputStream
         0xFF80; //UTF-8
 
         char ch;
-        for (int i = 0; i < s.length (); i++)
+        for (int i = 0; i < s.length(); i++)
         {
             ch = s.charAt (i);
             if ((ch & too_large_mask) != 0)
@@ -820,13 +850,13 @@ public class CDROutputStream
         index += size;
     }
 
-    public final void write_wchar (final char c)
+    public final void write_wchar(final char c)
     {
         write_wchar( c, useBOM, true );//with length indicator
     }
 
     private final void write_wchar
-        (final char c, final boolean write_bom, final boolean write_length_indicator)
+       (final char c, final boolean write_bom, final boolean write_length_indicator)
     {
         check(3);
 
@@ -913,7 +943,7 @@ public class CDROutputStream
     }
 
     public final void write_wchar_array
-        (final char[] value, final int offset, final int length)
+       (final char[] value, final int offset, final int length)
     {
         if( value == null )
             throw new MARSHAL("Null References");
@@ -924,7 +954,7 @@ public class CDROutputStream
             write_wchar( value[i] );
     }
 
-    public final void write_wstring (final String s)
+    public final void write_wstring(final String s)
     {
         if( s == null )
         {
@@ -985,13 +1015,13 @@ public class CDROutputStream
         _write4int( buffer, startPos, str_size );
     }
 
-    public final void write_double (final double value)
+    public final void write_double(final double value)
     {
         write_longlong (Double.doubleToLongBits (value));
     }
 
     public final void write_double_array
-        (final double[] value, final int offset, final int length)
+       (final double[] value, final int offset, final int length)
     {
         //if nothing has to be written, return, and especially DON'T
         //ALIGN
@@ -1023,10 +1053,10 @@ public class CDROutputStream
         }
     }
 
-    public final void write_fixed (final java.math.BigDecimal value)
+    public final void write_fixed(final java.math.BigDecimal value)
     {
         //#ifjdk 1.2
-        String v = value.unscaledValue().toString ();
+        String v = value.unscaledValue().toString();
         //#else
         //# String v = value.movePointRight(value.scale()).toString();
         //#endif
@@ -1076,13 +1106,13 @@ public class CDROutputStream
 
     }
 
-    public final void write_float (final float value)
+    public final void write_float(final float value)
     {
         write_long(Float.floatToIntBits(value));
     }
 
     public final void write_float_array
-        (final float[] value, final int offset, final int length)
+       (final float[] value, final int offset, final int length)
     {
         //if nothing has to be written, return, and especially DON'T
         //ALIGN
@@ -1106,7 +1136,7 @@ public class CDROutputStream
         }
     }
 
-    public final void write_long (final int value)
+    public final void write_long(final int value)
     {
         check(7,4);
 
@@ -1116,7 +1146,7 @@ public class CDROutputStream
     }
 
     public final void write_long_array
-        (final int[] value, final int offset, final int length)
+       (final int[] value, final int offset, final int length)
     {
         //if nothing has to be written, return, and especially DON'T
         //ALIGN
@@ -1148,7 +1178,7 @@ public class CDROutputStream
         }
     }
 
-    public final void write_longlong (final long value)
+    public final void write_longlong(final long value)
     {
         check(15,8);
 
@@ -1166,7 +1196,7 @@ public class CDROutputStream
     }
 
     public final void write_longlong_array
-        (final long[] value, final int offset, final int length)
+       (final long[] value, final int offset, final int length)
     {
         //if nothing has to be written, return, and especially DON'T
         //ALIGN
@@ -1195,7 +1225,7 @@ public class CDROutputStream
         }
     }
 
-    public void write_Object (final org.omg.CORBA.Object value)
+    public void write_Object(final org.omg.CORBA.Object value)
     {
 
         if( value == null )
@@ -1213,7 +1243,7 @@ public class CDROutputStream
     }
 
     ////////////////////////////////////////////// NEW!
-    public void write_IOR (final IOR ior)
+    public void write_IOR(final IOR ior)
     {
         if( ior == null )
         {
@@ -1226,7 +1256,7 @@ public class CDROutputStream
     }
     ////////////////////////////////////////////// NEW!
 
-    public final void write_octet (final byte value)
+    public final void write_octet(final byte value)
     {
         check(1);
         index++;
@@ -1255,12 +1285,12 @@ public class CDROutputStream
         }
     }
 
-    public final void write_Principal (final org.omg.CORBA.Principal value)
+    public final void write_Principal(final org.omg.CORBA.Principal value)
     {
         throw new NO_IMPLEMENT ("Principal deprecated");
     }
 
-    public final void write_short (final short value)
+    public final void write_short(final short value)
     {
         check(3,2);
 
@@ -1270,7 +1300,7 @@ public class CDROutputStream
     }
 
     public final void write_short_array
-        (final short[] value, final int offset, final int length)
+       (final short[] value, final int offset, final int length)
     {
         //if nothing has to be written, return, and especially DON'T
         //ALIGN
@@ -1310,14 +1340,14 @@ public class CDROutputStream
         try
         {
             // Get the id for this typecode.
-            id = value.id ();
+            id = value.id();
         }
         // Masking on purpose as only determining whether to cache here.
         catch (BadKind e)
         {
         }
 
-        if (Environment.getCompactTypecodes () > 0 && id != null)
+        if (compactTypeCodes > 0 && id != null)
         {
             if (cachedTypecodes == null)
             {
@@ -1333,7 +1363,7 @@ public class CDROutputStream
             // cache it.
             if (cached == null)
             {
-                value = value.get_compact_typecode ();
+                value = value.get_compact_typecode();
                 cachedTypecodes.put (id, value);
             }
             else
@@ -1345,7 +1375,7 @@ public class CDROutputStream
     }
 
     private final void writeRecursiveTypeCode
-        (final org.omg.CORBA.TypeCode value, final Map tcMap) throws BadKind
+       (final org.omg.CORBA.TypeCode value, final Map tcMap) throws BadKind
     {
         write_long( -1 ); // recursion marker
         int negative_offset =
@@ -1355,7 +1385,7 @@ public class CDROutputStream
     }
 
     private final void write_TypeCode
-        (final org.omg.CORBA.TypeCode value, Map tcMap)
+       (final org.omg.CORBA.TypeCode value, Map tcMap)
     {
         if (value == null)
         {
@@ -1407,8 +1437,8 @@ public class CDROutputStream
                     break;
                     case TCKind._tk_struct:
                     case TCKind._tk_except:
-                    if (Environment.getUseIndirection() && tcMap != null &&
-                        tcMap.containsKey (value.id ()))
+                    if (useIndirection && tcMap != null &&
+                        tcMap.containsKey (value.id()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1417,7 +1447,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new HashMap ();
+                            tcMap = new HashMap();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1436,8 +1466,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_enum:
-                    if (Environment.getUseIndirection() && tcMap != null &&
-                        tcMap.containsKey (value.id ()))
+                    if (useIndirection && tcMap != null &&
+                        tcMap.containsKey (value.id()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1446,7 +1476,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new HashMap ();
+                            tcMap = new HashMap();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1464,8 +1494,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_union:
-                    if (Environment.getUseIndirection() && tcMap != null &&
-                        tcMap.containsKey (value.id ()))
+                    if (useIndirection && tcMap != null &&
+                        tcMap.containsKey (value.id()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1474,7 +1504,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new HashMap ();
+                            tcMap = new HashMap();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id() , value );
@@ -1522,8 +1552,8 @@ public class CDROutputStream
                     endEncapsulation();
                     break;
                     case TCKind._tk_alias:
-                    if (Environment.getUseIndirection() && tcMap != null &&
-                        tcMap.containsKey (value.id ()))
+                    if (useIndirection && tcMap != null &&
+                        tcMap.containsKey (value.id()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1532,7 +1562,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new HashMap ();
+                            tcMap = new HashMap();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1545,8 +1575,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_value:
-                    if (Environment.getUseIndirection() && tcMap != null &&
-                        tcMap.containsKey (value.id ()))
+                    if (useIndirection && tcMap != null &&
+                        tcMap.containsKey (value.id()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1555,7 +1585,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new HashMap ();
+                            tcMap = new HashMap();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1581,8 +1611,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_value_box:
-                    if (Environment.getUseIndirection() && tcMap != null &&
-                        tcMap.containsKey (value.id ()))
+                    if (useIndirection && tcMap != null &&
+                        tcMap.containsKey (value.id()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1591,7 +1621,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new HashMap ();
+                            tcMap = new HashMap();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1604,8 +1634,8 @@ public class CDROutputStream
                     }
                     break;
                     case TCKind._tk_abstract_interface:
-                    if (Environment.getUseIndirection() && tcMap != null &&
-                        tcMap.containsKey (value.id ()))
+                    if (useIndirection && tcMap != null &&
+                        tcMap.containsKey (value.id()))
                     {
                         writeRecursiveTypeCode( value, tcMap );
                     }
@@ -1614,7 +1644,7 @@ public class CDROutputStream
                         write_long( _kind  );
                         if (tcMap == null)
                         {
-                            tcMap = new HashMap ();
+                            tcMap = new HashMap();
                         }
                         tcMap.put( value.id(), new Integer( pos ) );
                         getRecursiveTCMap().put( value.id(), value );
@@ -1642,35 +1672,35 @@ public class CDROutputStream
         }
     }
 
-    public final void write_ulong (final int value)
+    public final void write_ulong(final int value)
     {
         write_long (value);
     }
 
     public final void write_ulong_array
-        (final int[] value, final int offset, final int length)
+       (final int[] value, final int offset, final int length)
     {
         write_long_array (value, offset, length);
     }
 
-    public final void write_ulonglong (final long value)
+    public final void write_ulonglong(final long value)
     {
         write_longlong (value);
     }
 
     public final void write_ulonglong_array
-        (final long[] value, final int offset, final int length)
+       (final long[] value, final int offset, final int length)
     {
         write_longlong_array (value, offset, length);
     }
 
-    public final void write_ushort (final short value)
+    public final void write_ushort(final short value)
     {
         write_short (value);
     }
 
     public final void write_ushort_array
-        (final short[] value, final int offset, final int length)
+       (final short[] value, final int offset, final int length)
     {
         write_short_array (value, offset, length);
     }
@@ -2034,20 +2064,20 @@ public class CDROutputStream
      * Writes the serialized state of `value' to this stream.
      */
 
-    public void write_value (final java.io.Serializable value)
+    public void write_value(final java.io.Serializable value)
     {
         if (!write_special_value (value))
             write_value_internal (value,
                                   ValueHandler.getRMIRepositoryID (value.getClass()));
     }
 
-    public void write_value (final java.io.Serializable value,
+    public void write_value(final java.io.Serializable value,
                              final org.omg.CORBA.portable.BoxedValueHelper factory)
     {
         if (!write_special_value (value))
         {
             check(7,4);
-            getValueMap ().put (value, new Integer(pos));
+            getValueMap().put (value, new Integer(pos));
             write_previous_chunk_size();
             if ((value instanceof org.omg.CORBA.portable.IDLEntity) ||
                 (value instanceof java.lang.String))
@@ -2064,7 +2094,7 @@ public class CDROutputStream
         }
     }
 
-    public void write_value (final java.io.Serializable value,
+    public void write_value(final java.io.Serializable value,
                              final java.lang.Class clz)
     {
         if (!write_special_value (value))
@@ -2081,7 +2111,7 @@ public class CDROutputStream
         }
     }
 
-    public void write_value (final java.io.Serializable value,
+    public void write_value(final java.io.Serializable value,
                              final String repository_id)
     {
         if (!write_special_value (value))
@@ -2093,7 +2123,7 @@ public class CDROutputStream
      * then this method writes that information to the stream and returns
      * true, otherwise does nothing and returns false.
      */
-    private boolean write_special_value (final java.io.Serializable value)
+    private boolean write_special_value(final java.io.Serializable value)
     {
         if (value == null)
         {
@@ -2103,7 +2133,7 @@ public class CDROutputStream
         }
         else
         {
-            Integer index = (Integer)getValueMap ().get (value);
+            Integer index = (Integer)getValueMap().get (value);
             if (index != null)
             {
 
@@ -2120,9 +2150,9 @@ public class CDROutputStream
     /**
      * Writes `repository_id' to this stream, perhaps via indirection.
      */
-    private void write_repository_id (final String repository_id)
+    private void write_repository_id(final String repository_id)
     {
-        Integer _index = (Integer)getRepIdMap ().get (repository_id);
+        Integer _index = (Integer)getRepIdMap().get (repository_id);
         if ( _index == null)
         {
             // a new repository id -- write it
@@ -2136,7 +2166,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            getRepIdMap ().put (repository_id, new Integer(pos));
+            getRepIdMap().put (repository_id, new Integer(pos));
             write_string (repository_id);
         }
         else
@@ -2150,16 +2180,16 @@ public class CDROutputStream
     /**
      * Writes `codebase' to this stream, perhaps via indirection.
      */
-    private void write_codebase (final String codebase)
+    private void write_codebase(final String codebase)
     {
         Integer _index = null;
         if (codebaseMap == null)
         {
-            codebaseMap = new HashMap ();
+            codebaseMap = new HashMap();
         }
         else
         {
-            _index = (Integer)getCodebaseMap ().get (codebase);
+            _index = (Integer)getCodebaseMap().get (codebase);
         }
         if ( _index == null)
         {
@@ -2174,7 +2204,7 @@ public class CDROutputStream
                 pos += remainder;
             }
 
-            getCodebaseMap ().put (codebase, new Integer(pos));
+            getCodebaseMap().put (codebase, new Integer(pos));
             write_string (codebase);
         }
         else
@@ -2189,7 +2219,7 @@ public class CDROutputStream
      * Writes to this stream a value header with the specified `repository_id'
      * and no codebase string.
      */
-    private void write_value_header (final String[] repository_ids)
+    private void write_value_header(final String[] repository_ids)
     {
         write_previous_chunk_size();
         if (repository_ids != null)
@@ -2222,7 +2252,7 @@ public class CDROutputStream
      */
 
     private void write_value_header
-        (final String[] repository_ids, final String codebase)
+       (final String[] repository_ids, final String codebase)
     {
         if (codebase != null)
         {
@@ -2269,11 +2299,11 @@ public class CDROutputStream
      * Note: This method does not check for the special cases covered
      * by write_special_value().
      */
-    private void write_value_internal (final java.io.Serializable value,
+    private void write_value_internal(final java.io.Serializable value,
                                        final String repository_id)
     {
         check(7,4);
-        getValueMap ().put (value, new Integer(pos));
+        getValueMap().put (value, new Integer(pos));
 
         if (value.getClass() == String.class)
         {
@@ -2453,7 +2483,7 @@ public class CDROutputStream
      * union contains a CORBA object reference, or false if the union contains
      * a value.
      */
-    public void write_abstract_interface (final java.lang.Object object)
+    public void write_abstract_interface(final java.lang.Object object)
     {
         if (object instanceof org.omg.CORBA.Object)
         {

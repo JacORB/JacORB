@@ -3,7 +3,7 @@ package org.jacorb.orb.iiop;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -32,9 +32,8 @@ import org.omg.CSIIOP.*;
 import org.omg.SSLIOP.*;
 
 import org.apache.avalon.framework.logger.*;
+import org.apache.avalon.framework.configuration.*;
 
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 import org.jacorb.orb.factory.*;
 import org.jacorb.orb.*;
 
@@ -45,6 +44,8 @@ import org.jacorb.orb.*;
 public class IIOPListener 
     extends _ListenerLocalBase
 {
+    private ORB orb = null;
+    private SocketFactoryManager socketFactoryManager = null;
     private ServerSocketFactory    serverSocketFactory    = null;
     private SSLServerSocketFactory sslServerSocketFactory = null;
 
@@ -53,7 +54,15 @@ public class IIOPListener
 
     private IIOPProfile endpoint = null;
 
+    private org.jacorb.config.Configuration configuration;
     private Logger logger = null;
+    private boolean supportSSL = false;
+    private boolean dnsEnabled = false;
+    private int serverTimeout = 0;
+    private int oaPort = 0;
+    private int sslPort = 0;
+    private int target_supports = 0;
+    private int target_requires = 0;
 
     /**
      * Reference to the ORB, for delivering
@@ -71,16 +80,46 @@ public class IIOPListener
 
     private boolean terminated = false;
 
-    public IIOPListener()
+    public IIOPListener(ORB orb)
     {
-        logger = Debug.getNamedLogger("jacorb.orb.iiop");
+        this.orb = orb;
+        socketFactoryManager = new SocketFactoryManager(orb);
+    }
+
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+        logger = this.configuration.getNamedLogger("jacorb.iiop.listener");
+ 
+        socketFactoryManager.configure(configuration);
+
+        oaPort = configuration.getAttributeAsInteger("OAPort",0);
+        sslPort = configuration.getAttributeAsInteger("OASSLPort",0);
+ 
+        dnsEnabled = 
+            configuration.getAttribute("jacorb.dns.enable","off").equals("on");
+
+        serverTimeout = 
+            configuration.getAttributeAsInteger("jacorb.connection.server.timeout",0);
+
+        supportSSL =
+            configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
+
+        target_supports = 
+            configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options",16);
+        target_requires = 
+            configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options",16);
+
+
         if (!isSSLRequired())
         {
             acceptor = new Acceptor();
             acceptor.init();
         }
 
-        if (isSSLSupported())
+        if (supportSSL)
         {
             sslAcceptor = new SSLAcceptor();
             sslAcceptor.init();
@@ -202,7 +241,7 @@ public class IIOPListener
      */
     private boolean isSSLSupported()
     {
-        return Environment.isPropertyOn ("jacorb.security.support_ssl");
+        return  supportSSL;
     }
 
     /**
@@ -210,6 +249,7 @@ public class IIOPListener
      * offer plain connections.
      */
     private boolean isSSLRequired()
+        throws ConfigurationException
     {
         if (isSSLSupported())
         {
@@ -223,13 +263,14 @@ public class IIOPListener
                 EstablishTrustInTarget.value |
                 EstablishTrustInClient.value;
 
-            String prop = Environment.getProperty
-                               ("jacorb.ssl.server.required_options");
+            String prop = 
+                configuration.getAttribute("jacorb.ssl.server.required_options");
+
             if (prop != null)
             {
                 try
                 {
-                    int server_requires = Integer.parseInt (prop, 16);
+                    int server_requires = Integer.parseInt(prop, 16);
                     return ((server_requires & minimum_options) != 0);
                 }
                 catch (NumberFormatException e)
@@ -249,19 +290,15 @@ public class IIOPListener
      */
     private int getServerTimeout()
     {
-        String prop = Environment.getProperty ("jacorb.connection.server.timeout");
-        if (prop != null)
-            return Integer.parseInt (prop);
-        else
-            return 0;
+        return serverTimeout;
     }
 
     private ServerSocketFactory getServerSocketFactory()
     {
         if (serverSocketFactory == null)
-        {
+        {            
             serverSocketFactory =
-                SocketFactoryManager.getServerSocketFactory ((org.jacorb.orb.ORB)null);
+                socketFactoryManager.getServerSocketFactory();
         }
         return serverSocketFactory;
     }
@@ -283,11 +320,11 @@ public class IIOPListener
 
             // TODO: Check what is the right thing to do.
 
-            sslServerSocketFactory
-                = org.jacorb.orb.BasicAdapter.ssl_socket_factory;
+            sslServerSocketFactory = 
+                orb.getBasicAdapter().getSSLSocketFactory();
+
             if (sslServerSocketFactory == null)
-                throw new org.omg.CORBA.INITIALIZE
-                                  ("No SSL server socket factory found");
+                throw new org.omg.CORBA.INITIALIZE("No SSL server socket factory found");
         }
         return sslServerSocketFactory;
     }
@@ -296,6 +333,7 @@ public class IIOPListener
      * Creates a new IIOPProfile that describes this transport endpoint.
      */
     private IIOPProfile createEndPointProfile()
+        throws ConfigurationException
     {
         int port=0;
         if (acceptor != null)
@@ -317,9 +355,7 @@ public class IIOPListener
                 // Otherwise, we might get an unnecessary DNS lookup
                 // at IOR creation time, which might break the setting
                 // of OAIAddr on a multi-homed host.
-                Environment.isPropertyOn("jacorb.dns.enable")
-                    ? getHost().getHostName()
-                    : getHost().getHostAddress(),
+                dnsEnabled ? getHost().getHostName() : getHost().getHostAddress(),
                 port // will be 0 if there is only an SSLAcceptor
             ), 
             null
@@ -329,23 +365,17 @@ public class IIOPListener
              result.addComponent (TAG_SSL_SEC_TRANS.value,
                                   createSSL(), SSLHelper.class);
         }
+        
+        result.configure(configuration);
         return result;
     }
 
     private SSL createSSL()
     {
-        int target_supports = Environment.getIntProperty
-        (
-            "jacorb.security.ssl.server.supported_options", 16
-        );
-        int target_requires = Environment.getIntProperty
-        (
-            "jacorb.security.ssl.server.required_options", 16
-        );
-
         return new SSL
         (
-            (short)target_supports, (short)target_requires,
+            (short)target_supports, 
+            (short)target_requires,
             (short)sslAcceptor.getLocalAddress().getPort()
         );
     }
@@ -369,8 +399,13 @@ public class IIOPListener
     {
         try
         {
-            String oa_addr = Environment.getProperty ("OAIAddr");
+            String oa_addr = configuration.getAttribute("OAIAddr");
             return (oa_addr == null) ? null : InetAddress.getByName(oa_addr);
+        }
+        catch (ConfigurationException e)
+        {
+            throw new org.omg.CORBA.INITIALIZE("Could not resolve configured listener host" + 
+                                               e.getMessage());
         }
         catch (java.net.UnknownHostException e)
         {
@@ -411,20 +446,13 @@ public class IIOPListener
      */
     private int getConfiguredPort()
     {
-        String prop = Environment.getProperty ("OAPort");
-        if (prop != null)
-            return Integer.parseInt (prop);
-        else
-            return 0;
+        return oaPort;
+
     }
 
     private int getConfiguredSSLPort()
     {
-        String prop = Environment.getProperty ("OASSLPort");
-        if (prop != null)
-            return Integer.parseInt (prop);
-        else
-            return 0;
+        return sslPort;
     }
 
     /**
@@ -476,7 +504,8 @@ public class IIOPListener
 
     // Acceptor classes below this line
 
-    private class Acceptor extends Thread
+    private class Acceptor 
+        extends Thread
     {
         protected ServerSocket serverSocket;
         private   boolean      terminated = false;
@@ -484,7 +513,6 @@ public class IIOPListener
         public Acceptor()
         {
             // initialization deferred to init() method due to JDK bug
-
             setDaemon(true);
         }
 
@@ -577,18 +605,20 @@ public class IIOPListener
          * connection has been established.  Subclass implementations
          * must call super.setup() first.
          */
-        protected void setup (Socket socket) throws IOException
+        protected void setup(Socket socket) 
+            throws IOException
         {
-             socket.setSoTimeout (getServerTimeout());
+             socket.setSoTimeout(serverTimeout);
         }
 
-        protected void deliverConnection (Socket socket)
+        protected void deliverConnection(Socket socket)
         {
             IIOPListener.this.deliverConnection (socket, false);
         }
     }
 
-    private class SSLAcceptor extends Acceptor
+    private class SSLAcceptor 
+        extends Acceptor
     {
         protected ServerSocket createServerSocket()
         {
@@ -607,13 +637,14 @@ public class IIOPListener
             }
         }
 
-        public void setup (Socket socket) throws IOException
+        public void setup(Socket socket)
+            throws IOException
         {
-            super.setup (socket);
+            super.setup(socket);
             getSSLServerSocketFactory().switchToClientMode (socket);
         }
 
-        protected void deliverConnection (Socket socket)
+        protected void deliverConnection(Socket socket)
         {
             IIOPListener.this.deliverConnection (socket, true);
         }

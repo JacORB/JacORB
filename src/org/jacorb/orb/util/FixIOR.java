@@ -20,6 +20,8 @@
 
 package org.jacorb.orb.util;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.*;
@@ -60,6 +62,7 @@ public class FixIOR
         short port;
         int iport;
 
+
         if (args.length != 3)
         {
             System.err.println ("Usage: fixior host port ior_file");
@@ -89,9 +92,12 @@ public class FixIOR
 
         orb = org.omg.CORBA.ORB.init (args, null);
 
+        Logger logger = 
+            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.fixior");
+
         // Parse IOR
 
-        pior = new ParsedIOR (iorString, orb);
+        pior = new ParsedIOR(iorString, orb, logger);
         ior = pior.getIOR ();
 
         // Iterate through IIOP profiles setting host and port
@@ -132,7 +138,7 @@ public class FixIOR
             }
         }
 
-        pior = new ParsedIOR (ior, (org.jacorb.orb.ORB)orb);
+        pior = new ParsedIOR (ior, (org.jacorb.orb.ORB)orb, logger);
 
         // Write out new IOR to file
 

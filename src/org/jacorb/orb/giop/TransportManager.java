@@ -199,7 +199,9 @@ public class TransportManager
             // bootclasspath, and the external transport on the normal
             // classpath.
             Class c = ObjectUtil.classForName(className);
-            return (Factories)c.newInstance();
+            Configurable configurable = (Configurable)c.newInstance();
+            configurable.configure(configuration);
+            return (Factories)configurable;
         }
         catch (Exception e)
         {

@@ -87,7 +87,7 @@ public class SocketFactoryManager
         }
         else
         {
-           socketFactory = getFactory(factoryClassName);
+            socketFactory = getFactory(factoryClassName);
         }
 
         return socketFactory;

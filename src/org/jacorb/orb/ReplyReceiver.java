@@ -21,12 +21,17 @@ package org.jacorb.orb;
  */
 
 import java.util.*;
+
+import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+
 import org.jacorb.orb.giop.MessageInputStream;
 import org.jacorb.orb.giop.ReplyInputStream;
 import org.jacorb.orb.giop.ReplyPlaceholder;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 import org.jacorb.util.Time;
+
 import org.omg.CORBA.MARSHAL;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.portable.ApplicationException;
@@ -50,7 +55,10 @@ import org.omg.TimeBase.UtcT;
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
-public class ReplyReceiver extends ReplyPlaceholder
+
+public class ReplyReceiver 
+    extends ReplyPlaceholder
+    implements Configurable
 {
     private org.jacorb.orb.Delegate  delegate     = null;
     private ClientInterceptorHandler interceptors = null;
@@ -61,7 +69,14 @@ public class ReplyReceiver extends ReplyPlaceholder
     private UtcT   replyEndTime;
     private Timer  timer;
 
+    /** the configuration object for this delegate */
+    private org.apache.avalon.framework.configuration.Configuration configuration = null;
+    private Logger logger;
+
+    /** configuration properties */
     private boolean retry_on_failure = false;
+
+
 
     public ReplyReceiver( org.jacorb.orb.Delegate        delegate,
                           String                         operation,
@@ -79,8 +94,8 @@ public class ReplyReceiver extends ReplyPlaceholder
 
         if (replyEndTime != null)
         {
-            timer = new Timer (replyEndTime);
-            timer.setName( "ReplyReceiver Timer" );
+            timer = new Timer(replyEndTime);
+            timer.setName("ReplyReceiver Timer" );
             timer.start();
         }
         else
@@ -88,10 +103,20 @@ public class ReplyReceiver extends ReplyPlaceholder
             timer = null;
         }
 
-        retry_on_failure = Environment.retryOnFailure();
     }
 
-    public synchronized void replyReceived ( MessageInputStream in )
+    public void configure(org.apache.avalon.framework.configuration.Configuration configuration)
+        throws org.apache.avalon.framework.configuration.ConfigurationException
+    {
+        this.configuration = configuration;
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.rep_recv");
+        retry_on_failure = 
+            configuration.getAttribute("jacorb.connection.client.retry_on_failure","off").equals("on");
+    }
+
+
+    public synchronized void replyReceived( MessageInputStream in )
     {
         if (timeoutException)
             return; // discard reply
@@ -164,7 +189,8 @@ public class ReplyReceiver extends ReplyPlaceholder
         }
         catch ( Exception e )
         {
-            Debug.output( 2, "Exception during callback: " + e.getMessage() );
+            if (logger.isWarnEnabled())
+                logger.warn("Exception during callback: " + e.getMessage() );
         }
         finally
         {
@@ -207,7 +233,8 @@ public class ReplyReceiver extends ReplyPlaceholder
         }
         catch ( Exception e )
         {
-            Debug.output( 2, "Exception during callback: " + e.getMessage() );
+            if (logger.isWarnEnabled())
+                logger.warn("Exception during callback: " + e.getMessage() );
         }
         finally
         {
@@ -342,7 +369,8 @@ public class ReplyReceiver extends ReplyPlaceholder
         catch( java.io.IOException ioe )
         {
             //should not happen anyway
-            Debug.output( 1, ioe );
+            if (logger.isErrorEnabled())
+                logger.error("Exception int reset(): " + ioe.getMessage() );
         }
 
         return new ApplicationException( id, reply );
@@ -420,7 +448,8 @@ public class ReplyReceiver extends ReplyPlaceholder
                         }
                         catch (InterruptedException ex)
                         {
-                            Debug.output( 3,"interrupted while waiting for timeout");
+                            if (logger.isInfoEnabled())
+                                logger.info("Interrupted while waiting for timeout");
                         }
                     }
                     if (!awakened)
@@ -431,9 +460,9 @@ public class ReplyReceiver extends ReplyPlaceholder
 
                             if (replyHandler != null)
                             {
-                                performExceptionCallback
-                                    (new ExceptionHolderImpl
-                                        (new org.omg.CORBA.TIMEOUT()));
+                                ExceptionHolderImpl exHolder = 
+                                    new ExceptionHolderImpl(new org.omg.CORBA.TIMEOUT());
+                                performExceptionCallback(exHolder);
                             }
                             ReplyReceiver.this.ready = true;
                             ReplyReceiver.this.notifyAll();

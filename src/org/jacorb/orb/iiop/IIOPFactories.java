@@ -3,7 +3,7 @@ package org.jacorb.orb.iiop;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -21,6 +21,8 @@ package org.jacorb.orb.iiop;
  *
  */
 
+import org.apache.avalon.framework.configuration.*;
+
 import org.omg.IOP.*;
 import org.omg.ETF.*;
 import org.omg.RTCORBA.ProtocolProperties;
@@ -29,21 +31,45 @@ import org.omg.RTCORBA.ProtocolProperties;
  * @author Andre Spiegel
  * @version $Id$
  */
-public class IIOPFactories extends org.omg.ETF._FactoriesLocalBase
+public class IIOPFactories 
+    extends org.omg.ETF._FactoriesLocalBase
+    implements Configurable
 {
-    public Connection create_connection (ProtocolProperties props)
+    org.jacorb.config.Configuration configuration;
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+    }
+
+
+    public Connection create_connection(ProtocolProperties props)
     {
         return new ClientIIOPConnection();
     }
 
-    public Listener create_listener (ProtocolProperties props,
-                                     int stacksize,
-                                     short base_priority)
+    /**
+     * Creates and configures a new IIOP listener
+     */
+
+    public Listener create_listener(ProtocolProperties props,
+                                    int stacksize,
+                                    short base_priority)
     {
-        return new IIOPListener();
+        IIOPListener result = new IIOPListener(configuration.getORB());
+        try
+        {
+            result.configure(configuration);
+        }
+        catch( ConfigurationException ce )
+        {
+            throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + ce.getMessage());
+        }
+        return result;
     }
 
-    public Profile demarshal_profile (TaggedProfileHolder tagged_profile,
+    public Profile demarshal_profile(TaggedProfileHolder tagged_profile,
                                       TaggedComponentSeqHolder components)
     {
         if (tagged_profile.value.tag != TAG_INTERNET_IOP.value)
@@ -54,8 +80,17 @@ public class IIOPFactories extends org.omg.ETF._FactoriesLocalBase
         }
         else
         {
-            IIOPProfile result 
-                = new IIOPProfile (tagged_profile.value.profile_data);
+            IIOPProfile result = 
+                new IIOPProfile(tagged_profile.value.profile_data);
+            try
+            {
+                result.configure(configuration);
+            }
+            catch(ConfigurationException e)
+            {
+                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.getMessage());
+            }
+
             components.value = result.getComponents().asArray();
             return result;
         }
@@ -73,7 +108,19 @@ public class IIOPFactories extends org.omg.ETF._FactoriesLocalBase
         if (token.length() == 0 ||
             token.equals ("iiop") ||
             token.equals ("ssliop"))
-            return new IIOPProfile(corbaloc);
+        {
+            IIOPProfile result = new IIOPProfile(corbaloc);
+            try
+            {
+                result.configure(configuration);
+            }
+            catch(ConfigurationException e)
+            {
+                throw new org.omg.CORBA.INTERNAL("ConfigurationException: " + e.getMessage());
+            }
+
+            return result;
+        }
         else
             return null;
     }

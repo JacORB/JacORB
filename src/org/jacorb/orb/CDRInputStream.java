@@ -22,11 +22,14 @@ package org.jacorb.orb;
 
 import java.io.IOException;
 import java.util.*;
+
+import org.apache.avalon.framework.configuration.*;
+import org.apache.avalon.framework.logger.*;
+
 import org.jacorb.orb.giop.CodeSet;
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
 import org.jacorb.util.ValueHandler;
 import org.jacorb.ir.RepositoryID;
+
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.MARSHAL;
@@ -85,7 +88,7 @@ public class CDRInputStream
      * ( PositionAfterReadingId - start_pos
      *   - 4 [Size] - 4 [KindSize] ) = RemainingSizeToSkip
      */
-    private static Map cachedTypecodes;
+    private Map cachedTypecodes;
 
     /** indexes to support mark/reset */
     private int marked_pos;
@@ -93,15 +96,16 @@ public class CDRInputStream
 
     private boolean closed;
 
-    /** configurable propertes */
-    private static boolean useBOM;
-    private static boolean cometInteropFix;
-    private static boolean laxBooleanEncoding;
-    private static boolean cacheTypecodes;
+    /** configurable properties */
+    private Logger logger;
+    private boolean useBOM;
+    private boolean cometInteropFix;
+    private boolean laxBooleanEncoding;
+    private boolean cacheTypecodes;
 
     /* character encoding code sets for char and wchar, default ISO8859_1 */
     private int codeSet =  CodeSet.getTCSDefault();
-    private int codeSetW=  CodeSet.getTCSWDefault();
+    private int codeSetW = CodeSet.getTCSWDefault();
     protected int giop_minor = 2; // needed to determine size in chars
 
     /**
@@ -160,27 +164,59 @@ public class CDRInputStream
      */
     private org.omg.CORBA.ORB orb = null;
 
-    static
-    {
-        useBOM = Environment.isPropertyOn ("jacorb.use_bom");
-        cometInteropFix = Environment.isPropertyOn ("jacorb.interop.comet");
-        laxBooleanEncoding = Environment.isPropertyOn ("jacorb.interop.lax_boolean_encoding");
-        cacheTypecodes = Environment.isPropertyOn ("jacorb.cacheTypecodes");
-    }
-
-    public CDRInputStream (final org.omg.CORBA.ORB orb, final byte[] buf)
+    public CDRInputStream(final org.omg.CORBA.ORB orb, final byte[] buf)
     {
         this.orb = orb;
         buffer = buf;
+        try
+        {
+            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+        }
+        catch( ConfigurationException ce )
+        {
+            throw new INTERNAL("ConfigurationException: " + ce.getMessage());
+        }
     }
 
-    public CDRInputStream (final org.omg.CORBA.ORB orb,
-                           final byte[] buf,
-                           final boolean littleEndian )
+    public CDRInputStream(final org.omg.CORBA.ORB orb,
+                          final byte[] buf,
+                          final boolean littleEndian )
     {
         this( orb, buf );
         this.littleEndian = littleEndian;
+        try
+        {
+            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
+        }
+        catch( ConfigurationException ce )
+        {
+            throw new INTERNAL("ConfigurationException: " + ce.getMessage());
+        }
     }
+
+
+    /**
+     * This stream is self-configuring, i.e. configure() is private
+     * and only called from the constructors.
+     */
+
+    private void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.orb.cdr");
+
+        useBOM = 
+            configuration.getAttribute("jacorb.use_bom","off").equals("on");
+        cometInteropFix = 
+            configuration.getAttribute("jacorb.interop.comet","off").equals("on");
+        laxBooleanEncoding = 
+            configuration.getAttribute("jacorb.interop.lax_boolean_encoding","off").equals("on");
+        cacheTypecodes = 
+            configuration.getAttribute("jacorb.cacheTypecodes","off").equals("on");
+    }
+
+
 
 
     /**
@@ -189,11 +225,11 @@ public class CDRInputStream
      *
      * @return a <code>Stack</code> value
      */
-    private Stack getEncapsStack ()
+    private Stack getEncapsStack()
     {
         if (encaps_stack == null)
         {
-            encaps_stack = new Stack ();
+            encaps_stack = new Stack();
         }
         return encaps_stack;
     }
@@ -208,7 +244,7 @@ public class CDRInputStream
     {
         if (recursiveTCMap == null)
         {
-            recursiveTCMap = new HashMap ();
+            recursiveTCMap = new HashMap();
         }
         return recursiveTCMap;
     }
@@ -306,7 +342,7 @@ public class CDRInputStream
     }
 
 
-    public void setGIOPMinor (final  int giop_minor )
+    public void setGIOPMinor(final  int giop_minor )
     {
         this.giop_minor = giop_minor;
     }
@@ -316,7 +352,8 @@ public class CDRInputStream
         return giop_minor;
     }
 
-    public void close() throws IOException
+    public void close() 
+        throws IOException
     {
         // Don't need to call super.close as super is noop.
         if( closed )
@@ -331,20 +368,20 @@ public class CDRInputStream
         closed = true;
     }
 
-    public org.omg.CORBA.ORB orb ()
+    public org.omg.CORBA.ORB orb()
     {
         if (orb == null) orb = org.omg.CORBA.ORB.init(new String[]{}, null);
         return orb;
     }
 
-    public void setCodeSet (final int codeSet, final int codeSetWide)
+    public void setCodeSet(final int codeSet, final int codeSetWide)
     {
         this.codeSet = codeSet;
         this.codeSetW = codeSetWide;
     }
 
     private static final int _read4int
-        (final boolean _littleEndian, final byte[] _buffer, final int _pos)
+       (final boolean _littleEndian, final byte[] _buffer, final int _pos)
     {
         if (_littleEndian)
             return (((_buffer[_pos+3] & 0xff) << 24) +
@@ -359,7 +396,7 @@ public class CDRInputStream
     }
 
     private static final short _read2int
-        (final boolean _littleEndian, final byte[] _buffer, final int _pos)
+       (final boolean _littleEndian, final byte[] _buffer, final int _pos)
     {
         if (_littleEndian)
             return  (short)(((_buffer[_pos+1] & 0xff) << 8) +
@@ -369,7 +406,7 @@ public class CDRInputStream
                            ((_buffer[_pos + 1] & 0xff) << 0));
     }
 
-    private final int _read_long ()
+    private final int _read_long()
     {
         int result;
 
@@ -380,7 +417,7 @@ public class CDRInputStream
         return result;
     }
 
-    private final long _read_longlong ()
+    private final long _read_longlong()
     {
         if (littleEndian)
         {
@@ -442,7 +479,7 @@ public class CDRInputStream
         }
     }
 
-    protected final void skip (final int distance)
+    protected final void skip(final int distance)
     {
         pos += distance;
         index += distance;
@@ -496,10 +533,10 @@ public class CDRInputStream
                 ((size << 24) & 0xFF000000)
             );
 
-            if (Debug.isDebugEnabled ())
+            if (logger.isDebugEnabled())
             {
-                Debug.output ("Size of CDR encapsulation larger than buffer, swapping byte order");
-                Debug.output ("Size of CDR encapsulation was " + size + ", is now " + temp);
+                logger.debug("Size of CDR encapsulation larger than buffer, swapping byte order\n" + 
+                             "Size of CDR encapsulation was " + size + ", is now " + temp);
             }
 
             size = temp;
@@ -510,7 +547,7 @@ public class CDRInputStream
 
         if (encaps_stack == null)
         {
-            encaps_stack = new Stack ();
+            encaps_stack = new Stack();
         }
         encaps_stack.push(new EncapsInfo(old_endian, index, pos, size ));
 
@@ -567,14 +604,14 @@ public class CDRInputStream
         return pos - read_index;
     }
 
-    public int read (final byte[] b)
+    public int read(final byte[] b)
         throws java.io.IOException
     {
         return read(b, 0, b.length);
     }
 
 
-    public int read (final byte[] b, final int off, final int len)
+    public int read(final byte[] b, final int off, final int len)
         throws java.io.IOException
     {
         if( b == null )
@@ -644,7 +681,7 @@ public class CDRInputStream
     /** arrays */
 
     public final void read_boolean_array
-        (final boolean[] value, final int offset, final int length)
+       (final boolean[] value, final int offset, final int length)
     {
         handle_chunking();
         byte bb;
@@ -668,7 +705,7 @@ public class CDRInputStream
         }
     }
 
-    public final char read_char ()
+    public final char read_char()
     {
         handle_chunking();
         index++;
@@ -676,7 +713,7 @@ public class CDRInputStream
     }
 
     public final void read_char_array
-        (final char[] value, final int offset, final int length)
+       (final char[] value, final int offset, final int length)
     {
         handle_chunking();
         for (int j = offset; j < offset + length; j++)
@@ -686,13 +723,13 @@ public class CDRInputStream
         }
     }
 
-    public final double read_double ()
+    public final double read_double()
     {
-        return Double.longBitsToDouble (read_longlong ());
+        return Double.longBitsToDouble (read_longlong());
     }
 
     public final void read_double_array
-        (final double[] value, final int offset, final int length)
+       (final double[] value, final int offset, final int length)
     {
         if (length == 0)
             return;
@@ -708,7 +745,7 @@ public class CDRInputStream
 
         for (int j = offset; j < offset + length; j++)
         {
-            value[j] = Double.longBitsToDouble (_read_longlong ());
+            value[j] = Double.longBitsToDouble (_read_longlong());
         }
     }
 
@@ -744,13 +781,13 @@ public class CDRInputStream
 
     }
 
-    public final float read_float ()
+    public final float read_float()
     {
-        return Float.intBitsToFloat (read_long ());
+        return Float.intBitsToFloat (read_long());
     }
 
     public final void read_float_array
-        (final float[] value, final int offset, final int length)
+       (final float[] value, final int offset, final int length)
     {
         if (length == 0)
             return;
@@ -766,11 +803,11 @@ public class CDRInputStream
 
         for (int j = offset; j < offset + length; j++)
         {
-            value[j] = Float.intBitsToFloat (_read_long ());
+            value[j] = Float.intBitsToFloat (_read_long());
         }
     }
 
-    public final int read_long ()
+    public final int read_long()
     {
         handle_chunking();
 
@@ -791,7 +828,7 @@ public class CDRInputStream
     }
 
     public final void read_long_array
-        (final int[] value, final int offset, final int length)
+       (final int[] value, final int offset, final int length)
     {
         if (length == 0)
             return;
@@ -815,7 +852,7 @@ public class CDRInputStream
     }
 
 
-    public final long read_longlong ()
+    public final long read_longlong()
     {
         handle_chunking();
 
@@ -876,7 +913,7 @@ public class CDRInputStream
         handle_chunking();
 
         org.omg.IOP.IOR ior = org.omg.IOP.IORHelper.read(this);
-        ParsedIOR pior = new ParsedIOR( ior, (org.jacorb.orb.ORB)orb );
+        ParsedIOR pior = new ParsedIOR( ior, (org.jacorb.orb.ORB)orb, logger );
 
         if( pior.isNull() )
         {
@@ -897,19 +934,19 @@ public class CDRInputStream
 
     public org.omg.CORBA.Object read_Object (final java.lang.Class clz)
     {
-        if (clz.isInterface () && java.rmi.Remote.class.isAssignableFrom (clz))
+        if (clz.isInterface() && java.rmi.Remote.class.isAssignableFrom (clz))
         {
             return ((org.omg.CORBA.Object)
                     org.jacorb.util.ValueHandler.portableRemoteObject_narrow
-                    (read_Object (), clz));
+                    (read_Object(), clz));
         }
         else
         {
-            return (read_Object ());
+            return (read_Object());
         }
     }
 
-    public final byte read_octet ()
+    public final byte read_octet()
     {
         handle_chunking();
         index++;
@@ -925,7 +962,7 @@ public class CDRInputStream
         pos += length;
     }
 
-    public final org.omg.CORBA.Principal read_Principal ()
+    public final org.omg.CORBA.Principal read_Principal()
     {
         throw new NO_IMPLEMENT ("Principal deprecated");
     }
@@ -935,7 +972,7 @@ public class CDRInputStream
      *   contributed by Mark Allerton <MAllerton@img.seagatesoftware.com>
      */
 
-    public final short read_short ()
+    public final short read_short()
     {
         handle_chunking();
 
@@ -1027,7 +1064,7 @@ public class CDRInputStream
         return result;
     }
 
-    private final org.omg.CORBA.TypeCode read_TypeCode (final Map tcMap )
+    private final org.omg.CORBA.TypeCode read_TypeCode(final Map tcMap )
     {
         String  id           = null;
         String  name         = null;
@@ -1042,9 +1079,9 @@ public class CDRInputStream
         int kind = read_long();
         int start_pos = pos - 4;
 
-        if (Debug.isDebugEnabled ())
+        if (logger.isDebugEnabled())
         {
-            Debug.output ("Read Type code of kind " + kind + " at pos: " + start_pos);
+            logger.debug("Read Type code of kind " + kind + " at pos: " + start_pos);
         }
 
         switch( kind )
@@ -1074,7 +1111,7 @@ public class CDRInputStream
             case TCKind._tk_objref:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1084,7 +1121,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
                     result = orb.create_interface_tc (id, name);
                     putCachedTypecode( id, result );
                 }
@@ -1094,7 +1131,7 @@ public class CDRInputStream
             case TCKind._tk_struct:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1105,7 +1142,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
                     member_count = read_long();
 
                     tcMap.put( new Integer( start_pos ), id );
@@ -1115,7 +1152,7 @@ public class CDRInputStream
                     {
                         struct_members[i] = new StructMember
                         (
-                            validateMember (read_string ()),
+                            validateMember (read_string()),
                             read_TypeCode (tcMap),
                             null
                         );
@@ -1123,14 +1160,14 @@ public class CDRInputStream
                     result = orb.create_struct_tc (id, name, struct_members);
                     putCachedTypecode( id, result );
                 }
-                getRecursiveTCMap ().put (id, result);
+                getRecursiveTCMap().put (id, result);
                 closeEncapsulation();
                 break;
             }
             case TCKind._tk_except:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1141,7 +1178,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
                     member_count = read_long();
 
                     tcMap.put( new Integer( start_pos ), id );
@@ -1152,21 +1189,21 @@ public class CDRInputStream
                         members[i] = new StructMember
                         (
                             validateMember (read_string()),
-                            read_TypeCode (),
+                            read_TypeCode(),
                             null
                         );
                     }
                     result = orb.create_struct_tc (id, name, members);
                     putCachedTypecode( id, result );
                 }
-                getRecursiveTCMap ().put (id, result);
+                getRecursiveTCMap().put (id, result);
                 closeEncapsulation();
                 break;
             }
             case TCKind._tk_enum:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1176,7 +1213,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
                     member_count = read_long();
 
                     tcMap.put( new Integer( start_pos ), id );
@@ -1184,19 +1221,19 @@ public class CDRInputStream
                     member_names = new String[member_count];
                     for( int i = 0; i < member_count; i++)
                     {
-                        member_names[i] = validateMember (read_string ());
+                        member_names[i] = validateMember (read_string());
                     }
                     result = orb.create_enum_tc (id, name, member_names);
                     putCachedTypecode( id, result );
                 }
-                getRecursiveTCMap ().put (id, result);
+                getRecursiveTCMap().put (id, result);
                 closeEncapsulation();
                 break;
             }
             case TCKind._tk_union:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1207,7 +1244,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
 
                     tcMap.put( new Integer( start_pos ), id );
 
@@ -1240,7 +1277,7 @@ public class CDRInputStream
 
                         union_members[i] = new UnionMember
                         (
-                            validateMember (read_string ()),
+                            validateMember (read_string()),
                             label,
                             read_TypeCode(tcMap),
                             null
@@ -1251,7 +1288,7 @@ public class CDRInputStream
                         (id, name, discriminator_type, union_members);
                     putCachedTypecode( id, result );
                 }
-                getRecursiveTCMap ().put (id, result);
+                getRecursiveTCMap().put (id, result);
                 closeEncapsulation();
                 break;
             }
@@ -1296,7 +1333,7 @@ public class CDRInputStream
             case TCKind._tk_alias:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1307,7 +1344,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
 
                     tcMap.put( new Integer( start_pos ), id );
 
@@ -1315,14 +1352,14 @@ public class CDRInputStream
                     result = orb.create_alias_tc (id, name, content_type );
                     putCachedTypecode( id, result );
                 }
-                getRecursiveTCMap ().put (id , result);
+                getRecursiveTCMap().put (id , result);
                 closeEncapsulation();
                 break;
             }
             case TCKind._tk_value:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1332,7 +1369,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
 
                     tcMap.put( new Integer( start_pos ), id );
 
@@ -1345,7 +1382,7 @@ public class CDRInputStream
                     {
                         vMembers[i] = new ValueMember
                         (
-                            validateMember (read_string ()),
+                            validateMember (read_string()),
                             null, // id
                             null, // defined_in
                             null, // version
@@ -1358,14 +1395,14 @@ public class CDRInputStream
                         (id, name, type_modifier, concrete_base_type, vMembers);
                     putCachedTypecode( id, result );
                 }
-                getRecursiveTCMap ().put( id , result );
+                getRecursiveTCMap().put( id , result );
                 closeEncapsulation();
                 break;
             }
             case TCKind._tk_value_box:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1376,7 +1413,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
 
                     tcMap.put( new Integer( start_pos ), id );
 
@@ -1384,14 +1421,14 @@ public class CDRInputStream
                     result = orb.create_value_box_tc (id, name, content_type);
                     putCachedTypecode( id, result );
                 }
-                getRecursiveTCMap ().put( id , result );
+                getRecursiveTCMap().put( id , result );
                 closeEncapsulation();
                 break;
             }
             case TCKind._tk_abstract_interface:
             {
                 size = openEncapsulation();
-                id = validateID (read_string ());
+                id = validateID (read_string());
                 result = getCachedTypecode( id );
 
                 if (result != null)
@@ -1401,7 +1438,7 @@ public class CDRInputStream
                 }
                 else
                 {
-                    name = validateName (read_string ());
+                    name = validateName (read_string());
                     result = orb.create_abstract_interface_tc (id, name);
                     putCachedTypecode( id, result );
                 }
@@ -1447,7 +1484,7 @@ public class CDRInputStream
         return result;
     }
 
-    public final int read_ulong ()
+    public final int read_ulong()
     {
         handle_chunking();
 
@@ -1491,7 +1528,7 @@ public class CDRInputStream
         index += 4 * length;
     }
 
-    public final long read_ulonglong ()
+    public final long read_ulonglong()
     {
         handle_chunking();
 
@@ -1547,7 +1584,7 @@ public class CDRInputStream
         // Do not need to modify pos and index as use read_long above
     }
 
-    public final short read_ushort ()
+    public final short read_ushort()
     {
         handle_chunking();
 
@@ -1589,7 +1626,7 @@ public class CDRInputStream
         index += length * 2;
     }
 
-    public final char read_wchar ()
+    public final char read_wchar()
     {
         handle_chunking();
 
@@ -1598,7 +1635,7 @@ public class CDRInputStream
             //ignore size indicator
             read_wchar_size();
 
-            boolean wchar_little_endian = readBOM ();
+            boolean wchar_little_endian = readBOM();
 
             return read_wchar (wchar_little_endian);
         }
@@ -1621,7 +1658,7 @@ public class CDRInputStream
     }
 
 
-    private final char read_wchar (final boolean wchar_little_endian)
+    private final char read_wchar(final boolean wchar_little_endian)
     {
         switch( codeSetW )
         {
@@ -1817,7 +1854,7 @@ public class CDRInputStream
         return true;
     }
 
-    public void mark (final int readLimit)
+    public void mark(final int readLimit)
     {
         marked_pos = pos;
         marked_index = index;
@@ -1839,7 +1876,7 @@ public class CDRInputStream
         index = 0;
     }
 
-    public final void setLittleEndian (final boolean b)
+    public final void setLittleEndian(final boolean b)
     {
         littleEndian = b;
     }
@@ -1970,7 +2007,7 @@ public class CDRInputStream
                 }
                 case TCKind._tk_union:
                 {
-                    org.omg.CORBA.TypeCode disc = tc.discriminator_type ();
+                    org.omg.CORBA.TypeCode disc = tc.discriminator_type();
                     disc = TypeCode.originalType(disc);
                     int def_idx = tc.default_index();
                     int member_idx = -1;
@@ -2150,7 +2187,7 @@ public class CDRInputStream
                 case 0xffffffff:
                 {
                     org.omg.CORBA.TypeCode _tc =
-                        (org.omg.CORBA.TypeCode)(getRecursiveTCMap().get ( tc.id () ));
+                        (org.omg.CORBA.TypeCode)(getRecursiveTCMap().get ( tc.id() ));
 
 
                     if( _tc == null )
@@ -2221,7 +2258,7 @@ public class CDRInputStream
      * org.omg.CORBA_2_3.portable.InputStream
      */
 
-    public java.io.Serializable read_value (final String rep_id)
+    public java.io.Serializable read_value(final String rep_id)
     {
         int tag = read_long();
         int start_offset = pos - 4;
@@ -2295,7 +2332,7 @@ public class CDRInputStream
      * org.omg.CORBA_2_3.portable.InputStream
      */
 
-    public java.io.Serializable read_value (final java.lang.Class clz)
+    public java.io.Serializable read_value(final java.lang.Class clz)
     {
         int tag = read_long();
         int start_offset = pos - 4;
@@ -2373,7 +2410,7 @@ public class CDRInputStream
 
             if( result != null )
             {
-                getValueMap ().put (new Integer(start_offset), result);
+                getValueMap().put (new Integer(start_offset), result);
             }
 
             return result;
@@ -2398,7 +2435,7 @@ public class CDRInputStream
      * by `repository_id', and the index at which the value started is
      * `index'.
      */
-    private java.io.Serializable read_untyped_value (final String[] repository_ids,
+    private java.io.Serializable read_untyped_value(final String[] repository_ids,
                                                      final int index,
                                                      final String codebase)
     {
@@ -2558,7 +2595,7 @@ public class CDRInputStream
         // value type instances may be null...
         if( result != null )
         {
-            getValueMap ().put (new Integer (index), result);
+            getValueMap().put (new Integer (index), result);
         }
 
         return result;
@@ -2608,7 +2645,7 @@ public class CDRInputStream
             int index = read_long();
             index = index + pos - 4;
 
-            String repId = (String)getRepIdMap ().get (new Integer(index));
+            String repId = (String)getRepIdMap().get (new Integer(index));
             if (repId == null)
                 throw new MARSHAL("stale RepositoryID indirection");
             else
@@ -2622,7 +2659,7 @@ public class CDRInputStream
             int start_offset = pos;
             String repId = read_string();
 
-            getRepIdMap ().put (new Integer(start_offset), repId);
+            getRepIdMap().put (new Integer(start_offset), repId);
             return repId;
         }
     }
@@ -2640,7 +2677,7 @@ public class CDRInputStream
             // indirection
             int index = read_long();
             index = index + pos - 4;
-            String codebase = (String)getCodebaseMap ().get (new Integer(index));
+            String codebase = (String)getCodebaseMap().get (new Integer(index));
             if (codebase == null)
                 throw
                 new MARSHAL("stale codebase indirection");
@@ -2654,7 +2691,7 @@ public class CDRInputStream
             index -= 4;
             int start_offset = pos;
             String codebase = read_string();
-            getCodebaseMap ().put (new Integer(start_offset), codebase);
+            getCodebaseMap().put (new Integer(start_offset), codebase);
             return codebase;
         }
     }
@@ -2663,12 +2700,12 @@ public class CDRInputStream
      * Reads an indirect value from this stream. It is assumed that the
      * value tag (0xffffffff) has already been read.
      */
-    private java.io.Serializable read_indirect_value ()
+    private java.io.Serializable read_indirect_value()
     {
         // indirection
         int index = read_long();
         index = index + pos - 4;
-        java.lang.Object value = getValueMap ().get (new Integer(index));
+        java.lang.Object value = getValueMap().get (new Integer(index));
         if (value == null) {
 
             // Java to IDL Language Mapping, v1.1, page 1-44:
@@ -2693,7 +2730,7 @@ public class CDRInputStream
 
     private String validateName (String name)
     {
-        if (name != null && name.length () == 0)
+        if (name != null && name.length() == 0)
         {
             return null;
         }
@@ -2703,7 +2740,7 @@ public class CDRInputStream
 
     private String validateMember (String name)
     {
-        if (name == null || name.length () == 0)
+        if (name == null || name.length() == 0)
         {
             uniqueValue = (++uniqueValue)%Integer.MAX_VALUE;
             return ("DUMMY_NAME_".concat (String.valueOf (uniqueValue)));
@@ -2714,7 +2751,7 @@ public class CDRInputStream
 
     private String validateID (String id)
     {
-        if (id == null || id.length () == 0)
+        if (id == null || id.length() == 0)
         {
             id = "IDL:";
         }
@@ -2730,7 +2767,8 @@ public class CDRInputStream
      * a value.
      */
 
-    public java.lang.Object read_abstract_interface() {
+    public java.lang.Object read_abstract_interface() 
+    {
         return read_boolean() ? (java.lang.Object)read_Object()
         : (java.lang.Object)read_value();
     }
@@ -2742,7 +2780,8 @@ public class CDRInputStream
      * a value.
      */
 
-    public java.lang.Object read_abstract_interface(final java.lang.Class clz) {
+    public java.lang.Object read_abstract_interface(final java.lang.Class clz) 
+    {
         return read_boolean() ? (java.lang.Object)read_Object(clz)
         : (java.lang.Object)read_value(clz);
     }
@@ -2760,8 +2799,8 @@ public class CDRInputStream
      * This is essential for unmarshalling recursive values.
      */
 
-    public void register_value (final java.io.Serializable value)
+    public void register_value(final java.io.Serializable value)
     {
-        getValueMap ().put (new Integer (currentValueIndex), value);
+        getValueMap().put(new Integer(currentValueIndex), value);
     }
 }

@@ -133,7 +133,7 @@ public final class Delegate
 
     /* constructors: */
 
-    private Delegate ()
+    private Delegate()
     {
     }
 
@@ -675,7 +675,7 @@ public final class Delegate
             {
                 servant = (org.omg.PortableServer.Servant) so.servant;
                 orb.set_delegate (servant);
-                return (servant._get_interface_def ());
+                return (servant._get_interface_def());
             }
             finally
             {
@@ -693,7 +693,7 @@ public final class Delegate
                 {
                     os = request (self, "_interface", true);
                     is = invoke (self, os);
-                    return is.read_Object ();
+                    return is.read_Object();
                 }
                 catch (RemarshalException re)
                 {
@@ -866,12 +866,12 @@ public final class Delegate
                                  boolean async )
         throws ApplicationException, RemarshalException
     {
-        RequestOutputStream ros      = ( RequestOutputStream ) os;
+        RequestOutputStream ros      = (RequestOutputStream)os;
         ReplyReceiver       receiver = null;
 
         ClientInterceptorHandler interceptors =
-            new ClientInterceptorHandler ( orb, ros, self, this,
-                                           piorOriginal, connection );
+            new ClientInterceptorHandler( orb, ros, self, this,
+                                          piorOriginal, connection );
 
         interceptors.handle_send_request();
 
@@ -884,11 +884,11 @@ public final class Delegate
             }
             else  // response expected, synchronous or asynchronous
             {
-                receiver = new ReplyReceiver ( this,
-                                               ros.operation(),
-                                               ros.getReplyEndTime(),
-                                               interceptors,
-                                               replyHandler );
+                receiver = new ReplyReceiver(this,
+                                             ros.operation(),
+                                             ros.getReplyEndTime(),
+                                             interceptors,
+                                             replyHandler );
 
                 // Store the receiver in pending_replies, so in the
                 // case of a LocationForward a RemarshalException can
@@ -1235,7 +1235,7 @@ public final class Delegate
                 }
                 catch (ApplicationException ax)
                 {
-                    throw new RuntimeException ("Unexpected exception " + ax.getId ());
+                    throw new RuntimeException ("Unexpected exception " + ax.getId());
                 }
             }
         }
@@ -1248,9 +1248,9 @@ public final class Delegate
 
         if (self != obj)
         {
-            ParsedIOR pior1 = new ParsedIOR( obj.toString (), orb, logger );
-            ParsedIOR pior2 = new ParsedIOR( self.toString (), orb, logger );
-            result = pior2.getIDString().equals( pior1.getIDString () );
+            ParsedIOR pior1 = new ParsedIOR( obj.toString(), orb, logger );
+            ParsedIOR pior2 = new ParsedIOR( self.toString(), orb, logger );
+            result = pior2.getIDString().equals( pior1.getIDString() );
         }
 
         return result;
@@ -1312,13 +1312,13 @@ public final class Delegate
 
             try
             {
-                servant = (org.omg.PortableServer.Servant) so.servant;
-                orb.set_delegate (servant);
-                return (servant._non_existent ());
+                servant = (org.omg.PortableServer.Servant)so.servant;
+                orb.set_delegate(servant);
+                return servant._non_existent();
             }
             finally
             {
-                servant_postinvoke (self, so);
+                servant_postinvoke(self, so);
             }
         }
         else
@@ -1330,9 +1330,9 @@ public final class Delegate
             {
                 try
                 {
-                    os = request (self, "_non_existent", true);
-                    is = invoke (self, os);
-                    return is.read_boolean ();
+                    os = request(self, "_non_existent", true);
+                    is = invoke(self, os);
+                    return is.read_boolean();
                 }
                 catch (RemarshalException re)
                 {

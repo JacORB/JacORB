@@ -26,7 +26,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ParsedIOR;
-import org.jacorb.util.Debug;
 
 import org.omg.IOP.*;
 import org.omg.CONV_FRAME.*;
@@ -75,7 +74,7 @@ public class ClientConnection
     //the transports profile.
     private org.omg.ETF.Profile registeredProfile = null;
 
-    private Logger logger = Debug.getNamedLogger("jacorb.giop");
+    private Logger logger = null;
 
 
     public ClientConnection( GIOPConnection connection,
@@ -90,6 +89,9 @@ public class ClientConnection
         this.registeredProfile = registeredProfile;
         this.info = registeredProfile.toString();
         this.client_initiated = client_initiated;
+
+        logger = 
+            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.giop.conn");
 
         //For BiDirGIOP, the connection initiator may only generate
         //even valued request ids, and the other side odd valued
@@ -274,7 +276,9 @@ public class ClientConnection
         }
         catch (java.io.IOException e)
         {
-            Debug.output (2,e);
+            if (logger.isDebugEnabled())
+                logger.debug("IOException", e);
+
             throw new org.omg.CORBA.COMM_FAILURE
                 (0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
         }

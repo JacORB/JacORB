@@ -168,9 +168,6 @@ public final class DynUnion
                itc.printStackTrace();
             }		
          }
-
-         org.jacorb.util.Debug.output( 3, "DynUnion.from_any(), member == null? " + 
-                                       ( member == null ));
       }
       catch( org.omg.CORBA.TypeCodePackage.Bounds b )
       {

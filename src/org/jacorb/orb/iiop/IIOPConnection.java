@@ -24,9 +24,7 @@ import java.net.*;
 import java.io.*;
 
 import org.apache.avalon.framework.logger.Logger;
-
-import org.jacorb.util.Debug;
-import org.jacorb.util.Environment;
+import org.apache.avalon.framework.configuration.*;
 
 /**
  * IIOPConnection.java
@@ -38,7 +36,9 @@ import org.jacorb.util.Environment;
  * @version $Id$
  */
 
-public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
+public abstract class IIOPConnection 
+    extends org.omg.ETF._ConnectionLocalBase
+    implements Configurable
 {
     protected boolean connected = false;
 
@@ -52,7 +52,10 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
     protected Socket socket;
 
     private int finalTimeout = 20000;
-    private Logger logger = Debug.getNamedLogger("jacorb.iiop.conn");
+
+    /** shared with sub classes */
+    protected Logger logger;
+    protected org.jacorb.config.Configuration configuration;
 
     public IIOPConnection (IIOPConnection other)
     {
@@ -66,19 +69,26 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
 
     public IIOPConnection()
     {
-        String dump_outgoing =
-            Environment.getProperty( "jacorb.debug.dump_outgoing_messages",
-                                     "off" );
+    }
 
-        if( "on".equals( dump_outgoing ))
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+        logger = this.configuration.getNamedLogger("jacorb.iiop.conn");
+
+        if( configuration.getAttribute( "jacorb.debug.dump_outgoing_messages","off" ).equals("on"))
         {
             b_out = new ByteArrayOutputStream();
         }
 
         finalTimeout =
-            Environment.getIntPropertyWithDefault( "jacorb.connection.timeout_after_closeconnection",
-                                                   20000 );
+            configuration.getAttributeAsInteger("jacorb.connection.timeout_after_closeconnection",
+                                                20000 );
     }
+
+
 
     /**
      * read actual messages
@@ -183,7 +193,8 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
             if( b_out != null )
             {
                 byte[] b = b_out.toByteArray();
-                Debug.output( 1, "sendMessages()", b );
+                if (logger.isInfoEnabled())
+                    logger.info("sendMessages(): " + new String( b) );
                 b_out.reset();
             }
             out_stream.flush();
@@ -219,7 +230,8 @@ public abstract class IIOPConnection extends org.omg.ETF._ConnectionLocalBase
             }
             catch( SocketException se )
             {
-                Debug.output( 2, se );
+                if (logger.isInfoEnabled())
+                    logger.info("SocketException", se);
             }
         }
     }

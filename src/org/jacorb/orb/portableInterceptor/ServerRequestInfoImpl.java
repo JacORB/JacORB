@@ -32,7 +32,6 @@ import org.apache.avalon.framework.logger.*;
 import java.util.Enumeration;
 
 import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.util.Debug;
 
 /**
  * This class represents the type of info object
@@ -162,7 +161,6 @@ public class ServerRequestInfoImpl
         }
         catch(Exception e)
         {
-            Debug.output( 3, e);
         }
 
         if (result == null)

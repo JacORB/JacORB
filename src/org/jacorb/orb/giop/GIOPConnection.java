@@ -21,6 +21,7 @@
 package org.jacorb.orb.giop;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
 import java.io.*;
 import java.util.*;
@@ -61,7 +62,8 @@ public abstract class GIOPConnection
     private boolean writer_active = false;
     private Object write_sync = new Object();
 
-    private Logger logger = Debug.getNamedLogger("jacorb.giop.conn");
+    private org.jacorb.config.Configuration configuration;
+    private Logger logger;
 
     /*
      * Connection OSF character formats.
@@ -121,14 +123,18 @@ public abstract class GIOPConnection
         buf_mg = BufferManager.getInstance();
         //sasContexts = new Hashtable();
 
-        String dump_incoming_str =
-            Environment.getProperty( "jacorb.debug.dump_incoming_messages",
-                                     "off" );
-
-        dump_incoming = "on".equals( dump_incoming_str );
-
         cubbyholes = new Object[cubby_count];
     }
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        this.configuration = (org.jacorb.config.Configuration)configuration;
+        logger = this.configuration.getNamedLogger("jacorb.giop.conn");
+        dump_incoming = 
+            configuration.getAttribute("jacorb.debug.dump_incoming_messages","off").equals("on");
+    }
+
 
     public final void setCodeSets( int TCS, int TCSW )
     {
@@ -326,8 +332,13 @@ public abstract class GIOPConnection
 
             if( dump_incoming )
             {
-                Debug.output( 1, "getMessage()", inbuf.value, 0,
-                                 msg_size + Messages.MSG_HEADER_SIZE );
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("BufferDump:\n" + 
+                                ObjectUtil.bufToString( inbuf.value, 
+                                                        0, 
+                                                        msg_size + Messages.MSG_HEADER_SIZE ));
+                }
             }
 
             if( statistics_provider != null )
@@ -390,7 +401,6 @@ public abstract class GIOPConnection
                         logger.error( "Invalid GIOP major version encountered: " +
                                       Messages.getGIOPMajor( message ) );
                     }
-                    Debug.output( 3, "GIOPConnection.receiveMessages()", message );
 
                     buf_mg.returnBuffer( message );
                     continue;
@@ -537,7 +547,8 @@ public abstract class GIOPConnection
                                 new ReplyOutputStream( Messages.getRequestId( message ),
                                                        ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                                        giop_minor,
-                                                       false );//no locate reply
+                                                       false,
+                                                       logger);//no locate reply
 
                             SystemExceptionHelper.write( out,
                                                          new NO_IMPLEMENT( 0, CompletionStatus.COMPLETED_NO ));
@@ -663,7 +674,6 @@ public abstract class GIOPConnection
                         {
                             logger.error("received message with unknown message type " + msg_type);
                         }
-                        Debug.output( 3, "GIOPConnection.receiveMessages()", message );
                         buf_mg.returnBuffer( message );
                     }
                 }
@@ -894,8 +904,10 @@ public abstract class GIOPConnection
 
     public Object get_cubby(int id)
     {
-        if (id < 0 || id >= cubby_count) {
-            Debug.output(1, "Get bad cubby id "+id+" (max="+cubby_count+")");
+        if (id < 0 || id >= cubby_count) 
+        {
+            if (logger.isErrorEnabled())
+                logger.error( "Get bad cubby id "+id+" (max="+cubby_count+")");
             return null;
         }
         return cubbyholes[id];
@@ -903,9 +915,11 @@ public abstract class GIOPConnection
 
     public void set_cubby(int id, Object obj)
     {
-        if (id < 0 || id >= cubby_count) {
-            Debug.output(1, "Set bad cubby id "+id+" (max="+cubby_count+")");
-            return;
+        if (id < 0 || id >= cubby_count) 
+        {
+           if (logger.isErrorEnabled())
+               logger.error( "Set bad cubby id "+id+" (max="+cubby_count+")");
+           return;
         }
         cubbyholes[id] = obj;
     }

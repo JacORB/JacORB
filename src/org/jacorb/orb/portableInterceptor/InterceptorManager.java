@@ -20,7 +20,6 @@
  */
 package org.jacorb.orb.portableInterceptor;
 
-import org.jacorb.util.Debug;
 import org.omg.PortableInterceptor.*;
 import org.apache.avalon.framework.logger.Logger;
 
@@ -55,7 +54,8 @@ public class InterceptorManager
                               int slot_count,
                               org.omg.CORBA.ORB orb) 
     {
-        logger = Debug.getNamedLogger("jacorb.orb.interceptors");
+        logger = 
+            ((org.jacorb.orb.ORB)orb).getConfiguration().getNamedLogger("jacorb.orb.interceptors");
         
         if (logger.isInfoEnabled())
         {

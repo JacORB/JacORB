@@ -117,7 +117,7 @@ public class ReplyInputStream
                 catch( java.io.IOException ioe )
                 {
                     //should not happen anyway
-                    Debug.output( 1, ioe );
+                    // Debug.output( 1, ioe );
                 }
                 return new ApplicationException( id, this );
             }

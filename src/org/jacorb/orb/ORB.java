@@ -38,6 +38,7 @@ import org.apache.avalon.framework.logger.*;
 import org.apache.avalon.framework.configuration.*;
 
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.BAD_INV_ORDER;
 import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.BAD_QOS;
 import org.omg.CORBA.TypeCode;
@@ -109,7 +110,7 @@ public final class ORB
     private GIOPConnectionManager giop_connection_manager = null;
 
     /** buffer mgmt. */
-    private BufferManager bufferManager = BufferManager.getInstance();
+    private BufferManager bufferManager;
 
     /**
      * Maps repository ids (strings) to objects that implement
@@ -219,6 +220,16 @@ public final class ORB
 
         printVersion = 
             configuration.getAttribute("jacorb.orb.print_version", "true").equals("true");
+
+        BufferManager.configure( configuration);
+        try
+        {
+            bufferManager = BufferManager.getInstance();
+        }
+        catch( BAD_INV_ORDER b)
+        {
+            b.printStackTrace(); // cannot happen!
+       }
     }
 
     /**
@@ -672,9 +683,9 @@ public final class ORB
     private TaggedProfile createMultipleComponentsProfile
                                   (TaggedComponentList components)
     {
-        CDROutputStream out = new CDROutputStream (this);
+        CDROutputStream out = new CDROutputStream(this);
         out.beginEncapsulatedArray();
-        MultipleComponentProfileHelper.write (out, components.asArray());
+        MultipleComponentProfileHelper.write(out, components.asArray());
         return new TaggedProfile
         (
             TAG_MULTIPLE_COMPONENTS.value,
@@ -1392,7 +1403,7 @@ public final class ORB
 
         try
         {
-            configure( new org.jacorb.config.Configuration(orbID, props));
+            configure( new org.jacorb.config.Configuration(orbID, props, this));
         }
         catch( ConfigurationException ce )
         {
@@ -1553,7 +1564,7 @@ public final class ORB
 
         try
         {
-            configure( new org.jacorb.config.Configuration(orbID, props));
+            configure( new org.jacorb.config.Configuration(orbID, props, this));
         }
         catch( ConfigurationException ce )
         {
