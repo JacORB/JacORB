@@ -60,6 +60,8 @@ gerald.brose@acm.org
                - Fix so that interceptors registered with an ORB initializer
                  are also applied to any objects registered as initial
                  references.
+         - IMR:
+               - Fix for restarting persistent server with same POA/Impl name.
 
    - ORB:
          - Implemented the DII threading operations:
@@ -84,8 +86,7 @@ gerald.brose@acm.org
            to support multiple appligators in different subnets and
            disable appligator use in local subnet. No HTTP tunneling.
    - IMR:
-         - Background saving thread
-           Duplicate POA/Impl name fix
+         - Background saving thread implemented.
            New property jacorb.imr.port_number to configure a fixed port.
    - Tools:
          - New 'fixior' utility provided to patch port and host information
