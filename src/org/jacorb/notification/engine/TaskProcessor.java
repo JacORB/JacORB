@@ -38,8 +38,8 @@ import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
 
 import EDU.oswego.cs.dl.util.concurrent.ClockDaemon;
-import org.apache.avalon.framework.logger.Logger;
 import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -48,9 +48,6 @@ import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
 
 public class TaskProcessor implements Disposable
 {
-
-    ////////////////////////////////////////
-
     class TimeoutTask
         implements Runnable,
                    Message.MessageStateListener
@@ -78,6 +75,7 @@ public class TaskProcessor implements Disposable
                 executeTaskAfterDelay( message_.getTimeout(), this );
         }
 
+
         public void run()
         {
             logger_.debug("run Timeout");
@@ -100,6 +98,7 @@ public class TaskProcessor implements Disposable
 
             executeTaskAt( event.getStopTime(), this );
         }
+
 
         public void run()
         {
@@ -127,9 +126,11 @@ public class TaskProcessor implements Disposable
             executeTaskAt( message_.getStartTime(), this );
         }
 
+
         public void run()
         {
-            if (logger_.isDebugEnabled()) {
+            if (logger_.isDebugEnabled())
+            {
                 logger_.debug("Defered Message "
                               + message_
                               + " will be processed now");
@@ -149,6 +150,7 @@ public class TaskProcessor implements Disposable
         {
             messageConsumer_ = mc;
         }
+
 
         public void run()
         {
@@ -215,8 +217,10 @@ public class TaskProcessor implements Disposable
 
         clockDaemon_ = new ClockDaemon();
 
-        clockDaemon_.setThreadFactory(new ThreadFactory() {
-                public Thread newThread(Runnable command) {
+        clockDaemon_.setThreadFactory(new ThreadFactory()
+            {
+                public Thread newThread(Runnable command)
+                {
                     Thread _t = new Thread(command);
 
                     _t.setName("ClockDaemonThread");
@@ -249,23 +253,30 @@ public class TaskProcessor implements Disposable
 
     ////////////////////////////////////////
 
-    private void configureDeliverTaskExecutor() {
+    private void configureDeliverTaskExecutor()
+    {
         String _threadPolicy = Environment.getProperty(Configuration.THREADPOLICY,
-                                                       Default.DEFAULT_THREADPOLICY);
+                               Default.DEFAULT_THREADPOLICY);
 
-        if (logger_.isInfoEnabled()) {
+        if (logger_.isInfoEnabled())
+        {
             logger_.info("use Property: " + Configuration.THREADPOLICY + "=" + _threadPolicy );
         }
 
-        if ("ThreadPool".equals(_threadPolicy)) {
+        if ("ThreadPool".equals(_threadPolicy))
+        {
             pushTaskExecutor_ =
                 new TaskExecutor("DeliverThread",
                                  Environment.getIntPropertyWithDefault(Configuration.DELIVER_POOL_WORKERS,
                                                                        Default.DEFAULT_DELIVER_POOL_SIZE));
 
-        } else if ("ThreadPerProxy".equals(_threadPolicy)) {
+        }
+        else if ("ThreadPerProxy".equals(_threadPolicy))
+        {
             pushTaskExecutor_ = null;
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("The specified value: \""
                                                + _threadPolicy
                                                + "\" specified in property: \""
@@ -275,43 +286,48 @@ public class TaskProcessor implements Disposable
     }
 
 
+    public TaskFactory getTaskFactory()
+    {
+        return taskFactory_;
+    }
+
+
     /**
      * configure a AbstractProxySupplier to use a TaskExecutor
      * dependent on the settings for the current Channel.
      *
      * @todo remove dependency from class AbstractProxySupplier
      */
-    public void configureTaskExecutor(AbstractProxySupplier proxySupplier) {
+    public void configureTaskExecutor(AbstractProxySupplier proxySupplier)
+    {
 
-        if (pushTaskExecutor_ != null) {
+        if (pushTaskExecutor_ != null)
+        {
             proxySupplier.setTaskExecutor(pushTaskExecutor_);
-        } else {
+        }
+        else
+        {
             final TaskExecutor _executor = new TaskExecutor("PerProxyDeliverThread", 1);
 
-            Disposable _disposableDelegate = new Disposable() {
-                    public void dispose() {
+            Disposable _disposableDelegate =
+                new Disposable()
+                {
+                    public void dispose()
+                    {
                         _executor.dispose();
                     }
                 };
+
             proxySupplier.setTaskExecutor(_executor, _disposableDelegate);
         }
     }
 
 
-    TaskExecutor getFilterTaskExecutor() {
+    TaskExecutor getFilterTaskExecutor()
+    {
         return matchTaskExecutor_;
     }
 
-
-    private boolean isFilterTaskQueued()
-    {
-        return ( matchTaskExecutor_.isTaskQueued() );
-    }
-
-    private boolean isDeliverTaskQueued()
-    {
-        return ( pushTaskExecutor_.isTaskQueued() );
-    }
 
     /**
      * shutdown this TaskProcessor. The TaskExecutors will be shutdown, the
@@ -327,7 +343,8 @@ public class TaskProcessor implements Disposable
 
         matchTaskExecutor_.dispose();
 
-        if (pushTaskExecutor_ != null) {
+        if (pushTaskExecutor_ != null)
+        {
             pushTaskExecutor_.dispose();
         }
 
@@ -385,6 +402,7 @@ public class TaskProcessor implements Disposable
 
     /**
      * process a Message. create FilterTask and schedule it.
+     * visibility is protected so that method is accessible in test code.
      */
     protected void processMessageInternal( Message event )
     {
@@ -411,7 +429,7 @@ public class TaskProcessor implements Disposable
      * TimerEventSupplier
      */
     public void scheduleTimedPullTask( TimerEventSupplier dest )
-        throws InterruptedException
+    throws InterruptedException
     {
         PullFromSupplierTask _task = new PullFromSupplierTask(pullTaskExecutor_);
 
@@ -429,10 +447,10 @@ public class TaskProcessor implements Disposable
      * deliverPendingEvents on the specified MessageConsumer
      */
     public void scheduleTimedPushTask( MessageConsumer consumer )
-        throws InterruptedException
+    throws InterruptedException
     {
         TimerDeliverTask _task = new TimerDeliverTask(this,
-                                                      taskFactory_);
+                                 taskFactory_);
 
         _task.setMessageConsumer( consumer );
 
@@ -461,8 +479,8 @@ public class TaskProcessor implements Disposable
                                            boolean startImmediately )
     {
         return getClockDaemon().executePeriodically( intervall,
-                                                     task,
-                                                     startImmediately );
+                task,
+                startImmediately );
     }
 
 
@@ -485,8 +503,20 @@ public class TaskProcessor implements Disposable
 
     ////////////////////////////////////////
 
+    void backoutMessageConsumer(MessageConsumer mc)
+    {
+        if (logger_.isDebugEnabled())
+        {
+            logger_.debug("back out MessageConsumer " + mc);
+        }
 
-    void fireEventDiscarded( Message event )
+        Runnable runEnableTask = new EnableMessageConsumer(mc);
+
+        executeTaskAfterDelay(backoutInterval_, runEnableTask);
+    }
+
+
+    private void fireEventDiscarded( Message event )
     {
         switch ( event.getType() )
         {
@@ -504,27 +534,10 @@ public class TaskProcessor implements Disposable
     }
 
 
-    void backoutMessageConsumer(MessageConsumer mc)
-    {
-        if (logger_.isDebugEnabled()) {
-            logger_.debug("back out MessageConsumer " + mc);
-        }
-
-        Runnable runEnableTask = new EnableMessageConsumer(mc);
-
-        executeTaskAfterDelay(backoutInterval_, runEnableTask);
-    }
-
-
-    public TaskFactory getTaskFactory()
-    {
-        return taskFactory_;
-    }
-
-
     private void fireEventDiscarded( Any a )
     {
-        if (logger_.isDebugEnabled()) {
+        if (logger_.isDebugEnabled())
+        {
             logger_.debug("Any: " + a + " has been discarded");
         }
     }
@@ -532,9 +545,9 @@ public class TaskProcessor implements Disposable
 
     private void fireEventDiscarded( StructuredEvent e )
     {
-        if (logger_.isDebugEnabled()) {
+        if (logger_.isDebugEnabled())
+        {
             logger_.debug("StructuredEvent: " + e + " has been discarded");
         }
     }
-
 }
