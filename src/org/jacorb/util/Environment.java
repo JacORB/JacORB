@@ -233,9 +233,9 @@ public class Environment
                     }
                     buf.append((String)propertiesFiles.elementAt(i));
                 }       
-                if( _verbosity > 3)
+                if( _verbosity >= 1 )
                 {
-                    System.err.println("Setup Warning: no properties file found! This warning can be ignored\n for applets. (A properties file should be in the current directory or in \n" + buf.toString() + "t)");
+                    System.err.println("WARNING: no properties file found! This warning can be ignored\n for applets. (A properties file should be in the current directory or in \n" + buf.toString() + "t)");
                 } 
             }
 
