@@ -39,8 +39,8 @@
 
 
    <target name="idl" depends="init">
-	   <java classname="org.jacorb.idl.parser" 
-                 fork="yes" 
+	   <java classname="org.jacorb.idl.parser"
+                 fork="yes"
                  classpath="${classpath}">
                  <arg line="${jidlflags} -sloppy_names"/>
 <!--
@@ -49,14 +49,14 @@
                  <arg file="${include}/jacorb/imr.idl"/>
                  <arg file="${include}/jacorb/channel.idl"/>
                  <arg file="${include}/jacorb/Tracing.idl"/>
-           </java>           
+           </java>
 
-	   <java classname="org.jacorb.idl.parser" 
-                 fork="yes" 
+	   <java classname="org.jacorb.idl.parser"
+                 fork="yes"
                  classpath="${classpath}">
                  <arg line="${jidlflags} -sloppy_names"/>
-                 <arg file="${include}/jacorb/DomainManagement.idl"/> 
-           </java>           
+                 <arg file="${include}/jacorb/DomainManagement.idl"/>
+           </java>
 
    </target>
 
@@ -78,7 +78,7 @@
 
    <target name="utils" depends="init,valuehandler">
    	<javac srcdir="${jsrc}"
-               destdir="${classdir}" 
+               destdir="${classdir}"
                includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"
 	       />
    </target>
@@ -91,7 +91,7 @@
 
    <target name="proxy" depends="init" >
    	<javac srcdir="${jsrc}"
-               destdir="${classdir}" 
+               destdir="${classdir}"
 	       includes="org/jacorb/proxy/*.java"
 	       />
    </target>
@@ -145,7 +145,8 @@
    </target>
 
    <target name="clean">
+      <ant antfile="build.xml" dir="orb" target="clean"/>
+      <ant antfile="build.xml" dir="util" target="clean"/>
    </target>
 
 </project>
-
