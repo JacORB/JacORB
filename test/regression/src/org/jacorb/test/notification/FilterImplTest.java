@@ -21,11 +21,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * FilterImplTest.java
- *
- *
- * Created: Sat Nov 09 16:34:05 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -39,11 +34,13 @@ public class FilterImplTest extends TestCase {
 
     ApplicationContext appContext_;
 
+    ////////////////////////////////////////
 
     public FilterImplTest(String test) {
         super(test);
     }
 
+    ////////////////////////////////////////
 
     public void setUp() throws Exception {
         ORB _orb = ORB.init(new String[0], null);
