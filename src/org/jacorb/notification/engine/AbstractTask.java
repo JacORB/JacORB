@@ -185,4 +185,10 @@ public abstract class AbstractTask
     }
 
     abstract public void schedule() throws InterruptedException;
+    
+    public void dispose() {
+        super.dispose();
+        
+        reset();
+    }
 }
