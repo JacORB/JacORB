@@ -57,6 +57,9 @@ public class InterfaceDef
     private OperationDef[]                       op_defs;
     private org.omg.CORBA.OperationDescription[] operations;
 
+    // to be done !!
+    private boolean is_abstract = false;
+
     private AttributeDef[]                       att_defs;
     private org.omg.CORBA.AttributeDescription[] attributes;
 
@@ -607,9 +610,15 @@ public class InterfaceDef
             Debug.myAssert( attributes != null, "attributes null!");
             
             fullDescription =
-                new FullInterfaceDescription( name, id, def_in, version, 
-                                              operations, attributes, base_names, 
-                                              typeCode, false );
+                new FullInterfaceDescription( name, 
+                                              id, 
+                                              def_in, 
+                                              version, 
+                                              is_abstract,
+                                              operations, 
+                                              attributes, 
+                                              base_names, 
+                                              typeCode );
         }
         return fullDescription;
     }
