@@ -22,6 +22,7 @@ package org.jacorb.orb;
 
 import java.lang.reflect.Constructor;
 import java.net.*;
+import java.util.*;
 import org.jacorb.orb.connection.*;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.factory.SSLServerSocketFactory;
@@ -30,7 +31,7 @@ import org.jacorb.orb.factory.SocketFactory;
 import org.jacorb.orb.factory.SocketFactoryManager;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
-import org.omg.ETF.Connection;
+import org.omg.ETF.*;
 import org.omg.PortableServer.POA;
 
 /**
@@ -52,7 +53,8 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
 
     private org.jacorb.orb.ORB orb;
     private POA rootPOA;
-    private org.omg.ETF.Listener listener;
+
+    private List listeners = null;
 
     private MessageReceptorPool receptor_pool = null;
     private RequestListener request_listener = null;
@@ -116,10 +118,21 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
             timeout = Integer.parseInt(prop);
         }
 
-        listener = transport_manager.getFactories()
-                                    .create_listener (null,(short)0,(short)0);
-        listener.set_handle (this);
-        listener.listen();
+        listeners = new ArrayList();
+
+        for (Iterator i = transport_manager.getFactoriesList().iterator(); 
+             i.hasNext();)
+        {
+             Factories f = (Factories)i.next();
+             Listener l = f.create_listener (null, (short)0, (short)0);
+             l.set_handle (this);
+             listeners.add (l);
+        }
+             
+        for (Iterator i = listeners.iterator(); i.hasNext();)
+        {
+            ((Listener)i.next()).listen();
+        }
     }
 
     public RequestListener getRequestListener()
@@ -127,9 +140,40 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
         return request_listener;
     }
 
-    public org.omg.ETF.Profile getEndpointProfile()
+    /**
+     * Returns a List of endpoint profiles for all transports we are
+     * listening for.  Each individual profile is a copy and can safely
+     * be modified by the caller (e.g. add an object key, patch the address,
+     * stuff it into an IOR, etc.). 
+     */
+    public List getEndpointProfiles()
     {
-        return listener.endpoint();
+        List result = new ArrayList();
+        for (Iterator i = listeners.iterator(); i.hasNext();)
+        {
+            Listener l = (Listener)i.next();
+            result.add (l.endpoint());
+        }
+        return result;
+    }
+
+    /**
+     * If only a single IIOPListener (and no other Listener) is
+     * active for this BasicAdapter, then this method returns it.
+     * Otherwise it returns null.
+     */
+    private IIOPListener getIIOPListener()
+    {
+        if (listeners.size() == 1)
+        {
+            Listener l = (Listener)listeners.get(0);
+            if (l instanceof IIOPListener)
+                return (IIOPListener)l;
+            else
+                return null;
+        }
+        else
+            return null;   
     }
 
     /**
@@ -137,9 +181,10 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
      */
     public int getPort()
     {
-        if (listener instanceof IIOPListener)
+        IIOPListener l = getIIOPListener();
+        if (l != null)
         {
-            IIOPProfile profile = (IIOPProfile)listener.endpoint();
+            IIOPProfile profile = (IIOPProfile)l.endpoint();
             return profile.getAddress().getPort();
         }
         else
@@ -154,9 +199,10 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
      */
     public int getSSLPort()
     {
-        if (listener instanceof IIOPListener)
+        IIOPListener l = getIIOPListener();
+        if (l != null)
         {
-            IIOPProfile profile = (IIOPProfile)listener.endpoint();
+            IIOPProfile profile = (IIOPProfile)l.endpoint();
             return profile.getSSLPort();
         }
         else
@@ -179,9 +225,10 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
      */
     public String getAddress()
     {
-        if (listener instanceof IIOPListener)
+        IIOPListener l = getIIOPListener();
+        if (l != null)
         {
-            IIOPProfile profile = (IIOPProfile)listener.endpoint();
+            IIOPProfile profile = (IIOPProfile)l.endpoint();
             return Environment.isPropertyOn ("jacorb.dns.enable")
                    ? profile.getAddress().getHostname()
                    : profile.getAddress().getIP();
@@ -277,7 +324,10 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
 
     public void stopListeners()
     {
-        listener.destroy();
+        for (Iterator i = listeners.iterator(); i.hasNext();)
+        {
+            ((Listener)i.next()).destroy();
+        }
     }
 
     // Handle methods below this line
@@ -303,10 +353,10 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
         GIOPConnection giopConnection =
             giop_connection_manager.createServerGIOPConnection
             (
-                          listener.endpoint(),
-                          conn,
-                          request_listener,
-                          reply_listener
+                conn.get_server_profile(),
+                conn,
+                request_listener,
+                reply_listener
             );
         receptor_pool.connectionCreated( giopConnection );
         return true;
