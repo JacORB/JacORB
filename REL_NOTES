@@ -99,7 +99,7 @@ Changes for 1.3.0:
                         - function of -i2jpackage switch fixed
                         - code generated for helper method narrow()
                           now compliant (throw BAD_PARAM rather than 
-                          return null
+                          return null)
                 - name server: fixed a problem with reloading persistent state  
                         after restarting
                 - dior utility (ParsedIOR class) now corretcly
