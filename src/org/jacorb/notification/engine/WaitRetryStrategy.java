@@ -73,8 +73,8 @@ public class WaitRetryStrategy extends RetryStrategy
     }
 
 
-    public void retry() throws RetryException {
-        while (shouldRetry()) {
+    protected void retryInternal() throws RetryException {
+        while (isRetryAllowed()) {
             try {
                 pushOperation_.invokePush();
 

@@ -31,9 +31,9 @@ import org.omg.CosEventComm.Disconnected;
  */
 public abstract class RetryStrategy implements Disposable
 {
-    protected PushOperation pushOperation_;
+    protected final PushOperation pushOperation_;
 
-    protected MessageConsumer messageConsumer_;
+    protected final MessageConsumer messageConsumer_;
 
     ////////////////////////////////////////
 
@@ -50,26 +50,25 @@ public abstract class RetryStrategy implements Disposable
     }
 
 
-    public boolean shouldRetry()
+    protected boolean isRetryAllowed()
     {
-        return !messageConsumer_.isDisposed()
-            && (messageConsumer_.getErrorCounter() < messageConsumer_.getErrorThreshold());
+        return messageConsumer_.isRetryAllowed();
     }
 
 
-    public void remoteExceptionOccured(Throwable error)
+    protected void remoteExceptionOccured(Throwable error)
         throws RetryException
     {
         if (isFatalException(error)) {
             messageConsumer_.dispose();
             dispose();
 
-            throw new RetryException("fatal exception caused while retrying push");
+            throw new RetryException("fatal exception while retrying push");
         }
 
         messageConsumer_.incErrorCounter();
 
-        if (!shouldRetry())
+        if (!isRetryAllowed())
         {
             messageConsumer_.dispose();
             dispose();
@@ -94,8 +93,16 @@ public abstract class RetryStrategy implements Disposable
     protected abstract long getTimeToWait();
 
 
-    public abstract void retry() throws RetryException;
+    public final void retry() throws RetryException
+    {
+        if (isRetryAllowed()) {
+            waitUntilNextTry();
+            
+            retryInternal();
+        }
+    }
 
+    protected abstract void retryInternal() throws RetryException;
 
     private void waitUntilNextTry()
     {

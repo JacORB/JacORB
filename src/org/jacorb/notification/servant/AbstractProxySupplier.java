@@ -58,34 +58,29 @@ import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
 
 /**
- * Abstract base class for ProxySuppliers.
- * This class provides following logic for the different
- * ProxySuppliers:
+ * Abstract base class for ProxySuppliers. This class provides following logic
+ * for the different ProxySuppliers:
  * <ul>
- * <li> generic queue management,
- * <li> error threshold settings.
+ * <li>generic queue management,
+ * <li>error threshold settings.
  * </ul>
- *
+ * 
  * @author Alphonse Bendt
- * @version $Id$
+ * @version $Id: AbstractProxySupplier.java,v 1.13 2004/07/12 11:19:56
+ *          alphonse.bendt Exp $
  */
 
-public abstract class AbstractProxySupplier
-    extends AbstractProxy
-    implements MessageConsumer,
-               NotifySubscribeOperations,
-               EventQueueFactoryDependency
+public abstract class AbstractProxySupplier extends AbstractProxy implements MessageConsumer,
+        NotifySubscribeOperations, EventQueueFactoryDependency
 {
     private static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
     ////////////////////////////////////////
 
     /**
-     * Check if there are
-     * pending Messages and deliver them to the Consumer.
-     * the operation is not executed immediately. instead it is
-     * scheduled to the Push Thread Pool.
-     * only initialized for ProxyPushSuppliers.
+     * Check if there are pending Messages and deliver them to the Consumer. the
+     * operation is not executed immediately. instead it is scheduled to the
+     * Push Thread Pool. only initialized for ProxyPushSuppliers.
      */
     protected Runnable scheduleDeliverPendingMessagesOperation_;
 
@@ -102,9 +97,9 @@ public abstract class AbstractProxySupplier
     private EventQueueFactory eventQueueFactory_;
 
     /**
-     * lock variable used to control access to the reference to the
-     * pending messages queue. calls to set_qos may cause the
-     * MessageQueue instance to be changed.
+     * lock variable used to control access to the reference to the pending
+     * messages queue. calls to set_qos may cause the MessageQueue instance to
+     * be replaced.
      */
     private final Object pendingMessagesRefLock_ = new Object();
 
@@ -113,55 +108,57 @@ public abstract class AbstractProxySupplier
     private NotifyPublish offerListener_;
 
     /**
-     * flag to indicate that this ProxySupplier may invoke remote
-     * calls during deliverMessage.
+     * flag to indicate that this ProxySupplier may invoke remote calls during
+     * deliverMessage.
      */
     private boolean enabled_ = true;
 
     ////////////////////////////////////////
 
-    public AbstractProxySupplier() {}
+    public AbstractProxySupplier()
+    {
+    }
 
     protected AbstractProxySupplier(ChannelContext channelContext)
     {
         super();
 
-        if (isPushSupplier()) {
+        if (isPushSupplier())
+        {
 
-            scheduleDeliverPendingMessagesOperation_ =
-                new Runnable()
+            scheduleDeliverPendingMessagesOperation_ = new Runnable()
+            {
+                public void run()
                 {
-                    public void run()
+                    try
                     {
-                        try
-                            {
-                                getTaskProcessor().scheduleTimedPushTask( AbstractProxySupplier.this );
-                            }
-                        catch ( InterruptedException e )
-                            {
-                                logger_.fatalError("scheduleTimedPushTask failed", e);
-                            }
+                        getTaskProcessor().scheduleTimedPushTask(AbstractProxySupplier.this);
+                    } catch (InterruptedException e)
+                    {
+                        logger_.fatalError("scheduleTimedPushTask failed", e);
                     }
-                };
+                }
+            };
         }
     }
 
-    public void configure (Configuration conf)
+    public void configure(Configuration conf)
     {
         super.configure(conf);
 
-        errorThreshold_ = conf.getAttributeAsInteger
-            (Attributes.EVENTCONSUMER_ERROR_THRESHOLD,
-             Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD);
+        errorThreshold_ = conf.getAttributeAsInteger(Attributes.EVENTCONSUMER_ERROR_THRESHOLD,
+                Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD);
     }
 
     ////////////////////////////////////////
 
-    public final void setEventQueueFactory(EventQueueFactory factory) {
+    public final void setEventQueueFactory(EventQueueFactory factory)
+    {
         eventQueueFactory_ = factory;
     }
 
-    protected EventQueueFactory getEventQueueFactory() {
+    protected EventQueueFactory getEventQueueFactory()
+    {
         return eventQueueFactory_;
     }
 
@@ -175,21 +172,19 @@ public abstract class AbstractProxySupplier
         if (logger_.isInfoEnabled())
             logger_.info("set Error Threshold to : " + errorThreshold_);
 
-        qosSettings_.addPropertySetListener(new String[] {OrderPolicy.value,
-                                                          DiscardPolicy.value},
-                                            eventQueueConfigurationChangedCB);
+        qosSettings_.addPropertySetListener(
+                new String[] { OrderPolicy.value, DiscardPolicy.value },
+                eventQueueConfigurationChangedCB);
     }
 
     /**
-     * configure pending messages queue.
-     * the queue is reconfigured according to the current QoS
-     * Settings. the contents of the queue are reorganized according
-     * to the new OrderPolicy.
+     * configure pending messages queue. the queue is reconfigured according to
+     * the current QoS Settings. the contents of the queue are reorganized
+     * according to the new OrderPolicy.
      */
     private void configureEventQueue() throws UnsupportedQoS
     {
-        EventQueue _newQueue =
-            getEventQueueFactory().newEventQueue( qosSettings_ );
+        EventQueue _newQueue = getEventQueueFactory().newEventQueue(qosSettings_);
 
         try
         {
@@ -203,32 +198,28 @@ public abstract class AbstractProxySupplier
                 }
                 pendingMessages_ = _newQueue;
             }
-        }
-        catch (InterruptedException e)
+        } catch (InterruptedException e)
         {
             throw new RuntimeException(e.getMessage());
         }
     }
 
-    private PropertySetListener eventQueueConfigurationChangedCB =
-        new PropertySetListener()
+    private PropertySetListener eventQueueConfigurationChangedCB = new PropertySetListener()
+    {
+        public void validateProperty(Property[] p, List errors)
         {
-            public void validateProperty(Property[] p, List errors)
-            {}
+        }
 
-            public void actionPropertySetChanged(PropertySet source)
-            throws UnsupportedQoS
-            {
-                configureEventQueue();
-            }
-        };
-
+        public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
+        {
+            configureEventQueue();
+        }
+    };
 
     public TaskExecutor getExecutor()
     {
         return taskExecutor_;
     }
-
 
     public void setTaskExecutor(TaskExecutor executor)
     {
@@ -242,7 +233,6 @@ public abstract class AbstractProxySupplier
         }
     }
 
-
     public void setTaskExecutor(TaskExecutor executor, Disposable disposeTaskExecutor)
     {
         setTaskExecutor(executor);
@@ -250,21 +240,20 @@ public abstract class AbstractProxySupplier
         disposeTaskExecutor_ = disposeTaskExecutor;
     }
 
-
     public int getPendingMessagesCount()
     {
-        synchronized(pendingMessagesRefLock_)
-            {
-                return pendingMessages_.getSize();
-            }
+        synchronized (pendingMessagesRefLock_)
+        {
+            return pendingMessages_.getSize();
+        }
     }
-
 
     public boolean hasPendingData()
     {
         synchronized (pendingMessagesRefLock_)
         {
-            if (!pendingMessages_.isEmpty()) {
+            if (!pendingMessages_.isEmpty())
+            {
                 return true;
             }
 
@@ -272,11 +261,11 @@ public abstract class AbstractProxySupplier
         }
     }
 
-
     /**
      * put a Message in the queue of pending Messages.
-     *
-     * @param message the <code>Message</code> to queue.
+     * 
+     * @param message
+     *            the <code>Message</code> to queue.
      */
     protected void enqueue(Message message)
     {
@@ -285,12 +274,11 @@ public abstract class AbstractProxySupplier
             pendingMessages_.put(message);
         }
 
-        if (logger_.isDebugEnabled() )
+        if (logger_.isDebugEnabled())
         {
             logger_.debug("added " + message + " to pending Messages.");
         }
     }
-
 
     protected Message getMessageBlocking() throws InterruptedException
     {
@@ -300,7 +288,6 @@ public abstract class AbstractProxySupplier
         }
     }
 
-
     protected Message getMessageNoBlock()
     {
         synchronized (pendingMessagesRefLock_)
@@ -308,8 +295,7 @@ public abstract class AbstractProxySupplier
             try
             {
                 return pendingMessages_.getEvent(false);
-            }
-            catch (InterruptedException e)
+            } catch (InterruptedException e)
             {
                 Thread.currentThread().interrupt();
 
@@ -317,7 +303,6 @@ public abstract class AbstractProxySupplier
             }
         }
     }
-
 
     protected Message[] getAllMessages()
     {
@@ -326,8 +311,7 @@ public abstract class AbstractProxySupplier
             try
             {
                 return pendingMessages_.getAllEvents(false);
-            }
-            catch (InterruptedException e)
+            } catch (InterruptedException e)
             {
                 Thread.currentThread().interrupt();
 
@@ -336,7 +320,11 @@ public abstract class AbstractProxySupplier
         }
     }
 
-
+    /**
+     * @param max
+     *            maximum number of messages
+     * @return an array containing at most max Messages
+     */
     protected Message[] getUpToMessages(int max)
     {
         try
@@ -345,8 +333,7 @@ public abstract class AbstractProxySupplier
             {
                 return pendingMessages_.getEvents(max, false);
             }
-        }
-        catch (InterruptedException e)
+        } catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
 
@@ -354,7 +341,11 @@ public abstract class AbstractProxySupplier
         }
     }
 
-
+    /**
+     * @param min
+     *            minimum number of messages
+     * @return an array containing the requested number of Messages or null
+     */
     protected Message[] getAtLeastMessages(int min)
     {
         try
@@ -366,8 +357,7 @@ public abstract class AbstractProxySupplier
                     return pendingMessages_.getAllEvents(true);
                 }
             }
-        }
-        catch (InterruptedException e)
+        } catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
         }
@@ -375,12 +365,10 @@ public abstract class AbstractProxySupplier
         return null;
     }
 
-
     public int getErrorThreshold()
     {
         return errorThreshold_;
     }
-
 
     public final void dispose()
     {
@@ -392,48 +380,42 @@ public abstract class AbstractProxySupplier
         }
     }
 
-
     public final ConsumerAdmin MyAdmin()
     {
         return consumerAdmin_;
     }
 
-
-    public final void subscription_change(EventType[] added,
-                                          EventType[] removed)
-        throws InvalidEventType
+    public final void subscription_change(EventType[] added, EventType[] removed)
+            throws InvalidEventType
     {
         subscriptionManager_.subscription_change(added, removed);
     }
-
 
     public final EventType[] obtain_offered_types(ObtainInfoMode obtainInfoMode)
     {
         EventType[] _offeredTypes = EMPTY_EVENT_TYPE_ARRAY;
 
-        switch (obtainInfoMode.value())
-        {
-            case ObtainInfoMode._ALL_NOW_UPDATES_ON:
-                registerListener();
-                _offeredTypes = offerManager_.obtain_offered_types();
-                break;
-            case ObtainInfoMode._ALL_NOW_UPDATES_OFF:
-                _offeredTypes = offerManager_.obtain_offered_types();
-                removeListener();
-                break;
-            case ObtainInfoMode._NONE_NOW_UPDATES_ON:
-                registerListener();
-                break;
-            case ObtainInfoMode._NONE_NOW_UPDATES_OFF:
-                removeListener();
-                break;
-            default:
-                throw new IllegalArgumentException("Illegal ObtainInfoMode");
+        switch (obtainInfoMode.value()) {
+        case ObtainInfoMode._ALL_NOW_UPDATES_ON:
+            registerListener();
+            _offeredTypes = offerManager_.obtain_offered_types();
+            break;
+        case ObtainInfoMode._ALL_NOW_UPDATES_OFF:
+            _offeredTypes = offerManager_.obtain_offered_types();
+            removeListener();
+            break;
+        case ObtainInfoMode._NONE_NOW_UPDATES_ON:
+            registerListener();
+            break;
+        case ObtainInfoMode._NONE_NOW_UPDATES_OFF:
+            removeListener();
+            break;
+        default:
+            throw new IllegalArgumentException("Illegal ObtainInfoMode");
         }
 
         return _offeredTypes;
     }
-
 
     private void registerListener()
     {
@@ -444,31 +426,31 @@ public abstract class AbstractProxySupplier
             if (_listener != null)
             {
                 proxyOfferListener_ = new NotifyPublishOperations()
+                {
+                    public void offer_change(EventType[] added, EventType[] removed)
                     {
-                        public void offer_change(EventType[] added, EventType[] removed)
+                        try
                         {
-                            try {
-                                _listener.offer_change(added, removed);
-                            }
-                            catch (NO_IMPLEMENT e) {
-                                logger_.info("disable offer_change for connected Consumer.", e);
+                            _listener.offer_change(added, removed);
+                        } catch (NO_IMPLEMENT e)
+                        {
+                            logger_.info("disable offer_change for connected Consumer.", e);
 
-                                removeListener();
-                            }
-                            catch (InvalidEventType e) {
-                                logger_.error("invalid event type", e);
-                            }
-                            catch (Exception e) {
-                                logger_.error("offer_change failed", e);
-                            }
+                            removeListener();
+                        } catch (InvalidEventType e)
+                        {
+                            logger_.error("invalid event type", e);
+                        } catch (Exception e)
+                        {
+                            logger_.error("offer_change failed", e);
                         }
-                    };
+                    }
+                };
 
                 offerManager_.addListener(proxyOfferListener_);
             }
         }
     }
-
 
     protected void removeListener()
     {
@@ -479,127 +461,114 @@ public abstract class AbstractProxySupplier
         }
     }
 
-
-    final NotifyPublishOperations getOfferListener() {
+    final NotifyPublishOperations getOfferListener()
+    {
         return offerListener_;
     }
 
-
-    protected void connectClient(org.omg.CORBA.Object client) {
+    protected void connectClient(org.omg.CORBA.Object client)
+    {
         super.connectClient(client);
 
-        try {
+        try
+        {
             offerListener_ = NotifyPublishHelper.narrow(client);
 
             logger_.debug("successfully narrowed connecting Client to IF NotifyPublish");
-        } catch (Throwable t) {
+        } catch (Throwable t)
+        {
             logger_.info("disable offer_change for connecting Consumer");
         }
     }
-
 
     public synchronized void enableDelivery()
     {
         enabled_ = true;
     }
 
-
     public synchronized void disableDelivery()
     {
         enabled_ = false;
     }
 
-
-    protected synchronized boolean isEnabled() {
+    protected synchronized boolean isEnabled()
+    {
         return enabled_;
     }
-
 
     /**
      * factory method for new ProxyPullSuppliers.
      */
-    static AbstractProxySupplier newProxyPullSupplier(AbstractAdmin admin,
-                                                      ClientType clientType)
+    static AbstractProxySupplier newProxyPullSupplier(AbstractAdmin admin, ClientType clientType)
     {
         AbstractProxySupplier _servant;
 
-        switch ( clientType.value() )
-        {
-            case ClientType._ANY_EVENT:
-                _servant = new ProxyPullSupplierImpl();
-                break;
+        switch (clientType.value()) {
+        case ClientType._ANY_EVENT:
+            _servant = new ProxyPullSupplierImpl();
+            break;
 
-            case ClientType._STRUCTURED_EVENT:
-                _servant =
-                    new StructuredProxyPullSupplierImpl();
-                break;
+        case ClientType._STRUCTURED_EVENT:
+            _servant = new StructuredProxyPullSupplierImpl();
+            break;
 
-            case ClientType._SEQUENCE_EVENT:
-                _servant =
-                    new SequenceProxyPullSupplierImpl();
+        case ClientType._SEQUENCE_EVENT:
+            _servant = new SequenceProxyPullSupplierImpl();
 
-                break;
+            break;
 
-            default:
-                throw new BAD_PARAM();
+        default:
+            throw new BAD_PARAM();
         }
         admin.getChannelContext().resolveDependencies(_servant);
 
         _servant.consumerAdmin_ = ConsumerAdminHelper.narrow(admin.activate());
 
-        _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
-                            getConfiguration());
+        _servant.configure(((org.jacorb.orb.ORB) admin.getORB()).getConfiguration());
         return _servant;
     }
-
 
     /**
      * factory method for new ProxyPushSuppliers.
      */
-    static AbstractProxySupplier newProxyPushSupplier(AbstractAdmin admin,
-                                                      ClientType clientType)
+    static AbstractProxySupplier newProxyPushSupplier(AbstractAdmin admin, ClientType clientType)
     {
         AbstractProxySupplier _servant;
 
-        switch ( clientType.value() )
-        {
+        switch (clientType.value()) {
 
-            case ClientType._ANY_EVENT:
-                _servant = new ProxyPushSupplierImpl();
-                break;
+        case ClientType._ANY_EVENT:
+            _servant = new ProxyPushSupplierImpl();
+            break;
 
-            case ClientType._STRUCTURED_EVENT:
-                _servant =
-                    new StructuredProxyPushSupplierImpl();
-                break;
+        case ClientType._STRUCTURED_EVENT:
+            _servant = new StructuredProxyPushSupplierImpl();
+            break;
 
-            case ClientType._SEQUENCE_EVENT:
-                _servant =
-                    new SequenceProxyPushSupplierImpl();
-                break;
+        case ClientType._SEQUENCE_EVENT:
+            _servant = new SequenceProxyPushSupplierImpl();
+            break;
 
-            default:
-                throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
+        default:
+            throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
         }
         admin.getChannelContext().resolveDependencies(_servant);
 
         _servant.consumerAdmin_ = ConsumerAdminHelper.narrow(admin.activate());
 
-        _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
-                            getConfiguration());
+        _servant.configure(((org.jacorb.orb.ORB) admin.getORB()).getConfiguration());
         return _servant;
     }
-
 
     public boolean isPushSupplier()
     {
         switch (MyType().value()) {
         case ProxyType._PUSH_ANY:
-            // fallthrough
+        // fallthrough
         case ProxyType._PUSH_STRUCTURED:
-            // fallthrough
+        // fallthrough
         case ProxyType._PUSH_SEQUENCE:
-            // fallthrough
+        // fallthrough
         case ProxyType._PUSH_TYPED:
             return true;
         default:
@@ -607,21 +576,16 @@ public abstract class AbstractProxySupplier
         }
     }
 
-
-    protected void handleFailedPushOperation(PushOperation operation,
-                                             Throwable error)
+    protected void handleFailedPushOperation(PushOperation operation, Throwable error)
     {
         if (RetryStrategy.isFatalException(error))
         {
             // push operation caused a fatal exception
             // destroy the ProxySupplier
-            if ( logger_.isErrorEnabled() )
+            if (logger_.isErrorEnabled())
             {
-                logger_.error( "push raised " +
-                               error +
-                               ": will destroy ProxySupplier, " +
-                               "disconnect Consumer",
-                               error );
+                logger_.error("push raised " + error + ": will destroy ProxySupplier, "
+                        + "disconnect Consumer", error);
             }
 
             operation.dispose();
@@ -632,15 +596,21 @@ public abstract class AbstractProxySupplier
 
         RetryStrategy _retry = getRetryStrategy(this, operation);
 
-        try {
+        try
+        {
             _retry.retry();
-        } catch (RetryException e) {
+        } catch (RetryException e)
+        {
             logger_.error("retry failed", e);
         }
     }
 
-
-    private RetryStrategy getRetryStrategy(MessageConsumer mc, PushOperation op) {
+    private RetryStrategy getRetryStrategy(MessageConsumer mc, PushOperation op)
+    {
         return new TaskProcessorRetryStrategy(mc, op, getTaskProcessor());
+    }
+    
+    public boolean isRetryAllowed() {
+        return !isDisposed() && getErrorCounter() < getErrorThreshold();
     }
 }
