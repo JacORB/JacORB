@@ -52,7 +52,6 @@ class SimpleDeclarator
         if( ! name.startsWith("_") &&
             lexer.strictJavaEscapeCheck( name ))
         {
-            escapedName = true;
             name = "_" + name;
         }
     }

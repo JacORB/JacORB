@@ -214,8 +214,6 @@ class ScopedName
         if( ! name.startsWith("_") &&
             lexer.strictJavaEscapeCheck( typeName ))
         {
-            escapedName = true;
-
             // if the type name is not a simple name, then insert the escape
             // char after the last dot
             if( typeName.indexOf('.') > 0 )

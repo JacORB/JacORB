@@ -973,9 +973,9 @@ class UnionType
 
 	/** type() */
 
-	ps.println("\tpublic static org.omg.CORBA.TypeCode type()");
+	ps.println("\tpublic static org.omg.CORBA.TypeCode type ()");
 	ps.println("\t{");
-	ps.println("\t\tif( _type == null )");
+	ps.println("\t\tif (_type == null)");
 	ps.println("\t\t{");
 	ps.println("\t\t\torg.omg.CORBA.UnionMember[] members = new org.omg.CORBA.UnionMember[" + labels +"];");
 	ps.println("\t\t\torg.omg.CORBA.Any label_any;");
@@ -1053,7 +1053,7 @@ class UnionType
                     throw new Error("Compiler error: unrecognized label type: " + label_t.typeName() );
                 }
 
-                ps.print ("\t\t\tmembers[" + (mi++) + "] = new org.omg.CORBA.UnionMember(\""+d.name()+"\",label_any,");
+                ps.print ("\t\t\tmembers[" + (mi++) + "] = new org.omg.CORBA.UnionMember (\"" + d.deEscapeName () + "\", label_any, ");
 
 		if (t instanceof ConstrTypeSpec)
                 {
