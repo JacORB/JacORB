@@ -18,7 +18,7 @@ public class InterceptorManager
     private Interceptor[] server_req_interceptors = null;
     private Interceptor[] ior_interceptors = null;
 
-    private Hashtable currents = null;
+    private WeakHashMap currents = null;
     private org.omg.CORBA.ORB orb = null;
     private int current_slots = 0;
 
@@ -105,7 +105,7 @@ public class InterceptorManager
         this.orb = orb;
         current_slots = slot_count;
 
-        currents = new Hashtable();
+        currents = new WeakHashMap();
     }
 
     /**
