@@ -1686,9 +1686,10 @@ public class CDROutputStream
     }
 
     /**
-     * called from Any
+     * Reads a value of the type indicated by <code>tc</code> from the
+     * InputStream <code>in</code> and remarshals it to this CDROutputStream.
+     * Called from Any.
      */
-
     public final void write_value ( final org.omg.CORBA.TypeCode tc,
                                     final org.omg.CORBA.portable.InputStream in )
     {
@@ -2020,6 +2021,37 @@ public class CDROutputStream
                     write_value( tc.content_type(), in );
                 }
                 catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){}
+                break;
+            }
+            case TCKind._tk_value_box:
+            {
+                int tag = in.read_long();
+                if (tag == 0x00000000)
+                {
+                    write_value(null);   
+                }
+                else if (tag == 0x7fffff00)
+                {
+                    write_long (0x7fffff00);
+                    try
+                    {
+                        write_value(tc.content_type(), in);
+                    }
+                    catch (org.omg.CORBA.TypeCodePackage.BadKind b)
+                    {
+                        throw new RuntimeException (b);
+                    }
+                }
+                else if (tag == 0xffffffff)
+                {
+                    throw new org.omg.CORBA.NO_IMPLEMENT
+                        ("reference sharing within Anys not implemented");
+                }
+                else
+                {
+                    throw new org.omg.CORBA.NO_IMPLEMENT
+                        ("cannot handle value tag: " + tag + " within Any");
+                }
                 break;
             }
             case 0xffffffff:
