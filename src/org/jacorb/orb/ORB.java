@@ -36,6 +36,7 @@ import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.portable.ValueFactory;
 import org.omg.CORBA.portable.StreamableValue;
+import org.omg.Messaging.*;
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.*;
 import org.omg.IIOP.*;
@@ -347,9 +348,7 @@ public final class ORB
 
     /**
      * This method creates a policy  with the given type and the given
-     * value.  The ORB relies on PolicyFactories.   to actually create
-     * policy objects. New PolicyFactories can be registered using the
-     * ORBInitializer mechanism.
+     * value.
      *
      * @param type The policies type.
      * @param value The policies value.
@@ -361,13 +360,56 @@ public final class ORB
     public org.omg.CORBA.Policy create_policy( int type, org.omg.CORBA.Any value )
         throws org.omg.CORBA.PolicyError
     {
-        Integer key = new Integer(type);
-
-        if ( policy_factories == null || (! policy_factories.containsKey(key)) )
-            throw new org.omg.CORBA.PolicyError();
-
-        PolicyFactory factory = (PolicyFactory)policy_factories.get(key);
-        return factory.create_policy(type, value);
+        switch (type)
+        {
+            case MAX_HOPS_POLICY_TYPE.value:
+                return new 
+                    org.jacorb.orb.policies.MaxHopsPolicy (value);
+            case QUEUE_ORDER_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.QueueOrderPolicy (value);
+            case REBIND_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.RebindPolicy (value);
+            case RELATIVE_REQ_TIMEOUT_POLICY_TYPE.value:
+              return new 
+                org.jacorb.orb.policies.RelativeRequestTimeoutPolicy (value);
+            case RELATIVE_RT_TIMEOUT_POLICY_TYPE.value:
+              return new
+                org.jacorb.orb.policies.RelativeRoundtripTimeoutPolicy (value);
+            case REPLY_END_TIME_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.ReplyEndTimePolicy (value);
+            case REPLY_PRIORITY_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.ReplyPriorityPolicy (value);
+            case REPLY_START_TIME_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.ReplyStartTimePolicy (value);
+            case REQUEST_END_TIME_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.RequestEndTimePolicy (value);
+            case REQUEST_PRIORITY_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.RequestPriorityPolicy (value);
+            case REQUEST_START_TIME_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.RequestStartTimePolicy (value);
+            case ROUTING_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.RoutingPolicy (value);
+            case SYNC_SCOPE_POLICY_TYPE.value:
+                return new
+                    org.jacorb.orb.policies.SyncScopePolicy (value);
+            default:
+                Integer key = new Integer(type);
+                if ( policy_factories == null || 
+                     (! policy_factories.containsKey(key)) )
+                    throw new org.omg.CORBA.PolicyError();
+                PolicyFactory factory = 
+                    (PolicyFactory)policy_factories.get(key);
+                return factory.create_policy(type, value);
+        }
     }
 
 
