@@ -6,9 +6,9 @@ package org.jacorb.ir.gui.typesystem;
  * 
  */
  
- import java.util.*;
- import javax.swing.tree.*;
- import java.lang.reflect.*;
+import java.util.*;
+import javax.swing.tree.*;
+import java.lang.reflect.*;
  
 public abstract class TypeSystemNode 
     extends ModelParticipant

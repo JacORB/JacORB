@@ -34,7 +34,7 @@ public class IRException
 	ExceptionDef exceptionDef = ExceptionDefHelper.narrow((org.omg.CORBA.Object)this.irObject);
 	StructMember[] contents = exceptionDef.members();	
 
-	jacorb.ir.gui.typesystem.TypeSystemNode[] result = 
+	org.jacorb.ir.gui.typesystem.TypeSystemNode[] result = 
             new org.jacorb.ir.gui.typesystem.TypeSystemNode[contents.length];
 
 	for (int i=0; i<contents.length; i++) 

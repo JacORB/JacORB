@@ -3,7 +3,7 @@ package org.jacorb.poa.except;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -27,7 +27,10 @@ package org.jacorb.poa.except;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99, RT
  */
-public final class POAInternalError extends java.lang.Error {
+public final class POAInternalError 
+    extends java.lang.Error 
+{
 	public POAInternalError(String error) {
 		super(error);
 	}
+}

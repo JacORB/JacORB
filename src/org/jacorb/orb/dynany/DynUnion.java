@@ -161,7 +161,7 @@ public final class DynUnion
 	os.write_value( member.type(), 
                         (CDRInputStream) member.to_any().create_input_stream());
 
-	jacorb.orb.Any out_any = 
+	org.jacorb.orb.Any out_any = 
             (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
 
 	out_any.type( type() );

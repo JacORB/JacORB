@@ -17,7 +17,7 @@ public class IRAlias
 
     protected IRAlias() 
     {
-	super();
+        super();
     
 }
     /**
@@ -27,9 +27,9 @@ public class IRAlias
 
     protected IRAlias(org.omg.CORBA.IRObject irObject) 
     {
-	super(irObject);
-	AliasDef aliasDef = AliasDefHelper.narrow((org.omg.CORBA.Object)irObject);
-	setAssociatedTypeSystemNode(RemoteTypeSystem.createTypeSystemNode(aliasDef.original_type_def()));	
+        super(irObject);
+        AliasDef aliasDef = AliasDefHelper.narrow((org.omg.CORBA.Object)irObject);
+        setAssociatedTypeSystemNode(RemoteTypeSystem.createTypeSystemNode(aliasDef.original_type_def()));       
     }
 
     /**
@@ -37,10 +37,10 @@ public class IRAlias
      */
 
     public org.jacorb.ir.gui.typesystem.ModelParticipant[] contents() 
-    {	
-	jacorb.ir.gui.typesystem.TypeSystemNode[] result = 
+    {   
+        org.jacorb.ir.gui.typesystem.TypeSystemNode[] result = 
             new org.jacorb.ir.gui.typesystem.TypeSystemNode[] { getAssociatedTypeSystemNode() };
-        return result;	
+        return result;  
     }
 
     /**
@@ -49,7 +49,7 @@ public class IRAlias
 
     public static String nodeTypeName() 
     {
-	return "typedef";
+        return "typedef";
     }
 }
 

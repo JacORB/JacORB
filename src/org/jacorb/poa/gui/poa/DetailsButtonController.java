@@ -6,3 +6,4 @@ package org.jacorb.poa.gui.poa;
 public interface DetailsButtonController {
 public void _actionDetailsButtonPressed(String source);
 }
+

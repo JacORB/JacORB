@@ -1,9 +1,9 @@
 package org.jacorb.ir.gui.typesystem.remote;
 
  
- import org.omg.CORBA.*;
- import java.util.*;
- import javax.swing.tree.*;
+import org.omg.CORBA.*;
+import java.util.*;
+import javax.swing.tree.*;
  
 public abstract class IRNode 
     extends org.jacorb.ir.gui.typesystem.TypeSystemNode 

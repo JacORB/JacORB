@@ -129,7 +129,7 @@ public class RequestController extends Thread {
 	LogTrace getLogTrace() {
 		return logTrace;
 	}
-	jacorb.orb.ORB getORB() {
+	org.jacorb.orb.ORB getORB() {
 		return orb;
 	}
 	POA getPOA() {

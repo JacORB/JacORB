@@ -574,3 +574,9 @@ public void windowOpened(java.awt.event.WindowEvent e) {
 	// user code begin {2}
 	// user code end
 }
+
+
+}
+
+
+

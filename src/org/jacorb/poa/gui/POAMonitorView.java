@@ -48,3 +48,5 @@ public interface POAMonitorView {
 	void _setValueQueueBar(int value);
 	void _setValueThreadPoolBar(int value);
 	void _setVisible(boolean visible);
+}
+

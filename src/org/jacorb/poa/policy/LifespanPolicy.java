@@ -26,21 +26,27 @@ package org.jacorb.poa.policy;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99, RT
  */
-public class LifespanPolicy extends org.jacorb.orb.LocalityConstrainedObject implements org.omg.PortableServer.LifespanPolicy {
-	private org.omg.PortableServer.LifespanPolicyValue value;
-	private LifespanPolicy() {
-	}
-	public LifespanPolicy(org.omg.PortableServer.LifespanPolicyValue _value) {
-		value = _value;
-	}
-	public org.omg.CORBA.Policy copy() {
-		return new LifespanPolicy(value());
-	}
-	public void destroy() {
-	}
-	public int policy_type() {
-		return org.omg.PortableServer.LIFESPAN_POLICY_ID.value;
-	}
-	public org.omg.PortableServer.LifespanPolicyValue value() {
-		return value;
-	}
+public class LifespanPolicy 
+    extends org.jacorb.orb.LocalityConstrainedObject 
+    implements org.omg.PortableServer.LifespanPolicy 
+{
+
+    private org.omg.PortableServer.LifespanPolicyValue value;
+    private LifespanPolicy() {
+    }
+    public LifespanPolicy(org.omg.PortableServer.LifespanPolicyValue _value) {
+        value = _value;
+    }
+    public org.omg.CORBA.Policy copy() {
+        return new LifespanPolicy(value());
+    }
+    public void destroy() {
+    }
+    public int policy_type() {
+        return org.omg.PortableServer.LIFESPAN_POLICY_ID.value;
+    }
+    public org.omg.PortableServer.LifespanPolicyValue value() {
+        return value;
+    }
+}
+

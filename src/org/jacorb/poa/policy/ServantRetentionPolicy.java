@@ -26,21 +26,25 @@ package org.jacorb.poa.policy;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99, RT
  */
-public class ServantRetentionPolicy extends org.jacorb.orb.LocalityConstrainedObject implements org.omg.PortableServer.ServantRetentionPolicy {
-	private org.omg.PortableServer.ServantRetentionPolicyValue value;
-	private ServantRetentionPolicy() {
-	}
-	public ServantRetentionPolicy(org.omg.PortableServer.ServantRetentionPolicyValue _value) {
-		value = _value;
-	}
-	public org.omg.CORBA.Policy copy() {
-		return new ServantRetentionPolicy(value());
-	}
-	public void destroy() {
-	}
-	public int policy_type() {
-		return org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID.value;
-	}
-	public org.omg.PortableServer.ServantRetentionPolicyValue value() {
-		return value;
-	}
+public class ServantRetentionPolicy 
+    extends org.jacorb.orb.LocalityConstrainedObject 
+    implements org.omg.PortableServer.ServantRetentionPolicy
+{
+    private org.omg.PortableServer.ServantRetentionPolicyValue value;
+    private ServantRetentionPolicy() {
+    }
+    public ServantRetentionPolicy(org.omg.PortableServer.ServantRetentionPolicyValue _value) {
+        value = _value;
+    }
+    public org.omg.CORBA.Policy copy() {
+        return new ServantRetentionPolicy(value());
+    }
+    public void destroy() {
+    }
+    public int policy_type() {
+        return org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID.value;
+    }
+    public org.omg.PortableServer.ServantRetentionPolicyValue value() {
+        return value;
+    }
+}

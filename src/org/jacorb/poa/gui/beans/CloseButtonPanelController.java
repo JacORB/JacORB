@@ -28,3 +28,8 @@ package org.jacorb.poa.gui.beans;
  */
 public interface CloseButtonPanelController {
 public void _actionCloseButtonPressed();
+
+}
+
+
+

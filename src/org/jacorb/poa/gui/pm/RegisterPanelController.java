@@ -28,3 +28,8 @@ public interface RegisterPanelController {
 public void _actionClosePOAMonitor(String name);
 public void _actionDestroyPOA(String name);
 public void _actionOpenPOAMonitor(String name);
+
+}
+
+
+

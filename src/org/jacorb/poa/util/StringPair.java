@@ -31,3 +31,4 @@ public class StringPair {
 		first = _first;
 		second = _second; 
 	}
+}

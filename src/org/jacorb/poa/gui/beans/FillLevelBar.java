@@ -301,3 +301,8 @@ public void setMinValue(int value) {
 	getFillLevelCanvas().setCurrent(cur > min ? cur-min : 0);	
 	getMinLabel().setText(""+min);
 }
+
+}
+
+
+

@@ -3,7 +3,7 @@ package org.jacorb.poa.gui;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,7 +26,8 @@ package org.jacorb.poa.gui;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.00, 06/11/99, RT
  */
-public interface POAManagerMonitorController {
+public interface POAManagerMonitorController 
+{
 	void actionClosePOAMonitor(String name);
 	void actionCloseView();
 	void actionDestroyPOA(String name);
@@ -35,3 +36,8 @@ public interface POAManagerMonitorController {
 	void actionSetToDiscarding(boolean wait);
 	void actionSetToHolding(boolean wait);
 	void actionSetToInactive(boolean wait, boolean etherialize);
+}
+
+
+
+ 

@@ -15,7 +15,7 @@ public class IRStruct
      * IRStruct constructor comment.
      */
     protected IRStruct() {
-	super();
+        super();
     }
 
     /**
@@ -24,7 +24,7 @@ public class IRStruct
      */
 
     protected IRStruct(org.omg.CORBA.IRObject irObject) {
-	super(irObject);
+        super(irObject);
     }
 
     /**
@@ -33,23 +33,23 @@ public class IRStruct
 
     public org.jacorb.ir.gui.typesystem.ModelParticipant[] contents() 
     {
-		StructDef structDef = StructDefHelper.narrow((org.omg.CORBA.Object)this.irObject);
-		StructMember[] members = structDef.members();	
-		Contained[] contents = structDef.contents( org.omg.CORBA.DefinitionKind.dk_all, false);	
+        StructDef structDef = StructDefHelper.narrow((org.omg.CORBA.Object)this.irObject);
+        StructMember[] members = structDef.members();   
+        Contained[] contents = structDef.contents( org.omg.CORBA.DefinitionKind.dk_all, false); 
 
-		jacorb.ir.gui.typesystem.TypeSystemNode[] result = 
+        org.jacorb.ir.gui.typesystem.TypeSystemNode[] result = 
             new org.jacorb.ir.gui.typesystem.TypeSystemNode[members.length + contents.length];
 
-		for (int i = 0; i < members.length; i++) 
+        for (int i = 0; i < members.length; i++) 
         {
             result[i] = RemoteTypeSystem.createTypeSystemNode( members[i] );
-		}
-		for (int i = 0; i < contents.length; i++) 
+        }
+        for (int i = 0; i < contents.length; i++) 
         {
             result[members.length + i] = 
-				RemoteTypeSystem.createTypeSystemNode( contents[i] );
-		}
-		return result;	
+                RemoteTypeSystem.createTypeSystemNode( contents[i] );
+        }
+        return result;  
     }
 
     /**
@@ -58,7 +58,7 @@ public class IRStruct
 
     public static String nodeTypeName() 
     {
-	return "struct";
+        return "struct";
     }
 }
 

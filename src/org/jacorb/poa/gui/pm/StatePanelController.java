@@ -26,3 +26,8 @@ package org.jacorb.poa.gui.pm;
  */
 public interface StatePanelController {
 public void _stateItemChanged(String item, boolean wait, boolean etherialize);
+
+}
+
+
+

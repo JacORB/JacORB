@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="imr" default="all" basedir="../../../.">
+<project name="imr" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!--             ImR build file                         -->
@@ -41,7 +41,7 @@
       <java classname="jacorb.idl.parser" 
             classpath="${classpath}"
 	    fork="yes">
-	    <arg line="${idlflags} ${include}/org/jacorb/imr.idl" />
+	    <arg line="${idlflags} ${include}/jacorb/imr.idl" />
       </java>
    </target>
 

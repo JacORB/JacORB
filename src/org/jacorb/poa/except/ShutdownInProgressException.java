@@ -29,4 +29,6 @@ package org.jacorb.poa.except;
  * @see     org.jacorb.poa.RequestController#run()
  * @see     org.jacorb.poa.POA#destroy(boolean, boolean)
  */
-public final class ShutdownInProgressException extends java.lang.Exception {
+public final class ShutdownInProgressException
+    extends java.lang.Exception 
+{}

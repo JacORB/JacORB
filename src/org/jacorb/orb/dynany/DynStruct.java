@@ -132,7 +132,8 @@ public final class DynStruct
 
     public org.omg.CORBA.Any to_any() 
     {
-	jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
+	org.jacorb.orb.Any out_any = 
+            (org.jacorb.orb.Any)orb.create_any();
 	out_any.type( type());
 
 	CDROutputStream os = new CDROutputStream();

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="poa" default="all" basedir="../../..">
+<project name="poa" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!-- $Id$ -->
@@ -20,7 +20,7 @@
    <target name="base">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/poa/**.java,jacorb/poa/except/*.java,jacorb/poa/policy/*.java,jacorb/poa/util/*.java"
+	       includes="org/jacorb/poa/**.java,org/jacorb/poa/except/*.java,org/jacorb/poa/policy/*.java,org/jacorb/poa/util/*.java"
 	        />
    </target>
 
@@ -28,7 +28,7 @@
 	   <echo message="util"/>
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/poa/gui/**.java,jacorb/poa/gui/**/**.java"
+	       includes="org/jacorb/poa/gui/**.java,org/jacorb/poa/gui/**/**.java"
         />
    </target>
 

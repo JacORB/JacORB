@@ -30,5 +30,7 @@ public interface POAMonitorController {
 	void actionCloseView();
 	void actionDeactivateObject(String oidStr);
 	void actionRemoveRequestFromQueue(String ridStr);
-	jacorb.poa.util.StringPair[] actionRetrieveAOMContent();
-	jacorb.poa.util.StringPair[] actionRetrieveQueueContent();
+	org.jacorb.poa.util.StringPair[] actionRetrieveAOMContent();
+	org.jacorb.poa.util.StringPair[] actionRetrieveQueueContent();
+}
+

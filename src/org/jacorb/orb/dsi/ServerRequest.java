@@ -269,7 +269,7 @@ public class ServerRequest
 			    for( java.util.Enumeration e = args.enumerate(); 
 				 e.hasMoreElements(); )
 			    {
-				jacorb.orb.NamedValue nv = 
+				org.jacorb.orb.NamedValue nv = 
 				    (org.jacorb.orb.NamedValue)e.nextElement();
 				
 				if( nv.flags() != org.omg.CORBA.ARG_IN.value )

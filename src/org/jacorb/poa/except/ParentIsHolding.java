@@ -29,3 +29,4 @@ package org.jacorb.poa.except;
  * @see     org.jacorb.poa.POA#_getChildPOA(String)
  */
 public final class ParentIsHolding extends java.lang.Exception {
+}

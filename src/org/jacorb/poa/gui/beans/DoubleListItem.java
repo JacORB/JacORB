@@ -31,3 +31,8 @@ public interface DoubleListItem {
 public void _correctWidth(int diff_width);
 public void _setContainer(DoubleListDialog _container);
 public void _setSelected(boolean selected);
+
+}
+
+
+

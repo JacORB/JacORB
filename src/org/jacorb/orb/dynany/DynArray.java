@@ -3,7 +3,7 @@ package org.jacorb.orb.dynany;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -31,29 +31,7 @@ import java.util.Vector;
  *
  * @author (c) Gerald Brose, FU Berlin 1999
  * $Id$
- * $Log$
- * Revision 1.5  2000/03/30 13:55:49  noffke
- * added portable intercetor support
- *
- * Revision 1.4  1999/11/25 16:07:22  brose
- * cosmetics
- *
- * Revision 1.3  1999/11/03 17:30:33  brose
- * replaced Environment.output by Debug.output and moved
- * Environment.java to package util
- *
- * Revision 1.2  1999-10-09 21:42:21+02  brose
- * passed orb and factory to all DynAnys in order to get hold of
- * correct orb instance
- *
- * Revision 1.1.1.1  1999-08-05 12:22:22+02  brose
- * First initial preliminary ... attempt
- *
- * Revision 1.1  1999-07-27 14:34:26+02  brose
- * Initial revision
- *
  */
-
 
 public final class DynArray
     extends DynAny
@@ -62,13 +40,17 @@ public final class DynArray
     private org.omg.CORBA.TypeCode elementType;
     private org.omg.CORBA.Any[] members;
 
-    DynArray(org.jacorb.orb.ORB orb,org.omg.DynamicAny.DynAnyFactory dynFactory,jacorb.orb.Any any)
+    DynArray(org.jacorb.orb.ORB orb,
+             org.omg.DynamicAny.DynAnyFactory dynFactory,
+             org.jacorb.orb.Any any)
 	throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch, InvalidValue
     {
 	super(orb,dynFactory,any);
     }
 
-    DynArray(org.jacorb.orb.ORB orb,org.omg.DynamicAny.DynAnyFactory dynFactory,org.omg.CORBA.TypeCode tc)
+    DynArray(org.jacorb.orb.ORB orb,
+             org.omg.DynamicAny.DynAnyFactory dynFactory,
+             org.omg.CORBA.TypeCode tc)
 	throws InvalidValue, TypeMismatch
     {
 	if( tc.kind() != org.omg.CORBA.TCKind.tk_array )
@@ -133,14 +115,16 @@ public final class DynArray
 
     public org.omg.CORBA.Any to_any() 
     {
-	jacorb.orb.Any out_any = (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
+	org.jacorb.orb.Any out_any = 
+            (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
 	out_any.type( type());
 
 	CDROutputStream os = new CDROutputStream();
 
 	for( int i = 0; i < limit; i++)
 	{
-	    os.write_value( elementType, (CDRInputStream)members[i].create_input_stream());
+	    os.write_value( elementType, 
+                            (CDRInputStream)members[i].create_input_stream());
 	}
 
 	CDRInputStream is = new CDRInputStream(orb, os.getBufferCopy());

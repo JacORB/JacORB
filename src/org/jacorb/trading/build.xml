@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="trading" default="all" basedir="../../..">
+<project name="trading" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!--             ORB build file                         -->
@@ -18,31 +18,31 @@
    <target name="impl">
  	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/trading/impl/**.java"
+	       includes="org/jacorb/trading/impl/*.java"
 	       />
    </target>
 
    <target name="db">
-   <ant antfile="${src}/jacorb/trading/db/build.xml" dir="${basedir}"/>
+   <ant antfile="${src}/org/jacorb/trading/db/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="util">
  	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/trading/util/**.java"
+	       includes="org/jacorb/trading/util/*.java"
 	       />
    </target>
 
    <target name="client">
 	   <ant
-	   antfile="${src}/jacorb/trading/client/build.xml" dir="${basedir}"
+	   antfile="${src}/org/jacorb/trading/client/build.xml" dir="${basedir}"
 	   />
    </target>
 
    <target name="test">
  	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/trading/test/**.java"
+	       includes="org/jacorb/trading/test/*.java"
 	       />
    </target>
 

@@ -37,3 +37,6 @@ public interface POAManagerMonitorView {
 	void _setToHolding(boolean wait);
 	void _setToInactive(boolean wait, boolean etherialize);
 	void _setVisible(boolean visible);
+}
+
+

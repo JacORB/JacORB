@@ -1,7 +1,9 @@
+package org.jacorb.naming.namemanager;
+
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,18 +20,17 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.naming.namemanager;
+import org.omg.CosNaming.*;
+import org.jacorb.naming.*;
+
+import java.util.*;
+import javax.swing.tree.*;
 
 /**
  * 
  *	@author Gerald Brose, FU Berlin
  *	@version $Id$
  */
-
-import org.omg.CosNaming.*;
-import java.util.*;
-import org.jacorb.naming.*;
-import javax.swing.tree.*;
 
 public class ContextNode
 {
@@ -215,12 +216,14 @@ public class ContextNode
 	
 	    for( int i = 0; i < objects.length; i++ )
 	    {
-		NameComponent last = objects[i].binding_name[ objects[i].binding_name.length-1];
+		NameComponent last =
+                    objects[i].binding_name[ objects[i].binding_name.length-1];
 		NameComponent[] ncs = {last};
-		jacorb.orb.ParsedIOR pior = null;
+		org.jacorb.orb.ParsedIOR pior = null;
 		try
 		{
-		    pior = ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve(
+		    pior = 
+                        ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve(
 		      		       			       ncs ))._get_delegate()).getParsedIOR();
 		}
 		catch( org.omg.CosNaming.NamingContextPackage.NotFound nf )

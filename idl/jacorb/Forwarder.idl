@@ -1,3 +1,4 @@
+module org {
 module jacorb{
   module proxy{
     interface Forwarder{
@@ -5,4 +6,5 @@ module jacorb{
 	void release(in string proxyId);
     };
   };
+};
 };

@@ -29,4 +29,6 @@ package org.jacorb.poa.except;
  * @see     org.jacorb.poa.RequestController#processRequest(org.jacorb.orb.dsi.ServerRequest)
  * @see     org.jacorb.poa.RequestController#run()
  */
-public final class CompletionRequestedException extends java.lang.Exception {
+public final class CompletionRequestedException 
+    extends java.lang.Exception {
+}

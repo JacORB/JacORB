@@ -26,21 +26,25 @@ package org.jacorb.poa.policy;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99, RT
  */
-public class RequestProcessingPolicy extends org.jacorb.orb.LocalityConstrainedObject implements org.omg.PortableServer.RequestProcessingPolicy {
-	private org.omg.PortableServer.RequestProcessingPolicyValue value;
-	private RequestProcessingPolicy() {
-	}
-	public RequestProcessingPolicy(org.omg.PortableServer.RequestProcessingPolicyValue _value) {
-		value = _value;
-	}
-	public org.omg.CORBA.Policy copy() {
-		return new RequestProcessingPolicy(value());
-	}
-	public void destroy() {
-	}
-	public int policy_type() {
-		return org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID.value;
-	}
-	public org.omg.PortableServer.RequestProcessingPolicyValue value() {
-		return value;
-	}
+public class RequestProcessingPolicy
+    extends org.jacorb.orb.LocalityConstrainedObject 
+    implements org.omg.PortableServer.RequestProcessingPolicy 
+{
+    private org.omg.PortableServer.RequestProcessingPolicyValue value;
+    private RequestProcessingPolicy() {
+    }
+    public RequestProcessingPolicy(org.omg.PortableServer.RequestProcessingPolicyValue _value) {
+        value = _value;
+    }
+    public org.omg.CORBA.Policy copy() {
+        return new RequestProcessingPolicy(value());
+    }
+    public void destroy() {
+    }
+    public int policy_type() {
+        return org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID.value;
+    }
+    public org.omg.PortableServer.RequestProcessingPolicyValue value() {
+        return value;
+    }
+}
