@@ -166,39 +166,44 @@ public class Environment
             // Full name of the config file
             String sConfigFile = null;
 
-            /*
-             * load config files from the default ClassLoader's classpath
-             *
-             * supported by Per Bockman (pebo@enea.se)
-             */
-            try
-            {
-                java.net.URL url = null;
+            // The code below compiles under jdk 1.1, but causes a hang at
+            // startup.  Therefore, omit this step under jdk 1.1 for now.
 
-                //try first file name
-                url =
-                    ClassLoader.getSystemResource( propertiesFile1 );
-
-                if( url == null )
+            //#ifjdk 1.2
+                /*
+                 * load config files from the default ClassLoader's classpath
+                 *
+                 * supported by Per Bockman (pebo@enea.se)
+                 */
+                try
                 {
-                    //first is not found, so try second
+                    java.net.URL url = null;
+               
+                    //try first file name
                     url =
-                        ClassLoader.getSystemResource( propertiesFile2 );
+                        ClassLoader.getSystemResource( propertiesFile1 );
+               
+                    if( url == null )
+                    {
+                        //first is not found, so try second
+                        url =
+                            ClassLoader.getSystemResource( propertiesFile2 );
+                    }
+               
+                    if( url != null )
+                    {
+                        _props.load( url.openStream() );
+               
+                         sConfigFile = url.toString();
+               
+                         loaded = true;
+                    }
                 }
-
-                if( url != null )
+                catch(java.io.IOException ioe)
                 {
-                    _props.load( url.openStream() );
-
-                    sConfigFile = url.toString();
-
-                    loaded = true;
+                    // ignore it
                 }
-            }
-            catch(java.io.IOException ioe)
-            {
-                // ignore it
-            }
+            //#endif
 
             if( ! loaded ) //no props file found in classpath
             {
@@ -252,7 +257,7 @@ public class Environment
                 }
             }
 
-            _props.putAll( System.getProperties() );
+            copyProps (System.getProperties(), _props);
 
             //read prop values to set fields ov this class
             readValues();
@@ -299,7 +304,7 @@ public class Environment
         {
             try
             {
-                _props.putAll( System.getProperties() );
+                copyProps (System.getProperties(), _props);
             }
             catch( SecurityException se )
             {
@@ -307,12 +312,19 @@ public class Environment
                 se.printStackTrace();
             }
 
-            _props.putAll( other_props );
-
+            copyProps (other_props, _props);
             readValues();
         }
     }
-
+    
+    private static void copyProps (Properties source, Properties destination)
+    {
+        for (Enumeration e = source.propertyNames(); e.hasMoreElements();)
+        {
+            String name = (String)e.nextElement();
+            destination.put (name, source.get(name));
+        }
+    }
 
     /**
      * Tries to read value from propname and then suffix locations. Returns
@@ -706,11 +718,16 @@ public class Environment
 
                 try
                 {
-		    ClassLoader cl =
-			Thread.currentThread().getContextClassLoader();
-		    if (cl == null)
-			cl = ClassLoader.getSystemClassLoader();
-                    orb_initializers.addElement(cl.loadClass(name).newInstance());
+                    //#ifjdk 1.2
+                        ClassLoader cl =
+                            Thread.currentThread().getContextClassLoader();
+                        if (cl == null)
+                            cl = ClassLoader.getSystemClassLoader();
+                        orb_initializers.addElement(cl.loadClass(name).newInstance());
+                    //#else
+                    //# orb_initializers.addElement
+                    //#     (Class.forName(name).newInstance());
+                    //#endif
                     Debug.output(Debug.INTERCEPTOR | Debug.DEBUG1,
                                  "Build: " + name);
                 }
