@@ -90,7 +90,7 @@ class ProxyImpl extends ProxyPOA
         System.exit (1);
     }
 
-    public ProxyImpl (ORB orb, String filelocation, boolean dynamic)
+    public ProxyImpl (ORB orb, String file, boolean dynamic)
     {
         org.omg.CORBA.Object forwarderRef = null;
         org.omg.CORBA.Object obj;
@@ -166,13 +166,13 @@ class ProxyImpl extends ProxyPOA
 
         try
         {
-            java.io.FileWriter fout = new java.io.FileWriter (filelocation);
+            java.io.FileWriter fout = new java.io.FileWriter (file);
             fout.write (orb.object_to_string (forwarderRef));
             fout.close ();
         }
         catch (java.io.IOException ioe)
         {
-            Debug.output (1, "Could not write IOR File: " + filelocation);
+            Debug.output (1, "Could not write IOR File: " + file);
         }
 
         // See if configured to register in name service
