@@ -21,7 +21,6 @@ package org.jacorb.security.sas;
  */
 
 
-//import org.jacorb.util.Environment;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 
 public interface ISASContextCreator
