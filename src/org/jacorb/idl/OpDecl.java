@@ -32,7 +32,10 @@ class OpDecl
     extends Declaration
     implements Operation
 {
-    public int opAttribute; // 0 means normal, 1 means oneway semantics
+    public static final int NO_ATTRIBUTE = 0;
+    public static final int ONEWAY       = 1;
+    
+    public int opAttribute; // either NO_ATTRIBUTE or ONEWAY
     public TypeSpec opTypeSpec;
     public Vector paramDecls;
     public RaisesExpr raisesExpr;
@@ -42,6 +45,43 @@ class OpDecl
     {
         super( num );
         paramDecls = new Vector();
+    }
+
+    /**
+     *  Constructs a new OpDecl with the given characteristics.
+     */    
+    public OpDecl (IdlSymbol myInterface, 
+                   int opAttribute, 
+                   TypeSpec opTypeSpec,
+                   String name,
+                   List paramDecls,
+                   RaisesExpr raisesExpr)
+    {
+        super (new_num());
+        this.myInterface = myInterface;
+        this.opAttribute = opAttribute;
+        this.opTypeSpec  = opTypeSpec;
+        this.name        = name;
+        this.paramDecls  = new Vector (paramDecls);
+        this.raisesExpr  = raisesExpr;
+        setEnclosingSymbol (myInterface);
+        setPackage (myInterface.full_name());    
+    } 
+
+    /**
+     *  Constructs a normal (not oneway) operation with void return type
+     *  and no raises-Expression.
+     */
+    public OpDecl (IdlSymbol myInterface,
+                   String    name,
+                   List      paramDecls)
+    {
+        this (myInterface, 
+              NO_ATTRIBUTE, 
+              new VoidTypeSpec (new_num()),
+              name, 
+              paramDecls, 
+              new RaisesExpr (new_num()));
     }
 
     public void setPackage( String s )
@@ -76,7 +116,7 @@ class OpDecl
         myInterface = enclosing_symbol;
 
         //        escapeName();
-        if( opAttribute == 1 )
+        if( opAttribute == ONEWAY )
         {
             if( !raisesExpr.empty() )
                 parser.error( "Oneway operation " + full_name() +
@@ -113,7 +153,7 @@ class OpDecl
                         token );
             }
 
-            if( param.paramAttribute > 1 )
+            if( param.paramAttribute != ParamDecl.MODE_IN )
             {
                 // for out and inout params
                 myInterface.addImportedNameHolder( param.paramTypeSpec.holderName() );
@@ -217,7 +257,7 @@ class OpDecl
             ps.println( "\t\t\t{" );
             ps.print( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request( \"" + idl_name + "\"," );
 
-            if( opAttribute == 0 )
+            if( opAttribute == NO_ATTRIBUTE )
                 ps.println( " true);" );
             else
                 ps.println( " false);" );
@@ -227,7 +267,7 @@ class OpDecl
             for( e = paramDecls.elements(); e.hasMoreElements(); )
             {
                 ParamDecl p = ( (ParamDecl)e.nextElement() );
-                if( p.paramAttribute != 2 ) // i.e. if in or inout
+                if( p.paramAttribute != ParamDecl.MODE_OUT ) 
                     ps.println( "\t\t\t\t" + p.printWriteStatement( "_os" ) );
             }
 
@@ -243,14 +283,14 @@ class OpDecl
             for( Enumeration e2 = paramDecls.elements(); e2.hasMoreElements(); )
             {
                 ParamDecl p = (ParamDecl)e2.nextElement();
-                if( p.paramAttribute > 1 ) // out or inout
+                if( p.paramAttribute != ParamDecl.MODE_IN )
                 {
                     ps.println( "\t\t\t\t" + p.simple_declarator + ".value = " +
                             p.printReadExpression( "_is" ) + ";" );
                 }
             }
 
-            if( opAttribute == 0 &&
+            if( opAttribute == NO_ATTRIBUTE &&
                     !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
             {
                 ps.println( "\t\t\t\treturn _result;" );
@@ -350,6 +390,66 @@ class OpDecl
         ps.println( "\t}\n" ); // end method
     }
 
+    public void print_sendc_Method( PrintWriter ps,
+                                    String classname )
+    {
+        /* in some cases generated name have an underscore prepended for the
+           mapped java name. On the wire, we must use the original name */
+
+        String idl_name = ( name.startsWith( "_" ) ? name.substring( 1 ) : name );
+
+        ps.print( "\tpublic void sendc_" + name + "(" );
+        
+        ps.print( "AMI_" + classname + "Handler ami_handler" );
+
+        for ( Iterator i = paramDecls.iterator(); i.hasNext(); )
+        {
+            ParamDecl p = ( ParamDecl ) i.next();
+            if ( p.paramAttribute != ParamDecl.MODE_OUT )
+            {
+                ps.print( ", " );
+                p.print( ps );
+            }
+        }
+
+        ps.print( ")" );
+        ps.println( "\n\t{" );
+        ps.println( "\t\twhile(true)" );
+        ps.println( "\t\t{" );
+        ps.println( "\t\t\ttry" );
+        ps.println( "\t\t\t{" );
+        ps.print( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request( \"" + idl_name + "\"," );
+
+        if( opAttribute == NO_ATTRIBUTE )
+            ps.println( " true);" );
+        else
+            ps.println( " false);" );
+
+        //  arguments..
+
+        for( Iterator i = paramDecls.iterator(); i.hasNext(); )
+        {
+            ParamDecl p = ( (ParamDecl)i.next() );
+            if( p.paramAttribute != ParamDecl.MODE_OUT ) 
+                ps.println( "\t\t\t\t" + p.printWriteStatement( "_os" ) );
+        }
+
+        //ps.println( "\t\t\t\t_invoke(_os, ami_handler);" );
+        ps.println( "\t\t\t\t((org.jacorb.orb.Delegate)_get_delegate()).invoke(this, _os, ami_handler);" );
+        ps.println( "\t\t\t\treturn;");
+
+        /* catch exceptions */
+
+        ps.println( "\t\t\t}" );
+        ps.println( "\t\t\tcatch( org.omg.CORBA.portable.RemarshalException _rx ){}" );
+        ps.println( "\t\t\tcatch( org.omg.CORBA.portable.ApplicationException _ax )" );
+        ps.println( "\t\t\t{" );
+        ps.println( "\t\t\t\tString _id = _ax.getId();" );
+        ps.println( "\t\t\t}" );
+
+        ps.println( "\t\t}\n" ); // end while
+        ps.println( "\t}\n" ); // end method
+    }
 
     public void printDelegatedMethod( PrintWriter ps )
     {
@@ -370,7 +470,8 @@ class OpDecl
         ps.println( "\n\t{" );
 
 
-        if( opAttribute == 0 && !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
+        if( opAttribute == NO_ATTRIBUTE && 
+            !( opTypeSpec.typeSpec() instanceof VoidTypeSpec ) )
         {
             ps.print( "\t\treturn " );
         }
@@ -413,7 +514,7 @@ class OpDecl
             boolean is_wchar = 
                 ( ( ts instanceof CharType ) && ( ( (CharType)ts ).isWide() ) );
 
-            if( p.paramAttribute == 1 ) // in params
+            if( p.paramAttribute == ParamDecl.MODE_IN )
             {
                 ps.println( "\t\t\t\t" + ts.toString() + " _arg" + ( argc++ ) +
                         "=" + ts.printReadExpression( "_input" ) + ";" );
@@ -423,7 +524,7 @@ class OpDecl
                 holders = true;
                 ps.println( "\t\t\t\t" + ts.holderName() + " _arg" + ( argc++ ) +
                         "= new " + ts.holderName() + "();" );
-                if( p.paramAttribute == 3 ) // inout
+                if( p.paramAttribute == ParamDecl.MODE_INOUT )
                 {
                     // wchars and wstrings are contained in CharHolder and
                     // StringHolder and so cannot be inserted via _read operation
@@ -522,7 +623,7 @@ class OpDecl
         {
             ParamDecl p = (ParamDecl)e.nextElement();
             TypeSpec ts = p.paramTypeSpec;
-            if( p.paramAttribute > 1 ) // out or inout
+            if( p.paramAttribute != ParamDecl.MODE_IN )
             {
                 ps.println( "\t\t\t\t" + p.printWriteStatement( ( "_arg" + ( argc ) ), "_out" ) );
                 //		ps.println("\t\t\t\t_arg" + (argc) + "._write(_out);");
@@ -627,17 +728,17 @@ class OpDecl
         for( Enumeration e = paramDecls.elements(); e.hasMoreElements(); )
         {
             ParamDecl param = (ParamDecl)e.nextElement();
-            if( param.paramAttribute == 3 )
+            if( param.paramAttribute == ParamDecl.MODE_INOUT )
             {
                 sb.append( "inout:" + param.simple_declarator.name + " " );
                 enter = true;
             }
-            else if( param.paramAttribute == 2 )
+            else if( param.paramAttribute == ParamDecl.MODE_OUT )
             {
                 sb.append( "out:" + param.simple_declarator.name + " " );
                 enter = true;
             }
-            else
+            else // MODE_IN
                 sb.append( "in:" + param.simple_declarator.name + " " );
 
             ts = param.paramTypeSpec.typeSpec();
@@ -660,7 +761,7 @@ class OpDecl
         }
         sb.append( ")" );
 
-        if( opAttribute == 1 )
+        if( opAttribute == ONEWAY )
             sb.append( "-oneway" );
 
         //       if( enter )
