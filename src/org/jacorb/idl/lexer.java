@@ -677,11 +677,14 @@ public class lexer
                 undefine( name );
                 // System.out.println("#Undefined symbol " + name  );
             }
-            else if( dir.equals( "if" ) )
+            else if( dir.equals( "if" ) || dir.equals( "elif" ) )
             {
-                ifStack.push( new Boolean( conditionalCompilation ) );
-                if( !conditionalCompilation )
-                    return;
+                if (! dir.equals( "elif" ) )
+                {
+                    ifStack.push( new Boolean( conditionalCompilation ) );
+                    if( !conditionalCompilation )
+                        return;
+                }
 
                 swallow_whitespace();
 
@@ -732,6 +735,10 @@ public class lexer
                 else if (defineStr.equals("0"))
                 {
                     conditionalCompilation = false;
+                }
+                else if (defineStr.equals("1"))
+                {
+                    conditionalCompilation = true;
                 }
                 else
                 {
