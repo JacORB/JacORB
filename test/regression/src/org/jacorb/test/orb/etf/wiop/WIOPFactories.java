@@ -89,4 +89,9 @@ public class WIOPFactories extends _FactoriesLocalBase
         return tag;
     }
 
+    public Profile decode_corbaloc(String corbaloc)
+    {
+        throw new org.omg.CORBA.NO_IMPLEMENT();
+    }
+
 }
