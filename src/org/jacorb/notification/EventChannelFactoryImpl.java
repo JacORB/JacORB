@@ -91,7 +91,6 @@ public class EventChannelFactoryImpl
     extends EventChannelFactoryPOA
     implements Disposable
 {
-
     interface ShutdownCallback
     {
         void needTime( int time );
@@ -126,20 +125,8 @@ public class EventChannelFactoryImpl
 
     ////////////////////////////////////////
 
-    public EventChannelFactoryImpl() throws Exception
+    private EventChannelFactoryImpl( final ORB _orb ) throws Exception
     {
-        String standardImplName = "Notification";
-        String notificationPOAName = "NotificationPOA";
-        String objectName = "_factory";
-
-        Properties props = new Properties();
-        props.put( "jacorb.implname", standardImplName );
-        props.put( "jacorb.orb.objectKeyMap." + NOTIFICATION_SERVICE,
-                   standardImplName + "/" + notificationPOAName + "/" + objectName );
-
-
-        final ORB _orb = ORB.init( new String[ 0 ], props );
-
         POA _rootPOA = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
 
         applicationContext_ = new ApplicationContext( _orb, _rootPOA, true );
@@ -149,7 +136,7 @@ public class EventChannelFactoryImpl
                 _rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID )
             };
 
-        notificationPOA_ = _rootPOA.create_POA( notificationPOAName,
+        notificationPOA_ = _rootPOA.create_POA( NOTIFICATION_POA_NAME,
                                                 _rootPOA.the_POAManager(),
                                                 _policies );
 
@@ -158,7 +145,7 @@ public class EventChannelFactoryImpl
             _policies[ x ].destroy();
         }
 
-        byte[] oid = ( objectName.getBytes() );
+        byte[] oid = ( OBJECT_NAME.getBytes() );
 
         notificationPOA_.activate_object_with_id( oid, this );
         thisFactory_ = EventChannelFactoryHelper.narrow( notificationPOA_.id_to_reference( oid ) );
@@ -173,10 +160,7 @@ public class EventChannelFactoryImpl
                        {
                            public void run()
                            {
-                               while ( true )
-                               {
-                                   _orb.run();
-                               }
+                               _orb.run();
                            }
                        }
 
@@ -190,6 +174,7 @@ public class EventChannelFactoryImpl
 
         logger_.info( "EventChannelFactory - ready" );
     }
+
 
     ////////////////////////////////////////
 
@@ -542,59 +527,6 @@ public class EventChannelFactoryImpl
 
         return buffer.toString();
     }
-
-
-    public EventChannelFactoryImpl( final ORB _orb ) throws Exception
-    {
-
-        POA _rootPOA = POAHelper.narrow( _orb.resolve_initial_references( "RootPOA" ) );
-
-        applicationContext_ = new ApplicationContext( _orb, _rootPOA, true );
-
-        org.omg.CORBA.Policy[] _policies =
-            new org.omg.CORBA.Policy [] {
-                _rootPOA.create_id_assignment_policy( IdAssignmentPolicyValue.USER_ID )
-            };
-
-        notificationPOA_ = _rootPOA.create_POA( NOTIFICATION_POA_NAME,
-                                                _rootPOA.the_POAManager(),
-                                                _policies );
-
-        for ( int x = 0; x < _policies.length; ++x )
-        {
-            _policies[ x ].destroy();
-        }
-
-        byte[] oid = ( OBJECT_NAME.getBytes() );
-
-        notificationPOA_.activate_object_with_id( oid, this );
-        thisFactory_ = EventChannelFactoryHelper.narrow( notificationPOA_.id_to_reference( oid ) );
-
-        initialize();
-
-        _rootPOA.the_POAManager().activate();
-        notificationPOA_.the_POAManager().activate();
-
-        Thread t = new Thread(
-                       new Runnable()
-                       {
-                           public void run()
-                           {
-                               _orb.run();
-                           }
-                       }
-
-                   );
-
-        t.setDaemon( false );
-        t.start();
-
-        ior_ = _orb.object_to_string( notificationPOA_.id_to_reference( oid ) );
-        corbaLoc_ = getCorbaLoc( notificationPOA_.the_name(), oid );
-
-        logger_.info( "EventChannelFactory - ready" );
-    }
-
 
     public String getIOR()
     {
