@@ -1,21 +1,22 @@
-// CosTyped Event Module, p 4-22 CORBAservices, Event Service
-// V1.0, 3/94
+//File: CosTypedEventComm.idl
+//Part of the Event Service
 
-#ifndef _COS_TYPEDEVENT_COMM_IDL_
-#define _COS_TYPEDEVENT_COMM_IDL_
+#ifndef _COS_TYPED_EVENT_COMM_IDL_
+#define _COS_TYPED_EVENT_COMM_IDL_
 
-#include <CosEventComm.idl> 
+#include <CosEventComm.idl>
+
+#pragma prefix "omg.org"
 
 module CosTypedEventComm {
 
-        interface TypedPushConsumer : CosEventComm::PushConsumer {
-                Object get_typed_consumer(); 
-        };
+   interface TypedPushConsumer : CosEventComm::PushConsumer {
+      Object get_typed_consumer();
+   };
 
-        interface TypedPullSupplier : CosEventComm::PullSupplier {               
-                Object get_typed_supplier();
-        };
+   interface TypedPullSupplier : CosEventComm::PullSupplier {     
+      Object get_typed_supplier();
+   };
+};
 
-}; 
-
-#endif /* _COS_TYPEDEVENT_COMM_IDL_ */
+#endif /* ifndef _COS_TYPED_EVENT_COMM_IDL_ */
