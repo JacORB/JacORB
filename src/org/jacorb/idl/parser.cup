@@ -894,6 +894,10 @@ value ::=
 
 value_box_dcl ::= 
         VALUETYPE ID:i type_spec:ts
+                {: 
+                        RESULT.name = i;
+                        RESULT.typeSpec = ts;
+                :}
         ;
 
 value_abs_dcl ::=
