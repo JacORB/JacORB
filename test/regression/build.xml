@@ -47,17 +47,11 @@
 
    <target name="build-all" depends="test-init" unless="RTEST.BUILD_DONE">
       <antcall target="compile-idl"/>
-      <antcall target="fixup-rmi-13"/>
       <antcall target="fixup-rmi-14"/>
       <antcall target="compile-src"/>
       <antcall target="compile-rmi"/>
       <antcall target="compile-src2"/>
       <property name="RTEST.BUILD_DONE" value="true"/>
-   </target>
-
-
-   <target name="fixup-rmi-13" unless="rmi.ShutdownUtilDelegate">
-       <copy file="${src}/rmi/FixSunDelegateBug.java.13" tofile="${src}/rmi/FixSunDelegateBug.java"/>
    </target>
 
 
@@ -91,21 +85,41 @@
       </antcall>
    </target>
 
-
    <target name="run" depends="build-all">
-      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
-           <!-- ant 1.4.1 doesn't support showoutput, -->
-           <!-- so I removed it for now, AS           -->
-         <jvmarg value="-Xbootclasspath/p:${classpath}"/>
-         <jvmarg value="-Dtestdir=${testdir}"/>
-         <jvmarg value="-Djavax.rmi.CORBA.UtilClass=org.jacorb.test.rmi.FixSunDelegateBug"/>
-         <classpath path="${classpath}"/>
-         <formatter type="plain"/>
-         <test name="${test}" todir="${dirs.output}"/>
-      </junit>
+      <antcall target="run13" />
+      <antcall target="run14" />
    </target>
 
    <target name="run-no-build" depends="test-init">
+      <antcall target="run13-no-build" />
+      <antcall target="run14-no-build" />
+   </target>
+
+   <target name="run13" depends="build-all" unless="rmi.ShutdownUtilDelegate">
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+           <!-- ant 1.4.1 doesn't support showoutput, -->
+           <!-- so I removed it for now, AS           -->
+         <jvmarg value="-Xbootclasspath/p:${classpath}"/>
+         <jvmarg value="-Dtestdir=${testdir}"/>
+         <classpath path="${classpath}"/>
+         <formatter type="plain"/>
+         <test name="${test}" todir="${dirs.output}"/>
+      </junit>
+   </target>
+
+   <target name="run13-no-build" depends="test-init" unless="rmi.ShutdownUtilDelegate">
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+           <!-- ant 1.4.1 doesn't support showoutput, -->
+           <!-- so I removed it for now, AS           -->
+         <jvmarg value="-Xbootclasspath/p:${classpath}"/>
+         <jvmarg value="-Dtestdir=${testdir}"/>
+         <classpath path="${classpath}"/>
+         <formatter type="plain"/>
+         <test name="${test}" todir="${dirs.output}"/>
+      </junit>
+   </target>
+
+   <target name="run14" depends="build-all" if="rmi.ShutdownUtilDelegate">
       <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
@@ -118,7 +132,20 @@
       </junit>
    </target>
 
-   <target name="run-jdk-orb-no-build" depends="test-init">
+   <target name="run14-no-build" depends="test-init" if="rmi.ShutdownUtilDelegate">
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+           <!-- ant 1.4.1 doesn't support showoutput, -->
+           <!-- so I removed it for now, AS           -->
+         <jvmarg value="-Xbootclasspath/p:${classpath}"/>
+         <jvmarg value="-Dtestdir=${testdir}"/>
+         <jvmarg value="-Djavax.rmi.CORBA.UtilClass=org.jacorb.test.rmi.FixSunDelegateBug"/>
+         <classpath path="${classpath}"/>
+         <formatter type="plain"/>
+         <test name="${test}" todir="${dirs.output}"/>
+      </junit>
+   </target>
+
+   <target name="run-jdk-orb-no-build" depends="test-init" if="rmi.ShutdownUtilDelegate">
       <junit fork="yes" printsummary="withOutAndErr">
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
