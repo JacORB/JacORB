@@ -28,10 +28,9 @@ import java.util.*;
  * @version $Id$
  */
 
-class AttrDecl
-        extends Declaration
+public class AttrDecl
+    extends Declaration
 {
-
     public boolean readOnly;
     public TypeSpec param_type_spec;
     public SymbolList declarators;
