@@ -39,28 +39,8 @@ public class DNSLookup
         enabled = configuration.getAttribute("jacorb.dns.enable","off").equals("on");
         if (enabled)
         {
-            if (jdk_DNS_Usable())
-            {
-                delegate = 
-                    new JdkDelegateImpl(((org.jacorb.config.Configuration)configuration).getNamedLogger("org.jacorb.dns"));
-            }
-            else
-            {
-                try
-                {
-                    Class c;                    
-                    // Ensure that both the delegate implementation
-                    // and the DNS support classes are available
-                    c = ObjectUtil.classForName("org.xbill.DNS.dns");
-                    c = ObjectUtil.classForName("org.jacorb.orb.dns.XbillDelegateImpl");
-                    
-                    delegate = (DNSLookupDelegate)c.newInstance();
-                }
-                catch (Exception e)
-                {
-                    //ignore
-                }
-            }
+            delegate = 
+                new JdkDelegateImpl(((org.jacorb.config.Configuration)configuration).getNamedLogger("org.jacorb.dns"));
         }
     }
 
