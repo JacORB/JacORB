@@ -1490,7 +1490,11 @@ public class CDRInputStream
             org.omg.CORBA.portable.ValueFactory factory =
                 ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory 
                                                             (repository_id);
-            result = factory.read_value (this);
+            if (factory == null)
+                throw new org.omg.CORBA.MARSHAL 
+                    ("could not find value factory for " + repository_id);
+            else
+                result = factory.read_value (this);
         }
         else // RMI
         {
