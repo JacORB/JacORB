@@ -37,10 +37,12 @@ public class AllTest extends TestCase
         suite.addTest (org.jacorb.test.orb.CharTest.suite());
         suite.addTest (org.jacorb.test.orb.CallbackTest.suite());
         suite.addTest (org.jacorb.test.orb.dynany.AllTest.suite ());
-        suite.addTest (org.jacorb.test.orb.connection.AllTest.suite ());
         suite.addTest (org.jacorb.test.orb.policies.AllTest.suite());
+        suite.addTest (org.jacorb.test.orb.connection.AllTest.suite ());
         suite.addTest (org.jacorb.test.orb.AlternateIIOPAddressTest.suite());
         suite.addTest (org.jacorb.test.orb.MiscTest.suite());
+        suite.addTest (org.jacorb.test.orb.LongLongSeq.suite());
+        suite.addTest (org.jacorb.test.orb.RecursiveParam.suite());
 
         return suite;
    }

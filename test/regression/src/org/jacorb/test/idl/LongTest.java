@@ -55,7 +55,6 @@ public class LongTest extends TestCase
     */
    public void testLongParseGood ()
    {
-      StringBuffer command = new StringBuffer ();
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
@@ -69,7 +68,6 @@ public class LongTest extends TestCase
     */
    public void testLongParseFail1 ()
    {
-      StringBuffer command = new StringBuffer ();
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
@@ -83,7 +81,6 @@ public class LongTest extends TestCase
     */
    public void testLongParseFail2 ()
    {
-      StringBuffer command = new StringBuffer ();
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");

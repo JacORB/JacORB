@@ -1,0 +1,55 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         interface RecursiveParamServer
+         {
+            /* Enumeration of value types for ParmValue's.
+             * They may be strings or nested repeating groups.
+             */
+            enum ParmValueType {
+               string_type,            // Single-valued
+               nested_type             // Repeating groups.
+            };
+
+            /* Represents a name-value pair where the value can either be a
+             * String or a nested parameter list.  This allows for tree structures
+             * of arbitrary complexity.
+             */
+            struct Parm {
+               string name;
+
+               /* Represents a value of a parameter.  It may be single valued or
+                * the parent of a sequence of ParmValue's
+                */
+               union ParmValue switch (ParmValueType) {
+                  case string_type : string string_value;
+                  case nested_type : sequence < sequence < Parm > > nested_value;
+               } value;
+            };
+
+            // Note that this is actually deprecated IDL. It would be better
+            // written as:
+            // union blubT;
+            // typedef sequence<blubT> blubTSeq;
+            // union blubT switch (boolean) {
+            //   case TRUE : blubTSeq b;
+            //   case FALSE: string s;
+            // };
+            union blubT switch (boolean) {
+               case TRUE : sequence <blubT> b;
+               case FALSE: string s;
+            };
+
+
+            void passParm( in Parm p );
+
+            void passAny( in any a );
+
+         };
+      };
+   };
+};

@@ -26,6 +26,11 @@ import junit.extensions.*;
 import org.jacorb.test.common.*;
 import org.omg.CORBA.*;
 import org.jacorb.test.*;
+import org.jacorb.test.CharServerPackage.wcharSeqHolder;
+import org.jacorb.test.CharServerPackage.DataFlavour;
+import org.jacorb.test.CharServerPackage.DataFlavourHelper;
+import org.jacorb.test.CharServerPackage.NameValuePair;
+
 
 public class CharTest extends ClientServerTestCase
 {
@@ -67,6 +72,9 @@ public class CharTest extends ClientServerTestCase
         suite.addTest( new CharTest( "test_pass_inout_wchar", setup ) );
         suite.addTest( new CharTest( "test_return_wchar", setup ) );
         suite.addTest( new CharTest( "test_bounce_wchar", setup ) );
+
+        suite.addTest( new CharTest( "test_wchar_seq", setup ) );
+        suite.addTest( new CharTest( "test_return_dataflavour_inany", setup ) );
 
         return setup;
     }
@@ -271,5 +279,55 @@ public class CharTest extends ClientServerTestCase
     {
         char result = server.bounce_wchar( EURO_SIGN );
         assertEquals( EURO_SIGN, result );
+    }
+
+    public void test_wchar_seq()
+    {
+        try
+        {
+            wcharSeqHolder argout = new wcharSeqHolder();
+            wcharSeqHolder arginout = new wcharSeqHolder( new char[]{ 'a', 'a' } );
+            wcharSeqHolder argin = new wcharSeqHolder( new char[]{ 'a', 'a' } );
+
+            for( int i = 0; i < 1000; i++ )
+            {
+                //call remote op
+                test( server.test_wchar_seq( new char[]{ 'a', 'a' },
+                                             argout,
+                                             arginout ));
+
+                test( argout.value);
+            }
+        }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
+    }
+
+
+    public void test_return_dataflavour_inany()
+    {
+        try
+        {
+            DataFlavour flavour = new DataFlavour
+                ("Test_Flavour", new NameValuePair[0]);
+
+            org.omg.CORBA.Any data = server.return_dataflavour_inany( flavour );
+
+            DataFlavour flavour2 = DataFlavourHelper.extract( data );
+
+            assertEquals( flavour2.name, "Test_Flavour" );
+        }
+        catch( Exception e )
+        {
+            fail( "unexpected exception: " + e );
+        }
+    }
+
+    private static void test( char[] arg )
+    {
+        assertEquals( arg[ 0 ], 'a' );
+        assertEquals( arg[ 1 ], 'a' );
     }
 }

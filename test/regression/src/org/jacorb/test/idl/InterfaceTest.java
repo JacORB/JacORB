@@ -53,7 +53,6 @@ public class InterfaceTest extends TestCase
     */
    public void testInterfaceParseGood ()
    {
-      StringBuffer command = new StringBuffer ();
       String file[] = new String[5];
       file[0] = "-i2jpackage";
       file[1] = "Reflective:org.omg.Reflective";

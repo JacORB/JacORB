@@ -1,4 +1,4 @@
-package org.jacorb.test.idl;
+package org.jacorb.test.poa;
 
 /*
  *        JacORB  - a free Java ORB
@@ -21,43 +21,20 @@ package org.jacorb.test.idl;
  */
 
 import junit.framework.*;
-import junit.extensions.TestSetup;
-import org.jacorb.idl.ParseException;
 
-
-/**
- * Long.java
- *
- * IDL parse tests.
- *
- */
-
-public class TypeDefTest extends TestCase
+public class AllTest extends TestCase
 {
-   public TypeDefTest (String name)
+   public AllTest (String name)
    {
       super (name);
    }
 
-
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("TypeDef Tests");
-      suite.addTest (new TypeDefTest ("testTypeDefParseGood"));
+        TestSuite suite = new TestSuite ("All POA Tests");
 
-      return suite;
-   }
+        suite.addTest (org.jacorb.test.poa.Deactivate.suite());
 
-
-   /**
-    */
-   public void testTypeDefParseGood ()
-   {
-      String file[] = new String[3];
-      file[0] = "-d";
-      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
-      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/TypeDef.idl");
-
-      assertTrue ("Compiled TypeDef.idl", org.jacorb.idl.parser.compile (file));
+        return suite;
    }
 }

@@ -53,7 +53,6 @@ public class ValueTest extends TestCase
     */
    public void testValueParseGood ()
    {
-      StringBuffer command = new StringBuffer ();
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");

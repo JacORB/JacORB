@@ -22,22 +22,24 @@ package org.jacorb.test.common;
 
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
+import java.io.*;
+import org.jacorb.util.Debug;
 
 /**
  * A server program that can set up an arbitrary CORBA servant.
  * The program takes the name of the servant class to use from
  * the command line.  It then creates an instance of this class,
  * using its no-arg constructor (which must exist).  It registers
- * the instance with the POA, and prints the resulting IOR to 
+ * the instance with the POA, and prints the resulting IOR to
  * standard output.  If anything goes wrong, a message starting
  * with the string "ERROR" is instead written to standard output.
  * <p>
- * This program is intended to be used with a 
+ * This program is intended to be used with a
  * {@link ClientServerSetup ClientServerSetup}.  To read and process
- * the <code>TestServer</code>'s output from another program such as 
- * the above, JacORB's normal diagnostic messages should be completely 
- * silenced.  This must be done using the normal configuration settings, 
- * e.g. from the command line (see 
+ * the <code>TestServer</code>'s output from another program such as
+ * the above, JacORB's normal diagnostic messages should be completely
+ * silenced.  This must be done using the normal configuration settings,
+ * e.g. from the command line (see
  * {@link ClientServerSetup#setUp ClientServerSetup.setUp()} for an
  * example).
  * <p>
@@ -48,13 +50,13 @@ public class TestServer
 {
     public static void main (String[] args)
     {
-        try 
-        {            
+        try
+        {
             //init ORB
             ORB orb = ORB.init( args, null );
 
             //init POA
-            POA poa = 
+            POA poa =
                 POAHelper.narrow( orb.resolve_initial_references( "RootPOA" ));
             poa.the_POAManager().activate();
 
@@ -65,14 +67,22 @@ public class TestServer
             // create the object reference
             org.omg.CORBA.Object obj = poa.servant_to_reference( servant );
 
-            System.out.println( orb.object_to_string( obj ));
-            System.out.flush();
-    
+            PrintWriter pw = new PrintWriter
+               (new FileWriter (System.getProperty( "user.home" ) +
+               File.separatorChar + "jacorbJunit.ior") );
+
+            // Print stringified object reference to file
+            pw.println( orb.object_to_string( obj ));
+            pw.flush();
+            pw.close();
+            Debug.output( 1, "Entering ORB event loop" );
+
             // wait for requests
             orb.run();
         }
-        catch( Exception e ) 
+        catch( Exception e )
         {
+            Debug.output( 1, e );
             System.out.println( "ERROR: " + e );
         }
     }

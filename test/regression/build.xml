@@ -32,6 +32,7 @@
       <property name="rmic.stubVersion" value="1.2"/>
       <property name="rmic.iiop" value="yes"/>
       <property name="rmic.iiopopts" value="-poa"/>
+      <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate" property="rmi.ShutdownUtilDelegate"/>
 
       <mkdir dir="${src}/generated"/>
       <mkdir dir="${dirs.output}"/>
@@ -44,11 +45,24 @@
    <!-- ==================================================== -->
 
 
-   <target name="build-all" depends="test-init">
+   <target name="build-all" depends="test-init" unless="RTEST.BUILD_DONE">
       <antcall target="compile-idl"/>
+      <antcall target="fixup-rmi-13"/>
+      <antcall target="fixup-rmi-14"/>
       <antcall target="compile-src"/>
       <antcall target="compile-rmi"/>
       <antcall target="compile-src2"/>
+      <property name="RTEST.BUILD_DONE" value="true"/>
+   </target>
+
+
+   <target name="fixup-rmi-13" unless="rmi.ShutdownUtilDelegate">
+       <copy file="${src}/rmi/FixSunDelegateBug.java.13" tofile="${src}/rmi/FixSunDelegateBug.java"/>
+   </target>
+
+
+   <target name="fixup-rmi-14" if="rmi.ShutdownUtilDelegate">
+       <copy file="${src}/rmi/FixSunDelegateBug.java.14" tofile="${src}/rmi/FixSunDelegateBug.java"/>
    </target>
 
 
@@ -79,7 +93,7 @@
 
 
    <target name="run" depends="build-all">
-      <junit fork="yes" printsummary="withOutAndErr">
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
@@ -92,7 +106,7 @@
    </target>
 
    <target name="run-no-build" depends="test-init">
-      <junit fork="yes" printsummary="withOutAndErr">
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
@@ -111,7 +125,7 @@
          <jvmarg value="-Dtestdir=${testdir}"/>
          <classpath path="${classpath}"/>
          <formatter type="plain"/>
-         <test name="${test}" todir="${dirs.output}"/>
+         <test name="${test}" outfile="TEST-${test}-jdkorb" todir="${dirs.output}"/>
       </junit>
    </target>
 
@@ -125,13 +139,14 @@
       <antcall target="idl-tests"/>
       <antcall target="idl-basicserver"/>
       <antcall target="idl-charserver"/>
-      <!-- <antcall target="idl-retstringseq"/> -->
+      <antcall target="idl-longlongseqserver"/>
       <antcall target="idl-callbackserver"/>
       <antcall target="idl-timingserver"/>
       <antcall target="idl-syncscopeserver"/>
       <antcall target="idl-connectiontimeout"/>
       <antcall target="idl-bidir"/>
       <antcall target="idl-iiopaddress"/>
+      <antcall target="idl-recursive"/>
    </target>
 
 
@@ -202,11 +217,11 @@
       <antcall target="process-idl"/>
   </target>
 
-  <target name="idl-retstringseq">
-      <property name="props.idl" value="RetStringSeq"/>
+  <target name="idl-longlongseqserver">
+      <property name="props.idl" value="LongLongSeqServer"/>
       <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="false"/>
-      <property name="file.idl" value="RetStringSeq.idl"/>
+      <property name="file.idl" value="LongLongSeqServer.idl"/>
       <antcall target="process-idl"/>
   </target>
 
@@ -258,6 +273,14 @@
       <antcall target="process-idl"/>
   </target>
 
+  <target name="idl-recursive">
+      <property name="props.idl" value="RecursiveParamServer"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
+      <property name="callback.idl" value="false"/>
+      <property name="file.idl" value="RecursiveParamServer.idl"/>
+      <antcall target="process-idl"/>
+  </target>
+
    <!-- ==================================================== -->
    <!--                  run all tests                       -->
    <!-- ==================================================== -->
@@ -270,12 +293,6 @@
       </antcall>
       <antcall target="compile-idl-test-generated"/>
   </target>
-
-
-   <target name="run-all-separate"
-           description="Run all Jacorb tests, logging results in separate files">
-      <antcall target="run-all-orb-separate"/>
-   </target>
 
 
    <!-- ==================================================== -->
@@ -312,11 +329,12 @@
    </target>
 
 
-   <target name="run-all-orb-separate"
-           description="Run all Jacorb tests in the orb package and its subpackages, logging results in separate files">
-      <antcall target="run-all-dynany-separate"/>
+   <target name="run-all-orb-no-build"
+           description="Run all Jacorb tests in the orb package and its subpackages">
+      <antcall target="run-no-build">
+         <param name="test" value="org.jacorb.test.orb.AllTest"/>
+      </antcall>
    </target>
-
 
    <!-- ==================================================== -->
    <!--                  run rmi tests                       -->
@@ -364,16 +382,8 @@
    </target>
 
 
-   <target name="run-package-dynany"
-           description="Run all Jacorb tests in the dynany package only">
-      <antcall target="run">
-         <param name="test" value="org.jacorb.test.orb.dynany.PackageTest"/>
-      </antcall>
-   </target>
-
-
-   <target name="run-package-dynany-separate"
-           description="Run all Jacorb tests in the dynany package only, logging results in separate files">
+   <!-- Run all Jacorb tests in the dynany package only, logging results in separate files -->
+   <target name="run-package-dynany-separate">
       <antcall target="run">
          <param name="test" value="org.jacorb.test.orb.dynany.DynAnyArrayTest"/>
       </antcall>
@@ -421,5 +431,6 @@
       <delete dir="${classdir}/org" failonerror="false"/>
       <delete dir="${src}/generated" failonerror="false"/>
       <delete dir="${classdir}" failonerror="false"/>
+      <delete file="${src}/rmi/FixSunDelegateBug.java" failonerror="false"/>
    </target>
 </project>

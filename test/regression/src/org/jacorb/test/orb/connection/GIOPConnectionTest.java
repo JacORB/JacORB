@@ -23,7 +23,7 @@ import org.jacorb.orb.*;
 
 import junit.framework.*;
 
-public class GIOPConnectionTest extends TestCase 
+public class GIOPConnectionTest extends TestCase
 {
     public static junit.framework.TestSuite suite()
     {
@@ -34,11 +34,11 @@ public class GIOPConnectionTest extends TestCase
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_IllegalMessageType"));
         suite.addTest (new GIOPConnectionTest ("testGIOP_1_1_NoImplement"));
 
-        return suite;        
+        return suite;
     }
 
     private class DummyTransport
-        implements Transport
+        extends IIOPConnection
     {
         private boolean closed = false;
         private byte[] data = null;
@@ -53,7 +53,7 @@ public class GIOPConnectionTest extends TestCase
         public DummyTransport( List messages )
         {
             // convert the message list into a plain byte array
-            
+
             int size = 0;
             for (Iterator i = messages.iterator(); i.hasNext();)
             {
@@ -76,7 +76,7 @@ public class GIOPConnectionTest extends TestCase
 
         public void connect (org.omg.ETF.Profile profile, long time_out)
         {
-            // nothing   
+            // nothing
         }
 
         public boolean hasBeenClosed()
@@ -89,18 +89,18 @@ public class GIOPConnectionTest extends TestCase
             return !closed;
         }
 
-        public void write( boolean is_first, boolean is_last, 
+        public void write( boolean is_first, boolean is_last,
                            byte[] message, int start, int size,
                            long timeout )
         {
             b_out.write( message, start, size );
         }
-    
+
 
         public void flush()
         {
         }
-    
+
         public void close()
         {
             closed = true;
@@ -120,7 +120,7 @@ public class GIOPConnectionTest extends TestCase
             return profile;
         }
 
-        public void read (BufferHolder data, int offset, 
+        public void read (BufferHolder data, int offset,
                           int min_length, int max_length, long time_out)
         {
             if (this.index + min_length > this.data.length)
@@ -135,7 +135,7 @@ public class GIOPConnectionTest extends TestCase
         }
 
     }
-    
+
 
     private class DummyRequestListener
         implements RequestListener
@@ -156,7 +156,7 @@ public class GIOPConnectionTest extends TestCase
         {
             this.request = request;
         }
-        
+
         public void locateRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
@@ -188,13 +188,13 @@ public class GIOPConnectionTest extends TestCase
         {
             this.reply = reply;
         }
-        
+
         public void locateReplyReceived( byte[] reply,
                                          GIOPConnection connection )
         {
             this.reply = reply;
         }
-        
+
         public void closeConnectionReceived( byte[] close_conn,
                                              GIOPConnection connection )
         {
@@ -202,17 +202,17 @@ public class GIOPConnectionTest extends TestCase
         }
 
     }
-    
+
     public GIOPConnectionTest( String name )
-    {        
+    {
         super( name );
     }
-    
+
     public void testGIOP_1_2_CorrectFragmentedRequest()
     {
         List messages = new Vector();
 
-        RequestOutputStream r_out = 
+        RequestOutputStream r_out =
             new RequestOutputStream( (ClientConnection) null, //ClientConnection
                                      0,           //request id
                                      "foo",       //operation
@@ -233,12 +233,12 @@ public class GIOPConnectionTest extends TestCase
         r_out.insertMsgSize();
 
         byte[] b = r_out.getBufferCopy();
-        
+
         b[6] |= 0x02; //set "more fragments follow"
 
         messages.add( b );
-        
-        MessageOutputStream m_out = 
+
+        MessageOutputStream m_out =
             new MessageOutputStream();
         m_out.writeGIOPMsgHeader( MsgType_1_1._Fragment,
                                      2 // giop minor
@@ -250,10 +250,10 @@ public class GIOPConnectionTest extends TestCase
         m_out.insertMsgSize();
 
         messages.add( m_out.getBufferCopy() );
-        
-        DummyTransport transport = 
+
+        DummyTransport transport =
             new DummyTransport( messages );
-        
+
         DummyRequestListener request_listener =
             new DummyRequestListener();
 
@@ -263,7 +263,7 @@ public class GIOPConnectionTest extends TestCase
         GIOPConnectionManager giopconn_mg =
             new GIOPConnectionManager();
 
-        ServerGIOPConnection conn = 
+        ServerGIOPConnection conn =
             giopconn_mg.createServerGIOPConnection( null,
                                                     transport,
                                                     request_listener,
@@ -289,9 +289,9 @@ public class GIOPConnectionTest extends TestCase
         //listener?
         assertTrue( request_listener.getRequest() != null );
 
-        RequestInputStream r_in = 
+        RequestInputStream r_in =
             new RequestInputStream( null, request_listener.getRequest() );
-        
+
         //is the body correct?
         assertEquals( "barbaz", r_in.read_string() );
     }
@@ -300,7 +300,7 @@ public class GIOPConnectionTest extends TestCase
     {
         List messages = new Vector();
 
-        RequestOutputStream r_out = 
+        RequestOutputStream r_out =
             new RequestOutputStream( null, //ClientConnection
                                      0,           //request id
                                      "foo",       //operation
@@ -317,14 +317,14 @@ public class GIOPConnectionTest extends TestCase
         r_out.insertMsgSize();
 
         byte[] b = r_out.getBufferCopy();
-        
+
         b[6] |= 0x02; //set "more fragments follow"
 
         messages.add( b );
-        
-        DummyTransport transport = 
+
+        DummyTransport transport =
             new DummyTransport( messages );
-        
+
         DummyRequestListener request_listener =
             new DummyRequestListener();
 
@@ -333,9 +333,9 @@ public class GIOPConnectionTest extends TestCase
 
         GIOPConnectionManager giopconn_mg =
             new GIOPConnectionManager();
-        
-        GIOPConnection conn = 
-            giopconn_mg.createServerGIOPConnection( null, 
+
+        GIOPConnection conn =
+            giopconn_mg.createServerGIOPConnection( null,
                                                     transport,
                                                     request_listener,
                                                     reply_listener );
@@ -365,9 +365,9 @@ public class GIOPConnectionTest extends TestCase
         assertTrue( transport.getWrittenMessage() != null );
 
         byte[] result = transport.getWrittenMessage();
-        
+
         assertTrue( Messages.getMsgType( result ) == MsgType_1_1._MessageError );
-        MessageOutputStream m_out = 
+        MessageOutputStream m_out =
             new MessageOutputStream();
         m_out.writeGIOPMsgHeader( MsgType_1_1._Fragment,
                                      0 // giop minor
@@ -403,11 +403,11 @@ public class GIOPConnectionTest extends TestCase
         //instead, an error message have must been sent via the
         //transport
         assertTrue( transport.getWrittenMessage() != null );
-        
+
         //must be a new one
         assertTrue( transport.getWrittenMessage() != result );
         result = transport.getWrittenMessage();
-        
+
         assertTrue( Messages.getMsgType( result ) == MsgType_1_1._MessageError );
 
     }
@@ -416,8 +416,8 @@ public class GIOPConnectionTest extends TestCase
     {
         List messages = new Vector();
 
-        LocateRequestOutputStream r_out = 
-            new LocateRequestOutputStream( 
+        LocateRequestOutputStream r_out =
+            new LocateRequestOutputStream(
                 new byte[1], //object key
                 0,           //request id
                 1            // giop minor
@@ -426,27 +426,27 @@ public class GIOPConnectionTest extends TestCase
         r_out.insertMsgSize();
 
         byte[] b = r_out.getBufferCopy();
-        
+
         b[6] |= 0x02; //set "more fragments follow"
 
         messages.add( b );
-        
-        MessageOutputStream m_out = 
+
+        MessageOutputStream m_out =
             new MessageOutputStream();
-        
-        DummyTransport transport = 
+
+        DummyTransport transport =
             new DummyTransport( messages );
-        
+
         DummyRequestListener request_listener =
             new DummyRequestListener();
 
         DummyReplyListener reply_listener =
             new DummyReplyListener();
-        
+
         GIOPConnectionManager giopconn_mg =
             new GIOPConnectionManager();
-        
-        GIOPConnection conn = 
+
+        GIOPConnection conn =
             giopconn_mg.createServerGIOPConnection( null,
                                                     transport,
                                                     request_listener,
@@ -475,9 +475,9 @@ public class GIOPConnectionTest extends TestCase
         //instead, an error message have must been sent via the
         //transport
         assertTrue( transport.getWrittenMessage() != null );
-        
+
         byte[] result = transport.getWrittenMessage();
-        
+
         assertTrue( Messages.getMsgType( result ) == MsgType_1_1._MessageError );
     }
 
@@ -485,7 +485,7 @@ public class GIOPConnectionTest extends TestCase
     {
         List messages = new Vector();
 
-        RequestOutputStream r_out = 
+        RequestOutputStream r_out =
             new RequestOutputStream( null, //ClientConnection
                                      0,           //request id
                                      "foo",       //operation
@@ -502,24 +502,24 @@ public class GIOPConnectionTest extends TestCase
         r_out.insertMsgSize();
 
         byte[] b = r_out.getBufferCopy();
-        
+
         b[6] |= 0x02; //set "more fragments follow"
 
         messages.add( b );
-        
-        DummyTransport transport = 
+
+        DummyTransport transport =
             new DummyTransport( messages );
-        
+
         DummyRequestListener request_listener =
             new DummyRequestListener();
 
         DummyReplyListener reply_listener =
             new DummyReplyListener();
-        
+
         GIOPConnectionManager giopconn_mg =
             new GIOPConnectionManager();
-        
-        GIOPConnection conn = 
+
+        GIOPConnection conn =
             giopconn_mg.createServerGIOPConnection( null,
                                                     transport,
                                                     request_listener,
@@ -548,7 +548,7 @@ public class GIOPConnectionTest extends TestCase
         //instead, an error message have must been sent via the
         //transport
         assertTrue( transport.getWrittenMessage() != null );
-        
+
         byte[] result = transport.getWrittenMessage();
 
         ReplyInputStream r_in = new ReplyInputStream( null, result );
@@ -563,7 +563,7 @@ public class GIOPConnectionTest extends TestCase
             fail();
         }
 
-        MessageOutputStream m_out = 
+        MessageOutputStream m_out =
             new MessageOutputStream();
         m_out.writeGIOPMsgHeader( MsgType_1_1._Fragment,
                                   1 // giop minor
@@ -597,9 +597,5 @@ public class GIOPConnectionTest extends TestCase
         assertTrue( reply_listener.getReply() == null );
 
         //can't check more, message is discarded
-    }    
+    }
 }// GIOPConnectionTest
-
-
-
-

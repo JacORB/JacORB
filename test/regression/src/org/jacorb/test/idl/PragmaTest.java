@@ -55,7 +55,6 @@ public class PragmaTest extends TestCase
     */
    public void testPragmaParseGood ()
    {
-      StringBuffer command = new StringBuffer ();
       String file[] = new String[3];
       file[0] = "-d";
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");

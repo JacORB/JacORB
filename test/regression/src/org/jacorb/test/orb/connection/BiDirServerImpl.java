@@ -43,7 +43,7 @@ public class BiDirServerImpl extends BiDirServerPOA
 
     public int get_open_client_transports()
     {
-        return org.jacorb.orb.connection.Client_TCP_IP_Transport.openTransports;
+        return org.jacorb.orb.iiop.ClientIIOPConnection.openTransports;
     }
 
     public static void main (String[] args)
@@ -81,17 +81,17 @@ public class BiDirServerImpl extends BiDirServerPOA
 
             org.omg.CORBA.Object o =
                 bidir_poa.servant_to_reference(new BiDirServerImpl());
-                
+
             System.out.println (orb.object_to_string(o));
             System.out.flush();
-            
+
             orb.run();
         }
         catch (Exception e)
         {
             System.out.println ("ERROR: " + e);
         }
-        
+
     }
 
 }

@@ -4,19 +4,19 @@ import org.omg.CORBA.*;
 import org.omg.CORBA.ORBPackage.*;
 import org.omg.PortableServer.*;
 
-public class SessionFactoryServant 
+public class SessionFactoryServant
     extends SessionFactoryPOA
 {
     private ORB orb;
     private POA poa;
-	
-    public SessionFactoryServant( ORB orb, org.omg.PortableServer.POA poa) 
+
+    public SessionFactoryServant( ORB orb, org.omg.PortableServer.POA poa)
     {
         this.orb = orb;
         this.poa = poa;
     }
-    
-    public Session get_Session(String userName, String fullName, 
+
+    public Session get_Session(String userName, String fullName,
                                String emailAddress, String ip)
     {
         synchronized (this)
@@ -28,19 +28,19 @@ public class SessionFactoryServant
 				//poa.activate_object(servant);
                 org.omg.CORBA.Object o = poa.servant_to_reference( servant );
                 session = SessionHelper.narrow(o);
-					
+
 				//session = servant._this(orb);
-			
+
                 return session;
             }
             catch( Exception e )
-            {   
-                jacorb.util.Debug.output(1,e);
+            {
+                org.jacorb.util.Debug.output(1,e);
                 throw new org.omg.CORBA.UNKNOWN();
             }
-        }	
+        }
     }
-	
+
     public synchronized void releaseSession( Session session )
     {
         try

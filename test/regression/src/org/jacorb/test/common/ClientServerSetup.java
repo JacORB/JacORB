@@ -34,10 +34,10 @@ import junit.extensions.*;
  * and allows JUnit test cases to talk to a CORBA object supplied
  * by that server.
  * <p>
- * A <code>ClientServerSetup</code> should be used together with a 
+ * A <code>ClientServerSetup</code> should be used together with a
  * {@link ClientServerTestCase}, which provides an easy way so that
- * the individual test cases can actually see the setup.  
- * The following example shows how to set this up in the static 
+ * the individual test cases can actually see the setup.
+ * The following example shows how to set this up in the static
  * <code>suite</code> method:
  *
  * <p><blockquote><pre>
@@ -49,11 +49,11 @@ import junit.extensions.*;
  *     {
  *         TestSuite suite = new TestSuite ("My CORBA Test");
  *
- *         // Wrap the setup around the suite, specifying 
+ *         // Wrap the setup around the suite, specifying
  *         // the name of the servant class that should be
  *         // instantiated by the server process.
- * 
- *         ClientServerSetup setup = 
+ *
+ *         ClientServerSetup setup =
  *             new ClientServerSetup (suite,
  *                                    "my.corba.ServerImpl");
  *
@@ -67,16 +67,17 @@ import junit.extensions.*;
  *         return setup;
  *     }
  * }
- * </pre></blockquote><p> 
- * 
+ * </pre></blockquote><p>
+ *
  * The individual test cases can then access the setup in a convenient way.
  * For details, see {@link ClientServerTestCase}.
- * 
+ *
  * @author Andre Spiegel <spiegel@gnu.org>
  * @version $Id$
  */
 public class ClientServerSetup extends TestSetup {
 
+    protected File                       ior;
     protected String                     servantName;
     protected Process                    serverProcess;
     protected org.omg.CORBA.Object       serverObject;
@@ -90,27 +91,27 @@ public class ClientServerSetup extends TestSetup {
      * Constructs a new ClientServerSetup that is wrapped
      * around the specified Test.  When the test is run,
      * the setup spawns a server process in which an instance
-     * of the class servantName is created and registered 
+     * of the class servantName is created and registered
      * with the ORB.
-     * @param test The test around which the new setup 
+     * @param test The test around which the new setup
      * should be wrapped.
-     * @param servantName The fully qualified name of the 
+     * @param servantName The fully qualified name of the
      * servant class that should be instantiated in the
      * server process.
-     */    
+     */
     public ClientServerSetup ( Test test, String servantName )
     {
         super ( test );
         this.servantName = servantName;
     }
 
-    public ClientServerSetup( Test test, 
+    public ClientServerSetup( Test test,
                               String servantName,
                               Properties clientOrbProperties,
                               Properties serverOrbProperties )
     {
         this( test, servantName );
-        
+
         this.clientOrbProperties = clientOrbProperties;
         this.serverOrbProperties = serverOrbProperties;
     }
@@ -118,37 +119,57 @@ public class ClientServerSetup extends TestSetup {
     public void setUp() throws Exception
     {
         clientOrb = ORB.init (new String[0], clientOrbProperties );
-        clientRootPOA = POAHelper.narrow 
+        clientRootPOA = POAHelper.narrow
                           ( clientOrb.resolve_initial_references( "RootPOA" ) );
         clientRootPOA.the_POAManager().activate();
 
-        serverProcess = Runtime.getRuntime().exec(   
-            "jaco -Djacorb.verbosity=0 "
-            + "-Djacorb.orb.print_version=off "
-            + propsToCommandLineArgs( serverOrbProperties )
-            + " -classpath " 
-            + System.getProperty ("java.class.path")
-            + " " + getTestServerMain() + " "
-            + servantName );
-        BufferedReader input = 
-            new BufferedReader
-                ( new InputStreamReader( serverProcess.getInputStream() ) );
-        String ior = input.readLine();
-        if (ior == null)
+        StringBuffer serverexec = new StringBuffer( "jaco -Djacorb.implname=" );
+        serverexec.append( servantName );
+        serverexec.append( ' ' );
+        serverexec.append( propsToCommandLineArgs( serverOrbProperties ) );
+        serverexec.append( " -classpath " );
+        serverexec.append( System.getProperty ("java.class.path") );
+        serverexec.append( ' ' );
+        serverexec.append( getTestServerMain() );
+        serverexec.append( ' ' );
+        serverexec.append( servantName );
+
+        System.out.println( "Execing: " + serverexec.toString() );
+
+        serverProcess = Runtime.getRuntime().exec( serverexec.toString() );
+
+        ior = new File
+        (
+            System.getProperty( "user.home" ) +
+            File.separatorChar +
+            "jacorbJunit.ior"
+        );
+        long finish = System.currentTimeMillis() + 20000;
+
+        // Wait till server is up (but with timeout of 20 seconds)
+        while ( !ior.exists() || System.currentTimeMillis() < finish )
         {
-           BufferedReader error = new BufferedReader
-              ( new InputStreamReader( serverProcess.getErrorStream() ) );
-           throw new RuntimeException ( "SPAWN ERROR: " + error.readLine() );
-        } 
-        else if ( ior.startsWith ( "ERROR:" ) )
-            throw new RuntimeException ( "SERVER " + ior );
+            Thread.sleep( 2000 );
+        }
+        if ( ! ior.exists() )
+        {
+            // Must have timed out
+            throw new RuntimeException ( "Spawn error - could not find ior" );
+        }
         else
-            serverObject = clientOrb.string_to_object( ior );
+        {
+            // Get the server ior.
+            BufferedReader br = new BufferedReader ( new FileReader( ior ) );
+
+            serverObject = clientOrb.string_to_object( br.readLine() );
+            br.close();
+        }
     }
 
     public void tearDown() throws Exception
     {
         serverProcess.destroy();
+        ior.delete();
     }
 
     public String getTestServerMain()
@@ -159,7 +180,7 @@ public class ClientServerSetup extends TestSetup {
     /**
      * Gets a reference to the object that was instantiated in the
      * server process.
-     */  
+     */
     public org.omg.CORBA.Object getServerObject()
     {
         return serverObject;
@@ -212,7 +233,7 @@ public class ClientServerSetup extends TestSetup {
             sb.append( "-D" );
             sb.append( key );
             sb.append( '=' );
-            
+
             String value = props.getProperty( key );
             if( value == null )
             {

@@ -19,14 +19,14 @@ package org.jacorb.test.orb.connection;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import junit.framework.*;
 import junit.extensions.*;
 
 import org.jacorb.test.common.*;
 import org.jacorb.test.*;
 import org.omg.CORBA.*;
-import org.jacorb.orb.connection.Client_TCP_IP_Transport;
+import org.jacorb.orb.iiop.ClientIIOPConnection;
 
 import java.util.*;
 
@@ -51,14 +51,14 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
         Properties client_props = new Properties();
         client_props.setProperty( "jacorb.connection.client_idle_timeout", "1000" );
 
-        ClientServerSetup setup = 
-            new ClientServerSetup( suite, 
+        ClientServerSetup setup =
+            new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.connection.ConnectionTimeoutServerImpl",
                                    client_props,
                                    null );
-                                   
+
         suite.addTest( new ClientConnectionTimeoutTest( "testTimeout", setup ));
-        
+
         return setup;
     }
 
@@ -77,8 +77,8 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
 
         //all transports must be down by now
         //NOTE: if this doesn't compile, please check if
-        //openTransports is uncommented in Client_TCP_IP_Transport
-        assertTrue( Client_TCP_IP_Transport.openTransports == 0 );
+        //openTransports is uncommented in ClientIIOPConnection
+        assertTrue( ClientIIOPConnection.openTransports == 0 );
 
 
         //call oneway remote op
@@ -93,8 +93,7 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
 
         //all transports must be down by now
         //NOTE: if this doesn't compile, please check if
-        //openTransports is uncommented in Client_TCP_IP_Transport
-        assertTrue( Client_TCP_IP_Transport.openTransports == 0 );
+        //openTransports is uncommented in ClientIIOPConnection
+        assertTrue( ClientIIOPConnection.openTransports == 0 );
     }
 }
-

@@ -19,14 +19,14 @@ package org.jacorb.test.orb.connection;
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
- 
+
 import junit.framework.*;
 import junit.extensions.*;
 
 import org.jacorb.test.common.*;
 import org.omg.CORBA.*;
 import org.jacorb.test.*;
-import org.jacorb.orb.connection.Client_TCP_IP_Transport;
+import org.jacorb.orb.iiop.ClientIIOPConnection;
 
 import java.util.*;
 
@@ -52,14 +52,14 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
             new Properties();
         server_props.setProperty( "jacorb.connection.server_timeout", "1000" );
 
-        ClientServerSetup setup = 
-            new ClientServerSetup( suite, 
+        ClientServerSetup setup =
+            new ClientServerSetup( suite,
                                    "org.jacorb.test.orb.connection.ConnectionTimeoutServerImpl",
                                    null,
                                    server_props );
-                                   
+
         suite.addTest( new ServerConnectionTimeoutTest( "testTimeout", setup ));
-        
+
         return setup;
     }
 
@@ -78,8 +78,8 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
 
         //all transports must be down by now
         //NOTE: if this doesn't compile, please check if
-        //openTransports is uncommented in Client_TCP_IP_Transport
-        assertTrue( Client_TCP_IP_Transport.openTransports == 0 );
+        //openTransports is uncommented in ClientIIOPConnection
+        assertTrue( ClientIIOPConnection.openTransports == 0 );
 
 
         //call oneway remote op
@@ -94,8 +94,7 @@ public class ServerConnectionTimeoutTest extends ClientServerTestCase
 
         //all transports must be down by now
         //NOTE: if this doesn't compile, please check if
-        //openTransports is uncommented in Client_TCP_IP_Transport
-        assertTrue( Client_TCP_IP_Transport.openTransports == 0 );
+        //openTransports is uncommented in ClientIIOPConnection
+        assertTrue( ClientIIOPConnection.openTransports == 0 );
     }
 }
-

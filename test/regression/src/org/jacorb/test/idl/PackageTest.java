@@ -41,6 +41,7 @@ public class PackageTest extends TestCase
       suite.addTest (InterfaceTest.suite ());
       suite.addTest (UnionTest.suite ());
       suite.addTest (ValueTest.suite ());
+      suite.addTest (MiscTest.suite ());
 
       return suite;
    }
