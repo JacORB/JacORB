@@ -73,7 +73,8 @@ public class ClientGIOPConnection
 
         try
         {
-            transport.closeAllowReopen();
+            transport.close();
+            transport = new Client_TCP_IP_Transport ((Client_TCP_IP_Transport)transport);            
         }
         catch( IOException e )
         {
