@@ -81,8 +81,6 @@ public class FilterProxySupplierTask extends AbstractFilterTask
 
     AlternateMessageMap changedMessages_ = new AlternateMessageMap();
 
-    private boolean skip_;
-
     /**
      * Initialize this FilterOutgoingTask with the Configuration of
      * another FilterTask.
