@@ -1,6 +1,9 @@
 package demo.hello;
 
 import java.io.*;
+import demo.hello.GoodDayPackage.*;
+import demo.hello.GoodDayPackage.ParmPackage.*;
+
 import org.omg.CORBA.*;
 
 public class Client 
@@ -53,12 +56,33 @@ public class Client
 
 
             // invoke the operation and print the result
-            System.out.println( goodDay.hello_simple() );
+            System.out.println( goodDay.hello() );
 
             // invoke the operation again and print the wide string result
             System.out.println( "wide string: " + 
-                                goodDay.hello_wide( "Hello Wörld, from ß ö 1 2 3 0 *&^%$#@!@"));
+                                goodDay.hello_wide( "Hello Wörld, from ö 1 2 3 0 *&^%$#@!@"));
 
+            char X = 'X';
+            char Y = goodDay.getwchar(X);
+            if (Y != 'Y') 
+            {
+                System.out.println("test failed");
+                System.out.println("Y = " + Y);
+            }
+            else 
+                System.out.println("test succeed");
+
+            ParmValue pv = new ParmValue();
+            pv.string_value("inner");
+            Parm p = new Parm("v", pv );
+
+            ParmValue pvi = new ParmValue();
+            Parm[][] pp = new Parm[1][1];
+            pp[0] = new Parm[]{p};
+            pvi.nested_value( pp );
+
+            Parm outerParm = new Parm("outer", pvi  );
+            goodDay.passParm( outerParm );
         }
         catch( Exception ex ) 
 	{

@@ -61,7 +61,7 @@ public class Applet
             // invoke the operation
             try 
 	    {
-                textField.setText( goodDay.hello() );
+                textField.setText( goodDay.hello_simple() );
             }
 
             // catch CORBA system exceptions
