@@ -23,11 +23,11 @@ module CosNotification {
    typedef PropertySeq QoSProperties;
    typedef PropertySeq AdminProperties;
 
-   struct EventType {
+   struct _EventType {
       string domain_name;
       string type_name;
    };
-   typedef sequence<EventType> EventTypeSeq;
+   typedef sequence<_EventType> EventTypeSeq;
 
    struct PropertyRange {
       PropertyValue low_val;
@@ -62,7 +62,7 @@ module CosNotification {
 
    // Define the Structured Event structure
    struct FixedEventHeader {
-      EventType event_type;
+      _EventType event_type;
       string event_name;
    };
 
