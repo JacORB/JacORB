@@ -94,15 +94,21 @@ ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #                                #
 ##################################
 
-# if on, the ORB's version number is printed
-# any time the ORB is initialized
+# if on, the ORB's version number and a copyright statement is printed
+# any time the ORB is initialized 
 jacorb.orb.print_version=on
 
 ##################################
 #                                #
-#   Debug output configuration   #
+#  Default Logging configuration #
 #                                #
 ##################################
+
+# Name of the factory class that plugs in a given log kit
+# The default value is JacORB's own factory for the Apache 
+# LogKit. Only edit (or uncomment) if you want a different 
+# log kit.
+#jacorb.log.loggerFactory=org.jacorb.util.LogKitLoggerFactory
 
 # log levels:
 #
@@ -117,15 +123,16 @@ jacorb.log.default.verbosity=3
 # where does output go? Terminal is default
 #jacorb.logfile=LOGFILEPATH
 
-# Whether to timestamp log entries
-jacorb.log.timestamp=off
-
 # If logging to file whether to append to existing file or overwrite
 jacorb.logfile.append=off
 
 # If jacorb.logfile.append is on, set rolling log size in kilobytes.
 # A value of 0 implies no rolling log
 jacorb.logfile.maxLogSize=0
+
+# Whether to timestamp log entries
+jacorb.log.timestamp=off
+
 
 # hexdump outgoing messages
 jacorb.debug.dump_outgoing_messages=off
