@@ -734,6 +734,14 @@ public class BasicAdapter
                             deliverRequest( request );
                             break;
                         }
+                    case org.omg.GIOP.MsgType_1_0._MessageError:
+                        {
+                            //  org.omg.GIOP.CancelRequestHeader cancel_req_hdr =
+                            //  org.omg.GIOP.CancelRequestHeaderHelper.read( ois );
+                            Debug.output( 0,
+                                          "Message Error! (Sender announces it received an ill.-formed GIOP msg.)");
+                            break;
+                        }
                     default:
                         {
                             Debug.output(0,"SessionServer, message_type " + 
