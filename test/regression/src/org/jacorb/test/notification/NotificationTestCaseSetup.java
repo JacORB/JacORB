@@ -62,7 +62,7 @@ public class NotificationTestCaseSetup extends TestSetup {
 	orb_ = ORB.init(new String[0], null);
 	poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
 	testUtils_ = new TestUtils(orb_);
-	eventChannelServant_ = new EventChannelFactoryImpl();
+	eventChannelServant_ = EventChannelFactoryImpl.newFactory();
     }
 
     public void tearDown() throws Exception {

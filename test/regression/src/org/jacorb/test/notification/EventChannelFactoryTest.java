@@ -25,7 +25,7 @@ public class EventChannelFactoryTest extends TestCase {
     ORB orb;
 
     public void setUp() throws Exception {
-	factory_ = new EventChannelFactoryImpl();
+	factory_ = EventChannelFactoryImpl.newFactory();
 	orb = ORB.init(new String[0], null);
     }
 
