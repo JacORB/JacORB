@@ -4,18 +4,18 @@ gerald.brose@acm.org
 
 
             JacORB Coding Conventions
-	    =========================
+            =========================
 
 JacORB uses the Apache Jakarta Coding Style, which is based on the Sun
-coding conventions for Java. Please see 
+coding conventions for Java. Please see
 http://jakarta.apache.org/turbine/common/code-standards.html for
 reference.
 
 (Re-formatting):
 ===============
 
-The astyle tool (http://astyle.sourceforge.net/) can be used to format 
-source code. Note, however, that astyle will not *remove* whitespace, 
+The astyle tool (http://astyle.sourceforge.net/) can be used to format
+source code. Note, however, that astyle will not *remove* whitespace,
 e.g., within brackets.
 
 You can use the following lines as your .astylerc file:
@@ -99,23 +99,23 @@ General rules
        {
        }
 
-    c) always write the body of an if-, for-, while- ... statmement 
+    c) always write the body of an if-, for-, while- ... statmement
        on a new line, never on the same!
 
        for (;;)
        {
-	  ...
+           ...
        }
 
     d) write: x = y, not: x=y
 
     e) Include extra spaces around operators,
        For example:
- 
+
              a = b * c
 
     f) No spaces between method names and opening brackets, e.g:
- 
+
              a.method(arg1);
 
              public int myMethod(int param 1, ...)
@@ -133,6 +133,16 @@ General rules
       doing ;-) )
 
 3) Place the JacORB LGPL license header on all files.
+
+4) Tests
+   a) When fixing a bug reference the bug number in the CVS commit.
+   b) Either add to an existing test or add to the
+      org.jacorb.test.bugs.bugXXX structure.
+   c) Reference the test and code in the bugzilla entry.
+   d) Ensure the test is javadoced including the reason for the
+      test.
+   e) When modifying code in the main tree, if there is missing javadoc
+      in the function you are changing fix that as well.
 
 
 [ More suggestions? ... ]
