@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../common.xml"> ]>
+
 <project name="imr" default="all" basedir="../../../..">
 
     <!-- ==================================================== -->
@@ -7,43 +9,16 @@
     <!-- $Id$ -->
     <!-- ==================================================== -->
 
-    <target name="init">
-        <property name="dirs.base" value="${basedir}"/>
-        <property name="classdir" value="${dirs.base}/classes"/>
-        <property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
-        <property name="src" value="${dirs.base}/src"/>
-        <property name="lib" value="${dirs.base}/lib"/>
-        <property name="include" value="${dirs.base}/idl"/>
-        <taskdef name="jacidl"
-                 classname="org.jacorb.idl.JacIDL"
-                 classpath="${basedir}/classes"/>
-    </target>
+   &common;
+
+   <target name="all" depends="init,load-taskdef">
+      <antcall target="jacorb-javac">
+         <param name="javac-includes" value="org/jacorb/imr/*.java,org/jacorb/imr/util/*.java"/>
+      </antcall>
+   </target>
 
 
-    <target name="all" depends="init,idl">
-        <javac debug="${debug}" srcdir="${src}"
-               destdir="${classdir}"
-               includes="org/jacorb/imr/*.java,org/jacorb/imr/util/*.java"/>
-    </target>
-
-
-    <target name="idl" depends="idlcompile">
-        <javac debug="${debug}" srcdir="${src}/generated"
-               destdir="${classdir}"
-               includes="org/jacorb/imr/**/*.java,org/jacorb/imr/*.java"/>
-    </target>
-
-
-    <target name="idlcompile">
-        <jacidl srcdir="${include}/jacorb"
-                destdir="${src}/generated"
-                includepath="${include}/omg"
-                includes="imr.idl"/>
-    </target>
-
-
-    <target name="clean" depends="init">
+   <target name="clean" depends="init">
         <delete dir="${classdir}/org/jacorb/imr" />
-        <delete dir="${src}/generated/org/jacorb/imr" />
-    </target>
+   </target>
 </project>

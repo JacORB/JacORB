@@ -14,7 +14,7 @@
    <!-- top-level targets  -->
 
    <target name="all"
-      depends="corba,names,security,events,transactions,concurrency,collections,trading,notification" />
+      depends="corba,names,security,events,transactions,concurrency,collections,trading,jacorb,notification" />
 
    <target name="services"
       depends="events,trading,collections,transactions,concurrency" />
@@ -629,6 +629,37 @@
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${src}/generated"/>
          <param name="javac-includes" value="org/omg/CSI/**,org/omg/CSIIOP/**,org/omg/GSSUP/**,org/omg/ATLAS/**"/>
+      </antcall>
+   </target>
+
+   <!-- ==================================================== -->
+   <!--                       CORBA                          -->
+   <!-- ==================================================== -->
+
+   <target name="jacorb" depends="imr, proxy"/>
+
+   <target name="imr">
+      <jacidl srcdir="${idl}/jacorb"
+                destdir="${src}/generated"
+                includepath="${idl}/omg"
+                includes="imr.idl"/>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/jacorb/imr/*.java,org/jacorb/imr/*.java"/>
+      </antcall>
+   </target>
+
+
+   <target name="proxy">
+      <jacidl srcdir="${idl}/jacorb"
+              destdir="${src}/generated"
+              sloppynames="true"
+              generateir="true"
+              includepath="${idl}/omg"
+              includes="Proxy.idl"/>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/jacorb/proxy/**"/>
       </antcall>
    </target>
 </project>
