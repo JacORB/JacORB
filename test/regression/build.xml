@@ -130,6 +130,7 @@
       <antcall target="idl-timingserver"/>
       <antcall target="idl-syncscopeserver"/>
       <antcall target="idl-connectiontimeout"/>
+      <antcall target="idl-bidir"/>
       <antcall target="idl-iiopaddress"/>
    </target>
 
@@ -238,6 +239,14 @@
       <property name="pkg.idl" value="org/jacorb/test"/>
       <property name="callback.idl" value="false"/>
       <property name="file.idl" value="ConnectionTimeout.idl"/>
+      <antcall target="process-idl"/>
+  </target>
+
+  <target name="idl-bidir">
+      <property name="props.idl" value="BiDir"/>
+      <property name="pkg.idl" value="org/jacorb/test"/>
+      <property name="callback.idl" value="false"/>
+      <property name="file.idl" value="BiDir.idl"/>
       <antcall target="process-idl"/>
   </target>
 
