@@ -32,14 +32,15 @@ import java.util.Vector;
  * was invoked and the responsible POA for this object.
  *
  * @author Reimo Tiedemann, FU Berlin
- * @version 1.03, 21/01/00, RT
+ * @version $Id$
  */
 
 public class Current 
     extends org.jacorb.orb.LocalityConstrainedObject 
     implements org.omg.PortableServer.Current 
 {
-	private Hashtable threadTable = new Hashtable(); // Thread -> vector of InvocationContext elements (Stack)
+    private Hashtable threadTable = new Hashtable(); 
+    // Thread -> vector of InvocationContext elements (Stack)
 
     private Current() 
     {
@@ -50,31 +51,31 @@ public class Current
         return new Current();
     }
 
-	synchronized public void _addContext(Thread t, InvocationContext c) 
-	{		    
-		Vector cv = (Vector) threadTable.get(t);
+    synchronized public void _addContext(Thread t, InvocationContext c) 
+    {		    
+        Vector cv = (Vector) threadTable.get(t);
 
-		if (cv == null) {
-			cv = new Vector();
-			threadTable.put(t, cv);
-		}
+        if (cv == null) {
+            cv = new Vector();
+            threadTable.put(t, cv);
+        }
 		
-		cv.addElement(c);
-	}
+        cv.addElement(c);
+    }
 	    
-	synchronized public void _removeContext(Thread t) 
-	{
-		Vector cv = (Vector) threadTable.get(t);
+    synchronized public void _removeContext(Thread t) 
+    {
+        Vector cv = (Vector) threadTable.get(t);
 
-		if (cv != null) {
+        if (cv != null) {
 			
-			cv.removeElementAt(cv.size()-1);
+            cv.removeElementAt(cv.size()-1);
 			
-			if (cv.size() == 0) {
-				threadTable.remove(t);
-			}
-		}
-	}
+            if (cv.size() == 0) {
+                threadTable.remove(t);
+            }
+        }
+    }
 	
     public byte[] get_object_id() 
         throws NoContext 
@@ -88,24 +89,24 @@ public class Current
         return getInvocationContext().getPOA();
     }
     
-	synchronized private InvocationContext getInvocationContext() 
-		throws NoContext 
-	{
-		Thread ct = Thread.currentThread();
+    synchronized private InvocationContext getInvocationContext() 
+        throws NoContext 
+    {
+        Thread ct = Thread.currentThread();
 
-		Vector cv = (Vector) threadTable.get(ct);
+        Vector cv = (Vector) threadTable.get(ct);
 
-		if (cv != null) {
+        if (cv != null) {
 			
-			InvocationContext c = (InvocationContext) cv.lastElement();
+            InvocationContext c = (InvocationContext) cv.lastElement();
 
-			if (c != null) {
-				return c;
-			}
-		}
+            if (c != null) {
+                return c;
+            }
+        }
 
-		throw new NoContext();
-	}
+        throw new NoContext();
+    }
 	    
     protected org.omg.CORBA.ORB getORB() 
         throws NoContext 
@@ -120,11 +121,11 @@ public class Current
     }
     
     /*
-    public org.jacorb.orb.connection.Connection getConnection()
-	throws NoContext
-    {
-	return ((RequestProcessor)getInvocationContext()).getConnection();
-    }
+      public org.jacorb.orb.connection.Connection getConnection()
+      throws NoContext
+      {
+      return ((RequestProcessor)getInvocationContext()).getConnection();
+      }
     */
 }
 
