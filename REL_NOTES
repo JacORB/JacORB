@@ -70,6 +70,7 @@ gerald.brose@acm.org
                         - Fix for unions with anonymous arrays.
                         - Fix for interface with operations using wcahr or
                           wstring inout parameters.
+                        - Fix for typedef'd any holder class.
                 Any:
                         - Fix for equal operation on aliased types.
                         - Fix for insertion and extraction of basic types when
