@@ -34,6 +34,7 @@ public class AliasTypeSpec
     /** the type for which this is an alias */
     public TypeSpec originalType;
     private boolean written;
+    private boolean originalTypeWasScopedName = false;
 
     /**
      * Class constructor,
@@ -166,13 +167,18 @@ public class AliasTypeSpec
 
         if( originalType instanceof ScopedName )
         {
+            if( logger.isDebugEnabled() )
+                logger.debug(" Alias " + name + 
+                             " has scoped name orig Type : " + 
+                             ( (ScopedName)originalType ).toString() );
+
             originalType = ( (ScopedName)originalType ).resolvedTypeSpec();
+            originalTypeWasScopedName = true;
 
             if( originalType instanceof AliasTypeSpec )
                 addImportedAlias( originalType.full_name() );
             else
                 addImportedName( originalType.typeName() );
-
         }
     }
 
@@ -223,81 +229,84 @@ public class AliasTypeSpec
     {
         setPrintPhaseNames();
 
-        /** no code generation for included definitions */
+        // no code generation for included definitions
         if( included && !generateIncluded() )
             return;
 
-        /** only write once */
-
-        if( written )
+        if( !written )
         {
-            return;
-        }
-
-        written = true;
-
-        try
-        {
-
-            if( logger.isDebugEnabled())
-            {
-                logger.debug("AliasTypeSpec.print: alias " + className() + 
-                             " with original type " + 
-                             originalType.getClass().getName() + 
-                             " original type.typeSpec() " + 
-                             originalType.typeSpec().getClass().getName() );
-            }
-
-            if( !( originalType.typeSpec() instanceof StringType ) && 
-                !( originalType.typeSpec() instanceof SequenceType )
-                )
-                originalType.print( ps );
-
-            String className = className();
-
-            String path =
-                parser.out_dir + fileSeparator +
-                pack_name.replace( '.', fileSeparator );
-
-            File dir = new File( path );
-            if( !dir.exists() )
-            {
-                if( !dir.mkdirs() )
-                {
-                    org.jacorb.idl.parser.fatal_error( "Unable to create " + path,
-                                                       null );
-                }
-            }
-
-            String fname = null;
-            PrintWriter decl_ps = null;
-
-            if
-            (
-             ( originalType instanceof TemplateTypeSpec && !( originalType instanceof StringType ) )
-            )
-            {
-                /** print the holder class */
-
-                fname = className + "Holder.java";
-                decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
-                printHolderClass( className, decl_ps );
-                decl_ps.close();
-            }
-
-            /** print the helper class */
-
-            fname = className + "Helper.java";
-            decl_ps = new PrintWriter( new java.io.FileWriter( new File( dir, fname ) ) );
-            printHelperClass( className, decl_ps );
-            decl_ps.close();
-
+            // guard against recursive entries, which can happen due to 
+            // containments, e.g., an alias within an interface that refers
+            // back to the interface
             written = true;
-        }
-        catch( java.io.IOException i )
-        {
-            System.err.println( "File IO error" );
-            i.printStackTrace();
+
+            try
+            {                
+                if( !( originalType.typeSpec() instanceof StringType ) && 
+                    !( originalType.typeSpec() instanceof SequenceType ) &&
+                    ! originalTypeWasScopedName &&
+                    !( originalType instanceof ConstrTypeSpec &&  
+                       ((ConstrTypeSpec)originalType).declaration() instanceof Interface  )
+                    )
+                {
+                    // only print local type definitions, not just 
+                    // scoped names (references to other defs), which would
+                    // lead to loops!
+                    originalType.print( ps );
+                }
+
+                String className = className();
+
+                String path =
+                    parser.out_dir + fileSeparator +
+                    pack_name.replace( '.', fileSeparator );
+
+                File dir = new File( path );
+                if( !dir.exists() )
+                {
+                    if( !dir.mkdirs() )
+                    {
+                        org.jacorb.idl.parser.fatal_error( "Unable to create " + path,
+                                                           null );
+                    }
+                }
+
+                String fname = null;
+                PrintWriter decl_ps = null;
+                
+                if (  originalType instanceof TemplateTypeSpec 
+                      && !( originalType instanceof StringType ) )
+                {
+                    // print the holder class 
+
+                    fname = className + "Holder.java";
+                    File f = new File( dir, fname );
+            
+                    if (GlobalInputStream.isMoreRecentThan( f ))
+                    {
+                        decl_ps = new PrintWriter( new java.io.FileWriter( f ) );
+                        printHolderClass( className, decl_ps );
+                        decl_ps.close();
+                    }
+                }
+
+                fname = className + "Helper.java";
+                File f = new File( dir, fname );
+            
+                if (GlobalInputStream.isMoreRecentThan( f ))
+                {
+                    // print the helper class
+                    decl_ps = new PrintWriter( new java.io.FileWriter( f ) );
+                    printHelperClass( className, decl_ps );
+                    decl_ps.close();
+                }
+                // written = true;
+            }
+            catch( java.io.IOException i )
+            {
+                System.err.println( "File IO error" );
+                i.printStackTrace();
+            }
         }
     }
 
