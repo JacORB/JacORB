@@ -18,7 +18,12 @@
 	<property name="lib" value="${dirs.base}/lib"/>
 	<mkdir dir="${classdir}"/>
 	<mkdir dir="${lib}"/>
-	<available classname="java.util.Collection" property="java2.present"/>
+
+	<!--
+        <available classname="java.util.Collection"
+	property="java2.present"/>
+        -->
+
 	<filter token="path" value="basedir"/>
    </target>
 
