@@ -141,6 +141,8 @@ public class Client_TCP_IP_Transport
 
                     Debug.output( 1, "Connected to " +
                                   connection_info +
+                                  " from local port " +
+                                  socket.getLocalPort() +
                                   ( socket_factory.isSSL( socket ) ? " via SSL" : "" ));
 
                     connected = true;
