@@ -207,15 +207,18 @@ public class ServantDelegate
 
     public boolean is_a(org.omg.PortableServer.Servant self, String repid)
     {
-        org.jacorb.util.Debug.output(3,"ServantDelegate: is a " + repid + " ?");
+        org.jacorb.util.Debug.output( 3, "ServantDelegate: is a " + 
+                                      repid + " ?");
+
 	String [] intf = self._all_interfaces(null, null);
 
 	for( int i = 0; i < intf.length; i++)
 	{
-            org.jacorb.util.Debug.output(3,"ServantDelegate: is a compares with " + intf[i] );
+            org.jacorb.util.Debug.output( 4, "ServantDelegate: is a compares with " + intf[i] );
 	    if( intf[i].equals(repid))
 	    {
-                org.jacorb.util.Debug.output(3,"ServantDelegate: ! is a " + intf[i] + "!");
+                org.jacorb.util.Debug.output( 4, "ServantDelegate: ! is a " + 
+                                              intf[i] + "!");
 		return true;
 	    }
 	}
@@ -238,8 +241,9 @@ public class ServantDelegate
 		org.jacorb.util.Debug.output
 		    (Debug.DOMAIN | Debug.DEBUG1, "ServantDelegate._domainService: fetching local domain service reference from orb");
 		check();
-		_domainService= org.jacorb.orb.domain.DomainHelper.narrow
-		( orb.resolve_initial_references("LocalDomainService") ); // local
+		_domainService = 
+                    org.jacorb.orb.domain.DomainHelper.narrow( 
+                       orb.resolve_initial_references("LocalDomainService") ); // local
 		// ( orb.resolve_initial_references("DomainService") );      // global 
 	    }
 	    catch (Exception e) 

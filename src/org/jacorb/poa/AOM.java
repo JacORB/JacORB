@@ -270,8 +270,8 @@ public class AOM
                 return;
 
             // wait for request completion on this object (see freeObject below)
-            if (requestController != null) 
-                requestController.waitForObjectCompletion(oid);
+            if ( requestController != null) 
+                 requestController.waitForObjectCompletion(oid);
 
             if ((servant = (Servant)objectMap.get(oidStr)) == null) 
                 return;
@@ -315,10 +315,13 @@ public class AOM
                 
             try 
             {
-                servant_activator.etherealize(oid, poa, servant, contains(servant), cleanup_in_progress);
+                servant_activator.etherealize( oid, poa, 
+                                               servant, contains(servant), 
+                                               cleanup_in_progress);
                                 
-                logTrace.printLog(2, oid, "servant is etherealized");                           
-                                // notify an aom listener
+                logTrace.printLog(2, oid, "servant is etherealized");
+                          
+                // notify an aom listener
 
                 if (aomListener != null) 
                     aomListener.servantEtherialized(oid, servant);
