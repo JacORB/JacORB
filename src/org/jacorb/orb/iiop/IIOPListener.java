@@ -45,6 +45,21 @@ public class IIOPListener
     extends _ListenerLocalBase
     implements Configurable
 {
+    /** the maximum set of security options supported by the SSL mechanism */
+    private static final int MAX_SSL_OPTIONS = Integrity.value |         
+                                               Confidentiality.value |
+                                               DetectReplay.value |
+                                               DetectMisordering.value |
+                                               EstablishTrustInTarget.value |
+                                               EstablishTrustInClient.value;
+
+    /**  the minimum set of security options supported by the SSL mechanism
+     *   which cannot be turned off, so they are always supported
+     */
+    private static final int MIN_SSL_OPTIONS = Integrity.value |
+                                               DetectReplay.value |
+                                               DetectMisordering.value;
+
     private ORB orb = null;
     private SocketFactoryManager socketFactoryManager = null;
     private ServerSocketFactory    serverSocketFactory    = null;
@@ -64,6 +79,7 @@ public class IIOPListener
     private int sslPort = 0;
     private int target_supports = 0;
     private int target_requires = 0;
+
 
     /**
      * Reference to the ORB, for delivering
@@ -109,9 +125,17 @@ public class IIOPListener
             configuration.getAttribute("jacorb.security.support_ssl","off").equals("on");
 
         target_supports = 
-            configuration.getAttributeAsInteger("jacorb.security.ssl.server.supported_options",16);
+            Integer.parseInt(
+                configuration.getAttribute("jacorb.security.ssl.server.supported_options","20"),
+                16); // 16 is the base as we take the string value as hex!
+        
+        // make sure that the minimum options are always in the set of supported options
+        target_supports |= MIN_SSL_OPTIONS;
+
         target_requires = 
-            configuration.getAttributeAsInteger("jacorb.security.ssl.server.required_options",16);
+            Integer.parseInt(
+                configuration.getAttribute("jacorb.security.ssl.server.required_options","0"),
+                16);
 
 
         if (!isSSLRequired())
@@ -254,33 +278,9 @@ public class IIOPListener
     {
         if (isSSLSupported())
         {
-            //the following is used as a bit mask to check, if any of
-            //these options are set
-            int minimum_options =
-                Integrity.value |
-                Confidentiality.value |
-                DetectReplay.value |
-                DetectMisordering.value |
-                EstablishTrustInTarget.value |
-                EstablishTrustInClient.value;
-
-            String prop = 
-                configuration.getAttribute("jacorb.ssl.server.required_options","");
-
-            if (prop.length() > 0)
-            {
-                try
-                {
-                    int server_requires = Integer.parseInt(prop, 16);
-                    return ((server_requires & minimum_options) != 0);
-                }
-                catch (NumberFormatException e)
-                {
-                    throw new org.omg.CORBA.INITIALIZE
-                      ("could not parse jacorb.ssl.server.required_options: "
-                       + prop);
-                }
-            }
+            // the following is used as a bit mask to check if any SSL
+            // options are required
+            return ((target_requires & MAX_SSL_OPTIONS ) != 0);
         }
         return false;
     }
