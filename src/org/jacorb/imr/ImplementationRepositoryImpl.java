@@ -54,7 +54,7 @@ public class ImplementationRepositoryImpl
     extends ImplementationRepositoryPOA
 {
     private static int default_port = 0;
-    private static org.jacorb.orb.ORB orb;
+    private static org.omg.CORBA.ORB orb;
 
     private File table_file;
     private ServerTable server_table;
@@ -659,21 +659,43 @@ public class ImplementationRepositoryImpl
 	    System.out.println("WARNING: The backup file is not accessible!");
 	    System.out.println("Please check " + _backup_file.getAbsolutePath());
 	}
+        
+        System.setProperty( "jacorb.implName", "the_ImR" );
 
-	orb = (org.jacorb.orb.ORB) org.jacorb.orb.ORB.init(args,null);
+	orb = org.omg.CORBA.ORB.init(args,null);
 
 	//Write IOR to file
 	try{	  
-	    POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-	    poa.the_POAManager().activate();
+	    POA root_poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+	    root_poa.the_POAManager().activate();
+
+            org.omg.CORBA.Policy[] policies = new org.omg.CORBA.Policy[2];
+
+	    policies[0] = 
+                root_poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
+	    policies[1] = 
+                root_poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+
+	    POA imr_poa = root_poa.create_POA( "ImRPOA", 
+                                               root_poa.the_POAManager(), 
+                                               policies );
+
+	    for (int i=0; i<policies.length; i++) 
+            {
+		policies[i].destroy();			
+            }
+
+            byte[] id = "ImR".getBytes();
 
 	    ImplementationRepositoryImpl _imr = new ImplementationRepositoryImpl
                 (_table_file, _backup_file, _new_table);
+
+            imr_poa.activate_object_with_id( id, _imr );
 	
 	    PrintWriter _out = new PrintWriter
                 (new FileOutputStream(new File(_ior_file_str)));
 
-	    _out.println(orb.object_to_string(poa.servant_to_reference(_imr)));
+	    _out.println(orb.object_to_string(imr_poa.servant_to_reference(_imr)));
 	    _out.flush();
 	    _out.close();
 	}
