@@ -25,9 +25,7 @@ import java.lang.reflect.Field;
 
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.parser.TCLParserTokenTypes;
-import org.jacorb.notification.util.AbstractObjectPool;
 import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
@@ -528,7 +526,7 @@ public class EvaluationResult implements TCLParserTokenTypes
 
     public static EvaluationResult minus( EvaluationResult left,
                                           EvaluationResult right )
-    throws DynamicTypeException
+        throws DynamicTypeException
     {
 
         EvaluationResult _res = new EvaluationResult();
@@ -632,7 +630,7 @@ public class EvaluationResult implements TCLParserTokenTypes
 
     static public EvaluationResult mult( EvaluationResult left,
                                          EvaluationResult right )
-    throws DynamicTypeException
+        throws DynamicTypeException
     {
 
         EvaluationResult _res = new EvaluationResult();
@@ -673,7 +671,68 @@ public class EvaluationResult implements TCLParserTokenTypes
         return _res;
     }
 
-} // EvaluationResult
+    public static EvaluationResult fromAny( Any any )
+    {
+        logger_.debug( "extractFromAny(Any)" );
+
+        if (any == null) {
+            return null;
+        }
+
+        EvaluationResult _ret = null;
+
+        // if it is a wrapped any dont create EvaluationResult
+        // instead fromAny is called recursively again (in next switch
+        // below)
+        switch (any.type().kind().value() ) {
+        case TCKind._tk_any:
+            break;
+        default:
+            _ret = new EvaluationResult();
+        }
+
+
+        switch ( any.type().kind().value() )
+            {
+            case TCKind._tk_boolean:
+                logger_.debug( "bool" );
+                _ret.setBool( any.extract_boolean() );
+                break;
+
+            case TCKind._tk_string:
+                logger_.debug( "string" );
+                _ret.setString( any.extract_string() );
+                break;
+
+            case TCKind._tk_long:
+                logger_.debug( "long" );
+                _ret.setLong( any.extract_long() );
+                break;
+
+            case TCKind._tk_short:
+                logger_.debug( "int" );
+                _ret.setLong( any.extract_short() );
+                break;
+
+            case TCKind._tk_ulonglong:
+                logger_.debug("long long");
+
+                _ret.setLongLong( any.extract_ulonglong() );
+                break;
+
+            case TCKind._tk_any:
+                logger_.debug( "nested" );
+                return fromAny( any.extract_any() );
+
+            default:
+                _ret.addAny( any );
+                break;
+            }
+
+        return _ret;
+    }
+}
+
 
 class ImmutableEvaluationResultWrapper extends EvaluationResult
 {

@@ -59,7 +59,7 @@ public class ComponentName extends AbstractTCLNode
         AbstractTCLNode _left = (AbstractTCLNode) left();
 
         if (_left == null) {
-            return context.getResultExtractor().extractFromAny( _event.toAny() );
+            return EvaluationResult.fromAny( _event.toAny() );
         }
 
         switch (_left.getType()) {
