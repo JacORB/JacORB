@@ -1,3 +1,24 @@
+/*
+   Test IDL for bug #115 
+
+   Description from Bugzilla: 
+
+  I'm using JacORB 1.4.1 with the latest idl.jar download (idl parser
+  version info: "JacORB IDL compiler V1.4.50, (CVS)") and finding that
+  structs used in extended interfaces aren't compiled as (I)
+  expected. For example,
+
+  [ snip, IDL, below ]
+
+  In the generated BarOperations.java, the return type for the
+  barState() method is FooPackage.State. I am converting an app that
+  is currently uses the JDK 1.3 ORB and haven't seen this problem
+  before. I also don't see it when using the JDK 1.4 IDL compiler.
+
+  Resulution: fixed in 2.0 beta 1
+
+*/
+
 module bug345 {
 
     interface Foo {
