@@ -153,6 +153,9 @@ public class Environment
 
     private static Class identityHashMapClass = null;
 
+    /** remarshal on COMM_FAILURE or retrow */
+    private static boolean _retry_on_failure = false;
+
     static
     {
         _init();
@@ -434,6 +437,8 @@ public class Environment
             _impl_name = o.getBytes();
         else if( varName.equals("strict_check_on_tc_creation"))
             strict_check_on_tc_creation = (o.equalsIgnoreCase("on")? true : false);
+        else if (varName.equals("retry_on_failure"))
+            _retry_on_failure = o.equalsIgnoreCase("on") ? true : false;
     }
 
     private static void readValues()
@@ -465,6 +470,9 @@ public class Environment
         readValue("_use_appligator_for_applications", jacorbPrefix+"use_appligator_for_applications", null);
         readValue("_use_httptunneling_for",jacorbPrefix+"use_httptunneling_for", null);
         readValue("strict_check_on_tc_creation","strict_check_on_tc_creation",jacorbPrefix+"interop.strict_check_on_tc_creation");
+        readValue("retry_on_failure",
+                  "_retry_on_failure",
+                  "jacorb.connection.client.retry_on_failure");
     }
 
     /**
@@ -718,6 +726,11 @@ public class Environment
     public static boolean giopAdd_1_0_Profiles()
     {
         return isPropertyOn(jacorbPrefix + "giop.add_1_0_profiles");
+    }
+
+    public static final boolean retryOnFailure()      
+    { 
+        return _retry_on_failure; 
     }
 
     /**

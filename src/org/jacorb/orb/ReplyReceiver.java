@@ -90,9 +90,7 @@ public class ReplyReceiver extends ReplyPlaceholder
             timer = null;
         }
         
-        //default to "off" is handled internally by Environment.isPropertyOn()
-        retry_on_failure =
-            Environment.isPropertyOn("jacorb.connection.client.retry_on_failure");
+        retry_on_failure = Environment.retryOnFailure();
     }
 
     public synchronized void replyReceived ( MessageInputStream in )
