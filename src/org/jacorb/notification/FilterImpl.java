@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
@@ -130,6 +131,7 @@ import org.apache.avalon.framework.logger.Logger;
  * administration of this callback list by unique identifier. <br>
  *
  * @author Alphonse Bendt
+ * @author John Farrell
  * @version $Id$
  */
 
@@ -140,9 +142,13 @@ public class FilterImpl extends FilterPOA implements Disposable
     final static RuntimeException NOT_SUPPORTED =
         new UnsupportedOperationException();
 
+    public static final int NO_CONSTRAINT = Integer.MIN_VALUE;
+
+    ////////////////////////////////////////
+
     /**
      * contains a number of callbacks, which are notified each time there is a
-     * change to the list of constraints.
+     * change to the list of constraints. (does not work yet)
      */
     protected Map callbacks_;
 
@@ -159,8 +165,6 @@ public class FilterImpl extends FilterPOA implements Disposable
 
     protected int constraintIdPool_ = 0;
 
-    public static final int NO_CONSTRAINT = Integer.MIN_VALUE;
-
     protected ApplicationContext applicationContext_;
 
     protected DynamicEvaluator dynamicEvaluator_;
@@ -168,6 +172,8 @@ public class FilterImpl extends FilterPOA implements Disposable
     protected DynAnyFactory dynAnyFactory_;
 
     protected MessageFactory messageFactory_;
+
+    ////////////////////////////////////////
 
     public FilterImpl(ApplicationContext applicationContext, String constraintGrammar)
     {
@@ -197,16 +203,21 @@ public class FilterImpl extends FilterPOA implements Disposable
         wildcardMap_ = new CachingWildcardMap(4);
     }
 
+    ////////////////////////////////////////
+
     public void init()
     {}
+
 
     protected int getConstraintId()
     {
         return ( ++constraintIdPool_ );
     }
 
+
     protected void releaseConstraintId( int id )
     {}
+
 
     /**
      * The constraint_grammar attribute is a readonly attribute which
@@ -218,6 +229,7 @@ public class FilterImpl extends FilterPOA implements Disposable
     {
         return constraintGrammar_;
     }
+
 
     /**
      * The <code>add_constraints</code> operation is invoked by a
@@ -332,9 +344,11 @@ public class FilterImpl extends FilterPOA implements Disposable
         {
             // propagate without throwing
             Thread.currentThread().interrupt();
+
             return null;
         }
     }
+
 
     public void modify_constraints( int[] deleteIds,
                                     ConstraintInfo[] constraintInfo )
@@ -459,15 +473,16 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 
+
     public ConstraintInfo[] get_constraints( int[] ids )
         throws ConstraintNotFound
     {
         ConstraintInfo[] _constraintInfo = new ConstraintInfo[ ids.length ];
         Sync _lock = constraintsLock_.readLock();
+
         try
         {
             _lock.acquire();
-
             try
             {
                 for ( int _x = 0; _x < ids.length; ++_x )
@@ -495,9 +510,11 @@ public class FilterImpl extends FilterPOA implements Disposable
         catch ( InterruptedException ie )
         {
             Thread.currentThread().interrupt();
+
             return null;
         }
     }
+
 
     public ConstraintInfo[] get_all_constraints()
     {
@@ -530,9 +547,11 @@ public class FilterImpl extends FilterPOA implements Disposable
         catch ( InterruptedException ie )
         {
             Thread.currentThread().interrupt();
+
             return null;
         }
     }
+
 
     public void remove_all_constraints()
     {
@@ -557,10 +576,12 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 
+
     public void destroy()
     {
         dispose();
     }
+
 
     /**
      * call and use this Iterator inside a acquired read lock section
@@ -573,12 +594,14 @@ public class FilterImpl extends FilterPOA implements Disposable
         return getIterator( _key );
     }
 
+
     public Iterator getIterator( Object key )
     {
         Object[] _entries = wildcardMap_.getWithExpansion( key );
 
         return new ConstraintIterator( _entries );
     }
+
 
     /**
      * Iterator over an Array of Lists. If a List is depleted
@@ -603,16 +626,26 @@ public class FilterImpl extends FilterPOA implements Disposable
                 }
             }
 
-            current_ = ( ( List ) arrayOfLists_[ currentListIdx_ ] ).iterator();
+            if (arrayOfLists_.length == 0) {
+                current_ = null;
+            } else {
+                current_ = ( ( List ) arrayOfLists_[ currentListIdx_ ] ).iterator();
+            }
         }
+
 
         public boolean hasNext()
         {
-            return current_.hasNext();
+            return current_ != null && current_.hasNext();
         }
+
 
         public Object next()
         {
+            if (current_ == null) {
+                throw new NoSuchElementException();
+            }
+
             Object _ret = current_.next();
 
             if ( !current_.hasNext() && currentListIdx_ < arrayOfLists_.length - 1 )
@@ -623,12 +656,12 @@ public class FilterImpl extends FilterPOA implements Disposable
             return _ret;
         }
 
-        public void remove
-            ()
+        public void remove()
         {
             throw NOT_SUPPORTED;
         }
     }
+
 
     /**
      * generic version of the match operation
@@ -683,6 +716,7 @@ public class FilterImpl extends FilterPOA implements Disposable
         catch ( InterruptedException ie )
             {
                 Thread.currentThread().interrupt();
+
                 return NO_CONSTRAINT;
             }
     }
@@ -734,11 +768,13 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 
+
     public boolean match_structured( StructuredEvent structuredevent)
         throws UnsupportedFilterableData
     {
         return match_structured_internal(structuredevent) != NO_CONSTRAINT;
     }
+
 
     /**
      * match the StructuredEvent to the associated constraints. return
@@ -775,6 +811,7 @@ public class FilterImpl extends FilterPOA implements Disposable
         }
     }
 
+
     /**
      * not implemented yet.
      */
@@ -784,25 +821,30 @@ public class FilterImpl extends FilterPOA implements Disposable
         throw new NO_IMPLEMENT();
     }
 
+
     public int attach_callback( NotifySubscribe notifySubscribe )
     {
         throw new NO_IMPLEMENT();
     }
+
 
     public void detach_callback( int id )
     {
         throw new NO_IMPLEMENT();
     }
 
+
     public int[] get_callbacks()
     {
         throw new NO_IMPLEMENT();
     }
 
+
     public POA _default_POA()
     {
         return applicationContext_.getPoa();
     }
+
 
     public void dispose()
     {
