@@ -54,6 +54,8 @@ gerald.brose@acm.org
         - Fix for marshalling of negative fixed values.
         - Fix for reply status value for server side portable interceptors.
         - Fix for generation of some basic type sequence holders.
+        - ApplicationExceptionHelper class fix for types with repository
+          identifiers including a prefix.
 
       - IMR:
         - Added property 'jacorb.imr.endpoint_port_number' for port IMR runs on.
