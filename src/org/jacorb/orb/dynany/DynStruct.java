@@ -235,6 +235,16 @@ public final class DynStruct
 	members = null;
     }
 
+    /**
+     * returns the DynAny's internal any representation, 
+     * @overwrites getRepresentation() in DynAny
+     */
+
+    protected org.omg.CORBA.Any getRepresentation()
+    {
+        return members[pos].value;
+    }
+
     /* iteration interface */
 
     public org.omg.DynamicAny.DynAny current_component()

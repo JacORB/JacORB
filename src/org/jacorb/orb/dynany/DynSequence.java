@@ -42,17 +42,17 @@ public final class DynSequence
     private int length;
     private org.omg.CORBA.TypeCode elementType;
 
-    DynSequence(org.jacorb.orb.ORB orb,
-                org.omg.DynamicAny.DynAnyFactory dynFactory,
-                org.jacorb.orb.Any any)
+    DynSequence( org.jacorb.orb.ORB orb,
+                 org.omg.DynamicAny.DynAnyFactory dynFactory,
+                 org.jacorb.orb.Any any)
         throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch, InvalidValue
     {
         super(orb, dynFactory, any);
     }
 
-    DynSequence(org.jacorb.orb.ORB orb,
-                org.omg.DynamicAny.DynAnyFactory dynFactory,
-                org.omg.CORBA.TypeCode tc)
+    DynSequence( org.jacorb.orb.ORB orb,
+                 org.omg.DynamicAny.DynAnyFactory dynFactory,
+                 org.omg.CORBA.TypeCode tc)
         throws InvalidValue, TypeMismatch
     {
         if( tc.kind() != org.omg.CORBA.TCKind.tk_sequence )
@@ -141,7 +141,7 @@ public final class DynSequence
                             (CDRInputStream)((Any)members.elementAt(i)).create_input_stream());
         }
 
-        CDRInputStream is = new CDRInputStream(orb, os.getBufferCopy());
+        CDRInputStream is = new CDRInputStream( orb, os.getBufferCopy());
         out_any.read_value( is, type());
         return out_any;
     }
@@ -179,8 +179,8 @@ public final class DynSequence
                 itc.printStackTrace();
             }
 
-            if( pos != -1 )
-                pos = length + 1;
+            if( pos == -1 )
+                pos = len - length - 1;
         }
         else if( len < length )
         {
@@ -227,7 +227,8 @@ public final class DynSequence
 
     public org.omg.DynamicAny.DynAny[] get_elements_as_dyn_any()
     {
-        org.omg.DynamicAny.DynAny[] result = new org.omg.DynamicAny.DynAny[ members.size()];
+        org.omg.DynamicAny.DynAny[] result =
+            new org.omg.DynamicAny.DynAny[ members.size()];
         try
         {
             for( int i = members.size(); i-- > 0; )
@@ -252,6 +253,7 @@ public final class DynSequence
         set_elements( any_seq );
     }
 
+
     public void destroy()
     {
         super.destroy();
@@ -260,6 +262,16 @@ public final class DynSequence
         elementType = null;
     }
 
+
+    /**
+     * returns the DynAny's internal any representation, 
+     * overwrites
+     */
+
+    protected org.omg.CORBA.Any getRepresentation()
+    {
+        return (Any)members.elementAt(pos);
+    }
 
     public boolean next()
     {

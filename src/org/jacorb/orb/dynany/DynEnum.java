@@ -38,7 +38,7 @@ public final class DynEnum
     private int max;
     private String [] member_names;
 
-    DynEnum(org.jacorb.orb.ORB orb,
+    DynEnum( org.jacorb.orb.ORB orb,
             org.omg.DynamicAny.DynAnyFactory dynFactory,
             org.jacorb.orb.Any any)
 	throws InvalidValue, TypeMismatch
@@ -154,7 +154,6 @@ public final class DynEnum
 
 
 }
-
 
 
 

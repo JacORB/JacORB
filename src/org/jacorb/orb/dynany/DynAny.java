@@ -43,14 +43,14 @@ public class DynAny
     protected org.jacorb.orb.ORB orb;
 
     /* our representation of a primitive type any is the any itself */
-    private org.omg.CORBA.Any any;
+    private org.omg.CORBA.Any anyRepresentation;
 
     protected DynAny()
     {}
 
-    DynAny(org.jacorb.orb.ORB orb, 
-           org.omg.DynamicAny.DynAnyFactory dynFactory, 
-           org.jacorb.orb.Any _any)
+    DynAny( org.jacorb.orb.ORB orb, 
+            org.omg.DynamicAny.DynAnyFactory dynFactory, 
+            org.jacorb.orb.Any _any )
         throws TypeMismatch, InvalidValue
     {
         this.orb = orb;
@@ -67,7 +67,7 @@ public class DynAny
         this.orb = orb;
         this.dynFactory = dynFactory;
         type = _type;
-        any = defaultValue(type);
+        anyRepresentation = defaultValue(type);
     }
 
     public org.omg.CORBA.TypeCode type()
@@ -95,7 +95,7 @@ public class DynAny
 
     public boolean equal(org.omg.DynamicAny.DynAny dyn_any)
     {
-        return dyn_any.to_any().equal( any );
+        return dyn_any.to_any().equal( anyRepresentation );
     }
 
     public void from_any(org.omg.CORBA.Any value) 
@@ -106,8 +106,8 @@ public class DynAny
 
         try
         {
-            any = (org.jacorb.orb.Any)orb.create_any();
-            any.read_value( value.create_input_stream(), type());
+            anyRepresentation = (org.jacorb.orb.Any)orb.create_any();
+            anyRepresentation.read_value( value.create_input_stream(), type());
         }
         catch( Exception e)
         {
@@ -120,13 +120,13 @@ public class DynAny
     {
         org.jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
         out_any.type( type());
-        out_any.read_value( any.create_input_stream(), type());
+        out_any.read_value( anyRepresentation.create_input_stream(), type());
         return out_any;
     }
 
     public void destroy()
     {
-        any = null;
+        anyRepresentation = null;
     }    
 
     public org.omg.DynamicAny.DynAny copy()
@@ -142,9 +142,21 @@ public class DynAny
         return null;
     }
 
-    public void insert_boolean(boolean value) 
+    /**
+     * returns the DynAny's internal any representation, 
+     * overwritten in subclasses that represent constructed
+     * types and need to traverse structures.
+     */
+
+    protected org.omg.CORBA.Any getRepresentation()
+    {
+        return anyRepresentation;
+    }
+
+    public void insert_boolean( boolean value ) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_boolean)
@@ -152,9 +164,10 @@ public class DynAny
         any.insert_boolean(value);
     }
 
-    public void insert_octet(byte value) 
+    public void insert_octet( byte value ) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_octet)
@@ -165,6 +178,7 @@ public class DynAny
     public void insert_char(char value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_char)
@@ -175,6 +189,7 @@ public class DynAny
     public void insert_short(short value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_short)
@@ -185,6 +200,7 @@ public class DynAny
     public void insert_ushort(short value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_ushort)
@@ -195,6 +211,7 @@ public class DynAny
     public void insert_long(int value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_long)
@@ -205,6 +222,7 @@ public class DynAny
     public void insert_ulong(int value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_ulong)
@@ -215,6 +233,7 @@ public class DynAny
     public void insert_float(float value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_float)
@@ -225,6 +244,7 @@ public class DynAny
     public void insert_double(double value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_double)
@@ -235,6 +255,7 @@ public class DynAny
     public void insert_string(java.lang.String value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_string)
@@ -245,6 +266,7 @@ public class DynAny
     public void insert_reference(org.omg.CORBA.Object value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any == null || any.type().kind() != org.omg.CORBA.TCKind.tk_objref)
@@ -255,6 +277,7 @@ public class DynAny
     public void insert_typecode(org.omg.CORBA.TypeCode value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_TypeCode)
@@ -265,6 +288,7 @@ public class DynAny
     public void insert_longlong(long value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_longlong)
@@ -275,6 +299,7 @@ public class DynAny
     public void insert_ulonglong(long value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_ulonglong)
@@ -285,6 +310,7 @@ public class DynAny
     public void insert_wchar(char value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_wchar)
@@ -295,6 +321,7 @@ public class DynAny
     public void insert_wstring(java.lang.String value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if( any.type().kind() != org.omg.CORBA.TCKind.tk_wstring)
@@ -305,6 +332,7 @@ public class DynAny
     public void insert_any(org.omg.CORBA.Any value) 
         throws InvalidValue, TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         if(  any.type().kind() != org.omg.CORBA.TCKind.tk_any)
@@ -321,6 +349,7 @@ public class DynAny
 
     public boolean get_boolean() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -335,6 +364,7 @@ public class DynAny
 
     public byte get_octet() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -349,6 +379,7 @@ public class DynAny
 
     public char get_char() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -363,6 +394,7 @@ public class DynAny
 
     public short get_short() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -377,6 +409,7 @@ public class DynAny
 
     public short get_ushort() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -391,6 +424,7 @@ public class DynAny
 
     public int get_long() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -405,6 +439,7 @@ public class DynAny
 
     public int get_ulong() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -418,6 +453,7 @@ public class DynAny
     }
     public float get_float() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -432,6 +468,7 @@ public class DynAny
 
     public double get_double() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -446,6 +483,7 @@ public class DynAny
 
     public java.lang.String get_string() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -460,6 +498,7 @@ public class DynAny
 
     public org.omg.CORBA.Object get_reference() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -474,6 +513,7 @@ public class DynAny
 
     public org.omg.CORBA.TypeCode get_typecode() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -488,6 +528,7 @@ public class DynAny
 
     public long get_longlong() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -502,6 +543,7 @@ public class DynAny
 
     public long get_ulonglong() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -516,6 +558,7 @@ public class DynAny
 
     public char get_wchar() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -530,6 +573,7 @@ public class DynAny
 
     public java.lang.String get_wstring() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -544,6 +588,7 @@ public class DynAny
 
     public org.omg.CORBA.Any get_any() throws TypeMismatch
     {
+        org.omg.CORBA.Any any = getRepresentation();
         if( any == null )
             throw new TypeMismatch();
         try
@@ -587,6 +632,7 @@ public class DynAny
 
     public boolean seek(int index)    
     {
+
         if( index < 0 )
         {
             pos = -1;
@@ -594,10 +640,11 @@ public class DynAny
         }
         if( index < limit )
         {
-            pos = limit;
+            pos = index;
             return true;
         }
         pos = -1;
+
         return false;
     }
 
