@@ -758,7 +758,8 @@ public final class Delegate
             }
             else  // response expected, synchronous or asynchronous
             {
-                receiver = new ReplyReceiver ( this, 
+                receiver = new ReplyReceiver ( this,
+                                               ros.operation(),
                                                interceptors,
                                                replyHandler );
                 synchronized ( bind_sync )
@@ -798,8 +799,8 @@ public final class Delegate
 
         if ( replyHandler == null && receiver != null )
         {
-            // Synchronous invocation, 
-            // the following blocks until the reply arrives.
+            // Synchronous invocation. 
+            // This call blocks until the reply arrives.
             return receiver.getReplyInputStream();
         }
         else
