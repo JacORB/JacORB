@@ -261,7 +261,7 @@ public class Environment
         }
         catch(SecurityException secex)
         {
-            System.out.println("Could not read local org.jacorb properties.");
+            System.out.println("Could not read local jacorb properties.");
         }
     }   
 
