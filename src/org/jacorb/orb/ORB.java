@@ -110,7 +110,7 @@ public final class ORB
     private ImRAccess imr = null;
     private int persistentPOACount;
 
-    public static final String orb_id = "jacorb:" + org.jacorb.util.Version.shortVersion;
+    public static final String orb_id = "jacorb:" + org.jacorb.util.Version.version;
 
     /* outstanding dii requests awaiting completion */
     private Set requests = Collections.synchronizedSet( new HashSet() );
