@@ -295,11 +295,6 @@ parser code
                         package_prefix = "org.omg";
                         continue;
                 }
-                if( argv[i].equals("-global_import"))
-                {
-                    System.err.println("The -global_import option has been deprecated. It is no longer necessary.");
-                    continue;
-                }
                 if( argv[i].equals("-i2jpackage"))
                 {
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
@@ -347,8 +342,8 @@ parser code
                 {
                     if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                             usage(argv, "-i");
-                        import_list.addElement( argv[++i]) ;
-                        continue;
+                    import_list.addElement( argv[++i]) ;
+                    continue;
                 }
                 if( argv[i].startsWith("-I"))
                 {
@@ -432,9 +427,8 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U <symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-jdk14][-unchecked_narrow][-i <import_package][-i2jpackage x:y][-i2jpackagefile <filename>][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-Dsymbol[=value]][-Idir][-U<symbol>][-W debug_level ][-all][-forceOverwrite][-ami_callback][-ami_polling][-backend classname][-d <Output Dir>][-jdk14][-unchecked_narrow][-i <import_package][-i2jpackage x:y][-i2jpackagefile <filename>][-ir][-nofinal][-noskel][-nostub][-sloppy_forward][-sloppy_names][-permissive_rmic][-syntax] <filelist>");
     }
-
 
 
     static void addI2JPackage( String mapping )
@@ -475,7 +469,7 @@ parser code
         System.out.println("\t-Dx\t\tdefine preprocessor symbol x with value 1");
         System.out.println("\t-Dx=y\t\tdefine preprocessor symbol x with value y");
         System.out.println("\t-Idir\t\tset include path for idl files");
-        System.out.println("\t-U\t\tundefine preprocessor symbol");
+        System.out.println("\t-U<symbol>\t\tundefine preprocessor symbol");
         System.out.println("\t-W [1..4]\tdebug level");
         System.out.println("\t-all\t\tgenerate code for all IDL files, even included ones");
         System.out.println("\t-forceOverwrite\tgenerate code even if IDL has not changed");
@@ -483,10 +477,10 @@ parser code
         System.out.println("\t-ami_polling\t\tgenerate AMI poller and sendp methods");
         System.out.println("\t-backend classname\t\tuse classname as code generator");
         System.out.println("\t-jdk14 \t\tdo extra checks for generating JDK1.4 code");
-        System.out.println("\t-i <x>\t\tgenerated Java code will include \"import <x>;\"");
+        System.out.println("\t-i <x>\t\t(deprecated) generated Java code will include \"import <x>;\"");
         System.out.println("\t-i2jpackage x:a.b.c\t replace IDL package name x by a.b.c in generated Java code (e.g. CORBA:org.omg.CORBA)");
         System.out.println("\t-i2jpackagefile <filename>\t replace IDL package names using list from <filename>. Format as above.");
-        System.out.println("\t-ir <x>\t\tgenerate information required by the Interface Repository");
+        System.out.println("\t-ir\t\tgenerate information required by the Interface Repository");
         System.out.println("\t-nofinal\tgenerated Java code will contain no final class definitions");
         System.out.println("\t-unchecked_narrow\t\tuse unchecked_narrow in generated code for IOR parameters in operations");
         System.out.println("\t-noskel\t\tdisables generation of POA skeletons");
@@ -1903,12 +1897,12 @@ switch_type_spec ::=
 switch_body ::=
           case:c
         {:
-                RESULT.caseListVector.addElement(c);
+                RESULT.caseListVector.insertElementAt(c, 0);
         :}
         | case:c switch_body:sb
         {:
                 RESULT.caseListVector = (Vector)sb.caseListVector.clone();
-                RESULT.caseListVector.addElement( c );
+                RESULT.caseListVector.insertElementAt(c, 0);
         :}
         ;
 
