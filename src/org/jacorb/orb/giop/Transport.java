@@ -34,30 +34,27 @@ import java.io.IOException;
 
 public interface Transport 
 {
-
-    /**
-     * Writes to the wire. The buffer may only be a fragment of a
-     * full message (in this case independant of GIOP Fragments), and
-     * it also depends on the implementation, if it will already start
-     * to send the message over the wire, or wait until flush()
-     * is called. <br>
-     * 
-     * This is not supposed to be synchronized. Synchronization issues
-     * should be handled on the GIOP connection layer.
-     *
-     * @param message the buffer containing the message. 
-     */
-    public void write( byte[] message, int start, int size )
-        throws IOException;
+    // ETF methods
     
+    void write (boolean is_first, 
+                boolean is_last, 
+                byte[] data, 
+                int offset, 
+                int length, 
+                long time_out);
+                
+    void read (org.omg.ETF.BufferHolder data, 
+               int offset, 
+               int min_length, 
+               int max_length, 
+               long time_out);
+               
+    void flush();
 
-    /**
-     * Send all messages that have been added since the last call to
-     * this method.  
-     */
-    public void flush()
-        throws IOException;
-    
+    org.omg.ETF.Profile get_server_profile(); 
+
+    // Non-ETF methods below this line
+
     /**
      * Close this transport (and free resources).  
      */
@@ -97,7 +94,17 @@ public interface Transport
      */
     public void turnOnFinalTimeout();
     
-    public org.omg.ETF.Profile get_server_profile(); 
+    /**
+     * Wait until the connection is established. This is called from
+     * getMessage() so the connection may be opened up not until the
+     * first message is sent (instead of opening it up when the
+     * transport is created).
+     *
+     * @return true if connection ready, false if connection closed.
+     */
+    public boolean waitUntilConnected();
+
+    
    
 }// Transport
 
