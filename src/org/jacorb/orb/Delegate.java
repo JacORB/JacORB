@@ -533,36 +533,32 @@ public final class Delegate
 
     public org.omg.CORBA.Object get_interface_def (org.omg.CORBA.Object self)
     {
-        org.omg.CORBA.portable.OutputStream os;
-        org.omg.CORBA.portable.InputStream is;
-        org.omg.PortableServer.Servant servant;
-        org.omg.CORBA.portable.ServantObject so;
-        boolean isLocal = is_really_local (self);
+        // If local object call _interface directly
 
-        while (true)
+        if (is_really_local (self))
         {
-            // If local object call _interface directly
+            org.omg.PortableServer.Servant servant;
+            org.omg.CORBA.portable.ServantObject so;
 
-            if (isLocal)
+            so = servant_preinvoke (self, "_interface", java.lang.Object.class);
+
+            try
             {
-                so = servant_preinvoke (self, "_interface", java.lang.Object.class);
-
-                try
-                {
-                    servant = (org.omg.PortableServer.Servant) so.servant;
-                    return (servant._get_interface_def ());
-                }
-                catch (SystemException se)
-                {
-                    isLocal = false;
-                    continue;
-                }
-                finally
-                {
-                    servant_postinvoke (self, so);
-                }
+                servant = (org.omg.PortableServer.Servant) so.servant;
+                orb.set_delegate (servant);
+                return (servant._get_interface_def ());
             }
-            else
+            finally
+            {
+                servant_postinvoke (self, so);
+            }
+        }
+        else
+        {
+            org.omg.CORBA.portable.OutputStream os;
+            org.omg.CORBA.portable.InputStream is;
+
+            while (true)
             {
                 try
                 {
@@ -570,10 +566,10 @@ public final class Delegate
                     is = invoke (self, os);
                     return is.read_Object ();
                 }
-                catch (RemarshalException r)
+                catch (RemarshalException re)
                 {
                 }
-                catch (Exception n)
+                catch (Exception ex)
                 {
                     return null;
                 }
@@ -1189,51 +1185,46 @@ public final class Delegate
         /* ok, we could not affirm by simply looking at the locally available
            type ids, so ask the object itself */
 
-        org.omg.CORBA.portable.OutputStream os;
-        org.omg.CORBA.portable.InputStream is;
-        org.omg.PortableServer.Servant servant;
-        org.omg.CORBA.portable.ServantObject so;
-        boolean isLocal = is_really_local (self);
+        // If local object call _is_a directly
 
-        while (true)
+        if (is_really_local (self))
         {
-            // If local object call _is_a directly
+            org.omg.PortableServer.Servant servant;
+            org.omg.CORBA.portable.ServantObject so;
 
-            if (isLocal)
+            so = servant_preinvoke (self, "_is_a", java.lang.Object.class);
+
+            try
             {
-                so = servant_preinvoke (self, "_is_a", java.lang.Object.class);
-
-                try
-                {
-                    servant = (org.omg.PortableServer.Servant) so.servant;
-                    return (servant._is_a (logical_type_id));
-                }
-                catch (SystemException se)
-                {
-                    isLocal = false;
-                    continue;
-                }
-                finally
-                {
-                    servant_postinvoke (self, so);
-                }
+                servant = (org.omg.PortableServer.Servant) so.servant;
+                orb.set_delegate (servant);
+                return (servant._is_a (logical_type_id));
             }
-            else
+            finally
+            {
+                servant_postinvoke (self, so);
+            }
+        }
+        else
+        {
+            org.omg.CORBA.portable.OutputStream os;
+            org.omg.CORBA.portable.InputStream is;
+
+            while (true)
             {
                 try
                 {
-                    os = request( self, "_is_a", true );
-                    os.write_string( logical_type_id );
-                    is = invoke( self, os );
-                    return is.read_boolean();
+                    os = request (self, "_is_a", true);
+                    os.write_string (logical_type_id);
+                    is = invoke (self, os);
+                    return is.read_boolean ();
                 }
-                catch ( RemarshalException r )
+                catch (RemarshalException re)
                 {
                 }
-                catch ( ApplicationException _ax )
+                catch (ApplicationException ax)
                 {
-                    String _id = _ax.getId();
-                    throw new RuntimeException( "Unexpected exception " + _id );
+                    throw new RuntimeException ("Unexpected exception " + ax.getId ());
                 }
             }
         }
@@ -1299,36 +1290,32 @@ public final class Delegate
 
     public boolean non_existent (org.omg.CORBA.Object self)
     {
-        org.omg.CORBA.portable.OutputStream os;
-        org.omg.CORBA.portable.InputStream is;
-        org.omg.PortableServer.Servant servant;
-        org.omg.CORBA.portable.ServantObject so;
-        boolean isLocal = is_really_local (self);
+        // If local object call _non_existent directly
 
-        while (true)
+        if (is_really_local (self))
         {
-            // If local object call _non_existent directly
+            org.omg.PortableServer.Servant servant;
+            org.omg.CORBA.portable.ServantObject so;
 
-            if (is_really_local (self))
+            so = servant_preinvoke (self, "_non_existent", java.lang.Object.class);
+
+            try
             {
-                so = servant_preinvoke (self, "_non_existent", java.lang.Object.class);
-
-                try
-                {
-                    servant = (org.omg.PortableServer.Servant) so.servant;
-                    return (servant._non_existent ());
-                }
-                catch (SystemException se)
-                {
-                    isLocal = false;
-                    continue;
-                }
-                finally
-                {
-                    servant_postinvoke (self, so);
-                }
+                servant = (org.omg.PortableServer.Servant) so.servant;
+                orb.set_delegate (servant);
+                return (servant._non_existent ());
             }
-            else
+            finally
+            {
+                servant_postinvoke (self, so);
+            }
+        }
+        else
+        {
+            org.omg.CORBA.portable.OutputStream os;
+            org.omg.CORBA.portable.InputStream is;
+
+            while (true)
             {
                 try
                 {
@@ -1336,10 +1323,10 @@ public final class Delegate
                     is = invoke (self, os);
                     return is.read_boolean ();
                 }
-                catch (RemarshalException r)
+                catch (RemarshalException re)
                 {
                 }
-                catch (Exception n)
+                catch (Exception ex)
                 {
                     return true;
                 }
@@ -1507,6 +1494,7 @@ public final class Delegate
                                 ( org.omg.PortableServer.ServantActivator ) sm ;
                             org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
                             so.servant = sa.incarnate( oid, poa );
+                            orb.set_delegate (so.servant);
                         }                        
                     }
                     else
