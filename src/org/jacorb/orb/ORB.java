@@ -161,8 +161,7 @@ public final class ORB
      *  arrived over the network and is called from CDRInputStream. It
      *  removes stale cache entries
      */
-
-    synchronized org.omg.CORBA.Object _getObject( ParsedIOR pior )
+    public synchronized org.omg.CORBA.Object _getObject( ParsedIOR pior )
     {
         String key = pior.getIORString();
         org.omg.CORBA.portable.ObjectImpl o =
