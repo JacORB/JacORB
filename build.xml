@@ -176,6 +176,10 @@
    <!-- ==================================================== -->
 
    <target name="clean" depends="init" description="Clean the checkout">
+      <delete file="${basedir}/bin/idl"/>
+      <delete file="${basedir}/bin/idl.bat"/>
+      <delete file="${basedir}/bin/jaco"/>
+      <delete file="${basedir}/bin/jaco.bat"/>
       <delete dir="${classdir}/demo"/>
       <delete dir="${classdir}/org"/>
       <delete dir="${classdir}/java_cup"/>
