@@ -143,7 +143,7 @@ public class Environment
         _init();
     }
 
-    private static void _init()
+    public static void _init()
     {
         try
         {
