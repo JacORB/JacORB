@@ -47,6 +47,7 @@ public class TSSInitializer
     public static int sourceNameSlotID = -1;
     public static int contextMsgSlotID = -1;
     public static int sasReplySlotID = -1;
+    public static int sasContextsCubby = -1;
 
     /**
     * This method registers the interceptors.
@@ -59,7 +60,8 @@ public class TSSInitializer
             String mechOID = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".oid");
             String mechProvider = org.jacorb.util.Environment.getProperty("jacorb.security.sas.mechanism."+i+".provider");
             if (mechOID == null || mechProvider == null) continue;
-            try {
+            try
+            {
                 Oid oid = new org.ietf.jgss.Oid(mechOID);
                 Class cls = Class.forName (mechProvider);
                 java.lang.Object provider = cls.newInstance ();
@@ -71,6 +73,7 @@ public class TSSInitializer
         }
 
         // install the TSS interceptor
+        sasContextsCubby = org.jacorb.orb.connection.GIOPConnection.allocate_cubby_id();
         try
         {
             sourceNameSlotID = info.allocate_slot_id();
@@ -79,7 +82,7 @@ public class TSSInitializer
             Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, (byte) 1, (byte) 0);
             Codec codec = info.codec_factory().create_codec(encoding);
             org.jacorb.orb.ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
-            info.add_server_request_interceptor(new TSSInvocationInterceptor(orb, codec, sourceNameSlotID, contextMsgSlotID, sasReplySlotID));
+            info.add_server_request_interceptor(new TSSInvocationInterceptor(orb, codec));
         }
         catch (DuplicateName duplicateName)
         {

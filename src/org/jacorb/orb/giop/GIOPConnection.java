@@ -67,12 +67,16 @@ public final class GIOPConnection
     private Hashtable fragments = null;
     private BufferManager buf_mg = null;
 
-    // support for SAS Stateful contexts
-    private Hashtable sasContexts = null;
+    //// support for SAS Stateful contexts
+    //private Hashtable sasContexts = null;
+
+    // provide cubbyholes for other layers to store connection persistent data
+    private static int cubby_count = 0;
+    private Object[] cubbyholes = null;
 
     // the no. of outstanding messages (requests/replies)
     private int pending_messages = 0;
-    
+
     public GIOPConnection( Transport transport,
                            RequestListener request_listener,
                            ReplyListener reply_listener )
@@ -83,7 +87,9 @@ public final class GIOPConnection
 
         fragments = new Hashtable();
         buf_mg = BufferManager.getInstance();
-        sasContexts = new Hashtable();
+        //sasContexts = new Hashtable();
+
+        cubbyholes = new Object[cubby_count];
     }
 
     public final void setCodeSets( int TCS, int TCSW )
@@ -553,7 +559,7 @@ public final class GIOPConnection
         decPendingMessages();
 
         sendMessage( out );
-    }   
+    }
 
     private final void sendMessage( MessageOutputStream out )
         throws IOException
@@ -591,6 +597,7 @@ public final class GIOPConnection
         }
     }
 
+    /*
     class CachedContext
     {
         public byte[] client_authentication_token;
@@ -636,6 +643,26 @@ public final class GIOPConnection
             if (!sasContexts.containsKey(key)) return null;
             return ((CachedContext)sasContexts.get(key)).msg;
         }
+    }
+    */
+
+    // provide cubbyholes for data
+
+    public static int allocate_cubby_id()
+    {
+        return cubby_count++;
+    }
+
+    public Object get_cubby(int id)
+    {
+        if (id < 0 || id >= cubby_count) return null;
+        return cubbyholes[id];
+    }
+
+    public void set_cubby(int id, Object obj)
+    {
+        if (id < 0 || id >= cubby_count) return;
+        cubbyholes[id] = obj;
     }
 
 }// GIOPConnection

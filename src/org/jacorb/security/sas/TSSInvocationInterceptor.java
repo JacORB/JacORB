@@ -24,6 +24,7 @@ import java.io.*;
 import org.omg.SecurityReplaceable.*;
 import org.omg.Security.*;
 import org.ietf.jgss.*;
+import java.util.Hashtable;
 
 import org.omg.PortableInterceptor.*;
 import org.omg.CORBA.ORBPackage.*;
@@ -61,17 +62,11 @@ public class TSSInvocationInterceptor
     private String name = null;
     private org.jacorb.orb.ORB orb = null;
     private Codec codec = null;
-    private int sourceNameSlotID = -1;
-    private int contextMsgSlotID = -1;
-    private int sasReplySlotID = -1;
 
-    public TSSInvocationInterceptor(org.jacorb.orb.ORB orb, Codec codec, int sourceNameSlotID, int contextMsgSlotID, int sasReplySlotID)
+    public TSSInvocationInterceptor(org.jacorb.orb.ORB orb, Codec codec)
     {
         this.orb = orb;
         this.codec = codec;
-        this.sourceNameSlotID = sourceNameSlotID;
-        this.contextMsgSlotID = contextMsgSlotID;
-        this.sasReplySlotID = sasReplySlotID;
         name = DEFAULT_NAME;
         context_stateful = Boolean.valueOf(org.jacorb.util.Environment.getProperty("jacorb.security.sas.tss.stateful", "true")).booleanValue();
 
@@ -153,7 +148,7 @@ public class TSSInvocationInterceptor
             {
                 msg = contextBody.in_context_msg();
                 client_context_id = msg.client_context_id;
-                contextToken = connection.getSASContext(msg.client_context_id);
+                contextToken = getSASContext(connection, msg.client_context_id);
             }
             catch (Exception e)
             {
@@ -195,7 +190,7 @@ public class TSSInvocationInterceptor
             }
 
             // cache context
-            if (context_stateful) connection.cacheSASContext(msg.client_context_id, contextToken, msg);
+            if (context_stateful) cacheSASContext(connection, msg.client_context_id, contextToken, msg);
         }
 
         // set slots
@@ -204,15 +199,15 @@ public class TSSInvocationInterceptor
             Any source_any = orb.create_any();
             source_any.insert_string(new String(contextToken));
             Any msg_any = orb.create_any();
-            EstablishContextHelper.insert(msg_any, connection.getSASContextMsg(client_context_id));
-            ri.set_slot( sourceNameSlotID, source_any);
-            ri.set_slot( contextMsgSlotID, msg_any);
-            ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id));
+            EstablishContextHelper.insert(msg_any, getSASContextMsg(connection, client_context_id));
+            ri.set_slot( TSSInitializer.sourceNameSlotID, source_any);
+            ri.set_slot( TSSInitializer.contextMsgSlotID, msg_any);
+            ri.set_slot( TSSInitializer.sasReplySlotID, makeCompleteEstablishContext(client_context_id));
         }
         catch (Exception e)
         {
             Debug.output(1, "Error insert service context into slots: " + e);
-            try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
+            try { ri.set_slot( TSSInitializer.sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
             throw new org.omg.CORBA.NO_PERMISSION("SAS Error insert service context into slots: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
     }
@@ -222,7 +217,7 @@ public class TSSInvocationInterceptor
         //System.out.println("send_reply");
         Any slot_any = null;
         try {
-            slot_any = ri.get_slot(sasReplySlotID);
+            slot_any = ri.get_slot(TSSInitializer.sasReplySlotID);
         }
         catch (Exception e)
         {
@@ -247,7 +242,7 @@ public class TSSInvocationInterceptor
         //System.out.println("send_exception");
         try
         {
-            ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( ri.get_slot(sasReplySlotID) ) ), true);
+            ri.add_reply_service_context(new ServiceContext(SecurityAttributeService, codec.encode( ri.get_slot(TSSInitializer.sasReplySlotID) ) ), true);
         }
         catch (Exception e)
         {
@@ -285,5 +280,74 @@ public class TSSInvocationInterceptor
         Any any = orb.create_any();
         SASContextBodyHelper.insert( any, contextBody );
         return any;
+    }
+
+    // manage cached contexts
+
+    class CachedContext
+    {
+        public byte[] client_authentication_token;
+        public EstablishContext msg;
+        CachedContext(byte[] client_authentication_token, EstablishContext msg)
+        {
+            this.client_authentication_token = client_authentication_token;
+            this.msg = msg;
+        }
+    }
+
+    public void cacheSASContext(GIOPConnection connection, long client_context_id, byte[] client_authentication_token, EstablishContext msg)
+    {
+        synchronized ( connection )
+        {
+            Hashtable sasContexts = (Hashtable) connection.get_cubby(TSSInitializer.sasContextsCubby);
+            if (sasContexts == null) {
+                sasContexts = new Hashtable();
+                connection.set_cubby(TSSInitializer.sasContextsCubby, sasContexts);
+            }
+            sasContexts.put(new Long(client_context_id), new CachedContext(client_authentication_token, msg));
+        }
+    }
+
+    public void purgeSASContext(GIOPConnection connection, long client_context_id)
+    {
+        synchronized ( connection )
+        {
+            Hashtable sasContexts = (Hashtable) connection.get_cubby(TSSInitializer.sasContextsCubby);
+            if (sasContexts == null) {
+                sasContexts = new Hashtable();
+                connection.set_cubby(TSSInitializer.sasContextsCubby, sasContexts);
+            }
+            sasContexts.remove(new Long(client_context_id));
+        }
+    }
+
+    public byte[] getSASContext(GIOPConnection connection, long client_context_id)
+    {
+        Long key = new Long(client_context_id);
+        synchronized ( connection )
+        {
+            Hashtable sasContexts = (Hashtable) connection.get_cubby(TSSInitializer.sasContextsCubby);
+            if (sasContexts == null) {
+                sasContexts = new Hashtable();
+                connection.set_cubby(TSSInitializer.sasContextsCubby, sasContexts);
+            }
+            if (!sasContexts.containsKey(key)) return null;
+            return ((CachedContext)sasContexts.get(key)).client_authentication_token;
+        }
+    }
+
+    public EstablishContext getSASContextMsg(GIOPConnection connection, long client_context_id)
+    {
+        Long key = new Long(client_context_id);
+        synchronized ( connection )
+        {
+            Hashtable sasContexts = (Hashtable) connection.get_cubby(TSSInitializer.sasContextsCubby);
+            if (sasContexts == null) {
+                sasContexts = new Hashtable();
+                connection.set_cubby(TSSInitializer.sasContextsCubby, sasContexts);
+            }
+            if (!sasContexts.containsKey(key)) return null;
+            return ((CachedContext)sasContexts.get(key)).msg;
+        }
     }
 }
