@@ -1913,7 +1913,7 @@ public final class ORB
             Object o = objectKeyMap.get( s );
             if( o != null )
             {
-                return ((String)o).getBytes();
+                return org.jacorb.orb.util.CorbaLoc.parseKey((String)o);
             }
         }
         // else:
