@@ -179,6 +179,7 @@ public class GIOPConnectionTest
                                      0,           //request id
                                      "foo",       //operation
                                      true,        //response expected
+                                     null,        //roundtrip timeout
                                      new byte[1], //object key
                                      2            // giop minor
                                      );
@@ -258,6 +259,7 @@ public class GIOPConnectionTest
                                      0,           //request id
                                      "foo",       //operation
                                      true,        //response expected
+                                     null,        //roundtrip timeout
                                      new byte[1], //object key
                                      0            // giop minor
                                      );
@@ -429,6 +431,7 @@ public class GIOPConnectionTest
                                      0,           //request id
                                      "foo",       //operation
                                      true,        //response expected
+                                     null,        //roundtrip timeout
                                      new byte[1], //object key
                                      1            // giop minor
                                      );
