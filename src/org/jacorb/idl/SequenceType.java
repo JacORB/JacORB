@@ -115,8 +115,8 @@ public class SequenceType
     void setRecursive()
     {
         if( logger.isWarnEnabled() )
-		 logger.warn( "Sequence " + typeName +
-                " set recursive ------- this: " + this );
+            logger.warn( "Sequence " + typeName +
+                         " set recursive ------- this: " + this );
         recursive = true;
     }
 
@@ -127,7 +127,8 @@ public class SequenceType
     public String getTypeCodeExpression()
     {
         if( logger.isDebugEnabled() )
-		 logger.debug( "Sequence getTypeCodeExpression " + name );
+            logger.debug( "Sequence getTypeCodeExpression " + name );
+
         String originalType = null;
 
         if( recursive )
@@ -318,6 +319,7 @@ public class SequenceType
         {
             max.parse();
             length = Integer.parseInt( max.value() );
+
         }
 
         if( type_spec.typeSpec() instanceof ScopedName )

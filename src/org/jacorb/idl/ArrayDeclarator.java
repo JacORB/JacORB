@@ -31,7 +31,6 @@ import java.util.*;
 class ArrayDeclarator
     extends Declarator
 {
-
     public SymbolList fixed_array_size_list;
     private int[] dimensions = null;
 
@@ -66,7 +65,9 @@ class ArrayDeclarator
         else
             pack_name = s;
 
-        for( Enumeration e = fixed_array_size_list.v.elements(); e.hasMoreElements(); ( (FixedArraySize)e.nextElement() ).setPackage( s ) ) ;
+        for( Enumeration e = fixed_array_size_list.v.elements(); 
+             e.hasMoreElements(); 
+             ( (FixedArraySize)e.nextElement() ).setPackage( s ) ) ;
 
     }
 

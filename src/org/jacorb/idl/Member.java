@@ -105,7 +105,7 @@ public class Member
         boolean clone_and_parse = true;
 
         if( extendVector == null )
-            throw new RuntimeException( "Compiler Error: extendVector not set!" );
+            throw new ParseException("Internal Compiler Error: extendVector not set!", this.myPosition );
 
         if( type_spec.typeSpec() instanceof ScopedName )
         {
@@ -141,8 +141,6 @@ public class Member
                     }
                 }
             }
-
-
         }
         else if( type_spec.typeSpec() instanceof SequenceType )
         {
@@ -278,6 +276,7 @@ public class Member
         {
             type_spec.print( ps );
         }
+
 
         if( type_spec.typeSpec() instanceof StringType )
             ps.print( prefix + type_spec.toString() + " " + declarator.toString() + " = \"\";" );

@@ -27,9 +27,8 @@ package org.jacorb.idl;
  */
 
 class FixedArraySize
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public PosIntConst pos_int_const;
 
     public FixedArraySize( int num )
@@ -38,7 +37,6 @@ class FixedArraySize
     }
 
     public void parse()
-
     {
         pos_int_const.parse();
     }
