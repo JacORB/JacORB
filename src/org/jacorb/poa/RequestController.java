@@ -258,7 +258,8 @@ public final class RequestController
                 if (logger.isInfoEnabled())
                 {
                     logger.info("rid: " + request.requestId() +
-                                 " cannot process request because waitForCompletion was called");
+                                " opname: " + request.operation() +
+                                " cannot process request because waitForCompletion was called");
                 }
                 throw new CompletionRequestedException();
             }
@@ -269,7 +270,8 @@ public final class RequestController
                 if (logger.isInfoEnabled())
                 {
                     logger.info("rid: " + request.requestId() +
-                                 " cannot process request because POA shutdown in progress");
+                                " opname: " + request.operation() +
+                                " cannot process request because POA shutdown in progress");
                 }
                 throw new ShutdownInProgressException();
             }
@@ -284,6 +286,7 @@ public final class RequestController
                     if (logger.isInfoEnabled())
                     {
                         logger.info("rid: " + request.requestId() +
+                                    " opname: " + request.operation() +
                                     " cannot process request, because object is already in the deactivation process");
                     }
 
@@ -309,6 +312,7 @@ public final class RequestController
                         if (logger.isWarnEnabled())
                         {
                             logger.warn("rid: " + request.requestId() +
+                                        " opname: " + request.operation() +
                                         " cannot process request because default servant is not set");
                         }
                         throw new org.omg.CORBA.OBJ_ADAPTER();
@@ -322,6 +326,7 @@ public final class RequestController
                         if (logger.isWarnEnabled())
                         {
                             logger.warn("rid: " + request.requestId() +
+                                        " opname: " + request.operation() +
                                         " cannot process request because servant manager is not set");
                         }
                         throw new org.omg.CORBA.OBJ_ADAPTER();
@@ -333,12 +338,12 @@ public final class RequestController
                     if (logger.isWarnEnabled())
                     {
                         logger.warn("rid: " + request.requestId() +
+                                    " opname: " + request.operation() +
                                     " cannot process request, because object doesn't exist");
                     }
                     throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                 }
             }
-
             /* below  this point it's  save that the request  is valid
                (all preconditions can be met) */
             activeRequestTable.put(request, oid);
@@ -347,8 +352,9 @@ public final class RequestController
         // get and initialize a processor for request processing
         if (logger.isDebugEnabled())
         {
-            logger.debug("rid: " + request.requestId()
-                         + " trying to get a RequestProcessor");
+            logger.debug("rid: " + request.requestId() +
+                         " opname: " + request.operation() +
+                         " trying to get a RequestProcessor");
         }
 
         RequestProcessor processor = getPoolManager().getProcessor();
@@ -379,6 +385,7 @@ public final class RequestController
         if (logger.isWarnEnabled())
         {
             logger.warn("rid: " + request.requestId() +
+                        " opname: " + request.operation() +
                         " request rejected with exception: " +
                         exception.getMessage());
         }
@@ -480,7 +487,9 @@ public final class RequestController
                 }
             }
             else
-                if (!waitForShutdownCalled && (POAUtil.isDiscarding(state) || POAUtil.isInactive(state))) {
+            {
+                if (!waitForShutdownCalled && (POAUtil.isDiscarding(state) || POAUtil.isInactive(state)))
+                {
                     request = requestQueue.removeLast();
 
                     /* Request available */
@@ -497,6 +506,7 @@ public final class RequestController
                         continue;
                     }
                 }
+            }
             /* if waitForShutdown was called the RequestController
                loop blocks for ALL TIME in waitForQueue (the poa
                behaves as if he is in holding state now) ATTENTION,
@@ -546,7 +556,9 @@ public final class RequestController
 
     synchronized void waitForObjectCompletion( byte[] oid )
     {
+
         ByteArrayKey oidbak = new ByteArrayKey( oid );
+
         while (activeRequestTable.contains(oidbak))
         {
             try
@@ -565,11 +577,6 @@ public final class RequestController
         }
 
         deactivationList.addElement( oidbak );
-
-        synchronized( oid )
-        {
-            oid.notifyAll();
-        }
     }
 
     /**
