@@ -1372,6 +1372,16 @@ public final class Delegate
                                             String operation,
                                             Class expectedType )
     {
+        if ( ! resolved_locality )
+        {
+            org.jacorb.poa.POA local_poa = orb.findPOA( this, self );
+
+            if ( local_poa != null )   // && local_poa._localStubsSupported() )
+                poa = local_poa;
+
+            resolved_locality = true;
+        }
+
         if ( poa != null )
         {
             /* make sure that no proxified IOR is used for local invocations */
@@ -1417,7 +1427,6 @@ public final class Delegate
                             ( org.omg.PortableServer.ServantActivator ) sm ;
                         //  org.omg.PortableServer.ServantActivatorHelper.narrow( sm );
                         so.servant = sa.incarnate( oid, poa );
-
                     }
                     else
                     {
@@ -1426,31 +1435,32 @@ public final class Delegate
                         //org.omg.PortableServer.ServantLocatorHelper.narrow( sm );
                         so.servant =
                             sl.preinvoke( oid, poa, operation,
-                                          new org.omg.PortableServer.ServantLocatorPackage.CookieHolder() );
+                                  new org.omg.PortableServer.ServantLocatorPackage.CookieHolder() );
                     }
-
                 }
                 else
                 {
-                    //}
-
-                    if ( !expectedType.isInstance( so.servant ) )
-                        return null;
-                    else
-                    {
-                        orb.getPOACurrent()._addContext(
-                            Thread.currentThread(),
-                            new org.jacorb.poa.LocalInvocationContext(
-                                orb,
-                                poa,
-                                getObjectId(),
-                                ( org.omg.PortableServer.Servant ) so.servant
-                            )
-                        );
-                    }
-
-                    return so;
                 }
+                
+                if ( !expectedType.isInstance( so.servant ) )
+                {
+                    Debug.output(1, "Warning: expected " + expectedType + 
+                                 " got " + so.servant.getClass() );
+                    return null;
+                }
+                else
+                {
+                    orb.getPOACurrent()._addContext(
+                              Thread.currentThread(),
+                              new org.jacorb.poa.LocalInvocationContext(
+                                             orb,
+                                             poa,
+                                             getObjectId(),
+                                             ( org.omg.PortableServer.Servant ) so.servant
+                                             )
+                                  );
+                }                
+                return so;
             }
             catch ( Throwable e )
             {
@@ -1458,7 +1468,7 @@ public final class Delegate
             }
 
         }
-
+        Debug.output(1, "Internal Warning: no POA! servant_preinvoke returns null ");
         return null;
     }
 
