@@ -1,18 +1,192 @@
+2003-12-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractAdmin.java: cosmetics
+
+	removed unnecessary synchronized
+
+	* notification/node/TCLCleanUp.java: cosmetics
+
+2003-12-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ORB.java (createIOR): Pass list of profiles to IORInfoImpl.
+
+	* orb/portableInterceptor/IORInfoImpl.java: Implement the new
+	interface IORInfoExt, rather than IORInfo.
+	(_profiles): New field.
+	(c'tor): Take a list of profiles as an additional argument.
+	(add_profile, get_number_of_profiles, get_profile): New methods.
+
+	* orb/portableInterceptor/IORInfoExt.java: Initial revision.
+
+2003-12-16  Gerald Brose  <gerald.brose@acm.org>
+
+	* naming/NameServer.java, poa/POAMonitorImpl.java, util/CAD.java,
+	util/CADTableModel.java, util/Environment.java, util/Time.java,
+	util/Version.java, util/threadpool/ConsumerTie.java,
+	util/threadpool/ThreadPool.java: removed references to logging
+	constants in util.Debug
+
+	* proxy/ProxyImpl.java: removed code referencing the old logging
+	constants in util.Debug
+
+	* util/Debug.java: removed old log component constants and any
+	code related to them. This code is made obsolete by the new
+	logging API
+
+	* orb/iiop/IIOPListener.java: (c'tor) moved logger retrieval to front.
+
+	* orb/BasicAdapter.java, orb/BufferManager.java,
+	orb/ClientInterceptorHandler.java, orb/Delegate.java,
+	orb/ExceptionHolderImpl.java, orb/ORB.java,
+	orb/ReplyReceiver.java, orb/dii/Request.java,
+	orb/factory/PortRangeServerSocketFactory.java,
+	orb/factory/PortRangeSocketFactory.java,
+	orb/factory/SocketFactoryManager.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/TransportManager.java, orb/iiop/IIOPListener.java,
+	orb/portableInterceptor/ClientInterceptorIterator.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	orb/portableInterceptor/IORInterceptorIterator.java,
+	orb/portableInterceptor/InterceptorManager.java,
+	orb/portableInterceptor/ORBInitInfoImpl.java,
+	orb/portableInterceptor/ServerInterceptorIterator.java,
+	orb/portableInterceptor/ServerRequestInfoImpl.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	orb/standardInterceptors/SSLComponentInterceptor.java: removed
+	references to constants in util.Debug, added extra loggers in some
+	places, plus some cosmetics
+
+	* security/level2/CurrentImpl.java,
+	security/level2/PrincipalAuthenticatorImpl.java,
+	security/level2/ServerInitializer.java,
+	security/level2/SunJssePrincipalAuthenticatorImpl.java,
+	security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java,
+	security/ssl/sun_jsse/SecurityServiceInitializer.java,
+	security/ssl/sun_jsse/ServerInvocationInterceptor.java: removed
+	references to constants in util.Debug, plus some cosmetics
+
+	* imr/ImRAccessImpl.java, imr/ImRHostInfo.java,
+	imr/ImRPOAInfo.java, imr/ImRServerInfo.java,
+	imr/ImplementationRepositoryImpl.java, imr/RessourceLock.java,
+	imr/ServerStartupDaemonImpl.java, imr/ServerTable.java,
+	imr/util/ImRManager.java, imr/util/ImRModel.java: removed
+	references to constants in util.Debug, plus some cosmetics
+
+2003-12-15  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/GlobalInputStream.java: added documentation: previous
+	check-in fixes bug #385 :-)
+
+2003-12-12  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GssUpContextValidator.java,
+	security/sas/KerberosContextCreator.java,
+	security/sas/KerberosContextValidator.java: Logging
+
+2003-12-12  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/Interface.java:
+	(parse) for added robustness, tolerate multiple forward
+	declarations of the same interface name, even after the name has
+	been defined.
+
+2003-12-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDRInputStream.java:
+	(read_value(TypeCode, OutputStream)): Use the new method
+	ORB.getBoxedValueHelper() to look up helpers via the cache in the
+	ORB. This fixes a serious performance issue.
+
+	* orb/CDROutputStream.java:
+	(write_value(TypeCode, InputStream)): Use the new method
+	ORB.getBoxedValueHelper() to look up helpers via the cache in the
+	ORB. This fixes a serious performance issue.
+
+	* orb/ORB.java (boxedValueHelpers, getBoxedValueHelpers): New
+	field and access method.
+
+2003-12-11  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/ConsumerAdminTieImpl.java: removed buggy "double
+	checked lock"
+
+	cosmetics
+
+	* notification/FilterFactoryImpl.java: removed buggy "double
+	checked lock"
+
+	* notification/CollectionsWrapper.java: fixed possible
+	nullpointerexception
+
+	* notification/AnyMessage.java,
+	notification/StructuredEventMessage.java: removed buggy "double
+	checked lock"
+
+	cosmetics
+
+	* notification/AbstractProxy.java: removed buggy "double checked lock"
+
+	* notification/AbstractMessage.java: cosmetics
+
+2003-12-11  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/lexer.java, idl/parser.java, idl/sym.java:
+	*** empty log message ***
+
+2003-12-10  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/ValueAbsDecl.java:
+	(parse) added robustness for buggy IDL generated by rmic.
+
+	* idl/SimpleDeclarator.java: cosmetic only
+
+	* idl/parser.cup:
+	(compile) changed reference to intToLogPriority to package-local
+	Environment class.
+
+	* idl/Environment.java:
+	(intToLogPriority) added method to avoid extra package
+	dependencies
+
+	* idl/ParseException.java: (getMessage) deal with null error messages
+
+	* idl/InitDecl.java: added a raises expression for factory
+	methods, as allowed in CORBA 3.0 and used by rmic
+
+	* idl/Interface.java:
+	(parse) additional unwinding of aliased types, necessary!
+
+	* idl/AttrDecl.java:
+	(parse) only parse declarators if strict parsing is on,
+	i.e. tolerate buggy IDL generated by rmic.
+
+	* idl/GlobalInputStream.java:
+	(read) now closes ALL current streams at EOF, not just the
+	included ones.
+
+	* idl/parser.cup: added a new option -permissive_rmic to deal with
+	IDL generated bu Sun's rmic (buggy!). Also emit all error messages
+	through the lexer now rather than directly to stderr.
+
 2003-12-10  Nicolas Noffke <Nicolas.Noffke@web.de>
 
-	* util/Environment.java:
-	removed obsolete domain service properties
+	* util/Environment.java: removed obsolete domain service
+	properties
 
-	* orb/ReplyReceiver.java, util/Environment.java:
-	small performance improvement: made retry_on_failure member of Environment, so this property doesn't need to be evaluated for every request
+	* orb/ReplyReceiver.java, util/Environment.java: small performance
+	improvement: made retry_on_failure member of Environment, so this
+	property doesn't need to be evaluated for every request
 
 2003-12-09  Nicolas Noffke <Nicolas.Noffke@web.de>
 
-	* orb/ReplyReceiver.java:
-	added property jacorb.connection.client.retry_on_failure to control if network failures result in a COMM_FAILURE or remarshal
+	* orb/ReplyReceiver.java: added property
+	jacorb.connection.client.retry_on_failure to control if network
+	failures result in a COMM_FAILURE or remarshal
 
-	* orb/giop/ClientGIOPConnection.java:
-	added property jacorb.connection.client.timeout_ignores_pending_messages to control if idle timeouts take care of pending messages
+	* orb/giop/ClientGIOPConnection.java: added property
+	jacorb.connection.client.timeout_ignores_pending_messages to
+	control if idle timeouts take care of pending messages
 
 2003-12-04  Simon McQueen  <sm@prismtechnologies.com>
 
