@@ -545,7 +545,7 @@ non terminal ScopedName scopename;
 
 non terminal ValueDeclaration value;
 non terminal ValueBoxDecl value_box_dcl;
-non terminal IdlSymbol value_abs_dcl;
+non terminal ValueDeclaration value_abs_dcl;
 non terminal IdlSymbol value_body;
 non terminal Value value_dcl;
 non terminal IdlSymbol value_inheritance_spec;

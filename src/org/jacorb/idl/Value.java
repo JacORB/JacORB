@@ -31,7 +31,7 @@ import java.util.Enumeration;
 import java.io.*;
 
 class Value 
-    extends Declaration 
+    extends ValueDeclaration 
 {
     public Value(int num)
     {
