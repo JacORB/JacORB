@@ -30,6 +30,8 @@ import org.jacorb.notification.util.AbstractObjectPool;
 
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
+import org.omg.CORBA.TypeCode;
+import org.omg.CosNotification.StructuredEventHelper;
 
 /**
  * @author Alphonse Bendt
@@ -38,6 +40,10 @@ import org.omg.CosNotification.StructuredEvent;
 
 public class MessageFactory implements Disposable
 {
+    public static final String ANY_TYPE_NAME = "%ANY";
+
+    ////////////////////////////////////////
+
     private AbstractObjectPool anyMessagePool_ =
         new AbstractObjectPool("AnyMessagePool")
         {
@@ -90,29 +96,46 @@ public class MessageFactory implements Disposable
 
     // Used by the Proxies
 
-    public Message newMessage( Any event,
-                               FilterStage firstStage )
+    public Message newMessage( Any any,
+                               AbstractProxyConsumerI consumer )
     {
-        Message _mesg = newMessage( event );
+        TypeCode _typeCode = any.type();
 
-        _mesg.setInitialFilterStage( firstStage );
+        if (StructuredEventHelper.type().equals(_typeCode)) {
+            // received a StructuredEvent wrapped inside an Any
+            // see Spec. 2-11
+            return newMessage(StructuredEventHelper.extract(any), consumer);
+        } else {
+            Message _mesg = newMessage( any );
 
-        return _mesg;
+            _mesg.setInitialFilterStage( consumer.getFirstStage() );
+
+            return _mesg;
+        }
     }
 
 
-    public Message newMessage( StructuredEvent event,
+    public Message newMessage( StructuredEvent structuredEvent,
                                AbstractProxyConsumerI consumer )
     {
-        StructuredEventMessage _mesg = ( StructuredEventMessage ) structuredEventMessagePool_.lendObject();
+        String _typeName = structuredEvent.header.fixed_header.event_type.type_name;
 
-        _mesg.setFilterStage( consumer.getFirstStage() );
+        if (ANY_TYPE_NAME.equals(_typeName)) {
+            // received an Any wrapped inside a StructuredEvent
+            // see Spec. 2-11
+            return newMessage(structuredEvent.remainder_of_body, consumer);
+        } else {
+            StructuredEventMessage _mesg =
+                ( StructuredEventMessage ) structuredEventMessagePool_.lendObject();
 
-        _mesg.setStructuredEventValue( event ,
-                                       consumer.isStartTimeSupported(),
-                                       consumer.isTimeOutSupported());
+            _mesg.setFilterStage( consumer.getFirstStage() );
 
-        return _mesg.getHandle();
+            _mesg.setStructuredEventValue( structuredEvent ,
+                                           consumer.isStartTimeSupported(),
+                                           consumer.isTimeOutSupported());
+
+            return _mesg.getHandle();
+        }
     }
 
     ////////////////////////////////////////
@@ -121,21 +144,34 @@ public class MessageFactory implements Disposable
 
     public Message newMessage( Any any )
     {
-        AnyMessage _mesg =
-            ( AnyMessage ) anyMessagePool_.lendObject();
+        TypeCode _typeCode = any.type();
 
-        _mesg.setAny( any );
+        if (StructuredEventHelper.type().equals(_typeCode)) {
+            return newMessage(StructuredEventHelper.extract(any));
+        } else {
+            AnyMessage _mesg =
+                ( AnyMessage ) anyMessagePool_.lendObject();
 
-        return _mesg.getHandle();
+            _mesg.setAny( any );
+
+            return _mesg.getHandle();
+        }
     }
 
 
-    public Message newMessage( StructuredEvent event )
+    public Message newMessage( StructuredEvent structuredEvent )
     {
-        StructuredEventMessage _mesg = ( StructuredEventMessage ) structuredEventMessagePool_.lendObject();
+        String _typeName = structuredEvent.header.fixed_header.event_type.type_name;
 
-        _mesg.setStructuredEventValue( event , false, false);
+        if (ANY_TYPE_NAME.equals(_typeName)) {
+            return newMessage(structuredEvent.remainder_of_body);
+        } else {
+            StructuredEventMessage _mesg =
+                ( StructuredEventMessage ) structuredEventMessagePool_.lendObject();
 
-        return _mesg.getHandle();
+            _mesg.setStructuredEventValue( structuredEvent , false, false);
+
+            return _mesg.getHandle();
+        }
     }
 }
