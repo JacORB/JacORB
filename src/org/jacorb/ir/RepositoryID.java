@@ -31,7 +31,7 @@ import org.jacorb.orb.TypeCode;
 public class RepositoryID 
 {
 
-    public static String className ( String repId )
+    public static String className (String repId)
     {
         if (repId.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
 	    return "java.lang.String";
@@ -69,33 +69,27 @@ public class RepositoryID
         for( int i = 0; strtok.hasMoreTokens(); i++ )
         {
             String sc = strtok.nextToken();
-            try
-            {
-                Class c = null;
-                if( sb.toString().length() > 0 )
-                    c = RepositoryImpl.loader.loadClass( sb.toString() + "." + sc );
-                else
-                    c = RepositoryImpl.loader.loadClass( sc );
-
-                if( i < count-1)
-                {
-                    sb.append( "." + sc + "Package");
-                }
-                else
-                    sb.append( "." + sc );
-            }	catch ( ClassNotFoundException cnfe )
-            {
+            Class c = null;
+            if( sb.toString().length() > 0 )
+                c = loadClass (sb.toString() + "." + sc);
+            else
+                c = loadClass (sc);
+            if (c == null)
                 if( sb.toString().length() > 0 )
                     sb.append( "." + sc );
                 else
                     sb.append( sc );
-            }	
+            else
+                if( i < count-1)
+                    sb.append( "." + sc + "Package");
+                else
+                    sb.append( "." + sc );
         }
 
         return sb.toString();
     }
 
-    public static String repId( Class c )
+    public static String repId (Class c)
     {
         if (org.omg.CORBA.portable.IDLEntity.class.isAssignableFrom (c))
         {
@@ -120,7 +114,7 @@ public class RepositoryID
             return org.jacorb.util.ValueHandler.getRMIRepositoryID (c);
     }
 
-    private static String scopesToIR( String s )
+    private static String scopesToIR (String s)
     {
         if( s.indexOf(".") < 0)
             return s;
@@ -146,7 +140,7 @@ public class RepositoryID
     }
 
 
-    public static String toRepositoryID ( String className )
+    public static String toRepositoryID (String className)
     {
         if( className.equals("") || 
             className.startsWith("IDL:") || 
@@ -154,17 +148,32 @@ public class RepositoryID
             return className;
         else
         {
-            try 
-            {
- 	        //return repId (Class.forName (className));
- 	        ClassLoader contextClassLoader = 
- 		    Thread.currentThread().getContextClassLoader();
- 	        return repId (contextClassLoader.loadClass (className));
-            }
-            catch (ClassNotFoundException e)
-            {
+            Class c = loadClass (className);
+            if (c == null)
                 throw new RuntimeException ("cannot find class: " + className);
-            }
+            else
+                return repId (c);
+        }
+    }
+
+    /**
+     * Loads class `name' using an appropriate class loader.
+     * Returns the corresponding class object, or null if the class loader
+     * cannot find a class by that name.
+     */
+    private Class loadClass (String name)
+    {
+        try
+        {
+            if (RepositoryImpl.loader != null)
+                return RepositoryImpl.loader.loadClass (name);
+            else
+                return Thread.currentThread().getContextClassLoader()
+                                             .loadClass (name);
+        }
+        catch (ClassNotFoundException e)
+        {
+            return null;
         }
     }
 }
