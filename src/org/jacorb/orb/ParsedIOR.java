@@ -619,101 +619,155 @@ public class ParsedIOR
      * designated resource cannot be found
      */
 
-    protected void parse( String object_reference )
+    protected void parse (String object_reference)
         throws IllegalArgumentException
     {
-        if( object_reference == null )
-            throw new IllegalArgumentException();
+        if (object_reference == null)
+        {
+            throw new IllegalArgumentException ("Null object reference");
+        }
 
-	if ( object_reference.startsWith("IOR:") )
+	if (object_reference.startsWith ("IOR:"))
 	{
-	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	    int cnt = (object_reference.length()-4) / 2;
-	    for(int j=0; j<cnt; j++)
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream ();
+	    int cnt = (object_reference.length () - 4) / 2;
+	    for (int j = 0; j < cnt; j++)
 	    {
-		char c1 = object_reference.charAt(j*2+4);
-		char c2 = object_reference.charAt(j*2+5);
+		char c1 = object_reference.charAt (j*2+4);
+		char c2 = object_reference.charAt (j*2+5);
 		int i1 = (c1 >= 'a') ? (10 + c1 - 'a') :
 		    ((c1 >= 'A') ? (10 + c1 - 'A') :
 		     (c1 - '0'));
 		int i2 = (c2 >= 'a') ? (10 + c2 - 'a') :
 		    ((c2 >= 'A') ? (10 + c2 - 'A') :
 		     (c2 - '0'));
-		bos.write((i1*16+i2));
+		bos.write ((i1*16+i2));
 	    }
 
 	    CDRInputStream in_ = null;
             
-            if( orb == null )
+            if (orb == null)
             {
-                in_ = new CDRInputStream( org.omg.CORBA.ORB.init(), 
-                                          bos.toByteArray() );
+                in_ = new CDRInputStream (org.omg.CORBA.ORB.init (), 
+                                          bos.toByteArray ());
             }
             else
             {
-                in_ = new CDRInputStream( orb, bos.toByteArray() );
+                in_ = new CDRInputStream (orb, bos.toByteArray());
             }                
 	    
-	    endianness = in_.read_boolean();
-	    if(endianness)
-		in_.setLittleEndian(true);
+	    endianness = in_.read_boolean ();
+	    if (endianness)
+            {
+		in_.setLittleEndian (true);
+            }
 	    
-	    IOR _ior =  IORHelper.read(in_);
-	    decode( _ior );
+	    IOR _ior = IORHelper.read (in_);
+	    decode (_ior);
 	}
-	else if (object_reference.startsWith("corbaloc:"))
+	else if (object_reference.startsWith ("corbaloc:"))
 	{
-	    decode( new CorbaLoc( object_reference ));
+	    decode (new CorbaLoc (object_reference));
 	}
-	else if (object_reference.startsWith("http://") || 
-                 object_reference.startsWith("file:/") )
+	else if (object_reference.startsWith ("corbaname:"))
 	{
-	    parse( ObjectUtil.readURL( object_reference ) );
-	}
-	else if( object_reference.startsWith("corbaname:") )
-	{
-	    String corbaloc;
+	    String corbaloc = "corbaloc:";
 	    String name = "";
 
-	    if( object_reference.indexOf('#') == -1 )
-		corbaloc = 
-                    "corbaloc:" + 
-                    object_reference.substring(object_reference.indexOf(':')+1 );
+	    if (object_reference.indexOf('#') == -1)
+            {
+		corbaloc += 
+                    object_reference.substring (object_reference.indexOf (':') + 1);
+            }
 	    else
 	    {
-		corbaloc = 
-                    "corbaloc:" + 
-                    object_reference.substring(object_reference.indexOf(':')+1, 
-                                               object_reference.indexOf('#'));
+		corbaloc +=
+                    object_reference.substring (object_reference.indexOf (':') + 1, 
+                                                object_reference.indexOf ('#'));
 		name = 
-                    object_reference.substring(object_reference.indexOf('#')+1);
+                    object_reference.substring (object_reference.indexOf ('#') + 1);
 	    }
 
 	    /* empty key string in corbaname becomes NameService */
-	    if( corbaloc.indexOf('/') == -1 )
+	    if (corbaloc.indexOf ('/') == -1)
+            {
 		corbaloc += "/NameService";
+            }
 
-	    Debug.output(4,corbaloc);
+	    Debug.output (4,corbaloc);
 
 	    try
 	    {
 		NamingContextExt n =
-                    NamingContextExtHelper.narrow( orb.string_to_object(corbaloc));
-		org.omg.CORBA.Object target = 
-                    n.resolve_str( name );
+                    NamingContextExtHelper.narrow (orb.string_to_object (corbaloc));
+		org.omg.CORBA.Object target = n.resolve_str (name);
 		IOR ior = 
                     ((Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate()).getIOR();
-		decode(ior);
+		decode (ior);
 	    }
-	    catch( Exception e )
+	    catch (Exception e)
 	    {
-		Debug.output(4, e );
-		throw new IllegalArgumentException("Invalid object reference: " + object_reference);
+		Debug.output (4, e);
+		throw new IllegalArgumentException ("Invalid object reference: " + object_reference);
 	    }
 	}
+        else if (object_reference.startsWith ("resource:"))
+        {
+            String resourceName = object_reference.substring (9);
+            Debug.output (2, "Trying to resolve URL/IOR from resource: " + resourceName);
+
+            ClassLoader cl = getClass().getClassLoader ();
+            if (cl == null)
+            {
+                cl = ClassLoader.getSystemClassLoader ();
+            }
+
+            URL url = cl.getResource (resourceName);
+            if (url == null)
+            {
+	        throw new IllegalArgumentException ("Failed to get resource: " + resourceName);
+            }
+
+            String content = ObjectUtil.readURL (url.toString ());
+            if (content == null)
+            {
+	        throw new IllegalArgumentException ("Failed to read resource: " + resourceName);
+            }
+
+            parse (content);
+        }
+        else if (object_reference.startsWith ("jndi:"))
+        {
+            String jndiName = object_reference.substring (5);
+            Debug.output (2, "Trying to resolve JNDI/IOR from name: " + jndiName);
+
+            java.lang.Object obj = null;
+            try
+            {
+                javax.naming.Context initialContext = new javax.naming.InitialContext ();
+                obj = initialContext.lookup (jndiName);
+            }
+            catch (javax.naming.NamingException ex)
+            {
+                throw new IllegalArgumentException ("Failed to lookup JNDI/IOR: " + ex);
+            }
+
+            if (obj == null)
+            {
+                throw new IllegalArgumentException ("Null JNDI/IOR: " + object_reference);
+            }
+
+            parse (obj.toString ());
+        }
 	else
         {
-	    throw new IllegalArgumentException("Invalid IOR format: " + object_reference );
+            Debug.output (2, "Trying to resolve URL/IOR from: " + object_reference);
+	    String content = ObjectUtil.readURL (object_reference);
+            if (content == null)
+            {
+                throw new IllegalArgumentException ("Invalid or unreadable URL/IOR: " + object_reference);
+            }
+            parse (content);
         }
 	ior_str = getIORString ();
     }
