@@ -471,30 +471,33 @@
    <!--     Notification service  -->
    <!--                           -->
 
-   <target name="notification" depends="init,load-taskdef,notif,typed" description="Compile Notification Service IDL">
+   <target name="notification" 
+     depends="init,load-taskdef,notif,typed" 
+     description="Compile Notification Service IDL">
       <antcall target="jacorb-javac">
          <param name="javac-src" value="${src}/generated"/>
-         <param name="javac-includes" value="org/omg/CosNotification/*.java,org/omg/CosNotify**/*.java,org/omg/CosTyped*/**/*.java"/>
+         <param name="javac-includes" 
+	   value="org/omg/CosNotification/*.java,org/omg/CosNotify**/*.java,org/omg/CosTyped*/**/*.java"/>
       </antcall>
    </target>
 
-   <target name="notif">
-      <jacidl generateir="true"
-              srcdir="idl"
-              omgprefix="true"
-              includepath="${idl}/omg"
-              includes="**/omg/CosNotification.idl,**/omg/CosNotifyChannelAdmin.idl"
-              destdir="${src}/generated"/>
-      <jacidl generateir="true"
-              srcdir="idl"
-              omgprefix="true"
-              includepath="${idl}/omg"
-              includes="**/omg/CosNotifyComm.idl,**/omg/CosNotifyFilter.idl"
-              destdir="${src}/generated"/>
+  <target name="notif">
     <jacidl generateir="true"
-      srcdir="${idl}"
+      srcdir="idl"
+      omgprefix="true"
       includepath="${idl}/omg"
-      includes="**/jacorb/notification.idl"
+      includes="**/omg/CosNotification.idl,**/omg/CosNotifyChannelAdmin.idl"
+      destdir="${src}/generated"/>
+    <jacidl generateir="true"
+      srcdir="idl"
+      omgprefix="true"
+      includepath="${idl}/omg"
+      includes="**/omg/CosNotifyComm.idl,**/omg/CosNotifyFilter.idl"
+      destdir="${src}/generated"/>
+    <jacidl 
+      srcdir="${idl}/jacorb"
+      includepath="${idl}/omg"
+      includes="notification.idl"
       destdir="${src}/generated" />
    </target>
 
