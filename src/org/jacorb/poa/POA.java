@@ -383,6 +383,12 @@ public class POA
                                     " rid: " + request.requestId() +
                                     " opname: " + request.operation() +
                                     " _invoke: object key not previously generated!");
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug(logPrefix + 
+                                         " ObjectKey : " + org.jacorb.orb.util.CorbaLoc.parseKey(request.objectKey()) +
+                                         " to POA Id : " + org.jacorb.orb.util.CorbaLoc.parseKey(getPOAId()) + " mismatch.");
+                        }
                     }
                     throw new WrongAdapter();
                 }
@@ -393,7 +399,13 @@ public class POA
                         logger.warn(logPrefix +
                                     " rid: " + request.requestId() +
                                     " opname: " + request.operation() +
-                                    " _invoke: object key not previously generated!");
+                                    " _invoke: object id not previously generated!");
+                        if (logger.isDebugEnabled())
+                        {
+                            logger.debug(logPrefix + 
+                                         " ObjectId : " + org.jacorb.orb.util.CorbaLoc.parseKey(request.objectId()) +
+                                         " to POA watermark : " + org.jacorb.orb.util.CorbaLoc.parseKey(watermark) + " mismatch.");
+                        }
                     }
                     throw new WrongAdapter();
                 }
