@@ -56,6 +56,19 @@ public abstract class TCP_IP_Transport
     private TransportListener transport_listener = null;
 
     private int finalTimeout = 20000;
+    
+    public TCP_IP_Transport (TCP_IP_Transport other)
+    {
+        this.in_stream = other.in_stream;
+        this.out_stream = other.out_stream;
+        this.b_out = other.b_out;
+        this.dump_incoming = other.dump_incoming;
+        this.connection_info = other.connection_info;
+        this.statistics_provider = other.statistics_provider;
+        this.transport_manager = other.transport_manager;
+        this.transport_listener = other.transport_listener;
+        this.finalTimeout = other.finalTimeout;
+    }
 
     public TCP_IP_Transport( StatisticsProvider statistics_provider,
                              TransportManager transport_manager )
