@@ -1020,4 +1020,14 @@ public class EventChannelImpl
     public boolean isPersistent() {
         return false;
     }
+
+
+    /**
+     * get the number of clients connected to this event channel. the
+     * number is the total of all Suppliers and Consumers connected
+     * to this channel.
+     */
+    public int getNumberOfConnectedClients() {
+        return numberOfConsumers_.get() + numberOfSuppliers_.get();
+    }
 }
