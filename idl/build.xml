@@ -102,10 +102,13 @@
 
 	<copy file="${src}/java_mapping/CORBA/ORB.java"
               tofile="${src}/generated/org/omg/CORBA/ORB.java"
-	/>	
+	/>
+	<copy file="${src}/java_mapping/CORBA/LocalObject.java"
+              tofile="${src}/generated/org/omg/CORBA/LocalObject.java"
+	/>
 	<copy file="${src}/java_mapping/CORBA/ORBPackage/InvalidNameHelper.java"
               tofile="${src}/generated/org/omg/CORBA/ORBPackage/InvalidNameHelper.java"
-	/>	
+	/>
 	<copy file="${src}/java_mapping/CORBA/FixedHolder.java"
               tofile="${src}/generated/org/omg/CORBA/FixedHolder.java"
 	/>
