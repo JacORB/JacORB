@@ -21,11 +21,9 @@ package org.jacorb.notification.queue;
  *
  */
 
-import java.util.Hashtable;
-
-import org.jacorb.notification.ConfigurableProperties;
-import org.jacorb.notification.Constants;
 import org.jacorb.notification.PropertyManager;
+import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 
@@ -39,6 +37,9 @@ import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.PriorityOrder;
 import org.omg.CosNotification.UnsupportedQoS;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.avalon.framework.logger.Logger;
 
 /**
@@ -48,13 +49,13 @@ import org.apache.avalon.framework.logger.Logger;
 
 public class EventQueueFactory
 {
-    private static Logger sLogger = Debug.getNamedLogger( EventQueueFactory.class.getName() );
+    private static final Logger sLogger = Debug.getNamedLogger( EventQueueFactory.class.getName() );
 
     private static final short UNKNOWN_POLICY = Short.MIN_VALUE;
 
-    private static final Hashtable mapOrderPolicyNameToValue = new Hashtable();
+    private static final Map mapOrderPolicyNameToValue = new HashMap();
 
-    private static final Hashtable mapDiscardPolicyNameToValue = new Hashtable();
+    private static final Map mapDiscardPolicyNameToValue = new HashMap();
 
     private static final String[] mapOrderPolicyValueToName;
 
@@ -100,20 +101,15 @@ public class EventQueueFactory
     public static EventQueue newEventQueue( PropertyManager qosProperties ) throws UnsupportedQoS
     {
         int maxEventsPerConsumer =
-            Environment.getIntPropertyWithDefault( ConfigurableProperties.MAX_EVENTS_PER_CONSUMER,
-                                                   Constants.DEFAULT_MAX_EVENTS_PER_CONSUMER );
+            Environment.getIntPropertyWithDefault( Configuration.MAX_EVENTS_PER_CONSUMER,
+                                                   Default.DEFAULT_MAX_EVENTS_PER_CONSUMER );
 
-        String orderPolicy = Environment.getProperty( ConfigurableProperties.ORDER_POLICY,
-                                                      Constants.DEFAULT_ORDER_POLICY );
+        String orderPolicy = Environment.getProperty( Configuration.ORDER_POLICY,
+                                                      Default.DEFAULT_ORDER_POLICY );
 
 
-        String discardPolicy = Environment.getProperty( ConfigurableProperties.DISCARD_POLICY,
-                                                        Constants.DEFAULT_DISCARD_POLICY );
-
-        if (sLogger.isDebugEnabled()) {
-            sLogger.debug( "OrderPolicy: " + orderPolicy );
-            sLogger.debug( "DiscardPolicy: " + discardPolicy );
-        }
+        String discardPolicy = Environment.getProperty( Configuration.DISCARD_POLICY,
+                                                        Default.DEFAULT_DISCARD_POLICY );
 
         short shortOrderPolicy = orderPolicyNameToValue( orderPolicy );
 
@@ -137,9 +133,9 @@ public class EventQueueFactory
         }
 
         if (sLogger.isInfoEnabled()) {
-            sLogger.info( "Create EventQueue with the Settings: MAX_EVENTS_PER_CONSUMER="
-                          + maxEventsPerConsumer
-                          + "/ORDER_POLICY=" + mapOrderPolicyValueToName[ shortOrderPolicy ]
+            sLogger.info( "Create EventQueue Settings: \n\tMAX_EVENTS_PER_CONSUMER="
+                          + maxEventsPerConsumer + "\n\t"
+                          + "/ORDER_POLICY=" + mapOrderPolicyValueToName[ shortOrderPolicy ] + "\n\t"
                           + "/DISCARD_POLICY=" + mapDiscardPolicyValueToName[ shortDiscardPolicy ] );
         }
 
