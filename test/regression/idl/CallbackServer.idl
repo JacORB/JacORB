@@ -1,0 +1,18 @@
+#pragma prefix "jacorb.org"
+
+module Tests {
+
+  interface CallbackServer
+  {
+    void ping ();
+    void delayed_ping (in long delay);
+    
+    void pass_in_char (in char x, in long delay);
+    
+    char return_char (in short unicode_number, in long delay);
+    
+	long operation (inout char p1, out long p2, 
+	                in boolean p3, in long delay);
+  };
+
+};
