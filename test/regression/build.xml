@@ -39,7 +39,7 @@
 
       <!-- Configuration properties for rmi depending upon JDK version -->
       <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate" property="rmi.ShutdownUtilDelegate"/>
-      <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate" property="rmi.jvmarg" value="-Djavax.rmi.CORBA.UtilClass=org.jacorb.test.rmi.FixSunDelegateBug"/>
+      <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate" property="rmi.jvmarg" value="-Djavax.rmi.CORBA.UtilClass=org.jacorb.test.orb.rmi.FixSunDelegateBug"/>
       <condition property="rmi.jvmarg" value="-D">
          <not>
             <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate"/>
@@ -64,7 +64,7 @@
 
 
    <target name="fixup-rmi-14" if="rmi.ShutdownUtilDelegate">
-       <copy file="${src}/rmi/FixSunDelegateBug.java.14" tofile="${src}/rmi/FixSunDelegateBug.java"/>
+       <copy file="${src}/orb/rmi/FixSunDelegateBug.java.14" tofile="${src}/orb/rmi/FixSunDelegateBug.java"/>
    </target>
 
 
@@ -78,7 +78,7 @@
 
    <target name="compile-rmi" depends="test-init, compile-src">
       <rmic base="${classdir}"
-         classname="org.jacorb.test.rmi.RMITestImpl"
+         classname="org.jacorb.test.orb.rmi.RMITestImpl"
          verify="${rmic.verify}"
          iiop="${rmic.iiop}"
          iiopopts="${rmic.iiopopts}"
@@ -358,10 +358,10 @@
    <target name="run-all-rmi"
            description="Run all Jacorb tests in the rmi package and its subpackages">
       <antcall target="run">
-         <param name="test" value="org.jacorb.test.rmi.AllTest"/>
+         <param name="test" value="org.jacorb.test.orb.rmi.AllTest"/>
       </antcall>
       <antcall target="run-jdk-orb-no-build">
-         <param name="test" value="org.jacorb.test.rmi.AllTest"/>
+         <param name="test" value="org.jacorb.test.orb.rmi.AllTest"/>
       </antcall>
    </target>
 
@@ -369,10 +369,10 @@
    <target name="run-all-rmi-no-build"
            description="Run all Jacorb tests in the rmi package and its subpackages">
       <antcall target="run-no-build">
-         <param name="test" value="org.jacorb.test.rmi.AllTest"/>
+         <param name="test" value="org.jacorb.test.orb.rmi.AllTest"/>
       </antcall>
       <antcall target="run-jdk-orb-no-build">
-         <param name="test" value="org.jacorb.test.rmi.AllTest"/>
+         <param name="test" value="org.jacorb.test.orb.rmi.AllTest"/>
       </antcall>
    </target>
 
@@ -466,6 +466,6 @@
       <delete dir="${classdir}/org" failonerror="false"/>
       <delete dir="${src}/generated" failonerror="false"/>
       <delete dir="${classdir}" failonerror="false"/>
-      <delete file="${src}/rmi/FixSunDelegateBug.java" failonerror="false"/>
+      <delete file="${src}/orb/rmi/FixSunDelegateBug.java" failonerror="false"/>
    </target>
 </project>
