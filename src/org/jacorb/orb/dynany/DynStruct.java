@@ -34,50 +34,44 @@ import org.jacorb.orb.*;
 
 public final class DynStruct
     extends DynAny
-    implements org.omg.DynamicAny.DynStructOperations
+    implements org.omg.DynamicAny.DynStruct
 {
     private org.omg.DynamicAny.NameValuePair[] members;
 
-    DynStruct( org.jacorb.orb.ORB orb, 
-               org.omg.DynamicAny.DynAnyFactory dynFactory,
-               org.jacorb.orb.Any any)
-	throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch, InvalidValue
-    {
-	super(orb,dynFactory,any);
-    }
-
-    DynStruct( org.jacorb.orb.ORB orb, 
-               org.omg.DynamicAny.DynAnyFactory dynFactory, 
+    DynStruct( org.omg.DynamicAny.DynAnyFactory dynFactory, 
                org.omg.CORBA.TypeCode tc)
 	throws InvalidValue, TypeMismatch
     {
-	if( tc.kind().value() != org.omg.CORBA.TCKind._tk_except && 
-	    tc.kind().value() != org.omg.CORBA.TCKind._tk_struct )
+        org.jacorb.orb.TypeCode _type = 
+            ((org.jacorb.orb.TypeCode)tc).originalType();
+
+	if( _type.kind().value() != org.omg.CORBA.TCKind._tk_except && 
+	    _type.kind().value() != org.omg.CORBA.TCKind._tk_struct )
 	    throw new TypeMismatch();
 
-	this.orb = orb;
+        this.orb = org.omg.CORBA.ORB.init();
 	this.dynFactory = dynFactory;
-	type = tc;
+
+	type = _type;
 
 	/* initialize for empty exceptions */
 	
 	try
 	{
-	    if( tc.kind().value()== org.omg.CORBA.TCKind._tk_except && 
-		tc.member_count() == 0)
+	    if( type.kind().value()== org.omg.CORBA.TCKind._tk_except && 
+		type.member_count() == 0)
 	    {
 		pos = 0;
 	    }
 
-	    limit = tc.member_count();
+	    limit = type.member_count();
 	    members = new NameValuePair[limit];
 	    for( int i = 0 ; i < limit; i++ )
 	    {		
-		members[i]= 
-                    new NameValuePair(
-                          tc.member_name(i),
-                          dynFactory.create_dyn_any_from_type_code(
-                                         tc.member_type(i)).to_any());
+		members[i]= new NameValuePair(
+                               type.member_name(i),
+                                  dynFactory.create_dyn_any_from_type_code(
+                                      type.member_type(i)).to_any());
 	    }
 	}
 	catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
@@ -98,10 +92,10 @@ public final class DynStruct
     public void from_any(org.omg.CORBA.Any value) 
 	throws InvalidValue, TypeMismatch
     {
-	if( !value.type().equal( type() ))
+	if( !value.type().equivalent( type() ))
 	    throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
 
-	type = value.type();
+	type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
 
 	try
 	{
@@ -109,13 +103,14 @@ public final class DynStruct
 	    members = new NameValuePair[limit];
 	    org.omg.CORBA.portable.InputStream is = 
                 value.create_input_stream();
+
 	    for( int i = 0 ; i < limit; i++ )
 	    {
 		try
 		{
 		    Any a = (org.jacorb.orb.Any)orb.create_any();
 		    a.read_value(is, type().member_type(i));		   
-		    members[i]= new NameValuePair( type().member_name(i), a);
+		    members[i] = new NameValuePair( type().member_name(i), a);
 		}
 		catch( org.omg.CORBA.TypeCodePackage.Bounds b )
 		{
@@ -156,17 +151,20 @@ public final class DynStruct
 	return members[pos].id;	
     }
 
+
     public org.omg.CORBA.TCKind current_member_kind()
     {
 	return members[pos].value.type().kind();
     }
+
 
     public NameValuePair[] get_members()
     {
 	return members;
     }
 
-    public void set_members(NameValuePair[] nvp)
+
+    public void set_members( NameValuePair[] nvp )
 	throws InvalidValue, TypeMismatch
     {
 	if( nvp.length != limit )
@@ -174,7 +172,7 @@ public final class DynStruct
  
 	for( int i = 0; i < limit; i++ )
 	{
-	    if(! nvp[i].value.type().equal(members[i].value.type() ))
+	    if( ! nvp[i].value.type().equivalent( members[i].value.type() ))
 	    {
 		System.err.println("expected tc kind " + 
                                    members[i].value.type().kind().value()
@@ -188,6 +186,7 @@ public final class DynStruct
 	}
 	members = nvp;	
     }
+
 
     public org.omg.DynamicAny.NameDynAnyPair[] get_members_as_dyn_any()
     {
@@ -207,6 +206,7 @@ public final class DynStruct
 	return result ;
     }
 
+
     public void set_members_as_dyn_any(org.omg.DynamicAny.NameDynAnyPair[] nvp) 
 	throws TypeMismatch, InvalidValue
     {
@@ -215,7 +215,7 @@ public final class DynStruct
 
 	for( int i = 0; i < limit; i++ )
 	{
-	    if(! nvp[i].value.type().equal(members[i].value.type() ))
+	    if(! nvp[i].value.type().equivalent( members[i].value.type() ))
 		throw new org.omg.DynamicAny.DynAnyPackage.InvalidValue();
 	    
 	    if(! (nvp[i].id.equals("") || nvp[i].id.equals( members[i].id )))
@@ -225,7 +225,7 @@ public final class DynStruct
 	members = new NameValuePair[nvp.length];
 	for( int i = 0; i < limit; i++ )
 	{
-	    members[i] = new NameValuePair(nvp[i].id, nvp[i].value.to_any());
+	    members[i] = new NameValuePair( nvp[i].id, nvp[i].value.to_any() );
 	}	
     }
 

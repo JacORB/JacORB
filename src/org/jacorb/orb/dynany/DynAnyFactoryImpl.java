@@ -3,7 +3,7 @@ package org.jacorb.orb.dynany;
 /*
  *        JacORB  - a free Java ORB
  *
- *   Copyright (C) 1997-99  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -23,6 +23,7 @@ package org.jacorb.orb.dynany;
 import java.util.*;
 import org.omg.DynamicAny.*;
 import org.omg.CORBA.TCKind;
+import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -31,58 +32,26 @@ import org.omg.CORBA.TCKind;
  */
 
 public class DynAnyFactoryImpl
-    extends org.omg.DynamicAny.DynAnyFactoryPOA
+    extends org.jacorb.orb.LocalityConstrainedObject
+    implements org.omg.DynamicAny.DynAnyFactory
 {
-    public DynAnyFactoryImpl(org.jacorb.orb.ORB orb)
+    org.omg.CORBA.ORB orb;
+
+    public DynAnyFactoryImpl( org.omg.CORBA.ORB orb )
     {
-	_this_object( orb );
+        this.orb = orb;
+        //	_this_object( orb );
     }
 
-    public org.omg.DynamicAny.DynAny create_dyn_any(org.omg.CORBA.Any value)
-	throws org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode
+    public org.omg.DynamicAny.DynAny create_dyn_any( org.omg.CORBA.Any value )
+	throws InconsistentTypeCode
     {
 	try
 	{
-	    switch( value.type().kind().value() )
-	    {
-	    case org.omg.CORBA.TCKind._tk_except:
-  	    case org.omg.CORBA.TCKind._tk_struct:
-		org.omg.DynamicAny.DynStructPOATie dst = 
-  		    new org.omg.DynamicAny.DynStructPOATie(new DynStruct((org.jacorb.orb.ORB)_orb(), _this(), (org.jacorb.orb.Any)value));
-		dst._this_object(_orb());
-  		return dst._this();
-	    case org.omg.CORBA.TCKind._tk_enum:
-		org.omg.DynamicAny.DynEnumPOATie det = 
-		    new org.omg.DynamicAny.DynEnumPOATie(new DynEnum((org.jacorb.orb.ORB)_orb(),_this(),  (org.jacorb.orb.Any)value));
-		det._this_object(_orb());
-		return det._this();
-	    case org.omg.CORBA.TCKind._tk_array:
-		org.omg.DynamicAny.DynArrayPOATie dyn_array_tie = 
-		    new org.omg.DynamicAny.DynArrayPOATie(new DynArray((org.jacorb.orb.ORB)_orb(),_this() , (org.jacorb.orb.Any)value));
-		dyn_array_tie._this_object(_orb());
-		return dyn_array_tie._this();
-	    case org.omg.CORBA.TCKind._tk_sequence:
-		org.omg.DynamicAny.DynSequencePOATie dsqt = 
-		    new org.omg.DynamicAny.DynSequencePOATie(
-                        new DynSequence((org.jacorb.orb.ORB)_orb(), 
-                                        _this(), 
-                                        (org.jacorb.orb.Any)value));
-		dsqt._this_object(_orb());
-		return dsqt._this();
-	    case org.omg.CORBA.TCKind._tk_union:
-		org.omg.DynamicAny.DynUnionPOATie dyn_union_tie = 
-		    new org.omg.DynamicAny.DynUnionPOATie(
-                        new DynUnion( (org.jacorb.orb.ORB)_orb(),
-                                      _this(), 
-                                      (org.jacorb.orb.Any)value));
-		dyn_union_tie._this_object(_orb());
-		return dyn_union_tie._this();
-	    default:
-		org.omg.DynamicAny.DynAnyPOATie dat = 
-		    new org.omg.DynamicAny.DynAnyPOATie(new DynAny((org.jacorb.orb.ORB)_orb(),_this() , (org.jacorb.orb.Any)value));
-		dat._this_object(_orb());
-		return dat._this();
-	    }
+            org.omg.DynamicAny.DynAny dynAny =
+                create_dyn_any_from_type_code( value.type() );
+            dynAny.from_any(value);
+            return dynAny;
 	}
 	catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
 	{
@@ -91,47 +60,79 @@ public class DynAnyFactoryImpl
 	catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
 	{
 	    itc.printStackTrace();
-	    throw new org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode();
 	}
-	return null;
+        throw new InconsistentTypeCode();
     }
 
-    public org.omg.DynamicAny.DynAny create_dyn_any_from_type_code(org.omg.CORBA.TypeCode type) 
-	throws org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode
+
+    public org.omg.DynamicAny.DynAny create_dyn_any_from_type_code( org.omg.CORBA.TypeCode type ) 
+	throws InconsistentTypeCode
     {     
-	try
-	{
-	    switch( type.kind().value() )
-	    {
-	    case TCKind._tk_enum : 
-		return new DynEnum((org.jacorb.orb.ORB)_orb(), _this(), type).copy();
-	    case TCKind._tk_struct : 
-		return new DynStruct((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
-	    case TCKind._tk_sequence : 
-		return new DynSequence((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
-	    case TCKind._tk_union : 
-		return new DynUnion((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
-	    case TCKind._tk_array : 
-		return new DynArray((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
-	    default:
-		return new DynAny((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
-	    }
-	}
-	catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
-	{
-	    iv.printStackTrace();
-	}
-	catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
-	{
-	    org.jacorb.util.Debug.output(3, itc);
-	    throw new org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode();
-	}
+        type = ((org.jacorb.orb.TypeCode)type).originalType();
+
+        try
+        {
+            switch( type.kind().value() )
+            {
+                case org.omg.CORBA.TCKind._tk_null:
+                case org.omg.CORBA.TCKind._tk_void:
+                case org.omg.CORBA.TCKind._tk_short:
+                case org.omg.CORBA.TCKind._tk_long:
+                case org.omg.CORBA.TCKind._tk_ushort:
+                case org.omg.CORBA.TCKind._tk_ulong:
+                case org.omg.CORBA.TCKind._tk_float:
+                case org.omg.CORBA.TCKind._tk_double:
+                case org.omg.CORBA.TCKind._tk_boolean:
+                case org.omg.CORBA.TCKind._tk_char:
+                case org.omg.CORBA.TCKind._tk_octet:
+                case org.omg.CORBA.TCKind._tk_any:
+                case org.omg.CORBA.TCKind._tk_TypeCode:
+                case org.omg.CORBA.TCKind._tk_objref:
+                case org.omg.CORBA.TCKind._tk_string:
+                case org.omg.CORBA.TCKind._tk_longlong:
+                case org.omg.CORBA.TCKind._tk_ulonglong:
+                case org.omg.CORBA.TCKind._tk_wchar:
+                case org.omg.CORBA.TCKind._tk_wstring:
+                {
+                    return new DynAny( this , type ) ;
+                }
+                case org.omg.CORBA.TCKind._tk_except:
+                case org.omg.CORBA.TCKind._tk_struct:
+                {
+                    return new DynStruct( this , type ) ;                    
+                }
+                case org.omg.CORBA.TCKind._tk_enum:
+                {
+                    return new DynEnum( this , type ) ;
+                }
+                case org.omg.CORBA.TCKind._tk_array:
+                {
+                    return new DynArray( this , type ) ;
+                }
+                case org.omg.CORBA.TCKind._tk_sequence:
+                {
+                    return new DynSequence( this , type ) ;
+                }
+                case org.omg.CORBA.TCKind._tk_union:
+                {
+                    return new DynUnion( this , type ) ;
+                }
+                default:
+                    throw new InconsistentTypeCode();
+            }
+        }
+        catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )
+        {
+            iv.printStackTrace();
+        }
+        catch( org.omg.DynamicAny.DynAnyPackage.TypeMismatch itc )
+        {
+            org.jacorb.util.Debug.output(3, itc);
+            throw new InconsistentTypeCode();
+        }
 	return null;
     }
 }
-
-
-
 
 
 

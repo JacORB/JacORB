@@ -37,7 +37,7 @@ import org.omg.CORBA.TCKind;
 
 public final class DynUnion
     extends DynAny
-    implements org.omg.DynamicAny.DynUnionOperations
+    implements org.omg.DynamicAny.DynUnion
 {
     private org.omg.DynamicAny.NameDynAnyPair[] members;
     private org.omg.CORBA.Any discriminator;
@@ -45,35 +45,35 @@ public final class DynUnion
     private String member_name;
     private int member_index;
     
-    DynUnion( org.jacorb.orb.ORB orb,
-              org.omg.DynamicAny.DynAnyFactory dynFactory,
-              org.jacorb.orb.Any any 
-              )
-	throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch, InvalidValue
-    {
-	super(orb,dynFactory,any);
-	limit = 2;
-    }
 
-    DynUnion( org.jacorb.orb.ORB orb,
-              org.omg.DynamicAny.DynAnyFactory dynFactory,
-              org.omg.CORBA.TypeCode tc
-              )
+    DynUnion( org.omg.DynamicAny.DynAnyFactory dynFactory,
+              org.omg.CORBA.TypeCode tc )
 	throws InvalidValue, TypeMismatch
     {
-	if( tc.kind() != org.omg.CORBA.TCKind.tk_union )
+        org.jacorb.orb.TypeCode _type = 
+            ((org.jacorb.orb.TypeCode)tc).originalType();
+
+	if( _type.kind() != org.omg.CORBA.TCKind.tk_union )
 	    throw new TypeMismatch();
 
-	type = tc;
+	type = _type;
 
-	this.orb = orb;
+        this.orb = org.omg.CORBA.ORB.init();
 	this.dynFactory = dynFactory;
 
 	limit = 2;
 
 	try
 	{
-	    discriminator = type.member_label(0);
+            for( int i = 0; i < type.member_count(); i++ )
+            {
+                discriminator = type.member_label(i);
+                if( discriminator.type().kind().value() != 
+                    org.omg.CORBA.TCKind._tk_octet )
+                {
+                    break;
+                }
+            }
 	    select_member();
 	}
 	catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
@@ -87,19 +87,22 @@ public final class DynUnion
     }
 
 
-    public void from_any(org.omg.CORBA.Any value) 
+    public void from_any( org.omg.CORBA.Any value ) 
 	throws InvalidValue, TypeMismatch
     {
-	if( ! type().equal( value.type() ))
+	if( ! type().equivalent( value.type() ))
 	    throw new org.omg.DynamicAny.DynAnyPackage.TypeMismatch();
 
 	try
 	{
+            type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
 	    limit = 2;
-	    org.omg.CORBA.portable.InputStream is = value.create_input_stream();
+	    org.omg.CORBA.portable.InputStream is = 
+                value.create_input_stream();
 
 	    discriminator = org.omg.CORBA.ORB.init().create_any();
 	    discriminator.type( type().discriminator_type());
+            
 	    discriminator.read_value(is, type().discriminator_type());
 
 	    int members = type().member_count();
@@ -115,6 +118,7 @@ public final class DynUnion
 		    break;		   
 		}
 	    }
+
 	    if( member_any == null )
 	    {
 		int def_idx = type().default_index();
@@ -126,6 +130,7 @@ public final class DynUnion
 		    member_index = def_idx;
 		}
 	    }
+
 	    if( member_any != null )
 	    {
 		try
@@ -134,7 +139,7 @@ public final class DynUnion
 		}
 		catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
 		{
-		    // should neever happen
+		    // should never happen
 		    itc.printStackTrace();
 		}		
 	    }
@@ -177,16 +182,18 @@ public final class DynUnion
 	}
 	catch( org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode itc )
 	{
-	    // should neever happen
+	    // should never happen
 	    itc.printStackTrace();
 	}
 	return null;
     }
 
+
+
     public void set_discriminator(org.omg.DynamicAny.DynAny d) 
 	throws TypeMismatch
     {
-	if( !d.type().equal( discriminator.type()))
+	if( ! d.type().equivalent( discriminator.type()))
 	{
 	    System.err.println("expected tc kind " + discriminator.type().kind().value()
 				   + ", got " + d.type().kind().value() );	  
@@ -200,7 +207,7 @@ public final class DynUnion
 
 	try
 	{
-	    if( ! type().member_label(member_index).equals( discriminator ))
+	    if( ! type().member_label( member_index ).equals( discriminator ) )
 		select_member();
 	}
 	catch( org.omg.CORBA.TypeCodePackage.Bounds b )
@@ -372,10 +379,12 @@ public final class DynUnion
 	return( member != null );
     }
 
+
     public org.omg.CORBA.TCKind discriminator_kind()
     {
 	return discriminator.type().kind();
     }
+
 
     public org.omg.DynamicAny.DynAny member() 
 	throws InvalidValue
@@ -415,6 +424,7 @@ public final class DynUnion
     {	
 	if( pos == -1 )
 	    return null;
+
 	if( pos == 0 )
 	    return get_discriminator();
 	else
@@ -434,8 +444,6 @@ public final class DynUnion
 
 
 }
-
-
 
 
 

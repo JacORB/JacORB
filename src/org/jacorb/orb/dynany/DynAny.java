@@ -33,14 +33,15 @@ import org.omg.DynamicAny.DynAnyPackage.*;
  */
 
 
-public class DynAny 
-    implements org.omg.DynamicAny.DynAnyOperations
+public class DynAny
+    extends org.jacorb.orb.LocalityConstrainedObject
+    implements org.omg.DynamicAny.DynAny
 {
     protected org.omg.DynamicAny.DynAnyFactory dynFactory;
     protected org.omg.CORBA.TypeCode type;
     protected int pos = -1;
     protected int limit = 0;
-    protected org.jacorb.orb.ORB orb;
+    protected org.omg.CORBA.ORB orb;
 
     /* our representation of a primitive type any is the any itself */
     private org.omg.CORBA.Any anyRepresentation;
@@ -48,26 +49,15 @@ public class DynAny
     protected DynAny()
     {}
 
-    DynAny( org.jacorb.orb.ORB orb, 
-            org.omg.DynamicAny.DynAnyFactory dynFactory, 
-            org.jacorb.orb.Any _any )
-        throws TypeMismatch, InvalidValue
-    {
-        this.orb = orb;
-        this.dynFactory = dynFactory;
-        type = _any.type();
-        from_any(_any);
-    }
 
-    DynAny( org.jacorb.orb.ORB orb, 
-            org.omg.DynamicAny.DynAnyFactory dynFactory,  
+    DynAny( org.omg.DynamicAny.DynAnyFactory dynFactory,  
             org.omg.CORBA.TypeCode _type)
         throws TypeMismatch
     {
-        this.orb = orb;
+        this.orb = org.omg.CORBA.ORB.init();
         this.dynFactory = dynFactory;
-        type = _type;
-        anyRepresentation = defaultValue(type);
+        type = ((org.jacorb.orb.TypeCode)_type).originalType();
+        anyRepresentation = defaultValue( type );
     }
 
     public org.omg.CORBA.TypeCode type()
@@ -78,11 +68,11 @@ public class DynAny
     public void assign(org.omg.DynamicAny.DynAny dyn_any) 
         throws TypeMismatch
     {
-        if( dyn_any.type().equal( this.type()))
+        if( dyn_any.type().equivalent( this.type()))
         {
             try
             {
-                from_any(dyn_any.to_any());
+                from_any( dyn_any.to_any() );
             }
             catch( InvalidValue iv )
             {
@@ -101,8 +91,10 @@ public class DynAny
     public void from_any(org.omg.CORBA.Any value) 
         throws InvalidValue, TypeMismatch
     {
-        if( ! value.type().equal( type()) )
+        if( ! value.type().equivalent( type()) )
             throw new TypeMismatch();
+
+        type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
 
         try
         {
@@ -153,6 +145,7 @@ public class DynAny
         return anyRepresentation;
     }
 
+
     public void insert_boolean( boolean value ) 
         throws InvalidValue, TypeMismatch
     {
@@ -163,6 +156,7 @@ public class DynAny
             throw new InvalidValue();
         any.insert_boolean(value);
     }
+
 
     public void insert_octet( byte value ) 
         throws InvalidValue, TypeMismatch
@@ -175,6 +169,7 @@ public class DynAny
         any.insert_octet(value);
     }
 
+
     public void insert_char(char value) 
         throws InvalidValue, TypeMismatch
     {
@@ -185,6 +180,7 @@ public class DynAny
             throw new InvalidValue();
         any.insert_char(value);
     }
+
 
     public void insert_short(short value) 
         throws InvalidValue, TypeMismatch
@@ -197,6 +193,7 @@ public class DynAny
         any.insert_short(value);
     }
 
+
     public void insert_ushort(short value) 
         throws InvalidValue, TypeMismatch
     {
@@ -207,6 +204,7 @@ public class DynAny
             throw new InvalidValue();
         any.insert_ushort(value);
     }
+
 
     public void insert_long(int value) 
         throws InvalidValue, TypeMismatch
@@ -219,6 +217,7 @@ public class DynAny
         any.insert_long(value);
     }
 
+
     public void insert_ulong(int value) 
         throws InvalidValue, TypeMismatch
     {
@@ -229,6 +228,7 @@ public class DynAny
             throw new InvalidValue();
         any.insert_ulong(value);
     }
+
 
     public void insert_float(float value) 
         throws InvalidValue, TypeMismatch
@@ -241,6 +241,7 @@ public class DynAny
         any.insert_float(value);
     }
 
+
     public void insert_double(double value) 
         throws InvalidValue, TypeMismatch
     {
@@ -251,6 +252,7 @@ public class DynAny
             throw new InvalidValue();
         any.insert_double(value);
     }
+
 
     public void insert_string(java.lang.String value) 
         throws InvalidValue, TypeMismatch
@@ -263,6 +265,7 @@ public class DynAny
         any.insert_string(value);
     }
 
+
     public void insert_reference(org.omg.CORBA.Object value) 
         throws InvalidValue, TypeMismatch
     {
@@ -273,6 +276,7 @@ public class DynAny
             throw new InvalidValue();
         any.insert_Object(value);
     }
+
 
     public void insert_typecode(org.omg.CORBA.TypeCode value) 
         throws InvalidValue, TypeMismatch
@@ -340,6 +344,7 @@ public class DynAny
         any.insert_any(value);
     }
     
+
     public void insert_dyn_any(org.omg.DynamicAny.DynAny value) 
         throws TypeMismatch, InvalidValue
     {
@@ -660,62 +665,62 @@ public class DynAny
         _any.type( tc );
         switch( tc.kind().value() )
         {
-        case TCKind._tk_boolean : 
-            _any.insert_boolean(false);
-            break;
-        case TCKind._tk_short: 
-            _any.insert_short( (short)0 );
-            break;
-        case TCKind._tk_ushort:  
-            _any.insert_ushort( (short)0 );
-            break;
-        case TCKind._tk_long:  
-            _any.insert_long( 0 );
-            break;
-        case TCKind._tk_double:  
-            _any.insert_double( 0 );
-            break;
-        case TCKind._tk_ulong:  
-            _any.insert_long( 0 );
-            break;
-        case TCKind._tk_longlong:  
-            _any.insert_longlong(0);
-            break;
-        case TCKind._tk_ulonglong: 
-            _any.insert_ulonglong(0);
-            break;
-        case TCKind._tk_float: 
-            _any.insert_float(0);
-            break;
-        case TCKind._tk_char: 
-            _any.insert_char((char)0);
-            break;
-        case TCKind._tk_wchar: 
-            _any.insert_wchar((char)0);
-            break;
-        case TCKind._tk_octet: 
-            _any.insert_octet((byte)0);
-            break;
-        case TCKind._tk_string: 
-            _any.insert_string("");
-            break;
-        case TCKind._tk_wstring: 
-            _any.insert_wstring("");
-            break;
-        case TCKind._tk_TypeCode: 
-            _any.insert_TypeCode( orb.get_primitive_tc( TCKind.tk_null ) );
-            break;
-        case TCKind._tk_any:
-            org.jacorb.orb.Any a = (org.jacorb.orb.Any)orb.create_any();
-            a.type( orb.get_primitive_tc( TCKind.tk_null ));
-            _any.insert_any(a);
-            break;
-        default: 
-            throw new TypeMismatch();
+            case TCKind._tk_boolean : 
+                _any.insert_boolean(false);
+                break;
+            case TCKind._tk_short: 
+                _any.insert_short( (short)0 );
+                break;
+            case TCKind._tk_ushort:  
+                _any.insert_ushort( (short)0 );
+                break;
+            case TCKind._tk_long:  
+                _any.insert_long( 0 );
+                break;
+            case TCKind._tk_double:  
+                _any.insert_double( 0 );
+                break;
+            case TCKind._tk_ulong:  
+                _any.insert_long( 0 );
+                break;
+            case TCKind._tk_longlong:  
+                _any.insert_longlong(0);
+                break;
+            case TCKind._tk_ulonglong: 
+                _any.insert_ulonglong(0);
+                break;
+            case TCKind._tk_float: 
+                _any.insert_float(0);
+                break;
+            case TCKind._tk_char: 
+                _any.insert_char((char)0);
+                break;
+            case TCKind._tk_wchar: 
+                _any.insert_wchar((char)0);
+                break;
+            case TCKind._tk_octet: 
+                _any.insert_octet((byte)0);
+                break;
+            case TCKind._tk_string: 
+                _any.insert_string("");
+                break;
+            case TCKind._tk_wstring: 
+                _any.insert_wstring("");
+                break;
+            case TCKind._tk_TypeCode: 
+                _any.insert_TypeCode( orb.get_primitive_tc( TCKind.tk_null ) );
+                break;
+            case TCKind._tk_any:
+                org.jacorb.orb.Any a = (org.jacorb.orb.Any)orb.create_any();
+                a.type( orb.get_primitive_tc( TCKind.tk_null ));
+                _any.insert_any(a);
+                break;
+            default: 
+                throw new TypeMismatch();
         }
         return _any;
     }
-
+    
 
 }
 

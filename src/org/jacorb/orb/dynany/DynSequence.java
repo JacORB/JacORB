@@ -36,36 +36,31 @@ import java.util.Vector;
 
 public final class DynSequence
     extends DynAny
-    implements org.omg.DynamicAny.DynSequenceOperations
+    implements org.omg.DynamicAny.DynSequence
 {
     private Vector members;
     private int length;
     private org.omg.CORBA.TypeCode elementType;
 
-    DynSequence( org.jacorb.orb.ORB orb,
-                 org.omg.DynamicAny.DynAnyFactory dynFactory,
-                 org.jacorb.orb.Any any)
-        throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch, InvalidValue
-    {
-        super(orb, dynFactory, any);
-    }
-
-    DynSequence( org.jacorb.orb.ORB orb,
-                 org.omg.DynamicAny.DynAnyFactory dynFactory,
-                 org.omg.CORBA.TypeCode tc)
+    DynSequence( org.omg.DynamicAny.DynAnyFactory dynFactory,
+                 org.omg.CORBA.TypeCode tc )
         throws InvalidValue, TypeMismatch
     {
-        if( tc.kind() != org.omg.CORBA.TCKind.tk_sequence )
+        org.jacorb.orb.TypeCode _type = 
+            ((org.jacorb.orb.TypeCode)tc).originalType();
+
+        if( _type.kind() != org.omg.CORBA.TCKind.tk_sequence )
             throw new TypeMismatch();   
+
         try
         {
-            type = tc;
+            type = _type;
 
-            this.orb = orb;
+            this.orb = org.omg.CORBA.ORB.init();
             this.dynFactory = dynFactory;
 
-            elementType = tc.content_type();
-            limit = tc.length();
+            elementType = type.content_type();
+            limit = type.length();
             length = 0;
             members = new Vector();
         }
@@ -73,12 +68,13 @@ public final class DynSequence
         {
             bk.printStackTrace();
         }
+        org.jacorb.util.Debug.assert( elementType != null, "DynSequence.set_length, elementType null");
     }
 
     public void from_any(org.omg.CORBA.Any value) 
         throws InvalidValue, TypeMismatch
     {
-        if( ! type().equal( value.type() ))
+        if( ! type().equivalent( value.type() ))
         {
             System.err.println("expected tc kind " + type().kind().value()
                        + ", got " + value.type().kind().value() );      
@@ -86,7 +82,8 @@ public final class DynSequence
             { 
                 System.err.println("expected element tc kind " + 
                                    type().content_type().kind().value()+ ", got " + 
-                                   value.type().content_type().kind().value() );         
+                                   value.type().content_type().kind().value() ); 
+    
                 System.err.println("expected length " + type().length()
                                    + ", got " + value.type().length() );         
             }
@@ -100,10 +97,14 @@ public final class DynSequence
 
         try
         {
+            type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
+
             limit = type().length();
+
             org.omg.CORBA.portable.InputStream is = 
                 value.create_input_stream();
             length = is.read_long();
+
             if( length > 0 )
                 pos = 0;
 
@@ -116,8 +117,8 @@ public final class DynSequence
             for( int i = 0 ; i < length; i++ )
             {
                 Any a = (org.jacorb.orb.Any)orb.create_any();
-                a.read_value(is, elementType);  
-                members.addElement(a);         
+                a.read_value( is, elementType );  
+                members.addElement( a );         
             }   
         }
         catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
@@ -125,7 +126,9 @@ public final class DynSequence
             // should not happen anymore
             bk.printStackTrace();
         }
+        org.jacorb.util.Debug.assert( elementType != null, "DynSequence.set_length, elementType null");
     }
+
 
     public org.omg.CORBA.Any to_any() 
     {
@@ -151,6 +154,7 @@ public final class DynSequence
         return length;
     }
 
+
     public void set_length(int len) 
         throws InvalidValue
     {
@@ -162,6 +166,8 @@ public final class DynSequence
             members = new Vector();
             pos = -1;
         }
+
+        org.jacorb.util.Debug.assert( elementType != null, "DynSequence.set_length, elementType null");
 
         if( len > length )
         {
@@ -192,6 +198,7 @@ public final class DynSequence
         length = len;
     }
 
+
     public org.omg.CORBA.Any[] get_elements()
     {
         Any[] result = new Any[ members.size()];
@@ -200,22 +207,29 @@ public final class DynSequence
         return result;
     }
 
-    public void set_elements(org.omg.CORBA.Any[] value) 
+
+    public void set_elements( org.omg.CORBA.Any[] value ) 
         throws TypeMismatch, InvalidValue
     {
         if( limit > 0 && value.length > limit )
             throw new InvalidValue();
 
         for( int i = value.length; i-- > 0 ;)
-            if( value[i].type().kind() != elementType.kind() )
+        {
+            TypeCode tc = 
+                ((org.jacorb.orb.TypeCode)value[i].type()).originalType();
+
+            if( tc.kind() != elementType.kind() )
                 throw new TypeMismatch();
+        }
 
         /** ok now */
         length = value.length;
+
         members = new Vector();
         for( int i = 0; i < length; i++)
         {
-            members.addElement(value[i]);
+            members.addElement( value[i] );
         }
 
         if( length > 0 )
@@ -243,6 +257,7 @@ public final class DynSequence
         return null;
     }
 
+
     public void set_elements_as_dyn_any(org.omg.DynamicAny.DynAny[] value) 
         throws TypeMismatch, InvalidValue
     {
@@ -268,10 +283,12 @@ public final class DynSequence
      * overwrites
      */
 
+
     protected org.omg.CORBA.Any getRepresentation()
     {
         return (Any)members.elementAt(pos);
     }
+
 
     public boolean next()
     {

@@ -32,30 +32,25 @@ import org.jacorb.orb.*;
 
 public final class DynEnum
     extends DynAny
-    implements org.omg.DynamicAny.DynEnumOperations
+    implements org.omg.DynamicAny.DynEnum
 {
     private int enum_value;
     private int max;
     private String [] member_names;
 
-    DynEnum( org.jacorb.orb.ORB orb,
-            org.omg.DynamicAny.DynAnyFactory dynFactory,
-            org.jacorb.orb.Any any)
+    DynEnum( org.omg.DynamicAny.DynAnyFactory dynFactory,
+             org.omg.CORBA.TypeCode tc)
 	throws InvalidValue, TypeMismatch
     {
-	super(orb,dynFactory,any);
-    }
+        org.jacorb.orb.TypeCode _type = 
+            ((org.jacorb.orb.TypeCode)tc).originalType();
 
-    DynEnum(org.jacorb.orb.ORB orb,
-            org.omg.DynamicAny.DynAnyFactory dynFactory,
-            org.omg.CORBA.TypeCode tc)
-	throws InvalidValue, TypeMismatch
-    {
-	if( tc.kind().value() != org.omg.CORBA.TCKind._tk_enum )
+	if( _type.kind().value() != org.omg.CORBA.TCKind._tk_enum )
 	    throw new TypeMismatch();
-	type = tc;
 
-	this.orb = orb;
+	type = _type;
+
+        this.orb = org.omg.CORBA.ORB.init();
 	this.dynFactory = dynFactory;
 	pos = -1;
 	enum_value = 0;
@@ -80,12 +75,15 @@ public final class DynEnum
     }
 
 
-    public void from_any(org.omg.CORBA.Any value) 
+    public void from_any( org.omg.CORBA.Any value ) 
 	throws InvalidValue, TypeMismatch
     {
-	if( ! value.type().equal( type()) )
+	if( ! value.type().equivalent( type()) )
 	    throw new TypeMismatch();
-	try
+
+        type = ((org.jacorb.orb.TypeCode)value.type()).originalType();
+
+        try
 	{	    
 	    enum_value = value.create_input_stream().read_long();
 	    member_names = new String[ type().member_count()];
