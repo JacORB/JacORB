@@ -24,4 +24,83 @@ $> jaco -Dcustom.props=server_props demo.ssl.Server ior
 For the client:
 $> jaco -Dcustom.props=client_props demo.ssl.Client ior
 
-        
+       Running this demo with Sun JSSE (SDK 1.4+)
+       ------------------------------------------
+       
+For the server:
+$> jaco -Dcustom.props=jsse_server_props demo.ssl.Server ior
+
+For the client:
+$> jaco -Dcustom.props=jsse_client_props demo.ssl.Client ior
+
+       How to generate the JSSE keystores
+       ----------------------------------
+       
+There is a keystore each for the server and client. Aside from their own
+key pair each store contains the (trusted) certificate of the other party.
+
+The existing keystores should last till mid summer 2036. But if you're
+curious...
+
+$>keytool -genkey -alias client_alias -validity 25000 -keystore jsse_client_ks -storepass jsse_client_ks_pass -keypass jsse_client_ks_pass
+What is your first and last name?
+  [Unknown]:  JSSE SSL Demo Client
+What is the name of your organizational unit?
+  [Unknown]:
+What is the name of your organization?
+  [Unknown]:  JacORB
+What is the name of your City or Locality?
+  [Unknown]:
+What is the name of your State or Province?
+  [Unknown]:
+What is the two-letter country code for this unit?
+  [Unknown]:
+Is CN=JSSE SSL Demo Client, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown correct?
+  [no]:  y
+
+
+$>keytool -genkey -alias server_alias -validity 25000  -keystore jsse_server_ks -storepass jsse_server_ks_pass -keypass jsse_server_ks_pass
+What is your first and last name?
+  [Unknown]:  JSSE SSL Demo Server
+What is the name of your organizational unit?
+  [Unknown]:
+What is the name of your organization?
+  [Unknown]:  JacORB
+What is the name of your City or Locality?
+  [Unknown]:
+What is the name of your State or Province?
+  [Unknown]:
+What is the two-letter country code for this unit?
+  [Unknown]:
+Is CN=JSSE SSL Demo Server, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unkno
+wn correct?
+  [no]:  y
+
+
+$>keytool -export -keystore jsse_client_ks -alias client_alias -storepass jsse_client_ks_pass -file jsse_client_cert
+Certificate stored in file <jsse_client_cert>
+
+$>keytool -import -keystore jsse_server_ks -alias client_alias -storepass jsse_server_ks_pass -file jsse_client_cert
+Owner: CN=JSSE SSL Demo Client, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown
+Issuer: CN=JSSE SSL Demo Client, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown
+Serial number: 403cd69c
+Valid from: Wed Feb 25 17:08:44 GMT 2004 until: Tue Jul 01 11:40:28 BST 2036
+Certificate fingerprints:
+         MD5:  AD:E4:EB:8F:33:30:02:1B:84:36:30:CA:90:2A:8E:EF
+         SHA1: F4:EF:BE:FA:46:92:24:E6:FB:70:39:00:F1:82:7D:D8:46:5D:F4:51
+Trust this certificate? [no]:  y
+Certificate was added to keystore
+
+$>keytool -export -keystore jsse_server_ks -alias server_alias -storepass jsse_server_ks_pass -file jsse_server_cert
+Certificate stored in file <jsse_server_cert>
+
+$>keytool -import -keystore jsse_client_ks -alias server_alias -storepass jsse_client_ks_pass -file jsse_server_cert
+Owner: CN=JSSE SSL Demo Server, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown
+Issuer: CN=JSSE SSL Demo Server, OU=Unknown, O=JacORB, L=Unknown, ST=Unknown, C=Unknown
+Serial number: 403cd6c6
+Valid from: Wed Feb 25 17:09:26 GMT 2004 until: Tue Jul 01 11:41:10 BST 2036
+Certificate fingerprints:
+         MD5:  E1:F9:60:36:AF:FD:DC:44:A1:CB:C3:23:2C:AB:F0:63
+         SHA1: 5A:3D:BD:63:FD:06:1C:7A:A1:95:F3:A0:4B:C4:BF:56:F1:D8:65:5F
+Trust this certificate? [no]:  y
+Certificate was added to keystore
