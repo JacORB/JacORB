@@ -37,6 +37,7 @@ public class ReplyInputStream
     extends ServiceContextTransportingInputStream
 {
     public ReplyHeader_1_2 rep_hdr = null;
+    private int body_start;
 
     public ReplyInputStream( org.omg.CORBA.ORB orb, byte[] buffer )
     {
@@ -60,6 +61,8 @@ public class ReplyInputStream
                 ReplyHeader_1_0 hdr = 
                     ReplyHeader_1_0Helper.read( this );
 
+                body_start = pos;
+
                 rep_hdr = 
                     new ReplyHeader_1_2( hdr.request_id,
                                          ReplyStatusType_1_2.from_int( hdr.reply_status.value() ),
@@ -73,6 +76,8 @@ public class ReplyInputStream
                 
                 skipHeaderPadding();
 
+                body_start = pos;
+
                 break;
             }
             default : {
@@ -84,6 +89,18 @@ public class ReplyInputStream
     public ReplyStatusType_1_2 getStatus()
     {
         return rep_hdr.reply_status;
+    }
+    
+    /**
+     * Returns a copy of the body of this reply.  This does not include
+     * the GIOP header and the reply header.
+     */
+    public byte[] getBody()
+    {
+        int body_length = msg_size - (body_start - Messages.MSG_HEADER_SIZE);
+        byte[] body = new byte[body_length];
+        System.arraycopy (buffer, body_start, body, 0, body_length);
+        return body;
     }
 
     public void finalize()
