@@ -61,7 +61,7 @@ public class SSLSocketFactory
 	if( factory == null )
 	{
 	    if (logger.isErrorEnabled())
-                logger.error("Unable to create ServerSocketFactory!" );
+                logger.error("Unable to create SSLSocketFactory!" );
 	}
 	
 	change_roles = 
