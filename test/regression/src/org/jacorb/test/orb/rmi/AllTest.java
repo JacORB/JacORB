@@ -31,7 +31,7 @@ public class AllTest extends TestCase
 
    public static Test suite ()
    {
-        TestSuite suite = new TestSuite ("All ORB Tests");
+        TestSuite suite = new TestSuite ("RMI Tests");
 
         suite.addTest (org.jacorb.test.orb.rmi.RMITest.suite());
 
