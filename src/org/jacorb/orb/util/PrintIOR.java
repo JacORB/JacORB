@@ -267,7 +267,7 @@ public class PrintIOR
                 
                 if( ji < (codeSet.ForCharData.conversion_code_sets.length - 1) )
                 {
-                    System.out.println( ", " );
+                    System.out.print( ", " );
                 }
             }
 
@@ -280,7 +280,7 @@ public class PrintIOR
                 
                 if( ji < (codeSet.ForWcharData.conversion_code_sets.length - 1) )
                 {
-                    System.out.println( ", " );
+                    System.out.print( ", " );
                 }  
             } 
         }
