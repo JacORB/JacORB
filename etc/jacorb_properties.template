@@ -738,11 +738,6 @@ jacorb.notification.default_filter_factory = builtin
 org.jacorb.notification.log.verbosity = 3
 org.jacorb.test.notification.log.verbosity = 3
 
-
-# any other custom properties can be added here.
-# These are available through the API (call
-# jacorb.orb.Environment.getProperty())
-
 ########################################
 #                                      #
 #   SAS configuration                  #
@@ -768,3 +763,14 @@ jacorb.SAS.TSS.log.verbosity=INFO
 # This option is used for GSSUP security and sets up the GSS Provider
 # Comment out this line if you are not using GSS UP authentication
 #org.omg.PortableInterceptor.ORBInitializerClass.GSSUPProvider=org.jacorb.security.sas.GSSUPProviderInitializer
+
+########################################
+#                                      #
+#   Custom configuration               #
+#                                      #
+########################################
+
+
+# any other custom properties can be added here.
+# These are available through the API (call
+# jacorb.orb.Environment.getProperty())
