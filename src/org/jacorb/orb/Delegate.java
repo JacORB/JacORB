@@ -655,26 +655,6 @@ public final class Delegate
             // tcs wanted. After first such request was sent (and it is here) we can
             // mark connection tcs as negotiated
             connection.markTcsNegotiated();
-
-            if (! location_forward_permanent)
-            {
-                Debug.output(2, "Delegate: falling back to original IOR");
-
-                // falling back to original target,
-                // if location forward was only one-time
-                unbind();
-                ior = iorOriginal;
-                pior = piorOriginal;//new ParsedIOR( ior );
-
-                iorOriginal = null;
-                piorOriginal = null;
-                location_forward_permanent = true;
-
-                _init();
-                
-                //lazy bind :-), bind() will be called on the next invocation
-                //bind();          
-            }
         } 
         catch (org.omg.CORBA.SystemException cfe)
         {
@@ -829,7 +809,15 @@ public final class Delegate
                 if (use_interceptors && (info != null))
                 {
                     info.reply_status = SYSTEM_EXCEPTION.value;
-                    info.setReplyServiceContexts(rep.getHeader().service_context);
+                    
+                    if( rep.getHeader() != null )
+                    {
+                        info.setReplyServiceContexts(rep.getHeader().service_context);
+                    }
+                    else
+                    {
+                        info.setReplyServiceContexts( new ServiceContext[0] );
+                    }
     
                     SystemExceptionHelper.insert(info.received_exception, _sys_ex);
                     try
@@ -877,6 +865,13 @@ public final class Delegate
     
                 throw _user_ex;          
             }
+            finally
+            {
+                if(! location_forward_permanent)
+                {
+                    fallback();
+                }
+            }
         }
         else
         {
@@ -888,6 +883,12 @@ public final class Delegate
     
                 invokeInterceptors(info, ClientInterceptorIterator.RECEIVE_OTHER);
             }
+
+            if(! location_forward_permanent)
+            {
+                fallback();
+            }
+
           
             return null; // if call was oneway
         }
@@ -1191,6 +1192,26 @@ public final class Delegate
         if( noMoreClients() )
             throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
         return ior.type_id;
+    }
+    
+    private void fallback()
+    {
+        Debug.output(2, "Delegate: falling back to original IOR");
+                    
+        // falling back to original target,
+        // if location forward was only one-time
+        unbind();
+        ior = iorOriginal;
+        pior = piorOriginal;
+        
+        iorOriginal = null;
+        piorOriginal = null;
+        location_forward_permanent = true;
+        
+        _init();
+        
+        //lazy bind :-), bind() will be called on the next invocation
+        //bind();          
     }
     
     
