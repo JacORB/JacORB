@@ -94,32 +94,34 @@ public class SSLServerSocketFactory
     {
 	try 
 	{
-            String keystore_location = Environment.keyStore();
-            if( keystore_location == null ) 
+            java.security.Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
+
+            String keystore_location = 
+                Environment.getProperty( "jacorb.security.keystore" );
+            if( keystore_location == null )
             {
-                System.out.print( "Please enter key store file name: " );
-                keystore_location = 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
+                Debug.output( 1, "ERROR: No keystore location specified" );
+                Debug.output( 1, "Please check property \"jacorb.security.keystore\"");
+                
+                return null;
             }
 
-            String keystore_passphrase = 
+            String keystore_password = 
                 Environment.getProperty( "jacorb.security.keystore_password" );
-            if( keystore_passphrase == null ) 
+            if( keystore_password == null )
             {
-                System.out.print( "Please enter store pass phrase: " );
-                keystore_passphrase= 
-                    (new BufferedReader(new InputStreamReader(System.in))).readLine();
+                Debug.output( 1, "ERROR: No keystore password specified" );
+                Debug.output( 1, "Please check property \"jacorb.security.keystore_password\"");
+                
+                return null;
             }
 
-	    KeyStore key_store = 
-		KeyStoreUtil.getKeyStore( keystore_location,
-					  keystore_passphrase.toCharArray() );
-
-            key_store.load( new FileInputStream( keystore_location ),
-                            keystore_passphrase.toCharArray() );
+            KeyStore key_store = 
+                KeyStoreUtil.getKeyStore( keystore_location,
+                                          keystore_password.toCharArray() );
 
 	    KeyManagerFactory kmf = KeyManagerFactory.getInstance( "SunX509" );
-            kmf.init( key_store, keystore_passphrase.toCharArray() );
+            kmf.init( key_store, keystore_password.toCharArray() );
 
             TrustManagerFactory tmf = null;
 	    
@@ -136,9 +138,33 @@ public class SSLServerSocketFactory
 		}
 		else
 		{
-		    tmf.init( null );
-		}
-	    }
+                    String truststore_location = 
+                        Environment.getProperty( "jacorb.security.jsse.truststore" );
+                    if( truststore_location == null )
+                    {
+                        Debug.output( 1, "ERROR: No truststore location specified" );
+                        Debug.output( 1, "Please check property \"jacorb.security.jsse.truststore\"");
+                        
+                        return null;
+                    }
+                    
+                    String truststore_password = 
+                        Environment.getProperty( "jacorb.security.jsse.truststore_password" );
+                    if( truststore_password == null )
+                    {
+                        Debug.output( 1, "ERROR: No truststore password specified" );
+                        Debug.output( 1, "Please check property \"jacorb.security.jsse.truststore_password\"");
+                        
+                        return null;
+                    }
+                    
+                    KeyStore trust_store = 
+                        KeyStoreUtil.getKeyStore( truststore_location,
+                                                  truststore_password.toCharArray() );
+                    
+                    tmf.init( trust_store );		
+                }
+            }
 		
             SSLContext ctx = SSLContext.getInstance( "TLS" );
             ctx.init( kmf.getKeyManagers(), 
@@ -155,3 +181,7 @@ public class SSLServerSocketFactory
 	return null;
     }
 }
+
+
+
+
