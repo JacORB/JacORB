@@ -47,6 +47,7 @@
           <pathelement location="${lib}/idl.jar"/>
           <pathelement location="${lib}/concurrent.jar"/>
           <pathelement location="${lib}/antlr.jar"/>
+          <pathelement location="${sun.boot.class.path}"/>
           <pathelement location="${java.class.path}"/>
        </path>
     </pathconvert>
@@ -120,12 +121,14 @@
 <!--                                                                         -->
 <!-- Note use of bootclasspath is to override ORB classes in rt.jar. Ant     -->
 <!-- doesn't allow prepend so must add in rt.jar as well                     -->
+          <!-- bootclasspath="${xbootclasspath}" -->
+
 <target name="jacorb-javac" depends="check-includes,check-sourcepath,check-src,check-excludes">
    <echo message="Compiling for ${ant.project.name}"/>
    <javac srcdir="${javac-src}"
           destdir="${classdir}"
-          bootclasspath="${xbootclasspath}"
           debug="${debug}"
+          classpath="${classpath}" 
           debuglevel="${debuglevel}"
           sourcepath="${javac-sourcepath}"
           includes="${javac-includes}"
