@@ -83,10 +83,12 @@ public class ImplementationRepositoryImpl
     private boolean check_object_liveness = false;
 
     private int connection_timeout = 2000;
+    private long poaActivationTimeout = 120000; //2 min
 
     private WriteThread wt;
     private boolean updatePending;
     private Shutdown shutdownThread;
+    
 
     /**
      * The constructor.
@@ -106,11 +108,6 @@ public class ImplementationRepositoryImpl
         shutdownThread.setDaemon (true);
         shutdownThread.setName ("Shutdown Thread");
         addShutdownHook (shutdownThread);
-
-        wt = new WriteThread ();
-        wt.setName ("IMR Write Thread");
-        wt.setDaemon (true);
-        wt.start ();
     }
 
     public void configure(Configuration myConfiguration)
@@ -282,12 +279,20 @@ public class ImplementationRepositoryImpl
             configuration.getAttributeAsInteger("jacorb.imr.connection_timeout",
                                             2000 );
 
+        this.poaActivationTimeout = 
+            configuration.getAttributeAsInteger( "jacorb.imr.timeout", 120000);
+
         this.listener = new SocketListener();
         this.listener.configure(configuration);
         
         this.listenerThread = new Thread(listener);
         this.listenerThread.setPriority(Thread.MAX_PRIORITY);
         this.listenerThread.start();        
+
+        this.wt = new WriteThread ();
+        this.wt.setName ("IMR Write Thread");
+        this.wt.setDaemon (true);
+        this.wt.start ();
     }
 
     public String getIORFile()
@@ -376,7 +381,8 @@ public class ImplementationRepositoryImpl
         if (_poa == null)
         {
             //New POAInfo is to be created
-            _poa = new ImRPOAInfo(name, host, port, _server);
+            _poa = new ImRPOAInfo(name, host, port, _server, 
+                                  poaActivationTimeout);
             _server.addPOA(_poa);
             server_table.putPOA(name, _poa);
 
@@ -1078,9 +1084,6 @@ public class ImplementationRepositoryImpl
          */
         public SocketListener()
         {
-            transport_manager =
-                new TransportManager( (org.jacorb.orb.ORB) orb );
-
             receptor_pool = MessageReceptorPool.getInstance();
             request_listener = new ImRRequestListener();
             reply_listener = new NoBiDirServerReplyListener();
@@ -1154,6 +1157,10 @@ public class ImplementationRepositoryImpl
             {
                 throw new ConfigurationException("Listener: Couldn't init", e);
             }
+
+            this.transport_manager =
+                new TransportManager( (org.jacorb.orb.ORB) orb );
+            this.transport_manager.configure(configuration);
         }
 
 
@@ -1164,11 +1171,6 @@ public class ImplementationRepositoryImpl
          */
         public int getPort()
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug("ImR Listener at " + port + ", " + address);
-            }
-
             return port;
         }
 
@@ -1207,9 +1209,10 @@ public class ImplementationRepositoryImpl
                     Socket socket = server_socket.accept();
                     socket.setSoTimeout( timeout );
 
-                    org.omg.ETF.Connection transport =
-                    new ServerIIOPConnection (socket,
-                                              false); // no SSL
+                    org.jacorb.orb.iiop.ServerIIOPConnection transport =
+                        new ServerIIOPConnection (socket,
+                                                  false); // no SSL
+                    transport.configure(configuration);
 
                     GIOPConnection connection =
                     new ServerGIOPConnection( transport.get_server_profile(),
@@ -1218,7 +1221,7 @@ public class ImplementationRepositoryImpl
                                               reply_listener,
                                               null,
                                               null);
-
+                    connection.configure(configuration);
                     receptor_pool.connectionCreated( connection );
                 }
                 catch (Exception _e)
@@ -1273,8 +1276,20 @@ public class ImplementationRepositoryImpl
         boolean                   result       = false;
 
         cm = ((org.jacorb.orb.ORB)orb).getClientConnectionManager ();
-        address = new IIOPAddress (host, port);
-        connection = cm.getConnection (new IIOPProfile (address, object_key));
+        try
+        {
+            address = new IIOPAddress (host, port);
+            address.configure(configuration);      
+            
+            IIOPProfile iiopProfile = new IIOPProfile(address, object_key);
+            iiopProfile.configure(configuration); 
+
+            connection = cm.getConnection(iiopProfile);
+        }
+        catch(ConfigurationException e)
+        {
+            logger.debug("Failed to configure", e);
+        }
 
         if (this.logger.isDebugEnabled())
         {
@@ -1342,6 +1357,7 @@ public class ImplementationRepositoryImpl
         public void requestReceived( byte[] request,
                                      GIOPConnection connection )
         {
+            logger.debug("requestReceived");
             connection.incPendingMessages();
 
             RequestInputStream in = new RequestInputStream( orb, request );
@@ -1486,8 +1502,18 @@ public class ImplementationRepositoryImpl
             // The typecode is for org.omg.CORBA.Object, but avoiding
             // creation of new ObjectHolder Instance.
             IIOPAddress addr = new IIOPAddress (_poa.host,(short)_poa.port);
-            IIOPProfile p = new IIOPProfile (addr,object_key,giop_minor);
-            org.omg.IOP.IOR _ior = ParsedIOR.createObjectIOR(p);
+            org.omg.IOP.IOR _ior = null;
+            try
+            {
+                addr.configure(configuration);
+                IIOPProfile p = new IIOPProfile (addr,object_key,giop_minor);
+                p.configure(configuration);
+                _ior = ParsedIOR.createObjectIOR(p);
+            }
+            catch(ConfigurationException e)
+            {
+                logger.debug("Caught exception", e);
+            }
 
             if( !_old_poa_state )
             {
