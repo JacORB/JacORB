@@ -19,6 +19,7 @@
 module ETF
 {
   typedef sequence<octet> Buffer;
+  typedef sequence<octet> ObjectKey;
 
   local interface Profile
   {
@@ -30,6 +31,10 @@ module ETF
     Profile copy();
     boolean is_match(in Profile prof);
     readonly attribute GIOP::Version version;
+
+    // proposed additions to ETF standard
+    void set_object_key (in ObjectKey key);
+    readonly attribute long tag;
   };
 
   local interface Connection
