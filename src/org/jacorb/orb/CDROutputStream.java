@@ -27,7 +27,16 @@ import org.jacorb.orb.giop.CodeSet;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 import org.jacorb.util.ValueHandler;
+import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.CODESET_INCOMPATIBLE;
+import org.omg.CORBA.MARSHAL;
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.TCKind;
+import org.omg.CORBA.TypeCodePackage.BadKind;
+import org.omg.CORBA.TypeCodePackage.Bounds;
+import org.omg.IOP.IOR;
+import org.omg.IOP.IORHelper;
+import org.omg.IOP.TaggedProfile;
 
 /**
  * @author Gerald Brose,  1999
@@ -157,8 +166,7 @@ public class CDROutputStream
         }
     }
 
-    private final static org.omg.IOP.IOR null_ior =
-    new org.omg.IOP.IOR("", new org.omg.IOP.TaggedProfile[0]);
+    private final static IOR null_ior = new IOR("", new TaggedProfile[0]);
 
     /**
      * OutputStreams created using  the empty constructor are used for
@@ -331,7 +339,7 @@ public class CDROutputStream
             {
                 if ( ! (next_frame.length <= start + length - write_idx))
                 {
-                    throw new org.omg.CORBA.MARSHAL ("Deferred array does not fit");
+                    throw new MARSHAL ("Deferred array does not fit");
                 }
 
                 // write a frame, i.e. a byte array
@@ -395,7 +403,10 @@ public class CDROutputStream
     public void close()
     {
         if( closed )
-            throw new Error("Stream already closed!");
+        {
+            Debug.output(3, "Stream already closed");
+            return;
+        }
 
         closed = true;
     }
@@ -564,13 +575,12 @@ public class CDROutputStream
      */
 
     public final void endEncapsulation()
-        throws IOException
     {
         if( encaps_start == -1 )
-            throw new IOException("too many end-of-encapsulations");
+            throw new MARSHAL("Too many end-of-encapsulations");
         if( encaps_stack == null )
         {
-            throw new org.omg.CORBA.MARSHAL( "Internal Error - closeEncapsulation failed" );
+            throw new MARSHAL("Internal Error - closeEncapsulation failed");
         }
 
         // determine the size of this encapsulation
@@ -761,7 +771,7 @@ public class CDROutputStream
         (final char[] value, final int offset, final int length)
     {
         if( value == null )
-            throw new org.omg.CORBA.MARSHAL( "Null References" );
+            throw new MARSHAL( "Null References" );
 
         //no alignment necessary
         check( length );
@@ -776,10 +786,9 @@ public class CDROutputStream
         {
             if( (value[i] & too_large_mask) != 0 )
             {
-                throw new org.omg.CORBA.MARSHAL(
-                    "char (" + value[i] +
-                    ") out of range for " +
-                    CodeSet.csName( codeSet ));
+                throw new MARSHAL("char (" + value[i] +
+                                  ") out of range for " +
+                                  CodeSet.csName( codeSet ));
             }
 
             buffer[ pos++ ] = (byte) value[i];
@@ -792,7 +801,7 @@ public class CDROutputStream
     {
         if( s == null )
         {
-            throw new org.omg.CORBA.MARSHAL("Null References");
+            throw new MARSHAL("Null References");
         }
 
         // size indicator ulong + length in chars( i.e. bytes for type char)
@@ -814,10 +823,9 @@ public class CDROutputStream
             ch = s.charAt (i);
             if ((ch & too_large_mask) != 0)
             {
-                throw new org.omg.CORBA.MARSHAL(
-                    "char (" + buffer[ pos-1 ] +
-                    ") out of range for " +
-                    CodeSet.csName( codeSet ) );
+                throw new MARSHAL("char (" + buffer[ pos-1 ] +
+                                  ") out of range for " +
+                                  CodeSet.csName( codeSet ) );
             }
 
             buffer[pos++] = (byte) ch;
@@ -914,7 +922,7 @@ public class CDROutputStream
             }
             default :
             {
-                throw new Error("Bad codeset: " + codeSet);
+                throw new CODESET_INCOMPATIBLE("Bad codeset: " + codeSet);
             }
         }
     }
@@ -923,7 +931,7 @@ public class CDROutputStream
         (final char[] value, final int offset, final int length)
     {
         if( value == null )
-            throw new org.omg.CORBA.MARSHAL("Null References");
+            throw new MARSHAL("Null References");
 
         check( length * 3 );
 
@@ -935,7 +943,7 @@ public class CDROutputStream
     {
         if( s == null )
         {
-            throw new org.omg.CORBA.MARSHAL("Null References");
+            throw new MARSHAL("Null References");
         }
 
         //size ulong + no of bytes per char (max 3 if UTF-8) +
@@ -1207,29 +1215,28 @@ public class CDROutputStream
 
         if( value == null )
         {
-            org.omg.IOP.IORHelper.write(this, null_ior );
+            IORHelper.write(this, null_ior );
         }
         else
         {
             if( value instanceof org.omg.CORBA.LocalObject )
-                throw new org.omg.CORBA.MARSHAL("Attempt to serialize a locality-constrained object.");
+                throw new MARSHAL("Attempt to serialize a locality-constrained object.");
             org.omg.CORBA.portable.ObjectImpl obj =
                 (org.omg.CORBA.portable.ObjectImpl)value;
-            org.omg.IOP.IORHelper.write(this,
-                                        ((Delegate)obj._get_delegate()).getIOR()  );
+            IORHelper.write(this, ((Delegate)obj._get_delegate()).getIOR()  );
         }
     }
 
     ////////////////////////////////////////////// NEW!
-    public void write_IOR (final org.omg.IOP.IOR ior)
+    public void write_IOR (final IOR ior)
     {
         if( ior == null )
         {
-            org.omg.IOP.IORHelper.write(this, null_ior );
+            IORHelper.write(this, null_ior );
         }
         else
         {
-            org.omg.IOP.IORHelper.write(this, ior);
+            IORHelper.write(this, ior);
         }
     }
     ////////////////////////////////////////////// NEW!
@@ -1265,7 +1272,7 @@ public class CDROutputStream
 
     public final void write_Principal (final org.omg.CORBA.Principal value)
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
+        throw new NO_IMPLEMENT ("Principal deprecated");
     }
 
     public final void write_short (final short value)
@@ -1320,7 +1327,8 @@ public class CDROutputStream
             // Get the id for this typecode.
             id = value.id ();
         }
-        catch (org.omg.CORBA.TypeCodePackage.BadKind e)
+        // Masking on purpose as only determining whether to cache here.
+        catch (BadKind e)
         {
         }
 
@@ -1352,20 +1360,13 @@ public class CDROutputStream
     }
 
     private final void writeRecursiveTypeCode
-        (final org.omg.CORBA.TypeCode value, final Hashtable tcMap)
+        (final org.omg.CORBA.TypeCode value, final Hashtable tcMap) throws BadKind
     {
-        try
-        {
-            write_long( -1 ); // recursion marker
-            int negative_offset =
-                ((Integer) tcMap.get( value.id())).intValue() - pos - 4;
+        write_long( -1 ); // recursion marker
+        int negative_offset =
+            ((Integer) tcMap.get( value.id())).intValue() - pos - 4;
 
-            write_long( negative_offset );
-        }
-        catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
-        {
-            // must not happen
-        }
+        write_long( negative_offset );
     }
 
     private final void write_TypeCode
@@ -1373,7 +1374,7 @@ public class CDROutputStream
     {
         if (value == null)
         {
-            throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
+            throw new BAD_PARAM("TypeCode is null");
         }
 
         int _kind = value.kind().value();
@@ -1381,7 +1382,6 @@ public class CDROutputStream
 
         try
         {
-
             if( TypeCode.isRecursive(value) &&
                 tcMap != null &&
                 tcMap.containsKey( value.id()) )
@@ -1634,21 +1634,19 @@ public class CDROutputStream
                     }
                     break;
                     default:
-                    throw new org.omg.CORBA.MARSHAL ("Cannot handle TypeCode with kind: " + _kind);
+                    throw new MARSHAL ("Cannot handle TypeCode with kind: " + _kind);
                 }
             }
         }
-        catch (org.omg.CORBA.TypeCodePackage.BadKind bk)
+        catch (BadKind ex)
         {
-            bk.printStackTrace();
+            throw new MARSHAL
+                ("When processing TypeCode with kind: " + _kind + " caught " + ex);
         }
-        catch (org.omg.CORBA.TypeCodePackage.Bounds b)
+        catch (Bounds ex)
         {
-            b.printStackTrace();
-        }
-        catch (java.io.IOException ioe)
-        {
-            ioe.printStackTrace();
+            throw new MARSHAL
+                ("When processing TypeCode with kind: " + _kind + " caught " + ex);
         }
     }
 
@@ -1695,131 +1693,117 @@ public class CDROutputStream
     {
         if (tc == null)
         {
-            throw new org.omg.CORBA.BAD_PARAM("TypeCode is null");
+            throw new BAD_PARAM("TypeCode is null");
         }
 
         int kind = tc.kind().value();
-        switch (kind)
+
+        try
         {
-            case TCKind._tk_null:
-            case TCKind._tk_void:
-            break;
-            case TCKind._tk_boolean:
-            write_boolean( in.read_boolean());
-            break;
-            case TCKind._tk_char:
-            write_char( in.read_char());
-            break;
-            case TCKind._tk_wchar:
-            write_wchar( in.read_wchar());
-            break;
-            case TCKind._tk_octet:
-            write_octet( in.read_octet());
-            break;
-            case TCKind._tk_short:
-            write_short( in.read_short());
-            break;
-            case TCKind._tk_ushort:
-            write_ushort(in.read_ushort());
-            break;
-            case TCKind._tk_long:
-            write_long( in.read_long());
-            break;
-            case TCKind._tk_ulong:
-            write_ulong( in.read_ulong());
-            break;
-            case TCKind._tk_float:
-            write_float( in.read_float());
-            break;
-            case TCKind._tk_double:
-            write_double(in.read_double());
-            break;
-            case TCKind._tk_longlong:
-            write_longlong(in.read_longlong());
-            break;
-            case TCKind._tk_ulonglong:
-            write_ulonglong( in.read_ulonglong());
-            break;
-            case TCKind._tk_any:
-            write_any( in.read_any());
-            break;
-            case TCKind._tk_TypeCode:
-            write_TypeCode(in.read_TypeCode());
-            break;
-            case TCKind._tk_Principal:
-            throw new org.omg.CORBA.NO_IMPLEMENT ("Principal deprecated");
-            case TCKind._tk_objref:
-            write_Object( in.read_Object());
-            break;
-            case TCKind._tk_string:
-            write_string( in.read_string());
-            break;
-            case TCKind._tk_wstring:
-            write_wstring( in.read_wstring());
-            break;
-            case TCKind._tk_fixed:
-            write_fixed (in.read_fixed());
-            break;
-            case TCKind._tk_array:
-            try
+            switch (kind)
             {
-                int length = tc.length();
-                if( tc.content_type().kind().value() == TCKind._tk_octet )
+                case TCKind._tk_null:
+                case TCKind._tk_void:
+                break;
+                case TCKind._tk_boolean:
+                write_boolean( in.read_boolean());
+                break;
+                case TCKind._tk_char:
+                write_char( in.read_char());
+                break;
+                case TCKind._tk_wchar:
+                write_wchar( in.read_wchar());
+                break;
+                case TCKind._tk_octet:
+                write_octet( in.read_octet());
+                break;
+                case TCKind._tk_short:
+                write_short( in.read_short());
+                break;
+                case TCKind._tk_ushort:
+                write_ushort(in.read_ushort());
+                break;
+                case TCKind._tk_long:
+                write_long( in.read_long());
+                break;
+                case TCKind._tk_ulong:
+                write_ulong( in.read_ulong());
+                break;
+                case TCKind._tk_float:
+                write_float( in.read_float());
+                break;
+                case TCKind._tk_double:
+                write_double(in.read_double());
+                break;
+                case TCKind._tk_longlong:
+                write_longlong(in.read_longlong());
+                break;
+                case TCKind._tk_ulonglong:
+                write_ulonglong( in.read_ulonglong());
+                break;
+                case TCKind._tk_any:
+                write_any( in.read_any());
+                break;
+                case TCKind._tk_TypeCode:
+                write_TypeCode(in.read_TypeCode());
+                break;
+                case TCKind._tk_Principal:
+                throw new NO_IMPLEMENT ("Principal deprecated");
+                case TCKind._tk_objref:
+                write_Object( in.read_Object());
+                break;
+                case TCKind._tk_string:
+                write_string( in.read_string());
+                break;
+                case TCKind._tk_wstring:
+                write_wstring( in.read_wstring());
+                break;
+                case TCKind._tk_fixed:
+                write_fixed (in.read_fixed());
+                break;
+                case TCKind._tk_array:
                 {
-                    check( length );
-                    in.read_octet_array( buffer, pos, length);
-                    index+= length;
-                    pos += length;
+                    int length = tc.length();
+                    if( tc.content_type().kind().value() == TCKind._tk_octet )
+                    {
+                        check( length );
+                        in.read_octet_array( buffer, pos, length);
+                        index+= length;
+                        pos += length;
+                    }
+                    else
+                    {
+                        for( int i = 0; i < length; i++ )
+                            write_value( tc.content_type(), in );
+                    }
+                    break;
                 }
-                else
+                case TCKind._tk_sequence:
                 {
-                    for( int i = 0; i < length; i++ )
-                        write_value( tc.content_type(), in );
+                    int len = in.read_long();
+                    write_long(len);
+
+                    org.omg.CORBA.TypeCode content_tc = tc.content_type();
+                    for( int i = 0; i < len; i++ )
+                        write_value(  content_tc, in );
+
+                    break;
                 }
-            }
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-            {}
-            break;
-            case TCKind._tk_sequence:
-            try
-            {
-                int len = in.read_long();
-                write_long(len);
-
-                org.omg.CORBA.TypeCode content_tc = tc.content_type();
-                for( int i = 0; i < len; i++ )
-                    write_value(  content_tc, in );
-
-            }
-            catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-            {
-                b.printStackTrace();
-            }
-            break;
-            case TCKind._tk_except:
-            write_string( in.read_string());
-            // don't break, fall through to ...
-            case TCKind._tk_struct:
-            {
-                try
+                case TCKind._tk_except:
+                write_string( in.read_string());
+                // don't break, fall through to ...
+                case TCKind._tk_struct:
                 {
                     for( int i = 0; i < tc.member_count(); i++)
                         write_value( tc.member_type(i), in );
+                    break;
                 }
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-                {}
-                catch ( org.omg.CORBA.TypeCodePackage.Bounds b )
-                {}
-                break;
-            }
-            case TCKind._tk_enum:
-            {
-                write_long( in.read_long() );
-                break;
-            }
-            case TCKind._tk_union:
-            {
-                try
+                case TCKind._tk_enum:
+                {
+                    write_long( in.read_long() );
+                    break;
+                }
+                case TCKind._tk_union:
                 {
                     org.omg.CORBA.TypeCode disc =
                         (org.omg.CORBA.TypeCode) tc.discriminator_type();
@@ -1989,8 +1973,7 @@ public class CDROutputStream
                             break;
                         }
                         default:
-                        throw new org.omg.CORBA.MARSHAL
-                            ("Invalid union discriminator type: " + disc);
+                        throw new MARSHAL("Invalid union discriminator type: " + disc);
                     }
 
                     // write the member or default value, if any
@@ -2008,24 +1991,14 @@ public class CDROutputStream
                     {
                         write_value( tc.member_type( def_idx ), in );
                     }
+                    break;
                 }
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind bk ){}
-                catch ( org.omg.CORBA.TypeCodePackage.Bounds b ){}
-                //            recursiveTCStack.pop();
-                break;
-            }
-            case TCKind._tk_alias:
-            {
-                try
+                case TCKind._tk_alias:
                 {
                     write_value( tc.content_type(), in );
+                    break;
                 }
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){}
-                break;
-            }
-            case TCKind._tk_value_box:
-            {
-                try
+                case TCKind._tk_value_box:
                 {
                     String id = tc.id();
                     org.omg.CORBA.portable.BoxedValueHelper helper =
@@ -2036,33 +2009,32 @@ public class CDROutputStream
                     java.io.Serializable value =
                         ((org.omg.CORBA_2_3.portable.InputStream)in).read_value(helper);
                     write_value (value, helper);
+                    break;
                 }
-                catch (org.omg.CORBA.TypeCodePackage.BadKind b)
-                {
-                    b.printStackTrace();
-                }
-                break;
-            }
-            case 0xffffffff:
-            {
-                try
+                case 0xffffffff:
                 {
                     org.omg.CORBA.TypeCode _tc =
                         (org.omg.CORBA.TypeCode)( getRecursiveTCMap().get( tc.id() ) );
                     if( _tc == null )
                     {
-                        throw new org.omg.CORBA.MARSHAL("Recursive TypeCode not found for " + tc.id());
+                        throw new MARSHAL("Recursive TypeCode not found for " + tc.id());
                     }
                     write_value( _tc , in );
+                    break;
                 }
-                catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
-                {
-                    b.printStackTrace();
-                }
-                break;
+                default:
+                throw new MARSHAL("Cannot handle TypeCode with kind " + kind);
             }
-            default:
-            throw new org.omg.CORBA.MARSHAL("Cannot handle TypeCode with kind " + kind);
+        }
+        catch (BadKind ex)
+        {
+            throw new MARSHAL
+                ("When processing TypeCode with kind: " + kind + " caught " + ex);
+        }
+        catch (Bounds ex)
+        {
+            throw new MARSHAL
+                ("When processing TypeCode with kind: " + kind + " caught " + ex);
         }
     }
 
@@ -2113,7 +2085,7 @@ public class CDROutputStream
             else if (clz.isInstance (value))
                 write_value_internal (value, repId);
             else
-                throw new org.omg.CORBA.BAD_PARAM();
+                throw new BAD_PARAM();
         }
     }
 
@@ -2354,15 +2326,13 @@ public class CDROutputStream
                     }
                     catch (ClassNotFoundException e)
                     {
-                        throw new org.omg.CORBA.MARSHAL(
-                            "Error loading class " + helperClassName
-                            + ": " + e);
+                        throw new MARSHAL("Error loading class " + helperClassName
+                                          + ": " + e);
                     }
                     catch (NoSuchMethodException e)
                     {
-                        throw new org.omg.CORBA.MARSHAL(
-                            "No write method in helper class "
-                            + helperClassName + ": " + e);
+                        throw new MARSHAL("No write method in helper class "
+                                          + helperClassName + ": " + e);
                     }
                 }
                 write_value_header( repository_ids, codebase );
@@ -2379,13 +2349,12 @@ public class CDROutputStream
                     }
                     catch (IllegalAccessException e)
                     {
-                        throw new org.omg.CORBA.MARSHAL("Internal error: " + e);
+                        throw new MARSHAL("Internal error: " + e);
                     }
                     catch (java.lang.reflect.InvocationTargetException e)
                     {
-                        throw new org.omg.CORBA.MARSHAL(
-                            "Exception marshaling IDLEntity: "
-                            + e.getTargetException());
+                        throw new MARSHAL("Exception marshaling IDLEntity: "
+                                          + e.getTargetException());
                     }
                 }
                 end_chunk();
