@@ -103,6 +103,11 @@ public class ClientConnection
         sasContexts = new HashMap();
     }
 
+    public final GIOPConnection getGIOPConnection()
+    {
+        return connection;
+    }
+
     /**
      * Get the profile that was used for registering with the
      * ClientConnectionManager. In case of BiDirIIOP it is NOT equal
