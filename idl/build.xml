@@ -217,7 +217,7 @@
         -->
    </target>
 
-   <target name="portableserver" depends="init,copymapping">
+   <target name="portableserver" depends="init">
    	<jacidl generateir="true"
 		noskel="true"
 		srcdir="idl"
@@ -231,49 +231,49 @@
 		includepath="${basedir}/idl/omg"
 		includes="**/omg/BiDirPolicy.idl"
 		destdir="${src}/generated"/>
+
+        <!-- a few necessary classes not provided by the   -->
+        <!-- language mapping as needed -->
+
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/_ServantActivatorStub.java"
+	         tofile="${src}/generated/org/omg/PortableServer/_ServantActivatorStub.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/Servant.java"
+	         tofile="${src}/generated/org/omg/PortableServer/Servant.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/ServantActivatorPOA.java"
+	         tofile="${src}/generated/org/omg/PortableServer/ServantActivatorPOA.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/ServantActivatorPOATie.java"
+	         tofile="${src}/generated/org/omg/PortableServer/ServantActivatorPOATie.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/ServantLocatorPOA.java"
+	         tofile="${src}/generated/org/omg/PortableServer/ServantLocatorPOA.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/ServantLocatorPOATie.java"
+	         tofile="${src}/generated/org/omg/PortableServer/ServantLocatorPOATie.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/ServantLocatorHelper.java"
+	         tofile="${src}/generated/org/omg/PortableServer/ServantLocatorHelper.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/_ServantLocatorStub.java"
+	         tofile="${src}/generated/org/omg/PortableServer/_ServantLocatorStub.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/AdapterActivatorPOA.java"
+	         tofile="${src}/generated/org/omg/PortableServer/AdapterActivatorPOA.java"
+	   />
+	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/AdapterActivatorPOATie.java"
+	         tofile="${src}/generated/org/omg/PortableServer/AdapterActivatorPOATie.java"
+	   />
+
 	<javac debug="${debug}" srcdir="${src}/generated"
                destdir="${classdir}"
                includes="org/omg/PortableServer/**,org/omg/BiDirPolicy/**"
                classpath="${classpath}"
         />   
+
    </target>
 
-   <!-- a few necessary classes not provided by the   -->
-   <!-- language mapping, we provide these ourselves  -->
-
-   <target name="copymapping">
-	   <copy file="${src}/java_mapping/PortableServer/_ServantActivatorStub.java"
-	         tofile="${src}/generated/org/omg/PortableServer/_ServantActivatorStub.java"
-	   />
-	   <delete file="${src}/generated/org/omg/PortableServer/Servant.java"/>
-	   <copy file="${src}/java_mapping/PortableServer/Servant.java"
-	         tofile="${src}/generated/org/omg/PortableServer/Servant.java"
-	   />
-	   <copy file="${src}/java_mapping/PortableServer/ServantActivatorPOA.java"
-	         tofile="${src}/generated/org/omg/PortableServer/ServantActivatorPOA.java"
-	   />
-	   <copy file="${src}/java_mapping/PortableServer/ServantActivatorPOATie.java"
-	         tofile="${src}/generated/org/omg/PortableServer/ServantActivatorPOATie.java"
-	   />
-	   <copy file="${src}/java_mapping/PortableServer/ServantLocatorPOA.java"
-	         tofile="${src}/generated/org/omg/PortableServer/ServantLocatorPOA.java"
-	   />
-	   <copy file="${src}/java_mapping/PortableServer/ServantLocatorPOATie.java"
-	         tofile="${src}/generated/org/omg/PortableServer/ServantLocatorPOATie.java"
-	   />
-	   <copy file="${src}/java_mapping/PortableServer/ServantLocatorHelper.java"
-	         tofile="${src}/generated/org/omg/PortableServer/ServantLocatorHelper.java"
-	   />
-	   <copy file="${src}/java_mapping/PortableServer/_ServantLocatorStub.java"
-	         tofile="${src}/generated/org/omg/PortableServer/_ServantLocatorStub.java"
-	   />
-	   <copy file="${src}/java_mapping/PortableServer/AdapterActivatorPOA.java"
-	         tofile="${src}/generated/org/omg/PortableServer/AdapterActivatorPOA.java"
-	   />
-	   <copy file="${src}/java_mapping/PortableServer/AdapterActivatorPOATie.java"
-	         tofile="${src}/generated/org/omg/PortableServer/AdapterActivatorPOATie.java"
-	   />
-   </target>
 
    <target name="dynany">
    	<jacidl generateir="true"
