@@ -1,3 +1,31 @@
+2003-11-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/value/ValueTest.java (test_pass_equal_boxed_long,
+	test_pass_equal_boxed_string): New test cases to show whether
+	equal values are indeed not shared (related to bug 387).
+	(suite): Add them.
+
+	* bugs/bug387/TestCase.java (test_pass_shared,
+	test_pass_unshared): New test cases.
+	(test_pass_null, test_pass_value): Adapt to TestStruct change.
+
+	* bugs/bug387/TestInterfaceImpl.java (test_pass_shared): New
+	method, reflecting IDL change.
+	(test_return_null, test_return_value): Adapt to new TestStruct
+	constructor.
+
+2003-11-05  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/rmi/RMITest.java, orb/rmi/RMITestImpl.java,
+	orb/rmi/RMITestInterface.java: Added test cases for bug #404.
+	These test cases were provided by Mike
+	Corum (m.e.corum@monsanto.com).
+
+2003-11-03  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/connection/ServerConnectionTimeoutTest.java (suite): Use new
+	property name jacorb.connection.server.timeout.
+
 2003-11-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
 	* notification/AllTest.java, notification/AnyPullReceiver.java,
