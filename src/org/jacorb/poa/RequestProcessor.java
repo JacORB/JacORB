@@ -70,12 +70,12 @@ public class RequestProcessor
     /** this processor's logger instance, obtained from the request controller */
     private Logger logger;
 
-    private static Hashtable specialOperations;
+    private static Map specialOperations;
     private static int count = 0;
 
     static
     {
-        specialOperations = new Hashtable(50);
+        specialOperations = new HashMap(50);
         specialOperations.put("_is_a", "");
         specialOperations.put("_interface", "");
         specialOperations.put("_non_existent", "");
