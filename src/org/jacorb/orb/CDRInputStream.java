@@ -71,6 +71,14 @@ public class CDRInputStream
     private Hashtable valueMap = new Hashtable();
 
     /**
+     * Index of the current IDL value that is being unmarshalled.
+     * This is kept here so that when the value object has been
+     * created, the value factory can immediately store it into this
+     * stream's valueMap by calling `register_value()'.
+     */
+    private int currentValueIndex;
+
+    /**
      * Maps indices within the buffer (java.lang.Integer) to repository ids
      * that appear at these indices.
      */
@@ -1513,7 +1521,10 @@ public class CDRInputStream
                 throw new org.omg.CORBA.MARSHAL 
                     ("could not find value factory for " + repository_id);
             else
+            {
+                currentValueIndex = index;
                 result = factory.read_value (this);
+            }
         }
         else // RMI
         {
@@ -1608,6 +1619,17 @@ public class CDRInputStream
 
     public int get_pos(){
 	return pos;
+    }
+
+    /**
+     * Stores `value' into this stream's valueMap.  This is provided
+     * as a callback for value factories, so that a value factory can
+     * store an object into the map before actually reading its state.
+     * This is essential for unmarshalling recursive values.
+     */
+    public void register_value (java.io.Serializable value)
+    {
+        valueMap.put (new Integer (currentValueIndex), value);
     }
 
 //      public void finalize()
