@@ -1,3 +1,188 @@
+2003-11-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractAdmin.java,
+	notification/AbstractMessage.java,
+	notification/AbstractProxy.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/FilterFactoryImpl.java, notification/FilterImpl.java,
+	notification/MappingFilterImpl.java,
+	notification/MessageUtils.java, notification/PropertyManager.java,
+	notification/build.xml, notification/engine/AbstractTask.java,
+	notification/engine/TaskConfigurator.java,
+	notification/engine/TaskProcessor.java,
+	notification/evaluate/DynamicEvaluator.java,
+	notification/evaluate/FilterConstraint.java,
+	notification/evaluate/ResultExtractor.java,
+	notification/node/AbstractTCLNode.java,
+	notification/node/EvaluationResult.java,
+	notification/node/StaticTypeChecker.java,
+	notification/node/TCLCleanUp.java,
+	notification/queue/AbstractBoundedEventQueue.java,
+	notification/queue/BoundedDeadlineEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/EventQueueFactory.java,
+	notification/util/AbstractObjectPool.java,
+	notification/util/LogConfiguration.java,
+	notification/util/PatternWrapper.java,
+	notification/util/ThreadPool.java,
+	notification/util/WildcardMap.java: adapted new logging mechanism
+
+2003-10-31  Gerald Brose  <gerald.brose@acm.org>
+
+	* util/LogKitLoggerFactory.java: added some more javadoc
+
+	* util/Environment.java: added some javadoc (classForName, initLogging)
+
+2003-10-30  Simon McQueen  <sm@prismtechnologies.com>
+
+	* idl/StructType.java: Fix for (part of) Bug # 394.
+
+	Incorrect package names were being printed in constructor arguments.
+
+2003-10-30  Gerald Brose  <gerald.brose@acm.org>
+
+	Version 2.0 beta 3 released.
+	
+2003-10-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ORB.java: Fix for Jac#393 - added patch for addObjectKey.
+
+2003-10-30  Gerald Brose  <gerald.brose@acm.org>
+
+	* transaction/build.xml, util/tracing/build.xml, events/build.xml,
+	imr/build.xml, ir/build.xml, notification/build.xml,
+	orb/dns/build.xml, orb/portableInterceptor/build.xml,
+	orb/standardInterceptors/build.xml, poa/build.xml,
+	security/build.xml, security/sas/build.xml,
+	security/ssl/build.xml, security/ssl/iaik/build.xml,
+	security/ssl/sun_jsse/build.xml, trading/build.xml,
+	trading/client/build.xml, trading/db/build.xml,
+	collection/build.xml, concurrency/build.xml: updated to mirror new
+	etc/ location of common.xml
+
+2003-10-30  Gerald Brose  <gerald.brose@acm.org>
+
+	* build.xml, idl/build.xml, naming/build.xml, orb/build.xml,
+	util/build.xml: modified to mirror moved common.xml to jacorb/etc
+
+2003-10-30  Gerald Brose  <gerald.brose@acm.org>
+
+	* poa/POAMonitorImpl.java: minor change to align with new logging,
+	needs more work.
+
+	* poa/POA.java: minor syntactic reformatting
+
+	* poa/util/LogTrace.java, poa/util/LogWriter.java: use new logging
+	interfaces, first shot.
+
+	* security/level2/KeyAndCert.java:
+	(getPublicKey) new method to return the pubkey of the first cert
+	in the chain.
+
+	* util/Version.java: updated for 2.0 beta 3
+
+	* naming/NameServer.java, naming/NamingContextImpl.java: move to
+	new loggin interfaces
+
+	* util/Debug.java, util/Environment.java,
+	util/LogKitLoggerFactory.java, util/LoggerFactory.java: New
+	logging interfaces, implementation integration and facades
+
+2003-10-30  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/EncapsInfo.java: (codebaseMap, repIdMap, valueMap) Change
+	type to java.util.Map.
+	(c'tor): Adapt argument types.
+
+	* orb/CDRInputStream.java (codebaseMap, recursiveTCMap, repIdMap,
+	valueMap): Change type to java.util.Map, to allow for different
+	implementations.  Change carried through in all getters. Improve
+	javadoc.
+
+	* orb/CDROutputStream.java (recursiveTCMap, repIdMap, valueMap,
+	codebaseMap): Change type to java.util.Map, to allow different
+	implementations.  Change carried through in all getters.  Improve
+	Javadoc.
+	(beginEncapsulation): Adapt to above change.
+
+2003-10-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/Delegate.java: Bug #384 - retrieve the local stub for the
+	object in question instead. Added to the regression tests.
+
+2003-10-30  Gerald Brose  <gerald.brose@acm.org>
+
+	* idl/NameTable.java:
+	(define) respect the -sloppy-names option and only check for
+	identifier clashes trictly (case insensitive) if that switch is
+	not applied.
+
+	* idl/Member.java:
+	(parse) allow case-insensitive ("sloppy") checks for identifier
+	clashes
+	(declarator names).
+
+	* idl/lexer.java:
+	(checkIdentifier) allow less strict (case sensitive) checks for
+	clahes between identifiers and keywords
+
+2003-10-29  Simon McQueen  <sm@prismtechnologies.com>
+
+	* naming/namemanager/NameManager.java,
+	notification/AbstractMessage.java,
+	notification/evaluate/DynamicEvaluator.java,
+	orb/BasicAdapter.java, orb/CDRInputStream.java, orb/Delegate.java,
+	orb/ORB.java, orb/ORBSingleton.java, orb/dsi/ServerRequest.java,
+	orb/dynany/DynArray.java, orb/dynany/DynEnum.java,
+	orb/dynany/DynFixed.java, orb/dynany/DynSequence.java,
+	orb/dynany/DynStruct.java, orb/dynany/DynUnion.java,
+	orb/portableInterceptor/ClientRequestInfoImpl.java,
+	poa/RPPoolManager.java, poa/except/ApplicationError.java,
+	poa/except/CompletionRequestedException.java,
+	poa/except/ShutdownInProgressException.java,
+	poa/gui/beans/DoubleListDialog.java,
+	poa/gui/beans/DoubleListHeaderPanel.java,
+	poa/gui/beans/DoubleListItem.java,
+	poa/gui/beans/FillLevelBar.java,
+	poa/gui/beans/FillLevelCanvas.java, poa/util/ByteArrayKey.java,
+	poa/util/POAUtil.java, security/sas/GSSUPProvider.java,
+	security/ssl/iaik/SSLSocketFactory.java,
+	security/util/CertificatesManager.java,
+	events/ProxyPullConsumerImpl.java,
+	events/ProxyPullSupplierImpl.java, idl/AliasTypeSpec.java,
+	idl/AnyType.java, idl/ArrayDeclarator.java,
+	idl/ArrayTypeSpec.java, idl/BaseType.java,
+	idl/ConstrTypeSpec.java, idl/Declaration.java,
+	idl/Declarator.java, idl/Definition.java, idl/Definitions.java,
+	idl/EnumType.java, idl/FixedPointConstType.java,
+	idl/GlobalInputStream.java, idl/Interface.java,
+	idl/InterfaceBody.java, idl/Module.java, idl/NameTable.java,
+	idl/NativeType.java, idl/ScopedName.java, idl/SequenceType.java,
+	idl/SimpleDeclarator.java, idl/Spec.java, idl/StructType.java,
+	idl/TypeDeclaration.java, idl/TypeDef.java, idl/TypeSpec.java,
+	idl/UnionType.java, idl/Value.java, idl/ValueAbsDecl.java,
+	idl/ValueBoxDecl.java, idl/ValueDecl.java, imr/ImRServerInfo.java,
+	imr/util/AddServerWindow.java, imr/util/ConnectWindow.java,
+	ir/gui/remoteobject/ObjectRepresentantFactory.java,
+	naming/Name.java, naming/NamingContextImpl.java: Javadoc fixes
+	only.
+
+2003-10-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/Any.java: (read_value(InputStream, TypeCode)): Fix TypeCode
+	problem for case _tk_value.  Fix for bug 401, suggested by
+	Christopher McDermott and Phil Mesnier.
+
+2003-10-29  Gerald Brose  <gerald.brose@acm.org>
+
+	* naming/NameServer.java, naming/NamingContextImpl.java: more
+	logging refinements: look for separate log level property
+
+	* naming/NameServer.java: use dedicated naming logger.
+
 2003-10-28  Simon McQueen  <sm@prismtechnologies.com>
 
 	* security/util/KeyStoreManager.java, trading/impl/LinkImpl.java,

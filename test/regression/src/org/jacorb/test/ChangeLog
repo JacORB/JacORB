@@ -1,3 +1,82 @@
+2003-11-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AllTest.java, notification/AnyPullReceiver.java,
+	notification/AnyPullSender.java,
+	notification/AnyPushReceiver.java,
+	notification/AnyPushSender.java,
+	notification/CosEventChannelTest.java,
+	notification/CosEventPushReceiver.java,
+	notification/CosEventPushSender.java,
+	notification/EventChannelTest.java, notification/FilterTest.java,
+	notification/InterFilterGroupOperatorTest.java,
+	notification/NotificationEventTest.java,
+	notification/NotificationTestCaseSetup.java,
+	notification/NotificationTestUtils.java,
+	notification/SequenceEventChannelTest.java,
+	notification/SequencePullReceiver.java,
+	notification/SequencePushReceiver.java,
+	notification/SequencePushSender.java,
+	notification/StartTimeTest.java, notification/StopTimeTest.java,
+	notification/StructuredEventChannelTest.java,
+	notification/StructuredPullReceiver.java,
+	notification/StructuredPushReceiver.java,
+	notification/StructuredPushSender.java,
+	notification/TestServer.java, notification/TestUtils.java,
+	notification/TimeoutTest.java,
+	notification/engine/MockEventConsumer.java,
+	notification/engine/PushToConsumerTest.java,
+	notification/engine/ReleaseTasksTest.java,
+	notification/queue/BoundedFifoEventQueueTest.java,
+	notification/queue/BoundedPriorityEventQueueTest.java,
+	notification/util/WildcardMapTest.java: adapted new logging
+	mechanism
+
+2003-10-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* bugs/bug384/AImpl.java, bugs/bug384/BImpl.java,
+	bugs/bug384/TestCase.java, bugs/bug384/TestObject.java,
+	bugs/bug384/TestObjectHelper.java,
+	bugs/bug384/TestObjectHolder.java,
+	bugs/bug384/TestObjectImpl.java,
+	bugs/bug384/TestObjectOperations.java,
+	bugs/bug384/TestObjectPOA.java, bugs/bug384/_TestObjectStub.java,
+	bugs/bug384/test.idl: Bug #384 - retrieve the local stub for the
+	object in question instead. Added to the regression tests.
+
+2003-10-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* bugs/AllTest.java (suite): Add bug 401.
+
+	* bugs/bug401/AnyServant.java, bugs/bug401/TestCase.java:
+	Initial revision.
+
+2003-10-28  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/AllTest.java, orb/ORBInitTest.java: RT1200 ORBInitRef error
+	checking
+
+	* bugs/bug344/TestCase.java, poa/AllTest.java,
+	poa/ByteArrayKeyTest.java: RT1045 Tests for activate and
+	bytearraykey
+
+2003-10-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/AllTest.java (suite): Add valuetype tests.
+
+	* orb/value/NodeImpl.java, orb/value/RecordImpl.java,
+	orb/value/ValueServerImpl.java, orb/value/ValueTest.java: Initial
+	revision.
+
+2003-10-27  Andre Spiegel  <spiegel@gnu.org>
+
+	* bugs/bug228/TestCase.java: Improve top-level javadoc.
+
+	* bugs/bug272/TestCase.java, bugs/bug351/TestCase.java: Add
+	purpose to top-level Javadoc comment.
+
+	* orb/etf/wiop/WIOPFactories.java (decode_corbaloc): New method,
+	throws NO_IMPLEMENT.
+
 2003-10-16  Steve Osselton  <steve@prismtechnologies.com>
 
 	* orb/connection/ClientConnectionTimeoutTest.java: Fix for bug
