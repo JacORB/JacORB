@@ -347,11 +347,17 @@ public final class Any
         return ((Double)value).doubleValue ();
     }
 
-    // boolean
 
+    /**
+     * <code>insert_boolean</code> inserts a Boolean into this Any.
+     *
+     * @param b a <code>boolean</code> value
+     */
     public void insert_boolean (boolean b)
     {
-        value = new Boolean (b);
+        // Equivilant to the static valueOf factory which is only
+        // available post 1.4.
+        value = (b ? Boolean.TRUE : Boolean.FALSE );
         typeCode = orb.get_primitive_tc (TCKind.tk_boolean);
     }
 
@@ -489,7 +495,6 @@ public final class Any
 
    public void insert_fixed(java.math.BigDecimal _value,
                             org.omg.CORBA.TypeCode type)
-   // ??       throws org.omg.CORBA.BAD_INV_ORDER
    {
        try
        {
@@ -570,7 +575,7 @@ public final class Any
            // check if the repository Id is in IDL format
            if (typeId.startsWith("IDL:"))
            {
-              // parse the interface name from a repository Id string 
+              // parse the interface name from a repository Id string
               // like "IDL:some.prefix/Some/Module/TheInterfaceName"
               name = typeId.substring(4, typeId.lastIndexOf (':'));
               name = name.substring(name.lastIndexOf ('/') + 1);
