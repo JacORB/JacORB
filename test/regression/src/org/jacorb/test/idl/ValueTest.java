@@ -58,6 +58,6 @@ public class ValueTest extends TestCase
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Value.idl");
 
-      assertTrue ("Compiled Value.idl", org.jacorb.idl.parser.compile (file));
+      assertTrue ("Compiled Value.idl", org.jacorb.idl.parser.compileAndHandle(file));
    }
 }

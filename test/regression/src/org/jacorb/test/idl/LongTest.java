@@ -60,7 +60,7 @@ public class LongTest extends TestCase
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Long.idl");
 
-      assertTrue ("Compiled Long.idl", org.jacorb.idl.parser.compile (file));
+      assertTrue ("Compiled Long.idl", org.jacorb.idl.parser.compileAndHandle (file));
    }
 
 
@@ -73,7 +73,7 @@ public class LongTest extends TestCase
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Long_Fail1.idl");
 
-      assertTrue ("Compiled Long_Fail1.idl", org.jacorb.idl.parser.compile (file)==false);
+      assertTrue ("Compiled Long_Fail1.idl", org.jacorb.idl.parser.compileAndHandle (file)==false);
    }
 
 
@@ -86,6 +86,6 @@ public class LongTest extends TestCase
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Long_Fail2.idl");
 
-      assertTrue ("Compiled Long_Fail2.idl", org.jacorb.idl.parser.compile (file)==false);
+      assertTrue ("Compiled Long_Fail2.idl", org.jacorb.idl.parser.compileAndHandle (file)==false);
    }
 }

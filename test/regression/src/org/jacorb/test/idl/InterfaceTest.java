@@ -59,6 +59,6 @@ public class InterfaceTest extends TestCase
       file[2] = "-d";
       file[3] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[4] = ((String)System.getProperty ("testdir")).concat ("/idl/Interface.idl");
-      assertTrue ("Compiled Interface.idl", org.jacorb.idl.parser.compile (file));
+      assertTrue ("Compiled Interface.idl", org.jacorb.idl.parser.compileAndHandle(file));
    }
 }

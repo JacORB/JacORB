@@ -58,6 +58,6 @@ public class ModuleTest extends TestCase
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Module.idl");
 
-      assertTrue ("Compiled Module.idl", org.jacorb.idl.parser.compile (file));
+      assertTrue ("Compiled Module.idl", org.jacorb.idl.parser.compileAndHandle (file));
    }
 }

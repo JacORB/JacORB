@@ -58,6 +58,6 @@ public class CharTest extends TestCase
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Char.idl");
 
-      assertTrue ("Compiled Char.idl", org.jacorb.idl.parser.compile (file));
+      assertTrue ("Compiled Char.idl", org.jacorb.idl.parser.compileAndHandle (file));
    }
 }

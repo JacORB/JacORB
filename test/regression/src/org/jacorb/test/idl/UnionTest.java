@@ -58,6 +58,6 @@ public class UnionTest extends TestCase
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Union.idl");
 
-      assertTrue ("Compiled Union.idl", org.jacorb.idl.parser.compile (file));
+      assertTrue ("Compiled Union.idl", org.jacorb.idl.parser.compileAndHandle  (file));
    }
 }

@@ -58,6 +58,6 @@ public class TypeDefTest extends TestCase
       file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
       file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/TypeDef.idl");
 
-      assertTrue ("Compiled TypeDef.idl", org.jacorb.idl.parser.compile (file));
+      assertTrue ("Compiled TypeDef.idl", org.jacorb.idl.parser.compileAndHandle (file));
    }
 }
