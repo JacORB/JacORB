@@ -205,16 +205,17 @@
       <mkdir dir="${basedir}/doc/api"/>
       <javadoc destdir="${basedir}/doc/api"
                additionalparam="-breakiterator"
-               classpath="${classpath}:${lib}/wrapper.jar"
+               classpath="${lib}/jacorb.jar:${lib}/logkit-1.2.jar:${lib}/avalon-framework-4.1.5.jar:${classpath}"
                Splitindex="Yes"
                Use="Yes"
                maxmemory="256m"
-               packagenames="org.jacorb.*,org.omg.*,HTTPClient,java_cup.*">
+               packagenames="org.jacorb.idl.*,org.jacorb.util.*,org.jacorb.orb.*,org.jacorb.imr.*,org.jacorb.ir.*,org.jacorb.poa.*,org.jacorb.events.*,org.jacorb.naming.*,org.jacorb.security.level2.*,org.jacorb.security.sas.*,org.omg.*">
+<!--               packagenames="org.jacorb.*,org.omg.*,HTTPClient,java_cup.*"> -->
          <sourcepath>
             <pathelement path="${src}" />
             <pathelement path="${src}/generated" />
-            <pathelement path="${src}/HTTPClient" />
-            <pathelement path="${src}/java_cup" />
+<!--            <pathelement path="${src}/HTTPClient" /> -->
+<!--            <pathelement path="${src}/java_cup" /> -->
          </sourcepath>
       </javadoc>
    </target>
