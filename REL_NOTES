@@ -79,6 +79,11 @@ gerald.brose@acm.org
          - Added missing functionality to handle LocateRequests and
            LocateReplies.
 
+   - Appligator:
+         - New portable interceptor based implementation. Updates
+           to support multiple appligators in different subnets and
+           disable appligator use in local subnet. No HTTP tunneling.
+
 1.4 beta 4:
 ===========
 

@@ -23,8 +23,36 @@
 ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
 #ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
 
-# JacORB-specific URLs
-jacorb.ProxyServerURL=http://www.x.y.z/~user/Appligator_Ref
+##################################
+#                                #
+#   Appligator support           #
+#                                #
+##################################
+
+# The appligator acts as a remote proxy for objects behind a firewall.
+# The appligator is started on a fixed port corresponding
+# to a hole in the firewall via which the proxy can be accessed.
+#
+# Remote clients can access one or more appligators depending on
+# configuration. The 'jacorb.ProxyServer.URL' is the default
+# appligator to use. Multiple additional appligators can be
+# configured for remote subnets using the subnet form of URL
+# configuration. The subnet for a scoped appligator is calculated
+# by the logical anding of the network and netmask values.
+#
+# Clients are redirected to an appligator via the use of a client
+# side portable interceptor. This can be installed by configuring
+# a portable ORB initializer 'org.jacorb.proxy.ProxyClientInitializer'.
+#
+# The network and netmask configuration properties can optionally be
+# used to configure the network for the local client. If this is done
+# the calls to objects within the local subnet will not be redirected.
+
+#jacorb.ProxyServer.Netmask=255.255.255.0
+#jacorb.ProxyServer.Network=160.45.110.0
+#jacorb.ProxyServer.URL=<url>
+#jacorb.ProxyServer.URL:<network1>:<netmask1>=<url1>
+#jacorb.ProxyServer.URL:<network2>:<netmask2>=<url2>
 
 
 ##################################

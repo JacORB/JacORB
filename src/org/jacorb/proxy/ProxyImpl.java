@@ -1,5 +1,25 @@
 package org.jacorb.proxy;
 
+/*
+ *        JacORB - a free Java ORB
+ *
+ *   Copyright (C) 1997-2002  Gerald Brose.
+ *
+ *   This library is free software; you can redistribute it and/or
+ *   modify it under the terms of the GNU Library General Public
+ *   License as published by the Free Software Foundation; either
+ *   version 2 of the License, or (at your option) any later version.
+ *
+ *   This library is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *   Library General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Library General Public
+ *   License along with this library; if not, write to the Free
+ *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
 import java.util.Hashtable;
 import org.omg.PortableServer.*;
 import org.omg.CORBA.ORB;
@@ -9,9 +29,18 @@ import org.jacorb.orb.connection.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
 
+/**
+ * This is the appligator implementation that recieves redirected calls
+ * via DSI and calls on the the original target via DII.
+ *
+ * @author Nicolas Noffke, Sebastian Müller, Steve Osselton
+ */
+
 class ProxyImpl extends ProxyPOA
 {
     private static final String[] IDS = {"IDL:org/jacorb/proxy/Proxy:1.0"};
+
+    private static final int HDR_SIZE = 12;
 
     private Hashtable forwardMap = new Hashtable ();
     private Hashtable iorMap = new Hashtable ();
@@ -33,8 +62,8 @@ class ProxyImpl extends ProxyPOA
         java.util.Properties props = new java.util.Properties ();
 
         props.put ("OAPort", args[0] );
-        props.put ("org.omg.PortableInterceptor.ORBInitializerClass." +
-            "org.jacorb.proxy.ProxyServerInitializer", "");
+        props.put ("org.omg.PortableInterceptor.ORBInitializerClass."
+            + "org.jacorb.proxy.ProxyServerInitializer", "");
         props.put ("jacorb.implname", "Appligator");
 
         ORB orb = org.omg.CORBA.ORB.init (args, props);
@@ -81,7 +110,7 @@ class ProxyImpl extends ProxyPOA
             forwarder = new ProxyEntry (orb);
             forwarderRef = rootPOA.servant_to_reference (forwarder);
 
-            forwarderPOA.set_servant (new ProxyEntry (orb));
+            forwarderPOA.set_servant (forwarder);
             poaMgr.activate ();
         }
         catch (Exception ex)
@@ -339,6 +368,7 @@ class ProxyImpl extends ProxyPOA
         public void invoke (org.omg.CORBA.ServerRequest req)
         {
             org.jacorb.orb.dsi.ServerRequest request = null;
+            org.omg.CORBA.Any any;
             RequestInputStream reqis = null;
             RequestOutputStream reqos = null;
             ReplyInputStream repis = null;
@@ -347,6 +377,10 @@ class ProxyImpl extends ProxyPOA
             org.omg.CORBA.Object target = null;
             org.omg.PortableInterceptor.Current pi_current = null;
             Delegate delegate = null;
+            byte[] newbuff;
+            byte[] outbuff;
+            int newlen;
+            int datalen;
 
             request = (org.jacorb.orb.dsi.ServerRequest) req;
             reqis = request.get_in ();
@@ -358,7 +392,8 @@ class ProxyImpl extends ProxyPOA
                 pi_current = (org.omg.PortableInterceptor.Current)
                     orb.resolve_initial_references ("PICurrent");
 
-                ior_str = new String (pi_current.get_slot (ProxyServerInitializer.slot_id).toString ());
+                any = pi_current.get_slot (ProxyServerForwardInterceptor.slot);
+                ior_str = any.extract_string ();
                 target = orb.string_to_object (ior_str);
             }
             catch (org.omg.CORBA.UserException e)
@@ -366,13 +401,13 @@ class ProxyImpl extends ProxyPOA
                 e.printStackTrace();
             }
 
-
             //TODO: Reuse delegates
 
             // create and bind delegate
             // use special delegate without exception checking
 
             delegate = new Delegate (orb, ior_str, true);
+
             reqos = (RequestOutputStream) delegate.request
             (
                 target,
@@ -384,61 +419,62 @@ class ProxyImpl extends ProxyPOA
 
             synchronized (delegate)
             {
-                byte[] outbuffer = reqos.getInternalBuffer ();
 
-                int msg_size = reqis.msg_size + 12;
+                // Get buffer copy. Cannot get buffer direct as will
+                // be delayed writes for byte arrays.
 
-                //compute length of incoming data
+                outbuff = reqos.getBufferCopy ();
 
-                int datalength = (msg_size - (int) reqis.get_pos ());
+                // Compute length of incoming data
 
-                //getting a buffer of the right size
+                datalen = HDR_SIZE + reqis.msg_size - (int) reqis.get_pos ();
 
-                byte[] new_array = BufferManager.getInstance().getBuffer
-                    (datalength + reqos.size ());
+                // Compute total required buffer size
 
-                //copying the old header to the new array
+                newlen = datalen + outbuff.length;
+
+                // Get new buffer of the right size
+
+                newbuff = BufferManager.getInstance().getBuffer (newlen);
+
+                // Copying the old header to the new buffer
+
                 System.arraycopy
                 (
-                    outbuffer,
+                    outbuff,
                     0,
-                    new_array,
+                    newbuff,
                     0,
-                    reqos.size ()
+                    outbuff.length
                 );
 
-                //replacing the local pointer
-                outbuffer = new_array;
+                // Append data to new buffer
 
-                //replace buffer
-                //this overwrites the size/pos of the stream
-
-                reqos.setBufferWithoutReset (outbuffer);
-
-                if (datalength > 0)
+                if (datalen > 0)
                 {
                     System.arraycopy
                     (
                         reqis.getBuffer (),
                         reqis.get_pos (),
-                        outbuffer,
-                        reqos.size (),
-                        datalength
+                        newbuff,
+                        outbuff.length,
+                        datalen
                     );
                 }
-                reqos.setSize (reqos.size () + datalength);
-                reqos.insertMsgSize (reqos.size () + datalength);
+
+                // Replace buffer
+
+                reqos.setBufferWithoutReset (newbuff, newlen);
+                reqos.insertMsgSize (newlen);
 
                 // Check GIOP header flags endian bit
 
-                if ((reqis.getBuffer()[6]&1) != (outbuffer[6]&1))
+                if ((reqis.getBuffer()[6]&1) != (outbuff[6]&1))
                 {
-                    changeByteOrder (outbuffer);
+                    changeByteOrder (outbuff);
                 }
 
-                Debug.output (1, "SubRequest to send", outbuffer);
-
-                //send it
+                // Call on with DII
 
                 try
                 {
@@ -453,58 +489,64 @@ class ProxyImpl extends ProxyPOA
                     re.printStackTrace ();
                 }
 
-                ////////////////////////
-                //construct reply
-                ///////////////////////
+                /////////////////////
+                // construct reply //
+                /////////////////////
+
+                // Get reply output stream
                         
                 repos = request.get_out ();
-                byte[] reply_outbuffer = repos.getInternalBuffer ();
 
-                int reply_msg_size = repis.msg_size + 12;
-                        
-                //compute length of incoming data
+                // Patch in reply type
 
-                int reply_datalength = reply_msg_size - (int) repis.get_pos();
+                repos.reduceSize (4);
+                repos.write_long (repis.rep_hdr.reply_status.value ());
 
-                //getting a buffer of the right size
+                // Get copy of buffer from stream
 
-                byte[] reply_new_array = BufferManager.getInstance().getBuffer
-                  (reply_datalength + repos.size ());
+                outbuff = repos.getBufferCopy ();
 
-                //copying the old header to the new array
+                // Compute length of returned data
+
+                datalen = HDR_SIZE + repis.msg_size - (int) repis.get_pos ();
+
+                // Compute total required buffer size
+
+                newlen = datalen + outbuff.length;
+
+                // Get new buffer of the right size
+
+                newbuff = BufferManager.getInstance().getBuffer (newlen);
+
+                // Copy old header to the new buffer
 
                 System.arraycopy
                 (
-                    reply_outbuffer,
+                    outbuff,
                     0,
-                    reply_new_array,
+                    newbuff,
                     0,
-                    repos.size ()
+                    outbuff.length
                 );
 
-                //replacing the local pointer
+                // Append return data to new buffer
 
-                reply_outbuffer = reply_new_array;
-
-                //replace buffer
-                //this overwrites the size/pos of the stream
-
-                repos.setBufferWithoutReset (reply_outbuffer);
-
-                if (reply_datalength > 0)
+                if (datalen > 0)
                 {
                     System.arraycopy
                     (
                         repis.getBuffer (),
                         repis.get_pos (),
-                        reply_outbuffer,
-                        repos.size (),
-                        reply_datalength
+                        newbuff,
+                        outbuff.length,
+                        datalen
                     );
                 }
 
-                repos.setSize (repos.size () + reply_datalength);
-                repos.insertMsgSize (repos.size () + reply_datalength);
+                // Replace buffer
+
+                repos.setBufferWithoutReset (newbuff, newlen);
+                repos.insertMsgSize (newlen);
 
                 request.setUsePreconstructedReply (true);
             }
