@@ -80,12 +80,21 @@ public class TypeCode
             primitive_tcs[i] = new TypeCode(i);
         }   
 
-        // not actually primitive, but as a courtesy to Sun's JDK, which
-        // insists on calling get_primitive_tc with an argument kind of
-        // tk_object
-        primitive_tcs[14] = new TypeCode( "IDL:omg.org/CORBA/Object:1.0", "Object" );
+        // Sun's ValueHandler in JDK 1.3 and 1.4 calls 
+        // ORB.get_primitive_tc() for TCKind._tk_objref and TCKind._tk_value.
+        // These don't exactly look "primitive" to us, but as a courtesy to
+        // Sun we provide the following bogus TypeCode objects so that
+        // we can return something in these cases.
+        primitive_tcs [TCKind._tk_objref] 
+            = new TypeCode( "IDL:omg.org/CORBA/Object:1.0", 
+                            "Object" );
+        primitive_tcs [TCKind._tk_value] 
+            = new TypeCode( "IDL:omg.org/CORBA/portable/ValueBase:1.0",
+                            "ValueBase", org.omg.CORBA.VM_NONE.value,
+                            null, null );
 
-        primitive_tcs[18] = new TypeCode( 18, 0 );
+        primitive_tcs [TCKind._tk_string] 
+            = new TypeCode( TCKind._tk_string, 0 );
 
         for( int i = 23; i < 29; i++ )
         {
