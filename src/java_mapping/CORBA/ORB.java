@@ -27,8 +27,8 @@ abstract public class ORB {
 
 	private static final String DEFAULT_ORB_KEY= "org.omg.CORBA.ORBClass";
 	private static final String DEFAULT_ORB_SINGLETON_KEY=  "org.omg.CORBA.ORBSingletonClass";
-	private static final String DEFAULT_ORB_VALUE= "jacorb.orb.ORB";
-	private static final String DEFAULT_ORB_SINGLETON_VALUE = "jacorb.orb.ORBSingleton";
+	private static final String DEFAULT_ORB_VALUE= "org.jacorb.orb.ORB";
+	private static final String DEFAULT_ORB_SINGLETON_VALUE = "org.jacorb.orb.ORBSingleton";
 	private static final java.lang.Object SYNCHRONIZER = new java.lang.Object();
 	private static ORB _singleton_orb;
 
