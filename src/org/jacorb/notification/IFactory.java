@@ -1,5 +1,3 @@
-package org.jacorb.notification;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -21,11 +19,13 @@ package org.jacorb.notification;
  *
  */
 
+package org.jacorb.notification;
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-interface EventTypeIdentifier {
-    String getConstraintKey();
+public interface IFactory extends IContainer
+{
+    int getChannelID();
 }

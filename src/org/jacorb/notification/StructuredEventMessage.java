@@ -27,7 +27,6 @@ import org.jacorb.notification.filter.ComponentName;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.FilterUtils;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
@@ -49,7 +48,7 @@ import org.omg.TimeBase.UtcTHelper;
 
 /**
  * Adapts a StructuredEvent to the Message Interface.
- *
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -78,19 +77,17 @@ public class StructuredEventMessage extends AbstractMessage
 
     ////////////////////////////////////////
 
-    public synchronized void setStructuredEvent( StructuredEvent structuredEvent,
-                                                 boolean startTimeSupported,
-                                                 boolean timeOutSupported)
+    public synchronized void setStructuredEvent(StructuredEvent structuredEvent,
+            boolean startTimeSupported, boolean timeOutSupported)
     {
         structuredEventValue_ = structuredEvent;
 
-        constraintKey_ =
-            FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
-                                           structuredEventValue_.header.fixed_header.event_type.type_name );
+        constraintKey_ = AbstractMessage.calcConstraintKey(
+                structuredEventValue_.header.fixed_header.event_type.domain_name,
+                structuredEventValue_.header.fixed_header.event_type.type_name);
 
         parseQosSettings(startTimeSupported, timeOutSupported);
     }
-
 
     public synchronized void reset()
     {
@@ -106,173 +103,178 @@ public class StructuredEventMessage extends AbstractMessage
         priority_ = 0;
     }
 
-
     public int getType()
     {
         return Message.TYPE_STRUCTURED;
     }
 
-
     public synchronized Any toAny()
     {
-        if (anyValue_ == null) {
+        if (anyValue_ == null)
+        {
             anyValue_ = sOrb.create_any();
-            StructuredEventHelper.insert( anyValue_, structuredEventValue_ );
+            StructuredEventHelper.insert(anyValue_, structuredEventValue_);
         }
 
         return anyValue_;
     }
-
 
     public synchronized StructuredEvent toStructuredEvent()
     {
         return structuredEventValue_;
     }
 
-
-    public synchronized Property[] toTypedEvent() throws NoTranslationException {
-
-        if (!isTranslationPossible_) {
+    public synchronized Property[] toTypedEvent() throws NoTranslationException
+    {
+        if (!isTranslationPossible_)
+        {
             throw new NoTranslationException();
         }
 
-        if (typedEventValue_ == null) {
-            try {
-                if (!structuredEventValue_.filterable_data[0].name.equals("operation")) {
+        if (typedEventValue_ == null)
+        {
+            try
+            {
+                if (!structuredEventValue_.filterable_data[0].name.equals("operation"))
+                {
                     throw new IllegalArgumentException();
                 }
 
-                if (!structuredEventValue_.filterable_data[0].value.type().kind().equals(TCKind.tk_string)) {
+                if (!structuredEventValue_.filterable_data[0].value.type().kind().equals(
+                        TCKind.tk_string))
+                {
                     throw new IllegalArgumentException();
                 }
 
                 typedEventValue_ = structuredEventValue_.filterable_data;
-            } catch (Exception e) {
+            } catch (Exception e)
+            {
                 isTranslationPossible_ = false;
 
-                throw new NoTranslationException();
+                throw new NoTranslationException(e);
             }
         }
 
         return typedEventValue_;
     }
 
-
     public String getConstraintKey()
     {
         return constraintKey_;
     }
 
-
-    public EvaluationResult extractFilterableData(EvaluationContext context,
-                                                  ComponentName root,
-                                                  String v) throws EvaluationException {
-        Any _any =
-            context.getDynamicEvaluator().evaluatePropertyList(toStructuredEvent().filterable_data, v);
-
-        return EvaluationResult.fromAny(_any);
-    }
-
-
-    public EvaluationResult extractVariableHeader(EvaluationContext context,
-                                                  ComponentName root,
-                                                  String v)
-        throws EvaluationException {
-
-
-        Any _any =
-            context.getDynamicEvaluator().evaluatePropertyList(toStructuredEvent().header.variable_header, v);
+    public EvaluationResult extractFilterableData(EvaluationContext context, ComponentName root,
+            String v) throws EvaluationException
+    {
+        Any _any = context.getDynamicEvaluator().evaluatePropertyList(
+                toStructuredEvent().filterable_data, v);
 
         return EvaluationResult.fromAny(_any);
     }
 
+    public EvaluationResult extractVariableHeader(EvaluationContext context, ComponentName root,
+            String v) throws EvaluationException
+    {
+        Any _any = context.getDynamicEvaluator().evaluatePropertyList(
+                toStructuredEvent().header.variable_header, v);
 
-    private void parseQosSettings(boolean startTimeSupported,
-                                  boolean timeoutSupported) {
+        return EvaluationResult.fromAny(_any);
+    }
 
+    private void parseQosSettings(boolean startTimeSupported, boolean timeoutSupported)
+    {
         Property[] props = toStructuredEvent().header.variable_header;
 
-        for (int x=0; x < props.length; ++x) {
-            if (startTimeSupported && StartTime.value.equals(props[x].name)) {
+        for (int x = 0; x < props.length; ++x)
+        {
+            if (startTimeSupported && StartTime.value.equals(props[x].name))
+            {
                 startTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
-            } else if (StopTime.value.equals(props[x].name)) {
+            }
+            else if (StopTime.value.equals(props[x].name))
+            {
                 stopTime_ = new Date(unixTime(UtcTHelper.extract(props[x].value)));
-            } else if (timeoutSupported && Timeout.value.equals(props[x].name)) {
+            }
+            else if (timeoutSupported && Timeout.value.equals(props[x].name))
+            {
                 setTimeout(TimeTHelper.extract(props[x].value));
-            } else if (Priority.value.equals(props[x].name)) {
+            }
+            else if (Priority.value.equals(props[x].name))
+            {
                 priority_ = props[x].value.extract_short();
             }
         }
     }
 
-
-    public static long unixTime(UtcT corbaTime) {
+    public static long unixTime(UtcT corbaTime)
+    {
         long _unixTime = (corbaTime.time - Time.UNIX_OFFSET) / 10000;
 
-        if (corbaTime.tdf != 0) {
+        if (corbaTime.tdf != 0)
+        {
             _unixTime = _unixTime - (corbaTime.tdf * 60000);
         }
 
         return _unixTime;
     }
 
-
-    public boolean hasStartTime() {
+    public synchronized boolean hasStartTime()
+    {
         return startTime_ != null;
     }
 
-
-    public Date getStartTime() {
-        return startTime_;
+    public long getStartTime()
+    {
+        return startTime_.getTime();
     }
 
-
-    public boolean hasStopTime() {
+    public boolean hasStopTime()
+    {
         return stopTime_ != null;
     }
 
-
-    public Date getStopTime() {
-        return stopTime_;
+    public synchronized long getStopTime()
+    {
+        return stopTime_.getTime();
     }
 
-
-    public boolean hasTimeout() {
+    public boolean hasTimeout()
+    {
         return isTimeoutSet_;
     }
 
-
-    public long getTimeout() {
+    public long getTimeout()
+    {
         return timeout_;
     }
 
-
-    private void setTimeout(long timeout) {
+    private void setTimeout(long timeout)
+    {
         isTimeoutSet_ = true;
         timeout_ = timeout;
     }
 
-
-    public boolean match(Filter filter) throws UnsupportedFilterableData {
+    public boolean match(Filter filter) throws UnsupportedFilterableData
+    {
         return filter.match_structured(toStructuredEvent());
     }
 
-
-    public int getPriority() {
+    public int getPriority()
+    {
         return priority_;
     }
 
-
-    public boolean match(MappingFilter filter, AnyHolder value) throws UnsupportedFilterableData {
+    public boolean match(MappingFilter filter, AnyHolder value) throws UnsupportedFilterableData
+    {
         return filter.match_structured(toStructuredEvent(), value);
     }
 
-
-    public String toString() {
-        if (toStructuredEvent() == null) {
+    public String toString()
+    {
+        if (toStructuredEvent() == null)
+        {
             return null;
-        } else {
-            return toStructuredEvent().toString();
         }
+        return toStructuredEvent().toString();
     }
 }

@@ -21,13 +21,10 @@ package org.jacorb.notification;
  *
  */
 
-import java.util.Date;
-
 import org.jacorb.notification.filter.ComponentName;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.FilterUtils;
 import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
@@ -58,7 +55,7 @@ public class AnyMessage extends AbstractMessage
     private static final EventHeader sEventHeader;
 
     private static final String sAnyKey =
-        FilterUtils.calcConstraintKey( "", TYPE_NAME );
+        AbstractMessage.calcConstraintKey( "", TYPE_NAME );
 
     static {
         EventType _eventType = new EventType( "", TYPE_NAME );
@@ -208,7 +205,7 @@ public class AnyMessage extends AbstractMessage
     }
 
 
-    public Date getStartTime()
+    public long getStartTime()
     {
         throw new UnsupportedOperationException();
     }
@@ -220,7 +217,7 @@ public class AnyMessage extends AbstractMessage
     }
 
 
-    public Date getStopTime()
+    public long getStopTime()
     {
         throw new UnsupportedOperationException();
     }

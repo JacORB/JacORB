@@ -24,20 +24,11 @@ package org.jacorb.notification;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.logger.Logger;
-import org.jacorb.notification.interfaces.Disposable;
-import org.omg.CORBA.ORB;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.NotifySubscribe;
-import org.omg.CosNotifyComm.NotifySubscribePOA;
-import org.omg.CosNotifyFilter.CallbackNotFound;
+import org.jacorb.notification.util.LogUtil;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
@@ -49,58 +40,42 @@ import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
  * @version $Id$
  */
 
-public class FilterManager
-    implements FilterAdminOperations,
-               SubscriptionChangeListener,
-               Configurable
+public class FilterManager implements FilterAdminOperations
 {
-    public static final FilterManager EMPTY_FILTER_MANAGER =
-        new FilterManager( Collections.EMPTY_MAP );
+    public static final FilterManager EMPTY_FILTER_MANAGER = new FilterManager(Collections.EMPTY_MAP);
 
     private static final Integer[] INTEGER_ARRAY_TEMPLATE = new Integer[0];
 
     ////////////////////////////////////////
 
-    private Map filters_;
-
-    private ORB orb_;
+    private final Map filters_; 
 
     private final Object filtersLock_ = new Object();
 
     private boolean filtersModified_;
 
-    private List filtersReadOnlyView_;
+    private final List filterList_ = new ArrayList();
 
-    private SynchronizedInt filterIdPool_ = new SynchronizedInt(0);
+    private final List filtersReadOnlyView_ = Collections.unmodifiableList(filterList_);
 
-    private Map filterId2callbackId_ = new Hashtable();
+    private final SynchronizedInt filterIdPool_ = new SynchronizedInt(0);
 
-    private Logger logger_ = null;
-
-    private org.jacorb.config.Configuration config_ = null;
-
+    private final Logger logger_;
+    
     ////////////////////////////////////////
 
-    protected FilterManager( Map filters )
+    protected FilterManager(Map filters)
     {
         filters_ = filters;
 
         filtersModified_ = true;
+        
+        logger_ = LogUtil.getLogger(getClass().getName());
     }
 
-
-    public FilterManager(ORB orb)
+    public FilterManager()
     {
-        this( new HashMap() );
-
-        setORB(orb);
-    }
-
-
-    public void configure (Configuration conf)
-    {
-        config_ = ((org.jacorb.config.Configuration)conf);
-        logger_ = config_.getNamedLogger(getClass().getName());
+        this(new HashMap());
     }
 
     ////////////////////////////////////////
@@ -110,20 +85,25 @@ public class FilterManager
         return new Integer(filterIdPool_.increment());
     }
 
-
-    public int add_filter( Filter filter )
+    public int add_filter(Filter filter)
     {
         Integer _key = getFilterId();
 
-        if (logger_.isWarnEnabled()) {
-            try {
-                if (!((org.omg.CORBA.portable.ObjectImpl)filter)._is_local()) {
+        if (logger_.isWarnEnabled())
+        {
+            try
+            {
+                if (!((org.omg.CORBA.portable.ObjectImpl) filter)._is_local())
+                {
                     logger_.warn("filter is not local!");
                 }
-            } catch (Exception e) {}
+            } catch (Exception e)
+            {
+            }
         }
 
-        synchronized(filtersLock_) {
+        synchronized (filtersLock_)
+        {
             filters_.put(_key, filter);
 
             filtersModified_ = true;
@@ -132,206 +112,89 @@ public class FilterManager
         return _key.intValue();
     }
 
-
-    public void remove_filter( int filterId ) throws FilterNotFound
+    public void remove_filter(int filterId) throws FilterNotFound
     {
         Integer _key = new Integer(filterId);
 
-        synchronized(filtersLock_) {
-            if (filters_.containsKey(_key)) {
+        synchronized (filtersLock_)
+        {
+            if (filters_.containsKey(_key))
+            {
                 filters_.remove(_key);
                 filtersModified_ = true;
-            } else {
+            }
+            else
+            {
                 throwFilterNotFound(_key);
             }
         }
     }
 
-
-    public Filter get_filter( int filterId ) throws FilterNotFound
+    public Filter get_filter(int filterId) throws FilterNotFound
     {
         Integer _key = new Integer(filterId);
 
-        Filter _filter;
+        final Filter _filter;
 
-        synchronized (filtersLock_) {
-            _filter = (Filter)filters_.get(_key);
+        synchronized (filtersLock_)
+        {
+            _filter = (Filter) filters_.get(_key);
         }
 
-        if (_filter == null) {
+        if (_filter == null)
+        {
             throwFilterNotFound(_key);
-
-            return null;
-        } else {
-            return _filter;
         }
+
+        return _filter;
     }
 
-
-    private void throwFilterNotFound(Integer filterId) throws FilterNotFound {
+    private void throwFilterNotFound(Integer filterId) throws FilterNotFound
+    {
         throw new FilterNotFound("Filter with ID=" + filterId + " does not exist");
     }
 
-
     public int[] get_all_filters()
     {
-        Integer[] _keys;
+        final Integer[] _keys;
 
-        synchronized(filtersLock_) {
-            _keys = (Integer[])filters_.keySet().toArray(INTEGER_ARRAY_TEMPLATE);
+        synchronized (filtersLock_)
+        {
+            _keys = (Integer[]) filters_.keySet().toArray(INTEGER_ARRAY_TEMPLATE);
         }
 
-        int[] _intKeys = new int[ _keys.length ];
+        final int[] _intKeys = new int[_keys.length];
 
-        for (int x=0; x<_keys.length; ++x) {
+        for (int x = 0; x < _keys.length; ++x)
+        {
             _intKeys[x] = _keys[x].intValue();
         }
 
         return _intKeys;
     }
 
-
     public void remove_all_filters()
     {
-        synchronized(filtersLock_) {
+        synchronized (filtersLock_)
+        {
             filters_.clear();
             filtersModified_ = true;
         }
     }
 
-
     public List getFilters()
     {
-        synchronized(filtersLock_) {
-            if (filtersModified_) {
-                List _filterReadOnlyView = new ArrayList();
+        synchronized (filtersLock_)
+        {
+            if (filtersModified_)
+            {
+                filterList_.clear();
 
-                _filterReadOnlyView.addAll(filters_.values());
-
-                filtersReadOnlyView_ = Collections.unmodifiableList(_filterReadOnlyView);
+                filterList_.addAll(filters_.values());
 
                 filtersModified_ = false;
             }
         }
         return filtersReadOnlyView_;
-    }
-
-
-    public void subscriptionChangedForFilter(int filterId,
-                                             EventType[] eventType1,
-                                             EventType[] eventType2) {
-
-    }
-
-
-    private void attachFilterListener(int filterId, Filter filter) {
-        FilterCallback filterCallback =
-            new FilterCallback(this,
-                               getORB(),
-                               filterId,
-                               filter);
-
-        filterCallback.configure (config_);
-        filterId2callbackId_.put(new Integer(filterId),
-                                 filterCallback);
-    }
-
-
-    private void detachFilterListener(int filterId) {
-        Integer key = new Integer(filterId);
-
-        if (filterId2callbackId_.containsKey(key)) {
-            FilterCallback filterCallback =
-                (FilterCallback)filterId2callbackId_.remove(key);
-
-            filterCallback.dispose();
-        }
-    }
-
-
-    public ORB getORB() {
-        return orb_;
-    }
-
-
-    public void setORB(ORB orb) {
-        orb_ = orb;
-    }
-}
-
-
-interface SubscriptionChangeListener {
-    void subscriptionChangedForFilter(int filterId,
-                                      EventType[] eventTypeArray,
-                                      EventType[] eventTypeArray1);
-
-}
-
-
-class FilterCallback
-    extends NotifySubscribePOA
-    implements Disposable,
-               Configurable
-{
-
-    int callbackId_;
-
-    int filterId;
-
-    Filter filter_;
-
-    NotifySubscribe notifySubscribe_;
-
-    SubscriptionChangeListener subscriptionChangeListener_;
-    private Logger logger_ = null;
-    private org.jacorb.config.Configuration config_ = null;
-
-
-    ////////////////////////////////////////
-
-    public FilterCallback(SubscriptionChangeListener subscriptionChangeListener,
-                          ORB orb,
-                          int filterId,
-                          Filter filter) {
-        subscriptionChangeListener_  = subscriptionChangeListener;
-        filter_ = filter;
-        notifySubscribe_ = _this(orb);
-        attach();
-    }
-
-    public void configure (Configuration conf)
-    {
-        config_ = ((org.jacorb.config.Configuration)conf);
-        logger_ = config_.getNamedLogger(getClass().getName());
-    }
-
-    ////////////////////////////////////////
-
-    private void attach() {
-        callbackId_ = filter_.attach_callback(notifySubscribe_);
-    }
-
-
-    private void detach() {
-        try {
-            filter_.detach_callback(callbackId_);
-        } catch (CallbackNotFound e) {
-//             logger_.error("error during detach", e);
-        }
-    }
-
-
-    public void subscription_change(EventType[] eventTypeArray,
-                                    EventType[] eventTypeArray1)
-        throws InvalidEventType {
-
-        subscriptionChangeListener_.subscriptionChangedForFilter(filterId,
-                                                                 eventTypeArray,
-                                                                 eventTypeArray1);
-    }
-
-
-    public void dispose() {
-        detach();
     }
 }

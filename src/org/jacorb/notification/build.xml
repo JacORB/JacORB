@@ -28,8 +28,13 @@
     <mkdir dir="${src}/generated/${etcl.target.package}" />
 
     <path id="antlr.classpath">
-      <pathelement path="${basedir}/lib/antlr-2.7.2.jar" />
+      	<pathelement path="${basedir}/lib/antlr-2.7.2.jar" />
     </path>
+      	
+    <path id="path.wrapper">
+    		<path refid="path.base" />
+     	<pathelement location="${lib}/wrapper-3.1.0.jar" />
+   	</path>
   </target>
 
 
@@ -62,7 +67,7 @@
   <!-- ====== -->
   <!-- Parser -->
   <!-- ====== -->
-  <target name="etcl" depends="notification.init, etcl.depend, etcl.generate, etcl.compile" />
+  <target name="etcl" description="Generate ETCL Parser" depends="notification.init, etcl.depend, etcl.generate, etcl.compile" />
 
 
   <!-- check if parser needs to be generated -->
@@ -112,43 +117,27 @@
 
 
   <!-- compile generated parser and AST Classes -->
-  <target name="etcl.compile">
-    <antcall target="jacorb-javac">
-      <param name="javac-src"
-        value="${src}/generated" />
-      <param name="javac-includes"
-        value="${etcl.target.package}/*.java" />
-      <param name="javac-sourcepath"
-        value="${src}" />
-    </antcall>
+  <target name="etcl.compile" depends="notification.init">
+    <jacorb-javac
+      javac-src="${src}/generated"
+      javac-includes="${etcl.target.package}/*.java" />
 
-    <antcall target="jacorb-javac">
-      <param name="javac-includes" value="${etcl.target.package}/*.java" />
-    </antcall>
+    <jacorb-javac
+      javac-includes="${etcl.target.package}/*.java" />
   </target>
 
 
   <target name="server" depends="notification.compile.regexp">
-    <antcall target="jacorb-javac">
-      <param name="javac-includes"
-             value="org/jacorb/notification/**/*.java" />
-      <param name="javac-excludes"
-             value="org/jacorb/notification/util/*PatternWrapper.java,
-                    org/jacorb/notification/WrapperMain.java,
-	                org/jacorb/notification/filter/bsh/**,
-      	            org/jacorb/notification/jmx/**" />
-    </antcall>
-
-    <javac srcdir="${src}"
-           destdir="${classdir}" >
-      
-      <classpath>
-        <path refid="path.base" />
-        <pathelement location="${lib}/wrapper-3.1.0.jar" />
-      </classpath>
-
-      <include name="org/jacorb/notification/WrapperMain.java"/>
-    </javac>
+    <jacorb-javac
+      javac-includes="org/jacorb/notification/**/*.java"
+      javac-excludes="org/jacorb/notification/util/*PatternWrapper.java,
+                      org/jacorb/notification/WrapperMain.java,
+	                  org/jacorb/notification/filter/bsh/**,
+      	              org/jacorb/notification/jmx/**" />
+	
+    <jacorb-javac 
+	  javac-classpathref="path.wrapper"
+      javac-includes="org/jacorb/notification/WrapperMain.java" />
   </target>
 
 
@@ -161,21 +150,18 @@
 
   <target name="notification.compile.regexp.gnu" if="available.regexp.gnu">
     <echo message="Compiling for gnu.regexp (pre JDK 1.4)" />
-    <antcall target="jacorb-javac" >
-      <param name="javac-includes"
-             value="org/jacorb/notification/util/PatternWrapper.java,
-                    org/jacorb/notification/util/GNUPatternWrapper.java" />
-    </antcall>
+    <jacorb-javac
+      javac-includes="org/jacorb/notification/util/PatternWrapper.java,
+                      org/jacorb/notification/util/GNUPatternWrapper.java" />
   </target>
 
 
   <target name="notification.compile.regexp.jdk" if="available.regexp.jdk">
     <echo message="Compiling for java.util.regexp (JDK 1.4+)" />
-    <antcall target="jacorb-javac">
-      <param name="javac-includes"
-             value="org/jacorb/notification/util/PatternWrapper.java,
-                    org/jacorb/notification/util/JDK14PatternWrapper.java"/>
-    </antcall>
+    <jacorb-javac
+      javac-includes="org/jacorb/notification/util/PatternWrapper.java,
+                      org/jacorb/notification/util/JDK14PatternWrapper.java"/>
+
   </target>
 
   
@@ -183,18 +169,17 @@
     if="available.regexp.jakarta-regexp" >
     
     <echo message="Compiling for org.apache.regexp (Jakarta Regexp)" />
-    <antcall target="jacorb-javac" >
-      <param name="javac-includes"
-	value="org/jacorb/notification/util/PatternWrapper.java,
-	       org/jacorb/notification/util/JakartaRegexpPatternWrapper.java" />
-    </antcall>
+    <jacorb-javac 
+      javac-includes="org/jacorb/notification/util/PatternWrapper.java,
+	                  org/jacorb/notification/util/JakartaRegexpPatternWrapper.java" />
+    
   </target>
 
 
   <!-- clean -->
   <target name="clean"
     depends="init, clean.classes"
-    description="Cleans the notification">
+    description="Erase all generated Artifacts">
   </target>
 
 

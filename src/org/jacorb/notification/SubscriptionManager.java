@@ -21,9 +21,12 @@ package org.jacorb.notification;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.util.LogUtil;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
@@ -33,65 +36,86 @@ import org.omg.CosNotifyComm.NotifySubscribeOperations;
  * @version $Id$
  */
 
-public class SubscriptionManager
-    extends EventTypeSet
-    implements NotifySubscribeOperations {
+public class SubscriptionManager extends EventTypeSet implements NotifySubscribeOperations
+{
+    public static final SubscriptionManager NULL_MANAGER = new SubscriptionManager(Collections.EMPTY_LIST);
+    
+    private final Logger logger_ = LogUtil.getLogger(getClass().getName());
 
-    private List listeners_ = new ArrayList();
+    private final List listeners_;
+
+    public SubscriptionManager()
+    {
+        this(new ArrayList());
+    }
+
+    private SubscriptionManager(List list)
+    {
+        listeners_ = list;
+    }
 
     ////////////////////////////////////////
 
-    public void addListener(NotifySubscribeOperations listener) {
-        synchronized(listeners_) {
+    public void addListener(NotifySubscribeOperations listener)
+    {
+        synchronized (listeners_)
+        {
             listeners_.add(listener);
         }
     }
 
-
-    public void removeListener(NotifySubscribeOperations listener) {
-        synchronized(listeners_) {
+    public void removeListener(NotifySubscribeOperations listener)
+    {
+        synchronized (listeners_)
+        {
             listeners_.remove(listener);
         }
     }
 
-
-    public void actionSetChanged(EventType[] added, EventType[] removed) {
-        synchronized(listeners_) {
+    public void actionSetChanged(EventType[] added, EventType[] removed)
+    {
+        synchronized (listeners_)
+        {
             // use a iterator on a copy of the original list here.
             // otherwise the iterator would fail if the list would be
             // modified concurrently which may happen during
             // subscription_change.
             Iterator _i = new ArrayList(listeners_).iterator();
 
-            while (_i.hasNext()) {
-                NotifySubscribeOperations _listener = (NotifySubscribeOperations)_i.next();
+            while (_i.hasNext())
+            {
+                NotifySubscribeOperations _listener = (NotifySubscribeOperations) _i.next();
 
-                try {
+                try
+                {
                     _listener.subscription_change(added, removed);
-                } catch (Throwable t) {
-                    logger_.error("unable to subscription_change", t);
+                } catch (Exception e)
+                {
+                    logger_.error("subscription_change failed for " + _listener, e);
                 }
             }
         }
     }
 
-
-    public void subscription_change(EventType[] added, EventType[] removed) throws InvalidEventType {
-        try {
+    public void subscription_change(EventType[] added, EventType[] removed) throws InvalidEventType
+    {
+        try
+        {
             changeSet(added, removed);
-        } catch (InterruptedException e) {
-            logger_.fatalError("interrupted", e);
+        } catch (InterruptedException e)
+        {
+          // ignore
         }
     }
 
-
-    public EventType[] obtain_subscription_types() {
-        try {
+    public EventType[] obtain_subscription_types()
+    {
+        try
+        {
             return getAllTypes();
-        } catch (InterruptedException e) {
-            logger_.fatalError("interrupted", e);
-
-            return null;
+        } catch (InterruptedException e)
+        {
+            return EMPTY_EVENT_TYPE;
         }
     }
 }

@@ -26,5 +26,14 @@ package org.jacorb.notification;
  */
 
 public class NoTranslationException extends Exception {
+    public NoTranslationException()
+    {
+        super();
+    }
+    
+    public NoTranslationException(Exception cause)
+    {
+        super(cause.getMessage());
+    }
 }
 

@@ -20,13 +20,10 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Date;
-
 import org.jacorb.notification.filter.ComponentName;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.FilterUtils;
 import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
@@ -61,14 +58,14 @@ public class TypedEventMessage extends AbstractMessage
 
     private static final EventHeader sEventHeader;
 
-    private static final String sTypedKey =
-        FilterUtils.calcConstraintKey( "", TYPE_NAME );
+    private static final String sTypedKey = AbstractMessage.calcConstraintKey("", TYPE_NAME);
 
-    static {
-        EventType _eventType = new EventType( "", TYPE_NAME );
-        FixedEventHeader _fixedHeader = new FixedEventHeader( _eventType, "" );
-        Property[] _variableHeader = new Property[ 0 ];
-        sEventHeader = new EventHeader( _fixedHeader, _variableHeader );
+    static
+    {
+        EventType _eventType = new EventType("", TYPE_NAME);
+        FixedEventHeader _fixedHeader = new FixedEventHeader(_eventType, "");
+        Property[] _variableHeader = new Property[0];
+        sEventHeader = new EventHeader(_fixedHeader, _variableHeader);
     }
 
     ////////////////////////////////////////
@@ -95,7 +92,8 @@ public class TypedEventMessage extends AbstractMessage
 
     ////////////////////////////////////////
 
-    public void reset() {
+    public void reset()
+    {
         super.reset();
 
         typedEvent_ = null;
@@ -105,14 +103,13 @@ public class TypedEventMessage extends AbstractMessage
         structuredEventValue_ = null;
     }
 
-
     public String getConstraintKey()
     {
         return sTypedKey;
     }
 
-
-    public void setTypedEvent(String interfaceName, String operation, Property[] params) {
+    public void setTypedEvent(String interfaceName, String operation, Property[] params)
+    {
         idlInterfaceName_ = interfaceName;
 
         operationName_ = operation;
@@ -120,20 +117,22 @@ public class TypedEventMessage extends AbstractMessage
         parameters_ = params;
     }
 
-
-    public void setTypedEvent(Property[] props) {
+    public void setTypedEvent(Property[] props)
+    {
         parameters_ = props;
     }
 
-
-    private Property[] getFilterableHeader() {
-        if (filterableHeader_ == null) {
+    private Property[] getFilterableHeader()
+    {
+        if (filterableHeader_ == null)
+        {
             filterableHeader_ = new Property[parameters_.length + 1];
             Any _operationAny = sORB.create_any();
             _operationAny.insert_string(operationName_);
             filterableHeader_[0] = new Property(OPERATION_NAME, _operationAny);
 
-            for (int x=0; x<parameters_.length; ++x) {
+            for (int x = 0; x < parameters_.length; ++x)
+            {
                 filterableHeader_[1 + x] = parameters_[x];
             }
         }
@@ -141,10 +140,10 @@ public class TypedEventMessage extends AbstractMessage
         return filterableHeader_;
     }
 
-
     public Any toAny()
     {
-        if (anyValue_ == null) {
+        if (anyValue_ == null)
+        {
             Property[] _filterableHeader = getFilterableHeader();
 
             anyValue_ = sORB.create_any();
@@ -154,10 +153,10 @@ public class TypedEventMessage extends AbstractMessage
         return anyValue_;
     }
 
-
     public StructuredEvent toStructuredEvent()
     {
-        if (structuredEventValue_ == null) {
+        if (structuredEventValue_ == null)
+        {
             structuredEventValue_ = new StructuredEvent();
 
             structuredEventValue_.header = sEventHeader;
@@ -167,9 +166,10 @@ public class TypedEventMessage extends AbstractMessage
         return structuredEventValue_;
     }
 
-
-    public Property[] toTypedEvent() {
-        if (typedEvent_ == null) {
+    public Property[] toTypedEvent()
+    {
+        if (typedEvent_ == null)
+        {
             typedEvent_ = new Property[parameters_.length + 1];
 
             EventType _eventType = new EventType();
@@ -181,36 +181,32 @@ public class TypedEventMessage extends AbstractMessage
 
             typedEvent_[0] = new Property(EVENT_TYPE, _eventTypeAny);
 
-            for (int x=0; x<parameters_.length; ++x) {
+            for (int x = 0; x < parameters_.length; ++x)
+            {
                 typedEvent_[1 + x] = parameters_[x];
             }
         }
         return typedEvent_;
     }
 
-
     public int getType()
     {
         return Message.TYPE_TYPED;
     }
 
-
     public EvaluationResult extractFilterableData(EvaluationContext evaluationContext,
-                                                  ComponentName componentName,
-                                                  String headerName)
-        throws EvaluationException
+            ComponentName componentName, String headerName) throws EvaluationException
     {
         throw new EvaluationException();
     }
 
-
     public EvaluationResult extractVariableHeader(EvaluationContext evaluationContext,
-                                                  ComponentName componentName,
-                                                  String headerName)
-        throws EvaluationException
+            ComponentName componentName, String headerName) throws EvaluationException
     {
-        for (int x=0; x<parameters_.length; ++x) {
-            if (parameters_[x].name.equals(headerName)) {
+        for (int x = 0; x < parameters_.length; ++x)
+        {
+            if (parameters_[x].name.equals(headerName))
+            {
                 EvaluationResult _result = new EvaluationResult();
                 _result.addAny(parameters_[x].value);
 
@@ -218,60 +214,51 @@ public class TypedEventMessage extends AbstractMessage
             }
         }
 
-        throw new EvaluationException();
+        throw new EvaluationException("Headername " + headerName + " does not exist");
     }
-
 
     public boolean hasStartTime()
     {
         return false;
     }
 
-
-    public Date getStartTime()
+    public long getStartTime()
     {
-        return null;
+        throw new UnsupportedOperationException();
     }
-
 
     public boolean hasStopTime()
     {
         return false;
     }
 
-
-    public Date getStopTime()
+    public long getStopTime()
     {
-        return null;
+        throw new UnsupportedOperationException();
     }
-
 
     public boolean hasTimeout()
     {
         return false;
     }
 
-
     public long getTimeout()
     {
         return 0;
     }
-
 
     public int getPriority()
     {
         return 0;
     }
 
-
     public boolean match(Filter filter) throws UnsupportedFilterableData
     {
         return filter.match_typed(toTypedEvent());
     }
 
-
     public boolean match(MappingFilter mappingFilter, AnyHolder anyHolder)
-        throws UnsupportedFilterableData
+            throws UnsupportedFilterableData
     {
         return mappingFilter.match_typed(toTypedEvent(), anyHolder);
     }

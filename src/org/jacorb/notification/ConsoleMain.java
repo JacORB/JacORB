@@ -29,123 +29,119 @@ import org.jacorb.notification.conf.Attributes;
  * @version $Id$
  */
 
-public class ConsoleMain {
-
+public class ConsoleMain
+{
     private static void help()
     {
-        System.out.println( "Usage: ntfy [-printIOR] [-printCorbaloc] " +
-                            "[-writeIOR <filename>] " +
-                            "[-registerName <nameId>[.<nameKind>]] " +
-                            "[-port <oaPort>] [-channels <channels>] [-help]");
-        System.exit( 0 );
+        System.out.println("Usage: ntfy [-printIOR] [-printCorbaloc] " + "[-writeIOR <filename>] "
+                + "[-registerName <nameId>[.<nameKind>]] "
+                + "[-port <oaPort>] [-channels <channels>] [-help]");
+        System.exit(0);
     }
 
-
-    private static class CmdLineParser {
+    private static class CmdLineParser
+    {
         private boolean doHelp = false;
 
         private Properties props = new Properties();
 
-        public boolean getDoHelp() {
-            return(doHelp);
+        public boolean getDoHelp()
+        {
+            return (doHelp);
         }
 
-
-        public Properties getProps() {
-            return(props);
+        public Properties getProps()
+        {
+            return (props);
         }
 
-
-        CmdLineParser(String[] args) {
+        CmdLineParser(String[] args)
+        {
             perform(args);
         }
 
-        private void perform(String [] args) throws IllegalArgumentException {
+        private void perform(String[] args) throws IllegalArgumentException
+        {
             try
+            {
+                // process arguments
+                for (int i = 0; i < args.length; i++)
                 {
-                    // process arguments
-                    for ( int i = 0; i < args.length; i++ )
+                    if (args[i].equals("-printIOR"))
+                    {
+                        props.put(Attributes.PRINT_IOR, "on");
+                    }
+                    else if (args[i].equals("-printCorbaloc"))
+                    {
+                        props.put(Attributes.PRINT_CORBALOC, "on");
+                    }
+                    else if (args[i].equals("-help"))
+                    {
+                        doHelp = true;
+                    }
+                    else if (args[i].equals("-port"))
+                    {
+                        props.put("OAPort", args[++i]);
+                    }
+                    else if (args[i].equals("-channels"))
+                    {
+                        props.put(Attributes.START_CHANNELS, args[++i]);
+                    }
+                    else if (args[i].equals("-writeIOR"))
+                    {
+                        props.put(Attributes.IOR_FILE, args[++i]);
+                    }
+                    else if (args[i].equals("-registerName"))
+                    {
+                        String name = args[++i];
+
+                        int index = name.indexOf(".");
+
+                        if (name.lastIndexOf(".") != index)
                         {
-                            if ( args[ i ].equals( "-printIOR" ) )
-                                {
-                                    props.put(Attributes.PRINT_IOR, "on");
-                                }
-                            else if ( args[ i ].equals( "-printCorbaloc" ) )
-                                {
-                                    props.put(Attributes.PRINT_CORBALOC, "on");
-                                }
-                            else if ( args[ i ].equals( "-help" ) )
-                                {
-                                    doHelp = true;
-                                }
-                            else if ( args[ i ].equals( "-port" ) )
-                                {
-                                    props.put("OAPort", args[ ++i ]);
-                                }
-                            else if ( args[ i ].equals( "-channels" ) )
-                                {
-                                    props.put(Attributes.START_CHANNELS,
-                                              args[++i]);
-                                }
-                            else if ( args[ i ].equals( "-writeIOR" ) )
-                                {
-                                    props.put(Attributes.IOR_FILE, args [ ++i ]);
-                                }
-                            else if ( args[ i ].equals( "-registerName" ) )
-                                {
-                                    String name = args[ ++i ];
-
-                                    int index = name.indexOf( "." );
-
-                                    if ( name.lastIndexOf( "." ) != index )
-                                        {
-                                            throw new IllegalArgumentException
-                                                ( name +
-                                                  ": argument to -registerName should be " +
-                                                  "<nameId> or <nameId>.<nameKind>" );
-                                        }
-
-                                    if ( index != -1 )
-                                        {
-                                            props.put(Attributes.REGISTER_NAME_ID,
-                                                      name.substring( 0, index ));
-
-                                            props.put(Attributes.REGISTER_NAME_KIND,
-                                                      name.substring( index + 1 ));
-                                        }
-                                    else
-                                        {
-                                            props.put(Attributes.REGISTER_NAME_ID, name);
-                                        }
-                                }
-                            else if ( args[i].equals( "-typed" ) )
-                                {
-                                    props.put(Attributes.ENABLE_TYPED_CHANNEL, "on");
-                                }
-                            else
-                                {
-                                    System.out.println( "Unknown argument: " + args[ i ] );
-
-                                    doHelp = true;
-                                }
+                            throw new IllegalArgumentException(name
+                                    + ": argument to -registerName should be "
+                                    + "<nameId> or <nameId>.<nameKind>");
                         }
+
+                        if (index != -1)
+                        {
+                            props.put(Attributes.REGISTER_NAME_ID, name.substring(0, index));
+
+                            props.put(Attributes.REGISTER_NAME_KIND, name.substring(index + 1));
+                        }
+                        else
+                        {
+                            props.put(Attributes.REGISTER_NAME_ID, name);
+                        }
+                    }
+                    else if (args[i].equals("-typed"))
+                    {
+                        props.put(Attributes.ENABLE_TYPED_CHANNEL, "on");
+                    }
+                    else
+                    {
+                        System.out.println("Unknown argument: " + args[i]);
+
+                        doHelp = true;
+                    }
                 }
-            catch ( ArrayIndexOutOfBoundsException e )
-                {
-                    doHelp = true;
-                }
+            } catch (ArrayIndexOutOfBoundsException e)
+            {
+                doHelp = true;
+            }
         }
     }
 
-
-    public static AbstractChannelFactory newFactory( String[] args ) throws Exception
+    public static AbstractChannelFactory newFactory(String[] args) throws Exception
     {
         CmdLineParser _cmdLineParser = new CmdLineParser(args);
 
-        if ( _cmdLineParser.getDoHelp() ) {
-                help();
+        if (_cmdLineParser.getDoHelp())
+        {
+            help();
 
-                System.exit( 0 );
+            System.exit(0);
         }
 
         Properties props = _cmdLineParser.getProps();
@@ -155,8 +151,8 @@ public class ConsoleMain {
         return _factory;
     }
 
-
-    public static final void main(String[] args) throws Exception {
+    public static final void main(String[] args) throws Exception
+    {
         newFactory(args);
     }
 }

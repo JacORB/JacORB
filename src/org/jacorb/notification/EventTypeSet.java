@@ -26,11 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configuration;
-import org.apache.avalon.framework.logger.Logger;
 import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyComm.InvalidEventType;
 
 import EDU.oswego.cs.dl.util.concurrent.FIFOReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
@@ -40,199 +36,153 @@ import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
  * @version $Id$
  */
 
-abstract class EventTypeSet
-    implements Configurable
+public abstract class EventTypeSet
 {
-    private static class EventTypeWrapper implements Comparable {
-
-        private EventType wrappedEventType_;
-
-        EventTypeWrapper(EventType wrappee) {
-            wrappedEventType_ = wrappee;
-        }
-
-
-        public EventType getEventType() {
-            return wrappedEventType_;
-        }
-
-
-        public String toString() {
-            return "<EventType domain_name='" +
-                wrappedEventType_.domain_name +
-                "' type_name='" +
-                wrappedEventType_.type_name +
-                "'>";
-        }
-
-
-        public int hashCode() {
-            return wrappedEventType_.hashCode();
-        }
-
-
-        public boolean equals(Object o) {
-            try {
-                EventTypeWrapper _other = (EventTypeWrapper)o;
-
-                return _other.wrappedEventType_.domain_name.equals(wrappedEventType_.domain_name) &&
-                    _other.wrappedEventType_.type_name.equals(wrappedEventType_.type_name);
-            } catch (ClassCastException e) {
-                return super.equals(o);
-            }
-        }
-
-
-        public int compareTo(Object o) {
-            try {
-                EventTypeWrapper _other = (EventTypeWrapper)o;
-
-                int _compare = wrappedEventType_.domain_name.compareTo(_other.wrappedEventType_.domain_name);
-
-                if (_compare == 0) {
-                    _compare = wrappedEventType_.type_name.compareTo(_other.wrappedEventType_.type_name);
-                }
-
-                return _compare;
-
-            } catch (ClassCastException e) {
-                throw new IllegalArgumentException();
-            }
-        }
-    }
-
-    ////////////////////////////////////////
-
-    private final static EventTypeWrapper[] EVENT_TYPE_WRAPPER_TEMPLATE =
-        new EventTypeWrapper[0];
-
-    protected Logger logger_ = null;
+    private final static EventTypeWrapper[] EVENT_TYPE_WRAPPER_TEMPLATE = new EventTypeWrapper[0];
 
     private Set eventTypeSet_ = new TreeSet();
 
-    private ReadWriteLock readWriteLock_ = new FIFOReadWriteLock();
+    private final ReadWriteLock readWriteLock_ = new FIFOReadWriteLock();
 
-    private EventType[] arrayView_;
+    private final Object arrayViewLock_ = new Object();
 
-    private boolean setModified_;
+    private EventType[] arrayView_ = null;
 
+    private boolean setModified_ = true;
+
+    protected static final EventType[] EMPTY_EVENT_TYPE = new EventType[0];
+    
     ////////////////////////////////////////
 
-    public void configure (Configuration conf)
+    public void changeSet(EventType[] added, EventType[] removed) throws InterruptedException
     {
-        logger_ = ((org.jacorb.config.Configuration)conf).
-            getNamedLogger( getClass().getName() );
-    }
+        final List _addedList = new ArrayList();
 
-    protected void changeSet(EventType[] added,
-                             EventType[] removed)
-        throws InvalidEventType,
-               InterruptedException
-    {
-        logger_.debug("changeSet");
+        final List _removedList = new ArrayList();
 
-        List _addedList = new ArrayList();
+        boolean _modified = false;
 
-        List _removedList = new ArrayList();
-
-        try {
+        try
+        {
             readWriteLock_.writeLock().acquire();
 
-            Set _changedEventTypeSet = new TreeSet(eventTypeSet_);
+            Set _modifiedSet = new TreeSet(eventTypeSet_);
 
-            for (int x=0; x<added.length; ++x) {
-                EventTypeWrapper event = new EventTypeWrapper(added[x]);
-                _changedEventTypeSet.add(event);
-            }
-
-            for (int x=0; x<removed.length; ++x) {
+            for (int x = 0; x < removed.length; ++x)
+            {
                 EventTypeWrapper event = new EventTypeWrapper(removed[x]);
-                _changedEventTypeSet.remove(event);
+                _modifiedSet.remove(event);
             }
 
-            Iterator _i = _changedEventTypeSet.iterator();
+            for (int x = 0; x < added.length; ++x)
+            {
+                EventTypeWrapper event = new EventTypeWrapper(added[x]);
+                _modifiedSet.add(event);
+            }
 
-            while(_i.hasNext()) {
+            Iterator _i = _modifiedSet.iterator();
+
+            while (_i.hasNext())
+            {
                 Object _eventType = _i.next();
 
-                if (!eventTypeSet_.contains(_eventType)) {
+                if (!eventTypeSet_.contains(_eventType))
+                {
                     _addedList.add(_eventType);
+                    _modified = true;
                 }
             }
 
             _i = eventTypeSet_.iterator();
 
-            while(_i.hasNext()) {
+            while (_i.hasNext())
+            {
                 Object _eventType = _i.next();
 
-                if (!_changedEventTypeSet.contains(_eventType)) {
+                if (!_modifiedSet.contains(_eventType))
+                {
                     _removedList.add(_eventType);
+                    _modified = true;
                 }
             }
 
-            if (logger_.isDebugEnabled()) {
-                logger_.debug("added: " + _addedList);
-                logger_.debug("removed: " + _removedList);
+            if (_modified)
+            {
+                eventTypeSet_ = _modifiedSet;
+
+                synchronized (arrayViewLock_)
+                {
+                    setModified_ = true;
+                }
             }
-
-            eventTypeSet_ = _changedEventTypeSet;
-
-            setModified_ = true;
-        } finally {
+        } finally
+        {
             readWriteLock_.writeLock().release();
         }
 
-        if (!_addedList.isEmpty() || !_removedList.isEmpty()) {
+        if (_modified)
+        {
             fireSetChanged(_addedList, _removedList);
         }
     }
 
-
-    private void fireSetChanged(List added, List removed) {
+    private void fireSetChanged(List added, List removed)
+    {
         EventType[] _addedArray = new EventType[added.size()];
 
-        for (int x=0; x<_addedArray.length; ++x) {
-            _addedArray[x] = ((EventTypeWrapper)added.get(x)).getEventType();
+        for (int x = 0; x < _addedArray.length; ++x)
+        {
+            _addedArray[x] = ((EventTypeWrapper) added.get(x)).getEventType();
         }
 
         EventType[] _removedArray = new EventType[removed.size()];
 
-        for (int x=0; x<_removedArray.length; ++x) {
-            _removedArray[x] = ((EventTypeWrapper)removed.get(x)).getEventType();
+        for (int x = 0; x < _removedArray.length; ++x)
+        {
+            _removedArray[x] = ((EventTypeWrapper) removed.get(x)).getEventType();
         }
 
         actionSetChanged(_addedArray, _removedArray);
     }
 
+    protected abstract void actionSetChanged(EventType[] added, EventType[] removed);
 
-    abstract void actionSetChanged(EventType[] added, EventType[] removed);
-
-
-    protected EventType[] getAllTypes() throws InterruptedException {
-        try {
+    protected EventType[] getAllTypes() throws InterruptedException
+    {
+        try
+        {
             readWriteLock_.readLock().acquire();
 
-            synchronized(this) {
-                if (setModified_ || arrayView_ == null) {
+            updateArrayView();
 
-                    EventTypeWrapper[] _allWrapped =
-                        (EventTypeWrapper[])eventTypeSet_.toArray(EVENT_TYPE_WRAPPER_TEMPLATE);
+            return arrayView_;
 
-                    EventType[] _all = new EventType[_allWrapped.length];
+        } finally
+        {
+            readWriteLock_.readLock().release();
+        }
+    }
 
-                    for (int x=0; x<_allWrapped.length; ++x) {
-                        _all[x] = _allWrapped[x].getEventType();
-                    }
+    private void updateArrayView()
+    {
+        synchronized (arrayViewLock_)
+        {
+            if (setModified_)
+            {
+                EventTypeWrapper[] _allWrapped = (EventTypeWrapper[]) eventTypeSet_
+                        .toArray(EVENT_TYPE_WRAPPER_TEMPLATE);
 
-                    setModified_ = false;
+                EventType[] _all = new EventType[_allWrapped.length];
 
-                    arrayView_ = _all;
+                for (int x = 0; x < _allWrapped.length; ++x)
+                {
+                    _all[x] = _allWrapped[x].getEventType();
                 }
 
-                return arrayView_;
+                setModified_ = false;
+
+                arrayView_ = _all;
             }
-        } finally {
-            readWriteLock_.readLock().release();
         }
     }
 }
