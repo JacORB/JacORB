@@ -33,14 +33,23 @@ public class RepositoryID
 
     public static String className ( String repId )
     {
-        // cut "IDL:" and version
-        // and swap "org.omg" if necessary
+        if (repId.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+	    return "java.lang.String";
+        else if (repId.startsWith ("IDL:"))
+        {
+            // cut "IDL:" and version
+            // and swap "org.omg" if necessary
 
-        String id_base = repId.substring(4, repId.lastIndexOf(':'));
-        if( id_base.startsWith("omg.org"))
-            return ir2scopes("org.omg",id_base.substring(7));
+            String id_base = repId.substring(4, repId.lastIndexOf(':'));
+            if( id_base.startsWith("omg.org"))
+                return ir2scopes("org.omg",id_base.substring(7));
+            else
+                return ir2scopes( "", id_base );
+        }
+        else if (repId.startsWith ("RMI:"))
+            return repId.substring (4, repId.indexOf (':', 4));
         else
-            return ir2scopes( "", id_base );
+            throw new RuntimeException ("unrecognized RepositoryID: " + repId);
     }
 
     /**
@@ -88,8 +97,27 @@ public class RepositoryID
 
     public static String repId( Class c )
     {
-        String class_name = c.getName();
-        return toRepositoryID(class_name);		
+        if (org.omg.CORBA.portable.IDLEntity.class.isAssignableFrom (c))
+        {
+            String className = c.getName();
+            String head = "";
+            String body = "";
+
+            // add "IDL:" and ":1.0"
+            // and swap "org.omg" if necessary
+
+            if( className.startsWith("org.omg")  ||
+                className.startsWith("org/omg") )
+            {
+                if( className.length() > 7 ) 
+                    body = className.substring(7);
+                return "IDL:omg.org/" + scopesToIR(body) + ":1.0";
+            }
+            else
+                return "IDL:" + scopesToIR(className) + ":1.0" ;
+        }
+	else    
+            return org.jacorb.util.ValueHandler.getRMIRepositoryID (c);
     }
 
     private static String scopesToIR( String s )
@@ -120,35 +148,23 @@ public class RepositoryID
 
     public static String toRepositoryID ( String className )
     {
-        String head = "";
-        String body = "";
-
-        // add "IDL:" and ":1.0"
-        // and swap "org.omg" if necessary
-
-        if( className.equals("") || className.startsWith("IDL:"))
+        if( className.equals("") || 
+            className.startsWith("IDL:") || 
+            className.startsWith ("RMI:"))
             return className;
-
-        if( className.startsWith("org.omg")  ||
-            className.startsWith("org/omg") )
-        {
-
-            if( className.length() > 7 ) 
-                body = className.substring(7);
-
-            return "IDL:omg.org/" + scopesToIR(body) + ":1.0";
-        }
         else
-            return "IDL:" + scopesToIR(className) + ":1.0" ;
+        {
+            try 
+            {
+ 	        //return repId (Class.forName (className));
+ 	        ClassLoader contextClassLoader = 
+ 		    Thread.currentThread().getContextClassLoader();
+ 	        return repId (contextClassLoader.loadClass (className));
+            }
+            catch (ClassNotFoundException e)
+            {
+                throw new RuntimeException ("cannot find class: " + className);
+            }
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
