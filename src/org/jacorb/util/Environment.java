@@ -387,7 +387,8 @@ public class Environment
     private static void readValues()
     {
         //        readValue("_verbosity", "verbosity", jacorbPrefix + "verbosity");
-        readValue("_client_pending_reply_timeout", jacorbPrefix + "connection.client.pending_reply_timeout");
+        readValue("_client_pending_reply_timeout", "connection.client.pending_reply_timeout", jacorbPrefix + "connection.client.pending_reply_timeout");
+
         readValue("_retries","retries",jacorbPrefix+"retries");
         readValue("_retry_interval","retry_interval",jacorbPrefix+"retry_interval");
         readValue("_outbuf_size","outbuf_size",jacorbPrefix+"outbuf_size");
