@@ -26,15 +26,14 @@ import java.util.*;
 
 import org.apache.log.*;
 
-
 /**
- * Base class for all classes of the abstract syntax tree
+ * Base class for all classes of the abstract IDL syntax tree
  *
  * @author Gerald Brose
  * @version $Id$
  */
 
-class IdlSymbol
+public class IdlSymbol
     extends java_cup.runtime.symbol
     implements java.io.Serializable
 {
@@ -59,7 +58,7 @@ class IdlSymbol
     String typeName;
 
     protected static final char fileSeparator =
-            System.getProperty( "file.separator" ).charAt( 0 );
+        System.getProperty( "file.separator" ).charAt( 0 );
 
     Logger logger;
 
@@ -74,20 +73,40 @@ class IdlSymbol
         logger = parser.getLogger();
     }
 
-    public void set_included( boolean i )
+
+   /**
+    * used by the lexer to mark this symbol as included from another
+    * IDL file
+    */
+
+    void set_included( boolean i )
     {
         included = i;
     }
+
+
+    /**
+     * is this a symbol included from another IDL file?
+     * Used to determine if code should be generated or not.
+     */
 
     public boolean is_included()
     {
         return included;
     }
 
+    /**
+     *
+     */
+
     public void set_pseudo()
     {
         is_pseudo = true;
     }
+
+    /**
+     * is this a PIDL symbol?
+     */
 
     public boolean is_pseudo()
     {
@@ -112,10 +131,17 @@ class IdlSymbol
         return token;
     }
 
+
+    /**
+     *  get this symbol's  name
+     */
+
     public String name()
     {
         return name;
     }
+
+ 
 
     /**
      * A number of IDL constructs need to have their names
@@ -136,7 +162,7 @@ class IdlSymbol
 
     public boolean isEscaped()
     {
-        return ( name().startsWith( "_" ) );
+        return name().startsWith( "_" );
     }
 
     public String deEscapeName()
@@ -163,7 +189,8 @@ class IdlSymbol
     public void setEnclosingSymbol( IdlSymbol s )
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
-            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + 
+                                        name );
 
         enclosing_symbol = s;
     }
@@ -382,7 +409,7 @@ class IdlSymbol
      * @return this symbol's repository Id
      */
 
-    String id()
+    public String id()
     {
         IdlSymbol enc = enclosing_symbol;
         StringBuffer sb = new StringBuffer();
@@ -604,4 +631,14 @@ class IdlSymbol
     {
         return parser.generateIncluded() && !( inhibitionFlag );
     }
+
+    /**
+     * let the visitor pattern do its work...
+     */ 
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        // nothing here, all work done in subclasses;
+    }
+
 }
