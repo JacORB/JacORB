@@ -113,10 +113,15 @@ public class ServerInvocationInterceptor
 
         SSLSocket sslSocket = (SSLSocket) connection.getSocket();
             
-
-
         KeyAndCert kac = new KeyAndCert( null, 
                                          sslSocket.getPeerCertificateChain() );
+
+        if( kac.chain == null )
+        {
+            Debug.output( 2, "Client sent no certificate chain!" );
+            
+            return;
+        }
 
         SecAttribute [] atts = new SecAttribute[] {
             attrib_mgr.createAttribute( kac, type ) } ;

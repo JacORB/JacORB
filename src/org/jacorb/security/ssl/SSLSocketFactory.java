@@ -166,9 +166,7 @@ public class SSLSocketFactory
             }
         }
 
-        //ctx.setDebugStream( System.out );
-
-        //ctx.setEnabledCipherSuites( CipherSuite.CS_RSA_WITH_NULL );
+        // ctx.setDebugStream( System.out );
 
         return ctx;
     }
