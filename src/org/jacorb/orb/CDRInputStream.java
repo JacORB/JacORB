@@ -784,15 +784,9 @@ public class CDRInputStream
              name = read_string();
              //  		Debug.output(4, "TC Union has name " + 
              //                               name + " at pos" + pos );
-             org.omg.CORBA.TypeCode discriminator_type = read_TypeCode(tcMap);
+             org.omg.CORBA.TypeCode discriminator_type = 
+                read_TypeCode(tcMap);
 
-             // Use the dealiased discriminator type for the label types.
-             // This works because the JacORB IDL compiler ignores any aliasing
-             // of label types and only the discriminator type is passed on the
-             // wire.
-             org.omg.CORBA.TypeCode orig_disc_type =
-                ((org.jacorb.orb.TypeCode) discriminator_type).originalType();
-             
              int default_index = read_long();
 
              //  		Debug.output(4, "TC Union has default idx: " +  
@@ -817,8 +811,7 @@ public class CDRInputStream
                 } 
                 else 
                 {
-                   // use the dealiased discriminator type to construct labels
-                   label.read_value( this, orig_disc_type );
+                   label.read_value( this,discriminator_type  );
                 }
  
                 String mn = read_string();
