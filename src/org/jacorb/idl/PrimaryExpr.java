@@ -28,9 +28,8 @@ import java.io.PrintWriter;
  */
 
 class PrimaryExpr
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public IdlSymbol symbol;
 
     private boolean contained = false;

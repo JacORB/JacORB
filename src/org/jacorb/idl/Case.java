@@ -28,7 +28,7 @@ import java.util.Enumeration;
  */
 
 class Case
-        extends IdlSymbol
+    extends IdlSymbol
 {
 
     /** the labels for this case */

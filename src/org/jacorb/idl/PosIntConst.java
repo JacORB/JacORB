@@ -26,7 +26,7 @@ package org.jacorb.idl;
  */
 
 class PosIntConst
-        extends IdlSymbol
+    extends IdlSymbol
 {
 
     public ConstExpr const_expr;
@@ -43,6 +43,7 @@ class PosIntConst
 
     public int value()
     {
+        
         return const_expr.pos_int_const();
     }
 

@@ -201,6 +201,8 @@ class ScopedName
     public void setId( String _id )
     {
         Environment.output( 3, "ScopedName.setId " + _id );
+        if( Environment.isEnabled( 3 ))
+		 Environment.output( 3, "ScopedName.setId " + _id );
 
         typeName = _id;
         escapeName();
@@ -231,6 +233,8 @@ class ScopedName
                     typeName = "_" + typeName;
             }
             Environment.output( 3, "ScopedName.escapeName " + typeName );
+            if( Environment.isEnabled( 3 ))
+		 Environment.output( 3, "ScopedName.escapeName " + typeName );
         }
     }
 
@@ -301,6 +305,8 @@ class ScopedName
     private String resolvedName( String pack_name, String s )
     {
         Environment.output( 3, "Resolve " + pack_name + ":" + s );
+        if( Environment.isEnabled( 3 ))
+		 Environment.output( 3, "Resolve " + pack_name + ":" + s );
 
         boolean global = false;
 
@@ -327,10 +333,15 @@ class ScopedName
         if( NameTable.defined( ( !global? pack_name + "." : "" ) + result ) )
         {
             String unmap = unMap( ( !global? pack_name + "." : "" ) + result );
-            Environment.output( 3, "resolve, " + ( !global? pack_name + "." : "" ) + result +
-                    " was in name table, returning " + unmap +
-                    " suffix: " + suffix );
 
+            if( Environment.isEnabled( 3 ))
+            {
+		 Environment.output( 3, "resolve, " + 
+                                     ( !global? pack_name + "." : "" ) + 
+                                     result +
+                                     " was in name table, returning " + unmap +
+                                     " suffix: " + suffix );
+            }
             return unmap + suffix;
         }
 
@@ -365,9 +376,12 @@ class ScopedName
                 if( NameTable.defined( result ) )
                 {
                     String unmap2 = unMap( result );
-                    Environment.output( 3, "resolve b, " + result +
-                            " was in name table, returning " +
-                            unmap2 + " suffix: " + suffix );
+                    if( Environment.isEnabled( 3 ))
+                    {
+                        Environment.output( 3, "resolve b, " + result +
+                                            " was in name table, returning " +
+                                            unmap2 + " suffix: " + suffix );
+                    }
                     return unmap2 + suffix;
                 }
             }

@@ -84,7 +84,7 @@ class ArrayTypeSpec
         if( dims.length > my_dim + 1 )
         {
             type_spec =
-                    new ArrayTypeSpec( new_num(), elem, ad, pack_name, my_dim + 1 );
+                new ArrayTypeSpec( new_num(), elem, ad, pack_name, my_dim + 1 );
         }
         else
             type_spec = elem;

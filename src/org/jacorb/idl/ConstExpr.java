@@ -28,7 +28,7 @@ import java.io.PrintWriter;
  */
 
 class ConstExpr
-        extends IdlSymbol
+    extends IdlSymbol
 {
 
     public OrExpr or_expr;

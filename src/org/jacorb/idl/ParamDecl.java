@@ -46,9 +46,9 @@ class ParamDecl
     /**
      *  Constructs a new parameter declaration with the given characteristics.
      */
-    public ParamDecl (int paramAttribute,
+    public ParamDecl( int paramAttribute,
                       TypeSpec paramTypeSpec,
-                      SimpleDeclarator simple_declarator)
+                      SimpleDeclarator simple_declarator )
     {
         super (new_num());
         this.paramAttribute = paramAttribute;
@@ -59,14 +59,14 @@ class ParamDecl
     /**
      *  Constructs a new parameter declaration with the given characteristics.
      */
-    public ParamDecl (int paramAttribute,
+    public ParamDecl( int paramAttribute,
                       TypeSpec paramTypeSpec,
                       String name)
     {
-        super (new_num());
+        super( new_num() );
         this.paramAttribute = paramAttribute;
         this.paramTypeSpec  = paramTypeSpec;
-        this.simple_declarator = new SimpleDeclarator (new_num());
+        this.simple_declarator = new SimpleDeclarator( new_num() );
         this.simple_declarator.name = name;
     }
 
@@ -86,7 +86,9 @@ class ParamDecl
      */
     public ParamDecl asIn()
     {
-        return new ParamDecl (MODE_IN, this.paramTypeSpec, this.simple_declarator);
+        return new ParamDecl( MODE_IN, 
+                              this.paramTypeSpec, 
+                              this.simple_declarator) ;
     }
 
     public void parse()
@@ -100,7 +102,7 @@ class ParamDecl
 
         if (paramTypeSpec == null)
         {
-            throw new RuntimeException ("paramTypeSpec is null " + name);
+            throw new ParseException( "paramTypeSpec is null " + name );
         }
 
         //simple_declarator.print(ps);

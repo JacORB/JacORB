@@ -29,7 +29,7 @@ import java.io.PrintWriter;
 import java.util.*;
 
 class ArrayDeclarator
-        extends Declarator
+    extends Declarator
 {
 
     public SymbolList fixed_array_size_list;
