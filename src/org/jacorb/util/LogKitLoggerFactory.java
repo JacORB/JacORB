@@ -93,6 +93,15 @@ public class LogKitLoggerFactory
 
         if (defaultPriorityString != null)
         {
+			if (defaultPriorityString != null && defaultPriorityString.toUpperCase().equals("DEBUG")) {
+				defaultPriorityString = "4";
+			} else if (defaultPriorityString != null && defaultPriorityString.toUpperCase().equals("INFO")) {
+				defaultPriorityString = "3";        	
+			} else if (defaultPriorityString != null && defaultPriorityString.toUpperCase().equals("WARN")) {
+				defaultPriorityString = "2";        	
+			} else if (defaultPriorityString != null && defaultPriorityString.toUpperCase().equals("ERROR")) {
+				defaultPriorityString = "1";        	
+			}
             try
             {
                 defaultPriority = Integer.parseInt(defaultPriorityString);
@@ -263,6 +272,15 @@ public class LogKitLoggerFactory
 
             if (priorityString != null)
             {
+				if (priorityString != null && priorityString.toUpperCase().equals("DEBUG")) {
+					priorityString = "4";
+				} else if (priorityString != null && priorityString.toUpperCase().equals("INFO")) {
+					priorityString = "3";        	
+				} else if (priorityString != null && priorityString.toUpperCase().equals("WARN")) {
+					priorityString = "2";        	
+				} else if (priorityString != null && priorityString.toUpperCase().equals("ERROR")) {
+					priorityString = "1";        	
+				}
                 return Integer.parseInt(priorityString);
             }
 
