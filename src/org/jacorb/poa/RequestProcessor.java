@@ -684,20 +684,20 @@ public class RequestProcessor
         {
             synchronized (this)
             {
-                try
+                while (! start)
                 {
-                    while( ! start )
+                    try
                     {
                         wait(); /* waits for the next task */
-
-                        if(terminate)
-                        {
-                            return;
-                        }
                     }
-                }
-                catch (InterruptedException e)
-                {
+                    catch (InterruptedException e)
+                    {
+                    }
+                    
+                    if (terminate)
+                    {
+                        return;
+                    }
                 }
             }
 
