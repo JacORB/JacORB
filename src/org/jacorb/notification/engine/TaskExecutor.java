@@ -38,92 +38,99 @@ public class TaskExecutor implements Executor, Disposable
 {
     private static final TaskExecutor DIRECT_EXECUTOR = new TaskExecutor("Direct", 0);
 
-    //     private Logger logger_ = Debug.getNamedLogger( getClass().getName() );
-
     private Executor executor_;
 
     private LinkedQueue channel_;
 
     ////////////////////////////////////////
 
-    public static TaskExecutor getDefaultExecutor() {
+    public static TaskExecutor getDefaultExecutor()
+    {
         return DIRECT_EXECUTOR;
     }
 
     ////////////////////////////////////////
 
-    public TaskExecutor( final String name, int numberOfThreads )
+    public TaskExecutor(final String name, int numberOfThreads)
     {
-        if ( numberOfThreads < 0 )
-            {
-                throw new IllegalArgumentException();
-            }
-        else if ( numberOfThreads == 0 )
-            {
-                executor_ = new DirectExecutor();
+        this(name, numberOfThreads, false);
+    }
 
-                //                 if (logger_.isInfoEnabled() ) {
-                //                     logger_.info( "Created ThreadPool " + name + ": DirectExecutor");
-                //                 }
-            }
+    public TaskExecutor(final String name, int numberOfThreads, boolean mayDie)
+    {
+        if (numberOfThreads < 0)
+        {
+            throw new IllegalArgumentException();
+        }
+        else if (numberOfThreads == 0)
+        {
+            executor_ = new DirectExecutor();
+
+            //                 if (logger_.isInfoEnabled() ) {
+            //                     logger_.info( "Created ThreadPool " + name + ": DirectExecutor");
+            //                 }
+        }
         else
+        {
+            ThreadFactory _threadFactory = new ThreadFactory()
             {
-                ThreadFactory _threadFactory =
-                    new ThreadFactory()
-                    {
-                        private int counter_ = 0;
+                private int counter_ = 0;
 
-                        public synchronized Thread newThread( Runnable task )
-                        {
-                            Thread _thread = new Thread( task );
+                public synchronized Thread newThread(Runnable task)
+                {
+                    Thread _thread = new Thread(task);
 
-                            _thread.setDaemon( true );
-                            _thread.setName( name + "#" + ( counter_++ ) );
+                    _thread.setDaemon(true);
+                    _thread.setName(name + "#" + (counter_++));
 
-                            return _thread;
-                        }
-                    };
+                    return _thread;
+                }
+            };
 
-                channel_ = new LinkedQueue();
+            channel_ = new LinkedQueue();
 
-                PooledExecutor _executor = new PooledExecutor( channel_ );
+            PooledExecutor _executor = new PooledExecutor(channel_);
 
-                _executor.setThreadFactory( _threadFactory );
-                _executor.setKeepAliveTime( -1 );
-                _executor.createThreads( numberOfThreads );
-
-                executor_ = _executor;
-
-                //                 if (logger_.isInfoEnabled()) {
-                //                     logger_.info( "Created ThreadPool " + name + ": Threads=" + numberOfThreads );
-                //                 }
+            _executor.setThreadFactory(_threadFactory);
+            if (!mayDie)
+            {
+                _executor.setKeepAliveTime(-1);
             }
+            _executor.createThreads(numberOfThreads);
+
+            executor_ = _executor;
+
+            //                 if (logger_.isInfoEnabled()) {
+            //                     logger_.info( "Created ThreadPool " + name + ": Threads=" +
+            // numberOfThreads );
+            //                 }
+        }
     }
 
     ////////////////////////////////////////
 
     public boolean isTaskQueued()
     {
-        if ( channel_ != null )
-            {
-                return !channel_.isEmpty();
-            }
+        if (channel_ != null)
+        {
+            return !channel_.isEmpty();
+        }
 
         return false;
     }
 
     public void dispose()
     {
-        if ( executor_ instanceof PooledExecutor )
-            {
-                ( ( PooledExecutor ) executor_ ).shutdownNow();
-                ( ( PooledExecutor ) executor_ ).interruptAll();
-            }
+        if (executor_ instanceof PooledExecutor)
+        {
+            ((PooledExecutor) executor_).shutdownNow();
+            ((PooledExecutor) executor_).interruptAll();
+        }
     }
 
-    public void execute( Runnable r ) throws InterruptedException
+    public void execute(Runnable r) throws InterruptedException
     {
-        executor_.execute( r );
+        executor_.execute(r);
     }
 }
 

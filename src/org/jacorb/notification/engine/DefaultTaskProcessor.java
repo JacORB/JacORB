@@ -206,18 +206,20 @@ public class DefaultTaskProcessor
 
         logger_.info( "create TaskProcessor" );
 
-        int val = conf.getAttributeAsInteger(Attributes.PULL_POOL_WORKERS,
+        // create pull worker pool. allow pull workers to die
+        int value = conf.getAttributeAsInteger(Attributes.PULL_POOL_WORKERS,
                                              Default.DEFAULT_PULL_POOL_SIZE);
-        pullTaskExecutor_ = new TaskExecutor("PullThread",val);
-        val = conf.getAttributeAsInteger(Attributes.FILTER_POOL_WORKERS,
+        pullTaskExecutor_ = new TaskExecutor("PullThread", value, true);
+        
+        value = conf.getAttributeAsInteger(Attributes.FILTER_POOL_WORKERS,
                                          Default.DEFAULT_FILTER_POOL_SIZE);
-        matchTaskExecutor_ = new TaskExecutor("FilterThread",val);
+        matchTaskExecutor_ = new TaskExecutor("FilterThread",value);
 
         backoutInterval_ =
             conf.getAttributeAsInteger(Attributes.BACKOUT_INTERVAL,
                                        Default.DEFAULT_BACKOUT_INTERVAL);
 
-        val = conf.getAttributeAsInteger(Attributes.DELIVER_POOL_WORKERS,
+        value = conf.getAttributeAsInteger(Attributes.DELIVER_POOL_WORKERS,
                                          Default.DEFAULT_DELIVER_POOL_SIZE);
         String _threadPolicy = conf.getAttribute(Attributes.THREADPOLICY,
                                Default.DEFAULT_THREADPOLICY);
@@ -225,7 +227,7 @@ public class DefaultTaskProcessor
         if ("ThreadPool".equals(_threadPolicy))
         {
             pushTaskExecutor_ =
-                new TaskExecutor("DeliverThread",val);
+                new TaskExecutor("DeliverThread",value);
         }
         else if ("ThreadPerProxy".equals(_threadPolicy))
         {
