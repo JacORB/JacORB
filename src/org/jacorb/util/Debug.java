@@ -20,16 +20,16 @@ package org.jacorb.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.avalon.framework.logger.*;
-
-import java.util.*;
 import java.io.*;
+import java.util.*;
+
+import org.apache.avalon.framework.logger.*;
 
 /**
  * Central anchor class to retrieve loggers, or to log messages
  * directly. This class acts as a facde and shields clients from the
  * actual log mechanisms. In its current state of evolution, it
- * returns Apache Avalong loggers, which permit still other log
+ * returns Apache Avalon loggers, which permit still other log
  * backends, such as Apache logkit, which is the current default. The
  * actual creation of logger instances based on configuration
  * parameters is done in Environment, however.
@@ -43,7 +43,7 @@ public final class Debug
     /* private variables */
     //for byte -> hexchar
     private static final char[] lookup =
-    new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+        new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
     /** the root logger instance */
     private static Logger logger;
@@ -114,7 +114,7 @@ public final class Debug
         }
         else
         {
-            output(logger,msg_level,msg) ;
+            output(logger, msg_level, msg) ;
         }
     }
 
@@ -131,22 +131,22 @@ public final class Debug
      *                Debug.output ("<text>", value);
      *             }
      */
-    public static synchronized void output(int msg_level,String name,byte bs[])
+    public static synchronized void output(int msg_level, String name, byte bs[])
     {
         output(msg_level, name, bs, 0, bs.length);
     }
 
 
-   /**
-     * <code>output</code> a buffer in hex format. Useful in conjunction with
-     * canOutput or isDebugEnabled. Note that output synchronizes the calling
-     * threads in order to avoid garbled debug output
-     *
-     * @param message a <code>String</code> value
-     * @param bs a <code>byte[]</code> value
-     */
+    /**
+      * <code>output</code> a buffer in hex format. Useful in conjunction with
+      * canOutput or isDebugEnabled. Note that output synchronizes the calling
+      * threads in order to avoid garbled debug output
+      *
+      * @param message a <code>String</code> value
+      * @param bs a <code>byte[]</code> value
+      */
 
-    public static synchronized void output(String name,byte bs[])
+    public static synchronized void output(String name, byte bs[])
     {
         output(3, name, bs, 0, bs.length);
     }
@@ -163,7 +163,7 @@ public final class Debug
                                            byte bs[],
                                            int len)
     {
-        output( msg_level,name,bs,0,len );
+        output( msg_level, name, bs, 0, len );
     }
 
 
@@ -182,12 +182,12 @@ public final class Debug
         if (logger != null && logger.isDebugEnabled())
         {
 
-            System.out.print("\nHexdump ["+name+"] len="+len+","+bs.length);
+            System.out.print("\nHexdump [" + name + "] len=" + len + "," + bs.length);
             StringBuffer chars = new StringBuffer();
 
-            for( int i = start; i < (start + len); i++ )
+            for ( int i = start; i < (start + len); i++ )
             {
-                if((i % 16 ) == 0)
+                if ((i % 16 ) == 0)
                 {
                     System.out.println( chars );
                     chars = new StringBuffer();
@@ -197,14 +197,14 @@ public final class Debug
 
                 System.out.print( toHex( bs[i] ));
 
-                if( (i % 4) == 3 )
+                if ( (i % 4) == 3 )
                 {
                     chars.append( ' ' );
                     System.out.print( ' ' );
                 }
             }
 
-            if( len % 16 != 0 )
+            if ( len % 16 != 0 )
             {
                 int pad = 0;
                 int delta_bytes = 16 - (len % 16);
@@ -216,7 +216,7 @@ public final class Debug
                 //additional whitespaces after four bytes
                 pad += (delta_bytes / 4);
 
-                for( int i = 0; i < pad; i++ )
+                for ( int i = 0; i < pad; i++ )
                 {
                     chars.insert( 0, ' ' );
                 }
@@ -251,8 +251,8 @@ public final class Debug
 
     public static final char toAscii(byte b)
     {
-        if( b > (byte) 31 &&
-            b < (byte) 127)
+        if ( b > (byte) 31 &&
+                b < (byte) 127)
         {
             return (char) b;
         }
@@ -284,24 +284,46 @@ public final class Debug
 
     private static final void output(Logger logger, int level, String message)
     {
-        if (level == 0 && logger.isFatalErrorEnabled())
-            logger.fatalError(message);
-        else if (level == 1 && logger.isErrorEnabled())
-            logger.error(message);
-        else if (level == 2 && logger.isWarnEnabled())
-            logger.warn(message);
-        else if (level == 3 && logger.isInfoEnabled())
-            logger.info(message);
-        else if (level == 4 && logger.isDebugEnabled())
-            logger.debug(message);
-        else
-            logger.warn( message + "(logged at unknown log level, defaults to WARN)");
+        switch (level)
+        {
+            case 0:
+                if (logger.isFatalErrorEnabled())
+                {
+                    logger.fatalError(message);
+                }
+                break;
+            case 1:
+                if (logger.isErrorEnabled())
+                {
+                    logger.error(message);
+                }
+                break;
+            case 2:
+                if (logger.isWarnEnabled())
+                {
+                    logger.warn(message);
+                }
+            case 3:
+                if (logger.isInfoEnabled())
+                {
+                    logger.info(message);
+                }
+                break;
+            case 4:
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug(message);
+                }
+                break;
+            default:
+                logger.warn( message + "(logged at unknown log level " + level + ", defaults to WARN)");
+        }
     }
 
     /**
      * convenience method to output stack traces to loggers
      */
-    
+
     public static final void output(Logger logger, int msg_level, Throwable e)
     {
         if (isEnabled( logger, msg_level))
@@ -315,8 +337,7 @@ public final class Debug
                 pos.close();
             }
             catch (IOException io )
-            {
-            }            
+            {}
             output( logger, msg_level, bos.toString());
         }
     }
