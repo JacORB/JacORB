@@ -120,18 +120,18 @@
        <jar jarfile="${lib}/core_jacorb.jar"
       basedir="${classdir}"
       includes="org/jacorb/orb/**,org/jacorb/naming/*,org/jacorb/poa/**,org/jacorb/util/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**"
-            excludes="org/jacorb/orb/domain/gui/*,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/orb/connection/http/*"
+            excludes="org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/orb/connection/http/*"
       />
    </target>
 
    <!-- This target creates a jar file that contains the -->
    <!-- following JacORB services and utilities: -->
-   <!-- ImR + GUI, IR + GUI, Domain GUI, POA GUI, Tracing, Proxy -->
+   <!-- ImR + GUI, IR + GUI, POA GUI, Tracing, Proxy -->
    <target name="jacorb_services_jar" depends="init">
       <delete file="${lib}/jacorb_services.jar"/>
        <jar jarfile="${lib}/jacorb_services.jar"
       basedir="${classdir}"
-      includes="org/jacorb/imr/**,org/jacorb/ir/**,org/jacorb/orb/domain/gui/*,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/proxy/*"
+      includes="org/jacorb/imr/**,org/jacorb/ir/**,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/proxy/*"
       />
    </target>
 
