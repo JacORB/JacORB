@@ -110,7 +110,7 @@
 
 
    <target name="run" depends="build-all" >
-      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="false">
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
