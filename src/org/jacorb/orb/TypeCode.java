@@ -63,6 +63,7 @@ public class TypeCode
     /** if this TC is recursive */
     private boolean     recursive = false;
     private TypeCode    actualTypecode = null;
+    private boolean     secondIteration = false;
 
     private static boolean     class_init = false;
     private static TypeCode[]  primitive_tcs = new TypeCode[34];
@@ -366,28 +367,49 @@ public class TypeCode
 
     public boolean equal( org.omg.CORBA.TypeCode tc )
     {
-       if (is_recursive ())
-       {
-          checkActualTC ();
-          return tc.equal (actualTypecode);
-       }
-
-       //org.jacorb.util.Debug.output( 4, "Comparing this " + kind().value() + 
-       //                              with tc " + tc.kind().value());
-
-        if ( kind().value() != tc.kind().value() )
-        {
-            return false;
-        }
-
         try 
         {
+            org.jacorb.orb.TypeCode jtc = (org.jacorb.orb.TypeCode)tc;
+
+            if( is_recursive() )
+            {
+                checkActualTC();
+                if( jtc.is_recursive() )
+                {
+                    jtc.checkActualTC();
+                    if ( secondIteration )
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        secondIteration = true;
+                        boolean result = actualTypecode.equal( jtc.actualTypecode );
+                        secondIteration = false;
+                        return result;
+                    }
+                }
+                return jtc.equal( actualTypecode );
+            }
+            else if( jtc.is_recursive() )
+            {
+                jtc.checkActualTC();
+                return equal( jtc.actualTypecode );
+            }
+
+            //org.jacorb.util.Debug.output(4, "Comparing this " + kind().value()
+            //                             + " with tc " + tc.kind().value());
+
+            if ( kind().value() != tc.kind().value() )
+            {
+                return false;
+            }
+
             if ( kind == TCKind._tk_objref || kind == TCKind._tk_struct || 
                  kind == TCKind._tk_union  || kind == TCKind._tk_enum || 
                  kind == TCKind._tk_alias  || kind == TCKind._tk_except ||
                  kind == TCKind._tk_value  || kind == TCKind._tk_value_box ||
-                 kind == TCKind._tk_native ||
-                 kind == TCKind._tk_abstract_interface ||
+                 kind == TCKind._tk_native || kind == TCKind._tk_abstract_interface ||
                  kind == TCKind._tk_local_interface )
             {
                 if ( ! id().equals( tc.id() ) || ! name().equals( tc.name() ) )
@@ -764,14 +786,36 @@ public class TypeCode
      */
     public boolean equivalent( org.omg.CORBA.TypeCode tc )
     {
-        if (is_recursive ())
-        {
-           checkActualTC ();
-           return tc.equivalent (actualTypecode);
-        }
-           
         try 
         {
+            org.jacorb.orb.TypeCode jtc = (org.jacorb.orb.TypeCode)tc;
+
+            if( is_recursive() )
+            {
+                checkActualTC();
+                if( jtc.is_recursive() )
+                {
+                    jtc.checkActualTC();
+                    if ( secondIteration )
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        secondIteration = true;
+                        boolean result = actualTypecode.equivalent( jtc.actualTypecode );
+                        secondIteration = false;
+                        return result;
+                    }
+                }
+                return jtc.equivalent( actualTypecode );
+            }
+            else if( jtc.is_recursive() )
+            {
+                jtc.checkActualTC();
+                return equivalent( jtc.actualTypecode );
+            }
+
             /* unalias any typedef'd types */
 
             if( kind().value() == TCKind._tk_alias )
@@ -793,8 +837,7 @@ public class TypeCode
                 kind == TCKind._tk_union  || kind == TCKind._tk_enum || 
                 kind == TCKind._tk_alias  || kind == TCKind._tk_except ||
                 kind == TCKind._tk_value  || kind == TCKind._tk_value_box ||
-                kind == TCKind._tk_native ||
-                kind == TCKind._tk_abstract_interface ||
+                kind == TCKind._tk_native || kind == TCKind._tk_abstract_interface ||
                 kind == TCKind._tk_local_interface )
             {
                 if( id().length() > 0 && tc.id().length() > 0 )
@@ -1071,7 +1114,7 @@ public class TypeCode
         else if (knownTypes.containsKey (clz)) {
             // recursive type code
             TypeCode newTypeCode = new TypeCode (RepositoryID.repId (clz));
-	    newTypeCode.setActualTC ((TypeCode)knownTypes.get(clz));
+            newTypeCode.setActualTC ((TypeCode)knownTypes.get(clz));
             return newTypeCode;
         }
         else if (clz.isArray())
