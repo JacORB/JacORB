@@ -788,8 +788,7 @@ public final class Delegate
         {
             if ( !ros.response_expected() )  // oneway op
             {
-                connection.sendRequest ( ros, false );
-                interceptors.handle_receive_other ( SUCCESSFUL.value );
+                invoke_oneway (ros, interceptors);
                 return null;
             }
             else  // response expected, synchronous or asynchronous
@@ -847,6 +846,52 @@ public final class Delegate
         {
             return null;
         }
+    }
+
+    private void invoke_oneway (RequestOutputStream ros,
+                                ClientInterceptorHandler interceptors)
+        throws RemarshalException, ApplicationException
+    {
+        switch (ros.syncScope())
+        {
+            case SYNC_NONE.value:
+                passToTransport (ros);
+                interceptors.handle_receive_other (SUCCESSFUL.value);
+                break;
+                
+            case SYNC_WITH_TRANSPORT.value:
+                connection.sendRequest (ros, false);
+                interceptors.handle_receive_other (SUCCESSFUL.value);
+                break;
+
+            case SYNC_WITH_SERVER.value:
+            case SYNC_WITH_TARGET.value:
+                ReplyReceiver rcv = new ReplyReceiver (this,
+                                                       ros.operation(),
+                                                       ros.getReplyEndTime(),
+                                                       interceptors,
+                                                       null);
+                connection.sendRequest (ros, rcv, ros.requestId(), true);
+                ReplyInputStream in = rcv.getReply();
+                interceptors.handle_receive_reply (in);
+                break;
+            
+            default:
+                throw new org.omg.CORBA.MARSHAL 
+                    ("Illegal SYNC_SCOPE: " + ros.syncScope(),
+                     0, CompletionStatus.COMPLETED_MAYBE);
+        }        
+    }
+
+    private void passToTransport (final RequestOutputStream ros)
+    {
+        new Thread (new Runnable()
+        {
+            public void run()
+            {
+                connection.sendRequest (ros, false);
+            }
+        }).start();
     }
 
     private boolean try_rebind()
