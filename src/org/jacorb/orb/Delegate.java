@@ -20,6 +20,9 @@ package org.jacorb.orb;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.lang.reflect.Method;
+import java.util.*;
+import org.jacorb.ir.RepositoryID;
 import java.util.*;
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.orb.connection.ClientConnection;
@@ -38,6 +41,7 @@ import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 import org.jacorb.util.Time;
 import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.OBJ_ADAPTER;
 import org.omg.CORBA.Policy;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.CORBA.INTERNAL;
@@ -1059,6 +1063,12 @@ public final class Delegate
 
             so = servant_preinvoke (self, "_is_a", java.lang.Object.class);
 
+            // If preinvoke returns null POA spec, 11.3.4 states OBJ_ADAPTER
+            // should be thrown.
+            if (so == null )
+            {
+                throw new OBJ_ADAPTER( "Servant from pre_invoke was null" );
+            }
             try
             {
                 servant = (org.omg.PortableServer.Servant) so.servant;
@@ -1072,6 +1082,23 @@ public final class Delegate
         }
         else
         {
+            // Try to avoid remote call - is it a derived type?
+            try
+            {
+                Class derivedhelper = Class.forName( RepositoryID.className( pior.getTypeId(), "Helper" ) );
+                Method derivednarrow = derivedhelper.getMethod
+                    ( "narrow", new Class[] { org.omg.CORBA.Object.class } );
+
+                Object narrowedhelper = derivednarrow.invoke( null, new Object[] { self } );
+
+                if( narrowedhelper != null )
+                {
+                    return true;
+                }
+            }
+            // If it fails fall back to a remote call.
+            catch (Exception e) {}
+
             org.omg.CORBA.portable.OutputStream os;
             org.omg.CORBA.portable.InputStream is;
 
