@@ -152,8 +152,8 @@ public class MessageFactory implements Disposable, Configurable
             _mesg.setFilterStage( consumer.getFirstStage() );
 
             _mesg.setStructuredEvent( structuredEvent ,
-                                           consumer.isStartTimeSupported(),
-                                           consumer.isTimeOutSupported());
+                                      consumer.isStartTimeSupported(),
+                                      consumer.isTimeOutSupported());
 
             return _mesg.getHandle();
         }

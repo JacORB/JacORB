@@ -136,7 +136,7 @@ import org.apache.avalon.framework.configuration.Configuration;
  *
  * @author Alphonse Bendt
  * @author John Farrell
- * @version $Id$ 
+ * @version $Id$
  */
 
 public class FilterImpl
@@ -232,12 +232,9 @@ public class FilterImpl
         config_ = ((org.jacorb.config.Configuration)conf);
         logger_ = config_.getNamedLogger(getClass().getName());
 
-
         if (logger_.isInfoEnabled()) {
             logger_.info("Created filter for Grammar: " + constraintGrammar_);
         }
-
-
     }
 
     public void setORB(ORB orb) {
