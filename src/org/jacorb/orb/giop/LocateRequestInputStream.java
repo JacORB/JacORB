@@ -38,7 +38,7 @@ public class LocateRequestInputStream
 
     public LocateRequestInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
-	super( orb,  buf );
+        super( orb,  buf );
 
         if( Messages.getMsgType( buffer ) == MsgType_1_1._LocateRequest )
         {
@@ -65,7 +65,7 @@ public class LocateRequestInputStream
                 case 2 : 
                 {
                     //GIOP 1.2
-                    LocateRequestHeader_1_2 req_hdr = 
+                    req_hdr = 
                         LocateRequestHeader_1_2Helper.read( this );
                 
                     ParsedIOR.unfiyTargetAddress( req_hdr.target );
@@ -80,20 +80,20 @@ public class LocateRequestInputStream
         }
         else
         {
-	    throw new Error( "Error: not a Locate request!" );
+            throw new Error( "Error: not a Locate request!" );
         }
     }
 
     public void finalize()
     {
-	try
-	{
-	    close();
-	}
-	catch( java.io.IOException iox )
-	{
-	    //ignore
-	}
+        try
+        {
+            close();
+        }
+        catch( java.io.IOException iox )
+        {
+            //ignore
+        }
     }
 }
 
