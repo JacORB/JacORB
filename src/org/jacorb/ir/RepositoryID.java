@@ -161,7 +161,7 @@ public class RepositoryID
      * Returns the corresponding class object, or null if the class loader
      * cannot find a class by that name.
      */
-    private Class loadClass (String name)
+    private static Class loadClass (String name)
     {
         try
         {
