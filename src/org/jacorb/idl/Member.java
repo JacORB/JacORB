@@ -60,7 +60,8 @@ public class Member
             pack_name = s;
 
         type_spec.setPackage( s );
-        declarators.setPackage( s );
+        if ( declarators != null )
+            declarators.setPackage( s );
     }
 
     public void setEnclosingSymbol( IdlSymbol s )
