@@ -15,10 +15,30 @@
 
    <target name="javatest">
 	<available classname="java.lang.ref.WeakReference"
-	property="java2" />	
+	           property="java2" />	
+        <available classname="javax.rmi.CORBA.Stub" 
+                   property="rmi.iiop.present"/>
    </target>
 
-   <target name="all" depends="init,domain,compile1,compile2,dns"/> <!-- ir -->
+   <target name="all" depends="init,reference-without-rmi,reference-with-rmi,domain,compile1,compile2,dns"/> <!-- ir -->
+
+   <target name="reference-without-rmi" unless="rmi.iiop.present">
+        <echo message="RMI/IIOP not present, using old Reference inheritance."/>
+        <copy file="src/org/jacorb/orb/Reference.template"
+              tofile="src/org/jacorb/orb/Reference.java"/>
+        <replace file="src/org/jacorb/orb/Reference.java"
+                 token="@EXTENDS"
+                 value="org.omg.CORBA.portable.ObjectImpl"/>
+   </target>
+                 
+   <target name="reference-with-rmi" if="rmi.iiop.present">
+        <echo message="RMI/IIOP is present, using updated Reference inheritance."/>
+        <copy file="src/org/jacorb/orb/Reference.template"
+              tofile="src/org/jacorb/orb/Reference.java"/>
+        <replace file="src/org/jacorb/orb/Reference.java"
+                 token="@EXTENDS"
+                 value="javax.rmi.CORBA.Stub implements java.rmi.Remote"/>
+   </target>   
 
    <target name="compile1" if="java2">
 	<javac srcdir="${src}"
