@@ -1,0 +1,6 @@
+junit.home = d:/java/junit3.8.1
+log4j.home = d:/java/jakarta-log4j-1.2.7
+log4j.version = 1.2.7
+jacorb_properties.path = d:/cygwin/home/alf
+antlr.home = d:/antlr-2.7.2a2
+concurrent.home = d:/java/util.concurrent

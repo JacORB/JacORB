@@ -1,0 +1,118 @@
+package org.jacorb.notification.node;
+
+import antlr.Token;
+import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
+import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
+import org.jacorb.notification.evaluate.EvaluationException;
+import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.jacorb.notification.evaluate.EvaluationContext;
+import org.omg.CORBA.Any;
+import org.jacorb.notification.evaluate.DynamicEvaluator;
+import org.omg.CORBA.TypeCodePackage.BadKind;
+
+/**
+ * ImplictOperatorNode.java
+ *
+ *
+ * Created: Sat Sep 28 23:58:11 2002
+ *
+ * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @version
+ */
+
+public class ImplicitOperatorNode extends TCLNode {
+    
+    static String DISCRIM = "_d";
+    static String LENGTH = "_length";
+    static String REPO_ID = "_repos_id";
+    static String TYPE_ID = "_type_id";
+
+    public static ImplicitOperator OPERATOR_DISCRIM = new DiscrimOperator();
+    public static ImplicitOperator OPERATOR_LENGTH = new LengthOperator();
+    public static ImplicitOperator OPERATOR_REPO_ID = new RepoOperator();
+    public static ImplicitOperator OPERATOR_TYPE_ID = new TypeOperator();
+
+    static EvaluationException EVALUATION_EXCEPTION = new EvaluationException();
+
+    ImplicitOperator operator_;
+    String operatorName_;
+    
+    public ImplicitOperatorNode(Token token) {
+	super(token);
+	String _tokenText = token.getText();
+
+	if (DISCRIM.equals(_tokenText)) {
+	    operator_ = OPERATOR_DISCRIM;
+	    operatorName_ = DISCRIM;
+	    setName("ImplicitOperator - _d");
+	} else if (LENGTH.equals(_tokenText)) {
+	    operator_ = OPERATOR_LENGTH;
+	    operatorName_ = LENGTH;
+	    setName("ImplicitOperator - _length");
+	} else if (REPO_ID.equals(_tokenText)) {
+	    operator_ = OPERATOR_REPO_ID;
+	    operatorName_ = REPO_ID;
+	    setName("Implicit - _repos_id");
+	} else if (TYPE_ID.equals(_tokenText)) {
+	    operator_ = OPERATOR_TYPE_ID;
+	    operatorName_ = TYPE_ID;
+	    setName("Implicit - _type_id");
+	} else {
+	    throw new RuntimeException();
+	}
+    }
+
+    public ImplicitOperator getOperator() {
+	return operator_;
+    }
+
+    public EvaluationResult evaluate(EvaluationContext context)
+	throws InconsistentTypeCode,
+	       TypeMismatch,
+	       EvaluationException,
+	       InvalidValue,
+	       DynamicTypeException {
+
+	return null;
+    }
+
+    public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
+	visitor.visitImplicit(this);
+    }
+    public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
+	visitor.visitImplicit(this);
+    }
+    public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
+	visitor.visitImplicit(this);
+    }
+
+    public String toString() {
+	assert(operator_ != null);
+	return operator_.toString();
+    }
+
+}// ImplictOperatorNode
+
+class RepoOperator implements ImplicitOperator {
+    public String toString() {
+	return "_repos_id";
+    }
+}
+
+class TypeOperator implements ImplicitOperator {
+    public String toString() {
+	return "_type_id";
+    }
+}
+
+class DiscrimOperator implements ImplicitOperator {
+    public String toString() {
+	return "_d";
+    }
+}
+
+class LengthOperator implements ImplicitOperator {
+    public String toString() {
+	return "_length";
+    }
+}

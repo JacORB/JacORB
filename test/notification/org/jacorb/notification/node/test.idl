@@ -1,0 +1,36 @@
+#pragma prefix "org.jacorb.notification"
+
+module test {
+  struct Address {
+    string street;
+    string city;
+    long number;
+  };
+
+  struct NamedValue {
+    string name;
+    string value;
+  };
+
+  enum Profession {STUDENT, PROFESSOR};
+
+  struct Person {
+    string first_name;
+    string last_name;
+    long age;
+    Address home_address;
+    string phone_numbers[2];
+    NamedValue nv[2];
+    Profession person_profession;
+  };
+
+  union TestUnion switch (short) {
+  case 0:
+  case 1: long long_;
+  case 2: string string_;
+  case 3: NamedValue named_value_;
+  case 4: Person person_;
+  case 5: NamedValue named_value_array[1];
+  default:  Person default_person;
+  };
+};

@@ -1,0 +1,35 @@
+-------------------------------
+- JacORB Notification Service -
+-------------------------------
+
+you'll need the following libraries
+
+* antlr (version used 2.7.2a2)
+  http://www.antlr.org
+
+* util.concurrent (version used 1.3.1)
+  http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
+
+  The library is not distributed as a precompiled jar.
+  I complied it and put it in a jar named 'concurrent.jar'.
+
+* log4j (version used 1.2.7)
+  http://jakarta.apache.org/log4j
+
+* junit (version used 3.8.1) 
+  (only needed for testcases)
+  http://www.junit.org
+
+edit 'JacORB/src/org/jacorb/notification/notification_build.properties' to suit the settings on your system 
+(a template for unix and windows is supplied).
+
+to compile the notification service:
+> cd JacORB/src/org/jacorb/notification
+> ant
+
+if you want to run the testcases:
+> cd JacORB/test/notification/org/jacorb/notification
+> ant
+
+any comments/suggestions to:
+Alphonse Bendt <bendt(at)inf.fu-berlin.de>
