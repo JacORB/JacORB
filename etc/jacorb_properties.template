@@ -724,6 +724,9 @@ jacorb.notification.backout_interval = 5000
 
 jacorb.notification.eventconsumer_error_threshold = 3
 
+# valid values: ThreadPool, ThreadPerProxy
+jacorb.notification.proxysupplier.threadpolicy = ThreadPool
+
 
 # Notification Service log levels:
 # 0 = fatal errors only = "almost off" (FATAL ERRORS)
