@@ -58,6 +58,10 @@ public class Configuration
     private static final String fileSuffix = ".orb.properties";
     private static final String COMMON_PROPS = "common" + fileSuffix;
 
+    private static final String TRUE = "true";
+    private static final String ON = "on";
+    private static final String EMPTY_STR = "";
+
     private Configuration config;
     private String configName; 
     private ORB orb = null;
@@ -426,5 +430,34 @@ public class Configuration
         }
     }
 
+    public boolean getAttributeAsBoolean(String key)
+        throws ConfigurationException
+    {
+        String s = getAttribute(key);
+        
+        if (s != null && s.length() > 0)
+        {
+            s = s.toLowerCase();
+            return ON.equals(s) || TRUE.equals(s);
+        }
+        else
+        {
+            return false;
+        }
+    }
 
+    public boolean getAttributeAsBoolean(String key, boolean defaultValue)
+    {
+        String s = getAttribute(key, EMPTY_STR);
+        
+        if (s.length() > 0)
+        {
+            s = s.toLowerCase();
+            return ON.equals(s) || TRUE.equals(s);
+        }
+        else
+        {
+            return defaultValue;
+        }
+    }
 }
