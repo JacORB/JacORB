@@ -173,12 +173,10 @@ public class ImRServerInfo  implements java.io.Serializable{
 	return _restart;
     }
 
+    public void setNotRestarting()
+    {
+        restarting = false;
+    }
+
 } // ImRServerInfo
-
-
-
-
-
-
-
 
