@@ -278,7 +278,21 @@ public class ClientConnection
             replies.put( key, placeholder );
         }
 
-        sendRequest( os, response_expected );
+        try
+        {
+            sendRequest( os, response_expected );
+        }
+        catch( org.omg.CORBA.SystemException e )
+        {
+           //remove reply receiver from list
+           //because there will be no response to this request
+           synchronized( replies )
+           {
+              replies.remove( key );
+           }
+           throw e;
+        }
+
     }
 
     public void sendRequest( MessageOutputStream os,
