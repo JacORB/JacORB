@@ -39,7 +39,7 @@
    </target>
 
    <target name="clean" depends="arrays.init">
-           <delete dir="${classdir}/demo/grid"/>
+           <delete dir="${classdir}/demo/${name}"/>
            <delete dir="${dest}"/>
    </target>
 
