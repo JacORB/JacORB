@@ -1,3 +1,31 @@
+2003-10-28  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/CDRInputStream.java:
+	(read_value(Serializable)): Make it compliant, add javadoc.
+
+	* orb/ORB.java (JacORBValueFactory.read_value): Use
+	InputStream.read_value(Serializable), which is the standard way to
+	handle indirections.
+
+2003-10-28  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/Any.java: Changed insert_Object(org.omg.CORBA.Object o) so
+	that it now takes an object whose repository id starts with
+	"RMI:".
+
+2003-10-27  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/Delegate.java:
+	(servant_preinvoke) fixed bugs #399 and #400 (by removing local
+	calls from POA when exiting through an exception).
+
+2003-10-27  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/dynany/DynAny.java: Patch by Philippe.Merle@lifl.fr.
+	(defaultValue): Fix typo for _tk_ulong.
+	(get_val, insert_val): New methods, suggested to allow
+	compilation on J2SDK 1.4.2.
+
 2003-10-27  Andre Spiegel  <spiegel@gnu.org>
 
 	Refactoring patch to bring corbaloc in line with ETF.
