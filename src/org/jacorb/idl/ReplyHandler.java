@@ -156,6 +156,20 @@ public class ReplyHandler extends Interface
         
     public void parse()
     {
+        if (!NameTable.defined ("org.omg.Messaging.ReplyHandler"))
+        {
+            try
+            {
+                NameTable.define ("org.omg.Messaging.ReplyHandler", "type");
+                TypeMap.typedef ("org.omg.Messaging.ReplyHandler", 
+                                 new ReplyHandlerTypeSpec (IdlSymbol.new_num()));
+            } 
+            catch (Exception e)
+            {
+                throw new RuntimeException (e.getMessage());
+            }
+        }
+
         ConstrTypeSpec ctspec = new ConstrTypeSpec (this);
         try 
         {
