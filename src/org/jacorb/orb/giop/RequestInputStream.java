@@ -31,23 +31,23 @@ import org.omg.GIOP.*;
  */
 
 public class RequestInputStream
-    extends org.jacorb.orb.CDRInputStream
+    extends GIOPInputStream
 {
-    public RequestHeader_1_2 req_hdr = null;
+    private static byte[] reserved = new byte[3];
 
-    protected int giop_minor = -1;
-    private int msg_size = -1;
+    public RequestHeader_1_2 req_hdr = null;
 
     /**
      * used by subclass, flag is a dummy
      */
+    /*
     protected RequestInputStream( org.omg.CORBA.ORB orb, 
                                   byte [] buf, 
                                   boolean flag )
     {
 	super( orb, buf );
     }
-
+    */
     public RequestInputStream( org.omg.CORBA.ORB orb, byte[] buf )
     {
 	super( orb,  buf );
@@ -57,27 +57,6 @@ public class RequestInputStream
         {
 	    throw new Error( "Error: not a request!" );
         }
-
-        //check major version
-        if( Messages.getGIOPMajor( buffer ) != 1 )
-	{
-            throw new Error( "Unknown GIOP major version: " + 
-                             Messages.getGIOPMajor( buffer ));
-        }
-
-        //although the attribute is renamed, this should work for 1.0
-        //and 1.1/1.2
-        setLittleEndian( Messages.isLittleEndian( buffer ));
-
-        msg_size = Messages.getMsgSize( buffer );
-
-        //skip the message header. Its attributes are read directly
-        skip( Messages.MSG_HEADER_SIZE );	    
-
-        giop_minor = Messages.getGIOPMinor( buffer );
-
-        //tell CDR stream which version to use
-        super.setGIOPMinor( giop_minor );
 
         switch( giop_minor )
         { 
@@ -93,7 +72,7 @@ public class RequestInputStream
                 req_hdr = 
                     new RequestHeader_1_2( hdr.request_id,
                                            (byte) ((hdr.response_expected)? 0x03 : 0x00),//flags
-                                           new byte[3], //reserved
+                                           reserved,
                                            addr, //target
                                            hdr.operation, 
                                            hdr.service_context );
@@ -110,8 +89,8 @@ public class RequestInputStream
 
                 req_hdr = 
                     new RequestHeader_1_2( hdr.request_id,
-                                           (byte) ((hdr.response_expected)? 0x03 : 0x00), //flags
-                                           new byte[3], //reserved
+                                           Messages.responseFlags( hdr.response_expected ),
+                                           reserved,
                                            addr, //target
                                            hdr.operation, 
                                            hdr.service_context );
@@ -144,10 +123,12 @@ public class RequestInputStream
     }
     
     //needed for Appligator
+    /*
     public int getMsgSize()
     {
         return msg_size;
     }
+    */
 
     public void finalize()
     {

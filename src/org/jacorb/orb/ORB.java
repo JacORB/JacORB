@@ -424,75 +424,18 @@ public final class ORB
 
         IOR _ior = new IOR( repId, tps );
 
-        if( Environment.useAppligator(isApplet()) ) 
-        {
-            try
-            {
-                org.jacorb.orb.CDROutputStream out = 
-                    new org.jacorb.orb.CDROutputStream(this);
-
-                out.beginEncapsulatedArray();
-                org.omg.IOP.IORHelper.write(out, _ior);
-                byte bytes[] = out.getBufferCopy();
-
-                StringBuffer sb = new StringBuffer("IOR:");
-                for ( int i=0; i<bytes.length; i++ )
-                {
-                    int b = bytes[i];
-                    if( b<0 ) b+= 256;
-                    int n1 = (b & 0xff) / 16;
-                    int n2 = (b & 0xff) % 16;
-                    int c1 = (n1 < 10) ? ('0' + n1) : ('a' + (n1 - 10));
-                    int c2 = (n2 < 10) ? ('0' + n2) : ('a' + (n2 - 10));
-                    sb.append((char)c1);
-                    sb.append((char)c2);
-                }
-                String ior_str = sb.toString();
-
-                // if applet, return proxified IOR
-        
-                Debug.output(4,"ORB.createIOR, proxifying original ior " +
-                             _ior.hashCode());
-
-                //                  org.omg.CORBA.StringHolder proxyEntryId = 
-                //                      new org.omg.CORBA.StringHolder();
-
-                //                  org.omg.IOP.IOR proxy_ior = 
-                //                      new ParsedIOR( proxyObj.forward(ior_str,proxyEntryId)).getIOR();
-
-                //                  String proxy_ior_str = 
-                //                      new ParsedIOR( proxyObj.forward(ior_str,proxyEntryId)).getIORString();
-
-                //                  proxyEntries.addElement(proxyEntryId.value);
-                //                  unproxyTable.put( proxy_ior_str, (new ParsedIOR(_ior)).getIORString() );
-
-                //                  Debug.output(4,"ORB.createIOR, returning proxifyed ior " + 
-                //                                           proxy_ior.hashCode());
-
-                //                  return proxy_ior;
-
-                org.omg.IOP.IOR proxyfied_ior = getConnectionManager().proxyfy(ior_str);
-
-            } 
-            catch ( Exception e ) 
-            {
-                e.printStackTrace(); return null;
-            }
-
-
-        }
         return _ior;
     }
 
     /** 
      *  called by Delegate to retrieve an unproxyified, local IOR 
      */
-
+    /*
     org.omg.IOP.IOR unproxyfy(org.omg.IOP.IOR proxy_ior)
     {
         return getConnectionManager().unproxyfy(proxy_ior);
     }
-
+    */
     public org.omg.CORBA.Current get_current()
     {
         return current;
@@ -742,11 +685,6 @@ public final class ORB
     public org.omg.CORBA.Object resolve_initial_references(String identifier) 
         throws org.omg.CORBA.ORBPackage.InvalidName 
     {
-        if ( Environment.useAppligator(isApplet()) )
-        {
-            getConnectionManager().initProxy();         
-        }
-
         if ( initial_references.containsKey(identifier) )
         {
             return (org.omg.CORBA.Object) initial_references.get(identifier);

@@ -24,8 +24,9 @@
 	<javac srcdir="${src}"
                destdir="${classdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	       includes="org/jacorb/orb/*.java,org/jacorb/orb/dii/*.java,org/jacorb/orb/dsi/*.java,org/jacorb/orb/dynany/*.java,org/jacorb/orb/policies/*.java,org/jacorb/orb/factory/*.java,org/jacorb/orb/portableInterceptor/*.java,org/jacorb/orb/standardInterceptors/*.java,org/jacorb/orb/connection/*.java,org/jacorb/orb/connection/http/**/*.java,org/jacorb/orb/connection/http/*.java,org/jacorb/orb/util/*.java"
+	       includes="org/jacorb/orb/*.java,org/jacorb/orb/dii/*.java,org/jacorb/orb/dsi/*.java,org/jacorb/orb/dynany/*.java,org/jacorb/orb/policies/*.java,org/jacorb/orb/factory/*.java,org/jacorb/orb/portableInterceptor/*.java,org/jacorb/orb/standardInterceptors/*.java,org/jacorb/orb/connection/*.java,org/jacorb/orb/util/*.java"
 	        />
+<!--,org/jacorb/orb/connection/http/**/*.java,org/jacorb/orb/connection/http/*.java-->
    </target>
 
    <target name="compile2" unless="java2">

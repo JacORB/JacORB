@@ -21,7 +21,8 @@ package org.jacorb.orb.dsi;
  */
 
 import java.io.*;
-import java.lang.*;
+
+import org.jacorb.util.*;
 import org.jacorb.orb.*;
 import org.jacorb.orb.connection.*;
 import org.jacorb.orb.portableInterceptor.*;
@@ -39,7 +40,7 @@ public class ServerRequest
 {
     protected RequestInputStream in;
     protected ReplyOutputStream out;	
-    protected ServerConnection connection;
+    protected GIOPConnection connection;
     
     protected int status = ReplyStatusType_1_2._NO_EXCEPTION;
     protected byte[] oid;
@@ -64,7 +65,7 @@ public class ServerRequest
     /** only to be called implicitly by subclasses (LocateRequest) */
 
     protected ServerRequest( org.jacorb.orb.ORB orb, 
-                             ServerConnection _connection )
+                             GIOPConnection _connection )
     {
 	this.orb = orb;
 	connection = _connection;
@@ -72,14 +73,11 @@ public class ServerRequest
 
     public ServerRequest( org.jacorb.orb.ORB orb, 
                           byte[] _buf, 
-                          ServerConnection _connection )
+                          GIOPConnection _connection )
     {
 	this.orb = orb;
-	in = new RequestInputStream( orb,_buf);
+	in = new RequestInputStream( orb, _buf );
 	connection = _connection;
-
-        if( connection.isTCSNegotiated() )
-            in.setCodeSet( connection.TCS, connection.TCSW );
 
 	oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.target.object_key() );
     }
@@ -118,7 +116,7 @@ public class ServerRequest
 	if( stream_based )
         {
             org.omg.CORBA.Any any = orb.create_any();
-            ((CDROutputStream)any.create_output_stream()).setBuffer( out.getBodyBufferCopy() );
+            ((CDROutputStream)any.create_output_stream()).setBuffer( out.getBufferCopy() );
             return any;
         }
 	return result;
@@ -207,7 +205,7 @@ public class ServerRequest
 		    }
                     catch (Exception e)
                     {
-			org.jacorb.util.Debug.output(2, e);
+			Debug.output(2, e);
 		    }
 		}
 
@@ -261,21 +259,19 @@ public class ServerRequest
 
     public void reply()
     {
-	if( (0x03 & in.req_hdr.response_flags) == 0x03 )
+	if( responseExpected() )
 	{
-	    org.jacorb.util.Debug.output(6,"ServerRequest: reply to " + operation());
+	    Debug.output(6,"ServerRequest: reply to " + operation());
+
 	    try 
 	    { 
 		if( out == null )
 		{ 
 		    out = 
                         new ReplyOutputStream(
-                                 new org.omg.IOP.ServiceContext[0],
                                  requestId(), 
                                  ReplyStatusType_1_2.from_int(status),
-                                 in.getGIOPMinor(),
-                                 orb.hasServerRequestInterceptors());
-                    out.setCodeSet( connection.TCS, connection.TCSW );
+                                 in.getGIOPMinor() );
 		}
 
 		/* DSI-based servers set results and user exceptions using anys, so 
@@ -318,8 +314,8 @@ public class ServerRequest
 		    }
 		}
 
-		/* these two exceptions are set in the same way for both stream-based and
-		   DSI-based servers */
+		/* these two exceptions are set in the same way for
+		   both stream-based and DSI-based servers */
 
 		if( status == ReplyStatusType_1_2._LOCATION_FORWARD )
 		{
@@ -333,30 +329,14 @@ public class ServerRequest
 		/* everything is written to out by now, be it results or exceptions */
 
 		out.close();
-		connection.sendReply( out );
+		connection.sendMessage( out );
 		    
 	    }
 	    catch ( Exception ioe )
 	    {
-		org.jacorb.util.Debug.output(2,ioe);
+		Debug.output(2,ioe);
 		System.err.println("ServerRequest: Error replying to request!");
 	    }
-	}
-        else
-        {
-            if ( connection instanceof org.jacorb.orb.connection.http.ServerConnection)
-            { 
-                //always reply in this case
-                try
-                {
-                    connection.sendReply( null );
-                }
-                catch ( Exception ioe )
-                {
-                    org.jacorb.util.Debug.output(2,ioe);
-                    System.err.println("ServerRequest: Error replying to oneway HTTP request!");
-                }
-            }
 	}
     }
 
@@ -365,18 +345,18 @@ public class ServerRequest
     public org.omg.CORBA.portable.OutputStream createReply()
     {
 	stream_based = true;
+
 	if( out != null )
 	    throw new Error("Internal: reply already created!");
+
 	if( !stream_based )
 	    throw new Error("Internal: ServerRequest not stream-based!");
 
 	out = 
-            new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
-                                  requestId(),
+            new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.NO_EXCEPTION,
-                                  in.getGIOPMinor(),
-                                  orb.hasServerRequestInterceptors());
-        out.setCodeSet( connection.TCS, connection.TCSW );
+                                  in.getGIOPMinor() );
+
 	return out;
     }
 
@@ -386,20 +366,11 @@ public class ServerRequest
 
 	status = ReplyStatusType_1_2._USER_EXCEPTION;
 
-	//keep service contexts
-	org.omg.IOP.ServiceContext[] ctx = null;
-	if (out != null)
-	  ctx = out.getServiceContexts();
-	else
-	  ctx = new org.omg.IOP.ServiceContext[0];
-
 	out = 
-            new ReplyOutputStream(ctx,
-                                  requestId(),
+            new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.USER_EXCEPTION,
-                                  in.getGIOPMinor(),
-                                  orb.hasServerRequestInterceptors());
-        out.setCodeSet( connection.TCS, connection.TCSW );
+                                  in.getGIOPMinor() );
+
 	return out;
     }
 
@@ -407,45 +378,30 @@ public class ServerRequest
 
     public void setSystemException(org.omg.CORBA.SystemException s)
     {
-	org.jacorb.util.Debug.output(2, s);
+	Debug.output(2, s);
+
 	status = ReplyStatusType_1_2._SYSTEM_EXCEPTION;
 
 	/* we need to create a new output stream here because a system exception may
 	   have occurred *after* a no_exception request header was written onto the
 	   original output stream*/
 
-	//keep service contexts
-	org.omg.IOP.ServiceContext[] ctx = null;
-	if (out != null)
-            ctx = out.getServiceContexts();
-	else
-            ctx = new org.omg.IOP.ServiceContext[0];
 
-	out = new ReplyOutputStream(ctx,
-                                    requestId(),
+	out = new ReplyOutputStream(requestId(),
                                     ReplyStatusType_1_2.SYSTEM_EXCEPTION,
-                                    in.getGIOPMinor(),
-                                    orb.hasServerRequestInterceptors());
+                                    in.getGIOPMinor() );
 	sys_ex = s;
     }
 
     public void setLocationForward(org.omg.PortableServer.ForwardRequest r)
     {
-	org.jacorb.util.Debug.output(2,"Location Forward");
+	Debug.output(2,"Location Forward");
+
 	status = ReplyStatusType_1_2._LOCATION_FORWARD;
 
-	//keep service contexts
-	org.omg.IOP.ServiceContext[] ctx = null;
-	if (out != null)
-	  ctx = out.getServiceContexts();
-	else
-	  ctx = new org.omg.IOP.ServiceContext[0];
-
-	out = new ReplyOutputStream(ctx,
-                                    requestId(),
+	out = new ReplyOutputStream(requestId(),
                                     ReplyStatusType_1_2.LOCATION_FORWARD,
-                                    in.getGIOPMinor(),
-                                    orb.hasServerRequestInterceptors());
+                                    in.getGIOPMinor() );
 	location_forward = r;
     }
 
@@ -474,7 +430,7 @@ public class ServerRequest
 
     public boolean responseExpected()
     {
-	return (0x03 & in.req_hdr.response_flags) == 0x03;
+	return Messages.responseExpected(in.req_hdr.response_flags);
     }
 
     public org.omg.CORBA.SystemException getSystemException()
@@ -518,7 +474,8 @@ public class ServerRequest
 	return reference;
     }
 
-    public byte [] getBuffer()
+    /*
+    public byte[] getBuffer()
     {
 	return in.getBuffer();
     }
@@ -532,6 +489,7 @@ public class ServerRequest
 	//  	    throw new org.omg.CORBA.UNKNOWN("Invalid message buffer update");
 	in = rin;
     }
+    */
 
     public RequestInputStream get_in()
     {
@@ -547,12 +505,10 @@ public class ServerRequest
     {
         if (out == null)
             out = 
-                new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
-                                      requestId(),
+                new ReplyOutputStream(requestId(),
                                       ReplyStatusType_1_2.NO_EXCEPTION,
-                                      in.getGIOPMinor(),
-                                      orb.hasServerRequestInterceptors());
-        out.setCodeSet( connection.TCS, connection.TCSW );
+                                      in.getGIOPMinor() );
+
         return out;
     }
 
@@ -569,6 +525,7 @@ public class ServerRequest
 	    return null;
     }
 
+    /*
     public void reply(byte[] buf)
     {
 	reply(buf, buf.length);
@@ -595,7 +552,7 @@ public class ServerRequest
 	}
         catch (Exception ioe)
         {
-	    org.jacorb.util.Debug.output(2,ioe);
+	    Debug.output(2,ioe);
 	    ioe.printStackTrace();
 	    System.out.println("ServerRequest: Error replying to request!");
 	}
@@ -603,8 +560,8 @@ public class ServerRequest
         // make sure that no
 	// other reply is send
     }    
-
-    public ServerConnection getConnection()
+   */
+    public GIOPConnection getConnection()
     {
 	return connection;
     }

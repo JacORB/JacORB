@@ -42,6 +42,7 @@ public class Messages
      * @returns a buffer containing a locate reply message ready for writing
      * called through Connection by servers only.
      */
+/*
     public static byte[] locateReplyMessage( int request_id, 
                                              int status, 
                                              org.omg.CORBA.Object arg,
@@ -75,7 +76,7 @@ public class Messages
 	buffer[7] = (byte) MsgType_1_1._CloseConnection;
 	return buffer;
     }
-
+*/
     /**
      * Skips over a number of service contexts in a GIOP reply message.
      *
@@ -260,6 +261,17 @@ public class Messages
     {
         return buf[5];
     }
+    
+    public static final boolean responseExpected( byte flags )
+    {
+        return (0x03 & flags) == 0x03;
+    }
+    
+    public static final byte responseFlags( boolean response_expected )
+    {
+        return (byte) (response_expected ? 0x03 : 0x00);
+    }
+    
 }
 
 

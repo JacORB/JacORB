@@ -39,7 +39,6 @@ import org.omg.PortableServer.POAHelper;
 
 import org.jacorb.orb.factory.*;
 import org.jacorb.orb.connection.*;
-import org.jacorb.orb.connection.http.*;
 import org.jacorb.util.*;
 
 public class BasicAdapter
@@ -82,11 +81,11 @@ public class BasicAdapter
     private  Listener listener;
     private  Listener sslListener; // bnv
 
-    /**
-     * The new BasicAdapter will create a Listener and, if the environment
-     * supports it also
-     */
-
+    private MessageReceptorPool receptor_pool = null;
+    private RequestListener request_listener = null;
+    private ReplyListener reply_listener = null;
+    private int timeout = 0;
+    
     public BasicAdapter(org.jacorb.orb.ORB orb, POA rootPOA)
     {
         this.orb = orb;
@@ -172,9 +171,7 @@ public class BasicAdapter
         if( Environment.supportSSL() ) 
         {
             sslListener =
-                new Listener( orb,
-                              rootPOA,
-                              Environment.getProperty( "OASSLPort" ),
+                new Listener( Environment.getProperty( "OASSLPort" ),
                               ssl_socket_factory );
 
             sslListener.is_ssl = true;
@@ -188,9 +185,13 @@ public class BasicAdapter
             /* gb: sanity check: requiring SSL requires supporting it */
             if( !Environment.supportSSL ())
             {
-                throw new java.lang.Error("SSL required but not supported, cannot continue!");
+                throw new Error("SSL required but not supported, cannot continue!");
             }
         }
+
+        receptor_pool = MessageReceptorPool.getInstance();
+        request_listener = new ServerRequestListener( orb, rootPOA );
+        reply_listener = new NoBiDirServerReplyListener();
 
         /*
          * we always create a plain socket listener as well,
@@ -198,9 +199,7 @@ public class BasicAdapter
          * (see below)
          */
 
-        listener = new Listener( orb, 
-                                 rootPOA, 
-                                 Environment.getProperty( "OAPort" ),
+        listener = new Listener( Environment.getProperty( "OAPort" ),
                                  socket_factory );
 
         String prop = 
@@ -208,7 +207,7 @@ public class BasicAdapter
 
         if( prop != null )
         {
-            setTimeout(Integer.parseInt(prop));
+            timeout = Integer.parseInt(prop);
         } 
     }
 
@@ -234,16 +233,6 @@ public class BasicAdapter
     public String getAddress()
     {
         return listener.getAddress();
-    }
-
-    /**
-     * Set the server-side socket timeout. The socket will
-     * be closed after timeout msecs. inactivity.
-     */
-
-    public void setTimeout( int timeout )
-    {
-        listener.setTimeout( timeout );
     }
     
     /**
@@ -340,38 +329,29 @@ public class BasicAdapter
      * Inner class Listener, responsible for accepting connection requests
      */
 
-    static class Listener
+    class Listener
         extends Thread
     {
-        java.net.ServerSocket serverSocket;
+        private ServerSocket serverSocket = null;
 
         private int port = 0;
-        private String address_string;
-
-        int timeout = 0;
-
-        org.jacorb.orb.ORB orb;
-        POA rootPOA;
+        private String address_string = null;
 
         private boolean is_ssl = false;
 
-        private org.jacorb.orb.factory.ServerSocketFactory factory = null;
+        private ServerSocketFactory factory = null;
 
         private boolean do_run = true;
 
-        public Listener( org.jacorb.orb.ORB orb,
-                         POA poa,
-                         String oa_port,
-                         org.jacorb.orb.factory.ServerSocketFactory factory )
+        public Listener( String oa_port, ServerSocketFactory factory )
 
         {
-            this.orb = orb;
-            rootPOA = poa;
+            if( factory == null )
+            {
+                throw new Error("No socket factory available!");
+            }
 
             this.factory = factory;
-
-            if( factory == null )
-                throw new java.lang.Error("No socket factory available!");
 
             try
             {
@@ -433,6 +413,17 @@ public class BasicAdapter
                 System.exit(1);
             }
 
+            if( ssl_socket_factory == null )
+            {
+                //can't be SSL, if no corresponding factory is present
+                is_ssl = false; 
+            }
+            else
+            {
+                //let the factory decide
+                is_ssl = ssl_socket_factory.isSSL( serverSocket );
+            }
+
             this.setName("JacORB Listener Thread on port " + port );
             setDaemon(true);
             start();
@@ -482,28 +473,32 @@ public class BasicAdapter
         {
             return address_string;
         }
-
-        public void setTimeout( int timeout )
-        {
-            this.timeout = timeout;
-        }
-    
-               
+                   
         public void run() 
         {
             // setPriority(Thread.MAX_PRIORITY);
             while( do_run )
             {
                 try
-                {
-                    new RequestReceptor( orb, 
-                                         rootPOA, 
-                                         serverSocket.accept(), 
-                                         timeout,
-                                         (ssl_socket_factory == null)? false : 
-                                         ssl_socket_factory.isSSL( serverSocket ));
+                {                                      
+                    Socket socket = serverSocket.accept();
+
+                    if( timeout > 0 )
+                    {
+                        socket.setSoTimeout(timeout);
+                    }
+
+                    Transport transport = 
+                        new Server_TCP_IP_Transport( socket, is_ssl );
+
+                    GIOPConnection connection = 
+                        new GIOPConnection( transport,
+                                            request_listener,
+                                            reply_listener );
+
+                    receptor_pool.connectionCreated( connection );
                 } 
-                catch (Exception e)
+                catch( Exception e )
                 {
                     if( do_run )
                         Debug.output( Debug.IMPORTANT | Debug.ORB_CONNECT, e );
@@ -528,404 +523,6 @@ public class BasicAdapter
             }
         }            
     }
-
-    /** 
-     * Inner class RequestReceptor, instantiated only by Listener
-     * receives messages. There is one object of this class per 
-     * client connection.
-     */
-
-    static class RequestReceptor
-        extends Thread
-    {
-        private java.net.Socket clientSocket;
-        private org.jacorb.orb.connection.ServerConnection connection;
-        private int timeout;
-        private org.jacorb.orb.ORB orb;
-        private POA rootPOA;
-        private boolean done = false;
-  	private static final byte[] HTTPPostHeader = 
-           {(byte) 'P', (byte) 'O', (byte) 'S', (byte) 'T'};
-
-	private static final int HEADER_SIZE = 4;
-        private boolean is_ssl; // bnv
-
-        public RequestReceptor( org.jacorb.orb.ORB orb, 
-                                POA rootPOA, 
-                                java.net.Socket s, 
-                                int timeout,
-                                boolean is_ssl )
-        {
-            this.orb = orb;
-            this.rootPOA = rootPOA;       
-            clientSocket = s;
-
-            this.is_ssl = is_ssl;
-
-            if( is_ssl )
-            {
-                ssl_socket_factory.switchToClientMode( s );
-            }
-
-            this.timeout = timeout;
-            InetAddress remote_host = s.getInetAddress();
-            InetAddress local_host = null;
-            try
-            {
-                local_host = InetAddress.getLocalHost();
-            } 
-            catch ( UnknownHostException uhe )
-            {
-                // debug:
-                uhe.printStackTrace();
-            }
-
-            this.setName("JacORB Request Receptor Thread on " + local_host );
-            this.start();
-        }
-
-
-        /**
-         *      receive and dispatch requests 
-         */
-
-        public void run() 
-        {
-            /* set up a connection object */        
-            try
-            {
-                //check incoming connection type (GIOP vs. HTTP)
-		InputStream in_stream = null;
-                in_stream = new BufferedInputStream(clientSocket.getInputStream());
-
-                byte data[] = new byte[HEADER_SIZE];
-		boolean isHTTP=true;
-		try 
-                {
-                    in_stream.mark(HEADER_SIZE);
-                    int b;
-                    int length = 0;
-                    for (int i = 0; i < HEADER_SIZE; i++) 
-                    {
-                        b = in_stream.read();
-                        if (b < 0) 
-                        {
-                            close();
-                            return;
-                        }                                        
-                        data[i] = (byte) b;
-                    }
-		} 
-                catch (IOException ioe) 
-                {
-                    Debug.output(1, "Can not read from socket");                            
-                    ioe.printStackTrace();
-                
-		}
-                finally
-                {
-                    in_stream.reset();
-        	}     
-
-		for (int i = 0; i < HEADER_SIZE; i++) 
-                {
-                    isHTTP = (isHTTP && (data[i] == HTTPPostHeader[i]));               
-		}                 
-
-
-		if (isHTTP)
-                {
-                    Debug.output(2,"Incoming HTTP Request");
-                    connection = 
-                        new org.jacorb.orb.connection.http.ServerConnection( orb, 
-                                                                         is_ssl,
-                                                                         clientSocket,
-                                                                         in_stream );
-		}
-                else
-                {
-                    Debug.output(2,"Incoming GIOP Request");
-                    connection = 
-                        new org.jacorb.orb.connection.ServerConnection( orb, 
-                                                                    is_ssl,
-                                                                    clientSocket,
-                                                                    in_stream );
-		}
-
-                if( timeout != 0 )
-                {
-                    try
-                    {
-                        connection.setTimeOut( timeout );
-                    } 
-                    catch( SocketException s )
-                    {
-                        s.printStackTrace();
-                    }
-                }
-
-            }
-            catch(java.io.IOException ioex)
-            {
-                Debug.output(2, ioex); 
-                Debug.output(0,"Error in " + (is_ssl? "SSL ":"") + "session setup.");
-                return;
-            }
-
-            /* receive requests */
-            try
-            {           
-                while( !done ) 
-                {
-                    byte[] buf = connection.readBuffer();
-
-                    if( buf == null )
-                    {
-                        //try again
-                        continue;
-                    }
-
-                    Debug.output( 10, "Receive Request", buf );
-
-                    int msg_type = buf[7];
-                    
-                    switch( msg_type )
-                    {
-                    case org.omg.GIOP.MsgType_1_1._Request:
-                        {
-                            org.jacorb.orb.dsi.ServerRequest request = 
-                                new org.jacorb.orb.dsi.ServerRequest( orb, buf, connection );
-
-                            // bnv: default SSL security policy
-                            if( Environment.enforceSSL() && 
-                                !connection.isSSL()) 
-                            {
-                                request.setSystemException (
-                                      new org.omg.CORBA.NO_PERMISSION ( 
-                                             "Connection should be SSL, but isn't",
-                                             3,  
-                                             // SERVER_POLICY
-                                             org.omg.CORBA.CompletionStatus.COMPLETED_NO
-                                             )
-                                          );
-
-                                request.reply();
-                            } 
-                            else 
-                            {
-                                orb.getBasicAdapter().replyPending();
-                                
-                                // devik: look for codeset context if not negotiated yet
-                                if( !connection.isTCSNegotiated() )
-                                {
-                                    // look for codeset service context
-                                    connection.setServerCodeSet( request.getServiceContext() );
-                                }
-                                
-                                deliverRequest( request );
-                            }
-                            break;
-                        } 
-                        /*
-                    case org.omg.GIOP.MsgType_1_1._Reply:
-                        {
-                            //ignore for the moment...
-                        }
-                        */
-                    case org.omg.GIOP.MsgType_1_1._CancelRequest:
-                        {
-                            break;
-                        }
-                    case org.omg.GIOP.MsgType_1_1._LocateRequest:
-                        {
-                            org.jacorb.orb.connection.LocateRequest request = 
-                                new org.jacorb.orb.connection.LocateRequest(orb, buf, connection );
-                            deliverRequest( request );
-                            break;
-                        }
-                        /*
-                    case org.omg.GIOP.MsgType_1_1._LocateReply:
-                        {
-                        //ignore for the moment...
-                        }
-                        */
-                    case org.omg.GIOP.MsgType_1_1._CloseConnection:
-                        {
-                            break;
-                        }
-                    case org.omg.GIOP.MsgType_1_1._MessageError:
-                        {
-                            Debug.output( 0, "Message Error! (Sender announces it received an ill.-formed GIOP msg.)");
-                            break;
-                        }
-                    case org.omg.GIOP.MsgType_1_1._Fragment:
-                        {
-                            org.jacorb.orb.dsi.ServerRequest request = 
-                                new org.jacorb.orb.dsi.ServerRequest( orb, buf, connection );
-
-                            request.setSystemException (
-                                new org.omg.CORBA.NO_IMPLEMENT() );
-
-                            request.reply();
-                        }
-                    default:
-                        {
-                            Debug.output(0, "SessionServer, message_type " + 
-                                         msg_type + " not understood.");
-                        }
-                    }
-                } 
-            }
-            catch ( java.io.EOFException eof )
-            {
-                Debug.output(4,eof);
-		close();
-		
-            } 
-            catch ( org.omg.CORBA.COMM_FAILURE cf )
-            {
-                Debug.output(1,cf);
-                close();
-            } 
-            catch ( java.io.IOException i )
-            {
-                Debug.output(4,i);
-                close();
-            }
-	   
-        }       
-        
-        public void close() 
-        {
-            try
-            {
-
-                if( clientSocket != null )
-                {
-                    if (connection != null){
-                        connection.closeConnection();
-		    }
-                    clientSocket.close();
-                }
-            } 
-            catch ( Exception e ) 
-            {
-                Debug.output(2,e);
-                // ignore exceptions on closing sockets which would occur e.g.
-                // when closing sockets without ever having opened one...
-            }
-            done = true;
-        }
-
-
-        /* private code */
-
-        private void deliverRequest( org.jacorb.orb.dsi.ServerRequest request )
-        {
-            org.jacorb.poa.POA tmp_poa = (org.jacorb.poa.POA)rootPOA;
-        
-            try
-            {
-                //              String obj_key = new String(request.objectKey());
-                String poa_name = org.jacorb.poa.util.POAUtil.extractPOAName(request.objectKey());
-
-                /** strip scoped poa name (first part of the object key before "::",
-                 *  will be empty for the root poa
-                 */
-                /*
-                  if( !(obj_key.startsWith(org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR+
-                  org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR)))
-                  {
-                  poa_name = obj_key.substring(0,
-                  obj_key.indexOf(org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR+
-                  org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR) );
-                  }
-                */
-                java.util.StringTokenizer strtok = 
-                    new java.util.StringTokenizer(poa_name, org.jacorb.poa.POAConstants.OBJECT_KEY_SEPARATOR );
-
-                String scopes[]  = new String[strtok.countTokens()];
-
-                for( int i = 0; strtok.hasMoreTokens(); scopes[i++] = strtok.nextToken() );
-
-                for( int i = 0; i < scopes.length; i++)
-                {
-                    if( scopes[i].equals(""))
-                        break;
-
-                    /* the following is a call to a method in the private
-                       interface between the ORB and the POA. It does the
-                       necessary synchronization between incoming,
-                       potentially concurrent requests to activate a POA
-                       using its adapter activator. This call will block
-                       until the correct POA is activated and ready to
-                       service requests. Thus, concurrent calls
-                       originating from a single, multi-threaded client
-                       will be serialized because the thread that accepts
-                       incoming requests from the client process is
-                       blocked. Concurrent calls from other destinations
-                       are not serialized unless they involve activating
-                       the same adapter.  */
-
-                    try
-                    {
-                        tmp_poa = tmp_poa._getChildPOA( scopes[i] );
-                    }
-                    catch ( org.jacorb.poa.except.ParentIsHolding p )
-                    {
-                        /* if one of the POAs is in holding state, we simply deliver 
-                           deliver the request to this POA. It will forward the request
-                           to its child POAs if necessary when changing back to active
-                           For the POA to be able to forward this request to its child POAa,
-                           we need to supply the remaining part of the child's POA name */
-
-                        String [] rest_of_name = new String[scopes.length - i];
-                        for( int j = 0; j < i; j++ )
-                            rest_of_name[j] = scopes[j+i];
-                        request.setRemainingPOAName(rest_of_name);
-                        break;
-                    }           
-                }
-              
-
-                if( tmp_poa == null )
-                {
-                    throw new Error("request POA null!");
-                }
-                else
-                {
-                    /* hand over to the POA */
-                    ((org.jacorb.poa.POA)tmp_poa)._invoke( request );
-                }
-              
-            }
-            //      catch( org.omg.PortableServer.POAPackage.AdapterNonExistent ane )
-            //{
-            //request.setSystemException( new org.omg.CORBA.OBJECT_NOT_EXIST("POA: AdapterNonExistent"));
-            //request.reply();
-            //}
-            catch( org.omg.PortableServer.POAPackage.WrongAdapter wa )
-            {
-                // unknown oid (not previously generated)
-                request.setSystemException( new org.omg.CORBA.OBJECT_NOT_EXIST("unknown oid") );
-                request.reply();
-            }
-            catch( org.omg.CORBA.SystemException one )
-            {
-                request.setSystemException( one );
-                request.reply();
-            }
-            catch( Throwable th )
-            {
-                request.setSystemException( new org.omg.CORBA.UNKNOWN( th.toString()) );
-                request.reply();
-                th.printStackTrace(); // TODO
-            }                   
-        }
-
-    }
-
-
 }
 
 

@@ -24,6 +24,7 @@ import java.io.*;
 import java.util.*;
 
 import org.omg.CORBA.*;
+
 import org.jacorb.util.*;
 import org.jacorb.orb.connection.CodeSet;
 
@@ -52,7 +53,7 @@ public class CDRInputStream
     private int codeSet =  CodeSet.getTCSDefault();
     private int codeSetW=  CodeSet.getTCSWDefault();
 
-    private int giop_minor = 0; // needed to determine size in chars
+    public int giop_minor = 0; // needed to determine size in chars
 
     private boolean closed = false;
 
@@ -120,45 +121,31 @@ public class CDRInputStream
         this.codeSetW = codeSetWide;
     }
 
-    /**
-     * For GIOP 1.2 only: The message body is aligned on an 8 byte
-     * boundary, if a body is present.  
-     */
-    protected void skipHeaderPadding()
-    {
-        int header_padding = 8 - (pos % 8); //difference to next 8 byte border
-        header_padding = (header_padding == 8)? 0 : header_padding;
-
-        if( (pos + header_padding) < buffer.length &&
-            (index + header_padding) < buffer.length )
-        {
-            //skip header_padding bytes, if body present
-            index += header_padding;
-            pos += header_padding;
-        }   
-    }
-
-    private static final int _read4int(boolean _littleEndian, byte[] _buffer, int _pos)
+    private static final int _read4int(boolean _littleEndian, 
+                                       byte[] _buffer, 
+                                       int _pos)
     {
 	if (_littleEndian)
 	    return (((_buffer[_pos+3] & 0xff) << 24) +
 		    ((_buffer[_pos+2] & 0xff) << 16) +
-		    ((_buffer[_pos+1] & 0xff) << 8) +
-		    ((_buffer[_pos] & 0xff) << 0));
+		    ((_buffer[_pos+1] & 0xff) <<  8) +
+		    ((_buffer[_pos]   & 0xff) <<  0));
 	else
-	    return (((_buffer[_pos] & 0xff) << 24) +
+	    return (((_buffer[_pos]   & 0xff) << 24) +
 		    ((_buffer[_pos+1] & 0xff) << 16) +
-		    ((_buffer[_pos+2] & 0xff) << 8) +
-		    ((_buffer[_pos+3] & 0xff) << 0));
+		    ((_buffer[_pos+2] & 0xff) <<  8) +
+		    ((_buffer[_pos+3] & 0xff) <<  0));
     }    
 
-    private static final short _read2int(boolean _littleEndian, byte[] _buffer, int _pos)
+    private static final short _read2int( boolean _littleEndian, 
+                                          byte[] _buffer, 
+                                          int _pos )
     {
 	if (_littleEndian)
 	    return  (short)(((_buffer[_pos+1] & 0xff) << 8) +
-			    ((_buffer[_pos] & 0xff) << 0));
+			    ((_buffer[_pos]   & 0xff) << 0));
 	else
-	    return (short)(((_buffer[_pos ] & 0xff) << 8) +
+	    return (short)(((_buffer[_pos ]    & 0xff) << 8) +
 			   ((_buffer[_pos + 1] & 0xff) << 0));
     }
 
@@ -233,6 +220,7 @@ public class CDRInputStream
     {     
 	if( closed )
 	    throw new java.io.IOException("Stream already closed!");
+
 	if( available() < 1 )
 	    return -1;
 
@@ -244,7 +232,7 @@ public class CDRInputStream
 	return pos - read_index;
     }
 
-    public int read( byte[] b)
+    public int read( byte[] b )
 	throws java.io.IOException
     {
 	return read(b, 0, b.length);
@@ -257,7 +245,9 @@ public class CDRInputStream
 	if( b == null )
 	    throw new NullPointerException();
 
-	if( off < 0 || len < 0 || off + len > b.length )
+	if( off < 0 || 
+            len < 0 || 
+            off + len > b.length )
 	    throw new IndexOutOfBoundsException();
 
 	if( len == 0 )

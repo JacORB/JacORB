@@ -115,7 +115,9 @@ public class ThreadPool
                       "(Pool)[" + idle_threads + "/" + total_threads + 
                       "] creating new thread" );
 
-        (new Thread( new ConsumerTie( this, factory.create() ))).start();
+        Thread t = new Thread( new ConsumerTie( this, factory.create() ));
+        t.setDaemon( true );
+        t.start();
 
         total_threads++;
     }
