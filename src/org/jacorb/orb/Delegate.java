@@ -75,13 +75,15 @@ public final class Delegate
     private boolean bound = false;
     private org.jacorb.poa.POA poa;
 
-    private int client_count = 1;
+    //private int client_count = 1;
     protected org.omg.CORBA.ORB orb;
     private org.jacorb.poa.InvocationContext context;
 
     private boolean use_interceptors = false;
     private boolean location_forward_permanent = true;
 
+    private Hashtable pending_replies = new Hashtable();
+    private Barrier pending_replies_sync = new Barrier();
 
     /* constructors: */
     public Delegate()
@@ -177,12 +179,16 @@ public final class Delegate
     { 
         if( bound )
             return;
-    
+        /*    
         if( noMoreClients() )
             throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
+        */
     
         connection = ((org.jacorb.orb.ORB)orb).getConnectionManager().getConnection( this );
         bound = true;
+        
+        //tell conn, that one more *instance* of delegate is bound to it
+        connection.duplicate();
     
         /* The delegate could query the server for the object location using
            a GIOP locate request to make sure the first call will get through
@@ -277,6 +283,7 @@ public final class Delegate
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
+    /*
     private synchronized void incrementClientCount()
     {
         client_count++;
@@ -291,10 +298,11 @@ public final class Delegate
     {
         return (client_count <= 0 );
     }
-
+    */
 
     public synchronized org.omg.CORBA.Object duplicate(org.omg.CORBA.Object self)
     {
+        /*
         if( !bound )
             bind();
         try
@@ -315,6 +323,9 @@ public final class Delegate
             org.jacorb.util.Debug.output(3,e);
             return null;
         }
+        */
+
+        return self;
     }
 
     public boolean equals(java.lang.Object obj)
@@ -334,7 +345,11 @@ public final class Delegate
 
     public void finalize()
     {
-        release( null );
+        ((org.jacorb.orb.ORB)orb)._release( this );
+
+        if( bound )
+            unbind();
+
         Debug.output(3," Delegate gc'ed!");
     }
 
@@ -490,8 +505,11 @@ public final class Delegate
   
     ClientConnection getConnection()
     {
+        /*
         if( noMoreClients() )
             throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
+        */
+
         return connection;
     }
 
@@ -655,6 +673,10 @@ public final class Delegate
             // tcs wanted. After first such request was sent (and it is here) we can
             // mark connection tcs as negotiated
             connection.markTcsNegotiated();
+
+            //store pending replies, so in the case of a LocationForward
+            //a RemarshalException can thrown to *all* waiting threads. 
+            pending_replies.put( rep, rep );
         } 
         catch (org.omg.CORBA.SystemException cfe)
         {
@@ -747,7 +769,7 @@ public final class Delegate
             try
             {
                 org.omg.CORBA.portable.InputStream result = rep.result();
-    
+
                 if ( use_interceptors && (info != null) )
                 {
                     ReplyHeader_1_0 _header = rep.getHeader();
@@ -778,11 +800,19 @@ public final class Delegate
     
                 return result;
             }
-            catch ( org.omg.PortableServer.ForwardRequest f )
+            catch( RemarshalException re )
+            {
+                //wait, until the thread that received the actual
+                //ForwardRequest rebound this Delegate
+                pending_replies_sync.waitOnBarrier();
+
+                throw re;
+            }
+            catch( org.omg.PortableServer.ForwardRequest f )
             {
                 if ( use_interceptors && (info != null) )
                 {
-                    //assuming "permanent", util new GIOP version is implemented
+                    //assuming "permanent", until new GIOP version is implemented
                     info.reply_status = LOCATION_FORWARD_PERMANENT.value;
                     info.setReplyServiceContexts(rep.getHeader().service_context);
             
@@ -800,8 +830,26 @@ public final class Delegate
     
                 /* retrieve the forwarded IOR and bind to it */
                 org.jacorb.util.Debug.output(3,"LocationForward");
+
+                //make other threads, that have unreturned replies, wait
+                pending_replies_sync.lockBarrier();
+
+                //tell every pening request to remarshal
+                //they will be blocked on the barrier
+                for( Enumeration e = pending_replies.elements();
+                     e.hasMoreElements(); )
+                {
+                    ReplyInputStream r = (ReplyInputStream) e.nextElement();
+                    r.retry();
+                }
+
+                //do the actual rebind
                 unbind();
                 bind(orb.object_to_string(f.forward_reference));    
+
+                //now other threads can safely remarshal
+                pending_replies_sync.openBarrier();
+
                 throw new RemarshalException();
             }
             catch (SystemException _sys_ex)
@@ -874,6 +922,9 @@ public final class Delegate
             }
             finally
             {
+                //reply returned (with whatever result)
+                pending_replies.remove( rep );
+    
                 if(! location_forward_permanent)
                 {
                     fallback();
@@ -993,8 +1044,11 @@ public final class Delegate
 
     public boolean is_nil()    
     {
+        /*
         if( noMoreClients() )
             throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
+        */
+
         return( ior.type_id.equals("") && ior.profiles.length == 0 );
     }
 
@@ -1023,6 +1077,7 @@ public final class Delegate
 
     public synchronized void release(org.omg.CORBA.Object self)
     {
+        /*
         decrementClientCount();
         if( noMoreClients() )
         {
@@ -1032,6 +1087,7 @@ public final class Delegate
             if( bound )
                 unbind();
         }
+        */
     }
 
     /**
@@ -1197,8 +1253,11 @@ public final class Delegate
     
     public String typeId()
     {
+        /*
         if( noMoreClients() )
             throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
+        */
+
         return ior.type_id;
     }
     
@@ -1228,7 +1287,37 @@ public final class Delegate
         use_interceptors = ((org.jacorb.orb.ORB) orb).hasClientRequestInterceptors();
     }
 
+    private class Barrier
+    {        
+        private boolean is_open = true;
+        
+        public synchronized void waitOnBarrier()
+        {
+            while( ! is_open )
+            {
+                try
+                {
+                    this.wait();
+                }
+                catch( InterruptedException e )
+                {
+                    //ignore
+                }
+            }
+        }
 
+        public synchronized void lockBarrier()
+        {
+            is_open = false;
+        }
+
+        public synchronized void openBarrier()
+        {
+            is_open = true;
+            
+            this.notifyAll();
+        }
+    }
 }
 
 
