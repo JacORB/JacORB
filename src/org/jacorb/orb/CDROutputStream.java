@@ -1087,10 +1087,10 @@ public class CDROutputStream
         case TCKind._tk_octet:
             write_octet( in.read_octet());
             break;          
-        case TCKind._tk_short:
+        case TCKind._tk_ushort:
             write_ushort( in.read_ushort());
             break;
-        case TCKind._tk_ushort:
+        case TCKind._tk_short:
             write_short(in.read_short());
             break;
         case TCKind._tk_long:

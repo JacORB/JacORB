@@ -923,10 +923,10 @@ public class CDRInputStream
 	case TCKind._tk_octet:
 	    out.write_octet( read_octet());
 	    break;	    
-	case TCKind._tk_short:
+	case TCKind._tk_ushort:
 	    out.write_ushort( read_ushort());
 	    break;
-	case TCKind._tk_ushort:
+	case TCKind._tk_short:
 	    out.write_short( read_short());
 	    break;
 	case TCKind._tk_long:
