@@ -59,7 +59,7 @@ class CharType
         return "char";
     }
 
-    public String idlTypeName()
+    public String getIDLTypeName()
     {
         return ( wide ? "wchar" : "char" );
     }

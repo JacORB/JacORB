@@ -62,6 +62,11 @@ public class StringType
         return "java.lang.String";
     }
 
+    public String getIDLTypeName()
+    {
+        return ( wide ? "wstring" : "string" );
+    }
+
     public TypeSpec typeSpec()
     {
         return this;
