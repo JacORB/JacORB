@@ -31,12 +31,19 @@ public class DNSLookup
     static
     {
         enabled = Environment.isPropertyOn ("jacorb.dns.enable");
-        createDelegate ();
+        if (enabled)
+        {
+            createDelegate();
+        }
     }
 
-    private static void createDelegate ()
+    private static void createDelegate()
     {
-        if (enabled)
+        if (jdk_DNS_Usable())
+        {
+            delegate = new JdkDelegateImpl();
+        }
+        else
         {
             try
             {
@@ -46,7 +53,7 @@ public class DNSLookup
                 // and the DNS support classes are available
 
                 c = Class.forName ("org.xbill.DNS.dns");
-                c = Class.forName ("org.jacorb.orb.dns.DNSLookupDelegateImpl");
+                c = Class.forName ("org.jacorb.orb.dns.XbillDelegateImpl");
             
                 delegate = (DNSLookupDelegate) c.newInstance ();
             }
@@ -54,6 +61,26 @@ public class DNSLookup
             {
                 //ignore
             }
+        }
+    }
+
+    /**
+     * Returns true if this is a post-1.4 DNS implementation.
+     */
+    private static boolean jdk_DNS_Usable()
+    {
+        try
+        {
+            java.lang.reflect.Method m = java.net.InetAddress.class.getMethod
+            (
+                "getCanonicalHostName",
+                new Class[] {}
+            );
+            return m != null;
+        }
+        catch (NoSuchMethodException ex)
+        {
+            return false;
         }
     }
 
