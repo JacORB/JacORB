@@ -201,12 +201,11 @@
 
 
    <target name="clean" depends="init">
-      <delete>
-           <fileset dir="${classdir}" includes="**"/>  
-      </delete>
-      <delete>
-           <fileset dir="${src}/generated" includes="**"/>  
-      </delete>
+      <delete dir="${classdir}/demo"/>  
+      <delete dir="${classdir}/org"/>  
+      <delete dir="${classdir}/java_cup"/>  
+      <delete dir="${classdir}/HTTPClient"/>  
+      <delete dir="${src}/generated"/>  
    </target>
 
    <!-- ==================================================== -->

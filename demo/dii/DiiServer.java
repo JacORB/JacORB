@@ -3,7 +3,7 @@ package demo.dii;
 import org.omg.CORBA.Any;
 import org.omg.CosNaming.*;
 
-public class Server 
+public class DiiServer 
     extends org.omg.PortableServer.DynamicImplementation
 {
     private String[] ids = {"IDL:dii/server:1.0"};
@@ -13,7 +13,8 @@ public class Server
 
     /** from Servant */
 
-    public String[] _all_interfaces(org.omg.PortableServer.POA poa, byte[] objectId)
+    public String[] _all_interfaces(org.omg.PortableServer.POA poa, 
+                                    byte[] objectId)
     {
 	return ids;
     }
@@ -188,10 +189,12 @@ public class Server
 
 	    poa.the_POAManager().activate();
 
-	    org.omg.CORBA.Object o = poa.servant_to_reference(new Server());
+	    org.omg.CORBA.Object o = 
+                poa.servant_to_reference(new DiiServer());
 
 	    // register server with naming context
-	    NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+	    NamingContextExt nc = 
+                NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
 	    nc.bind( nc.to_name("dii.example"), o);
 	    orb.run();
 	} 
