@@ -720,28 +720,27 @@ public class NamingContextImpl
     /**
      *
      */
-
-    public String to_url(String addr, String sn) 
+    
+    public String to_url(String addr, String sn)
         throws InvalidAddress, InvalidName
     {
-
         org.jacorb.orb.util.CorbaLoc corbaLoc;
         try
         {
-            corbaLoc = new org.jacorb.orb.util.CorbaLoc( addr );
-            return corbaLoc.toCorbaName( sn );
+            corbaLoc =
+                new org.jacorb.orb.util.CorbaLoc((org.jacorb.orb.ORB)orb, addr);
+            return corbaLoc.toCorbaName(sn);
         }
-        catch( IllegalArgumentException ia )
+        catch (IllegalArgumentException ia)
         {
             throw new InvalidAddress();
         }
-
     }
 
     /**
      *
      */
-
+    
     public org.omg.CORBA.Object resolve_str(String n) 
         throws NotFound, CannotProceed, InvalidName
     {
@@ -750,12 +749,3 @@ public class NamingContextImpl
 
 
 }
-
-
-
-
-
-
-
-
-
