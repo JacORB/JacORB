@@ -396,7 +396,57 @@ public class ImplementationRepositoryImpl
      * @return an array containing all registered servers.
      */
     public ServerInfo[] list_servers() {
-	return server_table.getServers();
+        ServerInfo [] servers;
+
+        if (check_object_liveness)
+        {
+            Debug.output
+                (Debug.IMR | Debug.INFORMATION, "ImR: Checking servers");
+
+            servers = server_table.getServers();
+
+            for (int k=0; k<servers.length; k++)
+            {
+                if (servers[k].active && servers[k].poas.length > 0)
+                {
+                    byte[] first = servers[k].poas[0].name.getBytes ();
+                    byte[] id = new byte [ first.length + 1];
+                    System.arraycopy (first, 0, id, 0, first.length);
+                    id[first.length] = org.jacorb.poa.POAConstants.OBJECT_KEY_SEP_BYTE;
+
+                    if ( ! checkServerActive
+                         (servers[k].poas[0].host, servers[k].poas[0].port, id))
+                    {
+                        try
+                        {
+                            Debug.output
+                                (Debug.IMR | Debug.INFORMATION, "ImR: Setting server " + servers[k].name + " down");
+
+                            // Server is not active so set it down
+                            server_table.getServer(servers[k].name).setDown();
+
+                            // Save retrieving the list again.
+                            servers[k].active = false;
+                        }
+                        catch (UnknownServerName e)
+                        {
+                             Debug.output
+                             (
+                                 Debug.IMR | Debug.INFORMATION,
+                                 "ImR: Internal error - unknown server " +
+                                 servers[k].name
+                             );
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            servers = server_table.getServers();
+        }
+
+        return servers;
     }
 
     /**
@@ -1101,24 +1151,24 @@ public class ImplementationRepositoryImpl
             {
                 server_socket =
                     new ServerSocket( default_port );
-                
-                transport_manager = 
+
+                transport_manager =
                     new TransportManager( (org.jacorb.orb.ORB) orb );
-                
+
                 address = InetAddress.getLocalHost().toString();
-                
+
                 if( address.indexOf("/") >= 0 )
                     address = address.substring(address.indexOf("/") + 1);
-                
+
                 port = server_socket.getLocalPort();
-                
+
                 Debug.output(Debug.IMR | Debug.INFORMATION,
                              "ImR Listener at " + port + ", " + address );
-                
+
                 String s =
                     Environment.getProperty( "jacorb.imr.connection_timeout",
                                              "2000" ); //default: 2 secs
-                
+
                 try
                 {
                     timeout = Integer.parseInt( s );
@@ -1198,16 +1248,16 @@ public class ImplementationRepositoryImpl
             {
                 Socket socket = server_socket.accept();
                 socket.setSoTimeout( timeout );
-                
-                Transport transport = 
-                    transport_manager.createServerTransport( socket, 
+
+                Transport transport =
+                    transport_manager.createServerTransport( socket,
                                                              false ); //no ssl
-                
+
                 GIOPConnection connection =
                     new ClientGIOPConnection( transport,
                                               request_listener,
                                               reply_listener );
-                
+
                 receptor_pool.connectionCreated( connection );
             }
             catch (Exception _e)
@@ -1338,7 +1388,7 @@ public class ImplementationRepositoryImpl
 
             LocateRequestInputStream in =
                 new LocateRequestInputStream( orb, request );
-            
+
             replyNewLocation( in.req_hdr.target.object_key(),
                               in.req_hdr.request_id,
                               in.getGIOPMinor(),
