@@ -972,6 +972,18 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_any, "$value1 > 50 and $value2 > 50");
     }
 
+    public void testParseSpecialChars() throws Exception {
+        runEvaluation("'noti*server'", "'noti*server'");
+        runEvaluation("'noti{}server'", "'noti{}server'");
+        runEvaluation("'noti\"server'", "'noti\"server'");
+        runEvaluation("'noti|server'", "'noti|server'");
+        runEvaluation("'noti;server'", "'noti;server'");
+        runEvaluation("'noti^server'", "'noti^server'");
+        runEvaluation("'noti~server'", "'noti~server'");
+    }
+
+
+
     ////////////////////////////////////////
 
     public static Test suite() throws Exception
