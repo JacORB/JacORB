@@ -1,3 +1,5 @@
+package org.jacorb.util.tracing;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,9 +20,9 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.util.tracing;
 
-import java.util.*;
+import java.util.Vector;
+
 /**
  * TraceTreeNode.java
  *
@@ -30,7 +32,6 @@ import java.util.*;
  * @author Nicolas Noffke
  * $Id$
  */
-
 public class TraceTreeNode
 {
     protected Vector subtraces = null;
@@ -55,7 +56,7 @@ public class TraceTreeNode
 
 //          client_time = client_time;
 //          server_time = server_time;
-//      }    
+//      }
 } // TraceTreeNode
 
 

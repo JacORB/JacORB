@@ -20,16 +20,12 @@ package org.jacorb.util;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.*;
-import java.io.*;
-
 /**
- * Holds the release date and version of JacORB. An attempt to bring more maintainability to
- * the versioning.
+ * Holds the release date and version of JacORB. An attempt to bring more
+ * maintainability to the versioning.
  * @author Gerald Brose
  * @version $Id$
  */
-
 public final class Version
 {
     public static final String version = "1.4.50";

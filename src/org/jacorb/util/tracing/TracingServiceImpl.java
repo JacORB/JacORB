@@ -1,3 +1,5 @@
+package org.jacorb.util.tracing;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,21 +20,17 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package org.jacorb.util.tracing;
+import java.util.Hashtable;
+import org.jacorb.util.tracing.TracingServicePackage.NoSuchRequestId;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 
 /**
  * @author Gerald Brose
  * @version $Id$
  */
-
-import java.util.*;
-import org.jacorb.util.tracing.TracingServicePackage.*;
-
-import org.omg.CORBA.ORB;
-import org.omg.CosNaming.*;
-
 public class TracingServiceImpl
-    extends TracingServicePOA 
+    extends TracingServicePOA
 {
     private int pointIds = 0;
     private Hashtable traces = new Hashtable();
@@ -42,19 +40,19 @@ public class TracingServiceImpl
         return pointIds++;
     }
 
-    public TraceData getTrace( Request source ) 
+    public TraceData getTrace( Request source )
         throws NoSuchRequestId
     {
         if( source.originator >= pointIds )
         {
             System.out.println(">>>>>>>>>EXCEPTION!!! - getTrace()");
-            
-            throw new NoSuchRequestId();        
+
+            throw new NoSuchRequestId();
         }
 
-        System.out.println("getTrace for tracer: " + source.originator + 
+        System.out.println("getTrace for tracer: " + source.originator +
                            ", rid: " +  source.rid);
-        
+
 
         Long key = new Long( source.rid );
 
@@ -64,7 +62,7 @@ public class TracingServiceImpl
         {
             return new TraceData( new TraceData[0], 0, "", 0, 0 );
         }
-            
+
 
         TraceData result = new TraceData( new TraceData[t.subtraces.size()],
                                           t.tracer_id,
@@ -83,20 +81,20 @@ public class TracingServiceImpl
 
     public void logTraceAtPoint( Request origin,
                                  String operation,
-                                 long client_time, 
+                                 long client_time,
                                  long server_time)
         throws NoSuchRequestId
     {
         if( origin.originator >= pointIds )
         {
             System.out.println(">>>>>>>>>EXCEPTION!!! - logTraceAtPoint()");
-            
+
 
             throw new NoSuchRequestId();
         }
 
-        System.out.println("logTraceAtPoint for tracer: " + 
-                           origin.originator + 
+        System.out.println("logTraceAtPoint for tracer: " +
+                           origin.originator +
                            ", rid: " + origin.rid);
 
 
@@ -109,7 +107,7 @@ public class TracingServiceImpl
             t = new TraceTreeNode( origin.originator );
             traces.put( key, t );
         }
-        
+
         t.operation = operation;
         t.client_time = client_time;
         t.server_time = server_time;
@@ -120,17 +118,17 @@ public class TracingServiceImpl
         throws NoSuchRequestId
     {
 
-        System.out.println("registerSubTrace for tracer: " + 
-                           original.originator + 
+        System.out.println("registerSubTrace for tracer: " +
+                           original.originator +
                            ", rid: " + original.rid);
 
-        if( original.originator >= pointIds || 
+        if( original.originator >= pointIds ||
             nested.originator >= pointIds )
         {
             System.out.println(">>>>>>>>>EXCEPTION!!! - registerSubTrace()");
             throw new NoSuchRequestId();
         }
-        
+
         Long key = new Long( original.rid );
 
         TraceTreeNode t = (TraceTreeNode) traces.get( key );
@@ -151,20 +149,20 @@ public class TracingServiceImpl
 	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, null);
 	try
 	{
-       	    org.omg.PortableServer.POA poa = 
+       	    org.omg.PortableServer.POA poa =
 		org.omg.PortableServer.POAHelper.narrow(
                                                         orb.resolve_initial_references("RootPOA"));
 
 	    poa.the_POAManager().activate();
-	    
-	    org.omg.CORBA.Object o = 
+
+	    org.omg.CORBA.Object o =
                 poa.servant_to_reference(new TracingServiceImpl());
 
-            NamingContextExt nc = 
+            NamingContextExt nc =
                 NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
             nc.bind( nc.to_name("tracing.service"), o);
 	    poa.the_POAManager().activate();
-	} 
+	}
 	catch ( Exception e )
 	{
 	    e.printStackTrace();

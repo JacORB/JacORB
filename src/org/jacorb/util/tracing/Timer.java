@@ -1,3 +1,5 @@
+package org.jacorb.util.tracing;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,10 +20,9 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.util.tracing;
 
-import java.util.*;
-import java.io.*;
+import java.util.Calendar;
+import java.util.Hashtable;
 
 public class Timer
 {
@@ -39,7 +40,7 @@ public class Timer
         try
         {
             Integer id = new Integer( rid );
-            
+
             Hashtable table = (Hashtable)tableTable.get( target );
             if( table == null )
             {
@@ -49,8 +50,8 @@ public class Timer
             table.put( id, new Long( System.currentTimeMillis()));
         }
         catch( Exception e)
-	{ 
-            e.printStackTrace(); 
+	{
+            e.printStackTrace();
         }
     }
 
@@ -58,7 +59,7 @@ public class Timer
      * @returns difference between start and stop time for
      * request rif `
      */
- 
+
     public long stop(int rid, Object target)
     {
         long t = System.currentTimeMillis();
@@ -67,11 +68,11 @@ public class Timer
         if( table == null )
             System.err.println("errorin timer: no request table for object");
 
-        Long startTime  = 
+        Long startTime  =
             (Long)table.remove( new Integer(rid ));
 
         if( startTime != null )
-        {		  
+        {
             return t - startTime.longValue();
         }
         else

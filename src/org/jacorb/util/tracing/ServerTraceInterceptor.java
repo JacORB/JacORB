@@ -1,3 +1,5 @@
+package org.jacorb.util.tracing;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,19 +20,14 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.util.tracing;
 
-import java.io.*;
-
+import java.io.PrintStream;
 import org.omg.IOP.Codec;
-import org.omg.CORBA.*;
-import org.omg.CORBA.portable.*;
-import org.omg.PortableInterceptor.*;
+import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
-import org.omg.CORBA.LocalObject;
-
-public class ServerTraceInterceptor 
-    extends org.omg.CORBA.LocalObject 
+public class ServerTraceInterceptor
+    extends org.omg.CORBA.LocalObject
     implements ServerRequestInterceptor
 {
 
@@ -44,15 +41,15 @@ public class ServerTraceInterceptor
         this(slot_id, codec, System.out);
     }
 
-    public ServerTraceInterceptor( int slot_id, Codec codec, 
+    public ServerTraceInterceptor( int slot_id, Codec codec,
                                    PrintStream logStream )
     {
         this.slot_id = slot_id;
         this.codec = codec;
-        this.logStream = logStream;        
+        this.logStream = logStream;
     }
 
-    public String name() 
+    public String name()
     {
         return "ServerTraceInterceptor";
     }
@@ -61,17 +58,17 @@ public class ServerTraceInterceptor
     {
     }
 
-    public void receive_request_service_contexts( ServerRequestInfo ri ) 
+    public void receive_request_service_contexts( ServerRequestInfo ri )
         throws org.omg.PortableInterceptor.ForwardRequest
     {
         System.out.println("SI in operation <" + ri.operation() + ">");
         try
         {
             System.out.println("Request for op " + ri.operation());
-            
-            org.omg.IOP.ServiceContext ctx = 
+
+            org.omg.IOP.ServiceContext ctx =
                 ri.get_request_service_context( TracingContextID.value );
-            
+
             ri.set_slot(slot_id, codec.decode(ctx.context_data));
 
             ri.add_reply_service_context( ctx, true );
@@ -81,7 +78,7 @@ public class ServerTraceInterceptor
             //ignore, SC not present
 
             System.out.println("ServerRequestInterceptor: " + bp);
- 
+
         }
         catch( Exception e )
         {
@@ -90,7 +87,7 @@ public class ServerTraceInterceptor
         }
     }
 
-    public void receive_request( ServerRequestInfo ri ) 
+    public void receive_request( ServerRequestInfo ri )
         throws org.omg.PortableInterceptor.ForwardRequest
     {
     }
@@ -100,13 +97,13 @@ public class ServerTraceInterceptor
 
     }
 
-    public void send_exception(org.omg.PortableInterceptor.ServerRequestInfo ri) 
+    public void send_exception(org.omg.PortableInterceptor.ServerRequestInfo ri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
 
     }
 
-    public void send_other(org.omg.PortableInterceptor.ServerRequestInfo ri) 
+    public void send_other(org.omg.PortableInterceptor.ServerRequestInfo ri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
 
@@ -114,9 +111,3 @@ public class ServerTraceInterceptor
 
 
 }
-
-
-
-
-
-
