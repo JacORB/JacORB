@@ -1854,4 +1854,9 @@ public class POA
     {
         requestController.removeLocalRequest ();
     }
+
+    public int getNumberOfObjects ()
+    {
+        return aom.size ();
+    }
 }
