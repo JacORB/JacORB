@@ -149,10 +149,11 @@ public class Environment
     /**
      * Starting point for initialization of the ORB's
      * environment. Locates configuration files and reads properties
-     * from these, then initializes logging.
+     * from these, then initializes logging.  (This needs to be public
+     * because we also call it from the regression suite.)
      */
 
-    private static void init()
+    public static void init()
     {
         try
         {
