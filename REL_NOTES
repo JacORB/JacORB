@@ -126,6 +126,7 @@ gerald.brose@acm.org
                           throw NO_IMPLEMENT.
                         - The create_operation_list operation is now 
                           implemented.
+                        - Added helper classes for CORBA system exceptions.
                 DynAny:
                         - Operations called on a DynAny that has been 
                           destroyed now throw an OBJECT_NOT_EXIST exception.
