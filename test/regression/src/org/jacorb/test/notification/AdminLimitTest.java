@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 
 /**
  * @author Alphonse Bendt
@@ -50,11 +51,10 @@ public class AdminLimitTest extends NotificationTestCase
 {
     ConsumerAdminImpl consumerAdmin_;
     ChannelContext channelContext_;
-    int counter_;
 
     public void setUp() throws Exception
     {
-        QoSPropertySet qosSettings_ =
+        QoSPropertySet _qosSettings =
             new QoSPropertySet(getConfiguration(), QoSPropertySet.ADMIN_QOS);
 
         channelContext_ = getChannelContext();
@@ -66,7 +66,7 @@ public class AdminLimitTest extends NotificationTestCase
 
         channelContext_.resolveDependencies(consumerAdmin_);
 
-        consumerAdmin_.set_qos(qosSettings_.get_qos());
+        consumerAdmin_.set_qos(_qosSettings.get_qos());
     }
 
 
@@ -96,7 +96,7 @@ public class AdminLimitTest extends NotificationTestCase
         ProxySupplier _proxySupplier =
             consumerAdmin_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId);
 
-        assertTrue(_events.size() == 1);
+        assertEquals(1, _events.size());
 
         assertEquals(consumerAdmin_, ((ApplicationEvent)_events.get(0)).getSource());
     }
@@ -133,9 +133,11 @@ public class AdminLimitTest extends NotificationTestCase
         {}
     }
 
+
     public void testEvents() throws Exception
     {
         IntHolder _proxyId = new IntHolder();
+        final SynchronizedInt _counter = new SynchronizedInt(0);
 
         ProxyEventListener _listener =
             new ProxyEventListener()
@@ -147,7 +149,7 @@ public class AdminLimitTest extends NotificationTestCase
                 public void actionProxyCreationRequest(ProxyEvent event)
                     throws AdminLimitExceeded
                 {
-                    counter_++;
+                    _counter.increment();
                 }
             };
 
@@ -170,7 +172,7 @@ public class AdminLimitTest extends NotificationTestCase
         ProxyPullSupplier _p =
             consumerAdmin_.obtain_pull_supplier();
 
-        assertTrue(counter_ == 3);
+        assertEquals(3, _counter.get());
     }
 
 
