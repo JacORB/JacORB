@@ -267,8 +267,7 @@ public class CallbackTest extends CallbackTestCase
             }
         };
         ( ( _CallbackServerStub ) server )
-            .sendc_operation( ref( handler ), 
-                              new CharHolder( 'a' ), false, 100 );
+            .sendc_operation( ref( handler ), 'a', false, 100 );
         handler.wait_for_reply( 200 );
     }
     
@@ -332,7 +331,7 @@ public class CallbackTest extends CallbackTestCase
             }
         };
         ( ( _CallbackServerStub ) server )
-            .sendc_ex_2( ref( handler ), new IntHolder( 17 ), true, 100 );
+            .sendc_ex_2( ref( handler ), 17, true, 100 );
         handler.wait_for_reply( 500 );
     }
     
