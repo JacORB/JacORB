@@ -114,8 +114,11 @@ class ValueBoxDecl
 
 	try
 	{
+	    ConstrTypeSpec ctspec = new ConstrTypeSpec( new_num() );
+	    ctspec.c_type_spec = this;
+
 	    NameTable.define( full_name(), "type" );
-	    //TypeMap.typedef( full_name(), null );
+	    TypeMap.typedef( full_name(), ctspec );
 	} 
 	catch ( NameAlreadyDefined nad )
 	{
@@ -165,7 +168,8 @@ class ValueBoxDecl
 	StringBuffer sb = new StringBuffer();
 	sb.append("org.omg.CORBA.ORB.init().create_value_box_tc(" + 
                   typeName() + "Helper.id(),\"" + className()+ "\"," + 
-                  typeSpec.typeName()  + "Helper.type())" );
+                  typeSpec.typeSpec().getTypeCodeExpression()+ ")" );
+
 	return  sb.toString(); 
     }
 
@@ -231,7 +235,7 @@ class ValueBoxDecl
 	ps.println("\tpublic static " +type+ " read(org.omg.CORBA.portable.InputStream in)");
 	ps.println("\t{");
 
-	ps.println("\t\t" + type+ " result = new " + type + "();");
+	ps.println("\t\t" + type+ " result = new " + type + "(" + typeSpec.typeSpec().printReadExpression("in") + ");");
 	
 	ps.println("\t\treturn result;");
 	ps.println("\t}");

@@ -1,0 +1,22 @@
+module values
+{
+    // boxed value types
+    
+    // a) base types
+    valuetype boxedInt long;
+    valuetype boxedLong long long;
+    valuetype boxedShort short;
+    valuetype boxedByte octet;
+    valuetype boxedChar char;
+    valuetype boxedWChar wchar;
+    valuetype boxedFloat float;
+    valuetype boxedBoolean boolean;
+
+    // b) complex types
+
+    interface foo {
+        void bar_in( in boxedLong number );
+        void bar_inout( inout boxedLong number );
+    };
+
+};
