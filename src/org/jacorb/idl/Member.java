@@ -105,7 +105,8 @@ class Member
 	    token = type_spec.typeSpec().get_token();
             String name = type_spec.typeSpec().toString();
 
-            enclosing_symbol.addImportedName( name );
+            // if(  enclosing_symbol != null )
+                enclosing_symbol.addImportedName( name );
 
 //              if( name.indexOf( '.' ) < 0 )
 //              {

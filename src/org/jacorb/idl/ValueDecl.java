@@ -133,6 +133,7 @@ class ValueDecl
 	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
 	}
 	enclosing_symbol = s;
+        stateMembers.setEnclosingSymbol( s );
     }
 
     public void set_included(boolean i)
