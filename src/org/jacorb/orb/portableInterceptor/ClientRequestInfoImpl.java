@@ -24,6 +24,7 @@ import org.omg.IOP.*;
 import org.omg.CORBA.*;
 import org.omg.PortableInterceptor.*;
 import org.omg.Dynamic.Parameter;
+import org.omg.ETF.*;
 
 import org.apache.avalon.framework.logger.*;
 
@@ -90,9 +91,12 @@ public class ClientRequestInfoImpl
          else
              this.target = self;
 
-         IIOPProfile profile = (IIOPProfile)pior.getEffectiveProfile();
-         this.effective_profile    = profile.asTaggedProfile();
-         this.effective_components = profile.getComponents().asArray();
+         Profile profile = pior.getEffectiveProfile();
+         if (profile instanceof IIOPProfile)
+         {
+             this.effective_profile    = ((IIOPProfile)profile).asTaggedProfile();
+             this.effective_components = ((IIOPProfile)profile).getComponents().asArray();
+         }
 
          if ( this.effective_components == null )
          {
