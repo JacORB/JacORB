@@ -42,58 +42,56 @@ public class ApplicationExceptionHelper
      */
 
     public static void insert(org.omg.CORBA.Any any, ApplicationException  s)
-        throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException,
-               InvocationTargetException
+        throws ClassNotFoundException, 
+        NoSuchMethodException, 
+        IllegalAccessException,
+        InvocationTargetException
     {
 
         String name = s.getId();
         org.jacorb.util.Debug.output(2, "Trying to build Helper for >>" + name + 
                                      "<< (" + s.getClass().getName() + ")");
 
-        //((name.startsWith("IDL:omg.org"))? "org.omg" : "") + 
-        name = name.substring( name.indexOf(':') + 1, name.lastIndexOf(':'));
+        //for some reason, StringBuffers don't have a replace method
         name = name.replace ('/', '.');
 
-        java.util.StringTokenizer strtok = 
-            new java.util.StringTokenizer( name, "." );
 
-        int count = strtok.countTokens();
-        String[] scopes = new String[ count ];
+        StringBuffer name_strbuf = new StringBuffer( name );
 
-        for( int i = 0; strtok.hasMoreTokens(); i++ )
-        {
-            scopes[i] = strtok.nextToken();
-        }
+        //strip trailing version ":1.0"
+        name_strbuf.delete( name.lastIndexOf(':'), name.length() );
+
+        //strip leading "IDL:"
+        name_strbuf.delete( 0, name.indexOf(':') + 1);
 
         Class _helper = null;
-        int idx = count-2;
 
-        while ( _helper == null && idx >= 0 )
+        name = name_strbuf.toString();
+
+        //first, try with unmodified name
+        try
         {
-            StringBuffer nameBuf = new StringBuffer();
-            for( int j = 0; j < scopes.length-1; j++ )
-                nameBuf.append( scopes[j] + "." );
-
-            nameBuf.append( scopes[ scopes.length-1 ] );
-            nameBuf.append( "Helper" );
-
-            try
-            {
-                _helper = Class.forName( nameBuf.toString());
-                name = nameBuf.toString();
-                name = name.substring( 0, name.indexOf("Helper"));
-                break;
-            }
-            catch( ClassNotFoundException cnf )
-            {
-                scopes[ idx-- ] +=  "Package";               
-            }
+            _helper = Class.forName( name + "Helper" );
+        }
+        catch( ClassNotFoundException cnf )
+        {
+        }
+        
+        //not found, try with "Package" inserted
+        if( _helper == null )
+        {
+            name_strbuf.insert( name.lastIndexOf( '.' ),
+                                "Package" );
             
+            name = name_strbuf.toString();
+            
+            //don't try-catch here, so the exception will make this
+            //method return
+            _helper = Class.forName( name + "Helper" );
         }
 
-        if( _helper == null )
-            throw new ClassNotFoundException();
-
+        //_helper must not be null from here on
+        
         //get read method from helper and invoke it,
         //i.e. read the object from the stream
         Method _read = 
@@ -114,9 +112,6 @@ public class ApplicationExceptionHelper
         _insert.invoke( null, new java.lang.Object[]{any, _user_ex} );
     }
 } // ApplicationExceptionHelper
-
-
-
 
 
 
