@@ -302,7 +302,8 @@ public abstract class AbstractMessage
 
 
         public boolean match(MappingFilter m,
-                             AnyHolder r) throws UnsupportedFilterableData
+                             AnyHolder r)
+            throws UnsupportedFilterableData
         {
 
             return AbstractMessage.this.match(m, r);
@@ -333,7 +334,8 @@ public abstract class AbstractMessage
             removeReference();
             //                 disposed_ = true;
             //             } else {
-            //                 throw new RuntimeException("dispose may only be called once on this handle");
+            //                 throw new RuntimeException("dispose may
+            //                 only be called once on this handle");
             //             }
         }
 
@@ -431,9 +433,14 @@ public abstract class AbstractMessage
 
     /**
      * get the Type of this NotificationEvent. The value is one of
-     * {@link org.jacorb.notification.interfaces.Message#TYPE_ANY TYPE_ANY},
-     * {@link org.jacorb.notification.interfaces.Message#TYPE_STRUCTURED TYPE_STRUCTURED},
-     *  or {@link org.jacorb.notification.interfaces.Message#TYPE_TYPED TYPE_TYPED}.
+     * {@link org.jacorb.notification.interfaces.Message#TYPE_ANY
+     * TYPE_ANY},
+     * {@link
+     * org.jacorb.notification.interfaces.Message#TYPE_STRUCTURED
+     * TYPE_STRUCTURED},
+     *  or {@link
+     *  org.jacorb.notification.interfaces.Message#TYPE_TYPED
+     *  TYPE_TYPED}.
      *
      * @return the Type of this NotificationEvent.
      */
@@ -451,8 +458,8 @@ public abstract class AbstractMessage
     }
 
     /**
-     * Add a reference on this NotificationEvent. After Usage removeReference
-     * must be called.
+     * Add a reference on this NotificationEvent. After Usage
+     * removeReference must be called.
      */
     public synchronized void addReference()
     {
@@ -607,7 +614,8 @@ public abstract class AbstractMessage
     public abstract int getPriority();
 
 
-    public abstract boolean match(Filter filter) throws UnsupportedFilterableData;
+    public abstract boolean match(Filter filter)
+        throws UnsupportedFilterableData;
 
 
     public boolean match(FilterStage filterStage)
