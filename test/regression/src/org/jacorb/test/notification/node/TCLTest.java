@@ -4,7 +4,6 @@ import antlr.RecognitionException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.log.Priority;
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.NotificationEventFactory;
@@ -39,7 +38,6 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
-import org.jacorb.notification.util.LogConfiguration;
 
 /**
  * JUnit TestCase. Test Parsing and Evaluation of various ETCL

@@ -7,8 +7,6 @@ import java.util.Random;
 import java.util.Map;
 import java.util.Hashtable;
 import org.apache.log.Hierarchy;
-import org.apache.log.Priority;
-import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.notification.util.WildcardMap;
 
 /**
