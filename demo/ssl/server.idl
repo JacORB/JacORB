@@ -1,0 +1,12 @@
+// The IDL for the ssl demo.
+// (plain and simple ;-)
+//
+// $Id$
+
+module demo{
+  module ssl{
+    interface SSLDemo{
+      void printCert();
+    };
+  };
+};

@@ -1,0 +1,30 @@
+# This interceptor must be set if programs need access to
+# certificates using the CORBA Security API, SSL works also
+# without this interceptor
+
+org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.ssl.SecurityServiceInitializer
+
+# IIOP/SSL parameters (numbers are decimal values):
+# EstablishTrustInClient = 40
+# EstablishTrustInTarget = 20
+# mutual authentication = 60
+
+jacorb.security.support_ssl=on
+jacorb.security.ssl.supported_options=60
+jacorb.security.enforce_ssl=off
+jacorb.security.ssl.required_options=60
+
+# files with public key certs of trusted CAs
+#
+# WARNING: If no CA certs are present, the IAIK chain verifier will
+# accept ALL otherwise valid chains!
+#
+jacorb.security.trustees=CA_cert
+
+# the name of the default key alias to look up in the keystore
+jacorb.security.default_user=Ringo
+jacorb.security.default_password=foo
+
+# the name and location of the keystore relative to the home directory
+jacorb.security.keystore=ringo_ks
+jacorb.security.keystore_password=foo
