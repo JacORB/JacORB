@@ -40,6 +40,7 @@ public final class Debug
 
     private static int _verbosity;
     private static int _category;
+    private static boolean enabled;
     private static PrintWriter _log_file_out = Environment.logFileOut();
     // the length of a String is given by the number of 16 bit unicode
     // characters it contains. The maxLogSize is given in kBytes.
@@ -105,6 +106,7 @@ public final class Debug
 
     public static final void initialize()
     {
+        enabled = (Environment.verbosityLevel() > 2 ? true : false);
         _verbosity = Environment.verbosityLevel() & 0xff;
         _category = Environment.verbosityLevel() & 0xffffff00;
         if( _category == 0 )
@@ -128,6 +130,71 @@ public final class Debug
             (_msg_level <= _verbosity);
     }
 
+
+    /**
+     * <code>isDebugEnabled</code> allows fast efficient checking of whether
+     * debug is enabled. This ensures any inefficient String concatenations
+     * can be done inside an if statement. @see output(int,String) output(int,String)
+     *
+     * @return a <code>boolean</code> value
+     */
+    public static boolean isDebugEnabled()
+    {
+        return enabled;
+    }
+
+
+    /**
+     * <code>output</code> the following message. Useful in conjunction with canOutput or
+     * isDebugEnabled.
+     *
+     * @param message a <code>String</code> value
+     */
+    public static void output (String msg)
+    {
+        if (timestamp)
+        {
+            msg = "[ " + Environment.date () + ':' +
+            Environment.time() + "> " + msg + " ]";
+        }
+        else
+        {
+            msg = "[ " + msg + " ]";
+        }
+
+        if (_log_file_out == null)
+        {
+            System.out.println (msg);
+        }
+        else
+        {
+            if (maxLogSize > 0)
+            {
+                if (exceedsMaxLogSize (msg.length ()))
+                {
+                    _log_file_out = Environment.logFileOut ();
+                }
+            }
+
+            _log_file_out.println (msg);
+            _log_file_out.flush ();
+        }
+    }
+
+
+    /**
+     * <code>output</code> a message.
+     *
+     * @param msg_level an <code>int</code> value
+     * @param msg a <code>String</code> value
+     * @deprecated As this method can be inefficient for debug statements
+     *             use {@link #isDebugEnabled() isDebugEnabled} and
+     *             {@link #output(String) output(String)} methods in the form:
+     *             if (Debug.isDebugEnabled ())
+     *             {
+     *                Debug.output ("<text>" + value);
+     *             }
+     */
     public static final void output (int msg_level, String msg)
     {
         if (canOutput (msg_level))
@@ -162,21 +229,44 @@ public final class Debug
         }
     }
 
+
     /**
      * Output a buffer in hex format. Note that output synchronizes
      * the calling threads in order to avoid garbled debug output.
+     * @deprecated As this method can be inefficient for debug statements
+     *             use {@link #isDebugEnabled() isDebugEnabled} and
+     *             {@link #output(String,byte[]) output(String,byte[])} methods
+     *             in the form:
+     *             if (Debug.isDebugEnabled ())
+     *             {
+     *                Debug.output ("<text>", value);
+     *             }
      */
-
     public static synchronized void output(int msg_level,String name,byte bs[])
     {
         output(msg_level,name,bs, 0, bs.length);
     }
 
+
+   /**
+     * <code>output</code> a buffer in hex format. Useful in conjunction with
+     * canOutput or isDebugEnabled. Note that output synchronizes the calling
+     * threads in order to avoid garbled debug output
+     *
+     * @param message a <code>String</code> value
+     * @param bs a <code>byte[]</code> value
+     */
+
+    public static synchronized void output (String name,byte bs[])
+    {
+        output (3, name, bs, 0, bs.length);
+    }
+
+
     /**
      * Output a buffer in hex format. Note that output synchronizes
      * the calling threads in order to avoid garbled debug output.
      */
-
     public static synchronized void output(int msg_level,
                                            String name,
                                            byte bs[],
@@ -305,7 +395,7 @@ public final class Debug
             }
             catch( Exception e )
             {
-                e.printStackTrace();
+                e.printStackTrace(_log_file_out);
             }
         }
     }

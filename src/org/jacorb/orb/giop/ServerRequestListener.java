@@ -1,3 +1,4 @@
+package org.jacorb.orb.connection;
 /*
  *        JacORB - a free Java ORB
  *
@@ -17,27 +18,23 @@
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-package org.jacorb.orb.connection;
-
-import org.jacorb.orb.dsi.ServerRequest;
-import org.jacorb.orb.*;
-
-import org.jacorb.poa.*;
-import org.jacorb.poa.util.POAUtil;
-
-import org.jacorb.util.*;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
-
-import org.omg.GIOP.ReplyStatusType_1_2;
-import org.omg.GIOP.LocateStatusType_1_2;
-
+import java.util.*;
+import org.jacorb.orb.ORB;
+import org.jacorb.orb.SystemExceptionHelper;
+import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.poa.POA;
+import org.jacorb.poa.POAConstants;
+import org.jacorb.poa.util.POAUtil;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.omg.CONV_FRAME.CodeSetContext;
+import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.NO_PERMISSION;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.CORBA.CompletionStatus;
-
-import org.omg.CONV_FRAME.CodeSetContext;
+import org.omg.GIOP.LocateStatusType_1_2;
+import org.omg.GIOP.ReplyStatusType_1_2;
 
 
 /**
@@ -50,49 +47,49 @@ import org.omg.CONV_FRAME.CodeSetContext;
  * @version $Id$
  */
 
-public class ServerRequestListener 
-    implements RequestListener 
+public class ServerRequestListener
+    implements RequestListener
 {
     private ORB orb = null;
     private POA rootPOA = null;
     private boolean require_ssl = false;
 
-    public ServerRequestListener( org.omg.CORBA.ORB orb, 
+    public ServerRequestListener( org.omg.CORBA.ORB orb,
                                   org.omg.PortableServer.POA rootPOA )
     {
         this.orb = (ORB) orb;
         this.rootPOA = (POA) rootPOA;
-        
+
         if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
             int required =
                 Environment.getIntProperty( "jacorb.security.ssl.server.required_options", 16 );
-         
+
             //if we require EstablishTrustInTarget or
             //EstablishTrustInClient, SSL must be used.
-            require_ssl = 
+            require_ssl =
                 Environment.isPropertyOn( "jacorb.security.support_ssl" ) &&
                 (required & 0x60) != 0;
         }
     }
-    
+
     public void requestReceived( byte[] request,
                                  GIOPConnection connection )
     {
-        RequestInputStream in = 
+        RequestInputStream in =
             new RequestInputStream( orb, request );
 
-        if( require_ssl && ! connection.isSSL() ) 
+        if( require_ssl && ! connection.isSSL() )
         {
-            ReplyOutputStream out = 
+            ReplyOutputStream out =
                 new ReplyOutputStream( in.req_hdr.request_id,
                                        ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                        in.getGIOPMinor(),
 				       false); //no locate reply
 
             Debug.output( 2, "About to reject request because connection is not SSL.");
-        
-            SystemExceptionHelper.write( out, 
+
+            SystemExceptionHelper.write( out,
                   new NO_PERMISSION( 3, CompletionStatus.COMPLETED_NO ));
 
             try
@@ -102,10 +99,10 @@ public class ServerRequestListener
             catch( IOException e )
             {
                 Debug.output( 1, e );
-            }        
-            
+            }
+
             return;
-        } 
+        }
 
         //only block timeouts, if a reply needs to be sent
         if( Messages.responseExpected( in.req_hdr.response_flags ))
@@ -122,29 +119,29 @@ public class ServerRequestListener
             }
             else
             {
-                CodeSetContext ctx = 
+                CodeSetContext ctx =
                     CodeSet.getCodeSetContext( in.req_hdr.service_context );
-                
+
                 if( ctx != null )
                 {
                     connection.setCodeSets( ctx.char_data, ctx.wchar_data );
-                    
+
                     Debug.output( 3, "Received CodeSetContext. Using " +
-                                  CodeSet.csName( ctx.char_data ) + 
+                                  CodeSet.csName( ctx.char_data ) +
                                   " as TCS and " +
-                                  CodeSet.csName( ctx.wchar_data ) + 
+                                  CodeSet.csName( ctx.wchar_data ) +
                                   " as TCSW" );
                 }
             }
         }
-        
+
         in.setCodeSet( connection.getTCS(), connection.getTCSW() );
 
         ServerRequest server_request = null;
 
 	try
 	{
-	    server_request = 
+	    server_request =
 		new ServerRequest( orb, in, connection );
 	}
 	catch( org.jacorb.poa.except.POAInternalError pie )
@@ -165,11 +162,11 @@ public class ServerRequestListener
 		catch( IOException e )
 		{
 		    Debug.output( 1, e );
-		}        
+		}
 	    }
 	    else
 	    {
-		ReplyOutputStream out = 
+		ReplyOutputStream out =
 		    new ReplyOutputStream( in.req_hdr.request_id,
 					   ReplyStatusType_1_2.SYSTEM_EXCEPTION,
 					   in.getGIOPMinor(),
@@ -184,7 +181,7 @@ public class ServerRequestListener
 		catch( IOException e )
 		{
 		    Debug.output( 1, e );
-		}        
+		}
 	    }
 
 	    return;
@@ -200,7 +197,7 @@ public class ServerRequestListener
 	requestReceived( request, connection );
     }
 
-    
+
     public void cancelRequestReceived( byte[] request,
                                        GIOPConnection connection )
     {
@@ -210,32 +207,21 @@ public class ServerRequestListener
     private void deliverRequest( ServerRequest request )
     {
         POA tmp_poa = rootPOA;
-        
+        String res;
+        Vector scopes;
+
         try
         {
-            String poa_name = POAUtil.extractPOAName( request.objectKey() );
+            // Get cached scopes from ServerRequest
+            scopes = request.getScopes ();
 
-            /*
-             * strip scoped poa name (first part of the object key
-             * before "::", will be empty for the root poa 
-             */
-            
-            StringTokenizer strtok = 
-                new StringTokenizer( poa_name, 
-                                     POAConstants.OBJECT_KEY_SEPARATOR );
-
-            String scopes[]  = new String[ strtok.countTokens() ];
-
-            for( int i = 0; strtok.hasMoreTokens(); i++ )
+            for( int i = 0; i < scopes.size(); i++)
             {
-                scopes[i] = strtok.nextToken();
-            }
+                res = ((String)scopes.get (i));
 
-            for( int i = 0; i < scopes.length; i++)
-            {
-                if( scopes[i].equals(""))
+                if( res.equals(""))
                     break;
-                
+
                 /* the following is a call to a method in the private
                    interface between the ORB and the POA. It does the
                    necessary synchronization between incoming,
@@ -248,12 +234,12 @@ public class ServerRequestListener
                    incoming requests from the client process is
                    blocked. Concurrent calls from other destinations
                    are not serialized unless they involve activating
-                   the same adapter.  
+                   the same adapter.
                 */
-                
+
                 try
                 {
-                    tmp_poa = tmp_poa._getChildPOA( scopes[i] );
+                    tmp_poa = tmp_poa._getChildPOA( res );
                 }
                 catch ( org.jacorb.poa.except.ParentIsHolding p )
                 {
@@ -265,19 +251,18 @@ public class ServerRequestListener
                        this request to its child POAa, we need to
                        supply the remaining part of the child's
                        POA name */
-                    
-                    String [] rest_of_name = new String[scopes.length - i];
+
+                    String [] rest_of_name = new String[scopes.size () - i];
                     for( int j = 0; j < i; j++ )
                     {
-                        rest_of_name[j] = scopes[j+i];
+                        rest_of_name[j] = (String)scopes.get( j+i );
                     }
 
                     request.setRemainingPOAName(rest_of_name);
 
                     break;
-                }           
+                }
             }
-              
 
             if( tmp_poa == null )
             {
@@ -288,7 +273,6 @@ public class ServerRequestListener
                 /* hand over to the POA */
                 tmp_poa._invoke( request );
             }
-            
         }
         catch( org.omg.PortableServer.POAPackage.WrongAdapter wa )
         {
@@ -306,19 +290,6 @@ public class ServerRequestListener
             request.setSystemException( new org.omg.CORBA.UNKNOWN( th.toString()) );
             request.reply();
             th.printStackTrace(); // TODO
-        }                       
+        }
     }
 }// ServerRequestListener
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -20,34 +20,44 @@ package org.jacorb.orb.dsi;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.util.*;
-import org.jacorb.orb.*;
+import java.util.Vector;
+import org.jacorb.orb.CDRInputStream;
+import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.connection.*;
-import org.jacorb.orb.portableInterceptor.*;
-
-import org.omg.GIOP.*;
+import org.jacorb.orb.portableInterceptor.ServerInterceptorIterator;
+import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
+import org.jacorb.poa.util.POAUtil;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
+import org.jacorb.util.Time;
+import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.IOP.INVOCATION_POLICIES;
 import org.omg.IOP.ServiceContext;
 import org.omg.Messaging.*;
-import org.omg.TimeBase.*;
+import org.omg.TimeBase.UtcT;
 
 /**
  * @author Gerald Brose, FU Berlin
  * @version $Id$
  */
 
-public class ServerRequest 
-    extends org.omg.CORBA.ServerRequest 
+public class ServerRequest
+    extends org.omg.CORBA.ServerRequest
     implements org.omg.CORBA.portable.ResponseHandler
 {
     private RequestInputStream in;
-    private ReplyOutputStream out;      
+    private ReplyOutputStream out;
     private GIOPConnection connection;
-    
-    private UtcT requestStartTime = null, 
-                 requestEndTime   = null, 
+
+    private UtcT requestStartTime = null,
+                 requestEndTime   = null,
                  replyEndTime     = null;
-    
+
+    /**
+     * <code>scopes</code> caches the scoped poa names.
+     */
+    private Vector scopes;
+    private static boolean cachePoaNames;
     private int status = ReplyStatusType_1_2._NO_EXCEPTION;
     private byte[] oid;
     private byte[] object_key;
@@ -55,7 +65,7 @@ public class ServerRequest
     private String[] rest_of_name = null;
 
     /* is this request stream or DSI-based ? */
-    private boolean stream_based; 
+    private boolean stream_based;
 
     private org.omg.CORBA.SystemException sys_ex;
     private org.omg.PortableServer.ForwardRequest location_forward;
@@ -66,11 +76,16 @@ public class ServerRequest
     private org.jacorb.orb.ORB orb;
 
     private boolean usePreconstructedReply = false; //for appligator
- 
+
     private ServerRequestInfoImpl info = null;
 
-    public ServerRequest( org.jacorb.orb.ORB orb, 
-                          RequestInputStream in, 
+    static
+    {
+        cachePoaNames = Environment.isPropertyOn ("jacorb.cachePoaNames");
+    }
+
+    public ServerRequest( org.jacorb.orb.ORB orb,
+                          RequestInputStream in,
                           GIOPConnection _connection )
     {
         this.orb = orb;
@@ -84,13 +99,13 @@ public class ServerRequest
         oid = org.jacorb.poa.util.POAUtil.extractOID( object_key );
     }
 
-    /* 
+    /*
      * if this request could not be delivered directly to the correct
      * POA because the POA's adapter activator could not be called
      * when the parent POA was in holding state, the parent will queue
      * the request and later return it to the adapter layer. In order
      * to be able to find the right POA when trying to deliver again,
-     * we have to remember the target POA's name 
+     * we have to remember the target POA's name
      */
 
     public void setRemainingPOAName(String [] rest_of_name)
@@ -102,7 +117,7 @@ public class ServerRequest
     {
         return rest_of_name;
     }
-        
+
     public String operation()
     {
         return in.req_hdr.operation;
@@ -167,19 +182,19 @@ public class ServerRequest
         if( args != null )
         {
             in.mark(0);
-            for( java.util.Enumeration e = args.enumerate(); 
+            for( java.util.Enumeration e = args.enumerate();
                  e.hasMoreElements(); )
             {
-                org.omg.CORBA.NamedValue nv = 
+                org.omg.CORBA.NamedValue nv =
                     (org.omg.CORBA.NamedValue)e.nextElement();
-                        
+
                 if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
-                { 
+                {
                     // out parameters are not received
                     try
-                    { 
+                    {
                         nv.value().read_value( in, nv.value().type() );
-                    } 
+                    }
                     catch (Exception ex)
                     {
                         throw new org.omg.CORBA.MARSHAL("Couldn't unmarshal object of type "
@@ -188,14 +203,14 @@ public class ServerRequest
                 }
             }
             try
-            { 
+            {
                 in.reset();
             }
             catch (Exception ex)
             {
                 throw new org.omg.CORBA.UNKNOWN("Could not reset input stream");
             }
-            
+
             if (info != null)
             {
                 //invoke interceptors
@@ -213,7 +228,7 @@ public class ServerRequest
                             mode = org.omg.CORBA.ParameterMode.PARAM_OUT;
                         else if (value.flags() == org.omg.CORBA.ARG_INOUT.value)
                             mode = org.omg.CORBA.ParameterMode.PARAM_INOUT;
-                  
+
                         params[i] = new org.omg.Dynamic.Parameter(value.value(), mode);
                     }
                     catch (Exception e)
@@ -224,33 +239,33 @@ public class ServerRequest
 
                 info.arguments = params;
 
-                ServerInterceptorIterator intercept_iter = 
-                    orb.getInterceptorManager().getServerIterator();      
-              
+                ServerInterceptorIterator intercept_iter =
+                    orb.getInterceptorManager().getServerIterator();
+
                 try
                 {
                     intercept_iter.iterate(info, ServerInterceptorIterator.RECEIVE_REQUEST);
-                } 
+                }
                 catch(org.omg.CORBA.UserException ue)
                 {
                     if (ue instanceof org.omg.PortableInterceptor.
                         ForwardRequest)
                     {
-                        
+
                         org.omg.PortableInterceptor.ForwardRequest fwd =
                             (org.omg.PortableInterceptor.ForwardRequest) ue;
-                        
+
                         setLocationForward(new org.omg.PortableServer.
                             ForwardRequest(fwd.forward));
-                    }    
-                } 
-                catch (org.omg.CORBA.SystemException _sys_ex) 
+                    }
+                }
+                catch (org.omg.CORBA.SystemException _sys_ex)
                 {
                     setSystemException(_sys_ex);
                 }
-              
+
                 info = null;
-            }   
+            }
         }
     }
 
@@ -284,28 +299,32 @@ public class ServerRequest
                 catch( Exception ioe )
                 {
                     Debug.output(2,ioe);
+                    Debug.output( 2, "ServerRequest: Error replying to request!" );
                 }
-                
+
                 return;
             }
-        
-            Debug.output(6,"ServerRequest: reply to " + operation());
 
-            try 
-            { 
+            if( Debug.isDebugEnabled() )
+            {
+                Debug.output( "ServerRequest: reply to " + operation() );
+            }
+
+            try
+            {
                 if( out == null )
-                { 
-                    out = 
+                {
+                    out =
                         new ReplyOutputStream(
-                                 requestId(), 
+                                 requestId(),
                                  ReplyStatusType_1_2.from_int(status),
                                  in.getGIOPMinor(),
                                  in.isLocateRequest());
                 }
 
-                /* 
+                /*
                  * DSI-based servers set results and user exceptions
-                 * using anys, so we have to treat this differently 
+                 * using anys, so we have to treat this differently
                  */
                 if( !stream_based )
                 {
@@ -321,19 +340,19 @@ public class ServerRequest
 
                         if( args != null )
                         {
-                            for( java.util.Enumeration e = args.enumerate(); 
+                            for( java.util.Enumeration e = args.enumerate();
                                  e.hasMoreElements(); )
                             {
-                                org.jacorb.orb.NamedValue nv = 
+                                org.jacorb.orb.NamedValue nv =
                                     (org.jacorb.orb.NamedValue)e.nextElement();
-                                
+
                                 if( nv.flags() != org.omg.CORBA.ARG_IN.value )
-                                { 
+                                {
                                     // in parameters are not returnd
                                     try
-                                    { 
+                                    {
                                         nv.send( out );
-                                    } 
+                                    }
                                     catch (Exception ex)
                                     {
                                         throw new org.omg.CORBA.MARSHAL("Couldn't return (in)out arg of type "
@@ -345,9 +364,9 @@ public class ServerRequest
                     }
                 }
 
-                /* 
+                /*
                  * these two exceptions are set in the same way for
-                 * both stream-based and DSI-based servers 
+                 * both stream-based and DSI-based servers
                  */
                 if( status == ReplyStatusType_1_2._LOCATION_FORWARD )
                 {
@@ -358,9 +377,9 @@ public class ServerRequest
                     org.jacorb.orb.SystemExceptionHelper.write( out, sys_ex );
                 }
 
-                /* 
+                /*
                  * everything is written to out by now, be it results
-                 * or exceptions. 
+                 * or exceptions.
                  */
 
                 connection.sendReply( out );
@@ -368,6 +387,7 @@ public class ServerRequest
             catch ( Exception ioe )
             {
                 Debug.output(2,ioe);
+                Debug.output( 2, "ServerRequest: Error replying to request!" );
             }
         }
     }
@@ -384,7 +404,7 @@ public class ServerRequest
         if( !stream_based )
             throw new Error("Internal: ServerRequest not stream-based!");
 
-        out = 
+        out =
             new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.NO_EXCEPTION,
                                   in.getGIOPMinor(),
@@ -399,7 +419,7 @@ public class ServerRequest
 
         status = ReplyStatusType_1_2._USER_EXCEPTION;
 
-        out = 
+        out =
             new ReplyOutputStream(requestId(),
                                   ReplyStatusType_1_2.USER_EXCEPTION,
                                   in.getGIOPMinor(),
@@ -454,12 +474,12 @@ public class ServerRequest
         stream_based = true;
         return in;
     }
-  
+
     public ReplyOutputStream getReplyOutputStream()
     {
         if (out == null)
             createReply();
-        
+
         stream_based = true;
         return out;
     }
@@ -473,7 +493,7 @@ public class ServerRequest
      * Returns the SyncScope of this request, as expressed in the
      * header's response_flags.  Note that here, on the server side,
      * this no longer differentiates between SYNC_NONE and SYNC_WITH_TRANSPORT.
-     * The former is returned in both cases. 
+     * The former is returned in both cases.
      */
     public short syncScope()
     {
@@ -502,9 +522,26 @@ public class ServerRequest
     }
 
     public byte[] objectKey()
-    {        
+    {
         return object_key;
     }
+
+    /**
+     * <code>getScopes</code> returns the cached vector of poa_names.
+     *
+     * @return a <code>Vector</code> value containing Strings separated by
+     * {@link POAConstants.OBJECT_KEY_SEPARATOR OBJECT_KEY_SEPARATOR}
+     */
+    public Vector getScopes ()
+    {
+        if (scopes == null || ( cachePoaNames == false ) )
+        {
+            scopes = POAUtil.extractScopedPOANames
+                (POAUtil.extractPOAName (object_key));
+        }
+        return scopes;
+    }
+
 
     public org.omg.IOP.ServiceContext[] getServiceContext()
     {
@@ -532,23 +569,6 @@ public class ServerRequest
         return reference;
     }
 
-    /*
-    public byte[] getBuffer()
-    {
-        return in.getBuffer();
-    }
-
-    public void updateBuffer( byte[] _buf )
-    {
-        RequestInputStream rin = 
-            new RequestInputStream( orb,_buf);
-        //      byte[] n_oid = org.jacorb.poa.util.POAUtil.extractOID( in.req_hdr.object_key);
-        //      if( oid != n_oid )
-        //          throw new org.omg.CORBA.UNKNOWN("Invalid message buffer update");
-        in = rin;
-    }
-    */
-
     public RequestInputStream get_in()
     {
         return in;
@@ -562,7 +582,7 @@ public class ServerRequest
     public ReplyOutputStream get_out()
     {
         if (out == null)
-            out = 
+            out =
                 new ReplyOutputStream(requestId(),
                                       ReplyStatusType_1_2.NO_EXCEPTION,
                                       in.getGIOPMinor(),
@@ -584,50 +604,14 @@ public class ServerRequest
             return null;
     }
 
-    /*
-    public void reply(byte[] buf)
-    {
-        reply(buf, buf.length);
-    }
-
-    public void reply( byte[] buf, int len )
-    {
-        if( out == null )
-            out = new ReplyOutputStream(new org.omg.IOP.ServiceContext[0],
-                                        requestId(), 
-                                        ReplyStatusType_1_2.from_int(status),
-                                        in.getGIOPMinor() );
-        out.setCodeSet( connection.TCS, connection.TCSW );
-    
-
-        out.setBuffer(buf);
-        //correct the requestId (unsigned long)
-        out.setGIOPRequestId(requestId());
-        out.setSize(len);
-        //      out.insertMsgSize(); stream copied.. not needed
-        try
-        {
-            connection.sendReply( out );
-        }
-        catch (Exception ioe)
-        {
-            Debug.output(2,ioe);
-            ioe.printStackTrace();
-            System.out.println("ServerRequest: Error replying to request!");
-        }
-        in.req_hdr.response_flags = 0; 
-        // make sure that no
-        // other reply is send
-    }    
-   */
     public GIOPConnection getConnection()
     {
         return connection;
     }
-    
+
     public void setUsePreconstructedReply(boolean use)
     {
-        usePreconstructedReply = use; 
+        usePreconstructedReply = use;
     }
 
     /**
