@@ -25,6 +25,23 @@ import org.omg.CosTransactions.Terminator;
 
 import java.util.*;
 
+
+/**
+ * Instances of this class represent transactions. A single instance
+ * is used for implementing the Coordinator, Terminator and Control 
+ * CORBA objects.
+ *
+ * @author Nicolas Noffke
+ * @author Vladimir Mencl
+ * @version $Id$
+ *
+ * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/07/15)
+ *
+ *   * handle TRANSACTION_ROLLEDBACK raised by commit_one_phase() 
+ *     called from commit()
+ *
+ */
+
 public class CoordinatorImpl 
     implements Sleeper, CoordinatorOperations, 
                ControlOperations, TerminatorOperations 
@@ -327,18 +344,25 @@ public class CoordinatorImpl
         }
 
         if (resources.size() == 1){
+
+            Resource r = (Resource)resources.elementAt(0);
+            try {
+                r.commit_one_phase();
+	    } catch(org.omg.CORBA.TRANSACTION_ROLLEDBACK tr) {
+              // the only one resource requested a rollback
+	      votes.setElementAt(Vote.VoteRollback,0);
+	      rollback();
+	      throw new org.omg.CORBA.TRANSACTION_ROLLEDBACK();
+            } catch(HeuristicHazard hh) {
+                throw new org.omg.CORBA.NO_IMPLEMENT();
+            }
+	    votes.setElementAt(Vote.VoteCommit,0);
+
             if (!move_to_state(Status._StatusPrepared)){
                 throw new org.omg.CORBA.INTERNAL();
             }
             if (!move_to_state(Status._StatusCommitting)){
                 throw new org.omg.CORBA.INTERNAL();
-            }
-
-            Resource r = (Resource)resources.elementAt(0);
-            try {
-                r.commit_one_phase();
-            } catch(HeuristicHazard hh) {
-                throw new org.omg.CORBA.NO_IMPLEMENT();
             }
         } else {
             for (int i = 0;i < resources.size();i++){

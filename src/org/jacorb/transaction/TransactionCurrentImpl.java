@@ -36,6 +36,11 @@ import java.util.Hashtable;
  * @author Vladimir Mencl
  * @version $Id$
  *
+ * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/07/15)
+ *
+ *   * Current.commit() catches and rethrows TRANSACTION_ROLLEDBACK
+ *     (and removes the association of the transaction with the current thread)
+ *
  * Changes made by Vladimir Mencl <vladimir.mencl@mff.cuni.cz> (2002/05/01)
  *
  *   * implemented suspend() and resume()
@@ -166,13 +171,20 @@ public class TransactionCurrentImpl
         if (! contexts.containsKey(current))
             throw new NoTransaction();
 
+	Control control = null;
         try{
-            Control control = (Control) contexts.get(current);
+            control = (Control) contexts.get(current);
             control.get_terminator().commit(report_heuristics);
     
             control._release();
 
             removeContext(current);
+	}catch (org.omg.CORBA.TRANSACTION_ROLLEDBACK tr) {
+	    // Transaction was rolledback.
+            org.jacorb.util.Debug.output(2, tr);
+	    control._release();
+	    removeContext(current);
+	    throw tr; // re-throw the exception
         }catch (Exception e){
             org.jacorb.util.Debug.output(2, e);
         }
