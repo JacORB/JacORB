@@ -45,7 +45,6 @@ parser code
     static String package_prefix = null;
 
     static boolean parse_only = false;
-    static boolean global_import = false;
 
     /** used for internal checking that name conversion
         to mapped Java names is done only after parsing */
@@ -86,7 +85,6 @@ parser code
         package_prefix = null;
 
         parse_only = false;
-        global_import = false;
 
         include_state = false;
         generateIR = false;
@@ -121,11 +119,6 @@ parser code
                     if( argv[i].equals("-syntax"))
                     {
                         parse_only = true;
-                        continue;
-                    }
-                    if( argv[i].equals("-global_import"))
-                    {
-                        global_import = true;
                         continue;
                     }
                     if( argv[i].equals("-noskel"))
@@ -187,6 +180,11 @@ parser code
                         if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
                             usage(argv, "-p");
                         package_prefix = argv[++i];
+                        continue;
+                    }   
+                    if( argv[i].equals("-global_import"))
+                    {
+                        System.err.println("The -global_import option has been deprecated. It is no longer necessary.");
                         continue;
                     }
                     if( argv[i].equals("-i2jpackage"))
@@ -311,7 +309,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-nostub][-nofinal][-ir][-sloppy_names][-sloppy_forward][-i2jpackage x:y][-d <Output Dir>][-p <package_prefix>][-i <import_package][-W debug_level][-global_import] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-nostub][-nofinal][-ir][-sloppy_names][-sloppy_forward][-i2jpackage x:y][-d <Output Dir>][-p <package_prefix>][-i <import_package][-W debug_level] <filelist>");
         System.exit(1);
     }
 
@@ -332,7 +330,6 @@ parser code
         System.out.println("\t-i2jpackage x:a.b.c\t replace IDL package name x by a.b.c in generated Java code (e.g. CORBA:org.omg.CORBA)");
         System.out.println("\t-i <x>\t\tgenerated Java code will include \"import <x>;\"");
         System.out.println("\t-ir <x>\t\tgenerate information required by the Interface Repository");
-        System.out.println("\t-global_import \tgenerated Java code will include import statements for all global types");
         System.out.println("\t-nofinal\tgenerated Java code will contain no final class definitions");
         System.out.println("\t-d dir\t\troot of directory tree for output");
         System.out.println("\t-W [1..4]\tdebug level");
@@ -522,16 +519,6 @@ parser code
         }
     }
 
-    static void addGlobalNamesToImport()
-    {
-        for( Enumeration e = NameTable.getGlobalTypes();
-                e.hasMoreElements(); )
-        {
-                String s = (String) e.nextElement();
-                import_list.addElement( s );
-                Environment.output(4,"Adding import for global name " + s );
-        }
-    }
 
 
     /**
@@ -766,22 +753,13 @@ specification ::=
                         (String)(parser.pending_interfaces.keys().nextElement()), null );
                 }
 
-                /* complete global import list */
-                if( parser.global_import )
-                {
-                        Environment.output(3,"Preparing global import");
-                        parser.addGlobalNamesToImport();
-                }
-                else
-                        Environment.output(3,"No global import");
 
+                /* okay, parsing is done */
                 parser.done_parsing = true;
 
                 /* code generation phase */
-
                 try
                 {
-
                    if (! ((org.jacorb.idl.parser)CUP$parser).parse_only  )
                    {
                         RESULT.print(new java.io.PrintWriter( java.lang.System.out ));
