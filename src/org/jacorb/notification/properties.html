@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<title>JacORB Notification Service</title>
+    <LINK rel="stylesheet" type="text/css" href="../../../../doc/jacorb.css">
+</head>
+<body>
+
+<center>
+<H1>JacORB Notification Service Properties</H1>
+</center>
+
+    Following is a brief description of the properties
+    that control Notification Service behaviour.
+
+    <h1>Concurrency</h1>
+
+    The Notification Service uses up to three Thread Pools with a configurable
+    size. The first Thread Pool is used to process the filtering of the
+    Messages. The second Thread Pool is used to deliver the Messages to the
+    Consumers. The third Thread Pool us used to pull Messages from PullSuppliers. 
+
+    <h2>jacorb.notification.filter.thread_pool_size</h2>
+    
+    default: 2 <br>
+    unit: int >= 0 <br>
+
+    This is the Size of the Thread Pool used to process the filters.
+    Increasing this value on a Multiprocessor machine or if Filters are on
+    a different machine than the Channel could increase the Filtering
+    Performance as multiple events can be processed concurrently.
+
+
+    <h2 id="proxysupplier.thread_pool_size">jacorb.notification.proxysupplier.thread_pool_size</h2>
+
+    default: 4 <br>
+    unit: int >= 0 <br>
+
+    This is the Size of the Thread Pool used to deliver the Messages to
+    the Consumers. By using the property <a
+    href="#proxysupplier.threadpolicy">jacorb.notification.proxysupplier.threadpolicy</a> 
+    it is also possible to use one Thread per ProxySupplier.
+
+
+    <h2>jacorb.notification.proxyconsumer.thread_pool_size</h2>
+
+    default: 2 <br>
+    unit: int >= 0<br>
+
+    Specifies the Size of the Thread Pool used to pull Messages from PullSuppliers
+
+
+    <h2 id="proxysupplier.threadpolicy">jacorb.notification.proxysupplier.threadpolicy</h2>
+    default: ThreadPool
+    unit: String
+    valid values: ThreadPool, ThreadPerProxy.
+
+    Specify which thread policy the ProxySuppliers should use to deliver
+    the Messages to its Consumers. Valid values are: 
+
+    <ul>
+      <li>ThreadPool: A <a
+	href="#proxysupplier.thread_pool_size">fixed number</a> of threads is used. 
+      </li>
+      
+      <li>ThreadPerProxy: Each ProxySupplier uses its own thread </li>
+    </ul>
+
+    <h2>jacorb.notification.supplier.poll_intervall</h2>
+    
+    default: 1000 <br>
+    unit: ms <br>
+
+    Specifies how often Messages should be pulled from a PullSupplier. The
+    value specifies the intervall between two pull-Operations (in
+    milliseconds). 
+
+
+    <h1>Channel Limits</h1>
+
+    <h2>jacorb.notification.supplier.max_number</h2>
+    default: Integer.MAX_VALUE<br>
+    unit: int > 0<br>
+
+    Specify the maximum number of Suppliers that may be connected to a
+    Channel at a time. If a Supplier tries to connect, while this
+    limit is exceeded, AdminLimitExceeded is raised. Note that this
+    property can also be set programatically via the <code>set_admin</code> operation.
+
+    <h2>jacorb.notification.consumer.max_number</h2>
+    default: Integer.MAX_VALUE<br>
+    unit: int > 0<br>
+
+    Specify the maximum number of Consumers that may be connected to a
+    Channel at a time. If a Consumer tries to connect, while this
+    limit is exceeded, AdminLimitExceeded is raised. Note that this
+    property can also be set programatically via the <code>set_admin</code> operation.
+
+    <h2 id="max_events_per_consumer">jacorb.notification.max_events_per_consumer</h2>
+
+    default: 100 <br>
+    unit: int >= 0<br>
+
+    Specifies how many Events a ProxySupplier at most should queue for a
+    consumer. If this number is exceeded Events are discarded according to
+    the <a href="#discard_policy">DiscardPolicy</a> configured for the ProxySupplier.
+    
+    <h2>jacorb.notification.max_batch_size</h2>
+
+    default: 1 <br>
+    unit: int <br>
+
+    Specifies the maximal number of Messages a SequencePushSupplier should
+    queue before a delivery to its connected SequencedPushConsumer is
+    forced. 
+
+
+    <h1>Queuing</h1>
+
+    <h2>jacorb.notification.order_policy</h2>
+
+    default: PriorityOrder <br>
+    unit: String <br>
+    valid values: AnyOrder, PriorityOrder, DeadlineOrder,
+    FifoOrder. <br>
+
+    Specify how events that are queued should be ordered. 
+
+    <h2 id="discard_policy">jacorb.notification.discard_policy</h2>
+
+    default: PriorityOrder <br>
+    unit: String <br>
+    valid values: AnyOrder, PriorityOrder, DeadlineOrder,
+    FifoOrder, LifoOrder. <br>
+
+    Specifies which Events are discarded if more than the <a
+    href="#max_events_per_consumer">maximal number</a> 
+    of events are queued for a consumer.
+
+    <h1>Error handling</h1>
+
+    <h2>jacorb.notification.consumer.backout_interval</h2>
+
+    default: 1000 <br>
+    unit: ms <br>
+    
+    After a delivery to a Consumer has failed the Channel will disable
+    delivery to that Consumer for a while before retrying. This property
+    specifies how long a consumer should stay disabled.
+
+    <h2>jacorb.notification.consumer.error_threshold</h2>
+    default: 3 <br>
+    unit: int > 0<br>
+
+    Each failed delivery to a consumer increments an errorcounter. If this
+    errorcounter exceeds the specified value the consumer is
+    disconnected from the channel.
+
+
+    <h1>Other</h1>    
+
+    <h2>jacorb.notification.default_filter_factory</h2>
+    default: builtin<br>
+    unit: String (objectref)<br>
+    
+    Specify which FilterFactory (<code>CosNotifyFilter::FilterFactory</code>) the
+    attribute <code>EventChannel::default_filter_factory</code> should be set to. 
+    Default value is <em>builtin</em>. This special value implies that a
+    FilterFactory will be created during start of the EventChannel.
+    Its possible to set this property to a URL that points to another
+    <code>CosNotifyFilter::FilterFactory</code> object. In this case no FilterFactory
+    is started by the EventChannel. The URL is resolved by a call
+    to <code>ORB::string_to_object</code>.
+    
+
+    <hr>
+
+<address>$Id$</address>
+
+</body>
+</html>
