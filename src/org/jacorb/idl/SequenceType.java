@@ -23,13 +23,15 @@ package org.jacorb.idl;
 import java.io.*;
 
 /**
+ * IDL sequences.
+ *
+ *
  * @author Gerald Brose
  * @version $Id$
  */
 
-
 public class SequenceType 
-    extends TemplateTypeSpec
+    extends VectorType
 {
     private boolean written = false;
 
@@ -40,7 +42,6 @@ public class SequenceType
     private boolean recursive = false;
 
     public ConstExpr max = null;
-    public TypeSpec type_spec;
     public int length = 0;
 
     public SequenceType(int num)
@@ -87,34 +88,6 @@ public class SequenceType
 	return this;
     }
 
-    /**
-     * @returns the TypeSpec for the sequence's element type
-     */
-
-    public TypeSpec elementTypeSpec()
-    {
-	TypeSpec t = type_spec.typeSpec();
-
-	/* if the element type is scoped name that refers to another
-	   type spec, we have to retrieve that. If that type spec is
-	   a base type or a string, we have to return it, otherwise
-	   we return the scoped type name.
-	*/
-
-	if( t instanceof ScopedName )
-	{
-	    t = ((ScopedName)t).resolvedTypeSpec().typeSpec();
-
-	}	
-	return t;
-    }
-
-
-    public void setTypeSpec( SimpleTypeSpec sts )
-    {
-	type_spec = sts;
-    }
-
     public void setPackage( String s)
     {
         s = parser.pack_replace(s);
@@ -127,19 +100,16 @@ public class SequenceType
 	    max.setPackage(s);
     }
 
-    public boolean typedefd()
+    boolean typedefd()
     {
 	return typedefd;
     }
 
-    public String typeName()
-    {
-	return elementTypeName() + "[]";
-    }
 
-    public void setRecursive()
+    void setRecursive()
     {
-        Environment.output(2 ,"Sequence " +  typeName  + " set recursive ------- this: " + this);
+        Environment.output(2 ,"Sequence " +  typeName  +
+                           " set recursive ------- this: " + this);
 	recursive = true;
     }
 
@@ -160,12 +130,8 @@ public class SequenceType
 	}
 	else
 	{
-            // TODO 
-
 	    originalType = "org.omg.CORBA.ORB.init().create_sequence_tc(" + 
 		length + ", " + elementTypeExpression() + " )";
-            // length + ", " + elementTypeSpec().getTypeCodeExpression() + ")";
-
 	}
 	return originalType;           
     }
@@ -175,18 +141,22 @@ public class SequenceType
         return idxNum++;
     }
 
-    /** we have to distinguish between sequence types that have been
+    /** 
+     * We have to distinguish between sequence types that have been
      * explicitly declared as types with a typedef and those that
      * are declared as anonymous types in structs or unions. In
      * the latter case, we have to generate marshalling code in-line
      * because there are no helpers for anonymous types
      */
 
-    public String printReadStatement(String var_name, String streamname)
+    public String printReadStatement( String var_name, String streamname)
     {
+        Environment.output(1,"Sequence printReadStatement for " + typeName() );
+
 	StringBuffer sb = new StringBuffer();
 	String type = typeName();
 	String lgt = "_l" + var_name.replace('.', '_');
+
 	// if [i] is part of the name, trim that off
 	if( lgt.indexOf("[") > 0 )
 	    lgt = lgt.substring(0,lgt.indexOf("[")) + "_";
@@ -235,12 +205,6 @@ public class SequenceType
     }
 
 
-    public String printReadExpression(String streamname)
-    {
-	return helperName() +  ".read(" + streamname +")"; 
-    }
-
-
     public String printWriteStatement(String var_name,String streamname)
     {
 	StringBuffer sb = new StringBuffer();
@@ -281,33 +245,12 @@ public class SequenceType
 	return sb.toString();
     }
 
-    private String elementTypeExpression()
-    {        
-        if( type_spec.typeSpec() instanceof AliasTypeSpec )
-        {
-            return type_spec.full_name() + "Helper.type()";
-        }
-        else if ( type_spec.typeSpec() instanceof BaseType || 
-                  type_spec.typeSpec() instanceof TypeCodeTypeSpec ||
-                  type_spec.typeSpec() instanceof TemplateTypeSpec  )
-        {
-            return type_spec.getTypeCodeExpression() ;
-        }
-        else
-        {
-            return type_spec.typeName()  + "Helper.type()";
-        }
-    }
-
-    public String elementTypeName()
-    {        
-        return type_spec.typeName();
-    }
 
     public String holderName()
     {	
 	if( !typedefd )
 	    throw new RuntimeException("Compiler Error: should not be called (helpername on not typedef'd SequenceType " + name + ")");
+
 	String s = full_name();
 	if( pack_name.length() > 0 )
 	{
@@ -319,6 +262,7 @@ public class SequenceType
 
 	return s + "Holder";
     }
+
 
     public String helperName()
     {	
@@ -354,6 +298,10 @@ public class SequenceType
 	return cName;
 
     }
+
+    /**
+     * The parsing phase.
+     */
 
     public void parse() 	 
     {
@@ -401,23 +349,8 @@ public class SequenceType
 	    return ScopedName.unPseudoName( name );
     }
 
-    public String toString()
-    {
-	String name;
 
-	if( type_spec.typeSpec() instanceof ScopedName )
-	{
-	    name =  ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec().toString();
-	}
-	else
-	{
-	    name = type_spec.toString();
-	}
-
-	return name + "[]";
-    }
-
-    private void printClassComment(String className, PrintWriter ps)
+    private void printClassComment( String className, PrintWriter ps )
     {
 	ps.println("/**");
 	ps.println(" *\tGenerated from IDL definition of sequence" + 
@@ -426,8 +359,7 @@ public class SequenceType
         ps.println(" */\n");
     }
 
-
-    private void printHolderClass (String className, PrintWriter ps )
+    private void printHolderClass ( String className, PrintWriter ps )
     {
 	if( !pack_name.equals(""))
 	    ps.println("package " + pack_name + ";\n" );
@@ -482,16 +414,20 @@ public class SequenceType
 
 	ps.println("public final class " + className + "Helper");
 	ps.println("{");
-	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = " + getTypeCodeExpression() + ";");
+	ps.println("\tprivate static org.omg.CORBA.TypeCode _type = " + 
+                   getTypeCodeExpression() + ";");
 
 	TypeSpec.printHelperClassMethods(className, ps, type);
 	printIdMethod(ps); // from IdlSymbol
 
 	/** read */
 
-	ps.println("\tpublic static " + type + " read (final org.omg.CORBA.portable.InputStream in)");
+	ps.println("\tpublic static " + type + 
+                   " read (final org.omg.CORBA.portable.InputStream in)");
+
 	ps.println("\t{");
 	ps.println("\t\tint l = in.read_long();");
+
 	if( length != 0 )
 	{
 	    ps.println("\t\tif( l > " + length + ")");
@@ -548,6 +484,7 @@ public class SequenceType
 	ps.println("}");
     }
 
+
     public void print( PrintWriter _ps)
     {
 	try 
@@ -573,18 +510,23 @@ public class SequenceType
 		    className  = fullName;
 		}
 	
-		String path = parser.out_dir+fileSeparator+pack_name.replace('.',fileSeparator);
+		String path = parser.out_dir + fileSeparator + 
+                    pack_name.replace( '.',fileSeparator );
+
 		File dir = new File( path );
 		if( !dir.exists() )
 		{
 		    if( !dir.mkdirs())
 		    {
-                        org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
+                        org.jacorb.idl.parser.fatal_error( "Unable to create " + 
+                                                           path, null );
 		    }
 		}
 
 		String fname = className + "Holder.java";
-		PrintWriter ps = new PrintWriter(new java.io.FileWriter(new File(dir,fname)));
+		PrintWriter ps = 
+                    new PrintWriter( new java.io.FileWriter( new File(dir,fname) ));
+
 		printHolderClass( className, ps );
 		ps.close();
 
@@ -592,8 +534,6 @@ public class SequenceType
 		ps = new PrintWriter(new java.io.FileWriter(new File(dir,fname)));
 		printHelperClass( className, ps );
 		ps.close();
-
-		// IRMap.enter(this);
 
 		written = true;
 	    }
