@@ -67,33 +67,6 @@ public class Server_TCP_IP_Transport
         return socket;
     }
 
-    /**
-     * Try to shut this transport down.
-     *
-     * @returns false, if isReadingOrWriting() || !isIdle() 
-     */
-    public boolean tryShutdown()
-    {
-        if( isReadingOrWriting() ||
-            (! isIdle()) )
-        {
-            return false;
-        }
-        else
-        {
-            try
-            {
-                close( FORCE_CLOSE );
-            }
-            catch( IOException e )
-            {
-                //ignore, this will always come
-            }
-            
-            return true;
-        }
-    }
-
     protected synchronized void close( int reason )
         throws IOException
     {
@@ -111,23 +84,6 @@ public class Server_TCP_IP_Transport
         {
             Debug.output( 2, "Closing TCP connection, reason " + reason );
 
-//              try
-//              {
-//                  java.lang.reflect.Method method = 
-//                      (socket.getClass().getMethod( "shutdownOutput", 
-//                                                    new Class [0] ));
-//                  method.invoke (socket, new java.lang.Object[0]);
-
-//                  method = (socket.getClass().getMethod ("shutdownInput", 
-//                                                         new Class [0]));
-//                  method.invoke (socket, new java.lang.Object[0]);
-//              }
-//              catch (Throwable ex)
-//              {
-//                  // If Socket does not support shutdownOutput method
-//                  // (i.e JDK < 1.3)
-//              }
-
             socket.close();
 
             //this will cause exceptions when trying to read from
@@ -143,8 +99,6 @@ public class Server_TCP_IP_Transport
             }
             
             socket = null;
-
-            transport_manager.unregisterServerTransport( this );
 
             Debug.output( 2, "Closed connection (server-side) " +
                           connection_info );

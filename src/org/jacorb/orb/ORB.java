@@ -73,10 +73,12 @@ public final class ORB
     private Hashtable knownReferences = null;
 
     /** connection mgmt. */
-    private ConnectionManager connectionManager;
+    private ClientConnectionManager clientConnectionManager;
 
     /** The transport manager*/
     private TransportManager transport_manager = null;
+
+    private GIOPConnectionManager giop_connection_manager = null;
 
     /** buffer mgmt. */
     private BufferManager bufferManager = BufferManager.getInstance();
@@ -156,7 +158,7 @@ public final class ORB
         {
             bidir_giop = true;
 
-            connectionManager.setRequestListener( basicAdapter.getRequestListener() );
+            clientConnectionManager.setRequestListener( basicAdapter.getRequestListener() );
         }
     }
 
@@ -331,9 +333,14 @@ public final class ORB
     }
 
 
-    public ConnectionManager getConnectionManager()
+    public ClientConnectionManager getClientConnectionManager()
     {
-        return connectionManager;
+        return clientConnectionManager;
+    }
+
+    public GIOPConnectionManager getGIOPConnectionManager()
+    {
+        return giop_connection_manager;
     }
 
 
@@ -752,7 +759,8 @@ public final class ORB
             {
                 basicAdapter = new BasicAdapter( this, 
                                                  rootpoa, 
-                                                 transport_manager );
+                                                 transport_manager,
+                                                 giop_connection_manager );
             }
             catch( IOException io )
             {
@@ -1347,7 +1355,11 @@ public final class ORB
         }
 
         transport_manager = new TransportManager( this );
-        connectionManager = new ConnectionManager( this, transport_manager );
+        giop_connection_manager = new GIOPConnectionManager();
+        clientConnectionManager = 
+            new ClientConnectionManager( this, 
+                                         transport_manager,
+                                         giop_connection_manager );
 
         String s = Environment.getProperty( "jacorb.hashtable_class" );
         if( s == null || s.length() == 0 )
@@ -1422,7 +1434,12 @@ public final class ORB
         Environment.addProperties( props );
 
         transport_manager = new TransportManager( this );
-        connectionManager = new ConnectionManager( this, transport_manager );
+        giop_connection_manager = new GIOPConnectionManager();
+        clientConnectionManager = 
+            new ClientConnectionManager( 
+                this, 
+                transport_manager,
+                giop_connection_manager);
 
         String s = Environment.getProperty( "jacorb.hashtable_class" );
         if( s == null || s.length() == 0 )
@@ -1582,7 +1599,7 @@ public final class ORB
 
         Debug.output(3,"ORB shutdown (cleaning up ORB...)");
 
-        connectionManager.shutdown();
+        clientConnectionManager.shutdown();
         knownReferences.clear();
         BufferManager.getInstance().release();
 

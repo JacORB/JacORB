@@ -48,7 +48,7 @@ public class BiDirConnectionServerInterceptor
     private ORB orb = null;
     private Codec codec = null;
 
-    private ConnectionManager conn_mg = null;
+    private ClientConnectionManager conn_mg = null;
 
     public BiDirConnectionServerInterceptor( ORB orb,
                                              Codec codec )
@@ -56,7 +56,7 @@ public class BiDirConnectionServerInterceptor
         this.orb = orb;
         this.codec = codec;
 
-        conn_mg = orb.getConnectionManager();
+        conn_mg = orb.getClientConnectionManager();
     }
 
     public String name()

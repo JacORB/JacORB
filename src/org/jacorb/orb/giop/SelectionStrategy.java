@@ -23,9 +23,9 @@ package org.jacorb.orb.connection;
 import java.util.List;
 
 /**
- * This class is used to select a transport for closing. The transport
+ * This class is used to select a connection for closing. The connection
  * should be idle (although this is checked again later when
- * closing). The given list of transports is synchronized, so no
+ * closing). The given list of connections is synchronized, so no
  * additional synchronization is necessary.
  *
  * @author Nicolas Noffke
@@ -34,11 +34,12 @@ import java.util.List;
 public interface SelectionStrategy
 {
     /**
-     * Select a transport for closing. If none is idle, null should be
+     * Select a connection for closing. If none is idle, null should be
      * returned.  
      */
-    public Transport selectForClose( List transports );
+    public ServerGIOPConnection selectForClose( List connections );
 }
+
 
 
 

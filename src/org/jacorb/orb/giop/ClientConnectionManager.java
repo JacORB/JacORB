@@ -37,7 +37,7 @@ import org.jacorb.util.*;
  *
  */
 
-public class ConnectionManager
+public class ClientConnectionManager
 {    
     public static final String FACTORY_PROP = "jacorb.net.socket_factory";
 
@@ -54,12 +54,15 @@ public class ConnectionManager
     private MessageReceptorPool receptor_pool = null;
 
     private TransportManager transport_manager = null;
+    private GIOPConnectionManager giop_connection_manager = null;
 
-    public ConnectionManager( ORB orb,
-                              TransportManager transport_manager )
+    public ClientConnectionManager( ORB orb,
+                                    TransportManager transport_manager,
+                                    GIOPConnectionManager giop_connection_manager )
     {
         this.orb = orb;
         this.transport_manager = transport_manager;
+        this.giop_connection_manager = giop_connection_manager;
 
         socket_factory = SocketFactoryManager.getSocketFactory (orb);
 
@@ -174,13 +177,14 @@ public class ConnectionManager
                                                          use_ssl );
 
             GIOPConnection connection = 
-                new GIOPConnection( transport,
-                                    request_listener,
-                                    null );
+                giop_connection_manager.createClientGIOPConnection( 
+                    transport,
+                    request_listener,
+                    null );
             
             c = new ClientConnection( connection, orb, this, host_and_port, true );
 
-            Debug.output( 2, "ConnectionManager: created new conn to target " +
+            Debug.output( 2, "ClientConnectionManager: created new conn to target " +
                           c.getInfo() );
             
             connections.put( c.getInfo(), c );
@@ -189,7 +193,7 @@ public class ConnectionManager
         }
         else
         {
-            Debug.output( 2, "ConnectionManager: found conn to target " +
+            Debug.output( 2, "ClientConnectionManager: found conn to target " +
                           c.getInfo() );
         }
 
@@ -248,7 +252,7 @@ public class ConnectionManager
             ((ClientConnection) e.nextElement()).close();
         }
         
-        Debug.output(3,"ConnectionManager shut down (all connections released)");
+        Debug.output(3,"ClientConnectionManager shut down (all connections released)");
         
         connections.clear();
     }

@@ -41,18 +41,10 @@ public class TransportManager
 {    
     public static final String FACTORY_PROP = "jacorb.net.socket_factory";
 
-    //private List client_transports = null;
-    private List server_transports = null;
-
     private SocketFactory socket_factory = null;
     private SocketFactory ssl_socket_factory = null;
 
-    private int max_server_transports = 0;
-
-    private SelectionStrategy selection_strategy = null;
     private Class statistics_provider_class = null;
-
-    private int wait_for_idle_interval = 0;
 
     public TransportManager( ORB orb )
     {
@@ -85,19 +77,11 @@ public class TransportManager
             }
         }
 
-        //client_transports = new LinkedList(); 
-        server_transports = new LinkedList(); 
-        
-        max_server_transports = 
-            Environment.getIntPropertyWithDefault( "jacorb.connection.max_server_transports",
-                                        Integer.MAX_VALUE );
-        
-        selection_strategy = (SelectionStrategy)
-            Environment.getObjectProperty( "jacorb.connection.selection_strategy_class" );
-        
-        if( Environment.hasProperty( "jacorb.connection.statistics_provider_class" ))
+        if( Environment.hasProperty( 
+            "jacorb.connection.statistics_provider_class" ))
         {
-            String s = Environment.getProperty( "jacorb.connection.statistics_provider_class" );
+            String s = Environment.getProperty( 
+                "jacorb.connection.statistics_provider_class" );
 
             if( s != null && s.length() > 0 )
             {
@@ -113,9 +97,6 @@ public class TransportManager
                 }
             }
         }
-
-        wait_for_idle_interval =
-            Environment.getIntPropertyWithDefault( "jacorb.connection.wait_for_idle_interval", 500 );
     }
 
     public Transport createClientTransport( String target_host,
@@ -143,65 +124,10 @@ public class TransportManager
         return transport;
     }
 
-    /*
-    public void unregisterClientTransport( Transport transport )
-    {
-        for( Iterator it = client_transports.iterator();
-             it.hasNext();
-             )
-        {
-            if( it.next() == transport )
-            {
-                it.remove();
-                return;
-            }
-        }        
-    }
-    */
-
     public Transport createServerTransport( Socket socket,
                                             boolean is_ssl )
         throws IOException
     {
-        //if too many open transports, shut one down
-        if( server_transports.size() >= max_server_transports )
-        {
-            if( selection_strategy != null )
-            {
-                while( server_transports.size() >= max_server_transports )
-                {
-                    Transport to_close = null;
-
-                    synchronized( server_transports )
-                    {
-                        to_close = 
-                            selection_strategy.selectForClose( server_transports );
-                    }
-                    
-                    if( to_close != null &&
-                        ((Server_TCP_IP_Transport) to_close).tryShutdown() )
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            Thread.sleep( wait_for_idle_interval );
-                        }
-                        catch( Exception e )
-                        {
-                            Debug.output( 1, e );
-                        }
-                    }
-                }
-            }
-            else
-            {
-                Debug.output( 1, "ERROR: no of max server transports set, but no SelectionStrategy present" );
-            }
-        }
-
         //create a new statistics provider for each new Transport
         StatisticsProvider provider = null;
         if( statistics_provider_class != null )
@@ -225,26 +151,7 @@ public class TransportManager
                                          provider,
                                          this );
 
-        synchronized( server_transports )
-        {
-            server_transports.add( transport );
-
-//              Debug.output( 2, "TransportManager: current open Transports: "+
-//                            server_transports.size() +
-//                            ((max_server_transports < Integer.MAX_VALUE)?
-//                             ", max Transports: " + max_server_transports :
-//                             ""));
-        }
-
         return transport;
-    }
-
-    public void unregisterServerTransport( Transport transport )
-    {
-        synchronized( server_transports )
-        {
-            server_transports.remove( transport );
-        }
     }
 }
 

@@ -31,27 +31,27 @@ import java.util.Iterator;
 public class LFUSelectionStrategyImpl
     implements SelectionStrategy
 {
-    public Transport selectForClose( List transports )
+    public ServerGIOPConnection selectForClose( List connections )
     {
-        Transport least_used = null;
+        ServerGIOPConnection least_used = null;
         double least_usage = Double.MAX_VALUE;
 
-        for( Iterator it = transports.iterator();
+        for( Iterator it = connections.iterator();
              it.hasNext();
              )
         {
-            Transport t = (Transport) it.next();
+            ServerGIOPConnection conn = (ServerGIOPConnection) it.next();
             
-            if( t.isIdle() )
+            if( ! conn.hasPendingMessages() )
             {
                 LFUStatisticsProviderImpl sp = (LFUStatisticsProviderImpl)
-                    t.getStatisticsProvider();
+                    conn.getStatisticsProvider();
 
                 double frequency = sp.getFrequency();
 
                 if( frequency < least_usage )
                 {
-                    least_used = t;
+                    least_used = conn;
                     least_usage = frequency;
                 }
             }

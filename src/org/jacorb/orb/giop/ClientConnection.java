@@ -56,15 +56,20 @@ public class ClientConnection
     //to generate request ids
     private int id_count = 0;
 
-    private ConnectionManager conn_mg = null;
+    private ClientConnectionManager conn_mg = null;
 
     private boolean client_initiated = true;
 
     private String info = null;
 
+    // indicates if the stream has been closed gracefully, i.e. by a
+    // CloseConnection message. This will trigger a remarshaling of
+    // all pending messages.
+    private boolean gracefulStreamClose = false;
+
     public ClientConnection( GIOPConnection connection,
                              org.omg.CORBA.ORB orb,
-                             ConnectionManager conn_mg,
+                             ClientConnectionManager conn_mg,
                              String info,
                              boolean client_initiated )
     {
@@ -297,10 +302,25 @@ public class ClientConnection
         }
     }
 
+    /**
+     * Received a CloseConnection message. Remarshal all pending
+     * messages. The close mechanism will be invoked separately by the
+     * actual closing of the Transport and will trigger the
+     * remarshaling.  
+     */
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection )
     {
+        Debug.output( 2, "Received a CloseConnection message" );
+        gracefulStreamClose = true;
+        connection.closeAllowReopen();
 
+        //since this is run on the message receptor thread itself, it
+        //will not try to read again after returning, because it just
+        //closed the transport itself. Therefore, no exception goes
+        //back up into the GIOPConnection, where streamClosed() will
+        //be called. Ergo, we need to call streamClosed() ourselves.
+        streamClosed();
     }
 
 
@@ -314,7 +334,7 @@ public class ClientConnection
         if( ! client_initiated )
         {
             //if this is a server side BiDir connection, it will stay
-            //pooled in the ConnectionManager even if no Delegate is
+            //pooled in the ClientConnectionManager even if no Delegate is
             //associated with it. Therefore, it has to be removed when
             //the underlying connection closed.
 
@@ -328,19 +348,37 @@ public class ClientConnection
         {
             if( replies.size() > 0 )
             {
-                Debug.output( 1, "ERROR: Abnormal connection termination. Lost " +
-                              replies.size() + " outstanding replie(s)!");
-            }
+                if( gracefulStreamClose )
+                {
+                    Debug.output( 2, "Stream closed. Will remarshal " + 
+                                  replies.size() + " messages" );
+                }
+                else
+                {
+                    Debug.printTrace( 2 );
+                    Debug.output( 1, "ERROR: Abnormal connection termination. Lost " +
+                                  replies.size() + " outstanding replie(s)!");
+                }
 
-            for( Enumeration keys = replies.keys();
-                 keys.hasMoreElements(); )
-            {
-                ReplyPlaceholder placeholder =
-                    (ReplyPlaceholder) replies.remove( keys.nextElement() );
-
-                placeholder.cancel();
+                for( Enumeration keys = replies.keys();
+                     keys.hasMoreElements(); )
+                {
+                    ReplyPlaceholder placeholder =
+                        (ReplyPlaceholder) replies.remove( keys.nextElement() );
+                    
+                    if( gracefulStreamClose )
+                    {
+                        placeholder.retry();
+                    }
+                    else
+                    {
+                        placeholder.cancel();
+                    }
+                }
             }
         }
+        
+        gracefulStreamClose = false;
     }
 
     public long cacheSASContext(byte[] client_authentication_token)

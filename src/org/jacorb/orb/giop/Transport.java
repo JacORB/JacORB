@@ -73,7 +73,14 @@ public interface Transport
     /**
      * Close this transport (and free resources).  
      */
-    public void close()
+    public void closeCompletely()
+        throws IOException;
+
+    /**
+     * Close only the underlying network connection. Everything else
+     * stays in place and the network connection can be reopened.  
+     */
+    public void closeAllowReopen()
         throws IOException;
     
     /**
@@ -103,7 +110,6 @@ public interface Transport
      * Get the statistics provider for transport usage statistics.
      */
     public StatisticsProvider getStatisticsProvider();
-
 }// Transport
 
 

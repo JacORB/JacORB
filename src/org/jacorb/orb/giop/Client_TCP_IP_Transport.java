@@ -201,23 +201,6 @@ public class Client_TCP_IP_Transport
 
         if (connected && socket != null)
         {
-            // Try and invoke socket.shutdownOutput via reflection (bug #81)
-
-//              try
-//              {
-//                  java.lang.reflect.Method method
-//                  = (socket.getClass().getMethod ("shutdownOutput", new Class [0]));
-//                  method.invoke (socket, new java.lang.Object[0]);
-
-//                  method = (socket.getClass().getMethod ("shutdownInput", new Class [0]));
-//                  method.invoke (socket, new java.lang.Object[0]);
-//              }
-//              catch (Throwable ex)
-//              {
-//                  // If Socket does not support shutdownOutput method
-//                  // (i.e JDK < 1.3)
-//              }
-
             socket.close ();
 
             //this will cause exceptions when trying to read from
@@ -233,7 +216,8 @@ public class Client_TCP_IP_Transport
             }
 
             Debug.output( 2, "Closed client-side TCP/IP transport to " +
-                          connection_info );
+                          connection_info + " with reason " +
+                          reason);
 
             //for testing purposes
             --openTransports;

@@ -63,15 +63,18 @@ public class BasicAdapter
     private int timeout = 0;
 
     private TransportManager transport_manager = null;
+    private GIOPConnectionManager giop_connection_manager = null;
 
     public BasicAdapter( org.jacorb.orb.ORB orb, 
                          POA rootPOA,
-                         TransportManager transport_manager )
+                         TransportManager transport_manager,
+                         GIOPConnectionManager giop_connection_manager )
         throws IOException
     {
         this.orb = orb;
         this.rootPOA = rootPOA;
         this.transport_manager = transport_manager;
+        this.giop_connection_manager = giop_connection_manager;
 
         if( Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
@@ -468,9 +471,10 @@ public class BasicAdapter
                         transport_manager.createServerTransport( socket, is_ssl );
 
                     GIOPConnection connection = 
-                        new GIOPConnection( transport,
-                                            request_listener,
-                                            reply_listener );
+                        giop_connection_manager.createServerGIOPConnection(
+                            transport,
+                            request_listener,
+                            reply_listener );
                     
                     receptor_pool.connectionCreated( connection );
                 } 

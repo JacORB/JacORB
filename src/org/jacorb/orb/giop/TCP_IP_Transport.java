@@ -67,11 +67,6 @@ public abstract class TCP_IP_Transport
     //used to unregister this transport
     protected TransportManager transport_manager = null;
 
-    //is this transport in the rpocess of reading or writing a
-    //message?
-    private boolean is_reading = false;
-    private boolean is_writing = false;
-
     public TCP_IP_Transport( StatisticsProvider statistics_provider,
                              TransportManager transport_manager )
     {
@@ -123,11 +118,6 @@ public abstract class TCP_IP_Transport
     protected abstract void close( int reason )
         throws IOException;
 
-    protected boolean isReadingOrWriting()
-    {
-        return is_reading || is_writing;
-    }
-
     /**
      * Tell this transport that no messages are pending, i.e. it may
      * be closed on a read timeout.  
@@ -156,15 +146,23 @@ public abstract class TCP_IP_Transport
     }
 
     /**
-     * This is called from GIOPConnection.
+     * Close this transport (and free resources).  
      */
-
-    public void close()
+    public void closeCompletely()
         throws IOException
     {
         close( GIOP_CONNECTION_CLOSED );
     }
 
+    /**
+     * Close only the underlying network connection. Everything else
+     * stays in place and the network connection can be reopened.  
+     */
+    public void closeAllowReopen()
+        throws IOException
+    {
+        close( STREAM_CLOSED );
+    }
 
     /**
      * This method tries to read in <tt>length</tt> bytes from
@@ -239,10 +237,6 @@ public abstract class TCP_IP_Transport
     public byte[] getMessage()
         throws IOException
     {
-        //we'll not be in reading state until we've read the giop
-        //message header
-        is_reading = false;
-
         //Wait until the actual socket connection is established. This
         //is necessary for the client side, so opening up a new
         //connection can be delayed until the first message is to be
@@ -270,8 +264,6 @@ public abstract class TCP_IP_Transport
             return null;
         }
         
-        is_reading = true;
-
         //(minimally) decode GIOP message header. Main checks should
         //be done one layer above.
 
@@ -288,7 +280,6 @@ public abstract class TCP_IP_Transport
                 Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
                               msg_header, 0, read );
 
-                is_reading = false;
                 return null;
             }
 
@@ -305,7 +296,6 @@ public abstract class TCP_IP_Transport
             if( read == -1 )
             {
                 //stream ended too early
-                is_reading = false;
                 return null;
             }
 
@@ -318,7 +308,6 @@ public abstract class TCP_IP_Transport
                 Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
                               inbuf, 0, read );
 
-                is_reading = false;
                 return null;
             }
 
@@ -333,13 +322,7 @@ public abstract class TCP_IP_Transport
                                                      Messages.MSG_HEADER_SIZE );
             }
 
-            //this is the "good" exit point. we'll not set is_reading
-            //back to false until we enter this op again.  this will
-            //make sure that the upper layer has had a chance to
-            //decide if this transport is idle or not (drawback: this
-            //transport will be declared "reading" longer than
-            //strictly necessary)
-            //is_reading = false;
+            //this is the "good" exit point. 
             return inbuf;
         }
         else
@@ -349,7 +332,6 @@ public abstract class TCP_IP_Transport
             Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
                           msg_header );
 
-            is_reading = false;
             return null;
         }
     }
@@ -361,9 +343,7 @@ public abstract class TCP_IP_Transport
     {
         connect();
         
-        is_writing = true;
         out_stream.write( message, start, size );
-        is_writing = false;
 
         if( b_out != null )
         {
