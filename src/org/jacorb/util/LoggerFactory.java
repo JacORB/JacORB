@@ -54,5 +54,9 @@ public interface LoggerFactory
     Logger getNamedLogger(String name, String fileName, long maxFileSize) 
         throws java.io.IOException;
 
-
+    /**
+     * set the file name and max file size for logging to a file
+     */ 
+    void setDefaultLogFile(String fileName, long maxLogSize)
+        throws java.io.IOException;
 }
