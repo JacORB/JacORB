@@ -20,12 +20,13 @@
  */
 package org.jacorb.orb.standardInterceptors;
 
+import java.net.URLDecoder;
 import java.util.StringTokenizer;
 
+import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.Oid;
 import org.jacorb.orb.CDROutputStream;
 import org.jacorb.orb.ORB;
-import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 import org.omg.ATLAS.ATLASLocator;
 import org.omg.ATLAS.ATLASProfile;
@@ -65,6 +66,9 @@ public class SASComponentInterceptor
     extends org.omg.CORBA.LocalObject
     implements IORInterceptor
 {
+	/** the logger used by the naming service implementation */
+	private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+
     private ORB orb = null;
     private Codec codec = null;
     private TaggedComponent tc = null;
@@ -80,7 +84,7 @@ public class SASComponentInterceptor
         }
         catch (Exception e)
         {
-            Debug.output( Debug.SECURITY | Debug.IMPORTANT, e);
+            logger.error("Error initing SASComponentInterceptor: ",e);
         }
     }
 
@@ -145,7 +149,7 @@ public class SASComponentInterceptor
                 short asTargetRequires = targetRequires;
 
                 // the SAS_ContextSec
-                String atlasURL = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.url");
+                String atlasURL = URLDecoder.decode(org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.url"));
                 String atlasCache = org.jacorb.util.Environment.getProperty("jacorb.security.sas.atlas.cacheid");
                 ServiceConfiguration[] serviceConfiguration = null;
                 if (atlasURL == null)
@@ -198,7 +202,7 @@ public class SASComponentInterceptor
         }
         catch (Exception e)
         {
-            Debug.output( Debug.SECURITY | Debug.IMPORTANT, e);
+            logger.error("establish_components error: ", e);
         }
     }
 } // SASComponentInterceptor

@@ -20,6 +20,7 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.net.URLDecoder;
 import java.util.Hashtable;
 
 import org.apache.avalon.framework.logger.Logger;
@@ -118,6 +119,8 @@ public class SASClientInterceptor
     public void send_request(org.omg.PortableInterceptor.ClientRequestInfo ri)
         throws org.omg.PortableInterceptor.ForwardRequest
     {
+		if (ri.operation().equals("_is_a")) return;
+		if (ri.operation().equals("_non_existent")) return;
         org.omg.CORBA.ORB orb = ((ClientRequestInfoImpl) ri).orb;
 
         // see if target requires protected requests by looking into the IOR
@@ -323,6 +326,7 @@ public class SASClientInterceptor
         if (atlasProfile == null) return new AuthorizationElement[0];
         String cacheID = new String(atlasProfile.the_cache_id);
         String locator = atlasProfile.the_locator.the_url();
+        locator = URLDecoder.decode(locator);
 
         // see if the tokens are in the ATLAS cache
         synchronized (atlasCache)
@@ -342,12 +346,12 @@ public class SASClientInterceptor
         catch (Exception e)
         {
             logger.warn("Could not find ATLAS server " + locator + ": " + e);
-            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not find ATLAS server: " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not find ATLAS server " + locator + ": " + e, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
         if (dispenser == null)
         {
-			logger.warn("Could not find ATLAS server " + locator);
-            throw new org.omg.CORBA.NO_PERMISSION("SAS Could not find ATLAS server", MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
+			logger.warn("SAS found null ATLAS server " + locator);
+            throw new org.omg.CORBA.NO_PERMISSION("SAS found null ATLAS server "+locator, MinorCodes.SAS_ATLAS_FAILURE, CompletionStatus.COMPLETED_NO);
         }
 
         AuthTokenData data = null;
