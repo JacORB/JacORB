@@ -328,7 +328,9 @@ public class ORBSingleton
                                          id, 
                                          name, 
                                          members);
-        tc.resolveRecursion( tc );
+
+        // resolve any recursive references to this TypeCode in its members
+        tc.resolveRecursion();
         return tc;
     }
 
@@ -415,7 +417,9 @@ public class ORBSingleton
                                         name,
                                         discriminator_type, 
                                         members);
-        tc.resolveRecursion( tc );
+
+        // resolve any recursive references to this TypeCode in its members
+        tc.resolveRecursion();
         return tc;
     }
 
