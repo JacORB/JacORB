@@ -51,6 +51,8 @@ gerald.brose@acm.org
         - Added property 'jacorb.dns.enable' to control use of DNS when support
           is included.
         - Fix for ClientRequestInfo target field value.
+        - Fix for marshalling of negative fixed values.
+        - Fix for reply status value for server side portable interceptors.
 
       - IMR:
         - Added property 'jacorb.imr.endpoint_port_number' for port IMR runs on.
