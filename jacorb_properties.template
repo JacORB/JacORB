@@ -212,6 +212,9 @@ jacorb.use_bom=off
 # add additional IIOP 1.0 profiles even if we are using IIOP 1.2
 jacorb.giop.add_1_0_profiles=off
 
+# Enable DNS if built with DNS support
+jacorb.dns.enable=on
+
 ###########################################
 #                                         #
 #         Interoperability                #
