@@ -256,7 +256,7 @@ public class ServerRequest
                     }
                 }
 
-                info.arguments = params;
+                info.setArguments (params);
 
                 ServerInterceptorIterator intercept_iter =
                     orb.getInterceptorManager().getServerIterator();
