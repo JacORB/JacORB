@@ -62,7 +62,7 @@ public class FixIOR
     
         if (args.length < 3 || args.length > 4)
         {
-            System.err.println ("Usage: FixIOR host port ior_file [ior_out_file]");
+            System.err.println ("Usage: fixior host port ior_file [ior_out_file]");
             System.exit( 1 );
         }
         host = args[0];
