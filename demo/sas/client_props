@@ -1,38 +1,32 @@
-# IIOP/SSL parameters (numbers are decimal values):
-# EstablishTrustInClient = 40
-# EstablishTrustInTarget = 20
-# mutual authentication = 60
 
-#jacorb.security.support_ssl=on
-
-#jacorb.security.ssl.client.supported_options=61
-#jacorb.security.ssl.client.required_options=20
-
-# files with public key certs of trusted CAs
-#
-# WARNING: If no CA certs are present, the IAIK chain verifier will
-# accept ALL otherwise valid chains!
-#
-#jacorb.security.trustees=CA_cert
-
-# the name of the default key alias to look up in the keystore
-#jacorb.security.default_password=foo
-#jacorb.security.default_user=Paul
-
-# the name and location of the keystore relative to the home or
-# current directory
-#jacorb.security.keystore_password=foo
-#jacorb.security.keystore=paul_ks
-
-# DRR #
-
-# CSI Properties
-
-org.omg.PortableInterceptor.ORBInitializerClass.CSS=org.jacorb.security.sas.CSSInitializer
-org.omg.PortableInterceptor.ORBInitializerClass.GSSUP=org.jacorb.security.sas.GSSUPProviderInitializer
+# CSIv2 Properties
 OASASPort=4713
+
+#
+# This initializer installs the SAS Client Security Service (CSS)
+#
+org.omg.PortableInterceptor.ORBInitializerClass.CSS=org.jacorb.security.sas.CSSInitializer
+
+#
+# This initializer installs SAS GSS-API GSSUP authentication mechanism
+#
+org.omg.PortableInterceptor.ORBInitializerClass.GSSUP=org.jacorb.security.sas.GSSUPProviderInitializer
+
+#
+# This option initializes SAS support in the ORB
+#
 jacorb.security.support_sas=on
+
+#
+# These options configure the authentication mechanism for the SAS
+# supported (tested) mechanisms include:
+#       GSSUPMechOID    2.23.130.1.1.1
+# Currently, only a single mechanism is supported
+#
 jacorb.security.sas.mechanism.1.oid=2.23.130.1.1.1
 jacorb.security.sas.mechanism.1.provider=org.jacorb.security.sas.GSSUPProvider
-jacorb.security.sas.server.target_requires=Integrity,Confidentiality,EstablishTrustInClient
-jacorb.security.sas.server.target_name=MyTarget
+
+#
+# This option configures the SAS to support stateful sessions (default=true)
+#
+jacorb.security.sas.css.stateful=true
