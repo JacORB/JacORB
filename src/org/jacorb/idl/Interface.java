@@ -26,6 +26,7 @@ package org.jacorb.idl;
  */
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -296,6 +297,41 @@ class Interface
         return body;
     }
 
+    /**
+     *  Open a PrintWriter to write to the .java file for typeName.
+     */
+    private PrintWriter openOutput( String typeName )
+    {
+        String path =
+          parser.out_dir + fileSeparator + pack_name.replace( '.', fileSeparator );
+        File dir = new File( path );
+        if( !dir.exists() )
+        {
+            if( !dir.mkdirs() )
+            {
+                org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
+            }
+        }
+
+        try
+        {
+            PrintWriter ps =
+              new PrintWriter( new java.io.FileWriter( new File( dir, typeName + ".java" ) ) );
+            return ps;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException ("Could not open output file for "
+                                        + typeName + " (" + e + ")");                                                                                  
+        }   
+    }
+
+    private void printPackage (PrintWriter ps) 
+    {
+        if (!pack_name.equals (""))
+            ps.println ("package" + pack_name + ";\n");
+    }
+
     private void printClassComment( String className, PrintWriter ps )
     {
         ps.println( "/**" );
@@ -306,21 +342,11 @@ class Interface
     }
 
     /**
-     *  generate the signature interface
-     */
-
-    private void printInterface( String classname, PrintWriter ps )
+     *  If this interface inherits from classes in the unnamed package,
+     *  generate explicit import statements for them.
+     */    
+    private void printSuperclassImports( PrintWriter ps )
     {
-        // are we in the unnamed package?
-
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";\n" );
-
-        printClassComment( classname, ps );
-
-        // do we inherit from a class in the unnamed package?
-        // if so, we have to import this class explicitly
-
         if( inheritanceSpec.v.size() > 0 )
         {
             Enumeration e = inheritanceSpec.v.elements();
@@ -333,6 +359,19 @@ class Interface
                 }
             }
         }
+    }        
+
+    /**
+     *  generate the signature interface
+     */
+
+    private void printInterface( String classname )
+    {
+        PrintWriter ps = openOutput( classname );
+        printPackage( ps );
+        printClassComment( classname, ps );
+        printSuperclassImports( ps );
+
         //printImport(ps);
 
         if( is_pseudo  )
@@ -419,44 +458,19 @@ class Interface
             }
         }
         ps.println( "}" );
+        ps.close();
     }
-
-    private String indentString( int nesting_level )
-    {
-        StringBuffer sb = new StringBuffer();
-        for( int i = 0; i < nesting_level; i++ )
-            sb.append( "   " );
-        return sb.toString();
-    }
-
 
     /**
      * generate the operations Java interface (not for pseudo interfaces)
      */
 
-    private void printOperations( String classname, PrintWriter ps )
+    private void printOperations( String classname )
     {
-
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";\n" );
-
+        PrintWriter ps = openOutput( classname + "Operations" );
+        printPackage( ps );
         printClassComment( classname, ps );
-
-        // do we inherit from a class in the unnamed package?
-        // if so, we have to import this class explicitly
-
-        if( inheritanceSpec.v.size() > 0 )
-        {
-            Enumeration e = inheritanceSpec.v.elements();
-            for( ; e.hasMoreElements(); )
-            {
-                ScopedName sn = (ScopedName)e.nextElement();
-                if( sn.resolvedName().indexOf( '.' ) < 0 )
-                {
-                    ps.println( "import " + sn + "Operations;" );
-                }
-            }
-        }
+        printSuperclassImports( ps );
         printImport( ps );
 
         ps.println( "public interface " + classname + "Operations" );
@@ -482,14 +496,14 @@ class Interface
             body.printOperationSignatures( ps );
         }
         ps.println( "}" );
+        ps.close();
     }
 
 
-    private void printHolder( String classname, PrintWriter ps )
+    private void printHolder( String classname )
     {
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";\n" );
-
+        PrintWriter ps = openOutput( classname + "Holder" );
+        printPackage( ps );
         printClassComment( classname, ps );
 
         ps.print( "public" + parser.getFinalString() + " class " + classname + "Holder" );
@@ -523,13 +537,13 @@ class Interface
         ps.println( "\t}" );
 
         ps.println( "}" );
+        ps.close();
     }
 
-    private void printHelper( String className, PrintWriter ps )
+    private void printHelper( String className )
     {
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";" );
-
+        PrintWriter ps = openOutput( className + "Helper" );
+        printPackage( ps );
         printImport( ps );
 
         printClassComment( className, ps );
@@ -622,6 +636,7 @@ class Interface
         }
         ps.println( "\t}" );
         ps.println( "}" );
+        ps.close();
     }
 
     private String[] get_ids()
@@ -678,11 +693,10 @@ class Interface
      * generates a stub class for this Interface
      */
 
-    private void printStub( String classname, PrintWriter ps )
+    private void printStub( String classname )
     {
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";\n" );
-
+        PrintWriter ps = openOutput( classname + "Stub" );
+        printPackage( ps );
         printImport( ps );
         printClassComment( classname, ps );
 
@@ -710,13 +724,13 @@ class Interface
         body.printStubMethods( ps, classname, is_local );
 
         ps.println( "}" );
+        ps.close();
     }
 
-    private void printImplSkeleton( String classname, PrintWriter ps )
+    private void printImplSkeleton( String classname )
     {
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";\n" );
-
+        PrintWriter ps = openOutput( classname + "POA" );
+        printPackage( ps );
         printClassComment( classname, ps );
 
         printImport( ps );
@@ -760,17 +774,17 @@ class Interface
         ps.println( "\t\treturn ids;" );
         ps.println( "\t}" );
         ps.println( "}" );
+        ps.close();
     }
 
     /**
      * print the stream-based skeleton class
      */
 
-    private void printTieSkeleton( String classname, PrintWriter ps )
+    private void printTieSkeleton( String classname )
     {
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";\n" );
-
+        PrintWriter ps = openOutput( classname + "POATie" );
+        printPackage( ps );
         ps.println( "import org.omg.PortableServer.POA;" );
         printImport( ps );
 
@@ -828,13 +842,13 @@ class Interface
 
         body.printDelegatedMethods( ps );
         ps.println( "}" );
+        ps.close();
     }
 
-    private void printIRHelper( String className, PrintWriter ps )
+    private void printIRHelper( String className )
     {
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";" );
-
+        PrintWriter ps = openOutput( className + "IRHelper" );
+        printPackage( ps );
         ps.println( "\n/**" );
         ps.println( " * This class contains generated Interface Repository information." );
         ps.println( " * @author JacORB IDL compiler." );
@@ -854,13 +868,13 @@ class Interface
         }
         ps.println( "\t}" );
         ps.println( "}" );
+        ps.close();
     }
 
-    private void printLocalBase( String className, PrintWriter ps )
+    private void printLocalBase( String className )
     {
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";" );
-
+        PrintWriter ps = openOutput( className + "LocalBase" );
+        printPackage( ps );
         ps.println( "\n/**" );
         ps.println( " * Abstract base class for implenentations of local interface " + className );
         ps.println( " * @author JacORB IDL compiler." );
@@ -881,14 +895,14 @@ class Interface
         ps.println( "\t\treturn(String[])_type_ids.clone();" );
         ps.println( "\t}" );
         ps.println( "}" );
+        ps.close();
     }
 
 
-    private void printLocalTie( String classname, PrintWriter ps )
+    private void printLocalTie( String classname )
     {
-        if( !pack_name.equals( "" ) )
-            ps.println( "package " + pack_name + ";\n" );
-
+        PrintWriter ps = openOutput( classname + "LocalTie" );
+        printPackage( ps );
         ps.println( "import org.omg.PortableServer.POA;" );
         printImport( ps );
 
@@ -918,142 +932,58 @@ class Interface
 
         body.printDelegatedMethods( ps );
         ps.println( "}" );
+        ps.close();
     }
 
 
 
-    public void print( PrintWriter _ps )
+    public void print(PrintWriter _ps)
     {
-        if( included && !generateIncluded() )
+        if (included && !generateIncluded())
             return;
 
-        // divert output into class files
-        if( body != null ) // forward declaration
+        // divert output into individual .java files
+        if (body != null) // forward declaration
         {
-            try
+            printInterface(name);
+            if (!is_pseudo)
             {
-                // Java Interface file
-
-                String path =
-                        parser.out_dir + fileSeparator + pack_name.replace( '.', fileSeparator );
-                File dir = new File( path );
-                if( !dir.exists() )
+                if (!is_abstract)
                 {
-                    if( !dir.mkdirs() )
-                    {
-                        org.jacorb.idl.parser.fatal_error( "Unable to create " + path, null );
-                    }
+                    printOperations(name);
+
+                    //TO BE DONE: helpers and holders should also
+                    //be generated for abstract interfaces, but
+                    //what should these look like? IDL/Java 2.4
+                    //RTF does not seem to be consistent here...
+
+                    printHelper(name);
+                    printHolder(name);
                 }
-
-                PrintWriter ps =
-                        new PrintWriter( new java.io.FileWriter( new File( dir, name + ".java" ) ) );
-                printInterface( name, ps );
-                ps.close();
-
-                if( !is_pseudo )
+                if (parser.generate_stubs && !is_local && !is_abstract)
                 {
-                    if( !is_abstract )
-                    {
-                        ps = new PrintWriter(
-                                 new java.io.FileWriter( new File( dir, name +
-                                                                   "Operations.java" ) ) );
-                        // are we in the unnamed package?
-                        printOperations( name, ps );
-                        ps.close();
-
-                        // Helper
-
-                        //TO BE DONE: helpers and holders should also
-                        //be generated for abstract interfaces, but
-                        //what should these look like? IDL/Java 2.4
-                        //RTF does not seem to be consistent here...
-
-                        ps = new PrintWriter(
-                                 new java.io.FileWriter( new File( dir, name +
-                                                                   "Helper.java" ) ) );
-                        printHelper( name, ps );
-                        ps.close();
-
-                        // Holder file
-
-                        ps = new PrintWriter(
-                                 new java.io.FileWriter( new File( dir, name + "Holder.java" ) ) );
-
-                        printHolder( name, ps );
-                        ps.close();
-                    }
-
-                    if( parser.generate_stubs && !is_local && !is_abstract )
-                    {
-                        // Stub
-                        ps = new PrintWriter( new java.io.FileWriter( new File( dir, "_" +
-                                name + "Stub.java" ) ) );
-                        printStub( name, ps );
-                        ps.close();
-                    }
-
-                    if( parser.generate_skeletons &&
-                        !is_local &&
-                        !is_abstract )
-                    {
-                        // Skeletons
-
-                        ps = new PrintWriter( new java.io.FileWriter( new File( dir,
-                                name +
-                                "POA.java" ) ) );
-
-                        printImplSkeleton( name, ps );
-                        ps.close();
-
-                        ps = new PrintWriter( 
-                                new java.io.FileWriter( 
-                                    new File( dir, 
-                                              name + "POATie.java" ) ) );
-                        printTieSkeleton( name, ps );
-                        ps.close();
-                    }
-
-                    if( parser.generateIR )
-                    {
-                        ps = new PrintWriter( new java.io.FileWriter( new File( dir, name +
-                                "IRHelper.java" ) ) );
-                        printIRHelper( name, ps );
-                        ps.close();
-                    }
-
-                    // two classes are generated only for local interfaces:
-                    // the LocalBase and LocalPOA classes
-
-                    if( is_local )
-                    {
-                        ps = new PrintWriter(
-                                new java.io.FileWriter(
-                                    new File( dir, "_" + name +
-                                              "LocalBase.java" ) ) );
-                        printLocalBase( name, ps );
-                        ps.close();
-
-                        ps = new PrintWriter(
-                                new java.io.FileWriter(
-                                    new File( dir, name + "LocalTie.java" ) ) );
-                        printLocalTie( name, ps );
-                        ps.close();
-                    }
-
+                    printStub(name);
                 }
-
-                /* print class files for interface local definitions */
-
-                body.print( null );
-
-                //IRMap.enter(this);
-
+                if (parser.generate_skeletons && !is_local && !is_abstract)
+                {
+                    printImplSkeleton(name);
+                    printTieSkeleton(name);
+                }
+                if (parser.generateIR)
+                {
+                    printIRHelper(name);
+                }
+                if (is_local)
+                {
+                    printLocalBase(name);
+                    printLocalTie(name);
+                }
             }
-            catch( java.io.IOException i )
-            {
-                System.err.println( "File IO error" );
-                i.printStackTrace();
-            }
+
+            // print class files for interface local definitions
+            body.print(null);
+
+            //IRMap.enter(this);
         }
     }
 }
