@@ -60,7 +60,7 @@ public class TypeCode
     private short       scale;
     private short       digits;
 
-    /** if this TC is recursive... */
+    /** if this TC is recursive */
     private boolean     recursive = false;
     private TypeCode    actualTypecode = null;
 
@@ -1029,8 +1029,28 @@ public class TypeCode
         return new ValueMember (f.getName(), id, "", "1.0", tc, null, access);
     }
 
+   /*
+    * Resolve any recursive TypeCodes contained within this TypeCode. This
+    * TypeCode is the actual (non-recursive) TypeCode that replaces any
+    * recursive TypeCodes with the same RepositoryId.  This operation should
+    * only be called on union or struct TypeCodes since it is only these
+    * TypeCodes that can be recursive.
+    */
+   void resolveRecursion ()
+   {
+      if (kind == TCKind._tk_struct || kind == TCKind._tk_union)
+      {
+         resolveRecursion (this);
+      }
+   }
 
-   void resolveRecursion (TypeCode actual)
+   /*
+    * Resolve any recursive TypeCodes contained within this TypeCode.
+    * @param actual The actual (non-recursive) TypeCode that replaces any
+    * recursive TypeCodes contained in the actual TypeCode that have the same
+    * RepositoryId
+    */
+   private void resolveRecursion (TypeCode actual)
    {
       if (member_type == null)
       {
@@ -1063,14 +1083,28 @@ public class TypeCode
       }
    }
 
+   /*
+    * Set the actual TypeCode if this TypeCode is recursive.
+    * @param tc The actual TypeCode
+    */
    private void setActualTC (TypeCode tc)
    {
-      actualTypecode = tc;
+      if (is_recursive ())
+      {
+         actualTypecode = tc;
+      }
    }
 
+   /*
+    * Check that the actual TypeCode is set if this TypeCode is recursive.
+    * This method ensures that operations aren't called on a recursive TypeCode
+    * until the enclosing TypeCode has been fully resolved.
+    * @exception BAD_INV_ORDER if this TypeCode is recursive and an operation
+    * is called on it before the enclosing TypeCode has been fully resolved
+    */
    private void checkActualTC ()
    {
-      if (actualTypecode == null)
+      if (is_recursive () && actualTypecode == null)
       {
          throw new org.omg.CORBA.BAD_INV_ORDER ();
       }
