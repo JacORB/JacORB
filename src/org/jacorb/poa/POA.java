@@ -24,6 +24,9 @@ import org.jacorb.poa.util.*;
 import org.jacorb.poa.except.*;
 
 import org.jacorb.orb.dsi.ServerRequest;
+import org.jacorb.ssl.SSLPolicy;
+import org.jacorb.ssl.SSLPolicyValue;
+import org.jacorb.ssl.SSL_POLICY_TYPE;
 
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.POAPackage.*;
@@ -114,6 +117,9 @@ public class POA
     // default: NORMAL
     protected BidirectionalPolicy       bidirectionalPolicy;
 
+    // default: SSL_NOT_REQUIRED
+    protected SSLPolicy                 sslPolicy;
+
     private Hashtable all_policies = null;
 
     /** key: , value: CORBA.Object */
@@ -190,6 +196,9 @@ public class POA
                     case BIDIRECTIONAL_POLICY_TYPE.value :
                     bidirectionalPolicy =
                         (org.omg.BiDirPolicy.BidirectionalPolicy) policies[i];
+                    break;
+                    case SSL_POLICY_TYPE.value :
+                    sslPolicy = (SSLPolicy) policies[i];
                     break;
                 }
             }
@@ -1383,6 +1392,12 @@ public class POA
     {
         return requestProcessingPolicy != null &&
         requestProcessingPolicy.value() == RequestProcessingPolicyValue.USE_SERVANT_MANAGER;
+    }
+
+    public boolean isSSLRequired()
+    {
+        return sslPolicy != null &&
+        sslPolicy.value() == SSLPolicyValue.SSL_REQUIRED;
     }
 
     /**
