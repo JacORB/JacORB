@@ -38,6 +38,8 @@ import org.jacorb.util.*;
 public abstract class TCP_IP_Transport
     implements Transport
 {
+    protected boolean connected = false;
+    
     protected InputStream in_stream = null;
     protected OutputStream out_stream = null;
 
@@ -89,13 +91,6 @@ public abstract class TCP_IP_Transport
             Environment.getIntPropertyWithDefault( "jacorb.connection.timeout_after_closeconnection", 
                                                    20000 );
     }
-
-    /**
-     * Open up a new connection (if not already done). This is always
-     * called prior to sending a message.
-     */
-    protected abstract void connect();
-
 
     public void read (org.omg.ETF.BufferHolder data, 
                       int offset, 
@@ -175,7 +170,7 @@ public abstract class TCP_IP_Transport
                        int length,
                        long time_out )
     {
-        connect();
+        connect (null, 0);
         
         try
         {
@@ -218,6 +213,11 @@ public abstract class TCP_IP_Transport
         {
             statistics_provider.flushed();
         }
+    }
+    
+    public boolean is_connected()
+    {
+        return connected;
     }
 
     /**
