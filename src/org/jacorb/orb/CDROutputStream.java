@@ -25,6 +25,7 @@ import java.lang.*;
 import java.util.*;
 
 import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.ir.RepositoryID;
 
 import org.omg.CORBA.TCKind;
 import org.omg.PortableServer.*;
@@ -38,7 +39,7 @@ import org.omg.PortableServer.*;
  */
 
 public class CDROutputStream
-    extends org.omg.CORBA.portable.OutputStream
+    extends org.omg.CORBA_2_3.portable.OutputStream
 {
     /** GIOP Message header version 1.0 Big Endian */
     private static final byte[] giopMessageHeader = { (byte)'G', (byte)'I',
@@ -65,6 +66,20 @@ public class CDROutputStream
     private int encaps_start = -1;
     private Stack encaps_stack = new java.util.Stack();
     private Stack recursiveTCStack = new Stack();
+
+    /**
+     * Maps all value objects that have already been written to this stream
+     * to their position within the buffer.  The position is stored as 
+     * a java.lang.Integer.
+     */
+    private Map valueMap = new HashMap();
+
+    /**
+     * Maps all repository ids that have already been written to this
+     * stream to their position within the buffer.  The position is
+     * stored as a java.lang.Integer.  
+     */
+    private Map repIdMap = new HashMap();
 
     private final static String null_ior_str = 
         "IOR:00000000000000010000000000000000";
@@ -122,6 +137,11 @@ public class CDROutputStream
         buffer = buf;
     }
 
+    public org.omg.CORBA.ORB orb ()
+    {
+        if (orb == null) orb = org.omg.CORBA.ORB.init();
+        return orb;
+    }
 
     public void setCodeSet( int codeSet, int codeSetWide )
     {
@@ -1026,6 +1046,35 @@ public class CDROutputStream
                     write_TypeCode( value.content_type(), tcMap);
                     endEncapsulation();
                     break;
+                case TCKind._tk_value: 
+                    tcMap.put( value.id(), new Integer( start_pos ) );
+                    beginEncapsulation();
+                    write_string(value.id());
+                    write_string(value.name());
+                    write_short( value.type_modifier() );
+                    org.omg.CORBA.TypeCode base = value.concrete_base_type();
+                    if (base != null)
+                        write_TypeCode(base, tcMap);
+                    else
+                        write_long (TCKind._tk_null);
+                    _mc = value.member_count();
+                    write_long(_mc);
+                    for( int i = 0; i < _mc; i++)
+                    {
+                        org.jacorb.util.Debug.output(3,"value member name " +  value.member_name(i)  );
+                        write_string( value.member_name(i) );
+                        write_TypeCode( value.member_type(i), tcMap );
+                        write_short( value.member_visibility(i) );
+                    }
+                    endEncapsulation();
+                    break;
+                case TCKind._tk_value_box: 
+                    beginEncapsulation();
+                    write_string(value.id());
+                    write_string(value.name());
+                    write_TypeCode( value.content_type(), tcMap);
+                    endEncapsulation();
+                    break;
                 default: 
                     throw new RuntimeException("Cannot handle TypeCode, kind: " + _kind);
                 }
@@ -1484,8 +1533,138 @@ public class CDROutputStream
         }
     }
 
-    public void setSize(int s)
+    /**
+     * Writes the serialized state of `value' to this stream.
+     */
+    public void write_value (java.io.Serializable value) 
     {
+        if (!write_special_value (value))
+            write_value_internal (value, 
+                                  RepositoryID.repId (value.getClass()));
+    }
+
+    public void write_value (java.io.Serializable value,
+                             org.omg.CORBA.portable.BoxedValueHelper factory)
+    {
+        if (!write_special_value (value))
+        {
+            valueMap.put (value, new Integer(pos));
+            if (value instanceof org.omg.CORBA.portable.IDLEntity)
+                write_long (0x7fffff00);
+            else
+            {
+                // repository id is required for RMI: types
+                write_long (0x7fffff02);
+                write_repository_id (RepositoryID.repId (value.getClass()));
+            }
+            factory.write_value (this, value);
+        }
+    }
+
+    public void write_value (java.io.Serializable value,
+                             java.lang.Class clz) 
+    {
+        if (!write_special_value (value))
+        {
+            Class c = value.getClass();
+	    String repId = RepositoryID.repId (c);
+            if (c == clz && !repId.startsWith("RMI:"))
+		// the repository id is required for "RMI:" valuetypes
+                write_value_internal (value, null);
+            else if (clz.isInstance (value))
+                write_value_internal (value, repId);
+            else
+                throw new org.omg.CORBA.BAD_PARAM();
+        }
+    }
+
+    public void write_value (java.io.Serializable value,
+                             String repository_id)
+    {
+        if (!write_special_value (value))
+            write_value_internal (value, repository_id);
+    }
+
+    /**
+     * If `value' is null, or has already been written to this stream,
+     * then this method writes that information to the stream and returns 
+     * true, otherwise does nothing and returns false.
+     */
+    private boolean write_special_value (java.io.Serializable value) 
+    {
+        if (value == null)
+        {
+            // null tag
+            write_long (0x00000000);
+            return true;
+        }
+        else 
+        {
+            Integer index = (Integer)valueMap.get (value);
+            if (index != null) 
+            {
+                // value has already been written -- make an indirection
+                write_long (0xffffffff);
+                write_long (index.intValue() - pos);
+                return true;
+            }
+            else
+                return false;
+        }
+    }
+
+    /**
+     * Writes `repository_id' to this stream, perhaps via indirection.
+     */
+    private void write_repository_id (String repository_id)
+    {
+        Integer index = (Integer)repIdMap.get (repository_id);
+        if (index == null)
+        {
+            // a new repository id -- write it
+            repIdMap.put (repository_id, new Integer(pos));
+            write_string (repository_id);
+        }
+        else
+        {
+            // a previously written repository id -- make an indirection
+            write_long (0xffffffff);
+            write_long (index.intValue() - pos);
+        }
+    }
+
+    /**
+     * This method does the actual work of writing `value' to this 
+     * stream.  If `repository_id' is non-null, then it is used as
+     * the type information for `value' (possibly via indirection).
+     * If `repository_id' is null, `value' is written without
+     * type information.
+     * Note: This method does not check for the special cases covered
+     * by write_special_value().
+     */
+    private void write_value_internal (java.io.Serializable value,
+                                       String repository_id) 
+    {
+        valueMap.put (value, new Integer(pos));
+        if (repository_id != null) 
+        {
+            write_long (0x7fffff02);
+            write_repository_id (repository_id);
+        }
+        else
+            write_long (0x7fffff00);
+
+        if (value.getClass() == String.class) 
+            // special handling for strings required according to spec
+	    write_wstring((String)value);
+        else if (value instanceof org.omg.CORBA.portable.StreamableValue)
+            ((org.omg.CORBA.portable.StreamableValue)value)._write (this);
+        else
+            org.jacorb.util.ValueHandler.writeValue (this, value);
+
+    }
+
+    public void setSize(int s){
         pos = s;
     }
 
