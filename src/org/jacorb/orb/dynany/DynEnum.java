@@ -21,6 +21,7 @@ package org.jacorb.orb.dynany;
  */
 
 import org.omg.DynamicAny.DynAnyPackage.*;
+import org.omg.DynamicAny.*;
 import org.jacorb.orb.*;
 
 /**
@@ -75,6 +76,10 @@ public final class DynEnum
     }
 
 
+    /**
+     * @overrides  from_any() in DynAny
+     */
+
     public void from_any( org.omg.CORBA.Any value ) 
 	throws InvalidValue, TypeMismatch
     {
@@ -105,6 +110,14 @@ public final class DynEnum
 	}
     }
    
+    public boolean equal( org.omg.DynamicAny.DynAny dyn_any )
+    {
+        if( !type().equal( dyn_any.type()))
+            return false;
+
+        return DynEnumHelper.narrow( dyn_any).get_as_ulong() == get_as_ulong();
+    }
+
 
     public org.omg.CORBA.Any to_any() 
     {
@@ -120,10 +133,10 @@ public final class DynEnum
 
     public java.lang.String get_as_string()
     {
-	return member_names[enum_value];
+	return member_names[ enum_value ];
     }
 	
-    public void set_as_string(java.lang.String arg)
+    public void set_as_string( java.lang.String arg )
 	throws InvalidValue
     {
 	int i = 0;
