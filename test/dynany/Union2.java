@@ -1,4 +1,4 @@
-package test;
+package test.dynany;
 
 public class Union2
 {
