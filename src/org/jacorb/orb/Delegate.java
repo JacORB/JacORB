@@ -457,35 +457,75 @@ public final class Delegate
         return null;
     }
 
+    /**
+     * The get_policy operation returns the policy object of the
+     * specified type, which applies to this object. It returns the
+     * effective Policy for the object reference. The effective Policy
+     * is the one that would be used if a request were made.  This
+     * Policy is determined first by obtaining the effective override
+     * for the PolicyType as returned by get_client_policy. The
+     * effective override is then compared with the Policy as
+     * specified in the IOR.  
+     * <p> 
+     * The effective Policy is determined by reconciling the effective
+     * override and the IOR-specified Policy. If the two policies
+     * cannot be reconciled, the standard system exception INV_POLICY
+     * is raised with standard minor code 1. The absence of a Policy
+     * value in the IOR implies that any legal value may be used.
+     */
+
     public org.omg.CORBA.Policy get_policy( org.omg.CORBA.Object self,
                                             int policy_type )
     {
-        Policy result = get_client_policy (policy_type);
+        Policy result = get_client_policy(policy_type);
         if (result != null)
+        {
+            // TODO: "reconcile" with server-side policy
             return result;
+        }
         else
+        {
             // if not locally overridden, ask the server
             return get_policy( self,
                                policy_type,
                                request( self, "_get_policy", true ) );
+        }
     }
 
     /**
-     * Gets the policy with the given type from the client-side.
+     * Gets the effective overriding policy with the given type from
+     * the client-side, or null if this policy type is unset.
+     *
+     * (Implementation is incomplete, we don't check PolicyCurrent, i.e.
+     * at the thread-level)
      */
-    public org.omg.CORBA.Policy get_client_policy (int policy_type)
-    {
-        // Currently, we only check for object-specific client-side
-        // overrides.  We should actually look for policies at the
-        // ORB and Thread level as well.
-        if (policy_overrides == null)
-        {
-            return null;
-        }
-        Integer key    = new Integer (policy_type);
-        return (Policy)policy_overrides.get (key);
-    }
 
+    public org.omg.CORBA.Policy get_client_policy(int policy_type)
+    {
+        Integer key = new Integer(policy_type);
+        Policy result = null;
+
+        if (policy_overrides != null)
+        {
+            result = (Policy)policy_overrides.get(key);
+        }
+        
+        if ( result == null )
+        {
+            // no override at the object level for this type, now
+            // check at the thread level, ie PolicyCurrent.
+            // TODO: currently not implemented
+
+            // check at the ORB-level
+            org.omg.CORBA.Policy[] orbPolicies = 
+                orb.getPolicyManager().get_policy_overrides(new int[]{policy_type});            
+            if ( orbPolicies!= null && orbPolicies.length == 1)
+                result =  orbPolicies[0];
+        }
+        
+        return result;
+    }
+    
 
     public org.omg.CORBA.Policy get_policy( org.omg.CORBA.Object self,
                                             int policy_type,
