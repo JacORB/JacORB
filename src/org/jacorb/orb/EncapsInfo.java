@@ -35,9 +35,9 @@ public class EncapsInfo
     public int index;
     public int start;
     public int size;
-    public HashMap valueMap;
-    public HashMap repIdMap;
-    public HashMap codebaseMap;
+    public Map valueMap;
+    public Map repIdMap;
+    public Map codebaseMap;
 
     /** constructor used by CDRInputStream */
 
@@ -60,7 +60,7 @@ public class EncapsInfo
      */
 
     public EncapsInfo(int index, int start,
-                      HashMap valueMap, HashMap repIdMap, HashMap codebaseMap)
+                      Map valueMap, Map repIdMap, Map codebaseMap)
     {
 	this.index = index;
 	this.start = start;
