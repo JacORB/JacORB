@@ -30,9 +30,8 @@ import java.util.Vector;
  */
 
 class InitDecl
-        extends Declaration
+    extends Declaration
 {
-
     public Vector paramDecls;
     public IdlSymbol myValue;
 
@@ -69,7 +68,6 @@ class InitDecl
     public void parse()
     {
         myValue = enclosing_symbol;
-
 
         try
         {

@@ -27,9 +27,8 @@ package org.jacorb.idl;
 
 
 class Declaration
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public Declaration( int num )
     {
         super( num );

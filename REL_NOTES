@@ -63,10 +63,15 @@ gerald.brose@acm.org
          - DII:
                - Fix for client connection timeout with deferred requests.
    - ORB:
-         - Two new client timeout policies to replace jacorb.connection.client_timeout:
+        - Two new client timeout policies to replace jacorb.connection.client_timeout:
 		- jacorb.client.pending_reply_timeout - For request timeout
 		- jacorb.connection.client_idle_timeout - For connection timeout
 
+   - SSL: 
+        - Changed SSL usage policy: SSL will now only be used, if both
+          sides support it and at least one side requires it. If the
+          client requires SSL, but the server doesn't support it, a
+          NO_PERMISSION exception is thrown.
 
 1.4.0
 =====

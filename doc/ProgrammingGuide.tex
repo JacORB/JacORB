@@ -1,11 +1,22 @@
 \documentclass[12pt]{scrbook}
 
-\usepackage{epsfig}
 \usepackage{a4wide}
 \usepackage{times}
 \usepackage{fancyhdr}
 % Note: next line required to enable longtable to work.
 \usepackage{longtable}
+
+\usepackage[pdftex]{graphicx}
+\usepackage[pdftex,                %%% hyper-references for pdflatex
+bookmarks=true,                    %%% generate bookmarks ...
+bookmarksnumbered=true,            %%% ... with numbers
+hypertexnames=false,               %%% needed for correct links to figures !!!
+breaklinks=true,                   %%% break links if exceeding a single line
+colorlinks=true,
+urlcolor = blue,
+citecolor = blue,
+urlcolor = blue]{hyperref} 
+
 \setcounter{secnumdepth}{2}
 
 \sloppy
@@ -69,7 +80,8 @@ an overview of the package contents.
 
 
 JacORB can be downloaded as a g-zipped tar--archive or as a zip--archive
-from the  JacORB home page  at {\tt www.jacorb.org}.
+from the  JacORB home page  at
+\href{http://www.jacorb.org}{http://www.jacorb.org}. 
 
 To install JacORB, just unzip  and untar (or simply unzip) the archive
 somewhere.  This will result  in a new directory {\tt \JacORBDir}.
@@ -83,21 +95,22 @@ the utilities in this directory are found.
 
 \subsection{Requirements}
 
-JacORB requires JDK 1.2 or above properly installed on your machine.
-To build JacORB (and compile the examples) you need to have the
-XML--based make tool ``Ant'' installed on your machine.  Ant can be
-downloaded from {\tt http://jakarta.apache.org/ant}. All make files
-({\tt build.xml}) are written for this tool. To rebuild JacORB
-completely, just type {\tt ant} in the installation directory.
-Optionally, you might want to do a {\tt ant clean} first.
+JacORB requires JDK 1.2 or above properly installed on your machine.  To build
+JacORB (and compile the examples) you need to have the XML--based make tool
+``Ant'' installed on your machine.  Ant can be downloaded from
+\href{http://jakarta.apache.org/ant}{http://jakarta.apache.org/ant}. All make
+files ({\tt build.xml}) are written for this tool. To rebuild JacORB
+completely, just type {\tt ant} in the installation directory.  Optionally,
+you might want to do a {\tt ant clean} first.
 
 For SSL, you need an implementation of the SSL protocol. We currently support:
 
 \begin{enumerate}
-\item IAIK's \footnote{{\tt http://jcewww.iaik.tu-graz.ac.at/}} implementation
-  consisting of the crypto provider IAIK--JCE 2.5 (or higher) and the SSL
-  library iSaSiLk 3.0 (or higher). Using this implementation allows you to
-  access the clients authenticated certificates.
+\item IAIK's
+  \footnote{\href{http://jcewww.iaik.tu-graz.ac.at}{http://jcewww.iaik.tu-graz.ac.at/}}
+  implementation consisting of the crypto provider IAIK--JCE 2.5 (or higher)
+  and the SSL library iSaSiLk 3.0 (or higher). Using this implementation
+  allows you to access the clients authenticated certificates.
 \item Sun's JSSE Reference implementation included in the JDK 1.4 and
   separately available from the Developer Connection.
 \end{enumerate}
@@ -989,7 +1002,9 @@ its contents. Figure \ref{fig:nameManager} gives a screen shot.
 
 \bigskip
 \begin{figure}[htb]
-\centerline{\epsfig{file=Nmgr1.eps, width=11cm}}
+  \begin{center}
+    \includegraphics[width=11cm]{Nmgr1}
+  \end{center}
 \caption{NameManager Screenshot}
 \label{fig:nameManager}
 \end{figure}
@@ -1012,15 +1027,14 @@ controlling  how servers are  started and  executed. These  include an
 activation daemon, the Portable Object Adapter (POA), and threading.
 
 This chapter gives only a very superficial introduction to the POA.  A
-thorough explanation of how the  POA can be used in different settings
-and of the  different policies and strategies it  offers is beyond our
-scope here,  but can be found in  \cite{Brose2001a}.  Other references
-that  explain  the  POA  are  \cite{Henning1999,  Vinoski1998}.   More
-in--depth  treatment in  C++ can  be found  in the  various C++-Report
-Columns on the POA by  Doug Schmidt and Steve Vinoski.  These articles
-are                            available                            at
-\verb+http://www.cs.wustl.edu/~schmidt/report-doc.html+.  The ultimate
-reference, of course, is the CORBA specification.
+thorough explanation of how the POA can be used in different settings and of
+the different policies and strategies it offers is beyond our scope here, but
+can be found in \cite{Brose2001a}.  Other references that explain the POA are
+\cite{Henning1999, Vinoski1998}.  More in--depth treatment in C++ can be found
+in the various C++-Report Columns on the POA by Doug Schmidt and Steve
+Vinoski.  These articles are available at
+\href{http://www.cs.wustl.edu/~schmidt/report-doc.html}{http://www.cs.wustl.edu/~schmidt/report-doc.html}.
+The ultimate reference, of course, is the CORBA specification.
 
 \section{POA}
 
@@ -1415,7 +1429,9 @@ in the org.omg.DynamicAny module.
 
 \smallskip
 \begin{figure}[htb]
-\centerline{\epsfig{file=dynany.eps, width=\textwidth}}
+  \begin{center}
+    \includegraphics[width=\textwidth]{dynany}
+  \end{center}
 \caption{DynAny Relationships}
 \end{figure}
 
@@ -1945,7 +1961,9 @@ exceptions, operations, attributes  and constants. Figure \ref{IR-fig}
 illustrates this hierarchy.
 
 \begin{figure}[htb]
-\centerline{\epsfig{file=IR.eps, width=5cm}}
+  \begin{center}
+    \includegraphics[width=5cm]{IR}
+  \end{center}
 \caption{Containers in the Interface Repository}
 \label{IR-fig}
 \end{figure}
@@ -1990,7 +2008,9 @@ functionality,  where $f^{-1}$  denotes  the reverse  mapping, or  the
 inverse of  the language  mapping.
 
 \begin{figure}[htb]
-\centerline{\epsfig{file=IR-Process.eps, width=7cm}}
+  \begin{center}
+    \includegraphics[width=7cm]{IR-Process}
+\end{center}
 \caption{The JacORB Interface Repository}
 \label{IR-Process}
 \end{figure}
@@ -2039,7 +2059,9 @@ Figure \ref{fig:IRBrowser} gives a screen shot of the IR browser.
 
 \bigskip
 \begin{figure}[htb]
-\centerline{\epsfig{file=IRBrowser.eps, width=11cm, angle=270}}
+  \begin{center}
+    \includegraphics[width=11cm, angle=270]{IRBrowser}
+\end{center}
 \caption{IRBrowser Screenshot}
 \label{fig:IRBrowser}
 \end{figure}
@@ -2486,7 +2508,7 @@ required:
         \item when using IAIKs libraries:
               \begin{itemize}
                 \item IAIK-JCE 2.591 or later, the security provider classes
-                downloadable from \\ {\tt http://jcewww.iaik.tu-graz.ac.at/},
+                downloadable from \\ \href{http://jcewww.iaik.tu-graz.ac.at}{http://jcewww.iaik.tu-graz.ac.at},
               \item iSaSiLk 3.0 or later, the SSL implementation from the same
                 source.
               \end{itemize}
@@ -2539,7 +2561,9 @@ leave  the  algorithm  and  key  length fields  in  the  combobox  menu
 unchanged.
 
 \bigskip
-\centerline{\epsfig{file=Generate.eps, width=7cm}}
+\begin{center}
+  \includegraphics[width=7cm]{Generate}
+\end{center}
 
 You  now  have a  public  key certificate  that  you  can present  for
 authentication, claiming  identity with the  alias name that  has been
@@ -2553,7 +2577,7 @@ to only sign certificates that  they have carefully scrutinized --- or
 even created themselves.
 
 \bigskip
-\centerline{\epsfig{file=Keystore.eps, width=11cm}}
+\centerline{\includegraphics[width=11cm]{Keystore}}
 
 For   convenience  you   can  act   as  a   CA  yourself,   using  the
 KeyStoreManager GUI  to import certificates  and then sign  and export
@@ -2568,7 +2592,7 @@ a key  chain must hold the  CA's public key  certificate, signed using
 its private key. Trust in the CA key is ``axiomatic''.
 
 \bigskip
-\centerline{\epsfig{file=KSMenu.eps, width=11cm}}
+\centerline{\includegraphics[width=11cm]{KSMenu}}
 
 You can  check the validity of a  key chain by selecting  an alias and
 then choosing {\tt Verify Chain}  from the {\tt Keys} menu. Unless the

@@ -682,7 +682,27 @@ module CORBA
 
     typedef sequence<octet> Principal;
 
-	
+    
+    //need to have this because the OMG supplied helper classes for
+    //these exceptions always throw NO_IMPLEMENT
+    interface ORB 
+    {
+       exception InvalidName {}; 
+       exception InconsistentTypeCode {};
+    };
+
+    typedef sequence<any> AnySeq;
+    typedef sequence<boolean> BooleanSeq;
+    typedef sequence<char> CharSeq;
+    typedef sequence<double> DoubleSeq;
+    typedef sequence<float> FloatSeq;
+    typedef sequence<long> LongSeq;
+    typedef sequence<long long> LongLongSeq;
+    typedef sequence<short> ShortSeq;
+    typedef sequence<unsigned long> ULongSeq;
+    typedef sequence<unsigned long long> UlongLongSeq;
+    typedef sequence<unsigned short> UshortSeq;
+    typedef sequence<wchar> WcharSeq;
 };
 
 

@@ -125,8 +125,15 @@ class OpDecl
 //                  Environment.output( 2, "addImportedName " + param.paramTypeSpec.toString()  );
 //                  myInterface.addImportedName( param.paramTypeSpec.toString() );
 //              }
-            myInterface.addImportedName( param.paramTypeSpec.full_name(), 
-                                         param.paramTypeSpec );
+
+            if( !(param.paramTypeSpec.typeSpec() instanceof BaseType ))
+            {
+                
+                Environment.output( 2, param.paramTypeSpec.typeSpec().getClass().getName() );
+
+                myInterface.addImportedName( param.paramTypeSpec.typeSpec().full_name(), 
+                                             param.paramTypeSpec.typeSpec() );
+            }
         }
 
         if( opTypeSpec.typeSpec() instanceof ScopedName )

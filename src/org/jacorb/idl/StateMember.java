@@ -22,9 +22,9 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-public class StateMember extends Member
+public class StateMember 
+    extends Member
 {
-
     public boolean isPublic = false;
 
     public StateMember( int num )

@@ -7,9 +7,16 @@ public class DiiServer
     extends org.omg.PortableServer.DynamicImplementation
 {
     private String[] ids = {"IDL:dii/server:1.0"};
+
     // singleton ORB as any factory
-    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init();
+    org.omg.CORBA.ORB orb = null;
+    
     serverImpl impl = new serverImpl();
+
+    public DiiServer( org.omg.CORBA.ORB orb )
+    {
+        this.orb = orb;
+    }
 
     /** from Servant */
 
@@ -144,6 +151,8 @@ public class DiiServer
 	} 
  	catch ( org.omg.CORBA.UserException e )
   	{
+            System.out.println("Caught: " + e );
+            
   	    Any exceptAny = orb.create_any();
   	    try 
   	    {
@@ -190,7 +199,7 @@ public class DiiServer
 	    poa.the_POAManager().activate();
 
 	    org.omg.CORBA.Object o = 
-                poa.servant_to_reference(new DiiServer());
+                poa.servant_to_reference(new DiiServer( orb ));
 
 	    // register server with naming context
 	    NamingContextExt nc = 

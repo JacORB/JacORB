@@ -79,23 +79,31 @@ public class Client
         }
     }
 
-    public static void actionStop() {
-        for (int i=0; i<generators.length; i++) {
-            for (int k=0; k<generators[i].length; k++) {
+    public static void actionStop() 
+    {
+        for (int i=0; i<generators.length; i++) 
+        {
+            for (int k=0; k<generators[i].length; k++) 
+            {
                 generators[i][k].active = false;
             }
         }
+
         System.out.println("[ RequestGenerators stopped ]");
-        for (int i=0; i<foos.length; i++) {
-            try {
+
+        for (int i=0; i<foos.length; i++) 
+        {
+            try 
+            {
                 foos[i].deactivate();
             }
-            catch (Throwable e) {
+            catch (Throwable e) 
+            {
                 System.out.println("[ exception occured during object deactivation ]");
                 System.out.println(e.toString());
             }
         }
-        System.out.println("[ Remote objects deactivated ]\n");
+        System.out.println("[ Remote objects deactivated (don't worry about wrong policy exception messages s\n  in server 3 (Servant Locator) ]");
         printTime();		
     }
 

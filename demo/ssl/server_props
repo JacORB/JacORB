@@ -9,7 +9,7 @@ org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=org.jacorb.security.
 # EstablishTrustInTarget = 20
 # mutual authentication = 60
 
-jacorb.security.support_ssl=on
+jacorb.security.support_ssl=off
 
 jacorb.security.ssl.server.supported_options=61
 jacorb.security.ssl.server.required_options=0

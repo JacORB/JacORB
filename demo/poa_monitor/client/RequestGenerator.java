@@ -24,6 +24,7 @@ public class RequestGenerator extends Thread {
 				
 			} catch (org.omg.CORBA.SystemException e) {
 				System.out.println("system exception received: "+e);
+                                e.printStackTrace();
 			} catch (Throwable e) {
 				System.out.println("exception received: "+e);
 				e.printStackTrace();			

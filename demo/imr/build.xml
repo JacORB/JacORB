@@ -1,19 +1,18 @@
 <?xml version="1.0"?>
 
-<project name="demo" default="all" basedir="../../..">
-
-   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL"
-      classpath="${basedir}/classes"/>
+<project name="demo" default="all" basedir="../..">
 
   <!-- ==================================================== -->
-  <!--             Demo build file                         -->
+  <!--                  Demo build file                     -->
   <!-- ==================================================== -->
 
    <target name="init">
-	<property name="name" value="value/idl"/>
+	<property name="name" value="imr"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+	<property name="idlflags" value="-I${include}/omg -ir  -d ${dirs.base}/demo/${name}/generated"/>
    </target>
 
    <target name="all" depends="init,idl">
@@ -21,7 +20,6 @@
                destdir="${classdir}"
 	       includes="demo/${name}/**/*.java"
 	        />
-
 	<javac srcdir="${dirs.base}"
                destdir="${classdir}"
 	       includes="demo/${name}/*.java"
@@ -29,16 +27,18 @@
    </target>
 
    <target name="idl" depends="init">
-        <jacidl 
-              srcdir="${dirs.base}/demo/${name}"
-              destdir="${dirs.base}/demo/${name}/generated" 
-              includes="server.idl"/>
+        <java classname="org.jacorb.idl.parser" 
+              fork="yes" 
+              classpath="${lib}/idl.jar;${java.class.path}">
+
+	      <arg line="${idlflags}
+	      ${dirs.base}/demo/${name}/server.idl"/>
+         </java>
    </target>
 
-
-   <target name="clean" depends="init">
-           <delete dir="${classdir}/demo/${name}"/>
-           <delete dir="${dirs.base}/demo/${name}/generated"/>
+   <target name="clean">
+	   <deltree dir="${classdir}/demo/${name}"/>
+	   <deltree dir="${dirs.base}/demo/${name}/generated"/>
    </target>
 
 </project>

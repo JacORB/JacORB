@@ -1,4 +1,0 @@
-# shell script to run the environment tester client program
-# $Id$
-cd ${JACORB}/classes
-jaco org.jacorb.orb.domain.test.EnvironmentTester

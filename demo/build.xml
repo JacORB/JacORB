@@ -18,7 +18,8 @@
    </target>
 
    <target name="all"
-   depends="init_compile,any,arrays,grid,hello,unions,poa_monitor,benchmark,dii,mtclient,dynany,interceptors,events,outparam,bank,concurrency" />
+   depends="init_compile,any,arrays,grid,hello,unions,poa_monitor,benchmark,dii,mtclient,dynany,interceptors,events,outparam,bank,concurrency,
+   value,imr" />
 
    <target name="any" depends="init_compile">
 	   <ant dir="${basedir}" antfile="${basedir}/demo/any/build.xml" target="${target}"/>
@@ -91,6 +92,14 @@
 
    <target name="outparam" depends="init_compile">
 	   <ant dir="${basedir}" antfile="${basedir}/demo/outparam/build.xml" target="${target}"/>
+   </target>
+
+   <target name="value" depends="init_compile">
+	   <ant dir="${basedir}" antfile="${basedir}/demo/value/idl/build.xml" target="${target}"/>
+   </target>
+
+   <target name="imr" depends="init_compile">
+	   <ant dir="${basedir}" antfile="${basedir}/demo/imr/build.xml" target="${target}"/>
    </target>
 
    <target name="clean" depends="init_compile">

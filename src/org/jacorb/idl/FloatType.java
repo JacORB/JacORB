@@ -25,9 +25,8 @@ package org.jacorb.idl;
  * @version $Id$
  */
 
-
 class FloatType
-        extends FloatPtType
+    extends FloatPtType
 {
 
     public FloatType( int num )
@@ -85,23 +84,5 @@ class FloatType
         return "extract_float";
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

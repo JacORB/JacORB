@@ -60,6 +60,7 @@ class ValueDecl
         for( Iterator i = d.v.iterator(); i.hasNext(); )
         {
             Declaration dec = ( (Definition)( i.next() ) ).get_declaration();
+            dec.setPackage( name );
             if( dec instanceof StateMember )
                 stateMembers.v.add( dec );
             else if( dec instanceof OpDecl )
@@ -158,7 +159,8 @@ class ValueDecl
                 {
                     justAnotherOne = true;
                 }
-                if( ! full_name().equals( "org.omg.CORBA.TypeCode" ) && stateMembers.size () != 0 )
+                if( ! full_name().equals( "org.omg.CORBA.TypeCode" ) && 
+                    stateMembers.size () != 0 )
                 {
                     TypeMap.replaceForwardDeclaration( full_name(), ctspec );
                 }
@@ -172,7 +174,9 @@ class ValueDecl
 
         if (stateMembers.size () != 0)
         {
+            ScopedName.addRecursionScope( typeName() );
             stateMembers.parse();
+            ScopedName.removeRecursionScope( typeName() );
 
             for( Iterator i = operations.iterator(); i.hasNext(); )
                 ( (IdlSymbol)i.next() ).parse();
@@ -188,6 +192,9 @@ class ValueDecl
                         operations.add( e.nextElement() );
                 }
             }
+
+            for( Iterator i = factories.iterator(); i.hasNext(); )
+                ( (IdlSymbol)i.next() ).parse();
 
             // check inheritance rules
 
@@ -342,6 +349,7 @@ class ValueDecl
         short access = m.isPublic
                 ? org.omg.CORBA.PUBLIC_MEMBER.value
                 : org.omg.CORBA.PRIVATE_MEMBER.value;
+
         return "new org.omg.CORBA.ValueMember (" +
                 "\"" + m.name + "\", \"" + typeSpec.id() +
                 "\", \"" + name + "\", \"1.0\", " +

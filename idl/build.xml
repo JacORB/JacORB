@@ -82,6 +82,13 @@
       <delete file="${src}/generated/org/omg/CORBA/TypeCodePOATie.java"/>
       <delete file="${src}/generated/org/omg/CORBA/_TypeCodeStub.java"/>
       <delete file="${src}/generated/org/omg/CORBA/PolicyOperations.java"/>
+      <!-- interface ORB is defined in _orb.idl to provide the wrapping -->
+      <!-- for the exceptions InvalidName and InvalidTypeCode. Deleting -->
+      <!-- this here to avoid confusing the compiler. -->
+      <delete>
+      <fileset dir="${src}/generated/org/omg/CORBA"
+               includes="ORB*,_ORBStub.java" />
+      </delete>
 
       <mkdir dir="${src}/generated/org"/>
 
