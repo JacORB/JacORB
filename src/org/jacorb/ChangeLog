@@ -1,3 +1,24 @@
+2003-09-01  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* util/Version.java, util/tracing/ClientTraceInterceptor.java,
+	util/tracing/ServerTraceInterceptor.java, util/tracing/Timer.java,
+	util/tracing/TraceInitializer.java,
+	util/tracing/TraceTreeNode.java,
+	util/tracing/TracingServiceImpl.java: Removed unused imports
+
+	* ir/gui/remoteobject/ObjectRepresentantFactory.java: Remove comments
+
+2003-08-31  Andre Spiegel  <spiegel@gnu.org>
+
+	* idl/ValueDecl.java (printHelper): Add factory methods.  Fix for
+	bug #228/#280.
+
+	* idl/InitDecl.java (printHelperMethod): New method.
+
+	* orb/giop/TransportManager.java (instantiateFactories): Use the
+	context class loader, because JacORB might be on the
+	bootclasspath, and the external transport on the normal classpath.
+
 2003-08-29  Nick Cross  <nick.cross@prismtechnologies.com>
 
 	* idl/Interface.java, idl/Method.java: More fixes for Jac286 -
@@ -879,7 +900,7 @@
 	notification/notification_build.properties.win_template: removed
 	unnecessary files
 
-2003-07-03  francisco  <francisco@eagle>
+2003-07-03  Francisco Revervel  <reverbel@ime.usp.br>
 
 	* orb/CDROutputStream.java:
 	    - Added config property jacorb.interop.chunk_custom_rmi_valuetypes.
@@ -890,7 +911,7 @@
 
 	* notification/EventChannelFactoryImpl.java: print out IOR to stdout
 
-2003-07-03  francisco  <francisco@eagle>
+2003-07-03  Francisco Revervel  <reverbel@ime.usp.br>
 
 	* orb/build.xml: Compile org/jacorb/orb/iiop/*.java.
 

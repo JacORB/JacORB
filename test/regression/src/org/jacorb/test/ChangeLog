@@ -1,3 +1,16 @@
+2003-08-31  Andre Spiegel  <spiegel@gnu.org>
+
+	* bugs/AllTest.java (suite): Add bug228.
+
+	* bugs/bug351/TestCase.java, bugs/bug344/TestCase.java (suite):
+	Make suite name uniform to the other bug tests.
+
+	* bugs/bug228/TestCase.java: Add comment.
+
+	* bugs/bug228/SampleDefaultFactory.java,
+	bugs/bug228/SampleIm.java, bugs/bug228/TestCase.java: Initial
+	revision.
+
 2003-08-28  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
 	* notification/engine/PushToConsumerTest.java: corrected typo
