@@ -1326,7 +1326,6 @@ public class lexer
                             }
                             catch( NumberFormatException ex2 )
                             {
-                                ex2.printStackTrace ();
                                 emit_error( "Invalid octal/hex value:  " + str );
                             }
                         }
@@ -1443,7 +1442,6 @@ public class lexer
                                 }
                                 catch (NumberFormatException ex3)
                                 {
-                                    ex2.printStackTrace ();
                                     emit_error( "Invalid long value:  " + str );
                                 }
                             }
