@@ -21,17 +21,12 @@ package org.jacorb.orb;
  */
 
 import java.util.*;
-import java.io.*;
-import java.net.*;
 
-import org.jacorb.imr.*;
 import org.jacorb.util.*;
 import org.jacorb.util.Time;
-import org.jacorb.poa.POAConstants;
 import org.jacorb.poa.util.POAUtil;
 import org.jacorb.orb.connection.*;
 import org.jacorb.orb.util.CorbaLoc;
-import org.jacorb.orb.policies.*;
 import org.jacorb.orb.portableInterceptor.*;
 
 import org.omg.CORBA.portable.*;
@@ -43,7 +38,6 @@ import org.omg.CORBA.Policy;
 import org.omg.CORBA.TIMEOUT;
 import org.omg.TimeBase.*;
 import org.omg.Messaging.*;
-import org.omg.CORBA.SystemException;
 import org.omg.PortableServer.POAPackage.*;
 
 /**
@@ -555,6 +549,15 @@ public final class Delegate
                                                             .relative_expiry();
         else
             return -1;
+    }
+    
+    public short getSyncScope()
+    {
+    	Policy p = get_client_policy (SYNC_SCOPE_POLICY_TYPE.value);
+    	if (p != null)
+    		return ((org.omg.Messaging.SyncScopePolicy)p).synchronization();
+    	else
+			return ((org.omg.Messaging.SYNC_NONE.value));
     }
     
     /**
@@ -1218,6 +1221,7 @@ public final class Delegate
                                          connection.getId(),
                                          operation,
                                          responseExpected,
+                                         getSyncScope(),
                                          getRequestStartTime(),
                                          requestEndTime,
                                          replyEndTime,
