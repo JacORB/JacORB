@@ -83,6 +83,7 @@ public class GIOPConnectionManager
     
 
     public ServerGIOPConnection createServerGIOPConnection( 
+        org.omg.ETF.Profile profile,
         Transport transport,
         RequestListener request_listener,
         ReplyListener reply_listener )
@@ -127,7 +128,8 @@ public class GIOPConnectionManager
         }
 
         ServerGIOPConnection connection =
-            new ServerGIOPConnection( transport,
+            new ServerGIOPConnection( profile,
+                                      transport,
                                       request_listener,
                                       reply_listener,
                                       getStatisticsProvider(),
@@ -151,11 +153,13 @@ public class GIOPConnectionManager
     } 
 
     public GIOPConnection createClientGIOPConnection( 
+        org.omg.ETF.Profile profile,
         Transport transport,
         RequestListener request_listener,
         ReplyListener reply_listener )
     {
-        return new ClientGIOPConnection( transport,
+        return new ClientGIOPConnection( profile,
+                                         transport,
                                          request_listener,
                                          reply_listener,
                                          null );
