@@ -109,7 +109,9 @@ public class ClientServerSetup extends TestSetup {
         serverProcess = Runtime.getRuntime().exec 
                           (   "jaco -Djacorb.verbosity=0 "
                             + "-Djacorb.orb.print_version=off "
-                            + "org.jacorb.test.common.TestServer "
+                            + "-classpath " 
+                                    + System.getProperty ("java.class.path")
+                            + " org.jacorb.test.common.TestServer "
                             + servantName );
         BufferedReader input = 
             new BufferedReader
