@@ -713,15 +713,7 @@ public abstract class GIOPConnection
             connection_listener.connectionClosed();
         }
 
-        try
-        {
-            transport.closeCompletely();
-        }
-        catch( IOException e )
-        {
-            //Debug.output( 1, e );
-        }
-
+        transport.close();
         do_close = true;
 
         Debug.output( 2, "GIOPConnection closed completely" );
