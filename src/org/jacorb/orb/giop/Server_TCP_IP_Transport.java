@@ -44,11 +44,10 @@ public class Server_TCP_IP_Transport
     private IIOPProfile profile;
 
     public Server_TCP_IP_Transport( Socket socket,
-                                    boolean is_ssl,
-                                    TransportManager transport_manager )
+                                    boolean is_ssl )
         throws IOException
     {
-        super( transport_manager );
+        super();
 
         this.socket = socket;
         //        socket.setTcpNoDelay( true );
