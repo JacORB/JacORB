@@ -93,6 +93,7 @@ public class AdminLimitTest extends NotificationTestCase
             
             public void destroy()
             {
+                // nothing to do
             }
         };
 
@@ -128,10 +129,12 @@ public class AdminLimitTest extends NotificationTestCase
 
             public void actionProxyCreated(ProxyEvent event)
             {
+                // nothing to do
             }
 
             public void actionProxyDisposed(ProxyEvent event)
             {
+                // ignore
             }
         };
 
@@ -177,6 +180,7 @@ public class AdminLimitTest extends NotificationTestCase
             fail();
         } catch (AdminLimitExceeded e)
         {
+            // expected
         }
     }
 
