@@ -44,7 +44,7 @@ public class IIOPListener extends _ListenerLocalBase
 {
     private ServerSocketFactory    serverSocketFactory    = null;
     private SSLServerSocketFactory sslServerSocketFactory = null;
-    
+
     private Acceptor    acceptor    = null;
     private SSLAcceptor sslAcceptor = null;
 
@@ -55,7 +55,7 @@ public class IIOPListener extends _ListenerLocalBase
      * incoming connections via upcalls.
      */
     private org.omg.ETF.Handle up = null;
-    
+
     /**
      * Queue of incoming connections, which will be
      * delivered via calls to the accept() method.
@@ -63,9 +63,9 @@ public class IIOPListener extends _ListenerLocalBase
      * if no Handle has been set.
      */
     private List incoming_connections = new ArrayList();
-    
+
     private boolean terminated = false;
-    
+
     public IIOPListener()
     {
         if (!isSSLRequired())
@@ -73,16 +73,16 @@ public class IIOPListener extends _ListenerLocalBase
             acceptor = new Acceptor();
             acceptor.init();
         }
-            
+
         if (isSSLSupported())
         {
             sslAcceptor = new SSLAcceptor();
             sslAcceptor.init();
         }
-            
+
         endpoint = createEndPointProfile();
     }
-    
+
     /**
      * This call establishes the link between the ORB (i.e. the Handle
      * instance) and a server endpoint of the plugged-in transport.
@@ -106,13 +106,13 @@ public class IIOPListener extends _ListenerLocalBase
     public Connection accept()
     {
         if (up != null)
-            throw new org.omg.CORBA.BAD_INV_ORDER 
+            throw new org.omg.CORBA.BAD_INV_ORDER
                 ("Must not call accept() when a Handle has been set");
         else
         {
             synchronized (incoming_connections)
             {
-                while (!terminated && 
+                while (!terminated &&
                        incoming_connections.isEmpty())
                 {
                     try
@@ -129,16 +129,16 @@ public class IIOPListener extends _ListenerLocalBase
                 else
                     return null;
             }
-        }       
+        }
     }
 
     /**
-     * It is possible that connection requests arrive <i>after</i> the 
-     * initial creation of the Listener instance but <i>before</i> the 
-     * conclusion of the configuration of the specific endpoint in this 
+     * It is possible that connection requests arrive <i>after</i> the
+     * initial creation of the Listener instance but <i>before</i> the
+     * conclusion of the configuration of the specific endpoint in this
      * plugin. In order to provide a clear end of this configuration state,
-     * we added the listen() method. It is called by the ORB when it ready 
-     * for incoming connection and thus signals the Listener instance to 
+     * we added the listen() method. It is called by the ORB when it ready
+     * for incoming connection and thus signals the Listener instance to
      * start processing the incoming connection requests. Therefore,
      * a Listener instance shall not deliver incoming connections to the
      * ORB before this method was called.
@@ -147,7 +147,7 @@ public class IIOPListener extends _ListenerLocalBase
     {
         if (acceptor != null)
             acceptor.start();
-            
+
         if (sslAcceptor != null)
             sslAcceptor.start();
     }
@@ -161,7 +161,7 @@ public class IIOPListener extends _ListenerLocalBase
     {
         if (acceptor != null)
             acceptor.terminate();
-            
+
         if (sslAcceptor != null)
             sslAcceptor.terminate();
 
@@ -187,7 +187,7 @@ public class IIOPListener extends _ListenerLocalBase
     {
         return endpoint.copy();
     }
-    
+
     // internal methods below this line
 
     /**
@@ -195,7 +195,7 @@ public class IIOPListener extends _ListenerLocalBase
      */
     private boolean isSSLSupported()
     {
-        return Environment.isPropertyOn ("jacorb.security.support_ssl");    
+        return Environment.isPropertyOn ("jacorb.security.support_ssl");
     }
 
     /**
@@ -205,7 +205,7 @@ public class IIOPListener extends _ListenerLocalBase
     private boolean isSSLRequired()
     {
         if (isSSLSupported())
-        {        
+        {
             //the following is used as a bit mask to check, if any of
             //these options are set
             int minimum_options =
@@ -215,8 +215,8 @@ public class IIOPListener extends _ListenerLocalBase
                 DetectMisordering.value |
                 EstablishTrustInTarget.value |
                 EstablishTrustInClient.value;
-        
-            String prop = Environment.getProperty 
+
+            String prop = Environment.getProperty
                                ("jacorb.ssl.server.required_options");
             if (prop != null)
             {
@@ -246,22 +246,22 @@ public class IIOPListener extends _ListenerLocalBase
         if (prop != null)
             return Integer.parseInt (prop);
         else
-            return 0;   
+            return 0;
     }
-    
+
     private ServerSocketFactory getServerSocketFactory()
     {
         if (serverSocketFactory == null)
         {
-            serverSocketFactory = 
-                SocketFactoryManager.getServerSocketFactory ((org.jacorb.orb.ORB)null);        
+            serverSocketFactory =
+                SocketFactoryManager.getServerSocketFactory ((org.jacorb.orb.ORB)null);
         }
-        return serverSocketFactory;   
+        return serverSocketFactory;
     }
-    
+
     /**
      * Returns the SSLServerSocketFactory that has been configured.
-     * If no such factory is available, org.omg.CORBA.INITIALIZE() is thrown. 
+     * If no such factory is available, org.omg.CORBA.INITIALIZE() is thrown.
      */
     private SSLServerSocketFactory getSSLServerSocketFactory()
     {
@@ -273,18 +273,18 @@ public class IIOPListener extends _ListenerLocalBase
             // store it in a static variable (which is not specific
             // to a particular ORB again, but this is the way it
             // has always been in JacORB).
-            
+
             // TODO: Check what is the right thing to do.
 
-            sslServerSocketFactory 
+            sslServerSocketFactory
                 = org.jacorb.orb.BasicAdapter.ssl_socket_factory;
             if (sslServerSocketFactory == null)
-                throw new org.omg.CORBA.INITIALIZE 
+                throw new org.omg.CORBA.INITIALIZE
                                   ("No SSL server socket factory found");
         }
         return sslServerSocketFactory;
     }
-    
+
     private IIOPProfile createEndPointProfile()
     {
         IIOPProfile result = null;
@@ -317,18 +317,18 @@ public class IIOPListener extends _ListenerLocalBase
         (
             "jacorb.security.ssl.server.supported_options", 16
         );
-        int target_requires = Environment.getIntProperty 
+        int target_requires = Environment.getIntProperty
         (
             "jacorb.security.ssl.server.required_options", 16
         );
-        
+
         return new SSL
         (
             (short)target_supports, (short)target_requires,
             (short)sslAcceptor.getLocalAddress().getPort()
         );
     }
-    
+
     /**
      * Returns the IP address that this listener should listen on,
      * if one has been configured explicitly.  If none has been
@@ -341,7 +341,7 @@ public class IIOPListener extends _ListenerLocalBase
             String oa_addr = Environment.getProperty ("OAIAddr");
             if (oa_addr == null)
                 return InetAddress.getLocalHost();
-            else 
+            else
             {
                 InetAddress result = InetAddress.getByName(oa_addr);
                 return result;
@@ -351,10 +351,10 @@ public class IIOPListener extends _ListenerLocalBase
         {
             throw new org.omg.CORBA.INITIALIZE
                              ("Could not resolve configured listener host");
-        }    
+        }
     }
-    
-    
+
+
     /**
      * Returns the number of the port that this Listener should listen on.
      * If no port has been specified, returns zero.
@@ -367,19 +367,19 @@ public class IIOPListener extends _ListenerLocalBase
         else
             return 0;
     }
-    
+
     private int getConfiguredSSLPort()
     {
         String prop = Environment.getProperty ("OASSLPort");
         if (prop != null)
             return Integer.parseInt (prop);
         else
-            return 0;   
+            return 0;
     }
-    
+
     /**
      * Creates an ETF connection around a live socket and passes it
-     * up to the ORB, using either the upcall mechanism or the 
+     * up to the ORB, using either the upcall mechanism or the
      * polling mechanism.
      */
     private void deliverConnection (Socket socket, boolean isSSL)
@@ -408,7 +408,7 @@ public class IIOPListener extends _ListenerLocalBase
             }
         }
     }
-    
+
     /**
      * Template method to create a server-side ETF Connection.
      * This can be overridden by subclasses to pass a different
@@ -418,26 +418,28 @@ public class IIOPListener extends _ListenerLocalBase
                                                  boolean is_ssl)
         throws IOException
     {
-        return new ServerIIOPConnection (socket, is_ssl);   
+        return new ServerIIOPConnection (socket, is_ssl);
     }
-    
+
     // Acceptor classes below this line
-    
-    private class Acceptor extends Thread 
+
+    private class Acceptor extends Thread
     {
         protected ServerSocket serverSocket;
         private   boolean      terminated = false;
-        
+
         public Acceptor()
         {
             // initialization deferred to init() method due to JDK bug
+
+            setDaemon(true);
         }
-        
+
         public void init()
         {
             serverSocket = createServerSocket();
         }
-        
+
         public void run()
         {
             while (!terminated)
@@ -457,7 +459,7 @@ public class IIOPListener extends _ListenerLocalBase
             Debug.output( Debug.INFORMATION | Debug.ORB_CONNECT,
                           "Listener exited");
         }
-        
+
         /**
          * Terminates this Acceptor by closing the ServerSocket.
          */
@@ -485,13 +487,13 @@ public class IIOPListener extends _ListenerLocalBase
 
         /**
          * Template method that creates the server socket.
-         */        
+         */
         protected ServerSocket createServerSocket()
         {
             try
             {
                 return getServerSocketFactory()
-                           .createServerSocket (getConfiguredPort(), 
+                           .createServerSocket (getConfiguredPort(),
                                                 20,
                                                 getConfiguredHost());
             }
@@ -501,7 +503,7 @@ public class IIOPListener extends _ListenerLocalBase
                 throw new org.omg.CORBA.INITIALIZE ("Could not create server socket");
             }
         }
-        
+
         /**
          * Template method that sets up the socket right after the
          * connection has been established.  Subclass implementations
@@ -516,7 +518,7 @@ public class IIOPListener extends _ListenerLocalBase
         {
             IIOPListener.this.deliverConnection (socket, false);
         }
-    }    
+    }
 
     private class SSLAcceptor extends Acceptor
     {
@@ -532,17 +534,17 @@ public class IIOPListener extends _ListenerLocalBase
             catch (IOException e)
             {
                 Debug.output (2, e);
-                throw new org.omg.CORBA.INITIALIZE 
+                throw new org.omg.CORBA.INITIALIZE
                                            ("Could not create SSL server socket");
-            }                         
+            }
         }
-        
+
         public void setup (Socket socket) throws IOException
         {
             super.setup (socket);
             getSSLServerSocketFactory().switchToClientMode (socket);
         }
-        
+
         protected void deliverConnection (Socket socket)
         {
             IIOPListener.this.deliverConnection (socket, true);
