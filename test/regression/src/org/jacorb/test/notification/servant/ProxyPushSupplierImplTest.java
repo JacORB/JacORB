@@ -34,6 +34,7 @@ import org.jacorb.notification.servant.ProxyPushSupplierImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
 import org.omg.CORBA.Any;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyComm.PushConsumer;
 
 /**
@@ -42,7 +43,6 @@ import org.omg.CosNotifyComm.PushConsumer;
  */
 public class ProxyPushSupplierImplTest extends NotificationTestCase
 {
-
     private MockControl controlTaskProcessor_;
 
     private TaskProcessor mockTaskProcessor_;
@@ -79,13 +79,18 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
 
         controlAdmin.replay();
 
+        MockControl controlConsumerAdmin = MockControl.createControl(ConsumerAdmin.class);
+        ConsumerAdmin mockConsumerAdmin = (ConsumerAdmin) controlConsumerAdmin.getMock();
+
+        controlConsumerAdmin.replay();
+        
         controlTaskProcessor_ = MockControl.createControl(TaskProcessor.class);
         mockTaskProcessor_ = (TaskProcessor) controlTaskProcessor_.getMock();
         controlTaskExecutor_ = MockControl.createControl(TaskExecutor.class);
         mockTaskExecutor_ = (TaskExecutor) controlTaskExecutor_.getMock();
         objectUnderTest_ = new ProxyPushSupplierImpl(mockAdmin, getORB(), getPOA(),
                 getConfiguration(), mockTaskProcessor_, mockTaskExecutor_, new OfferManager(),
-                new SubscriptionManager());
+                new SubscriptionManager(), mockConsumerAdmin);
 
         assertEquals(new Integer(10), objectUnderTest_.getID());
     }
@@ -101,8 +106,10 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         controlMessage.setReturnValue(any);
 
         mockMessage.clone();
-        controlMessage.setReturnValue(mockMessage);
-        
+        controlMessage.setReturnValue(mockMessage, 2);
+
+        mockMessage.dispose();
+
         controlMessage.replay();
 
         MockControl controlPushConsumer = MockControl.createControl(PushConsumer.class);
@@ -112,16 +119,16 @@ public class ProxyPushSupplierImplTest extends NotificationTestCase
         controlPushConsumer.setThrowable(new RuntimeException());
 
         controlPushConsumer.replay();
-        
+
         mockTaskProcessor_.getBackoutInterval();
         controlTaskProcessor_.setReturnValue(0);
-        
+
         mockTaskProcessor_.executeTaskAfterDelay(0, null);
         controlTaskProcessor_.setMatcher(MockControl.ALWAYS_MATCHER);
         controlTaskProcessor_.setReturnValue(new Object());
-        
+
         controlTaskProcessor_.replay();
-        
+
         controlTaskExecutor_.replay();
 
         objectUnderTest_.connect_any_push_consumer(mockPushConsumer);

@@ -33,7 +33,6 @@ import org.jacorb.notification.servant.IAdmin;
 import org.jacorb.notification.servant.StructuredProxyPushSupplierImpl;
 import org.jacorb.test.notification.NotificationTestCase;
 import org.jacorb.test.notification.NotificationTestCaseSetup;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
 
@@ -78,7 +77,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         mockTaskExecutor_ = (TaskExecutor) controlTaskExecutor_.getMock();
         objectUnderTest_ = new StructuredProxyPushSupplierImpl(mockAdmin, getORB(), getPOA(),
                 getConfiguration(), mockTaskProcessor_, mockTaskExecutor_, new OfferManager(),
-                new SubscriptionManager());
+                new SubscriptionManager(), null);
 
         assertEquals(new Integer(10), objectUnderTest_.getID());
     }
@@ -95,7 +94,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
     public void testDeliverMessage_NotConnectedDoesNotAccessMessage()
     {
-        MockControl controlMessage = MockControl.createControl(Message.class);
+        MockControl controlMessage = MockControl.createStrictControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
 
         controlMessage.replay();
@@ -115,7 +114,7 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
 
     public void testDeliverMessage_EnqueueClonesMessages() throws Exception
     {
-        MockControl controlMessage = MockControl.createControl(Message.class);
+        MockControl controlMessage = MockControl.createStrictControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
 
         mockMessage.clone();
@@ -145,16 +144,21 @@ public class StructuredProxyPushSupplierImplTest extends NotificationTestCase
         controlTaskProcessor_.verify();
     }
 
-    public void testDeliverMessageDoesNotCloneMessage() throws Exception
+    public void testDeliverMessageDoesCloneAndDisposeMessage() throws Exception
     {
         StructuredEvent event = new StructuredEvent();
 
-        MockControl controlMessage = MockControl.createControl(Message.class);
+        MockControl controlMessage = MockControl.createStrictControl(Message.class);
         Message mockMessage = (Message) controlMessage.getMock();
 
+        mockMessage.clone();
+        controlMessage.setReturnValue(mockMessage);
+        
         mockMessage.toStructuredEvent();
         controlMessage.setReturnValue(event);
 
+        mockMessage.dispose();
+        
         controlMessage.replay();
 
         controlTaskExecutor_.replay();
