@@ -50,6 +50,7 @@ public class Server_TCP_IP_Transport
         super();
 
         this.socket = socket;
+        socket.setTcpNoDelay( true );
         this.is_ssl = is_ssl;
 
         in_stream = new BufferedInputStream(socket.getInputStream());
