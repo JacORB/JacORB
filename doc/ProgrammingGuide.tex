@@ -15,7 +15,7 @@
 \rhead[\sf\fancyplain{}{\leftmark}]{\sf\bfseries\fancyplain{}{\thepage}}
 \cfoot{}
 
-\title{JacORB 1.3 Programming Guide}
+\title{JacORB 1.4 Programming Guide}
 
 \author{Gerald Brose, Nicolas Noffke, Sebastian M\"uller\\
 Institut f\"ur Informatik\\
@@ -32,8 +32,8 @@ $Revision$
 
 % Use these instead of writing version numbers directly, so 
 % version changes only have to be made in one place
-\newcommand{\JacORBDir}{JacORB1\_3\_30}
-\newcommand{\JacORBVersion}{1.3.30}
+\newcommand{\JacORBDir}{JacORB1\_4\_beta1}
+\newcommand{\JacORBVersion}{1.4 beta 1}
 
 \maketitle
 
@@ -2171,11 +2171,10 @@ GIOP requests from the server to the applet (which isn't allowed in
 
 \section{Setting up Bidirectional GIOP}
 
-Setting up BiDirectional GIOP consists of two parts:
+Setting up BiDirectional GIOP consists of two steps:
 \begin{enumerate}
-\item Setting an ORBInitializer property.
-\item Creating the BiDir policy
-\item Adding this policy to the servants POA.
+\item Setting an ORBInitializer property and  creating the BiDir policy
+\item Adding this policy to the servant's POA.
 \end{enumerate}
 
 \subsection{Setting the ORBInitializer property}
