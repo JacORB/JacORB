@@ -49,87 +49,71 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
 import java.util.List;
 import java.util.Collections;
+import org.omg.CORBA.BAD_PARAM;
+import org.jacorb.notification.framework.EventDispatcher;
+import java.util.LinkedList;
+import java.util.Iterator;
 
 /**
- * Implementation of COSEventChannelAdmin interface; ProxyPushSupplier.
- * This defines connect_push_consumer() and disconnect_push_supplier().  Helper
- * method will push a method to the registered consumer.
- *
- * 2002/23/08 JFC OMG EventService Specification 1.1 page 2-7 states:
- *      "Registration is a two step process.  An event-generating application
- *      first obtains a proxy consumer from a channel, then 'connects' to the
- *      proxy consumer by providing it with a supplier.  ...  The reason for
- *      the two step registration process..."
- *    Modifications to support the above have been made as well as to support
- *    section 2.1.5 "Disconnection Behavior" on page 2-4.
- *
- * @author Jeff Carlson, Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose
+ * @author Alphonse Bendt
  * @version $Id$
  */
+
 public class ProxyPushSupplierImpl 
     extends ProxyBase 
     implements ProxyPushSupplierOperations,
 	       org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations,
-	       TransmitEventCapable {
+	       EventDispatcher {
 
     private org.omg.CosEventComm.PushConsumer myPushConsumer_;
     private boolean connected_;
+    private boolean active_;
+    private boolean wasConnected_;
     private ConsumerAdminTieImpl myAdminServant_;
-    private ConsumerAdmin myAdmin_;
-    private ProxyType myType_ = ProxyType.PUSH_ANY;
+    private List pendingEvents_;
+
+    Logger timeLogger_ = Logger.getLogger("TIME.ProxyPushSupplier");
 
     ProxyPushSupplierImpl (ApplicationContext appContext,
 			   ChannelContext channelContext,
 			   ConsumerAdminTieImpl myAdminServant,
 			   ConsumerAdmin myAdmin) {
 	
-	super(appContext, channelContext, Logger.getLogger("Proxy.ProxyPushSupplier"));
-	myAdmin_ = myAdmin;
+	super(myAdminServant, appContext, channelContext, Logger.getLogger("Proxy.ProxyPushSupplier"));
 	myAdminServant_ = myAdminServant;
 	connected_ = false;
-	//_this_object(orb);
+	setProxyType(ProxyType.PUSH_ANY);
+	pendingEvents_ = new LinkedList();
   }
 
-  /**
-   * fuers PushSupplier Interface
-   * See EventService v 1.1 specification section 2.1.2.
-   *   'disconnect_push_supplier terminates the event communication; it releases
-   *   resources used at the supplier to support event communication.  Calling
-   *   this causes the implementation to call disconnect_push_consumer operation
-   *   on the corresponding PushSupplier interface (if that iterface is known).'
-   * See EventService v 1.1 specification section 2.1.5.  This method should
-   *   adhere to the spec as it a) causes a call to the corresponding disconnect
-   *   on the connected supplier, b) 'If a consumer or supplier has received a
-   *   disconnect call and subsequently receives another disconnect call, it
-   *   shall raise a CORBA::OBJECT_NOT_EXIST exception.
-   */
+    public String toString() {
+	return "<ProxyPushSupplier connected: " + connected_ + ">";
+    }
+
     public void disconnect_push_supplier() {
-	if (connected_) {
-	    disconnect();
-	    connected_ = false;
-	} else {
-	    throw new OBJECT_NOT_EXIST();
-	}
+	dispose();
     }
     
-    private boolean disconnect() {
+    private void disconnectClient() {
 	if (myPushConsumer_ != null) {
 	    logger_.debug("disconnect");
 	    myPushConsumer_.disconnect_push_consumer();
 	    myPushConsumer_ = null;
-	    return true;
+	    connected_ = false;
 	}
-	return false;
     }
 
-  /**
-   * Methoden, die von unserem EventChannel aufgerufen werden
-   */
-    public void transmit_event(NotificationEvent event){
-	logger_.info("transmit_event()");
+    public void dispatchEvent(NotificationEvent event){
+	long _start = System.currentTimeMillis();
+
+	logger_.info("transmit_event(" + event + ")");
 	if (connected_) {
 	    try {
-		myPushConsumer_.push(event.toAny());
+		if (active_) {
+		    myPushConsumer_.push(event.toAny());
+		} else {
+		    pendingEvents_.add(event.toAny());
+		}
 	    } catch(Disconnected e) {
 		connected_ = false;
 		logger_.debug("push failed: Not connected");
@@ -137,43 +121,83 @@ public class ProxyPushSupplierImpl
 	} else {
 	    logger_.debug("Not connected");
 	}
+	long _stop = System.currentTimeMillis();
+
+	timeLogger_.info("push(): " + (_stop - _start));
     }
 
     public void connect_push_consumer(org.omg.CosEventComm.PushConsumer pushConsumer) throws AlreadyConnected {
 	connect_any_push_consumer(pushConsumer);
     }
 
-    public void connect_any_push_consumer(org.omg.CosEventComm.PushConsumer pushConsumer) 
+    public void connect_any_push_consumer(org.omg.CosEventComm.PushConsumer pushConsumer)
 	throws AlreadyConnected {
 	
-	if ( connected_ ) { 
-	    throw new org.omg.CosEventChannelAdmin.AlreadyConnected(); 
+	if (connected_) { 
+	    throw new AlreadyConnected(); 
 	}
-	if ( pushConsumer == null ) { 
-	    throw new org.omg.CORBA.BAD_PARAM(); 
+	if (pushConsumer == null) { 
+	    throw new BAD_PARAM(); 
 	}
 	myPushConsumer_ = pushConsumer;
 	connected_ = true;
-    }
-
-    public ProxyType MyType() {
-	return myType_;
+	wasConnected_ = true;
+	active_ = true;
     }
 
     public ConsumerAdmin MyAdmin() {
-	return myAdmin_;
+	return (ConsumerAdmin)myAdmin_.getThisRef();
     }
 
     public List getSubsequentDestinations() {
 	return Collections.singletonList(this);
     }
 
-    public TransmitEventCapable getEventSink() {
+    public EventDispatcher getEventDispatcher() {
 	return this;
     }
 
+    public boolean hasEventDispatcher() {
+	return true;
+    }
+
+    public void markError() {
+	connected_ = false;
+    }
+
+    synchronized public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
+	if (!connected_) {
+	    throw new NotConnected();
+	}
+	if (!active_) {
+	    throw new ConnectionAlreadyInactive();
+	}
+	active_ = false;
+    }
+
+    synchronized public void resume_connection() throws NotConnected, ConnectionAlreadyActive {
+	if (!connected_) {
+	    throw new NotConnected();
+	}
+	if (active_) {
+	    throw new ConnectionAlreadyActive();
+	}
+	if (!pendingEvents_.isEmpty()) {
+	    Iterator _i = pendingEvents_.iterator();
+	    while (_i.hasNext()) {
+		try {
+		    myPushConsumer_.push((Any)_i.next());
+		} catch (Disconnected e) {
+		    connected_ = false;
+		    throw new NotConnected();
+		}
+	    }
+	}
+	active_ = true;
+    }
+
     public void dispose() {
-	logger_.info("dispose");
-	disconnect();
+	super.dispose();
+	disconnectClient();
     }
 }

@@ -23,7 +23,7 @@ package org.jacorb.notification.node;
 import org.jacorb.notification.node.TCLNode;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import antlr.Token;
 import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
@@ -66,8 +66,6 @@ public class UnionPositionOperator extends TCLNode {
     }
 
     public int getPosition() {
-	assert(!default_);
-
 	return position_;
     }
 

@@ -41,6 +41,9 @@ import org.apache.log4j.Logger;
 import java.util.List;
 import java.util.Collections;
 import org.omg.CORBA.ORB;
+import org.jacorb.notification.framework.EventDispatcher;
+import org.omg.CORBA.Any;
+import org.omg.CosEventComm.Disconnected;
 
 /**
  * Implementation of COSEventChannelAdmin interface; ProxyPushConsumer.
@@ -59,79 +62,74 @@ import org.omg.CORBA.ORB;
  * @author Jeff Carlson, Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose
  * @version $Id$
  */
+
 public class ProxyPushConsumerImpl
     extends ProxyBase
     implements ProxyPushConsumerOperations, org.omg.CosEventChannelAdmin.ProxyPushConsumerOperations {
 
-    private SupplierAdminTieImpl myAdminServant_;
-    private SupplierAdmin myAdmin_;
     private org.omg.CosEventComm.PushSupplier myPushSupplier;
     private boolean connected;
-    private ProxyType myType_ = ProxyType.PUSH_ANY;
     
-    /**
-     * Konstruktor - wird von EventChannel aufgerufen
-     */
-    ProxyPushConsumerImpl(ApplicationContext appContext,
+
+    Logger timeLogger_ = Logger.getLogger("TIME.ProxyPushConsumer");
+
+        ProxyPushConsumerImpl(ApplicationContext appContext,
 			  ChannelContext channelContext,
                           SupplierAdminTieImpl myAdminServant,
 			  SupplierAdmin myAdmin) {
 
-	super(appContext,
+	super(myAdminServant,
+	      appContext,
 	      channelContext,
 	      Logger.getLogger("Proxy.ProxyPushConsumer"));
 
-	myAdmin_ = myAdmin;
-	myAdminServant_ = myAdminServant;
+	setProxyType(ProxyType.PUSH_ANY);
         connected = false;
-        //_this_object(orb);
     }
 
-    /**
-     * fuers PushConsumer Interface:
-     * See EventService v 1.1 specification section 2.1.1.
-     *   'disconnect_push_consumer terminates the event communication; it releases
-     *   resources used at the consumer to support event communication.  Calling
-     *   this causes the implementation to call disconnect_push_supplier operation
-     *   on the corresponding PushSupplier interface (if that iterface is known).'
-     * See EventService v 1.1 specification section 2.1.5.  This method should
-     *   adhere to the spec as it a) causes a call to the corresponding disconnect
-     *   on the connected supplier, b) 'If a consumer or supplier has received a
-     *   disconnect call and subsequently receives another disconnect call, it
-     *   shall raise a CORBA::OBJECT_NOT_EXIST exception.
-     */
+    ProxyPushConsumerImpl(ApplicationContext appContext,
+			  ChannelContext channelContext,
+                          SupplierAdminTieImpl myAdminServant,
+			  SupplierAdmin myAdmin,
+			  Integer key) {
+
+	super(myAdminServant,
+	      appContext,
+	      channelContext,
+	      key,
+	      Logger.getLogger("Proxy.ProxyPushConsumer"));
+
+	setProxyType(ProxyType.PUSH_ANY);
+        connected = false;
+    }
+
     public void disconnect_push_consumer() {
-        if (connected) {
-	    disconnect();
-	    connected = false;
-        } else {
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST();
-        }
+	dispose();
     }
 
-    private boolean disconnect() {
+    private void disconnectClient() {
 	if (myPushSupplier != null) {
 	    logger_.info("disconnect()");
 	    myPushSupplier.disconnect_push_supplier();
 	    myPushSupplier = null;
-	    return true;
 	}
-	return false;
     }
 
     /**
      * Supplier sends data to the consumer (this object) using this call.
      */
-    public void push (org.omg.CORBA.Any event )
-	throws org.omg.CosEventComm.Disconnected {
-	debug("push(Any)");
-	
-        if ( !connected )  {
-            throw new org.omg.CosEventComm.Disconnected();
+    public void push(Any event) throws Disconnected {
+	logger_.debug("push(Any ...)");
+	long _time = System.currentTimeMillis();
+
+        if (!connected)  {
+            throw new Disconnected();
         }
 
 	NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(event, this);
-	channelContext_.getEventChannelServant().process_event(_notifyEvent);
+
+	channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
+	timeLogger_.info("push(): " + (System.currentTimeMillis() - _time));
     }
 
     public void connect_push_supplier(org.omg.CosEventComm.PushSupplier pushSupplier) throws AlreadyConnected {
@@ -139,32 +137,34 @@ public class ProxyPushConsumerImpl
     }
 
     public void connect_any_push_supplier(org.omg.CosEventComm.PushSupplier pushSupplier) throws AlreadyConnected {
-        debug("connect pushsupplier");
+        logger_.debug("connect pushsupplier");
+
         if (connected) {
             throw new AlreadyConnected();
         }
+
         myPushSupplier = pushSupplier;
         connected = true;
     }
 
-    public ProxyType MyType() {
-        return myType_;
-    }
-
     public SupplierAdmin MyAdmin() {
-        return myAdmin_;
+	return (SupplierAdmin)myAdmin_.getThisRef();
     }
 
     public List getSubsequentDestinations() {
-	return Collections.singletonList(myAdminServant_);
+	return Collections.singletonList(myAdmin_);
     }
 
-    public TransmitEventCapable getEventSink() {
+    public EventDispatcher getEventDispatcher() {
 	return null;
     }
 
+    public boolean hasEventDispatcher() {
+	return false;
+    }
+
     public void dispose() {
-	logger_.info("dispose()");
-	disconnect();
+	super.dispose();
+	disconnectClient();
     }
 }

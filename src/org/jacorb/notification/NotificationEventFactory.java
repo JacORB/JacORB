@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,19 +20,16 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import org.omg.CORBA.ORB;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.engine.Destination;
+import org.jacorb.notification.framework.DistributorNode;
+import org.jacorb.notification.util.ObjectPoolBase;
+import org.jacorb.notification.framework.Poolable;
 import org.omg.CORBA.Any;
 import org.apache.log4j.Logger;
 import org.omg.CosNotification.StructuredEvent;
-
-/*
- *        JacORB - a free Java ORB
- */
 
 /**
  * NotificationEventFactory.java
@@ -43,44 +42,104 @@ import org.omg.CosNotification.StructuredEvent;
  */
 
 public class NotificationEventFactory {
-    DynamicEvaluator dynamicEvaluator_;
-    ResultExtractor resultExtractor_;
-    ORB orb_;
+    ApplicationContext appContext_;
 
-    public NotificationEventFactory(ORB orb, DynamicEvaluator dynamicEvaluator, ResultExtractor resultExtractor) {
-	orb_ = orb;
-	dynamicEvaluator_ = dynamicEvaluator;
-	resultExtractor_ = resultExtractor;
-    }
+    ObjectPoolBase notificationAnyEventPool_ = new ObjectPoolBase() {
+	    public Object newInstance() {
+		Poolable _p = 
+		    new NotificationAnyEvent(appContext_,
+					     Logger.getLogger("NotificationEvent.Any"));
+		return _p;
+	    }
+	    
+	    public void passivateObject(Object o) {
+
+	    }
+	    
+	    public void activateObject(Object o) {
+		((Poolable)o).reset();
+		((Poolable)o).setObjectPool(this);
+	    }
+	};
     
-    public NotificationEvent newEvent(Any event) {
-	NotificationEvent _e = new NotificationAnyEvent(orb_, 
-							resultExtractor_, 
-							dynamicEvaluator_, 
-							event, 
-							Logger.getLogger("NotificationEvent.Any"));
-	return _e;
+    ObjectPoolBase notificationStructuredEventPool_ = new ObjectPoolBase() {
+	    public Object newInstance() {
+		Poolable _p = new NotificationStructuredEvent(appContext_,
+							      Logger.getLogger("NotificationEvent.Structured"));
+		return _p;
+	    }
+
+	    public void passivateObject(Object o) {
+
+	    }
+
+	    public void activateObject(Object o) {
+		((Poolable)o).reset();
+		((Poolable)o).setObjectPool(this);
+	    }
+	};
+
+    public NotificationEventFactory(ApplicationContext appContext) {
+	appContext_ = appContext;
     }
 
-    public NotificationEvent newEvent(Any event, Destination firstHop) {
+    public void init() {
+	notificationAnyEventPool_.init();
+	notificationStructuredEventPool_.init();
+    }
+
+    // Used by the Proxies
+
+    public NotificationEvent newEvent(Any event, DistributorNode firstHop) {
 	NotificationEvent _e = newEvent(event);
-	_e.hops_[0] = firstHop;
+
+	_e.setDistributorNode(firstHop);
 
 	return _e;
     }
 
-    public NotificationEvent newEvent(StructuredEvent event, Destination firstHop) {
+    public NotificationEvent newEvent(StructuredEvent event, DistributorNode firstHop) {
 	NotificationEvent _e = newEvent(event);
-	_e.hops_[0] = firstHop;
+
+	_e.setDistributorNode(firstHop);
+
 	return _e;
     }
 
-    public NotificationEvent newEvent(StructuredEvent event) {
-	NotificationEvent _e = new NotificationStructuredEvent(orb_, 
-							       resultExtractor_, 
-							       dynamicEvaluator_, 
-							       event,
-							       Logger.getLogger("NotificationEvent.Structured"));
+    // Used by the Filter
+
+    public NotificationEvent newEvent(StructuredEvent event, EvaluationContext context) {
+	NotificationEvent _event = newEvent(event);
+
+	_event.setEvaluationContext(context);
+
+	return _event;
+    }
+
+    public NotificationEvent newEvent(Any event, EvaluationContext context) {
+	NotificationEvent _e = newEvent(event);
+
+	_e.setEvaluationContext(context);
+
+	return _e;
+    }
+
+    // internal use
+    // fetch from object pool
+
+    protected NotificationEvent newEvent(Any event) {
+	NotificationAnyEvent _e = 
+	    (NotificationAnyEvent)notificationAnyEventPool_.lendObject();
+
+	_e.setAny(event);
+	return _e;
+    }
+
+    protected NotificationEvent newEvent(StructuredEvent event) {
+	NotificationStructuredEvent _e = 
+	    (NotificationStructuredEvent)notificationStructuredEventPool_.lendObject();
+
+	_e.setStructuredEventValue(event);
 	return _e;
     }
 

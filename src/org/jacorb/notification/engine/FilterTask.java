@@ -1,3 +1,5 @@
+package org.jacorb.notification.engine;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.engine;
 
 import org.jacorb.notification.NotificationEvent;
 import java.util.Vector;
@@ -29,12 +30,10 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 import org.apache.log4j.Logger;
 import org.omg.CORBA.Any;
-import org.jacorb.notification.TransmitEventCapable;
-
-/*
- *        JacORB - a free Java ORB
- */
-
+import org.jacorb.notification.framework.EventDispatcher;
+import org.jacorb.notification.framework.DistributorNode;
+import org.jacorb.util.Assertion;
+import org.jacorb.notification.KeyedListEntry;
 /**
  * FilterTask.java
  *
@@ -45,37 +44,50 @@ import org.jacorb.notification.TransmitEventCapable;
  * @version $Id$
  */
 
-public class FilterTask implements Task {
-    Destination[] destination_;
-    NotificationEvent event_;
+public class FilterTask extends TaskBase {
+
+    DistributorNode[] destination_;
     Logger logger_ = Logger.getLogger("TASK.Filter");
 
+    Logger timeLogger_ = Logger.getLogger("TIME.Filter");
+
+    boolean done_;
     List newDestinations_;
-
-    private int status_;
-
-    private int runs_ = 0;
-
+    int runs_ = 0;
     boolean forward_;
+    
+    public void reset() {
+	super.reset();
 
-    FilterTask() {
+	done_ = false;
+	newDestinations_ = null;
+	runs_ = 0;
+	forward_ = false;
     }
 
-    public void configureDestinations(Destination[] dest) {
-	logger_.debug("configureDestinations() with " + dest.length + " Destinations");
+    public void configureDestinations(DistributorNode[] dest) {
+	//	logger_.debug("configureDestinations() with " + dest.length + " Destinations");
 	destination_ = dest;
-    }
-
-    public void configureEvent(NotificationEvent event) {
-	event_ = event;
     }
 
     public int getStatus() {
 	return status_;
     }
 
+    public int getCount() {
+	return runs_;
+    }
+
+    public void incCount() {
+	runs_++;
+    }
+
     void setStatus(int status) {
 	status_ = status;
+    }
+
+    public boolean getDone() {
+	return done_;
     }
 
     public boolean isForward() {
@@ -83,88 +95,53 @@ public class FilterTask implements Task {
     }
 
     public List getNewDestinations() {
-	logger_.debug("getNewDestinations()");
-	logger_.debug("has " + newDestinations_.size() + " destinations");
-
 	return newDestinations_;
     }
 
-    public synchronized void run() {
-	runs_++;
+    public synchronized void doWork() {
+	long _time = System.currentTimeMillis();
 
-	logger_.info("run nr.: " + runs_);
+	setStatus(FILTERING);
+	
+	forward_ = filter();
 
-	switch(getStatus()) {
-	case NEW:
-	    forward_ = filter();
-	    setStatus(PROXY_CONSUMER_FILTERED);
-	    logger_.info("NEW => PROXY_CONSUMER_FILTER");
-	    break;
-	case PROXY_CONSUMER_FILTERED:
-	    forward_ = filter();
-	    setStatus(SUPPLIER_ADMIN_FILTERED);
-	    logger_.info("PROXY_CONSUMER_FILTER => SUPPLIER_ADMIN_FILTER");
-	    break;
-	case SUPPLIER_ADMIN_FILTERED:
-	    forward_ = filter();
-	    setStatus(CONSUMER_ADMIN_FILTERED);
-	    logger_.info("SUPPLIER_ADMIN_FILTER => CONSUMER_ADMIN_FILTER");
-	    break;
-	case CONSUMER_ADMIN_FILTERED:
-	    forward_ = filter();
-	    setStatus(PROXY_SUPPLIER_FILTERED);
-	    logger_.info("CONSUMER_ADMIN_FILTER => PROXY_SUPPLIER_FILTER");
-	    break;
-	case PROXY_SUPPLIER_FILTERED:
-	    transmit_event();
-	    setStatus(DELIVERED);
-	    logger_.info("PROXY_SUPPLIER_FILTER => DELIVERED");
-	    break;
-	default:
-	    throw new RuntimeException();
-	}
-    }
+	done_ = true;
 
-    private void transmit_event() {
-	for (int x=0; x<destination_.length; ++x) {
-	    logger_.debug("transmit to: " + destination_[x].getEventSink());
+	timeLogger_.info("filter(): " + (System.currentTimeMillis() - _time));
 
-	    TransmitEventCapable _sink = destination_[x].getEventSink();
-	    _sink.transmit_event(event_);
-	}
     }
 
     private boolean filter() {
-	logger_.info("filter");
-
 	boolean _forward = false;
 
+	// pool
 	newDestinations_ = new Vector();
 	
 	switch(event_.getType()) {
 	case NotificationEvent.TYPE_ANY:
-	    logger_.debug("event is any");
-
-	    logger_.debug("i have " + destination_.length + " destinations");
-
+	    long _start = System.currentTimeMillis();
 	    Any _anyEvent = event_.toAny();
+	    timeLogger_.info("event_.toAny(): " + (System.currentTimeMillis() - _start));
+
 	    for (int x=0; x<destination_.length; ++x) {
-		logger_.debug("test destination: " + destination_[x]);
-		if (filterEvent(destination_[x].getFilters(), _anyEvent)) {
+		_start = System.currentTimeMillis();
+		boolean _filterResult = filterEvent(destination_[x].getFilters(), _anyEvent);
+		timeLogger_.info("filterEvent(Dest " + x + "): " + (System.currentTimeMillis() - _start));
+
+		if (_filterResult) {
+		    _start = System.currentTimeMillis();
 		    newDestinations_.addAll(destination_[x].getSubsequentDestinations());
-		    logger_.debug("added destinations: " + destination_[x].getSubsequentDestinations());
+		    timeLogger_.info("newDest.addAll(Dest " + x + "): " + (System.currentTimeMillis() - _start));
+
 		    _forward = true;
 		}
 	    }
 	    break;
 	case NotificationEvent.TYPE_STRUCTURED:
-	    logger_.debug("event is structured");
-
 	    StructuredEvent _structEvent = event_.toStructuredEvent();
 	    for (int x=0; x<destination_.length; ++x) {
 		if (filterEvent(destination_[x].getFilters(), _structEvent)) {
 		    newDestinations_.addAll(destination_[x].getSubsequentDestinations());
-		    logger_.debug("added destination: " + destination_[x]);
 		    _forward = true;
 		}
 	    }
@@ -181,7 +158,7 @@ public class FilterTask implements Task {
 	Iterator _allFilters = filterList.iterator();
 	while(_allFilters.hasNext()) {
 	    try {
-		Filter _filter = (Filter)_allFilters.next();
+		Filter _filter = (Filter)((KeyedListEntry)_allFilters.next()).getValue();
 		if (_filter.match_structured(event)) {
 		    return true;
 		}
@@ -193,16 +170,17 @@ public class FilterTask implements Task {
     }
 
     private boolean filterEvent(List filterList, Any any) {
-	logger_.info("filterEvent(" + filterList + ", any)");
+	logger_.debug("filterEvent(" + filterList + ", any)");
 
 	if (filterList.isEmpty()) {
+	    logger_.debug("list is empty return");
 	    return true;
 	}
 
 	Iterator _allFilters = filterList.iterator();
         while (_allFilters.hasNext()) {
             try {
-                Filter _filter = (Filter)_allFilters.next();
+                Filter _filter = (Filter)((KeyedListEntry)_allFilters.next()).getValue();
                 if (_filter.match(any)) {
                     return true;
                 }
@@ -215,9 +193,9 @@ public class FilterTask implements Task {
 
     public String toString() {
 	StringBuffer _b = new StringBuffer();
-	_b.append("i have been run " + runs_ + " times");
+
+	_b.append("FilterTask run: " + runs_ + " times");
 
 	return _b.toString();
-    }
-    
+    }    
 }// FilterTask

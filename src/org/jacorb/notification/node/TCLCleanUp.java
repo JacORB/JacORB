@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.collections.AST;
 
@@ -43,10 +44,22 @@ public class TCLCleanUp extends TCLVisitor {
 	}
     }
 
+    void insertComponentName(ComponentOperator comp) {
+	StringBuffer _name = new StringBuffer(comp.toString());
+	TCLNode _cursor = (TCLNode)comp.left();
+	while (_cursor != null) {
+	    _name.append(_cursor.toString());
+	    _cursor = (TCLNode)_cursor.getNextSibling();
+	}
+	comp.setComponentName(_name.toString());
+    }
+
     void fixCompPos(TCLNode node) {
 	AST _fixit = null;
 
-	if ((node.getFirstChild() != null) && (node.getFirstChild().getType() == TCLTokenTypes.COMP_POS)) {
+	if ((node.getFirstChild() != null) && 
+	    (node.getFirstChild().getType() == TCLTokenTypes.COMP_POS)) {
+
 	    debug("left child needs repair");
 	    _fixit = node.getFirstChild();
 	    
@@ -55,7 +68,9 @@ public class TCLCleanUp extends TCLVisitor {
 	    _dot.setNextSibling(_fixit);
 	    
 	    node.setFirstChild(_dot);
-	} else if ((node.getNextSibling() != null) && (node.getNextSibling().getType() == TCLTokenTypes.COMP_POS)) {
+	} else if ((node.getNextSibling() != null) && 
+		   (node.getNextSibling().getType() == TCLTokenTypes.COMP_POS)) {
+
 	    debug("right child needs repair");
 	    _fixit = node.getNextSibling();
 
@@ -67,9 +82,11 @@ public class TCLCleanUp extends TCLVisitor {
 	}
     }
 
-    public void visitComponent(ComponentOperator component) throws VisitorException {
-	debug("visit component");
+    public void visitComponent(ComponentOperator component) 
+	throws VisitorException {
+
 	fixCompPos(component);
+	insertComponentName(component);
     }
 
     /**
@@ -81,17 +98,6 @@ public class TCLCleanUp extends TCLVisitor {
     public void visitComponentPosition(ComponentPositionOperator componentPositionOperator) throws VisitorException {
 	debug("visit compPos");
 	fixCompPos(componentPositionOperator);
-    }
-
-
-    /**
-     * Describe <code>visitDot</code> method here.
-     *
-     * @param dotOperator a <code>DotOperator</code> value
-     * @exception VisitorException if an error occurs
-     */
-    public void visitDot(DotOperator dotOperator) throws VisitorException {
-	debug("visit dot");
     }
 
     void fixUnionPosition(UnionPositionOperator node) {

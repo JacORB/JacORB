@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,14 +20,13 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.BaseAST;
 import antlr.Token;
 import antlr.collections.AST;
 import java.io.*;
 import org.omg.CORBA.TCKind;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -33,11 +34,15 @@ import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 public class StringValue extends TCLNode {
 
     String value_;
+    EvaluationResult result_;
 
     public StringValue(Token tok) {
 	super(tok);
 	setKind(TCKind.tk_string);
 	value_ = tok.getText();
+	EvaluationResult _result = new EvaluationResult();
+	_result.setString(value_);
+	result_ = EvaluationResult.wrapImmutable(_result);
     }
 
     public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
@@ -56,10 +61,8 @@ public class StringValue extends TCLNode {
 	       InvalidValue,
 	       TypeMismatch,
 	       InconsistentTypeCode {
-	EvaluationResult _res = new EvaluationResult();
-	_res.setString(value_);
 
-	return _res;
+	return result_;
     }
 
     public boolean isNumber() {

@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,53 +20,38 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import java.util.Iterator;
-import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumer;
 import org.omg.CosNotification.EventType;
-import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.QoSAdminOperations;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxyConsumer;
 import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyNotFound;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminOperations;
-import org.omg.CosNotifyChannelAdmin.SupplierAdminPOA;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterAdminOperations;
-import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.CosNotifyFilter.UnsupportedFilterableData;
-import org.omg.PortableServer.POA;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerPOATie;
 import org.apache.log4j.Logger;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerPOATie;
-import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerHelper;
 import org.omg.CORBA.BAD_PARAM;
 import java.util.List;
 import java.util.Vector;
-import java.util.Collections;
 import org.jacorb.notification.framework.Disposable;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminPOATie;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.jacorb.notification.framework.EventDispatcher;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerPOATie;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerPOATie;
 
 /**
  * SupplierAdminImpl.java
@@ -80,6 +67,9 @@ public class SupplierAdminTieImpl
     extends AdminBase 
     implements SupplierAdminOperations,
 	       Disposable {
+
+    SupplierAdmin thisRef_;
+    List eventStyleServants_ = new Vector();
 
     SupplierAdminTieImpl(ApplicationContext appContext,
 			 ChannelContext channelContext) {
@@ -98,8 +88,9 @@ public class SupplierAdminTieImpl
 	      Logger.getLogger("SupplierAdmin"));
     }
 
-    SupplierAdmin thisRef_;
-    List eventStyleProxies_ = new Vector();
+    public org.omg.CORBA.Object getThisRef() {
+	return getSupplierAdmin();
+    }
 
     SupplierAdmin getSupplierAdmin() {
 	if (thisRef_ == null) {
@@ -176,23 +167,18 @@ public class SupplierAdminTieImpl
 	ProxyConsumer _pullConsumer = null;
 	intHolder.value = getPullProxyId();
 	Integer _key = new Integer(intHolder.value);
-	Thread _pullThread;
 
 	switch(clientType.value()) {
 	case ClientType._ANY_EVENT: {
 	    ProxyPullConsumerImpl _proxyImpl = new ProxyPullConsumerImpl(applicationContext_,
 									 channelContext_,
 									 this,
-									 thisRef_);
+									 thisRef_,
+									 _key);
 	    pullServants_.put(_key, _proxyImpl);
 
 	    ProxyPullConsumerPOATie _pullConsumerPOATie = new ProxyPullConsumerPOATie(_proxyImpl);
 
-
-	    
-	    _proxyImpl.setFilterMap(getChannelServant().getFilterMap(_proxyImpl));
-	    
-	    _pullThread = new Thread(_proxyImpl);
 	    _pullConsumer = _pullConsumerPOATie._this(getOrb()); 
 	    
 	    break;
@@ -202,14 +188,30 @@ public class SupplierAdminTieImpl
 		new StructuredProxyPullConsumerImpl(applicationContext_, 
 						    channelContext_,
 						    this,
-						    thisRef_);
+						    thisRef_,
+						    _key);
 	    
+	    _proxyImpl.setProxyType(ProxyType.PULL_STRUCTURED);
+	    pullServants_.put(_key, _proxyImpl);
+	    StructuredProxyPullConsumerPOATie _pullConsumerPOATie = new StructuredProxyPullConsumerPOATie(_proxyImpl);
+	    _pullConsumer = _pullConsumerPOATie._this(getOrb());
+
+	    break;
+	}
+	case ClientType._SEQUENCE_EVENT: {
+	    SequenceProxyPullConsumerImpl _proxyImpl = 
+		new SequenceProxyPullConsumerImpl(applicationContext_, 
+						  channelContext_,
+						  this,
+						  thisRef_,
+						  _key);
+	    
+	    _proxyImpl.setProxyType(ProxyType.PULL_SEQUENCE);
 	    pullServants_.put(_key, _proxyImpl);
 
-	    _proxyImpl.setFilterMap(getChannelServant().getFilterMap(_proxyImpl));
+	    SequenceProxyPullConsumerPOATie _pullConsumerPOATie = 
+		new SequenceProxyPullConsumerPOATie(_proxyImpl);
 
-	    StructuredProxyPullConsumerPOATie _pullConsumerPOATie = new StructuredProxyPullConsumerPOATie(_proxyImpl);
-	    _pullThread = new Thread(_proxyImpl);
 	    _pullConsumer = _pullConsumerPOATie._this(getOrb());
 
 	    break;
@@ -253,28 +255,21 @@ public class SupplierAdminTieImpl
 	intHolder.value = getPushProxyId();
 	Integer _key = new Integer(intHolder.value);
 
-	logger_.info("Id is: " + _key);
-
 	ProxyConsumer _proxyConsumer = null;
 
 	switch (clientType.value()) {
 	case ClientType._ANY_EVENT: {
-	    logger_.debug("PushConsumer for ANY Events requested");
-
-	    logger_.debug("AppContext: "+ applicationContext_);
-	    logger_.debug("ChannelContext: " +channelContext_);
-	    logger_.debug(thisRef_);
 
 	    ProxyPushConsumerImpl _proxyConsumerServant = new ProxyPushConsumerImpl(applicationContext_,
 										    channelContext_,
 										    this,
-										    thisRef_);
+										    thisRef_,
+										    _key);
 
 	    pushServants_.put(_key, _proxyConsumerServant);
 
-	    _proxyConsumerServant.setFilterMap(getChannelServant().getFilterMap(_proxyConsumerServant));
-
-	    ProxyPushConsumerPOATie _proxyPushConsumerPOATie = new ProxyPushConsumerPOATie(_proxyConsumerServant);
+	    ProxyPushConsumerPOATie _proxyPushConsumerPOATie = 
+		new ProxyPushConsumerPOATie(_proxyConsumerServant);
 
 	    _proxyConsumer = _proxyPushConsumerPOATie._this(getOrb());
 
@@ -282,23 +277,40 @@ public class SupplierAdminTieImpl
 	}
 
 	case ClientType._STRUCTURED_EVENT: {
-	    logger_.debug("PushConsumer for Structured Events requested");
 
 	    StructuredProxyPushConsumerImpl _proxyConsumerServant = 
 		new StructuredProxyPushConsumerImpl(applicationContext_,
 						    channelContext_,
 						    this,
-						    thisRef_);
-
+						    thisRef_,
+						    _key);
+	    
+	    _proxyConsumerServant.setProxyType(ProxyType.PUSH_STRUCTURED);
 	    pushServants_.put(_key, _proxyConsumerServant);
-
-	    _proxyConsumerServant.setFilterMap(getChannelServant().getFilterMap(_proxyConsumerServant));
-
-	    logger_.debug("Created Servant: " + _proxyConsumerServant);
-	    logger_.debug("Added Servant to Event Channel");
 
 	    StructuredProxyPushConsumerPOATie _proxyPushConsumerPOATie = 
 		new StructuredProxyPushConsumerPOATie(_proxyConsumerServant);
+
+	    _proxyConsumer = ProxyConsumerHelper.narrow(_proxyPushConsumerPOATie._this(getOrb()));
+
+	    break;
+	}
+	case ClientType._SEQUENCE_EVENT: {
+
+	    logger_.debug("Create sequence style");
+
+	    SequenceProxyPushConsumerImpl _proxyConsumerServant = 
+		new SequenceProxyPushConsumerImpl(applicationContext_,
+						    channelContext_,
+						    this,
+						    thisRef_,
+						    _key);
+	    
+	    _proxyConsumerServant.setProxyType(ProxyType.PUSH_SEQUENCE);
+	    pushServants_.put(_key, _proxyConsumerServant);
+
+	    SequenceProxyPushConsumerPOATie _proxyPushConsumerPOATie = 
+		new SequenceProxyPushConsumerPOATie(_proxyConsumerServant);
 
 	    _proxyConsumer = ProxyConsumerHelper.narrow(_proxyPushConsumerPOATie._this(getOrb()));
 
@@ -308,12 +320,8 @@ public class SupplierAdminTieImpl
 	    throw new BAD_PARAM();
 	}
 
-
         pushProxies_.put(_key, _proxyConsumer);
-	logger_.debug("Added to PushProxies list");
-
         allProxies_.put(_key, ProxyConsumerHelper.narrow(_proxyConsumer));
-	logger_.debug("Added to Total list");
 
         return _proxyConsumer;
     }
@@ -326,13 +334,19 @@ public class SupplierAdminTieImpl
      * @return a <code>ProxyPullConsumer</code> value
      */
     public ProxyPullConsumer obtain_pull_consumer() {
-        ProxyPullConsumerImpl p =  new ProxyPullConsumerImpl(applicationContext_,
-							     channelContext_,
-							     this, 
-							     thisRef_);
-	p.setFilterMap(Collections.EMPTY_MAP);
-	eventStyleProxies_.add(p);
-        return org.omg.CosEventChannelAdmin.ProxyPullConsumerHelper.narrow(new org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie(p)._this(getOrb()));
+        ProxyPullConsumerImpl _servant =  new ProxyPullConsumerImpl(applicationContext_,
+								    channelContext_,
+								    this, 
+								    thisRef_);
+	_servant.setFilterManager(FilterManager.EMPTY);
+	eventStyleServants_.add(_servant);
+
+	org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie _tie = 
+	    new org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie(_servant);
+
+	ProxyPullConsumer _ret = org.omg.CosEventChannelAdmin.ProxyPullConsumerHelper.narrow(_tie._this(getOrb()));
+
+        return _ret;
     }
 
     /**
@@ -340,29 +354,63 @@ public class SupplierAdminTieImpl
      * PushSupplier.
      */
     public ProxyPushConsumer obtain_push_consumer() {
-        ProxyPushConsumerImpl p = new ProxyPushConsumerImpl(applicationContext_, 
-							    channelContext_,
-							    this, 
-							    thisRef_);
-	p.setFilterMap(Collections.EMPTY_MAP);
-	eventStyleProxies_.add(p);
-        return org.omg.CosEventChannelAdmin.ProxyPushConsumerHelper.narrow(new org.omg.CosEventChannelAdmin.ProxyPushConsumerPOATie(p)._this(getOrb()));
+        ProxyPushConsumerImpl _servant = new ProxyPushConsumerImpl(applicationContext_, 
+								   channelContext_,
+								   this, 
+								   thisRef_);
+	_servant.setFilterManager(FilterManager.EMPTY);
+	eventStyleServants_.add(_servant);
+
+	org.omg.CosEventChannelAdmin.ProxyPushConsumerPOATie _tie = 
+	    new org.omg.CosEventChannelAdmin.ProxyPushConsumerPOATie(_servant);
+	
+	ProxyPushConsumer _ret = org.omg.CosEventChannelAdmin.ProxyPushConsumerHelper.narrow(_tie._this(getOrb()));
+
+        return _ret;
     }
 
     public List getSubsequentDestinations() {
 	return getChannelServant().getAllConsumerAdmins();
     }
 
-    public TransmitEventCapable getEventSink() {
+    public EventDispatcher getEventDispatcher() {
 	return null;
+    }
+
+    public boolean hasEventDispatcher() {
+	return false;
     }
 
     public void dispose() {
 	super.dispose();
-	Iterator _i = eventStyleProxies_.iterator();
+	Iterator _i = eventStyleServants_.iterator();
 	while(_i.hasNext()) {
 	    ((Disposable)_i.next()).dispose();
 	}
+	eventStyleServants_.clear();
     }
 
+    public void remove(ProxyBase pb) {
+	Integer _key = pb.getKey();
+
+	if (_key != null) {
+	    allProxies_.remove(_key);
+	    if (pb instanceof StructuredProxyPullConsumerImpl || 
+		pb instanceof ProxyPullConsumerImpl ||
+		pb instanceof SequenceProxyPullConsumerImpl) {
+		
+		pullServants_.remove(_key);
+		pullProxies_.remove(_key);
+		
+	    } else if (pb instanceof StructuredProxyPushConsumerImpl || 
+		       pb instanceof ProxyPushConsumerImpl ||
+		       pb instanceof SequenceProxyPushConsumerImpl) {
+		
+		pushServants_.remove(_key);
+		pushProxies_.remove(_key);
+	    }
+	} else {
+	    eventStyleServants_.remove(pb);
+	}
+    }
 }// SupplierAdminImpl

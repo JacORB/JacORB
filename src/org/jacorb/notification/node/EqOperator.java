@@ -25,7 +25,7 @@ import antlr.Token;
 import antlr.collections.AST;
 import java.io.*;
 import org.omg.CORBA.TCKind;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -48,11 +48,10 @@ public class EqOperator extends TCLNode {
 	EvaluationResult _left = left().evaluate(context);
 	EvaluationResult _right = right().evaluate(context);
 
-	if (_left.compareTo(_right) == 0) {
+	if (_left.compareTo(context, _right) == 0) {
 	    return EvaluationResult.BOOL_TRUE;
 	}
 	return EvaluationResult.BOOL_FALSE;
-
     }
 
     public String toString() {
@@ -82,5 +81,4 @@ public class EqOperator extends TCLNode {
 	right().acceptPostOrder(visitor);
 	visitor.visitEq(this);
     }
-
 }

@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.BaseAST;
 import antlr.Token;
@@ -27,18 +28,16 @@ import java.io.*;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.evaluate.EvaluationException;
+import org.omg.CORBA.Any;
+import org.jacorb.notification.evaluate.DynamicEvaluator;
 
 /** A simple node to represent IN operation */
 public class InOperator extends TCLNode {
 
     public InOperator(Token tok) {
 	super(tok);
-    }
-
-    /** Compute value of subtree; this is heterogeneous part :) */
-    public int value() {
-	return 0;
     }
 
     public String toString() {
@@ -53,18 +52,31 @@ public class InOperator extends TCLNode {
 	throws DynamicTypeException,
 	       InconsistentTypeCode,
 	       InvalidValue,
-	       TypeMismatch {
+	       TypeMismatch, 
+	       EvaluationException {
 
-	return null;
+	Any _right = right().evaluate(context).getAny();
+	EvaluationResult _l = left().evaluate(context);
+
+	DynamicEvaluator _evaluator = context.getDynamicEvaluator();
+	return _evaluator.evaluateElementInSequence(context, _l, _right);
     }
 
     public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
+	left().acceptInOrder(visitor);
+	visitor.visitIn(this);
+	right().acceptInOrder(visitor);
     }
 
     public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
+	visitor.visitIn(this);
+	left().acceptPreOrder(visitor);
+	right().acceptPreOrder(visitor);
     }
 
     public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
+	left().acceptPostOrder(visitor);
+	right().acceptPostOrder(visitor);
+	visitor.visitIn(this);
     }
-
 }

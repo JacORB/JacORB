@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,13 +20,12 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.BaseAST;
 import antlr.Token;
 import antlr.collections.AST;
 import java.io.*;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
@@ -35,12 +36,20 @@ import org.jacorb.notification.evaluate.EvaluationException;
 public class IdentValue extends TCLNode {
 
     String value_;
+    EvaluationResult evalValue_;
 
     public IdentValue(Token tok) {
 	super(tok);
 	setKind(null);
 	value_ = tok.getText();
 	setName("IdentValue");
+	EvaluationResult _result = new EvaluationResult();
+	_result.setString(value_);
+	evalValue_ = EvaluationResult.wrapImmutable(_result);
+    }
+
+    public EvaluationResult evaluate(EvaluationContext c) {
+	return evalValue_;
     }
 
     public String getIdentifier() {

@@ -25,7 +25,7 @@ import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.omg.CORBA.Any;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.omg.CORBA.TypeCodePackage.BadKind;
@@ -107,7 +107,6 @@ public class ImplicitOperatorNode extends TCLNode {
     }
 
     public String toString() {
-	assert(operator_ != null);
 	return operator_.toString();
     }
 

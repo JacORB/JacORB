@@ -1,3 +1,5 @@
+package org.jacorb.notification.evaluate;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,11 +20,12 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.evaluate;
 
 import antlr.RecognitionException;
 import antlr.TokenStreamException;
 import java.io.StringReader;
+import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.NotificationEvent;
 import org.jacorb.notification.node.DynamicTypeException;
 import org.jacorb.notification.node.EvaluationResult;
 import org.jacorb.notification.node.StaticTypeChecker;
@@ -31,8 +34,6 @@ import org.jacorb.notification.node.TCLCleanUp;
 import org.jacorb.notification.node.TCLLexer;
 import org.jacorb.notification.node.TCLNode;
 import org.jacorb.notification.node.TCLParser;
-import org.jacorb.notification.NotificationEvent;
-import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosNotifyFilter.ConstraintExp;
@@ -40,7 +41,6 @@ import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.apache.log4j.Logger;
 
 /**
  * ConstraintEvaluator.java
@@ -58,12 +58,12 @@ public class ConstraintEvaluator {
     public String constraint_;
     TCLNode rootNode_;
 
-    protected Logger logger_ = Logger.getLogger("EVALUATE");
-
-    public static TCLNode parse(String expr) throws RecognitionException, TokenStreamException {
+    public static TCLNode parse(String expr) throws RecognitionException, 
+						    TokenStreamException {
 	TCLLexer _lexer = new TCLLexer(new StringReader(expr));
 	TCLParser _parser = new TCLParser(_lexer);
 	_parser.startRule();
+	TCLNode _root = (TCLNode)_parser.getAST();
 
 	return (TCLNode)_parser.getAST();
     }
@@ -85,7 +85,9 @@ public class ConstraintEvaluator {
 	    _cleanUp.fix(rootNode_);
 	    StaticTypeChecker _checker = new StaticTypeChecker();
 	    _checker.check(rootNode_);
+
 	    return;
+
 	} catch (StaticTypeException ste) {
 	    throw new InvalidConstraint(ste.getMessage(), constraintExp);
 	} catch (TokenStreamException tse) {
@@ -94,29 +96,36 @@ public class ConstraintEvaluator {
 	throw new InvalidConstraint(constraintExp);
     }
 
-    public EvaluationResult evaluate(NotificationEvent event, 
-				     EvaluationContext context) throws DynamicTypeException,
-								       InvalidValue, 
-								       TypeMismatch,
-								       InconsistentTypeCode,
-								       EvaluationException,
-								       InvalidName {
-
-	debug("evaluate");
-	debug("root is a " + rootNode_.getClass().getName());
-	context.setEvent(event);
-
-	EvaluationResult _res = rootNode_.evaluate(context);
-
+    public EvaluationResult evaluate(NotificationEvent event) throws DynamicTypeException,
+								     InvalidValue, 
+								     TypeMismatch,
+								     InconsistentTypeCode,
+								     EvaluationException,
+								     InvalidName {
+	
+	EvaluationContext _context = event.getEvaluationContext();
+	
+	_context.setEvent(event);
+	
+	debug("evaluate " + rootNode_.toStringTree());
+	
+	EvaluationResult _res = rootNode_.evaluate(_context);
+	
 	debug("result " + _res);
 	
 	return _res;
     }
 
-    static boolean DEBUG = true; 
+    static boolean DEBUG = false; 
+
+    public String toString() {
+	return "<ConstraintEvaluator: " + rootNode_.toStringTree() + " >";
+    }
 
     void debug(String msg) {
-	logger_.debug(msg);
+	if (DEBUG) {
+	    System.err.println("[ConstraintEvaluator] " + msg);
+	}
     }
 
 }// ConstraintEvaluator

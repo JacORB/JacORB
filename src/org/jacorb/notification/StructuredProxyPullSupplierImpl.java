@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import org.apache.log4j.Logger;
 import org.omg.CORBA.BooleanHolder;
@@ -38,10 +39,10 @@ import org.omg.CosNotification.Property;
 import org.omg.CosNotification.EventHeader;
 import java.util.Collections;
 import java.util.List;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.jacorb.notification.framework.EventDispatcher;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
+import org.omg.CosNotifyComm.SequencePullConsumer;
 
 /**
  * StructuredProxyPullSupplierImpl.java
@@ -55,13 +56,10 @@ import java.util.List;
 
 public class StructuredProxyPullSupplierImpl 
     extends ProxyBase 
-    implements StructuredProxyPullSupplierOperations, 
-	       TransmitEventCapable {
+    implements StructuredProxyPullSupplierOperations,
+	       EventDispatcher {
 
-    ConsumerAdminTieImpl myAdminServant_;
-    ConsumerAdmin myAdmin_;
-    ProxyType myType_ = ProxyType.PULL_STRUCTURED;
-    StructuredPullConsumer myConsumer_;
+    StructuredPullConsumer structuredPullConsumer_;
     LinkedList pendingEvents_ = new LinkedList();
     int maxListSize_ = 200;
     static StructuredEvent undefinedStructuredEvent_;
@@ -69,12 +67,11 @@ public class StructuredProxyPullSupplierImpl
     public StructuredProxyPullSupplierImpl(ApplicationContext appContext, 
 					   ChannelContext channelContext,
 					   ConsumerAdminTieImpl myAdminServant, 
-					   ConsumerAdmin myAdmin) {
+					   ConsumerAdmin myAdmin,
+					   Integer key) {
 
-	super(appContext, channelContext, Logger.getLogger("Proxy.StructuredProxyPullSupplier"));
-	myAdminServant_ = myAdminServant;
-	myAdmin_ = myAdmin;
-
+	super(myAdminServant, appContext, channelContext, key, Logger.getLogger("Proxy.StructuredProxyPullSupplier"));
+	
 	if (undefinedStructuredEvent_ == null) {
 	    synchronized(getClass()) {
 		if (undefinedStructuredEvent_ == null) {
@@ -91,19 +88,16 @@ public class StructuredProxyPullSupplierImpl
     }
     
     public void connect_structured_pull_consumer(StructuredPullConsumer consumer) throws AlreadyConnected {
-	if(connected_) {
+	if (connected_) {
 	    throw new AlreadyConnected();
 	}
 	connected_ = true;
-	myConsumer_ = consumer;
+	structuredPullConsumer_ = consumer;
     }
 
-    public ProxyType MyType() {
-	return myType_;
-    }
 
     public ConsumerAdmin MyAdmin() {
-	return myAdmin_;
+	return (ConsumerAdmin)myAdmin_.getThisRef();
     }
 
     public StructuredEvent pull_structured_event() throws Disconnected {
@@ -122,6 +116,7 @@ public class StructuredProxyPullSupplierImpl
 	if(!connected_) {
 	    throw new Disconnected();
 	}
+
 	StructuredEvent _event = null;
 	synchronized(pendingEvents_) {
 	    int _listSize = pendingEvents_.size();
@@ -136,13 +131,29 @@ public class StructuredProxyPullSupplierImpl
 	    }
 	}
     }
+
     
     public void disconnect_structured_pull_supplier() {
-	connected_ = false;
-	myConsumer_ = null;
+	dispose();
     }
 
-    public void transmit_event(NotificationEvent event) {
+    public void disconnect_sequence_pull_supplier() {
+	dispose();
+    }
+
+    private void disconnectClient() {
+	if (connected_) {
+	    if (structuredPullConsumer_ != null) {
+		structuredPullConsumer_.disconnect_structured_pull_consumer();
+		connected_ = false;
+		structuredPullConsumer_ = null;
+	    }
+	}
+    }
+
+    public void dispatchEvent(NotificationEvent event) {
+	logger_.debug("dispatchEvent");
+
 	synchronized(pendingEvents_) {
 	    if(pendingEvents_.size() > maxListSize_) {
 		pendingEvents_.remove(pendingEvents_.getFirst());
@@ -155,10 +166,20 @@ public class StructuredProxyPullSupplierImpl
 	return Collections.singletonList(this);
     }
     
-    public TransmitEventCapable getEventSink() {
+    public EventDispatcher getEventDispatcher() {
 	return this;
     }
 
+    public boolean hasEventDispatcher() {
+	return true;
+    }
+
     public void dispose() {
+	super.dispose();
+	disconnectClient();
+    }
+
+    public void markError() {
+	connected_ = false;
     }
 }// StructuredProxyPullSupplierImpl

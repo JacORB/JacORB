@@ -1,3 +1,5 @@
+package org.jacorb.notification.engine;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,19 +20,19 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.engine;
 
 import org.jacorb.notification.NotificationEvent;
 import java.util.List;
 import java.util.Vector;
 import org.apache.log4j.Logger;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
-
-
-
-/*
- *        JacORB - a free Java ORB
- */
+import EDU.oswego.cs.dl.util.concurrent.DirectExecutor;
+import org.jacorb.notification.framework.EventDispatcher;
+import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
+import java.util.Map;
+import java.util.Hashtable;
+import EDU.oswego.cs.dl.util.concurrent.ThreadFactory;
+import EDU.oswego.cs.dl.util.concurrent.Executor;
 
 /**
  * Engine.java
@@ -42,83 +44,154 @@ import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
  * @version $Id$
  */
 
-public class Engine {
+public class Engine implements TaskCoordinator {
+
+    boolean active_;
+    Executor filterPool_;
+    Executor deliverPool_;
+    TaskConfigurator taskConfigurator_;
 
     Logger logger_;
-    boolean active_;
+    Logger timeLogger_ = Logger.getLogger("TIME.Engine");
+
+    ThreadFactory filterThreadFactory_ = new ThreadFactory() {
+	    int counter_ = 0;
+	    synchronized public Thread newThread(Runnable task) {
+		Thread _t = new Thread(task);
+		_t.setDaemon(true);
+		_t.setName("FilterThread#" + (counter_++));
+
+		return _t;
+	    }
+	};
+
+    ThreadFactory deliverThreadFactory_ = new ThreadFactory() {
+	    int counter = 0;
+	    synchronized public Thread newThread(Runnable task) {
+		Thread _t = new Thread(task);
+		_t.setDaemon(true);
+		_t.setName("DeliverThread#"+ (counter++));
+
+		return _t;
+	    }
+	};
+
 
     public Engine() {
 	logger_ = Logger.getLogger("Engine");
 
-	taskCoordinator_ = new TaskCoordinator(this);
-	taskConfigurator_ = new TaskConfigurator(taskCoordinator_);
-	taskQueue_ = new Vector();
+	boolean filterThreaded_ = true;
+	boolean deliverThreaded_ = true;
+
+	PooledExecutor _executor;
+	if (filterThreaded_) {
+	    _executor = new PooledExecutor(new LinkedQueue());
+	    filterPool_ = _executor;
+	    _executor.setThreadFactory(filterThreadFactory_);
+	    _executor.setKeepAliveTime(-1); // live forever
+	    _executor.createThreads(2); // preallocate x threads
+	} else {
+	    filterPool_ = new DirectExecutor();
+	}
+
+	if (deliverThreaded_) {
+	    _executor = new PooledExecutor(new LinkedQueue());
+	    deliverPool_ = _executor;
+	    _executor.setThreadFactory(deliverThreadFactory_);
+	    _executor.setKeepAliveTime(-1); // live forever
+	    _executor.createThreads(4); // preallocate x treads
+	} else {
+	    deliverPool_ = new DirectExecutor();
+	}
+	
+	taskConfigurator_ = new TaskConfigurator(this);
+	taskConfigurator_.init();
 
 	active_ = true;
-
-	taskCoordinator_.start();
-    }
-    
-    TaskConfigurator taskConfigurator_;
-    TaskCoordinator taskCoordinator_;
-
-    private List taskQueue_;
+    }    
 
     public void shutdown() {
-	logger_.info("shutdown()");
-	taskCoordinator_.shutdown();
 	active_ = false;
-	synchronized(taskQueue_) {
-	    taskQueue_.notifyAll();
+
+	logger_.info("shutdown()");
+	if (filterPool_ instanceof PooledExecutor) {
+	    ((PooledExecutor)filterPool_).shutdownNow();
+	    ((PooledExecutor)filterPool_).interruptAll();
 	}
+	if (deliverPool_ instanceof PooledExecutor) {
+	    ((PooledExecutor)deliverPool_).shutdownNow();
+	    ((PooledExecutor)deliverPool_).interruptAll();
+	}
+
 	logger_.info("shutdown - complete");
     }
 
-    public void enterEvent(NotificationEvent event) {
-	logger_.info("enterEvent");
+    public void dispatchEvent(NotificationEvent event) {
+	long _time = System.currentTimeMillis();
 
-	Task _task = taskConfigurator_.initTask(event);
-	synchronized(taskQueue_) {
-	    taskQueue_.add(_task);
-	    taskQueue_.notifyAll();
-	    logger_.debug("added event to queue and notified thread");
+	FilterTask _task = taskConfigurator_.initTask(event);
+	
+	try {
+	    queueFilterTask(_task);
+	} catch (InterruptedException ie) {
+	    logger_.fatal(ie);
+	}
+
+	timeLogger_.info("dispatchEvent(): " + (System.currentTimeMillis() - _time));
+    }
+
+    public void queueFilterTask(FilterTask task) throws InterruptedException {
+	long _start = System.currentTimeMillis();
+	filterPool_.execute(task);
+	timeLogger_.info("queueFilterTask: " + (System.currentTimeMillis() - _start));
+    }
+
+    public void queueDeliverTask(DeliverTask task) throws InterruptedException {	
+	task.queue();
+	deliverPool_.execute(task);
+    }
+
+
+    private void queueTask2(Task task) {
+	if (!active_)
+	    return;
+
+	long _start = System.currentTimeMillis();
+
+	try {
+	    if (task instanceof DeliverTask) {
+		deliverPool_.execute(task);
+	    } else if (task instanceof FilterTask) {
+		filterPool_.execute(task);
+	    }
+	} catch (InterruptedException ie) {}
+	long _stop = System.currentTimeMillis();
+
+	timeLogger_.info("queueTask: " + (_stop - _start));
+    }
+    
+    public void queueDeliverTask(DeliverTask[] tasks) throws InterruptedException {
+	for (int x=0; x<tasks.length; ++x) {
+	    queueDeliverTask(tasks[x]);
 	}
     }
 
-    public Task checkoutTask() throws InterruptedException {
-	logger_.info("checkoutTask()");
-
-	Task _t;
-	synchronized(taskQueue_) {
-	    while(active_ && taskQueue_.isEmpty()) {
-		try {
-		    taskQueue_.wait();
-		} catch (InterruptedException io) {}
-	    }
-
-	    if (!active_) {
-		throw new InterruptedException();
-	    }
-
-	    _t = (Task)taskQueue_.get(0);
-	    taskQueue_.remove(0);
-
-	    logger_.debug("Task checked out from queue");
-	    return _t;
+    public void workDone(Task task) {
+	try {
+	    taskConfigurator_.updateTask(task);
+	} catch (InterruptedException ie) {
+	    ie.printStackTrace();
 	}
     }
 
-    public void returnTask(Task task) {
-	logger_.info("returnTask()");
+    public void handleError(Task task, Throwable t) {
+	t.printStackTrace();
 
-	task = taskConfigurator_.updateTask(task);
-	if (task != null) {
-	    synchronized(taskQueue_) {
-		taskQueue_.add(task);
-		taskQueue_.notify();
-	    }
-	} else {
-	    logger_.info("DROP Task");
+	System.out.println("reschedule task");
+
+	if (task instanceof DeliverTask) {
+	    DeliverTask _deliverTask = (DeliverTask)task;
+	    _deliverTask.destination_.markError();
 	}
     }
 }// Engine

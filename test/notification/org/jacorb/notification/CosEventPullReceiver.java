@@ -7,10 +7,10 @@ import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.omg.CosEventChannelAdmin.EventChannelHelper;
+import org.omg.CosEventChannelAdmin.EventChannel;
+import org.omg.PortableServer.POA;
+import org.omg.CosEventChannelAdmin.ConsumerAdmin;
 
 /**
  * CosEventPullReceiver.java
@@ -22,22 +22,27 @@ import org.omg.CosEventChannelAdmin.AlreadyConnected;
  * @version $Id$
  */
 
-public class CosEventPullReceiver extends PullConsumerPOA implements Runnable {
+public class CosEventPullReceiver extends PullConsumerPOA implements Runnable, TestClientOperations {
 
     ProxyPullSupplier mySupplier_;
     Any event_ = null;
     long TIMEOUT = 1000;
     boolean error_ = false;
-
-    public CosEventPullReceiver(ORB orb, ProxyPullSupplier supplier) throws AlreadyConnected {
-	mySupplier_ = supplier;
-	supplier.connect_pull_consumer(_this(orb));
-    }
+    boolean connected_;
     
     public void disconnect_pull_consumer() {
+	connected_ = false;
     }
 
-    public boolean received() {
+    public boolean isError() {
+	return error_;
+    }
+
+    public boolean isConnected() {
+	return connected_;
+    }
+
+    public boolean isEventHandled() {
 	return (event_ != null);
     }
 
@@ -46,7 +51,7 @@ public class CosEventPullReceiver extends PullConsumerPOA implements Runnable {
 	long _stopTime = _startTime + TIMEOUT;
 	BooleanHolder _success = new BooleanHolder();
 	try {
-	    while (System.currentTimeMillis() < _stopTime) {
+	    while (connected_ && System.currentTimeMillis() < _stopTime) {
 		event_ = mySupplier_.try_pull(_success);
 		if (_success.value) {
 		    break;
@@ -57,6 +62,18 @@ public class CosEventPullReceiver extends PullConsumerPOA implements Runnable {
 	    d.printStackTrace();
 	    error_ = true;
 	}
+    }
+
+    public void connect(ORB orb, POA poa, org.omg.CosNotifyChannelAdmin.EventChannel channel) throws AlreadyConnected {
+	EventChannel _channel = EventChannelHelper.narrow(channel);
+	ConsumerAdmin _admin = _channel.for_consumers();
+	mySupplier_ = _admin.obtain_pull_supplier();
+	mySupplier_.connect_pull_consumer(_this(orb));
+	connected_ = true;
+    }
+
+    public void shutdown() {
+	mySupplier_.disconnect_pull_supplier();
     }
 
 }// CosEventPullReceiver

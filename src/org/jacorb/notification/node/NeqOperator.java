@@ -25,7 +25,7 @@ import antlr.Token;
 import antlr.collections.AST;
 import java.io.*;
 import org.omg.CORBA.TCKind;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -49,7 +49,7 @@ public class NeqOperator extends TCLNode {
 	_left = left().evaluate(context);
 	_right = right().evaluate(context);
 
-	int _comp = _left.compareTo(_right);
+	int _comp = _left.compareTo(context, _right);
 
 	if (_comp == 0 ) {
 	    return EvaluationResult.BOOL_FALSE;
@@ -66,11 +66,20 @@ public class NeqOperator extends TCLNode {
     }
 
     public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
+	left().acceptInOrder(visitor);
+	visitor.visitNeq(this);
+	right().acceptInOrder(visitor);
     }
 
     public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {
+	left().acceptInOrder(visitor);
+	right().acceptInOrder(visitor);
+	visitor.visitNeq(this);
     }
 
     public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {
+	visitor.visitNeq(this);
+	left().acceptInOrder(visitor);
+	right().acceptInOrder(visitor);
     }
 }

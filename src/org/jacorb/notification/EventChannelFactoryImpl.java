@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import org.omg.CORBA.IntHolder;
 import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
@@ -30,22 +31,16 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.CosNaming.NamingContextExt;
 import org.omg.CosNaming.NamingContextExtHelper;
-import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import java.util.Map;
 import java.util.Hashtable;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryPOA;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import java.lang.reflect.Array;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
-import org.omg.PortableServer.POAPackage.WrongPolicy;
-import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.CosNotifyFilter.FilterFactoryHelper;
-import org.omg.CORBA.UNKNOWN;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.apache.log4j.Logger;
-import org.omg.CORBA.INTERNAL;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 
 /**
  * <code>EventChannelFactoryImpl</code> is a implementation of
@@ -138,13 +133,10 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA {
 
         EventChannel _channel = null;
 	
-	ChannelContext _channelContext;
-	
-	_channelContext = (ChannelContext)channelContextTemplate_.clone();
+	EventChannelImpl _channelServant = create_channel_servant(qualitiyOfServiceProperties,
+								  administrativeProperties);
 
-	// new servant
-	EventChannelImpl _channelServant = new EventChannelImpl(applicationContext_,
-								_channelContext);
+
 	_channel = _channelServant._this(applicationContext_.getOrb());
 
 	// create identifier
@@ -155,11 +147,25 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA {
 	logger_.info("created new Channel with id: " + _identifier);
 
 	allChannels_.put(_key, _channel);
-	    
+
 	return _channel;
     }
 
+    EventChannelImpl create_channel_servant(Property[] qualitiyOfServiceProperties,
+					    Property[] administrativeProperties) throws UnsupportedAdmin, UnsupportedQoS {
 
+        logger_.info("create_channel_servant()");
+	
+	ChannelContext _channelContext;
+	
+	_channelContext = (ChannelContext)channelContextTemplate_.clone();
+
+	// new servant
+	EventChannelImpl _channelServant = new EventChannelImpl(applicationContext_,
+								_channelContext);
+
+	return _channelServant;
+    }
 
     protected int createChannelIdentifier() {
         return ++counter_;
@@ -206,6 +212,10 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA {
 
     ////////////////////////////////////////
 
+    public EventChannelFactoryImpl(ORB orb, POA poa) throws InvalidName {
+	this(new ApplicationContext(orb, poa));
+    }
+
     EventChannelFactoryImpl(ApplicationContext applicationContext) throws InvalidName {
 	logger_ = Logger.getLogger("EventChannelFactory");
 
@@ -216,8 +226,7 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA {
         allChannels_ = new Hashtable();
 	thisFactory_ = this._this(applicationContext_.getOrb());
 
-	FilterFactoryImpl _filterFactoryServant = new FilterFactoryImpl(applicationContext_.getOrb(), 
-									applicationContext_.getPoa());
+	FilterFactoryImpl _filterFactoryServant = new FilterFactoryImpl(applicationContext_);
 
 	defaultFilterFactory_ = _filterFactoryServant._this(applicationContext_.getOrb());
 
@@ -228,26 +237,30 @@ public class EventChannelFactoryImpl extends EventChannelFactoryPOA {
     }
 
     public static void main(String[] args) throws Exception {
+	BasicConfigurator.configure();
+	Logger.getRootLogger().setLevel(Level.OFF);
+
         ORB _orb = ORB.init(args, null);
         POA _poa = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));
 
-	ApplicationContext _appContext = new ApplicationContext();
-	_appContext.setOrb(_orb);
-	_appContext.setPoa(_poa);
+	ApplicationContext _appContext = new ApplicationContext(_orb, _poa);
 
         EventChannelFactoryImpl _factory =
             new EventChannelFactoryImpl(_appContext);
 
         _poa.the_POAManager().activate();
+
         org.omg.CORBA.Object _o = _poa.servant_to_reference(_factory);
+
         NamingContextExt _nc =
             NamingContextExtHelper.narrow(_orb.resolve_initial_references("NameService"));
 
-        String _factoryName = "notification.factory";
+        String _factoryName = "NotificationService";
 
         _nc.rebind(_nc.to_name(_factoryName), _o);
 
         _orb.run();
+	System.out.println("Exiting");	
     }
 
 }// NotificationChannelFactoryImpl

@@ -1,3 +1,5 @@
+package org.jacorb.notification.evaluate;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.evaluate;
 
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAny;
@@ -49,35 +50,41 @@ public class ResultExtractor {
     }
 
     public EvaluationResult extractFromAny(Any any)
-	throws TypeMismatch, InconsistentTypeCode, InvalidValue
-    {
+	throws TypeMismatch, InconsistentTypeCode, InvalidValue {
+	debug("extractFromAny(Any)");
+
 	EvaluationResult _ret = new EvaluationResult();
 
-	DynAny _dynAny = dynAnyFactory_.create_dyn_any(any);
-	switch (_dynAny.type().kind().value()) {
+	//	DynAny _dynAny = dynAnyFactory_.create_dyn_any(any);
+
+	switch(any.type().kind().value()) {
+	    //	switch (_dynAny.type().kind().value()) {
 	case TCKind._tk_boolean:
 	    debug("bool");
-	    _ret.setBool(_dynAny.get_boolean());
+	    _ret.setBool(any.extract_boolean());
 	    break;
 	case TCKind._tk_string:
 	    debug("string");
-	    _ret.setString(_dynAny.get_string());
+	    _ret.setString(any.extract_string());
 	    break;
 	case TCKind._tk_long:
 	    debug("long");
-	    _ret.setInt(_dynAny.get_long());
+	    _ret.setInt(any.extract_long());
 	    break;
 	case TCKind._tk_short:
-	    _ret.setInt(_dynAny.get_short());
+	    _ret.setInt(any.extract_short());
 	    break;
+	case TCKind._tk_any:
+	    debug("again");
+	    return extractFromAny(any.extract_any());
 	default:
-	    _ret = null;
+	    _ret.addAny(any);
 	    break;
 	}
 	return _ret;
     }
 
-    void debug(String msg) {
+    static void debug(String msg) {
 	if (DEBUG) {
 	    System.err.println("[ResultExtractor] " + msg);
 	}

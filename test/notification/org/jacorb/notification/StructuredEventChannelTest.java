@@ -1,50 +1,28 @@
 package org.jacorb.notification;
 
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.jacorb.notification.test.Address;
+import org.jacorb.notification.test.NamedValue;
+import org.jacorb.notification.test.Person;
+import org.jacorb.notification.test.PersonHelper;
+import org.jacorb.notification.test.Profession;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.PortableServer.POAHelper;
-import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
-import org.omg.CosNotification.EventHeader;
-import org.omg.CORBA.Any;
-import org.jacorb.notification.test.Person;
-import org.jacorb.notification.test.Address;
-import org.jacorb.notification.test.NamedValue;
-import org.jacorb.notification.test.Profession;
-import org.jacorb.notification.test.PersonHelper;
-import org.omg.CosNotifyComm.StructuredPushSupplierOperations;
-import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerHelper;
-import org.omg.CORBA.IntHolder;
-import org.omg.CosNotifyComm.StructuredPushSupplierPOATie;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyChannelAdmin.ClientType;
-import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
-import org.apache.log4j.Logger;
-import org.omg.CosNotifyComm.PushConsumer;
-import org.apache.log4j.BasicConfigurator;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumer;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.omg.CosNotifyComm.StructuredPushSupplierHelper;
-import org.omg.CosNotifyComm.StructuredPushConsumerPOA;
-import org.omg.CosNotifyComm.StructuredPushConsumerOperations;
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyComm.StructuredPushConsumerPOATie;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierHelper;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplier;
-import org.omg.CosNotifyComm.StructuredPushConsumerHelper;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyFilter.FilterFactory;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
 /**
  * StructuredEventChannelTest.java
@@ -60,10 +38,10 @@ public class StructuredEventChannelTest extends TestCase {
 
     ORB orb_;
     POA poa_;
-
-    Logger logger_ = Logger.getLogger("StructuredEventChannelTest");
+    Logger logger_ = Logger.getLogger("TEST.StructuredEventChannelTest");
 
     EventChannel channel_;
+    EventChannelFactory channelFactory_;
     FilterFactory filterFactory_;
     StructuredEvent testEvent_;
 
@@ -71,29 +49,31 @@ public class StructuredEventChannelTest extends TestCase {
 	super(name);
     }
 
+    public void tearDown() throws Exception {
+	channel_.destroy();
+    }
+
     public void setUp() throws Exception {
 	orb_ = ORB.init(new String[0], null);
 	poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
 
-	ApplicationContext _appContext = new ApplicationContext();
-	_appContext.setOrb(orb_);
-	_appContext.setPoa(poa_);
+	ApplicationContext _appContext = new ApplicationContext(orb_, poa_);
 
 	FilterFactoryImpl _filterFactoryServant =
-	    new FilterFactoryImpl(orb_, poa_);
+	    new FilterFactoryImpl(_appContext);
 	filterFactory_ = _filterFactoryServant._this(orb_);
 
 	EventChannelFactoryImpl _factoryServant = 
 	    new EventChannelFactoryImpl(_appContext);
 	
-	EventChannelFactory _ecFactory = 
+	channelFactory_ = 
 	    _factoryServant._this(orb_);
 
 	Property[] qos = new Property[0];
 	Property[] adm = new Property[0];
 	IntHolder _channelId = new IntHolder();
 
-	channel_ = _ecFactory.create_channel(qos, adm, _channelId);
+	channel_ = channelFactory_.create_channel(qos, adm, _channelId);
 
 	// set test event type and name
 	testEvent_ = new StructuredEvent();
@@ -110,7 +90,7 @@ public class StructuredEventChannelTest extends TestCase {
 	Any _personAny = orb_.create_any();
 
 	// prepare filterable body data
-	Person _p = new Person();
+	Person _p = TestUtils.getTestPerson();
 	Address _a = new Address();
 	NamedValue _nv = new NamedValue();
 
@@ -135,12 +115,47 @@ public class StructuredEventChannelTest extends TestCase {
 	testEvent_.remainder_of_body = orb_.create_any();
     }
 
-    public void testSendStructuredEvent() throws Exception {
-	StructuredSender _sender = new StructuredSender(testEvent_);
-	StructuredReceiver _receiver = new StructuredReceiver();
+    public void testDestroyChannelDisconnectsClients() throws Exception {	
+	Property[] _p = new Property[0];
+	IntHolder _channelId = new IntHolder();
+
+	EventChannel _channel = channelFactory_.create_channel(_p, _p, _channelId);
+
+	StructuredPushSender _pushSender = new StructuredPushSender(testEvent_);
+	StructuredPullSender _pullSender = new StructuredPullSender(testEvent_);
+	StructuredPushReceiver _pushReceiver = new StructuredPushReceiver();
+	StructuredPullReceiver _pullReceiver = new StructuredPullReceiver();
+
+	_pushSender.connect(orb_, poa_, _channel);
+	_pullSender.connect(orb_, poa_, _channel);
+	_pushReceiver.connect(orb_, poa_, _channel);
+	_pullReceiver.connect(orb_, poa_, _channel);
+
+	assertTrue(_pushSender.isConnected());
+	assertTrue(_pullSender.isConnected());
+	assertTrue(_pushReceiver.isConnected());
+	assertTrue(_pullReceiver.isConnected());
+
+	_channel.destroy();
+
+	try {
+	    Thread.sleep(1000);
+	} catch (InterruptedException ie) {}
+
+	assertTrue(!_pushSender.isConnected());
+	assertTrue(!_pullSender.isConnected());
+	assertTrue(!_pushReceiver.isConnected());
+	assertTrue(!_pullReceiver.isConnected());
+    }
+
+    public void testSendPushPush() throws Exception {
+	System.out.println("testSendPushPush");
 	
-	_sender.connect(poa_, channel_);
-	_receiver.connect(poa_, channel_);
+	StructuredPushSender _sender = new StructuredPushSender(testEvent_);
+	StructuredPushReceiver _receiver = new StructuredPushReceiver();
+	
+	_sender.connect(orb_, poa_, channel_);
+	_receiver.connect(orb_, poa_, channel_);
 
 	_receiver.start();
 	_sender.start();
@@ -149,7 +164,59 @@ public class StructuredEventChannelTest extends TestCase {
 	_receiver.join();
 
 	assertTrue("Error while sending", !_sender.error_);
-	assertTrue("Should not receive anything", !_receiver.received_);
+	assertTrue("Should have received something", _receiver.isEventHandled());
+    }
+
+    public void testSendPushPull() throws Exception {
+	StructuredPushSender _sender = new StructuredPushSender(testEvent_);
+	StructuredPullReceiver _receiver = new StructuredPullReceiver();
+	
+	_sender.connect(orb_, poa_, channel_);
+	_receiver.connect(orb_, poa_, channel_);
+
+	_receiver.start();
+	_sender.start();
+
+	_sender.join();
+	_receiver.join();
+
+	assertTrue("Error while sending", !_sender.error_);
+	assertTrue("Should have received something", _receiver.received_);
+    }
+
+    public void testSendPullPush() throws Exception {
+	StructuredPullSender _sender = new StructuredPullSender(testEvent_);
+	StructuredPushReceiver _receiver = new StructuredPushReceiver();
+	
+	_sender.connect(orb_, poa_, channel_);
+	_receiver.connect(orb_, poa_, channel_);
+
+	_receiver.start();
+	_sender.start();
+
+	_sender.join();
+	_receiver.join();
+
+	assertTrue("Error while sending", !_sender.isError());
+	assertTrue("Should have received something", _receiver.isEventHandled());
+    }
+
+    public void testSendPullPull() throws Exception {
+	StructuredPullSender _sender = new StructuredPullSender(testEvent_);
+	StructuredPullReceiver _receiver = new StructuredPullReceiver();
+	    _sender.connect(orb_, poa_, channel_);
+
+	_receiver.connect(orb_, poa_, channel_);
+
+ 	_receiver.start();
+ 	_sender.start();
+
+ 	_sender.join();
+ 	_receiver.join();
+
+	boolean _senderError = ((TestClientOperations)_sender).isError();
+	assertTrue("Error while sending", !_senderError);
+	assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
     public static Test suite() {
@@ -158,7 +225,7 @@ public class StructuredEventChannelTest extends TestCase {
 	suite = new TestSuite();
 	suite = new TestSuite(StructuredEventChannelTest.class);
 
-	//suite.addTest(new TCLTest("..."));
+	suite.addTest(new StructuredEventChannelTest("testSendPushPush"));
 	
 	return suite;
     }

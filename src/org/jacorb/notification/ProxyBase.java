@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,27 +20,20 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.apache.log4j.Logger;
-import org.jacorb.notification.engine.Destination;
+import org.jacorb.notification.framework.DistributorNode;
 import org.jacorb.notification.framework.Disposable;
-import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.QoSAdminOperations;
-import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyComm.InvalidEventType;
@@ -48,10 +43,13 @@ import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
-
-/*
- *        JacORB - a free Java ORB
- */
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Vector;
+import org.omg.CosNotifyFilter.FilterNotFound;
+import org.omg.CosNotifyFilter.Filter;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 /**
  * ProxyBase.java
@@ -66,8 +64,10 @@ import org.omg.PortableServer.POA;
 abstract class ProxyBase implements FilterAdminOperations, 
 				    NotifyPublishOperations, 
 				    QoSAdminOperations, 
-				    Destination,
+				    DistributorNode,
 				    Disposable {
+
+    static Integer NO_KEY = null;
 
     protected NotificationEventFactory notificationEventFactory_;
     protected EventChannelImpl eventChannel_;
@@ -75,86 +75,74 @@ abstract class ProxyBase implements FilterAdminOperations,
     protected ORB orb_;
     protected Logger logger_;
     protected boolean connected_;
-    protected Map filters_;
-    protected int filterIdPool_ = 0;
     protected ChannelContext channelContext_;
     protected ApplicationContext applicationContext_;
+    protected Integer key_;
+    protected AdminBase myAdmin_;
+    protected FilterManager filterManager_;
+    protected boolean disposed_ = false;
+    protected ProxyType proxyType_;
 
-    int getFilterId() {
-	return ++filterIdPool_;
-    }
-
-    protected ProxyBase(ApplicationContext appContext,
+    protected ProxyBase(AdminBase admin,
+			ApplicationContext appContext,
 			ChannelContext channelContext,
 			Logger logger) {
 
-	this(appContext.getOrb(), 
-	     appContext.getPoa(), 
-	     channelContext.getEventChannelServant(), 
-	     logger,
-	     channelContext.getNotificationEventFactory());
+	this(admin,
+	     appContext,
+	     channelContext,
+	     NO_KEY,
+	     logger);
+    }
 
+    protected ProxyBase(AdminBase admin,
+			ApplicationContext appContext,
+			ChannelContext channelContext,
+			Integer key,
+			Logger logger) {
+	
+	myAdmin_ = admin;
+	key_ = key;
 	applicationContext_ = appContext;
 	channelContext_ = channelContext;
-    }
-
-    protected ProxyBase(ORB orb, 
-			POA poa,
-			EventChannelImpl myChannelServant,
-			Logger logger,
-			NotificationEventFactory notificationEventFactory) {
-	this(orb, poa, myChannelServant, logger);
-	notificationEventFactory_ = notificationEventFactory;
+	poa_ = appContext.getPoa();
+	orb_ = appContext.getOrb();
+	logger_ = logger;
+	eventChannel_ = channelContext.getEventChannelServant();
+	connected_ = false;
+	notificationEventFactory_ = applicationContext_.getNotificationEventFactory();
+	filterManager_ = new FilterManager();
     }
     
-    protected ProxyBase(ORB orb, 
-			POA poa, 
-			EventChannelImpl myChannelServant,
-			Logger logger) {
-	poa_ = poa;
-	orb_ = orb;
-	logger_ = logger;
-	eventChannel_ = myChannelServant;
-	connected_ = false;
-    }
-
-    void setFilterMap(Map filters) {
-	filters_ = filters;
-    }
-
     public int add_filter(Filter filter) {
-	logger_.info("add_filter(Filter)");
-
-	int _key = getFilterId();
-
-	filters_.put(new Integer(_key), filter);
-
-	return _key;
+	return filterManager_.add_filter(filter);
     }
 
-    public void remove_filter(int filterId) throws FilterNotFound {
+    public void remove_filter(int n) throws FilterNotFound {
+	filterManager_.remove_filter(n);
     }
 
-    public Filter get_filter(int filterId) throws FilterNotFound {
-	return null;
+    public Filter get_filter(int n) throws FilterNotFound {
+	return filterManager_.get_filter(n);
+    }
+
+    public int[] get_all_filters() {
+	return filterManager_.get_all_filters();
     }
 
     public void remove_all_filters() {
-    }
-    
-    public int[] get_all_filters() {
-	return null;
-    }
+	filterManager_.remove_all_filters();
+    }    
 
     public EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode) {
         return null;
     }
 
     public void validate_event_qos(Property[] qosProps, NamedPropertyRangeSeqHolder propSeqHolder)
-    throws UnsupportedQoS {}
+	throws UnsupportedQoS {}
 
     public void validate_qos(Property[] qosProps, NamedPropertyRangeSeqHolder propSeqHolder)
-    throws UnsupportedQoS {}
+	throws UnsupportedQoS {}
 
     public void set_qos(Property[] qosProps) throws UnsupportedQoS {}
 
@@ -163,12 +151,6 @@ abstract class ProxyBase implements FilterAdminOperations,
     }
 
     public void offer_change(EventType[] eventTypes, EventType[] eventTypes2) throws InvalidEventType {}
-
-    public void suspend_connection()
-	throws NotConnected, ConnectionAlreadyInactive {}
-
-    public void resume_connection()
-	throws ConnectionAlreadyActive, NotConnected {}
 
     public void subscription_change(EventType[] eventType, EventType[] eventType2) throws InvalidEventType {}
 
@@ -190,25 +172,42 @@ abstract class ProxyBase implements FilterAdminOperations,
 	return null;
     }
 
-    /**
-      * Override this method from the Servant baseclass.  Fintan Bolton
-      * in his book "Pure CORBA" suggests that you override this method to
-      * avoid the risk that a servant object (like this one) could be
-      * activated by the <b>wrong</b> POA object.
-      */
-     public POA _default_POA() {
-         return applicationContext_.getPoa();
-     }
+    Integer getKey() {
+	return key_;
+    }
 
-    protected void debug(String msg) {
-	logger_.debug(msg);
+    /**
+     * Override this method from the Servant baseclass.  Fintan Bolton
+     * in his book "Pure CORBA" suggests that you override this method to
+     * avoid the risk that a servant object (like this one) could be
+     * activated by the <b>wrong</b> POA object.
+     */
+    public POA _default_POA() {
+	return applicationContext_.getPoa();
+    }
+
+    void setFilterManager(FilterManager manager) {
+	filterManager_ = manager;
     }
 
     public List getFilters() {
-	Collection _c = filters_.values();
-
-	return Arrays.asList(_c.toArray());
+	return filterManager_.getFilters();
     }
 
-}// ProxyBase
+    public void dispose() {
+	if (!disposed_) {
+	    remove_all_filters();
+	    disposed_ = true;
+	} else {
+	    throw new OBJECT_NOT_EXIST();
+	}
+    }
 
+    void setProxyType(ProxyType pt) {
+	proxyType_ = pt;
+    }
+
+    public ProxyType MyType() {
+	return proxyType_;
+    }
+}// ProxyBase

@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
@@ -27,7 +28,6 @@ import java.util.Iterator;
 import java.util.Map;
 import org.jacorb.notification.evaluate.ConstraintEvaluator;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.evaluate.ResultExtractor;
 import org.jacorb.notification.node.DynamicTypeException;
@@ -52,13 +52,11 @@ import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.jacorb.notification.util.WildcardMap;
 import java.util.Arrays;
-import org.apache.log4j.Logger;
 import java.util.List;
 import java.util.LinkedList;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.jacorb.util.Debug;
+import org.jacorb.notification.util.ObjectPoolBase;
+import org.jacorb.notification.framework.Poolable;
 
 /**
  * FilterImpl.java
@@ -138,6 +136,8 @@ import java.util.LinkedList;
 
 public class FilterImpl extends FilterPOA {
 
+    final static RuntimeException NOT_SUPPORTED = new UnsupportedOperationException();
+
     /**
      * contains a number of callbacks, which are notified each time there is a
      * change to the list of 
@@ -161,30 +161,34 @@ public class FilterImpl extends FilterPOA {
 
     protected ORB orb_;
 
-    protected ResultExtractor resultExtractor_;
-    protected DynamicEvaluator dynamicEvaluator_;
-    protected DynAnyFactory dynAnyFactory_;
+    protected ApplicationContext applicationContext_;
 
-    protected Logger logger_;
+    protected ResultExtractor resultExtractor_;
+
+    protected DynamicEvaluator dynamicEvaluator_;
+
+    protected DynAnyFactory dynAnyFactory_;
 
     protected NotificationEventFactory notificationEventFactory_;
 
+
     FilterImpl(String constraintGrammar, 
-	       ORB orb, 
+	       ApplicationContext applicationContext, 
 	       DynAnyFactory dynAnyFactory, 
 	       ResultExtractor resultExtractor,
 	       DynamicEvaluator dynamicEvaluator) {
 
 	super();
-	logger_ = Logger.getLogger("Filter");
-	orb_ = orb;
+	
+	applicationContext_ = applicationContext;
+	orb_ = applicationContext.getOrb();
 	constraintGrammar_ = constraintGrammar;
 	
+	notificationEventFactory_= applicationContext.getNotificationEventFactory();
+
 	dynAnyFactory_ = dynAnyFactory;
 	resultExtractor_ = resultExtractor;
 	dynamicEvaluator_ = dynamicEvaluator;
-
-	notificationEventFactory_ = new NotificationEventFactory(orb_, dynamicEvaluator, resultExtractor);
 
 	constraints_ = new Hashtable();
 	constraintsLock_ = new WriterPreferenceReadWriteLock();
@@ -192,6 +196,9 @@ public class FilterImpl extends FilterPOA {
 	eventTypeMap_ = new Hashtable();
     }
   
+    public void init() {
+    }
+
     protected int getConstraintId() {
 	return (++constraintIdPool_);
     }
@@ -458,16 +465,14 @@ public class FilterImpl extends FilterPOA {
     private class ConstraintIterator implements Iterator {
 	Object[] arrayOfLists_;
 	Iterator current_;
-	Logger logger_ = Logger.getLogger("ConstraintIterator");
 	int listCursor = 0;
 	int arrayCursor_ = 0;
 
 	ConstraintIterator(Object[] arrayOfLists) {
 	    arrayOfLists_ = arrayOfLists;
-	    logger_.debug("size of arrayOfLists_ = " + arrayOfLists_.length);
-	    if (logger_.isDebugEnabled()) {
+	    if (Debug.canOutput(Debug.DEBUG1)) {
 		for (int x=0; x<arrayOfLists_.length; ++x) {
-		    logger_.debug(x + ": " + arrayOfLists_[x]);
+		    debug(x + ": " + arrayOfLists_[x]);
 		}
 	    }
 	    current_ = ((List)arrayOfLists_[arrayCursor_]).iterator();
@@ -475,49 +480,35 @@ public class FilterImpl extends FilterPOA {
 
 	public boolean hasNext() {
 	    boolean _r = current_.hasNext();
-	    logger_.debug(arrayCursor_  + " hasNext(): " + _r);
 	    return _r;
 	}
 
 	public Object next() {
-	    logger_.debug(arrayCursor_ + " next()");
 	    Object _ret = current_.next();
 	    if (!current_.hasNext() && arrayCursor_ < arrayOfLists_.length-1) {
-		    current_ = ((List)arrayOfLists_[++arrayCursor_]).iterator();
-		    logger_.debug("Switched to next list");
+		current_ = ((List)arrayOfLists_[++arrayCursor_]).iterator();
 	    }
 	    return _ret;
 	}
 
 	public void remove() {
+	    throw NOT_SUPPORTED;
 	}
     }
 
     // readers
     boolean match(NotificationEvent event) throws UnsupportedFilterableData {
-	logger_.info("match(NotificationEvent)");
 	try {
 	    constraintsLock_.readLock().acquire();
 	    try {
 		if (!constraints_.isEmpty()) {
 		    Iterator _entries = getConstraintsForEvent(event);
-		    
-		    EvaluationContext _context;
-		    _context = new EvaluationContext(orb_, 
-						     dynAnyFactory_, 
-						     dynamicEvaluator_, 
-						     resultExtractor_);
    
 		    while(_entries.hasNext()) {
-			
 			ConstraintEntry _entry = (ConstraintEntry)_entries.next();
-			
-			logger_.info("match filter: " + _entry.constraintEvaluator_.constraint_);
-
 			try {
 			    EvaluationResult _res = 
-				_entry.constraintEvaluator_.evaluate(event,
-								    _context);
+				_entry.constraintEvaluator_.evaluate(event);
 			    if (_res.getBool()) {
 				return true;
 			    }
@@ -536,7 +527,7 @@ public class FilterImpl extends FilterPOA {
 			}
 		    }
 		} else {
-		    logger_.info("Filter has no Expressions");
+		    info("Filter has no Expressions");
 		}
 		return false;
 	    } finally {
@@ -549,29 +540,41 @@ public class FilterImpl extends FilterPOA {
     }
 
     public boolean match(Any anyEvent) throws UnsupportedFilterableData {
-	logger_.info("match(Any)");
+	EvaluationContext _evalutionContext = null;
+	NotificationEvent _event = null;
 
-	NotificationEvent _event = notificationEventFactory_.newEvent(anyEvent);
-
-	return match(_event);
+	try {
+	    _evalutionContext = applicationContext_.newEvaluationContext();
+	    _event = notificationEventFactory_.newEvent(anyEvent, _evalutionContext);
+	    return match(_event);
+	} finally {
+	    _event.release();
+	    _evalutionContext.release();
+	}
     }
 
     public boolean match_structured(StructuredEvent structuredEvent) 
 	throws UnsupportedFilterableData{
 
-	NotificationEvent _event = notificationEventFactory_.newEvent(structuredEvent);
+	EvaluationContext _evalutionContext = null;
+	NotificationEvent _event = null;
 
-	return match(_event);
+	try {
+	    _evalutionContext = applicationContext_.newEvaluationContext();
+	    _event = notificationEventFactory_.newEvent(structuredEvent, _evalutionContext);
+
+	    return match(_event);
+	} finally {
+	    _event.release();
+	    _evalutionContext.release();
+	}
     }
 
     public boolean match_typed(Property[] properties) 
 	throws UnsupportedFilterableData {
 
-	//	NotificationEvent _event = new NotificationEvent(properties);
-	//return match(_event);
 	return false;
     }
-    //
 
     public int attach_callback(NotifySubscribe notifySubscribe) {
 	return 0;
@@ -582,6 +585,16 @@ public class FilterImpl extends FilterPOA {
 
     public int[] get_callbacks() {
 	return null;
+    }
+
+    private void debug(Object msg) {
+	System.out.println(msg.toString());
+	
+	//Debug.output(Debug.DEBUG1, msg.toString());
+    }
+
+    private void info(Object msg) {
+	Debug.output(Debug.INFORMATION, msg.toString());
     }
 }// FilterImpl
 

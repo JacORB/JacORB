@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import org.jacorb.notification.ProxyBase;
 import org.omg.CORBA.ORB;
@@ -45,12 +46,11 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.PortableServer.POA;
 import org.apache.log4j.Logger;
 import java.util.List;
-
-
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.jacorb.notification.framework.EventDispatcher;
+import java.util.Collections;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
+import org.omg.CosNotifyComm.SequencePushSupplier;
 
 /**
  * StructuredProxyPushConsumerImpl.java
@@ -62,78 +62,60 @@ import java.util.List;
  * @version $Id$
  */
 
-public class StructuredProxyPushConsumerImpl extends ProxyBase implements StructuredProxyPushConsumerOperations {
+public class StructuredProxyPushConsumerImpl 
+    extends ProxyBase 
+    implements StructuredProxyPushConsumerOperations {
 
-    ProxyType myType_ = ProxyType.PUSH_STRUCTURED;
-    SupplierAdmin myAdmin_;
-    SupplierAdminTieImpl myAdminServant_;
-    StructuredPushSupplier myPushSupplier_;
+    private StructuredPushSupplier myPushSupplier_;
 
     public StructuredProxyPushConsumerImpl(ApplicationContext appContext,
 					   ChannelContext channelContext,
 					   SupplierAdminTieImpl supplierAdminServant, 
-					   SupplierAdmin supplierAdmin) {
-	super(appContext, 
+					   SupplierAdmin supplierAdmin,
+					   Integer key) {
+	super(supplierAdminServant,
+	      appContext, 
 	      channelContext,
+	      key,
 	      Logger.getLogger("Proxy.StructuredPushConsumer"));
-
-	myAdmin_ = supplierAdmin;
-	myAdminServant_ = supplierAdminServant;
     }
-    
-    // Implementation of org.omg.CosNotifyComm.StructuredPushConsumerOperations
 
-    /**
-     * Describe <code>push_structured_event</code> method here.
-     *
-     * @param structuredEvent a <code>StructuredEvent</code> value
-     * @exception Disconnected if an error occurs
-     */
     public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
 	if (!connected_) {
 	    throw new Disconnected();
 	}
 
 	NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(structuredEvent, this);
-	channelContext_.getEventChannelServant().process_event(_notifyEvent);
+	channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
     }
 
-    /**
-     * Describe <code>disconnect_structured_push_consumer</code> method
-     * here.
-     *
-     */
     public void disconnect_structured_push_consumer() {
-	
+	dispose();
     }
     
-    // Implementation of org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerOperations
+    protected void disconnectClient() {
+	if (connected_) {
+	    if (myPushSupplier_ != null) {
+		connected_ = false;
+		myPushSupplier_.disconnect_structured_push_supplier();
+		myPushSupplier_ = null;
+	    }
+	}
+    }
 
-    /**
-     * Describe <code>connect_structured_push_supplier</code> method here.
-     *
-     * @param structuredPushSupplier a <code>StructuredPushSupplier</code>
-     * value
-     * @exception AlreadyConnected if an error occurs
-     */
-    public void connect_structured_push_supplier(StructuredPushSupplier structuredPushSupplier) throws AlreadyConnected {
+    public void connect_structured_push_supplier(StructuredPushSupplier structuredPushSupplier) 
+	throws AlreadyConnected {
+
 	if (connected_) {
 	    throw new AlreadyConnected();
 	}
 	connected_ = true;
 	myPushSupplier_ = structuredPushSupplier;
     }
+
     
     // Implementation of org.omg.CosNotifyChannelAdmin.ProxyConsumerOperations
 
-    /**
-     * Describe <code>MyType</code> method here.
-     *
-     * @return a <code>ProxyType</code> value
-     */
-    public ProxyType MyType() {
-	return myType_;
-    }
 
     /**
      * Describe <code>MyAdmin</code> method here.
@@ -141,18 +123,24 @@ public class StructuredProxyPushConsumerImpl extends ProxyBase implements Struct
      * @return a <code>SupplierAdmin</code> value
      */
     public SupplierAdmin MyAdmin() {
+	return (SupplierAdmin)myAdmin_.getThisRef();
+    }
+
+    public EventDispatcher getEventDispatcher() {
 	return null;
     }
 
-    public TransmitEventCapable getEventSink() {
-	return null;
+    public boolean hasEventDispatcher() {
+	return false;
     }
     
     public List getSubsequentDestinations() {
-	return null;
+	return Collections.singletonList(myAdmin_);
     }
 
     public void dispose() {
+	super.dispose();
+	disconnectClient();
     }
 
 }// StructuredProxyPushConsumerImpl

@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Collections;
 import org.omg.CosEventComm.PullSupplier;
 import org.omg.PortableServer.POA;
+import org.jacorb.notification.framework.EventDispatcher;
 
 /**
  * Implementation of COSEventChannelAdmin interface; ProxyPullConsumer.
@@ -70,74 +71,84 @@ public class ProxyPullConsumerImpl
 	       org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations {
 
     private org.omg.CosEventComm.PullSupplier myPullSupplier_;
-    private boolean connected = false;
-    private SupplierAdminTieImpl myAdminServant_;
-    private SupplierAdmin myAdmin_;
-    private ProxyType myType_ = ProxyType.PULL_ANY;
 
-    private long pollInterval_ = 1000;
+    private boolean connected_ = false;
+    private boolean active_ = false;
+    private long pollInterval_ = 1000L;
+    private Thread thisThread_;
 
-    /**
-     */
+    ProxyPullConsumerImpl (ApplicationContext appContext,
+			   ChannelContext channelContext,
+			   SupplierAdminTieImpl adminServant,
+			   SupplierAdmin myAdmin,
+			   Integer key) {
+
+	super(adminServant,appContext, channelContext, key, Logger.getLogger("Proxy.ProxyPullConsumer"));
+        connected_ = false;
+    }
+
     ProxyPullConsumerImpl (ApplicationContext appContext,
 			   ChannelContext channelContext,
 			   SupplierAdminTieImpl adminServant,
 			   SupplierAdmin myAdmin) {
 
-	super(appContext, channelContext, Logger.getLogger("Proxy.ProxyPullConsumer"));
-	myAdmin_ = myAdmin;
-	myAdminServant_ = adminServant;
-        connected = false;
-        //_this_object( orb );
+	super(adminServant,appContext, channelContext, Logger.getLogger("Proxy.ProxyPullConsumer"));
+        connected_ = false;
     }
-
-    /**
-     * See EventService v 1.1 specification section 2.1.4.
-     *   'disconnect_pull_consumer terminates the event communication; it releases
-     *   resources used at the consumer to support event communication.  Calling
-     *   this causes the implementation to call disconnect_pull_supplier operation
-     *   on the corresponding PullSupplier interface (if that iterface is known).'
-     * See EventService v 1.1 specification section 2.1.5.  This method should
-     *   adhere to the spec as it a) causes a call to the corresponding disconnect
-     *   on the connected supplier, b) 'If a consumer or supplier has received a
-     *   disconnect call and subsequently receives another disconnect call, it
-     *   shall raise a CORBA::OBJECT_NOT_EXIST exception.
-     */
 
     public void disconnect_pull_consumer() {
-        if (connected) {
-	    disconnect();
-        } else {
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST();
-        }
+	dispose();
     }
 
-    private void disconnect() {
+    private void disconnectClient() {
 	if (myPullSupplier_ != null) {
 	    myPullSupplier_.disconnect_pull_supplier();
 	    myPullSupplier_ = null;
-	    connected = false;
+	    connected_ = false;
+	    active_ = false;
 	}
     }
 
-    /**
-     * Start being a good PullConsumer and ask for loads of events.
-     */
+    synchronized public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
+	if (!connected_) {
+	    throw new NotConnected();
+	}
+	if (!active_) {
+	    throw new ConnectionAlreadyInactive();
+	}
+	active_ = false;
+	thisThread_.interrupt();
+	try {
+	    thisThread_.join();
+	} catch (InterruptedException e) {}
+	thisThread_ = null;
+    }
+
+    synchronized public void resume_connection() throws ConnectionAlreadyActive, NotConnected {
+	if (!connected_) {
+	    throw new NotConnected();
+	}
+	if (active_) {
+	    throw new ConnectionAlreadyActive();
+	}
+	thisThread_ = new Thread(this);
+	thisThread_.start();
+    }
 
     public void run() {
         org.omg.CORBA.BooleanHolder hasEvent = new org.omg.CORBA.BooleanHolder();
         org.omg.CORBA.Any event = null;
 
 	synchronized(this) {
-	    while(connected) {
+	    while(connected_) {
                 try {
                     event = myPullSupplier_.try_pull( hasEvent );
                 } catch( org.omg.CORBA.UserException userEx ) {
-                    connected = false;
+                    connected_ = false;
                     // userEx.printStackTrace();
                     return;
                 } catch( org.omg.CORBA.SystemException sysEx ) {
-                    connected = false;
+                    connected_ = false;
                     // sysEx.printStackTrace();
                     return;
                 }
@@ -145,7 +156,7 @@ public class ProxyPullConsumerImpl
                 if (hasEvent.value) {
 		    logger_.debug("pulled event");
 		    NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(event, this);
-		    channelContext_.getEventChannelServant().process_event(_notifyEvent);
+		    channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
                 }
                 // Let other threads get some time on the CPU in case we're
                 // in a cooperative environment.
@@ -159,12 +170,14 @@ public class ProxyPullConsumerImpl
     public void connect_any_pull_supplier(PullSupplier pullSupplier) 
 	throws AlreadyConnected {
 
-	if (connected) {
+	if (connected_) {
 	    throw new AlreadyConnected();
 	} else {
-	    connected = true;
+	    connected_ = true;
+	    active_ = true;
 	    myPullSupplier_ = pullSupplier;
-	    new Thread(this).start();
+	    thisThread_ = new Thread(this);
+	    thisThread_.start();
 	}
     }
 
@@ -172,24 +185,24 @@ public class ProxyPullConsumerImpl
 	connect_any_pull_supplier(pullSupplier);
     }
 
-    public ProxyType MyType() {
-	return myType_;
-    }
-
     public SupplierAdmin MyAdmin() {
-	return myAdmin_;
+	return (SupplierAdmin)myAdmin_.getThisRef();
     }
 
     public List getSubsequentDestinations() {
-	return Collections.singletonList(myAdminServant_);
+	return Collections.singletonList(myAdmin_);
     }
 
-    public TransmitEventCapable getEventSink() {
+    public EventDispatcher getEventDispatcher() {
 	return null;
     }
 
+    public boolean hasEventDispatcher() {
+	return false;
+    }
+
     public void dispose() {
-	logger_.info("dispose");
-	disconnect();
+	super.dispose();
+	disconnectClient();
     }
 }

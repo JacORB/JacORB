@@ -30,5 +30,5 @@ package org.jacorb.notification;
  */
 
 public interface TransmitEventCapable {
-    public void transmit_event(NotificationEvent event);
+    public void transmit_event2(NotificationEvent event);
 }// PushCapable

@@ -20,8 +20,6 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.orb.*;
-import java.util.*;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
@@ -44,22 +42,14 @@ import org.omg.CORBA.Any;
 import org.omg.CosEventComm.PullConsumer;
 import org.omg.PortableServer.POA;
 import org.omg.CORBA.BooleanHolder;
+import org.jacorb.notification.framework.EventDispatcher;
+import org.omg.CosEventComm.Disconnected;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Collections;
 
 /**
- * Implementation of COSEventChannelAdmin interface; ProxyPullSupplier.
- * This defines connect_pull_consumer(), disconnect_pull_supplier() and the all
- * important pull() and try_pull() methods that the Consumer can call to
- * actuall deliver a message.
- *
- * 2002/23/08 JFC OMG EventService Specification 1.1 page 2-7 states:
- *      "Registration is a two step process.  An event-generating application
- *      first obtains a proxy consumer from a channel, then 'connects' to the
- *      proxy consumer by providing it with a supplier.  ...  The reason for
- *      the two step registration process..."
- *    Modifications to support the above have been made as well as to support
- *    section 2.1.5 "Disconnection Behavior" on page 2-4.
- *
- * @authors Jeff Carlson, Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose 1997
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -67,74 +57,56 @@ public class ProxyPullSupplierImpl
     extends ProxyBase
     implements ProxyPullSupplierOperations,
 	       org.omg.CosEventChannelAdmin.ProxyPullSupplierOperations,
-	       TransmitEventCapable {
+	       EventDispatcher {
 
     private PullConsumer myPullConsumer_ = null;
     private boolean connected = false;
     private LinkedList pendingEvents = new LinkedList();
     private final int maxListSize = 200;
     private static Any undefinedAny = null;
-    private ConsumerAdminTieImpl adminServant_;
-    private ConsumerAdmin myAdmin_;
-    private ProxyType myType_ = ProxyType.PULL_ANY;
 
     ProxyPullSupplierImpl (ApplicationContext appContext,
 			   ChannelContext channelContext,
 			   ConsumerAdminTieImpl adminServant,
 			   ConsumerAdmin myAdmin) {
 
-	super(appContext ,channelContext, Logger.getLogger("Proxy.ProxyPullSupplier"));
-	myAdmin_ = myAdmin;
-	adminServant_ = adminServant;
+	super(adminServant, 
+	      appContext,
+	      channelContext, 
+	      Logger.getLogger("Proxy.ProxyPullSupplier"));
+
+	setProxyType(ProxyType.PULL_ANY);
         connected = false;
-        //_this_object(orb);
         undefinedAny = appContext.getOrb().create_any();
     }
 
-    /**
-     * See EventService v 1.1 specification section 2.1.3.
-     *   'disconnect_pull_supplier terminates the event communication; it releases
-     *   resources used at the consumer to support event communication.  Calling
-     *   this causes the implementation to call disconnect_pull_consumer operation
-     *   on the corresponding PullConsumer interface (if that iterface is known).'
-     * See EventService v 1.1 specification section 2.1.5.  This method should
-     *   adhere to the spec as it a) causes a call to the corresponding disconnect
-     *   on the connected supplier, b) 'If a consumer or supplier has received a
-     *   disconnect call and subsequently receives another disconnect call, it
-     *   shall raise a CORBA::OBJECT_NOT_EXIST exception.
-     * See EventService v 1.1 specification section 2.3.5. If [a nil object
-     *   reference is passed to connect_pull_consumer] a channel cannot invoke a
-     *   disconnect_pull_consumer operation on the consumer.
-     */
+    ProxyPullSupplierImpl (ApplicationContext appContext,
+			   ChannelContext channelContext,
+			   ConsumerAdminTieImpl adminServant,
+			   ConsumerAdmin myAdmin,
+			   Integer key) {
 
-    public void disconnect_pull_supplier() {
-        if (connected) {
-	    disconnect();
-            connected = false;
-        } else {
-            throw new org.omg.CORBA.OBJECT_NOT_EXIST();
-        }
+	super(adminServant, appContext ,channelContext, key, Logger.getLogger("Proxy.ProxyPullSupplier"));
+
+	setProxyType(ProxyType.PULL_ANY);
+        connected = false;
+        undefinedAny = appContext.getOrb().create_any();
     }
 
-    private boolean disconnect() {
+    public void disconnect_pull_supplier() {
+	dispose();
+    }
+
+    private void disconnect() {
 	if (myPullConsumer_ != null) {
 	    logger_.debug("disconnect()");
 	    myPullConsumer_.disconnect_pull_consumer();
 	    myPullConsumer_ = null;
-	    return true;
 	}
-	return false;
     }
 
-    /**
-     * PullSupplier Interface.
-     * section 2.1.3 states that "The <b>pull</b> operation blocks until the
-     *   event data is available or an exception is raised.  It returns data to
-     *   the consumer."
-     */
-
     public Any pull ()
-        throws org.omg.CosEventComm.Disconnected {
+        throws Disconnected {
         Any event = null;
         BooleanHolder hasEvent = new org.omg.CORBA.BooleanHolder();
         while (true) {
@@ -160,17 +132,19 @@ public class ProxyPullSupplierImpl
      * this as a FIFO queue and wait for someone to convince me otherwise.
      */
 
-    public org.omg.CORBA.Any try_pull (org.omg.CORBA.BooleanHolder hasEvent)
-        throws org.omg.CosEventComm.Disconnected {
+    public Any try_pull (BooleanHolder hasEvent)
+        throws Disconnected {
 
-        if (!connected) { throw new org.omg.CosEventComm.Disconnected(); }
+        if (!connected) { 
+	    throw new Disconnected(); 
+	}
 
-        org.omg.CORBA.Any event = null;
+        Any event = null;
 
         synchronized(pendingEvents) {
             int listSize = pendingEvents.size();
             if (listSize > 0) {
-                event = (org.omg.CORBA.Any)pendingEvents.getFirst();
+                event = (Any)pendingEvents.getFirst();
                 pendingEvents.remove( event );
                 hasEvent.value = true;
                 return event;
@@ -189,18 +163,16 @@ public class ProxyPullSupplierImpl
      * Right now, I'm going with option b.
      */
 
-    public void transmit_event(NotificationEvent event) {
-	logger_.info("transmit_event()");
-
+    public void dispatchEvent(NotificationEvent event) {
          synchronized(pendingEvents) {
-             if ( pendingEvents.size() > maxListSize ) {
-                 pendingEvents.remove( pendingEvents.getFirst() );
+             if (pendingEvents.size() > maxListSize) {
+                 pendingEvents.remove(pendingEvents.getFirst());
              }
              pendingEvents.add(event.toAny());
          }
      }
 
-    public void connect_any_pull_consumer(org.omg.CosEventComm.PullConsumer pullConsumer) throws AlreadyConnected {
+    public void connect_any_pull_consumer(PullConsumer pullConsumer) throws AlreadyConnected {
 	logger_.info("connect_any_pull_consumer()");
 
 	if (connected) {
@@ -219,25 +191,29 @@ public class ProxyPullSupplierImpl
 	connected = true;
 	myPullConsumer_ = consumer;
     }
-    
-    public ProxyType MyType() {
-	return myType_;
-    }
 
     public ConsumerAdmin MyAdmin() {
-	return myAdmin_;
+	return (ConsumerAdmin)myAdmin_.getThisRef();
     }
 
     public List getSubsequentDestinations() {
 	return Collections.singletonList(this);
     }
 
-    public TransmitEventCapable getEventSink() {
+    public EventDispatcher getEventDispatcher() {
 	return this;
     }
 
+    public boolean hasEventDispatcher() {
+	return true;
+    }
+
     public void dispose() {
-	logger_.info("dispose()");
+	super.dispose();
+	disconnect();
+    }
+
+    public void markError() {
 	disconnect();
     }
 }

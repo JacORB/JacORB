@@ -10,8 +10,14 @@ import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumer;
 import org.apache.log4j.Logger;
-
-
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CORBA.IntHolder;
+import org.omg.CosNotifyChannelAdmin.ClientType;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerHelper;
+import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventChannelAdmin.TypeError;
 
 /*
  *        JacORB - a free Java ORB
@@ -27,48 +33,55 @@ import org.apache.log4j.Logger;
  * @version $Id$
  */
 
-public class AnyPullSender extends PullSupplierPOA {
+public class AnyPullSender extends PullSupplierPOA implements TestClientOperations {
     Logger logger_ = Logger.getLogger("TEST.AnyPullSender");
 
     Any event_;
     Any invalidAny_;
     ProxyPullConsumer myConsumer_;
-    boolean disconnectCalled_ = false;
+    boolean connected_ = false;
+    boolean available_ = false;
 
-    public AnyPullSender(ORB orb, POA poa, ProxyPullConsumer myConsumer) throws Exception {
-	myConsumer.connect_any_pull_supplier(_this(orb));
-	myConsumer_ = myConsumer;
-	invalidAny_ = orb.create_any();
+    public AnyPullSender(Any event) {
+	event_ = event;
     }
     
     void reset() {
 	event_ = null;
     }
 
-    boolean disconnected() {
-	logger_.info("disc: "+ disconnectCalled_);
-	return disconnectCalled_;
+    public boolean isConnected() {
+	return connected_;
     }
 
-    void shutdown() {
+    public void connect(ORB orb, POA poa, EventChannel channel) throws AdminLimitExceeded, AlreadyConnected, TypeError {
+	IntHolder _proxyId = new IntHolder();
+
+	SupplierAdmin _supplierAdmin = channel.default_supplier_admin();
+
+	myConsumer_ = 
+	    ProxyPullConsumerHelper.narrow(_supplierAdmin.obtain_notification_pull_consumer(ClientType.ANY_EVENT, _proxyId));
+	myConsumer_.connect_any_pull_supplier(_this(orb));
+	connected_ = true;
+    }
+
+    public void shutdown() {
 	myConsumer_.disconnect_pull_consumer();
     }
 
-    void send(Any event) {
-	synchronized(this) {
-	    event_ = event;
-	    logger_.info("send(Any)");
-	}
-	try {
-	    Thread.sleep(1000);
-	} catch (InterruptedException e) {}
+    public void run() {
+	available_ = true;
     }
 
-    boolean sent() {
+    public boolean isEventHandled() {
 	return sent_;
     }
 
     boolean sent_ = false;
+
+    public boolean isError() {
+	return false;
+    }
 
     public void subscription_change(EventType[] e1, EventType[] e2) {
     }
@@ -90,14 +103,15 @@ public class AnyPullSender extends PullSupplierPOA {
     public Any try_pull(BooleanHolder success) throws Disconnected {
 	Any _event = invalidAny_;
 	success.value = false;
-	if (event_ != null) {
+	if (available_) {
 	    synchronized(this) {
-		if (event_ != null) {
+		if (available_) {
 		    _event = event_;
 		    event_ = null;
 		    success.value = true;
 		    logger_.debug("try_pull will be successful");
 		    sent_ = true;
+		    available_ = false;
 		}
 	    }
 	}
@@ -105,9 +119,7 @@ public class AnyPullSender extends PullSupplierPOA {
     }
 
     public void disconnect_pull_supplier() {
-	logger_.info("disconnect_pull_supplier");
-	disconnectCalled_ = true;
-	logger_.info("status: "+ disconnectCalled_);
+	connected_ = false;
     }
 
 }// AnyPullSender

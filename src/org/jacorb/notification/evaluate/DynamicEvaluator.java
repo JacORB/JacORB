@@ -1,7 +1,9 @@
+package org.jacorb.notification.evaluate;
+
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1999-2003 Gerald Brosex
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,17 +20,13 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.evaluate;
 
 import org.jacorb.notification.node.EvaluationResult;
-
 import java.util.Map;
 import java.util.Hashtable;
-
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.TCKind;
-
 import org.omg.DynamicAny.DynAny;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.omg.DynamicAny.DynAnyFactoryHelper;
@@ -45,6 +43,8 @@ import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
 import org.omg.DynamicAny.DynSequenceHelper;
 import org.omg.DynamicAny.DynSequence;
+import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.node.DynamicTypeException;
 
 /**
  * IdentifierEvaluator.java
@@ -52,8 +52,8 @@ import org.omg.DynamicAny.DynSequence;
  *
  * Created: Sat Sep 07 21:05:32 2002
  *
- * @author <a href="mailto:a.bendt@berlin.de">Alphonse Bendt</a>
- * @version
+ * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @version $Id$
  */
 
 public class DynamicEvaluator {
@@ -137,7 +137,8 @@ public class DynamicEvaluator {
      * 
      * @return the number of elements in the list
      */
-    public Any evaluateListLength(Any value) throws InconsistentTypeCode, EvaluationException {
+    public Any evaluateListLength(Any value) throws InconsistentTypeCode, 
+						    EvaluationException {
 	int _length;
 
 	switch(value.type().kind().value()) {
@@ -150,6 +151,7 @@ public class DynamicEvaluator {
 	    _length = _dynSequence.get_length();
 	    break;
 	default:
+	    debug("any: " + value.type());
 	    throw new EvaluationException("Neither array nor sequence");
 	}
 
@@ -257,7 +259,7 @@ public class DynamicEvaluator {
 	       TypeMismatch,
 	       EvaluationException {
 
-	debug("evaluateNamedValueList()");
+	debug("evaluateNamedValueList(" + any + ", " + name + ")");
 
 	Any _ret = null;
 	DynAny _dynAny = toDynAny(any);
@@ -271,7 +273,7 @@ public class DynamicEvaluator {
 	    _dynAny.seek(x);
 	    _cursor = _dynAny.current_component();
 	    _ret = evaluateNamedValue(_cursor, name);
-	    if (_ret!=null) {
+	    if (_ret != null) {
 		break;
 	    }
 	}
@@ -289,13 +291,11 @@ public class DynamicEvaluator {
 	Any _ret = null;
 
 	String _anyName = evaluateIdentifier(any, NAME).extract_string();;
-
-	debug("Any contains name " + _anyName);
+	debug("test if " + name + " == " + _anyName);
 
 	if (name.equals(_anyName)) {
-
+	    debug("YES");
 	    _ret = evaluateIdentifier(any, VALUE);
-
 	}
 	return _ret;
     }
@@ -364,6 +364,32 @@ public class DynamicEvaluator {
 	}
     }
 
+    public EvaluationResult evaluateElementInSequence(EvaluationContext context, 
+						      EvaluationResult element, 
+						      Any sequence) throws InconsistentTypeCode,
+									   TypeMismatch, InvalidValue,
+									   DynamicTypeException, 
+									   EvaluationException {
+
+	ResultExtractor _resultExtractor = context.getResultExtractor();
+	DynSequence _dynSequence = DynSequenceHelper.narrow(toDynAny(sequence));
+	DynAny _currentComponent;
+
+	_dynSequence.rewind();
+	while(true) {
+	    _currentComponent = _dynSequence.current_component();
+	    EvaluationResult _r = _resultExtractor.extractFromAny(_currentComponent.to_any());
+
+	    if (element.compareTo(context, _r) == 0) {
+		return EvaluationResult.BOOL_TRUE;
+	    }
+
+	    if(!_dynSequence.next()) {
+		return EvaluationResult.BOOL_FALSE;
+	    }
+	}
+    }
+
     public Any evaluateIdentifier(Any any, String identifier)
 	throws InconsistentTypeCode,
 	       InvalidValue,
@@ -423,6 +449,9 @@ public class DynamicEvaluator {
 		throw new EvaluationException("member " + identifier + " is not active on struct");
 	    }
 	    break;
+	case TCKind._tk_any:
+	    debug("encapsulated any");
+	    return evaluateIdentifier(any.get_any(), identifier);
 	default:
 	    debug("? " + any.type());
 	    throw new RuntimeException();

@@ -1,3 +1,5 @@
+package org.jacorb.notification.engine;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,11 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.engine;
-
-/*
- *        JacORB - a free Java ORB
- */
 
 /**
  * Task.java
@@ -34,14 +31,14 @@ package org.jacorb.notification.engine;
  * @version $Id$
  */
 
-public interface Task extends Runnable {
-
-    public static int DELIVERED = 0;
-    public static int NEW = 1;
-    public static int PROXY_CONSUMER_FILTERED = 2;
-    public static int CONSUMER_ADMIN_FILTERED = 3;
-    public static int SUPPLIER_ADMIN_FILTERED = 4;
-    public static int PROXY_SUPPLIER_FILTERED = 5;
+public interface Task extends Runnable {    
+    public static int NEW = 0;
+    public static int DELIVERING = 1;
+    public static int DELIVERED = 2;
+    public static int FILTERED = 3;
+    public static int FILTERING = 4;
+    public static int FINISHED = 10;
 
     public int getStatus();
+    public boolean getDone();
 }// Task

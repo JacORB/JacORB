@@ -1,12 +1,20 @@
 #pragma prefix "org.jacorb.notification"
 
 module test {
+  typedef sequence<string> stringSeq;
+  typedef sequence<long> numberSeq;
+
+  struct TimingTest {
+    long id;
+    long currentTime;
+  };
+
   struct Address {
     string street;
     string city;
     long number;
   };
-
+  
   struct NamedValue {
     string name;
     string value;
@@ -22,6 +30,8 @@ module test {
     string phone_numbers[2];
     NamedValue nv[2];
     Profession person_profession;
+    stringSeq aliases;
+    numberSeq    numbers;
   };
 
   union TestUnion switch (short) {

@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,39 +20,32 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
-import org.jacorb.notification.ProxyBase;
-import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyComm.StructuredPullConsumerOperations;
-import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyComm.NotifyPublishOperations;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import org.omg.CosNotifyComm.StructuredPullSupplier;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotification.QoSAdminOperations;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotifyFilter.FilterAdminOperations;
+import java.util.Collections;
+import java.util.List;
+import org.apache.log4j.Logger;
+import org.jacorb.notification.framework.EventDispatcher;
+import org.omg.CORBA.BooleanHolder;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.SystemException;
+import org.omg.CORBA.UserException;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventChannelAdmin.TypeError;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerOperations;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
-import org.omg.CORBA.ORB;
-import org.omg.PortableServer.POA;
-import org.apache.log4j.Logger;
-import java.util.List;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
+import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
+import org.omg.CosNotifyChannelAdmin.NotConnected;
+import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerOperations;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyComm.SequencePullSupplier;
+import org.omg.CosNotifyComm.StructuredPullConsumerOperations;
+import org.omg.CosNotifyComm.StructuredPullSupplier;
 
 /**
  * StructuredProxyPullConsumerImpl.java
@@ -63,124 +58,149 @@ import java.util.List;
  */
 
 public class StructuredProxyPullConsumerImpl extends ProxyBase 
-    implements StructuredProxyPullConsumerOperations, Runnable {
+    implements StructuredProxyPullConsumerOperations,
+	       Runnable {
 
-    SupplierAdminTieImpl myAdminServant_;
-    SupplierAdmin myAdmin_;
-    ProxyType myType_ = ProxyType.PUSH_STRUCTURED;
+    private StructuredPullSupplier mySupplier_;
+    protected long pollInterval_ = 1000L;
+    protected boolean active_ = true;
+    protected Thread thisThread_;
 
     public StructuredProxyPullConsumerImpl(ApplicationContext appContext,
 					   ChannelContext channelContext, 
 					   SupplierAdminTieImpl supplierAdminServant, 
-					   SupplierAdmin supplierAdmin) {
-	super(appContext, channelContext, Logger.getLogger("Proxy.StructuredPullConsumer"));
-	myAdmin_ = supplierAdmin;
-	myAdminServant_ = supplierAdminServant;
+					   SupplierAdmin supplierAdmin,
+					   Integer key) {
+	super(supplierAdminServant,
+	      appContext, 
+	      channelContext,
+	      key,
+	      Logger.getLogger("Proxy.StructuredPullConsumer"));
     }
     
-    // Implementation of org.omg.CosNotifyComm.StructuredPullConsumerOperations
+    // Implementation of
+    // org.omg.CosNotifyComm.StructuredPullConsumerOperations
 
-    /**
-     * Describe <code>disconnect_structured_pull_consumer</code> method
-     * here.
-     *
-     */
     public void disconnect_structured_pull_consumer() {
-	
+	dispose();
     }
+
     
     // Implementation of org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations
 
-    /**
-     * Describe <code>connect_structured_pull_supplier</code> method here.
-     *
-     * @param structuredPullSupplier a <code>StructuredPullSupplier</code>
-     * value
-     * @exception AlreadyConnected if an error occurs
-     * @exception TypeError if an error occurs
-     */
-    public void connect_structured_pull_supplier(StructuredPullSupplier structuredPullSupplier) throws AlreadyConnected, TypeError {
-	
+    public void connect_structured_pull_supplier(StructuredPullSupplier structuredPullSupplier) 
+	throws AlreadyConnected {
+
+	if (connected_) {
+	    throw new AlreadyConnected();
+	}
+	connected_ = true;
+	active_ = true;
+
+	mySupplier_ = structuredPullSupplier;
+	thisThread_ = new Thread(this);
+	thisThread_.start();
     }
 
-    /**
-     * Describe <code>suspend_connection</code> method here.
-     *
-     * @exception NotConnected if an error occurs
-     * @exception ConnectionAlreadyInactive if an error occurs
-     */
-    public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
-	
+
+    synchronized public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
+	if (!connected_) {
+	    throw new NotConnected();
+	}
+	if (!active_) {
+	    throw new ConnectionAlreadyInactive();
+	}
+	active_ = false;
+	thisThread_.interrupt();
+	try {
+	    thisThread_.join();
+	} catch (InterruptedException e) {}
+	thisThread_ = null;
     }
 
-    /**
-     * Describe <code>resume_connection</code> method here.
-     *
-     * @exception ConnectionAlreadyActive if an error occurs
-     * @exception NotConnected if an error occurs
-     */
-    public void resume_connection() throws ConnectionAlreadyActive, NotConnected {
-	
-    }
-    
-    // Implementation of org.omg.CosNotifyChannelAdmin.ProxyConsumerOperations
-
-    /**
-     * Describe <code>MyType</code> method here.
-     *
-     * @return a <code>ProxyType</code> value
-     */
-    public ProxyType MyType() {
-	return myType_;
+    synchronized public void resume_connection() throws ConnectionAlreadyActive, NotConnected {
+	if (!connected_) {
+	    throw new NotConnected();
+	}
+	if (active_) {
+	    throw new ConnectionAlreadyActive();
+	}
+	active_ = true;
+	thisThread_ = new Thread(this);
+	thisThread_.start();
     }
 
-    /**
-     * Describe <code>MyAdmin</code> method here.
-     *
-     * @return a <code>SupplierAdmin</code> value
-     */
     public SupplierAdmin MyAdmin() {
-	return myAdmin_;
+	return (SupplierAdmin)myAdmin_.getThisRef();
     }
 
-    /**
-     * Describe <code>obtain_subscription_types</code> method here.
-     *
-     * @param obtainInfoMode an <code>ObtainInfoMode</code> value
-     * @return an <code>EventType[]</code> value
-     */
     public EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode) {
 	return null;
     }
 
-    /**
-     * Describe <code>validate_event_qos</code> method here.
-     *
-     * @param property a <code>Property[]</code> value
-     * @param namedPropertyRangeSeqHolder a
-     * <code>NamedPropertyRangeSeqHolder</code> value
-     * @exception UnsupportedQoS if an error occurs
-     */
-    public void validate_event_qos(Property[] property1, NamedPropertyRangeSeqHolder namedPropertyRangeSeqHolder) throws UnsupportedQoS {
+    public void validate_event_qos(Property[] property1, 
+				   NamedPropertyRangeSeqHolder namedPropertyRangeSeqHolder) throws UnsupportedQoS {
 	
     }
 
     public void run() {
+	runStructured();
+    }
+
+
+    public void runStructured() {
+	BooleanHolder _hasEvent = new BooleanHolder();
+	StructuredEvent _event = null;
+	synchronized(this) {
+	    while(connected_ && active_) {
+		try {
+		    _hasEvent.value = false;
+		    _event = mySupplier_.try_pull_structured_event(_hasEvent);
+		} catch (UserException ex) {
+		    connected_ = false;
+		    return;
+		} catch (SystemException sysEx) {
+		    connected_ = false;
+		    return;
+		}
+
+		if (_hasEvent.value) {
+		    logger_.debug("pulled Event");
+		    NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(_event, this);
+		    channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
+		}
+		
+		try {
+		    Thread.sleep(pollInterval_);
+		} catch (InterruptedException ie) {}
+	    }
+	}
     }
 
     public List getSubsequentDestinations() {
+	return Collections.singletonList(myAdmin_);
+    }
+    
+    public EventDispatcher getEventDispatcher() {
 	return null;
     }
     
-    public TransmitEventCapable getEventSink() {
-	return null;
+    public boolean hasEventDispatcher() {
+	return false;
     }
 
-
-    private void disconnect() {
+    protected void disconnectClient() {
+	if (connected_) {
+	    if (myAdmin_ != null) {
+		mySupplier_.disconnect_structured_pull_supplier();
+		mySupplier_ = null;
+	    }
+	}
+	connected_ = false;
     }
 
     public void dispose() {
-	disconnect();
+	super.dispose();
+	disconnectClient();
     }
 }// StructuredProxyPullConsumerImpl

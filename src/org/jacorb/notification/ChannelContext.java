@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,18 +20,11 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import org.jacorb.notification.engine.Engine;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-
-
-
-/*
- *        JacORB - a free Java ORB
- */
 
 /**
  * ChannelContext.java
@@ -49,27 +44,6 @@ public class ChannelContext {
     EventChannelFactoryImpl eventChannelFactoryServant;
     FilterFactory defaultFilterFactory;
     Engine engine;
-    NotificationEventFactory notificationEventFactory;
-    
-
-    /**
-     * Gets the value of notificationEventFactory
-     *
-     * @return the value of notificationEventFactory
-     */
-    public NotificationEventFactory getNotificationEventFactory()  {
-	return this.notificationEventFactory;
-    }
-
-    /**
-     * Sets the value of notificationEventFactory
-     *
-     * @param argNotificationEventFactory Value to assign to this.notificationEventFactory
-     */
-    public void setNotificationEventFactory(NotificationEventFactory argNotificationEventFactory) {
-	this.notificationEventFactory = argNotificationEventFactory;
-    }
-
 
     /**
      * Gets the value of engine
@@ -143,8 +117,6 @@ public class ChannelContext {
 	this.defaultFilterFactory = argDefaultFilterFactory;
     }
 
-
-
     /**
      * Gets the value of eventChannelServant
      *
@@ -187,7 +159,6 @@ public class ChannelContext {
 	_copy.setEventChannelFactory(eventChannelFactory);
 	_copy.setEngine(engine);
 	_copy.setEventChannelFactoryServant(eventChannelFactoryServant);
-	_copy.setNotificationEventFactory(notificationEventFactory);
 	_copy.setDefaultFilterFactory(defaultFilterFactory);
 
 	return _copy;

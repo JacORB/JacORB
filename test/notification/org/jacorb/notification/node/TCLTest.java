@@ -1,6 +1,37 @@
+package org.jacorb.notification.node;
+
+import antlr.RecognitionException;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.apache.log4j.BasicConfigurator;
+import org.jacorb.notification.ApplicationContext;
+import org.jacorb.notification.EvaluationContext;
+import org.jacorb.notification.NotificationEventFactory;
+import org.jacorb.notification.TestUtils;
+import org.jacorb.notification.evaluate.ConstraintEvaluator;
+import org.jacorb.notification.evaluate.DynamicEvaluator;
+import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.evaluate.ResultExtractor;
+import org.jacorb.notification.test.Address;
+import org.jacorb.notification.test.NamedValue;
+import org.jacorb.notification.test.Person;
+import org.jacorb.notification.test.PersonHelper;
+import org.jacorb.notification.test.Profession;
+import org.jacorb.notification.test.TestUnion;
+import org.jacorb.notification.test.TestUnionHelper;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotification.StructuredEventHelper;
+import org.omg.DynamicAny.DynAnyFactory;
+import org.omg.DynamicAny.DynAnyFactoryHelper;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+
 /**
  * TCLTest.java
- *
  *
  * Created: Thu Jul 18 16:08:15 2002
  *
@@ -8,58 +39,18 @@
  * @version $Id$
  */
 
-package org.jacorb.notification.node;
-
-import java.io.FileReader;
-import java.io.LineNumberReader;
-import java.io.DataInputStream;
-import java.io.StringReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Vector;
-import java.util.List;
-
-import org.jacorb.notification.node.TCLParser;
-import org.jacorb.notification.node.TCLLexer;
-import org.jacorb.notification.node.TCLNode;
-import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.DynamicTypeException;
-
-import org.jacorb.notification.evaluate.EvaluationContext;
-import org.jacorb.notification.evaluate.ConstraintEvaluator;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-
-import org.jacorb.notification.test.NamedValue;
-import org.jacorb.notification.test.Person;
-import org.jacorb.notification.test.Address;
-import org.jacorb.notification.test.AddressHelper;
-import org.jacorb.notification.test.PersonHelper;
-
-import antlr.RecognitionException;
-import antlr.TokenStreamException;
-
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.omg.CORBA.ORB;
-import org.omg.CORBA.Any;
-import org.omg.CORBA.TypeCode;
-
-import org.jacorb.notification.test.Profession;
-import org.jacorb.notification.test.TestUnion;
-import org.jacorb.notification.test.TestUnionHelper;
-import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.evaluate.ResultExtractor;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
-import org.jacorb.notification.NotificationEvent;
-import org.apache.log4j.BasicConfigurator;
-import org.jacorb.notification.NotificationEventFactory;
-
 public class TCLTest extends TestCase {
 
+    ApplicationContext applicationContext_;
     ORB orb_;
+
+    ResultExtractor resultExtractor_;
+    DynamicEvaluator dynamicEvaluator_;
+    DynAnyFactory dynAnyFactory_;
+    NotificationEventFactory notificationEventFactory_;
+
+    //////////////////////////////////////////////////
+    // the testdata
 
     Any testPerson_;
     Any testUnion_;
@@ -69,19 +60,15 @@ public class TCLTest extends TestCase {
     Any testUnion4_;
     Any testUnion5_;
 
-    ResultExtractor resultExtractor_;
-    DynamicEvaluator dynamicEvaluator_;
-    DynAnyFactory dynAnyFactory_;
-    NotificationEventFactory notificationEventFactory_;
-
     public void setUp() throws Exception {
 	orb_ = ORB.init(new String[0], null);
+	POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+
+	applicationContext_ = new ApplicationContext(orb_, _poa);
 
 	dynAnyFactory_ = DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
 	resultExtractor_ = new ResultExtractor(dynAnyFactory_);
 	dynamicEvaluator_ = new DynamicEvaluator(orb_, dynAnyFactory_);
-
-	notificationEventFactory_ = new NotificationEventFactory(orb_, dynamicEvaluator_, resultExtractor_);
 
 	Person _person = new Person();
 	Address _address = new Address();
@@ -111,6 +98,9 @@ public class TCLTest extends TestCase {
 	_nv2.name = "stuff";
 	_nv2.value = "not important";
 	_person.nv[1] = _nv2;
+
+	_person.aliases = new String[] {"Alias0", "Alias1", "Alias2"};
+	_person.numbers = new int[] {10, 20, 30, 40, 50};
 
 	testPerson_ = orb_.create_any();
 	PersonHelper.insert(testPerson_, _person);
@@ -157,28 +147,11 @@ public class TCLTest extends TestCase {
     }
 
     void runEvaluation(Any any, String expr) throws Exception {
-	runEvaluation(any, expr, "TRUE");
+	TestUtils.runEvaluation(this, applicationContext_, any, expr);
     }
 
     void runEvaluation(Any any, String expr, String expect) throws Exception {
-	TCLNode _root = ConstraintEvaluator.parse(expr);
-	TCLNode _expect = ConstraintEvaluator.parse(expect);
-
-	ConstraintEvaluator _evaluator = new ConstraintEvaluator(orb_, _root);
-	EvaluationResult _res;
-
-	//	System.out.println("pre: " + _root.toStringTree());
-	_root.acceptPreOrder(new TCLCleanUp());
-	//	System.out.println(_root.toStringTree());
-
-	EvaluationContext _context = new EvaluationContext(orb_, dynAnyFactory_, dynamicEvaluator_, resultExtractor_);
-	NotificationEvent _event = notificationEventFactory_.newEvent(any);
-
- 	_res = _evaluator.evaluate(_event, _context);
-
- 	assertEquals("expected " + _root.toStringTree() + " == " + _expect.toStringTree(),
-		     _expect.evaluate(null),
-		     _res);
+	TestUtils.runEvaluation(this, applicationContext_, any, expr, expect);
     }
 
     void runStaticTypeCheck(String expr) throws Exception {
@@ -212,6 +185,9 @@ public class TCLTest extends TestCase {
 		     pre_res, 
 		     pst_res);
     }
+
+    //////////////////////////////////////////////////
+    // and now some tests
 
     public void testPlus() throws Exception {
 	runEvaluation("2", "1 + 1");
@@ -253,6 +229,16 @@ public class TCLTest extends TestCase {
 	runEvaluation("-0.1" , "-.1");
     }
 
+    public void testFloat() throws Exception {
+	runEvaluation("1000", "10e+2");
+	runEvaluation("100", "10e+1");
+	runEvaluation("10", "10e+0");
+	runEvaluation("1", "10e-1");
+	runEvaluation(".1", "10e-2");
+	runEvaluation(".01", "10e-3");
+	runEvaluation("-.01", "-10e-3");
+    }
+
     public void testSimpleOperations() throws Exception {
 	runEvaluation("0" , "1-1");
 	runEvaluation("2" , "1+1");
@@ -265,7 +251,6 @@ public class TCLTest extends TestCase {
 	runEvaluation("7", "1+(2*3)");
 	runEvaluation("1+2*3" , "1+(2*3)");
 	runEvaluation("9", "(1+2)*3");
-
 	runEvaluation("1+(2+(3+(4+5)))", "(((1+2)+3)+4)+5");
 	runEvaluation("1*(2*(3*(4*5)))", "(((1*2)*3)*4)*5");
     }
@@ -355,7 +340,6 @@ public class TCLTest extends TestCase {
 
     }
 
-
     public void testTwiddle() throws Exception {
 	runEvaluation("TRUE", "'substr' ~ 'substring'");
 	runEvaluation("FALSE", "'not' ~ 'substring'");
@@ -380,7 +364,7 @@ public class TCLTest extends TestCase {
     }
 
     public void testEnum() throws Exception {
-
+	runEvaluation(testPerson_, "$.person_profession == STUDENT");
     }
 
     public void testImplicit() throws Exception {
@@ -388,10 +372,11 @@ public class TCLTest extends TestCase {
 	runEvaluation(testPerson_, "$._repos_id == 'IDL:org.jacorb.notification/test/Person:1.0'");
 
 	runEvaluation(testPerson_, "$.nv._length == 2");
+
 	try {
 	    runEvaluation(testPerson_, "$.first_name._length == 2");
 	    fail();
-	} catch (EvaluationException e) {}
+	} catch (Throwable e) {}
 
 	runEvaluation(testPerson_, "$.phone_numbers._length == 2");
 	runEvaluation(testPerson_, "$.4._length == 2");
@@ -476,14 +461,12 @@ public class TCLTest extends TestCase {
     }
 
     public void testComponent() throws Exception {
-
 	runEvaluation(testPerson_, "$.first_name", "'Firstname'");
 
 	try {
 	    runEvaluation(testPerson_, "$.third_name", "'Something'");
 	    fail();
-	} catch (EvaluationException e) {}
-		
+	} catch (EvaluationException e) {}		
 
 	runEvaluation(testPerson_, "$.0", "'Firstname'");
 
@@ -531,7 +514,7 @@ public class TCLTest extends TestCase {
  	try {
 	    runEvaluation(testPerson_, "$.first_name + 1 == 10");
  	    fail();
- 	} catch (DynamicTypeException e) {}
+ 	} catch (org.jacorb.notification.node.DynamicTypeException e) {}
 
 	try {
 	    runEvaluation(testPerson_, "$.age == '29'");
@@ -556,14 +539,76 @@ public class TCLTest extends TestCase {
 	} catch(RecognitionException e) {}
     }
 
+    public void testShorthandNotiation() throws Exception {
+	Any _testData = TestUtils.getStructuredEventAny(orb_);
+
+	runEvaluation(_testData, "$domain_name == 'TESTING'");
+	runEvaluation(_testData, "$type_name == 'TESTING'");
+	runEvaluation(_testData, "$event_name == 'ALARM'");
+    }
+
+    public void testInsertComponentName() throws Exception {
+	ComponentOperator _comp = 
+	    (ComponentOperator)ConstraintEvaluator.parse("$.first_name.last_name");
+
+	_comp.acceptInOrder(new TCLCleanUp());
+	assertEquals("$.first_name.last_name", _comp.getComponentName());
+
+	TCLNode _root = 
+	    (TCLNode)ConstraintEvaluator.parse("$.first_name.value + 5");
+
+	_root.acceptInOrder(new TCLCleanUp());
+	
+	_comp = (ComponentOperator)_root.getFirstChild();
+	assertEquals("$.first_name.value", _comp.getComponentName());
+
+	_comp = (ComponentOperator)ConstraintEvaluator.parse("$domain_name");
+	_comp.acceptInOrder(new TCLCleanUp());
+	assertEquals("$domain_name", _comp.getComponentName());
+    }
+
+    public void testInOperator() throws Exception {
+	runEvaluation(testPerson_, "'Alias0' in $.aliases");
+	runEvaluation(testPerson_, "'Alias1' in $.aliases");
+	runEvaluation(testPerson_, "'Alias2' in $.aliases");
+	runEvaluation(testPerson_, "not ('AliasXYZ' in $.aliases)");
+	runEvaluation(testPerson_, "10 in $.numbers");
+	runEvaluation(testPerson_, "not (25 in $.numbers)");
+    }
+
+    public void testPassOverUnnamedLayers() throws Exception {
+	Any _any = orb_.create_any();
+	_any.insert_any(testPerson_);
+	runEvaluation(_any, "$.first_name == 'Firstname'");
+    }
+
+    public void testWhiteboardExpr() throws Exception {
+	Any _any = orb_.create_any();
+	StructuredEvent _event = TestUtils.getStructuredEvent(orb_);
+	_event.header.variable_header = new Property[1];
+	Any _anyInt = orb_.create_any();
+	_anyInt.insert_long(10);
+	
+	_event.header.variable_header[0] = new Property("workgroup_id", _anyInt);
+
+	StructuredEventHelper.insert(_any, _event);
+	runEvaluation(_any, "$.header.variable_header(workgroup_id) != 20");
+    }
+
+    public void testFixTCLGrammarBug() throws Exception {
+	TCLNode _root = ConstraintEvaluator.parse(".1");
+	//	System.out.println(_root.toStringTree());
+	
+	_root = ConstraintEvaluator.parse("$.1");
+	//	System.out.println(_root.toStringTree());
+    }
+
     public static Test suite() {
 	TestSuite suite;
 
 	suite = new TestSuite();
+	suite.addTest(new TCLTest("testSimpleNumbers"));
 	suite = new TestSuite(TCLTest.class);
-
-	//suite.addTest(new TCLTest("testSimpleNumbers"));
-	//suite.addTest(new TCLTest("testGte"));
 	
 	return suite;
     }

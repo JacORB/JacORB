@@ -1,3 +1,5 @@
+package org.jacorb.notification.engine;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,14 +20,10 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.engine;
 
-import org.jacorb.notification.TransmitEventCapable;
+import org.jacorb.notification.framework.EventDispatcher;
 import org.jacorb.notification.NotificationEvent;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.apache.log4j.Logger;
 
 /**
  * DeliverTask.java
@@ -37,25 +35,86 @@ import org.jacorb.notification.NotificationEvent;
  * @version $Id$
  */
 
-public class DeliverTask implements Task {
+public class DeliverTask extends TaskBase {
 
-    TransmitEventCapable[] destinations_;
-    NotificationEvent event_;
-    int status_;
+    Logger logger_ = Logger.getLogger("TASK.Deliver");
+    Logger timeLogger_ = Logger.getLogger("TIME.Deliver");
+    EventDispatcher destination_;
+    boolean done_;
+    boolean released_;
+    Thread releasedBy_;
+    Thread createdBy_;
+    long releaseTime_;
+    int runs_ = 0;
+    boolean fresh_ = true;
+    Exception[] es = new Exception[2]; 
 
-    void configureDestinations(TransmitEventCapable[] dest) {
-	destinations_ = dest;
+    static int number = 0;
+    int myNumber = number++;
+
+    public void reset() {
+	destination_ = null;
+	done_ = false;
+	super.reset();
+    }
+
+    void configureDestination(EventDispatcher dest) {
+	destination_ = dest;
     }
 
     public int getStatus() {
 	return status_;
     }
 
-    public void run() {
-	for (int x=0; x<destinations_.length; ++x) {
-	    destinations_[x].transmit_event(event_);
-	}
-	status_ = DELIVERED;
+    void setStatus(int status) {
+	status_ = status;
     }
 
+    public boolean getDone() {
+	return done_;
+    }
+
+    public void doWork() {
+	long _time = System.currentTimeMillis();
+
+	logger_.debug("dispatch to " + destination_);
+	destination_.dispatchEvent(event_);
+	done_ = true;
+	runs_++;
+
+	timeLogger_.info("deliver(): " + (System.currentTimeMillis() - _time));
+    }
+
+    public void release() {
+	if (released_) {
+	    throw new RuntimeException();
+	}
+	released_ = true;
+
+	super.release();
+    }
+    
+    public String toString() {
+	return (released_?" released" : "") + "DeliverTask:" +myNumber+ "/" + runs_ + " with Destination " + destination_;
+    }
+
+    public void queue() {
+	if (released_) {
+	    System.out.println("fresh: " + fresh_);
+	    System.out.println(this);
+	    
+	    System.out.println("Was released multiple times:");
+	    System.out.println("1: " + releasedBy_);
+	    System.out.println("2: " + Thread.currentThread());
+	    System.out.println("was created by: " + createdBy_);
+	    System.out.println("rel1: " + releaseTime_);
+	    System.out.println("rel2: " + System.currentTimeMillis());
+
+	    System.out.println("the first time here: ");
+	    es[0].printStackTrace();	    
+	    es[1].printStackTrace();	    
+
+	    throw new RuntimeException();
+	}
+    }
 }// DeliverTask

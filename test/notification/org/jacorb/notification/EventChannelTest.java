@@ -3,7 +3,7 @@ package org.jacorb.notification;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.omg.CosEventChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CORBA.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
@@ -22,6 +22,7 @@ import org.jacorb.notification.test.AddressHelper;
 import org.apache.log4j.BasicConfigurator;
 import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 
 /**
  *  Unit Test for class EventChannel.
@@ -33,9 +34,11 @@ import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version
  */
+
 public class EventChannelTest extends TestCase {
     
     EventChannel channel_;
+    EventChannelFactory factory_;
     ORB orb_;
     POA poa_;
     Any testData_;
@@ -48,101 +51,110 @@ public class EventChannelTest extends TestCase {
 	orb_ = ORB.init(new String[0], null);
 	poa_ = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
 
-	ApplicationContext _context = new ApplicationContext();
-	_context.setOrb(orb_);
-	_context.setPoa(poa_);
+	ApplicationContext _context = new ApplicationContext(orb_, poa_);
+
 	EventChannelFactoryImpl _factoryServant = new EventChannelFactoryImpl(_context);
+	factory_ = _factoryServant._this(orb_);
 	IntHolder _channelId = new IntHolder();
-	channel_ = EventChannelHelper.narrow(_factoryServant.create_channel(new Property[0], new Property[0], _channelId));
-	
-	Address _addr = new Address();
-	_addr.street = "Takustr.";
-	_addr.number = 9;
-	_addr.city = "Berlin";
+	channel_ = _factoryServant.create_channel(new Property[0], new Property[0], _channelId);
 
-	testData_ = orb_.create_any();
-
-	AddressHelper.insert(testData_, _addr);
+	testData_ = TestUtils.getTestPersonAny(orb_);
     }
 
     public void testPushPush() throws Exception {
-	SupplierAdmin _supplierAdmin = channel_.for_suppliers();
-	ConsumerAdmin _consumerAdmin = channel_.for_consumers();
-
-	ProxyPushConsumer _proxyPushConsumer = _supplierAdmin.obtain_push_consumer();
-	ProxyPushSupplier _proxyPushSupplier = _consumerAdmin.obtain_push_supplier();
-
 	CosEventPushReceiver _receiver = new CosEventPushReceiver();
-	_proxyPushSupplier.connect_push_consumer(_receiver._this(orb_));
+	_receiver.connect(orb_, poa_, channel_);
 
-	_proxyPushConsumer.connect_push_supplier(new CosEventPushSender()._this(orb_));
-	Thread _t = new Thread(_receiver);
-	_t.start();
+	CosEventPushSender _sender = new CosEventPushSender(testData_);
+	_sender.connect(orb_, poa_, channel_);
 
-	_proxyPushConsumer.push(testData_);
+	Thread _r = new Thread(_receiver);
+	_r.start();
 
-	_t.join();
+	Thread _s = new Thread(_sender);
+	_s.start();
+	_s.join();
+	assertTrue(_sender.isEventHandled());
+
+	_r.join();
 	
-	assertTrue(_receiver.received());
+	assertTrue(_receiver.isEventHandled());
     }
 
     public void testPushPull() throws Exception {
-	SupplierAdmin _supplierAdmin = channel_.for_suppliers();
-	ConsumerAdmin _consumerAdmin = channel_.for_consumers();
+	CosEventPullReceiver _receiver = new CosEventPullReceiver();
+	_receiver.connect(orb_, poa_, channel_);
+	Thread _r = new Thread(_receiver);
 
-	ProxyPushConsumer _proxyPushConsumer = _supplierAdmin.obtain_push_consumer();
-	ProxyPullSupplier _proxyPullSupplier = _consumerAdmin.obtain_pull_supplier();
+	CosEventPushSender _sender = new CosEventPushSender(testData_);
+	_sender.connect(orb_, poa_, channel_);
+	Thread _s = new Thread(_sender);
 
-	CosEventPullReceiver _receiver = new CosEventPullReceiver(orb_, _proxyPullSupplier);
-	Thread _t = new Thread(_receiver);
+	_r.start();
 
-	_proxyPushConsumer.connect_push_supplier(new CosEventPushSender()._this(orb_));
-	_t.start();
-	_proxyPushConsumer.push(testData_);
-	_t.join();
+	_s.start();
+	_s.join();
+	assertTrue(_sender.isEventHandled());
 
-	assertTrue(_receiver.received());
+	_r.join();
+
+	assertTrue(_receiver.isEventHandled());
     }
 
     public void testPullPush() throws Exception {
-	SupplierAdmin _supplierAdmin = channel_.for_suppliers();
-	ConsumerAdmin _consumerAdmin = channel_.for_consumers();
-
-	ProxyPushSupplier _proxyPushSupplier = _consumerAdmin.obtain_push_supplier();
-	ProxyPullConsumer _proxyPullConsumer = _supplierAdmin.obtain_pull_consumer();
-
 	CosEventPushReceiver _receiver = new CosEventPushReceiver();
-	_proxyPushSupplier.connect_push_consumer(_receiver._this(orb_));
+	_receiver.connect(orb_, poa_, channel_);
 
-	CosEventPullSender _sender = new CosEventPullSender(orb_, _proxyPullConsumer);
+	CosEventPullSender _sender = new CosEventPullSender(testData_);
+	_sender.connect(orb_, poa_, channel_);
 
-	Thread _t = new Thread(_receiver);
-	_t.start();
+	Thread _r = new Thread(_receiver);
+	_r.start();
+	Thread _s = new Thread(_sender);
+	_s.start();
 
-	_sender.send(testData_);
+	_s.join();
+	assertTrue(_sender.isEventHandled());
 
-	_t.join();
-	
-	assertTrue(_receiver.received());
+	_r.join();	
+	assertTrue(_receiver.isEventHandled());
     }
 
     public void testPullPull() throws Exception {
-	SupplierAdmin _supplierAdmin = channel_.for_suppliers();
-	ConsumerAdmin _consumerAdmin = channel_.for_consumers();
+	CosEventPullReceiver _receiver = new CosEventPullReceiver();
+	_receiver.connect(orb_, poa_, channel_);
+	Thread _r = new Thread(_receiver);
 
-	ProxyPullConsumer _proxyPullConsumer = _supplierAdmin.obtain_pull_consumer();
-	ProxyPullSupplier _proxyPullSupplier = _consumerAdmin.obtain_pull_supplier();
+	CosEventPullSender _sender = new CosEventPullSender(testData_);
+	_sender.connect(orb_, poa_, channel_);
 
-	CosEventPullReceiver _receiver = new CosEventPullReceiver(orb_, _proxyPullSupplier);
-	Thread _t = new Thread(_receiver);
+	_r.start();
 
-	CosEventPullSender _sender = new CosEventPullSender(orb_, _proxyPullConsumer);
+	_r.join();
 
-	_t.start();
-	_sender.send(testData_);
-	_t.join();
+	assertTrue(_receiver.isEventHandled());
+    }
 
-	assertTrue(_receiver.received());
+    public void testDestroyChannelDisconnectsClients() throws Exception {
+	IntHolder _channelId = new IntHolder();
+	EventChannel _channel = factory_.create_channel(new Property[0], new Property[0], _channelId);
+
+	TestClientOperations[] _testClients = new TestClientOperations[] {
+	    new CosEventPullSender(testData_),
+	    new CosEventPushSender(testData_),
+	    new CosEventPushReceiver(),
+	    new CosEventPullReceiver()};
+
+	for (int x=0; x<_testClients.length; ++x) {
+	    _testClients[x].connect(orb_, poa_, _channel);
+	    assertTrue(_testClients[x].isConnected());
+	}
+
+	_channel.destroy();
+
+	for (int x=0; x<_testClients.length; ++x) {
+	    assertTrue(!_testClients[x].isConnected());
+	}
     }
 
     /** 
@@ -158,9 +170,12 @@ public class EventChannelTest extends TestCase {
      * @return a <code>TestSuite</code>
      */
     public static TestSuite suite(){
-	TestSuite suite = new TestSuite(EventChannelTest.class);
+	TestSuite suite;
 
-	//	suite.addTest(new EventChannelTest("testPullPush"));
+	suite = new TestSuite(EventChannelTest.class);
+ 	//suite = new TestSuite();
+ 	//suite.addTest(new EventChannelTest("testPullPush"));
+ 	suite.addTest(new EventChannelTest("testPullPush"));
 	
 	return suite;
     }

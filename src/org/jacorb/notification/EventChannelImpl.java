@@ -58,20 +58,20 @@ import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.TCKind;
 import org.omg.CORBA.Any;
 import org.jacorb.notification.framework.Disposable;
+import org.jacorb.notification.framework.EventDispatcher;
 
 /**
- * @author Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose, Jeff
- * Carlson, Alphonse Bendt
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class EventChannelImpl extends EventChannelPOA implements Disposable {
 
-    private EventChannel thisEventChannel_;
-    protected ApplicationContext applicationContext_;
-    protected ChannelContext channelContext_;
+    protected ApplicationContext    applicationContext_;
+    protected ChannelContext        channelContext_;
 
-    private FilterFactory defaultFilterFactory_;
+    private EventChannel            thisEventChannel_;
+    private FilterFactory           defaultFilterFactory_;
 
     private EventChannelFactoryImpl myFactoryServant_;
     private EventChannelFactory     myFactory_;
@@ -81,14 +81,14 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
     private Map consumerAdminServants_;
     private Map supplierAdminServants_;
 
-    private Map allFilters_;
+    //    private Map allFilters_;
 
     private List incomingQueue_;
 
     private ConsumerAdmin defaultConsumerAdmin_;
     private SupplierAdmin defaultSupplierAdmin_;
-    private ConsumerAdminTieImpl defaultConsumerAdminServant_;
-    private SupplierAdminTieImpl defaultSupplierAdminServant_;
+    protected ConsumerAdminTieImpl defaultConsumerAdminServant_;
+    protected SupplierAdminTieImpl defaultSupplierAdminServant_;
 
     private  int consumerIdPool_ = 0;
 
@@ -98,8 +98,18 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
 
     private  Logger logger_;
 
+    Logger timeLogger_ = Logger.getLogger("TIME.EventChannel");
+
     int getAdminId() {
         return ++consumerIdPool_;
+    }
+
+    ConsumerAdminTieImpl getConsumerAdminServant() {
+	return defaultConsumerAdminServant_;
+    }
+
+    SupplierAdminTieImpl getSupplierAdminServant() {
+	return defaultSupplierAdminServant_;
     }
 
     /**
@@ -177,14 +187,18 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
     public ConsumerAdmin new_for_consumers(InterFilterGroupOperator filterGroupOperator,
                                            IntHolder intHolder) {
 
+        return new_for_consumers_servant(filterGroupOperator, intHolder).getConsumerAdmin();
+    }
+
+    ConsumerAdminTieImpl new_for_consumers_servant(InterFilterGroupOperator filterGroupOperator,
+						   IntHolder intHolder) {
+
 	intHolder.value = getAdminId();
 
         ConsumerAdminTieImpl _consumerAdminServant = new ConsumerAdminTieImpl(applicationContext_,
 									      channelContext_,
 									      intHolder.value,
 									      filterGroupOperator);
-
-
 	
 	Integer _key = new Integer(intHolder.value);
 
@@ -192,25 +206,53 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
 
 	allConsumerAdmins_.add(_consumerAdminServant);
 
-        return _consumerAdminServant.getConsumerAdmin();
+	return _consumerAdminServant;
     }
 
     public SupplierAdmin new_for_suppliers(InterFilterGroupOperator filterGroupOperator,
                                            IntHolder intHolder) {
 
+
+        SupplierAdmin _supplierAdmin = new_for_suppliers_servant(filterGroupOperator, intHolder).getSupplierAdmin();
+
+        return _supplierAdmin;
+    }
+    
+    SupplierAdminTieImpl new_for_suppliers_servant(InterFilterGroupOperator filterGroupOperator,
+						   IntHolder intHolder) {
+
 	intHolder.value = getAdminId();
 	Integer _key = new Integer(intHolder.value);
-
+	
         SupplierAdminTieImpl _supplierAdminServant = new SupplierAdminTieImpl(applicationContext_,
 									      channelContext_,
 									      intHolder.value,
 									      filterGroupOperator);
 
-        SupplierAdmin _supplierAdmin = _supplierAdminServant.getSupplierAdmin();
-
 	supplierAdminServants_.put(_key, _supplierAdminServant);
 
-        return _supplierAdmin;
+	return _supplierAdminServant;
+    }
+	
+
+    public void removeAdmin(AdminBase admin) {
+	logger_.debug("removeAdmin");
+	Integer _key = admin.getKey();
+
+	if (_key != null) {
+	    logger_.debug("removeAdmin(" + _key + ")");
+	    logger_.debug("admin: " + admin);
+
+	    if (admin instanceof SupplierAdminTieImpl) {
+		supplierAdminServants_.remove(_key);
+	    } else if (admin instanceof ConsumerAdminTieImpl) {
+		consumerAdminServants_.remove(_key);
+	    }
+	}
+
+ 	if (allConsumerAdmins_.contains(admin)) {
+ 	    allConsumerAdmins_.remove(admin);
+ 	}
     }
 
     public ConsumerAdmin get_consumeradmin(int identifier) {
@@ -273,23 +315,21 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
 	channelContext_.setEventChannel(_this(myOrb_));
 
 	logger_ = Logger.getLogger("EventChannel");
-	allFilters_ = new Hashtable();
 
 	incomingQueue_ = new Vector();
-
-	logger_.debug("ChannelContext: "+ channelContext_);
-	channelContext_.setNotificationEventFactory(new NotificationEventFactory(myOrb_, null, null));
 
 	supplierAdminServants_ = new Hashtable();
 	consumerAdminServants_ = new Hashtable();
 
 	defaultConsumerAdminServant_ = 
-	    new ConsumerAdminTieImpl(applicationContext_, channelContext_);
+	    new ConsumerAdminTieImpl(applicationContext_, 
+				     channelContext_);
 
 	allConsumerAdmins_.add(defaultConsumerAdminServant_);
 
 	defaultSupplierAdminServant_ = 
-	    new SupplierAdminTieImpl(applicationContext_, channelContext_);
+	    new SupplierAdminTieImpl(applicationContext_, 
+				     channelContext_);
 
 	ConsumerAdminPOATie _consumerAdmin = new ConsumerAdminPOATie(defaultConsumerAdminServant_);
 	SupplierAdminPOATie _supplierAdmin = new SupplierAdminPOATie(defaultSupplierAdminServant_);
@@ -326,24 +366,23 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
     /**
      * Iteratre a list and send the servant off to be destroyed.
      */
-    private void releaseList( Vector list ) {
-        for ( Enumeration e = list.elements(); e.hasMoreElements(); ) {
+    private void releaseList(Vector list) {
+        for (Enumeration e = list.elements(); e.hasMoreElements(); ) {
             org.omg.PortableServer.Servant servant =
                 (org.omg.PortableServer.Servant)e.nextElement();
-            releaseServant( servant );
+            releaseServant(servant);
         }
     }
 
     /**
      * Destroy / deactivate the servant.
      */
-    private void releaseServant( org.omg.PortableServer.Servant servant ) {
+    private void releaseServant(org.omg.PortableServer.Servant servant) {
         try {
             servant._poa().deactivate_object( servant._object_id() );
         } catch (org.omg.PortableServer.POAPackage.WrongPolicy wpEx) {
             wpEx.printStackTrace();
-        }
-        catch (org.omg.PortableServer.POAPackage.ObjectNotActive onaEx) {
+        } catch (org.omg.PortableServer.POAPackage.ObjectNotActive onaEx) {
             onaEx.printStackTrace();
         }
     }
@@ -373,7 +412,7 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
 
 	consumerAdminDestroy();
         supplierAdminDestroy();
-        releaseServant(this);
+	//        releaseServant(this);
 
 	channelContext_.getEngine().shutdown();
     }
@@ -403,26 +442,12 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
         }
     }
 
-    public void process_event(NotificationEvent event) {
-	logger_.info("push_event(NotificationEvent)");
+    public void dispatchEvent(NotificationEvent event) {
+	long _time = System.currentTimeMillis();
 
-	logger_.info("give event to engine");
-	channelContext_.getEngine().enterEvent(event);
-    }
+	channelContext_.getEngine().dispatchEvent(event);
 
-    public Map getFilterMap(Object key) {
-	logger_.info("getFilterMap(" + key + ")");
-	logger_.info("allFilters_ " + allFilters_);
-
-	Object _o = allFilters_.get(key);
-	Map _map;
-	if (_o == null) {
-	    _map = new Hashtable();
-	    allFilters_.put(key, _map);
-	} else {
-	    _map = (Map)_o;
-	}
-	return _map;
+	timeLogger_.info("push(): " + (System.currentTimeMillis() - _time));
     }
 
     /**
@@ -435,7 +460,7 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable {
         return myPoa_;
     }
 
-    List getAllConsumerAdmins() {
-	return allConsumerAdmins_;
-    }
+     List getAllConsumerAdmins() {
+ 	return allConsumerAdmins_;
+     }
 }

@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 abstract public class TCLVisitor {
 
@@ -63,6 +64,8 @@ abstract public class TCLVisitor {
 
     public void visitEq(EqOperator or) throws VisitorException {}
 
+    public void visitNeq(NeqOperator or) throws VisitorException {}
+
     public void visitLt(LtOperator lt) throws VisitorException {}
 
     public void visitGt(GtOperator gt) throws VisitorException {}
@@ -80,4 +83,6 @@ abstract public class TCLVisitor {
     public void visitExist(ExistOperator exist) throws VisitorException {}
 
     public void visitDefault(DefaultOperator defaultOp) throws VisitorException {}
+
+    public void visitIn(InOperator in) throws VisitorException {}
 }

@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,11 +20,19 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
-/*
- *        JacORB - a free Java ORB
- */
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.ORBPackage.InvalidName;
+import org.omg.DynamicAny.DynAnyFactoryHelper;
+import org.omg.DynamicAny.DynAnyFactory;
+import org.jacorb.notification.evaluate.DynamicEvaluator;
+import org.jacorb.notification.evaluate.ResultExtractor;
+import org.jacorb.notification.framework.Poolable;
+import java.util.Map;
+import java.util.Hashtable;
+import org.jacorb.notification.node.EvaluationResult;
+import org.omg.CORBA.Any;
+import org.jacorb.notification.util.ObjectPoolBase;
 
 /**
  * EvaluationContext.java
@@ -34,9 +44,91 @@ package org.jacorb.notification;
  * @version $Id$
  */
 
-public class EvaluationContext {
+public class EvaluationContext implements Poolable {
+
+    ObjectPoolBase myPool_;
+
+    ApplicationContext appContext_;
+    DynAnyFactory dynAnyFactory_;
+    DynamicEvaluator dynamicEvaluator_;
+    ResultExtractor resultExtractor_;
+
+    NotificationEvent event_;
+
+    Map resultCache_;    
+    Map anyCache_;
+
     public EvaluationContext() {
-	
+	resultCache_ = new Hashtable();
+	anyCache_ = new Hashtable();
     }
-    
+
+    public void reset() {
+	resultCache_.clear();
+	anyCache_.clear();
+    }
+
+    public void setDynamicEvaluator(DynamicEvaluator e) {
+	dynamicEvaluator_ = e;
+    }
+
+    public void setResultExtractor(ResultExtractor r) {
+	resultExtractor_ = r;
+    }
+
+    public void setDynAnyFactory(DynAnyFactory d) {
+	dynAnyFactory_ = d;
+    }
+
+    public DynamicEvaluator getDynamicEvaluator() {
+	return dynamicEvaluator_;
+    }
+
+    public ResultExtractor getResultExtractor() {
+	return resultExtractor_;
+    }
+
+    public NotificationEvent getEvent() {
+	return event_;
+    }
+
+    public void setEvent(NotificationEvent event) {
+	event_ = event;
+    }
+
+    public void storeResult(String name, EvaluationResult value) {
+	resultCache_.put(name, value);
+    }
+
+    public EvaluationResult lookupResult(String name) {
+	return (EvaluationResult)resultCache_.get(name);
+    }
+
+    public void eraseResult(String name) {
+	resultCache_.remove(name);
+    }
+
+    public void storeAny(String name, Any any) {
+	anyCache_.put(name, any);
+    }
+
+    public Any lookupAny(String name) {
+	return (Any)anyCache_.get(name);
+    }
+
+    public void eraseAny(String name) {
+	anyCache_.remove(name);
+    }
+
+    public void release() {
+	myPool_.returnObject(this);
+    }
+
+    public void setObjectPool(ObjectPoolBase pool) {
+	myPool_ = pool;
+    }
+
+    public EvaluationResult newEvaluationResult() {
+	return appContext_.newEvaluationResult();
+    }
 }// EvaluationContext

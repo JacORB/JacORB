@@ -24,7 +24,7 @@ import antlr.BaseAST;
 import antlr.Token;
 import antlr.collections.AST;
 import java.io.*;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;

@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.BaseAST;
 import antlr.Token;
@@ -27,15 +28,19 @@ import java.io.*;
 import java.io.Writer;
 import java.io.IOException;
 import org.omg.CORBA.TCKind;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 
+/** 
+ * A simple node to represent a Number 
+ * @version $Id$
+ */
 
-/** A simple node to represent an INT */
 public class NumberValue extends TCLNode {
     private Double  number_;
+    EvaluationResult result_;
 
     Double getNumber() {
 	return number_;
@@ -47,7 +52,24 @@ public class NumberValue extends TCLNode {
 
     public NumberValue(Token tok) {
 	super(tok);
+	EvaluationResult _r = new EvaluationResult();
 	number_ = new Double(tok.getText());
+
+	debug("init(" + tok + ")");
+
+	switch(getType()) {
+	case NUMBER:
+	    _r.setInt(number_);
+	    break;
+	case NUM_FLOAT:
+	    // fallthrough
+	case COMP_POS:
+	    _r.setFloat(number_);
+	    break;
+	default:
+	    throw new RuntimeException();
+	}
+	result_ = EvaluationResult.wrapImmutable(_r);
     }
 
     public EvaluationResult evaluate(EvaluationContext context) throws DynamicTypeException,
@@ -55,16 +77,7 @@ public class NumberValue extends TCLNode {
 	       TypeMismatch,
 	       InconsistentTypeCode {
 
-	EvaluationResult _res = new EvaluationResult();
-	switch(getType()) {
-	case NUM_FLOAT:
-	    _res.setFloat(number_);
-	    break;
-	default:
-	    _res.setInt(number_);
-	    break;
-	}
-	return _res;
+	return result_;
     }
 
     public String toString() {

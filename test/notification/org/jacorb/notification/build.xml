@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../../../../common.xml"> ]>
+<!DOCTYPE project [ 
+  <!ENTITY common SYSTEM "file:../../../../../common.xml" > 
+]>
 
 <project name="notification" default="notification.test" basedir="../../../../..">
 
   &common;
 
-  <target name="notification.test.init" depends="init">
+  <target name="notification.init" depends="init">
     <property name="notification.base" value="${basedir}/src/org/jacorb/notification" />
 
     <loadproperties srcFile="${notification.base}/notification_build.properties"/>
@@ -14,7 +16,7 @@
     <path id="notification.classpath">
       <pathelement location="${basedir}/classes" />
       <pathelement location="${antlr.home}/antlr.jar" />
-      <pathelement location="${concurrent.home}/lib/concurrent.jar" />
+      <pathelement location="${concurrent.home}/classes" />
       <pathelement location="${junit.home}/junit.jar" />
       <pathelement location="${log4j.home}/dist/lib/log4j-${log4j.version}.jar" />
     </path>
@@ -34,20 +36,21 @@
 
   </target>
 
-  <target name="notification.test" depends="notification.test.init, tcl-test, server-test">
+  <target name="notification.test" depends="notification.init,
+      tcl-test, server-test, utils-test.run">
   </target>
 
   <target 
     name="tcl-test" 
     depends="tcl-test.generate, tcl-test.compile, tcl-test.run" />
 
-  <target name="tcl-test.generate" depends="notification.test.init">
-    <jacidl srcdir="${test.dir}/org/jacorb/notification/node"
+  <target name="tcl-test.generate" depends="notification.init">
+    <jacidl srcdir="${test.dir}/org/jacorb/notification/idl"
       packageprefix="org.jacorb.notification"
       destdir="${test.dir}/generated" />
   </target>
 
-  <target name="tcl-test.compile" depends="notification.test.init, tcl-test.generate">
+  <target name="tcl-test.compile" depends="notification.init, tcl-test.generate">
     <javac debug="${compile.option.debug}"
       destdir="${classdir}"
       classpathref="notification.classpath" >
@@ -58,36 +61,46 @@
       </javac>
   </target>
 
-  <target name="tcl-test.run" depends="notification.test.init">
-    <junit printsummary="yes" fork="yes" haltonerror="yes">
-      <sysproperty key="user.home" value="${jacorb_properties.path}" />
+    <target name="server-test" depends="notification.init,
+    server-test.compile, server-test.run" />      
 
-      <sysproperty 
-	  key="org.omg.CORBA.ORBClass"
-	  value="org.jacorb.orb.ORB" />
-
-      <sysproperty 
-	    key="org.omg.CORBA.ORBSingletonClass"
-	    value="org.jacorb.orb.ORBSingleton" />
-
-      <formatter usefile="false" type="plain"/>
-      <classpath refid="notification.classpath" />
-      <test name="org.jacorb.notification.node.TCLTest" />
-    </junit>
-  </target>
-
-    <target name="server-test" depends="notification.test.init,
-    server-test.compile, server-test.run" />
-      
-
-  <target name="server-test.compile" depends="notification.test.init">
+  <target name="server-test.compile" depends="notification.init,
+    tcl-test.generate, tcl-test.compile">
     <javac debug="${compile.option.debug}" srcdir="${test.dir}"
       includes="org/jacorb/notification/**.java, org/jacorb/notification/util/**.java"
       destdir="${classdir}"
       classpathref="notification.classpath" />
   </target>
+  <target name="server-test.run" depends="notification.init">
+    <junit printsummary="yes" fork="yes" haltonerror="yes">
 
-  <target name="server-test.run" depends="notification.test.init">
+      <classpath refid="notification.classpath" />
+
+      <sysproperty key="user.home" value="${jacorb_properties.path}"/>
+
+      <sysproperty 
+	    key="org.omg.CORBA.ORBClass"
+	    value="org.jacorb.orb.ORB" />
+
+      <sysproperty 
+	      key="org.omg.CORBA.ORBSingletonClass"
+	      value="org.jacorb.orb.ORBSingleton" />
+
+      <formatter usefile="false" type="plain" />
+	  
+      <test name="org.jacorb.notification.FilterTest" /> 
+      <test name="org.jacorb.notification.FilterImplTest" />
+      <test name="org.jacorb.notification.NotificationEventFactoryTest" />
+      <test name="org.jacorb.notification.NotificationEventTest" />
+      <test name="org.jacorb.notification.EventChannelTest" />
+      <test name="org.jacorb.notification.NotificationChannelTest" />
+      <test name="org.jacorb.notification.StructuredEventChannelTest" />
+      <test name="org.jacorb.notification.NotificationEventUtilsTest" />
+      <test name="org.jacorb.notification.SequenceEventChannelTest" />				
+    </junit>
+  </target>
+
+  <target name="utils-test.run" depends="notification.init">
     <junit printsummary="yes" fork="yes" haltonerror="yes">
 
       <classpath refid="notification.classpath" />
@@ -105,14 +118,29 @@
       <formatter usefile="false" type="plain" />
 	  
       <test name="org.jacorb.notification.util.WildcardMapTest" />
-      <test name="org.jacorb.notification.FilterTest" /> 
-      <test name="org.jacorb.notification.EventChannelTest" />
-      <test name="org.jacorb.notification.NotificationEventFactoryTest" />
-<!--      <test name="org.jacorb.notification.StructuredEventChannelTest" />  -->
     </junit>
   </target>
 
-  <target name="clean" depends="notification.test.init">
+
+  <target name="tcl-test.run" depends="notification.init">
+    <junit printsummary="yes" fork="yes" haltonerror="yes">
+      <sysproperty key="user.home" value="${jacorb_properties.path}" />
+
+      <sysproperty 
+	  key="org.omg.CORBA.ORBClass"
+	  value="org.jacorb.orb.ORB" />
+
+      <sysproperty 
+	    key="org.omg.CORBA.ORBSingletonClass"
+	    value="org.jacorb.orb.ORBSingleton" />
+
+      <formatter usefile="false" type="plain"/>
+      <classpath refid="notification.classpath" />
+      <test name="org.jacorb.notification.node.TCLTest" />
+    </junit>
+  </target>
+
+  <target name="clean" depends="notification.init">
     <delete dir="${test.dir}/generated" />
 
     <delete>

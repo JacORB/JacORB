@@ -18,50 +18,48 @@ options {
 }
 
 tokens {
-    DOLLAR      <AST=ComponentOperator>;
-    EXIST       <AST=ExistOperator>;
-    DOT         <AST=DotOperator>;
-    AND         <AST=AndOperator>;
-    OR          <AST=OrOperator>;
-    NOT         <AST=NotOperator>;
+    DOLLAR      <AST=org.jacorb.notification.node.ComponentOperator>;
+    EXIST       <AST=org.jacorb.notification.node.ExistOperator>;
+    DOT         <AST=org.jacorb.notification.node.DotOperator>;
+    AND         <AST=org.jacorb.notification.node.AndOperator>;
+    OR          <AST=org.jacorb.notification.node.OrOperator>;
+    NOT         <AST=org.jacorb.notification.node.NotOperator>;
 
-    IN          <AST=InOperator>;
-    IDENTIFIER  <AST=IdentValue>;
-    STRING      <AST=StringValue>;
-    TRUE        <AST=BoolValue>;
-    FALSE       <AST=BoolValue>;
-    PLUS        <AST=PlusOperator>;
-    MINUS       <AST=MinusOperator>;
+    IN          <AST=org.jacorb.notification.node.InOperator>;
+    IDENTIFIER  <AST=org.jacorb.notification.node.IdentValue>;
+    STRING      <AST=org.jacorb.notification.node.StringValue>;
+    TRUE        <AST=org.jacorb.notification.node.BoolValue>;
+    FALSE       <AST=org.jacorb.notification.node.BoolValue>;
+    PLUS        <AST=org.jacorb.notification.node.PlusOperator>;
+    MINUS       <AST=org.jacorb.notification.node.MinusOperator>;
     UNARY_PLUS;
     UNARY_MINUS;
 
-    MULT        <AST=MultOperator>;
-    DIV         <AST=DivOperator>;
+    MULT        <AST=org.jacorb.notification.node.MultOperator>;
+    DIV         <AST=org.jacorb.notification.node.DivOperator>;
+    NUMBER      <AST=org.jacorb.notification.node.NumberValue>;
+    NUM_FLOAT   <AST=org.jacorb.notification.node.NumberValue>;
+    COMP_POS    <AST=org.jacorb.notification.node.ComponentPositionOperator>;
+    SUBSTR      <AST=org.jacorb.notification.node.SubstrOperator>;
 
-    NUMBER      <AST=NumberValue>;
-    NUM_FLOAT   <AST=NumberValue>;
-    COMP_POS    <AST=ComponentPositionOperator>;
-
-    SUBSTR      <AST=SubstrOperator>;
-
-    GT          <AST=GtOperator>;
-    LT          <AST=LtOperator>;
-    GTE         <AST=GteOperator>;
-    LTE         <AST=LteOperator>;
-    EQ          <AST=EqOperator>;
-    NEQ         <AST=NeqOperator>;
+    GT          <AST=org.jacorb.notification.node.GtOperator>;
+    LT          <AST=org.jacorb.notification.node.LtOperator>;
+    GTE         <AST=org.jacorb.notification.node.GteOperator>;
+    LTE         <AST=org.jacorb.notification.node.LteOperator>;
+    EQ          <AST=org.jacorb.notification.node.EqOperator>;
+    NEQ         <AST=org.jacorb.notification.node.NeqOperator>;
 
     ARRAY;
     ASSOC;
     UNION_POS;
 
     IMPLICIT;
-    DISCRIM     <AST=ImplicitOperatorNode>;
-    LENGTH      <AST=ImplicitOperatorNode>;
-    TYPE_ID     <AST=ImplicitOperatorNode>;
-    REPO_ID     <AST=ImplicitOperatorNode>;
+    DISCRIM     <AST=org.jacorb.notification.node.ImplicitOperatorNode>;
+    LENGTH      <AST=org.jacorb.notification.node.ImplicitOperatorNode>;
+    TYPE_ID     <AST=org.jacorb.notification.node.ImplicitOperatorNode>;
+    REPO_ID     <AST=org.jacorb.notification.node.ImplicitOperatorNode>;
 
-    DEFAULT     <AST=DefaultOperator>;
+    DEFAULT     <AST=org.jacorb.notification.node.DefaultOperator>;
 }
 
 // parser rules
@@ -170,7 +168,7 @@ dollarComponent
 number
     : NUMBER
     | NUM_FLOAT
-    | COMP_POS<AST=NumberValue>{#COMP_POS.setType(NUM_FLOAT);}
+    | COMP_POS<AST=org.jacorb.notification.node.NumberValue>{#COMP_POS.setType(NUM_FLOAT);}
     ;
 
 component
@@ -201,11 +199,11 @@ compDot
     ;
 
 compArray
-    : LBRACKET! NUMBER<AST=ArrayOperator>{#NUMBER.setType(ARRAY);} RBRACKET! compExt 
+    : LBRACKET! NUMBER<AST=org.jacorb.notification.node.ArrayOperator>{#NUMBER.setType(ARRAY);} RBRACKET! compExt 
     ;
 
 compAssoc
-    : LPAREN! IDENTIFIER<AST=AssocOperator>{#IDENTIFIER.setType(ASSOC);} RPAREN! compExt
+    : LPAREN! IDENTIFIER<AST=org.jacorb.notification.node.AssocOperator>{#IDENTIFIER.setType(ASSOC);} RPAREN! compExt
     ;
 
 compPos
@@ -213,7 +211,7 @@ compPos
     ;
 
 unionPos
-    : LPAREN<AST=UnionPositionOperator>{#LPAREN.setType(UNION_POS);} unionVal RPAREN! compExt
+    : LPAREN<AST=org.jacorb.notification.node.UnionPositionOperator>{#LPAREN.setType(UNION_POS);} unionVal RPAREN! compExt
     ;
 
 unionVal
@@ -322,11 +320,11 @@ protected FOLLOW
 // a numeric literal
 NUMBER
     {boolean isDecimal=false;}
-	:	'.'         { _ttype = DOT; }                   // a single dot
+	:	'.'          { _ttype = DOT; }                  // a single dot
         (((DIGIT)+   { _ttype = COMP_POS; } )           // could be Positional Notation for a struct
-        ((EXPONENT) { _ttype = NUM_FLOAT; })?)?         // its a number !
+        ((EXPONENT)  { _ttype = NUM_FLOAT; })?)?        // its a number !
 
-	|	(	'0'     {isDecimal = true;}                 // special case for just '0'
+	|	(	'0'      {isDecimal = true;}                // special case for just '0'
 		|	('1'..'9') (DIGIT)*  {isDecimal=true;}		// non-zero decimal
 		)
 		(

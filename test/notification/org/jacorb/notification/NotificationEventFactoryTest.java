@@ -21,10 +21,8 @@ import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEventHelper;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
 
 /**
  * NotificationEventFactoryTest.java
@@ -37,8 +35,24 @@ import org.omg.CosNotification.StructuredEventHelper;
  */
 
 public class NotificationEventFactoryTest extends TestCase {
+
+    class DerivedNotificationEventFactory extends NotificationEventFactory {
+	public DerivedNotificationEventFactory(ApplicationContext c) {
+	    super(c);
+	}
+
+	// make protected methods visible for testing
+	public NotificationEvent newEvent(StructuredEvent event) {
+	    return super.newEvent(event);
+	}
+
+	public NotificationEvent newEvent(Any event) {
+	    return super.newEvent(event);
+	}
+    }
+
     ORB orb_;
-    NotificationEventFactory notificationEventFactory_;
+    DerivedNotificationEventFactory notificationEventFactory_;
     Any testPerson_;
     StructuredEvent testStructured_;
 
@@ -97,36 +111,16 @@ public class NotificationEventFactoryTest extends TestCase {
 
     public void setUp() throws Exception {
 	orb_ = ORB.init(new String[0], null);
+	POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+	ApplicationContext _appContext = new ApplicationContext(orb_, _poa);
+
 	DynAnyFactory _d = DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
 	ResultExtractor _r = new ResultExtractor(_d);
 	DynamicEvaluator _de = new DynamicEvaluator(orb_, _d);
-	notificationEventFactory_ = new NotificationEventFactory(orb_, _de, _r);
+	notificationEventFactory_ = new DerivedNotificationEventFactory(_appContext);
+	notificationEventFactory_.init();
 
-	Person _person = new Person();
-	Address _addr = new Address();
-	NamedValue _nv = new NamedValue();
-	
-	_person.first_name = "firstname";
-	_person.last_name = "lastname";
-	_person.age = 20;
-	_person.phone_numbers = new String[2];
-	_person.phone_numbers[0] = "12345678";
-	_person.phone_numbers[1] = "87654322";
-	_person.nv = new NamedValue[2];
-	_person.person_profession = Profession.STUDENT;
-
-	_person.home_address = _addr;
-	_addr.street = "Street";
-	_addr.number = 20;
-	_addr.city = "Berlin";
-
-	_person.nv[0] = _nv;
-	_person.nv[1] = _nv;
-	_nv.name = "name";
-	_nv.value = "value";
-
-	testPerson_ = orb_.create_any();
-	PersonHelper.insert(testPerson_, _person);
+	testPerson_ = TestUtils.getTestPersonAny(orb_);
 
 	testStructured_ = new StructuredEvent();
 	EventHeader _header = new EventHeader();
@@ -149,6 +143,8 @@ public class NotificationEventFactoryTest extends TestCase {
     
     public static Test suite() {
 	TestSuite suite;
+	suite= new TestSuite();
+	suite.addTest(new NotificationEventFactoryTest("testStructuredToAny"));
 	suite = new TestSuite(NotificationEventFactoryTest.class);
 	return suite;
     }

@@ -1,3 +1,5 @@
+package org.jacorb.notification.framework;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.framework;
 
 /**
  * Disposable.java

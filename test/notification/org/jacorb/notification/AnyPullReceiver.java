@@ -9,8 +9,12 @@ import org.omg.CosNotifyChannelAdmin.ProxyPullSupplier;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventComm.Disconnected;
 import org.apache.log4j.Logger;
-
-
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.ClientType;
+import org.omg.CORBA.IntHolder;
+import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
+import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierHelper;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
 
 /*
  *        JacORB - a free Java ORB
@@ -26,7 +30,7 @@ import org.apache.log4j.Logger;
  * @version $Id$
  */
 
-public class AnyPullReceiver extends PullConsumerPOA implements Runnable {
+public class AnyPullReceiver extends PullConsumerPOA implements Runnable, TestClientOperations {
 
     Logger logger_ = Logger.getLogger("TEST.AnyPullReceiver");
 
@@ -37,13 +41,20 @@ public class AnyPullReceiver extends PullConsumerPOA implements Runnable {
     POA poa_;
     ProxyPullSupplier mySupplier_;
     long TIMEOUT = 5000;
-    boolean disconnectCalled_;
+    boolean connected_;
 
-    public AnyPullReceiver(ORB orb, POA poa, ProxyPullSupplier mySupplier) throws Exception {
+    public void connect(ORB orb, POA poa, EventChannel channel) throws AlreadyConnected, AdminLimitExceeded {
 	orb_ = orb;
 	poa_ = poa;
-	mySupplier_ = mySupplier;
-	mySupplier_.connect_any_pull_consumer(_this(orb_));
+	IntHolder _proxyId = new IntHolder();
+	mySupplier_ = ProxyPullSupplierHelper.narrow(channel.default_consumer_admin().obtain_notification_pull_supplier(ClientType.ANY_EVENT, _proxyId));
+	mySupplier_.connect_any_pull_consumer(_this(orb));
+	connected_ = true;
+    }
+
+    public void shutdown() {
+	mySupplier_.disconnect_pull_supplier();
+	mySupplier_ = null;
     }
 
     void reset() {
@@ -52,15 +63,15 @@ public class AnyPullReceiver extends PullConsumerPOA implements Runnable {
 	event_ = null;
     }
     
-    boolean disconnected() {
-	return disconnectCalled_;
+    public boolean isConnected() {
+	return connected_;
     }
 
-    boolean received() {
+    public boolean isEventHandled() {
 	return received_;
     }
 
-    boolean error() {
+    public boolean isError() {
 	return error_;
     }
 
@@ -98,7 +109,7 @@ public class AnyPullReceiver extends PullConsumerPOA implements Runnable {
     }
 
     public void disconnect_pull_consumer() {
-	disconnectCalled_ = true;
+	connected_ = false;
     }
 
 }// AnyPullReceiver

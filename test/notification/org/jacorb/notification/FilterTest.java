@@ -1,5 +1,9 @@
 package org.jacorb.notification;
 
+/*
+ *        JacORB - a free Java ORB
+ */
+
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -23,10 +27,7 @@ import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  * FilterTest.java
@@ -40,8 +41,13 @@ import org.apache.log4j.Logger;
 
 public class FilterTest extends TestCase {
 
+    static {
+	BasicConfigurator.configure();
+    }
+
     ORB orb_;
-    
+    Logger logger_ = Logger.getLogger("TEST.FilterTest");
+
     FilterFactory factory_;
     Any testPerson_;
 
@@ -52,33 +58,14 @@ public class FilterTest extends TestCase {
     public void setUp() throws Exception {
 	orb_ = ORB.init(new String[0], null);
 	POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
+	ApplicationContext _appContext = new ApplicationContext(orb_, _poa);
+
 	FilterFactoryImpl _filterFactoryServant = 
-	    new FilterFactoryImpl(orb_, _poa);
+	    new FilterFactoryImpl(_appContext);
 
 	factory_ = _filterFactoryServant._this(orb_);
 
-	// prepare test data
-	Person _p = new Person();
-	Address _a = new Address();
-	NamedValue _nv = new NamedValue();
-
-	_p.first_name = "firstname";
-	_p.last_name =  "lastname";
-	_p.age =        5;
-	_p.phone_numbers = new String[2];
-	_p.phone_numbers[0] = "12345678";
-	_p.phone_numbers[1] = "";
-	_p.nv = new NamedValue[2];
-	_p.nv[0] = new NamedValue();
-	_p.nv[1] = new NamedValue();
-	_p.person_profession = Profession.STUDENT;
-	_a.street = "Takustr.";
-	_a.number = 9;
-	_a.city = "Berlin";
-	_p.home_address = _a;
-
-	testPerson_ = orb_.create_any();
-	PersonHelper.insert(testPerson_, _p);
+	testPerson_ = TestUtils.getTestPersonAny(orb_);
     }
 
     /**
@@ -229,17 +216,14 @@ public class FilterTest extends TestCase {
 	TestSuite suite;
 
 	suite = new TestSuite();
-	suite.addTest(new FilterTest("testDeleteConstraints"));
+	suite.addTest(new FilterTest("testMatch"));
 	suite = new TestSuite(FilterTest.class);
 	
 	return suite;
     }
 
-    static {
-	BasicConfigurator.configure();
-    }
-
     public static void main(String[] args) {
+	BasicConfigurator.configure();
 	junit.textui.TestRunner.run(suite());
     }
 }// FilterTest

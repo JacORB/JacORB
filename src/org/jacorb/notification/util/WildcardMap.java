@@ -1,3 +1,5 @@
+package org.jacorb.notification.util;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,36 +20,24 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.util;
 
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import org.apache.log4j.Logger;
-
-/*
- *        JacORB - a free Java ORB
- */
 
 /**
  * WildcardMap.java
- *
- *
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version $Id$
  */
 
-public class WildcardMap extends AbstractMap implements Map {
+public class WildcardMap {
 
     public static final int DEFAULT_TOPLEVEL_SIZE = 4;
 
     EntryList topLevel_;
-
-    protected Logger logger_;
 
     public WildcardMap(int topLevelSize, int secondLevelSize) {
 	this(topLevelSize);
@@ -56,7 +46,6 @@ public class WildcardMap extends AbstractMap implements Map {
 
     public WildcardMap(int topLevelSize) {
 	super();
-	logger_ = Logger.getLogger("WildcardMap");
 	topLevel_ = new EntryList(topLevelSize);
     }
 
@@ -64,24 +53,16 @@ public class WildcardMap extends AbstractMap implements Map {
 	this(DEFAULT_TOPLEVEL_SIZE);
     }
 
-    public Set entrySet() {
-	return null;
-    }
-
     public void clear() {
 	topLevel_.clear();
     }
 
     public Object remove(Object key) {
-	logger_.info("remove(" + key + ")");
-
 	char[] _key = key.toString().toCharArray();
 	return topLevel_.remove(_key, 0, _key.length);
     }
 
     public Object put(Object key, Object value) {
-	logger_.info("put(" + key + ", " + value + ")");
-
 	char[] _key = key.toString().toCharArray();
 	WCEntry _entry = new WCEntry(_key, 0, _key.length, value);
 	Object _ret = topLevel_.put(_entry);
@@ -94,7 +75,6 @@ public class WildcardMap extends AbstractMap implements Map {
     }
 
     public Object get(Object key, boolean wildcard) {
-	logger_.info("get(" + key + ", " + wildcard + ")");
 	char[] _key = key.toString().toCharArray();
 	
 	if (wildcard) {
@@ -108,34 +88,14 @@ public class WildcardMap extends AbstractMap implements Map {
 	return topLevel_.toString();
     }
 
-    public static void main(String[] args) {
-	Map wc = new WildcardMap();
-
-	wc.put("a", "A");
-// 	wc.put("ab", "AB");
-// 	wc.put("abc*", "ABC*");
-// 	wc.put("abcd", "ABCD");
-	System.out.println(wc);	
-	//	System.out.println(l.get("ab"));
-	// 	System.out.println(l.get("abc"));
-	Object[] res = (Object[])wc.get("abcd");
-	System.out.println(res.length);
-	
-	for (int x=0; x<res.length; x++) {
-	    System.out.println(res[x]);
-	}
-    }
-
 }// WildcardMap
 
 class EntryList {
-    static Logger logger_ = Logger.getLogger("WildcardMap.EntryList");
-
     static boolean DEBUG = true;
     static int DEFAULT_INITIAL_SIZE = 2;
 
     char[] key_;
-    Pattern myPattern_;
+    PatternWrapper myPattern_;
 
     int start_;
     int end_;
@@ -178,10 +138,6 @@ class EntryList {
 	depth_ = depth;
 	entries_ = new EntryList[size];
 	initPattern();
-
-	if (key != null) {
-	    logger_.info("new entry with key " + new String(key, start, end - start) + " depth: " + depth);
-	}
     }
 
     ////////////////////////////////////////
@@ -194,11 +150,8 @@ class EntryList {
 	char _first = entry.key_[0];
 	ensureSpace(_first);
 
-	logger_.debug("put " + entry);
-
 	int idx = computeIndex(_first, entries_.length);
 	if (entries_[idx] == null) {
-	    logger_.debug("new toplevel node " + _first);
 	    entries_[idx] = new EntryList(entry.key_, 0, entry.key_.length, 0, entry);
 	    return null;
 	} else {
@@ -207,16 +160,13 @@ class EntryList {
     }
 
     Object put(char[] key, int start, int stop, int depth, WCEntry value) {
-	logger_.debug("insert " + new String(key, start, stop-start) + " on " + new String(key_, start_, end_-start_));
 
 	int _insertKeyLength = stop - start;
 	int _myKeyLength = end_ - start_;
 
 	int _prefixLength = findCommonPrefix(key, start, stop);
 
-	if (_prefixLength == _insertKeyLength) {
-	    logger_.debug("insertkey == mykey");
-	    
+	if (_prefixLength == _insertKeyLength) {	    
 	    Object _old = null;
 	    // overwrite
 	    if (myEntry_ != null) {
@@ -229,13 +179,11 @@ class EntryList {
 	    put(key, start, stop, depth + _prefixLength, value);
 	} else {
 	    char _firstRemainingChar = key[start + _prefixLength];
-	    logger_.debug("folge kante " + _firstRemainingChar);
 	    ensureSpace(_firstRemainingChar);
 
 	    int idx = computeIndex(_firstRemainingChar, entries_.length);
 
 	    if (entries_[idx]==null) {
-		logger_.debug("neuer eintrag an " + idx);
 		entries_[idx] = new EntryList(key, start + _prefixLength, stop, depth_ + _prefixLength, value);
 	    } else {
 		entries_[idx].put(key, start + _prefixLength, stop, depth + _prefixLength, value);
@@ -253,19 +201,15 @@ class EntryList {
 	    int _currentSubKeyLength = _entryList.end_ - _entryList.start_;
 	    int _remainingKeyLength = stop - _position;
 
-	    logger_.debug("remaining key  : " + new String(key, _position, _remainingKeyLength));
-	    logger_.debug("current subkey : " + new String(_entryList.key_, _entryList.start_, _currentSubKeyLength));
 
 	    int _devoured = _entryList.compare(key, start + _entryList.depth_, start + _entryList.depth_ + _remainingKeyLength, false);
 
-	    logger_.debug("could match " + _devoured + " chars");
 	    if (_devoured == _remainingKeyLength) {
 		return (_entryList.myEntry_.value_);
 	    } else if (_devoured > 0) {
 		char _firstRemainingChar = key[start + _entryList.depth_ + _devoured];
 		int _oldDepth = _entryList.depth_;
-		
-		logger_.debug("check for outgoing " + _firstRemainingChar);
+
 		_entryList = _entryList.lookup(_firstRemainingChar);
 		if (_entryList != null) {
 		    _position += _entryList.depth_ - _oldDepth;
@@ -276,6 +220,7 @@ class EntryList {
     }
 
     synchronized Object getMultiple(char[] key, int start, int stop) {
+	// pool
 	Vector _nodes = new Vector();
 	Vector _result = new Vector();
 	EntryList _list;
@@ -300,9 +245,6 @@ class EntryList {
 	    int _currentSubKeyLength = _current.list.end_ - _current.list.start_;
 	    int _remainingKeyLength = stop - _current.cursor;
 
-	    logger_.debug("remaining key   : " + new String(key, _current.cursor, _remainingKeyLength));
-	    logger_.debug("current sub key : " + new String(_current.list.key_, _current.list.start_, _currentSubKeyLength));
-
 	    // try to match the search key to the sub key of the
 	    // current node
 	    int _devoured = _current.list.compare(key,
@@ -310,15 +252,12 @@ class EntryList {
 						  start + _current.list.depth_ + _remainingKeyLength, 
 						  true);
 
-	    logger_.debug("could match " + _devoured + " chars");
-
-	    assert(_devoured <= _remainingKeyLength);
+	    //	    assert(_devoured <= _remainingKeyLength);
 
 	    if (_devoured == _remainingKeyLength) {
 		// the whole key could be matched
 		if (_current.list.myEntry_ != null) {
 		    _result.add(_current.list.myEntry_.value_);
-		    logger_.debug(_current.list.myEntry_.value_ + " added to result set");
 		}
 
 		if (_current.list.lookup('*') != null) {
@@ -333,8 +272,6 @@ class EntryList {
 
 
 		int _oldDepth = _current.list.depth_;
-		logger_.debug("check for outgoing " + _firstRemainingChar);
-		logger_.debug("current depth: " + _oldDepth);
 		
 		// * always matches
 		if (_current.list.lookup('*') != null) {
@@ -342,14 +279,12 @@ class EntryList {
 		    c.list = _current.list.lookup('*');
 		    c.cursor = _current.cursor + c.list.depth_ - _oldDepth;
 		    _nodes.add(c);
-		    logger_.debug("add *");
 		}
 
 		if ((_current.list = _current.list.lookup(_firstRemainingChar)) != null) {
 		    // instead of removing the old and adding a new
 		    // cursor we reuse the old cursor
 		    _current.cursor += _current.list.depth_ - _oldDepth;
-		    logger_.debug("add " + _firstRemainingChar);
 		} else {
 		    _nodes.removeElementAt(0);
 		}
@@ -366,25 +301,13 @@ class EntryList {
     }
 
     static Object remove(EntryList l, char[] key, int start, int stop) {
-	logger_.debug("remove " + new String(key, start, stop - start));
-
 	int _cursor = start;
 	EntryList _current = l;
 
-	logger_.debug ("stop: " + stop);
-
-	while (true) {
-	    logger_.debug("cursor is now: " + _cursor);
-	    
-	    if (_current.key_ != null) {
-	    logger_.debug("match " + new String(key, _cursor, stop - _cursor) + " and " + new String(_current.key_, _current.start_, _current.end_ - _current.start_));
-	    }
+	while (true) {	    
 	    int _devoured = findCommonPrefix(key, _cursor, stop, _current.key_, _current.start_, _current.end_);
-	    logger_.debug("match " + _devoured + " chars");
-
 	    _cursor += _devoured;
 	    if (_cursor == stop) {
-		logger_.debug("key zuende");
 		Object _old = null;
 		if (_current.myEntry_ != null) {
 		    _old = _current.myEntry_.value_;
@@ -393,7 +316,6 @@ class EntryList {
 		return _old;
 	    }
 	    char _firstNext = key[start + _devoured];
-	    logger_.debug("lookup " + _firstNext);
 	    _current = _current.lookup(_firstNext);
 
 	    if (_current == null) {
@@ -418,7 +340,6 @@ class EntryList {
 	int cursor;
 	EntryList list;
     }
-
 
     private int countStars() {
 	int _starCount = 0;
@@ -450,8 +371,7 @@ class EntryList {
 		++x;
 	    }
 	    String _patternString = new String(_pattern, 0 , end_ - start_ + _starCount + 1);
-	    logger_.debug("pattern string: " + _patternString);
-	    myPattern_ = Pattern.compile(_patternString);
+	    myPattern_ = PatternWrapper.init(_patternString);
 	} 
     }
 
@@ -477,9 +397,7 @@ class EntryList {
 	}
     }
 
-    private void doubleCapacity() {
-	logger_.debug("double capacity");
-	
+    private void doubleCapacity() {	
 	int _newSize = entries_.length * 2;
 	EntryList[] _newList = new EntryList[_newSize];
 	for (int x=0; x<entries_.length; ++x) {
@@ -496,8 +414,6 @@ class EntryList {
 //     }
 
     private int compare(char[] a, int start, int stop, boolean wildcard) {
-	logger_.debug("compare " + new String(a, start, stop - start) + " == " + new String(key_, start_, end_ - start_));
-
 	if (wildcard && myPattern_ != null) {
 	    return compareChar(a, start, stop, myPattern_);
 	} else {
@@ -550,8 +466,6 @@ class EntryList {
     // static methods
 
     private static void split(EntryList l, int offset) {
-	logger_.debug("split offset: " + offset);
-
 	EntryList _ret = new EntryList(l.key_, 
 				       l.start_ + offset, 
 				       l.end_ , 
@@ -566,8 +480,6 @@ class EntryList {
 	char _key = l.key_[l.start_ + offset];
 	
 	int _idx = computeIndex(_key, l.entries_.length);
-
- 	assert (_idx <= l.entries_.length);
 
 	l.entries_[_idx] = _ret;
 	l.myEntry_ = null;
@@ -596,17 +508,28 @@ class EntryList {
 	return _ret;
     }
 
-    static int compareChar(char[] a, int aStart, int aStop, Pattern p) {
+    static int compareChar(char[] a, 
+			   int aStart, 
+			   int aStop, 
+			   PatternWrapper p) {
+
 	String _other = new String(a, aStart, aStop - aStart);
-	Matcher _m = p.matcher(_other);
-	if (_m.find()) {
-	    return _m.end();
-	} else {
-	    return 0;
-	}
+	return p.match(_other);
+
+// 	Matcher _m = p.matcher(_other);
+// 	if (_m.find()) {
+// 	    return _m.end();
+// 	} else {
+// 	    return 0;
+// 	}
     }
 
-    private static int findCommonPrefix(char[] s1, int start1, int stop1, char[] s2, int start2, int stop2) {
+    private static int findCommonPrefix(char[] s1, 
+					int start1, 
+					int stop1, 
+					char[] s2, 
+					int start2, 
+					int stop2) {
 	int x=0;
 	int l1 = stop1 - start1;
 	int l2 = stop2 - start2;
@@ -622,11 +545,11 @@ class EntryList {
     }
 }
 
+
 class WCEntry {
     char[] key_;
     int start_;
     int stop_;
-
     Object value_;
 
     WCEntry(char[] key, int start, int stop, Object value) {

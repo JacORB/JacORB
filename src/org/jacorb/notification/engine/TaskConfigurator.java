@@ -1,3 +1,5 @@
+package org.jacorb.notification.engine;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,18 +20,16 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.engine;
 
 import org.jacorb.notification.EventChannelImpl;
 import org.jacorb.notification.NotificationEvent;
 import org.apache.log4j.Logger;
 import java.util.List;
-
-
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.jacorb.notification.framework.DistributorNode;
+import org.jacorb.notification.framework.EventDispatcher;
+import java.util.Iterator;
+import org.jacorb.notification.util.ObjectPoolBase;
+import org.jacorb.notification.framework.Poolable;
 
 /**
  * TaskConfigurator.java
@@ -43,58 +43,133 @@ import java.util.List;
 
 public class TaskConfigurator {
     Logger logger_ = Logger.getLogger("ENGINE.TaskConfigurator");
+    Logger timeLogger_ = Logger.getLogger("TIME.Taskconfigurator");
 
-    Destination[] ARRAY_TEMPLATE = new Destination[0];
-    TaskCoordinator coordinator_;
+    DistributorNode[] ARRAY_TEMPLATE = new DistributorNode[0];
+    Engine engine_;
 
-    public TaskConfigurator(TaskCoordinator coordinator) {
-	coordinator_ = coordinator;
+    public TaskConfigurator(Engine engine) {
+	engine_ = engine;
     }
     
-    FilterTask initTask(NotificationEvent event) {
-	logger_.info("initTask()");
-
-	FilterTask task = new FilterTask();
-	
-	task.configureEvent(event);
-	Destination[] _d = new Destination[] {event.hops_[0]};
-
-	logger_.debug("configure task with " + _d.length + " Destinations");
-
-	task.configureDestinations(_d);
-	task.setStatus(Task.NEW);
-
-	return task;
+    public void init() {
+	filterTaskPool_.init();
+	deliverTaskPool_.init();
     }
-
-    DeliverTask initTask(FilterTask task) {
-	DeliverTask _task = new DeliverTask();
-
-	return _task;
-    }
-
-    Task updateTask(Task task) {
-	logger_.info("updateTask()");
-
-	switch(task.getStatus()) {
-	case Task.PROXY_CONSUMER_FILTERED:
-	case Task.SUPPLIER_ADMIN_FILTERED:
-	case Task.CONSUMER_ADMIN_FILTERED: 
-	case Task.PROXY_SUPPLIER_FILTERED: 
-	    FilterTask _filterTask = (FilterTask)task;
-	    List _allDests = _filterTask.getNewDestinations();
-	    Destination[] _dest = (Destination[])_allDests.toArray(ARRAY_TEMPLATE);
-
-	    logger_.debug("task has now " + _dest.length + " Destinations");
-	    if (_dest.length == 0) {
-		return null;
+    
+    ObjectPoolBase filterTaskPool_ = new ObjectPoolBase() {
+	    public Object newInstance() {
+		return new FilterTask();
 	    }
-	    _filterTask.configureDestinations(_dest);	    
-	    break;
-	case Task.DELIVERED:
-	    return null;
+	    public void passivateObject(Object o) {
+		((Poolable)o).reset();
+	    }
+	    public void activateObject(Object o) {
+		((Poolable)o).setObjectPool(this);
+		((TaskBase)o).setTaskCoordinator(engine_);
+	    }
+	};
+
+    ObjectPoolBase deliverTaskPool_ =
+	new ObjectPoolBase() {
+	    public Object newInstance() {
+		return new DeliverTask();
+	    }
+	    public void passivateObject(Object o) {		
+		((Poolable)o).reset();
+		((DeliverTask)o).fresh_ = false;
+	    }
+	    public void activateObject(Object o) {
+		((Poolable)o).setObjectPool(this);
+		((TaskBase)o).setTaskCoordinator(engine_);
+		((DeliverTask)o).released_ = false;
+	    }
+	};
+
+    FilterTask initTask(NotificationEvent event) {
+	long _start = System.currentTimeMillis();
+	long _stop = 0;
+	try {
+	    FilterTask task = (FilterTask)filterTaskPool_.lendObject();
+	    task.setNotificationEvent(event);
+	    
+	    DistributorNode[] _d = new DistributorNode[] {event.getDistributorNode()};
+	    
+	    task.configureDestinations(_d);
+	    task.setStatus(Task.NEW);
+
+	    _stop = System.currentTimeMillis();
+
+	    return task;
+	} catch (Throwable t) {
+	    t.printStackTrace();
+	} finally {
+	    timeLogger_.info("initTask(): " + (_stop - _start));
 	}
-	return task;
+	return null;
+    }
+
+    DeliverTask[] initTask(FilterTask task) {
+	List _allDests = task.getNewDestinations();
+	DeliverTask _deliverTasks[] = new DeliverTask[_allDests.size()];
+
+	EventDispatcher[] _disp = new EventDispatcher[_allDests.size()];
+	int x=0;
+	NotificationEvent _event = task.removeNotificationEvent();
+	for (Iterator i=_allDests.iterator();i.hasNext();) {
+	    _deliverTasks[x] = (DeliverTask)deliverTaskPool_.lendObject();
+	    _deliverTasks[x].configureDestination(((DistributorNode)i.next()).getEventDispatcher());
+	    _deliverTasks[x].setStatus(Task.DELIVERING);
+	    _deliverTasks[x].setNotificationEvent(_event);
+	    ++x;
+	}
+	_event.release();
+	logger_.debug("return: " + _deliverTasks.length + " new tasks");
+	return _deliverTasks;
+    }
+
+    void updateTask(Task task) throws InterruptedException {
+	if (task.getDone()) {
+	    switch(task.getStatus()) {
+	    case Task.NEW:
+		// fallthrough
+	    case Task.FILTERING:
+		FilterTask _filterTask = (FilterTask)task;
+		List _allDests = _filterTask.getNewDestinations();
+		DistributorNode[] _dest = (DistributorNode[])_allDests.toArray(ARRAY_TEMPLATE);
+		_filterTask.incCount();
+		if (_dest.length == 0) {
+		    // Drop task		    
+		    _filterTask.removeNotificationEvent().release();
+		    _filterTask.release();
+		} else if (_filterTask.getCount() < 4) {
+		    _filterTask.configureDestinations(_dest);
+		    engine_.queueFilterTask(_filterTask);
+		} else {
+		    Poolable _toBeReleased = (Poolable)task;
+		    DeliverTask[] _deliverTasks = initTask(_filterTask);
+		    for (int x=0; x<_deliverTasks.length; ++x) {
+			if (_deliverTasks[x].released_) {
+			    throw new RuntimeException();
+			}
+		    }
+		    engine_.queueDeliverTask(_deliverTasks);
+		    _toBeReleased.release();
+		}
+		break;
+	    case Task.DELIVERING:
+		// fallthrough
+	    case Task.DELIVERED:
+		((DeliverTask)task).removeNotificationEvent().release();
+		logger_.debug("release task");
+		((Poolable)task).release();
+		logger_.debug("done");
+		task = null;
+		// fallthrough
+	    default:
+		break;
+	    }
+	}
     }
 
 }// TaskConfigurator

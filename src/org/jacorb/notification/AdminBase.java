@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import java.util.Map;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
@@ -35,14 +36,17 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotification.QoSAdminOperations;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
-import org.jacorb.notification.engine.Destination;
+import org.jacorb.notification.framework.DistributorNode;
 import java.util.Arrays;
 import java.util.List;
 import org.jacorb.notification.framework.Disposable;
-
-/*
- *        JacORB - a free Java ORB
- */
+import org.omg.PortableServer.Servant;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.CosNotifyFilter.FilterNotFound;
+import org.omg.CosNotifyFilter.Filter;
+import org.jacorb.notification.FilterManager;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 
 /**
  * AdminBase.java
@@ -54,15 +58,19 @@ import org.jacorb.notification.framework.Disposable;
  * @version $Id$
  */
 
-abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, Destination {
+abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, DistributorNode {
+    
+    static InterFilterGroupOperator DEFAULT_FILTER_GROUP_OPERATOR = null;
+    static int NO_ID = Integer.MIN_VALUE;
 
     protected ChannelContext channelContext_;
     protected ApplicationContext applicationContext_;
 
-    protected Map filters_;
     protected int id_ = 0;
     protected int filterIdPool_ = -1;;
     protected int proxyIdPool_ = 0;
+    protected Integer key_;
+    protected FilterManager filterManager_;
 
     protected InterFilterGroupOperator myOperator_;
     protected InterFilterGroupOperator filterOperator_;
@@ -71,29 +79,31 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
     protected Map pullProxies_;
     protected Map pullServants_;
     protected Map pushServants_;
-
     protected Map allProxies_;
-
-    protected NotificationEventFactory getNotificationEventFactory() {
-	return channelContext_.getNotificationEventFactory();
-    }
-    protected EventChannelImpl getChannelServant() {
-	return channelContext_.getEventChannelServant();
-    }
-    protected EventChannel getChannel() {
-	return channelContext_.getEventChannel();
-    }
-    protected ORB getOrb() {
-	return applicationContext_.getOrb();
-    }
-    protected POA getPoa() {
-	return applicationContext_.getPoa();
-    }
 
     protected Logger logger_;
 
-    static InterFilterGroupOperator DEFAULT_FILTER_GROUP_OPERATOR = null;
-    static int NO_ID = Integer.MIN_VALUE;
+    private boolean disposed_;
+
+    protected NotificationEventFactory getNotificationEventFactory() {
+	return applicationContext_.getNotificationEventFactory();
+    }
+
+    protected EventChannelImpl getChannelServant() {
+	return channelContext_.getEventChannelServant();
+    }
+
+    protected EventChannel getChannel() {
+	return channelContext_.getEventChannel();
+    }
+
+    protected ORB getOrb() {
+	return applicationContext_.getOrb();
+    }
+
+    protected POA getPoa() {
+	return applicationContext_.getPoa();
+    }
 
     protected AdminBase(ApplicationContext appContext,
 			ChannelContext channelContext,
@@ -105,22 +115,23 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
 	channelContext_ = channelContext;
 	logger_ = logger;
 
+	filterManager_ = new FilterManager();
+
 	pullProxies_ = new Hashtable();
 	pushProxies_ = new Hashtable();
 	pullServants_ = new Hashtable();
 	pushServants_ = new Hashtable();
 	allProxies_ = new Hashtable();
-	filters_ = getChannelServant().getFilterMap(this);
 
 	if (logger_.isDebugEnabled()) {
 	    logger_.debug("NotificationEventFactory = " + getNotificationEventFactory());
 	    if (myId == NO_ID) {
 		logger_.debug("Admin has no id");
 	    } else {
+		key_ = new Integer(myId);
 		logger_.debug("My ID = " + myId);
 	    }
 	}
-
     }
     
     protected AdminBase(ApplicationContext appContext,
@@ -134,10 +145,6 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
 	     logger);
     }
 
-    int getFilterId() {
-	return ++filterIdPool_;
-    }
-
     int getPushProxyId() {
 	return ++proxyIdPool_;
     }
@@ -146,23 +153,11 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
 	return ++proxyIdPool_;
     }
     
-    /**
-     * Describe <code>get_filter</code> method here.
-     *
-     * @param n an <code>int</code> value
-     * @return a <code>Filter</code> value
-     * @exception FilterNotFound if an error occurs
-     */
-    public Filter get_filter(int n) throws FilterNotFound {
-	Integer _key = new Integer(n);
-
-	Filter _filter = (Filter)filters_.get(_key);
-	if (_filter == null) {
-	    throw new FilterNotFound();
-	}
-	return _filter;
+    public List getFilters() {
+	return filterManager_.getFilters();
     }
 
+    // Code for delegation of FilterManager methods to filterManager_
     /**
      * Describe <code>add_filter</code> method here.
      *
@@ -170,13 +165,7 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
      * @return an <code>int</code> value
      */
     public int add_filter(Filter filter) {
-	logger_.info("add_filter(Filter) " + this);
-
-	int _key = getFilterId();
-
-	filters_.put(new Integer(_key), filter);
-
-	return _key;
+	return filterManager_.add_filter(filter);
     }
 
     /**
@@ -186,11 +175,27 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
      * @exception FilterNotFound if an error occurs
      */
     public void remove_filter(int n) throws FilterNotFound {
-	Integer _key = new Integer(n);
-	if (!filters_.containsKey(_key)) {
-	    throw new FilterNotFound();
-	}
-	filters_.remove(_key);
+	filterManager_.remove_filter(n);
+    }
+
+    /**
+     * Describe <code>get_filter</code> method here.
+     *
+     * @param n an <code>int</code> value
+     * @return a <code>Filter</code> value
+     * @exception FilterNotFound if an error occurs
+     */
+    public Filter get_filter(int n) throws FilterNotFound {
+	return filterManager_.get_filter(n);
+    }
+
+    /**
+     * Describe <code>get_all_filters</code> method here.
+     *
+     * @return an <code>int[]</code> value
+     */
+    public int[] get_all_filters() {
+	return filterManager_.get_all_filters();
     }
 
     /**
@@ -198,12 +203,9 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
      *
      */
     public void remove_all_filters() {
-	filters_.clear();
+	filterManager_.remove_all_filters();
     }
-
-    public int[] get_all_filters() {
-	return null;
-    }
+    
 
     /**
      * Describe <code>MyOperator</code> method here.
@@ -231,7 +233,6 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
     public int MyID() {
 	return id_;
     }
-
     
     // Implementation of org.omg.CosNotification.QoSAdminOperations
 
@@ -250,8 +251,7 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
      * @param property a <code>Property[]</code> value
      * @exception UnsupportedQoS if an error occurs
      */
-    public void set_qos(Property[] property1) throws UnsupportedQoS {
-	
+    public void set_qos(Property[] property1) throws UnsupportedQoS {	
     }
 
     /**
@@ -267,22 +267,61 @@ abstract class AdminBase implements QoSAdminOperations, FilterAdminOperations, D
 	
     }
 
-    public List getFilters() {
-	return Arrays.asList(filters_.values().toArray());
-    }
-
     public void dispose() {
-	Iterator _i = pushServants_.values().iterator();
-	while (_i.hasNext()) {
-	    logger_.info("dispose pushServant");
-	    ((Disposable)_i.next()).dispose();
-	}
+	if (!disposed_) {
+	    getChannelServant().removeAdmin(this);
 
-	_i = pullServants_.values().iterator();
-	while (_i.hasNext()) {
-	    logger_.info("dispose pullServant");
-	    ((Disposable)_i.next()).dispose();
+	    remove_all_filters();
+
+	    // dispose all servants which are connected to this admin object
+	    Iterator _i;
+	    
+	    // 	_i = pushProxies_.values().iterator();
+	    // 	while (_i.hasNext()) {
+	    // 	    try {
+	    // 		Servant _servant = (Servant)_i.next();
+	    // 		_servant._poa().deactivate_object(_servant._object_id());
+	    // 	    } catch (WrongPolicy wp) {
+	    // 	    } catch (ObjectNotActive ona) {
+	    // 	    }
+	    // 	}
+	    pushProxies_.clear();
+	    
+	    _i = pushServants_.values().iterator();
+	    while (_i.hasNext()) {
+		logger_.info("dispose pushServant");
+		((Disposable)_i.next()).dispose();
+	    }
+	    pushServants_.clear();
+	    
+	    // 	_i = pullProxies_.values().iterator();
+	    // 	while (_i.hasNext()) {
+	    // 	    try {
+	    // 		Servant _servant = (Servant)_i.next();
+	    // 		_servant._poa().deactivate_object(_servant._object_id());
+	    // 	    } catch (WrongPolicy wp) {
+	    // 	    } catch (ObjectNotActive ona) {
+	    // 	    }
+	    // 	}
+	    pullProxies_.clear();
+	    
+	    _i = pullServants_.values().iterator();
+	    while (_i.hasNext()) {
+		logger_.info("dispose pullServant");
+		((Disposable)_i.next()).dispose();
+	    }
+	    pullServants_.clear();
+	    disposed_ = false;
+	} else {
+	    throw new OBJECT_NOT_EXIST();
 	}
     }
 
+    public Integer getKey() {
+	return key_;
+    }
+
+    public abstract void remove(ProxyBase proxy);
+
+    public abstract org.omg.CORBA.Object getThisRef();
 }// AdminBase

@@ -24,7 +24,7 @@ import antlr.BaseAST;
 import antlr.Token;
 import antlr.collections.AST;
 import java.io.*;
-import org.jacorb.notification.evaluate.EvaluationContext;
+import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.omg.CORBA.Any;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -37,6 +37,7 @@ import org.jacorb.notification.NotificationEvent;
 public class ComponentOperator extends TCLNode {
 
     String value_;
+    String componentName_;
 
     public ComponentOperator(Token tok) {
 	super(tok);
@@ -53,6 +54,8 @@ public class ComponentOperator extends TCLNode {
 
 	NotificationEvent _event = context.getEvent();
 
+	debug(_event.getClass().getName());
+
 	EvaluationResult _r = _event.evaluate(this);
 
 	debug("return " + _r);
@@ -63,6 +66,14 @@ public class ComponentOperator extends TCLNode {
 
     public String toString() {
 	return value_;
+    }
+
+    public void setComponentName(String name) {
+	componentName_ = name;
+    }
+    
+    public String getComponentName() {
+	return componentName_;
     }
 
     public void acceptPostOrder(TCLVisitor visitor) throws VisitorException {

@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,29 +20,31 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.BaseAST;
 import antlr.Token;
 import antlr.collections.AST;
-
 import org.omg.CORBA.TCKind;
-import org.jacorb.notification.evaluate.EvaluationContext;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
-import org.apache.log4j.Logger;
+import java.lang.reflect.Field;
+
+/**
+ * TCLNode.java
+ * @version $Id$
+ */
 
 public abstract class TCLNode extends BaseAST implements TCLTokenTypes {
 
-    static boolean DEBUG = true;
+    static boolean DEBUG = false;
+    static String sTokenVocabulary = "org.jacorb.notification.node";
 
     private int astNodeType_;
     private TCKind tcKind_;
     String name_;
-
-    protected Logger logger_ = Logger.getLogger("TCLTree");
 
     ////////////////////////////////////////////////////////////
     // Constructor
@@ -151,7 +155,7 @@ public abstract class TCLNode extends BaseAST implements TCLTokenTypes {
     /** 
      * create a visualization of this node and all its children.
      * 
-     * @return a String representation
+     * @return a String representation of this Node and all its children
      */
     public String toStringTree() {
 	StringBuffer _buffer = new StringBuffer();
@@ -160,6 +164,7 @@ public abstract class TCLNode extends BaseAST implements TCLTokenTypes {
 	    _buffer.append(" (");
 	}
 	_buffer.append(" " + toString());
+
 	if (getFirstChild()!=null) {
 	    _buffer.append(((TCLNode)getFirstChild()).toStringList());
 	}
@@ -170,10 +175,9 @@ public abstract class TCLNode extends BaseAST implements TCLTokenTypes {
     }
 
     protected void debug(String msg) {
-	logger_.debug("[" + getName() + "] " + msg);
-// 	if (DEBUG) {
-// 	    System.err.println("[" + getName() + "] " + msg);
-// 	}
+ 	if (DEBUG) {
+ 	    System.err.println("[" + getName() + "] " + msg);
+ 	}
     }
 
     /** 
@@ -202,11 +206,17 @@ public abstract class TCLNode extends BaseAST implements TCLTokenTypes {
 	return false;
     }	    
 
-    public boolean isNumber() {return false;}
+    public boolean isNumber() {
+	return false;
+    }
 
-    public boolean isString() {return false;}
+    public boolean isString() {
+	return false;
+    }
 
-    public boolean isBoolean() {return false;}
+    public boolean isBoolean() {
+	return false;
+    }
 
     /** 
      * Get the AST Token Type for this node.
@@ -228,19 +238,37 @@ public abstract class TCLNode extends BaseAST implements TCLTokenTypes {
 	astNodeType_ = type;
     }
 
+    /** 
+     * converts an int tree token type to a name.
+     * Does this by reflecting on nsdidl.IDLTreeTokenTypes,
+     * and is dependent on how ANTLR 2.00 outputs that class. 
+     * stolen from http://www.codetransform.com/
+     */
+    public static String getNameForType(int t) {
+	try{
+	    Class c = Class.forName(sTokenVocabulary);
+	    Field[] fields = c.getDeclaredFields();
+	    if(t-2 < fields.length)
+		return fields[t-2].getName();
+	} catch (Exception e) { System.out.println(e); }
+	return "unfoundtype: " + t;
+    }
+
     /**
-     * satisfy abstract methode from BaseAST. Not used.
+     * satisfy abstract method from BaseAST. Not used.
      */
     public void initialize(int t, String txt) {
     }
     /**
-     * satisfy abstract methode from BaseAST. Not used.
+     * satisfy abstract method from BaseAST. Not used.
      */
     public void initialize(AST t) {
     }
     /**
-     * satisfy abstract methode from BaseAST. Not used.
+     * satisfy abstract method from BaseAST. Not used.
      */
     public void initialize(Token tok) {
     }
+
+
 }

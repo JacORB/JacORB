@@ -1,3 +1,5 @@
+package org.jacorb.notification;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
 
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEvent;
@@ -34,8 +35,10 @@ import org.jacorb.notification.node.UnionPositionOperator;
 import org.jacorb.notification.node.ComponentPositionOperator;
 import org.jacorb.notification.node.ImplicitOperator;
 import org.jacorb.notification.node.ImplicitOperatorNode;
-import org.jacorb.notification.engine.Destination;
+import org.jacorb.notification.framework.DistributorNode;
+import org.jacorb.notification.framework.Poolable;
 import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.util.ObjectPoolBase;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
@@ -52,10 +55,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.Iterator;
 
-/*
- *        JacORB - a free Java ORB
- */
-
 /**
  * NotificationEvent.java
  *
@@ -66,44 +65,81 @@ import java.util.Iterator;
  * @version $Id$
  */
 
-public abstract class NotificationEvent {
+public abstract class NotificationEvent implements Poolable {
 
     public static final int TYPE_ANY = 0;
     public static final int TYPE_STRUCTURED = 1;
     public static final int TYPE_TYPED = 2;
 
-    DynamicEvaluator dynamicEvaluator_;
-    ResultExtractor resultExtractor_;
-    Logger logger_;
-    ORB orb_;
+    protected ApplicationContext applicationContext_;
+    protected Logger logger_;
 
-    public Destination[] hops_ = new Destination[2];
+    protected DistributorNode currentDistributor_;
+    protected EvaluationContext evaluationContext_;
+    protected ObjectPoolBase myPool_;
 
-    EventTypeIdentifier getEventTypeIdentifier() {
-        return null;
-    }
-
+    public abstract EventTypeIdentifier getEventTypeIdentifier();
     public abstract EvaluationResult evaluate(ComponentOperator c) throws EvaluationException;
     public abstract EvaluationResult hasDefault(ComponentOperator c) throws EvaluationException;
     public abstract EvaluationResult testExists(ComponentOperator c) throws EvaluationException;
+
     public abstract String getConstraintKey();
     public abstract Any toAny();
     public abstract StructuredEvent toStructuredEvent();
     public abstract int getType();
+    
+    private int referenced_ = 0;
 
     static boolean DEBUG = false;
 
-    void debug(String msg) {
-	if (DEBUG) {
-	    System.err.println("[NotificationEvent] " +msg);
+    int finalReleaseCalled = 0;
+
+    protected NotificationEvent(ApplicationContext appContext,
+				Logger logger) {
+
+	applicationContext_ = appContext;
+	logger_ = logger;
+    }
+
+    public void reset() {
+	finalReleaseCalled = 0;
+	currentDistributor_ = null;
+	myPool_ = null;
+	evaluationContext_ = null;
+    }
+
+
+    synchronized public void addReference() {
+	++referenced_;
+    }
+
+    synchronized public void release() {
+	if (referenced_ > 0) {
+	    --referenced_;
+	}
+	if (referenced_ == 0) {
+	    myPool_.returnObject(this);
 	}
     }
 
-    protected NotificationEvent(ORB orb, ResultExtractor resultExtractor, DynamicEvaluator dynamicEvaluator, Logger logger) {
-	resultExtractor_ = resultExtractor;
-	orb_ = orb;
-	dynamicEvaluator_ = dynamicEvaluator;
-	logger_ = logger;
+    public void setDistributorNode(DistributorNode node) {
+	currentDistributor_ = node;
+    }
+
+    public DistributorNode getDistributorNode() {
+	return currentDistributor_;
+    }
+
+    public EvaluationContext getEvaluationContext() {
+	return evaluationContext_;
+    }
+
+    public void setEvaluationContext(EvaluationContext context) {
+	evaluationContext_ = context;
+    }	
+
+    public void setObjectPool(ObjectPoolBase pool) {
+	myPool_ = pool;
     }
 
 }// NotificationEvent

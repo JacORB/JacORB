@@ -60,22 +60,25 @@ public class FilterFactoryImpl extends FilterFactoryPOA {
     protected DynAnyFactory dynAnyFactory_;
     protected ResultExtractor resultExtractor_;
     protected DynamicEvaluator dynamicEvaluator_;
+    protected ApplicationContext applicationContext_;
 
-    public FilterFactoryImpl(ORB orb, POA poa) throws InvalidName {
+    public FilterFactoryImpl(ApplicationContext applicationContext) throws InvalidName {
 	super();
-	orb_ = orb;
-	poa_ = poa;
+	orb_ = applicationContext.getOrb();
+	poa_ = applicationContext.getPoa();
+	applicationContext_ = applicationContext;
 
-	dynAnyFactory_ = DynAnyFactoryHelper.narrow(orb.resolve_initial_references("DynAnyFactory"));
+	dynAnyFactory_ = DynAnyFactoryHelper.narrow(orb_.resolve_initial_references("DynAnyFactory"));
 	resultExtractor_ = new ResultExtractor(dynAnyFactory_);
 	dynamicEvaluator_ = new DynamicEvaluator(orb_, dynAnyFactory_);
     }
     
-    public FilterFactoryImpl(ORB orb, POA poa, DynAnyFactory dynAnyFactory) {
+    public FilterFactoryImpl(ApplicationContext appContext, DynAnyFactory dynAnyFactory) {
 	super();
 
-	orb_ = orb;
-	poa_ = poa;
+	orb_ = appContext.getOrb();
+	poa_ = appContext.getPoa();
+	applicationContext_ = appContext;
 	dynAnyFactory_ = dynAnyFactory;
 	resultExtractor_ = new ResultExtractor(dynAnyFactory_);
 	dynamicEvaluator_ = new DynamicEvaluator(orb_, dynAnyFactory_);
@@ -85,10 +88,11 @@ public class FilterFactoryImpl extends FilterFactoryPOA {
 	if (CONSTRAINT_GRAMMAR.equals(grammar)) {
 	    Filter _filter;
 	    FilterImpl _filterServant = new FilterImpl(CONSTRAINT_GRAMMAR, 
-						       orb_, 
+						       applicationContext_, 
 						       dynAnyFactory_, 
 						       resultExtractor_, 
 						       dynamicEvaluator_);
+	    _filterServant.init();
 	    _filter = _filterServant._this(orb_);
 	    
 	    return _filter;
