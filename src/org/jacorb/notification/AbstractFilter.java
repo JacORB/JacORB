@@ -31,6 +31,7 @@ import java.util.NoSuchElementException;
 import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.PropertyDoesNotExistException;
 import org.jacorb.notification.filter.FilterConstraint;
 import org.jacorb.notification.filter.FilterUtils;
 import org.jacorb.notification.interfaces.Disposable;
@@ -768,12 +769,16 @@ public abstract class AbstractFilter
                                                 return _entry.getConstraintId();
                                             }
                                     }
-                                catch ( EvaluationException e )
-                                    {
-                                        logger_.fatalError("Error evaluating filter", e);
+                                catch ( PropertyDoesNotExistException e ) {
+                                    // non critical exception. ignore
+                                    // and continue with next Constraint
+                                    logger_.debug("tried to access non existing Property", e);
+                                }
+                                catch ( EvaluationException e ) {
+                                    logger_.fatalError("Error evaluating filter", e);
 
-                                        throw new UnsupportedFilterableData(e.getMessage());
-                                    }
+                                    throw new UnsupportedFilterableData(e.getMessage());
+                                }
                             }
                     }
                 else
