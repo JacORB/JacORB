@@ -1,3 +1,8 @@
+2005-02-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ReplyReceiver.java (doRebind): Use a finally clause to
+	re-open the barrier, fixing bug #566.  Suggested by Brian Olson.
+
 2005-01-28  Andre Spiegel  <spiegel@gnu.org>
 
 	* ir/IdlWriter.java (printEnum, printStruct, printUnion): Avoid
