@@ -595,6 +595,15 @@ jacorb.poa.queue_min=10
 #                                #
 ##################################
 
+# log levels:
+# 0 = fatal errors only = "almost off" (FATAL ERRORS)
+# 1 = non-fatal errors and exceptions (ERROR)
+# 2 = important messages (WARN)
+# 3 = informational messages and exceptions (INFO)
+# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
+
+jacorb.naming.log.verbosity=3
+
 # Whether non active references are purged from name service
 # when list operation is invoked.
 
