@@ -65,6 +65,7 @@ public class Server_TCP_IP_Transport
         
         profile = new InternetIOPProfile (address, null);
         connection_info = address.toString(); 
+        connected = true;
 
         Debug.output( 2, "Opened new server-side TCP/IP transport to " +
                       connection_info );
@@ -101,6 +102,7 @@ public class Server_TCP_IP_Transport
             }
             
             socket = null;
+            connected = false;
 
             Debug.output( 2, "Closed server-side transport to " +
                           connection_info );
@@ -113,7 +115,7 @@ public class Server_TCP_IP_Transport
         return true;
     }
 
-    protected void connect()
+    public void connect (org.omg.ETF.Profile server_profile, long time_out)
     {
         //can't reconnect
     }
