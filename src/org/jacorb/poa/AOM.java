@@ -278,8 +278,6 @@ public class AOM
                         
             /* object deactivation */
 
-            servant._this_object()._release(); /**????**/
-
             objectMap.remove(oidStr);
             servant._set_delegate(null);
 
