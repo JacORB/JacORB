@@ -1,6 +1,6 @@
 package org.jacorb.imr;
 
-import org.jacorb.orb.*;
+import org.omg.CORBA.ORB;
 /**
  * This class represents a host. It contains information about 
  * a server startup daemon residing on this host and provides
