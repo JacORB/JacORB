@@ -89,7 +89,7 @@ public class SASTargetInterceptor
         codec = info.codec_factory().create_codec(encoding);
         orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
 
-		useSsl = Boolean.getBoolean(org.jacorb.util.Environment.getProperty( "jacorb.security.sas.tss.requires_sas", "false" ));
+		useSsl = Boolean.valueOf(org.jacorb.util.Environment.getProperty( "jacorb.security.sas.tss.requires_sas", "false" )).booleanValue();
 
         String contextClass = org.jacorb.util.Environment.getProperty("jacorb.security.sas.contextClass");
         if (contextClass != null) {
