@@ -27,6 +27,7 @@ import java.lang.reflect.*;
 
 import org.jacorb.imr.ImRAccessImpl;
 import org.jacorb.util.*;
+import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.policies.*;
 import org.jacorb.orb.dii.Request;
 import org.jacorb.orb.connection.*;
@@ -42,6 +43,7 @@ import org.omg.Messaging.*;
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.*;
 import org.omg.IIOP.*;
+import org.omg.ETF.*;
 
 /**
  * @author Gerald Brose, FU Berlin
@@ -110,9 +112,6 @@ public final class ORB
     private boolean shutdown_in_progress = false;
     private boolean destroyed = false;
     private Object shutdown_synch = new Object();
-
-    /** do we always add GIOP 1.0 profiles in GIOP 1.2 IORs ? */
-    private boolean always_add_1_0_Profile = false;
 
     /* for registering POAs with the ImR */
     private ImRAccess imr = null;
@@ -455,115 +454,40 @@ public final class ORB
         return new CDROutputStream(this);
     }
 
-    /**
-     * Called from within getReference (below) and set_policy_override
-     * (in org.jacorb.orb.Delegate).
-     *
-     * Generates IOR 1.0 and 1.1, 1.1 contains also 1.0 profile. Only 1.1 and
-     * greater profiles contain codeset information about this server. <br>
-     * If present, IORInterceptors will be invoked.
-     */
-
-    org.omg.IOP.IOR createIOR( String repId,
-                               byte[] key,
+    org.omg.IOP.IOR createIOR (String repId,
+                               byte[] objectKey,
                                boolean _transient,
                                org.jacorb.poa.POA poa,
-                               Hashtable policy_overrides)
+                               Map policy_overrides)
     {
-        // get the host and port of the server
-        String address;
-        int port;
+        List profiles     = new ArrayList();
+        Map  componentMap = new HashMap();
+        
+        Profile profile = basicAdapter.getEndpointProfile();
+        profile.set_object_key (objectKey);
+        profiles.add (profile);
+        
+        TaggedComponentList profileComponents = new TaggedComponentList();
+        profileComponents.addComponent (create_ORB_TYPE_ID());
+        componentMap.put (new Integer (profile.tag()), profileComponents);
 
-        //the ImR is a special case
-        if( repId.equals( "IDL:org/jacorb/imr/ImplementationRepository:1.0") )
+        // use proxy or ImR address if necessary
+        if (profile instanceof IIOPProfile)
         {
-            address = getIMRAddressForIOR( basicAdapter.getAddress() );
-            port = getIMRPortForIOR( basicAdapter.getPort() );
-        }
-        else
-        {
-            address = getServerAddress();
-            port = getServerPort();
-        }
-
-        if( ! _transient &&
-            Environment.useImR() &&
-            Environment.useImREndpoint() )
-        {
-            //attempt to override the server IOR address with the ImR address
-            try
-            {
-                getImR ();
-
-                // set host and port to ImR's values
-                address = getIMRAddressForIOR( imr.getImRHost() );
-                port = getIMRPortForIOR( imr.getImRPort() );
-                Debug.output( 2, "New persistent IOR created with ImR at " +
-                              address + ":" + port );
-            }
-            catch (Exception _e)
-            {
-                // host and port values of this ORB as set above are used
-                Debug.output(6, _e);
-            }
+            patchAddress ((IIOPProfile)profile, repId, _transient);   
         }
 
-        //find out GIOP minor version to use. Defaults to 2.
+        TaggedComponentList multipleComponents = new TaggedComponentList();
+        componentMap.put (new Integer (TAG_MULTIPLE_COMPONENTS.value),
+                          new TaggedComponentList());
 
-        int giop_minor = 2;
-        String gm_str = Environment.getProperty( "jacorb.giop_minor_version", "2" );
-
-        try
-        {
-            giop_minor = Integer.parseInt( gm_str );
-        }
-        catch( NumberFormatException nfe )
-        {
-            throw new Error( "Unable to create int from string >>" +
-                             gm_str + "<<. " +
-                             "(check property \"jacorb.giop_minor_version\")" );
-        }
-
-        // create any components to go in the profiles
-
-        Vector components_iiop_profile = new Vector();
-        Vector components_multi_profile = new Vector();
-
-        // set the ORB type ID component to JacORB
-
-        CDROutputStream orbIDComponentDataStream = new CDROutputStream( this );
-        orbIDComponentDataStream.beginEncapsulatedArray();
-        orbIDComponentDataStream.write_long( ORBConstants.JACORB_ORB_ID );
-
-        TaggedComponent orbIDComponent = new TaggedComponent
-        (
-            TAG_ORB_TYPE.value,
-            orbIDComponentDataStream.getBufferCopy()
-        );
-
-        if( giop_minor > 0 )
-        {
-            components_iiop_profile.addElement( orbIDComponent );
-        }
-        else
-        {
-            components_multi_profile.addElement( orbIDComponent );
-        }
-
-        //if IORInterceptors are present then invoke them
-
+        // invoke IOR interceptors
         if ((interceptor_manager != null) &&
             interceptor_manager.hasIORInterceptors())
         {
-            IORInfoImpl info = new IORInfoImpl
-            (
-                this,
-                poa,
-                components_iiop_profile,
-                components_multi_profile,
-                policy_overrides
-            );
-
+            IORInfoImpl info = new IORInfoImpl (this, poa, 
+                                                componentMap, 
+                                                policy_overrides);
             try
             {
                 interceptor_manager.getIORIterator().iterate( info );
@@ -574,102 +498,272 @@ public final class ORB
             }
         }
 
-        //all components for the profiles have to be present by now
-
-        TaggedProfile tp = null;
-        Vector taggedProfileVector = new Vector();
-        TaggedComponent[] components = null;
-        CDROutputStream profileDataStream = null;
-
-        switch( giop_minor )
+        // add GIOP 1.0 profile if necessary
+        if (   (profile instanceof IIOPProfile) 
+            && (   Environment.giopMinorVersion() == 0
+                || Environment.giopAdd_1_0_Profiles()))
         {
-            case 2 :
+            Profile profile_1_0 = ((IIOPProfile)profile).to_GIOP_1_0();
+            profiles.add (profile_1_0);
+            
+            // shuffle all components over into the multiple components profile
+            multipleComponents.addAll (((IIOPProfile)profile).getComponents());
+            multipleComponents.addAll (profileComponents);
+
+            // if we only want GIOP 1.0, remove the other profile
+            if (Environment.giopMinorVersion() == 0) 
             {
-                //same as IIOP 1.1
-            }
-            case 1:
-            {
-                //create IIOP 1.1 profile
-
-                components = new TaggedComponent[ components_iiop_profile.size() ];
-                components_iiop_profile.copyInto( components );
-
-                ProfileBody_1_1 pb1 = new ProfileBody_1_1
-                (
-                    new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor ),
-                    address,
-                    (short) port,
-                    key,
-                    components
-                );
-
-                // serialize the profile id 1, leave idx 0 for v.1.0 profile
-                profileDataStream = new CDROutputStream( this );
-                profileDataStream.beginEncapsulatedArray();
-                ProfileBody_1_1Helper.write( profileDataStream, pb1 );
-
-                tp = new TaggedProfile
-                (
-                    TAG_INTERNET_IOP.value,
-                    profileDataStream.getBufferCopy()
-                );
-                taggedProfileVector.addElement( tp );
-
-                // fall through only if we want to be beckwards compatible
-                // with GIOP 1.0 and thus always include an 1.0 profile
-
-                if( ! always_add_1_0_Profile )
-                    break;
-            }
-            case 0:
-            {
-                // create IIOP 1.0 profile
-                ProfileBody_1_0 pb0 = new ProfileBody_1_0
-                (
-                    new org.omg.IIOP.Version( (byte) 1, (byte) 0 ),
-                    address,
-                    (short) port,
-                    key
-                );
-
-                profileDataStream = new CDROutputStream( this );
-                profileDataStream.beginEncapsulatedArray();
-                ProfileBody_1_0Helper.write( profileDataStream, pb0 );
-
-                tp = new TaggedProfile
-                (
-                    TAG_INTERNET_IOP.value,
-                    profileDataStream.getBufferCopy()
-                );
-                taggedProfileVector.addElement( tp );
-            }
+                profiles.remove (profile);
+            }           
         }
 
-        // now fill the last IOR profile with components (if any)
-        if( components_multi_profile.size() > 0 )
+        // marshal the profiles into the IOR and return
+        TaggedProfile[] tps = null;
+        if (multipleComponents.isEmpty())
         {
-            components = new TaggedComponent[ components_multi_profile.size() ];
-            components_multi_profile.copyInto( components );
-
-            profileDataStream = new CDROutputStream( this );
-            profileDataStream.beginEncapsulatedArray();
-            MultipleComponentProfileHelper.write( profileDataStream, components );
-
-            tp = new TaggedProfile
-            (
-                TAG_MULTIPLE_COMPONENTS.value,
-                profileDataStream.getBufferCopy()
-            );
-            taggedProfileVector.addElement( tp );
+            tps = new TaggedProfile [profiles.size()];
+        }
+        else
+        {
+            tps = new TaggedProfile [profiles.size() + 1];
+            tps[tps.length-1] = 
+                createMultipleComponentsProfile (multipleComponents);
         }
 
-        // copy the profiles into the IOR
+        TaggedProfileHolder      tp = new TaggedProfileHolder();
+        TaggedComponentSeqHolder tc = new TaggedComponentSeqHolder();
+        for (int i=0; i<profiles.size(); i++)
+        {
+            Profile p = (Profile)profiles.get(i);
+            TaggedComponentList c = 
+                (TaggedComponentList)componentMap.get (new Integer (p.tag()));
+            tc.value = c.asArray();
+            p.marshal (tp, tc);
+            tps[i] = tp.value;
+        }
 
-        TaggedProfile[] tps = new TaggedProfile[ taggedProfileVector.size() ];
-        taggedProfileVector.copyInto( tps );
-
-        return new IOR( repId, tps );
+        return new IOR (repId, tps);
     }
+
+    private TaggedProfile createMultipleComponentsProfile 
+                                  (TaggedComponentList components)
+    {
+        CDROutputStream out = new CDROutputStream (this);
+        out.beginEncapsulatedArray();
+        MultipleComponentProfileHelper.write (out, components.asArray());
+        return new TaggedProfile
+        (
+            TAG_MULTIPLE_COMPONENTS.value,
+            out.getBufferCopy()
+        );
+    }
+
+    /**
+     * Called from within getReference (below) and set_policy_override
+     * (in org.jacorb.orb.Delegate).
+     *
+     * Generates IOR 1.0 and 1.1, 1.1 contains also 1.0 profile. Only 1.1 and
+     * greater profiles contain codeset information about this server. <br>
+     * If present, IORInterceptors will be invoked.
+     */
+
+//    org.omg.IOP.IOR createIOR_old( String repId,
+//                                   byte[] key,
+//                                   boolean _transient,
+//                                   org.jacorb.poa.POA poa,
+//                                   Hashtable policy_overrides)
+//    {
+//        // get the host and port of the server
+//        String address;
+//        int port;
+//
+//        //the ImR is a special case
+//        if( repId.equals( "IDL:org/jacorb/imr/ImplementationRepository:1.0") )
+//        {
+//            address = getIMRAddressForIOR( basicAdapter.getAddress() );
+//            port = getIMRPortForIOR( basicAdapter.getPort() );
+//        }
+//        else
+//        {
+//            address = getServerAddress();
+//            port = getServerPort();
+//        }
+//
+//        if( ! _transient &&
+//            Environment.useImR() &&
+//            Environment.useImREndpoint() )
+//        {
+//            //attempt to override the server IOR address with the ImR address
+//            try
+//            {
+//                getImR ();
+//
+//                // set host and port to ImR's values
+//                address = getIMRAddressForIOR( imr.getImRHost() );
+//                port = getIMRPortForIOR( imr.getImRPort() );
+//                Debug.output( 2, "New persistent IOR created with ImR at " +
+//                              address + ":" + port );
+//            }
+//            catch (Exception _e)
+//            {
+//                // host and port values of this ORB as set above are used
+//                Debug.output(6, _e);
+//            }
+//        }
+//
+//        //find out GIOP minor version to use. Defaults to 2.
+//
+//        int giop_minor = Environment.getIntPropertyWithDefault
+//        (
+//            "jacorb.giop_minor_version", 2
+//        );
+//
+//        // create any components to go in the profiles
+//
+//        Vector components_iiop_profile = new Vector();
+//        Vector components_multi_profile = new Vector();
+//
+//        // set the ORB type ID component to JacORB
+//
+//        CDROutputStream orbIDComponentDataStream = new CDROutputStream( this );
+//        orbIDComponentDataStream.beginEncapsulatedArray();
+//        orbIDComponentDataStream.write_long( ORBConstants.JACORB_ORB_ID );
+//
+//        TaggedComponent orbIDComponent = new TaggedComponent
+//        (
+//            TAG_ORB_TYPE.value,
+//            orbIDComponentDataStream.getBufferCopy()
+//        );
+//
+//        if( giop_minor > 0 )
+//        {
+//            components_iiop_profile.addElement( orbIDComponent );
+//        }
+//        else
+//        {
+//            components_multi_profile.addElement( orbIDComponent );
+//        }
+//
+//        //if IORInterceptors are present then invoke them
+//
+//        if ((interceptor_manager != null) &&
+//            interceptor_manager.hasIORInterceptors())
+//        {
+//            IORInfoImpl info = new IORInfoImpl
+//            (
+//                this,
+//                poa,
+//                components_iiop_profile,
+//                components_multi_profile,
+//                policy_overrides
+//            );
+//
+//            try
+//            {
+//                interceptor_manager.getIORIterator().iterate( info );
+//            }
+//            catch (Exception e)
+//            {
+//                Debug.output(2, e);
+//            }
+//        }
+//
+//        //all components for the profiles have to be present by now
+//
+//        TaggedProfile tp = null;
+//        Vector taggedProfileVector = new Vector();
+//        TaggedComponent[] components = null;
+//        CDROutputStream profileDataStream = null;
+//
+//        switch( giop_minor )
+//        {
+//            case 2 :
+//            {
+//                //same as IIOP 1.1
+//            }
+//            case 1:
+//            {
+//                //create IIOP 1.1 profile
+//
+//                components = new TaggedComponent[ components_iiop_profile.size() ];
+//                components_iiop_profile.copyInto( components );
+//
+//                ProfileBody_1_1 pb1 = new ProfileBody_1_1
+//                (
+//                    new org.omg.IIOP.Version( (byte) 1, (byte) giop_minor ),
+//                    address,
+//                    (short) port,
+//                    key,
+//                    components
+//                );
+//
+//                // serialize the profile id 1, leave idx 0 for v.1.0 profile
+//                profileDataStream = new CDROutputStream( this );
+//                profileDataStream.beginEncapsulatedArray();
+//                ProfileBody_1_1Helper.write( profileDataStream, pb1 );
+//
+//                tp = new TaggedProfile
+//                (
+//                    TAG_INTERNET_IOP.value,
+//                    profileDataStream.getBufferCopy()
+//                );
+//                taggedProfileVector.addElement( tp );
+//
+//                // fall through only if we want to be beckwards compatible
+//                // with GIOP 1.0 and thus always include an 1.0 profile
+//
+//                if( ! always_add_1_0_Profile )
+//                    break;
+//            }
+//            case 0:
+//            {
+//                // create IIOP 1.0 profile
+//                ProfileBody_1_0 pb0 = new ProfileBody_1_0
+//                (
+//                    new org.omg.IIOP.Version( (byte) 1, (byte) 0 ),
+//                    address,
+//                    (short) port,
+//                    key
+//                );
+//
+//                profileDataStream = new CDROutputStream( this );
+//                profileDataStream.beginEncapsulatedArray();
+//                ProfileBody_1_0Helper.write( profileDataStream, pb0 );
+//
+//                tp = new TaggedProfile
+//                (
+//                    TAG_INTERNET_IOP.value,
+//                    profileDataStream.getBufferCopy()
+//                );
+//                taggedProfileVector.addElement( tp );
+//            }
+//        }
+//
+//        // now fill the last IOR profile with components (if any)
+//        if( components_multi_profile.size() > 0 )
+//        {
+//            components = new TaggedComponent[ components_multi_profile.size() ];
+//            components_multi_profile.copyInto( components );
+//
+//            profileDataStream = new CDROutputStream( this );
+//            profileDataStream.beginEncapsulatedArray();
+//            MultipleComponentProfileHelper.write( profileDataStream, components );
+//
+//            tp = new TaggedProfile
+//            (
+//                TAG_MULTIPLE_COMPONENTS.value,
+//                profileDataStream.getBufferCopy()
+//            );
+//            taggedProfileVector.addElement( tp );
+//        }
+//
+//        // copy the profiles into the IOR
+//
+//        TaggedProfile[] tps = new TaggedProfile[ taggedProfileVector.size() ];
+//        taggedProfileVector.copyInto( tps );
+//
+//        return new IOR( repId, tps );
+//    }
 
 
     public org.omg.CORBA.Context get_default_context ()
@@ -854,6 +948,51 @@ public final class ORB
                 }
             }
         }
+    }
+
+    /**
+     * Replace the server address in profile with a proxy address if necessary.
+     */
+    private void patchAddress (IIOPProfile profile, 
+                               String repId,
+                               boolean _transient)
+    {
+        if (repId.equals ("IDL:org/jacorb/imr/ImplementationRepository:1.0"))
+        {
+            profile.patchPrimaryAddress (Environment.imrProxyHost(),
+                                         Environment.imrProxyPort());
+        }
+        else if (!_transient
+                 && Environment.useImR()
+                 && Environment.useImREndpoint())
+        {
+            getImR();
+            
+            profile.patchPrimaryAddress (imr.getImRHost(), imr.getImRPort());
+            profile.patchPrimaryAddress (Environment.imrProxyHost(),
+                                         Environment.imrProxyPort());
+        }
+        else
+        {
+            profile.patchPrimaryAddress (Environment.iorProxyHost(),
+                                         Environment.iorProxyPort());
+        }
+    }
+
+    /**
+     * Creates an ORB_TYPE_ID tagged component for JacORB.
+     */
+    private TaggedComponent create_ORB_TYPE_ID()
+    {
+        CDROutputStream orbIDComponentDataStream = new CDROutputStream( this );
+        orbIDComponentDataStream.beginEncapsulatedArray();
+        orbIDComponentDataStream.write_long( ORBConstants.JACORB_ORB_ID );
+
+        return new TaggedComponent
+        (
+            TAG_ORB_TYPE.value,
+            orbIDComponentDataStream.getBufferCopy()
+        );
     }
 
     /*
@@ -1364,9 +1503,6 @@ public final class ORB
             System.out.println("\t(C) Gerald Brose, FU Berlin/XTRADYNE Technologies, " +
                                dateString);
         }
-
-        always_add_1_0_Profile =
-            Environment.isPropertyOn( "jacorb.giop.add_1_0_profiles" );
 
         interceptorInit();
     }
