@@ -21,44 +21,25 @@ package org.jacorb.test.notification.engine;
  */
 
 import junit.framework.Test;
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.easymock.MockControl;
-import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.RetryException;
+import org.jacorb.notification.engine.AbstractRetryStrategy;
 import org.jacorb.notification.engine.WaitRetryStrategy;
-import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt
  */
-public class WaitRetryStrategyTest extends TestCase
+    
+public class WaitRetryStrategyTest extends AbstractRetryStrategyTest
 {
-    private MessageConsumer mockConsumer_;
-
-    private MockControl controlConsumer_;
-
-    private PushOperation mockPushOperation_;
-
-    private MockControl controlPushOperation_;
-
     public WaitRetryStrategyTest(String name)
     {
         super(name);
     }
 
-    public void setUp() throws Exception
-    {
-        controlConsumer_ = MockControl.createControl(MessageConsumer.class);
-        mockConsumer_ = (MessageConsumer) controlConsumer_.getMock();
-
-        controlPushOperation_ = MockControl.createControl(PushOperation.class);
-        mockPushOperation_ = (PushOperation) controlPushOperation_.getMock();
-    }
-
-    public void testRetryTerminates() throws Exception
+    public void testRetryTerminatesAndThrowsException() throws Exception
     {
         mockConsumer_.isRetryAllowed();
         controlConsumer_.setReturnValue(true);
@@ -85,13 +66,12 @@ public class WaitRetryStrategyTest extends TestCase
 
         try
         {
-            WaitRetryStrategy retry = new WaitRetryStrategy(mockConsumer_, mockPushOperation_);
-
-            retry.retry();
+            objectUnderTest_.retry();
 
             fail();
         } catch (RetryException e)
         {
+            // expected
         }
 
         controlPushOperation_.verify();
@@ -109,19 +89,78 @@ public class WaitRetryStrategyTest extends TestCase
 
         controlConsumer_.replay();
 
-        WaitRetryStrategy retry = new WaitRetryStrategy(mockConsumer_, mockPushOperation_);
-
-        retry.retry();
+        objectUnderTest_.retry();
 
         controlConsumer_.verify();
         controlPushOperation_.verify();
     }
 
+    public void testSuccessfulRetryDisposesPushOperation() throws Exception
+    {
+        mockPushOperation_.invokePush();
+        mockPushOperation_.dispose();
+        
+        controlPushOperation_.replay();
+        
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setDefaultReturnValue(true);
+        
+        controlConsumer_.replay();
+      
+        objectUnderTest_.retry();
+        
+        controlPushOperation_.verify();
+    }
+    
+    public void testNotSuccessfulRetryDisposes() throws Exception
+    {
+        mockPushOperation_.dispose();
 
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setDefaultReturnValue(false);
+        
+        controlPushOperation_.replay();
+        
+        controlConsumer_.replay();      
+        
+        objectUnderTest_.retry();
+        
+        controlPushOperation_.verify();
+    }
+
+    
+    public void testRetryAllowedDisposesPushOperation() throws Exception
+    {
+        mockPushOperation_.dispose();
+        
+        controlPushOperation_.replay();
+        
+        mockConsumer_.isRetryAllowed();
+        controlConsumer_.setDefaultReturnValue(true);
+        
+        controlConsumer_.replay();
+      
+        objectUnderTest_.retry();
+        
+        controlPushOperation_.verify();
+    }
+    
     public static Test suite()
     {
         TestSuite suite = new TestSuite(WaitRetryStrategyTest.class);
 
         return suite;
+    }
+
+    
+    protected void setUpTest()
+    {
+       // no op
+    }
+
+    
+    protected AbstractRetryStrategy newRetryStrategy()
+    {
+        return new WaitRetryStrategy(mockConsumer_, mockPushOperation_);
     }
 }

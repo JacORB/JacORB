@@ -49,6 +49,8 @@ public class PackageTest extends TestCase
         _suite.addTest(PushToConsumerTest.suite());
         _suite.addTest(PushOperationTest.suite());
         _suite.addTest(WaitRetryStrategyTest.suite());
+        _suite.addTest(TaskProcessorRetryStrategyTest.suite());
+        _suite.addTest(AlwaysDisposeRetryStrategyTest.suite());
         _suite.addTest(FilterProxyConsumerTaskTest.suite());
 
         _suite.addTest(FilterProxySupplierTaskTest.suite());
@@ -58,10 +60,5 @@ public class PackageTest extends TestCase
         _suite.addTest(FilterSupplierAdminTaskTest.suite());
 
         return _suite;
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
     }
 }
