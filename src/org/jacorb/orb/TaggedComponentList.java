@@ -130,11 +130,8 @@ public class TaggedComponentList implements Cloneable
         TaggedComponent[] newComponents = 
             new TaggedComponent [components.length + 1];
         System.arraycopy (components, 0, newComponents, 0, components.length);
-        newComponents [components.length] = new TaggedComponent
-        (
-            tag,
-            data
-        ); 
+        newComponents [components.length] = new TaggedComponent (tag, data);
+        components = newComponents;
     }
     
     
