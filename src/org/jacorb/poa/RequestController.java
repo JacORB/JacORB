@@ -98,11 +98,22 @@ public class RequestController
         getPoolManager();
 
         if( priorityProp != null )
-            threadPriority = Integer.parseInt( priorityProp );
+        {
+            try
+            {
+                threadPriority = Integer.parseInt( priorityProp );
+            }
+            catch( NumberFormatException nfe )
+            {
+                org.jacorb.util.Debug.output( 1, "ERROR: Can't create int from >" +
+                                       priorityProp + "<" );
+                org.jacorb.util.Debug.output( 1, "Please check property \"jacorb.poa.thread_priority\"" );
+            }
+        }   
 
         if( threadPriority < Thread.MIN_PRIORITY )
             threadPriority = Thread.MIN_PRIORITY;
-        else if( threadPriority > Thread.MIN_PRIORITY )
+        else if( threadPriority > Thread.MAX_PRIORITY )
             threadPriority = Thread.MAX_PRIORITY;
 
         setPriority(threadPriority);	
