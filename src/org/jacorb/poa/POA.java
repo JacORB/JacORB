@@ -277,7 +277,7 @@ public class POA
      * to create a new poa unter this name       
      */
 
-    public org.jacorb.poa.POA _getChildPOA(String adapter_name) 
+    public org.jacorb.poa.POA _getChildPOA( String adapter_name ) 
         throws ParentIsHolding 
     {
         if (isDestructionApparent()) 
@@ -428,17 +428,6 @@ public class POA
     }
 
     /**
-     * called from delegate for colocation optimization,
-     * returns true if the delegate can use reference_to_servant()
-     * to find out the associated servant
-     */
-
-    public boolean _localStubsSupported() 
-    {
-        return isRetain() || useDefaultServant();
-    }
-
-    /**
      * called from orb to obtain the RootPOA
      */
 
@@ -453,7 +442,7 @@ public class POA
             policies= new org.omg.CORBA.Policy[1];
         else 
         { 
-          // if default domain is set add as additional policy
+            // if default domain is set add as additional policy
             policies=  new org.omg.CORBA.Policy[2];
             policies[1] = 
               new org.jacorb.poa.policy.MapToDefaultDomainsPolicy( Environment.DefaultDomains() );
@@ -1058,7 +1047,9 @@ public class POA
 
             createdReferences.put( key, result ); // ***
 
-            Debug.output(Debug.POA | Debug.DEBUG1, "Poa.getReference: a new "
+            Debug.output(Debug.POA | Debug.DEBUG1, "Poa.getReference <" +
+                         _getQualifiedName() + 
+                         ">: a new "
                          + org.jacorb.orb.domain.Util.toID(result.toString()));
             
             if ( org.jacorb.util.Environment.useDomain() ) 
@@ -1210,7 +1201,11 @@ public class POA
             lifespanPolicy.value() == LifespanPolicyValue.PERSISTENT;
     }
 
-    protected boolean isRetain() 
+    /**
+     * also called from Delegate
+     */
+
+    public boolean isRetain() 
     {
         return servantRetentionPolicy == null || 
             servantRetentionPolicy.value() == ServantRetentionPolicyValue.RETAIN;
@@ -1239,13 +1234,16 @@ public class POA
             idUniquenessPolicy.value() == IdUniquenessPolicyValue.UNIQUE_ID;
     }
 
+    /**
+     */
+
     protected boolean isUseDefaultServant() 
     {
         return requestProcessingPolicy != null && 
             requestProcessingPolicy.value() == RequestProcessingPolicyValue.USE_DEFAULT_SERVANT;
     }
 
-    protected boolean isUseServantManager() 
+    public boolean isUseServantManager() 
     {
         return requestProcessingPolicy != null && 
             requestProcessingPolicy.value() == RequestProcessingPolicyValue.USE_SERVANT_MANAGER;
@@ -1290,7 +1288,8 @@ public class POA
         {                    
             /* do */
             /* clear up the queue */
-            logTrace.printLog(3, "clear up the queue ...");                                                             
+            logTrace.printLog(3, "clear up the queue ..."); 
+
             requestController.clearUpQueue(new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed"));
             logTrace.printLog(3, "... done");
                 
@@ -1587,6 +1586,9 @@ public class POA
     public void set_servant_manager(org.omg.PortableServer.ServantManager servant_manager) 
         throws WrongPolicy 
     {
+        //        Debug.output(Debug.POA | Debug.DEBUG1, "Poa.set_servant_manager <" +
+        //           _getQualifiedName() + ">." );
+
         if (isDestructionApparent()) 
             throw new org.omg.CORBA.OBJECT_NOT_EXIST("adapter destroyed");
 
@@ -1597,7 +1599,7 @@ public class POA
             throw new org.omg.CORBA.BAD_INV_ORDER();
 
         /* not spec. */ 
-        if (isRetain() && 
+        if( isRetain() && 
             !(servant_manager instanceof org.omg.PortableServer.ServantActivator)) 
             throw new WrongPolicy();
 
@@ -1665,7 +1667,11 @@ public class POA
         }
     }
 
-    protected boolean useDefaultServant() 
+    /**
+     * called from Delegate
+     */
+
+    public boolean useDefaultServant() 
     {
         return isUseDefaultServant() && defaultServant != null;
     }
