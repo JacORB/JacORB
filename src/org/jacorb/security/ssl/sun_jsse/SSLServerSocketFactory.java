@@ -184,7 +184,7 @@ public class SSLServerSocketFactory
 
         if (request_mutual_auth) 
         {
-            s.setNeedClientAuth( request_mutual_auth );
+            s.setWantClientAuth( request_mutual_auth );
         } 
         else if (require_mutual_auth) 
         {
@@ -216,7 +216,7 @@ public class SSLServerSocketFactory
 
         if (request_mutual_auth) 
         {
-            s.setNeedClientAuth( request_mutual_auth );
+            s.setWantClientAuth( request_mutual_auth );
         }
         else if (require_mutual_auth) 
         {
@@ -249,7 +249,7 @@ public class SSLServerSocketFactory
 
         if (request_mutual_auth) 
         {
-            s.setNeedClientAuth( request_mutual_auth );
+            s.setWantClientAuth( request_mutual_auth );
         }
         else if (require_mutual_auth) 
         {
@@ -280,8 +280,6 @@ public class SSLServerSocketFactory
     private ServerSocketFactory createServerSocketFactory() 
         throws IOException, java.security.GeneralSecurityException
     {
-        Security.addProvider( new com.sun.net.ssl.internal.ssl.Provider() );
-
         KeyStore key_store = 
             KeyStoreUtil.getKeyStore( keystore_location,
                                       keystore_passphrase.toCharArray() );
