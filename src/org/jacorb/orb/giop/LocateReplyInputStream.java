@@ -1,4 +1,4 @@
-package org.jacorb.orb.connection;
+package org.jacorb.orb.giop;
 
 /*
  *        JacORB - a free Java ORB
@@ -22,7 +22,7 @@ package org.jacorb.orb.connection;
 
 import java.io.*;
 import org.jacorb.orb.*;
-import org.jacorb.orb.connection.*;
+import org.jacorb.orb.giop.*;
 
 import org.omg.GIOP.*;
 import org.omg.CORBA.portable.ApplicationException;

@@ -18,7 +18,7 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.orb.connection;
+package org.jacorb.orb.giop;
 
 /**
  * ConnectionListener.java

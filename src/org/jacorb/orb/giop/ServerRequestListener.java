@@ -1,4 +1,4 @@
-package org.jacorb.orb.connection;
+package org.jacorb.orb.giop;
 /*
  *        JacORB - a free Java ORB
  *
