@@ -585,35 +585,21 @@ public class CDRInputStream
         }
     }
 
-    /**
-     * This operation my only be used directly after reading a string.
-     * It "returns" the string to the stream, resetting the read
-     * position immediately in front of the string. This is necessary
-     * for reading and returning an exception's name to the string.
-     * TODO: (devik) THIS FUNCTION IS DANGEROUS BECAUSE OF CODESETS !!!
-     * 		why about to replace it with position marking ?
-     */
-
-    /*
-    protected final void unread_string(String str)
-    {
-	int diff = 4 + str.length() + 1;
-	pos -= diff;
-	index -= diff;
-    }
-    */
 
     public final org.omg.CORBA.TypeCode read_TypeCode()
     {
-        return read_TypeCode( new Hashtable());
+        Hashtable tcMap = new Hashtable();
+        org.omg.CORBA.TypeCode result = read_TypeCode( tcMap );
+        tcMap.clear();
+        return result;
     }
 
-    public final org.omg.CORBA.TypeCode read_TypeCode(Hashtable tcMap)
+    private final org.omg.CORBA.TypeCode read_TypeCode( Hashtable tcMap )
     {
 	int start_pos = pos;
 	int kind = read_long();
-        //  	Debug.output( 4, "Read Type code of kind " + 
-        //                        kind + " at pos: " + start_pos );
+        //  Debug.output( 4, "Read Type code of kind " + 
+//                        kind + " at pos: " + start_pos );
 
 	String id, name;
 	String[] member_names;
@@ -652,7 +638,10 @@ public class CDRInputStream
 	case TCKind._tk_struct: 
 	    openEncapsulation();
 	    id = read_string();
+
+            //  Debug.output(4, "** remember " + id + " at pos " + start_pos );
             tcMap.put( new Integer( start_pos ), id );
+
 	    name = read_string();
 	    member_count = read_long();
 	    StructMember[] struct_members = new StructMember[member_count];
@@ -669,7 +658,10 @@ public class CDRInputStream
 	case TCKind._tk_except:
 	    openEncapsulation();
 	    id = read_string();
+
+            // Debug.output(4, "** remember " + id + " at pos " + start_pos );
             tcMap.put( new Integer( start_pos ), id );
+
 	    name = read_string();
 	    member_count = read_long();
 	    StructMember[] members = new StructMember[member_count];
@@ -754,14 +746,18 @@ public class CDRInputStream
 	    return orb.create_fixed_tc(read_ushort(), read_short() );
 	case TCKind._tk_array: 
 	    openEncapsulation();
+
 	    content_type = read_TypeCode(tcMap);
 	    length = read_long();
+
 	    closeEncapsulation();
 	    return orb.create_array_tc(length, content_type);
 	case TCKind._tk_sequence: 
 	    openEncapsulation();
+
 	    content_type = read_TypeCode(tcMap);
 	    length = read_long();
+
 	    closeEncapsulation();
 	    org.omg.CORBA.TypeCode seq_tc = 
                 orb.create_sequence_tc(0, content_type);
@@ -770,6 +766,10 @@ public class CDRInputStream
 	    openEncapsulation();
 	    id = read_string();
 	    name = read_string();
+
+            // Debug.output(4, "** remember alias at pos " + start_pos );
+            tcMap.put( new Integer( start_pos ), id );
+
 	    content_type = read_TypeCode( tcMap );
 	    closeEncapsulation();
             result_tc = orb.create_alias_tc( id, name, content_type );
@@ -777,7 +777,9 @@ public class CDRInputStream
 	case TCKind._tk_value: 
 	    openEncapsulation();
 	    id = read_string();
+
             tcMap.put( new Integer( start_pos ), id );
+
 	    name = read_string();
             short type_modifier = read_short();
 	    org.omg.CORBA.TypeCode concrete_base_type = read_TypeCode( tcMap );
@@ -807,12 +809,17 @@ public class CDRInputStream
 	    /* recursive TC */
 	    int negative_offset = read_long();
             String recursiveId = 
-                (String)tcMap.get( new Integer( pos -4 + negative_offset ) );
+                (String)tcMap.get( new Integer( pos -4-1 + negative_offset ) );
 
             Debug.assert( recursiveId != null,
-                          "Could not resolve for recursive TypeCode!");
+                          "No recursive TypeCode! (pos: " + 
+                          (pos-4-1+negative_offset) + ")");
+
+            
 	    org.omg.CORBA.TypeCode rec_tc = 
                 orb.create_recursive_tc( recursiveId );
+
+            // Debug.output(4, "** found type code in map " + recursiveId );
 
 	    return rec_tc;
 	default:
@@ -1099,7 +1106,7 @@ public class CDRInputStream
     final void read_value( org.omg.CORBA.TypeCode tc, CDROutputStream out)
     {
         Hashtable tcMap = new Hashtable();
-        read_value( tc, out, tcMap );
+        read_value( tc, out, tcMap );           
         tcMap.clear();
     }
 
@@ -1212,9 +1219,14 @@ public class CDRInputStream
 	    //	    out.write_TypeCode( read_TypeCode());
 	    try
 	    {
-		out.write_value( tc.content_type(), this );
+                tcMap.put( tc.id(), tc );
+                read_value( tc.content_type(), out, tcMap );
+                //		out.write_value( tc.content_type(), this, tcMap );
 	    }
-	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){} 
+	    catch ( org.omg.CORBA.TypeCodePackage.BadKind b )
+            {
+                b.printStackTrace();
+            } 
 	    break;
 	case TCKind._tk_union:
 	    try
@@ -1404,6 +1416,13 @@ public class CDRInputStream
             {
                 org.omg.CORBA.TypeCode _tc = 
                     (org.omg.CORBA.TypeCode)tcMap.get(tc.id());
+
+                if( _tc == null )
+                {
+                    throw new RuntimeException("No recursive TC found for " + 
+                                               tc.id());
+                }
+
                 read_value( _tc , out, tcMap );
             } 
             catch ( org.omg.CORBA.TypeCodePackage.BadKind b ){
