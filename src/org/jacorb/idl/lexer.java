@@ -784,7 +784,22 @@ public class lexer
                     String vname = get_string();
                     advance(); // skip ' '
                     String version = get_string();
-                    parser.currentScopeData().versionMap.put( vname, version );
+                    String existingVersion = (String) parser.currentScopeData().versionMap.get (vname);
+                    if (existingVersion == null)
+                    {
+                        // Set version
+
+                        parser.currentScopeData().versionMap.put (vname, version);
+                    }
+                    else
+                    {
+                        // Check for version change
+
+                        if (! existingVersion.equals (version))
+                        {
+                            emit_warn ("Version re-declaration, ignoring: #pragma version " + version, null);
+                        }
+                    }
                 }
                 else if( name.equals( "ID" ) )
                 {
@@ -801,10 +816,14 @@ public class lexer
                     // do something with it
                 }
                 else
+                {
                     emit_warn( "Unknown pragma, ignoring: #pragma " + name, null );
+                }
             }
             else
+            {
                 emit_error( "Unrecognized preprocessor directive " + dir, null );
+            }
 
 
             /* swallow to '\n', '\f', or EOF */
