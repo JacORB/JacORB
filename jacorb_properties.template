@@ -189,6 +189,21 @@ jacorb.maxManagedBufSize=18
 #
 #jacorb.connection.server_timeout=10000
 
+# Max no of accepted connections on the server. 
+#jacorb.connection.max_server_transports=
+
+# The number of msecs that are waited until the next attempt to find
+# an idle connection is made (i.e. do not continuously spin)
+#jacorb.connection.wait_for_idle_interval=500
+
+# The class name of the SelectionStrategy class
+#jacorb.connection.selection_strategy_class=
+
+# The class name of the StatisticsProvider class
+#jacorb.connection.statistics_provider_class=
+
+
+
 #jacorb.reference_caching=off
 
 #
