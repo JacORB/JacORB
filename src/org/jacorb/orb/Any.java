@@ -170,7 +170,8 @@ public final class Any
                 case TCKind._tk_alias:
                     return true;
         default:
-            throw new RuntimeException("Cannot compare anys with type kind " + kind);
+            throw new RuntimeException("Cannot compare anys with type kind " 
+                                       + kind);
         }           
  
 //              return ((org.jacorb.orb.Any)a).value().equals(value()); // compare values
