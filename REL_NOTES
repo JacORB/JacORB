@@ -46,6 +46,11 @@ gerald.brose@acm.org
                 Locally constrained objects, such as portable interceptors,
                 should now extend this class.
 
+        - bug fixes
+                ORB:
+                        - Passing null to object_to_string.
+                        - Passing local object to object_to_string.
+
 1.4 beta 2:
 =================
 
