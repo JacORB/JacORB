@@ -17,7 +17,7 @@ public class ReplyHandler extends Interface
     {
         super (new_num());
 
-        name = "AMI_" + parent.name + "ReplyHandler";
+        name = "AMI_" + parent.name + "Handler";
         pack_name = parent.pack_name;
 
         createInheritanceSpec (parent.inheritanceSpec);
@@ -52,7 +52,7 @@ public class ReplyHandler extends Interface
                 ScopedName n1 = (ScopedName)i.next();
                 ScopedName n2 = new ScopedName (new_num());
                 n2.pack_name = n1.pack_name;
-                n2.typeName  = "AMI_" + n1.name + "ReplyHandler";
+                n2.typeName  = "AMI_" + n1.name + "Handler";
                 inheritanceSpec.v.add (n2);
             }
         }
@@ -102,8 +102,8 @@ public class ReplyHandler extends Interface
             }
         }   
         body.addDefinition (new OpDecl (this, d.name, paramDecls));
-        body.addDefinition 
-          (new OpDecl (this, d.name + "_excep", excepParameterList()));
+        //body.addDefinition 
+        //  (new OpDecl (this, d.name + "_excep", excepParameterList()));
     }
     
     /**
@@ -118,16 +118,16 @@ public class ReplyHandler extends Interface
             body.addDefinition 
               (new OpDecl (this, "get_" + decl.name,
                            parameterList (d.param_type_spec, "ami_return_val")));
-            body.addDefinition
-              (new OpDecl (this, "get_" + decl.name + "_excep", 
-                           excepParameterList()));
+            //body.addDefinition
+            //  (new OpDecl (this, "get_" + decl.name + "_excep", 
+            //               excepParameterList()));
             if (!d.readOnly)
             {
                 body.addDefinition
                   (new OpDecl (this, "set_" + decl.name, new ArrayList()));
-                body.addDefinition
-                  (new OpDecl (this, "set_" + decl.name + "_excep",
-                               excepParameterList()));
+            //    body.addDefinition
+            //      (new OpDecl (this, "set_" + decl.name + "_excep",
+            //                   excepParameterList()));
             }
         }                  
     }
@@ -175,8 +175,8 @@ public class ReplyHandler extends Interface
     {
         printInterface();
         printOperations();
-        printLocalBase();
-        printLocalTie();
+        printStub();
+        printHelper();
         printImplSkeleton();
         printTieSkeleton();
     }
