@@ -59,6 +59,10 @@ gerald.brose@acm.org
                         fixed bug that caused exceptions when multiple
                         concurrent requests were issued to the ImR.
 
+        - Appligator/HTTP tunneling:
+                not supported in this beta ! (please wait for the next
+                release...)
+
         - SSL support changes:                
 
                 - added support for Suns SSL implementation
