@@ -387,7 +387,7 @@ parser code
                 }
 
                 // else:
-                usage(argv, "Unrecognized option");
+                usage(argv, "Unrecognized option: " + argv[i]);
 
             }
             for( int j=i; j < argv.length; j++)
