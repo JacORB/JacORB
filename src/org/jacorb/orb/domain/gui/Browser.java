@@ -35,19 +35,25 @@ public class Browser
 
         //Validate frames that have preset sizes
         //Pack frames that have useful preferred size info, e.g. from their layout
-        if (packFrame) {
+        if (packFrame) 
+        {
             frame.pack();
         }
-        else {
+        else 
+        {
             frame.validate();
         }
+
         //Center the window
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = frame.getSize();
-        if (frameSize.height > screenSize.height) {
+        if (frameSize.height > screenSize.height) 
+        {
             frameSize.height = screenSize.height;
         }
-        if (frameSize.width > screenSize.width) {
+
+        if (frameSize.width > screenSize.width) 
+        {
             frameSize.width = screenSize.width;
         }
         // every new frame (except the first) gets moved by the offset values
@@ -148,12 +154,6 @@ public class Browser
         System.exit(-1);
     } // usage
 } // Browser
-
-
-
-
-
-
 
 
 

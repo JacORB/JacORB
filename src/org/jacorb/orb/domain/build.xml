@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="domain" default="all" basedir="../../../..">
+<project name="domain" default="all" basedir="../../../../..">
 
   <!-- ==================================================== -->
   <!--            domain     build file                     -->
@@ -41,16 +41,16 @@
       <javac srcdir="${dsrc}"
              destdir="${dclassdir}"
              bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	     includes="jacorb/orb/domain/**/*.java"
-	     excludes="jacorb/orb/domain/gui/**/*.java,jacorb/orb/domain/test/**/*.java"
+	     includes="org/jacorb/orb/domain/**/*.java"
+	     excludes="org/jacorb/orb/domain/gui/**/*.java,org/jacorb/orb/domain/test/**/*.java"
       />
    </target>
 
    <target name="dir2" unless="java2">
       <javac srcdir="${dsrc}"
              destdir="${dclassdir}"
-	     includes="jacorb/orb/domain/**/*.java"
-	     excludes="jacorb/orb/domain/gui/**/*.java,jacorb/orb/domain/test/**/*.java"
+	     includes="org/jacorb/orb/domain/**/*.java"
+	     excludes="org/jacorb/orb/domain/gui/**/*.java,org/jacorb/orb/domain/test/**/*.java"
       />
    </target>
 
@@ -75,7 +75,7 @@
       <javac srcdir="${dsrc}"
              destdir="${dclassdir}"
              bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	     includes="jacorb/orb/domain/test/**/*.java"
+	     includes="org/jacorb/orb/domain/test/**/*.java"
 	        />
    </target>
 
@@ -84,7 +84,7 @@
 
       <javac srcdir="${dsrc}"
              destdir="${dclassdir}"
-	     includes="jacorb/orb/domain/test/**/*.java"
+	     includes="org/jacorb/orb/domain/test/**/*.java"
              />
    </target>
 
@@ -105,11 +105,11 @@
 	<javac srcdir="${dsrc}"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	       includes="jacorb/orb/domain/gui/**/*.java"
+	       includes="org/jacorb/orb/domain/gui/**/*.java"
         />
 	<copy
-               file="${dsrc}/jacorb/orb/domain/gui/MetaPolicy.gif"
-	       tofile="${dclassdir}/jacorb/orb/domain/gui/MetaPolicy.gif"
+               file="${dsrc}/org/jacorb/orb/domain/gui/MetaPolicy.gif"
+	       tofile="${dclassdir}/org/jacorb/orb/domain/gui/MetaPolicy.gif"
 	/>	
    </target>
 
@@ -117,11 +117,11 @@
  <echo message="gui2 ausgefuehrt" />
 	<javac srcdir="${dsrc}"
                destdir="${dclassdir}"
-	       includes="jacorb/orb/domain/gui/**/*.java"
+	       includes="org/jacorb/orb/domain/gui/**/*.java"
         />
 	<copy
-               file="${dsrc}/jacorb/orb/domain/gui/MetaPolicy.gif"
-	       tofile="${dclassdir}/jacorb/orb/domain/gui/MetaPolicy.gif"
+               file="${dsrc}/org/jacorb/orb/domain/gui/MetaPolicy.gif"
+	       tofile="${dclassdir}/org/jacorb/orb/domain/gui/MetaPolicy.gif"
 	/>	
    </target>
 
@@ -134,20 +134,20 @@
    	<javac srcdir="${dsrc}/generated"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	       includes="jacorb/orb/domain/**/*.java"
+	       includes="org/jacorb/orb/domain/**/*.java"
 	        />
    </target>
 
    <target name="idlcompile2" unless="java2"> 
    	<javac srcdir="${dsrc}/generated"
                destdir="${dclassdir}"
-	       includes="jacorb/orb/domain/**/*.java"
+	       includes="org/jacorb/orb/domain/**/*.java"
         />
    </target>
 
    <!-- runs the idl compiler -->
    <target name="idl" depends="init">
-           <java classname="jacorb.idl.parser" classpath="${dclassdir}" fork="yes">
+           <java classname="org.jacorb.idl.parser" classpath="${dclassdir}" fork="yes">
                 <arg line="${idlflags} ${include}/jacorb/DomainManagement.idl"/>
            </java>
    </target>
@@ -157,9 +157,9 @@
    <!-- directory to the generated directory-->
 
    <target name="copystub" > 
-<!--      <delete file="${dsrc}/generated/jacorb/orb/domain/_DomainStub.java"/>
-	<copy file="${dsrc}/jacorb/orb/domain/template/_DomainStub.java.WithPolicyCache"
-              tofile="${dsrc}/generated/jacorb/orb/domain/_DomainStub.java"
+<!--      <delete file="${dsrc}/generated/org/jacorb/orb/domain/_DomainStub.java"/>
+	<copy file="${dsrc}/org/jacorb/orb/domain/template/_DomainStub.java.WithPolicyCache"
+              tofile="${dsrc}/generated/org/jacorb/orb/domain/_DomainStub.java"
 	/> -->
    </target>
 
@@ -170,14 +170,14 @@
 	<javac srcdir="${dsrc}"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	       includes="generated/jacorb/orb/domain/_DomainStub.java"
+	       includes="generated/org/jacorb/orb/domain/_DomainStub.java"
 	        />
    </target>
 
    <target name="stub2" unless="java2"> 
 	<javac srcdir="${dsrc}"
                destdir="${dclassdir}"
-	       includes="generated/jacorb/orb/domain/_DomainStub.java"
+	       includes="generated/org/jacorb/orb/domain/_DomainStub.java"
 	        />
    </target>
 
@@ -190,14 +190,14 @@
 	<javac srcdir="${dsrc}"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-  	       includes="generated/jacorb/orb/domain/_DomainStub.java"
+  	       includes="generated/org/jacorb/orb/domain/_DomainStub.java"
 	        />
    </target>
 
    <target name="stubc2" unless="java2"> 
 	<javac srcdir="${dsrc}"
                destdir="${dclassdir}"
-  	       includes="generated/jacorb/orb/domain/_DomainStub.java"
+  	       includes="generated/org/jacorb/orb/domain/_DomainStub.java"
 	        />
    </target>
 
@@ -205,25 +205,25 @@
 
    <!-- runs the domain server -->
    <target name="runServer" depends="dir">
-	<java classname="jacorb.orb.domain.DomainServer"
+	<java classname="org.jacorb.orb.domain.DomainServer"
       classpath="${dclasspath}:${JARS}" fork="yes">
            <arg line="${DSURL}"/>
-           <jvmarg line="-Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=jacorb.orb.ORBSingleton"/>
+           <jvmarg line="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton"/>
 	</java>
    </target>
 
    <!-- runs the domain tester server -->
    <target name="runS" depends="dir">
-        <java classname="jacorb.orb.domain.test.DomainTesterServer"
+        <java classname="org.jacorb.orb.domain.test.DomainTesterServer"
                        classpath="${dclasspath}:${JARS}" fork="yes">
-            <jvmarg line="-Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=jacorb.orb.ORBSingleton"/>	     
+            <jvmarg line="-Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton"/>	     
 	</java>
    </target>
 
 
  
    <target name="doc">
-      <javadoc packagenames="jacorb.orb.domain, jacorb.orb.domain.gui, jacorb.orb.domain.test"
+      <javadoc packagenames="org.jacorb.orb.domain, org.jacorb.orb.domain.gui, org.jacorb.orb.domain.test"
            sourcepath="${dsrc}"
            destdir="${basedir}/doc/api"
            author="true"
@@ -235,9 +235,9 @@
    </target>
 
    <target name="gendoc" >
-  <javadoc packagenames="jacorb.orb.domain.*"
+  <javadoc packagenames="orgg.jacorb.orb.domain.*"
            sourcepath="${src}"
-           destdir="${basedir}/src/jacorb/orb/domain/gendoc"
+           destdir="${basedir}/org/src/jacorb/orb/domain/gendoc"
            author="true"
            version="true"
 	   private="true"
@@ -248,10 +248,10 @@
 
    <target name="clean" depends="init">   
        <delete> 
-	  <fileset dir="${dclassdir}/jacorb/orb/domain" includes="**"/>  
+	  <fileset dir="${dclassdir}/org/jacorb/orb/domain" includes="**"/>  
        </delete> 
        <delete> 
-	  <fileset dir= "${dsrc}/generated/jacorb/orb/domain" includes="**"/>  
+	  <fileset dir= "${dsrc}/generated/org/jacorb/orb/domain" includes="**"/>  
        </delete> 
    </target>
 

@@ -666,7 +666,7 @@ public class Environment
         while(prop_names.hasMoreElements())
         {
             String prop = (String) prop_names.nextElement();
-            if (prop.startsWith("org.omg.PortableInterceptor.ORBInitializerClass."))
+            if ( prop.startsWith("org.omg.PortableInterceptor.ORBInitializerClass."))
             {
                 String name = _props.getProperty(prop);
                 try

@@ -250,18 +250,21 @@ public class BrowserFrame
                 public void treeWillExpand(TreeExpansionEvent e)
                 {
                     // org.jacorb.util.Debug.output(2, "tree will expand "+ e.getPath());
-                    DomainTreeNode node= (DomainTreeNode) e.getPath().getLastPathComponent();
-                    if (node == null) return;
+                    DomainTreeNode node= 
+                        (DomainTreeNode) e.getPath().getLastPathComponent();
+                    if (node == null) 
+                        return;
 
-                    if (node.viewNeedsUpdate) updateTreeView(node);
+                    if (node.viewNeedsUpdate) 
+                        updateTreeView(node);
                     // else return;
                 }
-                public void treeWillCollapse(TreeExpansionEvent e) {}
+                public void treeWillCollapse(TreeExpansionEvent e) 
+                {}
             });
 
         // tree model listener (listens for changes in tree node names) TODO
         // treeModel.addTreeModelListener(new TreeModelListener);
-
 
 
         // tree popop listener
@@ -951,14 +954,16 @@ public class BrowserFrame
     void OnPolicyPopupProperties(ActionEvent e)
     {
         org.omg.CORBA.Policy pol;
-        Debug.assert(1, policyListRoot != null, "root of policy list is null");
+        Debug.assert(1, policyListRoot != null,
+                     "root of policy list is null");
 
         // extract policy from selection, take first of all if more than one is selected
         int i = policyList.getMinSelectionRow();
         if (i < 0) 
             return; // nothing selected
 
-        PolicyListLeafNode node = (PolicyListLeafNode) policyListRoot.getChildAt(i);
+        PolicyListLeafNode node = 
+            (PolicyListLeafNode) policyListRoot.getChildAt(i);
         pol = node.getPolicy();
 
         // String name= node.toString();
@@ -968,10 +973,11 @@ public class BrowserFrame
         try
         {
             // create dialog box with IOR tab
-            PropertyDialog box = new PropertyDialog(pol, this, "Policy Properties", true);
+            PropertyDialog box = 
+                new PropertyDialog(pol, this, "Policy Properties", true);
 
             // add description tab only for ManagementPolicies
-            ManagementPolicy manage= ManagementPolicyHelper.narrow(pol);
+            ManagementPolicy manage = ManagementPolicyHelper.narrow(pol);
             if( manage != null)
             { 
                 // display description for a org.jacorb.orb.domain.ManagePolicy object
@@ -988,14 +994,19 @@ public class BrowserFrame
 
             // add user defined editor according to policy type
             int type = pol.policy_type();
-            String key= Integer.toString(type);
-            String EditorClassName = theSharedData.getPolicyEditors().getValueOfProperty(key);
+            String key = Integer.toString(type);
+            String EditorClassName = 
+                theSharedData.getPolicyEditors().getValueOfProperty(key);
+
             Debug.output(Debug.DOMAIN | 3, "class name for policy type " + type
                          + " is "+ EditorClassName);
 
-            if (EditorClassName == null)
-            { // only show with IOR and Reflection tab, skip rest
-                Debug.output(Debug.DOMAIN | 2, "no editor for policy type "+ type + " available");
+            if ( EditorClassName == null)
+            { 
+                // only show with IOR and Reflection tab, skip rest
+                Debug.output(Debug.DOMAIN | 2,
+                             "no editor for policy type "+ type + 
+                             " available");
 
                 box.show();
                 return;
@@ -1052,17 +1063,21 @@ public class BrowserFrame
         int i= memberList.getMinSelectionRow();
 
         if (i < 0) return; // nothing selected
-        Debug.output(Debug.DOMAIN | 4, "selected index is " + i);
+        Debug.output(Debug.DOMAIN | 4, 
+                     "selected index is " + i);
 
-        MemberListLeafNode node= (MemberListLeafNode) memberListRoot.getChildAt(i);
+        MemberListLeafNode node =
+            (MemberListLeafNode) memberListRoot.getChildAt(i);
         obj= node.getObject();
 
         String name= node.toString();
         // Debug.assert(1, name.equals(memberListRoot.getDomain().getNameOf(obj)),
         // 		 "name of object in list and name of object in domain are not the same");
-        if (obj == null) return;
+        if (obj == null) 
+            return;
 
-        PropertyDialog box= new PropertyDialog(obj, this, "Member Properties", true);
+        PropertyDialog box= 
+            new PropertyDialog(obj, this, "Member Properties", true);
         box.show();
     }
 
@@ -1116,9 +1131,12 @@ public class BrowserFrame
                        +" closing cycle");
         }
         catch (org.jacorb.orb.domain.NameAlreadyDefined already)
-        { // should not happen
-            JOptionPane.showMessageDialog(mainFrame, "Please choose another name.",
-                                          "Name Already in Use" , JOptionPane.ERROR_MESSAGE);
+        { 
+            // should not happen
+            JOptionPane.showMessageDialog(mainFrame, 
+                                          "Please choose another name.",
+                                          "Name Already in Use" , 
+                                          JOptionPane.ERROR_MESSAGE);
         }
         this.updateTreeView(node);
     }
@@ -1193,9 +1211,11 @@ public class BrowserFrame
         }
         catch (org.omg.CORBA.COMM_FAILURE fail)
         {
-            JOptionPane.showMessageDialog(mainFrame, "The domain containing the member does not reply."
+            JOptionPane.showMessageDialog(mainFrame, 
+                                          "The domain containing the member does not reply."
                                           +" Operation canceled.",
-                                          "Broken Connection" , JOptionPane.INFORMATION_MESSAGE);
+                                          "Broken Connection" ,
+                                          JOptionPane.INFORMATION_MESSAGE);
         }
     } // OnMemberPopupCut
 
@@ -1216,10 +1236,13 @@ public class BrowserFrame
         PasteMenuItem.setEnabled(true);
     } // OnMemberPopupCopy
 
+
     void OnMemberPopupPaste(ActionEvent e)
     {
-        Debug.assert(1, memberListRoot != null, "root of member list is null");
-        Debug.assert(1, ! theSharedData.MemberBufferIsEmpty(), "member buffer is empty");
+        Debug.assert(1, memberListRoot != null, 
+                     "root of member list is null");
+        Debug.assert(1, ! theSharedData.MemberBufferIsEmpty(), 
+                     "member buffer is empty");
 
         Domain domain= memberListRoot.getDomain();
         StringBuffer memberNameBuffer= new StringBuffer();
@@ -1233,17 +1256,21 @@ public class BrowserFrame
         }
         catch (NameAlreadyDefined already)
         {
-            JOptionPane.showMessageDialog(this, "The member name " + memberName
+            JOptionPane.showMessageDialog(this, 
+                                          "The member name " + memberName
                                           +" is already in use in the target domain. \nPlease rename member "
                                           + "before copying / cuting.",
-                                          "Member Name Already in Use" , JOptionPane.ERROR_MESSAGE);
+                                          "Member Name Already in Use" , 
+                                          JOptionPane.ERROR_MESSAGE);
             return;
         }
         catch (org.omg.CORBA.COMM_FAILURE fail)
         {
-            JOptionPane.showMessageDialog(mainFrame, "The target domain does not reply."
+            JOptionPane.showMessageDialog(mainFrame, 
+                                          "The target domain does not reply."
                                           +" Operation canceled.",
-                                          "Broken Connection" , JOptionPane.INFORMATION_MESSAGE);
+                                          "Broken Connection" , 
+                                          JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         // update view
@@ -1275,9 +1302,12 @@ public class BrowserFrame
         }
     } // OnDomainLoad
 
-    /** reads a IOR from the file "filename" and converts it to a domain reference
-     *  with the help of the supplied orb.
-     *  @return a domain reference on success, null if an exception occured */
+    /**
+     *  reads  a IOR  from the  file "filename" and  converts it  to a
+     *  domain reference with the help of the supplied orb.
+     *  @return a domain reference on success, null if an exception occured 
+     */
+
     private Domain readDomainFromFile(File file, org.omg.CORBA.ORB orb)
     {
         String iorString= null;
@@ -1612,7 +1642,8 @@ public class BrowserFrame
         Domain domain= policyListRoot.getDomain();
         if ( domain.hasPolicyOfType(CONFLICT_RESOLUTION_POLICY_ID.value) )
         {
-            JOptionPane.showMessageDialog(this, "There is already a conflict resolution policy"
+            JOptionPane.showMessageDialog(this, 
+                                          "There is already a conflict resolution policy"
                                           +" defined in this domain. Delete it first.",
                                           "Conflict Resolution Policy Already Defined" , JOptionPane.ERROR_MESSAGE);
             return;
@@ -1640,8 +1671,12 @@ public class BrowserFrame
         else Debug.output(Debug.DOMAIN | Debug.IMPORTANT, "OnPolicyPopupNewConflictResolutionPolicy:"
                           +" no valid selection made, skipping creation of conflict resolution policy.");
 
-        try  { domain.set_domain_policy(pol); }
-        catch (PolicyTypeAlreadyDefined already) {};
+        try  
+        { 
+            domain.set_domain_policy(pol); 
+        }
+        catch (PolicyTypeAlreadyDefined already) 
+        {};
      
         // update view
         policyListRoot= new PolicyListRootNode(domain);
@@ -1653,11 +1688,6 @@ public class BrowserFrame
 
 
 } // BrowserFrame
-
-
-
-
-
 
 
 

@@ -8,9 +8,4 @@ public class LoginData
 
     public LoginData()
     {}
-
-
-
-
-
-
+}

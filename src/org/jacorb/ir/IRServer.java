@@ -34,8 +34,8 @@ public class IRServer
     protected static char 	    fileSeparator = 
         System.getProperty("file.separator").charAt(0);
     /**
-     * @param args  a vector of commandline arguments, where args[1] needs to
-     * be a filename string and args[0] a classpath string
+     * @param  args a vector  of commandline arguments,  where args[1]
+     * needs to be a filename string and args[0] a classpath string 
      */
 
     public static void main( String args[] )  
@@ -62,7 +62,7 @@ public class IRServer
                 new java.net.URLClassLoader( urls );
 
             Class repositoryClass = 
-                classLoader.loadClass("jacorb.ir.RepositoryImpl");
+                classLoader.loadClass("org.jacorb.ir.RepositoryImpl");
 
 
             Object repository = 

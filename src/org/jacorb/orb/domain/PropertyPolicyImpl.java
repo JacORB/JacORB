@@ -106,7 +106,7 @@ public class PropertyPolicyImpl
             theProperties.put(name, value);
         else 
             throw new org.jacorb.orb.domain.PropertyAlreadyDefined();
-    } // put
+    }
 
 
     /** 
@@ -190,7 +190,7 @@ public class PropertyPolicyImpl
      *         operating system dependent 
      *  @param pol the property policy where to put the results.
      *  @param prefix the prefix which is used to indicate a org.jacorb 
-     *         policy. May be null which then defaults to "jacorb.policy.".
+     *         policy. May be null which then defaults to "org.jacorb.policy.".
      * Note: This  operation is executed in the  process of the caller
      *  of  this operation.  It  is  *not*  delegated to  the  process
      *  implementing   the  property  policy   "pol".  Therefore  this
@@ -205,7 +205,7 @@ public class PropertyPolicyImpl
         throws IOException
     {
         if (prefix == null) 
-            prefix= "jacorb.policy.";
+            prefix= "org.jacorb.policy.";
    
         BufferedInputStream in = 
             new BufferedInputStream(new FileInputStream(file) );
@@ -252,7 +252,8 @@ public class PropertyPolicyImpl
         throws IOException
     {
         if (prefix == null) 
-            prefix= "jacorb.policy.";
+            prefix= "org.jacorb.policy.";
+
         String sep= ".";       // seperator
         Properties outProperties= new Properties();
         String names[]= pol.getPropertyNames();    
@@ -286,7 +287,7 @@ public class PropertyPolicyImpl
      * contents of a property  file can create many property policies.
      * A property of a property  policy consists of a name and a value
      *  (as usual).   Any org.jacorb  property which  starts with  a given
-     * prefix,  default is "jacorb.policy.", is treated  as a property
+     * prefix,  default is "org.jacorb.policy.", is treated  as a property
      * of  a property policy. All  properties which do  not start with
      * the  prefix are  ignored. The properties  of a  property policy
      * have the format: <p>
@@ -320,7 +321,7 @@ public class PropertyPolicyImpl
         Enumeration prop_names = source.propertyNames();
 
         if ( prefix == null) 
-            prefix= "jacorb.policy.";
+            prefix= "org.jacorb.policy.";
         String seperator = ".";
 
         org.jacorb.orb.domain.PropertyPolicy PropPol = null; // property policy
@@ -429,8 +430,12 @@ public class PropertyPolicyImpl
                     // overwrite value
                     PropPol.removeProperty(nameOfProperty);
 		   
-                    try { PropPol.put(nameOfProperty, valueOfProperty);}
-                    catch (org.jacorb.orb.domain.PropertyAlreadyDefined never) {
+                    try 
+                    {
+                        PropPol.put(nameOfProperty, valueOfProperty);
+                    }
+                    catch (org.jacorb.orb.domain.PropertyAlreadyDefined never) 
+                    {
                         Debug.output(Debug.DOMAIN | 1, 
                                      "Environment.updatePropertyPolicies:"
                                      +" impossible ERROR occured !!!");
