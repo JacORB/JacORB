@@ -80,7 +80,6 @@ public class ClientConnectionTimeoutTest extends ClientServerTestCase
         //openTransports is uncommented in ClientIIOPConnection
         assertTrue( ClientIIOPConnection.openTransports == 0 );
 
-
         //call oneway remote op
         server.onewayOp();
 

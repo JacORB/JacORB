@@ -37,8 +37,7 @@ public class GIOPConnectionTest extends TestCase
         return suite;
     }
 
-    private class DummyTransport
-        extends IIOPConnection
+    private class DummyTransport extends org.omg.ETF._ConnectionLocalBase
     {
         private boolean closed = false;
         private byte[] data = null;
@@ -132,6 +131,26 @@ public class GIOPConnectionTest extends TestCase
                 System.arraycopy (this.data, this.index, data.value, offset, min_length);
                 this.index += min_length;
             }
+        }
+
+        public boolean is_data_available()
+        {
+            return true;
+        }
+
+        public boolean supports_callback()
+        {
+            return false;
+        }
+
+        public boolean use_handle_time_out()
+        {
+            return false;
+        }
+
+        public boolean wait_next_data(long time_out)
+        {
+            return false;
         }
 
     }
