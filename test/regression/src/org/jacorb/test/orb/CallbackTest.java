@@ -39,6 +39,11 @@ public class CallbackTest extends CallbackTestCase
         suite.addTest( new CallbackTest( "test_return_char", setup ) );
         suite.addTest( new CallbackTest( "test_return_illegal_char", setup ) );
         suite.addTest( new CallbackTest( "test_complex_operation", setup ) );
+        suite.addTest( new CallbackTest( "test_empty_exception", setup ) );
+        suite.addTest( new CallbackTest( "test_empty_exception_not_raised", setup ) );
+        suite.addTest( new CallbackTest( "test_non_empty_exception", setup ) );
+        suite.addTest( new CallbackTest( "test_either_exception_1", setup ) );
+        suite.addTest( new CallbackTest( "test_either_exception_2", setup ) );
             
         return setup;
     }
@@ -89,7 +94,7 @@ public class CallbackTest extends CallbackTestCase
 
         public void return_char_excep(ExceptionHolder excep_holder)
         {
-            wrong_exception(" return_char_excep", excep_holder );
+            wrong_exception( "return_char_excep", excep_holder );
         }
 
         public void return_char(char ami_return_val)
@@ -97,12 +102,59 @@ public class CallbackTest extends CallbackTestCase
             wrong_reply( "return_char" );
         }
 
+        public void ex_1_excep(ExceptionHolder excep_holder)
+        {
+            wrong_exception( "ex_1_excep", excep_holder );
+        }
+
+        public void ex_1()
+        {
+            wrong_reply( "ex_1" );
+        }
+
+        public void ex_2_excep(ExceptionHolder excep_holder)
+        {
+            wrong_exception( "ex_2_excep", excep_holder );
+        }
+
+        public void ex_2(int ami_return_val, int p)
+        {
+            wrong_reply( "ex_2" );
+        }
+
+        public void ex_3_excep(ExceptionHolder excep_holder)
+        {
+            wrong_exception( "ex_3_excep", excep_holder );
+        }
+
+        public void ex_3()
+        {
+            wrong_reply( "ex_3" );
+        }
+
     }
 
     private AMI_CallbackServerHandler ref ( ReplyHandler handler )
     {
         AMI_CallbackServerHandlerPOATie tie =
-            new AMI_CallbackServerHandlerPOATie( handler );
+            new AMI_CallbackServerHandlerPOATie( handler )
+            {
+                public org.omg.CORBA.portable.OutputStream 
+                    _invoke( String method, 
+                             org.omg.CORBA.portable.InputStream _input, 
+                             org.omg.CORBA.portable.ResponseHandler handler )
+                    throws org.omg.CORBA.SystemException   
+                {
+                    try
+                    {
+                        return super._invoke( method, _input, handler );
+                    }
+                    catch( AssertionFailedError e )
+                    {
+                        return null;
+                    }
+                }
+            };
         return tie._this( setup.getClientOrb() );
     }
 
@@ -177,8 +229,8 @@ public class CallbackTest extends CallbackTestCase
         {
             public void return_char( char ami_return_val )
             {
-                pass();
                 assertEquals( 'a', ami_return_val );
+                pass();
             }
         };
         ( ( _CallbackServerStub ) server )
@@ -192,9 +244,9 @@ public class CallbackTest extends CallbackTestCase
         {
             public void return_char_excep( ExceptionHolder excep_holder )
             {
-                pass();
                 assertEquals( org.omg.CORBA.DATA_CONVERSION.class, 
                               getException( excep_holder ).getClass() );
+                pass();
             }
         };
         ( ( _CallbackServerStub ) server )
@@ -208,16 +260,112 @@ public class CallbackTest extends CallbackTestCase
         {
             public void operation( int ami_return_val, char p1, int p2 )
             {
-                pass();
                 assertEquals( 'A', p1 );
                 assertEquals( 4321, p2 );
                 assertEquals( p2, ami_return_val );     
+                pass();
             }
         };
         ( ( _CallbackServerStub ) server )
             .sendc_operation( ref( handler ), 
                               new CharHolder( 'a' ), false, 100 );
         handler.wait_for_reply( 200 );
+    }
+    
+    public void test_empty_exception()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void ex_1_excep( ExceptionHolder excep_holder )
+            {
+                assertEquals( EmptyException.class,
+                              getException( excep_holder ).getClass() );
+                pass();
+            }
+        };
+        ( ( _CallbackServerStub ) server )
+            .sendc_ex_1( ref( handler ), true, 100 );
+        handler.wait_for_reply( 500 );
+    }
+    
+    public void test_empty_exception_not_raised()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void ex_1()
+            {
+                pass();
+            }
+        };
+        ( ( _CallbackServerStub ) server )
+            .sendc_ex_1( ref( handler ), false, 100 );
+        handler.wait_for_reply( 500 );
+    }
+    
+    public void test_non_empty_exception()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void ex_2_excep( ExceptionHolder excep_holder )
+            {
+                Exception ex = getException( excep_holder );
+                if ( !(ex instanceof NonEmptyException) )
+                {
+                    fail( "wrong exception type: " + ex );
+                }
+                else
+                {
+                    NonEmptyException nex = (NonEmptyException)ex;
+                    
+                    // The CORBA Spec and the Java Mapping are not
+                    // entirely clear whether the "_reason" parameter
+                    // should be marshaled along with the id.
+                    // JacORB doesn't do it, and hence we don't check
+                    // for it here.
+
+                    // assertTrue( nex.getMessage().endsWith( " just do it" ) );
+
+                    assertEquals( 17, nex.field1 );
+                    assertEquals( "xxx", nex.field2 );
+                    pass();
+                }
+            }
+        };
+        ( ( _CallbackServerStub ) server )
+            .sendc_ex_2( ref( handler ), new IntHolder( 17 ), true, 100 );
+        handler.wait_for_reply( 500 );
+    }
+    
+    public void test_either_exception_1()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void ex_3_excep( ExceptionHolder excep_holder )
+            {
+                assertEquals( EmptyException.class,
+                              getException( excep_holder ).getClass() );
+                pass();
+            }
+        };
+        ( ( _CallbackServerStub ) server )
+            .sendc_ex_3( ref( handler ), false, 100 );
+        handler.wait_for_reply( 500 );
+    }
+
+    public void test_either_exception_2()
+    {
+        ReplyHandler handler = new ReplyHandler()
+        {
+            public void ex_3_excep( ExceptionHolder excep_holder )
+            {
+                assertEquals( NonEmptyException.class,
+                              getException( excep_holder ).getClass() );
+                pass();
+            }
+        };
+        ( ( _CallbackServerStub ) server )
+            .sendc_ex_3( ref( handler ), true, 100 );
+        handler.wait_for_reply( 500 );
     }
 
 }
