@@ -40,11 +40,13 @@ public class RepositoryID
         else if (repId.startsWith ("IDL:"))
         {
             // cut "IDL:" and version
-            // and swap "org.omg" if necessary
-
+            // and swap "org.omg" and "org.jacorb" if necessary
+            
             String id_base = repId.substring(4, repId.lastIndexOf(':'));
             if( id_base.startsWith("omg.org"))
                 return ir2scopes("org.omg",id_base.substring(7));
+            else if ( id_base.startsWith( "jacorb.org" ))
+                return ir2scopes("org.jacorb", id_base.substring(10));
             else
                 return ir2scopes( "", id_base );
         }
