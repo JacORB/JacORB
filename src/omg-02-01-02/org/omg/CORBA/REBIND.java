@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class REBIND extends org.omg.CORBA.SystemException {
 
     public REBIND() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public REBIND(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class REBIND extends org.omg.CORBA.SystemException {
     }
 
     public REBIND(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public REBIND(String reason, int minor, CompletionStatus completed) {

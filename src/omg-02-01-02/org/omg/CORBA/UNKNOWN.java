@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class UNKNOWN extends org.omg.CORBA.SystemException {
 
     public UNKNOWN() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public UNKNOWN(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class UNKNOWN extends org.omg.CORBA.SystemException {
     }
 
     public UNKNOWN(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public UNKNOWN(String reason, int minor, CompletionStatus completed) {

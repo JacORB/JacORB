@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class INTF_REPOS extends org.omg.CORBA.SystemException {
 
     public INTF_REPOS() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INTF_REPOS(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class INTF_REPOS extends org.omg.CORBA.SystemException {
     }
 
     public INTF_REPOS(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INTF_REPOS(String reason, int minor, CompletionStatus completed) {

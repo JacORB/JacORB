@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class DATA_CONVERSION extends org.omg.CORBA.SystemException {
 
   public DATA_CONVERSION() {
-    super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+    super(null, 0, CompletionStatus.COMPLETED_NO);
   }
 
   public DATA_CONVERSION(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class DATA_CONVERSION extends org.omg.CORBA.SystemException {
   }
 
   public DATA_CONVERSION(String reason) {
-    super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+    super(reason, 0, CompletionStatus.COMPLETED_NO);
   }
 
   public DATA_CONVERSION(String reason, int minor, CompletionStatus completed) {

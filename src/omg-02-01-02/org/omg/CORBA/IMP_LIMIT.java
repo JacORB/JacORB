@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class IMP_LIMIT extends org.omg.CORBA.SystemException {
 
     public IMP_LIMIT() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public IMP_LIMIT(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class IMP_LIMIT extends org.omg.CORBA.SystemException {
     }
 
     public IMP_LIMIT(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public IMP_LIMIT(String reason, int minor, CompletionStatus completed) {

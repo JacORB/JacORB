@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class INV_POLICY extends org.omg.CORBA.SystemException {
 
     public INV_POLICY() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_POLICY(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class INV_POLICY extends org.omg.CORBA.SystemException {
     }
 
     public INV_POLICY(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_POLICY(String reason, int minor, CompletionStatus completed) {

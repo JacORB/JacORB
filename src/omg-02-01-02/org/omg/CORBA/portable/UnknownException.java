@@ -9,7 +9,7 @@ public class UnknownException extends org.omg.CORBA.SystemException {
 
     public Throwable originalEx;
     public UnknownException(Throwable ex) {
-        super("", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         originalEx = ex;
     }
     /****  added by resolution to Issue 3570  ****/
@@ -19,7 +19,7 @@ public class UnknownException extends org.omg.CORBA.SystemException {
         originalEx = orig;
     }
     UnknownException(Throwable orig, String message) {
-        super(message, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+        super(message, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         originalEx = orig;
     }
     UnknownException(Throwable orig, String message, int minor_code,

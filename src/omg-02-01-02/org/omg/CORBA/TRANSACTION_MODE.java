@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class TRANSACTION_MODE extends org.omg.CORBA.SystemException {
 
     public TRANSACTION_MODE() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TRANSACTION_MODE(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class TRANSACTION_MODE extends org.omg.CORBA.SystemException {
     }
 
     public TRANSACTION_MODE(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TRANSACTION_MODE(String reason, int minor, CompletionStatus completed) {

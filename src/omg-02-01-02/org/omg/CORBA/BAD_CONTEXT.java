@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class BAD_CONTEXT extends org.omg.CORBA.SystemException {
 
   public BAD_CONTEXT() {
-    super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+    super(null, 0, CompletionStatus.COMPLETED_NO);
   }
 
   public BAD_CONTEXT(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class BAD_CONTEXT extends org.omg.CORBA.SystemException {
   }
 
   public BAD_CONTEXT(String reason) {
-    super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+    super(reason, 0, CompletionStatus.COMPLETED_NO);
   }
 
   public BAD_CONTEXT(String reason, int minor, CompletionStatus completed) {

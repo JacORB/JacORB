@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class TRANSACTION_UNAVAILABLE extends org.omg.CORBA.SystemException {
 
     public TRANSACTION_UNAVAILABLE() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TRANSACTION_UNAVAILABLE(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class TRANSACTION_UNAVAILABLE extends org.omg.CORBA.SystemException {
     }
 
     public TRANSACTION_UNAVAILABLE(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TRANSACTION_UNAVAILABLE(String reason,

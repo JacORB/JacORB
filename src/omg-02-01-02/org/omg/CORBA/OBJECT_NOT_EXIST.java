@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class OBJECT_NOT_EXIST extends org.omg.CORBA.SystemException {
 
     public OBJECT_NOT_EXIST() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public OBJECT_NOT_EXIST(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class OBJECT_NOT_EXIST extends org.omg.CORBA.SystemException {
     }
 
     public OBJECT_NOT_EXIST(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public OBJECT_NOT_EXIST(String reason,

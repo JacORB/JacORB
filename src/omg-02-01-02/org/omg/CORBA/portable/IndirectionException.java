@@ -10,7 +10,7 @@ public class IndirectionException extends org.omg.CORBA.SystemException {
     public int offset;
 
     public IndirectionException(int offset) {
-        super("", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+        super("", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
         this.offset = offset;
     }
 

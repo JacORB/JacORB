@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class TIMEOUT extends org.omg.CORBA.SystemException {
 
     public TIMEOUT() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TIMEOUT(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class TIMEOUT extends org.omg.CORBA.SystemException {
     }
 
     public TIMEOUT(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TIMEOUT(String reason, int minor, CompletionStatus completed) {

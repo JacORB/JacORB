@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class NO_RESPONSE extends org.omg.CORBA.SystemException {
 
     public NO_RESPONSE() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public NO_RESPONSE(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class NO_RESPONSE extends org.omg.CORBA.SystemException {
     }
 
     public NO_RESPONSE(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public NO_RESPONSE(String reason, int minor, CompletionStatus completed) {

@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class INV_OBJREF extends org.omg.CORBA.SystemException {
 
     public INV_OBJREF() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_OBJREF(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class INV_OBJREF extends org.omg.CORBA.SystemException {
     }
 
     public INV_OBJREF(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public INV_OBJREF(String reason, int minor, CompletionStatus completed) {

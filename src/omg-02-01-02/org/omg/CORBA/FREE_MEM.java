@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class FREE_MEM extends org.omg.CORBA.SystemException {
 
     public FREE_MEM() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public FREE_MEM(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class FREE_MEM extends org.omg.CORBA.SystemException {
     }
 
     public FREE_MEM(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public FREE_MEM(String reason, int minor, CompletionStatus completed) {

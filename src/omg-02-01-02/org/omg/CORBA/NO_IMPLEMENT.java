@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class NO_IMPLEMENT extends org.omg.CORBA.SystemException {
 
     public NO_IMPLEMENT() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public NO_IMPLEMENT(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class NO_IMPLEMENT extends org.omg.CORBA.SystemException {
     }
 
     public NO_IMPLEMENT(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public NO_IMPLEMENT(String reason, int minor, CompletionStatus completed) {

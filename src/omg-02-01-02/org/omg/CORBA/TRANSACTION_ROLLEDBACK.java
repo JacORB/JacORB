@@ -8,7 +8,7 @@ package org.omg.CORBA;
 public class TRANSACTION_ROLLEDBACK extends org.omg.CORBA.SystemException {
 
     public TRANSACTION_ROLLEDBACK() {
-        super(null, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(null, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TRANSACTION_ROLLEDBACK(int minor, CompletionStatus completed) {
@@ -16,7 +16,7 @@ public class TRANSACTION_ROLLEDBACK extends org.omg.CORBA.SystemException {
     }
 
     public TRANSACTION_ROLLEDBACK(String reason) {
-        super(reason, 0, CompletionStatus.COMPLETED_MAYBE);
+        super(reason, 0, CompletionStatus.COMPLETED_NO);
     }
 
     public TRANSACTION_ROLLEDBACK(String reason,
