@@ -70,6 +70,7 @@ public class Request
         connection = e;
         object_key = obj_key;
         operation = op;
+        exceptions = new ExceptionList();
         arguments = (NVList)orb.create_list(10);
         Any a = orb.create_any();
 
@@ -93,6 +94,7 @@ public class Request
         connection = e;
         object_key = obj_key;
         operation = op;
+        exceptions = new ExceptionList();
         arguments = (NVList)args;
         ctx = c;
         result_value = (org.jacorb.orb.NamedValue)result;
