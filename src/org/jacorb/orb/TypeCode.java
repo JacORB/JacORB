@@ -1238,42 +1238,148 @@ public class TypeCode
      * created for it, then an entry for `clz' is also inserted into
      * `knownTypes'.
      */
-    private static TypeCode create_tc (Class clz, Map knownTypes)
+    private static TypeCode create_tc(Class clz, Map knownTypes)
     {
         if (clz.isPrimitive())
-            return (TypeCode)primitive_tcs_map.get (clz);
-        else if (knownTypes.containsKey (clz)) {
+            return (TypeCode)primitive_tcs_map.get(clz);
+        else if (knownTypes.containsKey(clz)) 
+        {
             // recursive type code
-            TypeCode newTypeCode = new TypeCode (RepositoryID.repId (clz));
-            newTypeCode.setActualTC ((TypeCode)knownTypes.get(clz));
+            TypeCode newTypeCode = new TypeCode(RepositoryID.repId(clz));
+            newTypeCode.setActualTC((TypeCode)knownTypes.get(clz));
             return newTypeCode;
         }
         else if (clz.isArray())
-            return new TypeCode (TCKind._tk_sequence,
-                                 0, create_tc (clz.getComponentType(),
-                                               knownTypes));
-        else if (java.rmi.Remote.class.isAssignableFrom (clz))
-            return new TypeCode (TCKind._tk_objref, RepositoryID.repId (clz),
-                                 clz.getName());
-        else if (java.io.Serializable.class.isAssignableFrom (clz))
+        {
+            // a Java array is mapped to a valuebox containing an IDL sequence
+            TypeCode newTypeCode = 
+                new TypeCode(TCKind._tk_value_box,
+                             RepositoryID.repId(clz),
+                             "Java_array",
+                             new TypeCode(TCKind._tk_sequence,
+                                          0, 
+                                          create_tc(clz.getComponentType(),
+                                                    knownTypes)));
+            knownTypes.put(clz, newTypeCode);
+            return newTypeCode;
+        }
+        else if (java.rmi.Remote.class.isAssignableFrom(clz))
+            return new TypeCode(TCKind._tk_objref, RepositoryID.repId(clz),
+                                clz.getName());
+        else if (org.omg.CORBA.portable.IDLEntity.class.isAssignableFrom(clz))
+        {
+            // an IDL entity has a helper class with a static method type()
+            String helperClassName = clz.getName() + "Helper";
+            try
+            {
+                Class helperClass =
+                    clz.getClassLoader().loadClass(helperClassName);
+                java.lang.reflect.Method typeMethod = 
+                    helperClass.getMethod("type", null);
+                TypeCode newTypeCode = 
+                    (TypeCode)typeMethod.invoke(null, null);
+                knownTypes.put(clz, newTypeCode);
+                return newTypeCode;
+            }
+            catch (ClassNotFoundException e)
+            {
+                throw new RuntimeException(
+                                    "Cannot create TypeCode for class " + clz
+                                    + "\nReason: Error loading helper class " 
+                                    + helperClassName
+                                    + "\n" + e);
+            }
+            catch (NoSuchMethodException e)
+            {
+                throw new RuntimeException(
+                            "Cannot create TypeCode for class: " + clz
+                            + "\nReason: no type() method in helper class "
+                            + helperClassName + "\n" + e);
+            }
+            catch (IllegalAccessException e)
+            {
+                throw new RuntimeException(
+                                    "Cannot create TypeCode for class: " + clz
+                                    + "\n" + e);
+            }
+            catch (java.lang.reflect.InvocationTargetException e)
+            {
+                throw new RuntimeException(
+                                    "Cannot create TypeCode for class: " + clz
+                                    + "\nReason: exception in type() method\n "
+                                    + e.getTargetException());
+            }
+        }
+        else if (clz == java.io.Serializable.class ||
+                 clz == java.io.Externalizable.class ||
+                 clz == java.lang.Object.class) 
+        {
+            // Each such Java type is mapped to an IDL typedef for an IDL any
+            return (TypeCode)get_primitive_tc(TCKind._tk_any);
+        }
+        else if (isMappedToAnAbstractInterface(clz))
+        {
+            TypeCode newTypeCode = new TypeCode(TCKind._tk_abstract_interface,
+                                                RepositoryID.repId(clz),
+                                                clz.getName());
+            knownTypes.put(clz, newTypeCode);
+            return newTypeCode;
+        }
+        else // clz is mapped to a valuetype
         {
             Class    superClass    = clz.getSuperclass();
             TypeCode superTypeCode = null;
             if (superClass != null && superClass != java.lang.Object.class)
-                superTypeCode = create_tc (superClass, knownTypes);
+                superTypeCode = create_tc(superClass, knownTypes);
             TypeCode newTypeCode =
-                new TypeCode (RepositoryID.repId (clz),
-                              clz.getName(),
-                              org.omg.CORBA.VM_NONE.value,
-                              superTypeCode,
-                              new ValueMember[0]);
-            knownTypes.put (clz, newTypeCode);
-            newTypeCode.setValueMembers(getValueMembers (clz, knownTypes));
+                new TypeCode(RepositoryID.repId(clz),
+                             clz.getName(),
+                             org.omg.CORBA.VM_NONE.value,
+                             superTypeCode,
+                             new ValueMember[0]);
+            knownTypes.put(clz, newTypeCode);
+            newTypeCode.setValueMembers(getValueMembers(clz, knownTypes));
             return newTypeCode;
         }
-        else
-            throw new RuntimeException
-                                ("cannot create TypeCode for class: " + clz);
+    }
+
+    /*
+     * Java interfaces whose method definitions (including inherited method
+     * definitions) all throw java.rmi.RemoteException or a superclass of 
+     * java.rmi.RemoteException are mapped to IDL abstract interfaces. 
+     */
+    private static boolean isMappedToAnAbstractInterface(Class clz)
+    {
+        if (!clz.isInterface())
+        {
+            return false;
+        }
+        else 
+        {
+            java.lang.reflect.Method[] methods = clz.getMethods();
+            for (int i = 0; i < methods.length; i++)
+            {
+                Class[] exceps = methods[i].getExceptionTypes();
+                int j = 0;
+                while (j < exceps.length)
+                {
+                    if (exceps[j].isAssignableFrom(
+                                               java.rmi.RemoteException.class))
+                        break;
+                    else
+                        j++;
+                }
+                if (j == exceps.length)
+                {
+                    // method[i] does not throw java.rmi.RemoteException 
+                    // or a superclass of java.rmi.RemoteException
+                    return false; 
+                }
+            }
+            // every method throws java.rmi.RemoteException 
+            // or a superclass of java.rmi.RemoteException
+            return true;
+        }
     }
 
     /**

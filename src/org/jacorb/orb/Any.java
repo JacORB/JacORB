@@ -663,8 +663,12 @@ public final class Any
     {
         int kind = typeCode.kind().value();
         if (kind != TCKind._tk_value &&
+	    kind != TCKind._tk_value_box &&
+	    kind != TCKind._tk_abstract_interface &&
             kind != TCKind._tk_null)
+	{
             tc_error ("Cannot extract value!");
+	}
         return (java.io.Serializable)value;
     }
 
@@ -813,6 +817,7 @@ public final class Any
             ((CDROutputStream)value).write_value(type, input);
             break;
         case TCKind._tk_value:
+        case TCKind._tk_value_box:
             insert_Value
                 (((org.omg.CORBA_2_3.portable.InputStream)input).read_value(),
                  type);
@@ -934,6 +939,7 @@ public final class Any
                 throw new INTERNAL( e.getMessage());
             }
         case TCKind._tk_value:
+        case TCKind._tk_value_box:
             ((org.omg.CORBA_2_3.portable.OutputStream)output)
                 .write_value ((java.io.Serializable)value);
             break;
