@@ -672,14 +672,16 @@ public class CDROutputStream
         _write4int( buffer, pos, size - 4 ); // write length indicator        
         pos += 4;
         
-        for( int i = 0; i < s.length(); i++ )
+        char ch;
+        for (int i = 0; i < s.length (); i++)
         {
-            buffer[ pos++ ] = (byte) s.charAt( i );
-            if( ( buffer[ pos-1] & 0xFF00 ) != 0 )//Are there any 1s in the MSB?
+            ch = s.charAt (i);
+            if ((ch & 0xFF00) != 0)
             {
-                throw new org.omg.CORBA.MARSHAL("char (" + buffer[ pos-1 ] + 
-                                                ") out of range for ISO8859_1");
+                throw new org.omg.CORBA.MARSHAL
+                    ("char (" + buffer[ pos-1 ] + ") out of range for ISO8859_1");
             }
+            buffer[pos++] = (byte) ch;
         }
                 
         buffer[ pos++ ] = (byte) 0; //terminating NUL char
