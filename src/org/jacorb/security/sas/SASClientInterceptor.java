@@ -23,19 +23,33 @@ package org.jacorb.security.sas;
 import java.net.URLDecoder;
 import java.util.Hashtable;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
-
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
-
-import org.omg.ATLAS.*;
+import org.omg.ATLAS.ATLASProfile;
+import org.omg.ATLAS.ATLASProfileHelper;
+import org.omg.ATLAS.AuthTokenData;
+import org.omg.ATLAS.AuthTokenDispenser;
+import org.omg.ATLAS.AuthTokenDispenserHelper;
+import org.omg.ATLAS.SCS_ATLAS;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
-import org.omg.CSI.*;
+import org.omg.CSI.AuthorizationElement;
+import org.omg.CSI.CompleteEstablishContext;
+import org.omg.CSI.ContextError;
+import org.omg.CSI.EstablishContext;
+import org.omg.CSI.IdentityToken;
+import org.omg.CSI.MTCompleteEstablishContext;
+import org.omg.CSI.MTContextError;
+import org.omg.CSI.MessageInContext;
+import org.omg.CSI.SASContextBody;
+import org.omg.CSI.SASContextBodyHelper;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.CSIIOP.CompoundSecMechListHelper;
 import org.omg.CSIIOP.ServiceConfiguration;
@@ -97,7 +111,7 @@ public class SASClientInterceptor
         String contextClass = null;
         try
         {
-            configuration.getAttribute("jacorb.security.sas.contextClass");
+            contextClass = configuration.getAttribute("jacorb.security.sas.contextClass");
             Class c = 
                 org.jacorb.util.ObjectUtil.classForName(contextClass);
             sasContext = (ISASContext)c.newInstance();
@@ -120,6 +134,7 @@ public class SASClientInterceptor
         } 
         else 
         {
+            sasContext.configure(configuration);
             sasContext.initClient();
         }
     }
@@ -196,7 +211,7 @@ public class SASClientInterceptor
             {
                 IdentityToken identityToken = new IdentityToken();
                 identityToken.absent(true);
-                contextToken = sasContext.createClientContext(ri, csmList);
+                contextToken = sasContext.createClientContext(orb, codec, csmList);
                 msg = makeEstablishContext(orb, 
                                            -client_context_id, 
                                            authorizationList, 

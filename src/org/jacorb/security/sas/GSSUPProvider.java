@@ -33,55 +33,40 @@ public class GSSUPProvider
     extends Provider
 {
     //private static InitialContextToken defaultSubject = new InitialContextToken();
-    private org.omg.CORBA.ORB orb = null;
-    private org.omg.IOP.Codec codec = null;
+    //private org.omg.CORBA.ORB orb = null;
+    //private org.omg.IOP.Codec codec = null;
 
     /**
      * Returns the default GSSManager implementation.
      *
      */
-    public GSSUPProvider(org.omg.CORBA.ORB orb)
+    public GSSUPProvider(/*org.omg.CORBA.ORB orb*/)
     {
         super("GSSUP", 1.0, "JacORB GSSUP provider v1.0");
         GSSUPMechFactory.myProvider = this;
         this.put("GssApiMechanism.2.23.130.1.1.1", 
                  "org.jacorb.security.sas.GSSUPMechFactory");
-        this.orb = orb;
+        //this.orb = orb;
     }
    
-    public org.omg.CORBA.ORB getORB()
-    {
-        return orb;
-    }
+    //public org.omg.CORBA.ORB getORB()
+    //{
+    //    return orb;
+    //}
 
-    public void setORB(org.omg.CORBA.ORB orb)
-    {
-        this.orb = orb;
-    }
+    //public void setORB(org.omg.CORBA.ORB orb)
+    //{
+    //    this.orb = orb;
+    //}
     
-    public org.omg.IOP.Codec getCodec()
-    {
-        return codec;
-    }
+    //public org.omg.IOP.Codec getCodec()
+    //{
+    //    return codec;
+    //}
 
-    public void setCodec(org.omg.IOP.Codec codec)
-    {
-        this.codec = codec;
-    }
+    //public void setCodec(org.omg.IOP.Codec codec)
+    //{
+    //    this.codec = codec;
+    //}
     
-
-    /*
-    public static void setDefaultSubject(String username, String password, String target)
-    {
-        defaultSubject.username = username.getBytes();
-        defaultSubject.password = password.getBytes();
-        defaultSubject.target_name = target.getBytes();
-    }
-
-    public static InitialContextToken getDefaultSubject()
-    {
-        return defaultSubject;
-    }
-    */
-
 }

@@ -21,19 +21,22 @@ package org.jacorb.security.sas;
  */
 
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.IOP.Codec;
 
 public interface ISASContext
 {
+    public void configure(Configuration configuration) throws ConfigurationException;
     public String getMechOID();
 
     public void initClient();
-    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList);
+    public byte[] createClientContext(ORB orb, Codec codec, CompoundSecMechList csmList);
     public String getClientPrincipal();
 
     public void initTarget();
-    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken);
+    public boolean validateContext(ORB orb, Codec codec, byte[] contextToken);
     public String getValidatedPrincipal();
 }

@@ -22,7 +22,6 @@ package org.jacorb.security.sas;
 
 import java.security.Provider;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
@@ -42,7 +41,6 @@ import sun.security.jgss.spi.MechanismFactory;
 public final class GSSUPMechFactory
     implements MechanismFactory
 {
-    // private static Logger logger = Debug.getNamedLogger("jacorb.SAS.GSSUP");
 
     protected static Provider myProvider;
 

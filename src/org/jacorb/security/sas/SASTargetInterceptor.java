@@ -22,22 +22,40 @@ package org.jacorb.security.sas;
 
 import java.util.Hashtable;
 
+import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.*;
-
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-import org.jacorb.sasPolicy.*;
-
+import org.jacorb.sasPolicy.ATLASPolicy;
+import org.jacorb.sasPolicy.ATLASPolicyValues;
+import org.jacorb.sasPolicy.ATLAS_POLICY_TYPE;
+import org.jacorb.sasPolicy.SASPolicy;
+import org.jacorb.sasPolicy.SASPolicyValues;
+import org.jacorb.sasPolicy.SAS_POLICY_TYPE;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.CompletionStatus;
 import org.omg.CORBA.portable.ObjectImpl;
-import org.omg.CSI.*;
-import org.omg.IOP.*;
+import org.omg.CSI.CompleteEstablishContext;
+import org.omg.CSI.ContextError;
+import org.omg.CSI.EstablishContext;
+import org.omg.CSI.MTEstablishContext;
+import org.omg.CSI.MTMessageInContext;
+import org.omg.CSI.MessageInContext;
+import org.omg.CSI.SASContextBody;
+import org.omg.CSI.SASContextBodyHelper;
+import org.omg.IOP.Codec;
+import org.omg.IOP.ENCODING_CDR_ENCAPS;
+import org.omg.IOP.Encoding;
+import org.omg.IOP.ServiceContext;
 import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
-import org.omg.PortableInterceptor.*;
+import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.PortableInterceptor.ServerRequestInterceptor;
 
 /**
  * This is the SAS Target Security Service (TSS) Interceptor
@@ -91,7 +109,7 @@ public class SASTargetInterceptor
         String contextClass = null;
         try
         {
-            configuration.getAttribute("jacorb.security.sas.contextClass");
+            contextClass = configuration.getAttribute("jacorb.security.sas.contextClass");
             Class c = 
                 org.jacorb.util.ObjectUtil.classForName(contextClass);
             sasContext = (ISASContext)c.newInstance();
@@ -114,6 +132,7 @@ public class SASTargetInterceptor
         }
         else 
         {
+            sasContext.configure(configuration);
             sasContext.initTarget();
         }
     }
@@ -221,7 +240,7 @@ public class SASTargetInterceptor
                 client_context_id = msg.client_context_id;
                 contextToken = msg.client_authentication_token;
 
-                if (!sasContext.validateContext(ri, contextToken)) {
+                if (!sasContext.validateContext(orb, codec, contextToken)) {
                     logger.info("Could not validate context EstablishContext " + ri.operation());
                     throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", 
                                                           MinorCodes.SAS_TSS_FAILURE, 

@@ -20,34 +20,36 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
-
+import org.omg.CORBA.ORB;
 import org.omg.CSI.KRB5MechOID;
 import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.IOP.Codec;
 
 public class KerberosContext 
     implements ISASContext
 {
     /** the logger used by the naming service implementation */
-    private static Logger logger;
+    private Logger logger;
 
     //private GSSManager gssManager = GSSManager.getInstance();
     private GSSContext validatedContext = null;
     private GSSCredential targetCreds = null;
     private GSSCredential clientCreds = null;
 
-    public KerberosContext(Logger logger)
+    public void configure(Configuration configuration)
+        throws ConfigurationException
     {
-        this.logger = logger;
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.sas.Kerberos");
     }
 
     public void initClient() 
@@ -74,7 +76,7 @@ public class KerberosContext
         return KRB5MechOID.value.substring(4);
     }
 
-    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
+    public byte[] createClientContext(ORB orb, Codec codec, CompoundSecMechList csmList) {
         // see if context supported
         //if ((csmList.mechanism_list[0].as_context_mech.target_supports & EstablishTrustInClient.value) == 0) {
         //  // SAS context not supported
@@ -134,7 +136,7 @@ public class KerberosContext
         }
     }
 
-    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+    public boolean validateContext(ORB orb, Codec codec, byte[] contextToken) {
         byte[] token = null;
 
         try {

@@ -1,15 +1,16 @@
 package org.jacorb.demo.sas;
 
 import org.jacorb.security.sas.GssUpContext;
-import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.CORBA.ORB;
+import org.omg.IOP.Codec;
 
 public final class ListGssUpContext extends GssUpContext
 {
     private final String[][] auth_data = { { "jay", "test"} };
     
-    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken)
+    public boolean validateContext(ORB orb, Codec codec, byte[] contextToken)
     {
-        boolean b = super.validateContext(ri, contextToken);
+        boolean b = super.validateContext(orb, codec, contextToken);
         if (b)
         {
             return validateUsernamePassword(initialContextToken.username, initialContextToken.password);

@@ -21,10 +21,6 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
-
-import org.omg.IOP.ENCODING_CDR_ENCAPS;
-import org.omg.IOP.Encoding;
-import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
 import org.omg.PortableInterceptor.ORBInitInfo;
 import org.omg.PortableInterceptor.ORBInitializer;
 
@@ -46,6 +42,7 @@ public class GSSUPProviderInitializer
      */
     public void pre_init( ORBInitInfo info )
     {
+        /*
         // save ORB
         org.jacorb.security.sas.GSSUPProvider.orb = 
             ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB ();
@@ -62,6 +59,7 @@ public class GSSUPProviderInitializer
         {
             // logger.error("UnknownEncoding", unknownEncoding);
         }
+        */
     }
 
     public void post_init(ORBInitInfo info)

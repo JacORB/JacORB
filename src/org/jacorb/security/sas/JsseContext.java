@@ -24,16 +24,17 @@ import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLSocket;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.logger.Logger;
-
 import org.jacorb.orb.dsi.ServerRequest;
 import org.jacorb.orb.giop.GIOPConnection;
 import org.jacorb.orb.iiop.ServerIIOPConnection;
 import org.jacorb.orb.portableInterceptor.ServerRequestInfoImpl;
-
+import org.omg.CORBA.ORB;
 import org.omg.CSI.IdentityToken;
 import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.IOP.Codec;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class JsseContext 
@@ -43,6 +44,12 @@ public class JsseContext
     private  Logger logger = null;
 
     private X509Certificate client_cert = null;
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+    }
+
     
     public JsseContext(Logger logger)
     {
@@ -185,7 +192,7 @@ public class JsseContext
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
      */
-    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
+    public byte[] createClientContext(ORB orb, Codec codec, CompoundSecMechList csmList) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -201,7 +208,7 @@ public class JsseContext
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
      */
-    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+    public boolean validateContext(ORB orb, Codec codec, byte[] contextToken) {
         // TODO Auto-generated method stub
         return false;
     }
@@ -237,7 +244,7 @@ public class JsseContext
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#createIdentityToken(org.omg.PortableInterceptor.ClientRequestInfo, org.omg.CSIIOP.CompoundSecMechList)
      */
-    public IdentityToken createIdentityToken(ClientRequestInfo ri, CompoundSecMechList csmList) {
+    public IdentityToken createIdentityToken(ORB orb, Codec codec, CompoundSecMechList csmList) {
         // TODO Auto-generated method stub
         return null;
     }

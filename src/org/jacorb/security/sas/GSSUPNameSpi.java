@@ -22,13 +22,13 @@ package org.jacorb.security.sas;
 
 import java.security.Provider;
 
-import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.Oid;
-
 import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
 import org.omg.GSSUP.InitialContextToken;
 import org.omg.GSSUP.InitialContextTokenHelper;
+import org.omg.IOP.Codec;
 
 import sun.security.jgss.spi.GSSNameSpi;
 
@@ -67,12 +67,13 @@ public final class GSSUPNameSpi
         //GSSUPNameSpi.mechOid = mechOid;
 
         // parse the name
+        /*
         if (name.length > 0)
         {
             try
             {
                 Any any = 
-                    GSSUPProvider.codec.decode_value( name, 
+                    ((GSSUPProvider)provider).getCodec().decode_value( name, 
                                                       InitialContextTokenHelper.type());
                 subject = InitialContextTokenHelper.extract(any);
             }
@@ -86,9 +87,10 @@ public final class GSSUPNameSpi
         {
             subject = new InitialContextToken(new byte[0], new byte[0], new byte[0]);
         }
+        */
     }
 
-    public static byte[] encode(String username, String password, byte[] target_name)
+    public static byte[] encode(ORB orb, Codec codec, String username, String password, byte[] target_name)
     {
         InitialContextToken subject = null;
         try
@@ -104,11 +106,11 @@ public final class GSSUPNameSpi
             return new byte[0];
         }
         byte[] out = null;
-        Any any = GSSUPProvider.orb.create_any();
+        Any any = orb.create_any();
         InitialContextTokenHelper.insert( any, subject );
         try
         {
-            out = GSSUPProvider.codec.encode_value( any );
+            out = codec.encode_value( any );
         }
         catch (Exception e)
         {
@@ -185,12 +187,12 @@ public final class GSSUPNameSpi
         return completeContext;
     }
 
-    public static byte[] encode(String username, char[] password, String target_name)
+    public static byte[] encode(ORB orb, Codec codec, String username, char[] password, String target_name)
     {
-        return encode(username, new String(password), target_name.getBytes());
+        return encode(orb, codec, username, new String(password), target_name.getBytes());
     }
 
-    public static InitialContextToken decode(byte[] gssToken)
+    public static InitialContextToken decode(ORB orb, Codec codec, byte[] gssToken)
     {
         if(gssToken[0] != 0x60)
         {
@@ -253,7 +255,7 @@ public final class GSSUPNameSpi
         try
         {
             Any any =
-            GSSUPProvider.codec.decode_value(
+            codec.decode_value(
                 icToken,
                 InitialContextTokenHelper.type());
             return InitialContextTokenHelper.extract(any);
@@ -262,7 +264,7 @@ public final class GSSUPNameSpi
         {
             // logger.error("Error decoding for GSSNameSpi: " + e);
         }
-        logger.error("Bailout - GSSUP");
+        //logger.error("Bailout - GSSUP");
         return null;
     }
 
@@ -278,19 +280,22 @@ public final class GSSUPNameSpi
 
     public byte[] export() throws GSSException
     {
+        throw new GSSException(GSSException.FAILURE, GSSException.FAILURE, "Not Implemented");
+        /*
         //System.out.println("GSSUPNameSpi.export");
-        Any any = GSSUPProvider.orb.create_any();
+        Any any = ((GSSUPProvider)provider).getORB().create_any();
         InitialContextTokenHelper.insert( any, subject );
         byte[] out = new byte[0];
         try
         {
-            out = GSSUPProvider.codec.encode_value( any );
+            out = ((GSSUPProvider)provider).getCodec().encode_value( any );
         }
         catch (Exception e)
         {
             // logger.error("Error encoding for GSSNameSpi: " + e);
         }
         return out;
+        */
     }
 
     public Oid getMechanism()
@@ -300,18 +305,21 @@ public final class GSSUPNameSpi
 
     public String toString()
     {
-        Any any = GSSUPProvider.orb.create_any();
+        return null;
+        /*
+        Any any = ((GSSUPProvider)provider).getORB().create_any();
         InitialContextTokenHelper.insert( any, subject );
         byte[] out = new byte[0];
         try
         {
-            out = GSSUPProvider.codec.encode_value( any );
+            out = ((GSSUPProvider)provider).getCodec().encode_value( any );
         }
         catch (Exception e)
         {
             // logger.error("Error encoding for GSSNameSpi: " + e);
         }
         return new String(out);
+        */
     }
 
     public Oid getStringNameType()

@@ -21,20 +21,29 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 
+import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.GSSUP.GSSUPMechOID;
 import org.omg.GSSUP.InitialContextToken;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.IOP.Codec;
 
 public class GssUpContext 
     implements ISASContext
 {
-    private static Logger logger = null;
+    private Logger logger = null;
     private static String username = "";
     private static String password = "";
     protected InitialContextToken initialContextToken = null;
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+        logger = 
+            ((org.jacorb.config.Configuration)configuration).getNamedLogger("jacorb.security.sas.GSSUP");
+    }
 
     public static void setUsernamePassword(String username, String password) {
         GssUpContext.username = username;
@@ -49,13 +58,13 @@ public class GssUpContext
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
      */
-    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) 
+    public byte[] createClientContext(ORB orb, Codec codec, CompoundSecMechList csmList) 
     {
         byte[] target = csmList.mechanism_list[0].as_context_mech.target_name;
         System.out.println("["+username+"]["+password+"]["+target+"]");
         target=new byte[0];
-        byte[] contextToken = GSSUPNameSpi.encode(username, password, target);
-        initialContextToken = GSSUPNameSpi.decode(contextToken);
+        byte[] contextToken = GSSUPNameSpi.encode(orb, codec, username, password, target);
+        initialContextToken = GSSUPNameSpi.decode(orb, codec, contextToken);
         return contextToken;
     }
 
@@ -70,9 +79,9 @@ public class GssUpContext
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
      */
-    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) 
+    public boolean validateContext(ORB orb, Codec codec, byte[] contextToken) 
     {
-        initialContextToken = GSSUPNameSpi.decode(contextToken);
+        initialContextToken = GSSUPNameSpi.decode(orb, codec, contextToken);
         return (initialContextToken != null);
     }
 

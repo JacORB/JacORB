@@ -20,13 +20,20 @@ package org.jacorb.security.sas;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.omg.CORBA.ORB;
 import org.omg.CSIIOP.CompoundSecMechList;
-import org.omg.PortableInterceptor.ClientRequestInfo;
-import org.omg.PortableInterceptor.ServerRequestInfo;
+import org.omg.IOP.Codec;
 
 public class NullContext 
     implements ISASContext
 {
+
+    public void configure(Configuration configuration)
+        throws ConfigurationException
+    {
+    }
 
     public String getMechOID() {
         return "";
@@ -35,7 +42,7 @@ public class NullContext
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#createContext(org.omg.PortableInterceptor.ClientRequestInfo)
      */
-    public byte[] createClientContext(ClientRequestInfo ri, CompoundSecMechList csmList) {
+    public byte[] createClientContext(ORB orb, Codec codec, CompoundSecMechList csmList) {
         return new byte[0];
     }
 
@@ -49,7 +56,7 @@ public class NullContext
     /* (non-Javadoc)
      * @see org.jacorb.security.sas.ISASContext#validateContext(org.omg.PortableInterceptor.ServerRequestInfo, byte[])
      */
-    public boolean validateContext(ServerRequestInfo ri, byte[] contextToken) {
+    public boolean validateContext(ORB orb, Codec codec, byte[] contextToken) {
         return true;
     }
 

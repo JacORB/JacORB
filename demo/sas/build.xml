@@ -17,7 +17,7 @@
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="lib" value="${dirs.base}/lib"/>
         <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
-	<property name="include" value="${dirs.base}/idl/omg"/>
+	<property name="include" value="${dirs.base}/idl"/>
    </target>
 
    <target name="all" depends="sas.init,idl">
@@ -26,16 +26,16 @@
 	       includes="**/*.java"
 	        />
 
-	<javac srcdir="${dirs.base}"
+	<javac srcdir="${dirs.base}/demo/${name}/src"
                destdir="${classdir}"
-	       includes="demo/${name}/src/**/*.java"
+	       includes="**/*.java"
 	        />
    </target>
 
 
    <target name="idl" depends="sas.init,load-taskdef">
         <mkdir dir="${dest}" />
-        <jacidl srcdir="demo/${name}"
+        <jacidl srcdir="${dirs.base}/demo/${name}/src"
                 destdir="${dest}"
                 includepath="${include}"
 	        includes="*.idl"/>
