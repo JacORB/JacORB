@@ -87,21 +87,14 @@ public class BiDirConnectionServerInterceptor
 
             BiDirIIOPServiceContext bidir_ctx = null;
 
-            try
-            {
-                bidir_ctx = 
-                    BiDirIIOPServiceContextHelper.extract( codec.decode( ctx.context_data ));
-            }
-            catch( org.omg.IOP_N.CodecPackage.FormatMismatch fm )
-            {
-                //ignore
-            }
+            CDRInputStream cdr_in = 
+                new CDRInputStream( orb, ctx.context_data );
 
-            if( bidir_ctx == null )
-            {
-                return; //format mismatch
-            }
-                
+            cdr_in.openEncapsulatedArray();
+            
+            bidir_ctx = 
+                BiDirIIOPServiceContextHelper.read( cdr_in );            
+
             GIOPConnection connection = 
                 ((ServerRequestInfoImpl) ri).request.getConnection();
             
