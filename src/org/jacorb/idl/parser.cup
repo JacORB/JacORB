@@ -228,11 +228,9 @@ parser code
                         tmpUnDefines.put( argv[i].substring(2), "" );
                         continue;
                     }
-                    if( argv[i].equals("-p"))
+                    if( argv[i].equals("-omg"))
                     {
-                        if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
-                            usage(argv, "-p");
-                        package_prefix = argv[++i];
+                        package_prefix = "org.omg";
                         continue;
                     }
                     if( argv[i].equals("-global_import"))
@@ -359,7 +357,7 @@ parser code
             System.out.print( argv[i] + " " );
         System.out.println(" : " + msg);
 
-        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-nostub][-nofinal][-ami_callback][-ir][-sloppy_names][-sloppy_forward][-i2jpackage x:y][-d <Output Dir>][-p <package_prefix>][-i <import_package][-W debug_level] <filelist>");
+        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-nostub][-nofinal][-ami_callback][-ir][-sloppy_names][-sloppy_forward][-i2jpackage x:y][-d <Output Dir>][-i <import_package][-W debug_level] <filelist>");
         System.exit(1);
     }
 
@@ -377,8 +375,6 @@ parser code
         System.out.println("\t-Dx\t\tdefine preprocessor symbol x with value 1");
         System.out.println("\t-Dx=y\t\tdefine preprocessor symbol x with value y");
         System.out.println("\t-U\t\tundefine preprocessor symbol");
-        System.out.println("\t-p pack\t\tapply pack as prefix to all names in generated Java code");
-        System.out.println("\t\t\tand put code into package <pack>");
         System.out.println("\t-i2jpackage x:a.b.c\t replace IDL package name x by a.b.c in generated Java code (e.g. CORBA:org.omg.CORBA)");
         System.out.println("\t-i <x>\t\tgenerated Java code will include \"import <x>;\"");
         System.out.println("\t-ir <x>\t\tgenerate information required by the Interface Repository");
