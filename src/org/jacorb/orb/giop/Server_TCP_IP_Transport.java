@@ -41,10 +41,12 @@ public class Server_TCP_IP_Transport
     private boolean is_ssl;
 
     public Server_TCP_IP_Transport( Socket socket,
-                                    boolean is_ssl )
+                                    boolean is_ssl,
+                                    StatisticsProvider statistics_provider,
+                                    TransportManager transport_manager )
         throws IOException
     {
-        super();
+        super( statistics_provider, transport_manager );
 
         this.socket = socket;
         //        socket.setTcpNoDelay( true );
@@ -65,7 +67,34 @@ public class Server_TCP_IP_Transport
         return socket;
     }
 
-    protected void close( int reason )
+    /**
+     * Try to shut this transport down.
+     *
+     * @returns false, if isReadingOrWriting() || !isIdle() 
+     */
+    public boolean tryShutdown()
+    {
+        if( isReadingOrWriting() ||
+            (! isIdle()) )
+        {
+            return false;
+        }
+        else
+        {
+            try
+            {
+                close( FORCE_CLOSE );
+            }
+            catch( IOException e )
+            {
+                //ignore, this will always come
+            }
+            
+            return true;
+        }
+    }
+
+    protected synchronized void close( int reason )
         throws IOException
     {
         // read timeouts should only close the connection, if it is
@@ -76,24 +105,27 @@ public class Server_TCP_IP_Transport
             return;
         }
 
-        Debug.output( 2, "Closing TCP connection, reason " + reason );
-
         //ignore the reasons since this transport can never be
         //reestablished.
         if( socket != null )
         {
+            Debug.output( 2, "Closing TCP connection, reason " + reason );
+
             try
             {
-                java.lang.reflect.Method method
-                = (socket.getClass().getMethod ("shutdownOutput", new Class [0]));
+                java.lang.reflect.Method method = 
+                    (socket.getClass().getMethod( "shutdownOutput", 
+                                                  new Class [0] ));
                 method.invoke (socket, new java.lang.Object[0]);
 
-                method = (socket.getClass().getMethod ("shutdownInput", new Class [0]));
+                method = (socket.getClass().getMethod ("shutdownInput", 
+                                                       new Class [0]));
                 method.invoke (socket, new java.lang.Object[0]);
             }
             catch (Throwable ex)
             {
-                // If Socket does not support shutdownOutput method (i.e JDK < 1.3)
+                // If Socket does not support shutdownOutput method
+                // (i.e JDK < 1.3)
             }
 
             socket.close();
@@ -109,10 +141,14 @@ public class Server_TCP_IP_Transport
             {
                 out_stream.close();
             }
-        }
+            
+            socket = null;
 
-        Debug.output( 2, "Closed connection (server-side) " +
-                      connection_info );
+            transport_manager.unregisterServerTransport( this );
+
+            Debug.output( 2, "Closed connection (server-side) " +
+                          connection_info );
+        }
 
         throw new CloseConnectionException();
     }

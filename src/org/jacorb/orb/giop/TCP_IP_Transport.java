@@ -43,6 +43,7 @@ public abstract class TCP_IP_Transport
     public static final int GIOP_CONNECTION_CLOSED = 0;
     public static final int READ_TIMED_OUT = 1;
     public static final int STREAM_CLOSED = 2;
+    public static final int FORCE_CLOSE = 3;
 
     protected InputStream in_stream = null;
     protected OutputStream out_stream = null;
@@ -60,8 +61,21 @@ public abstract class TCP_IP_Transport
     String connection_info;
     Socket socket;
 
-    public TCP_IP_Transport()
+    //the statistics provider, may stay null
+    private StatisticsProvider statistics_provider = null;
+
+    //used to unregister this transport
+    protected TransportManager transport_manager = null;
+
+    private boolean is_reading = false;
+    private boolean is_writing = false;
+
+    public TCP_IP_Transport( StatisticsProvider statistics_provider,
+                             TransportManager transport_manager )
     {
+        this.statistics_provider = statistics_provider;
+        this.transport_manager = transport_manager;
+
         msg_header = new byte[ Messages.MSG_HEADER_SIZE ];
 
         buff_mg = BufferManager.getInstance();
@@ -106,6 +120,11 @@ public abstract class TCP_IP_Transport
 
     protected abstract void close( int reason )
         throws IOException;
+
+    protected boolean isReadingOrWriting()
+    {
+        return is_reading || is_writing;
+    }
 
     /**
      * Tell this transport that no messages are pending, i.e. it may
@@ -176,11 +195,11 @@ public abstract class TCP_IP_Transport
                 if (socket.getSoTimeout () != 0)
                 {
                     Debug.output
-                    (
-                        1,
-                        "Socket timed out with timeout period of " +
-                        socket.getSoTimeout ()
-                    );
+                        (
+                         1,
+                         "Socket timed out with timeout period of " +
+                         socket.getSoTimeout ()
+                         );
                 }
                 close( READ_TIMED_OUT );
             }
@@ -235,40 +254,44 @@ public abstract class TCP_IP_Transport
         {
             //TODO: resynching?
 
-//              Debug.output( 1, "ERROR: Failed to read GIOP message header" );
-//              Debug.output( 1, (Messages.MSG_HEADER_SIZE - read) +
-//                            " Bytes less than the expected " +
-//                            Messages.MSG_HEADER_SIZE + " Bytes" );
-//              Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-//                            msg_header, 0, read );
+            // Debug.output( 1, "ERROR: Failed to read GIOP message header" );
+            // Debug.output( 1, (Messages.MSG_HEADER_SIZE - read) +
+            //                   " Bytes less than the expected " +
+            //                   Messages.MSG_HEADER_SIZE + " Bytes" );
+            // Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
+            //                  msg_header, 0, read );
 
             return null;
         }
+        
+        is_reading = true;
 
         //(minimally) decode GIOP message header. Main checks should
         //be done one layer above.
 
         if( (char) msg_header[0] == 'G' && (char) msg_header[1] == 'I' &&
             (char) msg_header[2] == 'O' && (char) msg_header[3] == 'P')
-	{
-	    //determine message size
-	    int msg_size = Messages.getMsgSize( msg_header );
+        {
+            //determine message size
+            int msg_size = Messages.getMsgSize( msg_header );
 
-	    if( msg_size < 0 )
-	    {
-                Debug.output( 1, "ERROR: Negative GIOP message size: " + msg_size );
+            if( msg_size < 0 )
+            {
+                Debug.output( 1, "ERROR: Negative GIOP message size: " + 
+                              msg_size );
                 Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
                               msg_header, 0, read );
 
-		return null;
-	    }
+                is_reading = false;
+                return null;
+            }
 
-	    //get a large enough buffer from the pool
-	    byte[] inbuf = buff_mg.getBuffer( msg_size +
+            //get a large enough buffer from the pool
+            byte[] inbuf = buff_mg.getBuffer( msg_size +
                                               Messages.MSG_HEADER_SIZE );
 
-	    //copy header
-	    System.arraycopy( msg_header, 0, inbuf, 0, Messages.MSG_HEADER_SIZE );
+            //copy header
+            System.arraycopy( msg_header, 0, inbuf, 0, Messages.MSG_HEADER_SIZE );
 
             //read "body"
             read = readToBuffer( inbuf, Messages.MSG_HEADER_SIZE, msg_size );
@@ -276,6 +299,7 @@ public abstract class TCP_IP_Transport
             if( read == -1 )
             {
                 //stream ended too early
+                is_reading = false;
                 return null;
             }
 
@@ -288,6 +312,7 @@ public abstract class TCP_IP_Transport
                 Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
                               inbuf, 0, read );
 
+                is_reading = false;
                 return null;
             }
 
@@ -296,6 +321,13 @@ public abstract class TCP_IP_Transport
                 Debug.output( 1, "getMessage()", inbuf, 0, read + Messages.MSG_HEADER_SIZE );
             }
 
+            if( statistics_provider != null )
+            {
+                statistics_provider.messageReceived( msg_size +
+                                                     Messages.MSG_HEADER_SIZE );
+            }
+
+            is_reading = false;
             return inbuf;
         }
         else
@@ -303,8 +335,9 @@ public abstract class TCP_IP_Transport
             Debug.output( 1, "ERROR: Failed to read GIOP message" );
             Debug.output( 1, "Magic start doesn't match" );
             Debug.output( 3, "TCP_IP_GIOPTransport.getMessage()",
-                              msg_header );
+                          msg_header );
 
+            is_reading = false;
             return null;
         }
     }
@@ -315,11 +348,19 @@ public abstract class TCP_IP_Transport
         throws IOException
     {
         connect();
+        
+        is_writing = true;
         out_stream.write( message, start, size );
+        is_writing = false;
 
         if( b_out != null )
         {
             b_out.write( message, start, size );
+        }
+
+        if( statistics_provider != null )
+        {
+            statistics_provider.messageChunkSent( size );
         }
     }
 
@@ -337,7 +378,19 @@ public abstract class TCP_IP_Transport
         }
 
         out_stream.flush();
+
+        if( statistics_provider != null )
+        {
+            statistics_provider.flushed();
+        }
     }
 
+    /**
+     * Get the statistics provider for transport usage statistics.
+     */
+    public StatisticsProvider getStatisticsProvider()
+    {
+        return statistics_provider;
+    }
 }
 // TCP_IP_Transport

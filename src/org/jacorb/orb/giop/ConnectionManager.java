@@ -46,7 +46,6 @@ public class ConnectionManager
     /** connection mgmt. */
     private Hashtable connections = new Hashtable();
 
-
     private SocketFactory socket_factory = null;
     private SocketFactory ssl_socket_factory = null;
 
@@ -54,9 +53,13 @@ public class ConnectionManager
 
     private MessageReceptorPool receptor_pool = null;
 
-    public ConnectionManager (ORB orb)
+    private TransportManager transport_manager = null;
+
+    public ConnectionManager( ORB orb,
+                              TransportManager transport_manager )
     {
         this.orb = orb;
+        this.transport_manager = transport_manager;
 
         socket_factory = SocketFactoryManager.getSocketFactory (orb);
 
@@ -176,10 +179,8 @@ public class ConnectionManager
                 sf = socket_factory;
             }
             
-            Transport transport =
-                new Client_TCP_IP_Transport( host,
-                                             _port,
-                                             sf );
+            Transport transport = 
+                transport_manager.createClientTransport( host, _port );
 
             GIOPConnection connection = 
                 new GIOPConnection( transport,

@@ -98,6 +98,12 @@ public interface Transport
      * on a read timeout is o.k.  
      */
     public boolean isIdle();
+
+    /**
+     * Get the statistics provider for transport usage statistics.
+     */
+    public StatisticsProvider getStatisticsProvider();
+
 }// Transport
 
 

@@ -557,8 +557,6 @@ public final class GIOPConnection
     private final void sendMessage( MessageOutputStream out )
         throws IOException
     {
-        Debug.myAssert( pending_messages >= 0,
-                        "pending_messages >= 0" );
         try
         {
             getWriteLock();
