@@ -1,3 +1,101 @@
+2004-11-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* util/Version.java: Bump version number to 2.2.1 (the
+	release still identifies itself as 2.2).
+
+2004-11-18  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/SystemExceptionHelper.java (read): If there is an
+	ExceptionDetailMessage service context in the input stream, use it
+	to construct the exception's detail message.
+
+	* poa/RequestProcessor.java (invokeOperation): For run-time
+	exceptions thrown by the Servant, use e.toString() rather than
+	e.getMessage() to provide the detail message for
+	org.omg.CORBA.UNKNOWN.  This means that the exception name will be
+	reported along with the message.
+
+	* orb/giop/ReplyInputStream.java (getServiceContext): New method.
+
+	* orb/dsi/ServerRequest.java (createExceptionDetailMessage): New
+	method.
+	(setSystemException): Use it to add a service context for the
+	exception's message.
+
+2004-11-18  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* orb/factory/SocketFactoryManager.java: changed to use single
+	string constructor of RuntimeException to sustain jdk1.3 support
+
+	* orb/ORB.java:
+	(set_parameters) factorized out common initialization code for
+	applet and "normal" orbs into new method internalInit()
+
+	removed unused/old applet stuff
+
+	* security/ssl/sun_jsse/KeyStoreUtil.java: added support for
+	loading keystores through the context classloader (e.g. for
+	applets)
+
+	* security/ssl/sun_jsse/build.xml: removed
+	ServerInvocationInterceptor patch/unpatch - doesn't seem to be
+	needed
+
+	* security/ssl/sun_jsse/ServerInvocationInterceptor.java.patch:
+	not needed anymore
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java.patch: updated
+	to match current version of java file
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java:
+	(createServerSocket) if request_mutual_auth using
+	setWantClientAuth() instead of setNeedClientAuth()
+
+	* security/ssl/sun_jsse/SSLSocketFactory.java.patch: adapted to
+	current version of the java file
+
+	* security/ssl/sun_jsse/SSLSocketFactory.java:
+	(createSocketFactory) removed commented out line
+	"Security.addProvider..."
+
+2004-11-02  Gerald Brose  <gerald.brose@acm.org>
+
+	* Version 2.2.1 released.
+	
+2004-11-02  Simon McQueen  <sm@prismtechnologies.com>
+
+	* security/ssl/sun_jsse/SSLSocketFactory.java: Revert SSLContext
+	protocol to TLS and remove explicit enabling of SSLv3 only on the
+	socket.  The new property jacorb.security.ssl.client.protocols can
+	be used to set this if needed.
+
+2004-10-29  Simon McQueen  <sm@prismtechnologies.com>
+
+	* security/ssl/sun_jsse/SSLServerSocketFactory.java,
+	security/ssl/sun_jsse/SSLSocketFactory.java: Added two new
+	configuration properties:
+	jacorb.security.ssl.client/server.protocols - to control the
+	protocols enabled on the socket.
+	jacorb.security.ssl.client/server.trust_manager - to allow a user
+	defined trust manger to be used.  Thanks to Jay Colson for
+	providing the original patch.
+
+	* orb/iiop/IIOPListener.java (comfigure): Add default value for
+	property to prevent configuration exception when no properties
+	file used.
+
+2004-10-29  Andre Spiegel  <spiegel@gnu.org>
+
+	* config/Configuration.java (init): Load system properties again
+	after properties files have been read, so that command-line args
+	take precedence.
+
+2004-10-29  Simon McQueen  <sm@prismtechnologies.com>
+
+	* poa/POAManager.java (ctr): The POAManagerMonitor must be
+	configured. This fixes bug # 531.  Thanks to Mauritz Lovgren for
+	raising the bug.
+
 2004-10-28  Andre Spiegel  <spiegel@gnu.org>
 
 	* poa/RPPoolManager.java: Changes to fix race condition when
