@@ -3460,14 +3460,14 @@ can
 \section{Timeouts}
 \label{connection_timeouts}
 Connection idle timeouts can be set individually for the client and the
-server. They control how long an idle connection, i.e.~a connections that has
+server. They control how long an idle connection, i.e.~a connection that has
 no pending replies, will stay open. The corresponding properties are {\tt
-  jacorb.connection.client\_idle\_timeout} and {\tt
-  jacorb. connection.server\_timeout} and take their values as microseconds. If
+  jacorb.connection.client.idle\_timeout} and {\tt
+  jacorb.connection.server.timeout} and take their values as milliseconds. If
 not set, connections will stay open indefinitely (or until the OS decides to
 close them).
 
-Request timing controls how long an individual request may take to
+\emph{Request timing} controls how long an individual request may take to
 complete.  The programmer can specify this using QoS policies,
 discussed in chapter \ref{qos}.
 
@@ -4089,7 +4089,7 @@ to configure JacORB are given in the following tables.
 \verb"nt.idle_timeout" & Client-side timeout. This is set to non-zero in order to stop blocking after specified number of milliseconds. Not set by default. & millisec. \\
 \hline
 \verb"jacorb.connection.serv"
-\verb"er_timeout" & Maximum time in milliseconds that a server keeps a connection open if nothing happens. Not set by default. & millisec. \\
+\verb"er.timeout" & Maximum time in milliseconds that a server keeps a connection open if nothing happens. Not set by default. & millisec. \\
 \hline
 \verb"jacorb.connection.max"
 \verb"_server_transports" & This property sets the
