@@ -74,7 +74,7 @@ public class ChannelContext
      *
      * @return the value of eventChannelFactory
      */
-    public EventChannelFactory getEventChannelFactory()
+    private EventChannelFactory getEventChannelFactory()
     {
         return eventChannelFactory;
     }
@@ -84,7 +84,7 @@ public class ChannelContext
      *
      * @param argEventChannelFactory Value to assign to this.eventChannelFactory
      */
-    public void setEventChannelFactory(EventChannelFactory argEventChannelFactory)
+    private void setEventChannelFactory(EventChannelFactory argEventChannelFactory)
     {
         eventChannelFactory = argEventChannelFactory;
     }
@@ -155,23 +155,6 @@ public class ChannelContext
         eventChannelServant = argEventChannelServant;
     }
 
-    /**
-     * Get the EventChannel value.
-     * @return the EventChannel value.
-     */
-    public EventChannel getEventChannel()
-    {
-        return eventChannel;
-    }
-
-    /**
-     * Set the EventChannel value.
-     * @param newEventChannel The new EventChannel value.
-     */
-    public void setEventChannel(EventChannel newEventChannel)
-    {
-        this.eventChannel = newEventChannel;
-    }
 
     public Object clone()
     {
