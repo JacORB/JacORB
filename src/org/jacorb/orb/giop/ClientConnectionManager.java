@@ -25,6 +25,8 @@ import java.net.*;
 import java.util.*;
 import java.lang.reflect.Constructor;
 
+import org.apache.avalon.framework.logger.Logger;
+
 import org.omg.ETF.Factories;
 
 import org.jacorb.orb.*;
@@ -56,6 +58,7 @@ public class ClientConnectionManager
 
     private TransportManager transport_manager = null;
     private GIOPConnectionManager giop_connection_manager = null;
+    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.giop");
 
     public ClientConnectionManager( ORB orb,
                                     TransportManager transport_manager,
@@ -129,8 +132,11 @@ public class ClientConnectionManager
             c = new ClientConnection( connection, orb, this,
                                       profile, true );
 
-            Debug.output( 2, "ClientConnectionManager: created new conn to target " +
-                          c.getInfo() );
+            if( logger.isInfoEnabled())
+            {
+                logger.info("ClientConnectionManager: created new conn to target " +
+                            c.getInfo() );
+            }
 
             connections.put( profile, c );
 
@@ -138,8 +144,12 @@ public class ClientConnectionManager
         }
         else
         {
-            Debug.output( 2, "ClientConnectionManager: found conn to target " +
-                          c.getInfo());
+
+            if( logger.isInfoEnabled())
+            {
+                logger.info("ClientConnectionManager: found conn to target " +
+                            c.getInfo());
+            }
         }
 
         c.incClients();
@@ -156,7 +166,6 @@ public class ClientConnectionManager
         if ( c.decClients() )
         {
             c.close();
-
             connections.remove (c.getRegisteredProfile());
         }
     }
@@ -209,7 +218,10 @@ public class ClientConnectionManager
             ((ClientConnection) i.next()).close();
         }
 
-        Debug.output(3,"ClientConnectionManager shut down (all connections released)");
+        if( logger.isDebugEnabled())
+        {
+            logger.debug("ClientConnectionManager shut down (all connections released)");
+        }
 
         connections.clear();
     }
