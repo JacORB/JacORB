@@ -20,6 +20,8 @@ package org.jacorb.ir;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.StringTokenizer;
+
 import org.jacorb.orb.TypeCode;
 
 /**
@@ -27,32 +29,54 @@ import org.jacorb.orb.TypeCode;
  * or class names, or builds Java class names from repository
  * IDs
  */
-
 public class RepositoryID 
 {
-
+    /**
+     * Returns the fully qualified name of the Java class to which
+     * the given Repository ID is mapped.
+     */
     public static String className (String repId)
     {
-        if (repId.equals("IDL:omg.org/CORBA/WStringValue:1.0"))
+        return className (repId, null);
+    }
+
+    /**
+     * Returns the fully qualified name of the Java class to which
+     * the given Repository ID is mapped, with a given suffix appended
+     * to the class name.  For example, the string "Helper" can be used
+     * as the suffix to find the helper class for a given Repository ID.
+     */
+    public static String className (String repId, String suffix)
+    {
+        int    firstColon = repId.indexOf (':');
+        int    lastColon  = repId.lastIndexOf (':');
+        String formatName = repId.substring (0, firstColon);
+        
+        if (formatName.equals ("RMI"))
         {
-	    return "java.lang.String";
+            return repId.substring (4, lastColon) 
+                   + ( suffix != null ? suffix : "" );
         }
-        else if (repId.startsWith ("IDL:"))
+        else if (formatName.equals ("IDL"))
         {
-            // cut "IDL:" and version
-            // and swap "org.omg" and "org.jacorb" if necessary
-            
-            String id_base = repId.substring(4, repId.lastIndexOf(':'));
-            if( id_base.startsWith("omg.org"))
-                return ir2scopes("org.omg",id_base.substring(7));
-            else if ( id_base.startsWith( "jacorb.org" ))
-                return ir2scopes("org.jacorb", id_base.substring(10));
+            String id = repId.substring (firstColon + 1, lastColon)
+                        + ( suffix != null ? suffix : "" );
+            if (id.equals ("omg.org/CORBA/WStringValue"))
+                return "java.lang.String";
             else
-                return ir2scopes( "", id_base );
-        }
-        else if (repId.startsWith ("RMI:"))
-        {
-            return repId.substring (4, repId.indexOf (':', 4));
+            {
+                int    firstSlash = id.indexOf ("/");
+                String prefix     = id.substring (0, firstSlash);
+
+                if (prefix.equals ("omg.org"))
+                    return ir2scopes ("org.omg", 
+                                      id.substring (firstSlash + 1));
+                else if (prefix.indexOf ('.') != -1)
+                    return ir2scopes (reversePrefix (prefix),
+                                      id.substring (firstSlash + 1));
+                else
+                    return ir2scopes ("", id);
+            }
         }
         else
         {
@@ -60,10 +84,22 @@ public class RepositoryID
         }
     }
 
+    private static final String reversePrefix (String prefix)
+    {
+        StringTokenizer tok    = new StringTokenizer (prefix, ".");
+        String          result = tok.nextToken();
+        
+        while (tok.hasMoreTokens())
+        {
+            result = tok.nextToken() + '.' + result;
+        }
+        return result;
+    }
+    
     /**
-     * @return java.lang.String
+     * FIXME: This method needs documentation.
+     * What does this algorithm do, and why is it necessary?  AS.
      */
-
     private static String ir2scopes (String prefix, String s) 
     {
         if( s.indexOf("/") < 0)
@@ -154,13 +190,12 @@ public class RepositoryID
     }
 
     /**
-     * convert a class name to a Repository ID<BR>
-     * classname - the class name to convert
-     * resolveClass - indicates whether the method should try to
+     * Converts a class name to a Repository ID.
+     * @param classname the class name to convert
+     * @param resolveClass indicates whether the method should try to
      * resolve and load the class. If true and the class could
      * not be loaded, an IllegalArgumentException will be thrown
      */
-
     public static String toRepositoryID ( String className,
                                           boolean resolveClass )
     {
@@ -182,8 +217,6 @@ public class RepositoryID
             return "IDL:" + className + ":1.0";
         }
     }
-
-
 
     public static String toRepositoryID( String className )
     {
