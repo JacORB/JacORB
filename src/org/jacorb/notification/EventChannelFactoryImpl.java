@@ -23,18 +23,14 @@ package org.jacorb.notification;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.interfaces.EventChannelEvent;
-import org.jacorb.notification.interfaces.EventChannelEventListener;
 import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.AdminPropertySet;
@@ -131,21 +127,24 @@ public class EventChannelFactoryImpl
 
     ////////////////////////////////////////
 
-    private Logger logger_ = null;
+    protected Logger logger_ = null;
     private Configuration config_;
     private ORB orb_;
     private POA eventChannelFactoryPOA_;
     private POA rootPOA_;
-    private EventChannelFactory thisFactory_;
+    private EventChannelFactory thisRef_;
+    private Servant thisServant_;
+
     private FilterFactory defaultFilterFactory_;
     private FilterFactoryImpl defaultFilterFactoryServant_;
     private ApplicationContext applicationContext_;
     private SynchronizedInt eventChannelIDPool_;
-    private Map allChannels_ = new HashMap();
-    private Object allChannelsLock_ = allChannels_;
+
+    private ChannelManager channelManager_ = new ChannelManager();
+
     private String ior_;
     private String corbaLoc_;
-    private List listEventChannelEventListener_ = new ArrayList();
+
     private StaticEventChannelFactoryInfo staticInfo_;
     private String staticURL_;
     private Runnable destroyMethod_;
@@ -154,7 +153,7 @@ public class EventChannelFactoryImpl
 
     ////////////////////////////////////////
 
-    private EventChannelFactoryImpl() {
+    protected EventChannelFactoryImpl() {
         initialize();
     }
 
@@ -281,36 +280,12 @@ public class EventChannelFactoryImpl
     {
         try
         {
-            // create identifier
-            int _identifier = createChannelIdentifier();
-            channelIdentifier.value = _identifier;
-
-            final Integer _key = new Integer( _identifier );
-
-            final EventChannelImpl _channelServant =
-                create_channel_servant( _identifier,
+            AbstractEventChannel _channelServant =
+                create_channel_servant(channelIdentifier,
                                         qualitiyOfServiceProperties,
                                         administrativeProperties );
 
-            eventChannelServantCreated( _channelServant );
-
-            if (logger_.isInfoEnabled()) {
-                logger_.info( "created EventChannel with ID: " + _identifier );
-            }
-
-            synchronized(allChannelsLock_) {
-                allChannels_.put( _key, _channelServant );
-            }
-
-            _channelServant.setDisposeHook(new Runnable() {
-                    public void run() {
-                        synchronized(allChannelsLock_) {
-                            allChannels_.remove( _key );
-                        }
-
-                        fireEventChannelDestroyed(_channelServant);
-                }
-            });
+            channelManager_.addToChannels(channelIdentifier.value, _channelServant);
 
             return EventChannelHelper.narrow(_channelServant.activate());
         } catch (UnsupportedQoS e) {
@@ -324,26 +299,15 @@ public class EventChannelFactoryImpl
     }
 
 
-    protected void eventChannelServantCreated( EventChannelImpl servant )
-    {
-        EventChannelEvent _event = new EventChannelEvent( servant );
-
-        Iterator _i = listEventChannelEventListener_.iterator();
-
-        while ( _i.hasNext() )
-        {
-            ( ( EventChannelEventListener ) _i.next() ).actionEventChannelCreated( _event );
-        }
-    }
 
 
-    private void checkQoSSettings(PropertySet _uniqueQoSProperties)
+    private void checkQoSSettings(PropertySet uniqueQoSProperties)
         throws UnsupportedQoS
     {
-        if ( _uniqueQoSProperties.containsKey( EventReliability.value ) )
+        if ( uniqueQoSProperties.containsKey( EventReliability.value ) )
         {
             short _eventReliabilty =
-                _uniqueQoSProperties.get(EventReliability.value).
+                uniqueQoSProperties.get(EventReliability.value).
                 extract_short();
 
             switch (_eventReliabilty)
@@ -362,10 +326,10 @@ public class EventChannelFactoryImpl
 
         short _connectionReliability = BestEffort.value;
 
-        if ( _uniqueQoSProperties.containsKey( ConnectionReliability.value ) )
+        if ( uniqueQoSProperties.containsKey( ConnectionReliability.value ) )
         {
             _connectionReliability =
-                _uniqueQoSProperties.get( ConnectionReliability.value ).
+                uniqueQoSProperties.get( ConnectionReliability.value ).
                 extract_short();
 
             switch ( _connectionReliability )
@@ -384,19 +348,28 @@ public class EventChannelFactoryImpl
         }
     }
 
+    protected AbstractEventChannel newEventChannelImpl() {
+        EventChannelImpl _eventChannelServant =
+            new EventChannelImpl();
 
-    public EventChannelImpl create_channel_servant( final int channelID,
-                                                    Property[] qualitiyOfServiceProperties,
-                                                    Property[] administrativeProperties )
+        return _eventChannelServant;
+    }
+
+
+
+    public AbstractEventChannel create_channel_servant(IntHolder id,
+                                                       Property[] qosProps,
+                                                       Property[] adminProps )
         throws UnsupportedAdmin,
                UnsupportedQoS,
-               ObjectNotActive,
-               WrongPolicy,
-               ServantAlreadyActive,
                ConfigurationException
     {
+        // create identifier
+        int _channelID = createChannelIdentifier();
+        id.value = _channelID;
+
         if (logger_.isInfoEnabled() ) {
-            logger_.debug( "create channel_servant id=" + channelID );
+            logger_.debug( "create channel_servant id=" + _channelID );
         }
 
         // check QoS and Admin Settings
@@ -404,12 +377,12 @@ public class EventChannelFactoryImpl
         AdminPropertySet _adminSettings =
             new AdminPropertySet(config_);
 
-        _adminSettings.set_admin( administrativeProperties );
+        _adminSettings.set_admin( adminProps );
 
         QoSPropertySet _qosSettings =
             new QoSPropertySet( config_, QoSPropertySet.ADMIN_QOS);
 
-        _qosSettings.set_qos(qualitiyOfServiceProperties);
+        _qosSettings.set_qos(qosProps);
 
         if (logger_.isDebugEnabled() )
         {
@@ -438,15 +411,11 @@ public class EventChannelFactoryImpl
 
         _factory.configure( ( (org.jacorb.orb.ORB)applicationContext_.getOrb() ).getConfiguration() );
 
-
         _channelContext.setEventQueueFactory(_factory);
 
-        // create new servant
-        final EventChannelImpl _eventChannelServant =
-            new EventChannelImpl();
+        AbstractEventChannel _eventChannelServant = newEventChannelImpl();
 
         _eventChannelServant.setDefaultFilterFactory( defaultFilterFactory_ );
-
 
         _channelContext.resolveDependencies(_eventChannelServant);
 
@@ -460,29 +429,16 @@ public class EventChannelFactoryImpl
             throw new RuntimeException(ex);
         }
 
-        _eventChannelServant.setKey(channelID);
+        _eventChannelServant.setKey(_channelID);
         _eventChannelServant.set_qos(_qosSettings.toArray());
         _eventChannelServant.set_admin(_adminSettings.toArray());
         _eventChannelServant.setORB(applicationContext_.getOrb());
         _eventChannelServant.setPOA(applicationContext_.getPoa());
+
         return _eventChannelServant;
     }
 
 
-    private void fireEventChannelDestroyed(EventChannelImpl channel) {
-        if (!listEventChannelEventListener_.isEmpty())
-            {
-                EventChannelEvent _event =
-                    new EventChannelEvent( channel );
-
-                Iterator i = listEventChannelEventListener_.iterator();
-
-                while ( i.hasNext() )
-                    {
-                        ( ( EventChannelEventListener ) i.next() ).actionEventChannelDestroyed( _event );
-                    }
-            }
-    }
 
 
     void removeEventChannelServant( int id )
@@ -518,20 +474,7 @@ public class EventChannelFactoryImpl
      */
     public int[] get_all_channels()
     {
-        Integer[] _keys;
-
-        synchronized(allChannelsLock_) {
-            _keys = ( Integer[] ) allChannels_.keySet().toArray( INTEGER_ARRAY_TEMPLATE );
-        }
-
-        int[] _ret = new int[ _keys.length ];
-
-        for ( int x = _keys.length - 1; x >= 0; --x )
-        {
-            _ret[ x ] = _keys[ x ].intValue();
-        }
-
-        return _ret;
+        return channelManager_.get_all_channels();
     }
 
 
@@ -557,32 +500,13 @@ public class EventChannelFactoryImpl
     }
 
 
-    public EventChannelImpl get_event_channel_servant( int id )
+    public AbstractEventChannel get_event_channel_servant( int id )
         throws ChannelNotFound
     {
-        Integer _key = new Integer(id);
-
-        synchronized(allChannelsLock_) {
-            if (allChannels_.containsKey(_key)) {
-                return ( EventChannelImpl ) allChannels_.get( _key );
-            } else {
-                logger_.error("channel: " + id + " not found " + allChannels_);
-                throw new ChannelNotFound("The Channel " + id + " does not exist");
-            }
-        }
+        return channelManager_.get_event_channel_servant(id);
     }
 
 
-    public void addEventChannelEventListener( EventChannelEventListener listener )
-    {
-        listEventChannelEventListener_.add( listener );
-    }
-
-
-    public void removeEventChannelEventListener( EventChannelEventListener listener )
-    {
-        listEventChannelEventListener_.remove( listener );
-    }
 
 
     public void shutdown( ShutdownCallback cb )
@@ -596,13 +520,12 @@ public class EventChannelFactoryImpl
 
         int _numberOfClients = 0;
 
-        synchronized(allChannelsLock_) {
-            Iterator i = allChannels_.entrySet().iterator();
-            while (i.hasNext()) {
-                EventChannelImpl _channel = (EventChannelImpl)((Map.Entry)i.next()).getValue();
+        Iterator i = channelManager_.getChannelIterator();
 
-                _numberOfClients += _channel.getNumberOfConnectedClients();
-            }
+        while (i.hasNext()) {
+            EventChannelImpl _channel = (EventChannelImpl)((Map.Entry)i.next()).getValue();
+
+            _numberOfClients += _channel.getNumberOfConnectedClients();
         }
 
         // TODO fetch this from somewhere?
@@ -670,18 +593,7 @@ public class EventChannelFactoryImpl
 
     public void dispose()
     {
-        listEventChannelEventListener_.clear();
-
-        synchronized(allChannelsLock_) {
-            Iterator _i = allChannels_.entrySet().iterator();
-
-            while ( _i.hasNext() )
-                {
-                    EventChannelImpl _ec = ( EventChannelImpl ) ( ( Map.Entry ) _i.next() ).getValue();
-                    _i.remove();
-                    _ec.dispose();
-                }
-        }
+        channelManager_.dispose();
 
         if (defaultFilterFactoryServant_ != null) {
             defaultFilterFactoryServant_.dispose();
@@ -787,8 +699,9 @@ public class EventChannelFactoryImpl
             buffer.append( "%" );
             String hex = Integer.toHexString(objectId[ x ]).toUpperCase();
 
-            if ( hex.length() == 1 )
+            if ( hex.length() == 1 ) {
                 buffer.append( "0" );
+            }
 
             buffer.append( hex );
         }
@@ -805,7 +718,7 @@ public class EventChannelFactoryImpl
 
     public EventChannelFactory getEventChannelFactory()
     {
-        return thisFactory_;
+        return thisRef_;
     }
 
 
@@ -816,18 +729,18 @@ public class EventChannelFactoryImpl
 
 
     public Servant getServant() {
-        return this;
+        return new JacORBEventChannelFactoryPOATie(this);
     }
 
 
     public synchronized org.omg.CORBA.Object activate() {
-        if (thisFactory_ == null) {
+        if (thisRef_ == null) {
             try {
                 byte[] oid = ( OBJECT_NAME.getBytes() );
 
-                eventChannelFactoryPOA_.activate_object_with_id( oid, this );
+                eventChannelFactoryPOA_.activate_object_with_id( oid, getServant() );
 
-                thisFactory_ =
+                thisRef_ =
                     JacORBEventChannelFactoryHelper.narrow( eventChannelFactoryPOA_.id_to_reference( oid ) );
 
                 if (logger_.isDebugEnabled()) {
@@ -850,7 +763,7 @@ public class EventChannelFactoryImpl
                 throw new RuntimeException(e.getMessage());
             }
         }
-        return thisFactory_;
+        return thisRef_;
     }
 
 
