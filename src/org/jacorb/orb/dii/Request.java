@@ -250,9 +250,9 @@ public class Request
 
                     if (info != null)
                     {
-                        info.result = result_value.value();
+                        info.setResult (result_value.value());
                         InterceptorManager manager = orb.getInterceptorManager();
-                        info.current = manager.getCurrent();
+                        info.setCurrent (manager.getCurrent());
 
                         try{
                             deleg.invokeInterceptors(info,
