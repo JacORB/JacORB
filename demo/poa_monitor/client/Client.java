@@ -85,7 +85,17 @@ public class Client
                 generators[i][k].active = false;
             }
         }
-        System.out.println("[ RequestGenerators stopped ]\n");	
+        System.out.println("[ RequestGenerators stopped ]");
+        for (int i=0; i<foos.length; i++) {
+            try {
+                foos[i].deactivate();
+            }
+            catch (Throwable e) {
+                System.out.println("[ exception occured during object deactivation ]");
+                System.out.println(e.toString());
+            }
+        }
+        System.out.println("[ Remote objects deactivated ]\n");
         printTime();		
     }
 

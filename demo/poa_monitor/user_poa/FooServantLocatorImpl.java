@@ -30,7 +30,7 @@ public class FooServantLocatorImpl
     {
         String oidStr = new String(oid);
         int oidInt = Integer.parseInt(oidStr);
-        if (oidInt >= 1000 && operation.equals("compute")) 
+        if (oidInt >= 1000) 
         {
             cookie.value = oidStr;
             return foo;

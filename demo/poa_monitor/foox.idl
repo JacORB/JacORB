@@ -3,6 +3,7 @@ module poa_monitor {
 
 		interface Foo {
 			void compute(in long l);
+			void deactivate();
 		};
 
 		interface FooFactory {

@@ -21,16 +21,17 @@ public class Server
             FooFactoryImpl servant   = new FooFactoryImpl();
             FooFactory     reference = servant._this(orb);
 
+            /*
             PrintWriter pw = new PrintWriter(new FileWriter("../fooFactory.ior"));
             pw.println(orb.object_to_string(reference));
             pw.close(); 
-            /*			
-                                // CORBA compliant:			
-                                NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
-                                NameComponent [] name = new NameComponent[1];
-                                name[0] = new NameComponent("FooFactory", "service");
-                                nc.bind(name, reference);
-            */			
+            */
+            // CORBA compliant:			
+            NamingContextExt nc = NamingContextExtHelper.narrow(orb.resolve_initial_references("NameService"));
+            NameComponent [] name = new NameComponent[1];
+            name[0] = new NameComponent("FooFactory", "service");
+            nc.bind(name, reference);
+
             poaMgr.activate();
             System.out.println("[ Server ready ]");
             orb.run();
