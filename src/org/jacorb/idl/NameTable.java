@@ -82,6 +82,7 @@ class NameTable
         h.put( "void", "type" );
         h.put( "org.omg.CORBA.Any", "type" );
         h.put( "org.omg.CORBA.Object", "interface" );
+        h.put( "org.omg.Messaging.ReplyHandler", "type" );
     }
 
     /**
