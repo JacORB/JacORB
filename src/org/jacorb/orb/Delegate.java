@@ -1361,6 +1361,10 @@ public final class Delegate
     public void servant_postinvoke( org.omg.CORBA.Object self, ServantObject servant )
     {
         orb.getPOACurrent()._removeContext( Thread.currentThread() );
+        if (poa != null)
+        {
+            poa.removeLocalRequest ();
+        }
     }
 
     /**
@@ -1379,6 +1383,7 @@ public final class Delegate
 
         if (poa != null)
         {
+            poa.addLocalRequest ();
             try
             {
                 ServantObject so = new ServantObject();

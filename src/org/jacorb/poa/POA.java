@@ -1845,4 +1845,13 @@ public class POA
         return (org.omg.CORBA.Policy) all_policies.get(new Integer(type));
     }
 
+    public void addLocalRequest ()
+    {
+        requestController.addLocalRequest ();
+    }
+
+    public void removeLocalRequest ()
+    {
+        requestController.removeLocalRequest ();
+    }
 }
