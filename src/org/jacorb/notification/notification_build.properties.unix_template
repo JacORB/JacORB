@@ -1,4 +1,0 @@
-junit.home = /home/alf/lib/junit3.8.1
-antlr.home = /home/alf/lib/antlr-2.7.2
-concurrent.home = /home/alf/lib/util.concurrent
-gnu.regexp.jar=/home/alf/lib/gnu.regexp-1.1.4/lib/gnu-regexp-1.1.4.jar

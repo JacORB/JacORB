@@ -2,31 +2,10 @@
 - JacORB Notification Service -
 -------------------------------
 
-you'll need the following libraries
-
-* antlr (version used 2.7.2)
-  http://www.antlr.org
-
-* util.concurrent (version used 1.3.2)
-  http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
-
-* junit (version used 3.8.1) 
-  (only needed for testcases)
-  http://www.junit.org
-
-* a pattern matcher. you can use jdk 1.4 which provides the package
-  java.util.regexp. alternatively you can use gnu.regexp.
-
-edit 'JacORB/src/org/jacorb/notification/notification_build.properties' to suit the settings on your system 
-(a template for unix and windows is supplied).
-
-to compile the notification service:
-> cd JacORB/src/org/jacorb/notification
-> ant
-
-if you want to run the testcases:
-> cd JacORB/test/notification/org/jacorb/notification
-> ant
+if you're using a JDK < 1.4 you'll need 
+to download the library gnu.regexp from 
+http://www.cacas.org/java/gnu/regexp
+and make it available in the classpath
 
 any comments/suggestions to:
 Alphonse Bendt <bendt(at)inf.fu-berlin.de>
