@@ -126,8 +126,8 @@ public class PrincipalAuthenticatorImpl
                 {
                     throw new RuntimeException("Cannot handle security attribute.");
                 }
-                privileges[i]  = attrib_mgr.createCertAttribute( k_a_c,
-                                                                 type );
+                privileges[i]  = attrib_mgr.createAttribute( k_a_c,
+                                                             type );
             }
         
             CredentialsImpl credsImpl = 

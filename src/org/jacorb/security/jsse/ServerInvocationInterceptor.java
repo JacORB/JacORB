@@ -10,7 +10,7 @@ import org.omg.PortableInterceptor.*;
 import org.jacorb.util.*;
 import org.jacorb.security.level2.*;
 import org.jacorb.orb.portableInterceptor.*;
-import org.jacorb.orb.Connection;
+import org.jacorb.orb.connection.ServerConnection;
 import org.jacorb.orb.LocalityConstrainedObject;
 import org.jacorb.orb.dsi.ServerRequest;
 
@@ -62,7 +62,7 @@ public class ServerInvocationInterceptor
 
         ServerRequest request = ((ServerRequestInfoImpl) ri).request;
 
-        Connection connection = request.getConnection();
+        ServerConnection connection = request.getConnection();
 
 
         if (connection == null)
