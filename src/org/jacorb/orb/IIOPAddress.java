@@ -25,6 +25,17 @@ public class IIOPAddress
 		return port;
 	}
 	
+    public boolean equals (Object other)
+    {
+        if (other instanceof IIOPAddress)
+        {
+            IIOPAddress x = (IIOPAddress)other;
+            return this.host.equals (x.host) && this.port == x.port;
+        }
+        else
+            return false;
+    }
+    
 	public String toString()
 	{
 		return host + ":" + port;
