@@ -43,6 +43,10 @@ import org.omg.CONV_FRAME.*;
 
 public class ParsedIOR 
 {
+    //for byte -> hexchar
+    private static final char[] lookup = 
+        new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' }; 
+
     private int effectiveProfileBody = 0;
     private ProfileBody_1_1[] profileBodies = null; 
 
@@ -534,26 +538,21 @@ public class ParsedIOR
 	{
 	    try 
 	    {	
-		CDROutputStream out = new CDROutputStream();
+		CDROutputStream out = new CDROutputStream( orb );
+		out.beginEncapsulatedArray();
 
-       		// endianness = false, big-endian
-		out.write_boolean(false);
 		IORHelper.write(out,ior);
 
 		byte bytes[] = out.getBufferCopy();
+
 		StringBuffer sb = new StringBuffer("IOR:");
-		for (int j=0; j<bytes.length; j++)
+
+		for (int j = 0; j < bytes.length; j++)
 		{
-		    int b = bytes[j];
-		    if(b<0) b+= 256;
-		    int n1 = (0xff & b) / 16;
-		    int n2 = (0xff & b) % 16;
-		    int c1 = (n1 < 10) ? ('0' + n1) : ('a' + (n1 - 10));
-		    int c2 = (n2 < 10) ? ('0' + n2) : ('a' + (n2 - 10));
-		    //java.lang.System.out.println("" + b +","+ n1 +","+ n2 +","+ (char)c1 + (char)c2);
-		    sb.append((char)c1);
-		    sb.append((char)c2);
+                    sb.append( lookup[ (bytes[j] >> 4) & 0xF ] );
+                    sb.append( lookup[ (bytes[j]     ) & 0xF ] );
 		}
+
 		ior_str = sb.toString();
 	    } 
 	    catch (Exception e) 
@@ -562,13 +561,16 @@ public class ParsedIOR
 		throw new org.omg.CORBA.UNKNOWN("Error in building IIOP-IOR");
 	    }
 	}
+
 	return ior_str;
     }
-
+    /*
+      DANGEROUS: DON'T USE
     public String getObjKey()
     {
 	return new String( profileBodies[ effectiveProfileBody ].object_key );
     }
+    */
 
     public byte[] get_object_key()
     {
@@ -782,3 +784,13 @@ public class ParsedIOR
 	ior_str = getIORString ();
     }
 }
+
+
+
+
+
+
+
+
+
+
