@@ -282,7 +282,7 @@ public class GIOPConnection
             {
                 try
                 {
-                    wait();
+                    write_sync.wait();
                 }
                 catch( InterruptedException e )
                 {
@@ -293,7 +293,7 @@ public class GIOPConnection
         }
     }
 
-    private synchronized void releaseWriteLock()
+    private void releaseWriteLock()
     {
         synchronized( write_sync )
         {            
