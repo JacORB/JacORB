@@ -155,18 +155,12 @@ public class FilterFactoryImpl extends FilterFactoryPOA implements Disposable
         }
     }
 
-    public FilterFactory getFilterFactory()
+    public synchronized FilterFactory getFilterFactory()
     {
         if ( thisRef_ == null )
-        {
-            synchronized ( this )
             {
-                if ( thisRef_ == null )
-                {
-                    thisRef_ = _this( applicationContext_.getOrb() );
-                }
+                thisRef_ = _this( applicationContext_.getOrb() );
             }
-        }
 
         return thisRef_;
     }
