@@ -10,7 +10,6 @@ package org.jacorb.test.orb.connection;
  * @version $Id$
  */
 
-import org.jacorb.orb.*;
 import org.jacorb.orb.connection.*;
 
 import java.io.*;
@@ -195,7 +194,8 @@ public class GIOPConnectionTest
             new RequestOutputStream( (ClientConnection) null, //ClientConnection
                                      0,           //request id
                                      "foo",       //operation
-                                     true,        //response expected
+                                     true,        // response expected
+                                     (short)-1,   // SYNC_SCOPE (irrelevant)
                                      null,        //request start time
                                      null,        //request end time
                                      null,        //reply start time
@@ -282,6 +282,7 @@ public class GIOPConnectionTest
                                      0,           //request id
                                      "foo",       //operation
                                      true,        //response expected
+                                     (short)-1,   //SYNC_SCOPE (irrelevant)
                                      null,        //request start time
                                      null,        //request end time
                                      null,        //reply end time
@@ -464,6 +465,7 @@ public class GIOPConnectionTest
                                      0,           //request id
                                      "foo",       //operation
                                      true,        //response expected
+                                     (short)-1,   //SYNC_SCOPE (irrelevant)
                                      null,        //request start time
                                      null,        //request end time
                                      null,        //reply end time
