@@ -86,7 +86,7 @@ public class TransportManager
         }
 
         //client_transports = new LinkedList(); 
-        server_transports = Collections.synchronizedList( new LinkedList() ); 
+        server_transports = new LinkedList(); 
         
         max_server_transports = 
             Environment.getIntPropertyWithDefault( "jacorb.connection.max_server_transports",
@@ -215,14 +215,20 @@ public class TransportManager
                                          provider,
                                          this );
 
-        server_transports.add( transport );
+        synchronized( server_transports )
+        {
+            server_transports.add( transport );
+        }
 
         return transport;
     }
 
     public void unregisterServerTransport( Transport transport )
     {
-        server_transports.remove( transport );
+        synchronized( server_transports )
+        {
+            server_transports.remove( transport );
+        }
     }
 }
 
