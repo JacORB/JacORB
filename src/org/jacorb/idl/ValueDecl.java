@@ -254,9 +254,9 @@ class ValueDecl
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println( "was " + enclosing_symbol.getClass().getName() + 
+            System.err.println( "was " + enclosing_symbol.getClass().getName() +
                                 " now: " + s.getClass().getName() );
-            throw new RuntimeException( "Compiler Error: trying to reassign container for " + 
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " +
                                         name );
         }
 
@@ -440,7 +440,7 @@ class ValueDecl
                 if( e.hasMoreElements() )
                 {
                     ScopedName scopedName = (ScopedName)e.nextElement();
-                    ConstrTypeSpec ts = 
+                    ConstrTypeSpec ts =
                         (ConstrTypeSpec)scopedName.resolvedTypeSpec().typeSpec();
 
                     // abstract base valuetypes are mapped to interfaces, so
@@ -461,7 +461,7 @@ class ValueDecl
                 for( ; e.hasMoreElements(); )
                 {
                     ScopedName scopedName = (ScopedName)e.nextElement();
-                    ConstrTypeSpec ts = 
+                    ConstrTypeSpec ts =
                         (ConstrTypeSpec)scopedName.resolvedTypeSpec().typeSpec();
 
                     // abstract base valuetypes are mapped to interfaces, so
@@ -482,8 +482,11 @@ class ValueDecl
                 // that we can be truncated to
                 if( inheritanceSpec.truncatable != null )
                 {
-                    extendsBuffer.append( ( first ? "" : ", " ) + 
-                                          inheritanceSpec.truncatable.scopedName );
+                    extendsBuffer.append
+                    (
+                       ( first ? "" : ", " ) +
+                       inheritanceSpec.truncatable.scopedName
+                    );
                 }
             }
 
@@ -493,7 +496,7 @@ class ValueDecl
             {
                 for( ; enum.hasMoreElements(); )
                 {
-                    implementsBuffer.append( ", " + 
+                    implementsBuffer.append( ", " +
                                               ( (IdlSymbol)enum.nextElement() ).toString() + "Operations" );
                 }
             }
@@ -510,7 +513,7 @@ class ValueDecl
 
         out.println( "{" );
 
-        // collect and print repository ids that this value type can 
+        // collect and print repository ids that this value type can
         // truncated to.
 
         out.print( "\tprivate String[] _truncatable_ids = {\"" + id() + "\"" );
@@ -523,10 +526,10 @@ class ValueDecl
             if( trunc != null )
             {
                 sb.append( ", \"" + trunc.getId() + "\"");
-                ScopedName scopedName = trunc.getScopedName();
+                ScopedName scopedName = trunc.scopedName;
                 while( scopedName != null )
                 {
-                    ValueDecl v  = 
+                    ValueDecl v  =
                         (ValueDecl)((ConstrTypeSpec)scopedName.resolvedTypeSpec()).c_type_spec;
 
                     if( v.inheritanceSpec == null )
@@ -537,9 +540,9 @@ class ValueDecl
                     {
                         Truncatable t = v.inheritanceSpec.truncatable;
                         if( t != null )
-                        {               
+                        {
                             sb.append( ", \"" + t.getId() + "\"");
-                            scopedName = t.getScopedName();
+                            scopedName = t.scopedName;
                         }
                         else
                         {
@@ -661,7 +664,7 @@ class ValueDecl
         out.println( "\t}\n" );
     }
 
-    private void printHelper( File dir ) 
+    private void printHelper( File dir )
         throws IOException
     {
         File outfile = new File( dir, name + "Helper.java" );

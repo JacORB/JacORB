@@ -32,7 +32,7 @@ package org.jacorb.idl;
 class Truncatable
     extends IdlSymbol
 {
-    ScopedName scopedName = null;
+    ScopedName scopedName;
 
     public Truncatable( int num )
     {
@@ -44,11 +44,6 @@ class Truncatable
         return scopedName.id();
     }
 
-    public ScopedName getScopedName()
-    {
-        return scopedName;
-    }
-
     public void print( java.io.PrintWriter ps )
     {
         ps.print( toString() );
@@ -58,8 +53,4 @@ class Truncatable
     {
         return "truncatable " + scopedName.toString();
     }
-
-
 }
-
-

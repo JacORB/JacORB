@@ -32,18 +32,16 @@ import java.util.Vector;
 class ValueInheritanceSpec
     extends SymbolList
 {
-
     /** the value types (both abstract and stateful) inherited by this
      value type */
-    public Vector v;
+    Vector v;
 
     /** the IDL interfaces inherited ("supported") by this value type */
-    public Vector supports;
+    Vector supports;
 
     /** if the value type this spec belongs to is truncatable to the
      single stateful ancestor value type */
-
-    public Truncatable truncatable = null;
+    Truncatable truncatable = null;
 
     public ValueInheritanceSpec( int num )
     {
@@ -101,12 +99,12 @@ class ValueInheritanceSpec
     {
         if( truncatable != null )
         {
-            ScopedName s = truncatable.getScopedName();
+            ScopedName s = truncatable.scopedName;
             Value v = (Value)((ConstrTypeSpec)s.resolvedTypeSpec()).c_type_spec;
             if( v instanceof ValueAbsDecl )
             {
-                parser.error( "truncatable base value " + 
-                              s.toString() + " must not be abstract", token );                            
+                parser.error( "truncatable base value " +
+                              s.toString() + " must not be abstract", token );
             }
         }
         Enumeration e = v.elements();
@@ -114,7 +112,7 @@ class ValueInheritanceSpec
         {
             ( (IdlSymbol)e.nextElement() ).parse();
         }
-        
+
     }
 
     public void print( PrintWriter ps )
@@ -155,5 +153,3 @@ class ValueInheritanceSpec
         return sb.toString();
     }
 }
-
-

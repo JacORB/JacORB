@@ -32,8 +32,7 @@ import java.util.Vector;
 class SymbolList
         extends IdlSymbol
 {
-
-    public Vector v;
+    Vector v;
 
     public SymbolList( int num )
     {

@@ -31,8 +31,7 @@ package org.jacorb.idl;
 class ConstType
         extends IdlSymbol
 {
-
-    public TypeSpec symbol;
+    TypeSpec symbol;
 
     public ConstType( int num )
     {

@@ -31,7 +31,7 @@ import java.util.Set;
 class TypeDeclaration
     extends Declaration
 {
-    protected boolean typedefd = false;
+    boolean typedefd = false;
 
     public TypeDeclaration type_decl;
 
@@ -163,4 +163,3 @@ class TypeDeclaration
     }
 
 }
-
