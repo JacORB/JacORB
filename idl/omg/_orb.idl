@@ -612,7 +612,8 @@ module CORBA
         tk_wchar,   tk_wstring,     tk_fixed,
         tk_value,   tk_value_box,
         tk_native,
-        tk_abstract_interface
+        tk_abstract_interface,
+        tk_local_interface
     };
     typedef short ValueModifier;                        // PIDL
     const ValueModifier VM_NONE         = 0;
