@@ -312,7 +312,7 @@ public class IdlWriter
             print( "};" + "\n\n" );
         } 
         else 
-            System.err.println("Error, could not find struct " + s_def.id() + " in IR ");
+            System.err.println("Error, could not find struct " + t.id + " in IR ");
 
     }
 
@@ -413,7 +413,7 @@ public class IdlWriter
             print( "enum " + e_def.name() + " {" + vals + "};" + "\n\n" );
         } 
         else 
-            System.err.println("Error, could not find enum " + e_def.id() + " in IR ");
+            System.err.println("Error, could not find enum " + t.id + " in IR ");
 
     }
 
@@ -482,7 +482,7 @@ public class IdlWriter
         } 
         else 
             System.err.println("Error, could not find union " + 
-                               u_def.id() + " in IR ");
+                               t.id + " in IR ");
     }
 
     /** 
