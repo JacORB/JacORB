@@ -42,16 +42,18 @@
 
 
   <target name="all-fail" unless="regexp.available">
-     <echo message="A Patternmatcher is necessary to build and use this "/>
-     <echo message="NotificationService. Use JDK 1.4 or install gnu.regexp"/>
-     <echo message="and make it available in the classpath."/>
-     <echo message="gnu.regexp is available at http://www.cacas.org/java/gnu/regexp/"/>
+    <echo message="A Patternmatcher is necessary to build and use this "/>
+    <echo message="NotificationService. Use JDK 1.4 or install Jakarta" />
+    <echo message="Regexp or gnu.regexp"/>
+    <echo message="and make it available in the classpath."/>
+    <echo message="Jakarta Regexp is available at http://jakarta.apache.org/regexp"/>
+    <echo message="gnu.regexp is available at http://www.cacas.org/java/gnu/regexp/"/>
   </target>
 
 
   <target name="all-wrapper" if="regexp.available" depends="all-fail">
-     <antcall target="etcl" inheritRefs="true"/>
-     <antcall target="server" inheritRefs="true"/>
+    <antcall target="etcl" inheritRefs="true"/>
+    <antcall target="server" inheritRefs="true"/>
   </target>
 
 
@@ -124,24 +126,35 @@
   </target>
 
 
-  <target name="server" depends="notification.compile.regexp.gnu, notification.compile.regexp.jdk">
+  <target name="server" depends="notification.compile.regexp">
     <antcall target="jacorb-javac">
       <param name="javac-includes"
              value="org/jacorb/notification/**/*.java" />
       <param name="javac-excludes"
-             value="org/jacorb/notification/util/GNUPatternWrapper.java,
-                    org/jacorb/notification/util/JDK14PatternWrapper.java,
-                    org/jacorb/notification/Main.java" />
+             value="org/jacorb/notification/util/*PatternWrapper.java,
+                    org/jacorb/notification/Main.java,
+	            org/jacorb/notification/gui/**" />
     </antcall>
+
     <javac srcdir="${src}"
            destdir="${classdir}" >
+      
       <classpath>
-        <pathelement location="${dirs.base}/classes"/>
-        <pathelement location="${lib}/wrapper-3.0.3.jar"/>
+        <pathelement location="${dirs.base}/classes" />
+	<pathelement location="${lib}/avalon-framework-4.1.5.jar" />
+        <pathelement location="${lib}/wrapper-3.0.3.jar" />
       </classpath>
+
       <include name="org/jacorb/notification/Main.java"/>
     </javac>
   </target>
+
+
+  <target name="notification.compile.regexp" 
+    depends="notification.init,
+             notification.compile.regexp.gnu, 
+             notification.compile.regexp.jakarta-regexp,
+             notification.compile.regexp.jdk"/>
 
 
   <target name="notification.compile.regexp.gnu" if="available.regexp.gnu">
@@ -160,6 +173,18 @@
       <param name="javac-includes"
              value="org/jacorb/notification/util/PatternWrapper.java,
                     org/jacorb/notification/util/JDK14PatternWrapper.java"/>
+    </antcall>
+  </target>
+
+  
+  <target name="notification.compile.regexp.jakarta-regexp"
+    if="available.regexp.jakarta-regexp" >
+    
+    <echo message="Compiling for org.apache.regexp (Jakarta Regexp)" />
+    <antcall target="jacorb-javac" >
+      <param name="javac-includes"
+	value="org/jacorb/notification/util/PatternWrapper.java,
+	       org/jacorb/notification/util/JakartaRegexpPatternWrapper.java" />
     </antcall>
   </target>
 
