@@ -274,7 +274,7 @@ public class StructType
     }
 
     /**
-     * @returns a string for an expression of type TypeCode that
+     * @return a string for an expression of type TypeCode that
      * describes this type
      */
 

@@ -217,7 +217,7 @@ public class IdlSymbol
     }
 
     /**
-     * @returns fully scoped IDL identifier
+     * @return fully scoped IDL identifier
      */
 
     String full_name()
@@ -236,7 +236,7 @@ public class IdlSymbol
     }
 
     /**
-     * @returns fully scoped Java identifier, only used in
+     * @return fully scoped Java identifier, only used in
      * code generation phase
      */
 
@@ -258,7 +258,7 @@ public class IdlSymbol
     }
 
     /**
-     * @returns "org.omg." if the symbol has been declared inside a
+     * @return "org.omg." if the symbol has been declared inside a
      * scope with a pragma prefix of "omg.org".
      */
 

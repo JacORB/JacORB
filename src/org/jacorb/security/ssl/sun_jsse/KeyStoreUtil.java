@@ -36,7 +36,7 @@ import org.jacorb.util.Debug;
 public class KeyStoreUtil
 {
     /**
-     * @returns - a fully loaded and operational KeyStore
+     * @return - a fully loaded and operational KeyStore
      * @param file_name - a keystore file name to be loaded
      * @param storepass - the password for managing the keystore
      */

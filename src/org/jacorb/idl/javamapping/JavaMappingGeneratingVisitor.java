@@ -286,7 +286,7 @@ public class JavaMappingGeneratingVisitor
 
     /**
      * Type ids
-     * @returns a string describing a type
+     * @return a string describing a type
      */ 
 
     private String typeSpecDesignator( TypeSpec ts )

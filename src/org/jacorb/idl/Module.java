@@ -156,7 +156,7 @@ public class Module
     }
 
     /**
-     * @returns the original, unreplaced module name
+     * @return the original, unreplaced module name
      * (needed to build a repositoryID that is untouched by
      * the compiler option -i2jpackage
      */

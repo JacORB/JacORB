@@ -49,7 +49,7 @@ public class CertUtils
 {
 
     /**
-     * @returns - a self signed X509v3 public key certificate 
+     * @return - a self signed X509v3 public key certificate 
      *
      * @param subjectKey - the public key to be signed
      * @param privKey - the signature key
@@ -101,7 +101,7 @@ public class CertUtils
 
 
     /**
-     * @returns - an X509v3 certificate with an SubjectAltName extension that 
+     * @return - an X509v3 certificate with an SubjectAltName extension that 
      * represents a role name. The format of the extension is an ASN.1 string
      * "role:<rolename>".
      */
@@ -295,7 +295,7 @@ public class CertUtils
      * chain[n] = self signed CA certificate
      *
      * @author Andre Benvenuti, GST Bern
-     * @returns - true if we can verify all the certificates in the chain
+     * @return - true if we can verify all the certificates in the chain
      * and if CA is a trusted signer.
      *
      * @param chain the certificate chain to verify

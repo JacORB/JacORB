@@ -41,7 +41,7 @@ public class VoidTypeSpec
     }
 
     /**
-     * @returns true if this is a basic type
+     * @return true if this is a basic type
      */
 
     public boolean basic()

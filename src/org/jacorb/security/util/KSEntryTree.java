@@ -101,7 +101,7 @@ public class KSEntryTree
     
     /**
      * @param alias - the key alias
-     * @returns the KeyNode representing the key entry for the alias, null if not found
+     * @return the KeyNode representing the key entry for the alias, null if not found
      */
 
     public KeyNode getKeyNode(String alias)

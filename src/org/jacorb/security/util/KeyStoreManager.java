@@ -205,7 +205,7 @@ public class KeyStoreManager
     }
 
     /**
-     * @returns false, if we have to cancel the operation, true otherwise
+     * @return false, if we have to cancel the operation, true otherwise
      */
 
     public boolean close()
@@ -686,7 +686,7 @@ System.out.println("creating public key cert");
      * Imports a certificate from file; the user is asked for the file location.
      *
      * @author Andre Benvenuti, GST Bern
-     * @returns - the certificate stored in the file.
+     * @return - the certificate stored in the file.
      */
 
     public iaik.x509.X509Certificate importCertificate()
@@ -729,7 +729,7 @@ System.out.println("creating public key cert");
      * chain[n] = self signed CA certificate
      *
      * @author Andre Benvenuti, GST Bern
-     * @returns - true if we can verify all the certificates in the chain
+     * @return - true if we can verify all the certificates in the chain
      * and if CA is a trusted signer.
      *
      * @param chain the certificate chain to verify

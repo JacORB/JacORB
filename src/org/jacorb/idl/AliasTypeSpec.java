@@ -75,7 +75,7 @@ public class AliasTypeSpec
     }
 
     /**
-     * @returns the type name of this alias, which is the name of the
+     * @return the type name of this alias, which is the name of the
      * original type
      */
 
@@ -90,7 +90,7 @@ public class AliasTypeSpec
     }
 
     /**
-     * @returns the original type for which this is an alias
+     * @return the original type for which this is an alias
      */
 
     public TypeSpec originalType()
@@ -120,7 +120,7 @@ public class AliasTypeSpec
     }
 
     /**
-     * @returns true if this is a basic type
+     * @return true if this is a basic type
      * @overrides basic() in org.jacorb.idl.TypeSpec
      */
 
@@ -191,7 +191,7 @@ public class AliasTypeSpec
 
 
     /**
-     * @returns a string for an expression of type TypeCode that
+     * @return a string for an expression of type TypeCode that
      * 			describes this type
      * Note that this is the TypeSpec for the alias type and is not unwound to
      * the original type.
@@ -356,7 +356,7 @@ public class AliasTypeSpec
     }
 
     /**
-     * @returns true iff the original type is such that the alias should
+     * @return true iff the original type is such that the alias should
      * be unwound to it, either anothetr alias, a constructed type (e.g a struct),
      * an any, a basic type (long, short, etc.)
      */

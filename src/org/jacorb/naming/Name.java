@@ -100,7 +100,7 @@ public class Name
     }
 
     /**
-     *	@returns a NameComponent object representing the unstructured 
+     *	@return a NameComponent object representing the unstructured 
      *	base name of this structured name 
      */
 
@@ -116,7 +116,7 @@ public class Name
     }
 
     /**
-     *	@returns this name as an array of org.omg.CosNaming.NameComponent, 
+     *	@return this name as an array of org.omg.CosNaming.NameComponent, 
      *	neccessary for a number of operations on naming context
      */
 
@@ -126,7 +126,7 @@ public class Name
     }
 
     /**
-     *	@returns a Name object representing the name of the enclosing context 
+     *	@return a Name object representing the name of the enclosing context 
      */
 
     public Name ctxName()
@@ -168,7 +168,7 @@ public class Name
     }
 
     /**
-     * @returns  the string representation of this name
+     * @return  the string representation of this name
      */
 
     public String toString()
@@ -184,7 +184,7 @@ public class Name
     }
 
     /**
-     * @returns a single NameComponent, parsed from sn
+     * @return a single NameComponent, parsed from sn
      */
 
     private static org.omg.CosNaming.NameComponent getComponent (String sn)
@@ -275,7 +275,7 @@ public class Name
     }
 
     /**
-     * @returns the string representation of this NameComponent array
+     * @return the string representation of this NameComponent array
      */
 
     public static String toString( org.omg.CosNaming.NameComponent[] n)

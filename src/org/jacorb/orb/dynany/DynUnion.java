@@ -742,7 +742,7 @@ public final class DynUnion
    }
    
    /** 
-    * @returns true, if the union  has no active member (that is, the
+    * @return true, if the union  has no active member (that is, the
     * union's  value consists solely of  its discriminator because
     * the discriminator has a value that is not listed as an explicit
     * case label).  Calling this  operation on  a union  that  has a
@@ -784,7 +784,7 @@ public final class DynUnion
    }
 
    /** 
-    * @returns the TCKind value of the discriminator's TypeCode.
+    * @return the TCKind value of the discriminator's TypeCode.
     */
 
    public org.omg.CORBA.TCKind discriminator_kind()
@@ -794,7 +794,7 @@ public final class DynUnion
    }
 
    /** 
-    * @returns the currently active member. 
+    * @return the currently active member. 
     * @throws InvalidValue if the union has no active  member
     */
 
@@ -809,7 +809,7 @@ public final class DynUnion
    }
 
    /** 
-    * @returns the TypeCode kind of the currently active member. 
+    * @return the TypeCode kind of the currently active member. 
     * @throws InvalidValue if the union has no active  member
     */
 
@@ -824,7 +824,7 @@ public final class DynUnion
    }
 
    /** 
-    * @returns the name of the currently active member. 
+    * @return the name of the currently active member. 
     * @throws InvalidValue if the union has no active member
     */
 

@@ -516,7 +516,7 @@ public class InterfaceDef
     }
 
     /**
-     * @returns  an array containing interface definitions of the superclass and
+     * @return  an array containing interface definitions of the superclass and
      * the interfaces extended by this class. Has length 0 if this class
      * is Object.
      */

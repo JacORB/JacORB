@@ -49,7 +49,7 @@ import iaik.x509.extensions.*;
 public class KeyStoreUtil
 {
     /**
-     * @returns - a fully loaded and operational KeyStore
+     * @return - a fully loaded and operational KeyStore
      * @param file_name - a keystore file name to be loaded
      * @param storepass - the password for managing the keystore
      */
@@ -93,7 +93,7 @@ public class KeyStoreUtil
 
 
     /**
-     * @returns - a key pair, if the alias refers to a valid key entry, null otherwise
+     * @return - a key pair, if the alias refers to a valid key entry, null otherwise
      * @param keystore - a keystore file name to be loaded
      * @param alias - the alias for the key entry
      * @param storepass - the password for managing the keystore
@@ -123,7 +123,7 @@ public class KeyStoreUtil
     }
 
     /**
-     * @returns - a key pair, if the alias refers to a valid key entry, null otherwise
+     * @return - a key pair, if the alias refers to a valid key entry, null otherwise
      *
      * @param ks - a keystore file name to be loaded
      * @param alias - the alias for the key entry
@@ -150,7 +150,7 @@ public class KeyStoreUtil
     }
 
     /**
-     * @returns -  a key pair retrieved from a  keystore, asking for user
+     * @return -  a key pair retrieved from a  keystore, asking for user
      * input with GUI support, null if user input is invalid or the key
      * pair could not be found
      */

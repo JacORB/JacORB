@@ -39,7 +39,7 @@ public class NSTable
 	    setColumnSelectionAllowed(false);
 	}
     /**
-     * @returns the context node that is the source for this table
+     * @return the context node that is the source for this table
      */
     public ContextNode currentSource() 
 	{

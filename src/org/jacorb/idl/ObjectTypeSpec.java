@@ -74,7 +74,7 @@ public class ObjectTypeSpec
     }
 
     /**
-     * @returns a string for an expression of type TypeCode
+     * @return a string for an expression of type TypeCode
      * 			that describes this type
      */
 

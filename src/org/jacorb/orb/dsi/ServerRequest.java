@@ -465,7 +465,7 @@ public class ServerRequest
     }
 
     /**
-     * @returns the InputStream. This operation sets the
+     * @return the InputStream. This operation sets the
      * request be stream-based, ie. all attempts to extract
      * data using DII-based operations will throw exceptions
      * For internal access to the stream use get_in()

@@ -354,7 +354,7 @@ public class NamingContextImpl
     }
 
     /** 
-     *  @returns numer of bindings in this context
+     *  @return numer of bindings in this context
      */ 
 
     public int how_many()

@@ -252,7 +252,7 @@ public class KeyNode
     }
 
     /**
-     * @returns true if successful
+     * @return true if successful
      */
 
     public void removeFromParent()

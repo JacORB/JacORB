@@ -96,7 +96,7 @@ public class TypeSpec
     }
 
     /**
-     * @returns true if this is a basic type
+     * @return true if this is a basic type
      */
 
     public boolean basic()
@@ -142,7 +142,7 @@ public class TypeSpec
     }
 
     /**
-     * @returns a string for an expression of type TypeCode
+     * @return a string for an expression of type TypeCode
      * 			that describes this type
      */
     public String getTypeCodeExpression()

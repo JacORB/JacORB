@@ -736,7 +736,7 @@ public class Environment
      * Create an object from the give property. The classes default
      * constructor will be used.
      *
-     * @returns null or an object of the class of the keys value
+     * @return null or an object of the class of the keys value
      * @throws Error if reflection fails.
      */
     public static Object getObjectProperty( String key )

@@ -92,7 +92,7 @@ public class ConstrTypeSpec
     }
 
     /**
-     * @returns "org.omg." if the symbol has been declare inside a
+     * @return "org.omg." if the symbol has been declare inside a
      * scope with a pragma prefix of "omg.org"
      */
 
@@ -129,7 +129,7 @@ public class ConstrTypeSpec
     }
 
     /**
-     * @returns a string for an expression of type TypeCode
+     * @return a string for an expression of type TypeCode
      * 			that describes this type
      */
     public String getTypeCodeExpression()

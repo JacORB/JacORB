@@ -121,7 +121,7 @@ public class SequenceType
     }
 
     /**
-     * @returns a string for an expression of type TypeCode that describes this type
+     * @return a string for an expression of type TypeCode that describes this type
      */
 
     public String getTypeCodeExpression()

@@ -64,7 +64,7 @@ public class NameServer
         }
 
         /**
-         * @returns - a servant initialized from a file
+         * @return - a servant initialized from a file
          */
 
         public Servant incarnate( byte[] oid, POA adapter )

@@ -30,7 +30,7 @@ import java.util.*;
 public class ObjectUtil
 {
     /**
-     * @returns the contents of the resource as a string, or null
+     * @return the contents of the resource as a string, or null
      * if the contents of the resource could not be located using url
      */
     public static final String readURL( String url )

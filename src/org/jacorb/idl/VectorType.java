@@ -41,7 +41,7 @@ public abstract class VectorType
     }
 
     /**
-     * @returns the TypeSpec for the sequence's element type
+     * @return the TypeSpec for the sequence's element type
      */
 
     public TypeSpec elementTypeSpec()
@@ -68,7 +68,7 @@ public abstract class VectorType
     }
 
     /**
-     * @returns this sequences Java type name, i.e., the element type with
+     * @return this sequences Java type name, i.e., the element type with
      * "[]" appended.
      */
 

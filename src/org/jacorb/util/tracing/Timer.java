@@ -56,7 +56,7 @@ public class Timer
     }
 
     /**
-     * @returns difference between start and stop time for
+     * @return difference between start and stop time for
      * request rif `
      */
 
