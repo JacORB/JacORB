@@ -387,7 +387,7 @@ public class IIOPListener extends _ListenerLocalBase
         Connection result = null;
         try
         {
-            result = new ServerIIOPConnection (socket, isSSL);
+            result = createServerConnection (socket, isSSL);
         }
         catch (IOException ex)
         {
@@ -407,6 +407,18 @@ public class IIOPListener extends _ListenerLocalBase
                 incoming_connections.notifyAll();
             }
         }
+    }
+    
+    /**
+     * Template method to create a server-side ETF Connection.
+     * This can be overridden by subclasses to pass a different
+     * kind of Connection up to the ORB.
+     */
+    protected Connection createServerConnection (Socket socket,
+                                                 boolean is_ssl)
+        throws IOException
+    {
+        return new ServerIIOPConnection (socket, is_ssl);   
     }
     
     // Acceptor classes below this line
