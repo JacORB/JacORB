@@ -1,9 +1,9 @@
-package org.jacorb.notification;
+package org.jacorb.notification.interfaces;
 
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2003  Gerald Brose.
+ *   Copyright (C) 1999-2003 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,40 +18,21 @@ package org.jacorb.notification;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
-import org.omg.CosEventChannelAdmin.*;
-import org.omg.CosEventComm.*;
-import java.util.*;
-import org.jacorb.orb.*;
-import java.net.*;
-
 /**
- * @author Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose
+ * ProxyDisposedEventListener.java
+ *
+ *
+ * Created: Wed Feb 12 15:15:13 2003
+ *
+ * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version $Id$
  */
 
-class EventListElement
-{
-    org.omg.CORBA.Any   event;
-    Vector consumers;	
+public interface ProxyDisposedEventListener {
 
-    protected EventListElement( org.omg.CORBA.Any e, Vector pullers )
-    {
-	event = e;
-	consumers = (Vector)pullers.clone();
-    }
-    protected boolean is_for_proxy ( ProxyPullSupplierImpl p )
-    {
-	return (consumers.contains( p ));
-    }
-}
-
-
-
-
-
-
-
-
-
+    void actionProxyDisposed(ProxyDisposedEvent event);
+    
+}// ProxyDisposedEventListener

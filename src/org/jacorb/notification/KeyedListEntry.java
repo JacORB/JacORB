@@ -27,15 +27,23 @@ package org.jacorb.notification;
  *
  * Created: Thu Jan 09 15:10:42 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class KeyedListEntry {
-    int key_;
-    private Object value_;
-    public Object getValue() {return value_;}
 
+    private int key_;
+
+    int getKey() {
+	return key_;
+    }
+
+    private Object value_;
+
+    public Object getValue() {
+	return value_;
+    }
 
     public KeyedListEntry(int key, Object value) {
 	value_ = value;
@@ -44,9 +52,13 @@ public class KeyedListEntry {
     
     public boolean equals(Object o) {
 	if (o instanceof KeyedListEntry) {
-	    return ((KeyedListEntry)o).key_ == key_;
+	    return ((KeyedListEntry)o).getKey() == key_;
 	}
 	return false;
+    }
+
+    public int hashCode() {
+	return key_;
     }
 
 }// KeyedListEntry

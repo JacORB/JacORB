@@ -49,14 +49,14 @@ public class ExistOperator extends TCLNode {
 	       TypeMismatch,
 	       EvaluationException {
 
-	NotificationEvent _event = context.getEvent();
+	NotificationEvent _event = context.getNotificationEvent();
 
 	switch(left().getType()) {
 	case IDENTIFIER:
 	    break;
 	case DOLLAR:
-	    ComponentOperator _op = (ComponentOperator)left();
-	    return _event.testExists(_op);
+	    ComponentName _op = (ComponentName)left();
+	    return _event.testExists(context,_op);
 	}
 	throw new RuntimeException();
     }

@@ -1,3 +1,5 @@
+package org.jacorb.notification.interfaces;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,17 +20,20 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification;
+
+import org.jacorb.notification.AdminBase;
 
 /**
+ * Indicate that a Admin wants to create a new ProxyObject.
  *
- *
- * Created: Tue Nov 05 14:46:54 2002
+ * Created: Wed Feb 12 18:19:14 2003
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version
+ * @version $Id$
  */
 
-public interface TransmitEventCapable {
-    public void transmit_event2(NotificationEvent event);
-}// PushCapable
+public class ProxyCreationRequestEvent extends FrameworkEvent {
+    public ProxyCreationRequestEvent(AdminBase admin) {
+	super(admin);
+    }
+}

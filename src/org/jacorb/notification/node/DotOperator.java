@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,21 +20,12 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
-import antlr.BaseAST;
 import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
-import org.jacorb.notification.EvaluationContext;
-import org.omg.CORBA.Any;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.EvaluationException;
 
-/** A simple node to represent DOT operation */
+/** 
+ * A simple node to represent DOT  
+ */
 public class DotOperator extends TCLNode {
 
     DotOperator() {
@@ -57,7 +50,6 @@ public class DotOperator extends TCLNode {
     public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
 	((TCLNode)getNextSibling()).acceptInOrder(visitor);
 	visitor.visitDot(this);
-
     }
 
     public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {

@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.BaseAST;
 import antlr.Token;
@@ -32,6 +33,7 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.jacorb.notification.evaluate.EvaluationException;
 
 /** A simple node to represent Assoc operation */
+
 public class AssocOperator extends TCLNode {
 
     public AssocOperator(Token tok) {

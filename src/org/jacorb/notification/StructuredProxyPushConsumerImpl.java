@@ -44,13 +44,15 @@ import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.PortableServer.POA;
-import org.apache.log4j.Logger;
+import org.apache.log.Logger;
 import java.util.List;
-import org.jacorb.notification.framework.EventDispatcher;
+import org.jacorb.notification.interfaces.EventConsumer;
 import java.util.Collections;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
 import org.omg.CosNotifyComm.SequencePushSupplier;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerPOATie;
 
 /**
  * StructuredProxyPushConsumerImpl.java
@@ -58,7 +60,7 @@ import org.omg.CosNotifyComm.SequencePushSupplier;
  *
  * Created: Mon Nov 04 01:52:01 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
@@ -67,17 +69,24 @@ public class StructuredProxyPushConsumerImpl
     implements StructuredProxyPushConsumerOperations {
 
     private StructuredPushSupplier myPushSupplier_;
+    private List subsequentDestinations_;
 
-    public StructuredProxyPushConsumerImpl(ApplicationContext appContext,
+    public StructuredProxyPushConsumerImpl(SupplierAdminTieImpl supplierAdminServant,
+					   ApplicationContext appContext,
 					   ChannelContext channelContext,
-					   SupplierAdminTieImpl supplierAdminServant, 
-					   SupplierAdmin supplierAdmin,
+					   PropertyManager adminProperties,
+					   PropertyManager qosProperties,
 					   Integer key) {
 	super(supplierAdminServant,
 	      appContext, 
 	      channelContext,
-	      key,
-	      Logger.getLogger("Proxy.StructuredPushConsumer"));
+	      adminProperties,
+	      qosProperties,
+	      key);
+
+	setProxyType(ProxyType.PUSH_STRUCTURED);
+
+	subsequentDestinations_ = Collections.singletonList(myAdmin_);
     }
 
     public void push_structured_event(StructuredEvent structuredEvent) throws Disconnected {
@@ -86,7 +95,7 @@ public class StructuredProxyPushConsumerImpl
 	}
 
 	NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(structuredEvent, this);
-	channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
+	channelContext_.dispatchEvent(_notifyEvent);
     }
 
     public void disconnect_structured_push_consumer() {
@@ -126,21 +135,32 @@ public class StructuredProxyPushConsumerImpl
 	return (SupplierAdmin)myAdmin_.getThisRef();
     }
 
-    public EventDispatcher getEventDispatcher() {
+    public EventConsumer getEventConsumer() {
 	return null;
     }
 
-    public boolean hasEventDispatcher() {
+    public boolean hasEventConsumer() {
 	return false;
     }
     
-    public List getSubsequentDestinations() {
-	return Collections.singletonList(myAdmin_);
+    public List getSubsequentFilterStages() {
+	return subsequentDestinations_;
     }
 
     public void dispose() {
 	super.dispose();
 	disconnectClient();
+    }
+
+    public Servant getServant() {
+	if (thisServant_ == null) {
+	    synchronized(this) {
+		if (thisServant_ == null) {
+		    thisServant_ = new StructuredProxyPushConsumerPOATie(this);
+		}
+	    }
+	}
+	return thisServant_;
     }
 
 }// StructuredProxyPushConsumerImpl

@@ -21,23 +21,16 @@ package org.jacorb.notification;
  *
  */
 
-
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerOperations;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.apache.log4j.Logger;
 import org.omg.CosNotifyComm.SequencePullSupplier;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CORBA.UserException;
 import org.omg.CORBA.SystemException;
-import java.util.List;
-import java.util.Collections;
-import org.jacorb.notification.framework.EventDispatcher;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerPOATie;
 
 /**
  * SequenceProxyPullConsumerImpl.java
@@ -51,30 +44,34 @@ import org.jacorb.notification.framework.EventDispatcher;
 
 public class SequenceProxyPullConsumerImpl 
     extends StructuredProxyPullConsumerImpl 
-    implements SequenceProxyPullConsumerOperations, 
-	       Runnable {
+    implements SequenceProxyPullConsumerOperations {
 
-    SequencePullSupplier sequencePullSupplier_;
+    private SequencePullSupplier sequencePullSupplier_;
 
-    public SequenceProxyPullConsumerImpl(ApplicationContext appContext,
-					 ChannelContext channelContext, 
-					 SupplierAdminTieImpl supplierAdminServant, 
-					 SupplierAdmin supplierAdmin,
+    public SequenceProxyPullConsumerImpl(SupplierAdminTieImpl supplierAdminServant,
+					 ApplicationContext appContext,
+					 ChannelContext channelContext,
+					 PropertyManager adminProperties,
+					 PropertyManager qosProperties,
 					 Integer key) {
-	super(
-	      appContext, 
+	super(supplierAdminServant,
+	      appContext,
 	      channelContext,
-	      supplierAdminServant,
-	      supplierAdmin,
-	      key
-	      );
+	      adminProperties,
+	      qosProperties,
+	      key);
+
+	setProxyType(ProxyType.PULL_SEQUENCE);
     }
 
     public void disconnect_sequence_pull_consumer() {
 	dispose();
+	stopTask();
     }
 
-    public void connect_sequence_pull_supplier(SequencePullSupplier sequencePullSupplier) throws AlreadyConnected {
+    public void connect_sequence_pull_supplier(SequencePullSupplier sequencePullSupplier) 
+	throws AlreadyConnected {
+
 	if (connected_) {
 	    throw new AlreadyConnected();
 	}
@@ -82,10 +79,10 @@ public class SequenceProxyPullConsumerImpl
 	active_ = true;
 
 	sequencePullSupplier_ = sequencePullSupplier;
-	new Thread(this).start();
+	startTask();
     }
 
-    public void run() {
+    public void runPullEvent() {
 	runSequence();
     }
 
@@ -93,7 +90,7 @@ public class SequenceProxyPullConsumerImpl
 	BooleanHolder _hasEvent = new BooleanHolder();
 	StructuredEvent[] _events = null;
 	synchronized(this) {
-	    while(connected_ && active_) {
+	    if (connected_ && active_) {
 		try {
 		    _hasEvent.value = false;
 		    _events = sequencePullSupplier_.try_pull_structured_events(1, _hasEvent);
@@ -107,14 +104,12 @@ public class SequenceProxyPullConsumerImpl
 
 		if (_hasEvent.value) {
 		    for (int x=0; x<_events.length; ++x) {
-			NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(_events[x], this);
-			channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
+			NotificationEvent _notifyEvent = 
+			    notificationEventFactory_.newEvent(_events[x], this);
+
+			channelContext_.dispatchEvent(_notifyEvent);
 		    }
 		}
-		
-		try {
-		    Thread.sleep(pollInterval_);
-		} catch (InterruptedException ie) {}
 	    }
 	}
     }
@@ -127,6 +122,21 @@ public class SequenceProxyPullConsumerImpl
 	    }
 	}
 	connected_ = false;
+    }
+
+    public void dispose() {
+	super.dispose();
+    }
+
+    public Servant getServant() {
+	if (thisServant_ == null) {
+	    synchronized(this) {
+		if (thisServant_ == null) {
+		    thisServant_ = new SequenceProxyPullConsumerPOATie(this);
+		}
+	    }
+	}
+	return thisServant_;
     }
     
 }// SequenceProxyPullConsumerImpl

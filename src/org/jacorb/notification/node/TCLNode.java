@@ -31,35 +31,43 @@ import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.jacorb.notification.EvaluationContext;
 import org.jacorb.notification.evaluate.EvaluationException;
 import java.lang.reflect.Field;
+import org.jacorb.notification.parser.TCLParserTokenTypes;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 
 /**
- * TCLNode.java
+ * Base Class for TCLTree Nodes.
+ *
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-public abstract class TCLNode extends BaseAST implements TCLTokenTypes {
-
-    static boolean DEBUG = false;
-    static String sTokenVocabulary = "org.jacorb.notification.node";
+public abstract class TCLNode extends BaseAST implements TCLParserTokenTypes
+{
 
     private int astNodeType_;
     private TCKind tcKind_;
-    String name_;
+    private String name_;
+
+    protected Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
+
 
     ////////////////////////////////////////////////////////////
     // Constructor
 
-    public TCLNode(Token tok) {
-	super();
-	setType(tok.getType());
+    public TCLNode( Token tok )
+    {
+        super();
+        setType( tok.getType() );
     }
 
-    protected TCLNode() {
-	super();
+    protected TCLNode()
+    {
+        super();
     }
 
-    ////////////////////////////////////////////////////////////
-    // these should be abstract
+    //////////////////////////////////////////////////
 
     /**
      * Evaluate this Node.
@@ -67,208 +75,252 @@ public abstract class TCLNode extends BaseAST implements TCLTokenTypes {
      * @param context an <code>EvaluationContext</code> value contains
      * all context information necessary for the evaluation
      * @return an <code>EvaluationResult</code> value
-     * @exception DynamicTypeException if an dynamic type error occurs during the evaluation 
-     *                                 e.g. the attempt to add a string and a number
+     * @exception DynamicTypeException 
+     * if an dynamic type error occurs during the evaluation 
+     * e.g. the attempt to add a string and a number
      * @exception InconsistentTypeCode if an error occurs
      * @exception InvalidValue if an error occurs
      * @exception TypeMismatch if an error occurs
-     * @exception EvaluationException these errors mostly occur if e.g. an expression contains a reference 
-     *                                to a not-existent struct member.
+     * @exception EvaluationException 
+     * these errors mostly occur if e.g. an expression contains a reference 
+     * to a non-existent struct member.
      */
-    public EvaluationResult evaluate(EvaluationContext context)
-	throws DynamicTypeException,
-	       InconsistentTypeCode,
-	       InvalidValue,
-	       TypeMismatch,
-	       EvaluationException {
-	return null;
+    public EvaluationResult evaluate( EvaluationContext context )
+    throws DynamicTypeException,
+                InconsistentTypeCode,
+                InvalidValue,
+                TypeMismatch,
+                EvaluationException
+    {
+        return null;
     }
 
-    /** 
+    /**
      * accept a visitor for traversal Inorder
      * 
      * @param visitor 
      */
-    abstract public void acceptInOrder(TCLVisitor visitor) throws VisitorException;
+    public abstract void acceptInOrder( TCLVisitor visitor ) 
+	throws VisitorException;
 
-    /** 
+    /**
      * accept a visitor for traversal in Preorder. the root node is
      * visited before the left and the right subtrees are visited.
      * 
      * @param visitor 
      */
-    abstract public void acceptPreOrder(TCLVisitor visitor) throws VisitorException;
+    public abstract void acceptPreOrder( TCLVisitor visitor ) 
+	throws VisitorException;
 
-    /** 
+    /**
      * accept a visitor for traversal in Postorder. the right and left
      * subtrees are visited before the root node is visited.
      * 
      * @param visitor 
      */
-    abstract public void acceptPostOrder(TCLVisitor visitor) throws VisitorException;
+    public abstract void acceptPostOrder( TCLVisitor visitor ) 
+	throws VisitorException;
 
     ////////////////////////////////////////////////////////////
 
-    public String getName() {
-	return name_;
+    public String getName()
+    {
+        return name_;
     }
 
-    void setName(String name) {
-	name_ = name;
+    void setName( String name )
+    {
+        name_ = name;
     }
 
-    /** 
+    /**
      * Check wether this node has a Sibling.
      *
      * @return true, if this node has a Sibling
      */
-    public boolean hasNextSibling() {
-	return (getNextSibling() != null);
+    public boolean hasNextSibling()
+    {
+        return ( getNextSibling() != null );
     }
 
-    /** 
+    /**
      * get the AST Token Type of this nodes sibling
      * 
      * @return a AST Token Type
      */
-    public int getNextType() {
-	TCLNode _next = (TCLNode)getNextSibling();
+    public int getNextType()
+    {
+        TCLNode _next = ( TCLNode ) getNextSibling();
 
-	return _next.getType();
+        return _next.getType();
     }
 
-    protected void setKind(TCKind kind) {
-	tcKind_ = kind;
+    protected void setKind( TCKind kind )
+    {
+        tcKind_ = kind;
     }
-    
+
     /**
      * Return the Runtimetype of this node.
-     * If the Runtime type cannot be guessed statically this Method returns null.
+     * If the Runtime type cannot be guessed statically this Method
+     * returns null. 
      *
-     * @return a <code>TCKind</code> value or null if the Runtimetype cannot be determined
+     * @return a <code>TCKind</code> value or null if the Runtimetype
+     * cannot be determined 
      * statically.
      */
-    public TCKind getKind() {
-	return tcKind_;
+    public TCKind getKind()
+    {
+        return tcKind_;
     }
 
-    /** 
+    public void printToStringBuffer( StringBuffer buffer )
+    {
+        if ( getFirstChild() != null )
+        {
+            buffer.append( " (" );
+        }
+
+        buffer.append( " " );
+        buffer.append( toString() );
+
+        if ( getFirstChild() != null )
+        {
+            buffer.append( ( ( TCLNode ) getFirstChild() ).toStringList() );
+        }
+
+        if ( getFirstChild() != null )
+        {
+            buffer.append( " )" );
+        }
+    }
+
+    /**
      * create a visualization of this node and all its children.
      * 
      * @return a String representation of this Node and all its children
      */
-    public String toStringTree() {
-	StringBuffer _buffer = new StringBuffer();
+    public String toStringTree()
+    {
+        StringBuffer _buffer = new StringBuffer();
 
-	if (getFirstChild()!=null) {
-	    _buffer.append(" (");
-	}
-	_buffer.append(" " + toString());
+        printToStringBuffer( _buffer );
 
-	if (getFirstChild()!=null) {
-	    _buffer.append(((TCLNode)getFirstChild()).toStringList());
-	}
-	if (getFirstChild() != null) {
-	    _buffer.append(" )");
-	}
-	return _buffer.toString();
+        return _buffer.toString();
     }
 
-    protected void debug(String msg) {
- 	if (DEBUG) {
- 	    System.err.println("[" + getName() + "] " + msg);
- 	}
-    }
-
-    /** 
+    /**
      * Access the left child. This method returns null if this node
      * has no left child
      * 
      * @return the left Child or null.
      */
-    public TCLNode left() {
-	return (TCLNode)getFirstChild();
+    public TCLNode left()
+    {
+        return ( TCLNode ) getFirstChild();
     }
 
-    /** 
+    /**
      * Access the right child. This method returns null if this node
      * has no right child
      * 
      * @return the right Child or null.
      */
-    public TCLNode right() {
-	return (TCLNode)getFirstChild().getNextSibling();
+    public TCLNode right()
+    {
+        return ( TCLNode ) getFirstChild().getNextSibling();
     }
 
     ////////////////////////////////////////////////////////////
 
-    public boolean isStatic() {
-	return false;
-    }	    
-
-    public boolean isNumber() {
-	return false;
+    public boolean isStatic()
+    {
+        return false;
     }
 
-    public boolean isString() {
-	return false;
+    public boolean isNumber()
+    {
+        return false;
     }
 
-    public boolean isBoolean() {
-	return false;
+    public boolean isString()
+    {
+        return false;
     }
 
-    /** 
+    public boolean isBoolean()
+    {
+        return false;
+    }
+
+    /**
      * Get the AST Token Type for this node.
      * 
      * @return the AST Token Type value
-     * @see TCLTokenTypes
-     */ 
-    public int getType() {
-	return astNodeType_;
+     * @see org.jacorb.notification.parser.TCLParserTokenTypes
+     */
+    public int getType()
+    {
+        return astNodeType_;
     }
 
-    /** 
+    /**
      * Set AST Token Type for this node.
      * 
      * @param type must be a valid TCLTokenType.
-     * @see TCLTokenTypes
+     * @see org.jacorb.notification.parser.TCLParserTokenTypes
      */
-    public void setType(int type) {
-	astNodeType_ = type;
+    public void setType( int type )
+    {
+        astNodeType_ = type;
     }
 
-    /** 
+    /**
      * converts an int tree token type to a name.
      * Does this by reflecting on nsdidl.IDLTreeTokenTypes,
      * and is dependent on how ANTLR 2.00 outputs that class. 
      * stolen from http://www.codetransform.com/
      */
-    public static String getNameForType(int t) {
-	try{
-	    Class c = Class.forName(sTokenVocabulary);
-	    Field[] fields = c.getDeclaredFields();
-	    if(t-2 < fields.length)
-		return fields[t-2].getName();
-	} catch (Exception e) { System.out.println(e); }
-	return "unfoundtype: " + t;
+    public static String getNameForType( int t )
+    {
+        try
+        {
+            Field[] _fields = TCLParserTokenTypes.class.getDeclaredFields();
+
+            if ( t - 2 < _fields.length )
+            {
+                return _fields[ t -2 ].getName();
+            }
+        }
+        catch ( Exception e )
+        {
+            System.out.println( e );
+        }
+
+        return "unfoundtype: " + t;
     }
 
     /**
      * satisfy abstract method from BaseAST. Not used.
      */
-    public void initialize(int t, String txt) {
+    public void initialize( int t, String txt )
+    {
+        // no op
     }
+
     /**
      * satisfy abstract method from BaseAST. Not used.
      */
-    public void initialize(AST t) {
+    public void initialize( AST t )
+    {
+        // no op
     }
+
     /**
      * satisfy abstract method from BaseAST. Not used.
      */
-    public void initialize(Token tok) {
+    public void initialize( Token tok )
+    {
+        // no op
     }
-
-
 }

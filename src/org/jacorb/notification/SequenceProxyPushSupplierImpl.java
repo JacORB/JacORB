@@ -22,21 +22,23 @@ package org.jacorb.notification;
  */
 
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
-import org.jacorb.notification.framework.EventDispatcher;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.apache.log4j.Logger;
-import java.util.LinkedList;
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.TimerEventConsumer;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Collections;
+import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.omg.CosNotification.PacingInterval;
+import org.omg.TimeBase.TimeTHelper;
+import org.omg.CosNotification.MaximumBatchSize;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
 
 /**
  * SequenceProxyPushSupplierImpl.java
@@ -48,86 +50,325 @@ import java.util.Collections;
  * @version $Id$
  */
 
-public class SequenceProxyPushSupplierImpl extends StructuredProxyPushSupplierImpl
-    implements SequenceProxyPushSupplierOperations,
-	       EventDispatcher{
-    
-    SequencePushConsumer sequencePushConsumer_;
-    private List pendingEvents_;
-    boolean active_;
-    static StructuredEvent[] ARRAY_TEMPLATE = new StructuredEvent[0];
+public class SequenceProxyPushSupplierImpl
+            extends StructuredProxyPushSupplierImpl
+            implements SequenceProxyPushSupplierOperations,
+            EventConsumer,
+            TimerEventConsumer
+{
 
-    public SequenceProxyPushSupplierImpl(ApplicationContext appContext,
-					 ChannelContext channelContext,
-					 ConsumerAdminTieImpl myAdminServant,
-					 ConsumerAdmin myAdmin,
-					 Integer key) {
-	super(appContext, 
-	      channelContext, 
-	      myAdminServant,
-	      myAdmin,
-	      key);
-	pendingEvents_ = new LinkedList();
+    static final StructuredEvent[] STRUCTURED_EVENT_ARRAY_TEMPLATE = 
+	new StructuredEvent[ 0 ];
+
+    /**
+     * The connected SequencePushConsumer.
+     */
+    private SequencePushConsumer sequencePushConsumer_;
+
+    /**
+     * maximum queue size before a delivery is forced.
+     */
+    private int maxBatchSize_;
+
+    /**
+     * how long to wait between two scheduled deliveries.
+     */
+    private long pacingInterval_;
+
+    /**
+     * registration for the Scheduled DeliverTask.
+     */
+    private Object taskId_;
+
+    /**
+     * this callback is called by the TimerDaemon. Check if there are
+     * pending Events and deliver them to the Consumer. As there's only one
+     * TimerDaemon its important to
+     * block it only a minimal amount of time. Therefor the Callback
+     * should not do the actual delivery. Instead schedule a
+     * DeliverTask for this Supplier.
+     */
+    private Runnable timerCallback_;
+
+    private boolean delivering_;
+
+    final TaskProcessor engine_;
+
+    public SequenceProxyPushSupplierImpl( ConsumerAdminTieImpl myAdminServant,
+                                          ApplicationContext appContext,
+                                          ChannelContext channelContext,
+                                          PropertyManager adminProperties,
+                                          PropertyManager qosProperties,
+                                          Integer key )
+    {
+        super( myAdminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties,
+               key );
+
+        setProxyType( ProxyType.PUSH_SEQUENCE );
+
+        engine_ = channelContext.getTaskProcessor();
+
+        configureMaxBatchSize();
+
+        configurePacingInterval();
+
+        // configure the callback
+        timerCallback_ = new Runnable()
+                   {
+                       public void run()
+                       {
+                           try
+                           {
+                               engine_.scheduleTimedPushTask( SequenceProxyPushSupplierImpl.this );
+                           }
+                           catch ( InterruptedException e )
+                           {}
+                       }
+                   };
     }
 
     // overwrite
-    public void dispatchEvent(NotificationEvent event) {
-	if (connected_) {
-	    try {
-		StructuredEvent[] _eventArray = 
-		    new StructuredEvent[] {event.toStructuredEvent()};
-		sequencePushConsumer_.push_structured_events(_eventArray);
-	    } catch (Disconnected d) {
-		connected_ = false;
-		logger_.debug("push failed - Recipient is Disconnected");
-	    }
-	} else {
-	    logger_.debug("Not connected");
-	}
+    public void deliverEvent( NotificationEvent event )
+    {
+        logger_.debug( "dispatchEvent(...)" );
+
+        if ( connected_ )
+        {
+            try
+            {
+                pendingEvents_.add( event.toStructuredEvent() );
+
+                if ( logger_.isDebugEnabled() )
+                {
+                    logger_.debug( "added to pendingEvents: " 
+				   + pendingEvents_.size() );
+
+                    logger_.debug( "maxBatchSize: " 
+				   + maxBatchSize_ 
+				   + " Active: " 
+				   + active_ );
+                }
+
+                if ( active_ && ( pendingEvents_.size() >= maxBatchSize_ ) )
+                {
+                    deliverPendingEvents();
+                }
+            }
+            catch ( NotConnected d )
+            {
+                connected_ = false;
+                logger_.debug( "push failed - Recipient is Disconnected" );
+            }
+        }
+        else
+        {
+            logger_.debug( "Not connected" );
+        }
+    }
+
+    public void runDeliverEvent() throws NotConnected
+    {
+        deliverPendingEvents();
+    }
+
+    public boolean hasPendingEvents() {
+	return !pendingEvents_.isEmpty();
+    }
+
+    public void deliverPendingEvents() throws NotConnected
+    {
+        logger_.debug( "deliverPendingEvents()" );
+
+        if ( !delivering_ )
+        {
+            synchronized ( this )
+            {
+                if ( !delivering_ )
+                {
+                    delivering_ = true;
+                    StructuredEvent[] _eventsToDeliver;
+
+                    if ( hasPendingEvents() )
+                    {
+
+                        synchronized ( pendingEvents_ )
+                        {
+
+                            int _deliverBatchSize = 
+				( pendingEvents_.size() > maxBatchSize_ ) ?
+				maxBatchSize_ :
+				pendingEvents_.size();
+
+                            _eventsToDeliver = 
+				new StructuredEvent[ _deliverBatchSize ];
+
+                            for ( int x = 0; x < _deliverBatchSize; ++x )
+                            {
+                                _eventsToDeliver[ x ] = 
+				    ( StructuredEvent ) pendingEvents_.removeFirst();
+                            }
+                        }
+
+                        try
+                        {
+                            sequencePushConsumer_.push_structured_events( _eventsToDeliver );
+                        }
+                        catch ( Disconnected d )
+                        {
+                            throw new NotConnected();
+                        }
+                    }
+
+                    delivering_ = false;
+                }
+            }
+        }
     }
 
     // new
-    public void connect_sequence_push_consumer(SequencePushConsumer consumer) throws AlreadyConnected, TypeError {
-	if (connected_) {
-	    throw new AlreadyConnected();
-	}
-	sequencePushConsumer_ = consumer;
-	connected_ = true;
+    public void connect_sequence_push_consumer( SequencePushConsumer consumer )
+    throws AlreadyConnected,
+                TypeError
+    {
+        logger_.debug( "connect_sequence_push_consumer" );
+
+        if ( connected_ )
+        {
+            throw new AlreadyConnected();
+        }
+
+        sequencePushConsumer_ = consumer;
+        connected_ = true;
+        active_ = true;
+
+        startCronJob();
     }
 
     // overwrite
-    public void resume_connection() throws NotConnected, ConnectionAlreadyActive {
-	if (!connected_) {
-	    throw new NotConnected();
-	}
-	if (active_) {
-	    throw new ConnectionAlreadyActive();
-	}
-	if (!pendingEvents_.isEmpty()) {
-	    try {
-		StructuredEvent[] _events = (StructuredEvent[])pendingEvents_.toArray(ARRAY_TEMPLATE);
-		sequencePushConsumer_.push_structured_events(_events);
-	    } catch (Disconnected e) {
-		connected_ = false;
-		throw new NotConnected();
-	    }
-	}
-	active_ = true;
+    public void resume_connection() 
+	throws NotConnected, 
+	       ConnectionAlreadyActive
+    {
+        if ( !connected_ )
+        {
+            throw new NotConnected();
+        }
+
+        if ( active_ )
+        {
+            throw new ConnectionAlreadyActive();
+        }
+
+        active_ = true;
+
+        if ( hasPendingEvents() )
+        {
+            deliverPendingEvents();
+        }
+
+        startCronJob();
     }
 
-    public void disconnect_sequence_push_supplier() {
-	dispose();
+    public void suspend_connection() 
+	throws NotConnected, 
+	       ConnectionAlreadyInactive
+    {
+        super.suspend_connection();
+        stopCronJob();
+    }
+
+    public void disconnect_sequence_push_supplier()
+    {
+        dispose();
     }
 
     // overwrite
-    protected void disconnectClient() {
-	if (connected_) {
-	    if (sequencePushConsumer_ != null) {
-		sequencePushConsumer_.disconnect_sequence_push_consumer();
-		sequencePushConsumer_ = null;
-		connected_ = false;
-	    }
-	}
+    protected void disconnectClient()
+    {
+        if ( connected_ )
+        {
+            if ( sequencePushConsumer_ != null )
+            {
+                sequencePushConsumer_.disconnect_sequence_push_consumer();
+                sequencePushConsumer_ = null;
+                connected_ = false;
+                stopCronJob();
+            }
+        }
     }
-    
-}// SequenceProxyPushSupplierImpl
+
+    private void startCronJob()
+    {
+        if ( pacingInterval_ > 0 )
+        {
+            taskId_ = channelContext_.getTaskProcessor().
+		registerPeriodicTask( pacingInterval_,
+				      timerCallback_,
+				      true );
+        }
+    }
+
+    synchronized private void stopCronJob()
+    {
+        if ( taskId_ != null )
+        {
+            channelContext_.getTaskProcessor().unregisterTask( taskId_ );
+            taskId_ = null;
+        }
+    }
+
+    private boolean configurePacingInterval()
+    {
+        long _pacingInterval = 
+	    TimeTHelper.extract( qosProperties_.getProperty( PacingInterval.value ) );
+
+        if ( pacingInterval_ != _pacingInterval )
+        {
+            pacingInterval_ = _pacingInterval;
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean configureMaxBatchSize()
+    {
+        int _maxBatchSize = 
+	    qosProperties_.getProperty( MaximumBatchSize.value ).extract_long();
+
+        if ( maxBatchSize_ != _maxBatchSize )
+        {
+            maxBatchSize_ = _maxBatchSize;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void enableDelivery()
+    {}
+
+    public void disableDelivery()
+    {}
+
+    public Servant getServant()
+    {
+        if ( thisServant_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( thisServant_ == null )
+                {
+                    thisServant_ = new SequenceProxyPushSupplierPOATie( this );
+                }
+            }
+        }
+
+        return thisServant_;
+    }
+
+} // SequenceProxyPushSupplierImpl

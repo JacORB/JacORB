@@ -21,26 +21,24 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CORBA.ORB;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyComm.StructuredPushConsumer;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
-import org.apache.log4j.Logger;
 import org.omg.CosEventComm.Disconnected;
-import java.util.Collections;
-import java.util.List;
-import org.jacorb.notification.framework.EventDispatcher;
-import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
-import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import java.util.LinkedList;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import java.util.Iterator;
+import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.NotConnected;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
+import org.omg.CosNotifyComm.StructuredPushConsumer;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
 
 /**
  * StructuredProxyPushSupplierImpl.java
@@ -48,121 +46,209 @@ import java.util.Iterator;
  *
  * Created: Sun Nov 03 22:41:38 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class StructuredProxyPushSupplierImpl 
-    extends ProxyBase 
-    implements StructuredProxyPushSupplierOperations,
-	       EventDispatcher {
+public class StructuredProxyPushSupplierImpl
+            extends ProxyBase
+            implements StructuredProxyPushSupplierOperations,
+            EventConsumer
+{
 
     private StructuredPushConsumer pushConsumer_;
-    protected List pendingEvents_;
+    protected LinkedList pendingEvents_;
     protected boolean active_;
+    protected boolean enabled_;
 
-    public StructuredProxyPushSupplierImpl(ApplicationContext appContext,
-					   ChannelContext channelContext,
-					   ConsumerAdminTieImpl myAdminServant,
-					   ConsumerAdmin myAdmin,
-					   Integer key) {
-	super(myAdminServant,
-	      appContext, 
-	      channelContext, 
-	      key, 
-	      Logger.getLogger("Proxy.StructuredProxyPushSupplier"));
-	pendingEvents_ = new LinkedList();
-    }
- 
-    public void dispatchEvent(NotificationEvent event) {
-	if (connected_) {
-	    try {
-		pushConsumer_.push_structured_event(event.toStructuredEvent());
-	    } catch (Disconnected d) {
-		connected_ = false;
-		logger_.debug("push failed - Recipient is Disconnected");
-	    }
-	} else {
-	    logger_.debug("Not connected");
-	}
-    }
-    
-    public void connect_structured_push_consumer(StructuredPushConsumer consumer) throws AlreadyConnected, TypeError {
-	if (connected_) {
-	    throw new AlreadyConnected();
-	}
-	connected_ = true;
-	pushConsumer_ = consumer;
+    public StructuredProxyPushSupplierImpl( ConsumerAdminTieImpl myAdminServant,
+                                            ApplicationContext appContext,
+                                            ChannelContext channelContext,
+                                            PropertyManager adminProperties,
+                                            PropertyManager qosProperties,
+                                            Integer key )
+    {
+        super( myAdminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties,
+               key );
+
+        setProxyType( ProxyType.PUSH_STRUCTURED );
+        enabled_ = true;
+        pendingEvents_ = new LinkedList();
     }
 
-    public void disconnect_structured_push_supplier() {
-	dispose();
+    public void deliverEvent( NotificationEvent event )
+    {
+        logger_.debug( "deliverEvent" );
+
+        if ( connected_ )
+        {
+            try
+            {
+                if ( active_ && enabled_ )
+                {
+                    pushConsumer_.push_structured_event( event.toStructuredEvent() );
+                }
+                else
+                {
+                    pendingEvents_.add( event.toStructuredEvent() );
+                }
+            }
+            catch ( Disconnected d )
+            {
+                connected_ = false;
+                logger_.debug( "push failed - Recipient is Disconnected" );
+            }
+        }
+        else
+        {
+            logger_.debug( "Not connected" );
+        }
     }
 
+    public void connect_structured_push_consumer( StructuredPushConsumer consumer )
+    throws AlreadyConnected,
+                TypeError
+    {
 
-    synchronized public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
-	if (!connected_) {
-	    throw new NotConnected();
-	}
-	if (!active_) {
-	    throw new ConnectionAlreadyInactive();
-	}
-	active_ = false;
-    }
-    
-    public void resume_connection() throws NotConnected, ConnectionAlreadyActive {
-	if (!connected_) {
-	    throw new NotConnected();
-	}
-	if (active_) {
-	    throw new ConnectionAlreadyActive();
-	}
-	if (!pendingEvents_.isEmpty()) {
-	    Iterator _i = pendingEvents_.iterator();
-	    while (_i.hasNext()) {
-		try {
-		    pushConsumer_.push_structured_event((StructuredEvent)_i.next());
-		} catch (Disconnected e) {
-		    connected_ = false;
-		    throw new NotConnected();
-		}
-	    }
-	}
-	active_ = true;
+        if ( connected_ )
+        {
+            throw new AlreadyConnected();
+        }
+
+        pushConsumer_ = consumer;
+        connected_ = true;
+        active_ = true;
     }
 
-    protected void disconnectClient() {
-	if (connected_) {
-	    if (pushConsumer_ != null) {
-		pushConsumer_.disconnect_structured_push_consumer();
-		pushConsumer_= null;
-		connected_ = false;
-	    }
-	}
+    public void disconnect_structured_push_supplier()
+    {
+        dispose();
     }
 
-    public ConsumerAdmin MyAdmin() {
-	return (ConsumerAdmin)myAdmin_.getThisRef();
+    synchronized public void suspend_connection()
+    throws NotConnected, ConnectionAlreadyInactive
+    {
+        if ( !connected_ )
+        {
+            throw new NotConnected();
+        }
+
+        if ( !active_ )
+        {
+            throw new ConnectionAlreadyInactive();
+        }
+
+        active_ = false;
     }
 
-    public List getSubsequentDestinations() {
-	return Collections.singletonList(this);
+    public void deliverPendingEvents() throws NotConnected
+    {
+        if ( !pendingEvents_.isEmpty() )
+        {
+            Iterator _i = pendingEvents_.iterator();
+
+            while ( _i.hasNext() )
+            {
+                try
+                {
+                    pushConsumer_.push_structured_event( ( StructuredEvent ) _i.next() );
+                }
+                catch ( Disconnected e )
+                {
+                    connected_ = false;
+                    throw new NotConnected();
+                }
+            }
+        }
     }
 
-    public EventDispatcher getEventDispatcher() {
-	return this;
+    public void resume_connection() throws NotConnected, ConnectionAlreadyActive
+    {
+        if ( !connected_ )
+        {
+            throw new NotConnected();
+        }
+
+        if ( active_ )
+        {
+            throw new ConnectionAlreadyActive();
+        }
+
+        deliverPendingEvents();
+        active_ = true;
     }
 
-    public boolean hasEventDispatcher() {
-	return true;
+    protected void disconnectClient()
+    {
+        if ( connected_ )
+        {
+            if ( pushConsumer_ != null )
+            {
+                pushConsumer_.disconnect_structured_push_consumer();
+                pushConsumer_ = null;
+                connected_ = false;
+            }
+        }
     }
 
-    public void dispose() {
-	super.dispose();
-	disconnectClient();
+    public ConsumerAdmin MyAdmin()
+    {
+        return ( ConsumerAdmin ) myAdmin_.getThisRef();
     }
 
-    public void markError() {
-	connected_ = false;
+    public List getSubsequentFilterStages()
+    {
+        return Collections.singletonList( this );
     }
-}// StructuredProxyPushSupplierImpl
+
+    public EventConsumer getEventConsumer()
+    {
+        return this;
+    }
+
+    public boolean hasEventConsumer()
+    {
+        return true;
+    }
+
+    synchronized public void dispose()
+    {
+        super.dispose();
+        disconnectClient();
+    }
+
+    synchronized public void enableDelivery()
+    {
+        enabled_ = true;
+    }
+
+    synchronized public void disableDelivery()
+    {
+        enabled_ = false;
+    }
+
+    public Servant getServant()
+    {
+        if ( thisServant_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( thisServant_ == null )
+                {
+                    thisServant_ = new StructuredProxyPushSupplierPOATie( this );
+                }
+            }
+        }
+
+        return thisServant_;
+    }
+
+    public boolean hasPendingEvents() {
+	return !pendingEvents_.isEmpty();
+    }
+
+} // StructuredProxyPushSupplierImpl

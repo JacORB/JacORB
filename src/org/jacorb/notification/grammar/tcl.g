@@ -1,11 +1,13 @@
 // $Id$
 
 header {
-    package org.jacorb.notification.node;
+    package org.jacorb.notification.parser;
 }
 
 {
-    import java.io.*;
+    import antlr.TokenStreamSelector;
+    import java.io.StringReader;
+    import org.jacorb.notification.node.TCLNode;
 }
 
 class TCLParser extends Parser;
@@ -13,12 +15,12 @@ class TCLParser extends Parser;
 options {
     k=2;
     buildAST = true;
-    exportVocab=TCL;
+    importVocab=Common;
     defaultErrorHandler=false;
 }
 
 tokens {
-    DOLLAR      <AST=org.jacorb.notification.node.ComponentOperator>;
+    DOLLAR      <AST=org.jacorb.notification.node.ComponentName>;
     EXIST       <AST=org.jacorb.notification.node.ExistOperator>;
     DOT         <AST=org.jacorb.notification.node.DotOperator>;
     AND         <AST=org.jacorb.notification.node.AndOperator>;
@@ -39,7 +41,6 @@ tokens {
     DIV         <AST=org.jacorb.notification.node.DivOperator>;
     NUMBER      <AST=org.jacorb.notification.node.NumberValue>;
     NUM_FLOAT   <AST=org.jacorb.notification.node.NumberValue>;
-    COMP_POS    <AST=org.jacorb.notification.node.ComponentPositionOperator>;
     SUBSTR      <AST=org.jacorb.notification.node.SubstrOperator>;
 
     GT          <AST=org.jacorb.notification.node.GtOperator>;
@@ -62,9 +63,39 @@ tokens {
     DEFAULT     <AST=org.jacorb.notification.node.DefaultOperator>;
 }
 
+{
+    public static TCLNode parse( String data )
+    throws RecognitionException,
+    TokenStreamException
+    {
+
+        TokenStreamSelector _selector = new TokenStreamSelector();
+
+        // set up two Lexers
+        TCLLexer _tclLexer = new TCLLexer( new StringReader( data ) );
+        _tclLexer.setTokenStreamSelector( _selector );
+
+        ComponentLexer _compLexer = new ComponentLexer( _tclLexer.getInputState() );
+        _compLexer.setTokenStreamSelector( _selector );
+
+        _selector.addInputStream( _tclLexer, TCLLexer.LEXER_NAME );
+        _selector.addInputStream( _compLexer, ComponentLexer.LEXER_NAME );
+        _selector.select( TCLLexer.LEXER_NAME );
+
+        // connect the Parser with the two Lexers
+        TCLParser _parser = new TCLParser( _selector );
+
+        // begin parse
+        _parser.startRule();
+
+        // return AST tree
+        return ( TCLNode ) _parser.getAST();
+    }
+
+}
+
 // parser rules
 startRule
-//    : ((constraint|preference) SEMI)* EOF
     : constraint
     ;
 
@@ -90,18 +121,8 @@ bool_or
     : bool_and (OR^ bool_and)*
     ;
 
-bool_or2
-    : OR^ bool_and bool_or2
-    | // empty
-    ;
-
 bool_and
     : bool_compare (AND^ bool_compare)*
-    ;
-
-bool_and2
-    : AND^ bool_compare bool_and2
-    | // empty
     ;
 
 bool_compare
@@ -116,28 +137,10 @@ expr_twiddle
     : expr ((SUBSTR^) expr)*
     ;
 
-// expr
-//     : term expr2
-//     ;
-
-// expr2
-//     : PLUS^ term expr2
-//     | MINUS^ term expr2
-//     | // empty
-//     ;
 expr
     : term ((PLUS^ |MINUS^) term)*
     ;
 
-// term
-//     : factor_not term2
-//     ;
-
-// term2
-//     : MULT factor_not term2
-//     | DIV factor_not term2
-//     | // empty
-//     ;
 term
     : factor_not ((MULT^ |DIV^)factor_not)*
     ;
@@ -168,13 +171,11 @@ dollarComponent
 number
     : NUMBER
     | NUM_FLOAT
-    | COMP_POS<AST=org.jacorb.notification.node.NumberValue>{#COMP_POS.setType(NUM_FLOAT);}
     ;
 
 component
     : // empty
-    | DOT     compDot
-    | COMP_POS compExt
+    | DOT compDot
     | compArray
     | compAssoc
     | IDENTIFIER compExt
@@ -183,7 +184,6 @@ component
 compExt
     : // empty
     | DOT compDot
-    | COMP_POS compExt
     | compArray
     | compAssoc
     ;
@@ -207,7 +207,7 @@ compAssoc
     ;
 
 compPos
-    : COMP_POS compExt
+    : NUMBER compExt
     ;
 
 unionPos
@@ -221,161 +221,3 @@ unionVal
     | MINUS^ NUMBER
     | STRING
     ;
-
-class TCLLexer extends Lexer;
-
-options {
-    charVocabulary = '\0' .. '\377';
-    testLiterals=false;
-    k=2;
-    exportVocab=TCL;
-}
-
-tokens {
-    NOT      = "not";
-    TRUE     = "TRUE";
-    FALSE    = "FALSE";
-    DEFAULT  = "default";
-    EXIST    = "exist";
-    OR       = "or";
-    AND      = "and";
-    IN       = "in";
-    MIN      = "min";
-    MAX      = "max";
-    WITH     = "with";
-    RANDOM   = "random";
-    FIRST    = "first";
-    TYPE     = "type";
-}
-
-// Whitespace
-WS
-    : ( ' '
-        | '\t'
-        | '\f'
-
-            // newlines
-        | ("\r\n"
-            | '\r'
-            | '\n' )
-            { newline(); }
-        )
-        { $setType(Token.SKIP); }
-    ;
-
-// single-line comment
-SL_COMMENT
-	:	"//"
-		(~('\n'|'\r'))* ('\n'|'\r'('\n')?)
-		{$setType(Token.SKIP); newline();}
-	;
-
-// Operators
-EQ         : "==" ;
-NEQ        : "!=" ;
-LT         : '<'  ;
-LTE        : "<=" ;
-GT         : '>'  ;
-GTE        : ">=" ;
-SUBSTR     : '~'  ;
-PLUS       : '+'  ;
-MINUS      : '-'  ;
-MULT       : '*'  ;
-DIV        : '/'  ;
-LPAREN     : '('  ;
-RPAREN     : ')'  ;
-LBRACKET   : '['  ;
-RBRACKET   : ']'  ;
-DOLLAR     : '$'  ;
-DISCRIM    : "_d";
-TYPE_ID    : "_type_id";
-REPO_ID    : "_repos_id";
-LENGTH     : "_length";
-
-STRING
-    : '\''! TEXTCHARS '\''!
-    ;
-
-IDENTIFIER
-options {testLiterals=true;}
-    : LEADER FOLLOWSEQ
-    | '\\' LEADER FOLLOWSEQ
-    ;
-
-protected FOLLOWSEQ
-    : // empty
-    | FOLLOW FOLLOWSEQ
-    ;
-
-protected LEADER
-    : ALPHA
-    ;
-
-protected FOLLOW
-    : ALPHA
-    | DIGIT
-    | OTHER
-    ;
-
-// a numeric literal
-NUMBER
-    {boolean isDecimal=false;}
-	:	'.'          { _ttype = DOT; }                  // a single dot
-        (((DIGIT)+   { _ttype = COMP_POS; } )           // could be Positional Notation for a struct
-        ((EXPONENT)  { _ttype = NUM_FLOAT; })?)?        // its a number !
-
-	|	(	'0'      {isDecimal = true;}                // special case for just '0'
-		|	('1'..'9') (DIGIT)*  {isDecimal=true;}		// non-zero decimal
-		)
-		(
-            // only check to see if it's a float if looks like decimal so far
-			{isDecimal}?
-			( '.' (DIGIT)* (EXPONENT)? | EXPONENT ) { _ttype = NUM_FLOAT; }
-		)?
-	;
-
-// a couple protected methods to assist in matching floating point numbers
-protected EXPONENT
-	:	('e'|'E') ('+'|'-') (DIGIT)+
-	;
-
-protected TEXTCHARS
-    : // empty
-    | TEXTCHAR TEXTCHARS
-    ;
-
-protected TEXTCHAR
-    : ALPHA
-    | DIGIT
-    | OTHER
-    | OTHER_TEXT
-    | ' '
-    | SPECIAL
-    ;
-
-protected DIGITS
-    : (DIGIT)+
-    ;
-
-protected DIGIT
-    : ('0'..'9')
-    ;
-
-protected ALPHA
-     : ('a'..'z'|'A'..'Z')
-     ;
-
-protected OTHER
-     : ('_'|':'|'/')
-     ;
-
-// these may appear within text but not within identifiers
-protected OTHER_TEXT
-    : ('.')
-    ;
-
-protected SPECIAL
-     : '\\'!
-        ( '\''
-        | '\\' )
-     ;

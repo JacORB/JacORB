@@ -22,17 +22,14 @@ package org.jacorb.notification;
  */
 
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.ORBPackage.InvalidName;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.DynamicAny.DynAnyFactory;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.framework.Poolable;
+import org.jacorb.notification.interfaces.Poolable;
 import java.util.Map;
 import java.util.Hashtable;
 import org.jacorb.notification.node.EvaluationResult;
 import org.omg.CORBA.Any;
-import org.jacorb.notification.util.ObjectPoolBase;
 
 /**
  * EvaluationContext.java
@@ -40,23 +37,18 @@ import org.jacorb.notification.util.ObjectPoolBase;
  *
  * Created: Sat Nov 30 16:02:34 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version $Id$
+ * @author Alphonse Bendt
+ * @version $Id$ 
  */
 
-public class EvaluationContext implements Poolable {
+public class EvaluationContext extends Poolable {
 
-    ObjectPoolBase myPool_;
-
-    ApplicationContext appContext_;
-    DynAnyFactory dynAnyFactory_;
-    DynamicEvaluator dynamicEvaluator_;
-    ResultExtractor resultExtractor_;
-
-    NotificationEvent event_;
-
-    Map resultCache_;    
-    Map anyCache_;
+    private DynAnyFactory dynAnyFactory_;
+    private DynamicEvaluator dynamicEvaluator_;
+    private ResultExtractor resultExtractor_;
+    private NotificationEvent event_;
+    private Map resultCache_;    
+    private Map anyCache_;
 
     public EvaluationContext() {
 	resultCache_ = new Hashtable();
@@ -88,7 +80,7 @@ public class EvaluationContext implements Poolable {
 	return resultExtractor_;
     }
 
-    public NotificationEvent getEvent() {
+    public NotificationEvent getNotificationEvent() {
 	return event_;
     }
 
@@ -120,15 +112,4 @@ public class EvaluationContext implements Poolable {
 	anyCache_.remove(name);
     }
 
-    public void release() {
-	myPool_.returnObject(this);
-    }
-
-    public void setObjectPool(ObjectPoolBase pool) {
-	myPool_ = pool;
-    }
-
-    public EvaluationResult newEvaluationResult() {
-	return appContext_.newEvaluationResult();
-    }
 }// EvaluationContext

@@ -22,10 +22,12 @@ package org.jacorb.notification.node;
  */
 
 import antlr.collections.AST;
+import org.jacorb.notification.parser.TCLParserTokenTypes;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
- * TCLCleanUp.java
- *
+ * Visitor for TCL Trees. Does some Restructuration of a TCL Tree.
  *
  * Created: Wed Sep 18 02:07:17 2002
  *
@@ -33,106 +35,90 @@ import antlr.collections.AST;
  * @version $Id$
  */
 
-public class TCLCleanUp extends TCLVisitor {
+public class TCLCleanUp extends TCLVisitor implements TCLParserTokenTypes
+{
+    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor( getClass().getName() );
 
-    static boolean DEBUG = false;
+    public void fix( TCLNode node )
+    {
+        try
+        {
+            node.acceptPostOrder( this );
+        }
+        catch ( VisitorException ve )
+        {}
 
-    public void fix(TCLNode node) {
-	try {
-	    node.acceptPreOrder(this);
-	} catch (VisitorException ve) {
-	}
     }
 
-    void insertComponentName(ComponentOperator comp) {
-	StringBuffer _name = new StringBuffer(comp.toString());
-	TCLNode _cursor = (TCLNode)comp.left();
-	while (_cursor != null) {
-	    _name.append(_cursor.toString());
-	    _cursor = (TCLNode)_cursor.getNextSibling();
-	}
-	comp.setComponentName(_name.toString());
+    public void visitComponentPosition( ComponentPositionOperator componentPositionOperator )
+    throws VisitorException
+    {
+        // fixCompPos(componentPositionOperator);
     }
 
-    void fixCompPos(TCLNode node) {
-	AST _fixit = null;
+    public void visitComponent( ComponentName component )
+    throws VisitorException
+    {
+        // component.left().acceptInOrder(this);
 
-	if ((node.getFirstChild() != null) && 
-	    (node.getFirstChild().getType() == TCLTokenTypes.COMP_POS)) {
-
-	    debug("left child needs repair");
-	    _fixit = node.getFirstChild();
-	    
-	    DotOperator _dot = new DotOperator();
-	    _dot.setType(TCLTokenTypes.DOT);
-	    _dot.setNextSibling(_fixit);
-	    
-	    node.setFirstChild(_dot);
-	} else if ((node.getNextSibling() != null) && 
-		   (node.getNextSibling().getType() == TCLTokenTypes.COMP_POS)) {
-
-	    debug("right child needs repair");
-	    _fixit = node.getNextSibling();
-
-	    DotOperator _dot = new DotOperator();
-	    _dot.setType(TCLTokenTypes.DOT);
-	    _dot.setNextSibling(_fixit);
-
-	    node.setNextSibling(_dot);
-	}
+        insertComponentName( component );
     }
 
-    public void visitComponent(ComponentOperator component) 
-	throws VisitorException {
-
-	fixCompPos(component);
-	insertComponentName(component);
+    public void visitUnionPosition( UnionPositionOperator op ) throws VisitorException
+    {
+        fixUnionPosition( op );
+        // fixCompPos(op);
     }
 
     /**
-     * Describe <code>visitComponentPosition</code> method here.
-     *
-     * @param componentPositionOperator a <code>ComponentPositionOperator</code> value
-     * @exception VisitorException if an error occurs
+     * insert the Complete Name of a Component in the
+     * ComponentOperator node.
      */
-    public void visitComponentPosition(ComponentPositionOperator componentPositionOperator) throws VisitorException {
-	debug("visit compPos");
-	fixCompPos(componentPositionOperator);
+    void insertComponentName( ComponentName comp )
+    {
+        StringBuffer _name = new StringBuffer( comp.toString() );
+        TCLNode _cursor = ( TCLNode ) comp.left();
+
+        while ( _cursor != null )
+        {
+            _name.append( _cursor.toString() );
+            _cursor = ( TCLNode ) _cursor.getNextSibling();
+        }
+
+        comp.setComponentName( _name.toString() );
     }
 
-    void fixUnionPosition(UnionPositionOperator node) {
-	debug("repair");
-	
-	AST _nextSibling = node.getNextSibling();
+    void fixUnionPosition( UnionPositionOperator node )
+    {
+        AST _nextSibling = node.getNextSibling();
 
-	if (_nextSibling == null) {
-	    node.setDefault();
-	} else {
-	    switch (_nextSibling.getType()) {
-	    case TCLTokenTypes.NUMBER:
-		Double _position = ((NumberValue)_nextSibling).getNumber();
-		node.setPosition(_position);
-		node.setNextSibling(_nextSibling.getNextSibling());
-	    case TCLTokenTypes.PLUS:
-	    case TCLTokenTypes.MINUS:
-	    case TCLTokenTypes.STRING:
-		break;
-	    default:
-		node.setDefault();
-		break;
-	    }
-	}
+        if ( _nextSibling == null )
+        {
+            node.setDefault();
+        }
+        else
+        {
+            switch ( _nextSibling.getType() )
+            {
+
+            case NUMBER:
+
+                Double _position = ( ( NumberValue ) _nextSibling ).getNumber();
+                node.setPosition( _position );
+                node.setNextSibling( _nextSibling.getNextSibling() );
+
+            case PLUS:
+
+            case MINUS:
+
+            case STRING:
+                break;
+
+            default:
+                node.setDefault();
+                break;
+            }
+        }
     }
 
-    public void visitUnionPosition(UnionPositionOperator op) throws VisitorException {
-	fixUnionPosition(op);
-	fixCompPos(op);
-    }
-
-    void debug(String msg) {
-	if (DEBUG) {
-	    System.err.println("[TCLCleanUp] " + msg);
-	}
-    }
-
-}// TCLCleanUp
+} // TCLCleanUp

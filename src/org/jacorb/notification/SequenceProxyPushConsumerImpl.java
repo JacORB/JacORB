@@ -24,14 +24,17 @@ package org.jacorb.notification;
 
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.apache.log4j.Logger;
+import org.apache.log.Logger;
 import org.omg.CosNotifyComm.SequencePushSupplier;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosEventComm.Disconnected;
-import org.jacorb.notification.framework.EventDispatcher;
+import org.jacorb.notification.interfaces.EventConsumer;
 import java.util.List;
 import java.util.Collections;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerPOATie;
 
 /**
  * SequenceProxyPushConsumerImpl.java
@@ -48,18 +51,22 @@ public class SequenceProxyPushConsumerImpl
     implements SequenceProxyPushConsumerOperations {
 
     SequencePushSupplier mySequencePushSupplier_;
+    private List subsequentDestinations_;
 
-    public SequenceProxyPushConsumerImpl(ApplicationContext appContext,
-					   ChannelContext channelContext,
-					   SupplierAdminTieImpl supplierAdminServant, 
-					   SupplierAdmin supplierAdmin,
-					   Integer key) {
-	super(
+    public SequenceProxyPushConsumerImpl(SupplierAdminTieImpl supplierAdminServant,
+					 ApplicationContext appContext,
+					 ChannelContext channelContext,
+					 PropertyManager adminProperties,
+					 PropertyManager qosProperties,
+					 Integer key) {
+	super(supplierAdminServant,
 	      appContext, 
 	      channelContext,
-	      supplierAdminServant,
-	      supplierAdmin,
+	      adminProperties,
+	      qosProperties,
 	      key);
+
+	setProxyType(ProxyType.PUSH_SEQUENCE);
     }
     
     protected void disconnectClient() {
@@ -89,6 +96,17 @@ public class SequenceProxyPushConsumerImpl
 
     public void disconnect_sequence_push_consumer() {
 	dispose();
+    }
+
+    public Servant getServant() {
+	if (thisServant_ == null) {
+	    synchronized(this) {
+		if (thisServant_ == null) {
+		    thisServant_ = new SequenceProxyPushConsumerPOATie(this);
+		}
+	    }
+	}
+	return thisServant_;
     }
 
 }// SequenceProxyPushConsumerImpl

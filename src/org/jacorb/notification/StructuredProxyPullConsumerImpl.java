@@ -23,8 +23,8 @@ package org.jacorb.notification;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.log4j.Logger;
-import org.jacorb.notification.framework.EventDispatcher;
+import org.apache.log.Logger;
+import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CORBA.SystemException;
@@ -46,6 +46,10 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.SequencePullSupplier;
 import org.omg.CosNotifyComm.StructuredPullConsumerOperations;
 import org.omg.CosNotifyComm.StructuredPullSupplier;
+import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
 
 /**
  * StructuredProxyPullConsumerImpl.java
@@ -59,34 +63,46 @@ import org.omg.CosNotifyComm.StructuredPullSupplier;
 
 public class StructuredProxyPullConsumerImpl extends ProxyBase 
     implements StructuredProxyPullConsumerOperations,
-	       Runnable {
+	       TimerEventSupplier {
 
     private StructuredPullSupplier mySupplier_;
     protected long pollInterval_ = 1000L;
     protected boolean active_ = true;
-    protected Thread thisThread_;
+    private List subsequentDestinations_;
 
-    public StructuredProxyPullConsumerImpl(ApplicationContext appContext,
-					   ChannelContext channelContext, 
-					   SupplierAdminTieImpl supplierAdminServant, 
-					   SupplierAdmin supplierAdmin,
+    Object taskId_;
+    final TaskProcessor engine_;
+    private Runnable runQueueThis_;
+
+    public StructuredProxyPullConsumerImpl(SupplierAdminTieImpl supplierAdminServant,
+					   ApplicationContext appContext,
+					   ChannelContext channelContext,
+					   PropertyManager adminProperties,
+					   PropertyManager qosProperties,
 					   Integer key) {
 	super(supplierAdminServant,
 	      appContext, 
 	      channelContext,
-	      key,
-	      Logger.getLogger("Proxy.StructuredPullConsumer"));
-    }
-    
-    // Implementation of
-    // org.omg.CosNotifyComm.StructuredPullConsumerOperations
+	      adminProperties,
+	      qosProperties,
+	      key);
+
+	setProxyType(ProxyType.PULL_STRUCTURED);
+
+	engine_ = channelContext.getTaskProcessor();
+	runQueueThis_ = new Runnable() {
+		public void run() {
+		    try {
+			engine_.scheduleTimedPullTask(StructuredProxyPullConsumerImpl.this);
+		    } catch (InterruptedException ie) {}
+		}
+	    };
+	subsequentDestinations_ = Collections.singletonList(myAdmin_);
+    }    
 
     public void disconnect_structured_pull_consumer() {
 	dispose();
     }
-
-    
-    // Implementation of org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations
 
     public void connect_structured_pull_supplier(StructuredPullSupplier structuredPullSupplier) 
 	throws AlreadyConnected {
@@ -98,10 +114,8 @@ public class StructuredProxyPullConsumerImpl extends ProxyBase
 	active_ = true;
 
 	mySupplier_ = structuredPullSupplier;
-	thisThread_ = new Thread(this);
-	thisThread_.start();
+	startTask();
     }
-
 
     synchronized public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
 	if (!connected_) {
@@ -111,11 +125,8 @@ public class StructuredProxyPullConsumerImpl extends ProxyBase
 	    throw new ConnectionAlreadyInactive();
 	}
 	active_ = false;
-	thisThread_.interrupt();
-	try {
-	    thisThread_.join();
-	} catch (InterruptedException e) {}
-	thisThread_ = null;
+
+	stopTask();
     }
 
     synchronized public void resume_connection() throws ConnectionAlreadyActive, NotConnected {
@@ -126,8 +137,8 @@ public class StructuredProxyPullConsumerImpl extends ProxyBase
 	    throw new ConnectionAlreadyActive();
 	}
 	active_ = true;
-	thisThread_ = new Thread(this);
-	thisThread_.start();
+
+	startTask();
     }
 
     public SupplierAdmin MyAdmin() {
@@ -143,16 +154,15 @@ public class StructuredProxyPullConsumerImpl extends ProxyBase
 	
     }
 
-    public void run() {
+    public void runPullEvent() {
 	runStructured();
     }
-
 
     public void runStructured() {
 	BooleanHolder _hasEvent = new BooleanHolder();
 	StructuredEvent _event = null;
 	synchronized(this) {
-	    while(connected_ && active_) {
+	    if(connected_ && active_) {
 		try {
 		    _hasEvent.value = false;
 		    _event = mySupplier_.try_pull_structured_event(_hasEvent);
@@ -167,25 +177,21 @@ public class StructuredProxyPullConsumerImpl extends ProxyBase
 		if (_hasEvent.value) {
 		    logger_.debug("pulled Event");
 		    NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(_event, this);
-		    channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
+		    channelContext_.dispatchEvent(_notifyEvent);
 		}
-		
-		try {
-		    Thread.sleep(pollInterval_);
-		} catch (InterruptedException ie) {}
 	    }
 	}
     }
 
-    public List getSubsequentDestinations() {
-	return Collections.singletonList(myAdmin_);
+    public List getSubsequentFilterStages() {
+	return subsequentDestinations_;
     }
     
-    public EventDispatcher getEventDispatcher() {
+    public EventConsumer getEventConsumer() {
 	return null;
     }
     
-    public boolean hasEventDispatcher() {
+    public boolean hasEventConsumer() {
 	return false;
     }
 
@@ -201,6 +207,39 @@ public class StructuredProxyPullConsumerImpl extends ProxyBase
 
     public void dispose() {
 	super.dispose();
+	stopTask();
 	disconnectClient();
     }
+
+    synchronized protected void startTask() {
+	if (taskId_ == null) {
+	    taskId_ = channelContext_
+		.getTaskProcessor()
+		.registerPeriodicTask(pollInterval_, 
+				      runQueueThis_, 
+				      true);
+	}
+    }
+
+    synchronized protected void stopTask() {
+	if (taskId_ != null) {
+	    channelContext_
+		.getTaskProcessor()
+		.unregisterTask(taskId_);
+
+	    taskId_ = null;
+	}
+    }
+
+    public Servant getServant() {
+	if (thisServant_ == null) {
+	    synchronized(this) {
+		if (thisServant_ == null) {
+		    thisServant_ = new StructuredProxyPullConsumerPOATie(this);
+		}
+	    }
+	}
+	return thisServant_;
+    }
+
 }// StructuredProxyPullConsumerImpl

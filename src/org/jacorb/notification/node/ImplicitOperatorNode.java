@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,6 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
 
 import antlr.Token;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -26,9 +27,6 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 import org.jacorb.notification.EvaluationContext;
-import org.omg.CORBA.Any;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.omg.CORBA.TypeCodePackage.BadKind;
 
 /**
  * ImplictOperatorNode.java
@@ -37,22 +35,30 @@ import org.omg.CORBA.TypeCodePackage.BadKind;
  * Created: Sat Sep 28 23:58:11 2002
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version
+ * @version $Id$
  */
 
 public class ImplicitOperatorNode extends TCLNode {
     
-    static String DISCRIM = "_d";
-    static String LENGTH = "_length";
-    static String REPO_ID = "_repos_id";
-    static String TYPE_ID = "_type_id";
+    static final String DISCRIM = "_d";
+    static final String LENGTH = "_length";
+    static final String REPO_ID = "_repos_id";
+    static final String TYPE_ID = "_type_id";
 
-    public static ImplicitOperator OPERATOR_DISCRIM = new DiscrimOperator();
-    public static ImplicitOperator OPERATOR_LENGTH = new LengthOperator();
-    public static ImplicitOperator OPERATOR_REPO_ID = new RepoOperator();
-    public static ImplicitOperator OPERATOR_TYPE_ID = new TypeOperator();
+    public final static ImplicitOperator OPERATOR_DISCRIM = 
+	new DiscrimOperator();
+    
+    public final static ImplicitOperator OPERATOR_LENGTH = 
+	new LengthOperator();
 
-    static EvaluationException EVALUATION_EXCEPTION = new EvaluationException();
+    public final static ImplicitOperator OPERATOR_REPO_ID = 
+	new RepoOperator();
+
+    public final static ImplicitOperator OPERATOR_TYPE_ID = 
+	new TypeOperator();
+
+    static final EvaluationException EVALUATION_EXCEPTION = 
+	new EvaluationException();
 
     ImplicitOperator operator_;
     String operatorName_;

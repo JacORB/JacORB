@@ -32,7 +32,10 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.jacorb.notification.evaluate.EvaluationException;
 
-/** A simple node to represent PLUS operation */
+/**
+ * A simple node to represent PLUS operation 
+ */
+
 public class PlusOperator extends TCLNode {
     boolean unary_;
 

@@ -1,4 +1,4 @@
-package org.jacorb.notification.node;
+package org.jacorb.notification.interfaces;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,55 +21,27 @@ package org.jacorb.notification.node;
  *
  */
 
+import org.omg.CosNotifyChannelAdmin.NotConnected;
+
 /**
- * ImmutableEvaluationResult.java
+ * Abstraction of a ProxySupplier. This Interface indicates that this
+ * ProxySupplier may have 
+ * some Events queued for delivery to a Consumer.
  *
- *
- * Created: Thu Jan 02 15:48:45 2003
+ * Created: Thu Jan 30 01:18:24 2003
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version $Id$
  */
 
-public class ImmutableEvaluationResult extends EvaluationResult
-{
-    static void unsupported()
-    {
-        throw new UnsupportedOperationException();
-    }
+public interface TimerEventConsumer {
 
-    public void reset()
-    {
-        unsupported();
-    }
+    /**
+     * Deliver Pending Events. If this ProxySupplier has some Events queued
+     * for a Consumer, a call to this method causes it to
+     * deliver them.
+     */ 
+    void deliverPendingEvents() throws NotConnected;
 
-    public void setString( String s )
-    {
-        unsupported();
-    }
-
-    public void setFloat( float f )
-    {
-        unsupported();
-    }
-
-    public void setFloat( Double d )
-    {
-        unsupported();
-    }
-
-    public void setInt( int i )
-    {
-        unsupported();
-    }
-
-    public void setInt( Double i )
-    {
-        unsupported();
-    }
-
-    public void setBool( boolean b )
-    {
-        unsupported();
-    }
+    boolean hasPendingEvents();
 }

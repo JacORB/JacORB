@@ -21,21 +21,23 @@ package org.jacorb.notification;
  *
  */
 
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Logger;
-import org.jacorb.notification.framework.DistributorNode;
-import org.jacorb.notification.framework.Disposable;
+import java.util.Vector;
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.ProxyDisposedEvent;
+import org.jacorb.notification.interfaces.ProxyDisposedEventListener;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.QoSAdminOperations;
 import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyFilter.Filter;
@@ -43,13 +45,7 @@ import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Vector;
-import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.PortableServer.Servant;
 
 /**
  * ProxyBase.java
@@ -57,23 +53,26 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
  *
  * Created: Sun Nov 03 22:49:01 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-abstract class ProxyBase implements FilterAdminOperations, 
-				    NotifyPublishOperations, 
-				    QoSAdminOperations, 
-				    DistributorNode,
-				    Disposable {
+public abstract class ProxyBase implements FilterAdminOperations, 
+					   NotifyPublishOperations, 
+					   QoSAdminOperations, 
+					   FilterStage,
+					   Disposable {
+    
+    protected final static Integer NO_KEY = null;
 
-    static Integer NO_KEY = null;
-
+    protected List proxyDisposedEventListener_;
     protected NotificationEventFactory notificationEventFactory_;
-    protected EventChannelImpl eventChannel_;
     protected POA poa_;
     protected ORB orb_;
-    protected Logger logger_;
+
+    protected Logger logger_ = 
+	Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+
     protected boolean connected_;
     protected ChannelContext channelContext_;
     protected ApplicationContext applicationContext_;
@@ -81,98 +80,162 @@ abstract class ProxyBase implements FilterAdminOperations,
     protected AdminBase myAdmin_;
     protected FilterManager filterManager_;
     protected boolean disposed_ = false;
-    protected ProxyType proxyType_;
+    protected PropertyManager adminProperties_;
+    protected PropertyManager qosProperties_;
+    private ProxyType proxyType_;
+    private boolean hasOrSemantic_;
+    protected Servant thisServant_;
 
     protected ProxyBase(AdminBase admin,
 			ApplicationContext appContext,
 			ChannelContext channelContext,
-			Logger logger) {
-
+			PropertyManager adminProperties,
+			PropertyManager qosProperties) 
+    {
 	this(admin,
 	     appContext,
 	     channelContext,
-	     NO_KEY,
-	     logger);
+	     adminProperties,
+	     qosProperties,
+	     NO_KEY);
     }
 
     protected ProxyBase(AdminBase admin,
 			ApplicationContext appContext,
 			ChannelContext channelContext,
-			Integer key,
-			Logger logger) {
-	
+			PropertyManager adminProperties,
+			PropertyManager qosProperties,
+			Integer key) 
+    {
 	myAdmin_ = admin;
 	key_ = key;
+	adminProperties_ = adminProperties;
+	qosProperties_ = qosProperties;
 	applicationContext_ = appContext;
 	channelContext_ = channelContext;
 	poa_ = appContext.getPoa();
 	orb_ = appContext.getOrb();
-	logger_ = logger;
-	eventChannel_ = channelContext.getEventChannelServant();
 	connected_ = false;
-	notificationEventFactory_ = applicationContext_.getNotificationEventFactory();
+
+	notificationEventFactory_ = 
+	    applicationContext_.getNotificationEventFactory();
+
 	filterManager_ = new FilterManager();
     }
+
+    abstract public Servant getServant();
+
+    public void addProxyDisposedEventListener(ProxyDisposedEventListener listener) 
+    {
+	if (proxyDisposedEventListener_ == null) {
+	    synchronized(this) {
+		if (proxyDisposedEventListener_ == null) {
+		    proxyDisposedEventListener_ = new Vector();
+		}
+	    }
+	}
+	logger_.debug("addProxyDisposedEventListener(" + listener + ")");
+	if (listener == null) {
+	    throw new RuntimeException();
+	}
+	proxyDisposedEventListener_.add(listener);
+    }
     
-    public int add_filter(Filter filter) {
+    public void removeProxyDisposedEventListener(ProxyDisposedEventListener listener) 
+    {
+	if (proxyDisposedEventListener_ != null) {
+	    proxyDisposedEventListener_.remove(listener);
+	}
+    }
+    
+    public int add_filter(Filter filter) 
+    {
 	return filterManager_.add_filter(filter);
     }
 
-    public void remove_filter(int n) throws FilterNotFound {
+    public void remove_filter(int n) throws FilterNotFound 
+    {
 	filterManager_.remove_filter(n);
     }
 
-    public Filter get_filter(int n) throws FilterNotFound {
+    public Filter get_filter(int n) throws FilterNotFound 
+    {
 	return filterManager_.get_filter(n);
     }
-
-    public int[] get_all_filters() {
+    
+    public int[] get_all_filters() 
+    {
 	return filterManager_.get_all_filters();
     }
 
-    public void remove_all_filters() {
+    synchronized public void remove_all_filters()
+    {
 	filterManager_.remove_all_filters();
     }    
 
-    public EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode) {
+    public EventType[] obtain_subscription_types(ObtainInfoMode obtainInfoMode) 
+    {
         return null;
     }
 
-    public void validate_event_qos(Property[] qosProps, NamedPropertyRangeSeqHolder propSeqHolder)
-	throws UnsupportedQoS {}
+    public void validate_event_qos(Property[] qosProps, 
+				   NamedPropertyRangeSeqHolder propSeqHolder)
+	throws UnsupportedQoS 
+    {
+    }
 
-    public void validate_qos(Property[] qosProps, NamedPropertyRangeSeqHolder propSeqHolder)
-	throws UnsupportedQoS {}
+    public void validate_qos(Property[] qosProps, 
+			     NamedPropertyRangeSeqHolder propSeqHolder)
+	throws UnsupportedQoS 
+    {
+    }
 
-    public void set_qos(Property[] qosProps) throws UnsupportedQoS {}
+    public void set_qos(Property[] qosProps) throws UnsupportedQoS 
+    {
+    }
 
-    public Property[] get_qos() {
+    public Property[] get_qos() 
+    {
         return null;
     }
-
-    public void offer_change(EventType[] eventTypes, EventType[] eventTypes2) throws InvalidEventType {}
-
-    public void subscription_change(EventType[] eventType, EventType[] eventType2) throws InvalidEventType {}
-
-    public void priority_filter(MappingFilter filter) {
+    
+    public void offer_change(EventType[] eventTypes, 
+			     EventType[] eventTypes2) 
+	throws InvalidEventType 
+    {
     }
 
-    public MappingFilter priority_filter() {
+    public void subscription_change(EventType[] eventType, 
+				    EventType[] eventType2) 
+	throws InvalidEventType 
+    {
+    }
+
+    public void priority_filter(MappingFilter filter) 
+    {
+    }
+
+    public MappingFilter priority_filter() 
+    {
 	return null;
     }
 
-    public MappingFilter lifetime_filter() {
+    public MappingFilter lifetime_filter() 
+    {
+	return null;
+    }
+    
+    public void lifetime_filter(MappingFilter filter) 
+    {
+    }
+    
+    public EventType[] obtain_offered_types(ObtainInfoMode obtaininfomode) 
+    {
 	return null;
     }
 
-    public void lifetime_filter(MappingFilter filter) {
-    }
-
-    public EventType[] obtain_offered_types(ObtainInfoMode obtaininfomode) {
-	return null;
-    }
-
-    Integer getKey() {
+    Integer getKey() 
+    {
 	return key_;
     }
 
@@ -182,32 +245,78 @@ abstract class ProxyBase implements FilterAdminOperations,
      * avoid the risk that a servant object (like this one) could be
      * activated by the <b>wrong</b> POA object.
      */
-    public POA _default_POA() {
-	return applicationContext_.getPoa();
+    public POA _default_POA() 
+    {
+	return poa_;
     }
 
-    void setFilterManager(FilterManager manager) {
+    void setFilterManager(FilterManager manager) 
+    {
 	filterManager_ = manager;
     }
 
-    public List getFilters() {
+    public List getFilters() 
+    {
 	return filterManager_.getFilters();
     }
 
-    public void dispose() {
+    synchronized public void dispose() 
+    {
+	if (logger_.isDebugEnabled()) {
+	    logger_.debug("dispose(" + this + ")");
+	}
+	
 	if (!disposed_) {
 	    remove_all_filters();
 	    disposed_ = true;
-	} else {
-	    throw new OBJECT_NOT_EXIST();
+	    Iterator _i;
+
+	    if (proxyDisposedEventListener_ != null) {
+		_i = proxyDisposedEventListener_.iterator();
+		ProxyDisposedEvent _event = new ProxyDisposedEvent(this);
+		while(_i.hasNext()) {
+
+		    ProxyDisposedEventListener _listener = 
+			(ProxyDisposedEventListener)_i.next();
+
+		    _listener.actionProxyDisposed(_event);
+		}
+	    }
+	    try {
+		byte[] _oid = poa_.servant_to_id(getServant());
+		poa_.deactivate_object(_oid);
+	    } catch (Exception e) {
+		e.printStackTrace();
+	    }
 	}
     }
 
-    void setProxyType(ProxyType pt) {
-	proxyType_ = pt;
+    protected void setProxyType(ProxyType p) 
+    {
+	proxyType_ = p;
     }
 
-    public ProxyType MyType() {
+    public ProxyType MyType() 
+    {
 	return proxyType_;
+    }
+
+    void setOrSemantic(boolean b) 
+    {
+	hasOrSemantic_ = b;
+    }
+
+    public boolean hasOrSemantic() 
+    {
+	return hasOrSemantic_;
+    }
+
+    public boolean isDisposed() 
+    {
+	return disposed_;
+    }
+
+    public boolean isConnected() {
+	return connected_;
     }
 }// ProxyBase

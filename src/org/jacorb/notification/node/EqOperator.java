@@ -45,6 +45,10 @@ public class EqOperator extends TCLNode {
 	       InconsistentTypeCode,
 	       EvaluationException {
 
+	logger_.debug("evaluate");
+	logger_.debug("left: " + left().getClass().getName());
+	logger_.debug("right: " + right());
+
 	EvaluationResult _left = left().evaluate(context);
 	EvaluationResult _right = right().evaluate(context);
 
@@ -63,7 +67,7 @@ public class EqOperator extends TCLNode {
     }
 
     public void acceptInOrder(TCLVisitor visitor) throws VisitorException {
-	debug("accept visitor");
+	logger_.debug("accept visitor");
 
 	left().acceptInOrder(visitor);
 	visitor.visitEq(this);

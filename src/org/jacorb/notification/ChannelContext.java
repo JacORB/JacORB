@@ -21,10 +21,14 @@ package org.jacorb.notification;
  *
  */
 
-import org.jacorb.notification.engine.Engine;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.jacorb.notification.interfaces.ProxyDisposedEventListener;
+import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * ChannelContext.java
@@ -32,35 +36,37 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
  *
  * Created: Sat Nov 30 16:02:18 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ChannelContext {
 
-    EventChannel eventChannel;
-    EventChannelImpl eventChannelServant;
-    EventChannelFactory eventChannelFactory;
-    EventChannelFactoryImpl eventChannelFactoryServant;
-    FilterFactory defaultFilterFactory;
-    Engine engine;
+    private Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
+
+    private EventChannel eventChannel;
+    private EventChannelImpl eventChannelServant;
+    private EventChannelFactory eventChannelFactory;
+    private EventChannelFactoryImpl eventChannelFactoryServant;
+    private FilterFactory defaultFilterFactory;
+    private TaskProcessor taskProcessor_;
+
+    private ProxyCreationRequestEventListener proxyCreationEventListener_;
+    private ProxyDisposedEventListener proxySupplierDisposedListener_;
+    private ProxyDisposedEventListener proxyConsumerDisposedListener_;
 
     /**
-     * Gets the value of engine
-     *
-     * @return the value of engine
+     * @return the TaskProcessor for this Channel
      */
-    public Engine getEngine()  {
-	return this.engine;
+    public TaskProcessor getTaskProcessor()  {
+	return taskProcessor_;
     }
 
     /**
-     * Sets the value of engine
-     *
-     * @param argEngine Value to assign to this.engine
+     * sets the TaskProcessor for this Channel
      */
-    public void setEngine(Engine argEngine) {
-	this.engine = argEngine;
+    public void setTaskProcessor(TaskProcessor taskProcessor) {
+	taskProcessor_ = taskProcessor;
     }
 
     /**
@@ -69,7 +75,7 @@ public class ChannelContext {
      * @return the value of eventChannelFactory
      */
     public EventChannelFactory getEventChannelFactory()  {
-	return this.eventChannelFactory;
+	return eventChannelFactory;
     }
 
     /**
@@ -78,7 +84,7 @@ public class ChannelContext {
      * @param argEventChannelFactory Value to assign to this.eventChannelFactory
      */
     public void setEventChannelFactory(EventChannelFactory argEventChannelFactory) {
-	this.eventChannelFactory = argEventChannelFactory;
+	eventChannelFactory = argEventChannelFactory;
     }
 
     /**
@@ -87,7 +93,7 @@ public class ChannelContext {
      * @return the value of eventChannelFactoryServant
      */
     public EventChannelFactoryImpl getEventChannelFactoryServant()  {
-	return this.eventChannelFactoryServant;
+	return eventChannelFactoryServant;
     }
 
     /**
@@ -96,7 +102,7 @@ public class ChannelContext {
      * @param argEventChannelFactoryServant Value to assign to this.eventChannelFactoryServant
      */
     public void setEventChannelFactoryServant(EventChannelFactoryImpl argEventChannelFactoryServant) {
-	this.eventChannelFactoryServant = argEventChannelFactoryServant;
+	eventChannelFactoryServant = argEventChannelFactoryServant;
     }
 
     /**
@@ -105,7 +111,7 @@ public class ChannelContext {
      * @return the value of defaultFilterFactory
      */
     public FilterFactory getDefaultFilterFactory()  {
-	return this.defaultFilterFactory;
+	return defaultFilterFactory;
     }
 
     /**
@@ -114,7 +120,7 @@ public class ChannelContext {
      * @param argDefaultFilterFactory Value to assign to this.defaultFilterFactory
      */
     public void setDefaultFilterFactory(FilterFactory argDefaultFilterFactory) {
-	this.defaultFilterFactory = argDefaultFilterFactory;
+	defaultFilterFactory = argDefaultFilterFactory;
     }
 
     /**
@@ -132,6 +138,10 @@ public class ChannelContext {
      * @param argEventChannelServant Value to assign to this.eventChannelServant
      */
     public void setEventChannelServant(EventChannelImpl argEventChannelServant) {
+	logger_.debug("setEventChannelServant(" + argEventChannelServant + ")");
+	if (argEventChannelServant == null) {
+	    throw new RuntimeException();
+	}
 	eventChannelServant = argEventChannelServant;
     }
 
@@ -154,14 +164,31 @@ public class ChannelContext {
     public Object clone() {
 	ChannelContext _copy = new ChannelContext();
 
-	_copy.setEventChannel(eventChannel);
-	_copy.setEventChannelServant(eventChannelServant);
 	_copy.setEventChannelFactory(eventChannelFactory);
-	_copy.setEngine(engine);
 	_copy.setEventChannelFactoryServant(eventChannelFactoryServant);
 	_copy.setDefaultFilterFactory(defaultFilterFactory);
 
 	return _copy;
+    }
+
+    public void setProxyConsumerDisposedEventListener(ProxyDisposedEventListener listener) {
+	proxyConsumerDisposedListener_ = listener;
+    }
+
+    public void setProxySupplierDisposedEventListener(ProxyDisposedEventListener listener) {
+	proxySupplierDisposedListener_ = listener;
+    }
+
+    public ProxyDisposedEventListener getRemoveProxyConsumerListener() {
+	return proxyConsumerDisposedListener_;
+    }
+    
+    public ProxyDisposedEventListener getRemoveProxySupplierListener() {
+	return proxySupplierDisposedListener_;
+    }
+
+    public void dispatchEvent(NotificationEvent event) {
+	eventChannelServant.dispatchEvent(event);
     }
 
 }// ChannelContext

@@ -20,10 +20,7 @@
  */
 package org.jacorb.notification.node;
 
-import antlr.BaseAST;
 import antlr.Token;
-import antlr.collections.AST;
-import java.io.*;
 import org.omg.CORBA.TCKind;
 import org.jacorb.notification.EvaluationContext;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
@@ -32,6 +29,7 @@ import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.jacorb.notification.evaluate.EvaluationException;
 
 /** A simple node to represent AND operation */
+
 public class AndOperator extends TCLNode {
 
     public AndOperator(Token tok) {

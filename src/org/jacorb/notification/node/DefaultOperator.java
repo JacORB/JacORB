@@ -53,8 +53,11 @@ public class DefaultOperator extends TCLNode {
 	       TypeMismatch,
 	       EvaluationException {
 	
-	NotificationEvent _event = context.getEvent();
-	EvaluationResult _r = _event.hasDefault((ComponentOperator)left());
+	NotificationEvent _event = context.getNotificationEvent();
+
+	EvaluationResult _r = 
+	    _event.hasDefault(context,(ComponentName)left());
+
 	return _r;
     }
 

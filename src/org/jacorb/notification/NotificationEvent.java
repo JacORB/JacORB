@@ -22,38 +22,16 @@ package org.jacorb.notification;
  */
 
 import org.omg.CORBA.Any;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotification.Property;
-import org.jacorb.notification.node.ComponentOperator;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.node.TCLNode;
-import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.IdentValue;
-import org.jacorb.notification.node.DotOperator;
-import org.jacorb.notification.node.UnionPositionOperator;
-import org.jacorb.notification.node.ComponentPositionOperator;
-import org.jacorb.notification.node.ImplicitOperator;
-import org.jacorb.notification.node.ImplicitOperatorNode;
-import org.jacorb.notification.framework.DistributorNode;
-import org.jacorb.notification.framework.Poolable;
-import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.util.ObjectPoolBase;
-import org.omg.CORBA.TypeCodePackage.BadKind;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.jacorb.notification.node.ArrayOperator;
-import org.jacorb.notification.node.AssocOperator;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotification.FixedEventHeader;
-import org.omg.CosNotification.EventHeader;
 import org.omg.CORBA.ORB;
-import org.omg.CosNotification.StructuredEventHelper;
-import org.apache.log4j.Logger;
-import java.util.List;
-import java.util.Vector;
-import java.util.Iterator;
+import org.omg.CosNotification.StructuredEvent;
+import org.jacorb.notification.node.ComponentName;
+import org.jacorb.notification.node.EvaluationResult;
+import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.Poolable;
+import org.jacorb.notification.evaluate.EvaluationException;
+import org.jacorb.notification.FilterUtils;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * NotificationEvent.java
@@ -65,82 +43,168 @@ import java.util.Iterator;
  * @version $Id$
  */
 
-public abstract class NotificationEvent implements Poolable {
+public abstract class NotificationEvent extends Poolable
+{
 
     public static final int TYPE_ANY = 0;
     public static final int TYPE_STRUCTURED = 1;
     public static final int TYPE_TYPED = 2;
 
-    protected ApplicationContext applicationContext_;
-    protected Logger logger_;
+    ////////////////////////////////////////
 
-    protected DistributorNode currentDistributor_;
-    protected EvaluationContext evaluationContext_;
-    protected ObjectPoolBase myPool_;
+    static protected Logger logger_ = 
+	Hierarchy.getDefaultHierarchy().getLoggerFor(NotificationEvent.class.getName());
+
+    ////////////////////////////////////////
+
+    protected ApplicationContext applicationContext_;
+    protected boolean proxyConsumerFiltered_;
+    protected boolean supplierAdminFiltered_;
+    protected boolean consumerAdminFiltered_;
+    protected boolean proxySupplierFiltered_;
+    protected FilterStage currentFilterStage_;
+
+    ////////////////////////////////////////
+
+    protected NotificationEvent( ApplicationContext appContext )
+    {
+        applicationContext_ = appContext;
+    }
+
+    ////////////////////////////////////////
 
     public abstract EventTypeIdentifier getEventTypeIdentifier();
-    public abstract EvaluationResult evaluate(ComponentOperator c) throws EvaluationException;
-    public abstract EvaluationResult hasDefault(ComponentOperator c) throws EvaluationException;
-    public abstract EvaluationResult testExists(ComponentOperator c) throws EvaluationException;
 
-    public abstract String getConstraintKey();
-    public abstract Any toAny();
-    public abstract StructuredEvent toStructuredEvent();
-    public abstract int getType();
+    /**
+     * Extracts a value out of this NotificationEvent. Extract the
+     * Value denoted by the ComponentOperator Node out of this
+     * NotificationEvent. The EvaluationContext is used to cache and
+     * lookup results.
+     *
+     * @param evaluationContext an <code>EvaluationContext</code> value
+     * @param c a <code>ComponentOperator</code> value
+     * @return an <code>EvaluationResult</code> value
+     * @exception EvaluationException if an error occurs
+     */
+    public abstract EvaluationResult evaluate( EvaluationContext evaluationContext,
+					       ComponentName c )
+	throws EvaluationException;
+
     
+    /**
+     * Check if the denoted Union value has a Default
+     * Discriminator. Check if the Union value denoted by the
+     * ComponentOperator Nodes value has a Default Discriminator.
+     *
+     * @param evaluationContext an <code>EvaluationContext</code> value
+     * @param c a <code>ComponentOperator</code> value
+     * @return an <code>EvaluationResult</code> value
+     * @exception EvaluationException if an error occurs
+     */
+    public abstract EvaluationResult hasDefault( EvaluationContext evaluationContext, 
+						 ComponentName c )
+	throws EvaluationException;
+
+
+    /**
+     * Check if a Value exists in this Event. Check if the Value
+     * denoted by the ComponentOperator Node 
+     * exists in this Event.
+     *
+     * @param component a <code>ComponentOperator</code> that denotes
+     * a Path within an Event.
+     *
+     * @return an boolean <code>EvaluationResult</code> value.
+     *
+     * @exception EvaluationException if an error occurs during Evaluation.
+     */
+    public abstract EvaluationResult testExists( EvaluationContext evaluationContext,
+						 ComponentName component )
+	throws EvaluationException;
+
+    /**
+     * get the Constraint Key for this Event. The Constraint Key is
+     * used to fetch the Filter Constraints that must be evaluated for
+     * this Event. The Constraint Key consists of domain_name and
+     * type_name of the Event.
+     * Within this Implementation the Operation 
+     * {@link FilterUtils#calcConstraintKey(String, String)} 
+     * is used to provide a uniform
+     * Mapping from domain_name and type_name to a Constraint Key.
+     *
+     * @return a <code>String</code> value
+     */
+    public abstract String getConstraintKey();
+
+    /**
+     * Access this NotificationEvent as Any.
+     *
+     * @return an <code>Any</code> value
+     */
+    public abstract Any toAny();
+
+    /**
+     * Access this NotificationEvent as StructuredEvent.
+     *
+     * @return a <code>StructuredEvent</code> value
+     */
+    public abstract StructuredEvent toStructuredEvent();
+
+    /**
+     * get the Type of this NotificationEvent. The value is one of
+     * {@link #TYPE_ANY TYPE_ANY}, {@link #TYPE_STRUCTURED
+     * TYPE_STRUCTURED} or {@link #TYPE_TYPED TYPE_TYPED}.
+     *
+     * @return the Type of this NotificationEvent.
+     */
+    public abstract int getType();
+
+    /**
+     * Internal Reference Counter.
+     */
     private int referenced_ = 0;
 
-    static boolean DEBUG = false;
-
-    int finalReleaseCalled = 0;
-
-    protected NotificationEvent(ApplicationContext appContext,
-				Logger logger) {
-
-	applicationContext_ = appContext;
-	logger_ = logger;
+    public void reset()
+    {
+        currentFilterStage_ = null;
     }
 
-    public void reset() {
-	finalReleaseCalled = 0;
-	currentDistributor_ = null;
-	myPool_ = null;
-	evaluationContext_ = null;
+    /**
+     * Add a reference on this NotificationEvent. After Usage release
+     * must be called.
+     */
+    synchronized public void addReference()
+    {
+        ++referenced_;
     }
 
+    /**
+     * release this NotificationEvent. If the
+     * internal Refcounter is zero the NotificationEvent is returned
+     * to its pool.
+     */
+    synchronized public void release()
+    {
+        if ( referenced_ > 0 )
+        {
+            --referenced_;
+        }
 
-    synchronized public void addReference() {
-	++referenced_;
+        if ( referenced_ == 0 )
+        {
+            super.release();
+        }
     }
 
-    synchronized public void release() {
-	if (referenced_ > 0) {
-	    --referenced_;
-	}
-	if (referenced_ == 0) {
-	    myPool_.returnObject(this);
-	}
+    public void setFilterStage( FilterStage node )
+    {
+        currentFilterStage_ = node;
     }
 
-    public void setDistributorNode(DistributorNode node) {
-	currentDistributor_ = node;
+    public FilterStage getFilterStage()
+    {
+        return currentFilterStage_;
     }
 
-    public DistributorNode getDistributorNode() {
-	return currentDistributor_;
-    }
-
-    public EvaluationContext getEvaluationContext() {
-	return evaluationContext_;
-    }
-
-    public void setEvaluationContext(EvaluationContext context) {
-	evaluationContext_ = context;
-    }	
-
-    public void setObjectPool(ObjectPoolBase pool) {
-	myPool_ = pool;
-    }
-
-}// NotificationEvent
+} // NotificationEvent
 

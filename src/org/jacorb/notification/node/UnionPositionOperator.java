@@ -37,7 +37,7 @@ import org.omg.CORBA.TypeCodePackage.BadKind;
  * Created: Thu Sep 26 14:57:58 2002
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version
+ * @version $Id$
  */
 
 public class UnionPositionOperator extends TCLNode {
@@ -47,7 +47,7 @@ public class UnionPositionOperator extends TCLNode {
 
     public UnionPositionOperator(Token token) {
 	super(token);
-	setName("UnionPositionOperator");
+	setName("UnionPos");
 	setType(UNION_POS);
     }
 
@@ -61,7 +61,9 @@ public class UnionPositionOperator extends TCLNode {
     }
 
     public boolean isDefault() {
-	debug("isDefault " + default_);
+	if (logger_.isDebugEnabled()) {
+	    logger_.debug("isDefault: " + default_);
+	}
 	return default_;
     }
 
@@ -70,7 +72,7 @@ public class UnionPositionOperator extends TCLNode {
     }
 
     public String toString() {
-	return "<" + (default_? "default" : "" + position_) + ">";
+	return "(" + (default_? "default" : "" + position_) + ")";
     }
 
     public void acceptPreOrder(TCLVisitor visitor) throws VisitorException {

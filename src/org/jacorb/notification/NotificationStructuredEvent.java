@@ -22,14 +22,11 @@ package org.jacorb.notification;
  */
 
 import org.omg.CORBA.ORB;
-import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.omg.CosNotification.StructuredEvent;
-import org.apache.log4j.Logger;
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.StructuredEventHelper;
 import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.ComponentOperator;
+import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.node.TCLNode;
 import org.jacorb.notification.node.IdentValue;
 import org.jacorb.notification.node.DotOperator;
@@ -37,24 +34,25 @@ import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.jacorb.notification.node.UnionPositionOperator;
-import org.jacorb.notification.node.ComponentPositionOperator;
-import org.jacorb.notification.node.ImplicitOperator;
-import org.jacorb.notification.node.ArrayOperator;
-import org.jacorb.notification.node.ImplicitOperatorNode;
-import org.jacorb.notification.node.AssocOperator;
 import org.omg.CORBA.TypeCodePackage.BadKind;
+import org.jacorb.notification.node.DynamicTypeException;
+
+/**
+ * Adapt a StructuredEvent to the NotificationEvent Interface.
+ *
+ * @author Alphonse Bendt
+ * @version $Id$
+ */
 
 class NotificationStructuredEvent extends NotificationEvent {
 
-    NotificationStructuredEvent(ApplicationContext appContext,
-				Logger logger) {
-	super(appContext, logger);
+    private Any anyValue_;
+    private StructuredEvent structuredEventValue_;
+
+    NotificationStructuredEvent(ApplicationContext appContext) {
+	super(appContext);
 	anyValue_ = applicationContext_.getOrb().create_any();
     }
-
-    Any anyValue_;
-    StructuredEvent structuredEventValue_;
 
     public void setStructuredEventValue(StructuredEvent event) {
 	structuredEventValue_ = event;
@@ -63,7 +61,7 @@ class NotificationStructuredEvent extends NotificationEvent {
 
     public void reset() {
 	super.reset();
-	anyValue_ = applicationContext_.getOrb().create_any();
+	anyValue_ = applicationContext_.getOrb().create_any();;
 	structuredEventValue_ = null;
     }
 
@@ -83,10 +81,9 @@ class NotificationStructuredEvent extends NotificationEvent {
 	return structuredEventValue_;
     }
 
-    public EvaluationResult evaluate(ComponentOperator op) throws EvaluationException {
-	logger_.debug("evaluate()");
+    public EvaluationResult evaluate(EvaluationContext evaluationContext,
+				     ComponentName op) throws EvaluationException {
 	try {
-	    logger_.debug("evaluate(" + op + ")");
 	    TCLNode _left = (TCLNode)op.left();
 	    EvaluationResult _ret = null;
 
@@ -94,16 +91,21 @@ class NotificationStructuredEvent extends NotificationEvent {
 	    case TCLNode.IDENTIFIER:
 		IdentValue _iv = (IdentValue)_left;
 		
-		_ret = NotificationEventUtils.evaluateShorthand(evaluationContext_, anyValue_, op, _iv);
+		_ret = 
+		    NotificationEventUtils.evaluateShorthand(evaluationContext, 
+							     anyValue_, 
+							     op, 
+							     _iv);
 
 		break;
 	    case TCLNode.DOT:
 		DotOperator _dot = (DotOperator)_left;
-		_ret = NotificationEventUtils.evaluateComponent(evaluationContext_, anyValue_, op);
+		_ret = NotificationEventUtils.evaluateComponent(evaluationContext, 
+								anyValue_, 
+								op);
 		break;
 	    default:
-		logger_.debug("Unexpected Node: " + _left.getClass().getName());
-		throw new RuntimeException();
+		throw new RuntimeException("Unexpected Node: " + _left.getClass().getName());
 	    }
 	    return _ret;
 	} catch (TypeMismatch tm) {
@@ -112,13 +114,16 @@ class NotificationStructuredEvent extends NotificationEvent {
 	    reThrowException(itc);
 	} catch (InvalidValue iv) {
 	    reThrowException(iv);
+	} catch (DynamicTypeException d) {
+	    reThrowException(d);
 	}
 	return null;
     }
 
-    public EvaluationResult testExists(ComponentOperator op) {
+    public EvaluationResult testExists(EvaluationContext evaluationContext,
+				       ComponentName op) {
 	try {
-	    evaluate(op);
+	    evaluate(evaluationContext, op);
 	    return EvaluationResult.BOOL_TRUE;
 	} catch (EvaluationException e) {
 	    return EvaluationResult.BOOL_FALSE;
@@ -130,12 +135,15 @@ class NotificationStructuredEvent extends NotificationEvent {
 					     structuredEventValue_.header.fixed_header.event_type.type_name);
     }
     
-    public EvaluationResult hasDefault(ComponentOperator op) throws EvaluationException {
+    public EvaluationResult hasDefault(EvaluationContext evaluationContext,
+				       ComponentName op) 
+	throws EvaluationException {
+
 	try {
-	    EvaluationResult _er = evaluate(op);
+	    EvaluationResult _er = evaluate(evaluationContext, op);
 	    Any _any = _er.getAny();
 	    
-	    if (evaluationContext_.getDynamicEvaluator().hasDefaultDiscriminator(_any)) {
+	    if (evaluationContext.getDynamicEvaluator().hasDefaultDiscriminator(_any)) {
 		return EvaluationResult.BOOL_TRUE;
 	    } else {
 		return EvaluationResult.BOOL_FALSE;
@@ -146,7 +154,8 @@ class NotificationStructuredEvent extends NotificationEvent {
     }
 
     static void reThrowException(Exception e) throws EvaluationException {
-	e.printStackTrace();
+	logger_.error("rethrow Exception:" , e);
+
 	throw new EvaluationException(e.getMessage());
     }
 }

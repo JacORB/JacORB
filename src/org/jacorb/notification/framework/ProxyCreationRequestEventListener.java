@@ -1,4 +1,4 @@
-package org.jacorb.notification.node;
+package org.jacorb.notification.interfaces;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,55 +21,24 @@ package org.jacorb.notification.node;
  *
  */
 
+import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
+
 /**
- * ImmutableEvaluationResult.java
  *
  *
- * Created: Thu Jan 02 15:48:45 2003
+ * Created: Wed Feb 12 18:20:58 2003
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version $Id$
  */
 
-public class ImmutableEvaluationResult extends EvaluationResult
-{
-    static void unsupported()
-    {
-        throw new UnsupportedOperationException();
-    }
+public interface ProxyCreationRequestEventListener {
 
-    public void reset()
-    {
-        unsupported();
-    }
-
-    public void setString( String s )
-    {
-        unsupported();
-    }
-
-    public void setFloat( float f )
-    {
-        unsupported();
-    }
-
-    public void setFloat( Double d )
-    {
-        unsupported();
-    }
-
-    public void setInt( int i )
-    {
-        unsupported();
-    }
-
-    public void setInt( Double i )
-    {
-        unsupported();
-    }
-
-    public void setBool( boolean b )
-    {
-        unsupported();
-    }
-}
+    /**
+     * This event is fired if a Admin wants to create a new Proxy. A
+     * Listener can throw AdminLimitExceeded if no more Proxies may be created.
+     */
+    void actionProxyCreationRequest(ProxyCreationRequestEvent e) 
+	throws AdminLimitExceeded;
+    
+}// ProxyCreationEventListener

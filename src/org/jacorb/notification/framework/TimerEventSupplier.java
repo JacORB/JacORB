@@ -1,4 +1,4 @@
-package org.jacorb.notification.node;
+package org.jacorb.notification.interfaces;
 
 /*
  *        JacORB - a free Java ORB
@@ -21,55 +21,23 @@ package org.jacorb.notification.node;
  *
  */
 
+import org.omg.CosEventComm.Disconnected;
+
 /**
- * ImmutableEvaluationResult.java
+ * Abstraction of a ProxyPullConsumer. This interface indicates that
+ * this ProxyPullConsumer needs to poll its Supplier regularly.
  *
- *
- * Created: Thu Jan 02 15:48:45 2003
+ * Created: Sun Feb 09 18:21:59 2003
  *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version $Id$
  */
 
-public class ImmutableEvaluationResult extends EvaluationResult
-{
-    static void unsupported()
-    {
-        throw new UnsupportedOperationException();
-    }
+public interface TimerEventSupplier {
 
-    public void reset()
-    {
-        unsupported();
-    }
+    /**
+     * poll one Event or a sequence of Events from a Supplier
+     */
+    void runPullEvent() throws Disconnected;
 
-    public void setString( String s )
-    {
-        unsupported();
-    }
-
-    public void setFloat( float f )
-    {
-        unsupported();
-    }
-
-    public void setFloat( Double d )
-    {
-        unsupported();
-    }
-
-    public void setInt( int i )
-    {
-        unsupported();
-    }
-
-    public void setInt( Double i )
-    {
-        unsupported();
-    }
-
-    public void setBool( boolean b )
-    {
-        unsupported();
-    }
 }

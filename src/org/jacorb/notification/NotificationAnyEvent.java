@@ -21,144 +21,217 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CORBA.ORB;
-import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.omg.CORBA.Any;
-import org.apache.log4j.Logger;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.EventHeader;
 import org.jacorb.notification.node.EvaluationResult;
-import org.jacorb.notification.node.ComponentOperator;
+import org.jacorb.notification.node.ComponentName;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.jacorb.notification.node.TCLNode;
 import org.jacorb.notification.node.IdentValue;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.jacorb.notification.node.DotOperator;
 import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.jacorb.notification.node.UnionPositionOperator;
-import org.jacorb.notification.node.ComponentPositionOperator;
-import org.jacorb.notification.node.ImplicitOperatorNode;
-import org.jacorb.notification.node.ArrayOperator;
-import org.jacorb.notification.node.AssocOperator;
-import org.jacorb.notification.node.ImplicitOperator;
 import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
+import org.jacorb.notification.node.DynamicTypeException;
 
-class NotificationAnyEvent extends NotificationEvent {
+/**
+ * Adapt an Any to the NotificationEvent Interface.
+ *
+ * @author Alphonse Bendt
+ * @version $Id$
+ */
 
-    static String sAnyKey = FilterUtils.calcConstraintKey("", "%ANY");
-    Any anyValue_;
-    StructuredEvent structuredEventValue_;
+class NotificationAnyEvent extends NotificationEvent
+{
 
-    NotificationAnyEvent(ApplicationContext appContext,
-			 Logger logger) {
-	super(appContext, logger);
+    private static final Property[] sFilterableData;
+    private static final EventHeader sEventHeader;
+    private static final String sAnyKey =
+        FilterUtils.calcConstraintKey( "", "%ANY" );
+
+    static {
+        EventType _type = new EventType( "", "%ANY" );
+        FixedEventHeader _fixed = new FixedEventHeader( _type, "" );
+        Property[] _variable = new Property[ 0 ];
+        sEventHeader = new EventHeader( _fixed, _variable );
+        sFilterableData = new Property[ 0 ];
     }
 
-    public void setAny(Any any) {
-	anyValue_ = any;
+    ////////////////////////////////////////
+
+    /**
+     * the wrapped value
+     */
+    private Any anyValue_;
+
+    /**
+     * the wrapped Any converted to a StructuredEvent
+     */
+    private StructuredEvent structuredEventValue_;
+
+    ////////////////////////////////////////
+
+    NotificationAnyEvent( ApplicationContext appContext )
+    {
+        super( appContext );
     }
 
-    public void reset() {
-	super.reset();
-	anyValue_ = null;
-	structuredEventValue_ = null;
+    ////////////////////////////////////////
+
+    public void setAny( Any any )
+    {
+        anyValue_ = any;
     }
 
-    public EventTypeIdentifier getEventTypeIdentifier() {
-	return null;
+    public synchronized void reset()
+    {
+        super.reset();
+        anyValue_ = null;
+        structuredEventValue_ = null;
     }
 
-    public int getType() {
-	return TYPE_ANY;
+    public EventTypeIdentifier getEventTypeIdentifier()
+    {
+        return null;
     }
 
-    public Any toAny() {
-	return anyValue_;
+    public int getType()
+    {
+        return TYPE_ANY;
     }
 
-    public StructuredEvent toStructuredEvent() {
-	if(structuredEventValue_ == null) {
-	    synchronized(this) {
-		if (structuredEventValue_ == null) {
-		    structuredEventValue_ = new StructuredEvent();
-		    EventType _type = new EventType("", "%ANY");
-		    FixedEventHeader _fixed = new FixedEventHeader(_type, "");
-		    Property[] _variable = new Property[0];
-		    structuredEventValue_.header = new EventHeader(_fixed, _variable);
-		    structuredEventValue_.filterable_data = new Property[0];
-		    structuredEventValue_.remainder_of_body = anyValue_;
-		}
-	    }
-	}
-	return structuredEventValue_;
+    public Any toAny()
+    {
+        return anyValue_;
     }
 
-    public String getConstraintKey() {
-	return sAnyKey;
+    public StructuredEvent toStructuredEvent()
+    {
+        // the conversion should only be done once !
+
+        if ( structuredEventValue_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( structuredEventValue_ == null )
+                {
+                    structuredEventValue_ = new StructuredEvent();
+                    structuredEventValue_.header = sEventHeader;
+                    structuredEventValue_.filterable_data = sFilterableData;
+                    structuredEventValue_.remainder_of_body = anyValue_;
+                }
+            }
+        }
+
+        return structuredEventValue_;
     }
 
-    public EvaluationResult testExists(ComponentOperator op) throws EvaluationException {
-	try {
-	    evaluate(op);
-	    return EvaluationResult.BOOL_TRUE;
-	} catch (EvaluationException e) {
-	    return EvaluationResult.BOOL_FALSE;
-	}
+    public String getConstraintKey()
+    {
+        return sAnyKey;
     }
 
-    public EvaluationResult hasDefault(ComponentOperator op) throws EvaluationException {
-	try {
-	    EvaluationResult _er = evaluate(op);
-	    Any _any = _er.getAny();
-	    
-	    if (evaluationContext_.getDynamicEvaluator().hasDefaultDiscriminator(_any)) {
-		return EvaluationResult.BOOL_TRUE;
-	    } else {
-		return EvaluationResult.BOOL_FALSE;
-	    }
-	} catch (BadKind bk) {
-	    throw NotificationEventUtils.getException(bk);
-	}
+    public EvaluationResult testExists( EvaluationContext evaluationContext,
+                                        ComponentName op )
+    throws EvaluationException
+    {
+
+        try
+        {
+            evaluate( evaluationContext, op );
+            return EvaluationResult.BOOL_TRUE;
+        }
+        catch ( EvaluationException e )
+        {
+            return EvaluationResult.BOOL_FALSE;
+        }
     }
 
-    public EvaluationResult evaluate(ComponentOperator op) 
-	throws EvaluationException {
+    public EvaluationResult hasDefault( EvaluationContext evaluationContext,
+                                        ComponentName op )
+    throws EvaluationException
+    {
 
-	try{
-	    TCLNode _left = (TCLNode)op.left();
-	    Any _res;
-	    EvaluationResult _ret = null;
+        try
+        {
+            EvaluationResult _er = evaluate( evaluationContext, op );
+            Any _any = _er.getAny();
 
-	    switch (_left.getType()) {
-	    case TCLNode.IDENTIFIER:
-		IdentValue _iv = (IdentValue)_left;
-
-		_ret = NotificationEventUtils.evaluateShorthand(evaluationContext_, anyValue_, op, _iv);
-		
-		break;
-	    case TCLNode.DOT:
-		_ret = NotificationEventUtils.evaluateComponent(evaluationContext_, 
-								anyValue_, 
-								op);
-
-		break;
-	    default:
-		logger_.debug("unknown left: " + _left.getClass().getName());
-		throw new RuntimeException("not implemented yet");
-	    }
-	    return _ret;
-	} catch (TypeMismatch tm) {
-	    throw NotificationEventUtils.getException(tm);
-	} catch (InconsistentTypeCode itc) {
-	    throw NotificationEventUtils.getException(itc);
-	} catch (InvalidValue iv) {
-	    throw NotificationEventUtils.getException(iv);
-	}
+            if ( evaluationContext.getDynamicEvaluator().hasDefaultDiscriminator( _any ) )
+            {
+                return EvaluationResult.BOOL_TRUE;
+            }
+            else
+            {
+                return EvaluationResult.BOOL_FALSE;
+            }
+        }
+        catch ( BadKind bk )
+        {
+            throw NotificationEventUtils.getException( bk );
+        }
     }
 
+    public EvaluationResult evaluate( EvaluationContext evaluationContext, ComponentName op )
+    throws EvaluationException
+    {
+
+        try
+        {
+            TCLNode _left = ( TCLNode ) op.left();
+            Any _res;
+            EvaluationResult _ret = null;
+
+            if ( _left == null )
+            {
+                return evaluationContext.getResultExtractor().extractFromAny( anyValue_ );
+            }
+
+            switch ( _left.getType() )
+            {
+
+            case TCLNode.IDENTIFIER:
+                IdentValue _iv = ( IdentValue ) _left;
+
+                _ret = NotificationEventUtils.evaluateShorthand( evaluationContext,
+                        anyValue_,
+                        op,
+                        _iv );
+
+                break;
+
+            case TCLNode.DOT:
+                _ret = NotificationEventUtils.evaluateComponent( evaluationContext,
+                        anyValue_,
+                        op );
+
+                break;
+
+            default:
+                throw new RuntimeException();
+            }
+
+            return _ret;
+        }
+        catch ( TypeMismatch tm )
+        {
+            throw NotificationEventUtils.getException( tm );
+        }
+        catch ( InconsistentTypeCode itc )
+        {
+            throw NotificationEventUtils.getException( itc );
+        }
+        catch ( InvalidValue iv )
+        {
+            throw NotificationEventUtils.getException( iv );
+        }
+        catch ( DynamicTypeException d )
+        {
+            throw NotificationEventUtils.getException( d );
+        }
+    }
 }

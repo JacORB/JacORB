@@ -21,147 +21,204 @@ package org.jacorb.notification;
  *
  */
 
-
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
-import org.jacorb.notification.framework.EventDispatcher;
+import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CosNotifyComm.SequencePullConsumer;
-import java.util.LinkedList;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.apache.log4j.Logger;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotification.FixedEventHeader;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.EventHeader;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CORBA.BooleanHolder;
 import java.util.List;
 import java.util.Collections;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
 
 /**
  * SequenceProxyPullSupplierImpl.java
  *
  *
- * Created: Sat Jan 11 16:57:08 2003
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class SequenceProxyPullSupplierImpl 
-    extends StructuredProxyPullSupplierImpl 
-    implements SequenceProxyPullSupplierOperations, 
-	       EventDispatcher {
+public class SequenceProxyPullSupplierImpl
+            extends StructuredProxyPullSupplierImpl
+            implements SequenceProxyPullSupplierOperations,
+            EventConsumer
+{
 
-    SequencePullConsumer sequencePullConsumer_;
-    static StructuredEvent[] undefinedSequence_;
+    private SequencePullConsumer sequencePullConsumer_;
+    private static StructuredEvent[] undefinedSequence_;
 
-    public SequenceProxyPullSupplierImpl(ApplicationContext appContext, 
-					   ChannelContext channelContext,
-					   ConsumerAdminTieImpl myAdminServant, 
-					   ConsumerAdmin myAdmin,
-					   Integer key) {
+    public SequenceProxyPullSupplierImpl( ConsumerAdminTieImpl myAdminServant,
+                                          ApplicationContext appContext,
+                                          ChannelContext channelContext,
+                                          PropertyManager adminProperties,
+                                          PropertyManager qosProperties,
+                                          Integer key )
+    {
 
-	super(
-	      appContext, 
-	      channelContext, 
-	      myAdminServant, 
-	      myAdmin,
-	      key
-	      );
+        super( myAdminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties,
+               key );
 
 
-	if (undefinedSequence_ == null) {
-	    synchronized(getClass()) {
-		if (undefinedSequence_ == null) {
-		    undefinedSequence_ = new StructuredEvent[] {undefinedStructuredEvent_};
-		}
-	    }
-	}
-    }
-    
-    public void connect_sequence_pull_consumer(SequencePullConsumer consumer) throws AlreadyConnected {
-	if (connected_) {
-	    throw new AlreadyConnected();
-	}
-	connected_ = true;
-	sequencePullConsumer_ = consumer;
-    }
+        if ( undefinedSequence_ == null )
+        {
+            synchronized ( getClass() )
+            {
+                if ( undefinedSequence_ == null )
+                {
+                    undefinedSequence_ = new StructuredEvent[] {undefinedStructuredEvent_};
+                }
+            }
+        }
 
-    public StructuredEvent[] pull_structured_events(int number) throws Disconnected {
-	logger_.debug("pull_structured_events(" + number + ")");
-	StructuredEvent[] _event = null;
-	BooleanHolder _hasEvent = new BooleanHolder();
-	while(true) {
-	    _event = try_pull_structured_events(number, _hasEvent);
-	    if(_hasEvent.value) {
-		return _event;
-	    }
-	    Thread.yield();
-	}	
+        setProxyType( ProxyType.PULL_STRUCTURED );
     }
 
-    public StructuredEvent[] try_pull_structured_events(int number, BooleanHolder success) throws Disconnected {
-	logger_.debug("try_pull_events");
+    public void connect_sequence_pull_consumer( SequencePullConsumer consumer ) throws AlreadyConnected
+    {
+        if ( connected_ )
+        {
+            throw new AlreadyConnected();
+        }
 
-	synchronized(pendingEvents_) {
-	    int _size = pendingEvents_.size();
-	    logger_.debug("size: " + _size);
-	    if (_size > 0) {
-		int _retSize = (number > _size) ? _size : number;
-		logger_.debug("retSize = " + _retSize);
-
-		StructuredEvent _ret[] = new StructuredEvent[_retSize];
-		for (int x=0; x<_retSize; ++x) {
-		    _ret[x] = (StructuredEvent)pendingEvents_.getFirst();
-		}
-		success.value = true;
-		return _ret;
-	    } else {
-		success.value = false;
-		return undefinedSequence_;
-	    }
-	}
+        connected_ = true;
+        sequencePullConsumer_ = consumer;
     }
 
-    public List getSubsequentDestinations() {
-	return Collections.singletonList(this);
-    }
-    
-    public EventDispatcher getEventDispatcher() {
-	return this;
+    public StructuredEvent[] pull_structured_events( int number ) throws Disconnected
+    {
+        StructuredEvent[] _event = null;
+        BooleanHolder _hasEvent = new BooleanHolder();
+        StructuredEvent _ret[] = undefinedSequence_;
+
+        synchronized ( pendingEvents_ )
+        {
+            try
+            {
+                while ( pendingEvents_.isEmpty() )
+                {
+                    pendingEvents_.wait();
+                }
+
+                int _availableEvents = pendingEvents_.size();
+                int _retSize = ( number > _availableEvents ) ? _availableEvents : number;
+                _ret = new StructuredEvent[ _retSize ];
+
+                for ( int x = 0; x < _retSize; ++x )
+                {
+                    _ret[ x ] = ( StructuredEvent ) pendingEvents_.removeFirst();
+                }
+            }
+            catch ( InterruptedException e )
+            {}
+
+        }
+
+        return _ret;
     }
 
-    public boolean hasEventDispatcher() {
-	return true;
+    public StructuredEvent[] try_pull_structured_events( int number, 
+							 BooleanHolder success ) 
+	throws Disconnected
+    {
+        synchronized ( pendingEvents_ )
+        {
+            int _size = pendingEvents_.size();
+
+            if ( _size > 0 )
+            {
+                int _retSize = ( number > _size ) ? _size : number;
+
+                StructuredEvent _ret[] = new StructuredEvent[ _retSize ];
+
+                for ( int x = 0; x < _retSize; ++x )
+                {
+                    _ret[ x ] = ( StructuredEvent ) pendingEvents_.removeFirst();
+                }
+
+                success.value = true;
+                return _ret;
+            }
+            else
+            {
+                success.value = false;
+                return undefinedSequence_;
+            }
+        }
     }
 
-    public void dispose() {
-	super.dispose();
-	disconnectClient();
+    public List getSubsequentFilterStages()
+    {
+        return Collections.singletonList( this );
     }
 
-    public void markError() {
-	connected_ = false;
+    public EventConsumer getEventConsumer()
+    {
+        return this;
     }
 
-    private void disconnectClient() {
-	if (connected_) {
-	    if (sequencePullConsumer_ != null) {
-		sequencePullConsumer_.disconnect_sequence_pull_consumer();
-		connected_ = false;
-		sequencePullConsumer_ = null;
-	    }
-	}
+    public boolean hasEventConsumer()
+    {
+        return true;
     }
 
-    public ConsumerAdmin MyAdmin() {
-	return (ConsumerAdmin)myAdmin_.getThisRef();
+    public void dispose()
+    {
+        super.dispose();
+        disconnectClient();
     }
 
-    public void disconnect_sequence_pull_supplier() {
-	dispose();
+    public void markError()
+    {
+        connected_ = false;
     }
 
-}// SequenceProxyPullSupplierImpl
+    private void disconnectClient()
+    {
+        if ( connected_ )
+        {
+            if ( sequencePullConsumer_ != null )
+            {
+                sequencePullConsumer_.disconnect_sequence_pull_consumer();
+                connected_ = false;
+                sequencePullConsumer_ = null;
+            }
+        }
+    }
+
+    public ConsumerAdmin MyAdmin()
+    {
+        return ( ConsumerAdmin ) myAdmin_.getThisRef();
+    }
+
+    public void disconnect_sequence_pull_supplier()
+    {
+        dispose();
+    }
+
+    public Servant getServant()
+    {
+        if ( thisServant_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( thisServant_ == null )
+                {
+                    thisServant_ = new SequenceProxyPullSupplierPOATie( this );
+                }
+            }
+        }
+
+        return thisServant_;
+    }
+
+} // SequenceProxyPullSupplierImpl

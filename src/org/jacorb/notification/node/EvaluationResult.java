@@ -21,19 +21,16 @@ package org.jacorb.notification.node;
  *
  */
 
-import org.omg.CORBA.TCKind;
+import org.jacorb.notification.parser.TCLParserTokenTypes;
 import org.omg.CORBA.Any;
 import org.jacorb.notification.EvaluationContext;
-import org.jacorb.notification.framework.Poolable;
+import org.jacorb.notification.interfaces.Poolable;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.omg.CORBA.TypeCodePackage.BadKind;
 import org.omg.CORBA.TypeCodePackage.Bounds;
 import org.jacorb.notification.util.ObjectPoolBase;
-import org.jacorb.notification.node.DynamicTypeException;
-import org.jacorb.notification.EvaluationContext;
-import org.omg.CORBA.Any;
-import org.jacorb.notification.evaluate.EvaluationException;
-import org.jacorb.notification.util.ObjectPoolBase;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * EvaluationResult.java
@@ -45,14 +42,7 @@ import org.jacorb.notification.util.ObjectPoolBase;
  * @version $Id$
  */
 
-public class EvaluationResult implements TCLTokenTypes, Poolable {
-    private boolean isFloat_;
-    private Object value_;
-    protected Object getValue() {return value_;}
-    private Object setValue(Object value_) { this.value_=value_; return value_;}
-
-    private Any any_;
-    private ObjectPoolBase objectPool_ = null;
+public class EvaluationResult extends Poolable implements TCLParserTokenTypes {
 
     public static final EvaluationResult BOOL_TRUE;
     public static final EvaluationResult BOOL_FALSE;
@@ -64,6 +54,25 @@ public class EvaluationResult implements TCLTokenTypes, Poolable {
 	_r = new EvaluationResult();
 	_r.setBool(false);
 	BOOL_FALSE = wrapImmutable(_r);
+    }
+
+    static Logger logger_ = 
+	Hierarchy.getDefaultHierarchy().getLoggerFor(EvaluationResult.class.getName());
+
+    private boolean isFloat_;
+    private Object value_;
+    private Any any_;
+
+    protected Object getValue() {
+	return value_;
+    }
+
+    private Object setValue(Object value) {
+	Object _old = value_;
+
+	value_=value;
+
+	return _old;
     }
 
     public void reset() {
@@ -102,6 +111,7 @@ public class EvaluationResult implements TCLTokenTypes, Poolable {
     // try catch, instanceOf, membervariable
     public int getInt() throws DynamicTypeException {
 	int _n;
+
 	if (getValue() != null) {
 	    try {
 		return ((Double)getValue()).intValue();
@@ -138,7 +148,7 @@ public class EvaluationResult implements TCLTokenTypes, Poolable {
 	} catch (ClassCastException c) {}
 
 	try {
-	    return ((Boolean)getValue()).booleanValue() ? (float)1.0 : 0;
+	    return ((Boolean)getValue()).booleanValue() ? 1f : 0;
 	} catch (ClassCastException c2) {}
 
 	try {
@@ -193,11 +203,15 @@ public class EvaluationResult implements TCLTokenTypes, Poolable {
 	return super.equals(o);
     }
 
-    public int compareTo(EvaluationContext context, EvaluationResult other) throws DynamicTypeException, 
-										   EvaluationException {
+    public int compareTo(EvaluationContext context, 
+			 EvaluationResult other) throws DynamicTypeException, 
+							EvaluationException {
+
 	int _ret = Integer.MAX_VALUE;
 
-	debug("compare " + this + ", " + other);
+	if (logger_.isDebugEnabled()) {
+	    logger_.debug("compare " + this + ", " + other);
+	}
 
 	if (getValue() == null && any_ != null && other.getValue() instanceof String) {
 	    try {
@@ -246,30 +260,14 @@ public class EvaluationResult implements TCLTokenTypes, Poolable {
 	if (_ret == Integer.MAX_VALUE) {
 	    throw new DynamicTypeException();
 	}
+
 	return _ret;
-    }
-
-    boolean DEBUG = false;
-
-    void debug(String msg) {
-	if (DEBUG) {
-	    System.err.println("[EvaluationResult] " +msg);
-	}
-    }
-
-    public void setObjectPool(ObjectPoolBase objectPool) {
-	objectPool_ = objectPool;
-    }
-
-    public void release() {
-	if (objectPool_ != null) {
-	    objectPool_.returnObject(this);
-	}
     }
 
     public static EvaluationResult wrapImmutable(EvaluationResult er) {
 	return new ImmutableEvaluationResultWrapper(er);
     }
+
 }// EvaluationResult
 
 class ImmutableEvaluationResultWrapper extends EvaluationResult {
@@ -278,55 +276,57 @@ class ImmutableEvaluationResultWrapper extends EvaluationResult {
 	throw new UnsupportedOperationException();
     }
 
-    EvaluationResult er_;
+    private EvaluationResult delegate_;
 
     public int compareTo(EvaluationContext evaluationContext, 
-			 EvaluationResult evaluationResult) throws DynamicTypeException, EvaluationException {
-	return er_.compareTo(evaluationContext, evaluationResult);
+			 EvaluationResult evaluationResult) throws DynamicTypeException, 
+								   EvaluationException {
+
+	return delegate_.compareTo(evaluationContext, evaluationResult);
     }
 
     public Object getValue() {
-	return er_.getValue();
+	return delegate_.getValue();
     }
 
     public int getInt() throws DynamicTypeException {
-	return er_.getInt();
+	return delegate_.getInt();
     }
 
     public float getFloat() throws DynamicTypeException {
-	return er_.getFloat();
+	return delegate_.getFloat();
     }
 
     public boolean equals(Object object) {
-	return er_.equals(object);
+	return delegate_.equals(object);
     }
 
     public String toString() {
-	return er_.toString();
+	return delegate_.toString();
     }
 
     public String getString() throws DynamicTypeException {
-	return er_.getString();
+	return delegate_.getString();
     }
 
     public boolean isFloat() {
-	return er_.isFloat();
+	return delegate_.isFloat();
     }
 
     public boolean getBool() throws DynamicTypeException {
-	return er_.getBool();
+	return delegate_.getBool();
     }
 
     public Any getAny() {
-	return er_.getAny();
+	return delegate_.getAny();
     }
 
     public void setObjectPool(ObjectPoolBase objectPoolBase) {
-	er_.setObjectPool(objectPoolBase);
+	delegate_.setObjectPool(objectPoolBase);
     }
 
     ImmutableEvaluationResultWrapper(EvaluationResult er) {
-	er_ = er;
+	delegate_ = er;
     }
     
     public void reset() {

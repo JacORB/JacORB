@@ -21,14 +21,11 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CORBA.ORB;
-import org.jacorb.notification.evaluate.DynamicEvaluator;
-import org.jacorb.notification.evaluate.ResultExtractor;
-import org.jacorb.notification.framework.DistributorNode;
+import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.Poolable;
 import org.jacorb.notification.util.ObjectPoolBase;
-import org.jacorb.notification.framework.Poolable;
 import org.omg.CORBA.Any;
-import org.apache.log4j.Logger;
+import org.omg.CORBA.ORB;
 import org.omg.CosNotification.StructuredEvent;
 
 /**
@@ -41,106 +38,99 @@ import org.omg.CosNotification.StructuredEvent;
  * @version $Id$
  */
 
-public class NotificationEventFactory {
+public class NotificationEventFactory
+{
     ApplicationContext appContext_;
 
-    ObjectPoolBase notificationAnyEventPool_ = new ObjectPoolBase() {
-	    public Object newInstance() {
-		Poolable _p = 
-		    new NotificationAnyEvent(appContext_,
-					     Logger.getLogger("NotificationEvent.Any"));
-		return _p;
-	    }
-	    
-	    public void passivateObject(Object o) {
+    private ObjectPoolBase notificationAnyEventPool_ =
+        new ObjectPoolBase()
+        {
+            public Object newInstance()
+            {
+                Poolable _p =
+                    new NotificationAnyEvent( appContext_ );
+                return _p;
+            }
 
-	    }
-	    
-	    public void activateObject(Object o) {
-		((Poolable)o).reset();
-		((Poolable)o).setObjectPool(this);
-	    }
-	};
-    
-    ObjectPoolBase notificationStructuredEventPool_ = new ObjectPoolBase() {
-	    public Object newInstance() {
-		Poolable _p = new NotificationStructuredEvent(appContext_,
-							      Logger.getLogger("NotificationEvent.Structured"));
-		return _p;
-	    }
+            public void passivateObject( Object o )
+            {
+            }
 
-	    public void passivateObject(Object o) {
+            public void activateObject( Object o )
+            {
+                ( ( Poolable ) o ).reset();
+                ( ( Poolable ) o ).setObjectPool( this );
+            }
+        };
 
-	    }
+    private ObjectPoolBase notificationStructuredEventPool_ =
+        new ObjectPoolBase()
+        {
+            public Object newInstance()
+            {
+                Poolable _p = new NotificationStructuredEvent( appContext_ );
+                return _p;
+            }
 
-	    public void activateObject(Object o) {
-		((Poolable)o).reset();
-		((Poolable)o).setObjectPool(this);
-	    }
-	};
+            public void passivateObject( Object o )
+            {
+            }
 
-    public NotificationEventFactory(ApplicationContext appContext) {
-	appContext_ = appContext;
+            public void activateObject( Object o )
+            {
+                ( ( Poolable ) o ).reset();
+                ( ( Poolable ) o ).setObjectPool( this );
+            }
+        };
+
+    public NotificationEventFactory( ApplicationContext appContext )
+    {
+        appContext_ = appContext;
     }
 
-    public void init() {
-	notificationAnyEventPool_.init();
-	notificationStructuredEventPool_.init();
+    public void init()
+    {
+        notificationAnyEventPool_.init();
+        notificationStructuredEventPool_.init();
     }
 
     // Used by the Proxies
 
-    public NotificationEvent newEvent(Any event, DistributorNode firstHop) {
-	NotificationEvent _e = newEvent(event);
+    public NotificationEvent newEvent( Any event, FilterStage firstStage )
+    {
+        NotificationEvent _e = newEvent( event );
 
-	_e.setDistributorNode(firstHop);
+        _e.setFilterStage( firstStage );
 
-	return _e;
+        return _e;
     }
 
-    public NotificationEvent newEvent(StructuredEvent event, DistributorNode firstHop) {
-	NotificationEvent _e = newEvent(event);
+    public NotificationEvent newEvent( StructuredEvent event, 
+				       FilterStage firstStage )
+    {
+        NotificationEvent _e = newEvent( event );
 
-	_e.setDistributorNode(firstHop);
+        _e.setFilterStage( firstStage );
 
-	return _e;
+        return _e;
     }
 
-    // Used by the Filter
+    public NotificationEvent newEvent( Any event )
+    {
+        NotificationAnyEvent _e =
+            ( NotificationAnyEvent ) notificationAnyEventPool_.lendObject();
 
-    public NotificationEvent newEvent(StructuredEvent event, EvaluationContext context) {
-	NotificationEvent _event = newEvent(event);
-
-	_event.setEvaluationContext(context);
-
-	return _event;
+        _e.setAny( event );
+        return _e;
     }
 
-    public NotificationEvent newEvent(Any event, EvaluationContext context) {
-	NotificationEvent _e = newEvent(event);
+    public NotificationEvent newEvent( StructuredEvent event )
+    {
+        NotificationStructuredEvent _e =
+            ( NotificationStructuredEvent ) notificationStructuredEventPool_.lendObject();
 
-	_e.setEvaluationContext(context);
-
-	return _e;
+        _e.setStructuredEventValue( event );
+        return _e;
     }
 
-    // internal use
-    // fetch from object pool
-
-    protected NotificationEvent newEvent(Any event) {
-	NotificationAnyEvent _e = 
-	    (NotificationAnyEvent)notificationAnyEventPool_.lendObject();
-
-	_e.setAny(event);
-	return _e;
-    }
-
-    protected NotificationEvent newEvent(StructuredEvent event) {
-	NotificationStructuredEvent _e = 
-	    (NotificationStructuredEvent)notificationStructuredEventPool_.lendObject();
-
-	_e.setStructuredEventValue(event);
-	return _e;
-    }
-
-}// NotificationEventFactory
+} // NotificationEventFactory

@@ -1,3 +1,5 @@
+package org.jacorb.notification.node;
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -18,7 +20,11 @@
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-package org.jacorb.notification.node;
+
+import org.omg.CORBA.TCKind;
+import org.jacorb.notification.parser.TCLParserTokenTypes;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * StaticTypeChecker.java
@@ -26,12 +32,13 @@ package org.jacorb.notification.node;
  *
  * Created: Sat Jul 06 18:27:41 2002
  *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
- * @version
+ * @author Alphonse Bendt
+ * @version $Id$
  */
-import org.omg.CORBA.TCKind;
 
-public class StaticTypeChecker extends TCLVisitor implements TCLTokenTypes {
+public class StaticTypeChecker extends TCLVisitor implements TCLParserTokenTypes {
+
+    Logger logger_ = Hierarchy.getDefaultHierarchy().getLoggerFor(getClass().getName());
 
     public void check(TCLNode rootNode) throws StaticTypeException {
 	try {
@@ -39,10 +46,6 @@ public class StaticTypeChecker extends TCLVisitor implements TCLTokenTypes {
 	} catch (VisitorException e) {
 	    throw new StaticTypeException(e.getMessage());
 	}
-    }
-
-    static void debug(String msg) {
-	System.err.println("[StaticTypeChecker] " + msg);
     }
 
     static void checkBinaryNumaryOperatorNode(TCLNode node)

@@ -21,7 +21,6 @@ package org.jacorb.notification;
  *
  */
 
-
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
@@ -33,86 +32,106 @@ import java.util.Collections;
 /**
  * FilterManager.java
  *
- *
- * Created: Thu Jan 09 16:15:08 2003
- *
- * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class FilterManager implements FilterAdminOperations {
+public class FilterManager implements FilterAdminOperations
+{
+
     protected List filters_;
     protected List filtersReadOnlyView_;
     protected int filterIdPool_ = 0;
-    
 
-    public static FilterManager EMPTY = new FilterManager(Collections.EMPTY_LIST);
-    
-    protected FilterManager(List list) {
-	filters_ = list;
-	filtersReadOnlyView_ = Collections.unmodifiableList(filters_);
+    public static FilterManager EMPTY = new FilterManager( Collections.EMPTY_LIST );
+
+    protected FilterManager( List list )
+    {
+        filters_ = list;
+        filtersReadOnlyView_ = Collections.unmodifiableList( filters_ );
     }
 
-    FilterManager() {
-	this(new Vector());
+    FilterManager()
+    {
+        this( new Vector() );
     }
-    
-    protected int getFilterId() {
-	return ++filterIdPool_;
+
+    protected int getFilterId()
+    {
+        return ++filterIdPool_;
     }
 
     // Implementation of org.omg.CosNotifyFilter.FilterAdminOperations
 
-    public int add_filter(Filter filter) {
-	int _key = getFilterId();
+    public int add_filter( Filter filter )
+    {
+        int _key = getFilterId();
 
-	KeyedListEntry _entry = new KeyedListEntry(_key, filter);
-	filters_.add(_entry);
+        KeyedListEntry _entry = new KeyedListEntry( _key, filter );
+        filters_.add( _entry );
 
-	return _key;
+        return _key;
     }
 
-    public void remove_filter(int filterId) throws FilterNotFound {
-	Iterator _i = filters_.iterator();
-	while (_i.hasNext()) {
-	    KeyedListEntry _entry = (KeyedListEntry)_i.next();
-	    if (_entry.key_ == filterId) {
-		_i.remove();
-		return;
-	    }
-	}
-	throw new FilterNotFound();
+    public void remove_filter( int filterId ) throws FilterNotFound
+    {
+        Iterator _i = filters_.iterator();
+
+        while ( _i.hasNext() )
+        {
+            KeyedListEntry _entry = ( KeyedListEntry ) _i.next();
+
+            if ( _entry.getKey() == filterId )
+            {
+                _i.remove();
+                return ;
+            }
+        }
+
+        throw new FilterNotFound();
     }
 
-    public Filter get_filter(int filterId) throws FilterNotFound {
-	Iterator _i = filters_.iterator();
-	while (_i.hasNext()) {
-	    KeyedListEntry _entry = (KeyedListEntry)_i.next();
-	    if (_entry.key_ == filterId) {
-		return (Filter)_entry.getValue();
-	    }
-	}
-	throw new FilterNotFound();
+    public Filter get_filter( int filterId ) throws FilterNotFound
+    {
+        Iterator _i = filters_.iterator();
+
+        while ( _i.hasNext() )
+        {
+            KeyedListEntry _entry = ( KeyedListEntry ) _i.next();
+
+            if ( _entry.getKey() == filterId )
+            {
+                return ( Filter ) _entry.getValue();
+            }
+        }
+
+        throw new FilterNotFound();
     }
 
-    public int[] get_all_filters() {
-	int[] _allKeys = new int[filters_.size()];
-	
-	Iterator _i = filters_.iterator();
-	int x=0;
-	while (_i.hasNext()) {
-	    KeyedListEntry _entry = (KeyedListEntry)_i.next();
-	    _allKeys[x++] = _entry.key_;
-	}
+    public int[] get_all_filters()
+    {
+        int[] _allKeys = new int[ filters_.size() ];
 
-	return _allKeys;
+        Iterator _i = filters_.iterator();
+        int x = 0;
+
+        while ( _i.hasNext() )
+        {
+            KeyedListEntry _entry = ( KeyedListEntry ) _i.next();
+            _allKeys[ x++ ] = _entry.getKey();
+        }
+
+        return _allKeys;
     }
 
-    public void remove_all_filters() {
-	filters_.clear();
+    public void remove_all_filters()
+    {
+        filters_.clear();
     }
 
-    public List getFilters() {
-	return filtersReadOnlyView_;
+    public List getFilters()
+    {
+        return filtersReadOnlyView_;
     }
-}// FilterManager
+
+} // FilterManager

@@ -37,16 +37,18 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
-import org.apache.log4j.Logger;
+import org.apache.log.Logger;
 import org.omg.CORBA.Any;
 import org.omg.CosEventComm.PullConsumer;
 import org.omg.PortableServer.POA;
 import org.omg.CORBA.BooleanHolder;
-import org.jacorb.notification.framework.EventDispatcher;
+import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CosEventComm.Disconnected;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
 
 /**
  * @author Alphonse Bendt
@@ -57,40 +59,58 @@ public class ProxyPullSupplierImpl
     extends ProxyBase
     implements ProxyPullSupplierOperations,
 	       org.omg.CosEventChannelAdmin.ProxyPullSupplierOperations,
-	       EventDispatcher {
+	       EventConsumer {
 
-    private PullConsumer myPullConsumer_ = null;
-    private boolean connected = false;
-    private LinkedList pendingEvents = new LinkedList();
-    private final int maxListSize = 200;
-    private static Any undefinedAny = null;
+    private PullConsumer pullConsumer_ = null;
+    private boolean connected_ = false;
+    private LinkedList pendingEvents_ = new LinkedList();
+    private int maxListSize_ = 200;
+    private static Any sUndefinedAny = null;
 
-    ProxyPullSupplierImpl (ApplicationContext appContext,
-			   ChannelContext channelContext,
-			   ConsumerAdminTieImpl adminServant,
-			   ConsumerAdmin myAdmin) {
+    ProxyPullSupplierImpl(ConsumerAdminTieImpl adminServant,
+			  ApplicationContext appContext,
+			  ChannelContext channelContext,
+			  PropertyManager adminProperties,
+			  PropertyManager qosProperties) {
 
 	super(adminServant, 
 	      appContext,
 	      channelContext, 
-	      Logger.getLogger("Proxy.ProxyPullSupplier"));
+	      adminProperties,
+	      qosProperties
+);
 
-	setProxyType(ProxyType.PULL_ANY);
-        connected = false;
-        undefinedAny = appContext.getOrb().create_any();
+	init(appContext);
     }
 
-    ProxyPullSupplierImpl (ApplicationContext appContext,
-			   ChannelContext channelContext,
-			   ConsumerAdminTieImpl adminServant,
-			   ConsumerAdmin myAdmin,
-			   Integer key) {
+    ProxyPullSupplierImpl(ConsumerAdminTieImpl adminServant,
+			  ApplicationContext appContext,
+			  ChannelContext channelContext,
+			  PropertyManager adminProperties,
+			  PropertyManager qosProperties,
+			  Integer key) {
 
-	super(adminServant, appContext ,channelContext, key, Logger.getLogger("Proxy.ProxyPullSupplier"));
+	super(adminServant, 
+	      appContext ,
+	      channelContext, 
+	      adminProperties,
+	      qosProperties,
+	      key
+);
 
+	init(appContext);
+    }
+
+    private void init(ApplicationContext appContext) {
 	setProxyType(ProxyType.PULL_ANY);
-        connected = false;
-        undefinedAny = appContext.getOrb().create_any();
+        connected_ = false;
+	if (sUndefinedAny == null) {
+	    synchronized(getClass()) {
+		if (sUndefinedAny == null) {
+		    sUndefinedAny = appContext.getOrb().create_any();
+		}
+	    }
+	}
     }
 
     public void disconnect_pull_supplier() {
@@ -98,122 +118,136 @@ public class ProxyPullSupplierImpl
     }
 
     private void disconnect() {
-	if (myPullConsumer_ != null) {
-	    logger_.debug("disconnect()");
-	    myPullConsumer_.disconnect_pull_consumer();
-	    myPullConsumer_ = null;
+	if (pullConsumer_ != null) {
+	    pullConsumer_.disconnect_pull_consumer();
+	    pullConsumer_ = null;
 	}
     }
 
-    public Any pull ()
+    public Any pull()
         throws Disconnected {
-        Any event = null;
-        BooleanHolder hasEvent = new org.omg.CORBA.BooleanHolder();
-        while (true) {
-            event = try_pull( hasEvent );
-            if ( hasEvent.value ) {
-                return event;
-            }
-            Thread.yield();
-        }
-    }
+        Any _event = null;
 
-    /**
-     * PullSupplier Interface.
-     * section 2.1.3 states that "The <b>try_pull</b> operation does not block:
-     *   if  the event data is available, it returns the event data and sets the
-     *   <b>has_event</b> parameter to true; if the event is not available, it
-     *   sets the <b>has_event</b> parameter to false and the event data is
-     *   returned as long with an undefined value.
-     * It seems that the event queue should be defined as a LIFO queue.  Finton
-     * Bolton in his book Pure CORBA states that this is the "norm".  I think
-     * that is really stupid.  Who wants events in reverse order with a
-     * possibility of never getting the first messge?  I will therefore implement
-     * this as a FIFO queue and wait for someone to convince me otherwise.
-     */
+	if (!connected_) {
+	    throw new Disconnected();
+	}
+
+	synchronized(pendingEvents_) {
+	    while (pendingEvents_.isEmpty()) {
+		try {
+		    pendingEvents_.wait();
+		    _event = (Any)pendingEvents_.getFirst();
+		    pendingEvents_.remove(_event);
+		} catch (InterruptedException e) {}
+	    }
+	}
+	return _event;
+    }
 
     public Any try_pull (BooleanHolder hasEvent)
         throws Disconnected {
 
-        if (!connected) { 
+        if (!connected_) { 
 	    throw new Disconnected(); 
 	}
 
         Any event = null;
 
-        synchronized(pendingEvents) {
-            int listSize = pendingEvents.size();
-            if (listSize > 0) {
-                event = (Any)pendingEvents.getFirst();
-                pendingEvents.remove( event );
+        synchronized(pendingEvents_) {
+            if (!pendingEvents_.isEmpty()) {
+                event = (Any)pendingEvents_.getFirst();
+                pendingEvents_.remove(event);
                 hasEvent.value = true;
                 return event;
             } else {
                 hasEvent.value = false;
-                return undefinedAny;
+                return sUndefinedAny;
             }
         }
     }
 
     /**
-     * Have to be able to get to the internal list of events.  This is how
-     * to add stuff to this list.
-     * I have to decide whether to a) just ignore the event, b) add the event
-     * to the queue and remove the oldest event, c) throw an runtime exception.
-     * Right now, I'm going with option b.
+     * Deliver Event to the underlying Consumer. As our Consumer is a
+     * PullConsumer we simply put the Events in a Queue. The
+     * PullConsumer will pull the Events out of the Queue at a later time.
      */
-
-    public void dispatchEvent(NotificationEvent event) {
-         synchronized(pendingEvents) {
-             if (pendingEvents.size() > maxListSize) {
-                 pendingEvents.remove(pendingEvents.getFirst());
-             }
-             pendingEvents.add(event.toAny());
-         }
-     }
+    public void deliverEvent(NotificationEvent event) {
+	synchronized(pendingEvents_) {
+	    if (pendingEvents_.size() > maxListSize_) {
+		pendingEvents_.remove(pendingEvents_.getFirst());
+	    }
+	    pendingEvents_.add(event.toAny());
+	    pendingEvents_.notifyAll();
+	}
+    }
 
     public void connect_any_pull_consumer(PullConsumer pullConsumer) throws AlreadyConnected {
-	logger_.info("connect_any_pull_consumer()");
-
-	if (connected) {
-	    throw new AlreadyConnected();
-	}
-	connected = true;
-	myPullConsumer_ = pullConsumer;
+	connect_pull_consumer(pullConsumer);
     }
 
     public void connect_pull_consumer(PullConsumer consumer) throws AlreadyConnected {
 	logger_.info("connect_pull_consumer()");
 
-	if (connected) {
+	if (connected_) {
 	    throw new AlreadyConnected();
 	}
-	connected = true;
-	myPullConsumer_ = consumer;
+
+	connected_ = true;
+	pullConsumer_ = consumer;
     }
 
     public ConsumerAdmin MyAdmin() {
 	return (ConsumerAdmin)myAdmin_.getThisRef();
     }
 
-    public List getSubsequentDestinations() {
+    public List getSubsequentFilterStages() {
 	return Collections.singletonList(this);
     }
 
-    public EventDispatcher getEventDispatcher() {
+    public EventConsumer getEventConsumer() {
 	return this;
     }
 
-    public boolean hasEventDispatcher() {
+    public boolean hasEventConsumer() {
 	return true;
     }
 
     public void dispose() {
 	super.dispose();
 	disconnect();
+	pendingEvents_.clear();
     }
 
-    public void markError() {
-	disconnect();
+    public void enableDelivery() {
+	// as delivery to this PullSupplier causes no cost
+	// we can ignore this
+    }
+
+    public void disableDelivery() {
+	// as delivery to this PullSupplier causes no cost
+	// we can ignore this
+    }
+
+    public void deliverPendingEvents() {
+	// as we cannot actively deliver events we can ignore this
+    }
+
+    public Servant getServant() {
+	if (thisServant_ == null) {
+	    synchronized(this) {
+		if (thisServant_ == null) {
+		    thisServant_ = new ProxyPullSupplierPOATie(this);
+		}
+	    }
+	}
+	return thisServant_;
+    }
+
+    public void setServant(Servant servant) {
+	thisServant_ = servant;
+    }
+
+    public boolean hasPendingEvents() {
+	return !pendingEvents_.isEmpty();
     }
 }

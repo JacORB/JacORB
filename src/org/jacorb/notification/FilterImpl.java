@@ -25,17 +25,19 @@ import EDU.oswego.cs.dl.util.concurrent.ReadWriteLock;
 import EDU.oswego.cs.dl.util.concurrent.WriterPreferenceReadWriteLock;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import org.jacorb.notification.evaluate.ConstraintEvaluator;
+import org.jacorb.notification.evaluate.FilterConstraint;
 import org.jacorb.notification.evaluate.DynamicEvaluator;
 import org.jacorb.notification.evaluate.EvaluationException;
 import org.jacorb.notification.evaluate.ResultExtractor;
+import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.node.DynamicTypeException;
-import org.jacorb.notification.node.EvaluationResult;
+import org.jacorb.notification.util.WildcardMap;
+import org.jacorb.notification.util.CachingWildcardMap;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.ORB;
-import org.omg.CORBA.ORBPackage.InvalidName;
-import org.omg.CORBA.UNKNOWN;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
@@ -47,16 +49,11 @@ import org.omg.CosNotifyFilter.FilterPOA;
 import org.omg.CosNotifyFilter.InvalidConstraint;
 import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-import org.jacorb.notification.util.WildcardMap;
-import java.util.Arrays;
-import java.util.List;
-import java.util.LinkedList;
-import org.jacorb.util.Debug;
-import org.jacorb.notification.util.ObjectPoolBase;
-import org.jacorb.notification.framework.Poolable;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAPackage.ObjectNotActive;
+import org.omg.PortableServer.POAPackage.WrongPolicy;
+import org.apache.log.Logger;
+import org.apache.log.Hierarchy;
 
 /**
  * FilterImpl.java
@@ -128,15 +125,18 @@ import org.jacorb.notification.framework.Poolable;
  * is attached to receive. Operations are also defined to support
  * administration of this callback list by unique identifier. <br>
  *
- * Created: Sat Oct 12 17:30:55 2002
- *
  * @author <a href="mailto:bendt@inf.fu-berlin.de">Alphonse Bendt</a>
  * @version $Id$
  */
 
-public class FilterImpl extends FilterPOA {
+public class FilterImpl extends FilterPOA implements Disposable
+{
 
-    final static RuntimeException NOT_SUPPORTED = new UnsupportedOperationException();
+    static Logger logger_ =
+        Hierarchy.getDefaultHierarchy().getLoggerFor( FilterImpl.class.getName() );
+
+    final static RuntimeException NOT_SUPPORTED =
+        new UnsupportedOperationException();
 
     /**
      * contains a number of callbacks, which are notified each time there is a
@@ -150,7 +150,7 @@ public class FilterImpl extends FilterPOA {
     protected Map constraints_;
 
     protected WildcardMap wildcardMap_;
-    
+
     protected ReadWriteLock constraintsLock_;
 
     protected Map eventTypeMap_;
@@ -171,40 +171,38 @@ public class FilterImpl extends FilterPOA {
 
     protected NotificationEventFactory notificationEventFactory_;
 
+    FilterImpl( String constraintGrammar,
+                ApplicationContext applicationContext )
+    {
+        super();
 
-    FilterImpl(String constraintGrammar, 
-	       ApplicationContext applicationContext, 
-	       DynAnyFactory dynAnyFactory, 
-	       ResultExtractor resultExtractor,
-	       DynamicEvaluator dynamicEvaluator) {
+        applicationContext_ = applicationContext;
+        orb_ = applicationContext.getOrb();
+        constraintGrammar_ = constraintGrammar;
 
-	super();
-	
-	applicationContext_ = applicationContext;
-	orb_ = applicationContext.getOrb();
-	constraintGrammar_ = constraintGrammar;
-	
-	notificationEventFactory_= applicationContext.getNotificationEventFactory();
+        notificationEventFactory_ =
+            applicationContext.getNotificationEventFactory();
 
-	dynAnyFactory_ = dynAnyFactory;
-	resultExtractor_ = resultExtractor;
-	dynamicEvaluator_ = dynamicEvaluator;
+        dynAnyFactory_ = applicationContext.getDynAnyFactory();
+        resultExtractor_ = applicationContext.getResultExtractor();
+        dynamicEvaluator_ = applicationContext.getDynamicEvaluator();
 
-	constraints_ = new Hashtable();
-	constraintsLock_ = new WriterPreferenceReadWriteLock();
-	wildcardMap_ = new WildcardMap();
-	eventTypeMap_ = new Hashtable();
-    }
-  
-    public void init() {
+        constraints_ = new Hashtable();
+        constraintsLock_ = new WriterPreferenceReadWriteLock();
+        wildcardMap_ = new CachingWildcardMap(4);
+        eventTypeMap_ = new Hashtable();
     }
 
-    protected int getConstraintId() {
-	return (++constraintIdPool_);
+    public void init()
+    {}
+
+    protected int getConstraintId()
+    {
+        return ( ++constraintIdPool_ );
     }
 
-    protected void releaseConstraintId(int id) {
-    }
+    protected void releaseConstraintId( int id )
+    {}
 
     /**
      * The constraint_grammar attribute is a readonly attribute which
@@ -212,12 +210,14 @@ public class FilterImpl extends FilterPOA {
      * expressions encapsulated by the target filter object have
      * meaning.
      */
-    public String constraint_grammar() {
-	return constraintGrammar_;
+    public String constraint_grammar()
+    {
+        return constraintGrammar_;
     }
 
     /**
-     * The <code>add_constraints</code> operation is invoked by a client in order
+     * The <code>add_constraints</code> operation is invoked by a
+     * client in order 
      * to associate one or more new constraints with the target filter
      * object. The operation accepts as input a sequence of constraint
      * data structures, each element of which consists of a sequence
@@ -232,13 +232,16 @@ public class FilterImpl extends FilterPOA {
      * exception is raised. This exception contains as data the
      * specific constraint expression that was determined to be
      * invalid. Upon successful processing of all input constraint
-     * expressions, the <code>add_constraints</code> operation returns a sequence
+     * expressions, the <code>add_constraints</code> operation returns
+     * a sequence 
      * in which each element will be a structure including one of the
      * input constraint expressions, along with the unique identifier
      * assigned to it by the target filter object. <br>
-     * Note that the semantics of the <code>add_constraints</code> operation are
+     * Note that the semantics of the <code>add_constraints</code>
+     * operation are 
      * such that its sideeffects are performed atomically upon the
-     * target filter object. Once <code>add_constraints</code> is invoked by a
+     * target filter object. Once <code>add_constraints</code> is
+     * invoked by a 
      * client, the target filter object is temporarily disabled from
      * usage by any proxy object it may be associated with. The
      * operation is then carried out, either successfully adding all
@@ -248,392 +251,600 @@ public class FilterImpl extends FilterPOA {
      * effectively re-enabled and can once again be used by associated
      * filter objects in order to make event forwarding decisions. 
      */
-    public ConstraintInfo[] add_constraints(ConstraintExp[] constraintExp) 
-	throws InvalidConstraint {
+    public ConstraintInfo[] add_constraints( ConstraintExp[] constraintExp )
+	throws InvalidConstraint
+    {
 
-	ConstraintEvaluator[] _arrayConstraintEvaluator = new ConstraintEvaluator[constraintExp.length];
+        FilterConstraint[] _arrayConstraintEvaluator =
+            new FilterConstraint[ constraintExp.length ];
 
-	for (int x=0; x<constraintExp.length; x++) {
-	    _arrayConstraintEvaluator[x] = new ConstraintEvaluator(orb_, constraintExp[x]);
-	}
+        for ( int _x = 0; _x < constraintExp.length; _x++ )
+        {
+            _arrayConstraintEvaluator[ _x ] =
+                new FilterConstraint( constraintExp[ _x ] );
+        }
 
-	ConstraintInfo[] _arrayConstraintInfo = new ConstraintInfo[constraintExp.length];
+        ConstraintInfo[] _arrayConstraintInfo =
+            new ConstraintInfo[ constraintExp.length ];
 
-	try {
-	    // access writeonly lock
-	    constraintsLock_.writeLock().acquire();
-	    try {
-		// protected section
-		
-		for (int x=0; x<constraintExp.length; x++) {
-		    // we do not create the constraint id's in the upper loop
-		    // therefor they are still available if one constraint is invalid			
-		    int _constraintId = getConstraintId();
-		    
-		    _arrayConstraintInfo[x] = new ConstraintInfo(constraintExp[x], _constraintId);
-			
+        try
+        {
+            // access writeonly lock
+            constraintsLock_.writeLock().acquire();
 
-		    ConstraintEntry _entry = new ConstraintEntry(_constraintId,
-								 _arrayConstraintEvaluator[x],
-								 _arrayConstraintInfo[x]);
-			
-		    int _eventTypeCount = _entry.getEventTypeCount();
-		    for (int y=0; y<_eventTypeCount; ++y) {
-			EventTypeIdentifier _eventTypeIdentifier = _entry.getEventTypeIdentifier(y);
-			List _listOfConstraintEvaluator = (List)wildcardMap_.get(_eventTypeIdentifier, false);
-			if (_listOfConstraintEvaluator == null) {
-			    _listOfConstraintEvaluator = new LinkedList();
-			    wildcardMap_.put(_eventTypeIdentifier, _listOfConstraintEvaluator);
-			}
-			_listOfConstraintEvaluator.add(_entry);
-		    }			
-		    constraints_.put(new Integer(_constraintId), _entry);
-		}
-		return _arrayConstraintInfo;
-		// end of protected section
-	    } finally {
-		// give up the lock
-		constraintsLock_.writeLock().release();
-	    }
-	} catch (InterruptedException ie) {
-	    // propagate without throwing
-	    Thread.currentThread().interrupt();
-	    return null;
-	}
-    }
-    
-    public void modify_constraints(int[] delete_id, ConstraintInfo[] constraint_info) 
-	throws ConstraintNotFound, 
-	       InvalidConstraint {
-	
-	try {
-	    // write lock
-	    constraintsLock_.writeLock().acquire();
-	    try {
-		// first check if all id's that should be deleted exist
-		Integer[] _delete_keys = new Integer[delete_id.length];
-		for (int x=0; x<delete_id.length; ++x) {
-		    _delete_keys[x] = new Integer(delete_id[x]);
-		    if (!constraints_.containsKey(_delete_keys[x])) {
-			throw new ConstraintNotFound(delete_id[x]);
-		    }
-		}
-		
-		// create update constraints and check if the id exists
-		Integer[] _constraint_keys = new Integer[constraint_info.length];
-		ConstraintEvaluator[] _arrayConstraintEvaluator = new ConstraintEvaluator[constraint_info.length];
-		
-		for (int x=0; x<constraint_info.length; ++x) {
-		    _constraint_keys[x] = new Integer(constraint_info[x].constraint_id);
-		    if (constraints_.containsKey(_constraint_keys[x])) {
-			_arrayConstraintEvaluator[x] = 
-			    new ConstraintEvaluator(orb_, constraint_info[x].constraint_expression);
-		    } else {
-			throw new ConstraintNotFound(constraint_info[x].constraint_id);
-		    }
-		    int _length = constraint_info[x].constraint_expression.event_types.length;
-		}
-		
-		// delete some constraints
-		for (int x=0; x<delete_id.length; ++x) {
-		    ConstraintEntry _deletedEntry = (ConstraintEntry)constraints_.remove(_delete_keys[x]);
-		    int _eventTypeCount = _deletedEntry.getEventTypeCount();
-		    for (int y=0; y<_eventTypeCount; ++y) {
-			EventTypeIdentifier _eventTypeIdentifier = _deletedEntry.getEventTypeIdentifier(y);
-			List _listOfConstraintEvaluator = (List)wildcardMap_.get(_eventTypeIdentifier, false);
-			Iterator _i = _listOfConstraintEvaluator.iterator();
-			while(_i.hasNext()) {
-			    ConstraintEntry _c = (ConstraintEntry)_i.next();
-			    if (_c.getConstraintId() == _delete_keys[x].intValue()) {
-				_i.remove();
-				break;
-			    }
-			}
-		    }
-		}
-		
-		// update some constraints
-		for (int x=0; x<constraint_info.length; x++) {
-		    ConstraintEntry _entry = new ConstraintEntry(_constraint_keys[x].intValue(),
-								 _arrayConstraintEvaluator[x], 
-								 constraint_info[x]);
-		    constraints_.put(_constraint_keys[x], _entry);
-		    int _eventTypeCount = _entry.getEventTypeCount();
-		    for (int y=0; y<_eventTypeCount; ++y) {
-			EventTypeIdentifier _eventTypeIdentifier = _entry.getEventTypeIdentifier(y);
-			List _listOfConstraintEvaluator = (List)wildcardMap_.get(_eventTypeIdentifier, false);
-// 			if (_listOfConstraintEvaluator == null) {
-// 			    _listOfConstraintEvaluator = new LinkedList();
-// 			    wildcardMap_.put(_eventTypeIdentifier, _listOfConstraintEvaluator);
-// 			}
-			_listOfConstraintEvaluator.add(_entry);
-		    }
-		}
-		
-		return;
-	    } finally {
-		constraintsLock_.writeLock().release();
-	    }
-	} catch (InterruptedException ie) {
-	    Thread.currentThread().interrupt();
-	}
-    }
-	
-    public ConstraintInfo[] get_constraints(int[] ids) throws ConstraintNotFound {
-	ConstraintInfo[] _constraintInfo = new ConstraintInfo[ids.length];
+            try
+            {
+                // protected section
 
-	try {
-	    constraintsLock_.readLock().acquire();
-	    try {
-		for (int x=0; x<ids.length; ++x) {
-		    Integer _key = new Integer(ids[x]);
-		    if (constraints_.containsKey(_key)) {
-			_constraintInfo[x] = 
-			    ((ConstraintEntry)constraints_.get(new Integer(ids[x]))).constraintInfo_;
-		    } else {
-			throw new ConstraintNotFound(ids[x]);
-		    }
-		}
-		return _constraintInfo;
-	    } finally {
-		constraintsLock_.readLock().release();
-	    }
-	} catch (InterruptedException ie) {
-	    Thread.currentThread().interrupt();
-	    return null;
-	}
+                for ( int _x = 0; _x < constraintExp.length; _x++ )
+                {
+                    // we do not create the constraint id's in the upper loop
+                    // therefor they are still available if one constraint is invalid
+                    int _constraintId = getConstraintId();
+
+                    _arrayConstraintInfo[ _x ] =
+                        new ConstraintInfo( constraintExp[ _x ], _constraintId );
+
+
+                    ConstraintEntry _entry =
+                        new ConstraintEntry( _constraintId,
+                                             _arrayConstraintEvaluator[ _x ],
+                                             _arrayConstraintInfo[ _x ] );
+
+                    int _eventTypeCount = _entry.getEventTypeCount();
+
+                    for ( int _y = 0; _y < _eventTypeCount; ++_y )
+                    {
+                        EventTypeIdentifier _eventTypeIdentifier =
+                            _entry.getEventTypeIdentifier( _y );
+
+                        List _listOfConstraintEvaluator =
+                            ( List ) wildcardMap_.
+                            getNoExpansion( _eventTypeIdentifier );
+
+                        if ( _listOfConstraintEvaluator == null )
+                        {
+                            _listOfConstraintEvaluator = new LinkedList();
+
+                            wildcardMap_.put( _eventTypeIdentifier,
+                                              _listOfConstraintEvaluator );
+                        }
+
+                        _listOfConstraintEvaluator.add( _entry );
+                    }
+
+                    constraints_.put( new Integer( _constraintId ), _entry );
+                }
+
+                return _arrayConstraintInfo;
+                // end of protected section
+            }
+            finally
+            {
+                // give up the lock
+                constraintsLock_.writeLock().release();
+            }
+        }
+        catch ( InterruptedException ie )
+        {
+            // propagate without throwing
+            Thread.currentThread().interrupt();
+            return null;
+        }
     }
 
-    public ConstraintInfo[] get_all_constraints() {
-	try {
-	    constraintsLock_.readLock().acquire();
-	    try {
-		ConstraintInfo[] _constraintInfo = 
-		    new ConstraintInfo[constraints_.size()];
-		
-		Iterator _i = constraints_.values().iterator();
-		
-		int x = -1;
-		while (_i.hasNext()) {
-		    _constraintInfo[++x] = 
-			((ConstraintEntry)_i.next()).constraintInfo_;
-		}
-		
-		return _constraintInfo;
-	    } finally {
-		constraintsLock_.readLock().release();
-	    }
-	} catch (InterruptedException ie) {
-	    Thread.currentThread().interrupt();
-	    return null;
-	}
+    public void modify_constraints( int[] deleteIds,
+                                    ConstraintInfo[] constraintInfo )
+    throws ConstraintNotFound,
+                InvalidConstraint
+    {
+
+        try
+        {
+            // write lock
+            constraintsLock_.writeLock().acquire();
+
+            try
+            {
+                // first check if all id's that should be deleted exist
+                Integer[] _deleteKeys = new Integer[ deleteIds.length ];
+
+                for ( int _x = 0; _x < deleteIds.length; ++_x )
+                {
+                    _deleteKeys[ _x ] = new Integer( deleteIds[ _x ] );
+
+                    if ( !constraints_.containsKey( _deleteKeys[ _x ] ) )
+                    {
+                        throw new ConstraintNotFound( deleteIds[ _x ] );
+                    }
+                }
+
+                // create update constraints and check if the id exists
+                Integer[] _constraintKeys = 
+		    new Integer[ constraintInfo.length ];
+
+                FilterConstraint[] _arrayConstraintEvaluator = 
+		    new FilterConstraint[ constraintInfo.length ];
+
+                for ( int _x = 0; _x < constraintInfo.length; ++_x )
+                {
+                    _constraintKeys[ _x ] = 
+			new Integer( constraintInfo[ _x ].constraint_id );
+
+                    if ( constraints_.containsKey( _constraintKeys[ _x ] ) )
+                    {
+                        _arrayConstraintEvaluator[ _x ] =
+                            new FilterConstraint( 
+						     constraintInfo[ _x ].constraint_expression );
+                    }
+                    else
+                    {
+                        throw new ConstraintNotFound( constraintInfo[ _x ].constraint_id );
+                    }
+
+                    int _length = 
+			constraintInfo[ _x ].constraint_expression.event_types.length;
+                }
+
+                // delete some constraints
+                for ( int _x = 0; _x < deleteIds.length; ++_x )
+                {
+                    ConstraintEntry _deletedEntry = 
+			( ConstraintEntry ) constraints_.remove( _deleteKeys[ _x ] );
+
+                    int _eventTypeCount = _deletedEntry.getEventTypeCount();
+
+                    for ( int _y = 0; _y < _eventTypeCount; ++_y )
+                    {
+                        EventTypeIdentifier _eventTypeIdentifier = 
+			    _deletedEntry.getEventTypeIdentifier( _y );
+
+                        List _listOfConstraintEvaluator = 
+			    ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier );
+
+                        Iterator _i = _listOfConstraintEvaluator.iterator();
+
+                        while ( _i.hasNext() )
+                        {
+                            ConstraintEntry _c = ( ConstraintEntry ) _i.next();
+
+                            if ( _c.getConstraintId() == _deleteKeys[ _x ].intValue() )
+                            {
+                                _i.remove();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // update some constraints
+                for ( int _x = 0; _x < constraintInfo.length; _x++ )
+                {
+                    ConstraintEntry _entry = 
+			new ConstraintEntry( _constraintKeys[ _x ].intValue(),
+                                             _arrayConstraintEvaluator[ _x ],
+                                             constraintInfo[ _x ] );
+
+                    constraints_.put( _constraintKeys[ _x ], _entry );
+
+                    int _eventTypeCount = _entry.getEventTypeCount();
+
+                    for ( int _y = 0; _y < _eventTypeCount; ++_y )
+                    {
+                        EventTypeIdentifier _eventTypeIdentifier = 
+			    _entry.getEventTypeIdentifier( _y );
+
+                        List _listOfConstraintEvaluator = 
+			    ( List ) wildcardMap_.getNoExpansion( _eventTypeIdentifier );
+
+                        //    if (_listOfConstraintEvaluator == null) {
+                        //        _listOfConstraintEvaluator = new LinkedList();
+                        //        wildcardMap_.put(_eventTypeIdentifier, _listOfConstraintEvaluator);
+                        //    }
+                        _listOfConstraintEvaluator.add( _entry );
+                    }
+                }
+
+                return ;
+            }
+            finally
+            {
+                constraintsLock_.writeLock().release();
+            }
+        }
+        catch ( InterruptedException ie )
+        {
+            Thread.currentThread().interrupt();
+        }
     }
 
-    public void remove_all_constraints() {
-	try {
-	    constraintsLock_.writeLock().acquire();
-	    try {
-		constraints_.clear();
-		wildcardMap_.clear();
-		return;
-	    } finally {
-		constraintsLock_.writeLock().release();
-	    }
-	} catch (InterruptedException ie) {
-	    Thread.currentThread().interrupt();
-	}
+    public ConstraintInfo[] get_constraints( int[] ids ) 
+	throws ConstraintNotFound
+    {
+        ConstraintInfo[] _constraintInfo = new ConstraintInfo[ ids.length ];
+
+        try
+        {
+            constraintsLock_.readLock().acquire();
+
+            try
+            {
+                for ( int _x = 0; _x < ids.length; ++_x )
+                {
+                    Integer _key = new Integer( ids[ _x ] );
+
+                    if ( constraints_.containsKey( _key ) )
+                    {
+                        _constraintInfo[ _x ] =
+                            ( ( ConstraintEntry ) constraints_.get( _key )).getConstraintInfo();
+                    }
+                    else
+                    {
+                        throw new ConstraintNotFound( ids[ _x ] );
+                    }
+                }
+
+                return _constraintInfo;
+            }
+            finally
+            {
+                constraintsLock_.readLock().release();
+            }
+        }
+        catch ( InterruptedException ie )
+        {
+            Thread.currentThread().interrupt();
+            return null;
+        }
     }
 
-    public void destroy() {
-	
+    public ConstraintInfo[] get_all_constraints()
+    {
+        try
+        {
+            constraintsLock_.readLock().acquire();
+
+            try
+            {
+                ConstraintInfo[] _constraintInfo =
+                    new ConstraintInfo[ constraints_.size() ];
+
+                Iterator _i = constraints_.values().iterator();
+
+                int _x = -1;
+
+                while ( _i.hasNext() )
+                {
+                    _constraintInfo[ ++_x ] =
+                        ( ( ConstraintEntry ) _i.next() ).getConstraintInfo();
+                }
+
+                return _constraintInfo;
+            }
+            finally
+            {
+                constraintsLock_.readLock().release();
+            }
+        }
+        catch ( InterruptedException ie )
+        {
+            Thread.currentThread().interrupt();
+            return null;
+        }
+    }
+
+    public void remove_all_constraints()
+    {
+        try
+        {
+            constraintsLock_.writeLock().acquire();
+
+            try
+            {
+                constraints_.clear();
+                wildcardMap_.clear();
+                return ;
+            }
+            finally
+            {
+                constraintsLock_.writeLock().release();
+            }
+        }
+        catch ( InterruptedException ie )
+        {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void destroy()
+    {
+        dispose();
     }
 
     /**
-     * call only and use Iterator inside a read access mutex section
-     */ 
-    Iterator getConstraintsForEvent(NotificationEvent event) {
-	String _key = event.getConstraintKey();
+     * call and use Iterator inside a read access mutex section only.
+     */
+    Iterator getConstraintsForEvent( NotificationEvent event )
+    {
+        String _key = event.getConstraintKey();
 
-	return getIterator(_key);
-    }
-    
-    Iterator getIterator(Object key) {
-	Object[] _entries = (Object[])wildcardMap_.get(key);
-	return new ConstraintIterator(_entries);
+        return getIterator( _key );
     }
 
-    private class ConstraintIterator implements Iterator {
-	Object[] arrayOfLists_;
-	Iterator current_;
-	int listCursor = 0;
-	int arrayCursor_ = 0;
+    Iterator getIterator( Object key )
+    {
+        Object[] _entries = wildcardMap_.getWithExpansion( key );
+        return new ConstraintIterator( _entries );
+    }
 
-	ConstraintIterator(Object[] arrayOfLists) {
-	    arrayOfLists_ = arrayOfLists;
-	    if (Debug.canOutput(Debug.DEBUG1)) {
-		for (int x=0; x<arrayOfLists_.length; ++x) {
-		    debug(x + ": " + arrayOfLists_[x]);
-		}
-	    }
-	    current_ = ((List)arrayOfLists_[arrayCursor_]).iterator();
-	}
+    /**
+     * Iterator over an Array of Lists. If a List is depleted
+     * this Iterator will switch transparently to the next available
+     * list.
+     */
+    static private class ConstraintIterator implements Iterator
+    {
+        Object[] arrayOfLists_;
+        Iterator current_;
+        int listCursor = 0;
+        int arrayCursor_ = 0;
 
-	public boolean hasNext() {
-	    boolean _r = current_.hasNext();
-	    return _r;
-	}
+        ConstraintIterator( Object[] arrayOfLists )
+        {
+            arrayOfLists_ = arrayOfLists;
 
-	public Object next() {
-	    Object _ret = current_.next();
-	    if (!current_.hasNext() && arrayCursor_ < arrayOfLists_.length-1) {
-		current_ = ((List)arrayOfLists_[++arrayCursor_]).iterator();
-	    }
-	    return _ret;
-	}
+            if ( logger_.isDebugEnabled() )
+            {
+                for ( int x = 0; x < arrayOfLists_.length; ++x )
+                {
+                    logger_.debug( x + ": " + arrayOfLists_[ x ] );
+                }
+            }
 
-	public void remove() {
-	    throw NOT_SUPPORTED;
-	}
+            current_ = ( ( List ) arrayOfLists_[ arrayCursor_ ] ).iterator();
+        }
+
+        public boolean hasNext()
+        {
+            return current_.hasNext();
+        }
+
+        public Object next()
+        {
+            Object _ret = current_.next();
+
+            if ( !current_.hasNext() && arrayCursor_ < arrayOfLists_.length - 1 )
+            {
+                current_ = ( ( List ) arrayOfLists_[ ++arrayCursor_ ] ).iterator();
+            }
+
+            return _ret;
+        }
+
+        public void remove
+            ()
+        {
+            throw NOT_SUPPORTED;
+        }
     }
 
     // readers
-    boolean match(NotificationEvent event) throws UnsupportedFilterableData {
-	try {
-	    constraintsLock_.readLock().acquire();
-	    try {
-		if (!constraints_.isEmpty()) {
-		    Iterator _entries = getConstraintsForEvent(event);
-   
-		    while(_entries.hasNext()) {
-			ConstraintEntry _entry = (ConstraintEntry)_entries.next();
-			try {
-			    EvaluationResult _res = 
-				_entry.constraintEvaluator_.evaluate(event);
-			    if (_res.getBool()) {
-				return true;
-			    }
-			} catch (DynamicTypeException dt) {
-			    dt.printStackTrace();
-			} catch (InvalidValue iv) {
-			    iv.printStackTrace();
-			} catch (InconsistentTypeCode itc) {
-			    itc.printStackTrace();
-			} catch (TypeMismatch tm) {
-			    tm.printStackTrace();
-			} catch (EvaluationException ee) {
-			    ee.printStackTrace();
-			} catch (InvalidName in) {
-			    in.printStackTrace();
-			}
-		    }
-		} else {
-		    info("Filter has no Expressions");
-		}
-		return false;
-	    } finally {
-		constraintsLock_.readLock().release();
-	    }
-	} catch (InterruptedException ie) {
-	    Thread.currentThread().interrupt();
-	    return false;
-	}
+    boolean match(EvaluationContext evaluationContext, 
+		  NotificationEvent event ) throws UnsupportedFilterableData
+    {
+        try
+        {
+            constraintsLock_.readLock().acquire();
+
+            try
+            {
+                if ( !constraints_.isEmpty() )
+                {
+                    Iterator _entries = getConstraintsForEvent( event );
+
+                    while ( _entries.hasNext() )
+                    {
+
+                        ConstraintEntry _entry =
+                            ( ConstraintEntry ) _entries.next();
+
+                        try
+                        {
+                            boolean _result =
+                                _entry.
+                                getConstraintEvaluator().
+                                evaluate( evaluationContext, event ).
+                                getBool();
+
+                            if ( _result )
+                            {
+                                return true;
+                            }
+                        }
+                        catch ( EvaluationException e )
+                        {
+                            // ignore
+                            e.printStackTrace();
+                        }
+                        catch ( DynamicTypeException e )
+                        {
+                            // ignore
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                else
+                {
+                    logger_.info( "Filter has no Expressions" );
+                }
+
+                return false;
+            }
+            finally
+            {
+                constraintsLock_.readLock().release();
+            }
+        }
+        catch ( InterruptedException ie )
+        {
+            Thread.currentThread().interrupt();
+            return false;
+        }
     }
 
-    public boolean match(Any anyEvent) throws UnsupportedFilterableData {
-	EvaluationContext _evalutionContext = null;
-	NotificationEvent _event = null;
+    public boolean match( Any anyEvent ) throws UnsupportedFilterableData
+    {
+	logger_.debug("match()");
 
-	try {
-	    _evalutionContext = applicationContext_.newEvaluationContext();
-	    _event = notificationEventFactory_.newEvent(anyEvent, _evalutionContext);
-	    return match(_event);
-	} finally {
-	    _event.release();
-	    _evalutionContext.release();
-	}
+        EvaluationContext _evaluationContext = null;
+        NotificationEvent _event = null;
+
+        try
+        {
+            _evaluationContext = applicationContext_.newEvaluationContext();
+
+            _event =
+                notificationEventFactory_.newEvent( anyEvent );
+
+            return match(_evaluationContext, _event );
+        }
+        finally
+        {
+            _event.release();
+            _evaluationContext.release();
+        }
     }
 
-    public boolean match_structured(StructuredEvent structuredEvent) 
-	throws UnsupportedFilterableData{
+    public boolean match_structured( StructuredEvent structuredEvent )
+    throws UnsupportedFilterableData
+    {
 
-	EvaluationContext _evalutionContext = null;
-	NotificationEvent _event = null;
+	logger_.debug("match_structured");
 
-	try {
-	    _evalutionContext = applicationContext_.newEvaluationContext();
-	    _event = notificationEventFactory_.newEvent(structuredEvent, _evalutionContext);
+        EvaluationContext _evaluationContext = null;
+        NotificationEvent _event = null;
 
-	    return match(_event);
-	} finally {
-	    _event.release();
-	    _evalutionContext.release();
-	}
+        try
+        {
+            _evaluationContext = applicationContext_.newEvaluationContext();
+
+            _event = 
+		notificationEventFactory_.newEvent( structuredEvent );
+
+            return match(_evaluationContext, _event );
+        }
+        finally
+        {
+            _event.release();
+            _evaluationContext.release();
+        }
     }
 
-    public boolean match_typed(Property[] properties) 
-	throws UnsupportedFilterableData {
+    public boolean match_typed( Property[] properties )
+    throws UnsupportedFilterableData
+    {
 
-	return false;
+        return false;
     }
 
-    public int attach_callback(NotifySubscribe notifySubscribe) {
-	return 0;
+    public int attach_callback( NotifySubscribe notifySubscribe )
+    {
+        return 0;
     }
 
-    public void detach_callback(int id) {
+    public void detach_callback( int id )
+    {}
+
+    public int[] get_callbacks()
+    {
+        return null;
     }
 
-    public int[] get_callbacks() {
-	return null;
+    public POA _default_POA()
+    {
+        return applicationContext_.getPoa();
     }
 
-    private void debug(Object msg) {
-	System.out.println(msg.toString());
-	
-	//Debug.output(Debug.DEBUG1, msg.toString());
+    public void dispose()
+    {
+        try
+        {
+            _poa().deactivate_object( _object_id() );
+        }
+        catch ( WrongPolicy e )
+        {
+            e.printStackTrace();
+        }
+        catch ( ObjectNotActive e )
+        {
+            e.printStackTrace();
+        }
+    }
+} // FilterImpl
+
+class ConstraintEntry
+{
+    private FilterConstraint constraintEvaluator_;
+    private ConstraintInfo constraintInfo_;
+    private int constraintId_;
+
+    ////////////////////////////////////////
+
+    ConstraintEntry( int constraintId,
+                     FilterConstraint constraintEvaluator,
+                     ConstraintInfo constraintInfo )
+    {
+
+        constraintId_ = constraintId;
+        constraintEvaluator_ = constraintEvaluator;
+        constraintInfo_ = constraintInfo;
     }
 
-    private void info(Object msg) {
-	Debug.output(Debug.INFORMATION, msg.toString());
-    }
-}// FilterImpl
+    ////////////////////////////////////////
 
-class ConstraintEntry {
+    class EventTypeWrapper implements EventTypeIdentifier
+    {
+        EventType et_;
+        String constraintKey_;
 
-    ConstraintEvaluator constraintEvaluator_;
-    ConstraintInfo constraintInfo_;
-    int constraintId_;
+        EventTypeWrapper( EventType et )
+        {
+            et_ = et;
 
-    EventTypeIdentifier getEventTypeIdentifier(int index) {
-	return new EventTypeWrapper(constraintInfo_.constraint_expression.event_types[index]);
-    }
+            constraintKey_ =
+                FilterUtils.calcConstraintKey( et_.domain_name, et_.type_name );
+        }
 
-    int getEventTypeCount() {
-	return constraintInfo_.constraint_expression.event_types.length;
-    }
-
-    int getConstraintId() {
-	return constraintId_;
+        public String toString()
+        {
+            return constraintKey_;
+        }
     }
 
-    ConstraintEntry(int constraintId,
-		    ConstraintEvaluator constraintEvaluator,
-		    ConstraintInfo constraintInfo) {
+    ////////////////////////////////////////
 
-	constraintId_ = constraintId;
-	constraintEvaluator_ = constraintEvaluator;
-	constraintInfo_ = constraintInfo;
+    EventTypeIdentifier getEventTypeIdentifier( int index )
+    {
+        return new EventTypeWrapper( constraintInfo_.constraint_expression.event_types[ index ] );
     }
 
-    class EventTypeWrapper implements EventTypeIdentifier {
-	EventType et_;
-	
-	EventTypeWrapper(EventType et) {
-	    et_ =et;
-	}
+    int getEventTypeCount()
+    {
+        return constraintInfo_.constraint_expression.event_types.length;
+    }
 
-	public String toString() {
-	    return FilterUtils.calcConstraintKey(et_.domain_name, et_.type_name);
-	}
+    int getConstraintId()
+    {
+        return constraintId_;
+    }
+
+    ConstraintInfo getConstraintInfo()
+    {
+        return constraintInfo_;
+    }
+
+    FilterConstraint getConstraintEvaluator()
+    {
+        return constraintEvaluator_;
     }
 }

@@ -20,189 +20,269 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.jacorb.orb.*;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
-
-import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotification.Property;
-
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterNotFound;
-
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerOperations;
-import org.apache.log4j.Logger;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventChannelAdmin.TypeError;
 import java.util.List;
 import java.util.Collections;
 import org.omg.CosEventComm.PullSupplier;
-import org.omg.PortableServer.POA;
-import org.jacorb.notification.framework.EventDispatcher;
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.omg.CORBA.BooleanHolder;
+import org.omg.CORBA.Any;
+import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
 
 /**
- * Implementation of COSEventChannelAdmin interface; ProxyPullConsumer.
- * This defines connect_pull_supplier() and disconnect_pull_consumer().
- *
- * 2002/23/08 JFC OMG EventService Specification 1.1 page 2-7 states:
- *      "Registration is a two step process.  An event-generating application
- *      first obtains a proxy consumer from a channel, then 'connects' to the
- *      proxy consumer by providing it with a supplier.  ...  The reason for
- *      the two step registration process..."
- *    Modifications to support the above have been made as well as to support
- *    section 2.1.5 "Disconnection Behavior" on page 2-4.
- *
- * @authors Jeff Carlson, Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose 1997
- * $Id$
+ * @author Alphonse Bendt
+ * @version $Id$
  */
 
 public class ProxyPullConsumerImpl
-    extends ProxyBase
-    implements Runnable, 
-	       ProxyPullConsumerOperations,
-	       org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations {
+            extends ProxyBase
+            implements ProxyPullConsumerOperations,
+            org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations,
+            TimerEventSupplier
+{
 
     private org.omg.CosEventComm.PullSupplier myPullSupplier_;
 
     private boolean connected_ = false;
     private boolean active_ = false;
     private long pollInterval_ = 1000L;
-    private Thread thisThread_;
+    private List subsequentDestinations_;
+    private Object taskId_;
+    private TaskProcessor engine_;
+    private Runnable runQueueThis_;
 
-    ProxyPullConsumerImpl (ApplicationContext appContext,
-			   ChannelContext channelContext,
-			   SupplierAdminTieImpl adminServant,
-			   SupplierAdmin myAdmin,
-			   Integer key) {
+    ProxyPullConsumerImpl( SupplierAdminTieImpl adminServant,
+                           ApplicationContext appContext,
+                           ChannelContext channelContext,
+                           PropertyManager adminProperties,
+                           PropertyManager qosProperties,
+                           Integer key )
+    {
 
-	super(adminServant,appContext, channelContext, key, Logger.getLogger("Proxy.ProxyPullConsumer"));
+        super( adminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties,
+               key );
+
+        init( channelContext );
+    }
+
+    ProxyPullConsumerImpl( SupplierAdminTieImpl adminServant,
+                           ApplicationContext appContext,
+                           ChannelContext channelContext,
+                           PropertyManager adminProperties,
+                           PropertyManager qosProperties )
+    {
+
+        super( adminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties );
+
+        init( channelContext );
+    }
+
+    private void init( ChannelContext channelContext )
+    {
+        engine_ = channelContext.getTaskProcessor();
+
+        runQueueThis_ = new Runnable()
+                        {
+                            public void run()
+                            {
+                                try
+                                {
+                                    engine_.scheduleTimedPullTask( ProxyPullConsumerImpl.this );
+                                }
+                                catch ( InterruptedException ie )
+                                {}
+
+                            }
+
+                        }
+
+                        ;
+
         connected_ = false;
+        subsequentDestinations_ = Collections.singletonList( myAdmin_ );
     }
 
-    ProxyPullConsumerImpl (ApplicationContext appContext,
-			   ChannelContext channelContext,
-			   SupplierAdminTieImpl adminServant,
-			   SupplierAdmin myAdmin) {
-
-	super(adminServant,appContext, channelContext, Logger.getLogger("Proxy.ProxyPullConsumer"));
-        connected_ = false;
+    public void disconnect_pull_consumer()
+    {
+        dispose();
     }
 
-    public void disconnect_pull_consumer() {
-	dispose();
+    private void disconnectClient()
+    {
+        if ( myPullSupplier_ != null )
+        {
+            myPullSupplier_.disconnect_pull_supplier();
+            myPullSupplier_ = null;
+            connected_ = false;
+            active_ = false;
+        }
     }
 
-    private void disconnectClient() {
-	if (myPullSupplier_ != null) {
-	    myPullSupplier_.disconnect_pull_supplier();
-	    myPullSupplier_ = null;
-	    connected_ = false;
-	    active_ = false;
-	}
+    synchronized public void suspend_connection()
+    throws NotConnected,
+                ConnectionAlreadyInactive
+    {
+
+        if ( !connected_ )
+        {
+            throw new NotConnected();
+        }
+
+        if ( !active_ )
+        {
+            throw new ConnectionAlreadyInactive();
+        }
+
+        active_ = false;
+        stopTask();
     }
 
-    synchronized public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
-	if (!connected_) {
-	    throw new NotConnected();
-	}
-	if (!active_) {
-	    throw new ConnectionAlreadyInactive();
-	}
-	active_ = false;
-	thisThread_.interrupt();
-	try {
-	    thisThread_.join();
-	} catch (InterruptedException e) {}
-	thisThread_ = null;
+    synchronized public void resume_connection()
+    throws ConnectionAlreadyActive,
+                NotConnected
+    {
+
+        if ( !connected_ )
+        {
+            throw new NotConnected();
+        }
+
+        if ( active_ )
+        {
+            throw new ConnectionAlreadyActive();
+        }
+
+        startTask();
     }
 
-    synchronized public void resume_connection() throws ConnectionAlreadyActive, NotConnected {
-	if (!connected_) {
-	    throw new NotConnected();
-	}
-	if (active_) {
-	    throw new ConnectionAlreadyActive();
-	}
-	thisThread_ = new Thread(this);
-	thisThread_.start();
-    }
+    public void runPullEvent() throws Disconnected
+    {
+        BooleanHolder hasEvent = new BooleanHolder();
+        Any event = null;
 
-    public void run() {
-        org.omg.CORBA.BooleanHolder hasEvent = new org.omg.CORBA.BooleanHolder();
-        org.omg.CORBA.Any event = null;
+        synchronized ( this )
+        {
+            if ( connected_ )
+            {
+                event = myPullSupplier_.try_pull( hasEvent );
 
-	synchronized(this) {
-	    while(connected_) {
-                try {
-                    event = myPullSupplier_.try_pull( hasEvent );
-                } catch( org.omg.CORBA.UserException userEx ) {
-                    connected_ = false;
-                    // userEx.printStackTrace();
-                    return;
-                } catch( org.omg.CORBA.SystemException sysEx ) {
-                    connected_ = false;
-                    // sysEx.printStackTrace();
-                    return;
+                if ( hasEvent.value )
+                {
+                    logger_.debug( "pulled event" );
+
+                    NotificationEvent _notifyEvent =
+                        notificationEventFactory_.newEvent( event, this );
+
+                    channelContext_.dispatchEvent( _notifyEvent );
                 }
-
-                if (hasEvent.value) {
-		    logger_.debug("pulled event");
-		    NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(event, this);
-		    channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
-                }
-                // Let other threads get some time on the CPU in case we're
-                // in a cooperative environment.
-		try {
-		    Thread.sleep(pollInterval_);
-		} catch (InterruptedException ie) {}
             }
         }
     }
 
-    public void connect_any_pull_supplier(PullSupplier pullSupplier) 
-	throws AlreadyConnected {
+    public void connect_any_pull_supplier( PullSupplier pullSupplier )
+    throws AlreadyConnected
+    {
 
-	if (connected_) {
-	    throw new AlreadyConnected();
-	} else {
-	    connected_ = true;
-	    active_ = true;
-	    myPullSupplier_ = pullSupplier;
-	    thisThread_ = new Thread(this);
-	    thisThread_.start();
-	}
+        if ( connected_ )
+        {
+            throw new AlreadyConnected();
+        }
+        else
+        {
+            connected_ = true;
+            active_ = true;
+            myPullSupplier_ = pullSupplier;
+            startTask();
+        }
     }
 
-    public void connect_pull_supplier(PullSupplier pullSupplier) throws AlreadyConnected {
-	connect_any_pull_supplier(pullSupplier);
+    public void connect_pull_supplier( PullSupplier pullSupplier )
+    throws AlreadyConnected
+    {
+        connect_any_pull_supplier( pullSupplier );
     }
 
-    public SupplierAdmin MyAdmin() {
-	return (SupplierAdmin)myAdmin_.getThisRef();
+    public SupplierAdmin MyAdmin()
+    {
+        return ( SupplierAdmin ) myAdmin_.getThisRef();
     }
 
-    public List getSubsequentDestinations() {
-	return Collections.singletonList(myAdmin_);
+    public List getSubsequentFilterStages()
+    {
+        return subsequentDestinations_;
     }
 
-    public EventDispatcher getEventDispatcher() {
-	return null;
+    public EventConsumer getEventConsumer()
+    {
+        return null;
     }
 
-    public boolean hasEventDispatcher() {
-	return false;
+    public boolean hasEventConsumer()
+    {
+        return false;
     }
 
-    public void dispose() {
-	super.dispose();
-	disconnectClient();
+    synchronized private void startTask()
+    {
+        if ( taskId_ == null )
+        {
+            taskId_ = channelContext_
+                      .getTaskProcessor()
+                      .registerPeriodicTask( pollInterval_, runQueueThis_, true );
+        }
+    }
+
+    synchronized private void stopTask()
+    {
+        if ( taskId_ != null )
+        {
+            channelContext_.getTaskProcessor().unregisterTask( taskId_ );
+            taskId_ = null;
+        }
+    }
+
+    public void dispose()
+    {
+        super.dispose();
+        stopTask();
+        disconnectClient();
+    }
+
+    public Servant getServant()
+    {
+        if ( thisServant_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( thisServant_ == null )
+                {
+                    thisServant_ = new ProxyPullConsumerPOATie( this );
+                }
+            }
+        }
+
+        return thisServant_;
+    }
+
+    public void setServant( Servant servant )
+    {
+        thisServant_ = servant;
     }
 }

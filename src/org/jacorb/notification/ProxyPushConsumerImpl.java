@@ -20,126 +20,127 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
-import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.PortableServer.POA;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerOperations;
-import org.apache.log4j.Logger;
-import java.util.List;
 import java.util.Collections;
-import org.omg.CORBA.ORB;
-import org.jacorb.notification.framework.EventDispatcher;
+import java.util.List;
+import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
+import org.omg.CORBA.ORB;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerOperations;
+import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerPOATie;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.PortableServer.Servant;
 
 /**
- * Implementation of COSEventChannelAdmin interface; ProxyPushConsumer.
- * This defines connect_push_supplier(), disconnect_push_consumer() and the all
- * important push() method that the Supplier can call to actuall deliver a
- * message.
- *
- * 2002/23/08 JFC OMG EventService Specification 1.1 page 2-7 states:
- *      "Registration is a two step process.  An event-generating application
- *      first obtains a proxy consumer from a channel, then 'connects' to the
- *      proxy consumer by providing it with a supplier.  ...  The reason for
- *      the two step registration process..."
- *    Modifications to support the above have been made as well as to support
- *    section 2.1.5 "Disconnection Behavior" on page 2-4.
- *
- * @author Jeff Carlson, Joerg v. Frantzius, Rainer Lischetzki, Gerald Brose
+ * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class ProxyPushConsumerImpl
-    extends ProxyBase
-    implements ProxyPushConsumerOperations, org.omg.CosEventChannelAdmin.ProxyPushConsumerOperations {
+            extends ProxyBase
+            implements ProxyPushConsumerOperations,
+            org.omg.CosEventChannelAdmin.ProxyPushConsumerOperations
+{
 
     private org.omg.CosEventComm.PushSupplier myPushSupplier;
     private boolean connected;
-    
+    private List subsequentDestinations_;
 
-    Logger timeLogger_ = Logger.getLogger("TIME.ProxyPushConsumer");
+    ProxyPushConsumerImpl( SupplierAdminTieImpl myAdminServant,
+                           ApplicationContext appContext,
+                           ChannelContext channelContext,
+                           PropertyManager adminProperties,
+                           PropertyManager qosProperties )
+    {
+        super( myAdminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties );
 
-        ProxyPushConsumerImpl(ApplicationContext appContext,
-			  ChannelContext channelContext,
-                          SupplierAdminTieImpl myAdminServant,
-			  SupplierAdmin myAdmin) {
+        init();
+    }
 
-	super(myAdminServant,
-	      appContext,
-	      channelContext,
-	      Logger.getLogger("Proxy.ProxyPushConsumer"));
+    ProxyPushConsumerImpl( SupplierAdminTieImpl myAdminServant,
+                           ApplicationContext appContext,
+                           ChannelContext channelContext,
+                           PropertyManager adminProperties,
+                           PropertyManager qosProperties,
+                           Integer key )
+    {
 
-	setProxyType(ProxyType.PUSH_ANY);
+        super( myAdminServant,
+               appContext,
+               channelContext,
+               adminProperties,
+               qosProperties,
+               key );
+
+        init();
+    }
+
+    private void init()
+    {
+        setProxyType( ProxyType.PUSH_ANY );
         connected = false;
+        subsequentDestinations_ = Collections.singletonList( myAdmin_ );
     }
 
-    ProxyPushConsumerImpl(ApplicationContext appContext,
-			  ChannelContext channelContext,
-                          SupplierAdminTieImpl myAdminServant,
-			  SupplierAdmin myAdmin,
-			  Integer key) {
-
-	super(myAdminServant,
-	      appContext,
-	      channelContext,
-	      key,
-	      Logger.getLogger("Proxy.ProxyPushConsumer"));
-
-	setProxyType(ProxyType.PUSH_ANY);
-        connected = false;
+    public void disconnect_push_consumer()
+    {
+        if ( !disposed_ )
+        {
+            dispose();
+        }
+        else
+        {
+            throw new OBJECT_NOT_EXIST();
+        }
     }
 
-    public void disconnect_push_consumer() {
-	dispose();
-    }
-
-    private void disconnectClient() {
-	if (myPushSupplier != null) {
-	    logger_.info("disconnect()");
-	    myPushSupplier.disconnect_push_supplier();
-	    myPushSupplier = null;
-	}
+    private void disconnectClient()
+    {
+        if ( myPushSupplier != null )
+        {
+            logger_.info( "disconnect()" );
+            myPushSupplier.disconnect_push_supplier();
+            myPushSupplier = null;
+        }
     }
 
     /**
      * Supplier sends data to the consumer (this object) using this call.
      */
-    public void push(Any event) throws Disconnected {
-	logger_.debug("push(Any ...)");
-	long _time = System.currentTimeMillis();
-
-        if (!connected)  {
+    public void push( Any event ) throws Disconnected
+    {
+        if ( !connected )
+        {
             throw new Disconnected();
         }
 
-	NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(event, this);
+        NotificationEvent _notifyEvent =
+            notificationEventFactory_.newEvent( event, this );
 
-	channelContext_.getEventChannelServant().dispatchEvent(_notifyEvent);
-	timeLogger_.info("push(): " + (System.currentTimeMillis() - _time));
+        channelContext_.dispatchEvent( _notifyEvent );
     }
 
-    public void connect_push_supplier(org.omg.CosEventComm.PushSupplier pushSupplier) throws AlreadyConnected {
-	connect_any_push_supplier(pushSupplier);
+    public void connect_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
+    throws AlreadyConnected
+    {
+        connect_any_push_supplier( pushSupplier );
     }
 
-    public void connect_any_push_supplier(org.omg.CosEventComm.PushSupplier pushSupplier) throws AlreadyConnected {
-        logger_.debug("connect pushsupplier");
+    public void connect_any_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
+    throws AlreadyConnected
+    {
 
-        if (connected) {
+        logger_.info( "connect pushsupplier" );
+
+        if ( connected )
+        {
             throw new AlreadyConnected();
         }
 
@@ -147,24 +148,50 @@ public class ProxyPushConsumerImpl
         connected = true;
     }
 
-    public SupplierAdmin MyAdmin() {
-	return (SupplierAdmin)myAdmin_.getThisRef();
+    public SupplierAdmin MyAdmin()
+    {
+        return ( SupplierAdmin ) myAdmin_.getThisRef();
     }
 
-    public List getSubsequentDestinations() {
-	return Collections.singletonList(myAdmin_);
+    public List getSubsequentFilterStages()
+    {
+        return subsequentDestinations_;
     }
 
-    public EventDispatcher getEventDispatcher() {
-	return null;
+    public EventConsumer getEventConsumer()
+    {
+        return null;
     }
 
-    public boolean hasEventDispatcher() {
-	return false;
+    public boolean hasEventConsumer()
+    {
+        return false;
     }
 
-    public void dispose() {
-	super.dispose();
-	disconnectClient();
+    public void dispose()
+    {
+        super.dispose();
+        disconnectClient();
+    }
+
+    public Servant getServant()
+    {
+        if ( thisServant_ == null )
+        {
+            synchronized ( this )
+            {
+                if ( thisServant_ == null )
+                {
+                    thisServant_ = new ProxyPushConsumerPOATie( this );
+                }
+            }
+        }
+
+        return thisServant_;
+    }
+
+    public void setServant( Servant servant )
+    {
+        thisServant_ = servant;
     }
 }

@@ -20,8 +20,7 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.log4j.Logger;
-import org.jacorb.orb.*;
+import org.apache.log.Logger;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -50,9 +49,12 @@ import org.omg.CosNotifyFilter.MappingFilter;
 import java.util.List;
 import java.util.Collections;
 import org.omg.CORBA.BAD_PARAM;
-import org.jacorb.notification.framework.EventDispatcher;
+import org.jacorb.notification.interfaces.EventConsumer;
 import java.util.LinkedList;
 import java.util.Iterator;
+import org.omg.CORBA.Any;
+import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOATie;
 
 /**
  * @author Alphonse Bendt
@@ -63,28 +65,53 @@ public class ProxyPushSupplierImpl
     extends ProxyBase 
     implements ProxyPushSupplierOperations,
 	       org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations,
-	       EventDispatcher {
+	       EventConsumer {
 
     private org.omg.CosEventComm.PushConsumer myPushConsumer_;
     private boolean connected_;
+    private boolean enabled_;
     private boolean active_;
-    private boolean wasConnected_;
     private ConsumerAdminTieImpl myAdminServant_;
     private List pendingEvents_;
 
-    Logger timeLogger_ = Logger.getLogger("TIME.ProxyPushSupplier");
-
-    ProxyPushSupplierImpl (ApplicationContext appContext,
-			   ChannelContext channelContext,
-			   ConsumerAdminTieImpl myAdminServant,
-			   ConsumerAdmin myAdmin) {
+    ProxyPushSupplierImpl(ConsumerAdminTieImpl myAdminServant,
+			  ApplicationContext appContext,
+			  ChannelContext channelContext,
+			  PropertyManager adminProperties,
+			  PropertyManager qosProperties,
+			  Integer key) {
 	
-	super(myAdminServant, appContext, channelContext, Logger.getLogger("Proxy.ProxyPushSupplier"));
+	super(myAdminServant, 
+	      appContext, 
+	      channelContext, 
+	      adminProperties,
+	      qosProperties,
+	      key);
+
+	init(myAdminServant);
+    }
+
+    ProxyPushSupplierImpl(ConsumerAdminTieImpl myAdminServant,
+			  ApplicationContext appContext,
+			  ChannelContext channelContext,
+			  PropertyManager adminProperties,
+			  PropertyManager qosProperties) {
+	
+	super(myAdminServant, 
+	      appContext, 
+	      channelContext, 
+	      adminProperties,
+	      qosProperties);
+
+	init(myAdminServant);
+    }
+
+    void init(ConsumerAdminTieImpl myAdminServant) {
 	myAdminServant_ = myAdminServant;
 	connected_ = false;
-	setProxyType(ProxyType.PUSH_ANY);
+	enabled_ = true;
 	pendingEvents_ = new LinkedList();
-  }
+    }
 
     public String toString() {
 	return "<ProxyPushSupplier connected: " + connected_ + ">";
@@ -103,16 +130,16 @@ public class ProxyPushSupplierImpl
 	}
     }
 
-    public void dispatchEvent(NotificationEvent event){
-	long _start = System.currentTimeMillis();
-
-	logger_.info("transmit_event(" + event + ")");
+    public void deliverEvent(NotificationEvent event){
 	if (connected_) {
 	    try {
-		if (active_) {
+		if (active_ && enabled_) {
+		    logger_.debug("pre push");
 		    myPushConsumer_.push(event.toAny());
+		    logger_.debug("pushed any to consumer");
 		} else {
 		    pendingEvents_.add(event.toAny());
+		    logger_.debug("added to pendingEventS");
 		}
 	    } catch(Disconnected e) {
 		connected_ = false;
@@ -121,9 +148,6 @@ public class ProxyPushSupplierImpl
 	} else {
 	    logger_.debug("Not connected");
 	}
-	long _stop = System.currentTimeMillis();
-
-	timeLogger_.info("push(): " + (_stop - _start));
     }
 
     public void connect_push_consumer(org.omg.CosEventComm.PushConsumer pushConsumer) throws AlreadyConnected {
@@ -136,12 +160,13 @@ public class ProxyPushSupplierImpl
 	if (connected_) { 
 	    throw new AlreadyConnected(); 
 	}
+
 	if (pushConsumer == null) { 
 	    throw new BAD_PARAM(); 
 	}
+
 	myPushConsumer_ = pushConsumer;
 	connected_ = true;
-	wasConnected_ = true;
 	active_ = true;
     }
 
@@ -149,39 +174,30 @@ public class ProxyPushSupplierImpl
 	return (ConsumerAdmin)myAdmin_.getThisRef();
     }
 
-    public List getSubsequentDestinations() {
+    public List getSubsequentFilterStages() {
 	return Collections.singletonList(this);
     }
 
-    public EventDispatcher getEventDispatcher() {
+    public EventConsumer getEventConsumer() {
 	return this;
     }
 
-    public boolean hasEventDispatcher() {
+    public boolean hasEventConsumer() {
 	return true;
-    }
-
-    public void markError() {
-	connected_ = false;
     }
 
     synchronized public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
 	if (!connected_) {
 	    throw new NotConnected();
 	}
+
 	if (!active_) {
 	    throw new ConnectionAlreadyInactive();
 	}
 	active_ = false;
     }
 
-    synchronized public void resume_connection() throws NotConnected, ConnectionAlreadyActive {
-	if (!connected_) {
-	    throw new NotConnected();
-	}
-	if (active_) {
-	    throw new ConnectionAlreadyActive();
-	}
+    public void deliverPendingEvents() throws NotConnected {
 	if (!pendingEvents_.isEmpty()) {
 	    Iterator _i = pendingEvents_.iterator();
 	    while (_i.hasNext()) {
@@ -193,11 +209,51 @@ public class ProxyPushSupplierImpl
 		}
 	    }
 	}
+    }
+
+    synchronized public void resume_connection() throws NotConnected, ConnectionAlreadyActive {
+	if (!connected_) {
+	    throw new NotConnected();
+	}
+
+	if (active_) {
+	    throw new ConnectionAlreadyActive();
+	}
+
+	deliverPendingEvents();
 	active_ = true;
     }
 
-    public void dispose() {
+    synchronized public void dispose() {
 	super.dispose();
 	disconnectClient();
     }
+
+    synchronized public void enableDelivery() {
+	enabled_ = true;
+    }
+
+    synchronized public void disableDelivery() {
+	enabled_ = false;
+    }
+
+    public Servant getServant() {
+	if (thisServant_ == null) {
+	    synchronized(this) {
+		if (thisServant_ == null) {
+		    thisServant_ = new ProxyPushSupplierPOATie(this);
+		}
+	    }
+	}
+	return thisServant_;
+    }
+
+    public void setServant(Servant servant) {
+	thisServant_ = servant;
+    }
+
+    public boolean hasPendingEvents() {
+	return !pendingEvents_.isEmpty();
+    }
+
 }
