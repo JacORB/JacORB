@@ -242,7 +242,7 @@ public class SSLServerSocketFactory
             }
             catch( IOException iox )
             {
-                Debug.output( Debug.SECURITY | Debug.IMPORTANT, iox );
+                Debug.output( 2, iox );
             }
         }
     }
