@@ -10,7 +10,7 @@ ORB interface           :    2.3, partial ???
 POA                     :    2.3
 AMI                     :    3.0?
 ETF                     :    3.0?
-SAS                     :    ?
+SAS                     :    3.0 Conformance Levels 0, 1 (partial), 2 (partial)
 PI                      :    pre-something 
 Security                :    Security Service 1.4? (partial)
 ...
