@@ -35,7 +35,6 @@ import junit.framework.TestCase;
 
 import org.omg.CosNotification.PropertySeqHelper;
 
-
 /**
  * JUnit TestCase. Test Parsing and Evaluation of various ETCL
  * Expressions.
@@ -697,7 +696,6 @@ public class TCLTest extends NotificationTestCase
         }
         catch ( ParseException e )
         {}
-
     }
 
     public void testShorthandNotation() throws Exception
@@ -972,17 +970,27 @@ public class TCLTest extends NotificationTestCase
         runEvaluation(_any, "$value1 > 50 and $value2 > 50");
     }
 
-    public void testParseSpecialChars() throws Exception {
-        runEvaluation("'noti*server'", "'noti*server'");
-        runEvaluation("'noti{}server'", "'noti{}server'");
-        runEvaluation("'noti\"server'", "'noti\"server'");
-        runEvaluation("'noti|server'", "'noti|server'");
-        runEvaluation("'noti;server'", "'noti;server'");
-        runEvaluation("'noti^server'", "'noti^server'");
-        runEvaluation("'noti~server'", "'noti~server'");
+    public void testStringMayContainSpecialChars() throws Exception {
+        TCLParser.parse("'noti*server'");
+        TCLParser.parse("'noti{}server'");
+        TCLParser.parse("'noti\"server'");
+        TCLParser.parse("'noti|server'");
+        TCLParser.parse("'noti;server'");
+        TCLParser.parse("'noti^server'");
+        TCLParser.parse("'noti~server'");
+        TCLParser.parse("'noti=server'");
+        TCLParser.parse("'noti,server'");
+        TCLParser.parse("'noti$server'");
+        TCLParser.parse("'noti#server'");
+        TCLParser.parse("'noti%server'");
     }
 
+    public void testParserIgnoresWhitespace() throws Exception {
+        TCLParser.parse("\t\n\r ");
 
+        runEvaluation("TRUE", "\t\n\r TRUE\n\r \t ");
+        runEvaluation("2", "\t1\r+\n\r1\t");
+    }
 
     ////////////////////////////////////////
 
