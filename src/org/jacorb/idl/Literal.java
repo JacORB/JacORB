@@ -175,9 +175,17 @@ class Literal
     public String toString()
     {
         String result = string;
+
         if (token instanceof java_cup.runtime.long_token)
         {
-            result = (string + 'L');
+            if (string.indexOf( '.' ) > 0 )
+            {
+                result = (string + 'D');
+            }
+            else
+            {
+                result = (string + 'L');
+            }
         }
         return escapeBackslash (result);
     }
