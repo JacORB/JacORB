@@ -14,12 +14,9 @@
       <property name="dirs.idl" value="${testdir}/idl"/>
       <property name="dirs.classes" value="${basedir}/classes"/>
       <property name="dirs.output" value="${testdir}/output"/>
-      <path id="project.class.path">
-         <pathelement path="${java.class.path}:${basedir}/lib/jacorb.jar:${dirs.classes}"/>
-      </path>
-      <property name="class.path" refid="project.class.path"/>
       <property name="idl.flags" 
                 value="-p org.jacorb -d ${dirs.src}/generated"/>
+      <property name="class.path" value="${java.class.path}:${dirs.classes}"/>
    </target>
 
 
@@ -45,7 +42,6 @@
 
    <target name="run" depends="build-all">
       <junit fork="yes" printsummary="on">
-         <classpath path="${class.path}"/>
          <jvmarg value="-Xbootclasspath/p:${class.path}"/>
          <formatter type="plain"/>
 	      <test name="${test}" todir="${dirs.output}"/>
