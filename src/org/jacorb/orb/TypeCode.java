@@ -268,8 +268,8 @@ public class TypeCode
      */  
 
     public TypeCode (int _kind,
-              int _bound, 
-              org.omg.CORBA.TypeCode _element_type) 
+                     int _bound, 
+                     org.omg.CORBA.TypeCode _element_type) 
     {
         kind = _kind;
         length = _bound;
@@ -323,8 +323,21 @@ public class TypeCode
 
     public boolean equal( org.omg.CORBA.TypeCode tc)
     {
-        org.jacorb.util.Debug.output( 4, "Comparing this " + kind().value() + 
-                                  " with tc " + tc.kind().value());
+        if( is_recursive() || ((org.jacorb.orb.TypeCode)tc).is_recursive())
+        {
+            try
+            {
+                return id().equals( tc.id());
+            }
+            catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
+            {
+                return false;
+            }
+        }
+
+        //        org.jacorb.util.Debug.output( 4, "Comparing this " + 
+        //        kind().value() + 
+        // " with tc " + tc.kind().value());
 
         if( kind().value() != tc.kind().value())
             return false;
@@ -749,72 +762,6 @@ public class TypeCode
     {
         recursive = true;
     }
-
-
-//      private void resolve_recursion( Hashtable tcMap )
-//      {
-//          try
-//          {
-//              org.jacorb.util.Debug.output( 3, "resolve recursion looks at kind: " + _kind() );
-
-//              switch ( _kind() )
-//              {
-//              case TCKind._tk_sequence:
-//              case TCKind._tk_array:
-//                  { 
-//                      if( ((org.jacorb.orb.TypeCode)content_type()).is_recursive() && 
-//                          ((org.jacorb.orb.TypeCode)content_type())._kind() == -1 )
-//                      {
-//                          TypeCode tc = (TypeCode)tcMap.get( content_type().id() );
-//                          org.jacorb.util.Debug.assert( tc != null, 
-//                                                    "Could not resolve recursive TypeCode for " + 
-//                                                    content_type().id());
-                        
-//                          tc.set_recursive();
-//                          content_type = tc;
-//                      }  
-//                      else
-//                          ((org.jacorb.orb.TypeCode)content_type()).resolve_recursion(tcMap);
-//                      return;
-//                  }
-//              case TCKind._tk_struct:
-//              case TCKind._tk_except:
-//              case TCKind._tk_union:
-//                  {
-//                      tcMap.put(this.id(), this);
-//                      org.jacorb.util.Debug.output( 4, "resolve recursion.put : " + this.id() );
-//                      for( int i = 0; i < member_count(); i++ )
-//                      {
-//                          if( ((org.jacorb.orb.TypeCode)member_type(i)).is_recursive()&& 
-//                              ((org.jacorb.orb.TypeCode)member_type(i))._kind() == -1 )
-//                          {    
-//                              TypeCode tc = (TypeCode)tcMap.get( member_type(i).id() );
-//                              org.jacorb.util.Debug.assert( tc != null, 
-//                                                        "Could not resolve recursive TypeCode for " +
-//                                                        member_type(i).id());
-//                              tc.set_recursive();
-
-//                              member_type[i] = tc;
-//                          }
-//                          else
-//                              ((org.jacorb.orb.TypeCode)member_type(i)).resolve_recursion(tcMap);
-//                      }
-//                      return;
-//                  }
-//              default:
-//                  return;
-//              }
-//          }
-//          catch( org.omg.CORBA.TypeCodePackage.BadKind bk )
-//          {
-//              bk.printStackTrace();
-//          }
-//          catch( org.omg.CORBA.TypeCodePackage.Bounds b )
-//          {
-//              b.printStackTrace();
-//          }
-//      }
-
     
     /** convenience method */
 
