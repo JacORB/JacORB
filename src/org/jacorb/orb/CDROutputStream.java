@@ -202,14 +202,14 @@ public class CDROutputStream
             
             //at maximum, there are 8 bytes of padding. the following
             //is (supposed to be :-) faster than using a for-loop
-            buffer[ j ] = (byte) 0;
-            buffer[ j + 1 ] = (byte) 0;
-            buffer[ j + 2 ] = (byte) 0;
-            buffer[ j + 3 ] = (byte) 0;
-            buffer[ j + 4 ] = (byte) 0;
-            buffer[ j + 5 ] = (byte) 0;
-            buffer[ j + 6 ] = (byte) 0;
-            buffer[ j + 7 ] = (byte) 0;
+            buffer[ pos     ] = (byte) 0;
+            buffer[ pos + 1 ] = (byte) 0;
+            buffer[ pos + 2 ] = (byte) 0;
+            buffer[ pos + 3 ] = (byte) 0;
+            buffer[ pos + 4 ] = (byte) 0;
+            buffer[ pos + 5 ] = (byte) 0;
+            buffer[ pos + 6 ] = (byte) 0;
+            buffer[ pos + 7 ] = (byte) 0;
 
             index += remainder;
             pos += remainder;
