@@ -28,6 +28,7 @@ package org.jacorb.orb;
  * OMG Assigned ranges:
  *
  *  1 VMCID           0x4A430xxx               ("JC\x00\x00" - "JC\x0f\xff")
+ *  1 VPVID           0x4A430xxx               ("JC\x00\x00" - "JC\x0f\xff")
  * 16 ORB type IDs    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
  * 16 profile tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
  * 16 service tags    0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
