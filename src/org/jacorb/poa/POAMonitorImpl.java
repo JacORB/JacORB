@@ -63,7 +63,6 @@ public class POAMonitorImpl
     private int poolCount;
     private int poolSize;
 
-    private Thread refreshThread;
     private boolean terminate;
     private boolean aomChanged;
     private boolean queueChanged;
@@ -109,15 +108,15 @@ public class POAMonitorImpl
         return null;
     }
 
-    public StringPair[] actionRetrieveQueueContent() 
+    public StringPair[] actionRetrieveQueueContent()
     {
-        if (queueModel != null) 
+        if (queueModel != null)
         {
-            try 
+            try
             {
                 return queueModel.deliverContent();
             }
-            catch (Throwable e) 
+            catch (Throwable e)
             {
                 printMessage("Exception during retrieveQueueContent() of POAMonitor: "+e);
             }
@@ -133,10 +132,10 @@ public class POAMonitorImpl
             try
             {
                 view._setState(state);
-            } 
+            }
             catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled()) 
+            	if (logger.isWarnEnabled())
                 {
                     logger.warn("Exception during changeState() of POAMonitor" +
                                  exception.getMessage());
@@ -146,15 +145,15 @@ public class POAMonitorImpl
     }
 
 
-    public synchronized void closeMonitor() 
+    public synchronized void closeMonitor()
     {
-        if (view != null) 
+        if (view != null)
         {
-            try 
+            try
             {
                 terminate = true;
                 poaModel._removePOAEventListener(this);
-                POAMonitor newMonitor = 
+                POAMonitor newMonitor =
                     (POAMonitor)Class.forName("org.jacorb.poa.POAMonitorLightImpl").newInstance();
                 newMonitor.init(poaModel, aomModel, queueModel, pmModel, prefix, logger);
                 poaModel.setMonitor(newMonitor);
@@ -162,10 +161,10 @@ public class POAMonitorImpl
                 view = null;
                 tmp._destroy();
 
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled()) 
+            	if (logger.isWarnEnabled())
                 {
 	                logger.warn("Exception during closeMonitor() of POAMonitorImpl" +
                                     exception.getMessage());
@@ -175,9 +174,9 @@ public class POAMonitorImpl
     }
 
 
-    public void init(POA poa, AOM aom, 
+    public void init(POA poa, AOM aom,
                      RequestQueue queue, RPPoolManager pm,
-                     String _prefix, Logger _logger) 
+                     String _prefix, Logger _logger)
     {
         poaModel = poa;
         aomModel = aom;
@@ -188,11 +187,11 @@ public class POAMonitorImpl
     }
 
 
-    private void initView() 
+    private void initView()
     {
-        if (view != null) 
+        if (view != null)
         {
-            try 
+            try
             {
                 String name = poaModel._getQualifiedName();
                 view._setName(name.equals("") ? POAConstants.ROOT_POA_NAME :
@@ -219,10 +218,10 @@ public class POAMonitorImpl
                                             poaModel.isSingleThreadModel() ? 1 : Environment.threadPoolMax());
                 view._initThreadPoolBar(0);
 
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled()) 
+            	if (logger.isWarnEnabled())
                 {
 	                logger.warn("Exception during initView() of POAMonitor" +
                                     exception.getMessage());
@@ -232,7 +231,7 @@ public class POAMonitorImpl
     }
 
 
-    public void objectActivated(byte[] oid, Servant servant, int aom_size) 
+    public void objectActivated(byte[] oid, Servant servant, int aom_size)
     {
         aomSize = aom_size;
         aomChanged = true;
@@ -240,7 +239,7 @@ public class POAMonitorImpl
     }
 
 
-    public void objectDeactivated(byte[] oid, Servant servant, int aom_size) 
+    public void objectDeactivated(byte[] oid, Servant servant, int aom_size)
     {
         aomSize = aom_size;
         aomChanged = true;
@@ -248,11 +247,11 @@ public class POAMonitorImpl
     }
 
 
-    public synchronized void openMonitor() 
+    public synchronized void openMonitor()
     {
-        if (view == null) 
+        if (view == null)
         {
-            try 
+            try
             {
                 aomSize = aomModel != null ? aomModel.size() : 0;
                 queueSize = queueModel.size();
@@ -268,10 +267,10 @@ public class POAMonitorImpl
 
                 view._setVisible(true);
 
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled()) 
+            	if (logger.isWarnEnabled())
                 {
                     logger.warn("Exception occurred in openMonitor() of POAMonitor" +
                                 exception.getMessage() );
@@ -283,14 +282,14 @@ public class POAMonitorImpl
 
     private synchronized void printException(Throwable e)
     {
-        if (view != null) 
+        if (view != null)
         {
             try {
                 view._printMessage("####################################################################");
                 view._printMessage("\t"+e);
                 view._printMessage("####################################################################");
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
                 System.err.println("Exception occurred in _printException() of POAMonitor");
             }
@@ -298,21 +297,21 @@ public class POAMonitorImpl
     }
 
 
-//     public boolean test(int logLevel) 
+//     public boolean test(int logLevel)
 //     {
 //         return Environment.verbosityLevel() >= (Debug.POA | logLevel);
 //     }
 
 
-    private synchronized void printMessage(String str) 
+    private synchronized void printMessage(String str)
     {
-        if (view != null) 
+        if (view != null)
         {
-            try 
+            try
             {
                 view._printMessage(Environment.time()+"> "+str);
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
                 System.err.println("Exception occurred in _printMessage() of POAMonitor");
             }
@@ -320,9 +319,9 @@ public class POAMonitorImpl
     }
 
 
-    public void processorAddedToPool(RequestProcessor processor, 
-                                     int pool_count, 
-                                     int pool_size) 
+    public void processorAddedToPool(RequestProcessor processor,
+                                     int pool_count,
+                                     int pool_size)
     {
         poolCount = pool_count;
         poolSize = pool_size;
@@ -331,9 +330,9 @@ public class POAMonitorImpl
     }
 
 
-    public void processorRemovedFromPool(RequestProcessor processor, 
-                                         int pool_count, 
-                                         int pool_size) 
+    public void processorRemovedFromPool(RequestProcessor processor,
+                                         int pool_count,
+                                         int pool_size)
     {
         poolCount = pool_count;
         poolSize = pool_size;
@@ -342,19 +341,19 @@ public class POAMonitorImpl
     }
 
 
-    private /* synchronized */ void refreshAOM() 
+    private /* synchronized */ void refreshAOM()
     {
-        if (view != null) 
+        if (view != null)
         {
-            try 
+            try
             {
                 view._setValueAOMBar(aomSize);
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled()) 
+            	if (logger.isWarnEnabled())
                 {
-                    logger.warn("Exception during refreshAOM() of POAMonitor" + 
+                    logger.warn("Exception during refreshAOM() of POAMonitor" +
                                      exception.getMessage());
             	}
             }
@@ -362,21 +361,21 @@ public class POAMonitorImpl
     }
 
 
-    private /* synchronized */ void refreshPM() 
+    private /* synchronized */ void refreshPM()
     {
-        if (view != null) 
+        if (view != null)
         {
-            try 
+            try
             {
                 view._setValueActiveRequestsBar(poolSize-poolCount);
                 view._setMaxThreadPoolBar(poolSize);
                 view._setValueThreadPoolBar(poolCount);
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled()) 
+            	if (logger.isWarnEnabled())
                 {
-	                logger.warn("Exception occurred in refreshPM() of POAMonitor" + 
+	                logger.warn("Exception occurred in refreshPM() of POAMonitor" +
                                     exception.getMessage());
             	}
             }
@@ -384,17 +383,17 @@ public class POAMonitorImpl
     }
 
 
-    private /* synchronized */ void refreshQueue() 
+    private /* synchronized */ void refreshQueue()
     {
-        if (view != null) 
+        if (view != null)
         {
-            try 
+            try
             {
                 view._setValueQueueBar(queueSize);
-            } 
-            catch (Throwable exception) 
+            }
+            catch (Throwable exception)
             {
-            	if (logger.isWarnEnabled()) 
+            	if (logger.isWarnEnabled())
                 {
                     logger.warn("Exception occurred in refreshQueue() of POAMonitor: " +
                                 exception.getMessage());
@@ -404,7 +403,7 @@ public class POAMonitorImpl
     }
 
 
-    private void refreshView() 
+    private void refreshView()
     {
         refreshAOM();
         refreshQueue();
