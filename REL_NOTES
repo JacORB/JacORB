@@ -73,7 +73,7 @@ gerald.brose@acm.org
                 exceptions or return types other than void. Now it does.
 
              Compiler did not complain about identifiers in the same
-                scope that differedonly in case, which it should according
+                scope that differed only in case, which it should according
                 to the spec. Now it correctly rejects definitions like 
                 "teST" and "TEst".
 
