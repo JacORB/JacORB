@@ -2,12 +2,13 @@
 
 <project name="main" default="all" basedir="..">
 
-  <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL"/>
+   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL"
+      classpath="${basedir}/classes"/>
 
-  <!-- ==================================================== -->
-  <!--            JacORB idl build file                     -->
-  <!-- $Id$ -->
-  <!-- ==================================================== -->
+   <!-- ==================================================== -->
+   <!--            JacORB idl build file                     -->
+   <!-- $Id$ -->
+   <!-- ==================================================== -->
 
    <target name="init" depends="javatest">
 	<property name="name" value="omg_idl"/>
@@ -26,18 +27,16 @@
 
    <!-- check for Java 2 -->
    <target name="javatest">
-	<available classname="java.lang.ref.WeakReference"
-	property="java2" />	
+   	<available classname="java.lang.ref.WeakReference" property="java2" />	
    </target>
 
    <!-- top-level targets  -->
 
    <target name="all" 
-           depends="corba,names,security,events,transactions,concurrency,collections,trading" />
+      depends="corba,names,security,events,transactions,concurrency,collections,trading" />
 
    <target name="services" 
-           depends="events,trading,collections,transactions,concurrency"
-   />
+      depends="events,trading,collections,transactions,concurrency" />
 
 
    <!-- ==================================================== -->
@@ -171,8 +170,8 @@
    </target>
 
    <target name="giop" depends="init">
-   <!-- Compile two times with different preprocessor flags set, so structs for -->
-   <!-- both GIOP 1.0 / 1.1 and GIOP 1.2 get generated -->
+   <!-- Compile two times with different preprocessor flags set, so structs -->
+   <!-- for both GIOP 1.0 / 1.1 and GIOP 1.2 get generated -->
    	<jacidl generateir="true"
 		srcdir="idl"
 		packageprefix="org.omg"
@@ -232,7 +231,7 @@
 		includes="**/omg/BiDirPolicy.idl"
 		destdir="${src}/generated"/>
 
-        <!-- a few necessary classes not provided by the   -->
+        <!-- a few necessary classes not provided by the -->
         <!-- language mapping as needed -->
 
 	   <copy overwrite="yes" file="${src}/java_mapping/PortableServer/_ServantActivatorStub.java"
@@ -308,9 +307,9 @@
                includes="org/omg/CosNaming/**/*.java,org/omg/CosNaming/*.java"          />
    </target>
 
-   <!--               -->
+   <!--                -->
    <!-- event service  -->
-   <!--               -->
+   <!--                -->
 
    <target name="events" depends="init,Comm,Admin">
 	<javac debug="${debug}" srcdir="${src}/generated"
@@ -354,9 +353,9 @@
         />
    </target>
 
-   <!--                      -->
+   <!--                     -->
    <!-- collection service  -->
-   <!--                      -->
+   <!--                     -->
 
 
    <target name="collections"  depends="init">
