@@ -432,11 +432,14 @@ public class lexer
 
     public static void emit_error( String message )
     {
-        System.err.println( GlobalInputStream.currentFile().getAbsolutePath() +
-                ", line: " + current_line +
-                "(" + current_position + "): " + message );
-
-        System.err.println( "\t" + line.toString() );
+        if (parser.getLogger().isErrorEnabled())
+        {
+            logger.error(  GlobalInputStream.currentFile().getAbsolutePath() +
+                           ", line: " + current_line +
+                           "(" + current_position + "): " + 
+                           message + "\n\t" + 
+                           line.toString() );
+        }
         error_count++;
     }
 
@@ -448,9 +451,12 @@ public class lexer
         }
         else
         {
-            System.err.println( "Error in " + t.fileName + ", line:" + t.line_no +
-                    "(" + t.char_pos + "): " + message );
-            System.err.println( "\t" + t.line_val );
+            if (parser.getLogger().isErrorEnabled())
+            {
+                logger.error( t.fileName + ", line:" + t.line_no +
+                              "(" + t.char_pos + "): " + message + 
+                              "\n\t" + t.line_val );
+            }
             error_count++;
         }
     }
@@ -466,9 +472,11 @@ public class lexer
 
     public static void emit_warn( String message )
     {
-        System.err.println( "Warning: " + message + " at " +
-                current_line + "(" + current_position +
-                "): \"" + line.toString() + "\"" );
+        if (parser.getLogger().isWarnEnabled())
+        {
+            logger.warn( message + " at " + current_line + "(" + current_position +
+                         "): \"" + line.toString() + "\"" );
+        }
         warning_count++;
     }
 
@@ -481,9 +489,12 @@ public class lexer
         }
         else
         {
-            System.err.println( "Warning at " + t.fileName + ", line:" + t.line_no + "(" +
-                    t.char_pos + "): " + message );
-            System.err.println( "\t" + t.line_val );
+            if (parser.getLogger().isWarnEnabled())
+            {
+                logger.warn( " at " + t.fileName + ", line:" + t.line_no + "(" +
+                             t.char_pos + "): " + message  + "\n\t" + t.line_val );
+            }
+
             warning_count++;
         }
     }
