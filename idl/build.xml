@@ -676,7 +676,7 @@
    <!--                       CORBA                          -->
    <!-- ==================================================== -->
 
-   <target name="jacorb" depends="imr,proxy,sasPolicy"/>
+   <target name="jacorb" depends="imr,proxy,sasPolicy,sslPolicy"/>
 
    <target name="imr">
       <jacidl srcdir="${idl}/jacorb"
@@ -714,4 +714,17 @@
          <param name="javac-includes" value="org/jacorb/sasPolicy/**"/>
       </antcall>
    </target>
+
+   <target name="sslPolicy">
+      <jacidl srcdir="${idl}/jacorb"
+              destdir="${src}/generated"
+              sloppynames="true"
+              includepath="${idl}/omg"
+              includes="SSLPolicy.idl"/>
+      <antcall target="jacorb-javac">
+         <param name="javac-src" value="${src}/generated"/>
+         <param name="javac-includes" value="org/jacorb/ssl/**"/>
+      </antcall>
+   </target>
+
 </project>
