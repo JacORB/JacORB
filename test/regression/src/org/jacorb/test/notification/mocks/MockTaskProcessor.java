@@ -1,9 +1,14 @@
-package org.jacorb.test.notification.node;
+package org.jacorb.test.notification.mocks;
+
+import junit.framework.Assert;
+import org.jacorb.notification.interfaces.Message;
+
+
 
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1997-2003  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,36 +23,26 @@ package org.jacorb.test.notification.node;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 /**
- * PackageTest.java
- *
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
+public class MockTaskProcessor extends NullTaskProcessor {
 
-public class PackageTest extends TestCase
-{
-    public PackageTest( String name )
-    {
-        super( name );
+    int processMessageInvoked_;
+    int processMessageExpected_;
+
+    public void processMessage(Message message) {
+        ++processMessageInvoked_;
     }
 
-    public static Test suite() throws Exception
-    {
-        TestSuite _suite = new TestSuite( "Tests in Package org.jacorb.test.notification.node" );
+    public void expectProcessMessage(int x) {
+        processMessageExpected_ = x;
+    }
 
-        _suite.addTest( EvaluationResultTest.suite() );
-        _suite.addTest( TCLTest.suite() );
-
-        return _suite;
+    public void verify() {
+        Assert.assertEquals(processMessageExpected_, processMessageInvoked_);
     }
 }

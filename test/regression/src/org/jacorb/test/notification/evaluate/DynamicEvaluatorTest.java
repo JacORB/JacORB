@@ -38,7 +38,6 @@ import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class DynamicEvaluatorTest extends NotificationTestCase {
 

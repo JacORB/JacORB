@@ -24,9 +24,11 @@ package org.jacorb.test.notification;
 import java.util.Date;
 import java.util.HashSet;
 
+
 import junit.framework.Test;
+
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.util.Time;
 import org.omg.CORBA.Any;
@@ -42,9 +44,12 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
+
+import junit.framework.Test;
+
+
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class StopTimeTest extends NotificationTestCase
@@ -209,7 +214,8 @@ public class StopTimeTest extends NotificationTestCase
 
         final Object lock = new Object();
 
-        TaskProcessor _taskProcessor = new TaskProcessor() {
+        // TODO check if MockTaskProcessor can be used here
+        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor() {
                 public void processMessageInternal(Message event) {
                     try {
                         long _recvTime = System.currentTimeMillis();

@@ -29,7 +29,6 @@ import org.jacorb.test.notification.TimingTestHelper;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class AnyGenerator implements TestEventGenerator {

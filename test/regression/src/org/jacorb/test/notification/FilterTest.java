@@ -7,8 +7,11 @@ import java.util.Random;
 
 import org.jacorb.notification.FilterFactoryImpl;
 
+import org.jacorb.notification.TypedEventMessage;
+
 import org.omg.CORBA.Any;
 import org.omg.CosNotification.EventType;
+import org.omg.CosNotification.Property;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
@@ -20,7 +23,6 @@ import junit.framework.TestCase;
 /**
  * @author Alphonse Bendt
  * @author John Farrell
- * @version $Id$
  */
 
 public class FilterTest extends NotificationTestCase {
@@ -241,6 +243,58 @@ public class FilterTest extends NotificationTestCase {
     }
 
 
+    public void testMatchTyped() throws Exception {
+        Property[] _props = new Property[] {
+            new Property("operation", toAny("operationName")),
+            new Property("value1", toAny(100)),
+            new Property("value2", toAny(200))
+        };
+
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+
+        EventType[] _eventType = new EventType[1];
+        _eventType[0] = new EventType("", "%TYPED");
+
+        String _expression = "$value1 > 50 and $value2 > 50";
+
+        _constraintExp[0] = new ConstraintExp(_eventType, _expression);
+
+        filter_.add_constraints(_constraintExp);
+
+        assertTrue(filter_.match_typed(_props));
+    }
+
+
+    public void testFilterTypedMessageEvent() throws Exception {
+        TypedEventMessage _mesg = new TypedEventMessage();
+
+        String _domainName = "IDL:org.jacorb/org/jacorb/test/filter/Bla:1.0";
+        String _operationName = "blaOperation";
+
+        _mesg.setTypedEvent(_domainName,
+                            _operationName,
+                            new Property[] {
+                                new Property("param1", toAny("value1")),
+                                new Property("param2", toAny(100))
+                            });
+
+        assertFalse(_mesg.match(filter_));
+
+        ConstraintExp[] _constraintExp = new ConstraintExp[1];
+
+        EventType[] _eventType = new EventType[1];
+        _eventType[0] = new EventType("", "%TYPED");
+
+        String _expression = "$event_type.domain_name == '" + _domainName + "' and $event_type.type_name == '" + _operationName + "' and $param2 > 50";
+
+        _constraintExp[0] = new ConstraintExp(_eventType, _expression);
+
+        filter_.add_constraints(_constraintExp);
+
+        assertTrue(_mesg.match(filter_));
+    }
+
+
     public static Test suite() throws Exception {
         return NotificationTestCase.suite(FilterTest.class);
     }
@@ -375,7 +429,6 @@ class FilterModify extends Thread {
     }
 
     public void run() {
-
         try {
             sleep(FilterTest.random_.nextInt(1000));
         } catch (InterruptedException e) {}

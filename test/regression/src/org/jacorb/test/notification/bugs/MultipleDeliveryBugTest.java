@@ -41,7 +41,6 @@ import junit.framework.Test;
  * Under high load Messages were delivered multiple times.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class MultipleDeliveryBugTest extends NotificationTestCase

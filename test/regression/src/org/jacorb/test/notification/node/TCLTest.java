@@ -33,12 +33,14 @@ import org.omg.TimeBase.UtcTHelper;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
+import org.omg.CosNotification.PropertySeqHelper;
+
+
 /**
  * JUnit TestCase. Test Parsing and Evaluation of various ETCL
  * Expressions.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class TCLTest extends NotificationTestCase
@@ -78,7 +80,7 @@ public class TCLTest extends NotificationTestCase
         }
     }
 
-    void setUpTestUnion( Person person )
+    private void setUpTestUnion( Person person )
     {
         TestUnion _t1, _t2, _t3, _t4, _t5, _t;
 
@@ -117,7 +119,7 @@ public class TCLTest extends NotificationTestCase
         TestUnionHelper.insert( testUnion5_, _t5 );
     }
 
-    Person setUpPerson()
+    private Person setUpPerson()
     {
         Person _person = new Person();
         Address _address = new Address();
@@ -177,27 +179,27 @@ public class TCLTest extends NotificationTestCase
     ////////////////////
     // Helper functions
 
-    void runEvaluation( StructuredEvent event, String expr ) throws Exception
+    private void runEvaluation( StructuredEvent event, String expr ) throws Exception
     {
         NotificationTestUtils.runEvaluation( this, applicationContext_, event, expr );
     }
 
-    void runEvaluation( Any any, String expr ) throws Exception
+    private void runEvaluation( Any any, String expr ) throws Exception
     {
         NotificationTestUtils.runEvaluation( this, applicationContext_, any, expr );
     }
 
-    void runEvaluation( Any any, String expr, String expect ) throws Exception
+    private void runEvaluation( Any any, String expr, String expect ) throws Exception
     {
         NotificationTestUtils.runEvaluation( this, applicationContext_, any, expr, expect );
     }
 
-    void runStaticTypeCheck( String expr ) throws Exception
+    private void runStaticTypeCheck( String expr ) throws Exception
     {
         runStaticTypeCheck( expr, true );
     }
 
-    void runStaticTypeCheck( String expr, boolean shouldFail ) throws Exception
+    private void runStaticTypeCheck( String expr, boolean shouldFail ) throws Exception
     {
         try
         {
@@ -217,9 +219,8 @@ public class TCLTest extends NotificationTestCase
 
     }
 
-    void runEvaluation( String fst, String snd ) throws Exception
+    private void runEvaluation( String fst, String snd ) throws Exception
     {
-
         AbstractTCLNode fstNode = TCLParser.parse( fst );
         AbstractTCLNode sndNode = TCLParser.parse( snd );
 
@@ -450,6 +451,7 @@ public class TCLTest extends NotificationTestCase
     public void testImplicit() throws Exception
     {
         runEvaluation( testPerson_, "$._type_id == 'Person'" );
+
         runEvaluation( testPerson_,
                        "$._repos_id == 'IDL:jacorb.org/org/jacorb/test/notification/Person:1.0'" );
 
@@ -468,6 +470,7 @@ public class TCLTest extends NotificationTestCase
         runEvaluation( testPerson_, "$.4._length == 2" );
 
         runEvaluation( testUnion5_, "$.named_value_array._length == 1" );
+
         runEvaluation( testUnion5_, "$.(5)._length == 1" );
     }
 
@@ -886,7 +889,25 @@ public class TCLTest extends NotificationTestCase
     public void testNewLexer() throws Exception
     {
         AbstractTCLNode _root = TCLParser.parse( ".1" );
+
         _root = TCLParser.parse( "$.1" );
+    }
+
+
+    public void testTypedEvent() throws Exception
+    {
+        Property[] _props = new Property[] {
+            new Property("operation", toAny("operationName")),
+            new Property("value1", toAny(100)),
+            new Property("value2", toAny(200))
+        };
+
+        Any _any = getORB().create_any();
+
+        PropertySeqHelper.insert(_any, _props);
+
+        runEvaluation(_any, "$operation == 'operationName'");
+        runEvaluation(_any, "$value1 > 50 and $value2 > 50");
     }
 
     ////////////////////////////////////////

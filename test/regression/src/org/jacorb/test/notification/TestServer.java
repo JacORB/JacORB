@@ -31,7 +31,6 @@ import java.net.Socket;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class TestServer

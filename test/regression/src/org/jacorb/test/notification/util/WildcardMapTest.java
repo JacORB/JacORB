@@ -12,7 +12,6 @@ import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class WildcardMapTest extends TestCase

@@ -218,6 +218,7 @@
       <antcall target="idl-iiopaddress"/>
       <antcall target="idl-recursive"/>
       <antcall target="idl-notification"/>
+      <antcall target="idl-notification-typed"/>
       <antcall target="idl-value"/>
       <antcall target="idl-bugs"/>
    </target>
@@ -244,6 +245,7 @@
       </condition>
 -->
       <property name="${props.idl}" value="true"/>
+    <property name="generateir" value="false" />
       <antcall target="generate-src"/>
    </target>
 
@@ -364,6 +366,17 @@
     <antcall target="process-idl" />
   </target>
 
+
+  <target name="idl-notification-typed">
+    <property name="props.idl" value="TypedNotification" />
+    <property name="pkg.idl" value="org/jacorb/test/notification/typed" />
+    <property name="callback.idl" value="false"/>
+    <property name="file.idl" value="TypedNotification.idl" />
+    <property name="generateir" value="true" />
+    <antcall target="process-idl" />
+  </target>
+  
+
   <target name="idl-value">
     <property name="props.idl" value="value" />
     <property name="pkg.idl" value="org/jacorb/test" />
@@ -464,12 +477,6 @@
          <param name="test" value="org.jacorb.test.orb.AllTest"/>
       </antcall>
    </target>
-
-
-
-   <!-- ==================================================== -->
-   <!--                  run POA tests                       -->
-   <!-- ==================================================== -->
 
 
    <target name="run-all-poa"

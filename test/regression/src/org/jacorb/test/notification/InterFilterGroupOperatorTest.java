@@ -54,7 +54,6 @@ import junit.framework.Test;
  * to AND. ProxySupplierfilter set to TRUE.
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 public class InterFilterGroupOperatorTest extends NotificationTestCase
 {

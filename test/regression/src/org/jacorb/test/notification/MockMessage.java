@@ -21,27 +21,26 @@ package org.jacorb.test.notification;
  *
  */
 
-import org.jacorb.notification.AbstractMessage;
-import org.jacorb.notification.filter.ComponentName;
-import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.interfaces.FilterStage;
-
-import org.omg.CORBA.Any;
-import org.omg.CORBA.AnyHolder;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.MappingFilter;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import junit.framework.Assert;
+import org.jacorb.notification.AbstractMessage;
+import org.jacorb.notification.filter.ComponentName;
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationResult;
+import org.jacorb.notification.interfaces.FilterStage;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.AnyHolder;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyFilter.Filter;
+import org.omg.CosNotifyFilter.MappingFilter;
+
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class MockMessage extends AbstractMessage {
@@ -86,6 +85,10 @@ public class MockMessage extends AbstractMessage {
 
     public Any toAny() {
         return any;
+    }
+
+    public Property[] toTypedEvent() {
+        return null;
     }
 
     public void setAny(Any a) {

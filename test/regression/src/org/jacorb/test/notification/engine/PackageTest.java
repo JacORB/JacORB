@@ -45,7 +45,6 @@ public class PackageTest extends TestCase {
         TestSuite _suite =
             new TestSuite("Tests in Package org.jacorb.test.notification.engine");
 
-        _suite.addTest(ReleaseTasksTest.suite());
         _suite.addTest(PushToConsumerTest.suite());
         _suite.addTest(PushOperationTest.suite());
         _suite.addTest(WaitRetryStrategyTest.suite());

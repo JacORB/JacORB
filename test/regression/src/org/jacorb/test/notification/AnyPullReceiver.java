@@ -24,7 +24,6 @@ import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class AnyPullReceiver

@@ -11,12 +11,12 @@ import org.omg.CosNotification.FifoOrder;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Priority;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotification.QoSError_code;
 import org.omg.CosNotification.UnsupportedQoS;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.omg.CosNotification.QoSError_code;
 
 public class PropertyValidatorTest
     extends NotificationTestCase

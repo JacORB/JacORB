@@ -30,7 +30,6 @@ import org.jacorb.notification.filter.EvaluationResult;
  *  Unit Test for class EvaluationResult
  *
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class EvaluationResultTest extends TestCase {

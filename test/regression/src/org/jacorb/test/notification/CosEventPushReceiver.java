@@ -12,7 +12,6 @@ import org.omg.CosEventComm.PushConsumerPOA;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class CosEventPushReceiver extends PushConsumerPOA implements Runnable, TestClientOperations {

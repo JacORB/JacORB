@@ -45,7 +45,6 @@ import org.omg.CosNotifyChannelAdmin.EventChannel;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class QoSTest extends NotificationTestCase

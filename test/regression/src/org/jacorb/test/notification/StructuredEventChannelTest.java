@@ -20,7 +20,6 @@ import junit.framework.Test;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class StructuredEventChannelTest extends NotificationTestCase

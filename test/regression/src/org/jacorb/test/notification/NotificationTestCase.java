@@ -21,25 +21,29 @@ package org.jacorb.test.notification;
  *
  */
 
-import org.omg.CORBA.IntHolder;
-import org.omg.CORBA.ORB;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.PortableServer.POA;
-
-import org.jacorb.config.Configuration;
-import org.jacorb.test.common.TestUtils;
-
 import java.lang.reflect.Constructor;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.config.Configuration;
+import org.jacorb.notification.ChannelContext;
+import org.jacorb.test.common.TestUtils;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.PropertySeqHelper;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.DynamicAny.DynAnyFactory;
+import org.omg.DynamicAny.DynAnyFactoryHelper;
+import org.omg.PortableServer.POA;
+
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class NotificationTestCase extends TestCase
@@ -48,13 +52,17 @@ public class NotificationTestCase extends TestCase
 
     private EventChannel defaultChannel_;
 
-    ////////////////////////////////////////
+    protected Logger logger_;
+
+    ///////////////////////////////
 
     public NotificationTestCase(String name, NotificationTestCaseSetup setup)
     {
         super(name);
 
         setup_ = setup;
+
+        logger_ = getConfiguration().getNamedLogger(getClass().getName());
     }
 
     ////////////////////////////////////////
@@ -67,6 +75,11 @@ public class NotificationTestCase extends TestCase
         {
             defaultChannel_.destroy();
         }
+    }
+
+
+    public ORB getClientORB() {
+        return getSetup().getClientORB();
     }
 
 
@@ -95,6 +108,11 @@ public class NotificationTestCase extends TestCase
     }
 
 
+    public DynAnyFactory getDynAnyFactory() throws Exception {
+        return DynAnyFactoryHelper.narrow(getORB().resolve_initial_references("DynAnyFactory"));
+    }
+
+
     public Configuration getConfiguration()
     {
         return ((org.jacorb.orb.ORB)getORB()).getConfiguration();
@@ -103,6 +121,7 @@ public class NotificationTestCase extends TestCase
 
     public NotificationTestUtils getTestUtils()
     {
+
         return setup_.getTestUtils();
     }
 
@@ -115,6 +134,8 @@ public class NotificationTestCase extends TestCase
         }
         catch (Exception e)
         {
+            e.printStackTrace();
+
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -123,6 +144,10 @@ public class NotificationTestCase extends TestCase
     private NotificationTestCaseSetup getSetup()
     {
         return setup_;
+    }
+
+    protected ChannelContext getChannelContext() {
+        return getSetup().getChannelContext();
     }
 
 
@@ -166,4 +191,32 @@ public class NotificationTestCase extends TestCase
             suite.addTest((Test)_ctor.newInstance(new Object[] {testMethods[x], setup}));
         }
     }
+
+
+    public Any toAny(String s) {
+        Any a = getORB().create_any();
+
+        a.insert_string(s);
+
+        return a;
+    }
+
+
+    public Any toAny(int i) {
+        Any a = getORB().create_any();
+
+        a.insert_long(i);
+
+        return a;
+    }
+
+
+    public Any toAny(Property[] props) throws Exception {
+        Any _any = getORB().create_any();
+
+        PropertySeqHelper.insert(_any, props);
+
+        return _any;
+    }
+
 }

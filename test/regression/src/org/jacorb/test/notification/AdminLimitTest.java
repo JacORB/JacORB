@@ -33,7 +33,7 @@ import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.ApplicationEvent;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
-import org.jacorb.notification.servant.ConsumerAdminTieImpl;
+import org.jacorb.notification.servant.ConsumerAdminImpl;
 import org.jacorb.notification.util.QoSPropertySet;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ import junit.framework.Test;
 
 public class AdminLimitTest extends NotificationTestCase
 {
-    ConsumerAdminTieImpl consumerAdmin_;
+    ConsumerAdminImpl consumerAdmin_;
     ChannelContext channelContext_;
     int counter_;
 
@@ -57,12 +57,14 @@ public class AdminLimitTest extends NotificationTestCase
         QoSPropertySet qosSettings_ =
             new QoSPropertySet(getConfiguration(), QoSPropertySet.ADMIN_QOS);
 
-        channelContext_ = new ChannelContext();
-        channelContext_.setTaskProcessor(new TaskProcessor());
-        channelContext_.setORB(getORB());
+        channelContext_ = getChannelContext();
+
+        channelContext_.setEventChannel(getDefaultChannel());
 
         consumerAdmin_ =
-            new ConsumerAdminTieImpl(channelContext_);
+            new ConsumerAdminImpl();
+
+        channelContext_.resolveDependencies(consumerAdmin_);
 
         consumerAdmin_.set_qos(qosSettings_.get_qos());
     }

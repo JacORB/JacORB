@@ -21,9 +21,9 @@ package org.jacorb.test.notification;
  *
  */
 
-import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.engine.TaskProcessor;
+
+import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.AbstractProxyConsumerI;
@@ -37,8 +37,6 @@ import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StartTime;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
 
@@ -46,12 +44,9 @@ import java.util.Date;
 
 import EDU.oswego.cs.dl.util.concurrent.Latch;
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
- * @version $Id$
  */
 
 public class StartTimeTest extends NotificationTestCase
@@ -168,7 +163,8 @@ public class StartTimeTest extends NotificationTestCase
 
         final Latch _latch = new Latch();
 
-        TaskProcessor _taskProcessor = new TaskProcessor() {
+        // TODO check if MockTaskProcessor can be used here
+        DefaultTaskProcessor _taskProcessor = new DefaultTaskProcessor() {
                 public void processMessageInternal(Message event) {
                     try {
                         long _recvTime = System.currentTimeMillis();
