@@ -4167,7 +4167,8 @@ qualified name of a class that implements {\tt
 \verb"jacorb.giop.add_1_0_pr"
 \verb"ofiles" & Add additional IIOP 1.0 profiles even if using IIOP 1.2. Default is off. & boolean \\
 \hline
-\verb"jacorb.dns.enable" & Use DNS when DNS support has been included in build. Default is on. & boolean \\
+\verb"jacorb.dns.enable" & Use DNS names in IORs, rather than numeric
+IP addresses. & boolean \\
 \hline
 \verb"jacorb.compactTypecode"
 \verb"s" & Whether to send compact typecodes. Options are 0 (off), 1 (Partial compaction), 2 (full compaction of all optional parameters) Default is 2. & integer \\
@@ -4261,7 +4262,17 @@ qualified name of a class that implements {\tt
 \verb"jacorb.poa.thread_prio"
 \verb"rity" & If set, request processing threads in the POA will run at this priority. If not set or invalid, MAX\_PRIORITY will be used. Not set by default. & integer \\
 \hline
-\verb"jacorb.poa.queue_max" & The size of the request queue. Clients will receive Corba.TRANSIENT exceptions if load exceeds this limit. Default is 100. & integer \\
+\verb"jacorb.poa.queue_wait" & Specifies whether the POA should block
+when the request queue is full (On), or throw TRANSIENT exceptions
+(Off). Default is Off. & boolean\\
+\hline
+\verb"jacorb.poa.queue_max" & The maximum length of the request
+queue.  If this length has been reached, and further requests arrive,
+jacorb.poa.queue\_wait specifies what to do. Default is 100. & integer \\
+\hline
+\verb"jacorb.poa.queue_min" & If jacorb.poa.queue\_wait is On, and the
+request queue gets full, then the POA blocks until the queue contains
+no more than queue\_min requests. Default is 10. & integer \\
 \hline
 
 \end{longtable}
