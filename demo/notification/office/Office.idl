@@ -1,0 +1,43 @@
+
+module demo {
+    module notification {               
+        module office {
+
+    enum Status { CANCELLED, PRINTED, ONLINE, OFFLINE, JAMMED, OUT_OF_PAPER };
+    typedef long JobID;
+    typedef string UserID;
+
+    struct Job {
+	JobID job_id;
+	UserID user_id;
+    };
+
+    union PrinterStatus switch( Status )
+    {
+         case CANCELLED:
+         case PRINTED: Job the_job;
+         case OFFLINE: 
+         case ONLINE: boolean dummy;
+    };
+
+    interface Printer 
+    {
+	typedef string Document;
+
+	exception OffLine {};
+	exception AlreadyPrinted {};
+	exception UnknownJobID {};
+
+	JobID print(in Document text, in UserID uid) 
+	    raises (OffLine);
+
+	void cancel(in JobID id, in UserID uid) 
+	    raises (AlreadyPrinted, UnknownJobID);
+
+	void setOffLine(in boolean flag);
+    };
+
+
+        }; 
+    };
+};
