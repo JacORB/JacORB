@@ -92,7 +92,7 @@ public class ValueDecl
         inheritanceSpec = spec;
     }
 
-    public ValueInheritanceSpec setInheritanceSpec()
+    public ValueInheritanceSpec getInheritanceSpec()
     {
         return inheritanceSpec;
     }
