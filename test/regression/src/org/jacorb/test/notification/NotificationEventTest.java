@@ -111,6 +111,6 @@ public class NotificationEventTest extends NotificationTestCase {
 
 
     public static Test suite() throws Exception {
-        return NotificationTestCase.notificationSuite(NotificationEventTest.class);
+        return NotificationTestCase.suite(NotificationEventTest.class);
     }
 }

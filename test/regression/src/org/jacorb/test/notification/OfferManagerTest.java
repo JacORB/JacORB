@@ -25,23 +25,20 @@ import org.jacorb.notification.OfferManager;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import java.util.ArrayList;
-import org.jacorb.orb.ORB;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class OfferManagerTest extends TestCase {
+public class OfferManagerTest extends NotificationTestCase {
 
     public static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
-    ORB jorb_;
     OfferManager offerManager_;
     List added_;
     List removed_;
@@ -49,17 +46,15 @@ public class OfferManagerTest extends TestCase {
 
     ////////////////////////////////////////
 
-    public OfferManagerTest (String name){
-        super(name);
+    public OfferManagerTest (String name, NotificationTestCaseSetup setup){
+        super(name, setup);
     }
 
     ////////////////////////////////////////
 
     public void setUp() throws Exception {
-        jorb_ = (ORB)ORB.init(new String[] {}, null);
-
         offerManager_ = new OfferManager();
-        offerManager_.configure(jorb_.getConfiguration());
+        offerManager_.configure(getConfiguration());
 
         added_ = new ArrayList();
         removed_ = new ArrayList();
@@ -127,10 +122,5 @@ public class OfferManagerTest extends TestCase {
         TestSuite suite = new TestSuite(OfferManagerTest.class);
 
         return suite;
-    }
-
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
     }
 }

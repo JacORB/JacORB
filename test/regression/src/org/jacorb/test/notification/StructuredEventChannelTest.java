@@ -3,6 +3,7 @@ package org.jacorb.test.notification;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.TRANSIENT;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
@@ -14,13 +15,8 @@ import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 
-import org.jacorb.test.common.TestUtils;
-
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.avalon.framework.logger.Logger;
-import org.omg.CORBA.TRANSIENT;
 
 /**
  * @author Alphonse Bendt
@@ -252,13 +248,10 @@ public class StructuredEventChannelTest extends NotificationTestCase
         EventType[] offers = new EventType[] {new EventType("domain1", "type1"),
                                               new EventType("domain2", "type2") };
 
-
         _sender.pushConsumer_.offer_change(offers, EMPTY_EVENT_TYPE);
-
 
         EventType[] _offeredTypes =
             _receiver.pushSupplier_.obtain_offered_types(ObtainInfoMode.ALL_NOW_UPDATES_ON);
-
 
         assertEquals(2, _offeredTypes.length);
     }
@@ -341,7 +334,6 @@ public class StructuredEventChannelTest extends NotificationTestCase
     }
 
 
-
     public void testSendPushPull() throws Exception
     {
         StructuredPushSender _sender = new StructuredPushSender(this, testEvent_);
@@ -403,27 +395,8 @@ public class StructuredEventChannelTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        TestSuite _suite;
-
-        _suite = new TestSuite("Test of Structured EventChannel");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames = TestUtils.getTestMethods(StructuredEventChannelTest.class);
-
-        for (int x = 0; x < methodNames.length; ++x)
-        {
-            _suite.addTest(new StructuredEventChannelTest(methodNames[x], _setup));
-        }
-
-        return _setup;
-    }
-
-
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite("Test of Structured EventChannel",
+                                          StructuredEventChannelTest.class);
     }
 }
 

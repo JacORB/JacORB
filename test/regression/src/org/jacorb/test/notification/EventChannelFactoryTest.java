@@ -2,13 +2,10 @@ package org.jacorb.test.notification;
 
 import org.jacorb.notification.EventChannelFactoryImpl;
 
-import org.omg.CORBA.ORB;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
@@ -16,16 +13,14 @@ import junit.framework.TestSuite;
  */
 
 public class EventChannelFactoryTest
-    extends TestCase {
+    extends NotificationTestCase {
 
     EventChannelFactoryImpl factory_;
 
-    ORB orb;
-
     ////////////////////////////////////////
 
-    public EventChannelFactoryTest (String name){
-        super(name);
+    public EventChannelFactoryTest (String name, NotificationTestCaseSetup setup){
+        super(name, setup);
     }
 
     ////////////////////////////////////////
@@ -35,7 +30,6 @@ public class EventChannelFactoryTest
 
         factory_ = EventChannelFactoryImpl.newFactory();
         factory_.getEventChannelFactory();
-        orb = ORB.init(new String[0], null);
     }
 
 
@@ -43,7 +37,6 @@ public class EventChannelFactoryTest
         super.tearDown();
 
         factory_.dispose();
-        orb.shutdown(true);
     }
 
 
@@ -53,7 +46,7 @@ public class EventChannelFactoryTest
         assertNotNull(_corbaLoc);
 
         org.omg.CORBA.Object obj =
-            orb.string_to_object(_corbaLoc);
+            getORB().string_to_object(_corbaLoc);
 
         assertNotNull(obj);
 
@@ -70,7 +63,7 @@ public class EventChannelFactoryTest
         assertNotNull(ior);
 
         org.omg.CORBA.Object obj =
-            orb.string_to_object(ior);
+            getORB().string_to_object(ior);
 
         assertNotNull(obj);
 
@@ -81,15 +74,7 @@ public class EventChannelFactoryTest
     }
 
 
-    public static TestSuite suite(){
-        TestSuite suite =
-            new TestSuite(EventChannelFactoryTest.class);
-
-        return suite;
-    }
-
-
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(suite());
+    public static Test suite() throws Exception {
+        return NotificationTestCase.suite(EventChannelFactoryTest.class);
     }
 }

@@ -1,24 +1,18 @@
 package org.jacorb.test.notification;
 
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.ConstraintInfo;
-import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.PortableServer.POAHelper;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.ConstraintEntry;
 import org.jacorb.notification.FilterFactoryImpl;
 import org.jacorb.notification.FilterImpl;
 import org.jacorb.notification.filter.FilterUtils;
-import org.jacorb.notification.filter.DynamicEvaluator;
 
 import java.util.Iterator;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * @author Alphonse Bendt
@@ -27,9 +21,6 @@ import junit.framework.TestSuite;
 
 public class FilterImplTest extends NotificationTestCase {
 
-    /**
-     * the testling
-     */
     FilterImpl filter_;
 
     ApplicationContext appContext_;
@@ -43,10 +34,8 @@ public class FilterImplTest extends NotificationTestCase {
     ////////////////////////////////////////
 
     public void setUp() throws Exception {
-        ORB _orb = ORB.init(new String[0], null);
-
         appContext_ =
-            new ApplicationContext(_orb, POAHelper.narrow(_orb.resolve_initial_references("RootPOA")));
+            new ApplicationContext(getORB(), getPOA() );
 
         appContext_.configure(getConfiguration());
 
@@ -236,6 +225,6 @@ public class FilterImplTest extends NotificationTestCase {
 
 
     public static Test suite() throws Exception {
-        return NotificationTestCase.notificationSuite(FilterImplTest.class);
+        return NotificationTestCase.suite(FilterImplTest.class);
     }
 }

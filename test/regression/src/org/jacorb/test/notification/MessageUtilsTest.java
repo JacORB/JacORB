@@ -86,6 +86,6 @@ public class MessageUtilsTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.notificationSuite(MessageUtilsTest.class);
+        return NotificationTestCase.suite(MessageUtilsTest.class);
     }
 }

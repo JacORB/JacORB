@@ -23,7 +23,6 @@ package org.jacorb.test.notification;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyFilter.ConstraintExp;
 import org.omg.CosNotifyFilter.FilterFactory;
@@ -32,7 +31,6 @@ import org.omg.CosNotifyFilter.MappingConstraintInfo;
 import org.omg.CosNotifyFilter.MappingConstraintPair;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.MappingFilterOperations;
-import org.omg.PortableServer.POAHelper;
 
 import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.FilterFactoryImpl;
@@ -69,10 +67,8 @@ public class MappingFilterTest extends NotificationTestCase
     ////////////////////////////////////////
 
     public void setUp() throws Exception {
-        ORB orb_ = ORB.init(new String[0], null);
-
         appContext_ =
-            new ApplicationContext(orb_, POAHelper.narrow(orb_.resolve_initial_references("RootPOA")));
+            new ApplicationContext(getORB(), getPOA() );
 
         appContext_.configure(getConfiguration());
 
@@ -192,25 +188,6 @@ public class MappingFilterTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        TestSuite _suite = new TestSuite("Test MappingFilters");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] _testMethodNames =
-            org.jacorb.test.common.TestUtils.getTestMethods(MappingFilterTest.class);
-
-        for (int x=0; x<_testMethodNames.length; ++x) {
-            _suite.addTest(new MappingFilterTest(_testMethodNames[x], _setup));
-        }
-
-        return _setup;
+        return NotificationTestCase.suite(MappingFilterTest.class);
     }
-
-
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
-    }
-
 }

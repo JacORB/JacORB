@@ -220,43 +220,15 @@ public class QoSTest extends NotificationTestCase
         }
     }
 
-    /**
-     * Creates a new <code>QoSTest</code> instance.
-     *
-     * @param name test name
-     */
+
     public QoSTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite() throws Exception
     {
-        TestSuite _suite;
-
-        _suite = new TestSuite("Basic QoS Tests");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames = TestUtils.getTestMethods( QoSTest.class );
-
-        for (int x=0; x<methodNames.length; ++x) {
-            _suite.addTest(new QoSTest(methodNames[x], _setup));
-        }
-
-        return _setup;
+        return NotificationTestCase.suite("Basic QoS Tests", QoSTest.class);
     }
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
-    }
-
-}// QoSTest
+}

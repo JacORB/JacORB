@@ -244,7 +244,7 @@ public class FilterTest extends NotificationTestCase {
 
 
     public static Test suite() throws Exception {
-        return NotificationTestCase.notificationSuite(FilterTest.class);
+        return NotificationTestCase.suite(FilterTest.class);
     }
 }
 

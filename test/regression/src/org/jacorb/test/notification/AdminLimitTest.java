@@ -27,10 +27,7 @@ import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ProxySupplier;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
-import org.jacorb.notification.ApplicationContext;
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.ApplicationEvent;
@@ -54,38 +51,24 @@ public class AdminLimitTest extends NotificationTestCase
     ConsumerAdminTieImpl consumerAdmin_;
     ChannelContext channelContext_;
     int counter_;
-    ApplicationContext appContext_;
 
     public void setUp() throws Exception
     {
-        ORB _orb = ORB.init(new String[0], null);
-        POA _poa = POAHelper.narrow(_orb.resolve_initial_references("RootPOA"));
-
-        QoSPropertySet.initStatics( ( (org.jacorb.orb.ORB)_orb).getConfiguration() );
-
-        appContext_ = new ApplicationContext(_orb, _poa);
-        appContext_.configure( getConfiguration() );
-
-        channelContext_ = new ChannelContext();
-        channelContext_.setTaskProcessor(new TaskProcessor());
-        channelContext_.setORB(_orb);
-
-        consumerAdmin_ =
-            new ConsumerAdminTieImpl(channelContext_);
+        QoSPropertySet.initStatics( getConfiguration() );
 
         QoSPropertySet qosSettings_ =
             new QoSPropertySet(QoSPropertySet.ADMIN_QOS);
 
+        channelContext_ = new ChannelContext();
+        channelContext_.setTaskProcessor(new TaskProcessor());
+        channelContext_.setORB(getORB());
+
+        consumerAdmin_ =
+            new ConsumerAdminTieImpl(channelContext_);
+
         consumerAdmin_.set_qos(qosSettings_.get_qos());
     }
 
-
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-
-        appContext_.dispose();
-    }
 
     public void testObtainNotificationPullSupplierFiresEvent() throws Exception
     {
@@ -99,7 +82,6 @@ public class AdminLimitTest extends NotificationTestCase
                 public void actionProxyCreationRequest(ProxyEvent event)
                     throws AdminLimitExceeded
                 {
-
                     _events.add(event);
                 }
 
@@ -115,8 +97,10 @@ public class AdminLimitTest extends NotificationTestCase
             consumerAdmin_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId);
 
         assertTrue(_events.size() == 1);
+
         assertEquals(consumerAdmin_, ((ApplicationEvent)_events.get(0)).getSource());
     }
+
 
     public void testDenyCreateNotificationPullSupplier() throws Exception
     {
@@ -130,7 +114,6 @@ public class AdminLimitTest extends NotificationTestCase
                 {
                     throw new AdminLimitExceeded();
                 }
-
 
                 public void actionProxyDisposed(ProxyEvent event) {}
 
@@ -157,7 +140,6 @@ public class AdminLimitTest extends NotificationTestCase
         ProxyEventListener _listener =
             new ProxyEventListener()
             {
-
                 public void actionProxyCreated(ProxyEvent event) {}
 
                 public void actionProxyDisposed(ProxyEvent event) {}
@@ -200,6 +182,6 @@ public class AdminLimitTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.notificationSuite(AdminLimitTest.class);
+        return NotificationTestCase.suite(AdminLimitTest.class);
     }
 }

@@ -1,24 +1,19 @@
 package org.jacorb.test.notification;
 
 import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.servant.AbstractProxyConsumerI;
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.StructuredEventHelper;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
 
 import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import org.jacorb.notification.servant.AbstractProxyConsumerI;
-import org.jacorb.notification.interfaces.FilterStage;
 
 /**
  * @author Alphonse Bendt
@@ -27,7 +22,6 @@ import org.jacorb.notification.interfaces.FilterStage;
 
 public class MessageFactoryTest extends NotificationTestCase {
 
-    ORB orb_;
     MessageFactory messageFactory_;
     NotificationTestUtils testUtils_;
     Any testPerson_;
@@ -96,7 +90,7 @@ public class MessageFactoryTest extends NotificationTestCase {
 
 
     public void testWrappedStructuredEventToStructuredEvent() throws Exception {
-        Any _wrappedStructuredEvent = orb_.create_any();
+        Any _wrappedStructuredEvent = getORB().create_any();
 
         StructuredEventHelper.insert(_wrappedStructuredEvent, testStructured_);
 
@@ -145,9 +139,7 @@ public class MessageFactoryTest extends NotificationTestCase {
 
 
     public void setUp() throws Exception {
-        orb_ = ORB.init(new String[0], null);
-        POA _poa = POAHelper.narrow(orb_.resolve_initial_references("RootPOA"));
-        testUtils_ = new NotificationTestUtils(orb_);
+        testUtils_ = new NotificationTestUtils(getORB());
 
         messageFactory_ = new MessageFactory();
         messageFactory_.configure(getConfiguration());
@@ -166,7 +158,7 @@ public class MessageFactoryTest extends NotificationTestCase {
 
         testStructured_.filterable_data = new Property[0];
 
-        testStructured_.remainder_of_body = orb_.create_any();
+        testStructured_.remainder_of_body = getORB().create_any();
     }
 
 
@@ -176,6 +168,6 @@ public class MessageFactoryTest extends NotificationTestCase {
 
 
     public static Test suite() throws Exception {
-        return NotificationTestCase.notificationSuite(MessageFactoryTest.class);
+        return NotificationTestCase.suite(MessageFactoryTest.class);
     }
 }

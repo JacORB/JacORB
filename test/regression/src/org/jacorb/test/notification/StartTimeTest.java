@@ -193,6 +193,6 @@ public class StartTimeTest extends NotificationTestCase
 
     public static Test suite() throws Exception
     {
-        return NotificationTestCase.notificationSuite(StartTimeTest.class);
+        return NotificationTestCase.suite(StartTimeTest.class);
     }
 }

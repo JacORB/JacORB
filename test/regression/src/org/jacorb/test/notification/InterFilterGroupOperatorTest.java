@@ -22,7 +22,6 @@ package org.jacorb.test.notification;
  */
 
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
@@ -32,7 +31,6 @@ import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotifyFilter.Filter;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * Test the various InterFilterGroupOperator settings.
@@ -92,12 +90,6 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
     }
 
 
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-    }
-
-
     public void testTrueORFalse_NoneOrNone() throws Exception
     {
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
@@ -120,6 +112,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         assertTrue("Error while sending", !_sender.error_);
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
+
 
     public void testFalseORTrue_NoneOrNone() throws Exception
     {
@@ -167,6 +160,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         assertTrue("Should have received something", !_receiver.isEventHandled());
     }
 
+
     public void testFalseANDTrue_NoneOrNone() throws Exception
     {
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
@@ -189,6 +183,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         assertTrue("Error while sending", !_sender.error_);
         assertTrue("Should have received something", !_receiver.isEventHandled());
     }
+
 
     public void testNoneOrNone_TrueORFalse() throws Exception
     {
@@ -236,6 +231,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         assertTrue("Should have received something", _receiver.isEventHandled());
     }
 
+
     public void testNoneOrNone_TrueANDFalse() throws Exception
     {
         AnyPushSender _sender = new AnyPushSender(this, testPerson_);
@@ -260,6 +256,7 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
         assertTrue("Error while sending", !_sender.error_);
         assertTrue("Should have received something", !_receiver.isEventHandled());
     }
+
 
     public void testNoneOrNone_FalseANDTrue() throws Exception
     {
@@ -287,42 +284,15 @@ public class InterFilterGroupOperatorTest extends NotificationTestCase
     }
 
 
-    /**
-     * Creates a new <code>InterFilterGroupOperatorTest</code> instance.
-     *
-     * @param name test name
-     */
     public InterFilterGroupOperatorTest (String name, NotificationTestCaseSetup setup)
     {
         super(name, setup);
     }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
+
     public static Test suite() throws Exception
     {
-        TestSuite _suite = new TestSuite("Test of InterFilterGroupOperator Functionality");
-
-        NotificationTestCaseSetup _setup =
-            new NotificationTestCaseSetup(_suite);
-
-        String[] methodNames =
-            org.jacorb.test.common.TestUtils.getTestMethods(InterFilterGroupOperatorTest.class);
-
-        for (int x = 0; x < methodNames.length; ++x)
-        {
-            _suite.addTest(new InterFilterGroupOperatorTest(methodNames[x], _setup));
-        }
-
-        return _setup;
-    }
-
-    /**
-     * Entry point
-     */
-    public static void main(String[] args) throws Exception
-    {
-        junit.textui.TestRunner.run(suite());
+        return NotificationTestCase.suite("Test of InterFilterGroupOperator Functionality",
+                                          InterFilterGroupOperatorTest.class);
     }
 }
