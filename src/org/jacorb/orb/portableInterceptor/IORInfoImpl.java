@@ -23,8 +23,12 @@ package org.jacorb.orb.portableInterceptor;
 import org.omg.PortableInterceptor.*;
 import org.omg.IOP.*;
 import org.omg.CORBA.*;
+
 import org.jacorb.orb.ORB;
+import org.jacorb.orb.MinorCodes;
+import org.jacorb.orb.TaggedComponentList;
 import org.jacorb.poa.POA;
+
 import java.util.*;
 
 /**
@@ -37,57 +41,89 @@ import java.util.*;
  */
 
 public class IORInfoImpl extends org.omg.CORBA.LocalObject 
-  implements IORInfo{
-
-  Vector components_iiop_profile = null;
-  Vector components_multi_profile = null;
-
-  private Hashtable policy_overrides = null;
-  private ORB orb = null;
-  private POA poa = null;
+                         implements IORInfo
+{
+    /**
+     * Maps profile tags to component lists (Integer -> TaggedComponentList).
+     */
+    private Map components = null;
+    
+    private Map policy_overrides = null;
   
-  public IORInfoImpl(ORB orb, POA poa,
-		     Vector components_iiop_profile,
-		     Vector components_multi_profile,
-                     Hashtable policy_overrides) {
+    private ORB orb = null;
+    private POA poa = null;
+  
+    public IORInfoImpl (ORB orb, POA poa, 
+                        Map components, Map policy_overrides)
+    {
+        this.orb = orb;
+        this.poa = poa;
+        this.components = components;
+        this.policy_overrides = policy_overrides;
+    }
 
-    this.components_iiop_profile = components_iiop_profile;
-    this.components_multi_profile = components_multi_profile;
-    this.policy_overrides = policy_overrides;
+    /**
+     * Adds component to all profiles.
+     */
+    public void add_ior_component (TaggedComponent component) 
+    {
+        for (Iterator i = components.values().iterator(); i.hasNext();)
+        {
+            TaggedComponentList l = (TaggedComponentList)i.next();
+            l.addComponent (component);
+        }
+    }
 
-    this.orb = orb;
-    this.poa = poa;
-  }
+    /**
+     * Adds the component to the profile with the given tag.
+     */
+    public void add_ior_component_to_profile(TaggedComponent component, int id)
+    {
+        TaggedComponentList l = 
+            (TaggedComponentList)components.get (new Integer (id));
+        if (l == null)
+        {
+            throw new org.omg.CORBA.BAD_PARAM
+            (
+                "unknown profile tag: " + id,
+                MinorCodes.NO_SUCH_PROFILE,
+                CompletionStatus.COMPLETED_MAYBE
+            );
+        }
+        else
+        {
+            l.addComponent (component);
+        }
+    }
 
-  // implementation of org.omg.PortableInterceptor.IORInfoOperations interface
-  public void add_ior_component(TaggedComponent component) {
-    components_iiop_profile.addElement(component);
-    components_multi_profile.addElement(component);
-  }
+    /**
+     * @return a policy of the given type, or null,
+     * if no policy of that type is present.
+     */
+    public Policy get_effective_policy(int type)
+    {
+        if (!orb.hasPolicyFactoryForType(type))
+        {
+            throw new org.omg.CORBA.INV_POLICY 
+            (
+                "No PolicyFactory for type " + type + 
+			    " has been registered!", 
+                MinorCodes.NO_SUCH_POLICY, 
+                CompletionStatus.COMPLETED_MAYBE
+            );
+        }
+        else
+        {
+            Policy policy = null;
+            if (policy_overrides != null)
+            {
+	           policy = (Policy)policy_overrides.get (new Integer(type));
+            }
+            return (policy != null) ? policy : poa.getPolicy(type);
+        }
+    }
 
-  public void add_ior_component_to_profile(TaggedComponent component, int id){
-    if (id == TAG_INTERNET_IOP.value)
-      components_iiop_profile.addElement(component);
-
-    else if (id == TAG_MULTIPLE_COMPONENTS.value)
-      components_multi_profile.addElement(component);
-  }
-
-  /**
-   * @return a policy of the given type, or null,
-   * if no policy of that type is present.
-   */
-  public Policy get_effective_policy(int type) {
-    if (! orb.hasPolicyFactoryForType(type))
-      throw new INV_POLICY("No PolicyFactory for type " + type + 
-			   " has been registered!", 2,
-			   CompletionStatus.COMPLETED_MAYBE);
-    Policy policy = null;
-    if (policy_overrides != null)
-	policy = (Policy)policy_overrides.get(new Integer(type));
-    return (policy != null) ? policy : poa.getPolicy(type);
-  }
-} // IORInfoImpl
+}
 
 
 
