@@ -34,6 +34,7 @@ public class AllTest extends TestCase
       TestSuite suite = new TestSuite ("All orb/connection");
 
       suite.addTest( GIOPConnectionTest.suite() );
+      suite.addTest( BiDirTest.suite() );
       suite.addTest( ClientConnectionTimeoutTest.suite() );
       suite.addTest( ServerConnectionTimeoutTest.suite() );
 
