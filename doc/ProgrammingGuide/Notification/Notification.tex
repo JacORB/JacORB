@@ -14,7 +14,8 @@ to download the additional library gnu.regexp from
 \href{http://www.cacas.org/java/gnu/regexp}{http://www.cacas.org/java/gnu/regexp}
 and put it in your classpath. This is necessary because the JacORB
 Notification Service depends on regular expressions. This
-functionality is available in the JDK since version 1.4.
+functionality is available in the JDK since version 1.4. Alternatively
+you can download Jakarta Regexp \href{http://jakarta.apache.org/regexp}{http://jakarta.apache.org/regexp}.
 
 \section{Running the Notification Service}
 \label{sec:ntfy-running}
@@ -35,10 +36,10 @@ XX \= XXXXXXXXXXXXXXXXXXXXX \= XX \kill
 \> -writeIOR \emph{filename} \> write the IOR to a file \\
 \> -registerName \emph{nameId}[.\emph{nameKind}] \> make a Name Service entry
 for the EventChannelFactory. \\
-\> \> The Notification Service resolves the Name Service via \\
-\> \> a call to \\
+\> \> The Notification Service resolves the Name Service by \\
+\> \> calling \\
 \> \> \texttt{resolve\_initial\_references("NameService")}. \\
-\> \> Ensure that the Name Service is available. \\
+\> \> Ensure that your environment is set up properly. \\
 \> -port \emph{oaport} \> start the Notification Service on the specified
 port. \\
 \> -channels \emph{channels} \> create a number EventChannels. \\
@@ -123,13 +124,12 @@ HP-UX, Macintosh OS X, DEC OSF1, FreeBSD, and SGI Irix systems (Note:
 You don't need to download anything if you are running Windows. All
 necessary stuff is shipped with the JacORB distribution).
 
-You'll need two files from the downloaded distribution. One is
-the system-specific \texttt{wrapper} executable. Place it somewhere in
-your searchpath. The second is the native library
-\texttt{libwrapper.so} in the \texttt{\emph{wrapper-dir}/lib}
-directory. This library is required by the 
-wrapper executable. Place the library in the \texttt{JacORB/lib}
-directory. Alternatively you can create a link to the library.
+Install the Java Service to a appropiate place by unzipping it. Add
+\texttt{\emph{wrapper-dir}/bin} to your PATH variable. If you don't
+want to modify your PATH variable put a link to
+\texttt{\emph{wrapper-dir}/bin/wrapper} in one of the directories
+that's already in your PATH environment (e.g. \texttt{ln -s
+  /usr/local/wrapper/bin/wrapper /usr/bin}).
 
 Ensure that the shell-script
 \texttt{JacORB/bin/ntfy-wrapper} has the executable bit set. Note that
@@ -190,7 +190,7 @@ PIDDIR="/var/run"
  To stop the application rerun the script using the \emph{stop} command.
 
  
- \paragraph{Installing The Application To Start on Reboot}
+ \paragraph{Installing The Notification Service To Start on Reboot}
  \label{sec:inst-appl-start}
 
  This is system specific. See the UNIX specific
