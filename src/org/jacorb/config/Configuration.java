@@ -72,7 +72,8 @@ public class Configuration
     private static final String TRUE = "true";
     private static final String ON = "on";
     private static final String EMPTY_STR = "";
-    private static final int DEFAULT_LOG_LEVEL = 3;
+    
+    private static final int DEFAULT_LOG_LEVEL = 0;
 
     private Configuration config;
     private String configName; 
