@@ -53,7 +53,7 @@
         />
    <javac debug="${debug}" srcdir="${src}/generated"
                destdir="${classdir}"
-               includes="org/omg/CORBA_2_3/**/*.java,org/omg/IOP/**/*.java,org/omg/GIOP/**/*.java,org/omg/IIOP/**/*.java,org/omg/CONV_FRAME/**/*.java,org/omg/Dynamic/**/*.java"
+               includes="org/omg/CORBA_2_3/**/*.java,org/omg/CORBA_2_5/**/*.java,org/omg/IOP/**/*.java,org/omg/GIOP/**/*.java,org/omg/IIOP/**/*.java,org/omg/CONV_FRAME/**/*.java,org/omg/Dynamic/**/*.java"
         />
    <javac debug="${debug}" srcdir="${src}/generated"
                destdir="${classdir}"
