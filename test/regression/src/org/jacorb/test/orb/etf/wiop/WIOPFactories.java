@@ -30,6 +30,10 @@ import org.omg.RTCORBA.ProtocolProperties;
 import org.jacorb.orb.iiop.*;
 
 /**
+ * WIOP is wrapper around an IIOP transport.  To the ORB, it looks like
+ * a wholly different transport, but the actual implementation just
+ * delegates everything to the standard IIOP classes.
+ * 
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
  * @version $Id$
  */
