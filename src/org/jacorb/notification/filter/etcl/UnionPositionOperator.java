@@ -24,11 +24,6 @@ package org.jacorb.notification.filter.etcl;
 import antlr.Token;
 
 /**
- * UnionPositionOperator.java
- *
- *
- * Created: Thu Sep 26 14:57:58 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */

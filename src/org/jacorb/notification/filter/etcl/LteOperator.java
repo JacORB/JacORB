@@ -28,20 +28,17 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent LTE operation */
-public class LteOperator extends AbstractTCLNode {
+public class LteOperator extends BinaryOperator {
 
     public LteOperator(Token tok) {
         super(tok);
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left, EvaluationResult right)
         throws EvaluationException {
 
-        EvaluationResult _left, _right;
-        _left = left().evaluate(context);
-        _right = right().evaluate(context);
-
-        int _comp = _left.compareTo( _right);
+        int _comp = left.compareTo( right);
 
         if (_comp == 1 ) {
             return EvaluationResult.BOOL_FALSE;

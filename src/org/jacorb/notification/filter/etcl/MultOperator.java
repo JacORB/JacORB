@@ -32,7 +32,7 @@ import antlr.Token;
  * @version $Id$
  */
 
-public class MultOperator extends AbstractTCLNode {
+public class MultOperator extends BinaryOperator {
 
     public MultOperator(Token tok) {
         super(tok);
@@ -42,11 +42,10 @@ public class MultOperator extends AbstractTCLNode {
         return " *";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
         throws EvaluationException {
 
-        return EvaluationResult.mult(left().evaluate(context),
-                                     right().evaluate(context));
+        return EvaluationResult.mult(right, left);
     }
 
     public String getName() {

@@ -27,21 +27,17 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent LT operation */
-public class LtOperator extends AbstractTCLNode {
+public class LtOperator extends BinaryOperator {
 
     public LtOperator(Token tok) {
         super(tok);
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left, EvaluationResult right)
         throws EvaluationException {
 
-        EvaluationResult _left, _right;
-
-        _left = left().evaluate(context);
-        _right = right().evaluate(context);
-
-        int _comp = _left.compareTo( _right);
+        int _comp = left.compareTo( right);
 
         if (_comp == 1 || _comp == 0) {
             return EvaluationResult.BOOL_FALSE;

@@ -26,7 +26,6 @@ import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
 import org.omg.CORBA.Any;
 
-//import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt

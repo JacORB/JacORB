@@ -33,11 +33,11 @@ import antlr.Token;
  * @version $Id$
  */
 
-public class OrOperator extends AbstractTCLNode
+public class OrOperator extends UnaryOperator
 {
-
-    static final String NAME = "OrOperator";
-
+    private static final String NAME = "OrOperator";
+    private static final String OR = "or";
+    
     public OrOperator( Token tok )
     {
         super( tok );
@@ -46,14 +46,15 @@ public class OrOperator extends AbstractTCLNode
 
     public String toString()
     {
-        return "or";
+        return OR;
     }
 
-    public EvaluationResult evaluate( EvaluationContext context )
+    public EvaluationResult evaluate( EvaluationContext context, 
+            EvaluationResult left )
         throws EvaluationException
     {
 
-        if ( left().evaluate( context ).getBool() )
+        if ( left.getBool() )
         {
 
             return EvaluationResult.BOOL_TRUE;

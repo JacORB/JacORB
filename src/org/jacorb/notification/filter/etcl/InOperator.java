@@ -30,7 +30,7 @@ import org.omg.CORBA.Any;
 import antlr.Token;
 
 /** A simple node to represent IN operation */
-public class InOperator extends AbstractTCLNode {
+public class InOperator extends BinaryOperator {
 
     public InOperator(Token tok) {
         super(tok);
@@ -44,14 +44,13 @@ public class InOperator extends AbstractTCLNode {
         return getClass().getName();
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
         throws EvaluationException {
 
-        Any _right = right().evaluate(context).getAny();
-        EvaluationResult _l = left().evaluate(context);
-
+        Any _any = right.getAny();      
         DynamicEvaluator _evaluator = context.getDynamicEvaluator();
-        return _evaluator.evaluateElementInSequence(context, _l, _right);
+        
+        return _evaluator.evaluateElementInSequence(context, left, _any);
     }
 
     public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {

@@ -29,8 +29,8 @@ import antlr.Token;
 
 public class StringValue extends AbstractTCLNode {
 
-    String value_;
-    EvaluationResult result_;
+    private final String value_;
+    private final EvaluationResult result_;
 
     public StringValue(Token tok) {
         super(tok);

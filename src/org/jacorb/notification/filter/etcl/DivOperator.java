@@ -32,7 +32,7 @@ import antlr.Token;
  * @version $Id$
  */
 
-public class DivOperator extends AbstractTCLNode {
+public class DivOperator extends BinaryOperator {
 
     public DivOperator(Token tok) {
         super(tok);
@@ -42,12 +42,11 @@ public class DivOperator extends AbstractTCLNode {
         return " /";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
         throws EvaluationException {
 
         try {
-            return EvaluationResult.div(left().evaluate(context),
-                                        right().evaluate(context));
+            return EvaluationResult.div(left, right);
         } catch (ArithmeticException e) {
             throw new EvaluationException(e.getMessage());
         }

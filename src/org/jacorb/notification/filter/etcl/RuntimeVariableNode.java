@@ -37,8 +37,8 @@ public class RuntimeVariableNode
     extends AbstractTCLNode
     implements RuntimeVariable
 {
-    private String value_;
-    private AbstractTCLNode strategy_;
+    private final String value_;
+    private final AbstractTCLNode strategy_;
 
     public RuntimeVariableNode( Token token )
     {

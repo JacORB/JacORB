@@ -31,7 +31,7 @@ import antlr.Token;
  * A simple node to represent PLUS operation
  */
 
-public class PlusOperator extends AbstractTCLNode {
+public class PlusOperator extends UnaryOperator {
     boolean unary_;
 
     public PlusOperator(Token tok) {
@@ -50,17 +50,15 @@ public class PlusOperator extends AbstractTCLNode {
         return " +";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left)
         throws EvaluationException {
 
-        EvaluationResult _left = left().evaluate(context);
-
         if (unary_) {
-            return _left;
+            return left;
         }
 
-        return EvaluationResult.plus(_left, right().evaluate(context));
-
+        return EvaluationResult.plus(left, right().evaluate(context));
     }
 
     public boolean isStatic() {

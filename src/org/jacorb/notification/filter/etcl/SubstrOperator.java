@@ -27,7 +27,7 @@ import org.jacorb.notification.filter.EvaluationResult;
 
 import antlr.Token;
 
-public class SubstrOperator extends AbstractTCLNode {
+public class SubstrOperator extends BinaryOperator {
 
     static final String NAME = "SubstrOperator";
 
@@ -44,15 +44,16 @@ public class SubstrOperator extends AbstractTCLNode {
         return " ~";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left, EvaluationResult right)
         throws EvaluationException {
 
         EvaluationResult _res;
 
         String _l, _r;
 
-        _l = left().evaluate(context).getString();
-        _r = right().evaluate(context).getString();
+        _l = left.getString();
+        _r = right.getString();
 
         int _idx = _r.indexOf(_l);
 

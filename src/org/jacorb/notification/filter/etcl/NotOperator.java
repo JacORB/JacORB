@@ -27,7 +27,7 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent NOT operation */
-public class NotOperator extends AbstractTCLNode {
+public class NotOperator extends UnaryOperator {
     public NotOperator(Token tok) {
         super(tok);
     }
@@ -40,11 +40,11 @@ public class NotOperator extends AbstractTCLNode {
         return true;
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left)
         throws EvaluationException {
 
-        EvaluationResult _eval = left().evaluate(context);
-        boolean _b = _eval.getBool();
+        boolean _b = left.getBool();
+        
         return (_b ? EvaluationResult.BOOL_FALSE : EvaluationResult.BOOL_TRUE);
     }
 

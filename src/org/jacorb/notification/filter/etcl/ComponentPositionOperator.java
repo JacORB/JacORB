@@ -33,7 +33,7 @@ public class ComponentPositionOperator extends AbstractTCLNode
     public ComponentPositionOperator( Token tok )
     {
         super( tok );
-        setName( "ComponentPositonOperator" );
+        setName( "ComponentPositionOperator" );
         position_ = Integer.parseInt( tok.getText().substring( 1 ) );
     }
 
@@ -46,7 +46,7 @@ public class ComponentPositionOperator extends AbstractTCLNode
 
     public String toString()
     {
-        return "" + position_;
+        return Integer.toString(position_);
     }
 
     public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException

@@ -1,7 +1,3 @@
-package org.jacorb.notification.filter.etcl;
-
-import org.jacorb.notification.filter.EvaluationResult;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -23,50 +19,42 @@ import org.jacorb.notification.filter.EvaluationResult;
  *
  */
 
+package org.jacorb.notification.filter.etcl;
+
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.EvaluationResult;
+
+import antlr.Token;
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class ImmutableEvaluationResult extends EvaluationResult
+public abstract class BinaryOperator extends UnaryOperator
 {
-    static void unsupported()
+
+    public BinaryOperator(Token tok)
     {
-        throw new UnsupportedOperationException();
+        super(tok);
     }
 
-    public void reset()
+    public BinaryOperator()
     {
-        unsupported();
+        super();
     }
 
-    public void setString( String s )
+ 
+    protected final EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left)
+            throws EvaluationException
     {
-        unsupported();
+        EvaluationResult _right = right().evaluate(context);
+        
+        return evaluate(context, left, _right);
     }
+    
+    protected abstract EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left, EvaluationResult right) throws EvaluationException;
 
-    public void setFloat( float f )
-    {
-        unsupported();
-    }
-
-    public void setFloat( Double d )
-    {
-        unsupported();
-    }
-
-    public void setInt( int i )
-    {
-        unsupported();
-    }
-
-    public void setInt( Double i )
-    {
-        unsupported();
-    }
-
-    public void setBool( boolean b )
-    {
-        unsupported();
-    }
 }

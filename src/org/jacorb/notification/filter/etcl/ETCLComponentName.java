@@ -93,6 +93,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
 
             break;
         default:
+            // coming here means, we've hit a bug
             throw new RuntimeException("Unexpected Nodetype: "
                                        + getNameForType(_left.getType()));
         }

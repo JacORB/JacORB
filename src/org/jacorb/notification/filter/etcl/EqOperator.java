@@ -28,27 +28,27 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent EQ operation */
-public class EqOperator extends AbstractTCLNode {
+public class EqOperator extends BinaryOperator {
 
+    private static final String VALUE = "==";
+    
     public EqOperator(Token tok) {
         super(tok);
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
-        throws EvaluationException {
-
-        EvaluationResult _left = left().evaluate(context);
-        EvaluationResult _right = right().evaluate(context);
-
-        if (_left.compareTo( _right) == 0) {
+    public EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left, EvaluationResult right) throws EvaluationException {
+        
+        if (left.compareTo( right) == 0) {
             return EvaluationResult.BOOL_TRUE;
-        }
+        } else {
 
         return EvaluationResult.BOOL_FALSE;
+        }
     }
 
     public String toString() {
-        return "==";
+        return VALUE;
     }
 
     public String getName() {

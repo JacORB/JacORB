@@ -22,11 +22,6 @@ package org.jacorb.notification.filter.etcl;
  */
 
 /**
- * StaticTypeException.java
- *
- *
- * Created: Fri Jul 05 21:55:02 2002
- *
  * @author Alphonse Bendt
  * @version $Id$
  */

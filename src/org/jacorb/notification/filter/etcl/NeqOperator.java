@@ -27,20 +27,17 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent NEQ operation */
-public class NeqOperator extends AbstractTCLNode {
+public class NeqOperator extends BinaryOperator {
 
     public NeqOperator(Token tok) {
         super(tok);
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left, EvaluationResult right)
         throws EvaluationException {
-
-        EvaluationResult _left, _right;
-        _left = left().evaluate(context);
-        _right = right().evaluate(context);
-
-        int _comp = _left.compareTo( _right);
+        
+        int _comp = left.compareTo( right);
 
         if (_comp == 0 ) {
             return EvaluationResult.BOOL_FALSE;

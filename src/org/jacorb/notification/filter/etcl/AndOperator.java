@@ -30,7 +30,7 @@ import antlr.Token;
 
 /** A simple node to represent AND operation */
 
-public class AndOperator extends AbstractTCLNode {
+public class AndOperator extends UnaryOperator{
 
     public AndOperator(Token tok) {
         super(tok);
@@ -41,12 +41,13 @@ public class AndOperator extends AbstractTCLNode {
         return "and";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left)
         throws EvaluationException {
 
         boolean _l, _r;
 
-        _l = left().evaluate(context).getBool();
+        _l = left.getBool();
 
         if (!_l) {
             return EvaluationResult.BOOL_FALSE;

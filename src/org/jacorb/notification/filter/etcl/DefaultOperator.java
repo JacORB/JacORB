@@ -29,7 +29,7 @@ import org.omg.CORBA.Any;
 import antlr.Token;
 
 /** A simple node to represent DEFAULT operation */
-public class DefaultOperator extends AbstractTCLNode {
+public class DefaultOperator extends UnaryOperator {
 
     public DefaultOperator(Token tok) {
         super(tok);
@@ -40,13 +40,12 @@ public class DefaultOperator extends AbstractTCLNode {
         return "default";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left)
         throws EvaluationException {
 
-        EvaluationResult _r = left().evaluate(context);
-        Any _a = _r.getAny();
+        Any _any = left.getAny();
 
-        if (context.getDynamicEvaluator().hasDefaultDiscriminator( _a )) {
+        if (context.getDynamicEvaluator().hasDefaultDiscriminator( _any )) {
             return EvaluationResult.BOOL_TRUE;
         }
 

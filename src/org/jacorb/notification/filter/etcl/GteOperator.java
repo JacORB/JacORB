@@ -27,20 +27,16 @@ import org.jacorb.notification.filter.EvaluationResult;
 import antlr.Token;
 
 /** A simple node to represent GTE operation */
-public class GteOperator extends AbstractTCLNode {
+public class GteOperator extends BinaryOperator {
 
     public GteOperator(Token tok) {
         super(tok);
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
-        throws EvaluationException {
+    public EvaluationResult evaluate(EvaluationContext context, EvaluationResult left, EvaluationResult right)
+        throws EvaluationException {        
 
-        EvaluationResult _left, _right;
-        _left = left().evaluate(context);
-        _right = right().evaluate(context);
-
-        int _comp = _left.compareTo( _right);
+        int _comp = left.compareTo( right);
 
         if (_comp == -1) {
             return EvaluationResult.BOOL_FALSE;

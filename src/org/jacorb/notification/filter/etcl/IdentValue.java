@@ -28,9 +28,8 @@ import antlr.Token;
 
 public class IdentValue extends AbstractTCLNode
 {
-
-    String value_;
-    EvaluationResult evalValue_;
+    private final String value_;
+    private final EvaluationResult evalValue_;
 
     public IdentValue( Token tok )
     {

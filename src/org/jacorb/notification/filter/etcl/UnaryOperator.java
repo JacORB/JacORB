@@ -1,7 +1,3 @@
-package org.jacorb.notification.filter.etcl;
-
-import org.jacorb.notification.filter.EvaluationResult;
-
 /*
  *        JacORB - a free Java ORB
  *
@@ -23,50 +19,38 @@ import org.jacorb.notification.filter.EvaluationResult;
  *
  */
 
+package org.jacorb.notification.filter.etcl;
+
+import org.jacorb.notification.filter.EvaluationContext;
+import org.jacorb.notification.filter.EvaluationException;
+import org.jacorb.notification.filter.EvaluationResult;
+
+import antlr.Token;
+
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public class ImmutableEvaluationResult extends EvaluationResult
+abstract class UnaryOperator extends AbstractTCLNode
 {
-    static void unsupported()
+    public UnaryOperator(Token tok)
     {
-        throw new UnsupportedOperationException();
+        super(tok);
     }
 
-    public void reset()
+    public UnaryOperator()
     {
-        unsupported();
+        super();
     }
 
-    public void setString( String s )
-    {
-        unsupported();
-    }
+    public final EvaluationResult evaluate(EvaluationContext context) throws EvaluationException {
+        EvaluationResult _left = left().evaluate(context);  
 
-    public void setFloat( float f )
-    {
-        unsupported();
+        return evaluate(context, _left);
     }
-
-    public void setFloat( Double d )
-    {
-        unsupported();
-    }
-
-    public void setInt( int i )
-    {
-        unsupported();
-    }
-
-    public void setInt( Double i )
-    {
-        unsupported();
-    }
-
-    public void setBool( boolean b )
-    {
-        unsupported();
-    }
+    
+    protected abstract EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left) throws EvaluationException;
+    
 }
+

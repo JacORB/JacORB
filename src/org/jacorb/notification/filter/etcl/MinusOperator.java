@@ -32,10 +32,10 @@ import antlr.Token;
  * @version $Id$
  */
 
-public class MinusOperator extends AbstractTCLNode {
+public class MinusOperator extends UnaryOperator {
 
-    boolean unary_;
-    static final String NAME = "MinusOperator";
+    private boolean unary_;
+    private static final String NAME = "MinusOperator";
 
     public String getName() {
         return NAME;
@@ -53,16 +53,17 @@ public class MinusOperator extends AbstractTCLNode {
         return " -";
     }
 
-    public EvaluationResult evaluate(EvaluationContext context)
+    public EvaluationResult evaluate(EvaluationContext context, 
+            EvaluationResult left)
         throws EvaluationException {
 
         if (unary_) {
 
-            return EvaluationResult.unaryMinus(left().evaluate(context));
+            return EvaluationResult.unaryMinus(left);
 
         } else {
 
-            return EvaluationResult.minus(left().evaluate(context),
+            return EvaluationResult.minus(left,
                                           right().evaluate(context));
         }
     }
