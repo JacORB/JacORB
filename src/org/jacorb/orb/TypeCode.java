@@ -322,7 +322,7 @@ public class TypeCode
         value_modifier = type_modifier;
         content_type = (TypeCode)concrete_base;
 
-        member_count = members.length;
+        member_count = (members != null) ? members.length : 0;
         member_name = new String[member_count];
         member_type = new TypeCode[member_count];
         member_visibility = new short[member_count];
