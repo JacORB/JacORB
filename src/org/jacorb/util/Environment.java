@@ -550,6 +550,7 @@ public class Environment
      * "on". Otherwise (i.e. value "off", or property not set), false
      * is returned.  
      */
+
     public static boolean isPropertyOn( String key ) 
     { 
         String s = _props.getProperty( key, "off" ); 
