@@ -62,9 +62,34 @@
     <pathconvert property="classpath" targetos="${architecture}">
         <path refid="path.base" />
     </pathconvert>
+    
     <mkdir dir="${classdir}"/>
     <mkdir dir="${src}/generated"/>
     <filter token="path" value="basedir"/>
+    
+     <!-- = = = = = = = = = = = = = = = = =
+          macrodef: jacorb-javac          
+      = = = = = = = = = = = = = = = = = -->
+	<macrodef name="jacorb-javac">
+    		<attribute name="javac-includes" />
+    		<attribute name="javac-excludes" default="" />
+    		<attribute name="javac-src" default="${src}" />
+    		<attribute name="javac-sourcepath" default="sourcepath.base" />
+    		<attribute name="javac-classpathref" default="path.base" />
+	
+    		<sequential>
+        		<echo message="Compiling for ${ant.project.name}"/>
+        
+        		<javac srcdir="@{javac-src}"
+               destdir="${classdir}"
+               debug="${debug}"
+               classpathref="@{javac-classpathref}"
+               debuglevel="${debuglevel}"
+               sourcepathref="@{javac-sourcepath}"
+               includes="@{javac-includes}"
+               excludes="@{javac-excludes}" />
+    		</sequential>
+	</macrodef>
 </target>
 
 <target name="whats-my-classpath" depends="init"
@@ -149,26 +174,3 @@
    </jacorb-javac>
 </target>
 
- <!-- = = = = = = = = = = = = = = = = =
-          macrodef: jacorb-javac          
-      = = = = = = = = = = = = = = = = = -->
-<macrodef name="jacorb-javac">
-    <attribute name="javac-includes" />
-    <attribute name="javac-excludes" default="" />
-    <attribute name="javac-src" default="${src}" />
-    <attribute name="javac-sourcepath" default="sourcepath.base" />
-    <attribute name="javac-classpathref" default="path.base" />
-	
-    <sequential>
-        <echo message="Compiling for ${ant.project.name}"/>
-        
-        <javac srcdir="@{javac-src}"
-               destdir="${classdir}"
-               debug="${debug}"
-               classpathref="@{javac-classpathref}"
-               debuglevel="${debuglevel}"
-               sourcepathref="@{javac-sourcepath}"
-               includes="@{javac-includes}"
-               excludes="@{javac-excludes}" />
-    </sequential>
-</macrodef>
