@@ -20,18 +20,18 @@
 
 package org.jacorb.idl;
 
-/*
- * @author Gerald Brose
- * @version $Id$
- *
- */
-
 import java.io.*;
 import java.util.Stack;
 
+/**
+ * This class deals with IDL input files and their inclusion relationships.
+ *
+ * @author Gerald Brose <mailto:gerald.brose@acm.org>
+ * @version $Id$
+ */
+
 public class GlobalInputStream
 {
-
     private static InputStream stream;
     private static Stack lookahead_stack;
     private static boolean included;
@@ -58,10 +58,26 @@ public class GlobalInputStream
     }
 
     public static void setInput( String fname )
-            throws java.io.IOException
+        throws java.io.IOException
     {
         currentFile = new File( fname );
         stream = new java.io.FileInputStream( currentFile );
+    }
+
+    /**
+     * Test if this input stream (or rather the underlying IDL file)
+     * is more recent (was modified at a later time than) another
+     * file.  (Used, e.g., to determine if code has been previosuly
+     * generated from an IDL file).
+     *
+     * @arg other the file to compare this stream against
+     * @return true, if this stream's IDL file is more recent than the other file  .
+     */
+
+    public static boolean isMoreRecentThan( File other )
+    {       
+        return ( parser.forceOverwrite || 
+                 ( other.lastModified() < currentFile.lastModified() )) ;
     }
 
     public static boolean includeState()
@@ -75,7 +91,7 @@ public class GlobalInputStream
     }
 
     public static void include( String fname, int lookahead, boolean useIncludePath )
-            throws FileNotFoundException
+        throws FileNotFoundException
     {
         //      System.out.println( "Including " + fname + " , lookahead char is " + (char)lookahead );
         included = true;
