@@ -10,14 +10,18 @@ import org.jacorb.orb.dns.DNSLookup;
  */
 public class IIOPAddress 
 {
-    private String hostname = null;
-    private String ip = null;
-    private int port;
+    private String hostname = null; // dns name
+    private String ip = null;       // dotted decimal
+    private int port;               // 0 .. 65536
     
     /**
-     * Creates a new IIOPAddress for host and port.  Host can be
-     * either a DNS name, or a textual representation of a numeric
-     * IP address (dotted decimal).
+     * Creates a new IIOPAddress for <code>host</code> and <code>port</code>.
+     * @param host either a DNS name, or a textual representation of a
+     *     numeric IP address (dotted decimal)
+     * @param port the port number represented as an integer, in the range
+     *     0..65535.  As a special convenience, a negative number is
+     *     converted by adding 65536 to it; this helps using values that were
+     *     previously stored in a Java <code>short</code>. 
      */
     public IIOPAddress (String host, int port)
     {
@@ -114,6 +118,10 @@ public class IIOPAddress
         return hostname;      
     }
 
+    /**
+     * Returns the port number of this address, represented as an integer
+     * in the range 0..65535.
+     */
     public int getPort()
     {
         return port;
