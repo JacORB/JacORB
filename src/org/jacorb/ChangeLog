@@ -1,3 +1,210 @@
+2003-12-19  Nicolas Noffke <Nicolas.Noffke@web.de>
+
+	* orb/giop/ClientConnection.java, orb/giop/ClientConnectionManager.java:
+	fixed BiDir bug: BiDir ClientConnections were registered with with the
+	ServiceContext supplied profile but removed with the transport profile
+	(so in fact they weren't removed). Added "registeredProfile" to
+	ClientConnection that contains the profile the connections has been
+	cached with by the manager.
+
+2003-12-19  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GssUpContext.java, security/sas/GssUpContextValidator.java, security/sas/ISASContext.java, security/sas/ISASContextCreator.java, security/sas/ISASContextValidator.java, security/sas/JsseContext.java, security/sas/JsseContextValidator.java, security/sas/KerberosContext.java, security/sas/KerberosContextCreator.java, security/sas/KerberosContextValidator.java, security/sas/SASClientInterceptor.java, security/sas/SASTargetInterceptor.java, orb/standardInterceptors/SASComponentInterceptor.java:
+	Combine ISASContextCreator and ISASContextValidator
+
+2003-12-19  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/giop/ClientConnectionManager.java, orb/giop/TransportManager.java:
+	Remove unused variables
+
+2003-12-19  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractMessage.java (removeReference):
+	changed visibility to protected as this is
+	necessary for test cases
+
+2003-12-19  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ReplyReceiver.java:
+	Remove unused variables
+
+	* orb/dii/Request.java:
+	Remove unused variable. Inner class static
+
+	* security/level2/CredentialsImpl.java, security/level2/SecAttributeManager.java:
+	Error->Exception
+
+	* idl/Environment.java, util/LogKitLoggerFactory.java:
+	Add comment
+
+	* idl/JacIDL.java:
+	Use local intToPriority not the one in jacorb/util
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java:
+	Stop masking exceptions. Change error->corba exception
+
+2003-12-18  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/TypeCode.java:
+	Remove printStackTraces that will never be seen due to logging.
+
+2003-12-18  Nicolas Noffke <Nicolas.Noffke@web.de>
+
+	* security/ssl/iaik/SSLServerSocketFactory.java:
+	(switchToClientMode) adapted Debug.output() (no more symbolic names...)
+
+2003-12-18  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/ServantDelegate.java:
+	- Instead of calling get_servant() directly on an instance of
+	  org.omg.PortableServant.Current, do it via org.jacorb.poa.Current.
+	  This change makes JacORB compatible with the obsolete version of
+	  org.omg.PortableServant.Current in Sun's JDK 1.4.2, which does not have
+	  the method get_servant().
+
+	- Removed catch clause for NoSuchMethodError, which will not occur anymore.
+
+2003-12-18  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/giop/LocateReplyInputStream.java, orb/giop/LocateReplyOutputStream.java, orb/giop/LocateRequestOutputStream.java, orb/giop/MessageInputStream.java, orb/giop/Messages.java, orb/giop/ReplyOutputStream.java, orb/giop/RequestInputStream.java, orb/giop/RequestOutputStream.java, orb/giop/ServerRequestListener.java, orb/giop/ServiceContextTransportingOutputStream.java, orb/ReplyReceiver.java, orb/ORB.java:
+	Error->CorbaException
+
+	* orb/CDRInputStream.java, orb/CDROutputStream.java:
+	Whitespace only
+
+	* imr/ServerStartupDaemonImpl.java:
+	Error->RuntimeException
+
+	* imr/ServerStartupDaemonImpl.java:
+	Whitespace only
+
+	* orb/giop/ServerRequestListener.java:
+	White space
+
+2003-12-17  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ServantDelegate.java, orb/BasicAdapter.java, orb/dynany/DynAny.java:
+	Error->CorbaException
+
+	* idl/InterfaceBody.java, idl/UnionType.java:
+	Change error to runtime to match other exceptions
+
+	* orb/giop/RequestOutputStream.java, orb/giop/ReplyOutputStream.java:
+	Whitespace only
+
+	* poa/POAManager.java:
+	Normalise imports, Error->CorbaException
+
+	* poa/RequestQueue.java:
+	Normalise imports
+
+	* orb/giop/ReplyInputStream.java, orb/giop/LocateReplyOutputStream.java:
+	Whitespace only
+
+	* orb/ORB.java:
+	Remove a trace that is never seen from when thread wakes
+
+	* orb/util/CorbaLoc.java:
+	Efficiency - don't create new string on result of substring
+
+	* orb/SystemExceptionHelper.java:
+	Remove commented out code
+
+	* poa/RequestController.java:
+	Added opname to logging and removed a notify
+
+	* poa/RequestProcessor.java:
+	Removed unused variable, commented out debug and added opname to logging
+
+	* poa/RPPoolManager.java:
+	Remove a throws from addProcessor (as it doesn't throw anything) and related try/catch
+
+	* poa/POAManagerMonitorImpl.java:
+	Removed printStackTrace and corrected some output
+
+	* poa/POAMonitorImpl.java:
+	Removed unused variable
+
+	* poa/POA.java, poa/RequestQueue.java:
+	Add opname
+
+	* poa/RequestController.java:
+	Rollback mistaken commit
+
+	* poa/RPPoolManager.java, poa/RequestController.java:
+	Remove setPoolSize as unused.
+
+2003-12-16  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/ISASContextCreator.java, security/sas/ISASContextValidator.java, security/sas/SASTargetInterceptor.java:
+	Cleanup
+
+2003-12-16  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* ir/RepositoryID.java:
+	1.3 Build - remove chained exception
+
+2003-12-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractMessage.java, notification/AbstractProxySupplier.java, notification/ApplicationContext.java, notification/FilterImpl.java, notification/MappingFilterImpl.java, notification/MessageFactory.java, notification/ProxyPullConsumerImpl.java, notification/ProxyPullSupplierImpl.java, notification/ProxyPushConsumerImpl.java, notification/ProxyPushSupplierImpl.java, notification/SequenceProxyPullConsumerImpl.java, notification/SequenceProxyPullSupplierImpl.java, notification/SequenceProxyPushConsumerImpl.java, notification/SequenceProxyPushSupplierImpl.java, notification/StructuredProxyPullConsumerImpl.java, notification/StructuredProxyPullSupplierImpl.java, notification/StructuredProxyPushConsumerImpl.java, notification/StructuredProxyPushSupplierImpl.java, notification/engine/TaskConfigurator.java, notification/interfaces/AbstractPoolable.java:
+	moved queue handling from proxies (*Proxy{Push|Pull}Supplier) to superclass
+	AbstractProxySupplier
+
+	renamed method AbstractPoolable.release() to dispose
+
+	cosmetics
+
+	* notification/EventChannelImpl.java:
+	removed buggy double checked lock
+
+	* notification/AbstractAdmin.java:
+	cosmetics
+
+	removed unnecessary synchronized
+
+	* notification/node/TCLCleanUp.java:
+	cosmetics
+
+2003-12-16  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ORB.java (createIOR):
+	Pass list of profiles to IORInfoImpl.
+
+	* orb/portableInterceptor/IORInfoImpl.java:
+	Implement the new interface IORInfoExt, rather than IORInfo.
+	(_profiles): New field.
+	(c'tor): Take a list of profiles as an additional argument.
+	(add_profile, get_number_of_profiles, get_profile): New methods.
+
+	* orb/portableInterceptor/IORInfoExt.java:
+	Initial revision.
+
+2003-12-16  Gerald Brose  <gerald.brose@acm.org>
+
+	* naming/NameServer.java, poa/POAMonitorImpl.java, util/CAD.java, util/CADTableModel.java, util/Environment.java, util/Time.java, util/Version.java, util/threadpool/ConsumerTie.java, util/threadpool/ThreadPool.java:
+	removed references to logging constants in util.Debug
+
+	* proxy/ProxyImpl.java:
+	removed code referencing the old logging constants in util.Debug
+
+	* util/Debug.java:
+	removed old log component constants and any code related to them. This
+	code is made obsolete by the new logging API
+
+	* orb/iiop/IIOPListener.java:
+	(c'tor) moved logger retrieval to front.
+
+	* orb/BasicAdapter.java, orb/BufferManager.java, orb/ClientInterceptorHandler.java, orb/Delegate.java, orb/ExceptionHolderImpl.java, orb/ORB.java, orb/ReplyReceiver.java, orb/dii/Request.java, orb/factory/PortRangeServerSocketFactory.java, orb/factory/PortRangeSocketFactory.java, orb/factory/SocketFactoryManager.java, orb/giop/ClientConnectionManager.java, orb/giop/TransportManager.java, orb/iiop/IIOPListener.java, orb/portableInterceptor/ClientInterceptorIterator.java, orb/portableInterceptor/ClientRequestInfoImpl.java, orb/portableInterceptor/IORInterceptorIterator.java, orb/portableInterceptor/InterceptorManager.java, orb/portableInterceptor/ORBInitInfoImpl.java, orb/portableInterceptor/ServerInterceptorIterator.java, orb/portableInterceptor/ServerRequestInfoImpl.java, orb/standardInterceptors/IORInterceptorInitializer.java, orb/standardInterceptors/SSLComponentInterceptor.java:
+	removed references to constants in util.Debug, added extra loggers in
+	some places, plus some cosmetics
+
+	* security/level2/CurrentImpl.java, security/level2/PrincipalAuthenticatorImpl.java, security/level2/ServerInitializer.java, security/level2/SunJssePrincipalAuthenticatorImpl.java, security/ssl/sun_jsse/SSLServerSocketFactory.java, security/ssl/sun_jsse/SSLSocketFactory.java, security/ssl/sun_jsse/SecurityServiceInitializer.java, security/ssl/sun_jsse/ServerInvocationInterceptor.java:
+	removed references to constants in util.Debug, plus some
+	cosmetics
+
+	* imr/ImRAccessImpl.java, imr/ImRHostInfo.java, imr/ImRPOAInfo.java, imr/ImRServerInfo.java, imr/ImplementationRepositoryImpl.java, imr/RessourceLock.java, imr/ServerStartupDaemonImpl.java, imr/ServerTable.java, imr/util/ImRManager.java, imr/util/ImRModel.java:
+	removed references to constants in util.Debug, plus some cosmetics
+
 2003-12-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
 
 	* notification/AbstractAdmin.java: cosmetics
