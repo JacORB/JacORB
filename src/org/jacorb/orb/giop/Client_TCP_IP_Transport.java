@@ -174,7 +174,8 @@ public class Client_TCP_IP_Transport
     {
         if( connected && socket != null )
         {
-            socket.close();
+            socket.shutdownOutput ();
+            socket.close ();
             
             //this will cause exceptions when trying to read from
             //the streams. Better than "nulling" them.            
