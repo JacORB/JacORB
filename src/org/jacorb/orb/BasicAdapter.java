@@ -53,7 +53,6 @@ public class BasicAdapter
     }
 
     /** the number of outstanding replies. */
-    private  int pendingReplies = 0;
 
     private  org.jacorb.orb.ORB orb; 
     private  POA rootPOA; 
@@ -170,11 +169,6 @@ public class BasicAdapter
         return request_listener;
     }
 
-    public void replyPending()
-    {
-        pendingReplies++;
-    }
-
     public int getPort()
     {
         return listener.getPort();
@@ -278,7 +272,6 @@ public class BasicAdapter
 
     public synchronized void return_result(org.jacorb.orb.dsi.ServerRequest request)
     {
-        pendingReplies--;
         request.reply();
     }
 

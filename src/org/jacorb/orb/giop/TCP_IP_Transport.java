@@ -53,6 +53,10 @@ public abstract class TCP_IP_Transport
     private ByteArrayOutputStream b_out = null;
     private boolean dump_incoming = false;
 
+    //If no messages are pending on this transport, it is idle. This
+    //is decided by the connection layer.
+    private boolean is_idle = true;
+
     String connection_info;
     Socket socket;
 
@@ -102,6 +106,33 @@ public abstract class TCP_IP_Transport
 
     protected abstract void close( int reason )
         throws IOException;
+
+    /**
+     * Tell this transport that no messages are pending, i.e. it may
+     * be closed on a read timeout.  
+     */
+    public void setIdle()
+    {
+        is_idle = true;
+    }
+
+    /**
+     * Tell this transport that messages are pending on this
+     * transport, i.e. it must not be closed on a read timeout.  
+     */
+    public void setBusy()
+    {
+        is_idle = false;
+    }
+
+    /**
+     * Test, if this transport has pending messages. If not, closing
+     * on a read timeout is o.k.  
+     */
+    public boolean isIdle()
+    {
+        return is_idle;
+    }
 
     /**
      * This is called from GIOPConnection.

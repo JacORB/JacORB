@@ -265,24 +265,20 @@ public class ServerRequest
     {
 	if( responseExpected() )
 	{
-		
-		//shortcut for appligator
-		if (usePreconstructedReply)
-		{
-			try{
-				connection.sendMessage( out );
-			}
-			catch ( Exception ioe )
-			{
-				Debug.output(2,ioe);
-				System.err.println("ServerRequest: Error replying to request!");
-			}
-			finally
-			{
-				return;
-			}
-
-    	 	}
+            //shortcut for appligator
+            if (usePreconstructedReply)
+            {
+                try
+                {
+                    connection.sendReply( out );
+                }
+                catch( Exception ioe )
+                {
+                    Debug.output(2,ioe);
+                }
+                
+                return;
+            }
 	
 	    Debug.output(6,"ServerRequest: reply to " + operation());
 
@@ -358,12 +354,11 @@ public class ServerRequest
                  * or exceptions. 
                  */
 
-		connection.sendMessage( out );
+		connection.sendReply( out );
 	    }
 	    catch ( Exception ioe )
 	    {
 		Debug.output(2,ioe);
-		System.err.println("ServerRequest: Error replying to request!");
 	    }
 	}
     }

@@ -178,6 +178,14 @@ public class Client_TCP_IP_Transport
     protected synchronized void close( int reason )
         throws IOException
     {
+        // read timeouts should only close the connection, if it is
+        // idle, i.e. has no pending messages.
+        if( reason == READ_TIMED_OUT &&
+            ! isIdle() )
+        {
+            return;
+        }
+
         if (connected && socket != null)
         {
             // Try and invoke socket.shutdownOutput via reflection (bug #81)

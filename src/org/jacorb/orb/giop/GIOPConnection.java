@@ -70,6 +70,9 @@ public final class GIOPConnection
     // support for SAS Stateful contexts
     private Hashtable sasContexts = null;
 
+    // the no. of outstanding messages (requests/replies)
+    private int pending_messages = 0;
+    
     public GIOPConnection( Transport transport,
                            RequestListener request_listener,
                            ReplyListener reply_listener )
@@ -482,6 +485,27 @@ public final class GIOPConnection
         }
     }
 
+    public void incPendingMessages()
+    {
+        if( ++pending_messages > 0 )
+        {
+            transport.setBusy();
+        }
+    }
+
+    private void decPendingMessages()
+    {
+        if( --pending_messages == 0 )
+        {
+            transport.setIdle();
+        }
+    }
+
+    public boolean hasPendingMessages()
+    {
+        return pending_messages == 0;
+    }
+
     /**
      * write (a fragment of) the message (passes it on to the wire)
      */
@@ -511,10 +535,31 @@ public final class GIOPConnection
         throw new org.omg.CORBA.NO_IMPLEMENT();
     }
 
-
-    public final void sendMessage( MessageOutputStream out )
+    public final void sendRequest( MessageOutputStream out,
+                                   boolean expect_reply )
         throws IOException
     {
+        if( expect_reply )
+        {
+            incPendingMessages();
+        }
+
+        sendMessage( out );
+    }
+
+    public final void sendReply( MessageOutputStream out )
+        throws IOException
+    {
+        decPendingMessages();
+
+        sendMessage( out );
+    }   
+
+    private final void sendMessage( MessageOutputStream out )
+        throws IOException
+    {
+        Debug.myAssert( pending_messages >= 0,
+                        "pending_messages >= 0" );
         try
         {
             getWriteLock();

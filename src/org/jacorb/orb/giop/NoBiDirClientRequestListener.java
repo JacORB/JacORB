@@ -51,7 +51,10 @@ public class NoBiDirClientRequestListener
     public void requestReceived( byte[] request,
                                  GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a request on a non-bidir connection" );
+        Debug.output( 1, "WARNING: Received a request on a non-bidir " +
+                      "connection" );
+
+        connection.incPendingMessages();
 
         replyException( request, connection );
     }
@@ -59,7 +62,11 @@ public class NoBiDirClientRequestListener
     public void locateRequestReceived( byte[] request,
                                        GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a locate request on a non-bidir connection" );
+        Debug.output( 1, "WARNING: Received a locate request on a " +
+                      "non-bidir connection" );
+
+        connection.incPendingMessages();
+
         replyException( request, connection );
     }
 
@@ -67,7 +74,10 @@ public class NoBiDirClientRequestListener
     public void cancelRequestReceived( byte[] request,
                                        GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a cancel request on a non-bidir connection" );
+        Debug.output( 1, "WARNING: Received a cancel request on a " +
+                      "non-bidir connection" );
+        
+        connection.incPendingMessages();
         
         replyException( request, connection );
     }
@@ -89,7 +99,7 @@ public class NoBiDirClientRequestListener
 
         try
         {
-            connection.sendMessage( out );
+            connection.sendReply( out );
         }
         catch( IOException e )
         {
@@ -97,7 +107,4 @@ public class NoBiDirClientRequestListener
         }        
     }
 }// NoBiDirClientRequestListener
-
-
-
 

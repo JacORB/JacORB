@@ -79,6 +79,7 @@ public class ServerRequestListener
     public void requestReceived( byte[] request,
                                  GIOPConnection connection )
     {
+        connection.incPendingMessages();
 
         RequestInputStream in = 
             new RequestInputStream( orb, request );
@@ -98,7 +99,7 @@ public class ServerRequestListener
 
             try
             {
-                connection.sendMessage( out );
+                connection.sendReply( out );
             }
             catch( IOException e )
             {
@@ -155,7 +156,7 @@ public class ServerRequestListener
 
 		try
 		{
-		    connection.sendMessage( lr_out );
+		    connection.sendReply( lr_out );
 		}
 		catch( IOException e )
 		{
@@ -174,7 +175,7 @@ public class ServerRequestListener
 
 		try
 		{
-		    connection.sendMessage( out );
+		    connection.sendReply( out );
 		}
 		catch( IOException e )
 		{
@@ -184,8 +185,6 @@ public class ServerRequestListener
 
 	    return;
 	}
-
-        orb.getBasicAdapter().replyPending();
 
         deliverRequest( server_request );
     }

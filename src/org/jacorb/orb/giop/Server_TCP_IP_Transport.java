@@ -68,6 +68,14 @@ public class Server_TCP_IP_Transport
     protected void close( int reason )
         throws IOException
     {
+        // read timeouts should only close the connection, if it is
+        // idle, i.e. has no pending messages.
+        if( reason == READ_TIMED_OUT &&
+            ! isIdle() )
+        {
+            return;
+        }
+
         Debug.output( 2, "Closing TCP connection, reason " + reason );
 
         //ignore the reasons since this transport can never be

@@ -206,7 +206,8 @@ public class ClientConnection
      */
     public void sendRequest( MessageOutputStream os,
                              ReplyPlaceholder placeholder,
-                             int request_id )
+                             int request_id,
+                             boolean response_expected )
     {
         Integer key = new Integer( request_id );
 
@@ -215,14 +216,15 @@ public class ClientConnection
             replies.put( key, placeholder );
         }
 
-        sendRequest( os );
+        sendRequest( os, response_expected );
     }
 
-    public void sendRequest( MessageOutputStream os )
+    public void sendRequest( MessageOutputStream os,
+                             boolean response_expected )
     {
         try
         {
-            connection.sendMessage (os);
+            connection.sendRequest( os, response_expected );
         }
         catch (java.io.IOException e)
         {

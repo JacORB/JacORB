@@ -80,6 +80,24 @@ public interface Transport
      * Test, if the transport is using SSL.
      */
     public boolean isSSL();
+
+    /**
+     * Tell this transport that no messages are pending, i.e. it may
+     * be closed on a read timeout.  
+     */
+    public void setIdle();
+
+    /**
+     * Tell this transport that messages are pending on this
+     * transport, i.e. it must not be closed on a read timeout.  
+     */
+    public void setBusy();
+
+    /**
+     * Test, if this transport has pending messages. If not, closing
+     * on a read timeout is o.k.  
+     */
+    public boolean isIdle();
 }// Transport
 
 
