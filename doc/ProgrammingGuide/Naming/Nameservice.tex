@@ -28,15 +28,15 @@ The JacORB  name server is a  process that needs to  be started before
 the name service can be accessed by programs. Starting the name server
 is done by typing on the command line either simply
 
-\cmdline{ns [<ior filename>][-p port] [-t <timeout>]}
+\cmdline{ns [-Djacorb.naming.ior_filename=<filename>] [-DOAPort=port] [-Djacorb.naming.time_out=<timeout>]}
 
 You can also start the Java interpreter explicitly by typing
 
-\cmdline{jaco jacorb.naming.NameServer [<filename>][-p port] [-t <timeout>]}
+\cmdline{jaco jacorb.naming.NameServer [-Djacorb.naming.ior_filename=<filename>] [-DOAPort=port] [-Djacorb.naming.time_out=<timeout>]}
 
 In the example
 
-\cmdline{ns /home/me/public\_html/NS\_Ref}
+\cmdline{ns -Djacorb.naming.ior_filename=/home/me/public\_html/NS\_Ref}
 
 we direct the name server process to write location information (its
 own object reference) to the file {\tt /home/me/public\_html/NS\_Ref}.
@@ -74,7 +74,7 @@ are made using simplified corbaloc: URLs of the form {\tt
   corbaloc::ip-address:port/NameService}. This means that all you need
 to know to construct an object reference to your name service is the
 IP address of the machine and the port number  the server process is
-listening on (the one specified using {\tt -p}).
+listening on (the one specified using {\tt -DOAPort=<port>}).
 
 The name server stores its  internal state, i.e., the name bindings in
 its context,  in files  in the current  directory unless  the property
@@ -87,7 +87,7 @@ The second  parameter is a port number on which you want the name
 service to listen for incoming requests. If this parameter is not
 set, the name server will come up on the first free port it is
 provided with by the operating system. The port number can also be set
-using specific properties in the properties file, but the -p switch
+using specific properties in the properties file, but the -DOAPort=<port> switch
 was added merely for convenience.
 
 The last  parameter is a time--out  value in msecs. If  this value is
