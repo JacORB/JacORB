@@ -24,7 +24,7 @@ import org.jacorb.orb.*;
 import org.jacorb.orb.portableInterceptor.*;
 
 import org.omg.PortableInterceptor.*;
-import org.omg.IOP_N.Codec;
+import org.omg.IOP.Codec;
 import org.omg.IOP.*;
 import org.omg.IIOP.*;
 
@@ -52,6 +52,10 @@ public class BiDirConnectionClientInterceptor
     public String name() 
     {
         return name;
+    }
+
+    public void destroy()
+    {
     }
 
     public void send_request( ClientRequestInfo ri ) 

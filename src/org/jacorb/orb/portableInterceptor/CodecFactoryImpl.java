@@ -1,7 +1,7 @@
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.IOP_N.*;
-import org.omg.IOP_N.CodecFactoryPackage.*;
+import org.omg.IOP.*;
+import org.omg.IOP.CodecFactoryPackage.*;
 import org.omg.CORBA.ORB;
 
 /**
@@ -25,7 +25,7 @@ public class CodecFactoryImpl extends org.jacorb.orb.LocalityConstrainedObject
     this.orb = orb;
   }
 
-  // implementation of org.omg.IOP_N.CodecFactoryOperations interface
+  // implementation of org.omg.IOP.CodecFactoryOperations interface
   public Codec create_codec(Encoding enc) throws UnknownEncoding {
     if (enc.format == ENCODING_CDR_ENCAPS.value)
       if (enc.major_version == 1)

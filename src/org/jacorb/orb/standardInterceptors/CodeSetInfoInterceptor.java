@@ -51,6 +51,10 @@ public class CodeSetInfoInterceptor
 	return "CodeSetInfoComponentCreator";
     }
 
+    public void destroy()
+    {
+    } 
+
     /**
      * Creates default IOR codeset  component. Because we are in Java,
      * we define UTF8/UTF16 as defaults and ISO8859_1 as supported for

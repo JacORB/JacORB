@@ -434,7 +434,7 @@ public class CDROutputStream
 
         if( codeSet == CodeSet.ISO8859_1 )
         {
-            if( c > 255 || c < 0 )
+            if( (c & 0xFF00) != 0 )//Are there any 1s in the MSB?
             {
                 throw new org.omg.CORBA.MARSHAL("char (" + c + 
                                                 ") out of range for ISO8859_1");
@@ -453,7 +453,7 @@ public class CDROutputStream
     public final void write_char_array(char[] value, int offset, int length)
     {
         if( value == null ) 
-            throw new org.omg.CORBA.MARSHAL("Null References");
+            throw new org.omg.CORBA.MARSHAL( "Null References" );
         check( length*3 );
         for( int i = offset; i < offset+length; i++) 
             write_char( value[i] );

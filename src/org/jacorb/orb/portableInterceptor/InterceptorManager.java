@@ -202,6 +202,34 @@ public class InterceptorManager
     {
         return ior_interceptors.length > 0;
     }
+
+    public void destroy()
+    {
+        if( hasClientRequestInterceptors() )
+        {
+            for( int i = 0; i < client_req_interceptors.length; i++ )
+            {
+                client_req_interceptors[ i ].destroy();
+            }
+        }
+
+        if( hasServerRequestInterceptors() )
+        {
+            for( int i = 0; i < server_req_interceptors.length; i++ )
+            {
+                server_req_interceptors[ i ].destroy();
+            }
+        }
+
+        if( hasIORInterceptors() )
+        {
+            for( int i = 0; i < ior_interceptors.length; i++ )
+            {
+                ior_interceptors[ i ].destroy();
+            }
+        }
+
+    }
 } // InterceptorManager
 
 

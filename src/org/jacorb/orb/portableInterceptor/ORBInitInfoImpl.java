@@ -23,7 +23,7 @@ package org.jacorb.orb.portableInterceptor;
 import org.omg.PortableInterceptor.*;
 import org.omg.PortableInterceptor.ORBInitInfoPackage.*;
 import org.omg.CORBA.Object;
-import org.omg.IOP_N.CodecFactory;
+import org.omg.IOP.CodecFactory;
 
 import java.util.*;
 

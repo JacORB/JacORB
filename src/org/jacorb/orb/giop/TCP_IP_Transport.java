@@ -286,8 +286,6 @@ public abstract class TCP_IP_Transport
     public void sendMessages()
         throws IOException
     {
-        out_stream.flush();
-
         if( b_out != null )
         {
             byte[] b = b_out.toByteArray();
@@ -296,6 +294,8 @@ public abstract class TCP_IP_Transport
 
             b_out.reset();
         }
+
+        out_stream.flush();
     }
 }// TCP_IP_Transport
 

@@ -58,7 +58,7 @@
         />
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
-               includes="org/omg/Messaging/**/*.java,org/omg/IOP_N/**/*.java,org/omg/PortableInterceptor/**/*.java"
+               includes="org/omg/Messaging/**/*.java,org/omg/PortableInterceptor/**/*.java"
         />
 
    </target>
@@ -156,9 +156,11 @@
 	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/Messaging.idl"/>
 	</java>
 
+        <!--
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
 	      <arg line="${idlflags} -noskel  ${include}/omg/IOP_N.idl"/>
 	</java>
+        -->
 
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
 	      <arg line="${idlflags} -noskel  -nostub ${include}/omg/PortableInterceptor.idl"/>

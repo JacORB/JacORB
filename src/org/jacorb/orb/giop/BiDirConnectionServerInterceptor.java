@@ -21,7 +21,7 @@
 package org.jacorb.orb.connection;
 
 import org.omg.PortableInterceptor.*;
-import org.omg.IOP_N.Codec;
+import org.omg.IOP.Codec;
 import org.omg.IIOP.*;
 import org.omg.IOP.*;
 
@@ -63,7 +63,11 @@ public class BiDirConnectionServerInterceptor
     {
         return name;
     }
-    
+
+    public void destroy()
+    {
+    }    
+
     public void receive_request_service_contexts( ServerRequestInfo ri ) 
         throws ForwardRequest
     {

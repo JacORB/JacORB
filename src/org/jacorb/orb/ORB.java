@@ -1451,6 +1451,11 @@ public final class ORB
         {
             shutdown( true );
         }
+
+        if( interceptor_manager != null )
+        {
+            interceptor_manager.destroy();
+        } 
         
         // other clean up possible here ?
         destroyed = true;

@@ -26,12 +26,16 @@ public class SSLComponentInterceptor
         this.orb = orb;
     }
   
+    // implementation of org.omg.PortableInterceptor.IORInterceptorOperations interface
+
     public String name()
     {
         return "SSLComponentCreator";
     }
 
-    // implementation of org.omg.PortableInterceptor.IORInterceptorOperations interface
+    public void destroy()
+    {
+    } 
 
     /**
      * Builds an ssl TaggedComponent.

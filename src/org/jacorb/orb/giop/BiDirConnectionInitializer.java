@@ -23,7 +23,7 @@ package org.jacorb.orb.connection;
 import org.jacorb.orb.*;
 
 import org.omg.PortableInterceptor.*;
-import org.omg.IOP_N.*;
+import org.omg.IOP.*;
 import org.omg.BiDirPolicy.BIDIRECTIONAL_POLICY_TYPE;
 
 /**

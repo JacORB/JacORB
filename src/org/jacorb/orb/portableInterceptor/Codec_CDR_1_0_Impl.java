@@ -1,7 +1,7 @@
 package org.jacorb.orb.portableInterceptor;
 
-import org.omg.IOP_N.CodecPackage.*;
-import org.omg.IOP_N.Codec;
+import org.omg.IOP.CodecPackage.*;
+import org.omg.IOP.Codec;
 import org.omg.CORBA.*;
 
 import org.jacorb.orb.CDRInputStream;
@@ -27,7 +27,7 @@ public class Codec_CDR_1_0_Impl
         this.orb = orb;
     }
 
-    // implementation of org.omg.IOP_N.CodecOperations interface
+    // implementation of org.omg.IOP.CodecOperations interface
 
     public Any decode(byte[] data) throws FormatMismatch 
     {

@@ -19,6 +19,9 @@ public abstract class DefaultServerInterceptor
     // InterceptorOperations interface
     public abstract String name();
 
+    public void destroy()
+    {
+    }
 
     public void receive_request_service_contexts( ServerRequestInfo ri ) 
         throws ForwardRequest

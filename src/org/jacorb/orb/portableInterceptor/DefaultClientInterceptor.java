@@ -28,6 +28,10 @@ public abstract class DefaultClientInterceptor
 {
     public abstract String name();
 
+    public void destroy()
+    {
+    }
+
     public void send_request( ClientRequestInfo ri ) 
         throws ForwardRequest
     {
