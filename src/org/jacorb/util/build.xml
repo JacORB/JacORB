@@ -41,6 +41,6 @@
 
 
    <target name="clean">
-      <delete file="ValueHandler.java"/>
+      <delete file="src/org/jacorb/util/ValueHandler.java"/>
    </target>
 </project>
