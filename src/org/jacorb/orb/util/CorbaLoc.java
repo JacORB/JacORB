@@ -116,7 +116,12 @@ public class CorbaLoc
 		  addr.startsWith("iiop:") ||
                   addr.startsWith("ssliop:")) 
 	{
-            result.protocol_identifier = addr.substring( 0, addr.indexOf(':') );
+	    if( addr.indexOf(':') != 0 )
+	    {
+		//protocol exclicitely specified
+		result.protocol_identifier = addr.substring( 0, addr.indexOf(':') );
+	    }
+	    //else: use default "iiop"
 
 	    String version_and_host = addr.substring( addr.indexOf(':')+1);
 	    if( version_and_host.length() == 0)
