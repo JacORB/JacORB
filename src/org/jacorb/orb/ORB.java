@@ -65,7 +65,7 @@ public final class ORB
         "IOR:00000000000000010000000000000000";
 
     /** "initial" references */
-    private Hashtable initial_references = new Hashtable();
+    private Map initial_references = new HashMap();
 
     private org.jacorb.poa.POA rootpoa;
     private org.jacorb.poa.Current poaCurrent;
@@ -79,7 +79,7 @@ public final class ORB
     private org.omg.PortableInterceptor.Current piCurrent = new PICurrent();
 
     /** reference caching */
-    private Hashtable knownReferences = null;
+    private Map knownReferences = null;
 
     /** connection mgmt. */
     private ClientConnectionManager clientConnectionManager;
@@ -138,7 +138,7 @@ public final class ORB
     private Request request = null;
 
     /* policy factories, from portable interceptor spec */
-    private Hashtable policy_factories = null;
+    private Map policy_factories = null;
 
     private static org.omg.CORBA.TCKind kind;
 
@@ -695,16 +695,17 @@ public final class ORB
 
     public String[] list_initial_services()
     {
-        Vector v = new Vector();
+        List l = new ArrayList();
 
-        for( Enumeration e = initial_references.keys(); e.hasMoreElements(); v.add( e.nextElement() ) );
+        for( Iterator e = initial_references.keySet().iterator(); 
+             e.hasNext(); l.add( e.next() ) );
 
         String [] initial_services =
-            new String[ services.length + v.size()];
+            new String[ services.length + l.size()];
 
-        v.copyInto( initial_services );
+        l.toArray( initial_services );
 
-        System.arraycopy( services, 0, initial_services, v.size(), services.length );
+        System.arraycopy( services, 0, initial_services, l.size(), services.length );
         return initial_services;
     }
 
@@ -1345,14 +1346,14 @@ public final class ORB
             {
                 logger.info("Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
             }
-            knownReferences = new Hashtable();
+            knownReferences = new HashMap();
 
         }
         else
         {
             try
             {
-                knownReferences = (Hashtable) Environment.classForName( s ).newInstance();
+                knownReferences = (Map) Environment.classForName( s ).newInstance();
             }
             catch( Exception e )
             {
@@ -1360,7 +1361,7 @@ public final class ORB
                 {
                     logger.info(e.getMessage());
                 }
-                knownReferences = new Hashtable();
+                knownReferences = new HashMap();
             }
         }
 
@@ -1405,14 +1406,14 @@ public final class ORB
             {
                 logger.info("Property \"jacorb.hashtable_class\" not present. Will use default hashtable implementation" );
             }
-            knownReferences = new Hashtable();
+            knownReferences = new HashMap();
 
         }
         else
         {
             try
             {
-                knownReferences = (Hashtable) Environment.classForName( s ).newInstance();
+                knownReferences = (Map)Environment.classForName( s ).newInstance();
             }
             catch( Exception e )
             {
@@ -1420,7 +1421,7 @@ public final class ORB
                 {
                     logger.debug( e.getMessage());
                 }
-                knownReferences = new Hashtable();
+                knownReferences = new HashMap();
             }
         }
 
