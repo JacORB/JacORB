@@ -128,7 +128,7 @@ public abstract class AbstractChannelFactory
 
     private Configuration config_;
 
-    private SynchronizedInt eventChannelIDPool_ =
+    private final SynchronizedInt eventChannelIDPool_ =
         new SynchronizedInt(-1);
 
     private NameComponent[] registeredName_ = null;
@@ -266,8 +266,9 @@ public abstract class AbstractChannelFactory
                                     rootPOA_.the_POAManager(),
                                     _policies );
 
-            for ( int x = 0; x < _policies.length; ++x )
+            for ( int x = 0; x < _policies.length; ++x ) {
                 _policies[ x ].destroy();
+            }
 
             rootPOA_.the_POAManager().activate();
         } catch (Exception e) {
