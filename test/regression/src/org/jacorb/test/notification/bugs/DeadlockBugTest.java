@@ -21,7 +21,6 @@
 
 package org.jacorb.test.notification.bugs;
 
-import junit.extensions.RepeatedTest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -29,8 +28,8 @@ import junit.framework.TestSuite;
 import org.jacorb.notification.AnyMessage;
 import org.jacorb.notification.queue.BasicMessageQueueAdapter;
 import org.jacorb.notification.queue.BoundedFifoEventQueue;
-import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.EventQueueOverflowStrategy;
+import org.jacorb.notification.queue.MessageQueue;
 import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 
 import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
@@ -70,10 +69,10 @@ public class DeadlockBugTest extends TestCase
     }
 
     /**
-     * Test that should provoke bug ID 544 setup is a bit difficult for this test. first thread
-     * needs to invoke getMessageBlocking() on an empty queue first. then second thread tries to
-     * enqueue a message into the queue which then should be returned to the first thread. this test
-     * still is timing dependent and therefor contains Thread.sleep().
+     * Test that should provoke bug ID 544. getter thread
+     * needs to invoke getMessageBlocking() on an empty queue first. then second putter thread tries to
+     * enqueue a message into the queue which then should be returned to the first thread.
+     * wrong synchronization led to a deadlock.
      */
     public void testDeadlock() throws Exception
     { 
@@ -151,8 +150,6 @@ public class DeadlockBugTest extends TestCase
 
         getter.interrupt();
         putter.interrupt();
-        
-        System.out.println("*");
     }
 
     /**
