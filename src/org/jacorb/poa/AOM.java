@@ -65,6 +65,9 @@ public class AOM
     private Vector              incarnationList = new Vector();
 
     private Vector              deactivationList = new Vector();
+    /** a lock to protect two consecutive operations on the list, used
+        in remove() */
+    private Object              deactivationListLock = new Object();
 
     private AOM() 
     {
@@ -272,29 +275,36 @@ public class AOM
         return servant;
     }
 
-    synchronized protected void remove( byte[] oid,
+    protected void remove( byte[] oid,
                            RequestController requestController, 
                            ServantActivator servantActivator, 
                            POA poa,
                            boolean cleanupInProgress)
                            throws ObjectNotActive
-    {
-    	
+    {    	
     	ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);
     	    	
-        if ( !objectMap.containsKey( oidbak ) || deactivationList.contains(oidbak) ) {
+        // check that the same oid is not already being deactivated
+        // (this must be synchronized to avoid having two independent
+        // threads register the same oid)
+        synchronized( deactivationListLock )
+        {
+            if ( !objectMap.containsKey( oidbak ) ||
+                 deactivationList.contains( oidbak ) ) 
+            {
         	throw new ObjectNotActive();
+            }
+
+            deactivationList.addElement(oidbak);
         }
-    	
-    	deactivationList.addElement(oidbak);
-    	
+    	    	
     	final byte[] oid_ = oid;
     	final RequestController requestController_ = requestController;
     	final ServantActivator servantActivator_ = servantActivator;
         final POA poa_ = poa;
         final boolean cleanupInProgress_ = cleanupInProgress;
                 
-        Thread thread = new Thread() 
+        Thread thread = new Thread("AOM_RemovalThread") 
             {
                 public void run() 
                 {
@@ -320,10 +330,11 @@ public class AOM
         ByteArrayKey  oidbak = POAUtil.oid_to_bak(oid);
         Servant servant = null;
                 
-        if (!objectMap.containsKey(oidbak)) {
-        	// should not happen but ...
-        	deactivationList.removeElement(oidbak);
-        	return;
+        if (!objectMap.containsKey(oidbak)) 
+        {
+            // should not happen but ...
+            deactivationList.removeElement(oidbak);
+            return;
         }
 
         // wait for request completion on this object (see freeObject below)
