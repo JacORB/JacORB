@@ -21,13 +21,21 @@ package org.jacorb.notification.servant;
  *
  */
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerPOATie;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.SequencePushSupplier;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -35,18 +43,25 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class SequenceProxyPushConsumerImpl
-    extends StructuredProxyPushConsumerImpl
-    implements SequenceProxyPushConsumerOperations
+public class SequenceProxyPushConsumerImpl extends StructuredProxyPushConsumerImpl implements
+        SequenceProxyPushConsumerOperations
 {
     private SequencePushSupplier sequencePushSupplier_;
 
     ////////////////////////////////////////
 
-    public ProxyType MyType() {
-        return ProxyType.PUSH_SEQUENCE;
+    public SequenceProxyPushConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, MessageFactory mf, SupplierAdmin supplierAdmin,
+            OfferManager offerManager, SubscriptionManager subscriptionManager)
+    {
+        super(admin, orb, poa, conf, taskProcessor, mf, supplierAdmin, offerManager,
+                subscriptionManager);
     }
 
+    public ProxyType MyType()
+    {
+        return ProxyType.PUSH_SEQUENCE;
+    }
 
     protected void disconnectClient()
     {
@@ -57,11 +72,10 @@ public class SequenceProxyPushConsumerImpl
         sequencePushSupplier_ = null;
     }
 
-
-    public void connect_sequence_push_supplier( SequencePushSupplier supplier )
-        throws AlreadyConnected
+    public void connect_sequence_push_supplier(SequencePushSupplier supplier)
+            throws AlreadyConnected
     {
-        assertNotConnected();
+        checkIsNotConnected();
 
         connectClient(supplier);
 
@@ -70,30 +84,26 @@ public class SequenceProxyPushConsumerImpl
         logger_.info("connect sequence_push_supplier");
     }
 
-
-    public void push_structured_events( StructuredEvent[] events )
-        throws Disconnected
+    public void push_structured_events(StructuredEvent[] events) throws Disconnected
     {
         checkStillConnected();
 
-        for ( int x = 0; x < events.length; ++x )
+        for (int x = 0; x < events.length; ++x)
         {
-            push_structured_event( events[ x ] );
+            push_structured_event(events[x]);
         }
     }
 
-
     public void disconnect_sequence_push_consumer()
     {
-        dispose();
+        destroy();
     }
-
 
     public synchronized Servant getServant()
     {
-        if ( thisServant_ == null )
+        if (thisServant_ == null)
         {
-            thisServant_ = new SequenceProxyPushConsumerPOATie( this );
+            thisServant_ = new SequenceProxyPushConsumerPOATie(this);
         }
 
         return thisServant_;

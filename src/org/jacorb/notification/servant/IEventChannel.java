@@ -1,9 +1,7 @@
-package org.jacorb.notification.servant;
-
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2004 Gerald Brose.
+ *   Copyright (C) 1999-2004 Gerald Brose
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,23 +16,29 @@ package org.jacorb.notification.servant;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
+package org.jacorb.notification.servant;
+
+import org.jacorb.notification.IContainer;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-
-public interface ManageableServant {
+public interface IEventChannel extends IContainer
+{
+    int getAdminID();
 
     /**
-     * @deprecated
-     * @throws Exception
+     * @return
      */
-    void preActivate() throws Exception;
+    int getID();
 
-    org.omg.CORBA.Object activate();
-
-    void deactivate();
+    /**
+     * @return
+     */
+    EventChannel getEventChannel();
 }

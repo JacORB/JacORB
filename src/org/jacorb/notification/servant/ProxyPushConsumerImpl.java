@@ -20,8 +20,14 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushSupplier;
@@ -29,6 +35,8 @@ import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -36,80 +44,81 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class ProxyPushConsumerImpl
-    extends AbstractProxyConsumer
-    implements ProxyPushConsumerOperations
+public class ProxyPushConsumerImpl extends AbstractProxyConsumer implements
+        ProxyPushConsumerOperations
 {
     private PushSupplier pushSupplier_;
 
     ////////////////////////////////////////
 
-    public ProxyType MyType() {
+    public ProxyPushConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, MessageFactory messageFactory,
+            SupplierAdmin supplierAdmin, OfferManager offerManager,
+            SubscriptionManager subscriptionManager)
+    {
+        super(admin, orb, poa, conf, taskProcessor, messageFactory, supplierAdmin, offerManager,
+                subscriptionManager);
+    }
+
+    public ProxyType MyType()
+    {
         return ProxyType.PUSH_ANY;
     }
 
-
     public void disconnect_push_consumer()
     {
-        logger_.info( "disconnect any_push_supplier" );
-        dispose();
+        destroy();
     }
-
 
     protected void disconnectClient()
     {
-        if ( pushSupplier_ != null )
+        if (pushSupplier_ != null)
         {
             pushSupplier_.disconnect_push_supplier();
             pushSupplier_ = null;
         }
     }
 
-
     /**
      * Supplier sends data to the consumer (this object) using this call.
      */
-    public void push( Any event ) throws Disconnected
+    public void push(Any event) throws Disconnected
     {
         checkStillConnected();
 
         logger_.debug("push Any into the Channel");
 
-        Message _mesg =
-            getMessageFactory().newMessage( event, this );
+        Message _mesg = getMessageFactory().newMessage(event, this);
 
         checkMessageProperties(_mesg);
 
-        getTaskProcessor().processMessage( _mesg );
+        getTaskProcessor().processMessage(_mesg);
     }
 
-
-    public void connect_any_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
-        throws AlreadyConnected
+    public void connect_any_push_supplier(org.omg.CosEventComm.PushSupplier pushSupplier)
+            throws AlreadyConnected
     {
-        logger_.info( "connect any_push_supplier" );
+        logger_.info("connect any_push_supplier");
 
-        assertNotConnected();
+        checkIsNotConnected();
 
         pushSupplier_ = pushSupplier;
 
         connectClient(pushSupplier);
     }
 
-
     public synchronized Servant getServant()
     {
-        if ( thisServant_ == null )
+        if (thisServant_ == null)
         {
-            thisServant_ = new ProxyPushConsumerPOATie( this );
+            thisServant_ = new ProxyPushConsumerPOATie(this);
         }
 
         return thisServant_;
     }
 
-
     public org.omg.CORBA.Object activate()
     {
-        return ProxyConsumerHelper.narrow( getServant()._this_object(getORB()) );
+        return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
 }

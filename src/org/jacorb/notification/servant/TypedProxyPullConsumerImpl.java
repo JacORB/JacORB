@@ -23,6 +23,11 @@ package org.jacorb.notification.servant;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.omg.CORBA.ARG_OUT;
@@ -30,16 +35,19 @@ import org.omg.CORBA.Any;
 import org.omg.CORBA.InterfaceDef;
 import org.omg.CORBA.InterfaceDefHelper;
 import org.omg.CORBA.NVList;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.OperationDescription;
 import org.omg.CORBA.Request;
 import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosTypedEventComm.TypedPullSupplier;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerPOATie;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -47,18 +55,10 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class TypedProxyPullConsumerImpl
-    extends AbstractProxyConsumer
-    implements TypedProxyPullConsumerOperations,
-               MessageSupplier
+public class TypedProxyPullConsumerImpl extends AbstractProxyConsumer implements
+        TypedProxyPullConsumerOperations, MessageSupplier, ITypedProxy
 {
-    private final Object[] STRING_ARRAY_TEMPLATE = new String[0];
-
-    private String expectedInterface_;
-
     private String[] tryPullOperations_;
-
-    private Map operationDescriptions_ = new HashMap();
 
     private TypedPullSupplier pullSupplier_;
 
@@ -66,24 +66,34 @@ public class TypedProxyPullConsumerImpl
 
     private InterfaceDef interfaceDef_;
 
-    private Map fullQualifiedOperationNames_ = new HashMap();
+    private final static Object[] STRING_ARRAY_TEMPLATE = new String[0];
+
+    private final String expectedInterface_;
+
+    private final Map operationDescriptions_ = new HashMap();
+
+    private final Map fullQualifiedOperationNames_ = new HashMap();
 
     //////////////////////////////
 
-    public TypedProxyPullConsumerImpl(String expectedInterface)
+    public TypedProxyPullConsumerImpl(ITypedAdmin admin, SupplierAdmin supplierAdmin, ORB orb,
+            POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory mf,
+            OfferManager offerManager, SubscriptionManager subscriptionManager)
     {
-        expectedInterface_ = expectedInterface;
+        super(admin, orb, poa, conf, taskProcessor, mf, supplierAdmin, offerManager,
+                subscriptionManager);
+
+        expectedInterface_ = admin.getSupportedInterface();
     }
 
     //////////////////////////////
 
     public void connect_typed_pull_supplier(TypedPullSupplier typedPullSupplier)
-        throws AlreadyConnected,
-               TypeError
+            throws AlreadyConnected, TypeError
     {
         logger_.info("connect typed_pull_supplier");
 
-        assertNotConnected();
+        checkIsNotConnected();
 
         connectClient(typedPullSupplier);
 
@@ -99,62 +109,63 @@ public class TypedProxyPullConsumerImpl
         }
     }
 
-
-    private String[] getTryPullOperations() {
-        if (tryPullOperations_ == null) {
+    private String[] getTryPullOperations()
+    {
+        if (tryPullOperations_ == null)
+        {
             FullInterfaceDescription _fullIfDescription = interfaceDef_.describe_interface();
 
-            for (int x=0; x<_fullIfDescription.operations.length; ++x) {
-                if (_fullIfDescription.operations[x].name.startsWith("try_")) {
+            for (int x = 0; x < _fullIfDescription.operations.length; ++x)
+            {
+                if (_fullIfDescription.operations[x].name.startsWith("try_"))
+                {
 
                     operationDescriptions_.put(_fullIfDescription.operations[x].name,
-                                               _fullIfDescription.operations[x]);
+                            _fullIfDescription.operations[x]);
                 }
             }
-            tryPullOperations_ = (String[])operationDescriptions_.keySet().toArray(STRING_ARRAY_TEMPLATE);
+            tryPullOperations_ = (String[]) operationDescriptions_.keySet().toArray(
+                    STRING_ARRAY_TEMPLATE);
         }
         return tryPullOperations_;
     }
 
-
-    public void runPullMessage() {
+    public void runPullMessage()
+    {
         runPullMessageInternal();
     }
 
-
-    private OperationDescription getOperationDescription(String operation) {
-        return (OperationDescription)operationDescriptions_.get(operation);
+    private OperationDescription getOperationDescription(String operation)
+    {
+        return (OperationDescription) operationDescriptions_.get(operation);
     }
 
-
-    private String getFullQualifiedName(String operation) {
-        String _fullQualifiedName = (String)fullQualifiedOperationNames_.get(operation);
-        if (_fullQualifiedName == null) {
+    private String getFullQualifiedName(String operation)
+    {
+        String _fullQualifiedName = (String) fullQualifiedOperationNames_.get(operation);
+        if (_fullQualifiedName == null)
+        {
             _fullQualifiedName = interfaceDef_.lookup(operation).absolute_name();
             fullQualifiedOperationNames_.put(operation, _fullQualifiedName);
         }
         return _fullQualifiedName;
     }
 
-
-
-    private Request prepareRequest(String operation) {
-        Request _request =
-            typedPullSupplier_._request(operation);
+    private Request prepareRequest(String operation)
+    {
+        Request _request = typedPullSupplier_._request(operation);
 
         NVList _args = _request.arguments();
 
-        OperationDescription _operationDescription =
-            getOperationDescription(operation);
+        OperationDescription _operationDescription = getOperationDescription(operation);
 
-        for (int x=0; x<_operationDescription.parameters.length; ++x) {
+        for (int x = 0; x < _operationDescription.parameters.length; ++x)
+        {
             Any _any = getORB().create_any();
 
             _any.type(_operationDescription.parameters[x].type);
 
-            _args.add_value(_operationDescription.parameters[x].name,
-                            _any,
-                            ARG_OUT.value);
+            _args.add_value(_operationDescription.parameters[x].name, _any, ARG_OUT.value);
         }
 
         _request.set_return_type(_operationDescription.result);
@@ -162,31 +173,31 @@ public class TypedProxyPullConsumerImpl
         return _request;
     }
 
-
-    private void runPullMessageInternal() {
+    private void runPullMessageInternal()
+    {
         String[] _tryPullOperations = getTryPullOperations();
 
-        for (int x=0; x<_tryPullOperations.length; ++x) {
+        for (int x = 0; x < _tryPullOperations.length; ++x)
+        {
             Request _request = prepareRequest(_tryPullOperations[x]);
 
+            if (logger_.isDebugEnabled())
+            {
+                logger_.debug("invoke " + _tryPullOperations[x]);
+            }
             _request.invoke();
 
             Any _result = _request.result().value();
 
             boolean _success = _result.extract_boolean();
 
-            if (_success) {
-                OperationDescription _operationDescription =
-                    getOperationDescription(_tryPullOperations[x]);
-
+            if (_success)
+            {
                 String _operationNameWithoutTry = _tryPullOperations[x].substring(4);
-                String _operationName = getFullQualifiedName(_operationNameWithoutTry );
+                String _operationName = getFullQualifiedName(_operationNameWithoutTry);
 
-                Message _mesg =
-                    getMessageFactory().newMessage(expectedInterface_,
-                                                   _operationName,
-                                                   _request.arguments(),
-                                                   this);
+                Message _mesg = getMessageFactory().newMessage(expectedInterface_, _operationName,
+                        _request.arguments(), this);
 
                 checkMessageProperties(_mesg);
 
@@ -197,21 +208,18 @@ public class TypedProxyPullConsumerImpl
 
     public void disconnect_pull_consumer()
     {
-        dispose();
+        destroy();
     }
-
 
     public ProxyType MyType()
     {
         return ProxyType.PULL_TYPED;
     }
 
-
     public org.omg.CORBA.Object activate()
     {
         return TypedProxyPullConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
-
 
     public void disconnectClient()
     {
@@ -221,7 +229,6 @@ public class TypedProxyPullConsumerImpl
             pullSupplier_ = null;
         }
     }
-
 
     public Servant getServant()
     {

@@ -23,11 +23,16 @@ package org.jacorb.notification.servant;
 
 
 import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.omg.CORBA.BooleanHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
@@ -36,6 +41,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
 import org.omg.CosNotifyComm.StructuredPullSupplier;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
@@ -52,7 +58,7 @@ public class StructuredProxyPullConsumerImpl
     implements StructuredProxyPullConsumerOperations,
                MessageSupplier
 {
-    protected Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
+    protected final Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
 
     protected long pollInterval_;
 
@@ -60,13 +66,13 @@ public class StructuredProxyPullConsumerImpl
 
     private Object taskId_;
 
-    private Runnable runQueueThis_;
+    private final Runnable runQueueThis_;
 
     ////////////////////////////////////////
 
-    public StructuredProxyPullConsumerImpl()
+    public StructuredProxyPullConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory mf, OfferManager offerManager, SubscriptionManager subscriptionManager)
     {
-        super();
+        super(admin, orb, poa, conf, taskProcessor, mf, null, offerManager, subscriptionManager);
 
         runQueueThis_ = new Runnable()
         {
@@ -101,14 +107,14 @@ public class StructuredProxyPullConsumerImpl
 
     public void disconnect_structured_pull_consumer()
     {
-        dispose();
+        destroy();
     }
 
 
     public synchronized void connect_structured_pull_supplier( StructuredPullSupplier pullSupplier )
         throws AlreadyConnected
     {
-        assertNotConnected();
+        checkIsNotConnected();
         pullSupplier_ = pullSupplier;
         connectClient(pullSupplier);
         startTask();

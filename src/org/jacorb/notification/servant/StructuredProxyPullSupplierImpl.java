@@ -23,9 +23,15 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
-import org.jacorb.notification.CollectionsWrapper;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.DefaultTaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -40,6 +46,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullSupplierPOATie;
 import org.omg.CosNotifyComm.StructuredPullConsumer;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -47,26 +54,26 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class StructuredProxyPullSupplierImpl
-    extends AbstractProxySupplier
-    implements StructuredProxyPullSupplierOperations
+public class StructuredProxyPullSupplierImpl extends AbstractProxySupplier implements
+        StructuredProxyPullSupplierOperations
 {
     /**
      * undefined StructuredEvent that is returned on unsuccessful pull operations.
      */
-    protected static final StructuredEvent undefinedStructuredEvent_;
+    protected static final StructuredEvent UNDEFINED_STRUCTURED_EVENT;
 
     // initialize undefinedStructuredEvent_
-    static {
+    static
+    {
         ORB _orb = ORB.init();
 
-        undefinedStructuredEvent_ = new StructuredEvent();
+        UNDEFINED_STRUCTURED_EVENT = new StructuredEvent();
         EventType _type = new EventType();
-        FixedEventHeader _fixed = new FixedEventHeader( _type, "" );
-        Property[] _variable = new Property[ 0 ];
-        undefinedStructuredEvent_.header = new EventHeader( _fixed, _variable );
-        undefinedStructuredEvent_.filterable_data = new Property[ 0 ];
-        undefinedStructuredEvent_.remainder_of_body = _orb.create_any();
+        FixedEventHeader _fixed = new FixedEventHeader(_type, "");
+        Property[] _variable = new Property[0];
+        UNDEFINED_STRUCTURED_EVENT.header = new EventHeader(_fixed, _variable);
+        UNDEFINED_STRUCTURED_EVENT.filterable_data = new Property[0];
+        UNDEFINED_STRUCTURED_EVENT.remainder_of_body = _orb.create_any();
     }
 
     /**
@@ -76,15 +83,23 @@ public class StructuredProxyPullSupplierImpl
 
     ////////////////////////////////////////
 
-    public ProxyType MyType() {
+    public StructuredProxyPullSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, OfferManager offerManager,
+            SubscriptionManager subscriptionManager) throws ConfigurationException
+    {
+        super(admin, orb, poa, conf, taskProcessor, DefaultTaskExecutor.getDefaultExecutor(),
+                offerManager, subscriptionManager, null);
+    }
+
+    public ProxyType MyType()
+    {
         return ProxyType.PULL_STRUCTURED;
     }
 
-
-    public void connect_structured_pull_consumer( StructuredPullConsumer consumer )
-        throws AlreadyConnected
+    public void connect_structured_pull_consumer(StructuredPullConsumer consumer)
+            throws AlreadyConnected
     {
-        assertNotConnected();
+        checkIsNotConnected();
 
         connectClient(consumer);
 
@@ -93,41 +108,32 @@ public class StructuredProxyPullSupplierImpl
         logger_.info("connect structured_pull_consumer");
     }
 
-
-    public StructuredEvent pull_structured_event()
-        throws Disconnected
+    public StructuredEvent pull_structured_event() throws Disconnected
     {
         checkStillConnected();
-
-        Message _message = null;
 
         try
         {
-            _message = getMessageBlocking();
+            Message _message = getMessageBlocking();
 
-            return _message.toStructuredEvent();
-        }
-        catch (InterruptedException e)
-        {
-            return undefinedStructuredEvent_;
-        }
-        finally
-        {
-            if (_message != null)
+            try
+            {
+                return _message.toStructuredEvent();
+            } finally
             {
                 _message.dispose();
             }
+        } catch (InterruptedException e)
+        {
+            return UNDEFINED_STRUCTURED_EVENT;
         }
     }
 
-
-    public StructuredEvent try_pull_structured_event( BooleanHolder hasEvent )
-        throws Disconnected
+    public StructuredEvent try_pull_structured_event(BooleanHolder hasEvent) throws Disconnected
     {
         checkStillConnected();
 
-        Message _message =
-            getMessageNoBlock();
+        Message _message = getMessageNoBlock();
 
         if (_message != null)
         {
@@ -136,26 +142,21 @@ public class StructuredProxyPullSupplierImpl
                 hasEvent.value = true;
 
                 return _message.toStructuredEvent();
-            }
-            finally
+            } finally
             {
                 _message.dispose();
             }
         }
-        else
-        {
-            hasEvent.value = false;
 
-            return undefinedStructuredEvent_;
-        }
+        hasEvent.value = false;
+
+        return UNDEFINED_STRUCTURED_EVENT;
     }
-
 
     public void disconnect_structured_pull_supplier()
     {
-        dispose();
+        destroy();
     }
-
 
     protected void disconnectClient()
     {
@@ -166,62 +167,53 @@ public class StructuredProxyPullSupplierImpl
         structuredPullConsumer_ = null;
     }
 
-
     /**
      * PullSupplier always enqueues.
      */
-    public void deliverMessage( Message event )
+    public void deliverMessage(Message event)
     {
-        enqueue( event );
+        enqueue(event);
     }
-
 
     public List getSubsequentFilterStages()
     {
-        return CollectionsWrapper.singletonList( this );
+        return CollectionsWrapper.singletonList(this);
     }
-
 
     public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
-
     public boolean hasMessageConsumer()
     {
         return true;
     }
-
 
     public void disableDelivery()
     {
         // as no active deliveries are made this can be ignored
     }
 
-
     public void enableDelivery()
     {
         // as no active deliveries are made this can be ignored
     }
-
 
     public void deliverPendingData()
     {
         // as no active deliveries are made this can be ignored
     }
 
-
     public synchronized Servant getServant()
     {
-        if ( thisServant_ == null )
+        if (thisServant_ == null)
         {
-            thisServant_ = new StructuredProxyPullSupplierPOATie( this );
+            thisServant_ = new StructuredProxyPullSupplierPOATie(this);
         }
 
         return thisServant_;
     }
-
 
     public org.omg.CORBA.Object activate()
     {

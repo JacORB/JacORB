@@ -23,10 +23,17 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
-import org.jacorb.notification.CollectionsWrapper;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.PushStructuredOperation;
+import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.util.CollectionsWrapper;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.StructuredEvent;
@@ -37,12 +44,12 @@ import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
 import org.omg.CosNotifyComm.StructuredPushConsumerOperations;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
  * @author Alphonse Bendt
- * @version $Id: StructuredProxyPushSupplierImpl.java,v 1.9 2004/07/12 11:19:56
- *          alphonse.bendt Exp $
+ * @version $Id$
  */
 
 public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier implements
@@ -64,19 +71,22 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
     };
 
     private StructuredPushConsumerOperations pushConsumer_;
-    
-    private final Object refLock_ = new Object();
 
     ////////////////////////////////////////
+
+    public StructuredProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
+            SubscriptionManager subscriptionManager) throws ConfigurationException
+    {
+        super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
+                subscriptionManager, null);
+    }
 
     public ProxyType MyType()
     {
         return ProxyType.PUSH_STRUCTURED;
     }
 
-    /**
-     * TODO check error handling when push fails
-     */
     public void deliverMessage(final Message message)
     {
         if (logger_.isDebugEnabled())
@@ -87,16 +97,18 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
 
         if (isConnected())
         {
-
             if (!isSuspended() && isEnabled())
             {
                 try
                 {
+                    logger_.debug("push to consumer");
                     pushConsumer_.push_structured_event(message.toStructuredEvent());
-                    
+
                     resetErrorCounter();
                 } catch (Throwable e)
                 {
+                    e.printStackTrace();
+
                     PushStructuredOperation _failedOperation = new PushStructuredOperation(
                             pushConsumer_, message);
 
@@ -118,7 +130,7 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
     public void connect_structured_push_consumer(StructuredPushConsumer consumer)
             throws AlreadyConnected
     {
-        assertNotConnected();
+        checkIsNotConnected();
 
         if (logger_.isDebugEnabled())
         {
@@ -132,7 +144,7 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
 
     public void disconnect_structured_push_supplier()
     {
-        dispose();
+        destroy();
     }
 
     public void deliverPendingData()
@@ -143,9 +155,13 @@ public class StructuredProxyPushSupplierImpl extends AbstractProxySupplier imple
         {
             for (int x = 0; x < _events.length; ++x)
             {
-                deliverMessage(_events[x]);
-
-                _events[x].dispose();
+                try
+                {
+                    deliverMessage(_events[x]);
+                } finally
+                {
+                    _events[x].dispose();
+                }
             }
         }
     }

@@ -21,12 +21,17 @@ package org.jacorb.notification.servant;
  */
 
 import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageSupplier;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PullSupplier;
@@ -34,6 +39,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.Semaphore;
@@ -52,9 +58,9 @@ public class ProxyPullConsumerImpl
     /**
      * this sync is accessed during a pull operation. therby the
      * maximal number of concurrent pull operations per pull supplier
-     * can be controlled conveniently.
+     * can be controlled.
      */
-    private Sync pullSync_ =
+    private final Sync pullSync_ =
         new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
 
     /**
@@ -67,7 +73,7 @@ public class ProxyPullConsumerImpl
     /**
      * Callback that is run by the Timer.
      */
-    private Runnable runQueueThis_;
+    private final Runnable runQueueThis_;
 
     //////////////////////////////
     // Some Management Information
@@ -89,11 +95,22 @@ public class ProxyPullConsumerImpl
 
     ////////////////////////////////////////
 
-    public ProxyPullConsumerImpl()
+    public ProxyPullConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory messageFactory, OfferManager offerManager, SubscriptionManager subscriptionManager)
     {
-        super();
+        super(admin, orb, poa, conf, taskProcessor, messageFactory, null, offerManager, subscriptionManager);
 
-        configureTimerCallback();
+        
+        pollInterval_ =
+            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLLINTERVALL,
+                                     Default.DEFAULT_PROXY_POLL_INTERVALL);
+    
+        runQueueThis_ = new Runnable()
+        {
+            public void run()
+            {
+                schedulePullTask( ProxyPullConsumerImpl.this );
+            }
+        };    
     }
 
     ////////////////////////////////////////
@@ -103,29 +120,9 @@ public class ProxyPullConsumerImpl
     }
 
 
-    public void configure (Configuration conf)
-    {
-        super.configure (conf);
-        pollInterval_ =
-            conf.getAttributeAsLong (Attributes.PULL_CONSUMER_POLLINTERVALL,
-                                     Default.DEFAULT_PROXY_POLL_INTERVALL);
-    }
-
-
-    private void configureTimerCallback() {
-        runQueueThis_ = new Runnable()
-        {
-            public void run()
-            {
-                schedulePullTask( ProxyPullConsumerImpl.this );
-            }
-        };
-    }
-
-
     public void disconnect_pull_consumer()
     {
-        dispose();
+        destroy();
     }
 
 
@@ -205,7 +202,7 @@ public class ProxyPullConsumerImpl
     public void connect_any_pull_supplier( PullSupplier pullSupplier )
         throws AlreadyConnected
     {
-        assertNotConnected();
+        checkIsNotConnected();
 
         pullSupplier_ = pullSupplier;
 

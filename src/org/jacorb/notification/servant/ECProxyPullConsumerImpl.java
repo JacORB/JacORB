@@ -20,11 +20,18 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumerHelper;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie;
 import org.omg.CosEventComm.PullSupplier;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -32,27 +39,30 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class ECProxyPullConsumerImpl
-    extends ProxyPullConsumerImpl
-    implements ProxyPullConsumerOperations
+public class ECProxyPullConsumerImpl extends ProxyPullConsumerImpl implements
+        ProxyPullConsumerOperations
 {
-    public void connect_pull_supplier( PullSupplier pullSupplier )
-        throws AlreadyConnected
+    public ECProxyPullConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, MessageFactory messageFactory)
     {
-        connect_any_pull_supplier( pullSupplier );
+        super(admin, orb, poa, conf, taskProcessor, messageFactory, OfferManager.NULL_MANAGER,
+                SubscriptionManager.NULL_MANAGER);
     }
 
+    public void connect_pull_supplier(PullSupplier pullSupplier) throws AlreadyConnected
+    {
+        connect_any_pull_supplier(pullSupplier);
+    }
 
     public synchronized Servant getServant()
     {
-        if ( thisServant_ == null )
+        if (thisServant_ == null)
         {
-            thisServant_ = new ProxyPullConsumerPOATie( this );
+            thisServant_ = new ProxyPullConsumerPOATie(this);
         }
 
         return thisServant_;
     }
-
 
     public org.omg.CORBA.Object activate()
     {

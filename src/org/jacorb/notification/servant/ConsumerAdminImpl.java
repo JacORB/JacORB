@@ -25,15 +25,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jacorb.notification.engine.TaskExecutor;
-import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.engine.TaskProcessorDependency;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.container.CORBAObjectComponentAdapter;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CosEventChannelAdmin.ProxyPullSupplier;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplier;
@@ -51,164 +55,156 @@ import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.CosNotifyFilter.MappingFilterHelper;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.defaults.CachingComponentAdapter;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class ConsumerAdminImpl
-    extends AbstractAdmin
-    implements ConsumerAdminOperations,
-               Disposable,
-               ProxyEventListener,
-               TaskProcessorDependency
+public class ConsumerAdminImpl extends AbstractAdmin implements ConsumerAdminOperations,
+        Disposable, ProxyEventListener
 {
-    private ConsumerAdmin thisRef_;
+    private final ConsumerAdmin thisRef_;
 
-    protected Servant thisServant_;
+    protected final Servant thisServant_;
 
-    private FilterStageListManager listManager_;
+    private final FilterStageListManager listManager_;
 
     private MappingFilter priorityFilter_;
 
     private MappingFilter lifetimeFilter_;
 
-    private TaskProcessor taskProcessor_;
-
     ////////////////////////////////////////
 
-    public ConsumerAdminImpl()
+    public ConsumerAdminImpl(IEventChannel channelServant, ORB orb, POA poa, Configuration config,
+            MessageFactory messageFactory, OfferManager offerManager,
+            SubscriptionManager subscriptionManager)
     {
-        super();
+        super(channelServant, orb, poa, config, messageFactory, offerManager, subscriptionManager);
+
+        // register core components (factories)
 
         listManager_ = new FilterStageListManager()
+        {
+            public void fetchListData(FilterStageListManager.List listProxy)
             {
-                public void fetchListData(FilterStageListManager.List listProxy)
+                Iterator i = pullServants_.entrySet().iterator();
+
+                while (i.hasNext())
                 {
-                    Iterator i = pullServants_.entrySet().iterator();
-
-                    while (i.hasNext())
-                        {
-                            listProxy.add((FilterStage) ((Map.Entry)i.next()).getValue());
-                        }
-
-
-                    i = pushServants_.entrySet().iterator();
-
-                    while (i.hasNext())
-                        {
-                            listProxy.add((FilterStage) ((Map.Entry)i.next()).getValue());
-                        }
+                    listProxy.add((FilterStage) ((Map.Entry) i.next()).getValue());
                 }
-            };
+
+                i = pushServants_.entrySet().iterator();
+
+                while (i.hasNext())
+                {
+                    listProxy.add((FilterStage) ((Map.Entry) i.next()).getValue());
+                }
+            }
+        };
+
+        lifetimeFilter_ = MappingFilterHelper.unchecked_narrow(getORB().string_to_object(
+                getORB().object_to_string(null)));
+
+        priorityFilter_ = MappingFilterHelper.unchecked_narrow(getORB().string_to_object(
+                getORB().object_to_string(null)));
 
         addProxyEventListener(this);
-    }
 
-    public void setTaskProcessor(TaskProcessor taskProcessor) {
-        taskProcessor_ = taskProcessor;
-    }
+        thisServant_ = createServant();
 
-    public TaskProcessor getTaskProcessor() {
-        return taskProcessor_;
+        thisRef_ = ConsumerAdminHelper.narrow(getServant()._this_object(getORB()));
+
+        container_.registerComponent(new CachingComponentAdapter(new CORBAObjectComponentAdapter(
+                ConsumerAdmin.class, thisRef_)));
+
+        addDisposeHook(new Disposable()
+        {
+            public void dispose()
+            {
+                container_.unregisterComponent(ConsumerAdmin.class);
+            }
+        });
     }
 
     ////////////////////////////////////////
 
-    public synchronized Servant getServant()
+    protected Servant createServant()
     {
-        if ( thisServant_ == null )
-        {
-            thisServant_ = new ConsumerAdminPOATie( this );
-        }
+        return new ConsumerAdminPOATie(this);
+    }
 
+    public final Servant getServant()
+    {
         return thisServant_;
     }
 
-    public void preActivate() {
-        lifetimeFilter_ =
-            MappingFilterHelper.unchecked_narrow(getORB().string_to_object(getORB().object_to_string(null)));
-
-        priorityFilter_ =
-            MappingFilterHelper.unchecked_narrow(getORB().string_to_object(getORB().object_to_string(null)));
+    public void preActivate()
+    {
     }
-
 
     public org.omg.CORBA.Object activate()
     {
-        if ( thisRef_ == null )
-        {
-            thisRef_ = ConsumerAdminHelper.narrow(getServant()._this_object( getORB() ));
-        }
-
         return thisRef_;
     }
 
-
-    public void subscription_change( EventType[] added,
-                                     EventType[] removed )
-        throws InvalidEventType
+    public void subscription_change(EventType[] added, EventType[] removed) throws InvalidEventType
     {
         subscriptionManager_.subscription_change(added, removed);
     }
 
-
-    public ProxySupplier get_proxy_supplier( int key ) throws ProxyNotFound
+    public ProxySupplier get_proxy_supplier(int key) throws ProxyNotFound
     {
         return ProxySupplierHelper.narrow(getProxy(key).activate());
     }
 
-
-    public void lifetime_filter( MappingFilter lifetimeFilter )
+    public void lifetime_filter(MappingFilter lifetimeFilter)
     {
         lifetimeFilter_ = lifetimeFilter;
     }
-
 
     public MappingFilter lifetime_filter()
     {
         return lifetimeFilter_;
     }
 
-
     public MappingFilter priority_filter()
     {
         return priorityFilter_;
     }
 
-
-    public void priority_filter( MappingFilter priorityFilter )
+    public void priority_filter(MappingFilter priorityFilter)
     {
         priorityFilter_ = priorityFilter;
     }
 
-
-    public ProxySupplier obtain_notification_pull_supplier( ClientType clientType,
-                                                            IntHolder intHolder )
-        throws AdminLimitExceeded
+    public ProxySupplier obtain_notification_pull_supplier(ClientType clientType,
+            IntHolder intHolder) throws AdminLimitExceeded
     {
         // may throw AdminLimitExceeded
         fireCreateProxyRequestEvent();
 
-        try {
-            AbstractProxy _servant =
-                obtain_notification_pull_supplier_servant( clientType );
+        try
+        {
+            AbstractProxy _servant = obtain_notification_pull_supplier_servant(clientType);
 
             intHolder.value = _servant.getID().intValue();
 
             _servant.preActivate();
 
-            return ProxySupplierHelper.narrow( _servant.activate() );
-        }
-        catch (Exception e) {
+            return ProxySupplierHelper.narrow(_servant.activate());
+        } catch (Exception e)
+        {
             logger_.fatalError("obtain_notification_pull_supplier: unexpected error", e);
 
             throw new UNKNOWN();
         }
     }
-
 
     protected void configureMappingFilters(AbstractProxySupplier servant)
     {
@@ -217,28 +213,20 @@ public class ConsumerAdminImpl
             servant.lifetime_filter(lifetimeFilter_);
         }
 
-
         if (priorityFilter_ != null)
         {
             servant.priority_filter(priorityFilter_);
         }
     }
 
-
-    private AbstractProxy obtain_notification_pull_supplier_servant( ClientType clientType )
-        throws UnsupportedQoS
+    private AbstractProxy obtain_notification_pull_supplier_servant(ClientType clientType)
+            throws UnsupportedQoS
     {
-        AbstractProxySupplier _servant =
-            AbstractProxySupplier.newProxyPullSupplier(this,
-                                                       clientType );
-
-        configureManagers(_servant);
-
-        configureNotifyStyleID(_servant);
+        AbstractProxySupplier _servant = newProxyPullSupplier(clientType);
 
         configureMappingFilters(_servant);
 
-        _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
+        //   _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
 
         configureQoS(_servant);
 
@@ -249,38 +237,32 @@ public class ConsumerAdminImpl
         return _servant;
     }
 
-
     public int[] pull_suppliers()
     {
         return get_all_notify_proxies(pullServants_, modifyProxiesLock_);
     }
-
 
     public int[] push_suppliers()
     {
         return get_all_notify_proxies(pushServants_, modifyProxiesLock_);
     }
 
-
-    public ProxySupplier obtain_notification_push_supplier( ClientType clientType,
-                                                            IntHolder intHolder )
-        throws AdminLimitExceeded
+    public ProxySupplier obtain_notification_push_supplier(ClientType clientType,
+            IntHolder intHolder) throws AdminLimitExceeded
     {
         // may throw AdminLimitExceeded
         fireCreateProxyRequestEvent();
 
         try
         {
-            AbstractProxy _servant =
-                obtain_notification_push_supplier_servant( clientType );
+            AbstractProxy _servant = obtain_notification_push_supplier_servant(clientType);
 
             intHolder.value = _servant.getID().intValue();
 
             _servant.preActivate();
 
-            return ProxySupplierHelper.narrow( _servant.activate() );
-        }
-        catch (Exception e)
+            return ProxySupplierHelper.narrow(_servant.activate());
+        } catch (Exception e)
         {
             logger_.fatalError("obtain_notification_push_supplier: unexpected error", e);
 
@@ -288,22 +270,14 @@ public class ConsumerAdminImpl
         }
     }
 
-
-    private AbstractProxy obtain_notification_push_supplier_servant( ClientType clientType)
-        throws UnsupportedQoS
+    private AbstractProxy obtain_notification_push_supplier_servant(ClientType clientType)
+            throws UnsupportedQoS
     {
-
-        AbstractProxySupplier _servant = AbstractProxySupplier.newProxyPushSupplier(this, clientType);
-
-        configureNotifyStyleID(_servant);
-
-        configureManagers(_servant);
+        AbstractProxySupplier _servant = newProxyPushSupplier(clientType);
 
         configureMappingFilters(_servant);
 
         configureQoS(_servant);
-
-        getTaskProcessor().configureTaskExecutor(_servant);
 
         configureInterFilterGroupOperator(_servant);
 
@@ -312,34 +286,33 @@ public class ConsumerAdminImpl
         return _servant;
     }
 
-
     public ProxyPullSupplier obtain_pull_supplier()
     {
         try
         {
-            ProxyPullSupplierImpl _servant =
-                new ECProxyPullSupplierImpl();
+            MutablePicoContainer _container = newContainerForEventStyleProxy();
 
-            configureEventStyleID(_servant);
+            _container.registerComponent(newComponentAdapter(ECProxyPullSupplierImpl.class, ECProxyPullSupplierImpl.class));
+
+            ProxyPullSupplierImpl _servant = (ProxyPullSupplierImpl) _container
+                    .getComponentInstance(ECProxyPullSupplierImpl.class);
 
             configureQoS(_servant);
 
             addProxyToMap(_servant, pullServants_, modifyProxiesLock_);
 
-            _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
+            //   _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
 
             _servant.preActivate();
 
-            return org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow( _servant.activate() );
-        }
-        catch (Exception e)
+            return org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow(_servant.activate());
+        } catch (Exception e)
         {
             logger_.fatalError("obtain_pull_supplier: exception", e);
 
             throw new UNKNOWN();
         }
     }
-
 
     /**
      * get ProxyPushSupplier (EventStyle)
@@ -348,22 +321,24 @@ public class ConsumerAdminImpl
     {
         try
         {
-            final ProxyPushSupplierImpl _servant =
-                new ECProxyPushSupplierImpl();
+            MutablePicoContainer _container = newContainerForEventStyleProxy();
 
-            configureEventStyleID(_servant);
+            _container.registerComponent(newComponentAdapter(ECProxyPushSupplierImpl.class, ECProxyPushSupplierImpl.class));
+
+            final ProxyPushSupplierImpl _servant = (ProxyPushSupplierImpl) _container
+                    .getComponentInstance(ECProxyPushSupplierImpl.class);
 
             configureQoS(_servant);
 
-            getTaskProcessor().configureTaskExecutor(_servant);
+            // TODO fixme
+            // getTaskProcessor().configureTaskExecutor(_servant);
 
             addProxyToMap(_servant, pushServants_, modifyProxiesLock_);
 
             _servant.preActivate();
 
-            return org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow( _servant.activate() );
-        }
-        catch (Exception e)
+            return org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow(_servant.activate());
+        } catch (Exception e)
         {
             logger_.fatalError("obtain_push_supplier: exception", e);
 
@@ -371,12 +346,10 @@ public class ConsumerAdminImpl
         }
     }
 
-
     public List getSubsequentFilterStages()
     {
         return listManager_.getList();
     }
-
 
     /**
      * ConsumerAdmin never has a MessageConsumer
@@ -386,7 +359,6 @@ public class ConsumerAdminImpl
         return null;
     }
 
-
     /**
      * ConsumerAdmin never has a MessageConsumer
      */
@@ -395,20 +367,87 @@ public class ConsumerAdminImpl
         return false;
     }
 
-
-    public void actionProxyCreationRequest( ProxyEvent event)
+    public void actionProxyCreationRequest(ProxyEvent event)
     {
     }
 
-
-    public void actionProxyDisposed( ProxyEvent event )
+    public void actionProxyDisposed(ProxyEvent event)
     {
         listManager_.actionSourceModified();
     }
 
-
-    public void actionProxyCreated( ProxyEvent event )
+    public void actionProxyCreated(ProxyEvent event)
     {
         listManager_.actionSourceModified();
+    }
+
+    /**
+     * factory method for new ProxyPullSuppliers.
+     */
+    AbstractProxySupplier newProxyPullSupplier(ClientType clientType)
+    {
+        final MutablePicoContainer _containerForProxy = newContainerForNotifyStyleProxy();
+        final Class _proxyClass;
+
+        switch (clientType.value()) {
+        case ClientType._ANY_EVENT:
+            _proxyClass = ProxyPullSupplierImpl.class;
+
+            break;
+        case ClientType._STRUCTURED_EVENT:
+            _proxyClass = StructuredProxyPullSupplierImpl.class;
+
+            break;
+        case ClientType._SEQUENCE_EVENT:
+            _proxyClass = SequenceProxyPullSupplierImpl.class;
+
+            break;
+        default:
+            throw new BAD_PARAM();
+        }
+
+        _containerForProxy
+                .registerComponent(newComponentAdapter(AbstractProxySupplier.class, _proxyClass));
+
+        final AbstractProxySupplier _servant = (AbstractProxySupplier) _containerForProxy
+                .getComponentInstance(AbstractProxySupplier.class);
+
+        return _servant;
+    }
+
+    /**
+     * factory method for new ProxyPushSuppliers.
+     */
+    AbstractProxySupplier newProxyPushSupplier(ClientType clientType)
+    {
+        final Class _proxyClass;
+
+        switch (clientType.value()) {
+
+        case ClientType._ANY_EVENT:
+            _proxyClass = ProxyPushSupplierImpl.class;
+            break;
+
+        case ClientType._STRUCTURED_EVENT:
+            _proxyClass = StructuredProxyPushSupplierImpl.class;
+            break;
+
+        case ClientType._SEQUENCE_EVENT:
+            _proxyClass = SequenceProxyPushSupplierImpl.class;
+            break;
+
+        default:
+            throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
+        }
+
+        final MutablePicoContainer _containerForProxy = newContainerForNotifyStyleProxy();
+
+        _containerForProxy
+                .registerComponent(newComponentAdapter(AbstractProxySupplier.class, _proxyClass));
+
+        final AbstractProxySupplier _servant = (AbstractProxySupplier) _containerForProxy
+                .getComponentInstance(AbstractProxySupplier.class);
+
+        return _servant;
     }
 }

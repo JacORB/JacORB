@@ -20,10 +20,17 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumerHelper;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumerOperations;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumerPOATie;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -35,6 +42,11 @@ public class ECProxyPushConsumerImpl
     extends ProxyPushConsumerImpl
     implements ProxyPushConsumerOperations
 {
+    public ECProxyPushConsumerImpl(IAdmin admin, ORB orb, POA poa, Configuration conf, TaskProcessor taskProcessor, MessageFactory mf)
+    {
+        super(admin, orb, poa, conf, taskProcessor, mf, null, OfferManager.NULL_MANAGER, SubscriptionManager.NULL_MANAGER);
+    }
+    
     public void connect_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
         throws AlreadyConnected
     {

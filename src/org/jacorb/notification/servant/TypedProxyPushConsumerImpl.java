@@ -23,12 +23,18 @@ package org.jacorb.notification.servant;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.InterfaceDef;
 import org.omg.CORBA.InterfaceDefHelper;
 import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.NVList;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.OperationDescription;
 import org.omg.CORBA.ParameterMode;
 import org.omg.CORBA.Repository;
@@ -40,6 +46,7 @@ import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PushSupplier;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosTypedEventChannelAdmin.InterfaceNotSupported;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushConsumerOperations;
@@ -52,11 +59,10 @@ import org.omg.PortableServer.Servant;
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TypedProxyPushConsumerImpl
-    extends AbstractProxyConsumer
-    implements TypedProxyPushConsumerOperations {
-
-    private String supportedInterface_;
+public class TypedProxyPushConsumerImpl extends AbstractProxyConsumer implements
+        TypedProxyPushConsumerOperations, ITypedProxy
+{
+    private final String supportedInterface_;
 
     private TypedProxyPushConsumer typedProxyPushConsumer_;
 
@@ -64,104 +70,114 @@ public class TypedProxyPushConsumerImpl
 
     private InterfaceDef interfaceDef_;
 
-    private Map fullQualifiedOperationNames_ = new HashMap();
+    private final Map fullQualifiedOperationNames_ = new HashMap();
 
     private FullInterfaceDescription interfaceDescription_;
 
-    private class TypedProxyPushConsumer extends DynamicImplementation {
-        String[] supportedInterfaces_;
+    private class TypedProxyPushConsumer extends DynamicImplementation
+    {
+        final String[] supportedInterfaces_;
 
-        TypedProxyPushConsumer() {
-            supportedInterfaces_ = new String[] {supportedInterface_};
+        TypedProxyPushConsumer()
+        {
+            supportedInterfaces_ = new String[] { supportedInterface_ };
         }
 
-        public void invoke(ServerRequest request) {
+        public void invoke(ServerRequest request)
+        {
             NVList _params = getExpectedParamList(request.operation());
 
             request.arguments(_params);
 
             String _operationName = getFullQualifiedName(request.operation());
 
-            Message _mesg = getMessageFactory().newMessage( supportedInterface_,
-                                                            _operationName,
-                                                            _params,
-                                                            TypedProxyPushConsumerImpl.this );
+            Message _mesg = getMessageFactory().newMessage(supportedInterface_, _operationName,
+                    _params, TypedProxyPushConsumerImpl.this);
 
             getTaskProcessor().processMessage(_mesg);
         }
 
-        public String[] _all_interfaces(POA poa, byte[] oid) {
+        public String[] _all_interfaces(POA poa, byte[] oid)
+        {
             return supportedInterfaces_;
         }
 
-
-        public POA _default_POA() {
+        public POA _default_POA()
+        {
             return getPOA();
         }
     }
 
     //////////////////////////////
 
-    public TypedProxyPushConsumerImpl( String supportedInterface) {
-        super();
-
-        supportedInterface_ = supportedInterface;
+    public TypedProxyPushConsumerImpl(ITypedAdmin admin, SupplierAdmin supplierAdmin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, MessageFactory mf, OfferManager offerManager,
+            SubscriptionManager subscriptionManager)
+    {
+        super(admin, orb, poa, conf, taskProcessor, mf, supplierAdmin, offerManager, subscriptionManager);
+   
+        supportedInterface_ = admin.getSupportedInterface();
     }
 
     //////////////////////////////
 
-    private OperationDescription getOperationDescription(String operation) {
-        for (int x=0; x<interfaceDescription_.operations.length; ++x) {
-
-            if (operation.equals(interfaceDescription_.operations[x].name)) {
+    private OperationDescription getOperationDescription(String operation)
+    {
+        for (int x = 0; x < interfaceDescription_.operations.length; ++x)
+        {
+            if (operation.equals(interfaceDescription_.operations[x].name))
+            {
                 return interfaceDescription_.operations[x];
             }
         }
 
-        return null;
+        throw new IllegalArgumentException("No OperationDescription for " + operation);
     }
 
-
-    private String getFullQualifiedName(String operation) {
-        String _fullQualifiedName = (String)fullQualifiedOperationNames_.get(operation);
-        if (_fullQualifiedName == null) {
+    private String getFullQualifiedName(String operation)
+    {
+        String _fullQualifiedName = (String) fullQualifiedOperationNames_.get(operation);
+        if (_fullQualifiedName == null)
+        {
             _fullQualifiedName = interfaceDef_.lookup(operation).absolute_name();
             fullQualifiedOperationNames_.put(operation, _fullQualifiedName);
         }
         return _fullQualifiedName;
     }
 
-
-    private NVList getExpectedParamList(String operation) {
+    private NVList getExpectedParamList(String operation)
+    {
         OperationDescription _operation = getOperationDescription(operation);
 
         NVList _expectedParams = getORB().create_list(_operation.parameters.length);
 
-        for (int x=0; x<_operation.parameters.length; ++x) {
+        for (int x = 0; x < _operation.parameters.length; ++x)
+        {
 
             Any _value = getORB().create_any();
 
             _value.type(_operation.parameters[x].type);
 
-            _expectedParams.add_value(_operation.parameters[x].name,
-                                      _value,
-                                      ParameterMode._PARAM_IN);
+            _expectedParams.add_value(_operation.parameters[x].name, _value,
+                    ParameterMode._PARAM_IN);
         }
 
         return _expectedParams;
     }
 
-
-    private void ensureOperationOnlyUsesInParams() throws InterfaceNotSupported {
-        for (int x=0; x<interfaceDescription_.operations.length; ++x) {
+    private void ensureOperationOnlyUsesInParams() throws InterfaceNotSupported
+    {
+        for (int x = 0; x < interfaceDescription_.operations.length; ++x)
+        {
             int _noOfParameters = interfaceDescription_.operations[x].parameters.length;
 
-            for (int y=0; y < _noOfParameters; ++y) {
-                switch(interfaceDescription_.operations[x].parameters[y].mode.value()) {
+            for (int y = 0; y < _noOfParameters; ++y)
+            {
+                switch (interfaceDescription_.operations[x].parameters[y].mode.value()) {
                 case ParameterMode._PARAM_IN:
                     break;
                 case ParameterMode._PARAM_INOUT:
-                    // fallthrough
+                // fallthrough
                 case ParameterMode._PARAM_OUT:
                     throw new InterfaceNotSupported("only IN params allowed");
                 }
@@ -169,17 +185,18 @@ public class TypedProxyPushConsumerImpl
         }
     }
 
-
-    public void preActivate() throws Exception, InterfaceNotSupported {
+    public void preActivate() throws Exception, InterfaceNotSupported
+    {
         super.preActivate();
 
-        try {
-            Repository _repository =
-                RepositoryHelper.narrow(getORB().resolve_initial_references("InterfaceRepository"));
+        try
+        {
+            Repository _repository = RepositoryHelper.narrow(getORB().resolve_initial_references(
+                    "InterfaceRepository"));
 
-            interfaceDef_ =
-                InterfaceDefHelper.narrow(_repository.lookup_id(supportedInterface_));
-        } catch (InvalidName e) {
+            interfaceDef_ = InterfaceDefHelper.narrow(_repository.lookup_id(supportedInterface_));
+        } catch (InvalidName e)
+        {
             throw new InterfaceNotSupported("could not access InterfaceRepository");
         }
 
@@ -188,62 +205,62 @@ public class TypedProxyPushConsumerImpl
         ensureOperationOnlyUsesInParams();
     }
 
-
     public ProxyType MyType()
     {
         return ProxyType.PUSH_TYPED;
     }
 
+    public void connect_typed_push_supplier(PushSupplier pushSupplier) throws AlreadyConnected
+    {
+        logger_.info("connect typed_push_supplier");
 
-    public void connect_typed_push_supplier(PushSupplier pushSupplier) throws AlreadyConnected {
-        logger_.info( "connect typed_push_supplier" );
-
-        assertNotConnected();
+        checkIsNotConnected();
 
         connectClient(pushSupplier);
 
         pushSupplier_ = pushSupplier;
     }
 
-
-    public void push(Any any) throws Disconnected {
+    public void push(Any any) throws Disconnected
+    {
         throw new NO_IMPLEMENT();
     }
 
-
-    public org.omg.CORBA.Object get_typed_consumer() {
-        if (typedProxyPushConsumer_ == null) {
+    public org.omg.CORBA.Object get_typed_consumer()
+    {
+        if (typedProxyPushConsumer_ == null)
+        {
             typedProxyPushConsumer_ = new TypedProxyPushConsumer();
         }
 
         return typedProxyPushConsumer_._this_object(getORB());
     }
 
-
-    public void disconnect_push_consumer() {
-        dispose();
+    public void disconnect_push_consumer()
+    {
+        destroy();
     }
 
-
-    public void disconnectClient() {
-        if (pushSupplier_ != null) {
+    public void disconnectClient()
+    {
+        if (pushSupplier_ != null)
+        {
             pushSupplier_.disconnect_push_supplier();
             pushSupplier_ = null;
         }
     }
 
-
-    public Servant getServant() {
+    public Servant getServant()
+    {
         if (thisServant_ == null)
-            {
-                thisServant_ = new TypedProxyPushConsumerPOATie( this );
-            }
+        {
+            thisServant_ = new TypedProxyPushConsumerPOATie(this);
+        }
         return thisServant_;
     }
 
-
     public org.omg.CORBA.Object activate()
     {
-        return TypedProxyPushConsumerHelper.narrow( getServant()._this_object(getORB()) );
+        return TypedProxyPushConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
 }

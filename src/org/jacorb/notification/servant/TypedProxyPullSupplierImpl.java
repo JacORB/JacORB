@@ -20,17 +20,24 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.NoTranslationException;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.TypedEventMessage;
+import org.jacorb.notification.engine.DefaultTaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.queue.EventQueue;
+import org.jacorb.notification.queue.MessageQueueAdapter;
+import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetListener;
 import org.omg.CORBA.ARG_OUT;
@@ -44,10 +51,8 @@ import org.omg.CORBA.ORB;
 import org.omg.CORBA.OperationDescription;
 import org.omg.CORBA.ParameterMode;
 import org.omg.CORBA.Repository;
-import org.omg.CORBA.RepositoryHelper;
 import org.omg.CORBA.ServerRequest;
 import org.omg.CORBA.InterfaceDefPackage.FullInterfaceDescription;
-import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PullConsumer;
@@ -56,13 +61,13 @@ import org.omg.CosNotification.EventTypeHelper;
 import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullSupplierPOATie;
 import org.omg.DynamicAny.DynAny;
 import org.omg.DynamicAny.DynAnyFactory;
-import org.omg.DynamicAny.DynAnyFactoryHelper;
 import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
 import org.omg.PortableServer.DynamicImplementation;
 import org.omg.PortableServer.POA;
@@ -73,19 +78,16 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class TypedProxyPullSupplierImpl
-    extends AbstractProxySupplier
-    implements TypedProxyPullSupplierOperations
+public class TypedProxyPullSupplierImpl extends AbstractProxySupplier implements
+        TypedProxyPullSupplierOperations, ITypedProxy
 {
-    private final Any trueAny_;
+    final Any trueAny_;
 
-    private final Any falseAny_;
+    final Any falseAny_;
 
-    private DynAnyFactory dynAnyFactory_;
+    private final DynAnyFactory dynAnyFactory_;
 
-    private String supportedInterface_;
-
-    private FullInterfaceDescription fullInterfaceDescription_;
+    final String supportedInterface_;
 
     private PullConsumer pullConsumer_;
 
@@ -93,70 +95,85 @@ public class TypedProxyPullSupplierImpl
 
     private org.omg.CORBA.Object typedProxyPullSupplier_;
 
-    private final Map eventQueueMap_ = new HashMap();
+    final Map messageQueueMap_;
 
-    private final Map invalidResponses_ = new HashMap();
+    final Map invalidResponses_;
+
+    private final Repository repository_;
 
     private class TypedProxyPullSupplier extends DynamicImplementation
     {
-        private String[] supportedInterfaces_ =
-            new String[] {supportedInterface_};
+        private final String[] supportedInterfaces_ = new String[] { supportedInterface_ };
 
-        public void invoke(ServerRequest request)
+        public void invoke(final ServerRequest request)
         {
             String _operation = request.operation();
 
             boolean _isTryOp = false;
             if (_operation.startsWith("try_"))
-                {
-                    _isTryOp = true;
-                    // cut 'try_' prefix
-                    _operation = _operation.substring(4);
-                }
-
-            EventQueue _queue = (EventQueue)eventQueueMap_.get(_operation);
-
-            Message _mesg = null;
-
-            try {
-                _mesg = _queue.getEvent(!_isTryOp);
-
-                NVList _args = null;
-
-                if (_mesg == null)
-                    {
-                        _args = (NVList)invalidResponses_.get(_operation);
-
-                        if (_isTryOp)
-                            {
-                                request.set_result(falseAny_);
-                            }
-                    }
-                else
-                    {
-                        _args = prepareResponse(_operation, _mesg);
-
-                        if (_isTryOp)
-                            {
-                                request.set_result(trueAny_);
-                            }
-                    }
-                request.arguments(_args);
-            } catch (InterruptedException e) {
-            } finally {
-                if (_mesg != null) {
-                    _mesg.dispose();
-                }
+            {
+                _isTryOp = true;
+                // cut 'try_' prefix
+                _operation = _operation.substring(4);
             }
 
-        }
+            try
+            {
+                final Message _mesg;
 
+                final MessageQueueAdapter _queue = (MessageQueueAdapter) messageQueueMap_
+                        .get(_operation);
+
+                if (_isTryOp)
+                {
+                    _mesg = _queue.getMessageNoBlock();
+                }
+                else
+                {
+                    _mesg = _queue.getMessageBlocking();
+                }
+
+                try
+                {
+                    final NVList _args;
+
+                    if (_mesg == null)
+                    {
+                        _args = (NVList) invalidResponses_.get(_operation);
+
+                        if (_isTryOp)
+                        {
+                            request.set_result(falseAny_);
+                        }
+                    }
+                    else
+                    {
+                        _args = prepareResponse(_mesg);
+
+                        if (_isTryOp)
+                        {
+                            request.set_result(trueAny_);
+                        }
+                    }
+
+                    request.arguments(_args);
+                } finally
+                {
+                    if (_mesg != null)
+                    {
+                        _mesg.dispose();
+                    }
+                }
+            } catch (InterruptedException e)
+            {
+                // ignore
+            }
+        }
 
         public String[] _all_interfaces(POA poa, byte[] oid)
         {
             return supportedInterfaces_;
         }
-
 
         public POA _default_POA()
         {
@@ -164,204 +181,222 @@ public class TypedProxyPullSupplierImpl
         }
     }
 
-
-    private NVList prepareResponse(String operation, Message mesg)
+    final NVList prepareResponse(Message mesg)
     {
-        NVList _args = null;
-
         try
         {
             Property[] _props = mesg.toTypedEvent();
 
-            _args = getORB().create_list(_props.length - 1);
+            NVList _args = getORB().create_list(_props.length - 1);
 
             // start at index 1 here. index 0 contains operation name
             for (int x = 1; x < _props.length; ++x)
             {
                 _args.add_value(_props[x].name, _props[x].value, ARG_OUT.value);
             }
-        }
-        catch (NoTranslationException e)
+
+            return _args;
+        } catch (NoTranslationException e)
         {
             // cannot happen here
             // as there are no nontranslatable Messages queued.
+            throw new RuntimeException();
         }
-
-        return _args;
     }
 
-
-    public TypedProxyPullSupplierImpl(String supportedInterface)
+    public TypedProxyPullSupplierImpl(ITypedAdmin admin, ConsumerAdmin consumerAdmin, ORB orb,
+            POA poa, Configuration conf, TaskProcessor taskProcessor, OfferManager offerManager,
+            SubscriptionManager subscriptionManager, DynAnyFactory dynAnyFactory,
+            Repository repository) throws ConfigurationException
     {
-        super();
+        super(admin, orb, poa, conf, taskProcessor, DefaultTaskExecutor.getDefaultExecutor(),
+                offerManager, subscriptionManager, consumerAdmin);
 
-        supportedInterface_ = supportedInterface;
-
-        trueAny_ = ORB.init().create_any();
-        falseAny_ = ORB.init().create_any();
+        trueAny_ = orb.create_any();
+        falseAny_ = orb.create_any();
 
         trueAny_.insert_boolean(true);
         falseAny_.insert_boolean(false);
+
+        supportedInterface_ = admin.getSupportedInterface();
+
+        dynAnyFactory_ = dynAnyFactory;
+        repository_ = repository;
+
+        qosSettings_.addPropertySetListener(
+                new String[] { OrderPolicy.value, DiscardPolicy.value }, reconfigureEventQueues_);
+
+        try
+        {
+            FullInterfaceDescription interfaceDescription = getInterfaceDescription();
+
+            validateInterface(interfaceDescription);
+
+            messageQueueMap_ = Collections
+                    .unmodifiableMap(newMessageQueueMap(interfaceDescription));
+
+            invalidResponses_ = Collections
+                    .unmodifiableMap(newInvalidResponseMap(interfaceDescription));
+        } catch (InconsistentTypeCode e)
+        {
+            throw new RuntimeException();
+        } catch (InterruptedException e)
+        {
+            throw new RuntimeException();
+        }
     }
 
-
     private void ensureMethodOnlyUsesOutParams(OperationDescription operation)
-        throws IllegalArgumentException
+            throws IllegalArgumentException
     {
         int _noOfParameters = operation.parameters.length;
 
         for (int x = 0; x < _noOfParameters; ++x)
         {
-            switch (operation.parameters[x].mode.value())
-            {
-                case ParameterMode._PARAM_IN:
-                    // fallthrough
-                case ParameterMode._PARAM_INOUT:
-                    throw new IllegalArgumentException("only OUT params allowed");
-                case ParameterMode._PARAM_OUT:
-                    break;
+            switch (operation.parameters[x].mode.value()) {
+            case ParameterMode._PARAM_IN:
+            // fallthrough
+            case ParameterMode._PARAM_INOUT:
+                throw new IllegalArgumentException("only OUT params allowed");
+            case ParameterMode._PARAM_OUT:
+                break;
             }
         }
     }
 
-    private void prepareInvalidResponse(OperationDescription operation) throws InconsistentTypeCode
+    private void prepareInvalidResponse(Map map, OperationDescription operation)
+            throws InconsistentTypeCode
     {
-        NVList _expectedParams =
-            getORB().create_list(operation.parameters.length);
+        NVList _expectedParams = getORB().create_list(operation.parameters.length);
 
         for (int x = 0; x < operation.parameters.length; ++x)
         {
+            DynAny _dynAny = dynAnyFactory_
+                    .create_dyn_any_from_type_code(operation.parameters[x].type);
 
-            DynAny _dynAny = dynAnyFactory_.create_dyn_any_from_type_code(operation.parameters[x].type);
-
-            _expectedParams.add_value(operation.parameters[x].name,
-                                      _dynAny.to_any(),
-                                      ARG_OUT.value );
+            _expectedParams
+                    .add_value(operation.parameters[x].name, _dynAny.to_any(), ARG_OUT.value);
         }
 
-        invalidResponses_.put(operation.name, _expectedParams);
+        map.put(operation.name, _expectedParams);
     }
 
-
-    public void preActivate() throws UnsupportedQoS, InconsistentTypeCode, InvalidName
+    private final Map newMessageQueueMap(FullInterfaceDescription interfaceDescription)
+            throws InterruptedException
     {
-        // do not call super.preActivate() here !
+        Map map = new HashMap();
 
-        dynAnyFactory_ =
-            DynAnyFactoryHelper.narrow(getORB().resolve_initial_references("DynAnyFactory"));
-
-        Repository _repository =
-            RepositoryHelper.narrow(getORB().resolve_initial_references("InterfaceRepository"));
-
-        InterfaceDef _interfaceDef =
-            InterfaceDefHelper.narrow(_repository.lookup_id(supportedInterface_));
-
-        fullInterfaceDescription_ = _interfaceDef.describe_interface();
-
-        List _allQueues = new ArrayList(fullInterfaceDescription_.operations.length);
-
-        for (int x = 0; x < fullInterfaceDescription_.operations.length; ++x)
+        for (int x = 0; x < interfaceDescription.operations.length; ++x)
         {
-            ensureMethodOnlyUsesOutParams(fullInterfaceDescription_.operations[x]);
-
-            if (!fullInterfaceDescription_.operations[x].name.startsWith("try_"))
+            if (!interfaceDescription.operations[x].name.startsWith("try_"))
             {
-                logger_.debug("Create Queue for Operation: " + fullInterfaceDescription_.operations[x].name);
+                logger_.debug("Create Queue for Operation: "
+                        + interfaceDescription.operations[x].name);
 
-                EventQueue _eventQueue = getEventQueueFactory().newEventQueue(qosSettings_);
+                MessageQueueAdapter _messageQueue = getMessageQueueFactory().newMessageQueue(
+                        qosSettings_);
 
-                _allQueues.add(_eventQueue);
-
-                eventQueueMap_.put(fullInterfaceDescription_.operations[x].name, _eventQueue);
-
-                prepareInvalidResponse(fullInterfaceDescription_.operations[x]);
+                map.put(interfaceDescription.operations[x].name, new RWLockEventQueueDecorator(
+                        _messageQueue));
             }
         }
 
-        qosSettings_.addPropertySetListener(new String[] {OrderPolicy.value,
-                                                          DiscardPolicy.value},
-                                            reconfigureEventQueues_);
-
+        return map;
     }
 
-    private void configureEventQueue() throws UnsupportedQoS
+    private final Map newInvalidResponseMap(FullInterfaceDescription interfaceDescription)
+            throws InconsistentTypeCode
+    {
+        Map map = new HashMap();
+
+        for (int x = 0; x < interfaceDescription.operations.length; ++x)
+        {
+            if (!interfaceDescription.operations[x].name.startsWith("try_"))
+            {
+                prepareInvalidResponse(map, interfaceDescription.operations[x]);
+            }
+        }
+
+        return map;
+    }
+
+    private final void validateInterface(FullInterfaceDescription interfaceDescription)
+    {
+        for (int x = 0; x < interfaceDescription.operations.length; ++x)
+        {
+            ensureMethodOnlyUsesOutParams(interfaceDescription.operations[x]);
+        }
+    }
+
+    private FullInterfaceDescription getInterfaceDescription()
+    {
+        InterfaceDef _interfaceDef = InterfaceDefHelper.narrow(repository_
+                .lookup_id(supportedInterface_));
+
+        return _interfaceDef.describe_interface();
+    }
+
+    private final void configureEventQueue()
     {
         try
         {
-            synchronized (eventQueueMap_)
+
+            Iterator i = messageQueueMap_.keySet().iterator();
+
+            while (i.hasNext())
             {
-                Iterator i = eventQueueMap_.keySet().iterator();
+                String _key = (String) i.next();
 
-                while (i.hasNext())
-                {
-                    String _key = (String)i.next();
+                RWLockEventQueueDecorator _queueAdapter = (RWLockEventQueueDecorator) messageQueueMap_
+                        .get(_key);
 
-                    EventQueue _queue = (EventQueue)eventQueueMap_.get(_key);
+                MessageQueueAdapter _newQueue = getMessageQueueFactory().newMessageQueue(
+                        qosSettings_);
 
-                    EventQueue _newQueue =
-                        getEventQueueFactory().newEventQueue( qosSettings_ );
-
-                    if (!_queue.isEmpty())
-                    {
-                        Message[] _allEvents = _queue.getAllEvents(true);
-
-                        for (int x = 0; x < _allEvents.length; ++x)
-                        {
-                            _newQueue.put(_allEvents[x]);
-                        }
-                    }
-
-                    eventQueueMap_.put(_key, _newQueue);
-                }
+                _queueAdapter.replaceDelegate(_newQueue);
             }
-        }
-        catch (InterruptedException e)
+
+        } catch (InterruptedException e)
         {
             throw new RuntimeException(e.getMessage());
         }
     }
 
-    private PropertySetListener reconfigureEventQueues_ =
-        new PropertySetListener()
+    private PropertySetListener reconfigureEventQueues_ = new PropertySetListener()
+    {
+        public void validateProperty(Property[] props, List errors)
         {
-            public void validateProperty(Property[] props, List errors)
-            {}
+        }
 
-            public void actionPropertySetChanged(PropertySet source)
-            throws UnsupportedQoS
-            {
-                configureEventQueue();
-            }
-        };
-
+        public void actionPropertySetChanged(PropertySet source) throws UnsupportedQoS
+        {
+            configureEventQueue();
+        }
+    };
 
     public Any pull() throws Disconnected
     {
         throw new NO_IMPLEMENT();
     }
 
-
     public Any try_pull(BooleanHolder booleanHolder) throws Disconnected
     {
         throw new NO_IMPLEMENT();
     }
 
-
     public void disconnect_pull_supplier()
     {
-        dispose();
+        destroy();
     }
-
 
     public void connect_typed_pull_consumer(PullConsumer pullConsumer) throws AlreadyConnected
     {
-        assertNotConnected();
+        checkIsNotConnected();
 
         connectClient(pullConsumer);
 
         pullConsumer_ = pullConsumer;
     }
-
 
     public org.omg.CORBA.Object get_typed_supplier()
     {
@@ -374,30 +409,25 @@ public class TypedProxyPullSupplierImpl
         return typedProxyPullSupplier_;
     }
 
-
     public ProxyType MyType()
     {
         return ProxyType.PULL_TYPED;
     }
-
 
     public List getSubsequentFilterStages()
     {
         return null;
     }
 
-
     public boolean hasMessageConsumer()
     {
         return true;
     }
 
-
     public MessageConsumer getMessageConsumer()
     {
         return this;
     }
-
 
     public Servant getServant()
     {
@@ -408,12 +438,10 @@ public class TypedProxyPullSupplierImpl
         return thisServant_;
     }
 
-
     public org.omg.CORBA.Object activate()
     {
         return TypedProxyPullSupplierHelper.narrow(getServant()._this_object(getORB()));
     }
-
 
     public void deliverMessage(Message message)
     {
@@ -421,7 +449,7 @@ public class TypedProxyPullSupplierImpl
         {
             Property[] _props = message.toTypedEvent();
 
-            String _fullQualifiedOperation = null;
+            final String _fullQualifiedOperation;
 
             if (TypedEventMessage.OPERATION_NAME.equals(_props[0].name))
             {
@@ -439,19 +467,21 @@ public class TypedProxyPullSupplierImpl
             int idx = _fullQualifiedOperation.lastIndexOf("::");
             String _operation = _fullQualifiedOperation.substring(idx + 2);
 
-            ((EventQueue)eventQueueMap_.get(_operation)).put((Message)message.clone());
-        }
-        catch (NoTranslationException e)
+            ((MessageQueueAdapter) messageQueueMap_.get(_operation)).enqeue(message);
+        } catch (NoTranslationException e)
         {
             // ignore
             // Message is not delivered to the connected Consumer
+        } catch (InterruptedException e)
+        {
+            // ignore
         }
     }
 
-
     public void deliverPendingData()
-    {}
-
+    {
+        // No Op as this Proxy is a PullSupplier
+    }
 
     public void disconnectClient()
     {

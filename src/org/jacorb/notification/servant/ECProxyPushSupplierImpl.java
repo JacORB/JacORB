@@ -20,37 +20,42 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplierPOATie;
 import org.omg.CosEventComm.PushConsumer;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class ECProxyPushSupplierImpl
-    extends ProxyPushSupplierImpl
-    implements ProxyPushSupplierOperations
+public class ECProxyPushSupplierImpl extends ProxyPushSupplierImpl implements
+        ProxyPushSupplierOperations
 {
-    ECProxyPushSupplierImpl()
-
+    public ECProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, TaskExecutor taskExecutor) throws ConfigurationException
     {
-        super();
+        super(admin, orb, poa, conf, taskProcessor, taskExecutor, OfferManager.NULL_MANAGER, SubscriptionManager.NULL_MANAGER);
 
-        isIDPublic_ = false;
+        //isIDPublic_ = false;
     }
 
     ////////////////////////////////////////
 
-    public void connect_push_consumer(PushConsumer pushConsumer)
-        throws AlreadyConnected
+    public void connect_push_consumer(PushConsumer pushConsumer) throws AlreadyConnected
     {
         connect_any_push_consumer(pushConsumer);
     }
-
 
     public synchronized Servant getServant()
     {
@@ -61,9 +66,8 @@ public class ECProxyPushSupplierImpl
         return thisServant_;
     }
 
-
     public org.omg.CORBA.Object activate()
     {
-        return ProxyPushSupplierHelper.narrow( getServant()._this_object(getORB()) );
+        return ProxyPushSupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 }

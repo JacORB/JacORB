@@ -22,9 +22,15 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
-import org.jacorb.notification.CollectionsWrapper;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.engine.DefaultTaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.ORB;
@@ -36,6 +42,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -43,13 +50,13 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class ProxyPullSupplierImpl
-    extends AbstractProxySupplier
-    implements ProxyPullSupplierOperations
+public class ProxyPullSupplierImpl extends AbstractProxySupplier implements
+        ProxyPullSupplierOperations
 {
     private static final Any sUndefinedAny;
 
-    static {
+    static
+    {
         ORB _orb = ORB.init();
 
         sUndefinedAny = _orb.create_any();
@@ -61,16 +68,21 @@ public class ProxyPullSupplierImpl
 
     ////////////////////////////////////////
 
-    public ProxyType MyType() {
+    public ProxyPullSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf, TaskProcessor taskProcessor, OfferManager offerManager, SubscriptionManager subscriptionManager)
+            throws ConfigurationException
+    {
+        super(admin, orb, poa, conf, taskProcessor, DefaultTaskExecutor.getDefaultExecutor(), offerManager, subscriptionManager, null);
+    }
+
+    public ProxyType MyType()
+    {
         return ProxyType.PULL_ANY;
     }
 
-
     public void disconnect_pull_supplier()
     {
-        dispose();
+        destroy();
     }
-
 
     protected void disconnectClient()
     {
@@ -83,7 +95,6 @@ public class ProxyPullSupplierImpl
         }
     }
 
-
     public Any pull() throws Disconnected
     {
         checkStillConnected();
@@ -94,13 +105,11 @@ public class ProxyPullSupplierImpl
             try
             {
                 return _event.toAny();
-            }
-            finally
+            } finally
             {
                 _event.dispose();
             }
-        }
-        catch (InterruptedException e)
+        } catch (InterruptedException e)
         {
             logger_.fatalError("interrupted", e);
 
@@ -108,13 +117,9 @@ public class ProxyPullSupplierImpl
         }
     }
 
-
-    public Any try_pull (BooleanHolder hasEvent)
-        throws Disconnected
+    public Any try_pull(BooleanHolder hasEvent) throws Disconnected
     {
         checkStillConnected();
-
-        Any event = sUndefinedAny;
 
         hasEvent.value = false;
 
@@ -127,62 +132,49 @@ public class ProxyPullSupplierImpl
                 hasEvent.value = true;
 
                 return _message.toAny();
-            }
-            finally
+            } finally
             {
                 _message.dispose();
             }
         }
-        else
-        {
-            hasEvent.value = false;
 
-            return sUndefinedAny;
-        }
+        return sUndefinedAny;
     }
 
-
     /**
-     * Deliver Event to the underlying Consumer. As our Consumer is a
-     * PullConsumer we simply put the Events in a Queue. The
-     * PullConsumer will pull the Events out of the Queue at a later time.
+     * Deliver Event to the underlying Consumer. As our Consumer is a PullConsumer we simply put the
+     * Events in a Queue. The PullConsumer will pull the Events out of the Queue at a later time.
      */
     public void deliverMessage(Message message)
     {
         enqueue(message);
     }
 
-
-    public void connect_any_pull_consumer(PullConsumer consumer)
-        throws AlreadyConnected
+    public void connect_any_pull_consumer(PullConsumer consumer) throws AlreadyConnected
     {
         logger_.info("connect any_pull_consumer");
 
-        assertNotConnected();
+        checkIsNotConnected();
 
         pullConsumer_ = consumer;
 
         connectClient(consumer);
     }
 
-
     public List getSubsequentFilterStages()
     {
         return CollectionsWrapper.singletonList(this);
     }
-
 
     public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
-
     public boolean hasMessageConsumer()
     {
         return true;
     }
-
 
     public void enableDelivery()
     {
@@ -190,19 +182,16 @@ public class ProxyPullSupplierImpl
         // we can ignore this
     }
 
-
     public void disableDelivery()
     {
         // as delivery to this PullSupplier causes no remote calls
         // we can ignore this
     }
 
-
     public void deliverPendingData()
     {
         // as we do not actively deliver events we can ignore this
     }
-
 
     public synchronized Servant getServant()
     {
@@ -212,7 +201,6 @@ public class ProxyPullSupplierImpl
         }
         return thisServant_;
     }
-
 
     public org.omg.CORBA.Object activate()
     {

@@ -20,9 +20,15 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
+import org.jacorb.notification.util.CollectionsWrapper;
 import org.omg.CORBA.INTERNAL;
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.ORB;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPullConsumerHelper;
@@ -32,44 +38,55 @@ import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdmin;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdminHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdminOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedSupplierAdminPOATie;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
+import org.picocontainer.MutablePicoContainer;
+import org.picocontainer.defaults.ConstructorInjectionComponentAdapter;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class TypedSupplierAdminImpl
-    extends SupplierAdminImpl
-    implements TypedSupplierAdminOperations {
+public class TypedSupplierAdminImpl extends SupplierAdminImpl implements
+        TypedSupplierAdminOperations
+{
+    private final TypedSupplierAdmin thisRef_;
 
-    private TypedSupplierAdmin thisRef_;
+    public TypedSupplierAdminImpl(IEventChannel channelServant, ORB orb, POA poa,
+            Configuration config, MessageFactory messageFactory, OfferManager offerManager,
+            SubscriptionManager subscriptionManager)
+    {
+        super(channelServant, orb, poa, config, messageFactory, offerManager, subscriptionManager);
 
-    public synchronized Servant getServant() {
-        if (thisServant_ == null) {
-            thisServant_ = new TypedSupplierAdminPOATie(this);
-        }
-        return thisServant_;
+        thisRef_ = TypedSupplierAdminHelper.narrow(getServant()._this_object(getORB()));
     }
 
-    public org.omg.CORBA.Object activate() {
-        if (thisRef_ == null) {
-            thisRef_ = TypedSupplierAdminHelper.narrow(getServant()._this_object(getORB()));
-        }
+    protected Servant createServant()
+    {
+        return new TypedSupplierAdminPOATie(this);
+    }
+
+    public org.omg.CORBA.Object activate()
+    {
         return thisRef_;
     }
 
-
     public TypedProxyPushConsumer obtain_typed_notification_push_consumer(String type, IntHolder id)
-        throws AdminLimitExceeded {
-
+            throws AdminLimitExceeded
+    {
         fireCreateProxyRequestEvent();
 
-        try {
-            TypedProxyPushConsumerImpl _servant = new TypedProxyPushConsumerImpl(type);
+        try
+        {
+            final MutablePicoContainer _containerForProxy = newContainerForTypedProxy(type);
 
-            configureManagers(_servant);
+            _containerForProxy.registerComponent(newComponentAdapter(
+                    TypedProxyPushConsumerImpl.class, TypedProxyPushConsumerImpl.class));
 
-            configureNotifyStyleID(_servant);
+            TypedProxyPushConsumerImpl _servant = (TypedProxyPushConsumerImpl) _containerForProxy
+                    .getComponentInstance(TypedProxyPushConsumerImpl.class);
+
+            _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(this));
 
             configureInterFilterGroupOperator(_servant);
 
@@ -82,23 +99,27 @@ public class TypedSupplierAdminImpl
             _servant.preActivate();
 
             return TypedProxyPushConsumerHelper.narrow(_servant.activate());
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
+            logger_.error("unable to create typed notification push consumer", e);
             throw new INTERNAL();
         }
     }
 
-
     public TypedProxyPullConsumer obtain_typed_notification_pull_consumer(String type, IntHolder id)
-        throws AdminLimitExceeded {
-
+            throws AdminLimitExceeded
+    {
         fireCreateProxyRequestEvent();
 
-        try {
-            TypedProxyPullConsumerImpl _servant = new TypedProxyPullConsumerImpl(type);
+        try
+        {
+            final MutablePicoContainer _containerForProxy = newContainerForTypedProxy(type);
 
-            configureManagers(_servant);
+            _containerForProxy.registerComponent(newComponentAdapter(
+                    TypedProxyPullConsumerImpl.class, TypedProxyPullConsumerImpl.class));
 
-            configureNotifyStyleID(_servant);
+            TypedProxyPullConsumerImpl _servant = (TypedProxyPullConsumerImpl) _containerForProxy
+                    .getComponentInstance(TypedProxyPullConsumerImpl.class);
 
             configureInterFilterGroupOperator(_servant);
 
@@ -111,18 +132,22 @@ public class TypedSupplierAdminImpl
             _servant.preActivate();
 
             return TypedProxyPullConsumerHelper.narrow(_servant.activate());
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
+            logger_.error("unable to create typed notification push consumer", e);
+
             throw new INTERNAL();
         }
     }
 
-
-    public org.omg.CosTypedEventChannelAdmin.TypedProxyPushConsumer obtain_typed_push_consumer(String type) {
+    public org.omg.CosTypedEventChannelAdmin.TypedProxyPushConsumer obtain_typed_push_consumer(
+            String type)
+    {
         throw new NO_IMPLEMENT();
     }
 
-
-    public org.omg.CosEventChannelAdmin.ProxyPullConsumer obtain_typed_pull_consumer(String type) {
+    public org.omg.CosEventChannelAdmin.ProxyPullConsumer obtain_typed_pull_consumer(String type)
+    {
         throw new NO_IMPLEMENT();
     }
 }

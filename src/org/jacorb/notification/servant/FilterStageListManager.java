@@ -38,7 +38,7 @@ abstract public class FilterStageListManager {
 
     ////////////////////////////////////////
 
-    private Object lock_ = new Object();
+    private final Object lock_ = new Object();
 
     private java.util.List checkedList_ = Collections.EMPTY_LIST;
 

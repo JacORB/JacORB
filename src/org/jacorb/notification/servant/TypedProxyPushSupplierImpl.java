@@ -22,9 +22,15 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.jacorb.notification.NoTranslationException;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.TypedEventMessage;
 import org.jacorb.notification.engine.PushTypedOperation;
+import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.omg.CORBA.ARG_IN;
@@ -37,11 +43,13 @@ import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosNotification.EventTypeHelper;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosTypedEventComm.TypedPushConsumer;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierHelper;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierOperations;
 import org.omg.CosTypedNotifyChannelAdmin.TypedProxyPushSupplierPOATie;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -49,35 +57,39 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class TypedProxyPushSupplierImpl
-    extends AbstractProxySupplier
-    implements TypedProxyPushSupplierOperations
+public class TypedProxyPushSupplierImpl extends AbstractProxySupplier implements
+        TypedProxyPushSupplierOperations, ITypedProxy
 {
     private TypedPushConsumer pushConsumer_;
 
     private org.omg.CORBA.Object typedConsumer_;
 
-    private static final TypeCode TYPE_CODE_VOID =
-        ORB.init().get_primitive_tc(TCKind.tk_void);
+    private static final TypeCode TYPE_CODE_VOID = ORB.init().get_primitive_tc(TCKind.tk_void);
 
-    private String consumerInterface_;
+    private final String supportedInterface_;
 
-    public TypedProxyPushSupplierImpl(String consumerInterface) {
-        consumerInterface_ = consumerInterface;
+    public TypedProxyPushSupplierImpl(ITypedAdmin admin, ConsumerAdmin consumerAdmin, ORB orb,
+            POA poa, Configuration conf, TaskProcessor taskProcessor, TaskExecutor taskExecutor,
+            OfferManager offerManager, SubscriptionManager subscriptionManager)
+            throws ConfigurationException
+    {
+        super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
+                subscriptionManager, consumerAdmin);
+
+        supportedInterface_ = admin.getSupportedInterface();
     }
 
-
-    public void disconnect_push_supplier() {
-        dispose();
+    public void disconnect_push_supplier()
+    {
+        destroy();
     }
-
 
     public void connect_typed_push_consumer(TypedPushConsumer typedPushConsumer)
-        throws AlreadyConnected, TypeError {
+            throws AlreadyConnected, TypeError
+    {
+        logger_.info("connect typed_push_supplier");
 
-        logger_.info( "connect typed_push_supplier" );
-
-        assertNotConnected();
+        checkIsNotConnected();
 
         connectClient(typedPushConsumer);
 
@@ -85,99 +97,144 @@ public class TypedProxyPushSupplierImpl
 
         typedConsumer_ = pushConsumer_.get_typed_consumer();
 
-        if (!typedConsumer_._is_a(consumerInterface_)) {
+        if (!typedConsumer_._is_a(supportedInterface_))
+        {
             throw new TypeError();
         }
     }
 
-
-    public ProxyType MyType() {
+    public ProxyType MyType()
+    {
         return ProxyType.PUSH_TYPED;
     }
 
-    public boolean hasMessageConsumer() {
+    public boolean hasMessageConsumer()
+    {
         return true;
     }
 
-    public MessageConsumer getMessageConsumer() {
+    public MessageConsumer getMessageConsumer()
+    {
         return this;
     }
 
-    public List getSubsequentFilterStages() {
+    public List getSubsequentFilterStages()
+    {
         return null;
     }
 
-
-    public org.omg.CORBA.Object activate() {
-        return TypedProxyPushSupplierHelper.narrow( getServant()._this_object(getORB()) );
+    public org.omg.CORBA.Object activate()
+    {
+        return TypedProxyPushSupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 
+    public void deliverPendingData()
+    {
+        final Message[] messages = getAllMessages();
 
-    public void deliverPendingData() {
+        for (int i = 0; i < messages.length; ++i)
+        {
+            try
+            {
+                deliverMessageInternal(messages[i]);
+            } finally
+            {
+                messages[i].dispose();
+            }
+        }
     }
 
-
-    public void isIDLAssignable(String ifName) throws IllegalArgumentException {
-        if (typedConsumer_._is_a(ifName) ) {
+    public void isIDLAssignable(final String ifName) throws IllegalArgumentException
+    {
+        if (typedConsumer_._is_a(ifName))
+        {
             return;
         }
 
-        if (ifName.indexOf("Pull") > 0) {
+        if (ifName.indexOf("Pull") > 0)
+        {
             int idx = ifName.indexOf("Pull");
 
             StringBuffer _nonPullIF = new StringBuffer();
             _nonPullIF.append(ifName.substring(0, idx));
             _nonPullIF.append(ifName.substring(idx + 4));
 
-            if (typedConsumer_._is_a(_nonPullIF.toString())) {
+            if (typedConsumer_._is_a(_nonPullIF.toString()))
+            {
                 return;
             }
         }
+        
         throw new IllegalArgumentException();
     }
 
+    public void deliverMessage(Message message)
+    {
+        if (isConnected())
+        {
+            if (isEnabled())
+            {
+                deliverMessageInternal(message);
+            }
+            else
+            {
+                enqueue(message);
+            }
+        }
+    }
 
-    public void deliverMessage(Message message) {
-        try {
-            Property[] _props = message.toTypedEvent();
+    private void deliverMessageInternal(Message message)
+    {
+        try
+        {
+            final Property[] _props = message.toTypedEvent();
 
-            String _fullQualifiedOperation;
+            final String _fullQualifiedOperation;
 
-            if (TypedEventMessage.OPERATION_NAME.equals(_props[0].name)) {
+            if (TypedEventMessage.OPERATION_NAME.equals(_props[0].name))
+            {
                 _fullQualifiedOperation = _props[0].value.extract_string();
-            } else if (TypedEventMessage.EVENT_TYPE.equals(_props[0].name)) {
+            }
+            else if (TypedEventMessage.EVENT_TYPE.equals(_props[0].name))
+            {
                 _fullQualifiedOperation = EventTypeHelper.extract(_props[0].value).type_name;
 
                 String _idlType = EventTypeHelper.extract(_props[0].value).domain_name;
 
                 isIDLAssignable(_idlType);
-            } else {
+            }
+            else
+            {
                 throw new IllegalArgumentException();
             }
 
             int _idx = _fullQualifiedOperation.lastIndexOf("::");
-            String _operation = _fullQualifiedOperation.substring(_idx + 2);
+            final String _operation = _fullQualifiedOperation.substring(_idx + 2);
 
-            Request _request = typedConsumer_._request(_operation);
+            final Request _request = typedConsumer_._request(_operation);
 
-            NVList _arguments = _request.arguments();
+            final NVList _arguments = _request.arguments();
 
-            for (int x=1; x<_props.length; ++x) {
+            for (int x = 1; x < _props.length; ++x)
+            {
                 _arguments.add_value(_props[x].name, _props[x].value, ARG_IN.value);
             }
 
-            _request.set_return_type( TYPE_CODE_VOID );
+            _request.set_return_type(TYPE_CODE_VOID);
 
-            try {
+            try
+            {
                 _request.invoke();
-                
+
                 resetErrorCounter();
-            } catch (Throwable t) {
+            } catch (Throwable t)
+            {
                 PushTypedOperation _failedOperation = new PushTypedOperation(_request);
 
                 handleFailedPushOperation(_failedOperation, t);
             }
-        } catch (NoTranslationException e) {
+        } catch (NoTranslationException e)
+        {
             // ignore
             // nothing will be delivered to the consumer
 
@@ -185,20 +242,22 @@ public class TypedProxyPushSupplierImpl
         }
     }
 
-
-    protected void disconnectClient() {
-        if (pushConsumer_ != null) {
+    protected void disconnectClient()
+    {
+        if (pushConsumer_ != null)
+        {
             pushConsumer_.disconnect_push_consumer();
             pushConsumer_ = null;
         }
     }
 
-
-    public Servant getServant() {
+    public synchronized Servant getServant()
+    {
         if (thisServant_ == null)
-            {
-                thisServant_ = new TypedProxyPushSupplierPOATie( this );
-            }
+        {
+            thisServant_ = new TypedProxyPushSupplierPOATie(this);
+        }
+        
         return thisServant_;
     }
 }

@@ -22,16 +22,24 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
-import org.jacorb.notification.CollectionsWrapper;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.engine.PushAnyOperation;
+import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.util.CollectionsWrapper;
+import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.PushConsumer;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -39,24 +47,30 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class ProxyPushSupplierImpl
-    extends AbstractProxySupplier
-    implements ProxyPushSupplierOperations
+public class ProxyPushSupplierImpl extends AbstractProxySupplier implements
+        ProxyPushSupplierOperations
 {
     private PushConsumer pushConsumer_;
 
     ////////////////////////////////////////
 
-    public ProxyType MyType() {
+    public ProxyPushSupplierImpl(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
+            SubscriptionManager subscriptionManager) throws ConfigurationException
+    {
+        super(admin, orb, poa, conf, taskProcessor, taskExecutor, offerManager,
+                subscriptionManager, null);
+    }
+
+    public ProxyType MyType()
+    {
         return ProxyType.PUSH_ANY;
     }
 
-
     public void disconnect_push_supplier()
     {
-        dispose();
+        destroy();
     }
-
 
     protected void disconnectClient()
     {
@@ -65,30 +79,30 @@ public class ProxyPushSupplierImpl
         pushConsumer_ = null;
     }
 
-
     public void deliverMessage(final Message message)
     {
         if (isConnected())
         {
             if (!isSuspended() && isEnabled())
+            {
+                try
                 {
-                    try {
-                        logger_.debug("pushConsumer.push(Any)");
+                    logger_.debug("pushConsumer.push(Any)");
 
-                        pushConsumer_.push(message.toAny());
-                        
-                        resetErrorCounter();
-                    } catch (Throwable e) {
-                        PushAnyOperation _failedOperation =
-                            new PushAnyOperation(pushConsumer_, (Message)message.clone());
+                    pushConsumer_.push(message.toAny());
 
-                        handleFailedPushOperation(_failedOperation, e);
-                    }
+                    resetErrorCounter();
+                } catch (Throwable e)
+                {
+                    PushAnyOperation _failedOperation = new PushAnyOperation(pushConsumer_, message);
+
+                    handleFailedPushOperation(_failedOperation, e);
                 }
+            }
             else
-                {
-                    enqueue(message);
-                }
+            {
+                enqueue(message);
+            }
         }
         else
         {
@@ -96,60 +110,50 @@ public class ProxyPushSupplierImpl
         }
     }
 
-
-    public void connect_any_push_consumer(PushConsumer pushConsumer)
-        throws AlreadyConnected
+    public void connect_any_push_consumer(PushConsumer pushConsumer) throws AlreadyConnected
     {
-        assertNotConnected();
+        checkIsNotConnected();
 
         pushConsumer_ = pushConsumer;
 
         connectClient(pushConsumer);
     }
 
-
     public List getSubsequentFilterStages()
     {
         return CollectionsWrapper.singletonList(this);
     }
-
 
     public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
-
     public boolean hasMessageConsumer()
     {
         return true;
     }
 
-
     public void deliverPendingData()
     {
         Message[] _events = getAllMessages();
 
-        try {
-            for (int x = 0; x < _events.length; ++x)
-                {
-                    deliverMessage(_events[x]);
-                }
-        }
-        finally {
-            for (int x=0; x<_events.length; ++x) {
+        for (int x = 0; x < _events.length; ++x)
+        {
+            try
+            {
+                deliverMessage(_events[x]);
+            } finally
+            {
                 _events[x].dispose();
             }
         }
     }
 
-
-
     protected void connectionResumed()
     {
         scheduleDeliverPendingMessagesOperation_.run();
     }
-
 
     public synchronized Servant getServant()
     {
@@ -160,9 +164,8 @@ public class ProxyPushSupplierImpl
         return thisServant_;
     }
 
-
     public org.omg.CORBA.Object activate()
     {
-        return ProxyPushSupplierHelper.narrow( getServant()._this_object(getORB()) );
+        return ProxyPushSupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 }

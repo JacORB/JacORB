@@ -23,32 +23,32 @@ package org.jacorb.notification.servant;
 import java.util.List;
 
 import org.apache.avalon.framework.configuration.Configuration;
-import org.jacorb.notification.ChannelContext;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.jacorb.notification.OfferManager;
+import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.conf.Attributes;
 import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.engine.PushOperation;
 import org.jacorb.notification.engine.RetryException;
 import org.jacorb.notification.engine.RetryStrategy;
 import org.jacorb.notification.engine.TaskExecutor;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.engine.TaskProcessorRetryStrategy;
-import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
-import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueFactory;
-import org.jacorb.notification.queue.EventQueueFactoryDependency;
+import org.jacorb.notification.queue.MessageQueueAdapter;
+import org.jacorb.notification.queue.RWLockEventQueueDecorator;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetListener;
-import org.omg.CORBA.BAD_PARAM;
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.ORB;
 import org.omg.CosNotification.DiscardPolicy;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyChannelAdmin.ClientType;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdminHelper;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyComm.InvalidEventType;
@@ -56,76 +56,88 @@ import org.omg.CosNotifyComm.NotifyPublish;
 import org.omg.CosNotifyComm.NotifyPublishHelper;
 import org.omg.CosNotifyComm.NotifyPublishOperations;
 import org.omg.CosNotifyComm.NotifySubscribeOperations;
+import org.omg.PortableServer.POA;
 
 /**
- * Abstract base class for ProxySuppliers. This class provides following logic
- * for the different ProxySuppliers:
+ * Abstract base class for ProxySuppliers. This class provides following logic for the different
+ * ProxySuppliers:
  * <ul>
- * <li>generic queue management,
+ * <li>queue management,
  * <li>error threshold settings.
  * </ul>
  * 
  * @author Alphonse Bendt
- * @version $Id: AbstractProxySupplier.java,v 1.13 2004/07/12 11:19:56
- *          alphonse.bendt Exp $
+ * @version $Id$
  */
 
 public abstract class AbstractProxySupplier extends AbstractProxy implements MessageConsumer,
-        NotifySubscribeOperations, EventQueueFactoryDependency
+        NotifySubscribeOperations
 {
     private static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
+
+    private static final Message[] EMPTY_MESSAGE = new Message[0];
 
     ////////////////////////////////////////
 
     /**
-     * Check if there are pending Messages and deliver them to the Consumer. the
-     * operation is not executed immediately. instead it is scheduled to the
-     * Push Thread Pool. only initialized for ProxyPushSuppliers.
+     * Check if there are pending Messages and deliver them to the Consumer. the operation is not
+     * executed immediately. instead it is scheduled to the Push Thread Pool. only initialized for
+     * ProxyPushSuppliers.
      */
-    protected Runnable scheduleDeliverPendingMessagesOperation_;
+    protected final Runnable scheduleDeliverPendingMessagesOperation_;
 
-    private TaskExecutor taskExecutor_;
+    private static final Runnable NO_OP = new Runnable()
+    {
+        public void run()
+        {
 
-    private Disposable disposeTaskExecutor_;
+        }
+    };
 
-    private EventQueue pendingMessages_;
+    private final TaskExecutor taskExecutor_;
 
-    private int errorThreshold_;
+    private final RWLockEventQueueDecorator pendingMessages_;
 
-    private ConsumerAdmin consumerAdmin_;
+    private final int errorThreshold_;
 
-    private EventQueueFactory eventQueueFactory_;
+    private final ConsumerAdmin consumerAdmin_;
 
-    /**
-     * lock variable used to control access to the reference to the pending
-     * messages queue. calls to set_qos may cause the MessageQueue instance to
-     * be replaced.
-     */
-    private final Object pendingMessagesRefLock_ = new Object();
+    private final EventQueueFactory eventQueueFactory_;
 
     private NotifyPublishOperations proxyOfferListener_;
 
     private NotifyPublish offerListener_;
 
     /**
-     * flag to indicate that this ProxySupplier may invoke remote calls during
-     * deliverMessage.
+     * flag to indicate that this ProxySupplier may invoke remote calls during deliverMessage.
      */
     private boolean enabled_ = true;
 
     ////////////////////////////////////////
 
-    public AbstractProxySupplier()
+    protected AbstractProxySupplier(IAdmin admin, ORB orb, POA poa, Configuration conf,
+            TaskProcessor taskProcessor, TaskExecutor taskExecutor, OfferManager offerManager,
+            SubscriptionManager subscriptionManager, ConsumerAdmin consumerAdmin)
+            throws ConfigurationException
     {
-    }
+        super(admin, orb, poa, conf, taskProcessor, offerManager, subscriptionManager);
 
-    protected AbstractProxySupplier(ChannelContext channelContext)
-    {
-        super();
+        taskExecutor_ = taskExecutor;
+
+        consumerAdmin_ = consumerAdmin;
+
+        eventQueueFactory_ = new EventQueueFactory(conf);
+
+        errorThreshold_ = conf.getAttributeAsInteger(Attributes.EVENTCONSUMER_ERROR_THRESHOLD,
+                Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD);
+
+        if (logger_.isInfoEnabled())
+        {
+            logger_.info("set Error Threshold to : " + errorThreshold_);
+        }
 
         if (isPushSupplier())
         {
-
             scheduleDeliverPendingMessagesOperation_ = new Runnable()
             {
                 public void run()
@@ -135,72 +147,62 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
                         getTaskProcessor().scheduleTimedPushTask(AbstractProxySupplier.this);
                     } catch (InterruptedException e)
                     {
-                        logger_.fatalError("scheduleTimedPushTask failed", e);
+                        logger_.info("scheduleTimedPushTask interrupted", e);
                     }
                 }
             };
         }
-    }
-
-    public void configure(Configuration conf)
-    {
-        super.configure(conf);
-
-        errorThreshold_ = conf.getAttributeAsInteger(Attributes.EVENTCONSUMER_ERROR_THRESHOLD,
-                Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD);
-    }
-
-    ////////////////////////////////////////
-
-    public final void setEventQueueFactory(EventQueueFactory factory)
-    {
-        eventQueueFactory_ = factory;
-    }
-
-    protected EventQueueFactory getEventQueueFactory()
-    {
-        return eventQueueFactory_;
-    }
-
-    public void preActivate() throws UnsupportedQoS, Exception
-    {
-        synchronized (pendingMessagesRefLock_)
+        else
         {
-            pendingMessages_ = getEventQueueFactory().newEventQueue(qosSettings_);
+            scheduleDeliverPendingMessagesOperation_ = NO_OP;
         }
-
-        if (logger_.isInfoEnabled())
-            logger_.info("set Error Threshold to : " + errorThreshold_);
 
         qosSettings_.addPropertySetListener(
                 new String[] { OrderPolicy.value, DiscardPolicy.value },
                 eventQueueConfigurationChangedCB);
-    }
-
-    /**
-     * configure pending messages queue. the queue is reconfigured according to
-     * the current QoS Settings. the contents of the queue are reorganized
-     * according to the new OrderPolicy.
-     */
-    private void configureEventQueue() throws UnsupportedQoS
-    {
-        EventQueue _newQueue = getEventQueueFactory().newEventQueue(qosSettings_);
 
         try
         {
-            synchronized (pendingMessagesRefLock_)
-            {
-                if (!pendingMessages_.isEmpty())
-                {
-                    Message[] _allEvents = pendingMessages_.getAllEvents(true);
-                    for (int x = 0; x < _allEvents.length; ++x)
-                        _newQueue.put(_allEvents[x]);
-                }
-                pendingMessages_ = _newQueue;
-            }
+            MessageQueueAdapter initialEventQueue = getMessageQueueFactory().newMessageQueue(
+                    qosSettings_);
+            
+            pendingMessages_ = new RWLockEventQueueDecorator(initialEventQueue);
         } catch (InterruptedException e)
         {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException();
+        }
+    }
+
+    ////////////////////////////////////////
+
+    protected EventQueueFactory getMessageQueueFactory()
+    {
+        return eventQueueFactory_;
+    }
+
+    /**
+     * @deprecated
+     * TODO remove
+     */
+    public void preActivate() throws UnsupportedQoS, Exception
+    {
+        // nothing
+    }
+
+    /**
+     * configure pending messages queue. the queue is reconfigured according to the current QoS
+     * Settings. the contents of the queue are reorganized according to the new OrderPolicy.
+     */
+    private final void configureEventQueue() // throws UnsupportedQoS
+    {
+        MessageQueueAdapter _newQueue = getMessageQueueFactory().newMessageQueue(qosSettings_);
+
+        try
+        {
+            pendingMessages_.replaceDelegate(_newQueue);
+        } catch (InterruptedException e)
+        {
+            // ignored
         }
     }
 
@@ -221,42 +223,24 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         return taskExecutor_;
     }
 
-    public void setTaskExecutor(TaskExecutor executor)
-    {
-        if (taskExecutor_ == null)
-        {
-            taskExecutor_ = executor;
-        }
-        else
-        {
-            throw new IllegalArgumentException("TaskExecutor should be set only once!");
-        }
-    }
-
-    public void setTaskExecutor(TaskExecutor executor, Disposable disposeTaskExecutor)
-    {
-        setTaskExecutor(executor);
-
-        disposeTaskExecutor_ = disposeTaskExecutor;
-    }
-
     public int getPendingMessagesCount()
     {
-        synchronized (pendingMessagesRefLock_)
+        try
         {
-            return pendingMessages_.getSize();
+            return pendingMessages_.getPendingMessagesCount();
+        } catch (InterruptedException e)
+        {
+            return -1;
         }
     }
 
     public boolean hasPendingData()
     {
-        synchronized (pendingMessagesRefLock_)
+        try
         {
-            if (!pendingMessages_.isEmpty())
-            {
-                return true;
-            }
-
+            return pendingMessages_.hasPendingMessages();
+        } catch (InterruptedException e)
+        {
             return false;
         }
     }
@@ -269,54 +253,48 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
      */
     protected void enqueue(Message message)
     {
-        synchronized (pendingMessagesRefLock_)
+        try
         {
-            pendingMessages_.put(message);
-        }
+            pendingMessages_.enqeue(message);
 
-        if (logger_.isDebugEnabled())
+            if (logger_.isDebugEnabled())
+            {
+                logger_.debug("added " + message + " to pending Messages.");
+            }
+        } catch (InterruptedException e)
         {
-            logger_.debug("added " + message + " to pending Messages.");
+            logger_.info("enqueue was interrupted", e);
         }
     }
 
-    protected Message getMessageBlocking() throws InterruptedException
+    public Message getMessageBlocking() throws InterruptedException
     {
-        synchronized (pendingMessagesRefLock_)
-        {
-            return pendingMessages_.getEvent(true);
-        }
+        return pendingMessages_.getMessageBlocking();
     }
 
     protected Message getMessageNoBlock()
     {
-        synchronized (pendingMessagesRefLock_)
+        try
         {
-            try
-            {
-                return pendingMessages_.getEvent(false);
-            } catch (InterruptedException e)
-            {
-                Thread.currentThread().interrupt();
+            return pendingMessages_.getMessageNoBlock();
+        } catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
 
-                return null;
-            }
+            return null;
         }
     }
 
     protected Message[] getAllMessages()
     {
-        synchronized (pendingMessagesRefLock_)
+        try
         {
-            try
-            {
-                return pendingMessages_.getAllEvents(false);
-            } catch (InterruptedException e)
-            {
-                Thread.currentThread().interrupt();
+            return pendingMessages_.getAllMessages();
+        } catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
 
-                return null;
-            }
+            return EMPTY_MESSAGE;
         }
     }
 
@@ -329,15 +307,12 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     {
         try
         {
-            synchronized (pendingMessagesRefLock_)
-            {
-                return pendingMessages_.getEvents(max, false);
-            }
+            return pendingMessages_.getUpToMessages(max);
         } catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
 
-            return null;
+            return EMPTY_MESSAGE;
         }
     }
 
@@ -350,19 +325,13 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     {
         try
         {
-            synchronized (pendingMessagesRefLock_)
-            {
-                if (pendingMessages_.getSize() >= min)
-                {
-                    return pendingMessages_.getAllEvents(true);
-                }
-            }
+            return pendingMessages_.getAtLeastMessages(min);
         } catch (InterruptedException e)
         {
             Thread.currentThread().interrupt();
-        }
 
-        return null;
+            return EMPTY_MESSAGE;
+        }
     }
 
     public int getErrorThreshold()
@@ -373,11 +342,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     public final void dispose()
     {
         super.dispose();
-
-        if (disposeTaskExecutor_ != null)
-        {
-            disposeTaskExecutor_.dispose();
-        }
     }
 
     public final ConsumerAdmin MyAdmin()
@@ -496,70 +460,6 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         return enabled_;
     }
 
-    /**
-     * factory method for new ProxyPullSuppliers.
-     */
-    static AbstractProxySupplier newProxyPullSupplier(AbstractAdmin admin, ClientType clientType)
-    {
-        AbstractProxySupplier _servant;
-
-        switch (clientType.value()) {
-        case ClientType._ANY_EVENT:
-            _servant = new ProxyPullSupplierImpl();
-            break;
-
-        case ClientType._STRUCTURED_EVENT:
-            _servant = new StructuredProxyPullSupplierImpl();
-            break;
-
-        case ClientType._SEQUENCE_EVENT:
-            _servant = new SequenceProxyPullSupplierImpl();
-
-            break;
-
-        default:
-            throw new BAD_PARAM();
-        }
-        admin.getChannelContext().resolveDependencies(_servant);
-
-        _servant.consumerAdmin_ = ConsumerAdminHelper.narrow(admin.activate());
-
-        _servant.configure(((org.jacorb.orb.ORB) admin.getORB()).getConfiguration());
-        return _servant;
-    }
-
-    /**
-     * factory method for new ProxyPushSuppliers.
-     */
-    static AbstractProxySupplier newProxyPushSupplier(AbstractAdmin admin, ClientType clientType)
-    {
-        AbstractProxySupplier _servant;
-
-        switch (clientType.value()) {
-
-        case ClientType._ANY_EVENT:
-            _servant = new ProxyPushSupplierImpl();
-            break;
-
-        case ClientType._STRUCTURED_EVENT:
-            _servant = new StructuredProxyPushSupplierImpl();
-            break;
-
-        case ClientType._SEQUENCE_EVENT:
-            _servant = new SequenceProxyPushSupplierImpl();
-            break;
-
-        default:
-            throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
-        }
-        admin.getChannelContext().resolveDependencies(_servant);
-
-        _servant.consumerAdmin_ = ConsumerAdminHelper.narrow(admin.activate());
-
-        _servant.configure(((org.jacorb.orb.ORB) admin.getORB()).getConfiguration());
-        return _servant;
-    }
-
     public boolean isPushSupplier()
     {
         switch (MyType().value()) {
@@ -602,7 +502,7 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
         } catch (RetryException e)
         {
             logger_.error("retry failed", e);
-            
+
             _retry.dispose();
             dispose();
         }
@@ -612,8 +512,9 @@ public abstract class AbstractProxySupplier extends AbstractProxy implements Mes
     {
         return new TaskProcessorRetryStrategy(mc, op, getTaskProcessor());
     }
-    
-    public boolean isRetryAllowed() {
+
+    public boolean isRetryAllowed()
+    {
         return !isDisposed() && getErrorCounter() < getErrorThreshold();
     }
 }
