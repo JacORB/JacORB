@@ -187,40 +187,52 @@ public class Name
      * @returns a single NameComponent, parsed from sn
      */
 
-    private static org.omg.CosNaming.NameComponent getComponent(String sn)
+    private static org.omg.CosNaming.NameComponent getComponent (String sn)
 	throws org.omg.CosNaming.NamingContextPackage.InvalidName
     {
-	org.omg.CosNaming.NameComponent result = new org.omg.CosNaming.NameComponent("","");
-	int start = 0;
-	for( int i = 0; i < sn.length(); i++ )
-	{
-	    if( sn.charAt(i) == '.' ) 
-	    {
-		if( i == sn.length()-1 && i > 0)
-		    throw new InvalidName();
+        char ch;
+        int len = sn.length ();
+        boolean inKind = false;
+        StringBuffer id = new StringBuffer ();
+        StringBuffer kind = new StringBuffer ();
 
-		if( i > 0 && sn.charAt(i-1) != '\\')
-		{
-		    /* not an escaped dot */
-		    if( start < i )
-			result.id = sn.substring(start,i);
+        for (int i = 0; i < len; i++)
+        {
+            ch = sn.charAt (i);
 
-		    if( i < sn.length() )
-			result.kind = sn.substring(i+1);
-		    return result;
-		}
-		else
-		{
-		    /* leading '.' */
-		    if( i < sn.length() )
-			result.kind = sn.substring(i+1);
-		    return result;
-		}
-	    }	    
-	}
-	/* no dot found */
-	result.id = sn;
-	return result;
+            if (ch == '\\')
+            {
+                // Escaped character
+
+    	        i++;
+                if (i >= len)
+                {
+                    throw new InvalidName ();
+                }
+	        ch = sn.charAt (i);
+            }
+            else if (ch == '.')
+            {
+                // id/kind separator character
+
+                if (inKind)
+                {
+                    throw new InvalidName ();
+                }
+                inKind = true;	
+                continue;  	
+            }
+            if (inKind)
+            {
+                kind.append (ch);
+            }
+            else
+            {
+                id.append (ch);
+            }
+        }
+
+        return (new org.omg.CosNaming.NameComponent (id.toString (), kind.toString ()));
     }
 
     /**
