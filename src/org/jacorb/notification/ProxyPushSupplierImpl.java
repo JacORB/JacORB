@@ -21,14 +21,17 @@ package org.jacorb.notification;
  */
 
 import java.util.List;
+import java.util.Map;
 
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.queue.EventQueue;
 
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.UNKNOWN;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotification.Property;
+import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
@@ -44,24 +47,25 @@ import org.omg.PortableServer.Servant;
  */
 
 public class ProxyPushSupplierImpl
-    extends AbstractProxy
+    extends AbstractProxySupplier
     implements ProxyPushSupplierOperations,
                org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations,
-               EventConsumer {
+               EventConsumer
+{
 
     private org.omg.CosEventComm.PushConsumer myPushConsumer_;
     private boolean connected_;
     private boolean enabled_;
     private boolean active_;
 
-    private EventQueue pendingEvents_;
-
     ProxyPushSupplierImpl(ConsumerAdminTieImpl myAdminServant,
                           ApplicationContext appContext,
                           ChannelContext channelContext,
                           PropertyManager adminProperties,
                           PropertyManager qosProperties,
-                          Integer key) throws UnsupportedQoS {
+                          Integer key)
+        throws UnsupportedQoS
+    {
 
         super(myAdminServant,
               appContext,
@@ -77,7 +81,9 @@ public class ProxyPushSupplierImpl
                           ApplicationContext appContext,
                           ChannelContext channelContext,
                           PropertyManager adminProperties,
-                          PropertyManager qosProperties) throws UnsupportedQoS {
+                          PropertyManager qosProperties)
+        throws UnsupportedQoS
+    {
 
         super(myAdminServant,
               appContext,
@@ -89,24 +95,28 @@ public class ProxyPushSupplierImpl
     }
 
     private void init(ApplicationContext appContext,
-              PropertyManager qosProperties) throws UnsupportedQoS {
+                      PropertyManager qosProperties)
+        throws UnsupportedQoS
+    {
 
         connected_ = false;
         enabled_ = true;
-
-        pendingEvents_ = appContext.newEventQueue(qosProperties);
     }
 
-    public String toString() {
+    public String toString()
+    {
         return "<ProxyPushSupplier connected: " + connected_ + ">";
     }
 
-    public void disconnect_push_supplier() {
+    public void disconnect_push_supplier()
+    {
         dispose();
     }
 
-    private void disconnectClient() {
-        if (myPushConsumer_ != null) {
+    private void disconnectClient()
+    {
+        if (myPushConsumer_ != null)
+        {
             logger_.debug("disconnect");
             myPushConsumer_.disconnect_push_consumer();
             myPushConsumer_ = null;
@@ -114,39 +124,59 @@ public class ProxyPushSupplierImpl
         }
     }
 
-    public void deliverEvent(Message event){
-        if (connected_) {
-            try {
-                if (active_ && enabled_) {
+    public void deliverEvent(Message event)
+    {
+        if (connected_)
+        {
+            try
+            {
+                if (active_ && enabled_)
+                {
                     logger_.debug("pre push");
                     myPushConsumer_.push(event.toAny());
                     event.dispose();
                     logger_.debug("pushed any to consumer");
-                } else {
-                    pendingEvents_.put(event);
+                }
+                else
+                {
+
+                    synchronized (pendingEventsLock_)
+                    {
+                        pendingEvents_.put(event);
+                    }
+
                     logger_.debug("added to pendingEventS");
                 }
-            } catch(Disconnected e) {
+            }
+            catch (Disconnected e)
+            {
                 connected_ = false;
                 logger_.debug("push failed: Not connected");
             }
-        } else {
+        }
+        else
+        {
             logger_.debug("Not connected");
         }
     }
 
-    public void connect_push_consumer(org.omg.CosEventComm.PushConsumer pushConsumer) throws AlreadyConnected {
+    public void connect_push_consumer(org.omg.CosEventComm.PushConsumer pushConsumer)
+        throws AlreadyConnected
+    {
         connect_any_push_consumer(pushConsumer);
     }
 
     public void connect_any_push_consumer(org.omg.CosEventComm.PushConsumer pushConsumer)
-        throws AlreadyConnected {
+        throws AlreadyConnected
+    {
 
-        if (connected_) {
+        if (connected_)
+        {
             throw new AlreadyConnected();
         }
 
-        if (pushConsumer == null) {
+        if (pushConsumer == null)
+        {
             throw new BAD_PARAM();
         }
 
@@ -155,59 +185,90 @@ public class ProxyPushSupplierImpl
         active_ = true;
     }
 
-    public ConsumerAdmin MyAdmin() {
+    public ConsumerAdmin MyAdmin()
+    {
         return (ConsumerAdmin)myAdmin_.getThisRef();
     }
 
-    public List getSubsequentFilterStages() {
+    public List getSubsequentFilterStages()
+    {
         return CollectionsWrapper.singletonList(this);
     }
 
-    public EventConsumer getEventConsumer() {
+    public EventConsumer getEventConsumer()
+    {
         return this;
     }
 
-    public boolean hasEventConsumer() {
+    public boolean hasEventConsumer()
+    {
         return true;
     }
 
-    synchronized public void suspend_connection() throws NotConnected, ConnectionAlreadyInactive {
-        if (!connected_) {
+    synchronized public void suspend_connection()
+        throws NotConnected,
+               ConnectionAlreadyInactive
+    {
+
+        if (!connected_)
+        {
             throw new NotConnected();
         }
 
-        if (!active_) {
+        if (!active_)
+        {
             throw new ConnectionAlreadyInactive();
         }
         active_ = false;
     }
 
-    public void deliverPendingEvents() throws NotConnected {
-        try {
-            if (!pendingEvents_.isEmpty()) {
-                Message[] _events = pendingEvents_.getAllEvents(true);
+    public void deliverPendingEvents()
+        throws NotConnected
+    {
+        try
+        {
+            synchronized (pendingEventsLock_)
+            {
+                if (!pendingEvents_.isEmpty())
+                {
+                    Message[] _events =
+                        pendingEvents_.getAllEvents(true);
 
-                for (int x=0; x<_events.length; ++x) {
-                    try {
-                        myPushConsumer_.push(_events[x].toAny());
-                    } catch (Disconnected e) {
-                        connected_ = false;
-                    throw new NotConnected();
-                    } finally {
-                        _events[x].dispose();
-                        _events[x] = null;
+                    for (int x = 0; x < _events.length; ++x)
+                    {
+                        try
+                        {
+                            myPushConsumer_.push(_events[x].toAny());
+                        }
+                        catch (Disconnected e)
+                        {
+                            connected_ = false;
+                            throw new NotConnected();
+                        }
+                        finally
+                        {
+                            _events[x].dispose();
+                            _events[x] = null;
+                        }
                     }
                 }
             }
-        } catch (InterruptedException e) {}
+        }
+        catch (InterruptedException e)
+        {}
     }
 
-    synchronized public void resume_connection() throws NotConnected, ConnectionAlreadyActive {
-        if (!connected_) {
+    synchronized public void resume_connection()
+        throws NotConnected,
+               ConnectionAlreadyActive
+    {
+        if (!connected_)
+        {
             throw new NotConnected();
         }
 
-        if (active_) {
+        if (active_)
+        {
             throw new ConnectionAlreadyActive();
         }
 
@@ -215,36 +276,42 @@ public class ProxyPushSupplierImpl
         active_ = true;
     }
 
-    synchronized public void dispose() {
+    synchronized public void dispose()
+    {
         super.dispose();
         disconnectClient();
     }
 
-    synchronized public void enableDelivery() {
+    synchronized public void enableDelivery()
+    {
         enabled_ = true;
     }
 
-    synchronized public void disableDelivery() {
+    synchronized public void disableDelivery()
+    {
         enabled_ = false;
     }
 
-    public Servant getServant() {
-        if (thisServant_ == null) {
-            synchronized(this) {
-                if (thisServant_ == null) {
-                    thisServant_ = new ProxyPushSupplierPOATie(this);
-                }
-            }
+    public synchronized Servant getServant()
+    {
+        if (thisServant_ == null)
+        {
+            thisServant_ = new ProxyPushSupplierPOATie(this);
         }
         return thisServant_;
     }
 
-    public void setServant(Servant servant) {
+    public synchronized void setServant(Servant servant)
+    {
         thisServant_ = servant;
     }
 
-    public boolean hasPendingEvents() {
-        return !pendingEvents_.isEmpty();
+    public boolean hasPendingEvents()
+    {
+        synchronized (pendingEventsLock_)
+        {
+            return !pendingEvents_.isEmpty();
+        }
     }
 
 }

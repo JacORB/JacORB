@@ -25,9 +25,11 @@ import java.util.List;
 
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
+
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
@@ -37,8 +39,6 @@ import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
 import org.omg.PortableServer.Servant;
-import org.jacorb.notification.queue.EventQueue;
-import org.omg.CosNotification.UnsupportedQoS;
 
 /**
  * StructuredProxyPushSupplierImpl.java
@@ -51,13 +51,12 @@ import org.omg.CosNotification.UnsupportedQoS;
  */
 
 public class StructuredProxyPushSupplierImpl
-            extends AbstractProxy
-            implements StructuredProxyPushSupplierOperations,
-            EventConsumer
+    extends AbstractProxySupplier
+    implements StructuredProxyPushSupplierOperations,
+               EventConsumer
 {
 
     private StructuredPushConsumer pushConsumer_;
-    protected EventQueue pendingEvents_;
     protected boolean active_;
     protected boolean enabled_;
 
@@ -77,13 +76,18 @@ public class StructuredProxyPushSupplierImpl
 
         setProxyType( ProxyType.PUSH_STRUCTURED );
         enabled_ = true;
-
-        pendingEvents_ = appContext.newEventQueue(qosProperties);
     }
 
     public void deliverEvent( Message event )
     {
-        logger_.debug( "deliverEvent connected="+connected_+" active="+active_+" enabled="+enabled_ );
+        if (logger_.isDebugEnabled()) {
+            logger_.debug( "deliverEvent connected="
+                           + connected_
+                           + " active="
+                           + active_
+                           + " enabled="
+                           + enabled_ );
+        }
 
         if ( connected_ )
         {
@@ -98,7 +102,6 @@ public class StructuredProxyPushSupplierImpl
                 {
                     // not enabled
                     pendingEvents_.put( event );
-
                 }
             }
             catch ( Disconnected d )

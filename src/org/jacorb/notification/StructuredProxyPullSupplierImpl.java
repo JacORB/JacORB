@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.queue.EventQueue;
 
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
@@ -51,13 +50,12 @@ import org.omg.PortableServer.Servant;
  */
 
 public class StructuredProxyPullSupplierImpl
-            extends AbstractProxy
-            implements StructuredProxyPullSupplierOperations,
-            EventConsumer
+    extends AbstractProxySupplier
+    implements StructuredProxyPullSupplierOperations,
+               EventConsumer
 {
 
     StructuredPullConsumer structuredPullConsumer_;
-    EventQueue pendingEvents_;
 
     static StructuredEvent undefinedStructuredEvent_;
 
@@ -66,7 +64,8 @@ public class StructuredProxyPullSupplierImpl
                                             ChannelContext channelContext,
                                             PropertyManager adminProperties,
                                             PropertyManager qosProperties,
-                                            Integer key ) throws UnsupportedQoS
+                                            Integer key )
+        throws UnsupportedQoS
     {
 
         super( myAdminServant,
@@ -94,11 +93,10 @@ public class StructuredProxyPullSupplierImpl
                 }
             }
         }
-
-         pendingEvents_ = appContext.newEventQueue(qosProperties);
     }
 
-    public void connect_structured_pull_consumer( StructuredPullConsumer consumer ) throws AlreadyConnected
+    public void connect_structured_pull_consumer( StructuredPullConsumer consumer )
+        throws AlreadyConnected
     {
         if ( connected_ )
         {
@@ -115,7 +113,8 @@ public class StructuredProxyPullSupplierImpl
         return ( ConsumerAdmin ) myAdmin_.getThisRef();
     }
 
-    public StructuredEvent pull_structured_event() throws Disconnected
+    public StructuredEvent pull_structured_event()
+        throws Disconnected
     {
         StructuredEvent _event = null;
         BooleanHolder _hasEvent = new BooleanHolder();
@@ -133,7 +132,8 @@ public class StructuredProxyPullSupplierImpl
         }
     }
 
-    public StructuredEvent try_pull_structured_event( BooleanHolder hasEvent ) throws Disconnected
+    public StructuredEvent try_pull_structured_event( BooleanHolder hasEvent )
+        throws Disconnected
     {
         if ( !connected_ )
             {
@@ -157,7 +157,6 @@ public class StructuredProxyPullSupplierImpl
 
         hasEvent.value = false;
         return undefinedStructuredEvent_;
-
     }
 
 
