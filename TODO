@@ -2,6 +2,12 @@
 %  List of open issues
 %
 
+(ORBSingleton/TypeCode management)
+
+        TypeCodes could be cached by Id to avoid superflous 
+        creation operations
+
+
 2001-27-02#0, (IDL compiler)
 
         generated POA class for interface with multiple base   
