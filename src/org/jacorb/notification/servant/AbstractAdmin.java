@@ -21,17 +21,19 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.jacorb.notification.servant.AdminPropertySet;
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.EventChannelImpl;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.PropertyManager;
+import org.jacorb.notification.servant.QoSPropertySet;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
@@ -47,19 +49,18 @@ import org.omg.CosNotification.QoSAdminOperations;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
+import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
+import org.omg.CosNotifyChannelAdmin.ProxyNotFound;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterAdminOperations;
 import org.omg.CosNotifyFilter.FilterNotFound;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAPackage.ObjectNotActive;
-import org.omg.PortableServer.POAPackage.ServantNotActive;
-import org.omg.PortableServer.POAPackage.WrongPolicy;
 import org.omg.PortableServer.Servant;
 
+import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
-import java.util.HashMap;
 
 /**
  * Abstract Baseclass for Adminobjects.
@@ -69,70 +70,51 @@ import java.util.HashMap;
  */
 
 public abstract class AbstractAdmin
-    implements QoSAdminOperations,
-               FilterAdminOperations,
-               FilterStage,
-               ManageableServant
+            implements QoSAdminOperations,
+            FilterAdminOperations,
+            FilterStage,
+            ManageableServant
 {
     /**
      * the default InterFilterGroupOperator used.
      */
     protected static final InterFilterGroupOperator
-        DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
+    DEFAULT_FILTER_GROUP_OPERATOR = InterFilterGroupOperator.AND_OP;
 
-    protected static final int NO_ID = Integer.MIN_VALUE;
+    protected static final int NO_ID = 0;
 
     protected ChannelContext channelContext_;
 
     ////////////////////////////////////////
-    // Implementation of IF ManageableServant
+
+    protected Logger logger_ =
+        Debug.getNamedLogger( getClass().getName() );
+
+    private Integer key_;
+
+    private boolean isKeyPublic_;
 
     private POA poa_;
 
-    protected POA getPOA() {
-        return poa_;
-    }
-
-    public void setPOA(POA poa) {
-        poa_ = poa;
-    }
-
     private ORB orb_;
 
-    protected ORB getORB() {
-        return orb_;
-    }
+    private EventChannelImpl eventChannelServant_;
 
-    public void setORB(ORB orb) {
-        orb_ = orb;
-    }
-
-    ////////////////////////////////////////
-
-    protected int id_ = 0;
-
-    protected int proxyIdPool_ = -1;
-
-    protected Integer key_;
+    protected InterFilterGroupOperator filterGroupOperator_;
 
     protected FilterManager filterManager_;
 
-    protected InterFilterGroupOperator filterGroupOperator_;
+    private SynchronizedInt proxyIdPool_ = new SynchronizedInt(0);
+
+    protected Object modifyProxiesLock_ = new Object();
 
     protected Map pullServants_ = new HashMap();
 
     protected Map pushServants_ = new HashMap();
 
-    protected Map allProxies_ = new HashMap();
+    protected QoSPropertySet qosSettings_ = new QoSPropertySet(QoSPropertySet.ADMIN_QOS);
 
-    private Map servantCache_ = Collections.EMPTY_MAP;
-
-    protected Logger logger_ =
-        Debug.getNamedLogger( getClass().getName() );
-
-    protected PropertyManager qosProperties_;
-
-    protected PropertyManager adminProperties_;
+    protected AdminPropertySet adminSettings_ = new AdminPropertySet();
 
     protected boolean disposed_ = false;
 
@@ -140,24 +122,79 @@ public abstract class AbstractAdmin
 
     ////////////////////////////////////////
 
+    protected AbstractAdmin(ChannelContext channelContext)
+    {
+        channelContext_ = channelContext;
+
+        eventChannelServant_ = channelContext_.getEventChannelServant();
+
+        filterManager_ =
+            new FilterManager(channelContext_);
+
+        setPOA(channelContext_.getPOA());
+
+        setORB(channelContext_.getORB());
+    }
+
+    ////////////////////////////////////////
+
+    public void setInterFilterGroupOperator(InterFilterGroupOperator op)
+    {
+        filterGroupOperator_ = op;
+    }
+
+
+    public void setKey(Integer key)
+    {
+        key_ = key;
+    }
+
+
+    public void setIsKeyPublic(boolean isKeyPublic)
+    {
+        isKeyPublic_ = isKeyPublic;
+    }
+
+
+    protected POA getPOA()
+    {
+        return poa_;
+    }
+
+
+    public void setPOA(POA poa)
+    {
+        poa_ = poa;
+    }
+
+
+    protected ORB getORB()
+    {
+        return orb_;
+    }
+
+
+    public void setORB(ORB orb)
+    {
+        orb_ = orb;
+    }
+
+
     protected MessageFactory getMessageFactory()
     {
         return channelContext_.getMessageFactory();
     }
 
 
-    /**
-     * @deprecated
-     */
     protected EventChannelImpl getChannelServant()
     {
-        return channelContext_.getEventChannelServant();
+        return eventChannelServant_;
     }
 
 
-    protected EventChannel getChannel()
+    private EventChannel getChannel()
     {
-        return channelContext_.getEventChannel();
+        return EventChannelHelper.narrow(eventChannelServant_.activate());
     }
 
 
@@ -167,50 +204,9 @@ public abstract class AbstractAdmin
     }
 
 
-    protected AbstractAdmin(ChannelContext aChannelContext,
-                            PropertyManager aAdminPropertyManager,
-                            PropertyManager aQoSPropertyManager,
-                            int aId,
-                            InterFilterGroupOperator aInterFilterGroupOperator )
+    int getProxyID()
     {
-        qosProperties_ = aQoSPropertyManager;
-        adminProperties_ = aAdminPropertyManager;
-
-        filterGroupOperator_ = aInterFilterGroupOperator;
-
-        channelContext_ = aChannelContext;
-
-        filterManager_ =
-            new FilterManager(channelContext_);
-
-        key_ = new Integer( aId );
-
-        setPOA(channelContext_.getPOA());
-        setORB(channelContext_.getORB());
-    }
-
-
-    protected AbstractAdmin(ChannelContext aChannelContext,
-                            PropertyManager aAdminPropertyManager,
-                            PropertyManager aQoSPropertyManager )
-    {
-        this(aChannelContext,
-             aAdminPropertyManager,
-             aQoSPropertyManager,
-             NO_ID,
-             DEFAULT_FILTER_GROUP_OPERATOR );
-    }
-
-
-    int getPushProxyId()
-    {
-        return ++proxyIdPool_;
-    }
-
-
-    int getPullProxyId()
-    {
-        return ++proxyIdPool_;
+        return proxyIdPool_.increment();
     }
 
 
@@ -264,25 +260,27 @@ public abstract class AbstractAdmin
 
     public int MyID()
     {
-        return id_;
+        return key_.intValue();
     }
 
 
     public Property[] get_qos()
     {
-        return qosProperties_.toArray();
+        return qosSettings_.get_qos();
     }
 
 
-    public void set_qos( Property[] aPropertySeq ) throws UnsupportedQoS
+    public void set_qos( Property[] props ) throws UnsupportedQoS
     {
-        throw new NO_IMPLEMENT("The method set_qos is not supported yet");
+        qosSettings_.validate_qos(props, new NamedPropertyRangeSeqHolder());
+
+        qosSettings_.set_qos(props);
     }
 
 
     public void validate_qos( Property[] aPropertySeq,
                               NamedPropertyRangeSeqHolder propertyRangeSeqHolder )
-        throws UnsupportedQoS
+    throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT("The method validate_qos is not supported yet");
     }
@@ -296,125 +294,97 @@ public abstract class AbstractAdmin
 
     public void dispose()
     {
-        if ( !disposed_ )
-        {
-            disposed_ = true;
-
-            logger_.debug( "dispose AbstractAdmin" );
-
-            getChannelServant().removeAdmin( this );
-
-            try
-            {
-                byte[] _oid = getPOA().servant_to_id( getServant() );
-                getPOA().deactivate_object( _oid );
+        synchronized (this) {
+            if (!disposed_) {
+                disposed_ = true;
+            } else {
+                throw new OBJECT_NOT_EXIST();
             }
-            catch ( ObjectNotActive e )
-            {
-                logger_.fatalError("Couldnt deactivate Object", e);
-            }
-            catch ( WrongPolicy e )
-            {
-                logger_.fatalError("Couldnt deactivate Object", e);
-            }
-            catch ( ServantNotActive e )
-            {
-                logger_.fatalError("Couldnt deactivate Object", e);
-            }
+        }
 
-            remove_all_filters();
+        //////////////////////////////
 
-            // dispose all servants which are connected to this admin object
-            Iterator _i;
+        getChannelServant().removeAdmin( this );
 
-            //pushProxies_.clear();
+        //////////////////////////////
 
+        remove_all_filters();
+
+        //////////////////////////////
+
+        logger_.debug("dispose PushServants");
+        Iterator _i;
+
+        synchronized(modifyProxiesLock_) {
             _i = pushServants_.values().iterator();
 
             while ( _i.hasNext() )
-            {
-                logger_.info( "dispose pushServant" );
-
-                try
                 {
-                    ( ( Disposable ) _i.next() ).dispose();
-                }
-                catch ( Exception e )
-                {
-                    logger_.warn( "Error disposing a PushServant", e );
-                }
+                    try
+                        {
+                            Disposable _d = (Disposable)_i.next();
 
-                _i.remove();
-            }
+                            _i.remove();
+
+                            _d.dispose();
+                        }
+                    catch ( Exception e )
+                        {
+                            logger_.warn( "Error disposing a PushServant", e );
+                        }
+                }
 
             pushServants_.clear();
 
-            //pullProxies_.clear();
+            //////////////////////////////
+
+            logger_.debug("dispose PullServants");
 
             _i = pullServants_.values().iterator();
 
             while ( _i.hasNext() )
-            {
-                logger_.info( "dispose pullServant" );
-
-                try
                 {
-                    ( ( Disposable ) _i.next() ).dispose();
-                }
-                catch ( Exception e )
-                {
-                    logger_.warn( "Error disposing a PullServant", e );
-                }
+                    try
+                        {
+                            Disposable _d = (Disposable)_i.next();
 
-                _i.remove();
-            }
+                            _i.remove();
+
+                            _d.dispose();
+                        }
+                    catch ( Exception e )
+                        {
+                            logger_.warn( "Error disposing a PullServant", e );
+                        }
+                }
 
             pullServants_.clear();
-
-            disposed_ = true;
-        }
-        else
-        {
-            throw new OBJECT_NOT_EXIST();
         }
     }
+
+
+    public void deactivate() {
+        logger_.debug( "deactivate Object" );
+
+        try
+            {
+                byte[] _oid = getPOA().servant_to_id( getServant() );
+                getPOA().deactivate_object( _oid );
+            }
+        catch ( Exception e )
+            {
+                logger_.fatalError("Couldn't deactivate Object", e);
+                throw new RuntimeException();
+            }
+    }
+
+
+    abstract Servant getServant();
 
 
     public Integer getKey()
     {
         return key_;
-    }
-
-
-    public void remove
-        ( AbstractProxy aProxy )
-    {
-        Servant _servant = ( Servant ) servantCache_.remove( aProxy );
-
-        if ( _servant != null )
-        {
-            logger_.debug( "remove: " + aProxy.getClass().getName() );
-
-            try
-            {
-                byte[] _oid = getPOA().servant_to_id( _servant );
-                getPOA().deactivate_object( _oid );
-            }
-            catch ( WrongPolicy e )
-            {
-                logger_.fatalError( "Error removing AdminBase", e );
-            }
-            catch ( ObjectNotActive e )
-            {
-                logger_.fatalError( "Error removing AdminBase", e );
-            }
-            catch ( ServantNotActive e )
-            {
-                logger_.fatalError( "Error removing AdminBase", e );
-            }
-
-            servantCache_.remove( aProxy );
-        }
     }
 
 
@@ -458,38 +428,110 @@ public abstract class AbstractAdmin
     }
 
 
-    /**
-     * Admin never has a Lifetime Filter
-     */
     public boolean hasLifetimeFilter()
     {
         return false;
     }
 
 
-    /**
-     * Admin never has a Priority Filter
-     */
     public boolean hasPriorityFilter()
     {
         return false;
     }
 
 
-    /**
-     * Admin never has a Lifetime Filter
-     */
     public MappingFilter getLifetimeFilter()
     {
         throw new UnsupportedOperationException();
     }
 
 
-    /**
-     * Admin never has a Priority Filter
-     */
     public MappingFilter getPriorityFilter()
     {
         throw new UnsupportedOperationException();
     }
+
+
+    protected AbstractProxy getProxy(int key) throws ProxyNotFound
+    {
+        Integer _key = new Integer(key);
+        AbstractProxy _servant = null;
+
+        synchronized (modifyProxiesLock_)
+        {
+            _servant = (AbstractProxy)pullServants_.get(_key);
+
+            if (_servant == null)
+            {
+                _servant = (AbstractProxy)pullServants_.get(_key);
+            }
+        }
+
+        if (_servant == null || !_servant.isKeyPublic() )
+        {
+            throw new ProxyNotFound("The ProxyConsumer with ID=" + key + " does not exist");
+        }
+
+        return _servant;
+    }
+
+
+    protected int[] get_all_notify_proxies(Map map, Object lock)
+    {
+        List _allKeys = new ArrayList();
+
+        synchronized (lock)
+        {
+            Iterator _i = map.entrySet().iterator();
+
+            while ( _i.hasNext() )
+            {
+                Map.Entry _entry = (Map.Entry)_i.next();
+
+                if ( ( (AbstractProxy)_entry.getValue() ).isKeyPublic() ) {
+                    _allKeys.add(_entry.getKey());
+                }
+
+            }
+        }
+
+        int[] _allKeysArray = new int[_allKeys.size()];
+        for (int x=0; x<_allKeysArray.length; ++x) {
+            _allKeysArray[x] = ((Integer)_allKeys.get(x)).intValue();
+        }
+        return _allKeysArray;
+    }
+
+
+    protected void configureEventStyleID(AbstractProxy servant) {
+        servant.setKey(new Integer(getProxyID()), false);
+
+        servant.setFilterManager( FilterManager.EMPTY_FILTER_MANAGER );
+    }
+
+
+    protected void configureQoS(AbstractProxy servant)  {
+        try {
+            servant.set_qos(qosSettings_.get_qos());
+        } catch (UnsupportedQoS e) {
+            logger_.fatalError("unexpected exception", e);
+
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+
+    protected void configureNotifyStyleID(AbstractProxy servant) {
+        servant.setKey(new Integer(getProxyID()), true);
+    }
+
+
+    protected void configureInterFilterGroupOperator(AbstractProxy servant) {
+        if ( filterGroupOperator_ != null &&
+             (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP ) )
+            {
+                servant.setInterFilterGroupOperatorOR( true );
+            }
+    }
+
 }

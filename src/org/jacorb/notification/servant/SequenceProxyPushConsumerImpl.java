@@ -21,8 +21,6 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.List;
-
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
@@ -32,12 +30,9 @@ import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerPOATie;
 import org.omg.CosNotifyComm.SequencePushSupplier;
 import org.omg.PortableServer.Servant;
 
-import org.jacorb.notification.*;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
+import org.jacorb.notification.ChannelContext;
 
 /**
- * SequenceProxyPushConsumerImpl.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -46,22 +41,15 @@ public class SequenceProxyPushConsumerImpl
     extends StructuredProxyPushConsumerImpl
     implements SequenceProxyPushConsumerOperations
 {
-
     private SequencePushSupplier mySequencePushSupplier_;
 
     ////////////////////////////////////////
 
     public SequenceProxyPushConsumerImpl( AbstractAdmin supplierAdmin,
-                                          ChannelContext channelContext,
-                                          PropertyManager adminProperties,
-                                          PropertyManager qosProperties,
-                                          Integer key )
+                                          ChannelContext channelContext)
     {
         super( supplierAdmin,
-               channelContext,
-               adminProperties,
-               qosProperties,
-               key );
+               channelContext);
 
         setProxyType( ProxyType.PUSH_SEQUENCE );
     }
@@ -82,6 +70,7 @@ public class SequenceProxyPushConsumerImpl
         }
     }
 
+
     public void connect_sequence_push_supplier( SequencePushSupplier supplier )
         throws AlreadyConnected
     {
@@ -94,7 +83,9 @@ public class SequenceProxyPushConsumerImpl
         mySequencePushSupplier_ = supplier;
     }
 
-    public void push_structured_events( StructuredEvent[] events ) throws Disconnected
+
+    public void push_structured_events( StructuredEvent[] events )
+        throws Disconnected
     {
         for ( int x = 0; x < events.length; ++x )
         {
@@ -102,17 +93,19 @@ public class SequenceProxyPushConsumerImpl
         }
     }
 
+
     public void disconnect_sequence_push_consumer()
     {
         dispose();
     }
 
+
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-            {
-                thisServant_ = new SequenceProxyPushConsumerPOATie( this );
-            }
+        {
+            thisServant_ = new SequenceProxyPushConsumerPOATie( this );
+        }
 
         return thisServant_;
     }

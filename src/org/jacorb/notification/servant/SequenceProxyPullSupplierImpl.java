@@ -21,29 +21,25 @@ package org.jacorb.notification.servant;
  *
  */
 
-import java.util.Collections;
 import java.util.List;
 
-import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
 import org.omg.CosNotifyComm.SequencePullConsumer;
 import org.omg.PortableServer.Servant;
 
-import org.jacorb.notification.*;
-
 /**
- * SequenceProxyPullSupplierImpl.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -52,29 +48,32 @@ public class SequenceProxyPullSupplierImpl
     extends StructuredProxyPullSupplierImpl
     implements SequenceProxyPullSupplierOperations
 {
-
-    private SequencePullConsumer sequencePullConsumer_;
     private static final StructuredEvent[] sUndefinedSequence;
+
+    ////////////////////////////////////////
 
     static {
         sUndefinedSequence = new StructuredEvent[] {undefinedStructuredEvent_};
     }
 
+    ////////////////////////////////////////
+
+    private SequencePullConsumer sequencePullConsumer_;
+
+    ////////////////////////////////////////
+
     public SequenceProxyPullSupplierImpl( AbstractAdmin myAdminServant,
-                                          ChannelContext channelContext,
-                                          PropertyManager adminProperties,
-                                          PropertyManager qosProperties,
-                                          Integer key ) throws UnsupportedQoS
+                                          ChannelContext channelContext)
+        throws UnsupportedQoS
     {
 
         super( myAdminServant,
-               channelContext,
-               adminProperties,
-               qosProperties,
-               key );
+               channelContext );
 
-        setProxyType( ProxyType.PULL_STRUCTURED );
+        setProxyType( ProxyType.PULL_SEQUENCE );
     }
+
+    ////////////////////////////////////////
 
     public void connect_sequence_pull_consumer( SequencePullConsumer consumer )
         throws AlreadyConnected
@@ -88,6 +87,7 @@ public class SequenceProxyPullSupplierImpl
         sequencePullConsumer_ = consumer;
     }
 
+
     public StructuredEvent[] pull_structured_events( int number ) throws Disconnected
     {
         checkConnected();
@@ -99,13 +99,15 @@ public class SequenceProxyPullSupplierImpl
         Message[] _events = getUpToMessages(number);
         _ret = new StructuredEvent[_events.length];
 
-        for (int x=0; x<_events.length; ++x) {
+        for (int x = 0; x < _events.length; ++x)
+        {
             _ret[x] = _events[x].toStructuredEvent();
             _events[x].dispose();
         }
 
         return _ret;
     }
+
 
     public StructuredEvent[] try_pull_structured_events( int number,
                                                          BooleanHolder success )
@@ -115,10 +117,12 @@ public class SequenceProxyPullSupplierImpl
 
         Message[] _events = getUpToMessages(number);
 
-        if (_events != null) {
+        if (_events != null)
+        {
             StructuredEvent[] _ret = new StructuredEvent[_events.length];
 
-            for (int x=0; x<_events.length; ++x) {
+            for (int x = 0; x < _events.length; ++x)
+            {
                 _ret[x] = _events[x].toStructuredEvent();
 
                 _events[x].dispose();
@@ -127,37 +131,30 @@ public class SequenceProxyPullSupplierImpl
             return _ret;
         }
         success.value = false;
+
         return sUndefinedSequence;
     }
 
 
-    public List getSubsequentFilterStages()
+     public List getSubsequentFilterStages()
     {
         return CollectionsWrapper.singletonList( this );
     }
+
 
     public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
+
     public boolean hasMessageConsumer()
     {
         return true;
     }
 
-    public void dispose()
-    {
-        super.dispose();
-        disconnectClient();
-    }
 
-    public void markError()
-    {
-        connected_ = false;
-    }
-
-    private void disconnectClient()
+    protected void disconnectClient()
     {
         if ( connected_ )
         {
@@ -170,22 +167,19 @@ public class SequenceProxyPullSupplierImpl
         }
     }
 
-    public ConsumerAdmin MyAdmin()
-    {
-        return ( ConsumerAdmin ) myAdmin_.getCorbaRef();
-    }
 
     public void disconnect_sequence_pull_supplier()
     {
         dispose();
     }
 
+
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-            {
-                thisServant_ = new SequenceProxyPullSupplierPOATie( this );
-            }
+        {
+            thisServant_ = new SequenceProxyPullSupplierPOATie( this );
+        }
 
         return thisServant_;
     }

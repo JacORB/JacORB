@@ -24,7 +24,6 @@ import java.util.List;
 
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.CollectionsWrapper;
-import org.jacorb.notification.PropertyManager;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 
@@ -40,6 +39,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOATie;
 import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 /**
  * @author Alphonse Bendt
@@ -50,7 +50,6 @@ public class ProxyPushSupplierImpl
     extends AbstractProxySupplier
     implements ProxyPushSupplierOperations
 {
-
     private org.omg.CosEventComm.PushConsumer myPushConsumer_;
 
     private boolean enabled_;
@@ -60,51 +59,25 @@ public class ProxyPushSupplierImpl
     ////////////////////////////////////////
 
     ProxyPushSupplierImpl(AbstractAdmin myAdminServant,
-                          ChannelContext channelContext,
-                          PropertyManager adminProperties,
-                          PropertyManager qosProperties,
-                          Integer key)
+                          ChannelContext channelContext)
         throws UnsupportedQoS
     {
-
         super(myAdminServant,
-              channelContext,
-              adminProperties,
-              qosProperties,
-              key);
+              channelContext);
 
-        init(qosProperties);
-    }
-
-    ProxyPushSupplierImpl(AbstractAdmin myAdminServant,
-                          ChannelContext channelContext,
-                          PropertyManager adminProperties,
-                          PropertyManager qosProperties)
-        throws UnsupportedQoS
-    {
-
-        super(myAdminServant,
-              channelContext,
-              adminProperties,
-              qosProperties);
-
-        init(qosProperties);
-    }
-
-    ////////////////////////////////////////
-
-    private void init(PropertyManager qosProperties)
-        throws UnsupportedQoS
-    {
+        setProxyType(ProxyType.PUSH_ANY);
 
         connected_ = false;
         enabled_ = true;
     }
 
+    ////////////////////////////////////////
+
     public String toString()
     {
         return "<ProxyPushSupplier connected: " + connected_ + ">";
     }
+
 
     public void disconnect_push_supplier()
     {
@@ -112,11 +85,10 @@ public class ProxyPushSupplierImpl
     }
 
 
-    private void disconnectClient()
+    protected void disconnectClient()
     {
         if (myPushConsumer_ != null)
         {
-            logger_.debug("disconnect");
             myPushConsumer_.disconnect_push_consumer();
             myPushConsumer_ = null;
             connected_ = false;
@@ -174,12 +146,6 @@ public class ProxyPushSupplierImpl
     }
 
 
-    public ConsumerAdmin MyAdmin()
-    {
-        return (ConsumerAdmin)myAdmin_.getCorbaRef();
-    }
-
-
     public List getSubsequentFilterStages()
     {
         return CollectionsWrapper.singletonList(this);
@@ -222,48 +188,45 @@ public class ProxyPushSupplierImpl
         Message[] _events = getAllMessages();
 
         for (int x = 0; x < _events.length; ++x)
+        {
+            try
             {
-                try
-                    {
-                        myPushConsumer_.push(_events[x].toAny());
-                    }
-                catch (Disconnected e)
-                    {
-                        connected_ = false;
-                        throw new NotConnected();
-                    }
-                finally
-                    {
-                        _events[x].dispose();
-                        _events[x] = null;
-                    }
+                myPushConsumer_.push(_events[x].toAny());
             }
+            catch (Disconnected e)
+            {
+                connected_ = false;
+                throw new NotConnected();
+            }
+            finally
+            {
+                _events[x].dispose();
+                _events[x] = null;
+            }
+        }
     }
 
 
-    synchronized public void resume_connection()
+    public void resume_connection()
         throws NotConnected,
                ConnectionAlreadyActive
     {
-        if (!connected_)
+        synchronized (this)
         {
-            throw new NotConnected();
-        }
+            if (!connected_)
+            {
+                throw new NotConnected();
+            }
 
-        if (active_)
-        {
-            throw new ConnectionAlreadyActive();
+            if (active_)
+            {
+                throw new ConnectionAlreadyActive();
+            }
+
+            active_ = true;
         }
 
         deliverPendingMessages();
-        active_ = true;
-    }
-
-
-    synchronized public void dispose()
-    {
-        super.dispose();
-        disconnectClient();
     }
 
 
@@ -289,7 +252,8 @@ public class ProxyPushSupplierImpl
     }
 
 
-    public org.omg.CORBA.Object getCorbaRef() {
+    public org.omg.CORBA.Object activate()
+    {
         return ProxyPushSupplierHelper.narrow( getServant()._this_object(getORB()) );
     }
 }

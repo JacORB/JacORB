@@ -40,36 +40,24 @@ import org.jacorb.notification.*;
 import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 
 /**
- * StructuredProxyPushConsumerImpl.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
 
 public class StructuredProxyPushConsumerImpl
-    extends AbstractProxy
+    extends AbstractProxyConsumer
     implements StructuredProxyPushConsumerOperations {
 
     private StructuredPushSupplier myPushSupplier_;
-    private List subsequentDestinations_;
 
     ////////////////////////////////////////
 
     public StructuredProxyPushConsumerImpl(AbstractAdmin supplierAdminServant,
-                                           ChannelContext channelContext,
-                                           PropertyManager adminProperties,
-                                           PropertyManager qosProperties,
-                                           Integer key) {
+                                           ChannelContext channelContext) {
         super(supplierAdminServant,
-              channelContext,
-              adminProperties,
-              qosProperties,
-              key,
-              true);
+              channelContext);
 
         setProxyType(ProxyType.PUSH_STRUCTURED);
-
-        subsequentDestinations_ = CollectionsWrapper.singletonList(myAdmin_);
     }
 
     ////////////////////////////////////////
@@ -78,15 +66,19 @@ public class StructuredProxyPushConsumerImpl
 
         checkConnected();
 
-        Message _notifyEvent =
+        Message _mesg =
             messageFactory_.newMessage(structuredEvent, this);
 
-        getTaskProcessor().processMessage(_notifyEvent);
+        checkMessageProperties(_mesg);
+
+        getTaskProcessor().processMessage(_mesg);
     }
+
 
     public void disconnect_structured_push_consumer() {
         dispose();
     }
+
 
     protected void disconnectClient() {
         if (connected_) {
@@ -97,6 +89,7 @@ public class StructuredProxyPushConsumerImpl
             }
         }
     }
+
 
     public void connect_structured_push_supplier(StructuredPushSupplier structuredPushSupplier)
         throws AlreadyConnected {
@@ -109,35 +102,6 @@ public class StructuredProxyPushConsumerImpl
     }
 
 
-    // Implementation of org.omg.CosNotifyChannelAdmin.ProxyConsumerOperations
-
-
-    /**
-     * Describe <code>MyAdmin</code> method here.
-     *
-     * @return a <code>SupplierAdmin</code> value
-     */
-    public SupplierAdmin MyAdmin() {
-        return (SupplierAdmin)myAdmin_.getCorbaRef();
-    }
-
-    public MessageConsumer getMessageConsumer() {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean hasMessageConsumer() {
-        return false;
-    }
-
-    public List getSubsequentFilterStages() {
-        return subsequentDestinations_;
-    }
-
-    public void dispose() {
-        super.dispose();
-        disconnectClient();
-    }
-
     public synchronized Servant getServant() {
         if (thisServant_ == null) {
             thisServant_ = new StructuredProxyPushConsumerPOATie(this);
@@ -145,9 +109,8 @@ public class StructuredProxyPushConsumerImpl
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object getCorbaRef() {
+
+    public org.omg.CORBA.Object activate() {
         return ProxyConsumerHelper.narrow( getServant()._this_object(getORB()) );
     }
-
-
 }

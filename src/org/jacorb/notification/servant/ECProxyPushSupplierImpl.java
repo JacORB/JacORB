@@ -20,37 +20,32 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations;
-import org.omg.CosEventComm.PushConsumer;
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.PortableServer.Servant;
-import org.omg.CosEventChannelAdmin.ProxyPushSupplierPOATie;
 import org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper;
+import org.omg.CosEventChannelAdmin.ProxyPushSupplierOperations;
+import org.omg.CosEventChannelAdmin.ProxyPushSupplierPOATie;
+import org.omg.CosEventComm.PushConsumer;
+import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.PortableServer.Servant;
+
+import org.jacorb.notification.ChannelContext;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 public class ECProxyPushSupplierImpl
-    extends ProxyPushSupplierImpl
-    implements ProxyPushSupplierOperations{
+            extends ProxyPushSupplierImpl
+            implements ProxyPushSupplierOperations
+{
 
     ECProxyPushSupplierImpl(AbstractAdmin myAdminServant,
-                          ChannelContext channelContext,
-                          PropertyManager adminProperties,
-                          PropertyManager qosProperties,
-                          Integer key)
-        throws UnsupportedQoS
+                            ChannelContext channelContext)
+    throws UnsupportedQoS
     {
 
         super(myAdminServant,
-              channelContext,
-              adminProperties,
-              qosProperties,
-              key);
+              channelContext);
 
         isKeyPublic_ = false;
     }
@@ -58,20 +53,24 @@ public class ECProxyPushSupplierImpl
     ////////////////////////////////////////
 
     public void connect_push_consumer(PushConsumer pushConsumer)
-        throws AlreadyConnected
+    throws AlreadyConnected
     {
         connect_any_push_consumer(pushConsumer);
     }
 
 
-    public synchronized Servant getServant() {
-        if (thisServant_ == null) {
+    public synchronized Servant getServant()
+    {
+        if (thisServant_ == null)
+        {
             thisServant_ = new ProxyPushSupplierPOATie(this);
         }
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object getCorbaRef() {
+
+    public org.omg.CORBA.Object activate()
+    {
         return ProxyPushSupplierHelper.narrow( getServant()._this_object(getORB()) );
     }
 

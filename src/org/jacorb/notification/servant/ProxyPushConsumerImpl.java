@@ -20,10 +20,9 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.List;
+import org.jacorb.notification.ChannelContext;
 
 import org.jacorb.notification.interfaces.Message;
-import org.jacorb.notification.interfaces.MessageConsumer;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
@@ -33,11 +32,7 @@ import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.PortableServer.Servant;
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
-import org.jacorb.notification.CollectionsWrapper;
 
 /**
  * @author Alphonse Bendt
@@ -45,53 +40,24 @@ import org.jacorb.notification.CollectionsWrapper;
  */
 
 public class ProxyPushConsumerImpl
-            extends AbstractProxy
+            extends AbstractProxyConsumer
             implements ProxyPushConsumerOperations
 {
-
     private org.omg.CosEventComm.PushSupplier myPushSupplier;
 
-    private List subsequentDestinations_;
-
     ////////////////////////////////////////
 
     ProxyPushConsumerImpl( AbstractAdmin myAdminServant,
-                           ChannelContext channelContext,
-                           PropertyManager adminProperties,
-                           PropertyManager qosProperties )
-    {
-        super( myAdminServant,
-               channelContext,
-               adminProperties,
-               qosProperties );
-
-        init(myAdminServant);
-    }
-
-    ProxyPushConsumerImpl( AbstractAdmin myAdminServant,
-                           ChannelContext channelContext,
-                           PropertyManager adminProperties,
-                           PropertyManager qosProperties,
-                           Integer key )
+                           ChannelContext channelContext)
     {
 
         super( myAdminServant,
-               channelContext,
-               adminProperties,
-               qosProperties,
-               key,
-               true);
+               channelContext);
 
-        init(myAdminServant);
-    }
-
-    ////////////////////////////////////////
-
-    private void init(AbstractAdmin supplierAdminServant)
-    {
         setProxyType( ProxyType.PUSH_ANY );
-        subsequentDestinations_ = CollectionsWrapper.singletonList( supplierAdminServant );
     }
+
+    ////////////////////////////////////////
 
 
     public void disconnect_push_consumer()
@@ -109,11 +75,10 @@ public class ProxyPushConsumerImpl
     }
 
 
-    private void disconnectClient()
+    protected void disconnectClient()
     {
         if ( myPushSupplier != null )
         {
-            logger_.info( "disconnect()" );
             myPushSupplier.disconnect_push_supplier();
             myPushSupplier = null;
         }
@@ -125,17 +90,21 @@ public class ProxyPushConsumerImpl
      */
     public void push( Any event ) throws Disconnected
     {
+        logger_.debug("push Any into the Channel");
+
         checkConnected();
 
-        Message _notifyEvent =
+        Message _mesg =
             messageFactory_.newMessage( event, this );
 
-        getTaskProcessor().processMessage( _notifyEvent );
+        checkMessageProperties(_mesg);
+
+        getTaskProcessor().processMessage( _mesg );
     }
 
 
     public void connect_any_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
-        throws AlreadyConnected
+    throws AlreadyConnected
     {
         logger_.info( "connect any_push_supplier" );
 
@@ -149,48 +118,19 @@ public class ProxyPushConsumerImpl
     }
 
 
-    public SupplierAdmin MyAdmin()
-    {
-        return ( SupplierAdmin ) myAdmin_.getCorbaRef();
-    }
-
-
-    public List getSubsequentFilterStages()
-    {
-        return subsequentDestinations_;
-    }
-
-
-    public MessageConsumer getMessageConsumer()
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    public boolean hasMessageConsumer()
-    {
-        return false;
-    }
-
-
-    public void dispose()
-    {
-        super.dispose();
-
-        disconnectClient();
-    }
-
-
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-            {
-                thisServant_ = new ProxyPushConsumerPOATie( this );
-            }
+        {
+            thisServant_ = new ProxyPushConsumerPOATie( this );
+        }
 
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object getCorbaRef() {
+
+    public org.omg.CORBA.Object activate()
+    {
         return ProxyConsumerHelper.narrow( getServant()._this_object(getORB()) );
     }
 }

@@ -1,5 +1,9 @@
 package org.jacorb.notification.servant;
 
+import org.jacorb.notification.interfaces.FilterStage;
+
+
+
 /*
  *        JacORB - a free Java ORB
  *
@@ -20,24 +24,13 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.PortableServer.Servant;
-import org.omg.PortableServer.POA;
-import org.omg.CORBA.ORB;
-
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public interface ManageableServant {
-
-    void setORB(ORB orb);
-
-    void setPOA(POA poa);
-
-    void preActivate() throws Exception;
-
-    org.omg.CORBA.Object activate();
-
-    void deactivate();
+public interface AbstractProxyConsumerI {
+    boolean isStartTimeSupported();
+    boolean isTimeOutSupported();
+    FilterStage getFirstStage();
 }

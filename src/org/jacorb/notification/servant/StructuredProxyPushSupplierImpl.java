@@ -23,8 +23,10 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
-import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -34,14 +36,12 @@ import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
+import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOATie;
 import org.omg.CosNotifyComm.StructuredPushConsumer;
 import org.omg.PortableServer.Servant;
-
-import org.jacorb.notification.*;
-import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 
 /**
  * @author Alphonse Bendt
@@ -61,17 +61,11 @@ public class StructuredProxyPushSupplierImpl
     ////////////////////////////////////////
 
     public StructuredProxyPushSupplierImpl( AbstractAdmin myAdminServant,
-                                            ChannelContext channelContext,
-                                            PropertyManager adminProperties,
-                                            PropertyManager qosProperties,
-                                            Integer key )
+                                            ChannelContext channelContext)
         throws UnsupportedQoS
     {
         super( myAdminServant,
-               channelContext,
-               adminProperties,
-               qosProperties,
-               key );
+               channelContext );
 
         setProxyType( ProxyType.PUSH_STRUCTURED );
         enabled_ = true;
@@ -224,12 +218,6 @@ public class StructuredProxyPushSupplierImpl
     }
 
 
-    public ConsumerAdmin MyAdmin()
-    {
-        return ( ConsumerAdmin ) myAdmin_.getCorbaRef();
-    }
-
-
     public List getSubsequentFilterStages()
     {
         return CollectionsWrapper.singletonList( this );
@@ -245,14 +233,6 @@ public class StructuredProxyPushSupplierImpl
     public boolean hasMessageConsumer()
     {
         return true;
-    }
-
-
-    synchronized public void dispose()
-    {
-        super.dispose();
-
-        disconnectClient();
     }
 
 
@@ -278,7 +258,7 @@ public class StructuredProxyPushSupplierImpl
     }
 
 
-    public org.omg.CORBA.Object getCorbaRef() {
+    public org.omg.CORBA.Object activate() {
         return ProxySupplierHelper.narrow( getServant()._this_object(getORB()) );
     }
 }

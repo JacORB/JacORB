@@ -21,18 +21,28 @@ package org.jacorb.notification.servant;
  *
  */
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
+import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.FilterManager;
+import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.servant.QoSPropertySet;
+import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
 
 import org.omg.CORBA.NO_IMPLEMENT;
+import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
 import org.omg.CosNotification.Property;
@@ -51,16 +61,8 @@ import org.omg.PortableServer.Servant;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
-import org.omg.CosEventComm.Disconnected;
-import org.jacorb.notification.MessageFactory;
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
-import org.jacorb.notification.FilterManager;
-import org.jacorb.notification.engine.TaskProcessor;
 
 /**
- * ProxyBase.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -73,6 +75,8 @@ public abstract class AbstractProxy
                Disposable,
                ManageableServant
 {
+    private Runnable disposeHook_;
+
     private SynchronizedInt errorCounter_ = new SynchronizedInt(0);
 
     private POA poa_;
@@ -93,7 +97,8 @@ public abstract class AbstractProxy
 
     protected boolean connected_;
 
-    //    protected ChannelContext channelContext_;
+    protected QoSPropertySet qosSettings_ =
+        new QoSPropertySet(QoSPropertySet.PROXY_QOS);
 
     protected Integer key_;
 
@@ -106,13 +111,9 @@ public abstract class AbstractProxy
 
     protected boolean disposed_ = false;
 
-    protected PropertyManager adminProperties_;
-
-    protected PropertyManager qosProperties_;
-
     private ProxyType proxyType_;
 
-    private boolean hasOrSemantic_;
+    private boolean isInterFilterGroupOperatorOR_;
 
     protected Servant thisServant_;
 
@@ -120,33 +121,15 @@ public abstract class AbstractProxy
 
     protected MappingFilter priorityFilter_;
 
+    private boolean disposedProxyDisconnectsClient_;
+
     ////////////////////////////////////////
 
-    protected AbstractProxy(AbstractAdmin admin,
-                            ChannelContext channelContext,
-                            PropertyManager adminProperties,
-                            PropertyManager qosProperties)
-    {
-        this(admin,
-             channelContext,
-             adminProperties,
-             qosProperties,
-             NO_KEY,
-             false);
-    }
-
-    protected AbstractProxy(AbstractAdmin admin,
-                            ChannelContext channelContext,
-                            PropertyManager adminProperties,
-                            PropertyManager qosProperties,
-                            Integer key,
-                            boolean isKeyPublic)
+    AbstractProxy(AbstractAdmin admin,
+                  ChannelContext channelContext)
     {
         myAdmin_ = admin;
-        key_ = key;
-        adminProperties_ = adminProperties;
-        qosProperties_ = qosProperties;
-        //        channelContext_ = channelContext;
+
         connected_ = false;
 
         messageFactory_ =
@@ -154,51 +137,79 @@ public abstract class AbstractProxy
 
         filterManager_ = new FilterManager(channelContext);
 
-        isKeyPublic_ = isKeyPublic;
-
         setPOA(channelContext.getPOA());
 
         setORB(channelContext.getORB());
 
         setTaskProcessor(channelContext.getTaskProcessor());
+
+        disposedProxyDisconnectsClient_ =
+            Environment.isPropertyOn(Configuration.DISPOSE_PROXY_CALLS_DISCONNECT,
+                                     Default.DEFAULT_DISPOSE_PROXY_CALLS_DISCONNECT);
     }
 
     ////////////////////////////////////////
 
-    public void setPOA(POA poa) {
+    public void setDisposeHook(Runnable hook) {
+        disposeHook_ = hook;
+    }
+
+
+    public void setKey(Integer key, boolean isKeyPublic)
+    {
+        key_ = key;
+        isKeyPublic_ = isKeyPublic;
+    }
+
+
+    public boolean isKeyPublic()
+    {
+        return isKeyPublic_;
+    }
+
+
+    public void setPOA(POA poa)
+    {
         poa_ = poa;
     }
 
-    protected POA getPOA() {
+
+    protected POA getPOA()
+    {
         return poa_;
     }
 
-    public void setORB(ORB orb) {
+
+    public void setORB(ORB orb)
+    {
         orb_ = orb;
     }
 
-    protected ORB getORB() {
+
+    protected ORB getORB()
+    {
         return orb_;
     }
 
-    ////////////////////////////////////////
 
-    public void setTaskProcessor(TaskProcessor tp) {
+    public void setTaskProcessor(TaskProcessor tp)
+    {
         taskProcessor_ = tp;
     }
 
-    protected TaskProcessor getTaskProcessor() {
+
+    protected TaskProcessor getTaskProcessor()
+    {
         return taskProcessor_;
     }
 
-    ////////////////////////////////////////
 
     public synchronized void addProxyDisposedEventListener(ProxyEventListener listener)
     {
         if (proxyDisposedEventListener_ == null)
-            {
-                proxyDisposedEventListener_ = new Vector();
-            }
+        {
+            proxyDisposedEventListener_ = new ArrayList();
+        }
 
         proxyDisposedEventListener_.add(listener);
     }
@@ -252,73 +263,86 @@ public abstract class AbstractProxy
         throw new NO_IMPLEMENT();
     }
 
+
     public void validate_event_qos(Property[] qosProps,
                                    NamedPropertyRangeSeqHolder propSeqHolder)
-        throws UnsupportedQoS
-    {
-        throw new NO_IMPLEMENT();
-    }
-
-    public void validate_qos(Property[] qosProps,
-                             NamedPropertyRangeSeqHolder propSeqHolder)
     throws UnsupportedQoS
     {
         throw new NO_IMPLEMENT();
     }
 
+
+    public void validate_qos(Property[] props,
+                             NamedPropertyRangeSeqHolder propertyRange)
+    throws UnsupportedQoS
+    {
+        qosSettings_.validate_qos(props, propertyRange);
+    }
+
+
     public void set_qos(Property[] qosProps) throws UnsupportedQoS
     {
-        throw new NO_IMPLEMENT();
+        qosSettings_.set_qos(qosProps);
     }
+
 
     public Property[] get_qos()
     {
-        return qosProperties_.toArray();
+        return qosSettings_.get_qos();
     }
+
 
     public void offer_change(EventType[] eventTypes,
                              EventType[] eventTypes2)
-        throws InvalidEventType
+    throws InvalidEventType
     {
         throw new NO_IMPLEMENT();
     }
 
+
     public void subscription_change(EventType[] eventType,
                                     EventType[] eventType2)
-        throws InvalidEventType
+    throws InvalidEventType
     {
         throw new NO_IMPLEMENT();
     }
+
 
     public void priority_filter(MappingFilter filter)
     {
         priorityFilter_ = filter;
     }
 
+
     public MappingFilter priority_filter()
     {
         return priorityFilter_;
     }
+
 
     public MappingFilter lifetime_filter()
     {
         return lifetimeFilter_;
     }
 
+
     public void lifetime_filter(MappingFilter filter)
     {
         lifetimeFilter_ = filter;
     }
+
 
     public EventType[] obtain_offered_types(ObtainInfoMode obtaininfomode)
     {
         throw new NO_IMPLEMENT();
     }
 
+
     public Integer getKey()
     {
         return key_;
     }
+
 
     /**
      * Override this method from the Servant baseclass.  Fintan Bolton
@@ -326,130 +350,194 @@ public abstract class AbstractProxy
      * avoid the risk that a servant object (like this one) could be
      * activated by the <b>wrong</b> POA object.
      */
-    public POA _default_POA()
+    public final POA _default_POA()
     {
         return getPOA();
     }
+
 
     void setFilterManager(FilterManager manager)
     {
         filterManager_ = manager;
     }
 
+
     public List getFilters()
     {
         return filterManager_.getFilters();
     }
 
-    public void dispose()
-    {
-        if (logger_.isDebugEnabled())
-        {
-            logger_.debug("dispose AbstractProxy");
-        }
 
-        if (!disposed_)
-        {
-            remove_all_filters();
-            disposed_ = true;
-            Iterator _i;
+    public void deactivate()  {
+        logger_.info("deactivate_object");
 
-            if (proxyDisposedEventListener_ != null)
-            {
-                _i = proxyDisposedEventListener_.iterator();
-                ProxyEvent _event = new ProxyEvent(this);
-                while (_i.hasNext())
-                {
-
-                    ProxyEventListener _listener =
-                        (ProxyEventListener)_i.next();
-
-                    _listener.actionProxyDisposed(_event);
-                }
-            }
-            try
+        try
             {
                 byte[] _oid = getPOA().servant_to_id(getServant());
                 getPOA().deactivate_object(_oid);
             }
-            catch (Exception e)
+        catch (Exception e)
             {
-                logger_.fatalError("Couldnt deactivate Object", e);
+                logger_.fatalError("Couldn't deactivate Object", e);
+            }
+    }
+
+
+    public void dispose()
+    {
+        synchronized (this)
+        {
+            if (!disposed_)
+            {
+                disposed_ = true;
+            }
+            else
+            {
+                throw new OBJECT_NOT_EXIST();
             }
         }
+
+        //////////////////////////////
+
+        deactivate();
+
+        //////////////////////////////
+
+        if (disposeHook_ != null) {
+            disposeHook_.run();
+        }
+
+        //////////////////////////////
+
+        remove_all_filters();
+
+        //////////////////////////////
+
+        Iterator _i;
+
+        if (proxyDisposedEventListener_ != null)
+        {
+            _i = proxyDisposedEventListener_.iterator();
+            ProxyEvent _event = new ProxyEvent(this);
+            while (_i.hasNext())
+            {
+
+                ProxyEventListener _listener =
+                    (ProxyEventListener)_i.next();
+
+                _listener.actionProxyDisposed(_event);
+            }
+        }
+
+        //////////////////////////////
+
+        if (disposedProxyDisconnectsClient_) {
+            try
+                {
+                    disconnectClient();
+                }
+            catch (Throwable e)
+                {
+                    logger_.error("error disconnecting client", e);
+                }
+        }
     }
+
 
     protected void setProxyType(ProxyType p)
     {
         proxyType_ = p;
     }
 
-    public ProxyType MyType()
+
+    public final ProxyType MyType()
     {
         return proxyType_;
     }
 
-    void setOrSemantic(boolean b)
+
+    void setInterFilterGroupOperatorOR(boolean b)
     {
-        hasOrSemantic_ = b;
+        isInterFilterGroupOperatorOR_ = b;
     }
 
-    public boolean hasOrSemantic()
+
+    public boolean hasInterFilterGroupOperatorOR()
     {
-        return hasOrSemantic_;
+        return isInterFilterGroupOperatorOR_;
     }
+
 
     public boolean isDisposed()
     {
         return disposed_;
     }
 
+
     public boolean isConnected()
     {
         return connected_;
     }
+
 
     public boolean hasLifetimeFilter()
     {
         return lifetimeFilter_ != null;
     }
 
+
     public boolean hasPriorityFilter()
     {
         return priorityFilter_ != null;
     }
+
 
     public MappingFilter getLifetimeFilter()
     {
         return lifetimeFilter_;
     }
 
+
     public MappingFilter getPriorityFilter()
     {
         return priorityFilter_;
     }
+
 
     public void resetErrorCounter()
     {
         errorCounter_.set(0);
     }
 
+
     public int getErrorCounter()
     {
         return errorCounter_.get();
     }
+
 
     public int incErrorCounter()
     {
         return errorCounter_.increment();
     }
 
+
     protected void checkConnected() throws Disconnected
     {
         if ( !connected_ )
-            {
-                throw new Disconnected();
-            }
+        {
+            throw new Disconnected();
+        }
     }
 
+
+    public void preActivate() throws Exception
+    {
+        // NO Op
+    }
+
+    protected abstract void disconnectClient();
+
+
+    abstract Servant getServant();
 }

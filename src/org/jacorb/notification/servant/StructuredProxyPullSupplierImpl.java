@@ -43,12 +43,12 @@ import org.omg.CosNotifyComm.StructuredPullConsumer;
 import org.omg.PortableServer.Servant;
 import org.omg.CORBA.ORB;
 
-import org.jacorb.notification.*;
+
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
+import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.CollectionsWrapper;
 
 /**
- * StructuredProxyPullSupplierImpl.java
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -57,11 +57,6 @@ public class StructuredProxyPullSupplierImpl
     extends AbstractProxySupplier
     implements StructuredProxyPullSupplierOperations
 {
-    /**
-     * the associated Consumer.
-     */
-    StructuredPullConsumer structuredPullConsumer_;
-
     /**
      * undefined StructuredEvent that is returned on unsuccessful pull operations.
      */
@@ -80,21 +75,24 @@ public class StructuredProxyPullSupplierImpl
         undefinedStructuredEvent_.remainder_of_body = _orb.create_any();
     }
 
+    /**
+     * the associated Consumer.
+     */
+    StructuredPullConsumer structuredPullConsumer_;
+
+    ////////////////////////////////////////
+
     public StructuredProxyPullSupplierImpl( AbstractAdmin myAdminServant,
-                                            ChannelContext channelContext,
-                                            PropertyManager adminProperties,
-                                            PropertyManager qosProperties,
-                                            Integer key )
+                                            ChannelContext channelContext)
         throws UnsupportedQoS
     {
         super( myAdminServant,
-               channelContext,
-               adminProperties,
-               qosProperties,
-               key );
+               channelContext );
 
         setProxyType( ProxyType.PULL_STRUCTURED );
     }
+
+    ////////////////////////////////////////
 
     public void connect_structured_pull_consumer( StructuredPullConsumer consumer )
         throws AlreadyConnected
@@ -108,10 +106,6 @@ public class StructuredProxyPullSupplierImpl
         structuredPullConsumer_ = consumer;
     }
 
-    public ConsumerAdmin MyAdmin()
-    {
-        return ( ConsumerAdmin ) myAdmin_.getCorbaRef();
-    }
 
     public StructuredEvent pull_structured_event()
         throws Disconnected
@@ -164,7 +158,7 @@ public class StructuredProxyPullSupplierImpl
     }
 
 
-    private void disconnectClient()
+    protected void disconnectClient()
     {
         if ( connected_ )
         {
@@ -177,6 +171,7 @@ public class StructuredProxyPullSupplierImpl
         }
     }
 
+
     /**
      * PullSupplier always enqueues.
      */
@@ -185,42 +180,42 @@ public class StructuredProxyPullSupplierImpl
         enqueue( event );
     }
 
+
     public List getSubsequentFilterStages()
     {
         return CollectionsWrapper.singletonList( this );
     }
+
 
     public MessageConsumer getMessageConsumer()
     {
         return this;
     }
 
+
     public boolean hasMessageConsumer()
     {
         return true;
     }
 
-    public void dispose()
-    {
-        super.dispose();
-
-        disconnectClient();
-    }
 
     public void disableDelivery()
     {
         // as no active deliveries are made this can be ignored
     }
 
+
     public void enableDelivery()
     {
         // as no active deliveries are made this can be ignored
     }
 
+
     public void deliverPendingMessages()
     {
         // as no active deliveries are made this can be ignored
     }
+
 
     public synchronized Servant getServant()
     {
@@ -232,7 +227,8 @@ public class StructuredProxyPullSupplierImpl
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object getCorbaRef() {
+
+    public org.omg.CORBA.Object activate() {
         return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 }

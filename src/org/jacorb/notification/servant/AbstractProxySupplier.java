@@ -20,25 +20,27 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.servant.PropertySet;
+import org.jacorb.notification.servant.PropertySetListener;
+import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Default;
+import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.queue.EventQueue;
+import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.util.TaskExecutor;
 import org.jacorb.util.Environment;
 
-import org.omg.CORBA.UNKNOWN;
+import org.omg.CosNotification.DiscardPolicy;
+import org.omg.CosNotification.OrderPolicy;
 import org.omg.CosNotification.Property;
 import org.omg.CosNotification.UnsupportedQoS;
 
-import java.util.Map;
-
-import org.jacorb.notification.queue.EventQueueFactory;
-import org.jacorb.notification.interfaces.Disposable;
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
-import org.jacorb.notification.PropertyValidator;
-import org.jacorb.notification.conf.Configuration;
-import org.jacorb.notification.conf.Default;
+import java.util.List;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdminHelper;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 
 /**
  * Abstract base class for ProxySuppliers.
@@ -54,8 +56,8 @@ import org.jacorb.notification.conf.Default;
  */
 
 public abstract class AbstractProxySupplier
-    extends AbstractProxy
-    implements MessageConsumer
+            extends AbstractProxy
+            implements MessageConsumer
 {
     private TaskExecutor taskExecutor_;
 
@@ -67,106 +69,59 @@ public abstract class AbstractProxySupplier
 
     /**
      * lock variable used to control access to the reference to the
-     * queue object not the queue object itself.
+     * Message Queue.
      */
-    private Object pendingEventsLock_ =
-        new Object();
+    private Object pendingEventsLock_ = new Object();
 
-
-    ////////////////////
+    ////////////////////////////////////////
 
     protected AbstractProxySupplier(AbstractAdmin admin,
-                                    ChannelContext channelContext,
-                                    PropertyManager adminProperties,
-                                    PropertyManager qosProperties)
-        throws UnsupportedQoS
+                                    ChannelContext channelContext)
+    throws UnsupportedQoS
     {
         super(admin,
-              channelContext,
-              adminProperties,
-              qosProperties);
-
-        init(qosProperties);
+              channelContext);
     }
 
+
     protected AbstractProxySupplier(AbstractAdmin admin,
                                     ChannelContext channelContext,
-                                    PropertyManager adminProperties,
-                                    PropertyManager qosProperties,
                                     Integer key)
-        throws UnsupportedQoS
+    throws UnsupportedQoS
     {
         super(admin,
-              channelContext,
-              adminProperties,
-              qosProperties,
-              key,
-              true);
-
-        init(qosProperties);
+              channelContext);
     }
 
     ////////////////////////////////////////
 
-    private void init(PropertyManager qosProperties)
-        throws UnsupportedQoS
+    public void preActivate() throws UnsupportedQoS
     {
         synchronized (pendingEventsLock_)
-            {
-                pendingEvents_ = EventQueueFactory.newEventQueue(qosProperties);
-            }
+        {
+            pendingEvents_ = EventQueueFactory.newEventQueue(qosSettings_);
+        }
 
         errorThreshold_ =
             Environment.getIntPropertyWithDefault(Configuration.EVENTCONSUMER_ERROR_THRESHOLD,
                                                   Default.DEFAULT_EVENTCONSUMER_ERROR_THRESHOLD);
 
-        if (logger_.isInfoEnabled()) {
-            logger_.info(toString() + ": set Error Threshold to : " + errorThreshold_);
+        if (logger_.isInfoEnabled())
+        {
+            logger_.info("set Error Threshold to : " + errorThreshold_);
         }
+
+        qosSettings_.addPropertySetListener(new String[] {OrderPolicy.value, DiscardPolicy.value},
+                                            eventQueueConfigurationChangedCB);
     }
 
 
-    public TaskExecutor getExecutor() {
-        return taskExecutor_;
-    }
-
-
-    public void setTaskExecutor(TaskExecutor executor) {
-        if (taskExecutor_ == null) {
-            taskExecutor_ = executor;
-        } else {
-            throw new IllegalArgumentException("set only once");
-        }
-    }
-
-
-    public void setTaskExecutor(TaskExecutor executor, Disposable disposeTaskExecutor) {
-        setTaskExecutor(executor);
-        disposeTaskExecutor_ = disposeTaskExecutor;
-    }
-
-    public void set_qos(Property[] qosProps) throws UnsupportedQoS
+    private void configureEventQueue() throws UnsupportedQoS
     {
-        logger_.info("set_qos called");
+        EventQueue _newQueue = EventQueueFactory.newEventQueue( qosSettings_ );
 
         try
         {
-            PropertyValidator.checkQoSPropertySeq(qosProps);
-
-            Map _uniqueQoSProps =
-                PropertyValidator.getUniqueProperties(qosProps);
-
-            PropertyManager _qosManager =
-                new PropertyManager(null, //applicationContext_,
-                                    _uniqueQoSProps);
-
-            if (logger_.isInfoEnabled())
-                {
-                    logger_.info("qos props: " + _qosManager);
-                }
-
-            EventQueue _newQueue = EventQueueFactory.newEventQueue( _qosManager );
-
             synchronized (pendingEventsLock_)
             {
                 if (!pendingEvents_.isEmpty())
@@ -185,10 +140,52 @@ public abstract class AbstractProxySupplier
         }
         catch (InterruptedException e)
         {
-            logger_.error("interupted", e);
-            throw new UNKNOWN(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
     }
+
+
+    private PropertySetListener eventQueueConfigurationChangedCB =
+        new PropertySetListener()
+        {
+
+            public void validateProperty(Property[] p, List errors)
+            {}
+
+            public void actionPropertySetChanged(PropertySet source)
+            throws UnsupportedQoS
+            {
+                configureEventQueue();
+            }
+        };
+
+
+    public TaskExecutor getExecutor()
+    {
+        return taskExecutor_;
+    }
+
+
+    public void setTaskExecutor(TaskExecutor executor)
+    {
+        if (taskExecutor_ == null)
+        {
+            taskExecutor_ = executor;
+        }
+        else
+        {
+            throw new IllegalArgumentException("set only once");
+        }
+    }
+
+
+    public void setTaskExecutor(TaskExecutor executor, Disposable disposeTaskExecutor)
+    {
+        setTaskExecutor(executor);
+
+        disposeTaskExecutor_ = disposeTaskExecutor;
+    }
+
 
     public boolean hasPendingMessages()
     {
@@ -198,34 +195,45 @@ public abstract class AbstractProxySupplier
         }
     }
 
+
     /**
      * put a Message in the queue of pending Messages.
      *
      * @param message the <code>Message</code> to queue.
      */
-    protected void enqueue(Message message) {
-        synchronized(pendingEventsLock_) {
+    protected void enqueue(Message message)
+    {
+        synchronized (pendingEventsLock_)
+        {
             pendingEvents_.put(message);
         }
 
-        if (logger_.isDebugEnabled() ) {
+        if (logger_.isDebugEnabled() )
+        {
             logger_.debug("added " + message + " to pending Messages.");
         }
     }
 
 
-    protected Message getMessageBlocking() throws InterruptedException {
-        synchronized(pendingEventsLock_) {
+    protected Message getMessageBlocking() throws InterruptedException
+    {
+        synchronized (pendingEventsLock_)
+        {
             return pendingEvents_.getEvent(true);
         }
     }
 
 
-    protected Message getMessageNoBlock() {
-        synchronized(pendingEventsLock_) {
-            try {
+    protected Message getMessageNoBlock()
+    {
+        synchronized (pendingEventsLock_)
+        {
+            try
+            {
                 return pendingEvents_.getEvent(false);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e)
+            {
                 Thread.currentThread().interrupt();
 
                 return null;
@@ -233,11 +241,17 @@ public abstract class AbstractProxySupplier
         }
     }
 
-    protected Message[] getAllMessages() {
-        synchronized(pendingEventsLock_) {
-            try {
+
+    protected Message[] getAllMessages()
+    {
+        synchronized (pendingEventsLock_)
+        {
+            try
+            {
                 return pendingEvents_.getAllEvents(false);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e)
+            {
                 Thread.currentThread().interrupt();
 
                 return null;
@@ -245,39 +259,66 @@ public abstract class AbstractProxySupplier
         }
     }
 
-    protected Message[] getUpToMessages(int max) {
-        try {
-            synchronized(pendingEventsLock_) {
+
+    protected Message[] getUpToMessages(int max)
+    {
+        try
+        {
+            synchronized (pendingEventsLock_)
+            {
                 return pendingEvents_.getEvents(max, false);
             }
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             Thread.currentThread().interrupt();
+
             return null;
         }
     }
 
-    protected Message[] getAtLeastMessages(int min) {
-        try {
-            synchronized(pendingEventsLock_) {
-                if (pendingEvents_.getSize() >= min) {
+
+    protected Message[] getAtLeastMessages(int min)
+    {
+        try
+        {
+            synchronized (pendingEventsLock_)
+            {
+                if (pendingEvents_.getSize() >= min)
+                {
                     return pendingEvents_.getAllEvents(true);
                 }
             }
-        } catch (InterruptedException e) {
         }
+        catch (InterruptedException e)
+        {
+            Thread.currentThread().interrupt();
+        }
+
         return null;
     }
 
-    public int getErrorThreshold() {
+
+    public int getErrorThreshold()
+    {
         return errorThreshold_;
     }
 
-    public void dispose() {
+
+    final public void dispose()
+    {
         super.dispose();
 
-        if (disposeTaskExecutor_ != null) {
+        if (disposeTaskExecutor_ != null)
+        {
             disposeTaskExecutor_.dispose();
         }
+    }
+
+
+    final public ConsumerAdmin MyAdmin()
+    {
+        return ConsumerAdminHelper.narrow(myAdmin_.activate());
     }
 
 }

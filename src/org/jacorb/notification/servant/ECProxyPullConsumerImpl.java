@@ -20,50 +20,33 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.PortableServer.Servant;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventComm.PullSupplier;
-import org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumerHelper;
+import org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations;
+import org.omg.CosEventChannelAdmin.ProxyPullConsumerPOATie;
+import org.omg.CosEventComm.PullSupplier;
+import org.omg.PortableServer.Servant;
+
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
+
 public class ECProxyPullConsumerImpl
     extends ProxyPullConsumerImpl
-    implements org.omg.CosEventChannelAdmin.ProxyPullConsumerOperations {
+    implements ProxyPullConsumerOperations
+{
 
     ECProxyPullConsumerImpl( AbstractAdmin admin,
-                             ChannelContext channelContext,
-                             PropertyManager adminProperties,
-                             PropertyManager qosProperties,
-                             Integer key)
+                             ChannelContext channelContext)
     {
-
         super( admin,
-               channelContext,
-               adminProperties,
-               qosProperties,
-               key);
-
-        isKeyPublic_ = false;
+               channelContext);
     }
 
     ////////////////////////////////////////
-
-    public synchronized Servant getServant()
-    {
-        if ( thisServant_ == null )
-            {
-                thisServant_ = new ProxyPullConsumerPOATie( this );
-            }
-
-        return thisServant_;
-    }
-
 
     public void connect_pull_supplier( PullSupplier pullSupplier )
         throws AlreadyConnected
@@ -72,7 +55,19 @@ public class ECProxyPullConsumerImpl
     }
 
 
-    public org.omg.CORBA.Object getCorbaRef() {
+    public synchronized Servant getServant()
+    {
+        if ( thisServant_ == null )
+        {
+            thisServant_ = new ProxyPullConsumerPOATie( this );
+        }
+
+        return thisServant_;
+    }
+
+
+    public org.omg.CORBA.Object activate()
+    {
         return ProxyPullConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
 

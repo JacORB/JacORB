@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.FilterManager;
-import org.jacorb.notification.PropertyManager;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.MessageConsumer;
@@ -55,6 +54,7 @@ import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyComm.InvalidEventType;
 import org.omg.CosNotifyFilter.MappingFilter;
 import org.omg.PortableServer.Servant;
+import org.omg.CORBA.NO_IMPLEMENT;
 
 /**
  * @author Alphonse Bendt
@@ -62,77 +62,47 @@ import org.omg.PortableServer.Servant;
  */
 
 public class ConsumerAdminTieImpl
-    extends AbstractAdmin
-    implements ConsumerAdminOperations,
-               Disposable,
-               ProxyEventListener
+            extends AbstractAdmin
+            implements ConsumerAdminOperations,
+            Disposable,
+            ProxyEventListener
 {
-    private Object modifyProxiesLock_ = new Object();
-
-    List eventStyleServants_ = new ArrayList();
-
     ConsumerAdmin thisRef_;
 
     ConsumerAdminPOATie thisServant_;
 
-    //    List subsequentDestinations_;
-
     FilterStageListManager listManager_;
 
-    boolean proxyListDirty_ = true;
+    MappingFilter priorityFilter_;
+
+    MappingFilter lifetimeFilter_;
 
     ////////////////////////////////////////
 
-    public ConsumerAdminTieImpl(ChannelContext channelContext,
-                                PropertyManager adminProperties,
-                                PropertyManager qosProperties )
+    public ConsumerAdminTieImpl(ChannelContext channelContext)
     {
-        super(channelContext,
-              adminProperties,
-              qosProperties );
+        super(channelContext);
 
-        common();
-    }
+        listManager_ = new FilterStageListManager()
+                       {
+                           public void fetchListData(FilterStageListManager.List listProxy)
+                           {
+                               Iterator i = pullServants_.entrySet().iterator();
 
-    private void common() {
-        listManager_ = new FilterStageListManager() {
-                public void fetchListData(FilterStageListManager.List listProxy) {
-
-                    Iterator i = pullServants_.entrySet().iterator();
-
-                    while (i.hasNext()) {
-                        listProxy.add((FilterStage) ((Map.Entry)i.next()).getValue());
-                    }
-
-                    i = pushServants_.entrySet().iterator();
-
-                    while (i.hasNext()) {
-                        listProxy.add((FilterStage) ((Map.Entry)i.next()).getValue());
-                    }
-
-                    i = eventStyleServants_.iterator();
-
-                    while (i.hasNext()) {
-                        listProxy.add((FilterStage) i.next());
-                    }
-                }
-            };
-    }
+                               while (i.hasNext())
+                               {
+                                   listProxy.add((FilterStage) ((Map.Entry)i.next()).getValue());
+                               }
 
 
-    public ConsumerAdminTieImpl(ChannelContext channelContext,
-                                PropertyManager adminProperties,
-                                PropertyManager qosProperties,
-                                int myId,
-                                InterFilterGroupOperator filterGroupOperator )
-    {
-        super(channelContext,
-              adminProperties,
-              qosProperties,
-              myId,
-              filterGroupOperator );
+                               i = pushServants_.entrySet().iterator();
 
-        common();
+                               while (i.hasNext())
+                               {
+                                   listProxy.add((FilterStage) ((Map.Entry)i.next()).getValue());
+                               }
+                           }
+                       };
     }
 
     ////////////////////////////////////////
@@ -148,64 +118,65 @@ public class ConsumerAdminTieImpl
     }
 
 
-    public synchronized ConsumerAdmin getConsumerAdmin()
+    public void preActivate()
     {
-        if ( thisRef_ == null )
-            {
-                thisRef_ = ConsumerAdminHelper.narrow(getServant()._this_object( getORB() ));
-            }
-
-        return thisRef_;
     }
 
 
-    public org.omg.CORBA.Object getCorbaRef()
+    public org.omg.CORBA.Object activate()
     {
-        return getConsumerAdmin();
+        if ( thisRef_ == null )
+        {
+            thisRef_ = ConsumerAdminHelper.narrow(getServant()._this_object( getORB() ));
+        }
+
+        return thisRef_;
     }
 
 
     public void subscription_change( EventType[] eventType1,
                                      EventType[] eventType2 )
         throws InvalidEventType
-        {}
-
-
-    public ProxySupplier get_proxy_supplier( int n ) throws ProxyNotFound
-    {
-        synchronized(modifyProxiesLock_) {
-
-            ProxySupplier _ret = ( ProxySupplier ) allProxies_.get( new Integer( n ) );
-
-            if ( _ret == null )
-                {
-                    throw new ProxyNotFound();
-                }
-
-            return _ret;
+        {
+            throw new NO_IMPLEMENT();
         }
+
+
+    public ProxySupplier get_proxy_supplier( int key ) throws ProxyNotFound
+    {
+        return ProxySupplierHelper.narrow(getProxy(key).activate());
     }
 
 
-    public void lifetime_filter( MappingFilter mappingFilter )
+    public void lifetime_filter( MappingFilter lifetimeFilter )
     {
+        lifetimeFilter_ = lifetimeFilter;
     }
 
 
     public MappingFilter lifetime_filter()
     {
-        return null;
+        if (lifetimeFilter_ == null)
+        {
+            throw new BAD_PARAM("No lifetime filter set");
+        }
+        return lifetimeFilter_;
     }
 
 
     public MappingFilter priority_filter()
     {
-        return null;
+        if (priorityFilter_ == null)
+        {
+            throw new BAD_PARAM("No priority filter set");
+        }
+        return priorityFilter_;
     }
 
 
-    public void priority_filter( MappingFilter mappingFilter )
+    public void priority_filter( MappingFilter priorityFilter )
     {
+        priorityFilter_ = priorityFilter;
     }
 
 
@@ -213,197 +184,110 @@ public class ConsumerAdminTieImpl
                                                             IntHolder intHolder )
         throws AdminLimitExceeded
     {
-        try {
+        try
+        {
             AbstractProxy _servant =
-                obtain_notification_pull_supplier_servant( clientType, intHolder );
+                obtain_notification_pull_supplier_servant( clientType );
 
-            Integer _key = _servant.getKey();
+            intHolder.value = _servant.getKey().intValue();
 
-            ProxySupplier _proxySupplier = ProxySupplierHelper.narrow( _servant.getCorbaRef() );
+            _servant.preActivate();
 
-            synchronized (modifyProxiesLock_) {
-                allProxies_.put( _key, _proxySupplier );
-
-                listManager_.actionSourceModified();
-
-                proxyListDirty_ = true;
-            }
+            ProxySupplier _proxySupplier = ProxySupplierHelper.narrow( _servant.activate() );
 
             return _proxySupplier;
-        } catch (UnsupportedQoS e) {
-            logger_.fatalError("Could not create pull supplier", e);
+        }
+        catch (AdminLimitExceeded e)
+        {
+            throw e;
+        }
+        catch (Exception e) {
+            logger_.fatalError("unexpected exception", e);
             throw new RuntimeException();
         }
     }
 
 
-    public AbstractProxy obtain_notification_pull_supplier_servant( ClientType clientType,
-                                                                    IntHolder intHolder )
+    private void configureMappingFilters(AbstractProxySupplier servant)
+    {
+        if (lifetimeFilter_ != null)
+        {
+            servant.lifetime_filter(lifetimeFilter_);
+        }
+
+
+        if (priorityFilter_ != null)
+        {
+            servant.priority_filter(priorityFilter_);
+        }
+    }
+
+
+    public AbstractProxy obtain_notification_pull_supplier_servant( ClientType clientType )
         throws AdminLimitExceeded,
                UnsupportedQoS
     {
         // may throw AdminLimitExceeded
         fireCreateProxyRequestEvent();
 
-        intHolder.value = getPullProxyId();
-        Integer _key = new Integer( intHolder.value );
-
         AbstractProxySupplier _servant;
-
-        PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
-        PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
 
         switch ( clientType.value() )
         {
+            case ClientType._ANY_EVENT:
+                _servant = new ProxyPullSupplierImpl( this,
+                                                      channelContext_);
+                break;
 
-        case ClientType._ANY_EVENT:
-            _servant = new ProxyPullSupplierImpl( this, // applicationContext_,
-                                                  channelContext_,
-                                                  _adminProperties,
-                                                  _qosProperties,
-                                                  _key );
-            break;
+            case ClientType._STRUCTURED_EVENT:
+                _servant =
+                    new StructuredProxyPullSupplierImpl( this,
+                                                         channelContext_);
+                break;
 
-        case ClientType._STRUCTURED_EVENT:
-            _servant =
-                new StructuredProxyPullSupplierImpl( this, //applicationContext_,
-                                                     channelContext_,
-                                                     _adminProperties,
-                                                     _qosProperties,
-                                                     _key );
-            break;
+            case ClientType._SEQUENCE_EVENT:
+                _servant =
+                    new SequenceProxyPullSupplierImpl( this,
+                                                       channelContext_);
 
-        case ClientType._SEQUENCE_EVENT:
-            _servant =
-                new SequenceProxyPullSupplierImpl( this, //applicationContext_,
-                                                   channelContext_,
-                                                   _adminProperties,
-                                                   _qosProperties,
-                                                   _key );
+                break;
 
-            break;
-
-        default:
-            throw new BAD_PARAM();
+            default:
+                throw new BAD_PARAM();
         }
+
+        configureNotifyStyleID(_servant);
+
+        configureMappingFilters(_servant);
 
         _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
 
+        configureQoS(_servant);
 
-        if ( filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP )
-        {
-            _servant.setOrSemantic( true );
-        }
+        configureInterFilterGroupOperator(_servant);
 
-        _servant.addProxyDisposedEventListener( this );
+        //        _servant.addProxyDisposedEventListener( this );
 
-        if ( channelContext_.getRemoveProxySupplierListener() != null )
-        {
-            _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxySupplierListener() );
-        }
+//         if ( channelContext_.getRemoveProxySupplierListener() != null )
+//         {
+//             _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxySupplierListener() );
+//         }
 
-        synchronized (modifyProxiesLock_) {
-            pullServants_.put( _key, _servant );
-            proxyListDirty_ = true;
-        }
+        configureAdmin(_servant, modifyProxiesLock_, pullServants_);
 
         return _servant;
     }
 
 
-    /**
-     *
-     */
-    public void remove
-        ( AbstractProxy pb )
-    {
-        super.remove( pb );
-
-        Integer _key = pb.getKey();
-
-        if ( _key != null )
-        {
-            synchronized(modifyProxiesLock_) {
-                allProxies_.remove( _key );
-                proxyListDirty_ = true;
-            }
-
-            if ( pb instanceof StructuredProxyPullSupplierImpl ||
-                    pb instanceof ProxyPullSupplierImpl ||
-                    pb instanceof SequenceProxyPullSupplierImpl )
-            {
-
-                synchronized(modifyProxiesLock_) {
-                    pullServants_.remove( _key );
-
-                    listManager_.actionSourceModified();
-
-                    proxyListDirty_ = true;
-                }
-
-            }
-            else if ( pb instanceof StructuredProxyPushSupplierImpl ||
-                      pb instanceof ProxyPushSupplierImpl ||
-                      pb instanceof SequenceProxyPushSupplierImpl )
-            {
-
-                synchronized(modifyProxiesLock_) {
-                    pushServants_.remove( _key );
-
-                    listManager_.actionSourceModified();
-
-                    proxyListDirty_ = true;
-                }
-            }
-        }
-        else
-        {
-            synchronized(modifyProxiesLock_) {
-                eventStyleServants_.remove( pb );
-
-                listManager_.actionSourceModified();
-
-                proxyListDirty_ = true;
-            }
-        }
-    }
-
-    /**
-     * access the ids of all push_suppliers
-     */
-    public int[] push_suppliers()
-    {
-        synchronized(modifyProxiesLock_) {
-
-            int[] _ret = new int[ pushServants_.size() ];
-            Iterator _i = pushServants_.keySet().iterator();
-            int x = -1;
-
-            while ( _i.hasNext() )
-                {
-                    _ret[ ++x ] = ( ( Integer ) _i.next() ).intValue();
-                }
-
-            return _ret;
-        }
-    }
-
-
     public int[] pull_suppliers()
     {
-        synchronized(modifyProxiesLock_) {
+        return get_all_notify_proxies(pullServants_, modifyProxiesLock_);
+    }
 
-            int[] _ret = new int[ pullServants_.size() ];
-            Iterator _i = pullServants_.keySet().iterator();
-            int x = -1;
 
-            while ( _i.hasNext() )
-                {
-                    _ret[ ++x ] = ( ( Integer ) _i.next() ).intValue();
-                }
-
-            return _ret;
-        }
+    public int[] push_suppliers()
+    {
+        return get_all_notify_proxies(pushServants_, modifyProxiesLock_);
     }
 
 
@@ -411,26 +295,28 @@ public class ConsumerAdminTieImpl
                                                             IntHolder intHolder )
         throws AdminLimitExceeded
     {
-        try {
-            AbstractProxy _servant = obtain_notification_push_supplier_servant( clientType,
-                                                                                intHolder );
+        try
+        {
+            AbstractProxy _servant =
+                obtain_notification_push_supplier_servant( clientType,
+                                                           intHolder );
 
             Integer _key = _servant.getKey();
 
-            if (logger_.isInfoEnabled()) {
+            if (logger_.isInfoEnabled())
+            {
                 logger_.info("created ProxyPushSupplier with ID: " + _key);
             }
 
-            ProxySupplier _proxySupplier =
-                ProxySupplierHelper.narrow( _servant.getCorbaRef() );
+            _servant.preActivate();
 
-            synchronized(modifyProxiesLock_) {
-                allProxies_.put( _key, _proxySupplier );
-                proxyListDirty_ = true;
-            }
+            ProxySupplier _proxySupplier =
+                ProxySupplierHelper.narrow( _servant.activate() );
 
             return _proxySupplier;
-        } catch (UnsupportedQoS e) {
+        }
+        catch (Exception e)
+        {
             logger_.fatalError("could not create push_supplier", e);
             throw new RuntimeException();
         }
@@ -445,65 +331,49 @@ public class ConsumerAdminTieImpl
         // may throw exception if admin limit is exceeded
         fireCreateProxyRequestEvent();
 
-        intHolder.value = getPushProxyId();
-
-        Integer _key = new Integer( intHolder.value );
         AbstractProxySupplier _servant;
-
-        PropertyManager _qosProperties = ( PropertyManager ) qosProperties_.clone();
-        PropertyManager _adminProperties = ( PropertyManager ) adminProperties_.clone();
 
         switch ( clientType.value() )
         {
 
-        case ClientType._ANY_EVENT:
-            _servant = new ProxyPushSupplierImpl( this, //applicationContext_,
-                                                  channelContext_,
-                                                  _adminProperties,
-                                                  _qosProperties,
-                                                  _key );
-            break;
+            case ClientType._ANY_EVENT:
+                _servant = new ProxyPushSupplierImpl( this,
+                                                      channelContext_);
+                break;
 
-        case ClientType._STRUCTURED_EVENT:
-            _servant =
-                new StructuredProxyPushSupplierImpl( this, //applicationContext_,
-                                                     channelContext_,
-                                                     _adminProperties,
-                                                     _qosProperties,
-                                                     _key );
-            break;
+            case ClientType._STRUCTURED_EVENT:
+                _servant =
+                    new StructuredProxyPushSupplierImpl( this,
+                                                         channelContext_);
+                break;
 
-        case ClientType._SEQUENCE_EVENT:
-            _servant =
-                new SequenceProxyPushSupplierImpl( this, //applicationContext_,
-                                                   channelContext_,
-                                                   _adminProperties,
-                                                   _qosProperties,
-                                                   _key );
-            break;
+            case ClientType._SEQUENCE_EVENT:
+                _servant =
+                    new SequenceProxyPushSupplierImpl( this,
+                                                       channelContext_);
+                break;
 
-        default:
-            throw new BAD_PARAM();
+            default:
+                throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
         }
+
+        configureNotifyStyleID(_servant);
+
+        configureMappingFilters(_servant);
+
+        intHolder.value = _servant.getKey().intValue();
+
+        configureQoS(_servant);
 
         channelContext_.getTaskProcessor().configureTaskExecutor(_servant);
 
+        configureInterFilterGroupOperator(_servant);
 
-        if ( filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP )
-        {
-            _servant.setOrSemantic( true );
-        }
+//         _servant.addProxyDisposedEventListener( this );
 
-        _servant.addProxyDisposedEventListener( this );
-        _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxySupplierListener() );
+//         _servant.addProxyDisposedEventListener( channelContext_.getRemoveProxySupplierListener() );
 
-        synchronized(modifyProxiesLock_) {
-            pushServants_.put( _key, _servant );
-
-            listManager_.actionSourceModified();
-
-            proxyListDirty_ = true;
-        }
+        configureAdmin(_servant, modifyProxiesLock_, pushServants_);
 
         return _servant;
     }
@@ -511,72 +381,63 @@ public class ConsumerAdminTieImpl
 
     public ProxyPullSupplier obtain_pull_supplier()
     {
-        try {
+        try
+        {
             ProxyPullSupplierImpl _servant =
                 new ECProxyPullSupplierImpl( this,
                                              channelContext_,
-                                             ( PropertyManager ) adminProperties_.clone(),
-                                             ( PropertyManager ) qosProperties_.clone(),
-                                             new Integer(getPullProxyId() ) );
+                                             null );
+
+            configureEventStyleID(_servant);
+
+            configureQoS(_servant);
+
+            configureAdmin(_servant, modifyProxiesLock_, pullServants_);
 
             _servant.setTaskExecutor(TaskExecutor.getDefaultExecutor());
 
             _servant.addProxyDisposedEventListener( this );
 
-            _servant.setFilterManager( FilterManager.EMPTY_FILTER_MANAGER );
+            _servant.preActivate();
 
-
-            ProxyPullSupplier _supplier =
-                org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow( _servant.getCorbaRef() );
-
-            synchronized(modifyProxiesLock_) {
-                eventStyleServants_.add( _servant );
-
-                listManager_.actionSourceModified();
-
-                proxyListDirty_ = true;
-            }
-
-            return _supplier;
-        } catch (UnsupportedQoS e) {
+            return org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper.narrow( _servant.activate() );
+        }
+        catch (UnsupportedQoS e)
+        {
             logger_.fatalError("Could not create PullSupplier", e);
 
             throw new RuntimeException();
         }
     }
 
+
     /**
      * get ProxyPushSupplier (EventStyle)
      */
     public ProxyPushSupplier obtain_push_supplier()
     {
-        try {
-            ProxyPushSupplierImpl _servant =
+        try
+        {
+            final ProxyPushSupplierImpl _servant =
                 new ECProxyPushSupplierImpl( this,
-                                             channelContext_,
-                                             ( PropertyManager ) adminProperties_.clone(),
-                                             ( PropertyManager ) qosProperties_.clone(),
-                                             new Integer( getPushProxyId() ) );
+                                             channelContext_);
+
+            configureEventStyleID(_servant);
+
+            configureQoS(_servant);
+
+            configureAdmin(_servant, modifyProxiesLock_, pushServants_);
 
             channelContext_.getTaskProcessor().configureTaskExecutor(_servant);
 
             _servant.addProxyDisposedEventListener( this );
 
-            _servant.setFilterManager( FilterManager.EMPTY_FILTER_MANAGER );
+            _servant.preActivate();
 
-            ProxyPushSupplier _supplier =
-                org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow( _servant.getCorbaRef() );
-
-            synchronized(modifyProxiesLock_) {
-                eventStyleServants_.add( _servant );
-
-                listManager_.actionSourceModified();
-
-                proxyListDirty_ = true;
-            }
-
-            return _supplier;
-        } catch (UnsupportedQoS e) {
+            return org.omg.CosEventChannelAdmin.ProxyPushSupplierHelper.narrow( _servant.activate() );
+        }
+        catch (UnsupportedQoS e)
+        {
             logger_.fatalError("Could not create ProxyPushSupplier", e);
 
             throw new RuntimeException();
@@ -608,33 +469,16 @@ public class ConsumerAdminTieImpl
     }
 
 
-    public void dispose()
+    public boolean hasInterFilterGroupOperatorOR()
     {
-        super.dispose();
-
-        Iterator _i = eventStyleServants_.iterator();
-
-        while ( _i.hasNext() )
-        {
-            ( ( Disposable ) _i.next() ).dispose();
-        }
-
-        eventStyleServants_.clear();
-    }
-
-
-    public boolean hasOrSemantic()
-    {
-        return filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP;
+        return (filterGroupOperator_ != null &&
+                (filterGroupOperator_.value() == InterFilterGroupOperator._OR_OP) );
     }
 
 
     public void actionProxyDisposed( ProxyEvent event )
     {
-        synchronized ( this )
-        {
-            proxyListDirty_ = true;
-        }
+        listManager_.actionSourceModified();
     }
 
 
@@ -642,4 +486,25 @@ public class ConsumerAdminTieImpl
     {
         // NO Op
     }
+
+
+    private void configureAdmin(final AbstractProxy servant,
+                                final Object lock,
+                                final Map map) {
+        synchronized(lock) {
+            map.put(servant.getKey(), servant);
+            listManager_.actionSourceModified();
+        }
+
+        servant.setDisposeHook(new Runnable() {
+                public void run() {
+                    synchronized(lock) {
+                        map.remove(servant.getKey());
+
+                        listManager_.actionSourceModified();
+                    }
+                }
+            });
+    }
+
 }

@@ -20,9 +20,10 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
 import java.util.List;
 
+import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 
@@ -34,15 +35,11 @@ import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosEventComm.PullConsumer;
 import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
 import org.omg.CosNotifyChannelAdmin.ProxySupplierHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.PortableServer.Servant;
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
-import org.jacorb.notification.CollectionsWrapper;
 
 /**
  * @author Alphonse Bendt
@@ -50,8 +47,9 @@ import org.jacorb.notification.CollectionsWrapper;
  */
 
 public class ProxyPullSupplierImpl
-    extends AbstractProxySupplier
-    implements ProxyPullSupplierOperations {
+            extends AbstractProxySupplier
+            implements ProxyPullSupplierOperations
+{
 
     private static final Any sUndefinedAny;
 
@@ -67,67 +65,55 @@ public class ProxyPullSupplierImpl
 
     ////////////////////////////////////////
 
-    ProxyPullSupplierImpl(ConsumerAdminTieImpl adminServant,
-                          ChannelContext channelContext,
-                          PropertyManager adminProperties,
-                          PropertyManager qosProperties) throws UnsupportedQoS {
+    ProxyPullSupplierImpl(AbstractAdmin admin,
+                          ChannelContext channelContext) throws UnsupportedQoS
+    {
 
-        super(adminServant,
-              channelContext,
-              adminProperties,
-              qosProperties);
-
-        init(adminProperties, qosProperties);
-    }
-
-    ProxyPullSupplierImpl(AbstractAdmin adminServant,
-                          ChannelContext channelContext,
-                          PropertyManager adminProperties,
-                          PropertyManager qosProperties,
-                          Integer key) throws UnsupportedQoS {
-
-        super(adminServant,
-              channelContext,
-              adminProperties,
-              qosProperties,
-              key);
-
-        init(adminProperties, qosProperties);
-    }
-
-    ////////////////////////////////////////
-
-    private void init(PropertyManager adminProperties,
-                      PropertyManager qosProperties) throws UnsupportedQoS {
+        super(admin,
+              channelContext);
 
         setProxyType(ProxyType.PULL_ANY);
     }
 
+    ////////////////////////////////////////
 
-    public void disconnect_pull_supplier() {
+    public void disconnect_pull_supplier()
+    {
         dispose();
     }
 
 
-    private void disconnect() {
-        if (pullConsumer_ != null) {
+    protected void disconnectClient()
+    {
+        if (pullConsumer_ != null)
+        {
+            logger_.info("disconnect any_pull_consumer");
+
             pullConsumer_.disconnect_pull_consumer();
             pullConsumer_ = null;
         }
     }
 
 
-    public Any pull() throws Disconnected {
+    public Any pull() throws Disconnected
+    {
         checkConnected();
 
-        try {
+        try
+        {
             Message _event = getMessageBlocking();
-            try {
+            try
+            {
+                logger_.debug("return from pull()");
                 return _event.toAny();
-            } finally {
+            }
+            finally
+            {
                 _event.dispose();
             }
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e)
+        {
             logger_.fatalError("interrupted", e);
 
             throw new UNKNOWN();
@@ -136,7 +122,8 @@ public class ProxyPullSupplierImpl
 
 
     public Any try_pull (BooleanHolder hasEvent)
-        throws Disconnected {
+    throws Disconnected
+    {
 
         checkConnected();
 
@@ -145,14 +132,20 @@ public class ProxyPullSupplierImpl
 
         Message _message = getMessageNoBlock();
 
-        if (_message != null) {
-            try {
+        if (_message != null)
+        {
+            try
+            {
                 hasEvent.value = true;
                 return _message.toAny();
-            } finally {
+            }
+            finally
+            {
                 _message.dispose();
             }
-        } else {
+        }
+        else
+        {
             hasEvent.value = false;
             return sUndefinedAny;
         }
@@ -164,17 +157,20 @@ public class ProxyPullSupplierImpl
      * PullConsumer we simply put the Events in a Queue. The
      * PullConsumer will pull the Events out of the Queue at a later time.
      */
-    public void deliverMessage(Message message) {
+    public void deliverMessage(Message message)
+    {
         enqueue(message);
     }
 
 
     public void connect_any_pull_consumer(PullConsumer consumer)
-        throws AlreadyConnected {
+    throws AlreadyConnected
+    {
 
         logger_.info("connect any_pull_consumer");
 
-        if (connected_) {
+        if (connected_)
+        {
             throw new AlreadyConnected();
         }
 
@@ -183,58 +179,56 @@ public class ProxyPullSupplierImpl
     }
 
 
-    public ConsumerAdmin MyAdmin() {
-        return (ConsumerAdmin)myAdmin_.getCorbaRef();
-    }
-
-
-    public List getSubsequentFilterStages() {
+    public List getSubsequentFilterStages()
+    {
         return CollectionsWrapper.singletonList(this);
     }
 
 
-    public MessageConsumer getMessageConsumer() {
+    public MessageConsumer getMessageConsumer()
+    {
         return this;
     }
 
 
-    public boolean hasMessageConsumer() {
+    public boolean hasMessageConsumer()
+    {
         return true;
     }
 
 
-    public void dispose() {
-        super.dispose();
-        disconnect();
-        // pendingEvents_.clear();
-    }
-
-    public void enableDelivery() {
+    public void enableDelivery()
+    {
         // as delivery to this PullSupplier causes no remote calls
         // we can ignore this
     }
 
 
-    public void disableDelivery() {
+    public void disableDelivery()
+    {
         // as delivery to this PullSupplier causes no remote calls
         // we can ignore this
     }
 
 
-    public void deliverPendingMessages() {
+    public void deliverPendingMessages()
+    {
         // as we do not actively deliver events we can ignore this
     }
 
 
-    public synchronized Servant getServant() {
-        if (thisServant_ == null) {
+    public synchronized Servant getServant()
+    {
+        if (thisServant_ == null)
+        {
             thisServant_ = new ProxyPullSupplierPOATie(this);
         }
         return thisServant_;
     }
 
 
-    public org.omg.CORBA.Object getCorbaRef() {
+    public org.omg.CORBA.Object activate()
+    {
         return ProxySupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 }

@@ -20,12 +20,14 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.util.Collections;
 import java.util.List;
 
-import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.interfaces.MessageConsumer;
+import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.CollectionsWrapper;
+import org.jacorb.notification.conf.Configuration;
+import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Message;
+import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.util.Environment;
 
@@ -37,17 +39,14 @@ import org.omg.CosEventComm.PullSupplier;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
+import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.PortableServer.Servant;
 
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerHelper;
-import org.jacorb.notification.conf.Default;
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
-import org.jacorb.notification.conf.Configuration;
-import org.jacorb.notification.CollectionsWrapper;
+import EDU.oswego.cs.dl.util.concurrent.Semaphore;
+import EDU.oswego.cs.dl.util.concurrent.Sync;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
 
 /**
  * @author Alphonse Bendt
@@ -55,24 +54,22 @@ import org.jacorb.notification.CollectionsWrapper;
  */
 
 public class ProxyPullConsumerImpl
-    extends AbstractProxy
-    implements ProxyPullConsumerOperations,
-               TimerEventSupplier
+            extends AbstractProxyConsumer
+            implements ProxyPullConsumerOperations,
+            TimerEventSupplier
 {
+    private Sync pullSync_ = new Semaphore(Default.DEFAULT_CONCURRENT_PULL_OPERATIONS_ALLOWED);
+
     private PullSupplier myPullSupplier_;
 
     private boolean active_ = false;
 
     private long pollInterval_;
 
-    private List subsequentDestinations_;
-
     private Object taskId_;
 
-    private TaskProcessor engine_;
-
     /**
-     * Callback that is run by a Timer.
+     * Callback that is run by the Timer.
      */
     private Runnable runQueueThis_;
 
@@ -91,78 +88,55 @@ public class ProxyPullConsumerImpl
      */
     private int successfulPull_;
 
-    ////////////////////////////////////////
-
-    ProxyPullConsumerImpl( AbstractAdmin adminServant,
-                           ChannelContext channelContext,
-                           PropertyManager adminProperties,
-                           PropertyManager qosProperties,
-                           Integer key )
-    {
-
-        super( adminServant,
-               channelContext,
-               adminProperties,
-               qosProperties,
-               key,
-               true);
-
-        init( channelContext );
-    }
-
-    ProxyPullConsumerImpl( AbstractAdmin adminServant,
-                           ChannelContext channelContext,
-                           PropertyManager adminProperties,
-                           PropertyManager qosProperties )
-    {
-
-        super( adminServant,
-               channelContext,
-               adminProperties,
-               qosProperties );
-
-        init( channelContext );
-    }
-
-    ////////////////////////////////////////
-
-    private void init( ChannelContext channelContext )
-    {
+    void configurePullIntervall() {
         pollInterval_ = Default.DEFAULT_PROXY_POLL_INTERVALL;
 
-        if (Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL) != null) {
-            try {
-                pollInterval_ =
-                    Long.parseLong(Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL));
-            } catch (NumberFormatException e) {
-                logger_.error("Invalid Number Format for Property "
-                              + Configuration.PULL_CONSUMER_POLLINTERVALL, e);
+        if (Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL) != null)
+            {
+                try
+                    {
+                        pollInterval_ =
+                            Long.parseLong(Environment.getProperty(Configuration.PULL_CONSUMER_POLLINTERVALL));
+                    }
+                catch (NumberFormatException e)
+                    {
+                        logger_.error("Invalid Number Format for Property "
+                                      + Configuration.PULL_CONSUMER_POLLINTERVALL, e);
 
+                    }
             }
-        }
+    }
 
-        engine_ = channelContext.getTaskProcessor();
-
+    void configureTimerCallback() {
         runQueueThis_ = new Runnable()
             {
                 public void run()
                 {
-                    try
-                        {
-                            engine_.scheduleTimedPullTask( ProxyPullConsumerImpl.this );
-                        }
-                    catch ( InterruptedException e )
-                        {
-                            logger_.debug("Interrupted", e);
-                        }
+                    scheduleTimedPullTask( ProxyPullConsumerImpl.this );
                 }
             };
-
-        connected_ = false;
-
-        subsequentDestinations_ = CollectionsWrapper.singletonList( myAdmin_ );
     }
 
+
+
+    ////////////////////////////////////////
+
+    ProxyPullConsumerImpl( AbstractAdmin adminServant,
+                           ChannelContext channelContext)
+    {
+        super( adminServant,
+               channelContext);
+
+        setProxyType(ProxyType.PULL_ANY);
+
+        configurePullIntervall();
+
+        configureTimerCallback();
+
+        connected_ = false;
+    }
+
+    ////////////////////////////////////////
 
     public void disconnect_pull_consumer()
     {
@@ -170,14 +144,18 @@ public class ProxyPullConsumerImpl
     }
 
 
-    private void disconnectClient()
+    protected void disconnectClient()
     {
         if ( myPullSupplier_ != null )
         {
+            stopTask();
+
             myPullSupplier_.disconnect_pull_supplier();
             myPullSupplier_ = null;
+
             connected_ = false;
             active_ = false;
+
         }
     }
 
@@ -203,7 +181,7 @@ public class ProxyPullConsumerImpl
 
     synchronized public void resume_connection()
         throws ConnectionAlreadyActive,
-                NotConnected
+               NotConnected
     {
         if ( !connected_ )
         {
@@ -219,36 +197,55 @@ public class ProxyPullConsumerImpl
     }
 
 
-    public void runPullEvent() throws Disconnected
+    public void runPullEvent()
     {
+        if ( !connected_ )
+            {
+                return;
+            }
+
+        try {
+            runPullEventInternal();
+        } catch (Disconnected e) {
+            synchronized(this) {
+                connected_ = false;
+            }
+        } catch (InterruptedException e) {
+
+        }
+    }
+
+
+    private void runPullEventInternal() throws InterruptedException, Disconnected {
         BooleanHolder hasEvent = new BooleanHolder();
         Any event = null;
 
-        synchronized ( this )
-        {
-            if ( connected_ )
-            {
-                ++runCounter_;
+        try {
+            pullSync_.acquire();
 
-                long _start = System.currentTimeMillis();
+            ++runCounter_;
 
-                event = myPullSupplier_.try_pull( hasEvent );
+            long _start = System.currentTimeMillis();
 
-                runTime_ += System.currentTimeMillis() - _start;
+            event = myPullSupplier_.try_pull( hasEvent );
 
-                if ( hasEvent.value )
-                {
-                    logger_.debug( "pulled event" );
-
-                    ++successfulPull_;
-
-                    Message _message =
-                        messageFactory_.newMessage( event, this );
-
-                    getTaskProcessor().processMessage( _message );
-                }
-            }
+            runTime_ += System.currentTimeMillis() - _start;
         }
+        finally {
+            pullSync_.release();
+        }
+
+        if ( hasEvent.value )
+            {
+                ++successfulPull_;
+
+                Message _message =
+                    messageFactory_.newMessage( event, this );
+
+                checkMessageProperties(_message);
+
+                getTaskProcessor().processMessage( _message );
+            }
     }
 
 
@@ -266,30 +263,6 @@ public class ProxyPullConsumerImpl
             myPullSupplier_ = pullSupplier;
             startTask();
         }
-    }
-
-
-    public SupplierAdmin MyAdmin()
-    {
-        return ( SupplierAdmin ) myAdmin_.getCorbaRef();
-    }
-
-
-    public List getSubsequentFilterStages()
-    {
-        return subsequentDestinations_;
-    }
-
-
-    public MessageConsumer getMessageConsumer()
-    {
-        throw new UnsupportedOperationException();
-    }
-
-
-    public boolean hasMessageConsumer()
-    {
-        return false;
     }
 
 
@@ -313,46 +286,43 @@ public class ProxyPullConsumerImpl
     }
 
 
-    public void dispose()
-    {
-        super.dispose();
-        stopTask();
-        disconnectClient();
-    }
-
-
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-            {
-                thisServant_ = new ProxyPullConsumerPOATie( this );
-            }
+        {
+            thisServant_ = new ProxyPullConsumerPOATie( this );
+        }
 
         return thisServant_;
     }
 
 
-    public org.omg.CORBA.Object getCorbaRef() {
+    public org.omg.CORBA.Object activate()
+    {
         return ProxyConsumerHelper.narrow(getServant()._this_object(getORB()));
     }
 
 
-    public long getPollInterval() {
+    public long getPollInterval()
+    {
         return pollInterval_;
     }
 
 
-    public long getPullTimer() {
+    public long getPullTimer()
+    {
         return runTime_;
     }
 
 
-    public int getPullCounter() {
+    public int getPullCounter()
+    {
         return runCounter_;
     }
 
 
-    public int getSuccessfulPullCounter() {
+    public int getSuccessfulPullCounter()
+    {
         return successfulPull_;
     }
 }

@@ -20,57 +20,57 @@ package org.jacorb.notification.servant;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosEventChannelAdmin.ProxyPullSupplierOperations;
-import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
-import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosEventComm.PullConsumer;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventChannelAdmin.ProxyPullSupplierPOATie;
-import org.omg.PortableServer.Servant;
 import org.omg.CosEventChannelAdmin.ProxyPullSupplierHelper;
+import org.omg.CosEventChannelAdmin.ProxyPullSupplierOperations;
+import org.omg.CosEventChannelAdmin.ProxyPullSupplierPOATie;
+import org.omg.CosEventComm.PullConsumer;
+import org.omg.CosNotification.UnsupportedQoS;
+import org.omg.PortableServer.Servant;
+
+import org.jacorb.notification.ChannelContext;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
+
 public class ECProxyPullSupplierImpl
-    extends ProxyPullSupplierImpl
-    implements ProxyPullSupplierOperations {
+            extends ProxyPullSupplierImpl
+            implements ProxyPullSupplierOperations
+{
 
     ECProxyPullSupplierImpl(AbstractAdmin adminServant,
                             ChannelContext channelContext,
-                            PropertyManager adminProperties,
-                            PropertyManager qosProperties,
-                            Integer key) throws UnsupportedQoS {
+                            Integer key) throws UnsupportedQoS
+    {
 
         super(adminServant,
-              channelContext,
-              adminProperties,
-              qosProperties,
-              key);
+              channelContext);
 
-        //   init(adminProperties, qosProperties);
-
-        isKeyPublic_ = false;
+        setKey(key, false);
     }
 
     ////////////////////////////////////////
 
     public void connect_pull_consumer(PullConsumer pullConsumer)
-        throws AlreadyConnected {
-
+        throws AlreadyConnected
+    {
         connect_any_pull_consumer(pullConsumer);
     }
 
-    public synchronized Servant getServant() {
-        if (thisServant_ == null) {
+
+    public synchronized Servant getServant()
+    {
+        if (thisServant_ == null)
+        {
             thisServant_ = new ProxyPullSupplierPOATie(this);
         }
         return thisServant_;
     }
 
-    public org.omg.CORBA.Object getCorbaRef() {
+    public org.omg.CORBA.Object activate()
+    {
         return ProxyPullSupplierHelper.narrow(getServant()._this_object(getORB()));
     }
 

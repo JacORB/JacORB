@@ -22,9 +22,8 @@ package org.jacorb.notification.servant;
  */
 
 import org.omg.CORBA.BooleanHolder;
-import org.omg.CORBA.SystemException;
-import org.omg.CORBA.UserException;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerOperations;
@@ -33,7 +32,6 @@ import org.omg.CosNotifyComm.SequencePullSupplier;
 import org.omg.PortableServer.Servant;
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.PropertyManager;
 import org.jacorb.notification.interfaces.Message;
 
 /**
@@ -51,16 +49,10 @@ public class SequenceProxyPullConsumerImpl
     ////////////////////////////////////////
 
     public SequenceProxyPullConsumerImpl( AbstractAdmin admin,
-                                          ChannelContext channelContext,
-                                          PropertyManager adminProperties,
-                                          PropertyManager qosProperties,
-                                          Integer key )
+                                          ChannelContext channelContext)
     {
         super( admin,
-               channelContext,
-               adminProperties,
-               qosProperties,
-               key );
+               channelContext);
 
         setProxyType( ProxyType.PULL_SEQUENCE );
     }
@@ -70,13 +62,11 @@ public class SequenceProxyPullConsumerImpl
     public void disconnect_sequence_pull_consumer()
     {
         dispose();
-        stopTask();
     }
 
-    public void connect_sequence_pull_supplier( SequencePullSupplier sequencePullSupplier )
-        throws AlreadyConnected
+    public synchronized void connect_sequence_pull_supplier( SequencePullSupplier sequencePullSupplier )
+    throws AlreadyConnected
     {
-
         if ( connected_ )
         {
             throw new AlreadyConnected();
@@ -86,55 +76,45 @@ public class SequenceProxyPullConsumerImpl
         active_ = true;
 
         sequencePullSupplier_ = sequencePullSupplier;
+
         startTask();
     }
+
 
     /**
      * override superclass impl
      */
-    public void runPullEvent()
-    {
-        runPullSequenceFromSupplier();
-    }
-
-    private void runPullSequenceFromSupplier()
+    protected void runPullEventInternal()
+    throws InterruptedException,
+                Disconnected
     {
         BooleanHolder _hasEvent = new BooleanHolder();
+        _hasEvent.value = false;
         StructuredEvent[] _events = null;
 
-        synchronized ( this )
+        try
         {
-            if ( connected_ && active_ )
+            pullSync_.acquire();
+
+            _events = sequencePullSupplier_.try_pull_structured_events( 1, _hasEvent );
+        }
+        finally
+        {
+            pullSync_.release();
+        }
+
+        if ( _hasEvent.value )
+        {
+            for ( int x = 0; x < _events.length; ++x )
             {
-                try
-                {
-                    _hasEvent.value = false;
-                    _events = sequencePullSupplier_.try_pull_structured_events( 1, _hasEvent );
-                }
-                catch ( UserException e )
-                {
-                    connected_ = false;
-                    return ;
-                }
-                catch ( SystemException e )
-                {
-                    connected_ = false;
-                    return ;
-                }
+                Message msg =
+                    messageFactory_.newMessage( _events[ x ], this );
 
-                if ( _hasEvent.value )
-                {
-                    for ( int x = 0; x < _events.length; ++x )
-                    {
-                        Message msg =
-                            messageFactory_.newMessage( _events[ x ], this );
-
-                        getTaskProcessor().processMessage( msg );
-                    }
-                }
+                getTaskProcessor().processMessage( msg );
             }
         }
     }
+
 
     protected void disconnectClient()
     {
@@ -142,6 +122,7 @@ public class SequenceProxyPullConsumerImpl
         {
             if ( sequencePullSupplier_ != null )
             {
+                stopTask();
                 sequencePullSupplier_.disconnect_sequence_pull_supplier();
                 sequencePullSupplier_ = null;
             }
@@ -150,17 +131,13 @@ public class SequenceProxyPullConsumerImpl
         connected_ = false;
     }
 
-    public void dispose()
-    {
-        super.dispose();
-    }
 
     public synchronized Servant getServant()
     {
         if ( thisServant_ == null )
-                {
-                    thisServant_ = new SequenceProxyPullConsumerPOATie( this );
-                }
+        {
+            thisServant_ = new SequenceProxyPullConsumerPOATie( this );
+        }
 
         return thisServant_;
     }
