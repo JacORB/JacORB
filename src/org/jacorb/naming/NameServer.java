@@ -27,6 +27,8 @@ import org.omg.CosNaming.*;
 import org.omg.CosNaming.NamingContextPackage.*;
 import org.jacorb.orb.*;
 import org.jacorb.util.*;
+import org.apache.log.*;
+
 
 //#ifjdk 1.2
 import org.jacorb.imr.util.ImRManager;
@@ -46,6 +48,8 @@ public class NameServer
     public static String name_delimiter = "/";
 
     private static String filePrefix = "_nsdb";
+    private static Logger logger = 
+        Hierarchy.getDefaultHierarchy().getLoggerFor("jacorb.naming");
 
 
     /**
@@ -78,7 +82,7 @@ public class NameServer
                 File f = new File( filePrefix + oidStr );
                 if( f.exists() )
                 {
-                    org.jacorb.util.Debug.output( 2,"Reading in  context state from file");
+                    logger.debug("Reading in  context state from file");
                     FileInputStream f_in = new FileInputStream(f);
 
                     if( f_in.available() > 0 )
@@ -90,16 +94,16 @@ public class NameServer
                     f_in.close();
                 }
                 else
-                    org.jacorb.util.Debug.output(2,"No naming context state, starting empty");
+                    logger.debug("No naming context state, starting empty");
 
             }
             catch( IOException io )
             {
-                org.jacorb.util.Debug.output(2,"File seems corrupt, starting empty");
+                logger.debug("File seems corrupt, starting empty");
             }
             catch( java.lang.ClassNotFoundException c )
             {
-                System.err.println("Could not read object from file, class not found!");
+                logger.error("Could not read object from file, class not found!");
                 System.exit(1);
             }
             if( n == null )
@@ -131,12 +135,15 @@ public class NameServer
 
                 /* save state */
                 out.writeObject((NamingContextImpl)servant);
-                org.jacorb.util.Debug.output(2,"Saved state for servant " + oidStr);
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("Saved state for servant " + oidStr);
+                }
             }
             catch( IOException io )
             {
                 io.printStackTrace();
-                System.err.println("Error opening output file " + filePrefix + oidStr );
+                logger.error("Error opening output file " + filePrefix + oidStr );
                 //  System.exit(1);
             }
         }
@@ -232,7 +239,7 @@ public class NameServer
              */
             if( Environment.getIntPropertyWithDefault( "jacorb.connection.server_timeout", -1 ) < 0 )
             {
-                Debug.output( 3, "Default server_timeout to 10000" );
+                logger.debug( "Default server_timeout to 10000" );
                 props.put( "jacorb.connection.server_timeout", "10000" );
             }
 
@@ -339,7 +346,10 @@ public class NameServer
                 throw new RuntimeException(e.getMessage());
             }
 
-            org.jacorb.util.Debug.output(2,"NS up");
+            if (logger.isInfoEnabled())
+            {
+                logger.info("NS up");
+            }
 
             /* either block indefinitely or time out */
 
