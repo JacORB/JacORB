@@ -238,7 +238,19 @@ public class AliasTypeSpec
 
         try
         {
-            if( !( originalType.typeSpec() instanceof TemplateTypeSpec ) )
+
+            if( logger.isDebugEnabled())
+            {
+                logger.debug("AliasTypeSpec.print: alias " + className() + 
+                             " with original type " + 
+                             originalType.getClass().getName() + 
+                             " original type.typeSpec() " + 
+                             originalType.typeSpec().getClass().getName() );
+            }
+
+            if( !( originalType.typeSpec() instanceof StringType ) && 
+                !( originalType.typeSpec() instanceof SequenceType )
+                )
                 originalType.print( ps );
 
             String className = className();
