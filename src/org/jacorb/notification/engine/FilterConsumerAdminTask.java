@@ -35,7 +35,11 @@ import org.jacorb.notification.util.TaskExecutor;
 
 public class FilterConsumerAdminTask extends AbstractFilterTask
 {
+    private static final FilterStage[] NO_CURRENT_FILTER_STAGE =
+        new FilterStage[ 0 ];
+
     private static int COUNT = 0;
+
     private int id_ = ++COUNT;
 
     /**
@@ -55,10 +59,6 @@ public class FilterConsumerAdminTask extends AbstractFilterTask
     public String toString() {
         return "[FilterConsumerAdminTask#" + id_ + "]";
     }
-
-
-    private static final FilterStage[] NO_CURRENT_FILTER_STAGE =
-        new FilterStage[ 0 ];
 
 
     /**
