@@ -42,7 +42,7 @@ public class GssUpServer extends SASDemoPOA {
 				System.out.println("printSAS for user " + name);
 			}
 		} catch (Exception e) {
-			System.out.println("printSAS Error: " + e);
+			e.printStackTrace();
 		}
 	}
 

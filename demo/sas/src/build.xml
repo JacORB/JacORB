@@ -39,7 +39,7 @@
    </target>
 
    <target name="clean" depends="sas.init">
-           <delete dir="${classdir}/demo/${name}"/>
+           <delete dir="${classdir}/org/jacorb/demo/${name}"/>
            <delete dir="${dest}"/>
    </target>
 

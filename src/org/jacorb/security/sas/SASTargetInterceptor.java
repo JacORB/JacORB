@@ -119,25 +119,116 @@ public class SASTargetInterceptor
 	public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
+		if (ri.operation().equals("_is_a")) return;
+		if (ri.operation().equals("_non_existent")) return;
+		if (sasContext == null) return;
+		GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
+
+		// verify SSL requirements
+		if (useSsl && !connection.isSSL())
+		{
+			logger.error("SSL required for operation " + ri.operation());
+			throw new org.omg.CORBA.NO_PERMISSION("SSL Required!", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+		}
+
+		// parse service context
+		SASContextBody contextBody = null;
+		long client_context_id = 0;
+		byte[] contextToken = null;
+		try
+		{
+			ServiceContext ctx = ri.get_request_service_context(SASInitializer.SecurityAttributeService);
+			Any ctx_any = codec.decode( ctx.context_data );
+			contextBody = SASContextBodyHelper.extract(ctx_any);
+		}
+		catch (BAD_PARAM e)
+		{
+		}
+		catch (Exception e)
+		{
+			logger.warn("Could not parse service context: " + e);
+			throw new org.omg.CORBA.NO_PERMISSION("Could not parse service context: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+		}
+		if (contextBody == null) return;
+
+		// process MessageInContext
+		if (contextBody.discriminator() == MTMessageInContext.value)
+		{
+			MessageInContext msg = null;
+			try
+			{
+				msg = contextBody.in_context_msg();
+				client_context_id = msg.client_context_id;
+				contextToken = getSASContext(connection, msg.client_context_id);
+			}
+			catch (Exception e)
+			{
+				logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + e);
+				throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+			}
+			if (contextToken == null)
+			{
+				logger.error("Could not parse service MessageInContext " + ri.operation() + ": " + msg.client_context_id);
+				throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing MessageInContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+			}
+		}
+
+		// process EstablishContext
+		String principalName = null;
+		if (contextBody.discriminator() == MTEstablishContext.value)
+		{
+			EstablishContext msg = null;
+			try
+			{
+				msg = contextBody.establish_msg();
+				client_context_id = msg.client_context_id;
+				contextToken = msg.client_authentication_token;
+
+				if (!sasContext.validateContext(ri, contextToken)) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+				principalName = sasContext.getValidatedPrincipal();
+			}
+			catch (org.omg.CORBA.NO_PERMISSION e)
+			{
+				logger.error("Err " + ri.operation() + ": " + e);
+				throw e;
+			}
+			catch (Exception e)
+			{
+				logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + e);
+				throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+			}
+			if (contextToken == null)
+			{
+				logger.error("Could not parse service EstablishContext " + ri.operation() + ": " + msg.client_context_id);
+				throw new org.omg.CORBA.NO_PERMISSION("SAS Error parsing EstablishContext", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+			}
+		}
+
+		// set slots
+		try
+		{
+			Any nameAny = orb.create_any();
+			if (principalName == null) principalName = getSASContextPrincipalName(connection, client_context_id);
+			nameAny.insert_string(principalName);
+			ri.set_slot( SASInitializer.sasPrincipalNamePIC, nameAny);
+		}
+		catch (Exception e)
+		{
+			logger.error("Error inserting service context into slots for " + ri.operation() + ": " + e);
+			try { ri.set_slot( sasReplySlotID, makeContextError(client_context_id, 1, 1, contextToken)); } catch (Exception ee) {}
+			throw new org.omg.CORBA.NO_PERMISSION("SAS Error insert service context into slots: " + e, MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+		}
     }
 
 	public void receive_request( ServerRequestInfo ri )
         throws ForwardRequest
     {
-    	//if (!useSAS) return;
         if (ri.operation().equals("_is_a")) return;
         if (ri.operation().equals("_non_existent")) return;
+		if (sasContext == null) return;
         GIOPConnection connection = ((ServerRequestInfoImpl) ri).request.getConnection();
-
-        // verify SSL requirements
-        if (useSsl && !connection.isSSL())
-        {
-            logger.error("SSL required for operation " + ri.operation());
-            throw new org.omg.CORBA.NO_PERMISSION("SSL Required!", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-        }
         
         // check policy
-		if (sasContext == null) return;
 		SASPolicyValues sasValues = null;
 		try {
 			ObjectImpl oi = (ObjectImpl)((ServerRequestInfoImpl) ri).target();
@@ -228,8 +319,8 @@ public class SASTargetInterceptor
                 client_context_id = msg.client_context_id;
                 contextToken = msg.client_authentication_token;
 
-                if (sasContext != null && !sasContext.validateContext(ri, contextToken)) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
-                if (sasContext != null) principalName = sasContext.getValidatedPrincipal();
+                //if (!sasContext.validateContext(ri, contextToken)) throw new org.omg.CORBA.NO_PERMISSION("SAS Error validating context", MinorCodes.SAS_TSS_FAILURE, CompletionStatus.COMPLETED_NO);
+                principalName = sasContext.getValidatedPrincipal();
             }
             catch (org.omg.CORBA.NO_PERMISSION e)
             {
@@ -255,9 +346,9 @@ public class SASTargetInterceptor
         try
         {
             ri.set_slot( sasReplySlotID, makeCompleteEstablishContext(client_context_id, sasValues));
-            Any nameAny = orb.create_any();
-            nameAny.insert_string(getSASContextPrincipalName(connection, client_context_id));
-            ri.set_slot( SASInitializer.sasPrincipalNamePIC, nameAny);
+            //Any nameAny = orb.create_any();
+            //nameAny.insert_string(getSASContextPrincipalName(connection, client_context_id));
+            //ri.set_slot( SASInitializer.sasPrincipalNamePIC, nameAny);
         }
         catch (Exception e)
         {

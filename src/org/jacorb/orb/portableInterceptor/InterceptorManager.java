@@ -167,8 +167,8 @@ public class InterceptorManager
      */
     public void setTSCurrent(Current current)
     {
-        currents.put(Thread.currentThread(), current);
-                     //new PICurrentImpl((PICurrentImpl)current));
+        currents.put(Thread.currentThread(),
+                     new PICurrentImpl((PICurrentImpl)current));
     }
 
     /**
