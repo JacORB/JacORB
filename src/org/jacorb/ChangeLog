@@ -1,3 +1,679 @@
+2003-08-08  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/dns/DNSLookupDelegateImpl.java: Removed.
+
+2003-08-02  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AdminBase.java,
+	notification/FilterFactoryImpl.java, notification/FilterImpl.java,
+	notification/FilterManager.java,
+	notification/MappingFilterImpl.java,
+	notification/NotificationAnyEvent.java,
+	notification/NotificationEvent.java,
+	notification/NotificationEventFactory.java,
+	notification/NotificationEventUtils.java,
+	notification/NotificationStructuredEvent.java,
+	notification/PropertyManager.java,
+	notification/PropertyValidator.java, notification/ProxyBase.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterIncomingTask.java,
+	notification/engine/FilterOutgoingTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/FilterTaskBase.java,
+	notification/engine/FilterTaskUtils.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/Task.java, notification/engine/TaskBase.java,
+	notification/engine/TaskConfigurator.java,
+	notification/engine/TaskPoolBase.java,
+	notification/engine/TaskProcessor.java,
+	notification/interfaces/FilterStage.java: 
+	- added MappingFilters
+	- added support for QoS Settings StartTime, StopTime, Timeout
+
+	* notification/ProxyPullConsumerImpl.java,
+	notification/ProxyPullSupplierImpl.java,
+	notification/ProxyPushConsumerImpl.java,
+	notification/ProxyPushSupplierImpl.java,
+	notification/SequenceProxyPullConsumerImpl.java,
+	notification/SequenceProxyPullSupplierImpl.java,
+	notification/SequenceProxyPushConsumerImpl.java,
+	notification/SequenceProxyPushSupplierImpl.java,
+	notification/StructuredProxyPullConsumerImpl.java,
+	notification/StructuredProxyPullSupplierImpl.java,
+	notification/StructuredProxyPushConsumerImpl.java:
+	- cleaned imports
+	- code cleanup
+	- added log statements
+
+	* notification/StructuredProxyPushSupplierImpl.java: cleaned imports
+
+	* notification/README.PROPERTIES: added info
+
+	* notification/build.xml: added sourcepath arg
+
+	* notification/build.xml: renamed target
+
+	* notification/EventChannelFactoryImpl.java: - cleaned imports
+	- code cleanup
+	- added log statements
+
+	* notification/ConsumerAdminTieImpl.java,
+	notification/EventChannelImpl.java,
+	notification/EvaluationContext.java,
+	notification/ConstraintEntry.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java:
+	- cleaned imports
+
+2003-08-01  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/ConsumerAdminTieImpl.java,
+	notification/StructuredProxyPushSupplierImpl.java,
+	notification/SupplierAdminTieImpl.java:
+	- added comments
+
+	* notification/AdminBase.java: - put call to ProxyBase.dispose()
+	inside try/catch to continue AdminBase.dispose() if one of the
+	calls to ProxyBase.dispose() fails.
+
+	* notification/README, notification/build.xml: changed build to
+	allow dependency checking for javac.  added README info
+
+2003-07-31  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/build.xml: changed the way the jdk version is
+	determined
+
+2003-07-30  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java,
+	notification/Main.java, notification/util/GNUPatternWrapper.java,
+	notification/util/JDK14PatternWrapper.java,
+	notification/util/PatternWrapper.java:
+	- better error messages in PatterWrapper
+	- added commandline option -registerName
+
+2003-07-28  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* imr/ImplementationRepositoryImpl.java: Tab removal - white space
+	change only
+
+	* idl/Interface.java: Fix for Jac285 - invalid code generated for
+	subinterfaces of abstract interfaces. Changed interface and added
+	regression.
+
+	* idl/parser.cup, idl/parser.java: Change Environment.output to
+	use logger and remove -p as no longer exists.
+
+	* idl/IdlSymbol.java: Fix spelling and remove Environment.output
+
+2003-07-27  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* notification/StructuredProxyPushSupplierImpl.java: Debug Statement
+
+2003-07-23  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* notification/StructuredProxyPushSupplierImpl.java: Trap
+	exception when disconnecting consumer
+
+2003-07-21  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* naming/NamingContextImpl.java: jacorb.naming.noping
+
+2003-07-20  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java,
+	notification/FilterFactoryImpl.java,
+	notification/util/LogConfiguration.java: added logconfiguration by
+	setting properties in jacorb_properties the logging can be
+	configured in a basic way
+
+	* notification/EventChannelFactoryImpl.java,
+	notification/ProxyPullConsumerImpl.java,
+	notification/StructuredProxyPullConsumerImpl.java,
+	notification/util/PatternWrapper.java:
+	- fixed bug: missing property in jacorb_properties caused Exception
+	- fix: class PatternWrapper is loaded at startup. this way a
+	  ClassNotFoundException (jdkversion < 1.4 and gnu.regexp NOT
+	  installed) occurs at startup.
+
+2003-07-19  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java, notification/README:
+	- added commandline option -writeIOR to write IOR to a file
+
+2003-07-18  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java, notification/Main.java:
+	- added no args factorymethod
+
+	* notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java, notification/Main.java,
+	notification/build.xml: EventChannelFactoryImpl is started via
+	Class which implements WrapperListener Interface. This way the
+	NotificationService can shutdown properly.
+	- update Wrapper Configuration
+	- fixed bug: EventChannelFactoryImpl.disposed() caused
+	  ConcurrentModificationException
+
+2003-07-18  david.robison  <david.robison@eagle>
+
+	* notification/EventChannelFactoryImpl.java: Notify and Naming as
+	NT Services
+
+2003-07-17  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/interfaces/TimerEventConsumer.java,
+	notification/interfaces/TimerEventSupplier.java: Codecleanup
+
+	* notification/interfaces/ProxyCreationRequestEventListener.java:
+	Codecleanup: Organize Imports
+
+	* notification/interfaces/Poolable.java: *** empty log message ***
+
+	* notification/evaluate/FilterConstraint.java,
+	notification/evaluate/ResultExtractor.java,
+	notification/node/AndOperator.java,
+	notification/node/AssocOperator.java,
+	notification/node/BoolValue.java,
+	notification/node/ComponentName.java,
+	notification/node/DefaultOperator.java,
+	notification/node/DivOperator.java,
+	notification/node/DomainNameShorthandNode.java,
+	notification/node/DynamicTypeException.java,
+	notification/node/EqOperator.java,
+	notification/node/EvaluationResult.java,
+	notification/node/EventNameShorthandNode.java,
+	notification/node/ExistOperator.java,
+	notification/node/GtOperator.java,
+	notification/node/GteOperator.java,
+	notification/node/IdentValue.java,
+	notification/node/ImplicitOperator.java,
+	notification/node/ImplicitOperatorNode.java,
+	notification/node/InOperator.java,
+	notification/node/LtOperator.java,
+	notification/node/LteOperator.java,
+	notification/node/MinusOperator.java,
+	notification/node/MultOperator.java,
+	notification/node/NeqOperator.java,
+	notification/node/NotOperator.java,
+	notification/node/NumberValue.java,
+	notification/node/OrOperator.java,
+	notification/node/PlusOperator.java,
+	notification/node/PropertyShorthandNode.java,
+	notification/node/RuntimeVariableNode.java,
+	notification/node/StaticTypeChecker.java,
+	notification/node/StaticTypeException.java,
+	notification/node/StringValue.java,
+	notification/node/SubstrOperator.java,
+	notification/node/TCLCleanUp.java, notification/node/TCLNode.java,
+	notification/node/TypeNameShorthandNode.java,
+	notification/node/VisitorException.java: Codecleanup: Organize
+	Imports
+
+	* notification/ApplicationContext.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/FilterFactoryImpl.java, notification/README: its now
+	possible to call ntfy.bat resp. EventChannelFactoryImpl with 
+	one of the parameters -printIOR or -printCorbaloc.
+
+	* notification/CollectionsWrapper.java,
+	notification/JDK13Collections.java,
+	notification/JacORBCollections.java, notification/README,
+	notification/build.xml: simplified CollectionsWrapper
+
+2003-07-16  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/README: *** empty log message ***
+
+	* notification/CollectionsWrapper.java,
+	notification/JacORBCollections.java: fixed imports.  Interface
+	java.util.RandomAccess is not available in a pre 1.4 JDK
+
+	* notification/README: *** empty log message ***
+
+	* notification/CollectionsWrapper.java,
+	notification/JDK13Collections.java,
+	notification/JDK13CollectionsWrapper.java,
+	notification/JacORBCollections.java,
+	notification/ProxyPullConsumerImpl.java,
+	notification/ProxyPullSupplierImpl.java,
+	notification/ProxyPushConsumerImpl.java,
+	notification/ProxyPushSupplierImpl.java,
+	notification/SequenceProxyPullSupplierImpl.java,
+	notification/StructuredProxyPullConsumerImpl.java,
+	notification/StructuredProxyPullSupplierImpl.java,
+	notification/StructuredProxyPushConsumerImpl.java,
+	notification/StructuredProxyPushSupplierImpl.java,
+	notification/build.xml: fix: use reflection to determine which
+	singletonList-impl is to be called.
+	added build-option notification.build.jdk12 to
+	notification/build.xml.
+
+2003-07-15  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/JDK13CollectionsWrapper.java,
+	notification/ProxyPullConsumerImpl.java,
+	notification/ProxyPullSupplierImpl.java,
+	notification/ProxyPushConsumerImpl.java,
+	notification/ProxyPushSupplierImpl.java,
+	notification/SequenceProxyPullSupplierImpl.java,
+	notification/StructuredProxyPullConsumerImpl.java,
+	notification/StructuredProxyPullSupplierImpl.java,
+	notification/StructuredProxyPushConsumerImpl.java,
+	notification/StructuredProxyPushSupplierImpl.java: - replaced
+	calls to Collections.singletonList with call to
+	JDK13CollectionsWrapper.singletonList
+
+2003-07-14  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ORB.java: JavaDoc and fix for possible null ptr and masking
+	exception (RT937)
+
+2003-07-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/iiop/IIOPListener.java (createServerConnection): New
+	template method.
+	(deliverConnection): Use it.
+
+2003-07-04  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/IIOPAddress.java (getHostname): Use our dns package for the
+	inverse lookup.
+
+	* orb/dns/build.xml: Adapt build rules to new choice in Delegate
+	implementations.
+
+	* orb/dns/JdkDelegateImpl.java: Initial revision.
+
+	* orb/dns/XbillDelegateImpl.java: Renamed from DNSLookupDelegateImpl.
+
+	* orb/dns/DNSLookup.java (jdk_DNS_Usable): New method.
+	(createDelegate): Use it, and create either a JdkDelegateImpl,
+	or an XbillDelegateImpl.
+
+2003-07-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/build.xml: fixed classpath
+
+	* notification/README,
+	notification/notification_build.properties.unix_template,
+	notification/notification_build.properties.win_template: removed
+	unnecessary files
+
+2003-07-03  francisco  <francisco@eagle>
+
+	* orb/CDROutputStream.java:
+	    - Added config property jacorb.interop.chunk_custom_rmi_valuetypes.
+	    - Removed two unused fields (resize_factor and null_ior_str) and a
+	      local variable (s_kind).
+
+2003-07-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java: print out IOR to stdout
+
+2003-07-03  francisco  <francisco@eagle>
+
+	* orb/build.xml: Compile org/jacorb/orb/iiop/*.java.
+
+2003-07-03  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/EventChannelFactoryImpl.java,
+	notification/FilterFactoryImpl.java: * test/regression/build.xml
+	  include notification testcases
+	fixed testcases
+
+	* build.xml, notification/build.xml: added concurrent.jar and
+	antlr.jar to JacORB/lib
+	- modified JacORB/bin/jacotemplate, JacORB/common.xml and
+	  JacORB/build.xml to include logkit.jar, antlr.jar and
+	  concurrent.jar in the classpath
+	- modified JacORB/src/org/jacorb/build.xml to
+	  include notification build
+	- modified JacORB/src/org/jacorb/notification/build.xml
+	  - removed check for antlr.jar and concurrent.jar
+	  - no need to generate CosNotify Classes here
+
+2003-07-02  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/BasicAdapter.java: Explain why some methods are deprecated.
+
+	* orb/ORB.java (createIOR): Remove commented-out previous version.
+
+2003-06-30  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/Delegate.java: Fix remote is_a while unmarshalling by adding
+	attempt to get helper and narrow first.
+
+	* util/Environment.java: Case in output change.
+
+2003-06-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/BasicAdapter.java (getListenerFactories): New method.
+	(c'tor): Use it to choose which transports should listen.
+
+	* orb/ORB.java (createIOR): Add profiles for all active
+	transports.
+	(findIIOPProfile): New method, used by the above.
+
+	* orb/ParsedIOR.java:
+	(decode(IOR)): Skip Profiles for which we have no Factories.
+	Select the effectiveProfile based on the ProfileSelector.
+
+	* orb/DefaultProfileSelector.java, orb/ProfileSelector.java:
+	Initial revision.
+
+	* orb/connection/TransportManager.java (factories): Field removed.
+	(factoriesList, factoriesMap, profileSelector): New fields.
+	(getFactories): Rewritten to take a profile tag argument.
+	(getFactoriesList): New method.
+	(getProfileSelector): New method.
+	(instantiateFactories, loadFactories): New private methods.
+
+	* orb/connection/ClientConnectionManager.java (getConnection):
+	Throw a RuntimeException if we have no factory for the given
+	profile.
+
+	* util/Environment.java (getListProperty): New method.
+
+	* orb/BasicAdapter.java (listeners): New field.  This is a List of
+	Listener objects, replacing the former "listener" field.  Adapt
+	all usages.
+
+	* orb/ParsedIOR.java (iiopAddress, use_sas, use_ssl): Fields
+	removed.
+	(effectiveProfile): Make it an ETF Profile, rather than an
+	IIOPProfile.
+	(get_object_key): Delegate to new ETF Profile operation.
+	(getComponent, getLongComponent, unifyTargetAddress): Alleviate
+	dependence on IIOP.
+
+	* orb/iiop/IIOPProfile.java (get_object_key): Renamed from
+	getObjectKey(); this operation is now in the ETF interface.
+
+2003-06-20  Andre Spiegel  <spiegel@gnu.org>
+
+	* proxy/ProxyClientForwardInterceptor.java (redirectProxy): Use
+	IIOPAddress.getIP() to get the IP address.
+
+	* orb/iiop/IIOPProfile.java (marshal): Marshal either numeric or
+	DNS addresses, depending on jacorb.dns.enable.
+	(patchPrimaryAddress): Adapt to new methods in IIOPAddress.
+
+	* orb/iiop/IIOPListener.java (createEndPointProfile): Use
+	IIOPAddress.getIP() for the SSLAcceptor.
+
+	* orb/iiop/ClientIIOPConnection.java (connect, createSocket): Use
+	IIOPAddress.getIP().
+
+	* naming/namemanager/ContextNode.java (update): Use
+	IIOPAddress.getIP().
+
+	* orb/util/PrintIOR.java (printIOR): Always print the IP address,
+	at least for now.
+
+	* orb/BasicAdapter.java (getAddress): Return either numeric or DNS
+	address, depending on jacorb.dns.enable.
+
+	* orb/IIOPAddress.java (host, getHost): Field and accessor method
+	removed.
+	(hostname, ip, getHostname, getIP): New fields and dynamic
+	accessor methods.
+	(isIP): New static private method.
+
+2003-06-10  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* naming/NameServer.java: Change %2D to - for clarity RT879
+
+	* idl/lexer.java: Fix for Jac250 (elif directive)
+
+2003-06-09  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/parser.cup, idl/parser.java, idl/sym.java: Fix for
+	Jac#348 (exit code)
+
+	* idl/Interface.java: Uncommented code (fix RT874) ->
+	defaultPOA/Tie class.
+
+2003-06-05  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/build.xml: * corrected syntax error
+
+	* notification/AdminBase.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java, notification/Constants.java,
+	notification/ConsumerAdminTieImpl.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/EventTypeIdentifier.java,
+	notification/FilterFactoryImpl.java, notification/FilterImpl.java,
+	notification/KeyedListEntry.java,
+	notification/NotificationAnyEvent.java,
+	notification/NotificationEvent.java,
+	notification/NotificationEventFactory.java,
+	notification/NotificationEventUtils.java,
+	notification/NotificationStructuredEvent.java,
+	notification/Properties.java, notification/PropertyManager.java,
+	notification/ProxyBase.java,
+	notification/ProxyPullConsumerImpl.java,
+	notification/ProxyPullSupplierImpl.java,
+	notification/ProxyPushConsumerImpl.java,
+	notification/README.PROPERTIES,
+	notification/SequenceProxyPullConsumerImpl.java,
+	notification/SequenceProxyPullSupplierImpl.java,
+	notification/SequenceProxyPushConsumerImpl.java,
+	notification/SequenceProxyPushSupplierImpl.java,
+	notification/StructuredProxyPullConsumerImpl.java,
+	notification/StructuredProxyPullSupplierImpl.java,
+	notification/SupplierAdminTieImpl.java, notification/build.xml,
+	notification/engine/TaskConfigurator.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TimerDeliverTask.java,
+	notification/evaluate/DynamicEvaluator.java,
+	notification/evaluate/ResultExtractor.java,
+	notification/grammar/CommonTokenTypes.txt,
+	notification/grammar/tcl.g,
+	notification/interfaces/AdminEvent.java,
+	notification/interfaces/AdminEventListener.java,
+	notification/interfaces/Disposable.java,
+	notification/interfaces/EventChannelEvent.java,
+	notification/interfaces/EventChannelEventListener.java,
+	notification/interfaces/FrameworkEvent.java,
+	notification/interfaces/ProxyCreationRequestEvent.java,
+	notification/interfaces/ProxyDisposedEvent.java,
+	notification/interfaces/ProxyDisposedEventListener.java,
+	notification/interfaces/ProxyEvent.java,
+	notification/interfaces/ProxyEventListener.java,
+	notification/node/AndOperator.java,
+	notification/node/AssocOperator.java,
+	notification/node/ComponentName.java,
+	notification/node/ComponentPositionOperator.java,
+	notification/node/CurrentTimeNode.java,
+	notification/node/DefaultOperator.java,
+	notification/node/DivOperator.java,
+	notification/node/DomainNameShorthandNode.java,
+	notification/node/DotOperator.java,
+	notification/node/EqOperator.java,
+	notification/node/EvaluationResult.java,
+	notification/node/ExistOperator.java,
+	notification/node/GtOperator.java,
+	notification/node/GteOperator.java,
+	notification/node/ImmutableEvaluationResult.java,
+	notification/node/ImplicitOperator.java,
+	notification/node/ImplicitOperatorNode.java,
+	notification/node/InOperator.java,
+	notification/node/LtOperator.java,
+	notification/node/LteOperator.java,
+	notification/node/MinusOperator.java,
+	notification/node/MultOperator.java,
+	notification/node/NeqOperator.java,
+	notification/node/NumberValue.java,
+	notification/node/OrOperator.java,
+	notification/node/PlusOperator.java,
+	notification/node/PropertyShorthandNode.java,
+	notification/node/RuntimeVariableNode.java,
+	notification/node/SubstrOperator.java,
+	notification/node/TCLCleanUp.java,
+	notification/node/TCLVisitor.java,
+	notification/node/TypeNameShorthandNode.java,
+	notification/node/UnionPositionOperator.java,
+	notification/util/CachingWildcardMap.java,
+	notification/util/ObjectPoolBase.java,
+	notification/util/ThreadPool.java,
+	notification/util/WildcardMap.java: - finished support for
+	Shorthand Notation in ETCL Expressions
+
+	  - added new AST classes
+	  - changed parser grammar
+
+	- rewrote parts of expression evaluation. the code flow got a bit
+	complicated
+
+	- Codecleanup
+
+	- introduced the possibility to configure some settings via
+	  jacorb_properties.
+
+	  three properties are supported see README.properties
+
+2003-06-03  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* util/Environment.java: Improve warning/change
+	verbosity (RT#875), add back missing implname
+
+2003-05-24  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/util/FixIOR.java (main): Pass ORB argument when creating the
+	ParsedIOR.
+
+	* imr/ImplementationRepositoryImpl.java 
+	(ImRRequestListener.replyNewLocation):
+	Pass ORB argument when creating a ParsedIOR.
+	(SocketListener.run): Create a ServerIIOPConnection, rather than
+	going via the TransportManager.
+
+	* orb/BasicAdapter.java (c'tor): Create a Listener for the
+	configured transport, rather than unconditionally for IIOP.
+	(getAddress, getPort, getSSLPort, hasSSLListener): Mark them as
+	deprecated and barf if we're not using IIOP.
+
+	* orb/CDRInputStream.java (read_Object): Pass ORB argument when
+	creating a ParsedIOR.
+
+	* orb/Delegate.java (c'tor, set_policy_override): Pass ORB when
+	creating a new ParsedIOR.
+
+	* orb/ORB.java (getTransportManager): New method.
+
+	* orb/ParsedIOR.java: (decode(IOR)): Use generic ETF transport to
+	demarshal profiles.
+	(c'tor): Add ORB argument, because we need it to get the ETF
+	transport.
+
+	* orb/connection/ClientConnectionManager.java (getConnection): Use
+	ETF factory to create the connection.
+
+	* orb/connection/TransportManager.java (factories): New field.
+	(getFactories): Use it (singleton pattern).
+	(createClientTransport, createServerTransport): Removed.
+
+	* orb/iiop/IIOPConnection.java: Fix comment.
+
+	* orb/iiop/IIOPFactories.java (create_connection): Implement it.
+
+	* orb/iiop/IIOPListener.java (deliverConnection): Add SSL
+	parameter.
+	(Acceptor.deliverConnection, SSLAcceptor.deliverConnection): New
+	methods, calling the above.
+
+2003-05-23  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/portableInterceptor/IORInfoImpl.java (components_iiop_profile,
+	components_multi_profile): Removed.
+	(components): New field.
+	(c'tor): Take component Map as an argument.
+	(add_ior_component, add_ior_component_to_profile): Use the new
+	component map.
+
+	* orb/BasicAdapter.java (getEndpointProfile): New method.
+
+	* orb/TaggedComponentList.java (addAll, addComponent, isEmpty):
+	New methods.
+
+	* orb/MinorCodes.java (NO_SUCH_POLICY, NO_SUCH_PROFILE): New
+	codes.
+
+	* orb/ORB.java (createIOR): Rewritten to use the ETF transport
+	mechanism.
+	(create_ORB_TYPE_ID, createMultipleComponentsProfile,
+	patchAddress): New methods.
+	(always_add_1_0_profile): Removed; this is now in the Environment
+	class.  Updated callers.
+
+	* orb/iiop/IIOPProfile.java (patchPrimaryAddress, set_object_key,
+	tag, to_GIOP_1_0): New methods.
+	(marshal): Add a damn missing break.
+
+	* util/Environment.java (giopAdd_1_0_Profiles, giopMinorVersion,
+	imrProxyHost, imrProxyPort, iorProxyHost, iorProxyPort): New
+	methods.
+
+2003-05-22  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/ORBSingleton.java, util/Environment.java: Move
+	strict_check_on_tc_creation into Environment
+
+2003-05-21  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/CDRInputStream.java: Fix tcMap usage in
+	CDRInputStream (fixes #JAC7), repositoryId offset fix and missing
+	closeEncapsulation
+
+	* orb/CDROutputStream.java: Use accessor method
+
+	* orb/ReplyReceiver.java: Add thread name
+
+2003-05-19  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* orb/TypeCode.java: Add debug
+
+2003-05-15  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* idl/AliasTypeSpec.java, idl/ArrayTypeSpec.java,
+	idl/EnumType.java, idl/FixedPointType.java, idl/Interface.java,
+	idl/SequenceType.java, idl/StructType.java, idl/UnionType.java,
+	idl/ValueAbsDecl.java, idl/ValueBoxDecl.java, idl/parser.cup,
+	idl/parser.java, idl/sym.java: Fixes for IDL compiler
+	documentation (RT#831) and jdk14 global scope (RT#772)
+
+	* idl/ConstDecl.java, idl/Literal.java: Fix for Jac#353 (const
+	fixed definitions) and jdk14 global scope (RT#772)
+
+	* idl/OpDecl.java: Fix for Jac#354 (exception / parameters)
+
+	* idl/GlobalInputStream.java, idl/lexer.java: Fix for
+	Jac#352 (parsing # & EOF)
+
+	* idl/Method.java, idl/NameTable.java, idl/ScopedName.java: Remove
+	commented out code
+
+2003-05-09  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/BasicAdapter.java: Largely rewritten to use the new IIOP
+	transport.
+
+	* orb/iiop/IIOPListener.java (Acceptor): Defer initialization to
+	separate method, working around a jdk bug.
+	(IIOPListener): Use deferred initialization for the acceptors.
+
+	* orb/TaggedComponentList.java (addComponent): Fix it.
+
+	* orb/iiop/IIOPListener.java (deliverConnection): Completed code
+	to create a Connection from the Socket.
+
 2003-05-07  Andre Spiegel  <spiegel@gnu.org>
 
 	* proxy/ProxyClientForwardInterceptor.java (redirectProxy): Get
