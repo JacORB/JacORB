@@ -32,24 +32,24 @@ import java.io.*;
  * 2) properties passed to ORB.init() by an application
  * 3) properties read from configuration files
  *
- * This means that in case of conflicts,  command line args 
- * override application properties which in turn may override 
+ * This means that in case of conflicts,  command line args
+ * override application properties which in turn may override
  * options from configuration files.
  *
  * Configuration files may be called ".jacorb_properties" or "jacorb.properties"
- * and are searched in the following order: if a configuration file is found 
+ * and are searched in the following order: if a configuration file is found
  * in "user.home", it is loaded first. If another file is found in the
  * current directory, it is also loaded. If properties of the same name
  * are found in both files, those loaded later override earlier ones,
  * so properties from a file found in "." take precedence.
- * 
+ *
  * @author Gerald Brose
  * @version $Id$
  */
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  * Applets are using a special init procedure (readFromURL) and do not
- * have access to all system properties. Due to this special init 
+ * have access to all system properties. Due to this special init
  * DO NOT USE Debug.Output here in Environment (at leat not until you are
  * very sure) semu
  */
@@ -61,9 +61,9 @@ public class Environment
     private static java.util.Vector propertiesFiles = new java.util.Vector();
     private static String jacorbPrefix          = "jacorb.";
     private static String poaPrefix             = jacorbPrefix + "poa.";
-        
+
     private static Properties   _props;
-        
+
     private static int                  _retries = 10;
     private static long                 _retry_interval = 700;
     private static int                  _outbuf_size = 4096;
@@ -85,18 +85,24 @@ public class Environment
     /** indicates whether the domain service is used or not */
     private static boolean          _use_domain= false;
 
-    /** if set to true (default), every orb domain gets mounted as child domain to 
+    /** if set to true (default), every orb domain gets mounted as child domain to
      *	the domain server on creation */
     private static boolean          _mount_orb_domain= true;
 
-    /** the filename to which the IOR of the orb domain (local domain service) is written 
+    /** the filename to which the IOR of the orb domain (local domain service) is written
      *  if set to null or the empty string (""), no IOR is written */
     private static String           _orb_domain_filename= null;
 
     /** the time how long an entry in the policy cache is valid, value in ms */
     private static long _cache_entry_lifetime  = 1000 * 60 * 5;      // 5 minutes
 
-    /** the pathname of the domains the poa maps newly created object references by default */
+    /*
+     * Enable no indirection for typecodes. This is for compatibility with
+     * Orbix 2K which is broken.
+     */
+    private static boolean _indirection_encoding_disable = false;
+
+   /** the pathname of the domains the poa maps newly created object references by default */
     private static String           _default_domains= null;
 
     /** threading properties */
@@ -112,7 +118,7 @@ public class Environment
     private static Hashtable            _use_httptunneling_for = new Hashtable();
 
     public static java.net.URL          URL=null;
-    
+
     private static byte[]               _impl_name = null;
     private static byte[]               _server_id = null;
 
@@ -123,15 +129,15 @@ public class Environment
     static
     {
         _init();
-    }   
+    }
 
     private static void _init()
     {
         try
         {
             _props = new Properties();
-            
-            String customPropertyFileNames = 
+
+            String customPropertyFileNames =
                 System.getProperty( "custom.props" );
 
             String home = System.getProperty( "user.home" );
@@ -142,13 +148,13 @@ public class Environment
 
             propertiesFiles.addElement(home + sep + propertiesFile1);
             propertiesFiles.addElement(home + sep + propertiesFile2);
-            
+
             /* look for config files in "." */
 
             propertiesFiles.addElement(propertiesFile1);
             propertiesFiles.addElement(propertiesFile2);
 
-            
+
             /* look for config files in java.home/lib */
 
             propertiesFiles.addElement(lib + sep + "lib" + sep + propertiesFile1);
@@ -158,9 +164,9 @@ public class Environment
             // Full name of the config file
             String sConfigFile = null;
 
-            /* 
-             * load config files from the default ClassLoader's classpath 
-             * 
+            /*
+             * load config files from the default ClassLoader's classpath
+             *
              * supported by Per Bockman (pebo@enea.se)
              */
             try
@@ -168,18 +174,18 @@ public class Environment
                 java.net.URL url = null;
 
                 //try first file name
-                url = 
+                url =
                     ClassLoader.getSystemResource( propertiesFile1 );
 
                 if( url == null )
                 {
                     //first is not found, so try second
-                    url = 
+                    url =
                         ClassLoader.getSystemResource( propertiesFile2 );
                 }
-                
+
                 if( url != null )
-                {                    
+                {
                     _props.load( url.openStream() );
 
                     sConfigFile = url.toString();
@@ -190,16 +196,16 @@ public class Environment
             catch(java.io.IOException ioe)
             {
                 // ignore it
-            }                                             
+            }
 
             if( ! loaded ) //no props file found in classpath
-            {                
-                for( int i = 0; i < propertiesFiles.size(); ++i ) 
+            {
+                for( int i = 0; i < propertiesFiles.size(); ++i )
                 {
-                    try 
+                    try
                     {
-                        _props.load( 
-                            new BufferedInputStream( 
+                        _props.load(
+                            new BufferedInputStream(
                                 new FileInputStream(
                                     (String) propertiesFiles.elementAt( i ) )));
 
@@ -207,11 +213,11 @@ public class Environment
                         sConfigFile = (String) propertiesFiles.elementAt( i );
 
                         break;
-                    } 
-                    catch ( Exception e ) 
+                    }
+                    catch ( Exception e )
                     {
-                        //ignore  
-                    } 
+                        //ignore
+                    }
                 }
             }
 
@@ -219,38 +225,38 @@ public class Environment
                 file in  addition to the ones loaded  from the various
                 jacorb.properties files.  This is loadded last so that
                 its    properties    override    any    settings    in
-                jacorb.properties files 
+                jacorb.properties files
             */
 
             if( customPropertyFileNames != null )
-            { 
-                try 
+            {
+                try
                 {
-                    StringTokenizer strtok = 
+                    StringTokenizer strtok =
                         new StringTokenizer(customPropertyFileNames, ",");
 
                     while( strtok.hasMoreTokens() )
                     {
-                        _props.load( 
-                            new BufferedInputStream( 
+                        _props.load(
+                            new BufferedInputStream(
                                  new FileInputStream( strtok.nextToken() )));
                     }
-		    
+
 		    loaded = true;
-                } 
-                catch ( IOException e ) 
-                {                    
+                }
+                catch ( IOException e )
+                {
                     //ignore
                 }
             }
 
-            _props.putAll( System.getProperties() ); 
+            _props.putAll( System.getProperties() );
 
             //read prop values to set fields ov this class
             readValues();
 
-            if( _verbosity > 0 && 
-                ! loaded && 
+            if( _verbosity > 0 &&
+                ! loaded &&
                 ! _props.getProperty( "jacorb.suppress_no_props_warning", "off" ).equals( "on" )) // rt
             {
                 System.err.println( "#####################################################################" );
@@ -258,18 +264,18 @@ public class Environment
                 System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets. A file file called \"jacorb.properties\" or \n\".jacorb_properties\" should be present in the classpath, \nthe home directory (" + home + "), the current directory (.) or \nin Javas lib directory (" + lib + ')'  );
 
                 System.err.println( "#####################################################################\n" );
-            }             
+            }
 
             if( _verbosity > 2 && sConfigFile != null)
             {
                 System.err.println("Setup Info: properties was file loaded from: " + sConfigFile );
-            } 
+            }
         }
         catch(SecurityException secex)
         {
             System.out.println("Could not read local jacorb properties.");
         }
-    }   
+    }
 
 
     /** creating an object ensures that Environment is properly initialized*/
@@ -298,7 +304,7 @@ public class Environment
                 // not allowed for applets
                 se.printStackTrace();
             }
-            
+
             _props.putAll( other_props );
 
             readValues();
@@ -312,13 +318,13 @@ public class Environment
      */
     private static String readValue(String propname,String prefix)
     {
-        if (_props.getProperty(propname) != null) 
+        if (_props.getProperty(propname) != null)
             return _props.getProperty(propname);
-        else if (prefix!=null && _props.getProperty(prefix) != null) 
+        else if (prefix!=null && _props.getProperty(prefix) != null)
             return _props.getProperty(prefix);
         else return null;
     }
-        
+
     /**
      * Uses reflection to set field varName to value get from readValue(String,String).
      * Converts into String,long,int and boolean ("on"==true).
@@ -326,18 +332,18 @@ public class Environment
     private static void readValue(String varName,String propname,String prefix)
     {
         String o = readValue(propname,prefix);
-        if( o == null) 
+        if( o == null)
             return;
         if( varName.equals("_retries"))
-            _retries = Integer.parseInt(o); 
+            _retries = Integer.parseInt(o);
         else if( varName.equals("_retry_interval"))
-            _retry_interval = Integer.parseInt(o); 
+            _retry_interval = Integer.parseInt(o);
 	else if( varName.equals("_cache_entry_lifetime"))
-            _cache_entry_lifetime = Long.parseLong(o); 
+            _cache_entry_lifetime = Long.parseLong(o);
         else if( varName.equals("_outbuf_size"))
-            _outbuf_size = Integer.parseInt(o); 
+            _outbuf_size = Integer.parseInt(o);
         else if( varName.equals("_max_managed_bufsize"))
-            maxManagedBufSize = Integer.parseInt(o); 
+            maxManagedBufSize = Integer.parseInt(o);
         else if( varName.equals("_default_context"))
             _default_context = o;
         else    if( varName.equals("_orb_domain_filename"))
@@ -345,11 +351,11 @@ public class Environment
 	else    if( varName.equals("_default_domains"))
             _default_domains= o;
         else    if( varName.equals("_verbosity"))
-            _verbosity = Integer.parseInt(o); 
+            _verbosity = Integer.parseInt(o);
         else    if( varName.equals("_locate_on_bind"))
             _locate_on_bind = (o.equalsIgnoreCase("on")? true : false);
         else    if( varName.equals("_cache_references"))
-            _cache_references = (o.equalsIgnoreCase("on")? true : false);   
+            _cache_references = (o.equalsIgnoreCase("on")? true : false);
         else if( varName.equals("_monitoring_on"))
             _monitoring_on = (o.equalsIgnoreCase("on")? true : false);
         else  if( varName.equals("_use_imr"))
@@ -359,16 +365,18 @@ public class Environment
         else  if( varName.equals("_use_domain"))
             _use_domain =  (o.equalsIgnoreCase("on")? true : false);
         else  if( varName.equals("_mount_orb_domain"))
-            _mount_orb_domain =  
+            _mount_orb_domain =
                 (o.equalsIgnoreCase("off")? false : true);
         else    if( varName.equals("_thread_pool_max"))
-            _thread_pool_max = Integer.parseInt(o); 
+            _thread_pool_max = Integer.parseInt(o);
         else    if( varName.equals("_thread_pool_min"))
-            _thread_pool_min = Integer.parseInt(o); 
+            _thread_pool_min = Integer.parseInt(o);
+        else    if( varName.equals("_indirection_encoding_disable"))
+            _indirection_encoding_disable = (o.equalsIgnoreCase("on")? true : false);
         else    if( varName.equals("_queue_max"))
-            _queue_max = Integer.parseInt(o); 
+            _queue_max = Integer.parseInt(o);
         else if( varName.equals("_proxy_server"))
-            _proxy_server = o;  
+            _proxy_server = o;
         else if( varName.equals("_use_appligator_for_applets"))
             _use_appligator_for_applets = (o.equalsIgnoreCase("off")? false : true );
         else if( varName.equals("_use_appligator_for_applications"))
@@ -384,21 +392,21 @@ public class Environment
         else    if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
     }
-        
+
     private static void readValues()
     {
-        String logFileName = null;                      
+        String logFileName = null;
         if (_props.getProperty("logfile") != null)
             logFileName = _props.getProperty("logfile");
         else if (_props.getProperty(jacorbPrefix+"logfile") != null)
             logFileName = _props.getProperty(jacorbPrefix+"logfile");
-                    
+
         readValue("_verbosity","verbosity",jacorbPrefix+"verbosity");
 
-        if (logFileName != null && !logFileName.equals ("")) 
+        if (logFileName != null && !logFileName.equals (""))
         {
             // Comvert $implname postfix to implementation name
- 
+
             if (logFileName.endsWith ("$implname"))
             {
                logFileName = logFileName.substring (0, logFileName.length () - 9);
@@ -419,7 +427,7 @@ public class Environment
                }
             }
 
-            try 
+            try
             {
                 _log_file_out = new PrintWriter(new FileOutputStream(logFileName));
                 if (_verbosity > 0)
@@ -427,11 +435,11 @@ public class Environment
                    System.out.println("Write output to log file \""+logFileName+"\"");
                 }
             }
-            catch (java.io.IOException ioe) 
+            catch (java.io.IOException ioe)
             {
                 System.out.println("Cannot access log file \""+logFileName+"\"");
             }
-        }   
+        }
 
         readValue("_retries","retries",jacorbPrefix+"retries");
         readValue("_retry_interval","retry_interval",jacorbPrefix+"retry_interval");
@@ -448,6 +456,7 @@ public class Environment
         readValue("_use_imr","use_imr",jacorbPrefix+"use_imr");
         readValue("_use_imr_endpoint","use_imr_endpoint",jacorbPrefix+"use_imr_endpoint");
         readValue("_use_domain","use_domain",jacorbPrefix+"use_domain");
+        readValue("_indirection_encoding_disable","interop.indirection_encoding_disable",jacorbPrefix+"interop.indirection_encoding_disable");
         readValue("_mount_orb_domain","_mount_orb_domain", jacorbPrefix+"orb_domain.mount");
         readValue("_thread_pool_max","thread_pool_max",poaPrefix+"thread_pool_max");
         readValue("_thread_pool_min","thread_pool_min",poaPrefix+"thread_pool_min");
@@ -475,26 +484,31 @@ public class Environment
     public static final String ORBDomainFilename()    { return _orb_domain_filename;  }
     public static final String DefaultDomains()       { return _default_domains;  }
     public static final long   LifetimeOfCacheEntry() { return _cache_entry_lifetime; }
-    
+
     public static final boolean useImR()    { return _use_imr;    }
     public static final boolean useImREndpoint()    { return _use_imr_endpoint;    }
     public static final boolean useDomain()      { return _use_domain; }
     public static final boolean mountORBDomain() { return _mount_orb_domain; }
-        
+
 
     public static final  int threadPoolMax() { return _thread_pool_max; }
     public static final  int threadPoolMin() { return _thread_pool_min; }
 
-    public static final int verbosityLevel() 
-    { 
-        return _verbosity; 
+    public static final boolean indirectionEncoding ()
+    {
+        return ( ! _indirection_encoding_disable);
+    }
+
+    public static final int verbosityLevel()
+    {
+        return _verbosity;
     }
 
     public static final String proxyURL() { return _proxy_server; }
 
-    public static final byte[] implName() 
+    public static final byte[] implName()
     {
-        return _impl_name; 
+        return _impl_name;
     }
 
     public static final boolean useAppligator(boolean amIanApplet)
@@ -515,9 +529,9 @@ public class Environment
 	return (o!=null);
     }
 
-    public static void setProxyURL(String url) 
+    public static void setProxyURL(String url)
     {
-        _proxy_server=url;  
+        _proxy_server=url;
     }
 
 
@@ -527,36 +541,36 @@ public class Environment
     }
 
     /**
-     * generic 
+     * generic
      */
 
-    public static String getProperty( String key ) 
-    { 
-        return _props.getProperty(key);         
+    public static String getProperty( String key )
+    {
+        return _props.getProperty(key);
     }
 
-    public static String getProperty( String key, String def ) 
-    { 
-        return _props.getProperty( key, def ); 
+    public static String getProperty( String key, String def )
+    {
+        return _props.getProperty( key, def );
     }
 
     /**
      * This will return true iff the properties value is
      * "on". Otherwise (i.e. value "off", or property not set), false
-     * is returned.  
+     * is returned.
      */
 
-    public static boolean isPropertyOn( String key ) 
-    { 
-        String s = _props.getProperty( key, "off" ); 
-        
+    public static boolean isPropertyOn( String key )
+    {
+        String s = _props.getProperty( key, "off" );
+
         return "on".equals( s );
     }
 
     public static int getIntProperty( String key, int base )
     {
-        String s = _props.getProperty( key ); 
-        
+        String s = _props.getProperty( key );
+
         try
         {
             return Integer.parseInt( s, base );
@@ -581,13 +595,13 @@ public class Environment
         return _props.containsKey( key );
     }
 
-    public static void setProperty( String key, String value ) 
-    { 
+    public static void setProperty( String key, String value )
+    {
         //for jdk1.1 compatibility (was _props.setProperty())
-        _props.put( key, value ); 
+        _props.put( key, value );
     }
 
-    public static String[] getPropertyValueList(String key) 
+    public static String[] getPropertyValueList(String key)
     {
         String list =  _props.getProperty(key);
 
@@ -598,12 +612,12 @@ public class Environment
 
         StringTokenizer t = new StringTokenizer( list, "," );
         Vector v = new Vector();
-        
+
         while( t.hasMoreTokens() )
         {
             v.addElement( t.nextToken());
         }
-        
+
         String[] result = new String[v.size()];
         for( int i = 0; i < result.length; i++ )
         {
@@ -611,26 +625,26 @@ public class Environment
         }
 
         return result;
-        
+
     }
 
     /** returns a copy of the org.jacorb properties. */
-    public static Properties getProperties() 
-    { 
-        return (Properties) _props.clone(); 
+    public static Properties getProperties()
+    {
+        return (Properties) _props.clone();
     }
 
-    public static final String time() 
+    public static final String time()
     {
         java.util.Calendar cal = java.util.Calendar.getInstance();
         return cal.get(Calendar.HOUR_OF_DAY) +
             ":" +
-            ( (cal.get(Calendar.MINUTE)<10) ? 
-              "0"+cal.get(Calendar.MINUTE) : 
+            ( (cal.get(Calendar.MINUTE)<10) ?
+              "0"+cal.get(Calendar.MINUTE) :
               ""+cal.get(Calendar.MINUTE) ) +
             ":" +
-            ( (cal.get(Calendar.SECOND)<10) ? 
-              "0"+cal.get(Calendar.SECOND) : 
+            ( (cal.get(Calendar.SECOND)<10) ?
+              "0"+cal.get(Calendar.SECOND) :
               ""+cal.get(Calendar.SECOND) );
     }
 
@@ -652,7 +666,7 @@ public class Environment
         // _props.list( System.out );
     }
 
-    public static final byte[] serverId() 
+    public static final byte[] serverId()
     {
         if (_server_id == null)
             _server_id = String.valueOf((long)(Math.random()*9999999999L)).getBytes();
@@ -671,9 +685,9 @@ public class Environment
         Enumeration prop_names = _props.propertyNames();
         Vector orb_initializers = new Vector();
 
-        String initializer_prefix = 
+        String initializer_prefix =
             "org.omg.PortableInterceptor.ORBInitializerClass.";
-        
+
         //Test EVERY property if prefix matches.
         //I'm open to suggestions for more efficient ways (noffke)
         while(prop_names.hasMoreElements())
@@ -682,12 +696,12 @@ public class Environment
             if ( prop.startsWith( initializer_prefix ))
             {
                 String name = _props.getProperty( prop );
-                if( name == null || 
+                if( name == null ||
                     name.length() == 0 )
                 {
                     if( prop.length() > initializer_prefix.length() )
                     {
-                        name = 
+                        name =
                             prop.substring( initializer_prefix.length() );
                     }
                 }
@@ -699,29 +713,29 @@ public class Environment
 
                 try
                 {
-		    ClassLoader cl = 
+		    ClassLoader cl =
 			Thread.currentThread().getContextClassLoader();
 		    if (cl == null)
 			cl = ClassLoader.getSystemClassLoader();
                     orb_initializers.addElement(cl.loadClass(name).newInstance());
-                    Debug.output(Debug.INTERCEPTOR | Debug.DEBUG1, 
+                    Debug.output(Debug.INTERCEPTOR | Debug.DEBUG1,
                                  "Build: " + name);
                 }
                 catch (Exception e)
                 {
                     Debug.output(1, e);
-                    
+
                     Debug.output( 1, "Unable to build ORBInitializer from >>" +
                                   name + "<<" );
                 }
             }
         }
-        
+
         return orb_initializers;
     }
 
     /**
-     * Collects all properties with a given prefix 
+     * Collects all properties with a given prefix
      *
      * @return a hash table with  key/value pairs where
      * key has the given prefix
@@ -736,7 +750,7 @@ public class Environment
      * Collects all properties with a given prefix. The prefix
      * will be removed from the hash key if trim is true
      *
-     * @return a hash table with  key/value pairs 
+     * @return a hash table with  key/value pairs
      */
 
     public static Hashtable getProperties( String prefix, boolean trim )
@@ -746,10 +760,10 @@ public class Environment
         else if( !trim && untrimmedPrefixProps.containsKey( prefix ))
             return (Hashtable)untrimmedPrefixProps.get( prefix );
         else
-        {           
+        {
             Enumeration prop_names = _props.propertyNames();
             Hashtable properties = new Hashtable();
-        
+
             // Test EVERY property if prefix matches.
             while( prop_names.hasMoreElements() )
             {
@@ -773,11 +787,11 @@ public class Environment
                 trimmedPrefixProps.put( prefix, properties );
             else
                 untrimmedPrefixProps.put( prefix, properties );
-            
+
             return properties;
         }
     }
-  
+
     public static boolean doMapObjectKeys()
     {
         Hashtable h = getProperties( "jacorb.orb.objectKeyMap", true );
@@ -785,10 +799,3 @@ public class Environment
     }
 
 }
-
-
-
-
-
-
-
