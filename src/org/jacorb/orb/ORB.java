@@ -1424,7 +1424,7 @@ public final class ORB
 
         try
         {
-            ParsedIOR pior = new ParsedIOR( str );
+            ParsedIOR pior = new ParsedIOR( str, this );
             if( pior.isNull() )
             {
                 return null;
