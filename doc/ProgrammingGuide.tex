@@ -22,8 +22,8 @@ urlcolor = blue]{hyperref}
 % Uncomment the follwing, if you want to use plain LaTeX %
 %                                                        % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\usepackage{graphicx}
-%\newcommand{\href}[2]{{\tt #1}}
+% \usepackage{graphicx}
+% \newcommand{\href}[2]{{\tt #1}}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3217,6 +3217,10 @@ To configure connection management, the following properties are provided:
   the {\tt Selection\-Strategy}.
 \item {\tt jacorb.connection.statistics\_provider\_class} This property sets
   the {\tt Statistics\-Provider}.
+\item {\tt jacorb.connection.comm\_failure\_retries} This property sets the
+  number of retries that will be made, until a {\tt COMM\_FAILURE} exception
+  is propagated back up to the application code. See also section
+  \ref{connection_management_limitations}.
 \end{description}
 
 \subsection{Limitations}
@@ -3229,8 +3233,15 @@ the socket input stream until it has read data. The problem here is that there
 is no way to determine if data is available at the socket, but the thread just
 hasn't yet read it (or, is actually reading, but hasn't yet returned from the
 call). If a connection close happens at this time, the client will see that
-the connection is closed, but he hasn't yet received a reply.  Therefore, it
+the connection is closed, but it hasn't yet received a reply.  Therefore, it
 will consider the message lost and usually throw an exception.
+
+To compensate for that, JacORB allows to to retry sending the message if a
+socket error occurs. This behaviour is controlled by the property {\tt
+  jacorb.connection.comm\_failure\_retries}. If set, JacORB will try to resend
+the message the configured number of times, and only then propagate the
+exception back up if retries are exceeded. If not set, all errors from the
+socket layer will get right back into the application code.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -3541,6 +3552,9 @@ to configure JacORB are given in the following tables.
 \verb"jacorb.connection.clie"
 \verb"nt_timeout" & Client-side timeout. This is set to non-zero in order to stop blocking after specified number of milliseconds. Not set by default. & millisec. \\
 \hline
+\verb"jacorb.connection.serv"
+\verb"er_timeout" & Maximum time in milliseconds that a server keeps a connection open if nothing happens. Not set by default. & millisec. \\
+\hline
 \verb"jacorb.connection.max"
 \verb"_server_transports" & This property sets the
   maximum number of TCP/IP connections that will be listened on by the
@@ -3559,8 +3573,10 @@ to configure JacORB are given in the following tables.
 \verb"istics_provider_class" & This property sets
   the {\tt Statistics\-Provider} & class \\
 \hline
-\verb"jacorb.connection.serv"
-\verb"er_timeout" & Maximum time in milliseconds that a server keeps a connection open if nothing happens. Not set by default. & millisec. \\
+\verb"jacorb.connection.comm"
+\verb"_failure_retries" & This property sets the
+  number of retries that will be made, until a {\tt COMM\_FAILURE} exception
+  is propagated back up to the application code. Default is off. & integer \\
 \hline
 \verb"jacorb.reference_cachi"
 \verb"ng" & Whether or not JacORB caches objects references. Not set by default. & boolean \\
