@@ -11,11 +11,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jacorb.util.Debug;
 
-
 /**
- *  Unit Test for class WildcardMap
- *
- *
  * @author Alphonse Bendt
  * @version $Id$
  */
@@ -23,6 +19,14 @@ import org.jacorb.util.Debug;
 public class WildcardMapTest extends TestCase {
 
     protected WildcardMap map_;
+
+    ////////////////////////////////////////
+
+    public WildcardMapTest (String name){
+        super(name);
+    }
+
+    ////////////////////////////////////////
 
     public void setUp() throws Exception {
         map_ = new WildcardMap();
@@ -43,7 +47,6 @@ public class WildcardMapTest extends TestCase {
         long _wcTime = 0;
         long _hashTime = 0;
         int _iterations = 20;
-
 
         if (Debug.getNamedLogger("org.jacorb.notification.util").isInfoEnabled()) {
             Debug.getNamedLogger("org.jacorb.notification.util").info("you should disable logging for testPerformance");
@@ -100,6 +103,7 @@ public class WildcardMapTest extends TestCase {
         System.out.println("  WildcardMap:\t" + _wcTime / _iterations);
     }
 
+
     public void performanceGet() throws Exception {
         long _wcTime = 0;
 
@@ -108,7 +112,6 @@ public class WildcardMapTest extends TestCase {
         int totalTests = 10;
 
         Hashtable testData = new Hashtable();
-
 
         System.out.println("Measure Average Time for one get Operation with various Map Sizes");
 
@@ -139,7 +142,8 @@ public class WildcardMapTest extends TestCase {
         }
     }
 
-    long wcMapGet(WildcardMap map, Object[] keys, int runs) {
+
+    private long wcMapGet(WildcardMap map, Object[] keys, int runs) {
         long _start = System.currentTimeMillis();
 
         // fetch every n'th key
@@ -155,6 +159,7 @@ public class WildcardMapTest extends TestCase {
         return (_stop - _start) / (keys.length / n);
     }
 
+
     public void testRemove() throws Exception {
         map_.put("hallo", "Hallo");
         map_.put("hallo2", "Hallo2");
@@ -168,6 +173,7 @@ public class WildcardMapTest extends TestCase {
 
         assertTrue(l.length == 0);
     }
+
 
     public void testAddStar1() throws Exception {
         map_.put("ha*o", "default");
@@ -184,6 +190,7 @@ public class WildcardMapTest extends TestCase {
         assertTrue(_res.length == 1);
     }
 
+
     public void testAddStar2() throws Exception {
         map_.put("*abc*de", "value");
         Object[] _res = (Object[])map_.getWithExpansion("abcde");
@@ -197,7 +204,11 @@ public class WildcardMapTest extends TestCase {
 
         _res = (Object[])map_.getWithExpansion("abcde");
         assertTrue(_res.length == 1);
+
+        _res = (Object[])map_.getWithExpansion("ab cde");
+        assertEquals(0, _res.length);
     }
+
 
     public void testAddStar() throws Exception {
         map_.put("abc*", "value1");
@@ -212,6 +223,7 @@ public class WildcardMapTest extends TestCase {
         assertTrue("value1".equals(_res[0]) || "value1".equals(_res[1]));
         assertTrue("value2".equals(_res[0]) || "value2".equals(_res[1]));
     }
+
 
     public void testSplitAfterStar() throws Exception {
         map_.put("abc*def", "value1");
@@ -228,6 +240,7 @@ public class WildcardMapTest extends TestCase {
         assertTrue(_res.length == 1);
     }
 
+
     public void testExactGet() throws Exception {
         map_.put("name1", "value1");
         map_.put("name2", "value2");
@@ -243,6 +256,7 @@ public class WildcardMapTest extends TestCase {
         assertEquals("value5", map_.getNoExpansion("na*"));
         assertEquals("value6", map_.getNoExpansion("na*e1"));
     }
+
 
     public void testAdd() throws Exception {
         map_.put("name", "wert");
@@ -262,18 +276,7 @@ public class WildcardMapTest extends TestCase {
         assertEquals("Programming Language", o2[0]);
     }
 
-    /**
-     * Creates a new <code>WildcardMapTest</code> instance.
-     *
-     * @param name test name
-     */
-    public WildcardMapTest (String name){
-        super(name);
-    }
 
-    /**
-     * @return a <code>TestSuite</code>
-     */
     public static Test suite(){
         TestSuite suite = new TestSuite();
 
@@ -287,13 +290,10 @@ public class WildcardMapTest extends TestCase {
         return suite;
     }
 
-    /**
-     * Entry point
-     */
+
     public static void main(String[] args) {
         junit.textui.TestRunner.run(suite());
     }
-
 }
 
 
