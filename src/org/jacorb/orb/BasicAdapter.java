@@ -394,7 +394,7 @@ public class BasicAdapter
      * to be called from the POA
      */
 
-    public synchronized void return_result(org.jacorb.orb.dsi.ServerRequest request)
+    public void return_result(org.jacorb.orb.dsi.ServerRequest request)
     {
         request.reply();
     }
