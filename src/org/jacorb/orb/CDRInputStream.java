@@ -1019,7 +1019,7 @@ public class CDRInputStream
                 buf[ i++ ] = read_wchar( wchar_litte_endian );
             }
             
-            return new String( buf );
+            return new String( buf, 0, i );
         }
         else //GIOP 1.1 / 1.0
         {
