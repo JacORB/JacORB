@@ -28,6 +28,11 @@ import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 
+/**
+ * JacORB implementation of IR ConstantDef objects
+ * @author  Gerald Brose
+ * @version $Id$
+ */
 
 public class ConstantDef 
     extends Contained
@@ -71,8 +76,18 @@ public class ConstantDef
             "/" + name + ":" + version;
 
         absolute_name = myContainer.absolute_name() + "::" + name;
-        typeCode = TypeCodeUtil.getTypeCode( field.getType(), null );
-        org.jacorb.util.Debug.output( 2, "New ConstantDef " + absolute_name());
+
+        try
+        {
+            typeCode = TypeCodeUtil.getTypeCode( field.getType(), null );
+            org.jacorb.util.Debug.output( 2, "New ConstantDef " + absolute_name());
+        }
+        catch( ClassNotFoundException cnfe )
+        {
+            org.jacorb.util.Debug.output( 0, "Error: ConstantDef " + 
+                                          absolute_name() + " could not be created!");
+            cnfe.printStackTrace();
+        }
     }
 
 
