@@ -62,7 +62,7 @@ public class NotificationTestCase extends TestCase
 
         setup_ = setup;
 
-        logger_ = getConfiguration().getNamedLogger(getClass().getName());
+        //        logger_ = getConfiguration().getNamedLogger(getClass().getName());
     }
 
     ////////////////////////////////////////
