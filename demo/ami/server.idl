@@ -1,0 +1,13 @@
+module demo {
+
+  module ami {
+
+    interface AsyncServer {
+	
+      long operation (in long a, in long b);
+
+    };
+
+  };
+
+};
