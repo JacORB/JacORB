@@ -46,14 +46,14 @@ public class ArrayTypeSpec
     {
         super(num);
         declarator = ad;
-        //  	try
-        //  	{
-        //  	    declarator.parse();
-        //  	}
-        //  	catch (ParseError p)
-        //  	{
-        //  	    p.printStackTrace();
-        //  	}
+        //    try
+        //    {
+        //        declarator.parse();
+        //    }
+        //    catch (ParseError p)
+        //    {
+        //        p.printStackTrace();
+        //    }
         name = declarator.name();
         set_token(ad.get_token());
         setEnclosingSymbol(ad.getEnclosingSymbol());
@@ -142,8 +142,8 @@ public class ArrayTypeSpec
     }
 
     /**
-     *	we have to be able to distinguish between explicitly typedef'd
-     *	type names and anonymously defined type names
+     * we have to be able to distinguish between explicitly typedef'd
+     * type names and anonymously defined type names
      */
 
     public void markTypeDefd()

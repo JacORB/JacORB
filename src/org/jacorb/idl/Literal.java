@@ -143,8 +143,8 @@ class Literal
             }
 
             if( logger.isWarnEnabled() )
-		 logger.warn( "Literal " + ts.getClass().getName() + " " +
-                    ( token != null? token.getClass().getName() :"<no token>" ) );
+                logger.warn( "Literal " + ts.getClass().getName() + " " +
+                             ( token != null? token.getClass().getName() :"<no token>" ) );
 
             if( ts instanceof FloatPtType &&
                     !( token instanceof java_cup.runtime.float_token ) )
@@ -308,4 +308,3 @@ class Literal
         return result.toString();
     }
 }
-

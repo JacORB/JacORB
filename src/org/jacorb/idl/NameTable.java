@@ -89,9 +89,10 @@ class NameTable
         throws NameAlreadyDefined
     {
         if( logger.isDebugEnabled() )
-		 logger.debug(
-                "NameTable.checkScopingRules:  " +
-                name + " kind: " + kind );
+        {
+            logger.debug("NameTable.checkScopingRules:  " +
+                         name + " kind: " + kind );
+        }
 
         if( kind.equals( "argument" ) )
         {
@@ -212,9 +213,10 @@ class NameTable
 
             }
             if( logger.isInfoEnabled() )
-		 logger.info(
-                    "NameTable source of " + name
-                    + " is " + presentOpName );
+            {
+                logger.info("NameTable source of " + name
+                            + " is " + presentOpName );
+            }
 
             String otherOpName = inheritedFrom + "." + opName;
 
@@ -227,9 +229,10 @@ class NameTable
                 otherOpName = source + "." + opName;
             }
             if( logger.isInfoEnabled() )
-		 logger.info(
-                    "NameTable other source of " + name
-                    + " is " + otherOpName );
+            {
+                logger.info("NameTable other source of " + name
+                            + " is " + otherOpName );
+            }
 
             if( otherOpName.equals( presentOpName ) )
             {
@@ -312,7 +315,7 @@ class NameTable
                     String kind = (String)h.get( key );
                     if( logger.isDebugEnabled() )
                     {
-                        logger.debug( "NameTable.inheritFrom ancestor " + anc + 
+                        logger.debug( "NameTable.inheritFrom ancestor " + anc +
                                        " : key " + key + " kind " + kind );
                     }
 
@@ -367,7 +370,7 @@ class NameTable
         catch( NameAlreadyDefined nad )
         {
             if( logger.isDebugEnabled() )
-		 logger.debug( "Exception ", nad );
+                logger.debug( "Exception ", nad );
         }
     }
 
@@ -400,4 +403,3 @@ class NameTable
                 _s.equals( "org.omg.CORBA.Any" ) || _s.equals( "<anon>" ) );
     }
 }
-

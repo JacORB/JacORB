@@ -44,10 +44,9 @@ class TemplateTypeSpec
     }
 
     /**
-     *	we have to be able to distinguish between explicitly typedef'd
-     *	type names and anonymously defined type names
+     * we have to be able to distinguish between explicitly typedef'd
+     * type names and anonymously defined type names
      */
-
     public void markTypeDefd()
     {
         typedefd = true;
@@ -59,27 +58,3 @@ class TemplateTypeSpec
         return true;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

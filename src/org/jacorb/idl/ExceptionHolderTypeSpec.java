@@ -80,13 +80,11 @@ public class ExceptionHolderTypeSpec
     }
 
     /**
-     * @return a string for an expression of type TypeCode
-     * 			that describes this type
+     * @return a string for an expression of type TypeCode that describes this type
      */
-
     public String getTypeCodeExpression()
     {
-        return "org.omg.CORBA.ORB.init().create_value_tc" 
+        return "org.omg.CORBA.ORB.init().create_value_tc"
           + "(\"IDL:omg.org/Messaging/ExceptionHolder:1.0\","
           + "\"ExceptionHolder\", (short)0, null,"
           + "new org.omg.CORBA.ValueMember[] {"
@@ -94,11 +92,11 @@ public class ExceptionHolderTypeSpec
           + "\"ExceptionHolder\", \"1.0\", "
           + "org.omg.CORBA.ORB.init().get_primitive_tc("
           + "org.omg.CORBA.TCKind.from_int(8)), null, (short)0),"
-          + "new org.omg.CORBA.ValueMember (\"\", \"IDL:*primitive*:1.0\"," 
+          + "new org.omg.CORBA.ValueMember (\"\", \"IDL:*primitive*:1.0\","
           + "\"ExceptionHolder\", \"1.0\", "
           + "org.omg.CORBA.ORB.init().get_primitive_tc("
           + "org.omg.CORBA.TCKind.from_int(8)), null, (short)0),"
-          + "new org.omg.CORBA.ValueMember (\"\", \"IDL:marshaled_exception:1.0\"," 
+          + "new org.omg.CORBA.ValueMember (\"\", \"IDL:marshaled_exception:1.0\","
           + "\"ExceptionHolder\", \"1.0\", "
           + "org.omg.CORBA.ORB.init().create_sequence_tc("
           + "0, org.omg.CORBA.ORB.init().get_primitive_tc("
@@ -128,6 +126,3 @@ public class ExceptionHolderTypeSpec
     }
 
 }
-
-
-

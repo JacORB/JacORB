@@ -25,28 +25,28 @@ import java.util.HashMap;
 import java.lang.Double;
 
 /**
- * Based on the MathEvaluator class by The-Son LAI, 
- * <a href="mailto:Lts@writeme.com">Lts@writeme.com</a> 
- * 
- * <i>Expression evaluator for IDL constant expression</i> 
+ * Based on the MathEvaluator class by The-Son LAI,
+ * <a href="mailto:Lts@writeme.com">Lts@writeme.com</a>
+ *
+ * <i>Expression evaluator for IDL constant expression</i>
  *
  * Supports the following functions:
  * +, -, *, /, ^, %, ^, | , <<, >> <br>
  *
- * When the getValue() is called, a Double object is returned. 
+ * When the getValue() is called, a Double object is returned.
  * If it returns null, an error occured.<p>
 
  * @version $Id$
- * @author  Gerald Brose, 
+ * @author  Gerald Brose,
  *          The-Son LAI <a href="mailto:Lts@writeme.com">Lts@writeme.com</a>
  */
 
 public class ConstExprEvaluator
 {
-    protected static 	Operator[] 	operators 	= null;
-    private 		Node 		node       	= null;
-    private 		String  	expression 	= null;
-    private 		HashMap	 	variables  	= new HashMap();
+    protected static   Operator[]   operators = null;
+    private   Node    node                    = null;
+    private   String  expression              = null;
+    private   HashMap variables               = new HashMap();
 
     /**
      * creates an empty ConstExprEvaluator.
@@ -55,7 +55,7 @@ public class ConstExprEvaluator
 
     public ConstExprEvaluator()
     {
-    	init();
+        init();
     }
 
     /**
@@ -64,13 +64,13 @@ public class ConstExprEvaluator
 
     public ConstExprEvaluator(String s)
     {
-    	init();
+        init();
         setExpression(s);
     }
 
     private void init()
     {
-       	if ( operators == null ) 
+        if ( operators == null )
             initializeOperators();
     }
 
@@ -89,9 +89,9 @@ public class ConstExprEvaluator
 
     public void reset()
     {
-    	node 		= null;
-        expression 	= null;
-        variables 	= new HashMap();
+        node   = null;
+        expression   = null;
+        variables   = new HashMap();
     }
 
 
@@ -101,10 +101,10 @@ public class ConstExprEvaluator
 
     public Double getValue()
     {
-       	if (expression == null)
+        if (expression == null)
             return null;
 
-    	try
+        try
         {
             node = new Node(expression);
             return evaluate(node);
@@ -131,28 +131,28 @@ public class ConstExprEvaluator
 
     private static Double evaluateExpression( Operator o, Double f1, Double f2)
     {
-        String op 	= o.getOperator();
-        Double res 	= null;
+        String op   = o.getOperator();
+        Double res   = null;
 
-        if  	 ( "+".equals(op) ) 	
+        if     ( "+".equals(op) )
             res = new Double( f1.doubleValue() + f2.doubleValue() );
-        else if  ( "-".equals(op) ) 	
+        else if  ( "-".equals(op) )
             res = new Double( f1.doubleValue() - f2.doubleValue() );
-        else if  ( "*".equals(op) ) 	
+        else if  ( "*".equals(op) )
             res = new Double( f1.doubleValue() * f2.doubleValue() );
-        else if  ( "/".equals(op) )  	
+        else if  ( "/".equals(op) )
             res = new Double( f1.doubleValue() / f2.doubleValue() );
-        else if  ( "%".equals(op) )  	
+        else if  ( "%".equals(op) )
             res = new Double( f1.doubleValue() % f2.doubleValue() );
-        else if  ( "|".equals(op) )  	
+        else if  ( "|".equals(op) )
             res =   new Double(Double.longBitsToDouble( Double.doubleToLongBits( f1.doubleValue()) | Double.doubleToLongBits( f2.doubleValue() ) ));
-        else if  ( "&".equals(op) )  	
+        else if  ( "&".equals(op) )
             res =  new Double( Double.longBitsToDouble( Double.doubleToLongBits( f1.doubleValue() ) & Double.doubleToLongBits( f2.doubleValue() ) ));
-        else if  ( "^".equals(op) )  	
+        else if  ( "^".equals(op) )
             res =  new Double( Double.longBitsToDouble( Double.doubleToLongBits( f1.doubleValue() ) ^ Double.doubleToLongBits( f2.doubleValue() ) ));
-        else if  ( "<<".equals(op) )  	
+        else if  ( "<<".equals(op) )
             res =  new Double( Double.longBitsToDouble( Double.doubleToLongBits( f1.doubleValue() ) << Double.doubleToLongBits( f2.doubleValue() ) ));
-        else if  ( ">>".equals(op) )  	
+        else if  ( ">>".equals(op) )
             res =  new Double( Double.longBitsToDouble( Double.doubleToLongBits( f1.doubleValue() ) >> Double.doubleToLongBits( f2.doubleValue() ) ));
 
         return res;
@@ -163,37 +163,37 @@ public class ConstExprEvaluator
         operators     = new Operator[10];
 
         // bit-wise operators
-        operators[0]  = new Operator("|"	, 2, 0);
+        operators[0]  = new Operator("|"  , 2, 0);
 
-        operators[1]  = new Operator("^"	, 2, 2);
+        operators[1]  = new Operator("^"  , 2, 2);
 
-        operators[2]  = new Operator("&"	, 2, 4);
+        operators[2]  = new Operator("&"  , 2, 4);
 
-        operators[3]  = new Operator(">>"	, 2, 6);
-        operators[4]  = new Operator("<<"	, 2, 6);
+        operators[3]  = new Operator(">>"  , 2, 6);
+        operators[4]  = new Operator("<<"  , 2, 6);
         // arithmetic operators
-        operators[5]  = new Operator("+"	, 2, 8);
-        operators[6]  = new Operator("-"	, 2, 8);
+        operators[5]  = new Operator("+"  , 2, 8);
+        operators[6]  = new Operator("-"  , 2, 8);
 
-        operators[7]  = new Operator("*"	, 2, 10);
-        operators[8]  = new Operator("/"	, 2, 10);
-        operators[9]  = new Operator("%"	, 2, 10);
+        operators[7]  = new Operator("*"  , 2, 10);
+        operators[8]  = new Operator("/"  , 2, 10);
+        operators[9]  = new Operator("%"  , 2, 10);
 
 
     }
 
     /**
-     * gets the variable's value that was assigned previously 
+     * gets the variable's value that was assigned previously
      */
 
     public Double getVariable(String s)
     {
-    	return( Double )variables.get(s);
+        return( Double )variables.get(s);
     }
 
     private Double getDouble(String s)
     {
-    	if ( s == null ) 
+        if ( s == null )
             return null;
 
         Double res = null;
@@ -211,12 +211,12 @@ public class ConstExprEvaluator
 
     protected Operator[] getOperators()
     {
-    	return operators;
+        return operators;
     }
 
     protected class Operator
     {
-    	private String op;
+        private String op;
         private int type;
         private int priority;
 
@@ -225,7 +225,7 @@ public class ConstExprEvaluator
             op = o;
             type = t;
             priority = p;
-    	}
+        }
 
         public String getOperator()
         {
@@ -250,22 +250,22 @@ public class ConstExprEvaluator
 
     protected class Node
     {
-        public String 	nString		= null;
-    	public Operator nOperator 	= null;
-        public Node 	nLeft		= null;
-        public Node 	nRight		= null;
-        public Node 	nParent		= null;
-        public int		nLevel		= 0;
-        public Double  	nValue		= null;
+        public String   nString  = null;
+        public Operator nOperator   = null;
+        public Node   nLeft  = null;
+        public Node   nRight  = null;
+        public Node   nParent  = null;
+        public int  nLevel  = 0;
+        public Double    nValue  = null;
 
-    	public Node(String s) throws Exception
+        public Node(String s) throws Exception
         {
-        	init(null, s, 0);
+            init(null, s, 0);
         }
 
-    	public Node(Node parent, String s, int level) throws Exception
+        public Node(Node parent, String s, int level) throws Exception
         {
-        	init(parent, s, level);
+            init(parent, s, level);
         }
 
         private void init(Node parent, String s, int level) throws Exception
@@ -273,15 +273,15 @@ public class ConstExprEvaluator
             s = removeIllegalCharacters(s);
             s = removeBrackets(s);
             s = addZero(s);
-            if ( checkBrackets(s) != 0 ) 
+            if ( checkBrackets(s) != 0 )
                 throw new Exception("Wrong number of brackets in [" + s + "]");
 
-            nParent		      	= parent;
-            nString 			= s;
-            nValue			= getDouble(s);
-            nLevel 			= level;
-            int sLength  		= s.length();
-            int inBrackets		= 0;
+            nParent          = parent;
+            nString     = s;
+            nValue    = getDouble(s);
+            nLevel     = level;
+            int sLength    = s.length();
+            int inBrackets  = 0;
             int startOperator   = 0;
 
             for (int i=0; i<sLength; i++)
@@ -301,8 +301,8 @@ public class ConstExprEvaluator
                             // if first operator or lower priority operator
                             if ( nOperator == null || nOperator.getPriority() >= o.getPriority() )
                             {
-                            	nOperator 		= o;
-                            	startOperator 	= i;
+                                nOperator   = o;
+                                startOperator   = i;
                             }
                         }
                     }
@@ -317,22 +317,22 @@ public class ConstExprEvaluator
                     // the brackets must be ok
                     if ( checkBrackets( s.substring( nOperator.getOperator().length() ) ) == 0 )
                     {
-                        nLeft  = 
-                            new Node( this, s.substring( nOperator.getOperator().length() ) , nLevel + 1);
+                        nLeft  =
+                        new Node( this, s.substring( nOperator.getOperator().length() ) , nLevel + 1);
                         nRight = null;
                         return;
                     }
                     else
-                    	throw new Exception("Error during parsing... missing brackets in [" + s + "]");
+                        throw new Exception("Error during parsing... missing brackets in [" + s + "]");
                 }
                 // two operands
                 else if ( startOperator > 0 && nOperator.getType() == 2 )
                 {
                     nOperator = nOperator;
-                    nLeft 	= 
-                        new Node( this, s.substring(0,  startOperator), nLevel + 1 );
-                    nRight 	= 
-                        new Node( this, s.substring(startOperator + nOperator.getOperator().length()), nLevel + 1);
+                    nLeft   =
+                    new Node( this, s.substring(0,  startOperator), nLevel + 1 );
+                    nRight   =
+                    new Node( this, s.substring(startOperator + nOperator.getOperator().length()), nLevel + 1);
                 }
             }
         }
@@ -355,12 +355,12 @@ public class ConstExprEvaluator
             int sLength = s.length();
             for (int i=1; i<sLength; i++)
             {
-            	char c = s.charAt(i);
+                char c = s.charAt(i);
                 if ( (c > 'z' || c < 'a') && (c > '9' || c < '0') )
-                	return s.substring(0, i);
+                    return s.substring(0, i);
             }
             return s;
-    	}
+        }
 
         /**
          * checks if there is any missing brackets
@@ -368,7 +368,7 @@ public class ConstExprEvaluator
          */
         protected int checkBrackets(String s)
         {
-            int sLength  	= s.length();
+            int sLength    = s.length();
             int inBracket   = 0;
 
             for (int i=0; i<sLength; i++)
@@ -389,11 +389,11 @@ public class ConstExprEvaluator
         {
             if ( s.startsWith("+") || s.startsWith("-") )
             {
-            	int sLength  	= s.length();
+                int sLength    = s.length();
                 for (int i=0; i<sLength; i++)
                 {
                     if ( getOperator(s, i) != null )
-                    	return "0" + s;
+                        return "0" + s;
                 }
             }
 
@@ -497,7 +497,4 @@ public class ConstExprEvaluator
         }
 
     }
-
-
 }
-

@@ -99,7 +99,7 @@ public class InterfaceBody
         {
             boolean result = running || checkWaitCondition();
             if( logger.isWarnEnabled() )
-		 logger.warn( "Thread is runnable: " + result );
+                logger.warn( "Thread is runnable: " + result );
             return result;
         }
 
@@ -181,7 +181,7 @@ public class InterfaceBody
         escapeName();
 
         if( logger.isDebugEnabled() )
-		 logger.debug( "Interface Body parse " + full_name() );
+            logger.debug( "Interface Body parse " + full_name() );
 
         if( inheritance_spec != null )
         {
@@ -193,7 +193,7 @@ public class InterfaceBody
                 ScopedName scoped_name = (ScopedName)e.nextElement();
 
                 if( logger.isDebugEnabled() )
-		 logger.debug( "Trying to resolve " + scoped_name );
+                    logger.debug( "Trying to resolve " + scoped_name );
 
 
                 o = parser.get_pending( scoped_name.resolvedName() );
@@ -216,14 +216,14 @@ public class InterfaceBody
             internal_parse();
             parser.remove_pending( full_name() );
             if( logger.isDebugEnabled() )
-		 logger.debug( "Interface Body done parsing " + full_name() );
+                logger.debug( "Interface Body done parsing " + full_name() );
         }
     }
 
     public void internal_parse()
     {
         if( logger.isDebugEnabled() )
-		 logger.debug( "Interface Body internal_parse " + full_name() );
+            logger.debug( "Interface Body internal_parse " + full_name() );
 
         if( inheritance_spec != null )
         {

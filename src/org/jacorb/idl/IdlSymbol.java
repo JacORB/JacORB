@@ -145,7 +145,7 @@ public class IdlSymbol
         return name;
     }
 
- 
+
 
     /**
      * A number of IDL constructs need to have their names
@@ -193,7 +193,7 @@ public class IdlSymbol
     public void setEnclosingSymbol( IdlSymbol s )
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
-            throw new RuntimeException( "Compiler Error: trying to reassign container for " + 
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " +
                                         name );
 
         enclosing_symbol = s;
@@ -348,7 +348,7 @@ public class IdlSymbol
         if( name != null && name.indexOf( '.' ) < 0 && !BaseType.isBasicName( name ) )
         {
             if( logger.isDebugEnabled() )
-		 logger.debug( "addImportedName " + name );
+                logger.debug( "addImportedName " + name );
 
             // If we have a typedef for a basic type we only want
             // to import the helper class.
@@ -638,7 +638,7 @@ public class IdlSymbol
 
     /**
      * let the visitor pattern do its work...
-     */ 
+     */
 
     public void accept( IDLTreeVisitor visitor )
     {
@@ -646,4 +646,3 @@ public class IdlSymbol
     }
 
 }
-

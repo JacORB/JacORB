@@ -190,8 +190,7 @@ public class AliasTypeSpec
 
 
     /**
-     * @return a string for an expression of type TypeCode that
-     * 			describes this type
+     * @return a string for an expression of type TypeCode that describes this type
      * Note that this is the TypeSpec for the alias type and is not unwound to
      * the original type.
      */

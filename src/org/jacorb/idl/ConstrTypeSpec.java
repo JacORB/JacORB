@@ -129,8 +129,7 @@ public class ConstrTypeSpec
     }
 
     /**
-     * @return a string for an expression of type TypeCode
-     * 			that describes this type
+     * @return a string for an expression of type TypeCode that describes this type
      */
     public String getTypeCodeExpression()
     {
@@ -174,7 +173,7 @@ public class ConstrTypeSpec
     }
 
     /**
-     */ 
+     */
 
     public void accept( IDLTreeVisitor visitor )
     {
@@ -183,4 +182,3 @@ public class ConstrTypeSpec
 
 
 }
-

@@ -74,10 +74,8 @@ public class ReplyHandlerTypeSpec
     }
 
     /**
-     * @return a string for an expression of type TypeCode
-     * 			that describes this type
+     * @return a string for an expression of type TypeCode that describes this type
      */
-
     public String getTypeCodeExpression()
     {
         return "org.omg.CORBA.ORB.init().create_interface_tc(\"IDL:omg.org/Messaging/ReplyHandler:1.0\",\"ReplyHandler\")";
@@ -105,6 +103,3 @@ public class ReplyHandlerTypeSpec
     }
 
 }
-
-
-

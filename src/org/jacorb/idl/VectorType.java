@@ -32,7 +32,7 @@ package org.jacorb.idl;
 
 public abstract class VectorType
     extends TemplateTypeSpec
-{    
+{
     TypeSpec type_spec;
 
     public VectorType( int num )
@@ -130,7 +130,7 @@ public abstract class VectorType
         if( ts instanceof ScopedName )
         {
             if( logger.isFatalErrorEnabled() )
-		 logger.fatalError( "elementTypeName is outer ScopedName" );
+                logger.fatalError( "elementTypeName is outer ScopedName" );
             ts = ( (ScopedName)type_spec.type_spec ).resolvedTypeSpec();
 
             while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
@@ -138,13 +138,13 @@ public abstract class VectorType
                 if( ts instanceof ScopedName )
                 {
                     if( logger.isFatalErrorEnabled() )
-		 logger.fatalError( "elementTypeName is inner Alias" );
+                        logger.fatalError( "elementTypeName is inner Alias" );
                     ts = ( (ScopedName)ts ).resolvedTypeSpec();
                 }
                 if( ts instanceof AliasTypeSpec )
                 {
                     if( logger.isFatalErrorEnabled() )
-		 logger.fatalError( "elementTypeName is inner Alias" );
+                        logger.fatalError( "elementTypeName is inner Alias" );
                     ts = ( (AliasTypeSpec)ts ).originalType();
                 }
             }
@@ -172,10 +172,3 @@ public abstract class VectorType
 
 
 }
-
-
-
-
-
-
-

@@ -64,8 +64,8 @@ class ArrayDeclarator
         else
             pack_name = s;
 
-        for( Enumeration e = fixed_array_size_list.v.elements(); 
-             e.hasMoreElements(); 
+        for( Enumeration e = fixed_array_size_list.v.elements();
+             e.hasMoreElements();
              ( (FixedArraySize)e.nextElement() ).setPackage( s ) ) ;
 
     }
@@ -109,7 +109,7 @@ class ArrayDeclarator
         catch( NameAlreadyDefined p )
         {
             //parser.error("Array declarator " +
-            //	full_name() + " already declared",p_info);
+            // full_name() + " already declared",p_info);
         }
     }
 
@@ -150,27 +150,3 @@ class ArrayDeclarator
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

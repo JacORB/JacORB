@@ -75,10 +75,8 @@ public class TypeCodeTypeSpec
     }
 
     /**
-     * @return a string for an expression of type TypeCode
-     * 			that describes this type
+     * @return a string for an expression of type TypeCode that describes this type
      */
-
     public String getTypeCodeExpression()
     {
         return "org.omg.CORBA.ORB.init().get_primitive_tc( org.omg.CORBA.TCKind.tk_TypeCode)";
@@ -104,8 +102,3 @@ public class TypeCodeTypeSpec
     }
 
 }
-
-
-
-
-
