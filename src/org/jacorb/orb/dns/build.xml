@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<project name="orb" default="all" basedir="../../../../..">
+
+  <!-- ==================================================== -->
+  <!--             dns lookup build file                    -->
+  <!-- $Id$ -->
+  <!-- ==================================================== -->
+
+   <target name="init" depends="dns_test">
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="src" value="${dirs.base}/src"/>
+   </target>
+
+   <target name="dns_test">
+	<available classname="org.xbill.DNS.dns"
+	property="dns_available" />	
+   </target>
+
+   <target name="all" depends="init,dns,dns_delegate"/> 
+
+   <target name="dns" >
+	<javac srcdir="${src}"
+               destdir="${classdir}"
+	       includes="org/jacorb/orb/dns/DNSLookup.java,org/jacorb/orb/dns/DNSLookupDelegate.java"
+	        />
+   </target>
+
+   <target name="dns_delegate" if="dns_available">
+	<javac srcdir="${src}"
+               destdir="${classdir}"
+	       includes="org/jacorb/orb/dns/DNSLookupDelegateImpl.java"
+	        />
+   </target>
+
+   <target name="clean" depends="init">
+        <delete dir="${classdir}/org/jacorb/orb/dns" />
+   </target>
+
+</project>
+
