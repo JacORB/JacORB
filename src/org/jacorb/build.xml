@@ -7,7 +7,7 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init" depends="value-handler-test">
+   <target name="init">
 	<property name="Name" value="jacorb-orb"/>
 	<property name="name" value="jacorb-orb"/>
 	<property name="dirs.base" value="${basedir}"/>
@@ -22,10 +22,6 @@
                  classpath="${basedir}/classes"/>
    </target>
 
-   <target name="value-handler-test" unless="no-rmi">
-        <available classname="javax.rmi.CORBA.ValueHandler" property="valuehandler.present" />
-   </target>
-
    <!-- all -->
 
    <target name="all" depends="init,idlcompile,subdirs" />
@@ -34,7 +30,7 @@
 	<javac debug="${debug}" srcdir="${jsrc}/generated/"
                destdir="${classdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
-	       includes="org/jacorb/proxy/**,org/jacorb/imr/**,org/jacorb/events/**,org/jacorb/orb/**,org/jacorb/util/tracing/**"
+	       includes="org/jacorb/proxy/**"
 	/>
    </target>
 
@@ -47,35 +43,16 @@
                 sloppynames="true"
                 generateir="true"
                 includepath="${include}/omg"
-                includes="Proxy.idl,imr.idl,channel.idl,Tracing.idl"/>
+                includes="Proxy.idl"/>
     </target>
 
 
-   <target name="valuehandler" depends="valuehandler-real,valuehandler-dummy" />
-
-   <target name="valuehandler-dummy" unless="valuehandler.present">
-      <echo message="ValueHandler not present, creating dummy wrapper."/>
-      <copy file="src/org/jacorb/util/ValueHandler.dummy"
-            tofile="src/org/jacorb/util/ValueHandler.java"
-            overwrite="yes"/>
-   </target>
-
-   <target name="valuehandler-real" if="valuehandler.present">
-      <echo message="ValueHandler is present, wrapping it."/>
-      <copy file="src/org/jacorb/util/ValueHandler.real"
-            tofile="src/org/jacorb/util/ValueHandler.java"
-            overwrite="yes"/>
-   </target>
-
-   <target name="utils" depends="init,valuehandler">
-   	<javac debug="${debug}" srcdir="${jsrc}"
-               destdir="${classdir}"
-               includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"
-	       />
+   <target name="utils" depends="init">
+      <ant antfile="${jsrc}/org/jacorb/util/build.xml" dir="${basedir}"/>
    </target>
 
    <target name="subdirs"
-               depends="valuehandler,orb,utils,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
+               depends="orb,utils,poa,proxy,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
    </target>
 
 <!--proxy-->
@@ -108,6 +85,7 @@
    </target>
 
    <target name="orb" depends="init">
+        <ant antfile="${jsrc}/org/jacorb/util/build.xml" target="valuehandler" dir="${basedir}"/>
    	<ant antfile="${jsrc}/org/jacorb/orb/build.xml" dir="${basedir}"/>
    </target>
 

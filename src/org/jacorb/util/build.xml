@@ -7,7 +7,49 @@
   <!-- $Id$  -->
   <!-- ==================================================== -->
 
-   <target name="all"/>
+   <target name="init">
+	<property name="Name" value="jacorb-orb"/>
+	<property name="name" value="jacorb-orb"/>
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="extpath" value="${dirs.base}/classes"/>
+	<property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
+	<property name="jsrc" value="${dirs.base}/src"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+        <taskdef name="jacidl"
+                 classname="org.jacorb.idl.JacIDL"
+                 classpath="${basedir}/classes"/>
+   </target>
+
+
+   <target name="value-handler-test" unless="no-rmi">
+       <available classname="javax.rmi.CORBA.ValueHandler" property="valuehandler.present" />
+   </target>
+
+  <target name="valuehandler" depends="value-handler-test,valuehandler-real,valuehandler-dummy" />
+
+   <target name="valuehandler-dummy" unless="valuehandler.present">
+      <echo message="ValueHandler not present, creating dummy wrapper."/>
+      <copy file="src/org/jacorb/util/ValueHandler.dummy"
+            tofile="src/org/jacorb/util/ValueHandler.java"
+            overwrite="yes"/>
+   </target>
+
+   <target name="valuehandler-real" if="valuehandler.present">
+      <echo message="ValueHandler is present, wrapping it."/>
+      <copy file="src/org/jacorb/util/ValueHandler.real"
+            tofile="src/org/jacorb/util/ValueHandler.java"
+            overwrite="yes"/>
+   </target>
+
+   <target name="all" depends="init,valuehandler">
+       <ant antfile="${jsrc}/org/jacorb/util/tracing/build.xml" dir="${basedir}"/>
+       <javac debug="${debug}" srcdir="${jsrc}"
+              destdir="${classdir}"
+              includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"/>
+   </target>
+
 
    <target name="clean">
       <delete file="ValueHandler.java"/>
