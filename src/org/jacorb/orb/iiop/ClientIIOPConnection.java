@@ -131,21 +131,8 @@ public class ClientIIOPConnection
             }
 
             checkSSL();
-            int retries;
-            if( time_out == 0 )
-            {
-               //user has specified no timout or infinite timeout (0)
-               //so we can use retries
-               retries = noOfRetries;
-            }
-            else
-            {
-               //user has explicitly defined a timeout for request
-               //so he expects, that the operation shall only use (block) the
-               //specified amount of time --> use this time and do not retry
-               retries = 0;
-            }
 
+            int retries = noOfRetries;
             while( retries >= 0 )
             {
                 try
