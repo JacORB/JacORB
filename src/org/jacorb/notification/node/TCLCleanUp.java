@@ -51,17 +51,9 @@ public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenType
         }
     }
 
-    public void visitComponentPosition( ComponentPositionOperator componentPositionOperator )
-        throws VisitorException
-    {
-        // fixCompPos(componentPositionOperator);
-    }
-
     public void visitComponent( ComponentName component )
         throws VisitorException
     {
-        // component.left().acceptInOrder(this);
-
         insertComponentName( component );
     }
 
@@ -69,7 +61,6 @@ public class TCLCleanUp extends AbstractTCLVisitor implements TCLParserTokenType
         throws VisitorException
     {
         fixUnionPosition( op );
-        // fixCompPos(op);
     }
 
     /**
