@@ -1200,14 +1200,7 @@ public class CDRInputStream
     {
         int tag = read_long();
         if (tag == 0x7fffff00)
-        {
-            int index = pos - 4;
-            org.omg.CORBA.portable.ValueFactory factory =
-                ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory (rep_id);
-            java.io.Serializable result = factory.read_value (this);
-            valueMap.put (new Integer (index), result);
-            return result;
-        } 
+            return read_untyped_value (rep_id, pos - 4);
         else if (tag == 0x7fffff02)
             return read_typed_value();
         else
@@ -1216,7 +1209,14 @@ public class CDRInputStream
 
     public java.io.Serializable read_value (java.lang.Class clz) 
     {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        int tag = read_long();
+        if (tag == 0x7fffff00)
+            return read_untyped_value (org.jacorb.ir.RepositoryID.repId (clz),
+                                       pos - 4);
+        else if (tag == 0x7fffff02)
+            return read_typed_value();
+        else
+            return read_special_value (tag);
     }
 
     public java.io.Serializable read_value (
@@ -1234,15 +1234,60 @@ public class CDRInputStream
             return read_special_value (tag);
     }
 
+    /**
+     * Immediateley reads a value from this stream; i.e. without any
+     * repository id preceding it.  The expected type of the value is given
+     * by `repository_id', and the index at which the value started is
+     * `index'.
+     */
+    private java.io.Serializable read_untyped_value (String repository_id,
+                                                     int index)
+    {
+        java.io.Serializable result;
+        if (repository_id.startsWith ("IDL:"))
+        {
+            org.omg.CORBA.portable.ValueFactory factory =
+                ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory 
+                                                            (repository_id);
+            result = factory.read_value (this);
+        }
+        else // RMI
+        {
+            javax.rmi.CORBA.ValueHandler v = 
+                javax.rmi.CORBA.Util.createValueHandler();
+
+            // ValueHandler wants class, repository_id, and sending context.
+            // I wonder why it wants all of these.
+            // If we settle down on this implementation, compute these 
+            // values more efficiently elsewhere.
+            String className = 
+                org.jacorb.ir.RepositoryID.className (repository_id);
+            Class c = null;
+            try {
+                c = Class.forName (className);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException ("class not found: " + c);
+            }
+            result = v.readValue (this, index, 
+                                  c,
+                                  repository_id, 
+                                  // use our own code base for now
+                                  v.getRunTimeCodeBase());
+        }
+        
+        valueMap.put (new Integer (index), result);
+        return result;
+    }
+
+    /**
+     * Reads a value with type information, i.e. one that is preceded 
+     * by a RepositoryID.  It is assumed that the tag of the value
+     * has already been read.
+     */
     private java.io.Serializable read_typed_value() 
     {
         int index = pos - 4;
-        String repId = read_repository_id();
-        org.omg.CORBA.portable.ValueFactory factory =
-            ((org.omg.CORBA_2_3.ORB)orb).lookup_value_factory (repId);
-        java.io.Serializable result = factory.read_value (this);
-        valueMap.put (new Integer (index), result);
-        return result;
+        return read_untyped_value (read_repository_id(), index);
     }
 
     /**
@@ -1289,11 +1334,6 @@ public class CDRInputStream
                 throw new org.omg.CORBA.MARSHAL ("stale value indirection");
             else
                 return (java.io.Serializable)value;
-        } 
-        else if (tag == 0x7fffff02) 
-        {
-            // value with type information
-            throw new org.omg.CORBA.NO_IMPLEMENT ("typed values not implemented");
         } 
         else
             throw new org.omg.CORBA.MARSHAL ("unknown value tag: " + tag);
