@@ -112,8 +112,8 @@
       <delete file="${lib}/jacorb.jar"/>
        <jar jarfile="${lib}/jacorb.jar" 
 	    basedir="${classdir}"
-	    includes="jacorb/**,org/omg/**, HTTPClient/**"
-	    excludes="jacorb/idl/**"
+	    includes="org/jacorb/**,org/omg/**, HTTPClient/**"
+	    excludes="org/jacorb/idl/**"
 	    />	    
    </target>
 
