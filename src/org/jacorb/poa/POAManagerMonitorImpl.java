@@ -170,13 +170,17 @@ public class POAManagerMonitorImpl
             printMessage("register POA "+name);
         }
     }
-    public synchronized void closeMonitor() {
+
+    public synchronized void closeMonitor() 
+    {
         if (view != null) 
         {
             try 
             {
-                POAManagerMonitor newMonitor = (POAManagerMonitor)Class.forName("org.jacorb.poa.POAManagerMonitorImpl").newInstance();
+                POAManagerMonitor newMonitor = 
+                    (POAManagerMonitor)Class.forName("org.jacorb.poa.POAManagerMonitorImpl").newInstance();
                 newMonitor.init(model);
+                newMonitor.configure(configuration);
                 model.setMonitor(newMonitor);
                 POAManagerMonitorView tmp = view;
                 view = null;
