@@ -28,10 +28,11 @@ import java.util.regex.Matcher;
  * @version $Id$
  */
 
-class JDK14PatternWrapper extends PatternWrapper
+public class JDK14PatternWrapper extends PatternWrapper
 {
-
     private Pattern pattern_;
+
+    public JDK14PatternWrapper() {}
 
     public void compile( String patternString )
     {

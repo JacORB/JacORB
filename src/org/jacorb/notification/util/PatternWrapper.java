@@ -29,23 +29,19 @@ import org.jacorb.util.ObjectUtil;
 
 public abstract class PatternWrapper
 {
-
-    static final RuntimeException REGEXP_NOT_AVAILABLE =
+    private static final RuntimeException REGEXP_NOT_AVAILABLE =
         new RuntimeException
         ("Neither java.util.regex.Pattern nor gnu.regexp available. " +
          "The package java.util.regex is part of the JDK since v1.4 " +
          "if you are running an older JDK you'll have to install " +
-         "gnu.regexp to run this NotificationService. Please refer " +
+         "gnu.regexp or jakarta.regexp to run this NotificationService. Please refer " +
          "to the documentation for details." );
 
-    static boolean sGnuRegexpAvailable = false;
-    static Class sDefaultInstance;
+    private static Class sDefaultInstance = null;
 
     static {
-
         if ( isClassAvailable( "java.util.regex.Pattern" ) )
         {
-
             try
             {
                 sDefaultInstance =
@@ -54,13 +50,27 @@ public abstract class PatternWrapper
             }
             catch ( ClassNotFoundException e )
             {
-                throw new RuntimeException( e.getMessage() );
+                // no problem
+                // recoverable error
+            }
+        }
+
+
+        if ( sDefaultInstance == null && isClassAvailable( "org.apache.regexp.RE" ) )
+            {
+                try {
+                    sDefaultInstance =
+                        ObjectUtil.classForName
+                        ("org.jacorb.notification.util.JakartaRegexpPatternWrapper" );
+                } catch ( ClassNotFoundException e)
+                    {
+                        // no problem
+                        // recoverable error
+                    }
             }
 
-        }
-        else if ( isClassAvailable( "gnu.regexp.RE" ) )
+        if ( sDefaultInstance == null && isClassAvailable( "gnu.regexp.RE" ) )
         {
-
             try
             {
                 sDefaultInstance =
@@ -69,11 +79,12 @@ public abstract class PatternWrapper
             }
             catch ( ClassNotFoundException e )
             {
+                // this time its non recoverable ...
                 throw new RuntimeException( e.getMessage() );
             }
-
         }
-        else
+
+        if (sDefaultInstance == null)
         {
             throw REGEXP_NOT_AVAILABLE;
         }
@@ -86,6 +97,7 @@ public abstract class PatternWrapper
             PatternWrapper _wrapper;
             _wrapper = ( PatternWrapper ) sDefaultInstance.newInstance();
             _wrapper.compile( patternString );
+
             return _wrapper;
         }
         catch ( Exception e )
@@ -101,6 +113,12 @@ public abstract class PatternWrapper
 
     public abstract void compile( String pattern );
 
+    /**
+     * Match the given input against this pattern.
+     *
+     * @param text the input to be matched
+     * @return the index of the last character matched, plus one or zero.
+     */
     public abstract int match( String text );
 
     private static boolean isClassAvailable( String name )

@@ -3,7 +3,7 @@ package org.jacorb.notification.util;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1999-2003 Gerald Brose
+ *   Copyright (C) 1997-2003  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -18,51 +18,47 @@ package org.jacorb.notification.util;
  *   You should have received a copy of the GNU Library General Public
  *   License along with this library; if not, write to the Free
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
  */
 
-import gnu.regexp.REException;
-import gnu.regexp.REMatch;
+import org.apache.regexp.RESyntaxException;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class GNUPatternWrapper extends PatternWrapper
-{
-    private gnu.regexp.RE pattern_;
+public class JakartaRegexpPatternWrapper extends PatternWrapper {
 
-    public GNUPatternWrapper() {}
+    private org.apache.regexp.RE pattern_;
 
-    public void compile( String patternString )
-    {
-        try
-        {
-            pattern_ = new gnu.regexp.RE( patternString );
-        }
-        catch ( REException e )
-        {
-            throw new RuntimeException( e.getMessage() );
-        }
+    public JakartaRegexpPatternWrapper() {
+        super();
     }
 
-    public int match( String text )
-    {
-        REMatch[] _match = pattern_.getAllMatches( text );
 
-        if ( _match.length > 0 )
-        {
-            int _last = _match.length - 1;
-            return _match[ _last ].getEndIndex();
-        }
-        else
-        {
+    public void compile(String patternString) {
+        try
+            {
+                pattern_ = new org.apache.regexp.RE( "(" + patternString + ")" );
+            }
+        catch ( RESyntaxException e )
+            {
+                throw new RuntimeException( e.getMessage() );
+            }
+    }
+
+
+    public int match(String string) {
+        boolean _matched = pattern_.match(string);
+
+        if (!_matched) {
             return 0;
         }
+
+        return pattern_.getParenEnd(1);
     }
 
-    public String toString()
-    {
+
+    public String toString() {
         return pattern_.toString();
     }
 }
