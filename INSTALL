@@ -121,20 +121,22 @@ Building JacORB (Optional)
    The build process may bail out, claiming that javac 
    does not have enough memory. This can happen when trying to
    compile a large number or files at one time. To avoid this
-   on Unix, copy the file "ANT-RC" to your home directory. ant will
-   consult this file and use a larger Java maximum heap size. If 
-   this is not applicable in your setting or if you are building on 
-   a Windows platform, you need to edit ANT_HOME/bin/ant(.bat) such
-   that the java interpreter is passed the -mx48m (or whatever)
-   switch. The line to modify is 
-
-        if "%JAVACMD%" == "" set JAVACMD=java -mx48m
+   on Unix, copy the file "antrc" to your home directory renaming it to
+   ".antrc". If you are building on a Windows platform copy the 
+   antrc_pre.bat file to your home directory (as denoted by %HOME%). 
+   ant will consult these files and use a larger Java maximum heap size.
+   If this is not applicable in your setting you need to edit 
+   ANT_HOME/bin/ant(.bat) such that the java interpreter is passed the 
+   -mx48m (or whatever) switch. 
+   For Windows add the following line after calling antrc_pre.bat
+        set ANT_OPTS=-mx48m %ANT_OPTS%
+   For Unix add the following line after sourcing .antrc
+        ANT_OPTS=-mx48m $ANT_OPTS
 
    Yet another way of achieving the same is by setting the 
-   JAVACMD environment variable:
-
-        set JAVACMD=java -mx48m
-
-
+   ANT_OPTS environment variable:
+        set ANT_OPTS=-mx48m
+   on Windows, or on Unix:
+        export ANT_OPTS=-mx48m
 _____________________________________________________________________
 Gerald Brose, June 2001
