@@ -415,7 +415,7 @@ public class LogConfiguration
                                      Socket clientSocket =
                                          registration.serverSocket.accept();
 
-                                     ObjectInputStream objectInputStream=
+                                     ObjectInputStream objectInputStream = 
                                          new ObjectInputStream( clientSocket.getInputStream() );
 
                                      try
@@ -428,11 +428,15 @@ public class LogConfiguration
                                              target.processEvent( logEvent );
                                          }
                                      }
-                                     catch ( Exception e )
-                                     {}
+                                     catch ( Exception e ) {
+                                     } 
+                                     finally {
+                                         objectInputStream.close();
+                                     } 
+                                     
                                  }
                                  catch ( Exception e )
-                                 {}
+                                     {}
                              }
                          };
                      };
