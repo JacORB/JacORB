@@ -149,6 +149,26 @@ public class BoundedPriorityEventQueueTest extends TestCase
 
         assertTrue(strategy.getRemovedElements().contains(e2));
     }
+    
+    public void testGetAllClearsQueue() throws Exception
+    {
+        BoundedPriorityEventQueue queue = new BoundedPriorityEventQueue(10, EventQueueOverflowStrategy.LEAST_PRIORITY);
+        
+        Message m = newMessage();
+        
+        assertEquals(0, queue.getAllMessages(false).length);
+        
+        queue.put(m);
+        
+        Message[] mesgs = queue.getAllMessages(false);
+        
+        assertEquals(1, mesgs.length);
+        assertEquals(m, mesgs[0]);
+        
+        queue.getAllMessages(false);
+        
+        assertEquals(0, queue.getAllMessages(false).length);
+    }
 
     private void addEventsToEventQueue(EventQueueOverflowStrategy strategy, List events)
     {

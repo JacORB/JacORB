@@ -119,6 +119,23 @@ public class BoundedFifoEventQueueTest extends TestCase
         assertTrue(strategy.getRemovedElements().contains(e2));
     }
 
+    public void testGetAllClearsQueue() throws Exception
+    {
+        BoundedFifoEventQueue queue = new BoundedFifoEventQueue(10, EventQueueOverflowStrategy.LIFO);
+        
+        assertEquals(0, queue.getAllMessages(false).length );
+        
+        Message m = newMessage();
+        queue.put(m);
+        
+        Message[] mesgs = queue.getAllMessages(false);
+        
+        assertEquals(1, mesgs.length);
+        assertEquals(m, mesgs[0]);
+        
+        assertEquals(0, queue.getAllMessages(false).length);
+    }
+    
     private Message newMessage()
     {
         MockControl controlMessage = MockControl.createControl(Message.class);

@@ -96,6 +96,19 @@ public class BoundedDeadlineEventQueueTest extends TestCase
         assertEquals(2, objectUnderTest_.getAllMessages(false).length);
     }
     
+    public void testGetAllClearsQueue() throws Exception
+    {
+        mockMessage1_.hasTimeout();
+        controlMessage1_.setDefaultReturnValue(false);
+        controlMessage1_.replay();
+        
+        objectUnderTest_.put(mockMessage1_);
+        
+        assertEquals(mockMessage1_, objectUnderTest_.getAllMessages(false)[0]);
+        
+        assertEquals(0, objectUnderTest_.getAllMessages(false).length);
+    }
+    
     public void testInsert() throws Exception
     {
         mockMessage1_.hasTimeout();
