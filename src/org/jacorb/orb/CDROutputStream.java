@@ -1023,6 +1023,31 @@ public class CDROutputStream
                     write_TypeCode( value.content_type(), tcMap);
                     endEncapsulation();
                     break;
+                case TCKind._tk_value: 
+                    tcMap.put( value.id(), new Integer( start_pos ) );
+                    beginEncapsulation();
+                    write_string(value.id());
+                    write_string(value.name());
+                    write_short( value.type_modifier() );
+                    write_TypeCode( value.concrete_base_type(), tcMap);
+                    _mc = value.member_count();
+                    write_long(_mc);
+                    for( int i = 0; i < _mc; i++)
+                    {
+                        org.jacorb.util.Debug.output(3,"value member name " +  value.member_name(i)  );
+                        write_string( value.member_name(i) );
+                        write_TypeCode( value.member_type(i), tcMap );
+                        write_short( value.member_visibility(i) );
+                    }
+                    endEncapsulation();
+                    break;
+                case TCKind._tk_value_box: 
+                    beginEncapsulation();
+                    write_string(value.id());
+                    write_string(value.name());
+                    write_TypeCode( value.content_type(), tcMap);
+                    endEncapsulation();
+                    break;
                 default: 
                     throw new RuntimeException("Cannot handle TypeCode, kind: " + _kind);
                 }

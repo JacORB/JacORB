@@ -209,6 +209,15 @@ public class RemoteTypeSystem
                 case DefinitionKind._dk_Array:
                     result = new IRArray(irObject);
                     break;					
+                case DefinitionKind._dk_ValueBox:
+                    result = new IRValueBox(irObject);
+                    break;
+                case DefinitionKind._dk_Value:
+                    result = new IRValue(irObject);
+                    break;
+                case DefinitionKind._dk_ValueMember:
+                    result = new IRValueMember(irObject);
+                    break;
                 default:
                     System.out.println("Unknown/senseless DefinitionKind returned from Repository: "+irObject.def_kind().value());
                     break;

@@ -39,7 +39,9 @@ public class TypeCode
     private int         member_count = 0;
     private String []   member_name = null;
     private TypeCode [] member_type = null;
+    private short []    member_visibility = null;
     private Any []      member_label = null;
+    private short       value_modifier = 0;
 
     private TypeCode    discriminator_type = null;
     private int         default_index = -1;
@@ -249,6 +251,32 @@ public class TypeCode
     }
 
     /**
+     * Constructor for tk_value
+     */
+    public TypeCode(String id, String name, short type_modifier,
+                    org.omg.CORBA.TypeCode concrete_base,
+                    org.omg.CORBA.ValueMember[] members)
+    {
+        kind = TCKind._tk_value;
+        this.id = id;
+        this.name = name.replace('.','_'); // for orbixWeb Interop
+        value_modifier = type_modifier;
+        content_type = (TypeCode)concrete_base;
+
+        member_count = members.length;
+        member_name = new String[member_count];
+        member_type = new TypeCode[member_count];
+        member_visibility = new short[member_count];
+        for( int i = 0; i < member_count; i++ )
+        {
+            member_name[i] = members[i].name;
+            member_type[i] = (TypeCode)members[i].type;
+            member_visibility[i] = members[i].access;
+        }        
+    }
+
+
+    /**
      * check TypeCodes for structural equality
      */
 
@@ -287,14 +315,35 @@ public class TypeCode
                          this_tc.equal( other_tc ));
             }
 
-            if( kind == TCKind._tk_objref  || kind == TCKind._tk_struct || 
-                kind == TCKind._tk_union || kind == TCKind._tk_enum || 
-                kind == TCKind._tk_alias  || kind ==  TCKind._tk_except)
+            if( kind == TCKind._tk_objref || kind == TCKind._tk_struct || 
+                kind == TCKind._tk_union  || kind == TCKind._tk_enum || 
+                kind == TCKind._tk_alias  || kind == TCKind._tk_except ||
+                kind == TCKind._tk_value  || kind == TCKind._tk_value_box)
             {
                 if( ! id().equals( tc.id()) )
                     return false;
             }
             
+            if (kind == TCKind._tk_value || kind == TCKind._tk_value_box)
+            {
+                if (name() != tc.name() || 
+                    !content_type().equal(tc.content_type()))
+                    return false;
+            }
+
+            if (kind == TCKind._tk_value)
+            {
+                if (member_count() != tc.member_count())
+                    return false;
+
+                for (int i = 0; i < member_count(); i++) {
+                    if (!member_name(i).equals(tc.member_name(i)) ||
+                        !member_type(i).equal(tc.member_type(i))  ||
+                        member_visibility(i) != tc.member_visibility(i))
+                        return false;
+                }
+            }
+
             if( kind == TCKind._tk_union )
             {
                 if( !discriminator_type().equal( tc.discriminator_type()))
@@ -358,6 +407,8 @@ public class TypeCode
             case   TCKind._tk_union:
             case   TCKind._tk_enum:
             case   TCKind._tk_alias:
+            case   TCKind._tk_value:
+            case   TCKind._tk_value_box:
             case   TCKind._tk_except : return id;
             default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
             }
@@ -373,6 +424,8 @@ public class TypeCode
         case   TCKind._tk_union:
         case   TCKind._tk_enum:
         case   TCKind._tk_alias:
+        case   TCKind._tk_value:
+        case   TCKind._tk_value_box:
         case   TCKind._tk_except : return name;
         default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
@@ -385,6 +438,7 @@ public class TypeCode
         {
         case   TCKind._tk_struct:
         case   TCKind._tk_union:
+        case   TCKind._tk_value:
         case   TCKind._tk_enum : return member_count;
         default:  throw new org.omg.CORBA.TypeCodePackage.BadKind();
         }
@@ -396,9 +450,10 @@ public class TypeCode
     {
         switch( kind )
         {
-        case   TCKind._tk_struct:
-        case  TCKind._tk_union:
-        case  TCKind._tk_enum : 
+        case TCKind._tk_struct:
+        case TCKind._tk_union:
+        case TCKind._tk_enum: 
+        case TCKind._tk_value: 
             if( index <= member_count )
                 return member_name[index];
             else
@@ -412,7 +467,8 @@ public class TypeCode
         throws org.omg.CORBA.TypeCodePackage.BadKind,
                org.omg.CORBA.TypeCodePackage.Bounds
     {
-        if( kind != TCKind._tk_struct && kind != TCKind._tk_union )
+        if( kind != TCKind._tk_struct && kind != TCKind._tk_union &&
+            kind != TCKind._tk_value )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();
         if( index > member_count )
             throw new  org.omg.CORBA.TypeCodePackage.Bounds();
@@ -487,6 +543,36 @@ public class TypeCode
         if( kind != TCKind._tk_fixed )
             throw new org.omg.CORBA.TypeCodePackage.BadKind();    
         return scale;
+    }
+
+    public short member_visibility(int index)
+        throws org.omg.CORBA.TypeCodePackage.BadKind,
+               org.omg.CORBA.TypeCodePackage.Bounds
+    {
+        if (kind != TCKind._tk_value)
+            throw new org.omg.CORBA.TypeCodePackage.BadKind();
+        if (index < 0 || index > member_count)
+            throw new org.omg.CORBA.TypeCodePackage.Bounds();
+
+        return member_visibility[index];
+    }
+
+    public short type_modifier()
+        throws org.omg.CORBA.TypeCodePackage.BadKind
+    {
+        if (kind != TCKind._tk_value)
+            throw new org.omg.CORBA.TypeCodePackage.BadKind();
+
+        return value_modifier;
+    }
+
+    public org.omg.CORBA.TypeCode concrete_base_type()
+        throws org.omg.CORBA.TypeCodePackage.BadKind
+    {
+        if (kind != TCKind._tk_value)
+            throw new org.omg.CORBA.TypeCodePackage.BadKind();
+
+        return content_type;
     }
 
     public boolean equivalent(org.omg.CORBA.TypeCode tc)

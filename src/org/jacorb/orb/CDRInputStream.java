@@ -759,6 +759,35 @@ public class CDRInputStream
 	    closeEncapsulation();
             result_tc = orb.create_alias_tc( id, name, content_type );
 	    return result_tc;
+	case TCKind._tk_value: 
+	    openEncapsulation();
+	    id = read_string();
+            tcMap.put( new Integer( start_pos ), id );
+	    name = read_string();
+            short type_modifier = read_short();
+	    org.omg.CORBA.TypeCode concrete_base_type = read_TypeCode( tcMap );
+	    member_count = read_long();
+	    ValueMember[] vMembers = new ValueMember[member_count];
+	    for( int i = 0; i < member_count; i++)
+	    {
+		vMembers[i] = new ValueMember(read_string(),
+                                              null, // id
+                                              null, // defined_in
+                                              null, // version
+                                              read_TypeCode( tcMap ),
+                                              null, // type_def
+                                              read_short());
+	    }
+	    closeEncapsulation();
+	    return  orb.create_value_tc(id, name, type_modifier,
+                                        concrete_base_type, vMembers);
+	case TCKind._tk_value_box: 
+	    openEncapsulation();
+	    id = read_string();
+	    name = read_string();
+	    content_type = read_TypeCode( tcMap );
+	    closeEncapsulation();
+            return orb.create_value_box_tc( id, name, content_type );
 	case 0xffffffff:
 	    /* recursive TC */
 	    int offset = pos + read_long();

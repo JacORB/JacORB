@@ -154,7 +154,8 @@ public class ORBSingleton
                                     short type_modifier,
                                     TypeCode concrete_base,
                                     org.omg.CORBA.ValueMember[] members) {
-        throw new org.omg.CORBA.NO_IMPLEMENT();
+        return new org.jacorb.orb.TypeCode (id, name, type_modifier,
+                                            concrete_base, members);
     }
 
     public org.omg.CORBA.TypeCode create_value_box_tc(String id,
