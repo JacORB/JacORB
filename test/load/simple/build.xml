@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+
+<project name="demo" default="all" basedir="../../..">
+
+  <!-- ==================================================== -->
+  <!--                   build file                         -->
+  <!-- ==================================================== -->
+
+   <target name="init">
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+	<property name="idlflags" value="-I${include}/omg -ir  -d ${dirs.base}/test/load/simple/generated"/>
+   </target>
+
+   <target name="all" depends="init,idl">
+	<javac srcdir="${dirs.base}/test/load/simple/generated"
+               destdir="${classdir}"
+	       includes="test/load/simple/*.java"
+	        />
+	<javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+	       includes="test/load/simple/*.java"
+	        />
+   </target>
+
+   <target name="idl" depends="init">
+        <java classname="org.jacorb.idl.parser" 
+              fork="yes" 
+              classpath="${lib}/idl.jar;${java.class.path}">
+
+	      <arg line="${idlflags}
+	      ${dirs.base}/test/load/simple/server.idl"/>
+         </java>
+   </target>
+
+   <target name="clean">
+	   <deltree dir="${classdir}/test/load/simple"/>
+	   <deltree dir="${dirs.base}/test/load/simple/generated"/>
+   </target>
+
+</project>
+
+
+
+
+

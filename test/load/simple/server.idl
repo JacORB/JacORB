@@ -1,0 +1,14 @@
+module test
+{
+    module load {
+
+        module simple {
+
+            interface GoodDay {
+                void hello_simple( in long who );
+            };
+        };
+               
+    };
+
+};
