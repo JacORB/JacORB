@@ -80,4 +80,13 @@ public interface RMITestInterface
     public java.util.Collection testReferenceSharingWithinCollection(
             java.util.Collection c) throws java.rmi.RemoteException;
 
+    public java.util.Vector getVectorWithObjectArrayAsElement() 
+            throws java.rmi.RemoteException;
+
+    public java.util.Vector getVectorWithVectorAsElement() 
+            throws java.rmi.RemoteException;
+
+    public java.util.Vector getVectorWithHashtableAsElement() 
+            throws java.rmi.RemoteException;
+
 }

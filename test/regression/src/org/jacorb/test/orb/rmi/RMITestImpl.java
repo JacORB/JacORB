@@ -184,5 +184,41 @@ public class RMITestImpl
         }
         return cout;
     }
+
+    public java.util.Vector getVectorWithObjectArrayAsElement() 
+            throws java.rmi.RemoteException
+    {
+        java.util.Vector vector = new java.util.Vector();
+        Object[] innerArray = new Object[3];
+        innerArray[0] = new Integer(1);
+        innerArray[1] = new Integer(2);
+        innerArray[2] = "Third Element";
+        vector.add(innerArray);
+        return vector;
+    }
+    
+    public java.util.Vector getVectorWithVectorAsElement()
+            throws java.rmi.RemoteException
+    {
+        java.util.Vector vector = new java.util.Vector();
+        java.util.Vector innerVector = new java.util.Vector();
+        innerVector.add(new Integer(1));
+        innerVector.add(new Integer(2));
+        innerVector.add("Third Element");
+        vector.add(innerVector);
+        return vector;
+    }
+    
+    public java.util.Vector getVectorWithHashtableAsElement() 
+            throws java.rmi.RemoteException
+    {
+        java.util.Vector vector = new java.util.Vector();
+        java.util.Hashtable innerHash = new java.util.Hashtable();
+        innerHash.put(new Integer(0), new Integer(1));
+        innerHash.put(new Integer(1), new Integer(2));
+        innerHash.put(new Integer(2), "Third Element");
+        vector.add(innerHash);
+        return vector;
+    }
     
 }

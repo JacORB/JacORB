@@ -85,6 +85,13 @@ public class RMITest extends ClientServerTestCase
                                      setup ));
         suite.addTest( new RMITest( "test_referenceSharingWithinCollection",
                                      setup ));
+        suite.addTest( new RMITest( "test_getVectorWithObjectArrayAsElement",
+                                     setup ));
+        suite.addTest( new RMITest( "test_getVectorWithVectorAsElement",
+                                     setup ));
+        suite.addTest( new RMITest( "test_getVectorWithHashtableAsElement",
+                                     setup ));
+
         return setup;
     }
 
@@ -489,6 +496,66 @@ public class RMITest extends ClientServerTestCase
                 assertEquals(originalList.get(i), echoedList.get(i + n));
                 assertSame(echoedList.get(i), echoedList.get(i + n));
             }
+        }
+        catch (java.rmi.RemoteException re)
+        {
+            throw new RuntimeException(re.toString());
+        }
+    }
+
+    public void test_getVectorWithObjectArrayAsElement()
+    {
+        try
+        {
+            //System.out.println("getVectorWithObjectArrayAsElement" + " ---");
+            java.util.Vector vector = 
+                server.getVectorWithObjectArrayAsElement();
+            //System.out.println(vector.toString());
+            assertTrue(vector.size() == 1);
+            Object[] inner = (Object[]) vector.get(0);
+            assertEquals(new Integer(1), inner[0]);
+            assertEquals(new Integer(2), inner[1]);
+            assertEquals("Third Element", inner[2]);
+        }
+        catch (java.rmi.RemoteException re)
+        {
+            throw new RuntimeException(re.toString());
+        }
+    }
+
+    public void test_getVectorWithVectorAsElement()
+    {
+        try
+        {
+            //System.out.println("getVectorWithVectorAsElement" + " --------");
+            java.util.Vector vector = 
+                server.getVectorWithVectorAsElement();
+            //System.out.println(vector.toString());
+            assertTrue(vector.size() == 1);
+            java.util.Vector inner = (java.util.Vector) vector.get(0);
+            assertEquals(new Integer(1), inner.get(0));
+            assertEquals(new Integer(2), inner.get(1));
+            assertEquals("Third Element", inner.get(2));
+        }
+        catch (java.rmi.RemoteException re)
+        {
+            throw new RuntimeException(re.toString());
+        }
+    }
+
+    public void test_getVectorWithHashtableAsElement()
+    {
+        try
+        {
+            //System.out.println("getVectorWithHashtableAsElement" + " -----");
+            java.util.Vector vector = 
+                server.getVectorWithHashtableAsElement();
+            //System.out.println(vector.toString());
+            assertTrue(vector.size() == 1);
+            java.util.Hashtable inner = (java.util.Hashtable) vector.get(0);
+            assertEquals(new Integer(1), inner.get(new Integer(0)));
+            assertEquals(new Integer(2), inner.get(new Integer(1)));
+            assertEquals("Third Element", inner.get(new Integer(2)));
         }
         catch (java.rmi.RemoteException re)
         {
