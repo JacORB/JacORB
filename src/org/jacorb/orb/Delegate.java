@@ -216,7 +216,11 @@ public final class Delegate
             if ( bound )
                 return ;
 
-            connection = conn_mg.getConnection (_pior.getEffectiveProfile());
+            org.omg.ETF.Profile p = _pior.getEffectiveProfile();
+            if (p == null)
+                throw new org.omg.CORBA.COMM_FAILURE ("no effective profile");
+
+            connection = conn_mg.getConnection (p);
 
             bound = true;
 
