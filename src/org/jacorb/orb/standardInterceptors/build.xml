@@ -16,13 +16,31 @@
 	<property name="idlflags" 
                 value="-I${include}/omg -I${include}/jacorb -d
 	${src}/generated"/>
-   </target>
+      <available classname="org.itef.jgss.GSSManager" property="jgss.present" />       
+  </target>
 
    <target name="all" depends="init">
 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="jacorb/orb/standardInterceptors/*.java"
 	       />
+   </target>
+
+   <target name="all" depends="init,compile,jggs" />
+
+   <target name="compile">
+	<javac debug="${debug}" srcdir="${src}"
+               destdir="${classdir}"
+	        includes="jacorb/orb/standardInterceptors/*.java"
+		  excludes="jacorb/orb/standardInterceptors/SAS*.java"
+	        />
+   </target>
+
+   <target name="jgss" if="jgss.present">
+	<javac debug="${debug}" srcdir="${src}"
+               destdir="${classdir}"
+	       includes="jacorb/orb/standardInterceptors/SAS*.java"
+	        />
    </target>
 
    <target name="clean">

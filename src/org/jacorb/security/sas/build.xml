@@ -11,12 +11,13 @@
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
 	<property name="src" value="${dirs.base}/src"/>
+      <available classname="org.itef.jgss.GSSManager" property="jgss.present" />       
       <available classname="com.tagish.auth.Utils" property="jaas.modules.present" />       
    </target>
 
    <target name="all" depends="init,compile,jaas" />
 
-   <target name="compile">
+   <target name="compile" if="jgss.present">
 	<javac srcdir="${dirs.base}"
               destdir="${classdir}"
 	        includes="org/jacorb/security/sas/*.java"
