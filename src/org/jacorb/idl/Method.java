@@ -29,12 +29,12 @@ package org.jacorb.idl;
 
 import java.io.PrintWriter;
 
-class Method
-        implements Operation
+public class Method
+    implements Operation
 {
+    public  TypeSpec resultType;
+    public  TypeSpec parameterType;
 
-    private TypeSpec resultType;
-    private TypeSpec parameterType;
     private String name;
     private boolean pseudo;
 
@@ -47,6 +47,11 @@ class Method
         this.pseudo = pseudo;
     }
 
+    public boolean isGetter()
+    {
+        return resultType != null;
+    }
+
     public String name()
     {
         return name;
@@ -54,7 +59,7 @@ class Method
 
     public String opName()
     {
-        if( resultType != null )
+        if( isGetter() )
             return "_get_" + name;
         else
             return "_set_" + name;
@@ -86,7 +91,7 @@ class Method
         if( printModifiers )
             ps.print( "public abstract " );
 
-        if( resultType != null )
+        if( isGetter() )
         {
             ps.print( resultType.toString() );
             ps.println( " " + name + "();" );
@@ -104,7 +109,7 @@ class Method
     {
         ps.print( "\tpublic " );
 
-        if( resultType != null )
+        if( isGetter() )
         {
             // accessor method
             ps.print( resultType.toString() );
@@ -244,7 +249,7 @@ class Method
     {
         ps.print( "\tpublic void sendc_" );
 
-        if( resultType != null )
+        if( isGetter() )
         {
             // accessor method
             ps.print  ( "get_" + name );
@@ -300,7 +305,7 @@ class Method
     public void printDelegatedMethod( PrintWriter ps )
     {
         ps.print( "\tpublic " );
-        if( resultType != null )
+        if( isGetter() )
         {
             ps.print( resultType.toString() );
             ps.println( " " + name + "()" );
@@ -326,7 +331,7 @@ class Method
         ps.println( "\t\t\t_out = handler.createReply();" );
         ps.print( "\t\t\t" );
 
-        if( resultType != null )
+        if( isGetter() )
         {
             ps.println( resultType.typeSpec().printWriteStatement( name + "()", "_out" ) );
         }
@@ -335,6 +340,12 @@ class Method
             ps.println( name + "(" + parameterType.printReadExpression( "_input" ) + ");" );
         }
     }
+
+    public void accept( IDLTreeVisitor visitor )
+    {
+        visitor.visitMethod( this );
+    }
+
 
 
 }
