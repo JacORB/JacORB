@@ -40,7 +40,11 @@ class ValueDecl
     private List factories;
     private ValueInheritanceSpec inheritanceSpec;
 
+    // some flags...
     private boolean isCustomMarshalled = false;
+    private boolean hasStatefulBases = false;
+
+    /** public c'tor, called by parser */
 
     public ValueDecl( int num )
     {
@@ -121,11 +125,14 @@ class ValueDecl
 
     public void parse()
     {
+        if( inheritanceSpec != null )
+            inheritanceSpec.parse();
+
         boolean justAnotherOne = false;
 
         if( isCustomMarshalled() &&
-                inheritanceSpec != null &&
-                inheritanceSpec.truncatable != null )
+            inheritanceSpec != null &&
+            inheritanceSpec.truncatable != null )
         {
             parser.error( "Valuetype " + typeName() +
                           " may no be BOTH custom AND truncatable", token );
@@ -247,11 +254,15 @@ class ValueDecl
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
-            throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
+            System.err.println( "was " + enclosing_symbol.getClass().getName() + 
+                                " now: " + s.getClass().getName() );
+            throw new RuntimeException( "Compiler Error: trying to reassign container for " + 
+                                        name );
         }
+
         enclosing_symbol = s;
         stateMembers.setEnclosingSymbol( this );
+
         for( Iterator i = operations.iterator(); i.hasNext(); )
             ( (IdlSymbol)i.next() ).setEnclosingSymbol( s );
 
@@ -369,7 +380,6 @@ class ValueDecl
     {
         return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname + ")"
                 + ".write_value (" + var_name + " );";
-        //                + ".write_value (" + var_name + ", \"" + id() + "\");";
     }
 
     public String printReadExpression( String streamname )
@@ -406,67 +416,140 @@ class ValueDecl
             out.println( "package " + pack_name + ";\n" );
 
         printClassComment( out );
-
         out.println( "public abstract class " + name );
+
+        // set up extends and implements clauses
+
+        StringBuffer extendsBuffer = new StringBuffer("extends ");
+        StringBuffer implementsBuffer = new StringBuffer("implements ");
+
+        if( this.isCustomMarshalled() )
+            implementsBuffer.append( "org.omg.CORBA.portable.CustomValue" );
+        else
+            implementsBuffer.append( "org.omg.CORBA.portable.StreamableValue" );
 
 
         if( inheritanceSpec != null )
         {
             boolean first = true;
 
+            // go through ancestor value types
             Enumeration e = inheritanceSpec.getValueTypes();
             if( e.hasMoreElements() || inheritanceSpec.truncatable != null )
             {
-                out.print( "\textends " );
-
                 if( e.hasMoreElements() )
                 {
-                    first = false;
-                    out.print( ( (IdlSymbol)e.nextElement() ).toString() );
+                    ScopedName scopedName = (ScopedName)e.nextElement();
+                    ConstrTypeSpec ts = 
+                        (ConstrTypeSpec)scopedName.resolvedTypeSpec().typeSpec();
+
+                    // abstract base valuetypes are mapped to interfaces, so
+                    // we "implement"
+                    if( ts.c_type_spec instanceof ValueAbsDecl )
+                    {
+                        implementsBuffer.append( ", " + scopedName.toString() );
+                    }
+                    else
+                    {
+                        // stateful base valuetypes are mapped to classes, so
+                        // we  "extend"
+                        first = false;
+                        extendsBuffer.append( scopedName.toString() );
+                    }
                 }
 
                 for( ; e.hasMoreElements(); )
                 {
-                    out.print( ", " + ( (IdlSymbol)e.nextElement() ).toString() );
+                    ScopedName scopedName = (ScopedName)e.nextElement();
+                    ConstrTypeSpec ts = 
+                        (ConstrTypeSpec)scopedName.resolvedTypeSpec().typeSpec();
+
+                    // abstract base valuetypes are mapped to interfaces, so
+                    // we "implement"
+                    if( ts.c_type_spec instanceof ValueAbsDecl )
+                    {
+                        implementsBuffer.append( ", " + scopedName.toString() );
+                    }
+                    else
+                    {
+                        // stateful base valuetypes are mapped to classes, so
+                        // we "extend"
+                        extendsBuffer.append( ", " + scopedName.toString() );
+                    }
                 }
 
+                // also check for the presence of a stateful base value type
+                // that we can be truncated to
                 if( inheritanceSpec.truncatable != null )
-                    out.print( ( first ? "" : ", " ) + inheritanceSpec.truncatable.scopedName );
-
-                out.println();
-            }
-        }
-
-        if( this.isCustomMarshalled() )
-            out.print( "\timplements org.omg.CORBA.portable.CustomValue" );
-        else
-            out.print( "\timplements org.omg.CORBA.portable.StreamableValue" );
-        out.println();
-
-        if( inheritanceSpec != null )
-        {
-            Enumeration e = inheritanceSpec.getSupportedInterfaces();
-            if( e.hasMoreElements() )
-            {
-                for( ; e.hasMoreElements(); )
                 {
-                    out.print( ", " + ( (IdlSymbol)e.nextElement() ).toString() );
+                    extendsBuffer.append( ( first ? "" : ", " ) + 
+                                          inheritanceSpec.truncatable.scopedName );
                 }
-                out.println();
             }
+
+            // go through supported interfaces
+            Enumeration enum = inheritanceSpec.getSupportedInterfaces();
+            if( enum.hasMoreElements() )
+            {
+                for( ; enum.hasMoreElements(); )
+                {
+                    implementsBuffer.append( ", " + 
+                                              ( (IdlSymbol)enum.nextElement() ).toString() + "Operations" );
+                }
+            }
+
         }
+
+        if( extendsBuffer.length() > 8 )
+        {
+            hasStatefulBases = true;
+            out.println("\t" + extendsBuffer.toString() );
+        }
+
+        out.println("\t" + implementsBuffer.toString() );
 
         out.println( "{" );
+
+        // collect and print repository ids that this value type can 
+        // truncated to.
+
         out.print( "\tprivate String[] _truncatable_ids = {\"" + id() + "\"" );
+        StringBuffer sb = new StringBuffer();
+
         if( inheritanceSpec != null )
         {
-            String[] ids = inheritanceSpec.getTruncatableIds();
-            for( int j = 0; j < ids.length; j++ )
+            Truncatable trunc = inheritanceSpec.truncatable;
+
+            if( trunc != null )
             {
-                out.print( ", \"" + ids[ j ] + "\"" );
+                sb.append( ", \"" + trunc.getId() + "\"");
+                ScopedName scopedName = trunc.getScopedName();
+                while( scopedName != null )
+                {
+                    ValueDecl v  = 
+                        (ValueDecl)((ConstrTypeSpec)scopedName.resolvedTypeSpec()).c_type_spec;
+
+                    if( v.inheritanceSpec == null )
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Truncatable t = v.inheritanceSpec.truncatable;
+                        if( t != null )
+                        {               
+                            sb.append( ", \"" + t.getId() + "\"");
+                            scopedName = t.getScopedName();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
             }
         }
-        out.println( "};" );
+        out.println( sb.toString() +  "};" );
 
         for( Iterator i = stateMembers.v.iterator(); i.hasNext(); )
         {
@@ -543,14 +626,15 @@ class ValueDecl
                 "(org.omg.CORBA.portable.OutputStream os)" );
         out.println( "\t{" );
 
-        if( inheritanceSpec != null && !inheritanceSpec.isEmpty() )
+        if( hasStatefulBases )
         {
             out.println( "\t\tsuper._write( os );" );
         }
 
-
         for( Iterator i = stateMembers.v.iterator(); i.hasNext(); )
+        {
             out.println( "\t\t" + ( (StateMember)i.next() ).writeStatement( "os" ) );
+        }
         out.println( "\t}\n" );
     }
 
@@ -558,23 +642,27 @@ class ValueDecl
      * Prints the _read() method required by
      * org.omg.CORBA.portable.StreamableValue.
      */
+
     private void printReadMethod( PrintWriter out )
     {
         out.println( "\tpublic void _read " +
                 "(final org.omg.CORBA.portable.InputStream os)" );
         out.println( "\t{" );
 
-        if(  inheritanceSpec != null && !inheritanceSpec.isEmpty() )
+        if( hasStatefulBases )
         {
             out.println( "\t\tsuper._read( os );" );
         }
 
         for( Iterator i = stateMembers.v.iterator(); i.hasNext(); )
+        {
             out.println( "\t\t" + ( (StateMember)i.next() ).readStatement( "os" ) );
+        }
         out.println( "\t}\n" );
     }
 
-    private void printHelper( File dir ) throws IOException
+    private void printHelper( File dir ) 
+        throws IOException
     {
         File outfile = new File( dir, name + "Helper.java" );
         PrintWriter out = new PrintWriter( new FileWriter( outfile ) );
