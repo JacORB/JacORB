@@ -160,8 +160,7 @@ public class Client
 
 	    DynSequence second_member = 
                 (DynSequence)dynFactory.create_dyn_any_from_type_code(
-                                   orb.create_sequence_tc( 0, 
-                                                           org.omg.CORBA.ORB.init().create_recursive_tc("IDL:Node:1.0")));
+                                struct_tc.member_type(1) );
 	    nvp_seq[1] = 
                 new NameValuePair("second", second_member.to_any() );
 
