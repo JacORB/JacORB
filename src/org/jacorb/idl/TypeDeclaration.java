@@ -29,9 +29,8 @@ import java.io.PrintWriter;
 import java.util.Set;
 
 class TypeDeclaration
-        extends Declaration
+    extends Declaration
 {
-
     protected boolean typedefd = false;
 
     public TypeDeclaration type_decl;

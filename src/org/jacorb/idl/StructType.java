@@ -31,10 +31,9 @@ import java.util.Enumeration;
  */
 
 class StructType
-        extends TypeDeclaration
-        implements Scope
+    extends TypeDeclaration
+    implements Scope
 {
-
     private boolean written = false;
     public boolean exc;
     public MemberList memberlist = null;

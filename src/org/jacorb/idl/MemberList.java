@@ -30,9 +30,8 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 class MemberList
-        extends SymbolList
+    extends SymbolList
 {
-
     Vector extendVector = new Vector();
     private TypeDeclaration containingType;
     private boolean parsed = false;
