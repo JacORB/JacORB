@@ -10,7 +10,7 @@
    <target name="all" depends="init,compile"/>
 
    <target name="compile" depends="init">
-       <javac srcdir="${src}" 
+       <javac debug="true" srcdir="${src}" 
 	      destdir="${classdir}" 
 	      includes="org/jacorb/idl/**.java"
               deprecation="on"

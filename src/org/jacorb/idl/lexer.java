@@ -23,6 +23,7 @@ package org.jacorb.idl;
 import java.util.*;
 import java_cup.runtime.token;
 import java_cup.runtime.int_token;
+import java_cup.runtime.long_token;
 import java_cup.runtime.char_token;
 import java_cup.runtime.float_token;
 
@@ -1234,11 +1235,24 @@ public class lexer
 
                     }
 
-                    if( fraction == null )
+                    if (fraction == null)
                     {
-                        /* integer */
-                        return new int_token( sym.NUMBER,
-                                              Integer.parseInt( value.toString()));
+                        /* integer or long */
+
+                        token tok;
+
+                        try
+                        {
+                            tok = new int_token (sym.NUMBER,
+                                Integer.parseInt (value.toString()));
+                        }
+                        catch (NumberFormatException ex)
+                        {
+                            tok = new long_token (sym.LONG_NUMBER,
+                                Long.parseLong (value.toString()));
+                        }
+
+                        return tok;
                     }
                     else
                     {

@@ -284,6 +284,7 @@ parser code
         catch( Exception e )
         {
             System.err.println( "Error: " + e.getMessage());
+            e.printStackTrace ();
             org.jacorb.idl.Environment.output( 2, e );
             usage(argv, e.getMessage());
         }
@@ -1274,16 +1275,16 @@ literal ::=
                         RESULT.string = "" + n.int_val; 
                         RESULT.token = n;
                 :}
+        | LONG_NUMBER:l 
+                {:
+                        RESULT.string = "" + l.long_val;
+                        RESULT.token = l;
+                :}
         | QUOTE CH:c QUOTE 
                 {:
                         RESULT.string = "\'" + c.char_val + "\'"; 
                         RESULT.token = c;
                 :}
-//      | QUOTE ID:i QUOTE 
-//                {: 
-//                        RESULT.string = "\'" + i.str_val + "\'"; 
-//                        RESULT.token = n;
-//                :}
         | string_literal:s 
                 {: 
                         RESULT.string = s.string;                 

@@ -116,12 +116,14 @@ class ConstDecl
      *  interface 
      */
 
-    public void printContained(PrintWriter ps)
+    public void printContained (PrintWriter ps)
     {
-        TypeSpec ts = const_type.symbol.typeSpec();
+        TypeSpec ts = const_type.symbol.typeSpec ();
 
-        if( ts instanceof AliasTypeSpec )
-            ts = ((AliasTypeSpec)ts).originalType();
+        if (ts instanceof AliasTypeSpec)
+        {
+            ts = ((AliasTypeSpec)ts).originalType ();
+        }
 
 	ps.print("\t" + const_type + " " + name + " = ");
 	if( ts instanceof IntType && 
@@ -243,28 +245,35 @@ class ConstDecl
             Environment.output(2, "ConstDecl, ts " + 
                                const_type.toString()  + " " + ts.getClass() );
 
-	    if( ts instanceof  ShortType)
+	    if (ts instanceof  ShortType)
 	    {
 		// short constant values have to be cast explicitly  
 		pw.print("(short)(" + const_expr.toString() + ");");	
 	    }
-	    else if( ts instanceof FloatType )
+	    else if (ts instanceof  LongLongType)
+	    {
+		// long constant values need to terminate with an L
+		pw.println (const_expr.toString() + "L;");	
+	    }
+	    else if (ts instanceof FloatType)
 	    {
 		// float constant values have to be cast explicitly  
 		pw.println("(float)(" + const_expr.toString() + ");");
 	    }
-	    else if( ts instanceof OctetType )
+	    else if (ts instanceof OctetType)
 	    {
 		// float constant values have to be cast explicitly  
 		pw.println("(byte)(" + const_expr.toString() + ");");
 	    }
-	    else if( ts instanceof FixedPointConstType ||
-                     ts instanceof FixedPointType )
+	    else if (ts instanceof FixedPointConstType ||
+                     ts instanceof FixedPointType)
 	    {
 		pw.println("new java.math.BigDecimal(" + const_expr.toString() + ");");
 	    }
 	    else
+            {
 		pw.println( const_expr.toString() + ";");	
+            }
 	    pw.println("}");
 	    pw.close();
 	} 
@@ -275,11 +284,3 @@ class ConstDecl
 	}
     }
 }
-
-
-
-
-
-
-
-

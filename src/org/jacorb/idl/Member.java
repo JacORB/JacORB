@@ -106,7 +106,6 @@ class Member
             String name = type_spec.typeSpec().toString();
 
 	    type_spec = ((ScopedName)type_spec.typeSpec()).resolvedTypeSpec();
-
             enclosing_symbol.addImportedName (name, type_spec);
 
 	    clone_and_parse = false;
@@ -260,7 +259,3 @@ class Member
         return type_spec.typeSpec();
     }
 }
-
-
-
-
