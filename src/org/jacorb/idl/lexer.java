@@ -1273,17 +1273,23 @@ public class lexer
                     {
                         /* integer or long */
 
-                        token tok;
+                        token tok = null;
+                        String str = value.toString ();
 
                         try
                         {
-                            tok = new int_token (sym.NUMBER,
-                                Integer.parseInt (value.toString()));
+                            tok = new int_token (sym.NUMBER, Integer.parseInt (str));
                         }
                         catch (NumberFormatException ex)
                         {
-                            tok = new long_token (sym.LONG_NUMBER,
-                                Long.parseLong (value.toString()));
+                            try
+                            {
+                                tok = new long_token (sym.LONG_NUMBER, Long.parseLong (str));
+                            }
+                            catch (NumberFormatException ex2)
+                            {
+                               emit_error ("Invalid long value:  " + str);
+                            }
                         }
 
                         return tok;
