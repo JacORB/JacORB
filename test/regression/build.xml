@@ -45,6 +45,8 @@
             <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate"/>
          </not>
       </condition>
+      <available classname="com.sun.corba.se.internal.iiop.ShutdownUtilDelegate" property="use.jdk.orb"/>
+      <available classname="com.ibm.CORBA.iiop.ORB" property="use.jdk.orb"/>
    </target>
 
 
@@ -122,7 +124,7 @@
    </target>
 
 
-   <target name="run-jdk-orb-no-build" depends="test-init" if="rmi.ShutdownUtilDelegate">
+   <target name="run-jdk-orb-no-build" depends="test-init" if="use.jdk.orb">
       <junit fork="yes" printsummary="withOutAndErr">
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
