@@ -157,37 +157,6 @@ public class RequestController
         deactivationList.removeElement( POAUtil.oid_to_bak(oid) );	
     }
 
-    /**
-     * called from POA.deactivateObject() 
-     */
-
-    boolean deactivationInProgress( byte[] oid )
-    {
-        return deactivationList.contains( POAUtil.oid_to_bak(oid) );
-    }
-
-    /**
-     * called from POA.deactivate_object() to determine when to return
-     */
-
-    void waitForDeactivationStart( byte[] oid ) 
-    {
-        if ( !deactivationInProgress( oid ) && aom.contains( oid ) ) 
-        {
-            synchronized( oid )
-            {
-                try 
-                {
-                    oid.wait();
-                }
-                catch (InterruptedException e) 
-                {
-                }
-            }
-        }		
-    }
-
-
     AOM getAOM() 
     {
         return aom;
@@ -592,7 +561,7 @@ public class RequestController
             {
             }
         }
-    }
+    }    
 }
 
 

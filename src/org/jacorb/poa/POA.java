@@ -734,32 +734,17 @@ public class POA
     public synchronized void deactivate_object(byte[] oid) 
         throws ObjectNotActive, WrongPolicy 
     {                
-        if (!isRetain()) 
-            throw new WrongPolicy();
-                
-        if ( !aom.contains( oid ) || requestController.deactivationInProgress( oid ) ) 
-            throw new ObjectNotActive();
-                
-        final byte[] objectId = oid;
-        final ServantActivator servantActivator = 
-            useServantManager() ? (ServantActivator)servantManager : null;
+        if (!isRetain()) throw new WrongPolicy();
+                                        
+        aom.remove(
+        	oid,
+        	requestController,
+            useServantManager() ? (ServantActivator)servantManager : null,
+        	this,
+        	false
+        );
 
-        final ByteArrayKey key = new ByteArrayKey( oid );
-        
-        final POA thizz = this;
-        Thread thread = new Thread() 
-            {
-                public void run() 
-                {
-                    aom.remove(objectId, requestController, servantActivator, thizz, false);
-                    //aom.printSizes();
-
-                    createdReferences.remove( key );
-                }
-            };
-        thread.start();
-
-        requestController.waitForDeactivationStart( oid );
+        createdReferences.remove( new ByteArrayKey( oid ) );
     }
 
 
