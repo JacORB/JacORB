@@ -430,7 +430,7 @@ public class Environment
         else    if( varName.equals("_charset_flags"))
             _charset_flags = Integer.parseInt(o);
         else    if( varName.equals("_keyStore"))
-            _keyStore = _props.getProperty("user.home");
+            _keyStore = o;
         else    if( varName.equals("_impl_name"))
             _impl_name = o.getBytes();
         else    if ( varName.equals ( "_support_ssl")) // gb
