@@ -28,9 +28,9 @@ package org.jacorb.util;
  */
 public final class Version
 {
-    public static final String version = "CVS (post 2.0 beta 3)";
+    public static final String version = "2.0";
 
-    public static final String date = "4-Dec-2003";
+    public static final String date = "5-Jan-2004";
 
     public static final String longVersion = version + ", " + date;
 }
