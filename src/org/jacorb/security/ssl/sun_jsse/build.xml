@@ -15,7 +15,7 @@
    </target>
 
    <target name="all" depends="init">
-           <javac srcdir="${src}"
+           <javac debug="${debug}" srcdir="${src}"
                   destdir="${classdir}"
                   includes="org/jacorb/security/ssl/sun_jsse/*.java"
         />

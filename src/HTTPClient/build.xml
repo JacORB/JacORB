@@ -14,7 +14,7 @@
    </target>
 
    <target name="all" depends="init">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="HTTPClient/*.java,HTTPClient/**/*.java"
 	        />

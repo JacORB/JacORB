@@ -14,7 +14,7 @@
    </target>
 
    <target name="all" >
- 	<javac srcdir="${src}"
+ 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/trading/client/**/**.java"
 	       />

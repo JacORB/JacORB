@@ -11,7 +11,7 @@
    </target>
 
    <target name="all">
-      <javac srcdir="${src}" 
+      <javac debug="${debug}" srcdir="${src}" 
 	  destdir="${classdir}" 
 	  includes="java_cup/runtime/**.java,java_cup/**.java"/>
    </target>

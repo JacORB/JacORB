@@ -16,13 +16,13 @@
    </target>
 
    <target name="all" depends="init,idl">
-	<javac srcdir="${dirs.base}/src/generated"
+	<javac debug="${debug}" srcdir="${dirs.base}/src/generated"
                destdir="${classdir}"
 	       includes="org/jacorb/util/tracing/*.java,\
                          org/jacorb/util/tracing/**/*.java"
 	        />
 
-	<javac srcdir="${dirs.base}/src"
+	<javac debug="${debug}" srcdir="${dirs.base}/src"
                destdir="${classdir}"
 	       includes="org/jacorb/util/tracing/*.java"   
 	        />

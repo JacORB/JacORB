@@ -17,7 +17,7 @@
    <target name="all" depends="init, base"/>
 
    <target name="base">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/transaction/**/*.java"
         />

@@ -16,14 +16,14 @@
    </target>
 
    <target name="all" depends="init,simple,pse">
- 	<javac srcdir="${src}"
+ 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/trading/db/*.java"
 	       />
    </target>
 
    <target name="simple">
- 	<javac srcdir="${src}"
+ 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/trading/db/simple/**/*.java,
                org/jacorb/trading/db/simple/*.java"
@@ -31,7 +31,7 @@
    </target>
 
    <target name="pse" if="pse-present">
- 	<javac srcdir="${src}"
+ 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/trading/db/pse/**/*.java,
                org/jacorb/trading/db/pse/*.java"

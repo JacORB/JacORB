@@ -20,7 +20,7 @@
    </target>
 
    <target name="all" depends="init,idl">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/imr/*.java,org/jacorb/imr/util/*.java"
 	        />
@@ -29,7 +29,7 @@
    <!-- -->
 
    <target name="idl" depends="idlcompile">
-	<javac srcdir="${src}/generated"
+	<javac debug="${debug}" srcdir="${src}/generated"
                destdir="${classdir}"
 	       includes="org/jacorb/imr/**/*.java,org/jacorb/imr/*.java"
 	        />

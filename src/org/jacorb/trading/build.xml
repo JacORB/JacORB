@@ -16,7 +16,7 @@
    <target name="all" depends="init,impl,db,util,client,test"/>
 
    <target name="impl">
- 	<javac srcdir="${src}"
+ 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/trading/impl/*.java,org/jacorb/trading/*.java"
 	       />
@@ -28,7 +28,7 @@
    </target>
 
    <target name="util">
- 	<javac srcdir="${src}"
+ 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/trading/util/*.java"
 	       />
@@ -42,7 +42,7 @@
    </target>
 
    <target name="test">
- 	<javac srcdir="${src}"
+ 	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/trading/test/*.java"
 	       />

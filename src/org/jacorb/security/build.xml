@@ -27,7 +27,7 @@
    <!-- -->
 
    <target name="leveltwo" depends="init">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/security/level2/*.java"
                excludes="org/jacorb/security/level2/PrincipalAuthenticatorImpl.java"
@@ -35,7 +35,7 @@
    </target>
 
    <target name="principal_authenticator" depends="init" if="iaik.present">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
                includes="org/jacorb/security/level2/PrincipalAuthenticatorImpl.java"
         />
@@ -44,7 +44,7 @@
    <!-- -->
 
    <target name="util" depends="init" if="iaik.present">
-           <javac srcdir="${src}"
+           <javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/security/util/*.java"
         />

@@ -28,7 +28,7 @@
    <target name="all" depends="init,idlcompile,subdirs" />
 
    <target name="idlcompile" depends="init,idl">
-	<javac srcdir="${jsrc}/generated/"
+	<javac debug="${debug}" srcdir="${jsrc}/generated/"
                destdir="${classdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
 	       includes="org/jacorb/proxy/**,org/jacorb/imr/**,org/jacorb/events/**,org/jacorb/orb/**,org/jacorb/util/tracing/**"
@@ -77,7 +77,7 @@
    </target>
 
    <target name="utils" depends="init,valuehandler">
-   	<javac srcdir="${jsrc}"
+   	<javac debug="${debug}" srcdir="${jsrc}"
                destdir="${classdir}"
                includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"
 	       />
@@ -90,7 +90,7 @@
 <!--proxy-->
 
    <target name="proxy" depends="init" >
-   	<javac srcdir="${jsrc}"
+   	<javac debug="${debug}" srcdir="${jsrc}"
                destdir="${classdir}"
 	       includes="org/jacorb/proxy/*.java"
 	       />

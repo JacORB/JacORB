@@ -15,21 +15,22 @@
    <property name="classpath" value="${dirs.base}/classes:${java.class.path}"/>
    <property name="src" value="${dirs.base}/src"/>
    <property name="lib" value="${dirs.base}/lib"/>
+   <property name="debug" value="off"/>
    <mkdir dir="${classdir}"/>
    <mkdir dir="${lib}"/>
    <filter token="path" value="basedir"/>
    </target>
 
+   <!-- top-level target -->
+   <target name="all" depends="init,compiler,omg_idl,http,jacorb,libs"
+      description="Build JacORB.  Use -Ddebug=(on|off) option to switch debugging on or off (default is off)."/>
 
-   <!-- top-level targets  -->
 
-   <target name="all" depends="init,compiler,omg_idl,http,jacorb,libs" description="Build JacORB"/>
+   <!-- ==================================================== -->
+   <!--                   IDL compiler                       -->
+   <!-- ==================================================== -->
 
-   <!--               -->
-   <!-- IDL compiler  -->
-   <!--               -->
-
-   <target name="compiler" depends="init,java_cup,idlsrc, idllib, idlcmd" />
+   <target name="compiler" depends="init,java_cup,idlsrc,idllib,idlcmd"/>
 
    <target name="idlcmd">
         <delete file="bin/idl" />
@@ -42,21 +43,21 @@
    </target>
 
    <!-- package idl.jar -->
-
    <target name="idllib" depends="java_cup,idlsrc" >
         <jar jarfile="${lib}/idl.jar"
              basedir="${classdir}"
-           includes="org/jacorb/idl/**,java_cup/**"
+             includes="org/jacorb/idl/**,java_cup/**"
        />
    </target>
 
-    <target name="idlsrc">
-  <ant antfile="${src}/org/jacorb/idl/build.xml" dir="${basedir}" />
-    </target>
-
-    <target name="java_cup">
-  <ant antfile="${src}/java_cup/build.xml" dir="${basedir}"/>
+   <target name="idlsrc">
+      <ant antfile="${src}/org/jacorb/idl/build.xml" dir="${basedir}" />
    </target>
+
+   <target name="java_cup">
+      <ant antfile="${src}/java_cup/build.xml" dir="${basedir}"/>
+   </target>
+
 
    <!-- ==================================================== -->
    <!--                   OMG IDL files                      -->
@@ -85,10 +86,10 @@
         <ant antfile="${src}/org/jacorb/build.xml" dir="${basedir}"/>
    </target>
 
+
    <!-- ==================================================== -->
    <!--                  Libraries                           -->
    <!-- ==================================================== -->
-
 
    <target name="libs" depends="init,jar,jaco"/>
 
@@ -169,10 +170,10 @@
       />
    </target>
 
+
    <!-- ==================================================== -->
    <!--                   clean up                           -->
    <!-- ==================================================== -->
-
 
    <target name="clean" depends="init" description="Clean the checkout">
       <delete dir="${classdir}/demo"/>
@@ -192,10 +193,10 @@
       </delete >
    </target>
 
+
    <!-- ==================================================== -->
    <!--                  API documentation                   -->
    <!-- ==================================================== -->
-
 
    <target name="doc" depends="init" description="Create the Javadoc">
       <mkdir dir="${basedir}/doc/api"/>

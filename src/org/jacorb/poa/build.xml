@@ -18,14 +18,14 @@
 	
 
    <target name="base">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/poa/**.java,org/jacorb/poa/except/*.java,org/jacorb/poa/policy/*.java,org/jacorb/poa/util/*.java"
 	        />
    </target>
 
    <target name="gui" if="swing.present">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/poa/gui/**.java,org/jacorb/poa/gui/**/**.java"
         />

@@ -21,14 +21,14 @@
    <target name="all" depends="init,dns,dns_delegate"/> 
 
    <target name="dns" >
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/orb/dns/DNSLookup.java,org/jacorb/orb/dns/DNSLookupDelegate.java"
 	        />
    </target>
 
    <target name="dns_delegate" if="dns_available">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/orb/dns/DNSLookupDelegateImpl.java"
 	        />

@@ -19,7 +19,7 @@
    </target>
 
    <target name="all" depends="init,idl,coscompile">
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
                destdir="${classdir}"
 	       includes="org/jacorb/events/**.java"
 	        />
@@ -27,7 +27,7 @@
 
 
    <target name="idl" depends="coseventsidl,jacorbeventidl" >
-	<javac srcdir="${src}"
+	<javac debug="${debug}" srcdir="${src}"
 	       includes="org/jacorb/orb/events/**.java"
                destdir="${classdir}"
 	        />
@@ -62,7 +62,7 @@
    </target>
 
    <target name="coscompile">
-	<javac srcdir="${src}/generated"
+	<javac debug="${debug}" srcdir="${src}/generated"
 	       includes="org/omg/CosEvent*/**.java"
                destdir="${classdir}"
 	        />

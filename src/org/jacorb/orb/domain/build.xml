@@ -38,7 +38,7 @@
    <target name="dir" depends="dir1,dir2"/>
 
    <target name="dir1" if="java2">
-      <javac srcdir="${dsrc}"
+      <javac debug="${debug}" srcdir="${dsrc}"
              destdir="${dclassdir}"
              bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
 	     includes="org/jacorb/orb/domain/**/*.java"
@@ -47,7 +47,7 @@
    </target>
 
    <target name="dir2" unless="java2">
-      <javac srcdir="${dsrc}"
+      <javac debug="${debug}" srcdir="${dsrc}"
              destdir="${dclassdir}"
 	     includes="org/jacorb/orb/domain/**/*.java"
 	     excludes="org/jacorb/orb/domain/gui/**/*.java,org/jacorb/orb/domain/test/**/*.java"
@@ -72,7 +72,7 @@
    <target name="test1" if="java2">
    	   <echo message="doing test1"/>
 
-      <javac srcdir="${dsrc}"
+      <javac debug="${debug}" srcdir="${dsrc}"
              destdir="${dclassdir}"
              bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
 	     includes="org/jacorb/orb/domain/test/**/*.java"
@@ -82,7 +82,7 @@
    <target name="test2" unless="java2">
    	   <echo message="doing test2"/>
 
-      <javac srcdir="${dsrc}"
+      <javac debug="${debug}" srcdir="${dsrc}"
              destdir="${dclassdir}"
 	     includes="org/jacorb/orb/domain/test/**/*.java"
              />
@@ -102,7 +102,7 @@
 
    <target name="gui1" if="java2">
    <echo message="gui1 ausgefuehrt" />
-	<javac srcdir="${dsrc}"
+	<javac debug="${debug}" srcdir="${dsrc}"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
 	       includes="org/jacorb/orb/domain/gui/**/*.java"
@@ -115,7 +115,7 @@
 
    <target name="gui2" unless="java2">
  <echo message="gui2 ausgefuehrt" />
-	<javac srcdir="${dsrc}"
+	<javac debug="${debug}" srcdir="${dsrc}"
                destdir="${dclassdir}"
 	       includes="org/jacorb/orb/domain/gui/**/*.java"
         />
@@ -131,7 +131,7 @@
    <target name="idlcompile" depends="idl,copystub,idlcompile1,idlcompile2"/> 
 
    <target name="idlcompile1" if="java2"> 
-   	<javac srcdir="${dsrc}/generated"
+   	<javac debug="${debug}" srcdir="${dsrc}/generated"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
 	       includes="org/jacorb/orb/domain/**/*.java"
@@ -139,7 +139,7 @@
    </target>
 
    <target name="idlcompile2" unless="java2"> 
-   	<javac srcdir="${dsrc}/generated"
+   	<javac debug="${debug}" srcdir="${dsrc}/generated"
                destdir="${dclassdir}"
 	       includes="org/jacorb/orb/domain/**/*.java"
         />
@@ -167,7 +167,7 @@
    <target name="stub" depends="copystub, stub1,stub2"/> 
 
    <target name="stub1" if="java2"> 
-	<javac srcdir="${dsrc}"
+	<javac debug="${debug}" srcdir="${dsrc}"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
 	       includes="generated/org/jacorb/orb/domain/_DomainStub.java"
@@ -175,7 +175,7 @@
    </target>
 
    <target name="stub2" unless="java2"> 
-	<javac srcdir="${dsrc}"
+	<javac debug="${debug}" srcdir="${dsrc}"
                destdir="${dclassdir}"
 	       includes="generated/org/jacorb/orb/domain/_DomainStub.java"
 	        />
@@ -187,7 +187,7 @@
    <target name="stubc"  depends="stubc1, stubc2"/> 
 
    <target name="stubc1" if="java2"> 
-	<javac srcdir="${dsrc}"
+	<javac debug="${debug}" srcdir="${dsrc}"
                destdir="${dclassdir}"
                bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
   	       includes="generated/org/jacorb/orb/domain/_DomainStub.java"
@@ -195,7 +195,7 @@
    </target>
 
    <target name="stubc2" unless="java2"> 
-	<javac srcdir="${dsrc}"
+	<javac debug="${debug}" srcdir="${dsrc}"
                destdir="${dclassdir}"
   	       includes="generated/org/jacorb/orb/domain/_DomainStub.java"
 	        />
