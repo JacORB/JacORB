@@ -55,6 +55,11 @@ public class Client
 	    String my_array[] = sah.value;
 	    System.out.println("Array size: " + my_array.length );
 
+            StringHolder sh1 = new StringHolder();
+            String sh2 = s.op5( sh1 );
+            System.out.println( sh2 + " out: " + sh1.value );
+
+
 	    // an example for a sequence of sequences of sequences of string
 	    // 
 	    // set up a 3-dimensional string array
