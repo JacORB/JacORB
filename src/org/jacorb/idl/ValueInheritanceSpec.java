@@ -52,15 +52,15 @@ class ValueInheritanceSpec
         supports = new Vector();
     }
 
-    public String[] getTruncatableIds()
+    public String getTruncatableId()
     {
         if( truncatable == null )
         {
-            return new String[ 0 ];
+            return null;
         }
         else
         {
-            return new String[]{ truncatable.getId()};
+            return truncatable.getId();
         }
     }
 
@@ -99,9 +99,22 @@ class ValueInheritanceSpec
 
     public void parse()
     {
+        if( truncatable != null )
+        {
+            ScopedName s = truncatable.getScopedName();
+            Value v = (Value)((ConstrTypeSpec)s.resolvedTypeSpec()).c_type_spec;
+            if( v instanceof ValueAbsDecl )
+            {
+                parser.error( "truncatable base value " + 
+                              s.toString() + " must not be abstract", token );                            
+            }
+        }
         Enumeration e = v.elements();
         for( ; e.hasMoreElements(); )
+        {
             ( (IdlSymbol)e.nextElement() ).parse();
+        }
+        
     }
 
     public void print( PrintWriter ps )

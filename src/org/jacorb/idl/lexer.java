@@ -763,7 +763,8 @@ public class lexer
             {
                 if( !conditionalCompilation )
                     return;
-                advance();      // skip ' '
+                swallow_whitespace();
+                //                advance();      // skip ' '
                 String name = get_string();
                 if( name.equals( "prefix" ) )
                 {

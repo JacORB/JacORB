@@ -44,6 +44,11 @@ class Truncatable
         return scopedName.id();
     }
 
+    public ScopedName getScopedName()
+    {
+        return scopedName;
+    }
+
     public void print( java.io.PrintWriter ps )
     {
         ps.print( toString() );

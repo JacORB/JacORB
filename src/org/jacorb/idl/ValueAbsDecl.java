@@ -35,9 +35,8 @@ import java.util.Enumeration;
  */
 
 class ValueAbsDecl
-        extends Value
+    extends Value
 {
-
     ValueBody body = null;
     ValueInheritanceSpec inheritanceSpec;
 

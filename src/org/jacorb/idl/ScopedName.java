@@ -33,8 +33,8 @@ import java.util.Hashtable;
 import java.util.Stack;
 
 class ScopedName
-        extends SimpleTypeSpec
-        implements SwitchTypeSpec
+    extends SimpleTypeSpec
+    implements SwitchTypeSpec
 {
 
     private static Hashtable pseudoScopes =
