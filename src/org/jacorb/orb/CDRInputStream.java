@@ -2526,7 +2526,7 @@ public class CDRInputStream
                             catch (NoSuchMethodException e)
                             {
                                 throw new org.omg.CORBA.MARSHAL(
-                                    "No write method in helper class "
+                                    "No read method in helper class "
                                     + helperClassName + ": " + e);
                             }
                         }
