@@ -1339,9 +1339,9 @@ public final class Delegate
         synchronized( bind_sync )
         {
             if( piorOriginal != null )
-                return piorOriginal.ior_str;
+                return piorOriginal.getIORString();
             else
-                return getParsedIOR().ior_str;
+                return getParsedIOR().getIORString();
         }
     }
     
