@@ -21,13 +21,16 @@
     <available classname="org.apache.tools.ant.filters.ClassConstants" property="ant15"/>
     <antcall target="ant-version"/>
 
-    <property name="architecture" value="unix"/>
     <condition property="architecture" value="windows">
        <or>
           <os family="windows"/>
           <os family="dos"/>
        </or>
     </condition>
+
+    <property name="architecture" value="unix"/>
+
+
     <!-- Location of the compiled classes -->
     <pathconvert property="classdir" targetos="${architecture}">
        <path>
@@ -43,7 +46,6 @@
           <pathelement location="${lib}/logkit.jar"/>
           <pathelement location="${lib}/concurrent.jar"/>
           <pathelement location="${lib}/antlr.jar"/>
-
           <pathelement location="${java.class.path}"/>
        </path>
     </pathconvert>
@@ -57,7 +59,6 @@
           <pathelement location="${lib}/logkit.jar"/>
           <pathelement location="${lib}/concurrent.jar"/>
           <pathelement location="${lib}/antlr.jar"/>
-
           <pathelement location="${java.class.path}"/>
        </path>
     </pathconvert>
@@ -71,8 +72,8 @@
          <echo message="JacORB will be built with the following (boot) classpath:${line.separator}${xbootclasspath}"/>
 </target>
 
-<target name="load-taskdef">
-   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpath="${basedir}/classes:${basedir}/lib/logkit.jar"/>
+<target name="load-taskdef" depends="init">
+   <taskdef name="jacidl" classname="org.jacorb.idl.JacIDL" classpath="${classpath}"/>
 </target>
 
 <target name="ant-version" unless="ant15">
