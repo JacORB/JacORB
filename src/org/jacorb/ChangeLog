@@ -1,3 +1,19 @@
+2003-12-10  Nicolas Noffke <Nicolas.Noffke@web.de>
+
+	* util/Environment.java:
+	removed obsolete domain service properties
+
+	* orb/ReplyReceiver.java, util/Environment.java:
+	small performance improvement: made retry_on_failure member of Environment, so this property doesn't need to be evaluated for every request
+
+2003-12-09  Nicolas Noffke <Nicolas.Noffke@web.de>
+
+	* orb/ReplyReceiver.java:
+	added property jacorb.connection.client.retry_on_failure to control if network failures result in a COMM_FAILURE or remarshal
+
+	* orb/giop/ClientGIOPConnection.java:
+	added property jacorb.connection.client.timeout_ignores_pending_messages to control if idle timeouts take care of pending messages
+
 2003-12-04  Simon McQueen  <sm@prismtechnologies.com>
 
 	* idl/JacIDL.java, idl/parser.cup, idl/parser.java, idl/sym.java:
