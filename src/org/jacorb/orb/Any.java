@@ -711,6 +711,9 @@ public final class Any
         case TCKind._tk_char:
             insert_char( input.read_char());
             break;
+        case TCKind._tk_wchar:
+            insert_wchar( input.read_wchar());
+            break;
         case TCKind._tk_octet:
             insert_octet( input.read_octet());
             break;
@@ -804,6 +807,9 @@ public final class Any
             break;
         case TCKind._tk_char:
             output.write_char(extract_char());
+            break;
+        case TCKind._tk_wchar:
+            output.write_wchar(extract_wchar());
             break;
         case TCKind._tk_octet:
             output.write_octet(extract_octet());
