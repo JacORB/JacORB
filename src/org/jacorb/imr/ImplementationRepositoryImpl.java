@@ -843,16 +843,13 @@ public class ImplementationRepositoryImpl
      */
     public static void usage ()
     {
-        System.out.println("Usage: ImplementationRepositoryImpl [Parameter]");
-        System.out.println("Parameter:");
-        System.out.println("\t -p <port> Port to listen on for requests");
-        System.out.println("\t[ -f <file> Read in server table from this file");
-        System.out.println("\t| -n Start with empty server table ]");
-        System.out.println("\t -i <iorfile> Place IOR in this file");
-        System.out.println("\t -b <backupfile> Put server table in this file");
-        System.out.println("\t -a Allow auto-registering of servers");
-        System.out.println("\t -h Print this help");
-
+        System.out.println("Usage: The following properties are useful in conjunction with the \nImplementationRepository:");
+        System.out.println("\t \"jacorb.imr.endpoint_host\" Address to listen on for requests");
+        System.out.println("\t \"jacorb.imr.endpoint_port\" Port to listen on for requests");
+        System.out.println("\t \"jacorb.imr.table_file\" The file to store the server table into");
+        System.out.println("\t \"jacorb.imr.backup_file\" The file to store the server table backup into");
+        System.out.println("\t \"jacorb.imr.ior_file\" The file to store the ImRs IOR into");
+        System.out.println("\t \"jacorb.imr.allow_auto_register\" if set to \"on\", servers that don't \n\talready have an entry on their first call to the imr, will get \n\tautomatically registered. Otherwise, an UnknownServer exception \n\tis thrown.");
         System.exit(0);
     }
 
@@ -914,6 +911,7 @@ public class ImplementationRepositoryImpl
         catch (Exception _e)
         {
             _e.printStackTrace();
+            usage();
             System.exit(1);
         }
     }
@@ -1286,7 +1284,7 @@ public class ImplementationRepositoryImpl
         try
         {
             lros = new LocateRequestOutputStream (object_key, connection.getId(), 2);
-            receiver = new LocateReplyReceiver ();
+            receiver = new LocateReplyReceiver((org.jacorb.orb.ORB)orb);
 
             connection.sendRequest(
                 lros,
