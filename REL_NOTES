@@ -151,9 +151,10 @@ gerald.brose@acm.org
                         - Fix for CDRInputStream and CDROutputStream to
                           correctly calculate the indirection offset value 
                           for recursive and repeated TypeCodes.
-                        - The create_abstract_interface_tc and
-                          create_native_tc operations are now implemented.
-                        - Added validation of operation parameters to the
+                        - The create_native_tc, create_local_interface_tc and
+                          create_abstract_interface_tc operations are now
+                          implemented.
+                        - Added validation of parameters to the
                           create_<type>_tc operations.
 
 1.4 beta 2:
