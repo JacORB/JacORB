@@ -28,7 +28,7 @@ import junit.framework.*;
 
 import org.jacorb.test.common.*;
 import org.jacorb.test.*;
-import org.jacorb.test.orb.etf.wiop.*;
+import org.jacorb.test.orb.etf.wiop.WIOPFactories;
 
 /**
  * @author <a href="mailto:spiegel@gnu.org">Andre Spiegel</a>
