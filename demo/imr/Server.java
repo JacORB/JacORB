@@ -10,8 +10,7 @@ public class Server
     {
 
         System.setProperty( "jacorb.implname", "grid" );
-        System.setProperty( "jacorb.use_imr", "off" );
-        System.setProperty( "OAPort", "8899" );
+        System.setProperty( "jacorb.use_imr", "on" );
 	try
 	{
             System.out.println("ImR Grid Server");
@@ -22,10 +21,10 @@ public class Server
 
 	    root_poa.the_POAManager().activate();
 
-	    org.omg.CORBA.Policy [] policies = new org.omg.CORBA.Policy[2];
+	    org.omg.CORBA.Policy[] policies = new org.omg.CORBA.Policy[2];
 
 	    policies[0] = root_poa.create_lifespan_policy(LifespanPolicyValue.PERSISTENT);
-	    policies[0] = root_poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
+	    policies[1] = root_poa.create_id_assignment_policy(IdAssignmentPolicyValue.USER_ID);
 	    POA grid_poa = root_poa.create_POA( "GridServerPOA", 
                                                 root_poa.the_POAManager(), 
                                                 policies );
