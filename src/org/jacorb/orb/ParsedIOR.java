@@ -90,18 +90,18 @@ public class ParsedIOR
             )
         );
 
-        Vector taggedProfileVector = new Vector();
+        List taggedProfileList = new ArrayList();
         TaggedProfileHolder tp = new TaggedProfileHolder();
         TaggedComponentSeqHolder tcs = new TaggedComponentSeqHolder();
         tcs.value = components.asArray();
 
         profile.marshal(tp, tcs);
-        taggedProfileVector.addElement(tp.value);
+        taggedProfileList.add(tp.value);
 
         // copy the profiles into the IOR
 
-        TaggedProfile[] tps = new TaggedProfile[taggedProfileVector.size()];
-        taggedProfileVector.copyInto(tps);
+        TaggedProfile[] tps = new TaggedProfile[taggedProfileList.size()];
+        taggedProfileList.toArray(tps);
 
         return new IOR(repId, tps);
     }
