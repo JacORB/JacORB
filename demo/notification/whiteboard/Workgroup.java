@@ -508,14 +508,14 @@ class ImageHandler extends StructuredPushSupplierPOA implements WhiteboardVars, 
         thisThread_.setPriority(3);
         control_ = control;
 
-        lineDataPool_ = new AbstractObjectPool() {
+        lineDataPool_ = new AbstractObjectPool("LineDataPool") {
                 public Object newInstance() {
                     return new LineData();
                 }
             };
         lineDataPool_.init();
 
-        updatePool_ = new AbstractObjectPool() {
+        updatePool_ = new AbstractObjectPool("UpdatePool") {
             public Object newInstance() {
                 return new WhiteboardUpdate();
             }
