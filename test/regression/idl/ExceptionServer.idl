@@ -1,0 +1,14 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         interface ExceptionServer
+         {
+			void throwRuntimeException(in string message);
+         };
+      };
+   };
+};
