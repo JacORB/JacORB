@@ -1,3 +1,0 @@
-#!/bin/sh 
-
-jaco org.jacorb.util.Propla "$@"
