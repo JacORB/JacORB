@@ -1,3 +1,69 @@
+2003-11-11  Andre Spiegel  <spiegel@gnu.org>
+
+	* ir/RepositoryID.java (createBoxedValueHelper): New method.
+
+	* util/Environment.java (identityHashMapClass): New static field.
+	(createIdentityHashMap): New method.
+
+	* util/IdentityHashMap.java: Initial revision.
+
+	* idl/sym.java: Header change only.
+
+	* idl/parser.java, idl/parser.cup (value_box_decl):
+	Call RESULT.set_token().  This is needed so that
+	repository ids for boxed value types are properly qualified.
+
+	* orb/CDROutputStream.java (beginEncapsulation, getValueMap): Use
+	Environment.createIdentityHashMap() for the value map.
+	(write_value(TypeCode, InputStream)): For _tk_value_box,
+	read the value based on repository ID, not TypeCode.
+	Fix for bug #387.
+
+	* orb/CDRInputStream.java:
+	(read_value(TypeCode, OutputStream)): For _tk_value_box,
+	read the value based on repository ID, not TypeCode.
+	Fix for bug #387.
+
+2003-11-07  Gerald Brose  <gerald.brose@acm.org>
+
+	* poa/util/LogTrace.java, poa/util/LogWriter.java: removed these
+	files as part of migrating to the new logger interface
+
+	* poa/AOM.java, poa/POA.java, poa/POAMonitor.java,
+	poa/POAMonitorImpl.java, poa/POAMonitorLightImpl.java,
+	poa/RequestController.java, poa/RequestProcessor.java,
+	poa/RequestQueue.java, poa/gui/POAMonitorView.java: migrated to
+	new logging interface, removed references to poa/util LogTrace and
+	LogWriter
+
+	cosmetics
+
+2003-11-07  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/giop/TransportManager.java,
+	orb/standardInterceptors/IORInterceptorInitializer.java,
+	security/level2/CurrentImpl.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASTargetInterceptor.java, util/Environment.java,
+	collection/SequenceFactoryImpl.java,
+	collection/SortedRelationFactoryImpl.java, ir/RepositoryID.java,
+	notification/util/PatternWrapper.java,
+	orb/ApplicationExceptionHelper.java, orb/BasicAdapter.java,
+	orb/Delegate.java, orb/ExceptionHolderImpl.java, orb/ORB.java,
+	orb/ParsedIOR.java, orb/SystemExceptionHelper.java,
+	orb/dns/DNSLookup.java, orb/factory/SocketFactoryManager.java,
+	orb/giop/ClientConnectionManager.java,
+	orb/giop/GIOPConnectionManager.java: - Class.forName(String)
+	replaced by Environment.classForName(String), which uses the
+	thread context class loader.  - Explicit usages of the thread
+	context class loader also replaced by calls to
+	Environment.classForName(String).
+
+2003-11-06  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* util/Environment.java: Javadoc comments and implementation
+	comments added to classForName().
+
 2003-11-05  Nick Cross  <nick.cross@prismtechnologies.com>
 
 	* orb/giop/GIOPConnection.java: Correct a boolean test in tryDiscard()
