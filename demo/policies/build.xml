@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../etc/common.xml"> ]>
+
+<project name="demo" default="all" basedir="../..">
+
+  &common;
+
+
+  <!-- ==================================================== -->
+  <!--             Demo build file                         -->
+  <!-- ==================================================== -->
+
+   <target name="policies.init" depends="init">
+	<property name="name" value="policies"/>
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+        <property name="dest" value="${dirs.base}/demo/${name}/generated"/>
+	<property name="include" value="${dirs.base}/idl/omg"/>
+   </target>
+
+   <target name="all" depends="policies.init,idl">
+	<javac srcdir="${dest}"
+               destdir="${classdir}"
+	       includes="**/*.java"
+	        />
+
+	<javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+	       includes="demo/${name}/*.java"
+	        />
+   </target>
+
+
+   <target name="idl" depends="policies.init,load-taskdef">
+        <mkdir dir="${dest}" />
+        <jacidl srcdir="demo/${name}"
+                destdir="${dest}"
+                includepath="${include}"
+	        includes="*.idl"/>
+   </target>
+
+
+
+   <target name="clean" depends="policies.init">
+           <delete dir="${classdir}/demo/policies"/>
+           <delete dir="${dest}"/>
+   </target>
+
+</project>
+
+
+
+
+

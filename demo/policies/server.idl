@@ -1,0 +1,10 @@
+module demo
+{
+    module policies {
+        
+        interface GoodDay {
+            // sleep how many msec.s before replying?
+            string hello(in long sleep);            
+        };               
+    };
+};
