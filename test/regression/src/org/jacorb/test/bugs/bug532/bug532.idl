@@ -1,0 +1,14 @@
+module org {
+  module jacorb {
+    module test {
+      module bugs {
+        module bug532 {
+  
+          // an octet sequence other than OctetSequence
+          typedef sequence<octet> ByteSequence;  
+
+        };
+      };
+    };
+  };    
+};

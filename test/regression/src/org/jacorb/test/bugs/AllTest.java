@@ -47,6 +47,7 @@ public class AllTest extends TestCase
       suite.addTest(org.jacorb.test.bugs.bug384.TestCase.suite());
       suite.addTest(org.jacorb.test.bugs.bug387.TestCase.suite());
       suite.addTest(org.jacorb.test.bugs.bug401.TestCase.suite());
+      suite.addTest(org.jacorb.test.bugs.bug532.TestCase.suite());
 
       return suite;
    }
