@@ -208,8 +208,11 @@ public final class Delegate
 
             _pior.init();
 
-            connection = conn_mg.getConnection( _pior.getIIOPAddress().toString(),
-                                                _pior.useSSL() );
+            connection = conn_mg.getConnection
+            ( 
+                (InternetIOPProfile)_pior.getEffectiveProfile(),
+                _pior.useSSL()
+            );
 
             bound = true;
 
