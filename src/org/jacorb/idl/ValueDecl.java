@@ -72,8 +72,16 @@ class ValueDecl
         }
         stateMembers.setContainingType( this );
         stateMembers.setPackage( name );
-        if( stateMembers != null )
-            stateMembers.setEnclosingSymbol( this );
+        stateMembers.setEnclosingSymbol( this );
+
+        for( Iterator i = operations.iterator(); i.hasNext(); )
+            ( (OpDecl)i.next() ).setEnclosingSymbol( this );
+
+        for( Iterator i = exports.iterator(); i.hasNext(); )
+            ( (IdlSymbol)i.next() ).setEnclosingSymbol( this );
+
+        for( Iterator i = factories.iterator(); i.hasNext(); )
+            ( (IdlSymbol)i.next() ).setEnclosingSymbol( this );
     }
 
     public void setInheritanceSpec( ValueInheritanceSpec spec )
@@ -178,24 +186,41 @@ class ValueDecl
             stateMembers.parse();
             ScopedName.removeRecursionScope( typeName() );
 
-            for( Iterator i = operations.iterator(); i.hasNext(); )
-                ( (IdlSymbol)i.next() ).parse();
+            Environment.output( 2, "valueDecl.parse(): operations" );
 
-            for( Iterator i = exports.iterator(); i.hasNext(); )
+            // parse operations
+            Iterator iter = operations.iterator();
+            while( iter.hasNext() )
             {
-                IdlSymbol sym = (IdlSymbol)i.next();
+                IdlSymbol sym = (IdlSymbol)iter.next();
                 sym.parse();
+            }
+
+            Environment.output( 2, "valueDecl.parse(): exports" );
+
+            // parser exports
+            iter = exports.iterator();
+            while( iter.hasNext() )
+            {
+                IdlSymbol sym = (IdlSymbol)iter.next();
+                sym.parse();
+
                 if( sym instanceof AttrDecl )
                 {
-                    for( Enumeration e = ( (AttrDecl)sym ).getOperations();
-                         e.hasMoreElements(); )
+                    Enumeration e = ( (AttrDecl)sym ).getOperations();
+                    while( e.hasMoreElements() )
                         operations.add( e.nextElement() );
                 }
             }
 
-            for( Iterator i = factories.iterator(); i.hasNext(); )
-                ( (IdlSymbol)i.next() ).parse();
-
+            // parse factories
+            iter = factories.iterator(); 
+            while( iter.hasNext() )
+            {
+                IdlSymbol sym = (IdlSymbol)iter.next();
+                sym.parse();
+            }
+            
             // check inheritance rules
 
             if( inheritanceSpec != null )
@@ -268,16 +293,6 @@ class ValueDecl
         }
 
         enclosing_symbol = s;
-        stateMembers.setEnclosingSymbol( this );
-
-        for( Iterator i = operations.iterator(); i.hasNext(); )
-            ( (IdlSymbol)i.next() ).setEnclosingSymbol( s );
-
-        for( Iterator i = exports.iterator(); i.hasNext(); )
-            ( (IdlSymbol)i.next() ).setEnclosingSymbol( s );
-
-        for( Iterator i = factories.iterator(); i.hasNext(); )
-            ( (IdlSymbol)i.next() ).setEnclosingSymbol( s );
     }
 
     public void set_included( boolean i )
@@ -604,7 +619,7 @@ class ValueDecl
      */
 
     private void printFactory( File dir )
-            throws IOException
+        throws IOException
     {
         if( factories.size() == 0 )
             return;
