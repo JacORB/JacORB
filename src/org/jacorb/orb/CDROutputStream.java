@@ -1043,7 +1043,11 @@ public class CDROutputStream
                     write_string(value.id());
                     write_string(value.name());
                     write_short( value.type_modifier() );
-                    write_TypeCode( value.concrete_base_type(), tcMap);
+                    org.omg.CORBA.TypeCode base = value.concrete_base_type();
+                    if (base != null)
+                        write_TypeCode(base, tcMap);
+                    else
+                        write_long (TCKind._tk_null);
                     _mc = value.member_count();
                     write_long(_mc);
                     for( int i = 0; i < _mc; i++)
