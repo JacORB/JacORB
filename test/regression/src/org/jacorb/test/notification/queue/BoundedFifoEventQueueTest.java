@@ -156,21 +156,21 @@ public class BoundedFifoEventQueueTest extends TestCase
 
         List _events = new Vector();
 
-        _events.add(new MockMessage( "#1").getHandle());
+        _events.add(new MockMessage("#1").getHandle());
 
-        _events.add(new MockMessage( "#2").getHandle());
+        _events.add(new MockMessage("#2").getHandle());
 
-        _events.add(new MockMessage( "#3").getHandle());
+        _events.add(new MockMessage("#3").getHandle());
 
-        Message e1 = new MockMessage( "#4").getHandle();
+        Message e1 = new MockMessage("#4").getHandle();
 
-        Message e2 = new MockMessage( "#5").getHandle();
+        Message e2 = new MockMessage("#5").getHandle();
 
         _events.add(e1);
 
         _events.add(e2);
 
-        _events.add(new MockMessage( "#6").getHandle());
+        _events.add(new MockMessage("#6").getHandle());
 
         addEventsToEventQueue(strategy, _events);
 
