@@ -3,7 +3,7 @@ package org.jacorb.idl;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2001  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -64,6 +64,14 @@ class ElementSpec
 	    t.typeSpec() instanceof ConstrTypeSpec )
 	{
 	    t.parse();
+            if( t.typeSpec() instanceof SequenceType )
+            {
+                TypeSpec ts = ((SequenceType)t.typeSpec()).elementTypeSpec().typeSpec();
+                if( ts.typeName().equals( containingUnion.typeName() ))
+                {
+                    ((SequenceType)t.typeSpec()).setRecursive();
+                }
+            }
 	}
 	else if( t.typeSpec() instanceof ScopedName )
 	{
@@ -95,23 +103,5 @@ class ElementSpec
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
