@@ -268,7 +268,7 @@ class ConstDecl
 	    else if (ts instanceof FixedPointConstType ||
                      ts instanceof FixedPointType)
 	    {
-		pw.println("new java.math.BigDecimal(" + const_expr.toString() + ");");
+		pw.println("new java.math.BigDecimal (" + const_expr.toString() + "d);");
 	    }
 	    else
             {
