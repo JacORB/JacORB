@@ -20,13 +20,13 @@
 
 package org.jacorb.orb.giop;
 
-import org.omg.GIOP.ReplyStatusType_1_2;
+import org.apache.avalon.framework.logger.Logger;
 
+import org.omg.GIOP.ReplyStatusType_1_2;
 import org.omg.CORBA.INV_POLICY;
 import org.omg.CORBA.CompletionStatus;
 
 import org.jacorb.orb.SystemExceptionHelper;
-import org.jacorb.util.Debug;
 
 import java.io.IOException;
 
@@ -43,30 +43,30 @@ import java.io.IOException;
 public class NoBiDirClientRequestListener 
     implements RequestListener
 {
-    public NoBiDirClientRequestListener ()
+    private Logger logger;
+
+    public NoBiDirClientRequestListener(Logger logger)
     {
-        
+        this.logger = logger;
     }
     
     public void requestReceived( byte[] request,
                                  GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a request on a non-bidir " +
-                      "connection" );
+        if (logger.isWarnEnabled())
+            logger.warn("Received a request on a non-bidir connection" );
 
         connection.incPendingMessages();
-
         replyException( request, connection );
     }
 
     public void locateRequestReceived( byte[] request,
                                        GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a locate request on a " +
-                      "non-bidir connection" );
+        if (logger.isWarnEnabled())
+            logger.warn("Received a locate request on a non-bidir connection" );
 
         connection.incPendingMessages();
-
         replyException( request, connection );
     }
 
@@ -74,11 +74,10 @@ public class NoBiDirClientRequestListener
     public void cancelRequestReceived( byte[] request,
                                        GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a cancel request on a " +
-                      "non-bidir connection" );
+        if (logger.isWarnEnabled())
+            logger.warn("Received a cancel request on a non-bidir connection" );
         
-        connection.incPendingMessages();
-        
+        connection.incPendingMessages();        
         replyException( request, connection );
     }
 
@@ -92,10 +91,11 @@ public class NoBiDirClientRequestListener
             new ReplyOutputStream( Messages.getRequestId( request ),
                                    ReplyStatusType_1_2.SYSTEM_EXCEPTION,
                                    giop_minor,
-				   false );//no locate reply
+				   false,
+                                   logger);//no locate reply
         
         SystemExceptionHelper.write( out, 
-              new INV_POLICY( 0, CompletionStatus.COMPLETED_NO ));
+                                     new INV_POLICY( 0, CompletionStatus.COMPLETED_NO ));
 
         try
         {
@@ -103,7 +103,8 @@ public class NoBiDirClientRequestListener
         }
         catch( IOException e )
         {
-            Debug.output( 1, e );
+            if (logger.isErrorEnabled())
+                logger.error("Exception", e );
         }        
     }
 }// NoBiDirClientRequestListener

@@ -174,7 +174,7 @@ public class ExceptionHolderImpl
                IllegalAccessException,
                InvocationTargetException
     {
-        String name = RepositoryID.className (id, "Helper");
+        String name = RepositoryID.className(id, "Helper", null);
 
         // if class doesn't exist, let exception propagate
         Class  helper = ObjectUtil.classForName (name);

@@ -20,7 +20,6 @@
 
 package org.jacorb.orb.giop;
 
-import org.jacorb.util.Debug;
 
 /**
  * NoBiDirServerReplyListener.java
@@ -36,26 +35,22 @@ public class NoBiDirServerReplyListener
     implements ReplyListener
 {
     public NoBiDirServerReplyListener ()
-    {
-        
+    {        
     }
 
     public void replyReceived( byte[] reply,
                                GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a reply message on a non bidir connection" );
     }
         
     public void locateReplyReceived( byte[] reply,
                                      GIOPConnection connection )
     {
-        Debug.output( 1, "WARNING: Received a locate reply message on a non bidir connection" );        
     }
 
     public void closeConnectionReceived( byte[] close_conn,
                                          GIOPConnection connection )
     {
-        //Debug.output( 1, "WARNING: Received a close connection message on a non bidir connection" );
     }
     
 }// NoBiDirServerReplyListener

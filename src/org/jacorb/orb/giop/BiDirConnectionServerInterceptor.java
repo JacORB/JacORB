@@ -26,9 +26,10 @@ import org.omg.IIOP.*;
 import org.omg.IOP.*;
 
 import org.jacorb.orb.*;
-import org.jacorb.util.Debug;
 import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.portableInterceptor.*;
+
+import org.apache.avalon.framework.logger.*;
 
 
 /**
@@ -48,6 +49,7 @@ public class BiDirConnectionServerInterceptor
 
     private ORB orb = null;
     private Codec codec = null;
+    private Logger logger;
 
     private ClientConnectionManager conn_mg = null;
 
@@ -56,6 +58,8 @@ public class BiDirConnectionServerInterceptor
     {
         this.orb = orb;
         this.codec = codec;
+        this.logger = orb.getConfiguration().getNamedLogger("jacorb.giop.bidir.interceptor");
+
 
         conn_mg = orb.getClientConnectionManager();
     }
@@ -109,7 +113,8 @@ public class BiDirConnectionServerInterceptor
 
                 IIOPAddress addr = new IIOPAddress (p.host, p.port);                
 
-                Debug.output( 2, "BiDirServerInterceptor: Added client conn to target " + addr );
+                if (logger.isDebugEnabled())
+                    logger.debug("Client conn. added to target " + addr );
                 
                 conn_mg.addConnection( connection, new IIOPProfile (addr, null) );
             }            

@@ -1976,28 +1976,28 @@ public final class ORB
         return false;
     }
 
-    public ValueFactory register_value_factory (String id,
+    public ValueFactory register_value_factory(String id,
                                                 ValueFactory factory)
     {
         return (ValueFactory)valueFactories.put (id, factory);
     }
 
-    public void unregister_value_factory (String id)
+    public void unregister_value_factory(String id)
     {
         valueFactories.remove (id);
     }
 
-    public ValueFactory lookup_value_factory (String id)
+    public ValueFactory lookup_value_factory(String id)
     {
         ValueFactory result = (ValueFactory)valueFactories.get (id);
 
         if (result == null)
         {
-            if (id.startsWith ("IDL"))
+            if (id.startsWith("IDL"))
             {
-                String valueName = org.jacorb.ir.RepositoryID.className (id);
-                result = findValueFactory (valueName);
-                valueFactories.put (id, result);
+                String valueName = org.jacorb.ir.RepositoryID.className(id, null);
+                result = findValueFactory(valueName);
+                valueFactories.put(id, result);
             }
         }
         return result;
@@ -2007,7 +2007,7 @@ public final class ORB
      * Finds a ValueFactory for class valueName by trying standard class names.
      */
 
-    private ValueFactory findValueFactory (String valueName)
+    private ValueFactory findValueFactory(String valueName)
     {
         Class result = null;
         result = findClass (valueName + "DefaultFactory", true);
@@ -2136,7 +2136,7 @@ public final class ORB
                 return null;
             else
             {
-                result = org.jacorb.ir.RepositoryID.createBoxedValueHelper(repId);
+                result = org.jacorb.ir.RepositoryID.createBoxedValueHelper(repId, null);
                 boxedValueHelpers.put(repId, result);
             }
         }

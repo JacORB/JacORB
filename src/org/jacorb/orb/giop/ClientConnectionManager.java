@@ -76,7 +76,6 @@ public class ClientConnectionManager
         this.transport_manager = transport_manager;
         this.giop_connection_manager = giop_connection_manager;
 
-        request_listener = new NoBiDirClientRequestListener();
         receptor_pool = MessageReceptorPool.getInstance();
     }
 
@@ -89,7 +88,9 @@ public class ClientConnectionManager
     {
         this.configuration = (org.jacorb.config.Configuration)myConfiguration;
         logger = configuration.getNamedLogger("jacorb.orb.giop");
- 
+
+        request_listener = new NoBiDirClientRequestListener(logger);
+
         socket_factory = 
             transport_manager.getSocketFactoryManager().getSocketFactory();
 

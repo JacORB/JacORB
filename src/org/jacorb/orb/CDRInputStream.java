@@ -2356,7 +2356,7 @@ public class CDRInputStream
 
         if (tag == 0x7fffff00)
         {
-            return read_untyped_value ( new String[]{ ValueHandler.getRMIRepositoryID (clz) },
+            return read_untyped_value ( new String[]{ ValueHandler.getRMIRepositoryID(clz) },
                                         start_offset, codebase);
         }
         else if (tag == 0x7fffff02)
@@ -2496,7 +2496,7 @@ public class CDRInputStream
                 // first place solves the problem."
 
                 String className =
-                org.jacorb.ir.RepositoryID.className (repository_ids[r]);
+                org.jacorb.ir.RepositoryID.className(repository_ids[r], null);
 
                 Class c = null;
                 //#ifjdk 1.2

@@ -1190,7 +1190,7 @@ public final class Delegate
             {
                 // Retrieve the local stub for the object in question. Then call the _ids method
                 // and see if any match the logical_type_id otherwise fall back to remote.
-                String classname = RepositoryID.className( ids[0], "Stub" );
+                String classname = RepositoryID.className( ids[0], "Stub", null );
                 int lastDot = classname.lastIndexOf( '.' );
                 StringBuffer scn = new StringBuffer( classname.substring( 0, lastDot + 1) );
                 scn.append( '_' );
