@@ -1,0 +1,12 @@
+module test
+{
+    module imr {
+
+        interface TestIf {
+            
+            void op();
+        };
+               
+    };
+
+};
