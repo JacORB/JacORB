@@ -731,15 +731,13 @@ public class POA
      */
 
 
-    public void deactivate_object(byte[] oid) 
+    public synchronized void deactivate_object(byte[] oid) 
         throws ObjectNotActive, WrongPolicy 
-    {
-        checkDestructionApparent ();
-                
+    {                
         if (!isRetain()) 
             throw new WrongPolicy();
                 
-        if (!aom.contains(oid)) 
+        if ( !aom.contains( oid ) || requestController.deactivationInProgress( oid ) ) 
             throw new ObjectNotActive();
                 
         final byte[] objectId = oid;
@@ -760,6 +758,8 @@ public class POA
                 }
             };
         thread.start();
+
+        requestController.waitForDeactivationStart( oid );
     }
 
 
