@@ -83,6 +83,15 @@ public class GIOPConnectionTest
         public void setIdle()
         {
         }
+
+        public void setBusy()
+        {
+        }
+
+        public boolean isIdle()
+        {
+            return false;
+        }
     
         public boolean isSSL()
         {
