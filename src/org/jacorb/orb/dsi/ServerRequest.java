@@ -20,8 +20,6 @@ package org.jacorb.orb.dsi;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import java.io.*;
-
 import org.jacorb.util.*;
 import org.jacorb.orb.*;
 import org.jacorb.orb.connection.*;
@@ -469,6 +467,28 @@ public class ServerRequest
     public boolean responseExpected()
     {
         return Messages.responseExpected(in.req_hdr.response_flags);
+    }
+
+    /**
+     * Returns the SyncScope of this request, as expressed in the
+     * header's response_flags.  Note that here, on the server side,
+     * this no longer differentiates between SYNC_NONE and SYNC_WITH_TRANSPORT.
+     * The former is returned in both cases. 
+     */
+    public short syncScope()
+    {
+        switch (in.req_hdr.response_flags)
+        {
+            case 0x00:
+                return org.omg.Messaging.SYNC_NONE.value;
+            case 0x01:
+                return org.omg.Messaging.SYNC_WITH_SERVER.value;
+            case 0x03:
+                return org.omg.Messaging.SYNC_WITH_TARGET.value;
+            default:
+                throw new RuntimeException ("Illegal SYNC_SCOPE: "
+                                            + in.req_hdr.response_flags);
+        }
     }
 
     public org.omg.CORBA.SystemException getSystemException()
