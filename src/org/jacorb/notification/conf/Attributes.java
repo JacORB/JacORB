@@ -113,4 +113,6 @@ public interface Attributes
         "jacorb.notification.filter.plugin";
 
     String WILDCARDMAP_CLASS = "jacorb.notification.wildcardmap.implementation";
+
+    String RETRY_STRATEGY_FACTORY = "jacorb.notification.retrystrategy.factory";
 }

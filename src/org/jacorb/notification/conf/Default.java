@@ -1,5 +1,6 @@
 package org.jacorb.notification.conf;
 
+import org.jacorb.notification.engine.TaskProcessorRetryStrategyFactory;
 import org.jacorb.notification.util.WeakCacheWildcardMap;
 
 /*
@@ -85,4 +86,6 @@ public interface Default
     int DEFAULT_MAX_QUEUE_LENGTH = 0;
 
     String WILDCARDMAP_DEFAULT = WeakCacheWildcardMap.class.getName();
+
+    String DEFAULT_RETRY_STRATEGY_FACTORY = TaskProcessorRetryStrategyFactory.class.getName();
 }
