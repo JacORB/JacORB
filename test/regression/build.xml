@@ -334,6 +334,15 @@
   </target>
 
 
+   <target name="run-all-no-build"
+           description="Run all Jacorb tests">
+      <antcall target="run-no-build">
+         <param name="test" value="org.jacorb.test.AllTest"/>
+      </antcall>
+      <antcall target="compile-idl-test-generated"/>
+  </target>
+
+
    <!-- ==================================================== -->
    <!--                  run idl tests                       -->
    <!-- ==================================================== -->
@@ -353,6 +362,27 @@
       </antcall>
       <echo message="Successfully compiled test idl"/>
    </target>
+
+   <!-- ==================================================== -->
+   <!--                  run bug tests                       -->
+   <!-- ==================================================== -->
+
+
+   <target name="run-all-bugs"
+           description="Run all Jacorb tests in the bugs package">
+      <antcall target="run">
+         <param name="test" value="org.jacorb.test.bugs.AllTest"/>
+      </antcall>
+   </target>
+
+
+   <target name="run-all-bugs-no-build"
+           description="Run all Jacorb tests in the bugs package">
+      <antcall target="run-no-build">
+         <param name="test" value="org.jacorb.test.bugs.AllTest"/>
+      </antcall>
+   </target>
+
 
 
    <!-- ==================================================== -->
