@@ -623,6 +623,20 @@ public final class Delegate
         }
     }
 
+    public void resolvePOA (org.omg.CORBA.Object self)
+    {
+        if (! resolved_locality)
+        {
+            resolved_locality = true;
+            org.jacorb.poa.POA local_poa = orb.findPOA (this, self);
+
+            if (local_poa != null)
+            {
+                poa = local_poa;
+            }
+        }
+    }
+
     public org.jacorb.poa.POA getPOA()
     {
         return ( org.jacorb.poa.POA ) poa;
@@ -1198,20 +1212,15 @@ public final class Delegate
 
     public boolean is_local( org.omg.CORBA.Object self )
     {
-        if ( ! resolved_locality )
+        if (orb.hasRequestInterceptors ())
         {
-            org.jacorb.poa.POA local_poa = orb.findPOA( this, self );
-
-            if ( local_poa != null )   // && local_poa._localStubsSupported() )
-                poa = local_poa;
-
-            //              Debug.output( 3, "Delegate.is_local found " +
-            //                           ( local_poa != null ? " a " : " no ") + " local POA");
+            return false;
+        }
+        if (poa == null)
+        {
+            resolvePOA (self);
         }
 
-        resolved_locality = true;
-
-        //Debug.output( 5, "Delegate.is_local returns " + (poa != null ));
         return poa != null;
     }
 
@@ -1363,39 +1372,13 @@ public final class Delegate
                                             String operation,
                                             Class expectedType )
     {
-        if ( ! resolved_locality )
+        if (poa == null)
         {
-            org.jacorb.poa.POA local_poa = orb.findPOA( this, self );
-
-            if ( local_poa != null )   // && local_poa._localStubsSupported() )
-                poa = local_poa;
-
-            resolved_locality = true;
+            resolvePOA (self);
         }
 
-        if ( poa != null )
+        if (poa != null)
         {
-            /* make sure that no proxified IOR is used for local invocations */
-            /*
-            if (orb.isApplet())
-        {
-                Debug.output(1, "Unproxyfying IOR:");
-                org.jacorb.orb.Delegate d =
-                    (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
-
-                //ugly workaround for setting the object key.
-                org.jacorb.orb.ParsedIOR divpior =
-                    new org.jacorb.orb.ParsedIOR(orb.unproxyfy( d.getIOR() ));
-
-                d.setIOR(divpior.getIOR());
-                d.set_adport_and_key( divpior.getProfileBody().host+":" +
-                                      divpior.getProfileBody().port,
-                                      divpior.getProfileBody().object_key );
-
-                ((org.omg.CORBA.portable.ObjectImpl)self)._set_delegate(d);
-        }    
-            */
-
             try
             {
                 ServantObject so = new ServantObject();
