@@ -37,6 +37,7 @@ import org.jacorb.poa.util.POAUtil;
 import org.apache.avalon.framework.logger.*;
 
 import org.omg.CORBA.BAD_PARAM;
+import org.omg.CORBA.INITIALIZE;
 import org.omg.CORBA.BAD_QOS;
 import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.BooleanHolder;
@@ -615,7 +616,7 @@ public final class ORB
     public org.jacorb.orb.BasicAdapter getBasicAdapter()
     {
         if( basicAdapter == null )
-            throw new RuntimeException("Adapters not initialized, call POA.init() first");
+            throw new INITIALIZE("Adapters not initialized; resolve RootPOA.");
         return basicAdapter;
     }
 
