@@ -145,14 +145,14 @@ public class Environment
     {
         try
         {
-            /* load system properties to get home dir and file separator */
-
-            _props = new Properties( System.getProperties() );
+            _props = new Properties();// System.getProperties() );
             
-            String customPropertyFileNames = _props.getProperty("custom.props");
-            String home = _props.getProperty("user.home");
-            String sep = _props.getProperty("file.separator");
-            String lib = _props.getProperty("java.home");
+            String customPropertyFileNames = 
+                System.getProperty( "custom.props" );
+
+            String home = System.getProperty( "user.home" );
+            String sep = System.getProperty( "file.separator" );
+            String lib = System.getProperty( "java.home" );
 
             /* look for home directory config files first */
 
@@ -169,23 +169,73 @@ public class Environment
 
             propertiesFiles.addElement(lib + sep + "lib" + sep + propertiesFile1);
             propertiesFiles.addElement(lib + sep + "lib" + sep + propertiesFile2);
-
-
             boolean loaded = false;
-            for( int i=0; !loaded && i < propertiesFiles.size(); ++i ) 
+
+            // Full name of the config file
+            String sConfigFile = null;
+
+            /* 
+             * load config files from the default ClassLoader's classpath 
+             * 
+             * supported by Per Bockman (pebo@enea.se)
+             */
+            ClassLoader cl = ClassLoader.getSystemClassLoader();
+            try
             {
-                try 
+                java.io.InputStream is =                 
+                    cl.getSystemResourceAsStream( propertiesFile1 );
+
+                if( is != null )
                 {
-                    _props.load( 
-                          new BufferedInputStream( 
-                               new FileInputStream(
-                                    (String)propertiesFiles.elementAt( i ) )));
+                    _props.load( is );
+
+                    sConfigFile = 
+                        cl.getSystemResource( propertiesFile1 ).toString();
+
                     loaded = true;
-                } 
-                catch ( Exception e ) 
+                }
+                else
+                {                    
+                    //try second props file name
+                    is = cl.getSystemResourceAsStream( propertiesFile2 );
+
+                    if( is != null )
+                    {
+                        _props.load( is );
+                        
+                        sConfigFile = 
+                            cl.getSystemResource( propertiesFile2 ).toString();
+                        
+                        loaded = true;
+                    }
+                }
+            }
+            catch(java.io.IOException ioe)
+            {
+                // ignore it
+            }                                             
+
+            if( ! loaded ) //no props file found in classpath
+            {                
+                for( int i = 0; i < propertiesFiles.size(); ++i ) 
                 {
-                    
-                } 
+                    try 
+                    {
+                        _props.load( 
+                            new BufferedInputStream( 
+                                new FileInputStream(
+                                    (String) propertiesFiles.elementAt( i ) )));
+
+                        loaded = true;
+                        sConfigFile = (String) propertiesFiles.elementAt( i );
+
+                        break;
+                    } 
+                    catch ( Exception e ) 
+                    {
+                        //ignore  
+                    } 
+                }
             }
 
             /*  load additional  properties from  a  custom properties
@@ -214,41 +264,40 @@ public class Environment
                 }
             }
 
-            /* we have to refresh system properties here because otherwise
-               command line options would be overriden by properties from 
-               files */
 
-            merge( _props, System.getProperties());
+            merge( _props, System.getProperties() );
 
             //   _props.putAll(System.getProperties()); 
 
             if( ! loaded && _verbosity >= 1 )
             {
-                StringBuffer buf = new StringBuffer();
-                for( int i = 0; i < propertiesFiles.size(); ++i ) 
-                {
-                    if( i > 0 ) 
-                    {
-                        buf.append(" or\n");
-                    }
-                    
-                    buf.append( (String) propertiesFiles.elementAt( i ));
-                }       
-                
-                System.err.println("WARNING: no properties file found! This warning can be ignored\n for applets. (A properties file should be in the current directory or in \n" + buf.toString() + ")");
+                System.err.println( "#####################################################################" );
+
+                System.err.println("WARNING: no properties file found! This warning can be ignored \nfor applets. A file file called \"jacorb.properties\" or \n\".jacorb_properties\" should be present in the classpath, \nthe home directory (" + home + "), the current directory (.) or \nin Javas lib directory (" + lib + ')'  );
+
+                System.err.println( "#####################################################################\n" );
             }             
 
+            if( _verbosity > 1 && sConfigFile != null)
+            {
+                System.err.println("Setup Info: properties was file loaded from: " + sConfigFile );
+            } 
+
+            //read prop values to set fields ov this class
             readValues();
+
             if ( _enforce_ssl )
             {
-                if( !_support_ssl ) {// bnv
-                    System.err.println ( "Security Policy violation: SSL is not supported."
-                                         + "Check your environment please."
-                                         );
+                if( !_support_ssl ) 
+                {
+                    // bnv
+                    System.err.println ( "ERROR: The properties say, that SSL should be enforced, but not supported. \nPlease check properties \"jacorb.security.support_ssl\" and \n\"jacorb.security.enforce_ssl\"" );
                     System.exit( 0 );
                 }
-                else
-                    org.jacorb.util.Debug.output( 1, "Security policy will enforce SSL connections" );
+//                  else
+//                  {                    
+//                      org.jacorb.util.Debug.output( 1, "Security policy will enforce SSL connections" );
+//                  }
             }
         }
         catch(SecurityException secex)
