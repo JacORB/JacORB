@@ -25,7 +25,6 @@ import org.omg.IOP.*;
 import org.omg.ETF.*;
 import org.omg.RTCORBA.ProtocolProperties;
 
-import org.jacorb.orb.InternetIOPProfile;
 
 /**
  * @author Andre Spiegel
@@ -57,8 +56,8 @@ public class IIOPFactories extends org.omg.ETF._FactoriesLocalBase
         }
         else
         {
-            InternetIOPProfile result 
-                = new InternetIOPProfile (tagged_profile.value.profile_data);
+            IIOPProfile result 
+                = new IIOPProfile (tagged_profile.value.profile_data);
             components.value = result.getComponents().asArray();
             return result;
         }

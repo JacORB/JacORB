@@ -23,6 +23,8 @@ package org.jacorb.orb;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.*;
+
+import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.util.CorbaLoc;
 import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
@@ -50,7 +52,7 @@ public class ParsedIOR
     private static final char[] lookup =
     new char[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
-    private InternetIOPProfile effectiveProfile = null;
+    private IIOPProfile effectiveProfile = null;
     private List profiles = new ArrayList();
 
     /** top-level tagged components, i.e. NOT part of IOP components. Other
@@ -289,8 +291,8 @@ public class ParsedIOR
     {
         if( addr.discriminator() == ProfileAddr.value )
         {
-            InternetIOPProfile p =
-                new InternetIOPProfile (addr.profile().profile_data);
+            IIOPProfile p =
+                new IIOPProfile (addr.profile().profile_data);
             addr.object_key( p.getObjectKey() );
         }
         else if( addr.discriminator() == ReferenceAddr.value )
@@ -299,7 +301,7 @@ public class ParsedIOR
 
             ParsedIOR pior = new ParsedIOR( info.ior );
             pior.effectiveProfile =
-              (InternetIOPProfile)pior.profiles.get (info.selected_profile_index);
+              (IIOPProfile)pior.profiles.get (info.selected_profile_index);
 
             addr.object_key( pior.get_object_key() );
         }
@@ -482,7 +484,7 @@ public class ParsedIOR
                 }
                 case TAG_INTERNET_IOP.value :
                 {
-                    profiles.add (new InternetIOPProfile
+                    profiles.add (new IIOPProfile
                                          (_ior.profiles[i].profile_data));
                     break;
                 }
@@ -493,12 +495,12 @@ public class ParsedIOR
            highest minor version number. */
         if (profiles.size() > 0)
         {
-            effectiveProfile = (InternetIOPProfile)profiles.get(0);
+            effectiveProfile = (IIOPProfile)profiles.get(0);
             for (int i=1; i<profiles.size(); i++)
             {
                 Profile p = (Profile)profiles.get(i);
                 if (p.version().minor > effectiveProfile.version().minor)
-                    effectiveProfile = (InternetIOPProfile)p;
+                    effectiveProfile = (IIOPProfile)p;
             }
         }
 

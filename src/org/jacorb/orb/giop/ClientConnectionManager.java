@@ -27,6 +27,7 @@ import java.lang.reflect.Constructor;
 
 import org.jacorb.orb.*;
 import org.jacorb.orb.factory.*;
+import org.jacorb.orb.iiop.*;
 import org.jacorb.util.*;
 
 /**
@@ -136,7 +137,7 @@ public class ClientConnectionManager
      * @param <code>String host_and_port</code> - in "host:xxx" notation
      * @return <code>Connection</code> */
 
-    public synchronized ClientConnection getConnection( InternetIOPProfile profile,
+    public synchronized ClientConnection getConnection( IIOPProfile profile,
                                                         boolean use_ssl )
     {
         /* look for an existing connection */

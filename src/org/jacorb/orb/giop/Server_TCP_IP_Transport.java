@@ -25,6 +25,7 @@ import java.net.*;
 
 import org.jacorb.util.Debug;
 import org.jacorb.orb.*;
+import org.jacorb.orb.iiop.*;
 
 /**
  * Server_TCP_IP_Transport.java
@@ -40,7 +41,7 @@ public class Server_TCP_IP_Transport
     extends TCP_IP_Transport
 {
     private boolean is_ssl;
-    private InternetIOPProfile profile;
+    private IIOPProfile profile;
 
     public Server_TCP_IP_Transport( Socket socket,
                                     boolean is_ssl,
@@ -62,7 +63,7 @@ public class Server_TCP_IP_Transport
             socket.getPort()
         );
         
-        profile = new InternetIOPProfile (address, null);
+        profile = new IIOPProfile (address, null);
         connection_info = address.toString(); 
         connected = true;
 

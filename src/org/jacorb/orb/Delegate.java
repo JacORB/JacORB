@@ -22,7 +22,6 @@ package org.jacorb.orb;
 
 import java.util.*;
 import org.jacorb.imr.ImRAccessImpl;
-import org.jacorb.orb.SystemExceptionHelper;
 import org.jacorb.orb.connection.ClientConnection;
 import org.jacorb.orb.connection.ClientConnectionManager;
 import org.jacorb.orb.connection.LocateReplyInputStream;
@@ -30,6 +29,7 @@ import org.jacorb.orb.connection.LocateRequestOutputStream;
 import org.jacorb.orb.connection.ReplyInputStream;
 import org.jacorb.orb.connection.ReplyPlaceholder;
 import org.jacorb.orb.connection.RequestOutputStream;
+import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.portableInterceptor.ClientInterceptorIterator;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
 import org.jacorb.orb.util.CorbaLoc;
@@ -216,7 +216,7 @@ public final class Delegate
 
             connection = conn_mg.getConnection
             ( 
-                (InternetIOPProfile)_pior.getEffectiveProfile(),
+                (IIOPProfile)_pior.getEffectiveProfile(),
                 _pior.useSSL()
             );
 

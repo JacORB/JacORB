@@ -11,6 +11,7 @@ package org.jacorb.test.orb.connection;
  */
 
 import org.jacorb.orb.connection.*;
+import org.jacorb.orb.iiop.*;
 
 import java.io.*;
 import java.util.*;
@@ -43,7 +44,7 @@ public class GIOPConnectionTest extends TestCase
         private byte[] data = null;
         private int index = 0;
         private ByteArrayOutputStream b_out = new ByteArrayOutputStream();
-        private org.omg.ETF.Profile profile = new InternetIOPProfile
+        private org.omg.ETF.Profile profile = new IIOPProfile
         (
             new IIOPAddress ("127.0.0.1", 4711),
             null

@@ -27,6 +27,7 @@ import java.lang.reflect.Constructor;
 
 import org.jacorb.orb.*;
 import org.jacorb.orb.factory.*;
+import org.jacorb.orb.iiop.*;
 import org.jacorb.util.*;
 
 /**
@@ -78,7 +79,7 @@ public class TransportManager
 
     }
 
-    public Transport createClientTransport( InternetIOPProfile target_profile,
+    public Transport createClientTransport( IIOPProfile target_profile,
                                             boolean use_ssl )
     {
         Transport transport =

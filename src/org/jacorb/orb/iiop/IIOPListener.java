@@ -48,7 +48,7 @@ public class IIOPListener extends _ListenerLocalBase
     private Acceptor    acceptor    = null;
     private SSLAcceptor sslAcceptor = null;
 
-    private InternetIOPProfile endpoint = null;
+    private IIOPProfile endpoint = null;
 
     /**
      * Reference to the ORB, for delivering
@@ -279,19 +279,19 @@ public class IIOPListener extends _ListenerLocalBase
         return sslServerSocketFactory;
     }
     
-    private InternetIOPProfile createEndPointProfile()
+    private IIOPProfile createEndPointProfile()
     {
-        InternetIOPProfile result = null;
+        IIOPProfile result = null;
         if (acceptor != null)
         {
-            result = new InternetIOPProfile (acceptor.getLocalAddress(), null);
+            result = new IIOPProfile (acceptor.getLocalAddress(), null);
         }
         else if (sslAcceptor != null)
         {
             // only an SSL acceptor exists: make a dummy primary address
             // (port number zero)
             String host = sslAcceptor.getLocalAddress().getHost();
-            result = new InternetIOPProfile (new IIOPAddress (host, 0), null);
+            result = new IIOPProfile (new IIOPAddress (host, 0), null);
         }
         else
             throw new org.omg.CORBA.INITIALIZE

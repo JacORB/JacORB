@@ -21,6 +21,7 @@
 package org.jacorb.orb.util;
 
 import org.jacorb.orb.connection.CodeSet;
+import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.ParsedIOR;
 import org.jacorb.orb.*;
 import java.util.*;
@@ -118,7 +119,7 @@ public class PrintIOR
         {
             System.out.print("\tProfile Id   :  ");
 
-            InternetIOPProfile p = (InternetIOPProfile)profiles.get(i);
+            IIOPProfile p = (IIOPProfile)profiles.get(i);
             System.out.println("\tIIOP Version :  " +
                                (int)p.version().major + "." +
                                (int)p.version().minor);

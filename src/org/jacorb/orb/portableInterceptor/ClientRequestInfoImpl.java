@@ -27,7 +27,7 @@ import org.omg.Dynamic.Parameter;
 
 import java.util.*;
 
-import org.jacorb.orb.InternetIOPProfile;
+import org.jacorb.orb.iiop.IIOPProfile;
 import org.jacorb.util.Debug;
 
 /**
@@ -88,7 +88,7 @@ public class ClientRequestInfoImpl
          else
              this.target = self;
 
-         InternetIOPProfile profile = (InternetIOPProfile)pior.getEffectiveProfile();
+         IIOPProfile profile = (IIOPProfile)pior.getEffectiveProfile();
          this.effective_profile    = profile.asTaggedProfile();
          this.effective_components = profile.getComponents().asArray(); 
 
