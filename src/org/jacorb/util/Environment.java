@@ -74,7 +74,7 @@ public class Environment
 
     /** domain-specific */
 
-    private static int                  _verbosity = 0;
+    private static int                  _verbosity = 2;
 
     private static boolean              _locate_on_bind = false;
     private static boolean              _use_imr = false;
