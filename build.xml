@@ -287,8 +287,9 @@
 	      <arg line="${idlflags} -ir  ${include}/omg/CosNaming.idl"/>
 	</java>
 
-	<javac srcdir="${src}/generated/org/omg/CosNaming"
-               destdir="${classdir}" />
+	<javac srcdir="${src}/generated"
+               destdir="${classdir}"
+               includes="org/omg/CosNaming/**/*.java,org/omg/CosNaming/*.java"          />
    </target>
 
    <!--               -->
@@ -322,8 +323,9 @@
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
 	      <arg line="${idlflags}  ${include}/omg/CosTransactions.idl"/>
 	</java>
-	<javac srcdir="${src}/generated/org/omg/CosTransactions"
+	<javac srcdir="${src}/generated/"
                destdir="${classdir}" 
+               includes="org/omg/CosTransactions/**/*.java,org/omg/CosTransactions/*.java"
         />
    </target>
 
@@ -337,33 +339,33 @@
 	      <arg line="${idlflags}   ${include}/omg/CosCollection.idl"/>
 	</java>
 
-	<javac srcdir="${src}"
+	<javac srcdir="${src}/generated"
                destdir="${classdir}" 
-	       includes="generated/org/omg/CosCollection/Istring*.java,generated/org/omg/CosCollection/NVPair*.java,generated/org/omg/CosCollection/ParameterList*.java,generated/org/omg/CosCollection/AnySequence*.java,generated/org/omg/CosCollection/_Operations*.java,generated/org/omg/CosCollection/Operations*.java,generated/org/omg/CosCollection/*Invalid*.java,generated/org/omg/CosCollection/*Reason*.java,generated/org/omg/CosCollection/*EmptyCollection*.java,generated/org/omg/CosCollection/*Com*.java,generated/org/omg/CosCollection/Iterator*.java,generated/org/omg/CosCollection/_Iterator*.java, generated/org/omg/CosCollection/Collection*.java, generated/org/omg/CosCollection/_Collection*.java"
+	       includes="org/omg/CosCollection/Istring*.java,org/omg/CosCollection/NVPair*.java,org/omg/CosCollection/ParameterList*.java,org/omg/CosCollection/AnySequence*.java,org/omg/CosCollection/_Operations*.java,org/omg/CosCollection/Operations*.java,org/omg/CosCollection/*Invalid*.java,org/omg/CosCollection/*Reason*.java,org/omg/CosCollection/*EmptyCollection*.java,org/omg/CosCollection/*Com*.java,org/omg/CosCollection/Iterator*.java,org/omg/CosCollection/_Iterator*.java, org/omg/CosCollection/Collection*.java, org/omg/CosCollection/_Collection*.java"
 	       />
-	<javac srcdir="${src}"
+	<javac srcdir="${src}/generated"
                destdir="${classdir}" 
-	       includes="generated/org/omg/CosCollection/*BoundStyle*.java,generated/org/omg/CosCollection/*Iterator*.java,generated/org/omg/CosCollection/_*Iterator*.java"
-               excludes="generated/org/omg/CosCollection/Iterator*.java,generated/org/omg/CosCollection/_Iterator*.java"
+	       includes="org/omg/CosCollection/*BoundStyle*.java,org/omg/CosCollection/*Iterator*.java,org/omg/CosCollection/_*Iterator*.java"
+               excludes="org/omg/CosCollection/Iterator*.java,org/omg/CosCollection/_Iterator*.java"
 	       />
-	<javac srcdir="${src}"
+	<javac srcdir="${src}/generated"
           destdir="${classdir}" 
-	      includes="generated/org/omg/CosCollection/*Operations*.java, generated/org/omg/CosCollection/Collection*.java, generated/org/omg/CosCollection/*Heap*.java, generated/org/omg/CosCollection/*RestrictedAccessCollection*.java, generated/org/omg/CosCollection/*Deque*.java, generated/org/omg/CosCollection/*Queue*.java,generated/org/omg/CosCollection/*Stack*.java,generated/org/omg/CosCollection/*PriorityQueue*.java,generated/org/omg/CosCollection/*CollectionFactor*.java, generated/org/omg/CosCollection/*OrderedCollection*.java, generated/org/omg/CosCollection/*SequentialCollection*.java, generated/org/omg/CosCollection/*CSequence*.java"
-		  excludes="generated/org/omg/CosCollection/*Relation*.java, generated/org/omg/CosCollection/*Bag*.java, generated/org/omg/CosCollection/*EqualitySequen*.java, generated/org/omg/CosCollection/*Map*.java,generated/org/omg/CosCollection/*Set*.java, generated/org/omg/CosCollection/*Key*.java"
+	      includes="org/omg/CosCollection/*Operations*.java, org/omg/CosCollection/Collection*.java, org/omg/CosCollection/*Heap*.java, org/omg/CosCollection/*RestrictedAccessCollection*.java, org/omg/CosCollection/*Deque*.java, org/omg/CosCollection/*Queue*.java,org/omg/CosCollection/*Stack*.java,org/omg/CosCollection/*PriorityQueue*.java,org/omg/CosCollection/*CollectionFactor*.java, org/omg/CosCollection/*OrderedCollection*.java, org/omg/CosCollection/*SequentialCollection*.java, org/omg/CosCollection/*CSequence*.java"
+		  excludes="org/omg/CosCollection/*Relation*.java, org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*EqualitySequen*.java, org/omg/CosCollection/*Map*.java,org/omg/CosCollection/*Set*.java, org/omg/CosCollection/*Key*.java"
 	       />
-	<javac srcdir="${src}"
+	<javac srcdir="${src}/generated"
           destdir="${classdir}" 
-	      includes="generated/org/omg/CosCollection/*EqualitySequence*.java,generated/org/omg/CosCollection/*Collection*.java"
-		  excludes="generated/org/omg/CosCollection/*Bag*.java, generated/org/omg/CosCollection/*Factor*.java, generated/org/omg/CosCollection/*Key*.java, generated/org/omg/CosCollection/*Set*.java"
+	      includes="org/omg/CosCollection/*EqualitySequence*.java,org/omg/CosCollection/*Collection*.java"
+		  excludes="org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*Factor*.java, org/omg/CosCollection/*Key*.java, org/omg/CosCollection/*Set*.java"
 	       />
     <javac srcdir="${src}"
           destdir="${classdir}" 
-	      includes="generated/org/omg/CosCollection/*Bag*.java, generated/org/omg/CosCollection/*Map*.java,generated/org/omg/CosCollection/*Set*.java, generated/org/omg/CosCollection/*Key*.java"
-		  excludes="generated/org/omg/CosCollection/*Factor*.java,generated/org/omg/CosCollection/*Relation*.java"
+	      includes="org/omg/CosCollection/*Bag*.java, org/omg/CosCollection/*Map*.java,org/omg/CosCollection/*Set*.java, org/omg/CosCollection/*Key*.java"
+		  excludes="org/omg/CosCollection/*Factor*.java,org/omg/CosCollection/*Relation*.java"
 	       />
-    <javac srcdir="${src}"
+    <javac srcdir="${src}/generated"
           destdir="${classdir}" 
-	      includes="generated/org/omg/CosCollection/*Factor*.java,generated/org/omg/CosCollection/*Relation*.java"
+	      includes="org/omg/CosCollection/*Factor*.java,org/omg/CosCollection/*Relation*.java"
 	       />
    </target>
 
@@ -375,8 +377,9 @@
 	<java classname="org.jacorb.idl.parser" classpath="${classpath}" fork="yes">
 	      <arg line="${idlflags}   ${include}/omg/CosConcurrencyControl.idl"/>
 	</java>
-	<javac srcdir="${src}/generated/org/omg/CosConcurrencyControl"
+	<javac srcdir="${src}/generated"
                destdir="${classdir}" 
+               includes="org/omg/CosConcurrencyControl/**/*.java,org/omg/CosConcurrencyControl/*.java"
         />
    </target>
 
@@ -385,9 +388,9 @@
    <!--                      -->
 
    <target name="trading" depends="basic,repository,dynamic">
-	<javac srcdir="${src}/generated/org/omg"
+	<javac srcdir="${src}/generated"
                destdir="${classdir}"
-	       includes="CosTrading/**,CosTradingDynamic/**,CosTradingRepos/**"
+	       includes="org/omg/CosTrading/**,org/omg/CosTradingDynamic/**,org/omg/CosTradingRepos/**"
         />
    </target>
 
@@ -414,9 +417,9 @@
    <!--                           -->
 
    <target name="notification" depends="init,notif,typed">
-	<javac srcdir="${src}/generated/org/omg"
+	<javac srcdir="${src}/generated"
                destdir="${classdir}"
-	       includes="CosNotification/*.java,CosNotify**/*.java,CosTyped*/**/*.java"
+	       includes="org/omg/CosNotification/*.java,org/omg/CosNotify**/*.java,org/omg/CosTyped*/**/*.java"
         />
    </target>
 
@@ -451,9 +454,9 @@
 
    <target name="security" 
 	   depends="init,time,secbasic,level1,level2,secadmin,replaceable,ssliop">
-	<javac srcdir="${src}/generated/org/omg"
+	<javac srcdir="${src}/generated"
                destdir="${classdir}"
-	       includes="TimeBase/**,Security/**,Security**/**,SSLIOP/**"
+	       includes="org/omg/TimeBase/**,org/omg/Security/**,org/omg/Security**/**,org/omg/SSLIOP/**"
         />
    </target>
 
