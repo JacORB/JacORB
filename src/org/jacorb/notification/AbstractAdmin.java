@@ -33,6 +33,7 @@ import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
 
+import org.omg.CORBA.NO_IMPLEMENT;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
 import org.omg.CORBA.ORB;
 import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
@@ -234,14 +235,14 @@ public abstract class AbstractAdmin
 
     public void set_qos( Property[] aPropertySeq ) throws UnsupportedQoS
     {
-        throw new UnsupportedQoS();
+        throw new NO_IMPLEMENT("The method set_qos is not supported yet");
     }
 
     public void validate_qos( Property[] aPropertySeq,
                               NamedPropertyRangeSeqHolder propertyRangeSeqHolder )
         throws UnsupportedQoS
     {
-        throw new UnsupportedQoS();
+        throw new NO_IMPLEMENT("The method validate_qos is not supported yet");
     }
 
     public void destroy()
