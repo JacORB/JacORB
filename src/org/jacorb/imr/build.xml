@@ -32,13 +32,13 @@
    <target name="idl" depends="idlcompile">
 	<javac srcdir="${src}/generated"
                destdir="${classdir}"
-	       includes="org/jacorb/imr/*.java"
+	       includes="org/jacorb/imr/**/*.java,org/jacorb/imr/*.java"
 	        />
    </target>
 
    <target name="idlcompile">
    <echo message="imr.idlcompile, classdir ${classdir}"/>
-      <java classname="jacorb.idl.parser" 
+      <java classname="org.jacorb.idl.parser" 
             classpath="${classpath}"
 	    fork="yes">
 	    <arg line="${idlflags} ${include}/jacorb/imr.idl" />
@@ -53,7 +53,7 @@
         />
    </target>
 
-   <target name="clean">
+   <target name="clean" depends="init">
        <deltree dir="${classdir}/org/jacorb/imr" />
        <deltree dir="${src}/generated/org/jacorb/imr" />
    </target>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="events" default="all" basedir="../../..">
+<project name="events" default="all" basedir="../../../..">
 
   <!-- ==================================================== -->
   <!--             ORB build file                         -->
@@ -21,14 +21,14 @@
    <target name="all" depends="init,idl,coscompile">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="jacorb/events/**.java"
+	       includes="org/jacorb/events/**.java"
 	        />
    </target>
 
 
    <target name="idl" depends="coseventsidl,jacorbeventidl" >
 	<javac srcdir="${src}"
-	       includes="jacorb/orb/events/**.java"
+	       includes="org/jacorb/orb/events/**.java"
                destdir="${classdir}"
 	        />
    </target>
@@ -37,7 +37,7 @@
    </target>
 
    <target name="com">
-        <java classname="jacorb.idl.parser"               
+        <java classname="org.jacorb.idl.parser"               
               classpath="${classpath}"
               fork="yes">
               <arg line="${idlflags} -p org.omg ${include}/omg/CosEventComm.idl"/>
@@ -46,7 +46,7 @@
    </target>
 
    <target name="admin">
-        <java classname="jacorb.idl.parser"               
+        <java classname="org.jacorb.idl.parser"               
               classpath="${classpath}"
               fork="yes">
               <arg line="${idlflags} -p org.omg ${include}/omg/CosEventChannelAdmin.idl"/>
@@ -54,7 +54,7 @@
    </target>
 
    <target name="jacorbeventidl">
-        <java classname="jacorb.idl.parser"               
+        <java classname="org.jacorb.idl.parser"               
               classpath="${classpath}"
               fork="yes">
               <arg line="${idlflags} ${include}/jacorb/channel.idl"/>
@@ -68,7 +68,10 @@
 	        />
    </target>
 
-   <target name="clean">
+   <target name="clean" depends="init">
+           <delete dir="${src}/generated/org/omg/CosEventComm"/>
+           <delete dir="${src}/generated/org/omg/CosEventChannelAdmin"/>
+           <delete dir="${classdir}/org/jacorb/events"/>      
    </target>
 
 </project>
