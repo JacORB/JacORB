@@ -69,6 +69,11 @@ public class ExceptionHolderTypeSpec
     {
     }
 
+    public String id()
+    {
+        return "IDL:omg.org/Messaging/ExceptionHolder:1.0";
+    }
+
     public String toString()
     {
         return "org.omg.Messaging.ExceptionHolder";
@@ -81,7 +86,23 @@ public class ExceptionHolderTypeSpec
 
     public String getTypeCodeExpression()
     {
-        return "org.omg.CORBA.ORB.init().create_interface_tc(\"IDL:omg.org/Messaging/ExceptionHolder:1.0\",\"ExceptionHolder\")";
+        return "org.omg.CORBA.ORB.init().create_value_tc" 
+          + "(\"IDL:omg.org/Messaging/ExceptionHolder:1.0\","
+          + "\"ExceptionHolder\", (short)0, null,"
+          + "new org.omg.CORBA.ValueMember[] {"
+          + "new org.omg.CORBA.ValueMember (\"\", \"IDL:*primitive*:1.0\","
+          + "\"ExceptionHolder\", \"1.0\", "
+          + "org.omg.CORBA.ORB.init().get_primitive_tc("
+          + "org.omg.CORBA.TCKind.from_int(8)), null, (short)0),"
+          + "new org.omg.CORBA.ValueMember (\"\", \"IDL:*primitive*:1.0\"," 
+          + "\"ExceptionHolder\", \"1.0\", "
+          + "org.omg.CORBA.ORB.init().get_primitive_tc("
+          + "org.omg.CORBA.TCKind.from_int(8)), null, (short)0),"
+          + "new org.omg.CORBA.ValueMember (\"\", \"IDL:marshaled_exception:1.0\"," 
+          + "\"ExceptionHolder\", \"1.0\", "
+          + "org.omg.CORBA.ORB.init().create_sequence_tc("
+          + "0, org.omg.CORBA.ORB.init().get_primitive_tc("
+          + "org.omg.CORBA.TCKind.from_int(10)) ), null, (short)0)});";
     }
 
     public void print( PrintWriter ps )
@@ -93,14 +114,17 @@ public class ExceptionHolderTypeSpec
         return typeName() + "Holder";
     }
 
-    public String printReadExpression( String streamname )
-    {
-        return streamname + ".read_Object()";
-    }
-
     public String printWriteStatement( String var_name, String streamname )
     {
-        return streamname + ".write_Object(" + var_name + ");";
+        return "((org.omg.CORBA_2_3.portable.OutputStream)" + streamname + ")"
+                + ".write_value (" + var_name + " );";
+    }
+
+    public String printReadExpression( String streamname )
+    {
+        return "(" + typeName() + ")"
+                + "((org.omg.CORBA_2_3.portable.InputStream)" + streamname + ")"
+                + ".read_value (\"" + id() + "\")";
     }
 
 }
