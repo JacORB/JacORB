@@ -1,3 +1,311 @@
+2004-05-19  Andre Spiegel  <spiegel@gnu.org>
+
+	* orb/ReplyReceiver.java (c'tor): Pass the ORB up to the
+	superclass constructor, fixing bug #482.
+
+	* orb/giop/ReplyPlaceholder.java (c'tor): Delete the no-arg
+	constructor, calling it would result in a non-configured
+	ReplyPlaceholder.
+
+2004-05-18  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* orb/giop/ClientConnection.java:
+	(locateReplyReceived, replyReceived) better error message
+
+2004-05-12  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/ChannelManager.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/TypedEventChannelFactoryImpl.java,
+	notification/interfaces/EventChannelEvent.java: added
+	TypedEventChannelFactory
+
+2004-05-11  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/AbstractEventChannel.java,
+	notification/EventChannelFactoryDependency.java,
+	notification/EventChannelImpl.java,
+	notification/TypedEventChannelImpl.java,
+	notification/interfaces/FilterStageSource.java,
+	notification/servant/AbstractSupplierAdmin.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java: further
+	towards typed channels.
+
+	(EventChannelImpl) split EventChannelImpl into
+	AbstractEventChannel and EventChannelImpl so that new
+	TypedEventChannelImpl can reuse parts of the implementation
+
+	(*) various fixes so that Unit tests run again
+
+2004-05-09  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* config/LoggerFactory.java: The LoggerFactory interface should be
+	public, as users should be able to plug other logging mechanisms
+	in by creating their own LoggerFactory implementations outside of
+	the org.jacorb.config package.
+
+2004-05-09  Alphonse Bendt  <bendt@inf.fu-berlin.de>
+
+	* notification/servant/AbstractProxy.java: added missing import
+
+	* notification/AbstractMessage.java, notification/AnyMessage.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java,
+	notification/ChannelContextDependency.java,
+	notification/Dependant.java,
+	notification/EventChannelDependency.java,
+	notification/EventChannelFactoryDependency.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java,
+	notification/EventTypeSet.java,
+	notification/FilterFactoryImpl.java, notification/FilterImpl.java,
+	notification/FilterManager.java,
+	notification/MappingFilterImpl.java,
+	notification/MessageFactory.java,
+	notification/MessageFactoryDependency.java,
+	notification/NoTranslationException.java,
+	notification/OfferManager.java,
+	notification/StructuredEventMessage.java,
+	notification/SubscriptionManager.java,
+	notification/TypedEventMessage.java, notification/build.xml,
+	notification/engine/AbstractDeliverTask.java,
+	notification/engine/AbstractFilterTask.java,
+	notification/engine/AbstractTask.java,
+	notification/engine/DefaultTaskProcessor.java,
+	notification/engine/FilterConsumerAdminTask.java,
+	notification/engine/FilterProxyConsumerTask.java,
+	notification/engine/FilterProxySupplierTask.java,
+	notification/engine/FilterSupplierAdminTask.java,
+	notification/engine/MessagePushOperation.java,
+	notification/engine/PullFromSupplierTask.java,
+	notification/engine/PushAnyOperation.java,
+	notification/engine/PushOperation.java,
+	notification/engine/PushSequenceOperation.java,
+	notification/engine/PushStructuredOperation.java,
+	notification/engine/PushToConsumerTask.java,
+	notification/engine/PushTypedOperation.java,
+	notification/engine/RetryStrategy.java,
+	notification/engine/TaskFactory.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TaskProcessorDependency.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/engine/TimerDeliverTask.java,
+	notification/filter/DynamicEvaluator.java,
+	notification/filter/EvaluationContext.java,
+	notification/filter/EvaluationResult.java,
+	notification/filter/FilterConstraint.java,
+	notification/filter/etcl/AbstractTCLNode.java,
+	notification/filter/etcl/CurrentTimeNode.java,
+	notification/filter/etcl/DomainNameShorthandNode.java,
+	notification/filter/etcl/ETCLComponentName.java,
+	notification/filter/etcl/EventNameShorthandNode.java,
+	notification/filter/etcl/GtOperator.java,
+	notification/filter/etcl/LtOperator.java,
+	notification/filter/etcl/MessageUtils.java,
+	notification/filter/etcl/PropertyShorthandNode.java,
+	notification/filter/etcl/RuntimeVariableNode.java,
+	notification/filter/etcl/StaticTypeChecker.java,
+	notification/filter/etcl/TCLCleanUp.java,
+	notification/filter/etcl/TypeNameShorthandNode.java,
+	notification/filter/etcl/UnionPositionOperator.java,
+	notification/interfaces/AbstractPoolable.java,
+	notification/interfaces/FilterStage.java,
+	notification/interfaces/FilterStageSource.java,
+	notification/interfaces/Message.java,
+	notification/interfaces/MessageConsumer.java,
+	notification/queue/AbstractBoundedEventQueue.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/EventQueueFactory.java,
+	notification/queue/EventQueueFactoryDependency.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/ConsumerAdminTieImpl.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/FilterStageListManager.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/SupplierAdminTieImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java,
+	notification/util/AbstractObjectPool.java,
+	notification/util/AdminPropertySet.java,
+	notification/util/GNUPatternWrapper.java,
+	notification/util/JDK14PatternWrapper.java,
+	notification/util/PatternWrapper.java,
+	notification/util/PropertySet.java,
+	notification/util/QoSPropertySet.java,
+	notification/util/WildcardMap.java: further towards
+	typednotification
+
+	* notification/ChannelContextDependency.java,
+	notification/Dependant.java,
+	notification/EventChannelDependency.java,
+	notification/EventChannelFactoryDependency.java,
+	notification/MessageFactoryDependency.java,
+	notification/NoTranslationException.java,
+	notification/TypedEventMessage.java: New file.
+
+	* notification/AbstractMessage.java, notification/AnyMessage.java,
+	notification/ApplicationContext.java,
+	notification/ChannelContext.java,
+	notification/ChannelContextDependency.java,
+	notification/Dependant.java,
+	notification/EventChannelDependency.java,
+	notification/EventChannelFactoryDependency.java,
+	notification/EventChannelFactoryImpl.java,
+	notification/EventChannelImpl.java, notification/FilterImpl.java,
+	notification/FilterManager.java, notification/MessageFactory.java,
+	notification/MessageFactoryDependency.java,
+	notification/NoTranslationException.java,
+	notification/StructuredEventMessage.java,
+	notification/TypedEventMessage.java, notification/build.xml,
+	notification/engine/AbstractFilterTask.java: started
+	implementation of typednotification channels
+
+	* notification/engine/DefaultTaskProcessor.java,
+	notification/engine/MessagePushOperation.java,
+	notification/engine/PushTypedOperation.java,
+	notification/engine/TaskProcessorDependency.java,
+	notification/interfaces/FilterStageSource.java,
+	notification/queue/EventQueueFactoryDependency.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java: New file.
+
+	* notification/engine/DefaultTaskProcessor.java,
+	notification/engine/MessagePushOperation.java,
+	notification/engine/PushAnyOperation.java,
+	notification/engine/PushOperation.java,
+	notification/engine/PushSequenceOperation.java,
+	notification/engine/PushStructuredOperation.java,
+	notification/engine/PushTypedOperation.java,
+	notification/engine/TaskProcessor.java,
+	notification/engine/TaskProcessorDependency.java,
+	notification/engine/TaskProcessorRetryStrategy.java,
+	notification/filter/FilterConstraint.java,
+	notification/filter/etcl/AbstractTCLNode.java,
+	notification/filter/etcl/ETCLComponentName.java,
+	notification/filter/etcl/GtOperator.java,
+	notification/filter/etcl/LtOperator.java,
+	notification/interfaces/FilterStage.java,
+	notification/interfaces/FilterStageSource.java,
+	notification/interfaces/Message.java,
+	notification/queue/BoundedPriorityEventQueue.java,
+	notification/queue/EventQueueFactory.java,
+	notification/queue/EventQueueFactoryDependency.java,
+	notification/servant/AbstractAdmin.java,
+	notification/servant/AbstractProxy.java,
+	notification/servant/AbstractProxyConsumer.java,
+	notification/servant/AbstractProxySupplier.java,
+	notification/servant/ConsumerAdminImpl.java,
+	notification/servant/ConsumerAdminTieImpl.java,
+	notification/servant/ECProxyPullConsumerImpl.java,
+	notification/servant/ECProxyPullSupplierImpl.java,
+	notification/servant/ECProxyPushConsumerImpl.java,
+	notification/servant/ECProxyPushSupplierImpl.java,
+	notification/servant/ProxyPullConsumerImpl.java,
+	notification/servant/ProxyPullSupplierImpl.java,
+	notification/servant/ProxyPushConsumerImpl.java,
+	notification/servant/ProxyPushSupplierImpl.java,
+	notification/servant/SequenceProxyPullConsumerImpl.java,
+	notification/servant/SequenceProxyPullSupplierImpl.java,
+	notification/servant/SequenceProxyPushConsumerImpl.java,
+	notification/servant/SequenceProxyPushSupplierImpl.java,
+	notification/servant/StructuredProxyPullConsumerImpl.java,
+	notification/servant/StructuredProxyPullSupplierImpl.java,
+	notification/servant/StructuredProxyPushConsumerImpl.java,
+	notification/servant/StructuredProxyPushSupplierImpl.java,
+	notification/servant/SupplierAdminImpl.java,
+	notification/servant/SupplierAdminTieImpl.java,
+	notification/servant/TypedConsumerAdminImpl.java,
+	notification/servant/TypedProxyPullConsumerImpl.java,
+	notification/servant/TypedProxyPullSupplierImpl.java,
+	notification/servant/TypedProxyPushConsumerImpl.java,
+	notification/servant/TypedProxyPushSupplierImpl.java,
+	notification/servant/TypedSupplierAdminImpl.java,
+	notification/util/JDK14PatternWrapper.java,
+	notification/util/JakartaRegexpPatternWrapper.java,
+	notification/util/PatternWrapper.java,
+	notification/util/PropertySet.java,
+	notification/util/WildcardMap.java: started implementation of
+	typednotification channels
+
+2004-05-07  David R Robison  <drrobison@openroadsconsulting.com>
+
+	* security/sas/GSSUPMechFactory.java,
+	security/sas/GSSUPNameSpi.java, security/sas/GSSUPProvider.java,
+	security/sas/GSSUPProviderInitializer.java,
+	security/sas/GssUpContext.java, security/sas/ISASContext.java,
+	security/sas/JsseContext.java, security/sas/KerberosContext.java,
+	security/sas/NullContext.java,
+	security/sas/SASClientInterceptor.java,
+	security/sas/SASInitializer.java,
+	security/sas/SASTargetInterceptor.java: Changes to compile with
+	2.2
+
+2004-05-07  Gerald Brose  <gerald.brose@acm.org>
+
+	* orb/dns/build.xml: reenableed Xbill
+
+	* orb/dns/DNSLookup.java, orb/dns/XbillDelegateImpl.java, orb/dns/build.xml:
+	removed dependency on Xbill, DNS now works with JDK 1.4 only
+
+	* util/Version.java: set to release date
+
+2004-05-07  Nick Cross  <nick.cross@prismtechnologies.com>
+
+	* poa/RPPoolManager.java: Fix compile problem
+
+2004-05-06  Francisco Revervel  <reverbel@ime.usp.br>
+
+	* orb/CDRInputStream.java:
+	Fix read_Object(Class clz) so that it now works when clz is a stub class.
+	The previous revision worked only when clz was an RMI/IDL interface.
+	(Patch contributed by Bill Burke <bill@jboss.org>)
+
+2004-05-06  phil.mesnier  <phil.mesnier@hadley>
+
+	* util/ObjectUtil.java:
+	Added a fix to allow file:// to take relative as well as absolute path names for IOR urls
+
+2004-05-06  Nicolas Noffke  <nicolas.noffke@web.de>
+
+	* imr/ImplementationRepositoryImpl.java:
+	added missing calls to configure of orb package classes
+
+	* imr/ImRPOAInfo.java:
+	(c'tor) added timeout param to avoid needing to be Configurable; removed logger and configuration members, the weren't Serializable
+
 2004-05-06  Nicolas Noffke <Nicolas.Noffke@web.de>
 
 	* security/ssl/iaik/SSLServerSocketFactory.java:
@@ -18,14 +326,16 @@
 
 	* orb/iiop/IIOPListener.java:
 	(SSLAcceptor.setup) removed completely, because
-	SSLServerSocketFactory.switchToClientMode() has been removed as well
+	SSLServerSocketFactory.switchToClientMode() has been removed as
+	well
 
 	* security/ssl/sun_jsse/SSLServerSocketFactory.java:
-	(c'tor) removed call to configure, it is called by the BasicAdapter; Pretty printed
+	(c'tor) removed call to configure, it is called by the
+	BasicAdapter; Pretty printed
 
 	* orb/iiop/ClientIIOPConnection.java:
-	(createSocket) fixed bug: method would always use plain TCP/IP socket factory
-	even if SSL should have been used
+	(createSocket) fixed bug: method would always use plain TCP/IP
+	socket factory even if SSL should have been used
 
 	* ChangeLog: updated
 
@@ -34,14 +344,8 @@
 	* config/Configuration.java: pretty printing only
 
 	* orb/BasicAdapter.java:
-	(return_result) removed superflous synchronization for better scalability.
-
-2004-05-06  Gerald Brose  <gerald.brose@acm.org>
-
-	* config/Configuration.java: pretty printing only
-
-	* orb/BasicAdapter.java:
-	(return_result) removed superflous synchronization for better scalability.
+	(return_result) removed superflous synchronization for better
+	scalability.
 
 2004-05-05  David R. Robison  <drrobison@openroadsconsulting.com>
 
