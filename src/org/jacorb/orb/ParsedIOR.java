@@ -289,8 +289,8 @@ public class ParsedIOR
     {
         if( addr.discriminator() == ProfileAddr.value )
         {
-            InternetIOPProfile p = 
-                new InternetIOPProfile (addr.profile().profile_data); 
+            InternetIOPProfile p =
+                new InternetIOPProfile (addr.profile().profile_data);
             addr.object_key( p.getObjectKey() );
         }
         else if( addr.discriminator() == ReferenceAddr.value )
@@ -298,7 +298,7 @@ public class ParsedIOR
             IORAddressingInfo info = addr.ior();
 
             ParsedIOR pior = new ParsedIOR( info.ior );
-            pior.effectiveProfile = 
+            pior.effectiveProfile =
               (InternetIOPProfile)pior.profiles.get (info.selected_profile_index);
 
             addr.object_key( pior.get_object_key() );
@@ -376,8 +376,8 @@ public class ParsedIOR
 
         int port = effectiveProfile.getAddress().getPort();
 
-        CompoundSecMechList sas 
-            = (CompoundSecMechList)effectiveProfile.getComponent 
+        CompoundSecMechList sas
+            = (CompoundSecMechList)effectiveProfile.getComponent
                                            (TAG_CSI_SEC_MECH_LIST.value,
                                             CompoundSecMechListHelper.class);
         if (sas != null)
@@ -446,7 +446,7 @@ public class ParsedIOR
             use_ssl = false;
         }
 
-        iiopAddress = new IIOPAddress (effectiveProfile.getAddress().getHost(), 
+        iiopAddress = new IIOPAddress (effectiveProfile.getAddress().getHost(),
                                        port);
     }
 
@@ -476,7 +476,7 @@ public class ParsedIOR
             {
                 case TAG_MULTIPLE_COMPONENTS.value :
                 {
-                    components = new TaggedComponentList 
+                    components = new TaggedComponentList
                                            (_ior.profiles[i].profile_data);
                     break;
                 }
@@ -504,12 +504,14 @@ public class ParsedIOR
 
         ior = _ior;
         ior_str = getIORString();
-        
-        cs_info   = (CodeSetComponentInfo)getComponent
+
+        if( effectiveProfile != null )
+        {
+            cs_info   = (CodeSetComponentInfo)getComponent
                                             (TAG_CODE_SETS.value,
                                              CodeSetComponentInfoHelper.class);
-        orbTypeId = getLongComponent (TAG_ORB_TYPE.value); 
-
+            orbTypeId = getLongComponent (TAG_ORB_TYPE.value);
+        }
     }
 
     /**
@@ -932,8 +934,8 @@ public class ParsedIOR
         else
             return effectiveProfile.getComponent (tag, helper);
     }
-    
-    private static class LongHelper 
+
+    private static class LongHelper
     {
         public static Integer read (org.omg.CORBA.portable.InputStream in)
         {
