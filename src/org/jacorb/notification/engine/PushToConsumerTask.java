@@ -30,6 +30,7 @@ package org.jacorb.notification.engine;
 public class PushToConsumerTask extends AbstractDeliverTask
 {
     private static int COUNT = 0;
+
     private int id_ = ++COUNT;
 
     ////////////////////
@@ -52,6 +53,8 @@ public class PushToConsumerTask extends AbstractDeliverTask
         }
 
         getMessageConsumer().deliverMessage( message_ );
+
+        getMessageConsumer().resetErrorCounter();
 
         dispose();
     }
