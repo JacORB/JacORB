@@ -17,6 +17,7 @@ export JACORB_HOME
 # call java interpreter
 exec ${JRE_HOME}/bin/java ${JVM_FLAGS} \
     @@@CLASSPATH@@@ \
+    -Djacorb.home=@@@JACORB_HOME@@@ \
     -Dorg.omg.CORBA.ORBClass=org.jacorb.orb.ORB \
     -Dorg.omg.CORBA.ORBSingletonClass=org.jacorb.orb.ORBSingleton \
     "$@"
