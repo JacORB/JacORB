@@ -84,6 +84,7 @@ public class SSLServerSocketFactory
         }
         else
         {
+	    //the SSL server always has to have own certificates
             org.jacorb.security.level2.KeyAndCert[] kac = 
                 getSSLCredentials( orb );
             
@@ -93,31 +94,29 @@ public class SSLServerSocketFactory
                                                      kac[i].key );
             }                   
             
-            if(( (byte)Environment.requiredBySSL() & 0x20) != 0 ) 
-                //Establish trust in target requireded means
+            if(( (byte)Environment.requiredBySSL() & 0x40) != 0 ) 
+                //Establish trust in client requireded means
                 //that we must request the clients certificates
             {
                 defaultContext.setRequestClientCertificate( true );
+
+		String[] trusteeFileNames = 
+		    Environment.getPropertyValueList( "jacorb.security.trustees" );
+            
+		if( trusteeFileNames.length == 0 )
+		{
+		    Debug.output( 1, "WARNING: No trusted certificates specified. This will accept all peer certificate chains!" );
+		}
+		
+		for( int i = 0; i < trusteeFileNames.length; i++ )
+		{
+		    defaultContext.addTrustedCertificate( CertUtils.readCertificate( trusteeFileNames[i] ));
+		}
             }
         }                    
 
-        if(( (byte) Environment.requiredBySSL() & 0x20) != 0  ) 
-            // 32 = Establish trust in target
-        {  
-            String[] trusteeFileNames = 
-                Environment.getPropertyValueList( "jacorb.security.trustees" );
-            
-            if( trusteeFileNames.length == 0 )
-            {
-                Debug.output( 1, "WARNING: No trusted certificates specified. This will accept all peer certificate chains!" );
-            }
-            
-            for( int i = 0; i < trusteeFileNames.length; i++ )
-            {
-                defaultContext.addTrustedCertificate( CertUtils.readCertificate( trusteeFileNames[i] ));
-            }
-        }
-        //defaultContext.setDebugStream( System.out );
+	if( "on".equals( Environment.getProperty( "jacorb.security.iaik_debug", "off" )))
+	    defaultContext.setDebugStream( System.out );
     }
 
     private org.jacorb.security.level2.KeyAndCert[] getSSLCredentials( org.jacorb.orb.ORB orb )

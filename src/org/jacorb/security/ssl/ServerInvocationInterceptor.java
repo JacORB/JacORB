@@ -82,75 +82,66 @@ public class ServerInvocationInterceptor
     public void receive_request( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        Debug.output( 3, "receive_request_service_contexts!");
     }
 
-
-    /**
-     * @throws CORBA::NO_PERMISSION, if security policy violated
-     */
 
     public void receive_request_service_contexts( ServerRequestInfo ri )
         throws ForwardRequest
     {
-        Debug.output( 3, "receive_request!");
+	if(( (byte)Environment.requiredBySSL() & 0x40) != 0 ) 
+	    //only if establish trust in client is requireded,
+	    //we have to fetch the certificates from the socket.
+	{
+	    ServerRequest request = ((ServerRequestInfoImpl) ri).request;
 
-        ServerRequest request = ((ServerRequestInfoImpl) ri).request;
+	    ServerConnection connection = request.getConnection();
 
-        ServerConnection connection = request.getConnection();
+	    // lookup for context
+	    if (connection == null)
+	    {
+		Debug.output( 3, "target has no connection!");
+		return;
+	    }
 
-        // lookup for context
-        if (connection == null)
-        {
-            Debug.output( 3, "target has no connection!");
-            return;
-        }
+	    if( !connection.isSSL() )
+	    {
+		return;
+	    }
 
-        if( !connection.isSSL() )
-        {
-            return;
-        }
-
-        SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+	    SSLSocket sslSocket = (SSLSocket) connection.getSocket();
             
-        KeyAndCert kac = new KeyAndCert( null, 
-                                         sslSocket.getPeerCertificateChain() );
+	    KeyAndCert kac = new KeyAndCert( null, 
+					     sslSocket.getPeerCertificateChain() );
 
-        if( kac.chain == null )
-        {
-            Debug.output( 2, "Client sent no certificate chain!" );
+	    if( kac.chain == null )
+	    {
+		Debug.output( 2, "Client sent no certificate chain!" );
             
-            return;
-        }
+		return;
+	    }
 
-        SecAttribute [] atts = new SecAttribute[] {
-            attrib_mgr.createAttribute( kac, type ) } ;
+	    SecAttribute [] atts = new SecAttribute[] {
+		attrib_mgr.createAttribute( kac, type ) } ;
 
-        current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
- 
+	    current.set_received_credentials( new ReceivedCredentialsImpl( atts ) );
+	}
     }
 
     public void send_reply( ServerRequestInfo ri )
     {
         current.remove_received_credentials();
-
-        Debug.output( 3, "send_reply!");
     }
 
     public void send_exception( ServerRequestInfo ri )
         throws ForwardRequest
     {
         current.remove_received_credentials();
-
-        Debug.output( 3, "send_exception!");
     }
 
     public void send_other( ServerRequestInfo ri )
         throws ForwardRequest
     {
         current.remove_received_credentials();
-
-        Debug.output( 3, "send_other!");
     }
 }
 

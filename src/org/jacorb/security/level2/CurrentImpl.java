@@ -78,6 +78,8 @@ public class CurrentImpl
                          "Class " + Environment.getProperty
                          ("jacorb.security.access_decision") +
                          " not found!");
+	    Debug.output( Debug.SECURITY | Debug.IMPORTANT,
+			  "Please check property \"jacorb.security.access_decision\"" );
 
             Debug.output(Debug.SECURITY | Debug.DEBUG1, e);
             
@@ -87,6 +89,7 @@ public class CurrentImpl
 
     public void init()
     {
+	/*
         byte value = (byte) Environment.supportedBySSL();
 
         if( Environment.supportSSL() &&
@@ -94,6 +97,9 @@ public class CurrentImpl
         {
             authenticate();
         }
+	*/
+	
+	authenticate();
     }
 
     /**
@@ -440,7 +446,7 @@ public class CurrentImpl
     {
         if( own_credentials == null ||
             own_credentials.length == 0 )
-        {
+        {   
             return new KeyAndCert[0];
         }
 
@@ -458,8 +464,8 @@ public class CurrentImpl
             own_credentials[0].get_attributes( new AttributeType[]{ access_id,
                                                                     role } );
             
-        KeyAndCert[] certs = new KeyAndCert[attribs.length];
-            
+        KeyAndCert[] certs = new KeyAndCert[attribs.length];	
+
         for( int i = 0; i < certs.length; i++ )
         {
             certs[i] = attrib_mgr.getAttributeCertValue( attribs[i] );

@@ -58,7 +58,7 @@ public class PrincipalAuthenticatorImpl
                                              OpaqueHolder auth_specific_data
                                              )
     {
-	org.jacorb.util.Debug.output(3,"starting authentication");
+	org.jacorb.util.Debug.output( 3,"starting authentication" );
 	try 
 	{	
 	    registerProvider();

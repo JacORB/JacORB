@@ -152,10 +152,23 @@ public class SSLSocketFactory
             
             if( (Environment.requiredBySSL() & 0x20) != 0 )
             {
-                //required: establish trust in target
-                //--> force other side to authenticate
+                //required: establish trust in target (the SSL client
+                //in this case)--> force other side to authenticate
                 ctx.setRequestClientCertificate( true );
-            }
+
+		String[] trusteeFileNames = 
+		    Environment.getPropertyValueList( "jacorb.security.trustees" );
+
+		if( trusteeFileNames.length == 0 )
+		{
+		    Debug.output( 1, "WARNING: No trusted certificates specified. This will accept all peer certificate chains!" );
+		}
+		
+		for( int i = 0; i < trusteeFileNames.length; i++ )
+		{
+		    ctx.addTrustedCertificate( CertUtils.readCertificate( trusteeFileNames[i] ));
+		}
+	    }
 
             default_context = ctx;
 	}
@@ -163,9 +176,9 @@ public class SSLSocketFactory
         {
 	    SSLClientContext ctx = new SSLClientContext();
 
-            //only add own credentials, if Establish trust in target
+            //only add own credentials, if establish trust in client
             //is supported
-            if(( (byte) Environment.supportedBySSL() & 0x20) != 0 ) 
+            if(( (byte) Environment.supportedBySSL() & 0x40) != 0 ) 
             {            
                 org.jacorb.security.level2.KeyAndCert[] kac = 
                     getSSLCredentials();
@@ -177,27 +190,27 @@ public class SSLSocketFactory
                 }
             }
 
-            default_context = ctx;
-	}
-
-        if(( (byte) Environment.requiredBySSL() & 0x20) != 0  ) 
-            // 32 = Establish trust in target
-        {            
+	    //always adding trusted certificates, since in SSL, the
+	    //server must always authenticate
             String[] trusteeFileNames = 
                 Environment.getPropertyValueList( "jacorb.security.trustees" );
-
+	    
             if( trusteeFileNames.length == 0 )
             {
                 Debug.output( 1, "WARNING: No trusted certificates specified. This will accept all peer certificate chains!" );
             }
-
+	    
             for( int i = 0; i < trusteeFileNames.length; i++ )
             {
-                default_context.addTrustedCertificate( CertUtils.readCertificate( trusteeFileNames[i] ));
-            }
-        }
+                ctx.addTrustedCertificate( CertUtils.readCertificate( trusteeFileNames[i] ));
+            }        
 
-        //default_context.setDebugStream( System.out );
+            default_context = ctx;
+	}
+
+
+	if( "on".equals( Environment.getProperty( "jacorb.security.iaik_debug", "off" )))
+	    default_context.setDebugStream( System.out );
 
         return default_context;
     }
