@@ -452,7 +452,7 @@ jacorb.poa.queue_max=100
 
 ##################################
 #                                #
-#   Name service Configuration   #
+#   Name Service Configuration   #
 #                                #
 ##################################
 
@@ -460,6 +460,10 @@ jacorb.poa.queue_max=100
 # when list operation is invoked.
 
 jacorb.naming.purge=on
+
+# Port on which to run service
+
+# jacorb.naming.port=
 
 ########################################
 #                                      #

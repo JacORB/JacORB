@@ -42,8 +42,9 @@ gerald.brose@acm.org
 =====
 
    - Naming Service:
-         - Configuration property added to control purging on non active
+         - Configuration property added to control purging of non active
            entries on list operation.
+         - Configuration property added to run on fixed port.
 
    - bug fixes:
          - ORB:

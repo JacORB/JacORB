@@ -225,9 +225,28 @@ public class NameServer
              */
             props.put( "jacorb.connection.server_timeout", "10000" );
 
-            if( port !=null )
-                props.put( "OAPort", port );
+            // If port not set on command line see if configured
 
+            if (port == null)
+            {
+                port = Environment.getProperty ("jacorb.naming.port");
+                if (port != null)
+                {
+                    try
+                    {
+                        Integer.parseInt (port);
+                    }
+                    catch (NumberFormatException ex)
+                    {
+                        port = null;
+                    }
+                }
+            }
+
+            if (port != null)
+            {
+                props.put ("OAPort", port);
+            }
 
 	    /* which directory to store/load in? */
 
