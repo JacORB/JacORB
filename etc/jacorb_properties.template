@@ -689,7 +689,7 @@ jacorb.notification.stop_time_supported = on
 jacorb.notification.proxy.destroy_causes_disconnect = on
 
 # Notification Service log levels:
-org.jacorb.notification.log.verbosity = INFO
+org.jacorb.notification.log.verbosity = 3
 
 ########################################
 #                                      #
