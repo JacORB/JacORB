@@ -3,7 +3,7 @@
 The purpose of this demo is to show two things:
 1.) How to configure SSL for jacorb
 2.) How to get the clients certificates from the inside of
-    a CORBA object (only with IAIKs packages)
+    a CORBA object
 
 For the configuration part are the two "XX_props" files. Apart from
 the keystores, they only differ in the first entry for the
