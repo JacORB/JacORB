@@ -134,8 +134,7 @@ class NameTable
         throws NameAlreadyDefined
     {
         if( logger.isInfoEnabled() )
-            logger.info(
-                        "NameTable.define2: putting " +
+            logger.info( "NameTable.define2: putting " +
                         name + " kind " + kind + " hash: " +
                         name.hashCode() );
 
@@ -170,6 +169,11 @@ class NameTable
 
                 shadows.remove( name );
                 h.remove( name );
+
+                // remove the inherited type definition, a new one will be
+                // added soon under this name! Addition of this line fixes
+                // bug #345
+                TypeMap.removeDefinition( name );
             }
         }
 
@@ -306,8 +310,10 @@ class NameTable
                 {
                     String kind = (String)h.get( key );
                     if( logger.isDebugEnabled() )
-                        logger.debug( "NameTable.inheritFrom ancestor " +
-                                                       anc + " : key " + key + " kind " + kind );
+                    {
+                        logger.debug( "NameTable.inheritFrom ancestor " + anc + 
+                                       " : key " + key + " kind " + kind );
+                    }
 
                     String shadowKey = name + key.substring( key.lastIndexOf( '.' ) );
                     shadowNames.put( shadowKey, kind );
@@ -320,9 +326,8 @@ class NameTable
                         if( logger.isDebugEnabled() )
                             logger.debug( "- NameTable.inherit type from:  " + key );
 
-
                         TypeSpec t =
-                                TypeMap.map( anc + key.substring( key.lastIndexOf( '.' ) ) );
+                            TypeMap.map( anc + key.substring( key.lastIndexOf( '.' ) ) );
 
                         // t can be null for some cases where we had to put
                         // Java type names (e.g. for sequence s) into the
