@@ -55,11 +55,13 @@
 <target name="jacorb-javac" depends="check-includes,javac-14,javac-15"/>
 
 
+<!-- Note use of bootclasspath is to override ORB classes in rt.jar. Ant     -->
+<!-- doesn't allow prepend so must add in rt.jar as well                     -->
 <target name="javac-14" depends="check-src,check-excludes" unless="ant15">
    <echo message="Compiling for ${ant.project.name}"/>
    <javac srcdir="${javac-src}"
           destdir="${classdir}"
-          bootclasspath="${classdir}:${classpath}"
+          bootclasspath="${classdir}:${java.home}/lib/rt.jar:${classpath}"
           debug="${debug}"
           includes="${javac-includes}"
           excludes="${javac-excludes}">
@@ -71,7 +73,7 @@
    <echo message="Compiling for ${ant.project.name}"/>
    <javac srcdir="${javac-src}"
           destdir="${classdir}"
-          bootclasspath="${classdir}:${classpath}"
+          bootclasspath="${classdir}:${java.home}/lib/rt.jar:${classpath}"
           debug="${debug}"
           debuglevel="${debuglevel}"
           includes="${javac-includes}"
