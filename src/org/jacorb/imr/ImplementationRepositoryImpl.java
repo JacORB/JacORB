@@ -87,7 +87,7 @@ public class ImplementationRepositoryImpl
                                         File table_backup,
 					boolean new_table)
     {
-	this.table_file = table_file;
+        this.table_file = table_file;
 	table_file_backup = table_backup;
 
 	//build up server table
@@ -268,11 +268,28 @@ public class ImplementationRepositoryImpl
         {
 	    // Existing POA is reactivated
 
-            // Need to check whether the old server is alive. if it is then throw an exception
-            // otherwise we can remap the currently registered name.
+            // Need to check whether the old server is alive. if it is then
+            // throw an exception otherwise we can remap the currently
+            // registered name.
             if ((_poa.active) ||  (! server.equals(_poa.server.name)))
             {
-                remap = ! (checkServerActive (_poa.host, _poa.port));
+                byte[] first = _poa.name.getBytes ();
+                byte[] id = new byte [ first.length + 1];
+                System.arraycopy (first, 0, id, 0, first.length);
+                id[first.length] = org.jacorb.poa.POAConstants.OBJECT_KEY_SEP_BYTE;
+
+                // If host and port are the same then it must be a replacement as
+                // we could not have got to here if the original was running - we
+                // would have got a socket exception.
+                if (_poa.host.equals (host) && _poa.port == port)
+                {
+                    remap = true;
+                }
+                else
+                {
+                    // Otherwise try a ping
+                    remap = ! (checkServerActive (_poa.host, _poa.port, id));
+                }
 
                 if (remap == false)
                 {
@@ -334,7 +351,7 @@ public class ImplementationRepositoryImpl
 	}
         updatePending = true;
 
-	server_table.putHost(host.name, new ImRHostInfo(host));
+        server_table.putHost(host.name, new ImRHostInfo(host));
 
         try
         {
@@ -795,7 +812,8 @@ public class ImplementationRepositoryImpl
 		    System.out.println("WARNING: The backup file exists, but is not writable!");
 		    System.out.println("Please check " + _backup_file.getAbsolutePath());
 		}
-		else{
+		else if (! _new_table)
+                {
 		    System.out.println("WARNING: The backup file already exists and might get overwritten!");
 		    System.out.println("Please check " + _backup_file.getAbsolutePath());
 		}
@@ -1154,7 +1172,8 @@ public class ImplementationRepositoryImpl
     }
 
 
-    private static boolean checkServerActive (String host, int port)
+    private static boolean checkServerActive
+       (String host, int port, byte []object_key)
     {
         ConnectionManager         cm           = null;
         ClientConnection          connection   = null;
@@ -1170,7 +1189,7 @@ public class ImplementationRepositoryImpl
                      "Pinging " + host + " / " + port);
         try
         {
-            lros = new LocateRequestOutputStream (new byte[0], connection.getId(), 2);
+            lros = new LocateRequestOutputStream (object_key, connection.getId(), 2);
             place_holder = new ReplyPlaceholder ();
 
             connection.sendRequest
@@ -1295,12 +1314,29 @@ public class ImplementationRepositoryImpl
 	    Debug.output( Debug.IMR | Debug.INFORMATION,
                           "ImR: Looking up: " + _server.name );
 
-            if (_server.active && (! checkServerActive (_poa.host, _poa.port)))
+            // There is only point pinging the remote object if
+            //
+            // server is active and
+            // either the QoS to ping returned objects is true
+            // or the ServerStartUpDaemon is active and there is a command to
+            //    run - if not, even if the server isn't actually active, we
+            //    can't restart it so just allow this to fall through and throw
+            //    the TRANSIENT below.
+            boolean ssd_valid =
+            (
+                (_server.command.length() != 0) &&
+                (server_table.getHost(_server.host) != null)
+            );
+            if (_server.active && (check_object_liveness || ssd_valid))
             {
-                // Server is not active so set it down
-                _server.setDown ();
+                // At this point the server *might* be running - we just want to
+                // verify it.
+                if (! checkServerActive (_poa.host, _poa.port, object_key))
+                {
+                    // Server is not active so set it down
+                    _server.setDown ();
+                }
             }
-
 
 	    try
             {
@@ -1308,6 +1344,13 @@ public class ImplementationRepositoryImpl
 	    }
             catch( ServerStartupFailed ssf )
             {
+                Debug.output
+                (
+                    Debug.IMR | Debug.INFORMATION,
+                    "Object (" + _server.name + ") on "
+                    + _poa.host + '/' + _poa.port + " not reachable"
+                );
+
                 sendSysException( new org.omg.CORBA.TRANSIENT(ssf.reason),
                                   connection,
                                   request_id,
@@ -1374,36 +1417,6 @@ public class ImplementationRepositoryImpl
 		    }
 		}
 	    }
-
-            //test, if the object is alive
-            if( check_object_liveness )
-            {
-                try
-                {
-                    org.omg.CORBA.Object _object =
-                    orb.string_to_object(
-                        (new ParsedIOR( _ior )).getIORString());
-
-                    if( _object._non_existent() )
-                    {
-
-                        sendSysException(new org.omg.CORBA.TRANSIENT("object not reachable"),
-                                         connection,
-                                         request_id,
-                                         giop_minor );
-                        return;
-                    }
-                }
-                catch( Exception e )
-                {
-                    //TODO: Also set server to "down"?
-                    sendSysException(new org.omg.CORBA.TRANSIENT("object not reachable"),
-                                     connection,
-                                     request_id,
-                                     giop_minor );
-                    return;
-                }
-            }
 
 	    try
             {

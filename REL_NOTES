@@ -57,6 +57,9 @@ gerald.brose@acm.org
                - Updated 'dior' utility to decode ORB type tagged components.
          - IMR:
                - Allow crashed servers to be restarted by ServerStartupDaemon.
+               - Fix restarting server on fixed port [223].
+               - Fix when pinging objects to prevent 'non-jacorb object' warning.
+               - Fix multiple pings in replyNewLocation
 
 1.4.0
 =====
