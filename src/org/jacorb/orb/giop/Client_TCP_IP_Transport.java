@@ -22,8 +22,10 @@ package org.jacorb.orb.connection;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import org.jacorb.util.*;
+import org.jacorb.orb.*;
 import org.jacorb.orb.factory.*;
 
 import org.omg.CORBA.COMM_FAILURE;
@@ -41,10 +43,11 @@ import org.omg.CORBA.COMM_FAILURE;
 public class Client_TCP_IP_Transport
     extends TCP_IP_Transport
 {
-    private String target_host = null;
-    private int target_port = -1;
+    private InternetIOPProfile target_profile;
+    private boolean use_ssl = false;
     private SocketFactory socket_factory = null;
     private int timeout = 0;
+    private int sslPort = -1;
 
     private boolean closed = false;
     private boolean connected = false;
@@ -53,19 +56,29 @@ public class Client_TCP_IP_Transport
     //used by org.jacorb.test.orb.connection[Client|Server]ConnectionTimeoutTest
     public static int openTransports = 0;
 
-    public Client_TCP_IP_Transport( String target_host,
-                                    int target_port,
+    public Client_TCP_IP_Transport( InternetIOPProfile target_profile,
+                                    boolean use_ssl,
                                     SocketFactory socket_factory,
                                     StatisticsProvider statistics_provider,
                                     TransportManager transport_manager )
     {
         super( statistics_provider, transport_manager );
 
-        this.target_host = target_host;
-        this.target_port = target_port;
+        this.target_profile = target_profile;
+        this.use_ssl        = use_ssl;
         this.socket_factory = socket_factory;
 
-        connection_info = target_host + ':' + target_port;
+        if (use_ssl)
+        {
+            sslPort = target_profile.getSSL().port;
+            if (sslPort < 0)
+                sslPort += 65536;
+            connection_info = target_profile.getAddress().getHost() + ':' + sslPort;
+        }
+        else
+        {
+            connection_info = target_profile.getAddress().toString();
+        }
 
         //get the client-side timeout property value
         String prop =
@@ -116,10 +129,7 @@ public class Client_TCP_IP_Transport
             {
                 try
                 {
-                    //noffke: by now, the factory knows if to provide
-                    //ssl or not
-                    socket = socket_factory.createSocket( target_host,
-                                                          target_port );
+                    socket = createSocket();
 
                     //                    socket.setTcpNoDelay( true );
 
@@ -181,6 +191,50 @@ public class Client_TCP_IP_Transport
         }
     }
 
+    /**
+     * Tries to create a socket connection to any of the addresses in
+     * the target profile, starting with the primary IIOP address,
+     * and then any alternate IIOP addresses that have been specified.
+     */
+    private Socket createSocket() throws IOException
+    {
+        Socket      result    = null;
+        IOException exception = null;
+
+        List addressList = new ArrayList();
+        addressList.add    (target_profile.getAddress());
+        addressList.addAll (target_profile.getAlternateAddresses());
+        
+        Iterator addressIterator = addressList.iterator();
+        
+        while (result == null && addressIterator.hasNext())
+        {
+            try
+            {
+                IIOPAddress address = (IIOPAddress)addressIterator.next();
+                if (use_ssl)
+                    address = new IIOPAddress (address.getHost(), sslPort);
+                result = socket_factory.createSocket
+                (
+                    address.getHost(), address.getPort()
+                );
+                connection_info = address.toString();
+            }
+            catch (IOException e)
+            {
+                exception = e;
+            }
+        }
+
+        if (result != null)
+            return result;
+        else if (exception != null)
+            throw exception;
+        else
+            throw new IOException
+                        ("connection failure without exception");        
+    }
+
     public synchronized void closeCompletely()
         throws IOException
     {
@@ -236,4 +290,10 @@ public class Client_TCP_IP_Transport
     {
         return socket_factory.isSSL( socket );
     }
+    
+    public InternetIOPProfile get_server_profile()
+    {
+        return target_profile;
+    }
+    
 }// Client_TCP_IP_Transport
