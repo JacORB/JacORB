@@ -152,12 +152,10 @@ public final class RequestController
 
     void continueToWork()
     {
-//        org.jacorb.util.Debug.output(4, "### RequestController::continueToWork ++");
         synchronized (queueLog)
         {
             queueLog.notifyAll();
         }
-//        org.jacorb.util.Debug.output(4, "### RequestController::continueToWork --" );
     }
 
     synchronized void end()
@@ -340,7 +338,7 @@ public final class RequestController
                     throw new org.omg.CORBA.OBJECT_NOT_EXIST();
                 }
             }
-//            org.jacorb.util.Debug.output(4, "### RequestController::processRequest::activeRequestTable " + activeRequestTable + " and request " + request + " contains " + activeRequestTable.containsKey(request));
+
             /* below  this point it's  save that the request  is valid
                (all preconditions can be met) */
             activeRequestTable.put(request, oid);
@@ -405,8 +403,6 @@ public final class RequestController
      */
     void returnResult(ServerRequest request)
     {
-//        org.jacorb.util.Debug.output(4, "### RequestController::returnResult " + request);
-
         orb.getBasicAdapter().return_result(request);
     }
 
@@ -416,7 +412,6 @@ public final class RequestController
      */
     synchronized void finish (ServerRequest request)
     {
-//        org.jacorb.util.Debug.output(4, "### RequestController::finish::activeRequestTable " + activeRequestTable + " and request " + request + " contains " + activeRequestTable.containsKey(request));
         activeRequestTable.remove (request);
         notifyAll();
     }
@@ -438,7 +433,6 @@ public final class RequestController
             state = poa.getState();
             if (POAUtil.isActive(state))
             {
-                // org.jacorb.util.Debug.output(4, "### RequestController::run1::requestQueue::size " + requestQueue.size());
                 request = requestQueue.getFirst();
 
                 /* Request available */
@@ -453,10 +447,8 @@ public final class RequestController
                     {
                         try
                         {
-//                            org.jacorb.util.Debug.output(4, "### RequestController::run::requestQueue::size " + requestQueue.size() + " and " + request.operation());
                             processRequest(request);
                             requestQueue.removeFirst();
-                            // org.jacorb.util.Debug.output(4, "### RequestController::run2::requestQueue::size " + requestQueue.size());
                         }
                         catch (CompletionRequestedException e)
                         {
@@ -470,8 +462,6 @@ public final class RequestController
                         }
                         catch (ShutdownInProgressException e)
                         {
-                            // org.jacorb.util.Debug.output(4, "### RequestController::e " + e);
-
                             /* waitForShutdown was called */
                             waitForQueue();
                         }
@@ -490,11 +480,7 @@ public final class RequestController
                 }
             }
             else
-            {
-
-                if (!waitForShutdownCalled && (POAUtil.isDiscarding(state) || POAUtil.isInactive(state)))
-                {
-                    // org.jacorb.util.Debug.output(4, "### RequestController::run3::requestQueue::size " + requestQueue.size());
+                if (!waitForShutdownCalled && (POAUtil.isDiscarding(state) || POAUtil.isInactive(state))) {
                     request = requestQueue.removeLast();
 
                     /* Request available */
@@ -511,7 +497,6 @@ public final class RequestController
                         continue;
                     }
                 }
-            }
             /* if waitForShutdown was called the RequestController
                loop blocks for ALL TIME in waitForQueue (the poa
                behaves as if he is in holding state now) ATTENTION,
@@ -561,14 +546,9 @@ public final class RequestController
 
     synchronized void waitForObjectCompletion( byte[] oid )
     {
-
         ByteArrayKey oidbak = new ByteArrayKey( oid );
-
-        // org.jacorb.util.Debug.output(4, "### RequestController::waitForObjectCompletion1::activeRequestTable " + activeRequestTable + " contains oid " + activeRequestTable.contains(oidbak));
-
         while (activeRequestTable.contains(oidbak))
         {
-            // org.jacorb.util.Debug.output(4, "### RequestController::waitForObjectCompletion2::activeRequestTable " + activeRequestTable + " contains oid " + activeRequestTable.contains(oidbak));
             try
             {
                 wait();
@@ -586,10 +566,10 @@ public final class RequestController
 
         deactivationList.addElement( oidbak );
 
-//         synchronized( oid )
-//         {
-//             oid.notifyAll();
-//         }
+        synchronized( oid )
+        {
+            oid.notifyAll();
+        }
     }
 
     /**
@@ -601,10 +581,8 @@ public final class RequestController
 
     private void waitForQueue()
     {
-//         org.jacorb.util.Debug.output(4, "### RequestController::waitForQueue++");
         synchronized (queueLog)
         {
-//             org.jacorb.util.Debug.output(4, "### RequestController::waitForQueue::empty " + requestQueue.isEmpty() + " and holding " + poa.isHolding() + " waitforshut " + waitForShutdownCalled);
             if ((requestQueue.isEmpty() || poa.isHolding() || waitForShutdownCalled) &&
                 !terminate)
             {
@@ -621,7 +599,6 @@ public final class RequestController
                 }
             }
         }
-//         org.jacorb.util.Debug.output(4, "### RequestController::waitForQueue--");
     }
 
     /**
