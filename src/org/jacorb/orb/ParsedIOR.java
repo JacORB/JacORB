@@ -319,10 +319,14 @@ public class ParsedIOR
         // EstablishTrustInTarget and EstablishTrustInClient is
         // handled at the socket factory layer.
 
-        if( ssl != null && //server knows about ssl
+        if( ssl != null &&                                               // server knows about ssl
             Environment.isPropertyOn( "jacorb.security.support_ssl" ) && //we support ssl
-            ( ((Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ) & 0x60) != 0) || //we require ssl
-              ((ssl.target_requires & 0x60) != 0))) //server requires ssl
+            ( ((Environment.getIntProperty( "jacorb.security.ssl.client.required_options", 16 ) & 0x60) != 0) ||
+                                                     // we require ssl
+              ((ssl.target_requires & 0x60) != 0) || // server requires client auth.
+              ((ssl.target_requires & 0x02) != 0) || // server requires integrity
+              ((ssl.target_requires & 0x04) != 0)    // server requires confidentiality
+              ))
         {
             use_ssl = true; 
             port = ssl.port; 
