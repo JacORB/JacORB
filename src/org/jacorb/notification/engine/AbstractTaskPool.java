@@ -35,14 +35,17 @@ public abstract class AbstractTaskPool extends AbstractObjectPool
         super(name, a, b, c, d);
     }
 
+
     public AbstractTaskPool(String name) {
         super(name);
     }
+
 
     public void passivateObject( Object o )
     {
         ( ( AbstractPoolable ) o ).reset();
     }
+
 
     public void activateObject( Object o )
     {
