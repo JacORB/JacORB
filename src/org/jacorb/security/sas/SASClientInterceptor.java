@@ -198,7 +198,7 @@ public class SASClientInterceptor
         ServiceContext ctx = null;
         try
         {
-            ctx = ri.get_request_service_context(SecurityAttributeService);
+            ctx = ri.get_reply_service_context(SecurityAttributeService);
         }
         catch (BAD_PARAM e)
         {
@@ -247,7 +247,7 @@ public class SASClientInterceptor
         ServiceContext ctx = null;
         try
         {
-            ctx = ri.get_request_service_context(SecurityAttributeService);
+            ctx = ri.get_reply_service_context(SecurityAttributeService);
         }
         catch (BAD_PARAM e)
         {
