@@ -4,12 +4,12 @@ public final class INV_POLICY
 {
 	public INV_POLICY()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public INV_POLICY(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public INV_POLICY(int minor, org.omg.CORBA.CompletionStatus completed)

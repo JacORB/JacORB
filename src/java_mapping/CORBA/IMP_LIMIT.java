@@ -4,12 +4,12 @@ public final class IMP_LIMIT
 {
 	public IMP_LIMIT()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public IMP_LIMIT(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public IMP_LIMIT(int minor, org.omg.CORBA.CompletionStatus completed)

@@ -4,12 +4,12 @@ public final class UNKNOWN
 {
 	public UNKNOWN()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public UNKNOWN(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public UNKNOWN(int minor, org.omg.CORBA.CompletionStatus completed)

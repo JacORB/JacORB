@@ -4,12 +4,12 @@ public final class NO_RESPONSE
 {
 	public NO_RESPONSE()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_RESPONSE(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_RESPONSE(int minor, org.omg.CORBA.CompletionStatus completed)

@@ -4,12 +4,12 @@ public final class INTF_REPOS
 {
 	public INTF_REPOS()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public INTF_REPOS(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public INTF_REPOS(int minor, org.omg.CORBA.CompletionStatus completed)

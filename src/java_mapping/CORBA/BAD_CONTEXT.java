@@ -4,12 +4,12 @@ public final class BAD_CONTEXT
 {
 	public BAD_CONTEXT()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public BAD_CONTEXT(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public BAD_CONTEXT(int minor, org.omg.CORBA.CompletionStatus completed)

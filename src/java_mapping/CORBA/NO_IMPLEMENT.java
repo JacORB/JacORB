@@ -4,12 +4,12 @@ public final class NO_IMPLEMENT
 {
 	public NO_IMPLEMENT()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_IMPLEMENT(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_IMPLEMENT(int minor, org.omg.CORBA.CompletionStatus completed)

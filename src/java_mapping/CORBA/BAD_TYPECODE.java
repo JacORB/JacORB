@@ -4,12 +4,12 @@ public final class BAD_TYPECODE
 {
 	public BAD_TYPECODE()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public BAD_TYPECODE(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public BAD_TYPECODE(int minor, org.omg.CORBA.CompletionStatus completed)

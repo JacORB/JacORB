@@ -4,12 +4,12 @@ public final class OBJ_ADAPTER
 {
 	public OBJ_ADAPTER()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public OBJ_ADAPTER(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public OBJ_ADAPTER(int minor, org.omg.CORBA.CompletionStatus completed)

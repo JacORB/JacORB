@@ -4,12 +4,12 @@ public final class OBJECT_NOT_EXIST
 {
 	public OBJECT_NOT_EXIST()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public OBJECT_NOT_EXIST(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public OBJECT_NOT_EXIST(int minor, org.omg.CORBA.CompletionStatus completed)

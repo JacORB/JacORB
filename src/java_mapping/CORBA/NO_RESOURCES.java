@@ -4,12 +4,12 @@ public final class NO_RESOURCES
 {
 	public NO_RESOURCES()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_RESOURCES(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_RESOURCES(int minor, org.omg.CORBA.CompletionStatus completed)

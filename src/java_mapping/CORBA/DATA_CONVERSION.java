@@ -4,12 +4,12 @@ public final class DATA_CONVERSION
 {
 	public DATA_CONVERSION()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public DATA_CONVERSION(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public DATA_CONVERSION(int minor, org.omg.CORBA.CompletionStatus completed)

@@ -4,12 +4,12 @@ public final class BAD_INV_ORDER
 {
 	public BAD_INV_ORDER()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public BAD_INV_ORDER(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public BAD_INV_ORDER(int minor, org.omg.CORBA.CompletionStatus completed)

@@ -4,12 +4,12 @@ public final class TRANSACTION_REQUIRED
 {
 	public TRANSACTION_REQUIRED()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public TRANSACTION_REQUIRED(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public TRANSACTION_REQUIRED(int minor, org.omg.CORBA.CompletionStatus completed)

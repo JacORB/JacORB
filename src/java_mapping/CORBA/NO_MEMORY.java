@@ -4,12 +4,12 @@ public final class NO_MEMORY
 {
 	public NO_MEMORY()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_MEMORY(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_MEMORY(int minor, org.omg.CORBA.CompletionStatus completed)

@@ -4,12 +4,12 @@ public final class TRANSACTION_ROLLEDBACK
 {
 	public TRANSACTION_ROLLEDBACK()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public TRANSACTION_ROLLEDBACK(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public TRANSACTION_ROLLEDBACK(int minor, org.omg.CORBA.CompletionStatus completed)

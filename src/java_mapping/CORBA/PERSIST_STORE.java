@@ -4,12 +4,12 @@ public final class PERSIST_STORE
 {
 	public PERSIST_STORE()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public PERSIST_STORE(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public PERSIST_STORE(int minor, org.omg.CORBA.CompletionStatus completed)

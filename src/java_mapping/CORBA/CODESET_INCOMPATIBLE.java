@@ -4,12 +4,12 @@ public final class CODESET_INCOMPATIBLE
 {
 	public CODESET_INCOMPATIBLE()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public CODESET_INCOMPATIBLE(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public CODESET_INCOMPATIBLE(int minor, org.omg.CORBA.CompletionStatus completed)

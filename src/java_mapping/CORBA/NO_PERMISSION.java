@@ -4,12 +4,12 @@ public final class NO_PERMISSION
 {
 	public NO_PERMISSION()
 	{
-		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( "", 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_PERMISSION(String reason)
 	{
-		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_MAYBE);
+		super( reason, 0, org.omg.CORBA.CompletionStatus.COMPLETED_NO);
 	}
 
 	public NO_PERMISSION(int minor, org.omg.CORBA.CompletionStatus completed)
