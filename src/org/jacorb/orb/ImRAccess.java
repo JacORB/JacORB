@@ -39,5 +39,5 @@ public interface ImRAccess
                              String host,
                              int port)
         throws org.omg.CORBA.INTERNAL;
-    public void setServerDown( String name )
+    public void setServerDown( String name );
 }// ImRAccess
