@@ -17,13 +17,12 @@
 	<property name="idlflags" 
                 value="-I${include}/omg -I${include}/jacorb -d
 	${src}/generated"/>
-	<available classname="java.lang.ref.WeakReference" property="java2.present" />
    </target>
 
-   <target name="all" depends="init,idl,util">
+   <target name="all" depends="init,idl">
 	<javac srcdir="${src}"
                destdir="${classdir}"
-	       includes="org/jacorb/imr/*.java,org/jacorb/imr/util/ImRManager.java"
+	       includes="org/jacorb/imr/*.java,org/jacorb/imr/util/*.java"
 	        />
    </target>
 
@@ -42,13 +41,6 @@
 	    fork="yes">
 	    <arg line="${idlflags} ${include}/jacorb/imr.idl" />
       </java>
-   </target>
-
-   <target name="util" if="java2.present">
-	<javac srcdir="${src}"
-               destdir="${classdir}"
-	       includes="org/jacorb/imr/util/*.java"
-        />
    </target>
 
    <target name="clean" depends="init">
