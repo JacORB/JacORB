@@ -49,11 +49,20 @@ public class SecurityServiceInitializer
             {
             }
 
-            info.add_server_request_interceptor(new ServerInvocationInterceptor(current));
+            info.add_server_request_interceptor(
+                new ServerInvocationInterceptor(
+                         current, 
+                         ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl)info).getORB()
+                         )
+                );
         }
         catch (DuplicateName duplicateName)
         {
             duplicateName.printStackTrace();
+        }
+        catch (Exception ce)
+        {
+            throw new org.omg.CORBA.INITIALIZE(ce.getMessage());
         }
     }
     
