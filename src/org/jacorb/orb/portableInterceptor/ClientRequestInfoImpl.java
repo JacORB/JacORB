@@ -144,9 +144,9 @@ public class ClientRequestInfoImpl
 
     public org.omg.CORBA.Object forward_reference() 
     {
-        if (! (caller_op != ClientInterceptorIterator.RECEIVE_OTHER) ||
+        if( (caller_op != ClientInterceptorIterator.RECEIVE_OTHER) ||
             ((reply_status != LOCATION_FORWARD_PERMANENT.value) &&
-             (reply_status != LOCATION_FORWARD.value)))
+             (reply_status != LOCATION_FORWARD.value)) )
             throw new BAD_INV_ORDER("The attribute \"forward_reference\" is currently " + 
                                     "invalid!", 10, CompletionStatus.COMPLETED_MAYBE);
 
