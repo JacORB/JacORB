@@ -21,14 +21,14 @@ package org.jacorb.notification;
  *
  */
 
+import org.apache.log.Hierarchy;
+import org.apache.log.Logger;
 import org.jacorb.notification.engine.TaskProcessor;
+import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
+import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
 import org.omg.CosNotifyFilter.FilterFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.jacorb.notification.interfaces.ProxyEventListener;
-import org.jacorb.notification.interfaces.ProxyCreationRequestEventListener;
-import org.apache.log.Logger;
-import org.apache.log.Hierarchy;
 
 /**
  * ChannelContext.java
@@ -191,4 +191,4 @@ public class ChannelContext {
 	getTaskProcessor().processEvent( event );
     }
 
-}// ChannelContext
+}

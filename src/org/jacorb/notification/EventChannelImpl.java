@@ -20,16 +20,18 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import org.apache.log.Hierarchy;
 import org.apache.log.Logger;
-import org.jacorb.notification.interfaces.AdminEventListener;
 import org.jacorb.notification.interfaces.AdminEvent;
+import org.jacorb.notification.interfaces.AdminEventListener;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.ProxyCreationRequestEvent;
@@ -54,7 +56,6 @@ import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyFilter.FilterFactory;
 import org.omg.PortableServer.POA;
-import java.util.ArrayList;
 import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.PortableServer.POAPackage.ServantAlreadyActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
@@ -384,7 +385,7 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
     /**
      * The default_filter_factory attribute is a readonly attribute
      * that maintains an object reference to the default factory to be
-     * used by the EventChannel instance with which it’s associated for
+     * used by the EventChannel instance with which it is associated for
      * creating filter objects. If the target channel does not support
      * a default filter factory, the attribute will maintain the value
      * of OBJECT_NIL.
@@ -685,8 +686,6 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
 
     public void dispose()
     {
-
-
 	myFactoryServant_.removeEventChannelServant(getKey());
 
         logger_.info( "dispose default consumer admin" );
@@ -696,6 +695,7 @@ public class EventChannelImpl extends EventChannelPOA implements Disposable
             defaultConsumerAdminImpl_ = null;
             defaultConsumerAdmin_ = null;
         }
+
 
         logger_.info( "dispose default supplier admin" );
         if ( defaultSupplierAdmin_ != null )

@@ -22,8 +22,8 @@ package org.jacorb.notification;
  */
 
 import org.jacorb.notification.evaluate.FilterConstraint;
-import org.omg.CosNotifyFilter.ConstraintInfo;
 import org.omg.CosNotification.EventType;
+import org.omg.CosNotifyFilter.ConstraintInfo;
 
 /**
  * ConstraintEntry.java
