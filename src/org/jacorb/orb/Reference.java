@@ -20,7 +20,6 @@ package org.jacorb.orb;
  */
 
 /**
- * 
  * @version $Id$
  */
 

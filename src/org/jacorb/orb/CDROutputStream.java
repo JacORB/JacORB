@@ -1483,11 +1483,8 @@ public class CDROutputStream
      * called from Any 
      */
 
-    public final void write_value
-    (
-        final org.omg.CORBA.TypeCode tc,
-        final org.omg.CORBA.portable.InputStream in
-    )
+    public final void write_value ( final org.omg.CORBA.TypeCode tc,
+                                    final org.omg.CORBA.portable.InputStream in )
     {
         //Debug.myAssert( tc != null, "Illegal null pointer for TypeCode");
         if (tc == null)
@@ -1914,6 +1911,7 @@ public class CDROutputStream
             Integer index = (Integer)valueMap.get (value);
             if (index != null) 
             {
+
                 // value has already been written -- make an indirection
                 write_long (0xffffffff);
                 write_long (index.intValue() - pos);
@@ -1929,10 +1927,20 @@ public class CDROutputStream
      */
     private void write_repository_id (final String repository_id)
     {
-        Integer index = (Integer)repIdMap.get (repository_id);
-        if (index == null)
+        Integer _index = (Integer)repIdMap.get (repository_id);
+        if ( _index == null)
         {
             // a new repository id -- write it
+
+            // first make sure the pos we're about to remember is
+            // a correctly aligned one, i.e., the actual writing position
+            int remainder = 4 - (index % 4);
+            if ( remainder != 4 )
+            {                
+                index += remainder;
+                pos += remainder;
+            }
+
             repIdMap.put (repository_id, new Integer(pos));
             write_string (repository_id);
         }
@@ -1940,7 +1948,7 @@ public class CDROutputStream
         {
             // a previously written repository id -- make an indirection
             write_long (0xffffffff);
-            write_long (index.intValue() - pos);
+            write_long ( _index.intValue() - pos);
         }
     }
 
@@ -1949,10 +1957,20 @@ public class CDROutputStream
      */
     private void write_codebase (final String codebase)
     {
-        Integer index = (Integer)codebaseMap.get (codebase);
-        if (index == null)
+        Integer _index = (Integer)codebaseMap.get (codebase);
+        if ( _index == null)
         {
-            // a new codebase -- write it
+            // a new codebase -- write it#
+
+            // first make sure the pos we're about to remember is
+            // a correctly aligned one
+            int remainder = 4 - (index % 4);
+            if ( remainder != 4 )
+            {                
+                index += remainder;
+                pos += remainder;
+            }
+
             codebaseMap.put (codebase, new Integer(pos));
             write_string (codebase);
         }
@@ -1960,7 +1978,7 @@ public class CDROutputStream
         {
             // a previously written codebase -- make an indirection
             write_long (0xffffffff);
-            write_long (index.intValue() - pos);
+            write_long ( _index.intValue() - pos);
         }
     }
 
@@ -1968,12 +1986,24 @@ public class CDROutputStream
      * Writes to this stream a value header with the specified `repository_id'
      * and no codebase string.
      */
-    private void write_value_header (final String repository_id)
+    private void write_value_header (final String[] repository_ids)
     {
-        if (repository_id != null) 
+        if (repository_ids != null) 
         {
-            write_long (0x7fffff02);
-            write_repository_id (repository_id);
+            if( repository_ids.length > 1 )
+            {
+                write_long (0x7fffff06);
+                write_long( repository_ids.length );
+                for( int i = 0; i < repository_ids.length; i++ )
+                {
+                    write_repository_id (repository_ids[i]);
+                }
+            }
+            else
+            {
+                write_long (0x7fffff02);
+                write_repository_id (repository_ids[0]);
+            }
         }
         else
             write_long (0x7fffff00);
@@ -1983,16 +2013,31 @@ public class CDROutputStream
      * Writes to this stream a value header with the specified `repository_id'.
      * and `codebase' string.
      */
+
     private void write_value_header
-        (final String repository_id, final String codebase)
+        (final String[] repository_ids, final String codebase)
     { 
 	if (codebase != null) 
 	{
-	    if (repository_id != null) 
+	    if ( repository_ids != null ) 
 	    {
-		write_long (0x7fffff03);
-		write_codebase(codebase);
-		write_repository_id (repository_id);
+                if( repository_ids.length > 1 )
+                {
+                    write_long (0x7fffff07);
+                    write_codebase(codebase);
+                    write_long( repository_ids.length );
+
+                    for( int i = 0; i < repository_ids.length; i++ )
+                    {
+                        write_repository_id (repository_ids[i]);
+                    }
+                }
+                else
+                {
+                    write_long (0x7fffff03);
+                    write_codebase(codebase);
+                    write_repository_id (repository_ids[0]);
+                }
 	    }
 	    else 
 	    {
@@ -2001,7 +2046,7 @@ public class CDROutputStream
 	    }
 	}
 	else
-	    write_value_header (repository_id);
+	    write_value_header (repository_ids);
     }
 
     /**
@@ -2021,19 +2066,19 @@ public class CDROutputStream
         if (value.getClass() == String.class) 
 	{
             // special handling for strings required according to spec
-	    write_value_header(repository_id);
+	    write_value_header( new String[]{ repository_id } );
 	    write_wstring((String)value);
 	}
         else if (value instanceof org.omg.CORBA.portable.StreamableValue)
 	{
-	    write_value_header(repository_id);
+	    write_value_header( ((org.omg.CORBA.portable.StreamableValue)value)._truncatable_ids()  );
             ((org.omg.CORBA.portable.StreamableValue)value)._write (this);
 	}
         else 
         {
 	    String codebase = 
 		ValueHandler.getCodebase(value.getClass());
-	    write_value_header(repository_id, codebase);
+	    write_value_header( new String[]{ repository_id }, codebase );
             ValueHandler.writeValue (this, value);
 	}
     }
