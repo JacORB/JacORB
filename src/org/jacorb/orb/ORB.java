@@ -1558,10 +1558,10 @@ public final class ORB
                         public java.io.Serializable read_value
                         (org.omg.CORBA_2_3.portable.InputStream is)
                         {
-                            StreamableValue result = 
+                            StreamableValue value = 
                                 (StreamableValue)instantiate (impl);
-                            result._read (is);
-                            return result;
+                            value._read (is);
+                            return value;
                         }
                     };
                 }
