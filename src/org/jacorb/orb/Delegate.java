@@ -298,7 +298,9 @@ public final class Delegate
     {
         return (client_count <= 0 );
     }
+
     */
+
 
     public synchronized org.omg.CORBA.Object duplicate(org.omg.CORBA.Object self)
     {
@@ -676,7 +678,8 @@ public final class Delegate
 
             //store pending replies, so in the case of a LocationForward
             //a RemarshalException can thrown to *all* waiting threads. 
-            pending_replies.put( rep, rep );
+            if( ros.response_expected())
+                pending_replies.put( rep, rep );
         } 
         catch (org.omg.CORBA.SystemException cfe)
         {
@@ -1183,7 +1186,10 @@ public final class Delegate
                     new org.jacorb.orb.ParsedIOR(((org.jacorb.orb.ORB)orb).unproxyfy( d.getIOR() ));
     
                 d.setIOR(divpior.getIOR());
-                d.set_adport_and_key(divpior.getProfileBody().host+":"+divpior.getProfileBody().port,divpior.getProfileBody().object_key);
+                d.set_adport_and_key( divpior.getProfileBody().host+":" +
+                                      divpior.getProfileBody().port,
+                                      divpior.getProfileBody().object_key );
+
                 ((org.omg.CORBA.portable.ObjectImpl)self)._set_delegate(d);
             }    
     
@@ -1200,7 +1206,8 @@ public final class Delegate
                                       orb, 
                                       poa, 
                                       getObjectId(), 
-                                      (org.omg.PortableServer.Servant) so.servant);
+                                      (org.omg.PortableServer.Servant)so.servant );
+
                     ((org.jacorb.orb.ORB)orb).getPOACurrent()._addContext(
                                       context, 
                                       Thread.currentThread());
