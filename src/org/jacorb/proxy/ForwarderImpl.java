@@ -318,11 +318,11 @@ class ForwarderImpl
                         //replacing the local pointer
                         outbuffer = new_array;
 
-                        //replacing the internal buffer of the reply
+                        //replacing the internal buffer of the reply.
                         //especially the bit bit with setting the size is
                         //definitely hacky
 
-                        //remeber size
+                        //remember size
                         int old_size = cdr.size();
 
                         //replace buffer
@@ -339,7 +339,6 @@ class ForwarderImpl
                         System.arraycopy( inrequest.get_in().getBuffer(),
                                           inrequest.get_in().get_pos(),
                                           outbuffer,
-                                          //inrequest.get_in().get_pos(),
                                           cdr.size(),
                                           datalength );
                     }
