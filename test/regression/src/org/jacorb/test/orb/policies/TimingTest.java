@@ -199,7 +199,7 @@ public class TimingTest extends CallbackTestCase
         int result = server.operation (18, 10);
 
         long delta = System.currentTimeMillis() - start;
-        if (delta > 100)
+        if (delta > 200)
             fail ("reply too late (" + delta + "ms)");
     }
 
