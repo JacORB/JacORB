@@ -10,6 +10,8 @@ Currently tested functionality
 Building and running the tests
 ------------------------------
 
+NB: The name server must be running before running these tests!
+
 The JacORB test suite consists of a set of JUnit tests and an Ant XML
 file for building and running them.  Depending on the Ant target that
 is invoked, it is possible to run all tests in a package hierarchy or
