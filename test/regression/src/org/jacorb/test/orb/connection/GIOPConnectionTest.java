@@ -113,11 +113,6 @@ public class GIOPConnectionTest extends TestCase
             return false;
         }
         
-        public StatisticsProvider getStatisticsProvider()
-        {
-            return null;
-        }
-
         public void setTransportListener(TransportListener listener)
         {
             this.listener = listener;
@@ -147,10 +142,6 @@ public class GIOPConnectionTest extends TestCase
             }
         }
 
-        public boolean waitUntilConnected()
-        {
-            return true;
-        }
     }
     
 
