@@ -1,0 +1,8 @@
+Manifest-Version: 1.0 
+Class-Path: 
+ logkit-1.2.jar 
+ avalon-framework-4.1.5.jar 
+ concurrent-1.3.2.jar 
+ antlr-2.7.2.jar
+
+

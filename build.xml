@@ -34,7 +34,7 @@
    <target name="idllib" depends="idlsrc" >
         <jar jarfile="${lib}/idl.jar"
              basedir="${classdir}"
-             includes="org/jacorb/idl/**,java_cup/**"
+             includes="org/jacorb/idl/**"
        />
    </target>
 
@@ -84,16 +84,18 @@
       basedir="${classdir}"
       includes="org/jacorb/**,org/omg/**, HTTPClient/**"
       excludes="org/jacorb/idl/**,org/jacorb/demo/**,org/jacorb/test/**"
+      manifest="${basedir}/etc/jacorb_jar.manifest"
+      index="true"
       />
    </target>
 
    <target name="jaco" depends="init">
       <!-- Use the java.endorsed.dirs mechanism to replace the SDK CORBA classes with those in jacorb.jar for SDK 1.4 -->
 
-      <condition property="jaco.classpath" value="-Djava.endorsed.dirs=${JACORB_HOME}/lib -classpath ${JACORB_HOME}/lib/jacorb.jar:${JACORB_HOME}/lib/logkit-1.2.jar:${JACORB_HOME}/lib/avalon-framework-4.1.5.jar:${JACORB_HOME}/lib/concurrent-1.3.2.jar:${JACORB_HOME}/lib/antlr-2.7.2.jar:${CLASSPATH}">
+      <condition property="jaco.classpath" value="-Djava.endorsed.dirs=${JACORB_HOME}/lib -classpath ${JACORB_HOME}/lib/jacorb.jar:${CLASSPATH}">
          <equals arg1="${ant.java.version}" arg2="1.4"/>
       </condition>
-      <condition property="jacobat.classpath" value="-Djava.endorsed.dirs=&quot;${basedir}\lib&quot; -classpath &quot;${basedir}\lib\jacorb.jar;${basedir}\lib\logkit-1.2.jar;${basedir}\lib\avalon-framework-4.1.5.jar;${basedir}\lib\concurrent-1.3.2.jar;${basedir}\lib\antlr-2.7.2.jar;%CLASSPATH%&quot;">
+      <condition property="jacobat.classpath" value="-Djava.endorsed.dirs=&quot;${basedir}\lib&quot; -classpath &quot;${basedir}\lib\jacorb.jar;%CLASSPATH%&quot;">
          <equals arg1="${ant.java.version}" arg2="1.4"/>
       </condition>
       <!-- ... else use -Xbootclaspath for older SDKs -->
