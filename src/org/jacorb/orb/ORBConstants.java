@@ -21,7 +21,9 @@ package org.jacorb.orb;
  */
 
 /**
- * Various OMG assigned context ID values used by JacORB
+ * This class collects all ORB related constants.
+ *   
+ * This includes various OMG assigned values used by JacORB.
  *
  * OMG Assigned ranges:
  *
@@ -32,8 +34,9 @@ package org.jacorb.orb;
  * 16 component IDs   0x4A414300 - 0x4A41430f  ("JAC\x00" - "JAC\x0f")
  */
 
-public final class ContextID
+public final class ORBConstants
 {
+    public static final int JACORB_ORB_ID           = 0x4A414300;
     public static final int SERVICE_PADDING_CONTEXT = 0x4A414301;
     public static final int SERVICE_PROXY_CONTEXT   = 0x4A414302;
 }
