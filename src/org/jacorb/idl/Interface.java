@@ -499,9 +499,7 @@ class Interface
         if( body != null )
         {
             // forward declaration
-            ps.println( "\t/* constants */" );
             body.printConstants( ps );
-            ps.println( "\t/* operations  */" );
             body.printOperationSignatures( ps );
         }
         ps.println( "}" );

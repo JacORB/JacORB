@@ -31,9 +31,8 @@ import java.util.*;
  */
 
 class InterfaceBody
-        extends IdlSymbol
+    extends IdlSymbol
 {
-
     public Vector v;
     public Interface my_interface;
     SymbolList inheritance_spec = null;
@@ -45,7 +44,7 @@ class InterfaceBody
     public static Vector parseThreads = new Vector();
 
     public class ParseThread
-            extends Thread
+        extends Thread
     {
 
         InterfaceBody b = null;
@@ -266,6 +265,11 @@ class InterfaceBody
 
     public void printOperationSignatures( PrintWriter ps )
     {
+        if( v.size() > 0  )
+        {
+            ps.println( "\t/* operations  */" );
+        }
+
         for( Enumeration e = v.elements(); e.hasMoreElements(); )
         {
             Definition d = (Definition)e.nextElement();
@@ -288,6 +292,11 @@ class InterfaceBody
 
     public void printConstants( PrintWriter ps )
     {
+        if( v.size() > 0 )
+        {
+            ps.println( "\t/* constants */" );
+        }
+
         for( Enumeration e = v.elements(); e.hasMoreElements(); )
         {
             Definition d = (Definition)e.nextElement();
