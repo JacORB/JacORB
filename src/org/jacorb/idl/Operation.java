@@ -42,6 +42,11 @@ interface Operation
 
     public void printSignature(PrintWriter ps);
 
+    /**
+     * @param printModifiers whether "public abstract" should be added
+     */
+    public void printSignature(PrintWriter ps, boolean printModifiers);
+
     /** method code for stubs */
 
     public void printMethod(PrintWriter ps, String classname, boolean locality_constraint);

@@ -73,11 +73,19 @@ class Method
 	return sb.toString();
     }
 
-    public void printSignature(PrintWriter ps)
+    public void printSignature (PrintWriter ps)
+    {
+        printSignature (ps, pseudo);
+    }
+
+    /**
+     * @param printModifiers whether "public abstract" should be added
+     */
+    public void printSignature (PrintWriter ps, boolean printModifiers)
     {
 	ps.print("\t");
-	if( pseudo )
-	    ps.print( "abstract ");
+	if( printModifiers )
+	    ps.print( "public abstract ");
 
 	if( resultType != null )
 	{
