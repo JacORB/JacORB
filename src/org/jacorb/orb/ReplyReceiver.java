@@ -83,7 +83,7 @@ public class ReplyReceiver
                           ClientInterceptorHandler       interceptors,
                           org.omg.Messaging.ReplyHandler replyHandler )
     {
-        super();
+        super((org.jacorb.orb.ORB)delegate.orb(null));
 
         this.delegate         = delegate;
         this.operation        = operation;
