@@ -1,0 +1,19 @@
+struct qz
+{
+    string fp;
+    string fq;
+};
+
+typedef sequence<qz> ra;
+
+interface rc
+{
+    exception rd
+    { 
+	long re;
+	string rf;
+    };
+
+    Object rg1() raises(rd);
+
+};

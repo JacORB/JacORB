@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<project name="idl" default="all" basedir="../../../..">
+
+   <target name="init">
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="src" value="${dirs.base}/src"/>
+   </target> 
+
+   <target name="all" depends="init,compile"/>
+
+   <target name="compile" depends="init">
+       <javac srcdir="${src}" 
+	      destdir="${classdir}" 
+	      includes="org/jacorb/idl/**.java"
+              deprecation="on"
+	 />
+   </target>
+
+
+</project>

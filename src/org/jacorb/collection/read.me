@@ -1,0 +1,28 @@
+This directory contain CosCollection Service.
+
+1. There are only two collection implemented SortedRelation and Sequence.
+2. All collection based on SortedVector class.
+   This class use binary search method for find element and insert element 
+   in vector. 
+   For database application this method is best ( for may opinion ).
+3. For best perfomance we develop Collection factory which allow Operations 
+   class name for dinamic load and instantiate java class. 
+   This method improve perfomance with factor 10-100 for different collection
+   size and use mode.
+4. For improve Operations perfomance we recoment use jacorb.collection.util.Cache 
+   class for prevent frequent any extraction. It's actual for large collections, 
+   and improve perfomanse depend cache size with factor 1-10.
+5. About testing and bugs.
+   We more complex test Sequence, SortedRelation have only simple testing.
+   Collection and iterators have too more methods and we cann't test all methods 
+   with all side effects. This code may contain many bug. 
+6. For developer we added graph of Collection classes hierarhy, iterator classes 
+   hierarhy and class diagrame in simplest Booch notation. 
+
+Regards. 
+LogicLand Group. 
+ 
+
+
+
+

@@ -1,0 +1,9 @@
+module hello 
+{
+    interface GoodDay 
+    {
+	string hello();
+	wstring hello_wide(in wstring msg);
+    };
+
+};

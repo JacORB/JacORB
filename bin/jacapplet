@@ -1,0 +1,4 @@
+#!/bin/sh
+# call appletviewer with appropriate options
+#appletviewer -J"-Xbootclasspath:/home/bwana/brose/Work/jacorb/classes:/home/bwana/brose/Work/jacorb/classes/jacorb.jar:/import/java2/jre/lib/rt.jar:${CLASSPATH}"    "$@"
+appletviewer -J-Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -J-Dorg.omg.CORBA.ORBSingletonClass=jacorb.orb.ORBSingleton -J"-Xbootclasspath:/import/java2/jre/lib/rt.jar:${CLASSPATH}"   "$@"

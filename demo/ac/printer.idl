@@ -1,0 +1,25 @@
+module demo 
+{
+  module ac
+    {
+
+      interface Document
+        {
+          readonly attribute string name;
+          readonly attribute long size;
+        };
+
+      interface Printer
+        {
+          readonly attribute string name;
+          void printDocument(in Document doc);
+        };
+
+
+      interface BrailleDocument : Document 
+        {
+          readonly attribute string extra_info;
+        };
+
+    };        
+};

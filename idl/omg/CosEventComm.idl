@@ -1,0 +1,34 @@
+// CosEventComm Module, CORBAservices p 4-8, Event Service V1.0 3/94
+
+#ifndef __CosEventComm_IDL
+#define __CosEventComm_IDL
+
+#pragma prefix "omg.org"
+
+module CosEventComm {
+
+	    exception Disconnected{};
+
+	    interface PushConsumer {
+                void push (in any data) raises(Disconnected);
+                void disconnect_push_consumer(); 
+	    };
+
+	    interface PushSupplier {
+                void disconnect_push_supplier();
+	    };
+
+	    interface PullSupplier {
+                any pull () raises(Disconnected);
+                any try_pull (out boolean has_event) 
+		    raises(Disconnected);
+                void     disconnect_pull_supplier(); 
+	    };
+
+	    interface PullConsumer {
+                void disconnect_pull_consumer();
+	    };
+	
+};
+
+#endif

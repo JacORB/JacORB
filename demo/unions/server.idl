@@ -1,0 +1,32 @@
+// server.idl
+
+module unions 
+{
+    enum colorT {green,blue,red,black};
+
+    typedef sequence < string > stringSeq;
+    typedef string stringArray[5];
+
+    union Nums	switch (char)
+    {
+        case 'f': float f;
+        case 'l': long l;
+        default: short s;
+    };
+
+    union UnitedColors switch (colorT)
+	{
+	case blue :
+	case red : string s;
+	case black : stringSeq strs;
+	default : long i;
+	};
+
+
+    interface MyServer 
+    {
+	void writeUnion(in UnitedColors a1,out UnitedColors a2);
+	void write2ndUnion(in Nums n);
+    };
+
+};

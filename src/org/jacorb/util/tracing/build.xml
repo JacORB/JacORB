@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<project name="tracing" default="all" basedir="../../../..">
+
+  <!-- ==================================================== -->
+  <!--             Demo build file                         -->
+  <!-- ==================================================== -->
+
+   <target name="init">
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="classpath" value="${java.class.path}:${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+	<property name="idlflags" value="-I${include}/omg -d ${dirs.base}/src/generated"/>
+   </target>
+
+   <target name="all" depends="init,idl">
+	<javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+	       includes="${dirs.base}/src/generated/jacorb/util/tracing/**.java,\
+                         ${dirs.base}/src/generated/jacorb/util/tracing/*Package/**.java,
+                         ${dirs.base}/src/jacorb/util/tracing/**.java"   
+	        />
+   </target>
+
+   <target name="idl" >
+      <java classname="jacorb.idl.parser" classpath="${classpath}:${lib}/idl.jar"
+               fork="yes">
+               <arg line="${idlflags} ${dirs.base}/src/jacorb/util/tracing/Tracing.idl"/>
+      </java>
+   </target>
+
+
+   <target name="clean">
+      <deltree dir="${classdir}/jacorb/util/tracing"/>
+      <deltree dir="${dirs.base}/src/generated/jacorb/util/tracing"/>
+   </target>
+
+</project>
+
+
+
+
+

@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.1 release (March 30, 1999)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>The server side: POA, Threads</TITLE>
+<META NAME="description" CONTENT="The server side: POA, Threads">
+<META NAME="keywords" CONTENT="ProgrammingGuide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.1 release">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="ProgrammingGuide.css">
+
+<LINK REL="next" HREF="node7.html">
+<LINK REL="previous" HREF="node5.html">
+<LINK REL="up" HREF="ProgrammingGuide.html">
+<LINK REL="next" HREF="node7.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html228"
+ HREF="node7.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/lib/latex2html/icons.gif/next_motif.gif"></A> 
+<A NAME="tex2html224"
+ HREF="ProgrammingGuide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/lib/latex2html/icons.gif/up_motif.gif"></A> 
+<A NAME="tex2html218"
+ HREF="node5.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/lib/latex2html/icons.gif/previous_motif.gif"></A> 
+<A NAME="tex2html226"
+ HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/lib/latex2html/icons.gif/contents_motif.gif"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html229"
+ HREF="node7.html">Implementation Repository</A>
+<B> Up:</B> <A NAME="tex2html225"
+ HREF="ProgrammingGuide.html">JacORB 1.3 Programming Guide</A>
+<B> Previous:</B> <A NAME="tex2html219"
+ HREF="node5.html">The JacORB Name Service</A>
+ &nbsp <B>  <A NAME="tex2html227"
+ HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html230"
+ HREF="node6.html#SECTION00610000000000000000">POA</A>
+<LI><A NAME="tex2html231"
+ HREF="node6.html#SECTION00620000000000000000">Threads</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00600000000000000000"></A>
+<A NAME="POA"></A>
+<BR>
+The server side: POA, Threads
+</H1><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+This  chapter   describes  the   facilities  offered  by   JacORB  for
+controlling  how servers are  started and  executed. These  include an
+activation daemon, the Portable Object Adapter (POA), and threading.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+This chapter gives only a very superficial introduction to the POA.  A
+thorough explanation of how the  POA can be used in different settings
+and of the  different policies and strategies it  offers is beyond our
+scope here,  but can be found in  [<A
+ HREF="node14.html#Brose2001a">BVD01</A>].  Other references
+that  explain  the  POA  are  [<A
+ HREF="node14.html#Henning1999">HV99</A>,<A
+ HREF="node14.html#Vinoski1998">Vin98</A>].   More
+in-depth  treatment in  C++ can  be found  in the  various C++-Report
+Columns on the POA by  Doug Schmidt and Steve Vinoski.  These articles
+are                            available                            at
+<code>http://www.cs.wustl.edu/~schmidt/report-doc.html</code>.  The ultimate
+reference, of course, is the CORBA specification.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<H1><A NAME="SECTION00610000000000000000">
+POA</A>
+</H1><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The POA provides a comprehensive set of interfaces for managing object
+references and servants. The code  written using the POA interfaces is
+now portable across ORB implementations  and has the same semantics in
+every ORB that is compliant to CORBA 2.2 or above.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The POA defines standard interfaces to do the following:
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<UL>
+<LI>Map an object reference to a servant that implements that object</LI>
+<LI>Allow transparent activation of objects</LI>
+<LI>Associate policy information with objects</LI>
+<LI>Make a  CORBA  object persistent  over  several server  process
+lifetimes</LI>
+</UL><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+In the POA specification, the use of pseudo-IDL has been deprecated in
+favor  of an approach  that uses  ordinary IDL,  which is  mapped into
+programming languages using the  standard language mappings, but which
+is  locality constrained.  This means  that references  to  objects of
+these types may not be passed outside of a server's address space. The
+POA  interface  itself  is  one  example of  a  locality-constrained
+interface.  
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The  object adapter  is that  part of  CORBA that  is  responsible for
+creating CORBA  objects and  object references and  -- with  a little
+help  from  skeletons --  dispatching  operation  requests to  actual
+object  implementations.   In  cooperation  with   the  Implementation
+Repository  it can also  activate objects,  i.e. start  processes with
+programs that provide implementations for CORBA objects.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<H1><A NAME="SECTION00620000000000000000">
+Threads</A>
+</H1><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+JacORB  currently  offers  one   server-side  thread  model.  The  POA
+responsible for a given request will obtain a request processor thread
+from  a central  thread pool.  The pool  has a  certain size  which is
+always between the maximum and  minimum value configure by setting the
+properties     <TT> jacorb.poa.thread_pool_max</TT>     and     <TT> 
+jacorb.poa.thread_pool_min</TT>.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+When a  request arrives and  the pool is  found to contain  no threads
+because all  existing threads are  active, new threads may  be started
+until     the    total    number     of    threads     reaches    <TT> 
+jacorb.poa.thread_pool_max</TT>. Otherwise,  request processing is blocked
+until a  thread is returned to  the pool. Upon  returning threads that
+have  finished processing a  request to  the pool,  it must  be decided
+whether  the  thread  should  actually   remain  in  the  pool  or  be
+destroyed. If the current pool  size is above the minimum, a processor
+thread will not be out into the pool again. Thus, the pool size always
+oscillates between max and min.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Setting <TT> min</TT> to a value  greater than one means keeping a certain
+number  of   threads  ready  to  service   incoming  requests  without
+delay. This is  especially useful if you now  that requests are likely
+to come  in in a bursty fashion.  Limiting the pool size  to a certain
+maximum  is  done to  prevent  servers  from  occupying all  available
+resources.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Request  processor   threads  usually   run  at  the   highest  thread
+priority. It is possible to influence thread priorities by setting the
+property  <TT> jacorb.poa.thread_priority</TT> to  a value  between Java's
+Thread.MIN_PRIORITY and Thread.MAX_PRIORITY. If the configured priority
+value  is  invalid JacORB  will  assign  maximum  priority to  request
+processing threads.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html228"
+ HREF="node7.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/lib/latex2html/icons.gif/next_motif.gif"></A> 
+<A NAME="tex2html224"
+ HREF="ProgrammingGuide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/lib/latex2html/icons.gif/up_motif.gif"></A> 
+<A NAME="tex2html218"
+ HREF="node5.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/lib/latex2html/icons.gif/previous_motif.gif"></A> 
+<A NAME="tex2html226"
+ HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/lib/latex2html/icons.gif/contents_motif.gif"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html229"
+ HREF="node7.html">Implementation Repository</A>
+<B> Up:</B> <A NAME="tex2html225"
+ HREF="ProgrammingGuide.html">JacORB 1.3 Programming Guide</A>
+<B> Previous:</B> <A NAME="tex2html219"
+ HREF="node5.html">The JacORB Name Service</A>
+ &nbsp <B>  <A NAME="tex2html227"
+ HREF="node1.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+<I>Gerald Brose</I>
+<BR><I>2001-02-09</I>
+</ADDRESS>
+</BODY>
+</HTML>

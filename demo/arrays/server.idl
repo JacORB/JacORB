@@ -1,0 +1,28 @@
+module arrays
+{
+    interface MyServer 
+    {
+	const short arrayBound = 3;
+
+	typedef MyServer servers[2];
+	typedef long numbers[arrayBound];
+	typedef sequence <MyServer> serfs;
+	typedef sequence <long,4> nos;
+	typedef sequence <string> strings;
+
+	struct arrayContainer {
+	    short shorty[7][arrayBound];
+	};
+
+	numbers write(in string s, in numbers n);
+	nos write2(in string s, in nos n);
+
+	// note that the following operation will be
+	// renamed to _notify by the IDL compiler
+	// because of the name clash with java.lang.Object's notify()
+
+	oneway void notify(in servers svs);
+	oneway void notify2(in serfs svs);
+	oneway void notify3(in arrayContainer ac);
+    };
+};

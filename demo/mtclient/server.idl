@@ -1,0 +1,19 @@
+module mtclient
+{
+
+	typedef sequence< string > strings;
+
+	interface Observer 
+	{
+	    oneway void update1(in Observer o);
+            oneway  void update2();
+	};
+
+	interface MyServer 
+	{
+		string writeMessage(in string a1);
+		string writeMessages(in strings a1, in Observer o);
+		strings arryfy(in string a1, in long a2);
+	};
+
+};

@@ -1,0 +1,40 @@
+First Draft
+
+
+            JacORB Coding Conventions
+	    =========================
+
+
+(Please remember: The ultimate goal is code readability, not
+ personal style!)
+
+
+1) Use whitespace to make the text more readable, it helps!
+
+    a) indentation: 4 spaces
+
+    b) Open curly brackets on a *new* line without further indentation
+
+       if( x )
+       {
+       }
+
+    c) always write the body of an if-, for-, while- ... statmement 
+       on a new line, never on the same!
+
+       for( ;; )
+       {
+	  ...
+       }
+
+    d) write: x = y, not: x=y
+
+    e) break lines that get too long
+
+    f) insert empty lines freely wherever you think it helps.
+
+2) Comment as much as you can!
+
+3) Suggestions?
+
+...

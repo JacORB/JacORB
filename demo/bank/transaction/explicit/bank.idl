@@ -1,0 +1,42 @@
+#include <CosTransactions.idl>
+
+module demo
+{
+  module bank 
+    {
+      module transaction
+	{
+	  module explicit
+	    {
+	      exception InsufficientFunds{};
+	    
+	      interface Account;
+	    
+	      interface AccountManager {
+		Account open(in string name, in float initial_deposit);
+	      };
+	    
+	      interface Bank: AccountManager {
+		void transfer( in Account source, 
+			       in Account destination, 
+			       in float amount )
+		  raises( InsufficientFunds );
+	      };
+	    
+	      interface Account :
+		CosTransactions::Resource,
+		CosTransactions::TransactionalObject 
+		{
+		  readonly attribute float balance;
+		    
+		  void credit( in float amount, 
+			       in CosTransactions::Control control );
+	    
+		  void debit( in float amount, 
+			      in CosTransactions::Control control )
+		    raises( InsufficientFunds );		    
+		};
+	    };	   
+	};
+    };
+};

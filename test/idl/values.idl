@@ -1,0 +1,12 @@
+module valuetest
+{
+    valuetype StringBox string;
+
+
+    interface i {
+        void op();
+    } ;
+
+    abstract valuetype v supports i {};
+
+};

@@ -1,0 +1,1707 @@
+package org.jacorb.idl;
+
+import java_cup.runtime.*;
+import java.util.*;
+
+/**
+ * 
+ * JavaCup Specification for CORBA IDL
+ *      
+ * @author Gerald Brose,
+ *  Institut fuer Informatik, 
+ *  Freie Universitaet Berlin.
+ *
+ * 
+ * $Id$
+ *
+ */
+
+action code 
+{:
+:};
+
+
+parser code 
+{:
+
+    static String command_line[] = null;
+
+    public static Vector import_list = new Vector();
+    public static Hashtable pack_replace = new Hashtable();
+    public static Stack scopes = new Stack();
+
+    public static String currentVersion = "";
+    public static String compiler_version = "1.3.20, 17 March 2001";
+
+    static String out_dir = "."; 
+    static String package_prefix = null;
+
+    static boolean parse_only = false;
+    static boolean global_import = false;
+
+    /** compiler flags */
+    public static boolean include_state = false;
+    public static boolean generateIR = false;
+    public static boolean generate_skeletons = true;
+
+    private static boolean generateIncluded = false;
+    private static boolean inhibitionState = false;
+    private static boolean localityContraint = false;
+
+    /**
+     *  allows reinitialization if compiler is not 
+     *  run from a command-line
+     */
+
+    private static void init()
+    {
+        command_line = null;
+        import_list = new Vector();
+        pack_replace = new Hashtable();
+        scopes = new Stack();
+
+        out_dir = "."; 
+        package_prefix = null;
+
+        parse_only = false;
+        global_import = false;
+
+        include_state = false;
+        generateIR = false;
+        generate_skeletons = true;
+
+        generateIncluded = false;
+        boolean inhibitionState = false;
+        boolean localityContraint = false;
+    }
+
+    public static void main( String argv[] ) 
+    {
+        init();
+        boolean result = compile( argv );
+    }
+
+    
+    public static boolean compile( String argv[] ) 
+    {
+        init();
+        try
+        {
+           command_line = argv;
+           if( argv.length > 0 )
+           {
+                int i;
+                for( i = 0; i < argv.length; i++ )
+                {
+                        if( argv[i].equals("-syntax"))
+                        {
+                                parse_only = true;
+                                continue;
+                        } 
+                        if( argv[i].equals("-global_import"))
+                        {
+                                global_import = true;
+                                continue;
+                        } 
+                        if( argv[i].equals("-noskel"))
+                        {
+                                generate_skeletons = false;
+                                continue;
+                        } 
+                        if( argv[i].equals("-d")) 
+                        {
+                                if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
+                                        usage(argv, "-d");
+                                out_dir = argv[++i];
+                                continue;
+                        } 
+                        if( argv[i].equals("-W")) 
+                        {
+                                if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
+                                        usage(argv, "-W");
+                                org.jacorb.idl.Environment.verbosityLevel(Integer.parseInt( argv[++i]));
+                                continue;
+                        } 
+                        if( argv[i].startsWith("-D")) 
+                        {
+                                String def = argv[i].substring(2);
+                                String val;
+
+                                if( def.indexOf('=') > 0 )
+                                {
+                                        val = def.substring( def.indexOf('=') + 1);
+                                        def = def.substring( 0, def.indexOf('='));
+                                }
+                                else
+                                        val = "1";
+                                lexer.define( def, val );
+                                continue;
+                        }
+                        if( argv[i].startsWith("-U")) 
+                        {
+                                lexer.undefine(argv[i].substring(2) );
+                                continue;
+                        } 
+                        if( argv[i].equals("-p")) 
+                        {
+                                if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
+                                        usage(argv, "-p");
+                                package_prefix = argv[++i];
+                                continue;
+                        } 
+                        if( argv[i].equals("-i2jpackage")) 
+                        {
+                                if( i+1 == argv.length || argv[i+1].charAt(0)=='-')
+                                        usage(argv, "-i2jpackage");
+
+                                int split_idx = argv[i+1].indexOf(':');
+                                if( split_idx  < 0 )
+                                        usage(argv, "-i2jpackage");
+                                String idlp = argv[i+1].substring(0,split_idx);
+                                String jp = argv[i+1].substring(split_idx+1);
+
+                                pack_replace.put( idlp, jp );
+                                Environment.output(3,"Replace pack " + idlp + " with " + jp );
+                                i++;
+                                continue;
+                        } 
+                        if( argv[i].equals("-ir")) 
+                        {  
+                              generateIR = true;
+                              continue;
+                        } 
+                        if( argv[i].equals("-i")) 
+                        {
+                                if( i+1 == argv.length || argv[i+1].charAt(0)=='-' )
+                                        usage(argv, "-i");
+                                import_list.addElement( argv[++i]) ;
+                                continue;
+                        } 
+                        if( argv[i].startsWith("-I")) 
+                        {
+                                GlobalInputStream.setIncludePath(argv[i].substring(2));
+                                continue;
+                        }
+                        if( argv[i].equals("-h") || argv[i].equals("-help") )
+                        {
+                                help();
+                                System.exit(0);
+                        }
+                        if( argv[i].equals("-all"))
+                        {
+                                generateIncluded = true;
+                                continue;
+                        }
+                        if( argv[i].equals("-v") || argv[i].equals("-version"))
+                        {
+                                version();
+                                System.exit(0);
+                        }
+                        if( argv[i].endsWith(".idl"))
+                        {
+                                break;
+                        }
+
+                        // else:
+                        usage(argv, "Unrecognized option");
+
+                   }
+                   for( int j=i; j < argv.length; j++)
+                   {
+                        if( argv[j].endsWith(".idl"))
+                        {
+                                Environment.output(4,argv[j]);
+                                GlobalInputStream.init();
+                                try
+                                {               
+                                    GlobalInputStream.setInput( argv[j] );
+                                }       
+                                catch (java.io.IOException io )
+                                {
+                                    System.err.println("Could not find file " + argv[j]);
+                                    parser.help();
+                                }
+                                new parser().parse();
+                        }
+                        else
+                        {
+                                System.err.println("Not an IDL file:" + argv[j]);
+                        }
+                    }
+                }
+           }
+           catch( org.jacorb.idl.ParseException e )
+           {
+              return false;
+           }
+           catch( Exception e )
+           {
+              System.err.println( e.getMessage());
+              // e.printStackTrace();
+              usage(argv, e.getMessage());
+           }
+           return true;
+    }
+
+    public static void usage(String [] argv, String msg)
+    {
+        // debug:
+        for( int i = 0; i < argv.length; i++)
+            System.out.print( argv[i] + " " );
+        System.out.println(" : " + msg);
+
+        System.out.println("Usage: idl [-h|-help][-v|-version][-syntax][-all][-Idir][-Dsymbol[=value]][-U <symbol>][-noskel][-ir] [-i2jpackage x:y][-d <Output Dir>][-p <package_prefix>][-i <import_package][-W debug_level] <filelist>");
+        System.exit(1);
+    }
+
+    private static void help()
+    {     
+        System.out.println("\t-syntax\tsyntax check only, no code generation, implies -no_ir");
+//ystem.out.println("\t-no_ir\tdo not generate information for the Interface Repository");
+        System.out.println("\t-noskel\tdisables generation of POA skeletons");
+        System.out.println("\t-Idir\tset include path for idl files");
+        System.out.println("\t-Dx\tdefine preprocessor symbol x with value 1");
+        System.out.println("\t-Dx=y\tdefine preprocessor symbol x with value y");
+        System.out.println("\t-U\tundefine preprocessor symbol");
+        System.out.println("\t-p pack\tapply pack as prefix to all names in generated Java code");
+        System.out.println("\t\t\tand put code into package <pack>");
+        System.out.println("\t-i2jpackage x:a.b.c\t replace IDL package name x by a.b.c in generated Java code (e.g. CORBA:org.omg.CORBA)");
+        System.out.println("\t-i <x>\tgenerated Java code will include \"import <x>;\"");
+        System.out.println("\t-ir <x>\tgenerate information required by the Interface Repository");
+        System.out.println("\t-global_import \tgenerated Java code will include import statements for all global types");
+        System.out.println("\t-d dir\troot of directory tree for output");
+        System.out.println("\t-W [1..4]\tdebug level");
+        System.out.println("\t-all generate code for all IDL files, even included ones");
+        System.out.println("\t-v|version \tprint version information");
+        System.out.println("\t-h|help \tthese few lines of help");
+        System.out.println("\t<filelist>\t");
+  }
+
+  private static void version()
+  {
+        System.out.println("JacORB IDL compiler V" + compiler_version + ",\n   (C) Gerald Brose, FU Berlin, 1997-2001.");
+  }
+
+
+  /* override error routines */
+
+    public void report_fatal_error( String message, Object info)
+        throws ParseException
+    {
+       done_parsing();
+       lexer.emit_error(message);
+       System.err.println("Can't recover from previous error(s), giving up.");
+       throw new ParseException();
+       // System.exit(1);
+    }
+
+    public static void fatal_error(String message, str_token p_info)
+        throws ParseException
+    {
+       //done_parsing();
+       lexer.emit_error(message, p_info);
+       System.err.println("Can't recover from previous error(s), giving up.");
+       throw new ParseException();
+       // System.exit(1);
+    }
+
+    public void report_error(String message, Object info)
+    {
+       lexer.emit_error(message);
+    }
+
+    public static void error(String message, str_token p_info)
+    {
+       lexer.emit_error(message, p_info);
+    }
+
+
+
+
+        /* bookkeeping with IDL scopes */
+
+        /** called from the lexer/scanner whenever a scope opening
+            symbol is encountered */
+
+        public static void openScope()
+        {
+            scopes.push(new ScopeData());
+        }
+
+        /** called from within the parser whenever parsing a scope 
+            symbol is complete */
+
+        public static void closeScope(Scope symbol)
+        {
+                ScopeData data = (ScopeData) scopes.pop();
+                symbol.setScopeData( data );
+        }
+
+        public static ScopeData currentScopeData()
+        {
+                return (ScopeData)scopes.peek();
+        }
+
+
+        // an interface inheriting from an forward declared interface
+        // needs to wait on an object until the ancestor has been parsed
+        // if get_pending returns null, the ancestor was not forward 
+        // declared and thus has already been parsed
+
+        // forward declared interfaces are put into this list
+
+    public static java.util.Hashtable pending_interfaces = new java.util.Hashtable();
+
+    public static synchronized void set_pending( String name )
+    {
+                // name will only be marked pending if it has not already been
+                // parsed before and if is not already pending
+                if( ! ( pending_interfaces.containsKey(name) ||
+                        NameTable.parsed_interfaces.containsKey(name)) )
+                {
+                        pending_interfaces.put(name,new Object());
+                }
+    }
+
+    public static synchronized void remove_pending( String name )
+    {
+        Object o = pending_interfaces.remove(name);
+        if( o!= null) 
+        {
+                synchronized(o)
+                { 
+                        o.notifyAll();
+                }
+        }
+        if( pending_interfaces.size() == 0 )
+                // notify the main thread that the parsing phase is complete
+                synchronized( pending_interfaces )
+                {
+                        pending_interfaces.notifyAll();
+                }
+       }
+
+
+        public static boolean generateIncluded()
+        {
+                return generateIncluded;
+        }
+
+        /**
+         * sets locality constraint
+         */
+
+        public static void setLocalityContraint()
+        {
+                localityContraint = true;
+        }
+
+    /**
+      * return the current locality constraint, resets constraint
+      */
+
+    public static boolean getLocalityContraint()
+    {
+        boolean result = localityContraint;
+        localityContraint = false;
+        return result;
+    }
+
+    public static boolean getInhibitionState()
+    {
+        return inhibitionState;
+    }
+
+    public static void setInhibitionState(boolean flag)
+    {
+        inhibitionState = flag;
+    }
+
+    public static void set_included( boolean i )
+    {
+        include_state = i;
+    }
+
+    public static synchronized Object get_pending( String name )
+    {
+        return pending_interfaces.get(name);
+    }
+
+    public static boolean hasImports()
+    {
+        return import_list.size() > 0 ;
+    }
+
+    static void addGlobalNamesToImport()
+    {
+        for( Enumeration e = NameTable.getGlobalTypes(); 
+                e.hasMoreElements(); )
+        {
+                String s = (String) e.nextElement();
+                import_list.addElement( s );
+                Environment.output(4,"Adding import for global name " + s );
+        }       
+    }
+
+
+    /** 
+     * Package replacements as requested
+     * by compiler options
+     */
+
+    public static String pack_replace(String old)
+    {
+        String n_str = (String)pack_replace.get(old);
+        if( n_str == null )
+            return old;
+        else
+            return n_str;
+    }
+
+:};
+
+/*----------------------------------------------------------------*/ 
+
+init with 
+{: 
+        lexer.init(); 
+:};
+
+
+scan with 
+{: 
+        return lexer.next_token(); 
+:};
+
+/*----------------------------------------------------------------*/ 
+
+/** terminal symbols and reserved words in IDL:
+ *
+ * "Object" is listed as reserved in the OMG spec. 
+ */
+
+terminal java_cup.runtime.token
+  ABSTRACT, ANY, ATTRIBUTE, BOOLEAN, CASE, CHAR, CONST, CONTEXT, CUSTOM,
+  DEFAULT, DOUBLE, ENUM, EXCEPTION, FACTORY, FALSE, FIXED, FLOAT, IN, 
+  INOUT, INTERFACE, LONG, MODULE, NATIVE, OBJECT, OCTET, ONEWAY, OUT, 
+  PRIVATE, PUBLIC, PSEUDO, RAISES, READONLY, SEQUENCE, SHORT, STRING,
+  STRUCT, SUPPORTS, SWITCH, TRUE, TRUNCATABLE, TYPEDEF, UNSIGNED, UNION, 
+  VALUEBASE, VALUETYPE, VOID, WCHAR, WSTRING,
+  SEMI, COMMA, STAR, DOT, COLON, EQUALS, PLUS, MINUS, LPAREN, RPAREN,
+  LCBRACE, RCBRACE, LSBRACE, RSBRACE, LESSTHAN, GREATERTHAN, QUOTE, DBLQUOTE, 
+  BSLASH, BAR, CIRCUM, AMPERSAND, SLASH, PERCENT, TILDE, DBLCOLON,
+  RSHIFT, LSHIFT;
+
+
+terminal org.jacorb.idl.str_token ID;
+
+/**
+ * "int" is not actually a reserved word in IDL, it has been put here
+ * merely to prevent its usage as an integer type.
+ */ 
+
+terminal java_cup.runtime.char_token CH;
+terminal java_cup.runtime.int_token  INT;
+terminal java_cup.runtime.int_token  NUMBER;
+terminal java_cup.runtime.long_token LONG_NUMBER;
+terminal java_cup.runtime.float_token  FLOAT_NUMBER;
+terminal fixed_token  FIXED_NUMBER;
+
+non terminal java_cup.runtime.symbol case_label, context_expr, string_literal_list;
+
+non terminal java_cup.runtime.symbol empty; 
+
+non terminal java_cup.runtime.int_token op_attribute;
+non terminal java_cup.runtime.int_token param_attribute;
+
+non terminal java_cup.runtime.int_token truncatable;
+
+non terminal java_cup.runtime.str_token unary_op;
+
+non terminal Spec specification;
+non terminal Definition definition;
+non terminal Definitions definitions;
+non terminal Module module;
+non terminal Interface interface;
+non terminal InterfaceBody interface_body;
+non terminal Definition export;
+non terminal ScopedName scopename;
+
+non terminal Value value;
+non terminal IdlSymbol value_box_dcl;
+non terminal IdlSymbol value_abs_dcl;
+non terminal IdlSymbol value_body;
+non terminal IdlSymbol value_dcl;
+non terminal IdlSymbol value_inheritance_spec;
+non terminal IdlSymbol value_elements;
+non terminal IdlSymbol value_element;
+non terminal IdlSymbol state_member;
+non terminal IdlSymbol init_param_decls;
+non terminal IdlSymbol init_param_decl;
+
+non terminal ConstDecl const_dcl;
+non terminal ConstType const_type;
+non terminal ConstExpr const_expr;
+non terminal PosIntConst positive_int_const;
+non terminal OrExpr or_expr;
+non terminal XorExpr xor_expr;
+non terminal AndExpr and_expr;
+non terminal ShiftExpr shift_expr;
+non terminal AddExpr add_expr;
+non terminal MultExpr mult_expr;
+non terminal UnaryExpr unary_expr;
+non terminal PrimaryExpr primary_expr;
+
+non terminal TypeDeclaration type_dcl;
+non terminal TypeDeclarator type_declarator;
+non terminal TypeSpec type_spec, op_type_spec, param_type_spec,switch_type_spec;
+non terminal TypeDef type_def;
+non terminal SimpleTypeSpec simple_type_spec;
+non terminal TemplateTypeSpec template_type_spec;
+non terminal ConstrTypeSpec constr_type_spec;
+non terminal EnumType enum_type;
+non terminal StructType struct_type, except_dcl;
+non terminal UnionType union_type;
+non terminal NativeType native_type;
+non terminal SwitchBody switch_body;
+non terminal Case case;
+non terminal ElementSpec element_spec;
+non terminal BaseType base_type_spec;
+non terminal IntType int_type;
+non terminal FloatPtType float_pt_type;
+non terminal FloatType float_type;
+non terminal FixedPointConstType fixed_pt_const_type;
+non terminal DoubleType double_type;
+non terminal ShortType short_type;
+non terminal LongType long_type;
+non terminal LongLongType long_long_type;
+non terminal CharType char_type;
+non terminal BooleanType bool_type;
+non terminal OctetType octet_type;
+non terminal AnyType any_type;
+non terminal VoidTypeSpec void_type_spec;
+non terminal StringType string_type;
+non terminal SequenceType sequence_type;
+non terminal FixedPointType fixed_point_type;
+non terminal Literal literal, string_literal;
+
+non terminal Member member;
+non terminal Declarator declarator;
+non terminal SimpleDeclarator simple_declarator;
+non terminal ArrayDeclarator array_declarator;
+non terminal FixedArraySize fixed_array_size;
+non terminal ParamDecl param_dcl;
+non terminal RaisesExpr raises_expr;
+non terminal OpDecl op_dcl;
+non terminal AttrDecl attr_dcl;
+
+non terminal MemberList member_list;
+
+non terminal SymbolList case_label_list,param_dcls, parameter_dcls, scopename_list;
+non terminal SymbolList simple_declarator_list, declarators;
+non terminal SymbolList inheritance_spec, enumerator_list, fixed_array_size_list;
+
+/*----------------------------------------------------------------*/ 
+
+start with specification;
+
+// #1
+specification ::= 
+        {:
+        :}
+          definitions:ds
+          {:
+                /* parsing */
+
+                // open the global scope
+                parser.openScope();
+
+                RESULT.definitions = (Vector)ds.v.clone();
+
+                if( ((org.jacorb.idl.parser)CUP$parser).package_prefix != null )
+                        RESULT.setPackage( ((org.jacorb.idl.parser)CUP$parser).package_prefix );
+
+                RESULT.parse();
+
+                if ( lexer.error_count != 0 )
+                {
+                        System.err.println(lexer.error_count + " error(s).");
+                        System.exit(1);
+                }
+
+                // if there are still interfaces to be parsed, wait until the
+                // threads performing this have finished. The last one will call notify() :) 
+
+                if( parser.pending_interfaces.size() > 0 )
+                {
+                        if( Thread.activeCount() > 1 )
+                        {
+                           synchronized(parser.pending_interfaces)
+                           {
+                                parser.pending_interfaces.wait();
+                           }
+                        } 
+                        else 
+                        {
+                                parser.fatal_error("Undefined interface: " + 
+                        (String)(parser.pending_interfaces.keys().nextElement()), null );
+                        }
+                }
+
+                /* complete global import list */
+                if( parser.global_import )
+                {
+                        Environment.output(3,"Preparing global import");
+                        parser.addGlobalNamesToImport();
+                }
+                else
+                        Environment.output(3,"No global import");
+
+                /* code generation phase */
+
+                try
+                {
+
+                   if (! ((org.jacorb.idl.parser)CUP$parser).parse_only  )
+                   {
+                        RESULT.print(new java.io.PrintWriter( java.lang.System.out ));
+                   }
+                } 
+                catch ( Exception e )
+                {
+                        e.printStackTrace();
+                }
+        :}
+        | empty
+        ;
+
+// #1a
+
+definitions ::= 
+          definition:d definitions:ds
+                {:
+                        RESULT.v = (Vector)ds.v.clone();
+                        RESULT.v.insertElementAt(d,0);
+                :}
+        | definition:d
+                {:
+                        RESULT.v.insertElementAt(d,0);
+                :}
+
+        ;
+
+// #2
+definition ::= 
+          type_dcl:t SEMI
+                {: 
+                        RESULT.set_declaration(t); 
+                :}
+        | const_dcl:c SEMI
+                {: 
+                        RESULT.set_declaration(c); 
+                :}
+        | except_dcl:e SEMI
+                {: 
+                        RESULT.set_declaration(e); 
+                :}
+        | interface:p SEMI
+                {: 
+                        RESULT.set_declaration(p); 
+                :}
+        | module:m SEMI
+                {: 
+                        RESULT.set_declaration(m);
+                 :}
+
+        | value:m SEMI
+                {: 
+                        RESULT.set_declaration(m);
+                 :}
+        ;
+
+// #3
+module ::=
+        MODULE ID:i LCBRACE definitions:d RCBRACE
+        {: 
+                RESULT.spec = d;
+                RESULT.set_token(i);
+                RESULT.setPackage(i.str_val );
+                RESULT.set_included( parser.include_state );
+
+                d.setEnclosingSymbol(RESULT);
+                parser.closeScope( (Scope)RESULT );
+        :}
+        ;
+
+// #4,5,6,7
+interface ::=
+          INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
+         {: 
+                RESULT.set_token(i);
+                RESULT.inheritanceSpec = is;
+                RESULT.body = b ;
+                b.set_name(i.str_val);
+                b.my_interface = RESULT;
+                b.setEnclosingSymbol(RESULT);
+                RESULT.set_included( parser.include_state );
+                RESULT.set_locality( parser.getLocalityContraint());
+                parser.closeScope( (Scope)RESULT );
+         :}
+         | ABSTRACT INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
+          {: 
+                RESULT.set_token(i);
+                RESULT.set_abstract();
+                RESULT.inheritanceSpec = is;
+                RESULT.body = b ;
+                b.set_name(i.str_val);
+                b.my_interface = RESULT;
+                b.setEnclosingSymbol(RESULT);
+                RESULT.set_included( parser.include_state );
+                RESULT.set_locality( parser.getLocalityContraint());
+                parser.closeScope( (Scope)RESULT );
+         :}
+        | PSEUDO INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
+          {: 
+                RESULT.set_pseudo();
+                RESULT.set_token(i);
+                RESULT.inheritanceSpec = is;
+                RESULT.body = b; 
+                b.set_pseudo();
+                b.set_name(i.str_val);
+//              b.set_token(i); 
+                b.my_interface = RESULT;
+                b.setEnclosingSymbol(RESULT);
+                RESULT.set_included( parser.include_state );
+                RESULT.set_locality( parser.getLocalityContraint());
+                parser.closeScope( (Scope)RESULT );
+         :}
+        | INTERFACE ID:i
+          {:
+                RESULT.set_token(i);    
+                RESULT.set_locality( parser.getLocalityContraint());
+                parser.closeScope( (Scope)RESULT );
+          :}
+        | ABSTRACT INTERFACE ID:i
+          {:
+                RESULT.set_token(i);    
+                RESULT.set_abstract();
+                RESULT.set_locality( parser.getLocalityContraint());
+                parser.closeScope( (Scope)RESULT );
+          :}
+        | PSEUDO INTERFACE ID:i
+          {:
+                RESULT.set_pseudo();
+                RESULT.set_token(i);    
+                RESULT.set_locality( parser.getLocalityContraint());
+                parser.closeScope( (Scope)RESULT );
+          :}
+        ;
+
+
+// # 8
+interface_body ::=
+          export:e interface_body:i
+                {: 
+                        RESULT.v = (Vector)i.v.clone();
+                        RESULT.v.insertElementAt(e,0);
+                :}
+        | empty
+                {: RESULT.commit(); :} 
+                // so that the i_body knows its vector is complete
+        ;
+
+// # 9
+export ::= 
+          type_dcl:t SEMI
+                {: RESULT.set_declaration(t); :}
+        | const_dcl:c SEMI
+                {: RESULT.set_declaration(c); :}
+        | except_dcl:e SEMI
+                {: RESULT.set_declaration(e); :}
+        | attr_dcl:a SEMI
+                {: RESULT.set_declaration(a); :}
+        | op_dcl:o SEMI
+                {: RESULT.set_declaration(o); :}
+        ;
+
+
+// # 10
+inheritance_spec ::=
+          COLON scopename_list:sl
+                {: RESULT.v = (Vector)sl.v.clone(); :}
+        | empty
+        ;
+
+
+scopename_list ::=
+          scopename:sn COMMA scopename_list:snl
+            {: 
+                RESULT.v = (Vector)snl.v.clone(); 
+                RESULT.v.insertElementAt(sn,0); 
+            :}
+        | scopename:sn {: RESULT.v.insertElementAt(sn,0); :}
+        ;
+
+
+scopename ::=
+          ID:i  
+                {: 
+                        RESULT.setId( i.str_val );
+                        RESULT.set_token(i);    
+                :}
+        | DBLCOLON ID:i  
+                {: 
+                        RESULT.setId( "." + i.str_val);
+                        RESULT.set_token(i);    
+                :}
+        | scopename:sn DBLCOLON ID:i
+                {: 
+                        RESULT.setId( sn.typeName + "." + i.str_val );
+                        RESULT.set_token(i);
+                 :}
+        // not in the IDL grammar, but apparently necessary:
+        |  OBJECT:o
+                {: 
+                        RESULT.typeName = "org.omg.CORBA.Object";
+                :}
+        ;
+
+value ::=
+          value_dcl
+        | value_abs_dcl
+        | value_box_dcl
+        | ABSTRACT VALUETYPE ID:i 
+        | VALUETYPE ID:i 
+        ;
+
+
+value_box_dcl ::= 
+        VALUETYPE ID:i type_spec:ts
+        ;
+
+value_abs_dcl ::=
+          ABSTRACT VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_body:b RCBRACE
+        |  ABSTRACT VALUETYPE ID:i value_inheritance_spec:is LCBRACE RCBRACE
+        ;
+
+value_body ::=
+          export:e value_body:vb
+        | export:e
+        ;
+
+value_dcl ::= 
+          CUSTOM VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
+        | VALUETYPE ID:i value_inheritance_spec:is LCBRACE value_elements:ve RCBRACE
+        ;
+
+value_inheritance_spec ::= 
+          COLON truncatable:t scopename_list:vn 
+        | SUPPORTS scopename_list:interface_names
+        | COLON truncatable:t scopename_list:vn SUPPORTS scopename_list:interface_names
+        | empty
+        ;      
+
+truncatable ::=
+          TRUNCATABLE  
+          {: 
+                RESULT.int_val = 1; 
+          :} 
+        | empty   
+          {: 
+                RESULT.int_val = 0; 
+          :} 
+        ;      
+
+value_elements ::=
+          value_element value_elements
+        | empty
+        ;
+
+value_element ::=
+          export
+        | state_member:sm
+        | FACTORY ID:i LPAREN init_param_decls:ipd RPAREN SEMI
+        | FACTORY ID:i LPAREN RPAREN SEMI
+        ;
+
+state_member ::=
+          PUBLIC type_spec:ts declarators SEMI
+        | PRIVATE type_spec:ts declarators SEMI
+        ;
+        
+init_param_decls ::=
+          init_param_decl:ip
+        | init_param_decl:ip COMMA init_param_decls:ipdcls
+        ; 
+
+init_param_decl ::=
+          IN param_type_spec:ts simple_declarator:sd
+        ;
+
+// #12
+const_dcl ::=
+         CONST const_type:ct ID:i EQUALS const_expr:ce
+                {:
+                        RESULT.set_name(i.str_val);
+                        RESULT.set_token(i);    
+                        RESULT.const_expr = ce;
+                        RESULT.const_type = (ConstType)ct;
+                        RESULT.set_included( parser.include_state );
+                :}
+        ;
+
+// #13
+const_type ::=
+          int_type:s {: RESULT.symbol = s; :}
+        | char_type:s {: RESULT.symbol = s; :}
+        | bool_type:s {: RESULT.symbol = s; :}
+        | float_pt_type:s {: RESULT.symbol = s; :}
+        | fixed_pt_const_type:s {: RESULT.symbol = s; :}
+        | string_type:s {: RESULT.symbol = s; :}
+        | octet_type:s {: RESULT.symbol = s; :}
+        | scopename:s 
+                {: 
+                        RESULT.symbol = s; 
+                        RESULT.set_token(s.get_token());
+                :}
+        ;
+
+// #14
+const_expr ::= or_expr:o 
+                {: 
+                        RESULT.or_expr = o; 
+                :}
+        ;
+
+// #15
+or_expr ::=
+          xor_expr:x 
+                {: 
+                        RESULT.xor_expr = x; 
+                :}
+        | or_expr:o BAR xor_expr:x
+                {:
+                        RESULT.or_expr = o; 
+                        RESULT.xor_expr = x;
+                :}
+        ;
+
+// #16
+xor_expr ::=
+          and_expr:a 
+                {: 
+                        RESULT.and_expr = a; 
+                :}
+        | xor_expr:x CIRCUM and_expr:a
+                {:
+                        RESULT.and_expr = a; 
+                        RESULT.xor_expr = x;
+                :}
+        ;
+
+// #17
+and_expr ::=
+          shift_expr:s 
+                {: 
+                        RESULT.shift_expr = s; 
+                :}
+        | and_expr:a AMPERSAND shift_expr:s
+                {:
+                        RESULT.and_expr = a; 
+                        RESULT.shift_expr = s;
+                :}
+        ;
+
+// #18
+shift_expr ::=
+          add_expr:a 
+                {: 
+                        RESULT.add_expr = a; 
+                :}
+        | shift_expr:s LSHIFT add_expr:a
+                {:
+                        RESULT.add_expr = a; 
+                        RESULT.shift_expr = s;
+                        RESULT.operator = "<<";
+                :}
+        | shift_expr:s RSHIFT add_expr:a
+                {:
+                        RESULT.add_expr = a; 
+                        RESULT.shift_expr = s;
+                        RESULT.operator = ">>";
+                :}
+        ;
+
+
+// #19
+add_expr ::=
+          mult_expr:m  
+                {:
+                        RESULT.mult_expr = m; 
+                :}
+        | add_expr:a PLUS mult_expr:m
+                {:
+                        RESULT.add_expr = a; 
+                        RESULT.mult_expr = m;
+                        RESULT.operator = "+";
+                :}
+        | add_expr:a MINUS mult_expr:m
+                {:
+                        RESULT.add_expr = a; 
+                        RESULT.mult_expr = m;
+                        RESULT.operator = "-";
+                :}
+        ;
+
+//#20
+mult_expr ::=
+          unary_expr:u {: RESULT.unary_expr = u; :}
+        | mult_expr:m STAR unary_expr:u
+                {:
+                        RESULT.unary_expr = u; 
+                        RESULT.mult_expr = m;
+                        RESULT.operator = "*";
+                :}
+        | mult_expr:m SLASH unary_expr:u
+                {:
+                        RESULT.unary_expr = u; 
+                        RESULT.mult_expr = m;
+                        RESULT.operator = "/";
+                :}
+        | mult_expr:m PERCENT unary_expr:u
+                {:
+                        RESULT.unary_expr = u; 
+                        RESULT.mult_expr = m;
+                        RESULT.operator = "%";
+                :}
+        ;
+
+// #21 
+unary_expr ::=
+          unary_op:u primary_expr:p
+                {:
+                        RESULT.primary_expr = p;
+                        RESULT.unary_op = u.str_val;
+                :}
+        | primary_expr:p {: RESULT.primary_expr = p; :}
+        ;
+
+// #22
+unary_op ::=
+          MINUS {: RESULT.str_val = "-"; :}
+        | PLUS {: RESULT.str_val = "+"; :}
+        | TILDE {: RESULT.str_val = "~"; :}
+        ;
+
+// #23
+primary_expr ::=
+          scopename:s {: RESULT.symbol = s; :}
+        | literal:l {: RESULT.symbol = l; :}
+        | LPAREN const_expr:c RPAREN {: RESULT.symbol = c; :}
+        ;
+
+
+// #24 + 25
+literal ::=
+          NUMBER:n {: RESULT.string = "" + n.int_val; :}
+        | QUOTE CH:c QUOTE {: RESULT.string = "\'" + c.char_val + "\'"; :}
+//      | QUOTE ID:i QUOTE {: RESULT.string = "\'" + i.str_val + "\'"; :}
+        | string_literal:s {: RESULT.string = s.string; :}
+        | FIXED_NUMBER:f {: RESULT.string = "" + f.fixed_val; :}
+        | FLOAT_NUMBER:n {: RESULT.string = "" + n.float_val ; :}
+        | TRUE {: RESULT.string = "true"; :}
+        | FALSE {: RESULT.string = "false"; :}
+        ;
+
+string_literal ::=
+        DBLQUOTE ID:i DBLQUOTE
+                 {: RESULT.string = "\"" + i.str_val + "\""; :}
+        | DBLQUOTE DBLQUOTE
+                 {: RESULT.string = "\"\""; :}
+        ;
+
+// #26
+positive_int_const ::= const_expr:c
+                {: RESULT.const_expr = c; :}
+        ;
+
+
+// #27
+type_dcl ::= 
+          type_def:t
+                {: RESULT.type_decl = t; :}
+        | struct_type:s
+                {: RESULT.type_decl = s; :}
+        | union_type:u
+                {: RESULT.type_decl = u; :}
+        | enum_type:e
+                {: RESULT.type_decl = e; :}
+        | native_type:n
+                {: RESULT.type_decl = n; :}
+        ;
+
+type_def ::= 
+        TYPEDEF type_declarator:t
+        {: 
+                RESULT.type_declarator = t; 
+                RESULT.set_included( parser.include_state );
+        :}
+        ;
+
+// #28
+type_declarator ::= 
+        type_spec:ts declarators:ds
+                {:
+                        RESULT.type_spec = ts;
+                        RESULT.declarators = ds;
+                :}
+        ;
+
+// #29
+type_spec ::=
+          simple_type_spec:s 
+                {: 
+                        RESULT.type_spec = s; 
+                        RESULT.set_token(s.get_token());
+                :}
+        | constr_type_spec:s 
+                {: 
+                        RESULT.type_spec = s; 
+                        RESULT.set_token(s.get_token());
+                :}
+        ;
+
+// #30
+simple_type_spec ::= 
+          base_type_spec:s 
+                {: 
+                        RESULT.type_spec = s; 
+                :}
+        | template_type_spec:s 
+                {: 
+                        RESULT.type_spec = s; 
+                        RESULT.set_token(s.get_token());
+                :}
+        | scopename:s 
+                {: 
+                        RESULT.type_spec = s; 
+                        RESULT.set_token(s.get_token());
+                :}
+        ;
+
+// #31
+base_type_spec ::= 
+          float_pt_type:s {: RESULT.type_spec = s; :}
+        | int_type:s 
+                {: 
+                        RESULT.type_spec = s; 
+                :}
+        | char_type:s {: RESULT.type_spec = s; :}
+        | bool_type:s {: RESULT.type_spec = s; :}
+        | octet_type:s {: RESULT.type_spec = s; :}
+        | any_type:s {: RESULT.type_spec = s; :}
+        | VALUEBASE
+        ;
+
+// #32
+template_type_spec ::= 
+          sequence_type:s 
+                {: 
+                        RESULT.type_spec = s; 
+                        RESULT.set_token(s.get_token());
+                :}
+        | string_type:s 
+                {: 
+                        RESULT.type_spec = s; 
+                        RESULT.set_token(s.get_token());
+                :}
+        | fixed_point_type:f
+                {: 
+                        RESULT.type_spec = f; 
+                        RESULT.set_token(f.get_token());
+                :}
+        ;
+
+// #33
+constr_type_spec ::=
+          struct_type:s 
+                {: 
+                        RESULT.c_type_spec = s; 
+                        RESULT.set_token(s.get_token());
+                :}
+        | union_type:u 
+                {: 
+                        RESULT.c_type_spec = u; 
+                        RESULT.set_token(u.get_token());
+                :}
+        | enum_type:e 
+                {: 
+                        RESULT.c_type_spec = e; 
+                        RESULT.set_token(e.get_token());
+                :}
+        ;
+
+// #34
+declarators ::=
+          declarator:d COMMA declarators:ds
+                {: 
+                        RESULT.v = (Vector)ds.v.clone();
+                        RESULT.v.insertElementAt(d,0); 
+                :}
+        | declarator:d
+                {: 
+                        RESULT.v.insertElementAt(d,0);
+                 :}
+        ;
+
+// #35 + 37
+declarator ::= 
+          simple_declarator:s 
+                {: RESULT.d = s; :}
+        | array_declarator:s 
+                {: RESULT.d = s; :}
+        ;
+
+// #36
+simple_declarator ::= ID:i 
+                {: 
+                        RESULT.set_token(i);    
+                :}
+        ;
+
+// #38
+float_pt_type ::= 
+          float_type:f
+                {:RESULT.type_spec = f; :}
+        | double_type:d
+                {:RESULT.type_spec = d; :}
+        ;
+
+float_type ::=
+          FLOAT
+        ;
+
+fixed_pt_const_type ::=
+        FIXED
+        ;
+
+double_type ::=
+          DOUBLE
+        ;
+
+// #39-45
+int_type ::=
+          long_type:l
+                {: 
+                        RESULT.type_spec = l; 
+                :}
+        | long_long_type:ll
+                {: 
+                        RESULT.type_spec = ll; 
+                :}
+        | UNSIGNED long_type:l
+                {: 
+                        RESULT.type_spec = l; 
+                :}
+        | UNSIGNED long_long_type:l
+                {: 
+                        RESULT.type_spec = l; 
+                :}
+        | short_type:s
+                {: 
+                        RESULT.type_spec = s; 
+                :}
+        | UNSIGNED short_type:s
+                {: 
+                        RESULT.type_spec = s; 
+                :}
+        ;
+
+short_type ::= 
+        SHORT
+        ;
+
+long_type ::= 
+        LONG
+        ;
+
+long_long_type ::= 
+        LONG LONG
+        ;
+
+// #46
+char_type ::= 
+          CHAR
+        | WCHAR
+        {: RESULT.setWide(); :}
+        ;
+
+// #47
+bool_type ::= 
+        BOOLEAN
+        ;
+
+// #48
+octet_type ::= 
+        OCTET
+        ;
+
+// #49
+any_type ::= 
+        ANY
+        ;
+
+// #50
+struct_type ::=
+        STRUCT ID:i LCBRACE member_list:ml RCBRACE
+                {: 
+                        RESULT.set_token(i);    
+                        RESULT.exc = false;
+                        RESULT.set_memberlist( ml );
+                        RESULT.set_included( parser.include_state );
+                        parser.closeScope( (Scope)RESULT );
+                :}
+        ;
+
+// #51
+member_list ::=
+          member:m
+                {: 
+                        RESULT.v.insertElementAt(m,0); 
+                :}
+        | member:m member_list:ml
+                {: 
+                        RESULT.v = (Vector)ml.v.clone();
+                        RESULT.v.insertElementAt(m,0); 
+                :}
+        ;
+
+// #52
+member ::=
+        type_spec:ts declarators:ds SEMI
+                {: 
+                        RESULT.type_spec = ts;
+                        RESULT.declarators = ds;
+                :}
+        ;
+
+// #53
+union_type ::=
+        UNION ID:i SWITCH LPAREN switch_type_spec:s RPAREN 
+                LCBRACE switch_body:sb RCBRACE
+                {: 
+                        RESULT.setSwitchType( s ); 
+                        RESULT.setSwitchBody( sb ); 
+                        RESULT.set_token(i);
+                        RESULT.set_included( parser.include_state );
+                        parser.closeScope( (Scope)RESULT );
+                :}
+        ;
+
+// #54 
+switch_type_spec ::=
+          int_type:i {: RESULT.type_spec = i; :}
+        | char_type:c {: RESULT.type_spec = c; :}
+        | bool_type:b {: RESULT.type_spec = b; :}
+        | enum_type:e {: RESULT.set_constr(e); :}
+        | scopename:s {: RESULT.type_spec = s; :}
+        ;
+
+// #55
+switch_body ::=
+          case:c 
+        {:
+                RESULT.v.addElement(c);
+        :}
+        | case:c switch_body:sb
+        {:
+                RESULT.v = (Vector)sb.v.clone();
+                RESULT.v.addElement(c);
+        :}
+        ;
+
+// #56 
+case ::=
+        case_label_list:c element_spec:es SEMI
+                {:
+                        RESULT.element_spec = es;
+                        RESULT.case_label_list = c;
+                :}
+        ;
+
+// #56b)
+case_label_list ::=
+        CASE const_expr:c COLON
+                {: RESULT.v.addElement(c); :}
+        | DEFAULT COLON
+                {: RESULT.v.addElement( null ); :}
+        | CASE const_expr:c COLON case_label_list:cll
+                {:
+                        RESULT.v = (Vector)cll.v.clone();
+                        RESULT.v.addElement(c);
+                :}
+        | DEFAULT COLON case_label_list:cll
+                {:
+                        RESULT.v = (Vector)cll.v.clone();
+                        RESULT.v.addElement(null);
+                :}
+        ;
+
+// #57 (integrated in #56b
+
+// #58
+element_spec ::=
+        type_spec:ts declarator:dc
+                {:
+                        RESULT.t.type_spec = ts;
+                        RESULT.d = dc;
+                :}
+        ;
+
+// #59
+enum_type ::=
+        ENUM ID:i LCBRACE enumerator_list:el RCBRACE
+                {: 
+                        RESULT.set_token(i);    
+                        RESULT.enumlist = el;
+                        RESULT.set_included( parser.include_state );
+                :}
+        ;
+
+// #60
+enumerator_list ::=
+          ID:i
+                {: 
+                        RESULT.v.insertElementAt(i.str_val,0); 
+                        RESULT.set_token(i);    
+                :}
+        | ID:i COMMA enumerator_list:el
+                {: 
+                        RESULT.v = (Vector)el.v.clone();
+                        RESULT.v.insertElementAt(i.str_val,0); 
+                        RESULT.set_token(i);    
+                :}
+        ;
+
+
+native_type ::=
+        NATIVE simple_declarator:sd
+                {:
+                        RESULT.declarator = sd;
+                :}
+        ;
+
+// #61
+sequence_type ::= 
+          SEQUENCE LESSTHAN simple_type_spec:sts
+                            COMMA positive_int_const:pic GREATERTHAN
+                {:
+                        RESULT.max = pic.const_expr;
+                        RESULT.setTypeSpec( sts );
+                :}
+        | SEQUENCE LESSTHAN simple_type_spec:sts GREATERTHAN
+                {:
+                        RESULT.setTypeSpec( sts );
+                :}
+        ;
+
+// # 62
+string_type ::= 
+          STRING LESSTHAN positive_int_const:pic GREATERTHAN
+          {: RESULT.max = pic.const_expr; :}
+        | WSTRING LESSTHAN positive_int_const:pic GREATERTHAN
+          {: 
+                RESULT.max = pic.const_expr; 
+                RESULT.setWide();
+          :}
+        | STRING
+        | WSTRING 
+        {: RESULT.setWide(); :}
+        ;
+
+fixed_point_type ::= 
+          FIXED LESSTHAN positive_int_const:digits COMMA positive_int_const:scale GREATERTHAN
+          {: 
+                RESULT.digit_expr = digits.const_expr;
+                RESULT.scale_expr = scale.const_expr;
+         :}     
+        ;
+
+
+
+// #63
+array_declarator ::= 
+          ID:i fixed_array_size_list:fasl
+                {: 
+                        RESULT.set_token(i);    
+                        RESULT.fixed_array_size_list = fasl;
+                :}
+        ;
+
+fixed_array_size_list ::=
+          fixed_array_size:fas
+                {: 
+                        RESULT.v.insertElementAt(fas,0); 
+                :}
+        | fixed_array_size:fas fixed_array_size_list:fasl
+                {: 
+                        RESULT.v = (Vector)fasl.v.clone();
+                        RESULT.v.insertElementAt(fas,0); 
+                :}
+        ;
+
+// #64
+fixed_array_size ::=
+        LSBRACE positive_int_const:pic RSBRACE
+                {: 
+                        RESULT.pos_int_const = pic;
+                :}
+        ;
+
+// #65
+attr_dcl ::=
+          READONLY ATTRIBUTE param_type_spec:pts simple_declarator_list:sdl
+                {:
+                        RESULT.readOnly = true;
+                        RESULT.param_type_spec = pts;
+                        RESULT.declarators = sdl;
+                :}
+        | ATTRIBUTE param_type_spec:pts simple_declarator_list:sdl
+                {:
+                        RESULT.readOnly = false;
+                        RESULT.param_type_spec = pts;
+                        RESULT.declarators = sdl;
+                :}
+        ;
+
+simple_declarator_list ::=
+          simple_declarator:sd
+                {: 
+                        RESULT.v.insertElementAt(sd,0); 
+                :}
+        | simple_declarator:sd COMMA simple_declarator_list:sdl
+                {: 
+                        RESULT.v = (Vector)sdl.v.clone();
+                        RESULT.v.insertElementAt(sd,0); 
+                :}
+        ;
+
+// #66
+except_dcl ::= 
+          EXCEPTION ID:i LCBRACE RCBRACE
+                {: 
+                        RESULT.set_token(i);    
+                        RESULT.exc = true;
+                        RESULT.set_included( parser.include_state );
+                        parser.closeScope( (Scope)RESULT );
+                :}
+        | EXCEPTION ID:i LCBRACE member_list:ml RCBRACE
+                {: 
+                        RESULT.set_token(i);    
+                        RESULT.exc = true;
+                        RESULT.set_memberlist( ml );
+                        RESULT.set_included( parser.include_state );
+                        parser.closeScope( (Scope)RESULT );
+                :}
+        ;
+
+
+// #67
+op_dcl ::=
+        op_attribute:oa op_type_spec:ots ID:i parameter_dcls:pds 
+                raises_expr:re context_expr
+          {: 
+                        RESULT.opAttribute = oa.int_val;
+                        RESULT.opTypeSpec = ots;
+                        RESULT.set_token(i);    
+                        RESULT.paramDecls = (Vector)pds.v.clone();
+                        RESULT.raisesExpr = re;
+          :}
+        ;
+
+// #68
+op_attribute ::=
+          ONEWAY
+                {: RESULT.int_val = 1; :} 
+        | empty 
+                {: RESULT.int_val = 0; :} 
+        ;
+
+// #69
+op_type_spec ::= 
+          param_type_spec:s {: RESULT.type_spec = s; :}
+        | void_type_spec:s {: RESULT.type_spec = s; :}
+        ;
+
+
+void_type_spec ::= 
+        VOID
+        ;
+
+// #70
+parameter_dcls ::= 
+          LPAREN param_dcls:pds RPAREN 
+                {: 
+                        RESULT.v = (Vector)pds.v.clone(); 
+                :}
+        | LPAREN RPAREN
+        ;
+
+
+param_dcls ::= 
+          param_dcl:pd COMMA param_dcls:pds  
+            {: 
+                        RESULT.v = (Vector)pds.v.clone(); 
+                        RESULT.v.insertElementAt(pd,0); 
+                :}
+        | param_dcl:pd 
+                {: 
+                        RESULT.v.insertElementAt(pd,0); 
+                :}
+        ;
+
+// #71
+param_dcl ::=
+        param_attribute:pa param_type_spec:pts simple_declarator:sd
+          {: 
+                RESULT.paramAttribute = pa.int_val;
+                RESULT.paramTypeSpec = pts;
+                RESULT.simple_declarator = sd;
+          :}
+        ;
+
+// #72
+param_attribute ::=
+          IN    {: RESULT.int_val = 1; :}
+        | OUT   {: RESULT.int_val = 2; :}
+        | INOUT {: RESULT.int_val = 3; :}
+        ;
+
+// #73
+raises_expr ::=
+          RAISES LPAREN scopename_list:snl RPAREN
+        {: 
+                RESULT.nameList = (Vector)snl.v.clone(); 
+        :}
+        | empty
+        ;
+
+// #74
+context_expr ::=
+          CONTEXT LPAREN string_literal_list RPAREN
+        | empty
+        ;
+
+string_literal_list ::=
+          string_literal
+        | string_literal COMMA string_literal_list
+        ;
+
+// #75
+param_type_spec ::=
+          base_type_spec:s {: RESULT.type_spec = s; :}
+        | string_type:s {: RESULT.type_spec = s; :}
+        | scopename:s {: RESULT.type_spec = s; :}
+        ;
+
+empty ::= /* nothing */;

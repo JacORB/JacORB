@@ -1,0 +1,107 @@
+JacORB 1.3.0
+
+		Installing and Building JacORB
+
+_____________________________________________________________________
+
+Required: 
+
+	- JDK 1.1 or later
+
+	- if your are using JDK 1.1 and want to use any GUI features
+	  at all, you need to install the swing classes (aka Java 
+	  Foundations Classes JFC) downloadable from http://java.sun.com
+
+	- for IIOP over SSL:
+	  IAIK crytography provider and SSL implementation
+
+	- for rebuilding JacORB or compling the demos:
+	  Version 1.1 or later of the Jakarta Ant make tool,
+          available from http://jakarta.apache.org/ant. 
+
+	[ This release was tested on Linux (JDK 1.2.2 and 1.3), Solaris 
+	(JDK 1.2.2 and JDK 1.1.8) and WinNT 4Sp6 (JDK1.3, JDK 1.1.8). ]
+
+Installation:
+=============
+
+(0. Download "Ant" and install it as described in its documentation
+    if you want to rebuild. This JacORB release relies on Ant 1.2 !!)
+
+1.  For rebuilding, extend your CLASSPATH environment variable to 
+    include the following paths, where <jacorb_home> denotes your 
+    JacORB installation directory and <ant_home> the Ant installation 
+    directory.:
+
+	1) <jacorb>/classes
+	2) <ant_home>/lib/ant.jar
+
+2. Extend your search path to include the <jacorb>/bin subdirectory
+   of the installation directory so that the JacORB utilities can be
+   found. (For rebuilding, ant's /bin directory must also be included.)
+
+3. Copy orb.properties to JAVA_HOME/lib or edit the existing
+   orb.properties file.
+
+4. Edit jacorb.properties and copy them to your "home" directory:
+   Most options need no configuration, but you must adjust the  
+   URL strings
+
+        ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
+        ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
+        jacorb.ImplementationRepositoryURL=http://www.x.y.z/~user/ImR_Ref
+        jacorb.ProxyServerURL=http://www.x.y.z/~user/Appligator_Ref
+
+   to match your domain's web server or local file system structure.
+   Please consult the programming guide's section on  setting up the
+   name server for details. The trader and the Appligator are located 
+   using the same mechanism. If you don't need these services, just
+   comment out the coorresponding line in the properties file..
+
+   Also, you can configure how much diagnostic information JacORB
+   emits by setting the jacorb.verbosity property. A value of 0
+   means no output,  level 1 emits basic connection information, 
+   and levels 2 and above are debug levels.
+
+5. Generate or edit the start scripts jaco and jaco.bat:
+   (This step is carried out automatically by the build
+    process, so it is only required if you are not rebuilding
+    JacORB).
+
+        a) If you have ant installed, simply call 
+            "ant jaco"
+
+        b) If you don't have ant, you need to adapt the jaco(.bat)
+           script in bin/ yourself to update the classpath.
+
+
+Building JacORB (Optional)
+==========================
+
+   To build JacORB you need to call "ant" in 
+   the installation directory as shown below.
+
+	$> ant 
+ 
+   NOTE: 
+
+   The build process may bail out, claiming that javac 
+   does not have enough memory. This can happen when trying to
+   compile a large number or files at one time. To avoid this
+   on Unix, copy the file "ANT-RC" to your home directory. ant will
+   consult this file and use a larger Java maximum heap size. If 
+   this is not applicable in your setting or if you are building on 
+   a Windows platform, you need to edit ANT_HOME/bin/ant(.bat) such
+   that the java interpreter is passed the -mx48m (or whatever)
+   switch. The line to modify is 
+
+        if "%JAVACMD%" == "" set JAVACMD=java -mx48m
+
+   Yet another way of achieving the same is by setting the 
+   JAVACMD environment variable:
+
+        set JAVACMD=java -mx48m
+
+
+_____________________________________________________________________
+Gerald Brose, February 2001

@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<project name="events" default="all" basedir="../../..">
+
+  <!-- ==================================================== -->
+  <!--             ORB build file                         -->
+  <!-- $Id$ -->
+  <!-- ==================================================== -->
+
+
+   <target name="init">
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="classpath" value="${java.class.path}:${dirs.base}/classes"/>
+	<property name="src" value="${dirs.base}/src"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+	<property name="idlflags" value="-I${include}/omg -d ${src}/generated"/>
+   </target>
+
+   <target name="all" depends="init,idl,coscompile">
+	<javac srcdir="${src}"
+               destdir="${classdir}"
+	       includes="jacorb/events/**.java"
+	        />
+   </target>
+
+
+   <target name="idl" depends="coseventsidl,jacorbeventidl" >
+	<javac srcdir="${src}"
+	       includes="jacorb/orb/events/**.java"
+               destdir="${classdir}"
+	        />
+   </target>
+
+   <target name="coseventsidl" depends="com,admin">
+   </target>
+
+   <target name="com">
+        <java classname="jacorb.idl.parser"               
+              classpath="${classpath}"
+              fork="yes">
+              <arg line="${idlflags} -p org.omg ${include}/omg/CosEventComm.idl"/>
+              
+        </java>
+   </target>
+
+   <target name="admin">
+        <java classname="jacorb.idl.parser"               
+              classpath="${classpath}"
+              fork="yes">
+              <arg line="${idlflags} -p org.omg ${include}/omg/CosEventChannelAdmin.idl"/>
+        </java>
+   </target>
+
+   <target name="jacorbeventidl">
+        <java classname="jacorb.idl.parser"               
+              classpath="${classpath}"
+              fork="yes">
+              <arg line="${idlflags} ${include}/jacorb/channel.idl"/>
+        </java>
+   </target>
+
+   <target name="coscompile">
+	<javac srcdir="${src}/generated"
+	       includes="org/omg/CosEvent*/**.java"
+               destdir="${classdir}"
+	        />
+   </target>
+
+   <target name="clean">
+   </target>
+
+</project>
+

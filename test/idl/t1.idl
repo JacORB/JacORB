@@ -1,0 +1,8 @@
+module t1
+{
+    typedef long UInt32_C;
+
+    interface I {
+    void op(out UInt32_C arg);
+    };
+};

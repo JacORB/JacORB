@@ -1,0 +1,9 @@
+#!/bin/sh 
+
+# JacORB proxy server
+# Sebastian Mueller, Freie Universitaet Berlin
+# semu@inf.fu-berlin.de
+
+# Starts the JacORB appligator
+
+jaco jacorb.proxy.ForwarderImpl $@

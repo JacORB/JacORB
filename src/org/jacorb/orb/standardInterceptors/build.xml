@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<project name="standardInterceptor" default="all" basedir="../../../..">
+
+  <!-- ==================================================== -->
+  <!--      JacORB Standard Interceptors build file         -->
+  <!-- $Id$ -->
+  <!-- ==================================================== -->
+
+   <target name="init">
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="src" value="${dirs.base}/src"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+	<property name="idlflags" 
+                value="-I${include}/omg -I${include}/jacorb -d
+	${src}/generated"/>
+   </target>
+
+   <target name="all" depends="init">
+	<javac srcdir="${src}"
+               destdir="${classdir}"
+	       includes="jacorb/orb/standardInterceptors/*.java"
+	       />
+   </target>
+
+   <target name="clean">
+   </target>
+
+</project>
+
+
+
+
+

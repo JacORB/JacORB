@@ -1,0 +1,277 @@
+##
+##  JacORB configuration options
+##
+
+########################################
+#                                      #
+#   Initial references configuration   #
+#                                      #
+########################################
+
+#
+# URLs where IORs are stored (used in orb.resolve_initial_service())
+# DO EDIT these! (Only those that you are planning to use,
+# of course ;-). 
+#
+# The ORBInitRef references are created on ORB startup time. In the 
+# cases of the services themselves, this may lead to exceptions being 
+# displayed (because the services aren't up yet). These exceptions
+# are handled properly and cause no harm! 
+
+#ORBInitRef.NameService=corbaloc::160.45.110.41:38693/StandardNS/NameServer%2DPOA/_root
+#ORBInitRef.NameService=file:/c:/NS_Ref
+ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
+#ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
+
+# JacORB-specific URLs
+jacorb.ImplementationRepositoryURL=http://www.x.y.z/~user/ImR_Ref
+jacorb.ProxyServerURL=http://www.x.y.z/~user/Appligator_Ref
+
+
+
+##################################
+#                                #
+#   Debug output configuration   #
+#                                #
+##################################
+
+# use (java) jacorb.util.CAD to generate an apropriate
+# verbosity level 
+# 0 = off
+# 1 = important messages and exceptions
+# 2 = informational messages and exceptions
+# >= 3 = debug-level output (may confuse the unaware user :-)
+jacorb.verbosity=1
+
+# where does output go? Terminal is default
+#jacorb.logfile=LOGFILEPATH
+
+
+
+##################################################
+#                                                #
+#    WARNING: The following properties should    # 
+#    only be edited by the expert user. They     #
+#    can be left untouched for most cases!       #
+#                                                #
+##################################################
+
+
+
+################################
+#                              #
+#   Basic ORB Configuration    #
+#                              #
+################################
+
+# number of retries if connection cannot directly be established
+jacorb.retries=5
+
+# how many msecs. do we wait between retries
+jacorb.retry_interval=500
+
+# size of network buffers for outgoing messages
+jacorb.outbuf_size=2048
+
+# client-side timeout, set no non-zero to stop blocking
+# after so many msecs.
+#jacorb.connection.client_timeout=0
+
+# max time a server keeps a connection open if nothing happens
+#jacorb.connection.server_timeout=10000
+
+#jacorb.reference_caching=off
+
+#
+# The following property specifies the class which is used for
+# reference caching. WeakHashtable uses WeakReferences, so entries
+# get gc'ed if only the Hashtable has a reference to them. This
+# is useful if you have many references to short-living non-persistent
+# CORBA objects. It is only available for java 1.2 and above.
+#
+# On the other hand the standard Hashtable keeps the references until
+# they are explicitely deleted by calling _release(). This is useful
+# for persistent and long-living CORBA objects.
+#
+#jacorb.hashtable_class=jacorb.util.WeakHashtable
+#
+jacorb.hashtable_class=java.util.Hashtable
+
+
+
+###########################################
+#                                         #
+#   The Object Adapter Internet Address   #
+#                                         #
+###########################################
+
+# IP address on multi-homed host (this gets encoded in
+# object references). NOTE: Adresses like 127.0.0.X
+# will only be accessible from the same machine!
+#OAIAddr=1.2.3.4
+
+
+
+################################
+#                              #
+#   Appligator Configuration   #
+#                              #
+################################
+# if your applets don't need appligator, switch this off
+jacorb.use_appligator=off
+
+
+
+############################
+#                          #
+#   Default Interceptors   #
+#   Please leave them in!  #
+#                          #
+############################
+org.omg.PortableInterceptor.ORBInitializerClass.standard_init=jacorb.orb.standardInterceptors.IORInterceptorInitializer
+
+
+
+###############################################
+#                                             #
+#   Implementation Repository Configuration   #
+#                                             #
+###############################################
+# Switch off to avoid contacting the ImR on every server start-up
+jacorb.use_imr=off
+
+jacorb.imr.table_file=Z:\table.dat
+jacorb.imr.backup_file=z:\backup.dat
+jacorb.imr.ior_file=/home/bwana/brose/public_html/ImR_Ref
+jacorb.imr.timeout=
+jacorb.imr.no_of_poas=
+jacorb.imr.no_of_servers=
+
+# the implementation name, should be set to a different 
+# name in the code of persistent servers
+jacorb.implname=StandardImplName
+
+#
+# This is supposed to be a generic startup string for everything
+# that calls Runtime.exec(). Might be replaced by jaco[.bat].
+#
+jacorb.java_exec=java -Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=jacorb.orb.ORBSingleton
+
+
+
+#########################
+#                       #
+#   SSL Configuration   #
+#                       #
+#########################
+
+# For using SSL, this interceptor *must* be set. Otherwise, it can
+# be left commented out.
+#org.omg.PortableInterceptor.ORBInitializerClass.ForwardInit=jacorb.security.ssl.SecurityServiceInitializer
+
+#
+# numbers are hex values (omitting leading 0x)
+#
+jacorb.security.support_ssl=off
+jacorb.security.ssl.supported_options=64
+jacorb.security.enforce_ssl=off
+jacorb.security.ssl.required_options=64
+
+# files with public key certs of trusted CAs
+jacorb.security.trustees=trustee1.cert,trustee2.cert
+
+# the name of the default key alias to look up in the keystore
+jacorb.security.default_user=brose
+jacorb.security.default_password=jacorb
+
+# the name and location of the keystore relative to the home directory
+jacorb.security.keystore=.keystore
+jacorb.security.keystore_password=jacorb
+
+# qualified classname of access decision object
+jacorb.security.access_decision=jacorb.security.level2.AccessDecisionImpl
+
+# list of qualified classnames of principal authenticator objects,
+# separated by commas (no whitespaces!). The first entry (that can
+# be successfully created) will be available through the
+# principal_authenticator property.
+jacorb.security.principal_authenticator=jacorb.security.level2.PrincipalAuthenticatorImpl
+
+# the qualified classname of the ssl socket factory class
+jacorb.ssl.socket_factory=jacorb.security.ssl.SSLSocketFactory
+
+# the qualified classname of the ssl server socket factory class
+jacorb.ssl.server_socket_factory=jacorb.security.ssl.SSLServerSocketFactory
+
+# exchange ssl client server roles to enforce client authentication, but 
+# attention: this causes problems with peers that not prepared to handle this role change
+jacorb.security.change_ssl_roles=on
+
+
+#########################
+#                       #
+#   POA Configuration   #
+#                       #
+#########################
+
+# displays a GUI monitoring tool for servers
+jacorb.poa.monitoring=off
+
+# thread pool configuration for request processing
+jacorb.poa.thread_pool_max=20
+jacorb.poa.thread_pool_min=5
+
+# if set, request processing threads in thePOA
+# will run at this priority. If not set or invalid,
+# MAX_PRIORITY will be used.
+#jacorb.poa.thread_priority=
+
+# size of the request queue, clients will receive Corba.TRANSIENT
+# exceptions if load exceeds this limit
+jacorb.poa.queue_max=100
+
+
+
+########################################        
+#                                      #
+#   Trader configuration, please see   #
+#   src/trading/README.PROPERTIES for  #
+#   explanation                        #
+#                                      #
+########################################        
+
+jtrader.util.max_threads=10
+jtrader.util.min_threads=1
+jtrader.util.query_timeout=5000
+jtrader.impl.cache_max=100
+
+# boolean values, e.g. true / false
+#jtrader.modifiable_properties=
+#jtrader.dynamic_properties=
+#jtrader.proxy_offers=
+
+jtrader.debug=false
+jtrader.debug_verbosity=3
+
+#integer values
+jtrader.def_search_card=
+jtrader.max_search_card=
+jtrader.def_match_card=
+jtrader.max_match_card=
+jtrader.def_return_card=
+jtrader.max_return_card=
+jtrader.max_list=
+jtrader.def_hop_count=
+jtrader.max_hop_count=
+
+#FollowOptions
+#always=2
+#if_no_local=1
+#local_only=0
+jtrader.def_follow_policy=
+jtrader.max_follow_policy=
+jtrader.max_link_follow_policy=
+
+# any other custom properties can be added here. 
+# These are available through the API (call 
+# jacorb.orb.Environment.getProperty())

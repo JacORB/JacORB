@@ -1,0 +1,37 @@
+JacORB 0.8
+
+			Event service example
+			=====================
+
+
+This demo is a simple example of using the event service. (A
+more interesting example would be to implement the card game
+example using the event service.)
+
+Basically, there are two modes for both suppliers and consumers 
+of events: "push" and "pull" mode.
+
+Consumers of events can either register as "push"-consumers, 
+i.e. they will receive events whenever the event channel thinks 
+it appropriate, e.g. as soon as events are available.
+
+In "pull"-mode, consumers will explicitly receive events by 
+calling the pull-operation. This operation will block if no 
+events are available. Alternatively, consumers can use the 
+"try_pull" operation to check for events without blocking.
+
+Suppliers of events can actively provide events to the 
+channel by calling the push operation. In pull mode, 
+the event channel would "pull" events from the suppliers.
+
+This directory contains a server program "channelServer" which 
+creates an event channel object. There is one test program for 
+every supported mode, i.e. push consumer, pull consumer and push 
+supplier. Since the Suppliers and Consumers do not unregister 
+properly, you might have to restart the event channel after 
+terminating a supplier or consumer.
+
+Let me point out that the JacORB event service implementation is
+only a prototype which serves to demonstrate how the event service 
+works. It is _not_ production quality (but you might use
+it as a starting point).

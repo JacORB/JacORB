@@ -1,0 +1,10 @@
+#!/bin/sh 
+
+# JacORB v1.0 name server
+# Gerald Brose, Freie Universitaet Berlin
+# brose@inf.fu-berlin.de
+
+# Starts the JacORB TransactionService
+
+jaco jacorb.transaction.TransactionService "$@"
+

@@ -1,0 +1,386 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.1 release (March 30, 1999)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>The JacORB Name Service</TITLE>
+<META NAME="description" CONTENT="The JacORB Name Service">
+<META NAME="keywords" CONTENT="ProgrammingGuide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.1 release">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="ProgrammingGuide.css">
+
+<LINK REL="next" HREF="node6.html">
+<LINK REL="previous" HREF="node4.html">
+<LINK REL="up" HREF="ProgrammingGuide.html">
+<LINK REL="next" HREF="node6.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html211"
+ HREF="node6.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/lib/latex2html/icons.gif/next_motif.gif"></A> 
+<A NAME="tex2html207"
+ HREF="ProgrammingGuide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/lib/latex2html/icons.gif/up_motif.gif"></A> 
+<A NAME="tex2html201"
+ HREF="node4.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/lib/latex2html/icons.gif/previous_motif.gif"></A> 
+<A NAME="tex2html209"
+ HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/lib/latex2html/icons.gif/contents_motif.gif"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html212"
+ HREF="node6.html">The server side: POA,</A>
+<B> Up:</B> <A NAME="tex2html208"
+ HREF="ProgrammingGuide.html">JacORB 1.3 Programming Guide</A>
+<B> Previous:</B> <A NAME="tex2html202"
+ HREF="node4.html">Getting Started</A>
+ &nbsp <B>  <A NAME="tex2html210"
+ HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html213"
+ HREF="node5.html#SECTION00510000000000000000">Running the Name Server</A>
+<UL>
+<LI><A NAME="tex2html214"
+ HREF="node5.html#SECTION00511000000000000000">Configuring a Default Context</A>
+</UL>
+<LI><A NAME="tex2html215"
+ HREF="node5.html#SECTION00520000000000000000">Accessing the Name Service</A>
+<LI><A NAME="tex2html216"
+ HREF="node5.html#SECTION00530000000000000000">Constructing Hierarchies of Name Spaces</A>
+<LI><A NAME="tex2html217"
+ HREF="node5.html#SECTION00540000000000000000">NameManager -- A simple GUI front-end to the Naming Service</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00500000000000000000"></A>
+<A NAME="names"></A>
+<BR>
+The JacORB Name Service
+</H1><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Name  servers  are used  to  locate  objects  using a  human-readable
+reference (their  name) rather than  a machine or network  address. If
+objects providing  a certain service  are looked up using  the service
+name, their  clients are  decoupled from the  actual locations  of the
+objects that provide  this service.  The binding from  name to service
+can be changed without the clients needing to know.
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+JacORB provides  an implementation  of the OMG's  Interoperable Naming
+Service  which supports  binding  names to  object  references and  to
+lookup object references using these names.  It also allows clients to
+easily  convert names  to  strings  and vice  versa.  The JacORB  name
+service comprises two  components: the name server program,  and a set
+of interfaces and classes used to access the service.
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+One word  of caution about using  JDK 1.2 (and above)  with the JacORB
+naming service: JDK 1.2 comes with a couple of outdated and apparently
+buggy naming service classes that do not work properly with JacORB. To
+avoid having these classes  loaded and used inadvertently, please make
+sure that  you always use the <TT> NamingContextExt</TT> interface rather
+than the plain <TT> NamingContext</TT> interface in your code. Otherwise,
+you  will   see  your  application  receive  null   pointer  or  other
+exceptions. Note that there is no such problem with JDK 1.1.
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<H1><A NAME="SECTION00510000000000000000">
+Running the Name Server</A>
+</H1><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The JacORB  name server is a  process that needs to  be started before
+the name service can be accessed by programs. Starting the name server
+is done by typing on the command line either simply
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+</FONT></FONT></FONT></FONT></B></I><I><B><FONT SIZE="-1"><TT>$ ns &lt;ior filename&gt; [&lt;timeout&gt;]</TT><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+You can also start the Java interpreter explicitly by typing
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+</FONT></FONT></FONT></FONT></B></I><I><B><FONT SIZE="-1"><TT>$ jaco jacorb.naming.NameServer &lt;filename&gt; [&lt;timeout&gt;]</TT><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+In the example
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+</FONT></FONT></FONT></FONT></B></I><I><B><FONT SIZE="-1"><TT>$ ns /home/me/public_html/NS_Ref</TT><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+we direct  the name server  process to write location  information and
+logging information to  the file <TT> /home/me/public_html/NS_Ref</TT>.  A
+client-side ORB uses this file to locate the name server process. The
+client-side ORB does not, however, access the file through a local or
+shared file  system by  default.  Rather,  the file is  read as  a WWW
+resource by  using a URL pointing  to it.  This implies  that the name
+server log file is accessible through  a URL in the first place, i.e.,
+that you  know of a  web server in  your domain which can  answer HTTP
+request to read the file.
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The advantage of this approach is  that clients do not need to rely on
+a hard-coded well known port  and that the name server is immediately
+available world-wide  if the URL uses  HTTP. If you  want to restrict
+name server visibility  to your domain (assuming that  the log file is
+on a shared  file system accessible throughout your  domain) or you do
+not have  access to a  web server, you  can use file URLs  rather than
+HTTP URLs,  i.e. the URL pointing  to your name server  log file would
+looks like
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+<TT> file:/home/brose/public_html/NS_Ref</TT>
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+rather than 
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+<code>http://www.inf.fu-berlin.de/~brose/NS_Ref</code>
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Specifying file URLs  is also useful on machines  that have no network
+connection at all. Please note that the overhead of using HTTP is only
+incurred  once --  when the  clients  first locate  the name  server.
+Subsequent  requests  will use  standard  CORBA operation  invocations
+which means they will be IIOP requests (over TCP).
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The name server stores its  internal state, i.e., the name bindings in
+its context,  in files  in the current  directory unless  the property
+<TT> jacorb.naming.db_dir</TT> is set to a different directory name. This
+saving is done  when the server goes down  regularly, i.e. killing the
+server  with CTRL-C  will result  in loss  of data.   The  server will
+restore state from its files if any files exist and are non-empty.
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The second  parameter is a time-out  value in msecs. If  this value is
+set, the name server will shut down after the specified amount of time
+and save  its state. This is  useful if the name  server is registered
+with  the  Implementation Repository  and  can  thus  be restarted  on
+demand.
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<H2><A NAME="SECTION00511000000000000000">
+Configuring a Default Context</A>
+</H2><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Configuring a naming context (i.e. a name server) as the ORB's default
+or root context is done by  simply writing the URL that points to this
+server's    bootstrap    file   to    the    properties   file    <TT> 
+.jacorb_properties</TT>.  Alternatively,  you can  set this file  name in
+the property <TT> ORBInitRef.NameService</TT> either on the command line or
+within the application  as described in <A HREF="node3.html#Sec_installation">2.2</A>.  After
+the default  context has thus  been configured, all operations  on the
+NamingContextExt  object  that  was   retrieved  by  a  call  to  <TT> 
+orb.resolve_initial_references("NameService")</TT>   will  go   to  that
+server  --  provided  it's  running  or  can  be  started  using  the
+Implementation Repository.
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<H1><A NAME="SECTION00520000000000000000">
+Accessing the Name Service</A>
+</H1><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The  JacORB name  service is accessed using  the standard  CORBA
+defined  interface:
+</FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+<FONT SIZE="-1"> 
+</FONT></FONT></FONT></FONT></FONT></B></I><PRE>
+
+   // get a reference to the naming service
+   ORB orb = ORB.init(args, null);
+   org.omg.CORBA.Object o = orb.resolve_initial_references("NameService")
+   NamingContextExt nc = NamingContextExtHelper.narrow( o );
+
+   // look up an object 
+   server s = serverHelper.narrow( nc.resolve(nc.to_name("server.service")) );
+</PRE><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Before an object  can be looked up, you need a  reference to the ORB's
+name service. The standard way  of obtaining this reference is to call
+<TT> orb.resolve_initial_references("NameService")</TT>.  In calls using
+the  standard,  extended  name  service interface,  object  names  are
+represented as  arrays of <TT> NameComponent</TT>s rather  than as strings
+in  order to  allow  for  structured names.   Therefore,  you have  to
+construct such an  array and specify that the  name's name is "server"
+and    that    it    is    of   kind    ``service''    (rather    than
+``context'').    Alternatively,    you    can   convert    a    string
+``server.service''  to a  name by  calling the  <TT> NamingContextExt</TT>
+interface's <TT> to_name()</TT> operation, as shown above.
+</FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Now,  we can  look up  the object  by calling  <TT> resolve()</TT>  on the
+naming context, supplying the array as an argument.
+</FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></B></I>
+<H1><A NAME="SECTION00530000000000000000">
+Constructing Hierarchies of Name Spaces</A>
+</H1><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Like directories in a file system, name spaces or contexts can contain
+other contexts  to allow hierarchical structuring instead  of a simple
+flat name  space. The  components of a  structured name for  an object
+thus  form a path  of names,  with the  innermost name  space directly
+containing the  name binding for the  object. This can  very easily be
+done using <TT> NameManager</TT> but can also be explicitly coded.
+</FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+A new naming context within  an enclosing context can be created using
+either   <TT> new_context()</TT>   or  <TT> bind_new_context()</TT>.  The
+following code snippet requests a naming context to create an inner or
+subcontext using a given name and return a reference to it:
+<FONT SIZE="-1"> </FONT></FONT></FONT></FONT></FONT></FONT></B></I><PRE>
+
+   // get a reference to the naming service
+   ORB orb = ORB.init();
+   org.omg.CORBA.Object o = 
+      orb.resolve_initial_references("NameService");
+   NamingContextExt rootContext = 
+      NamingContextExtHelper.narrow( o );
+
+   // look up an object 
+   NameComponent[] name = new NameComponent[1];
+   name[0] = new NameComponent("sub","context");
+   NamingContextExt subContext = 
+     NamingContextExtHelper.narrow( rootContext.bind_new_context( name ));
+</PRE><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Please  note   that  the  JacORB  naming  service   always  uses  <TT> 
+NamingContextExt</TT> objects internally,  even if the operation signature
+indicates <TT> NamingContext</TT> objects.  This is  necessary because of
+the limitations  with JDK  1.2 as explained  at the beginning  of this
+section.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<H1><A NAME="SECTION00540000000000000000">
+NameManager -- A simple GUI front-end to the Naming Service</A>
+</H1><I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+Provided that you  are using JDK 1.2 or have the  JFC or swing classes
+installed  properly on your  machine, the  graphical front-end  to the
+name service can be started by simply calling
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I><I><B><FONT SIZE="-1"><TT>$ nmg</TT><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+The GUI front-end will simply look up the default context and display
+its contents. Figure <A HREF="node5.html#fig:nameManager">4.1</A> gives a screen shot.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P><P>
+<BR>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P></P>
+<DIV ALIGN="CENTER"><A NAME="fig:nameManager"></A><A NAME="192"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4.1:</STRONG>
+NameManager Screenshot</CAPTION>
+<TR><TD><IMG
+ WIDTH="499" HEIGHT="231" BORDER="0"
+ SRC="img2.gif"
+ ALT="\begin{figure}
+\centerline {\epsfig{file=Nmgr1.eps, width=11cm}}\end{figure}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"> 
+NameManager has menus  that let you unbind names  and create or delete
+naming contexts within the root context. Creating a nested name space,
+e.g., can be done by selecting the <TT> RootContext</TT> and bringing up a
+context  by clicking  the right  mouse button.  After  selecting ``new
+context'' from that menu, you will be  prompted to enter a name for the
+new, nested context.
+</FONT></FONT></FONT></FONT></FONT></FONT></B></I>
+<P>
+<I><B><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"><FONT SIZE="-1"></FONT></FONT></FONT></FONT></FONT></B></I><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html211"
+ HREF="node6.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/lib/latex2html/icons.gif/next_motif.gif"></A> 
+<A NAME="tex2html207"
+ HREF="ProgrammingGuide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/lib/latex2html/icons.gif/up_motif.gif"></A> 
+<A NAME="tex2html201"
+ HREF="node4.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/lib/latex2html/icons.gif/previous_motif.gif"></A> 
+<A NAME="tex2html209"
+ HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/lib/latex2html/icons.gif/contents_motif.gif"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html212"
+ HREF="node6.html">The server side: POA,</A>
+<B> Up:</B> <A NAME="tex2html208"
+ HREF="ProgrammingGuide.html">JacORB 1.3 Programming Guide</A>
+<B> Previous:</B> <A NAME="tex2html202"
+ HREF="node4.html">Getting Started</A>
+ &nbsp <B>  <A NAME="tex2html210"
+ HREF="node1.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+<I>Gerald Brose</I>
+<BR><I>2001-02-09</I>
+</ADDRESS>
+</BODY>
+</HTML>

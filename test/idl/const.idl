@@ -1,0 +1,36 @@
+//#pragma prefix "omg.org"
+
+module basetypes
+{
+    // definitions
+    typedef short AccessMode;
+	
+    const AccessMode READ_ONLY = 0;
+    const AccessMode READ_WRITE = 1;
+    
+    const long LEN = 5;
+
+    const float FF = 0.0;
+
+    typedef float myFloat;
+
+    const myFloat mFF = 0.0;
+
+
+    typedef string<LEN> ls;
+
+    const octet BYTE = 0x4;
+
+    typedef short myShort;
+
+    interface Test
+    {
+	const octet MYBYTE = 0xff;
+        const short SS = 3;
+        const myShort mSS= 3;
+    };
+
+    typedef char _CHAR;
+    const _CHAR X = ' ' ;
+    
+};

@@ -1,0 +1,50 @@
+%
+%  List of open issues
+%
+
+2001-27-02#0, (IDL compiler)
+
+        generated POA class for interface with multiple base   
+        interfaces does not prevent operations with the same 
+        name
+
+        module big // test/inherit.idl
+        {
+
+	struct Type1ArgumentStruct {
+          string name;
+	};
+
+	interface Type1 {
+          attribute string name;
+        };
+
+	interface Type1Factory {
+		Type1 create(in Type1ArgumentStruct arg);
+	};
+
+	interface Type2 {
+          attribute string name;
+        };
+
+	interface Type2Factory {
+		Type2 create(in Type1ArgumentStruct arg);
+	};
+
+
+	interface AllInOneFactory : Type1Factory, Type2Factory 
+	{
+          // should bail out complaining about two create()s
+          attribute string name;
+	};
+
+2001-27-02#1:(IDL compiler)
+
+        generated POA classes could use inheritance to
+        reduce code size
+
+2001-27-02#2:(IDL compiler)
+
+        compiler does not generate code for IDL shift operators
+        "<<" and ">>".
+ 

@@ -1,0 +1,19 @@
+module benchmark 
+{
+    // escaping Struct because IDL won't let Struct
+    // (or even STRUCT) through
+
+	struct _Struct {
+		long number;
+	};
+
+	typedef sequence<_Struct> structs;
+	typedef sequence<long> longs;
+
+	interface bench {
+		void ping();
+		longs intTransfer(in longs l);
+		structs structTransfer(in structs s);
+	};
+
+};

@@ -1,0 +1,19 @@
+module A {
+	interface X; // forward declaration
+};
+
+module B {
+	interface Y {
+		attribute A::X an_x;
+	};
+};
+
+module A { // module reopened
+	interface X {
+		B::Y op();
+	};
+
+	interface Z : B::Y {
+		void op2();
+	};
+};

@@ -1,0 +1,260 @@
+<?xml version="1.0"?>
+
+<project name="domain" default="all" basedir="../../../..">
+
+  <!-- ==================================================== -->
+  <!--            domain     build file                     -->
+  <!-- $Id$ -->
+  <!-- ==================================================== -->
+
+   <target name="init" depends="javatest">
+	<property name="base" value="${basedir}"/>
+	<property name="dclassdir" value="${base}/classes"/>
+	<property name="dclasspath" value="${java.class.path}:${dirs.base}/classes"/>
+	<property name="bootclasspath" value="${dirs.base}/classes:${java.home}/lib/classes.zip"/>
+	<property name="dsrc" value="${base}/src"/>
+	<property name="lib" value="${base}/lib"/>
+	<property name="include" value="${base}/idl"/>
+	<property name="idlflags" 
+                value="-I${include}/omg -I${include}/jacorb -d
+	${dsrc}/generated"/>
+	<property name="DSURL"
+	value="/home/troll/kiefer/public_html/jacorb/DS_Ref" />
+	<property name="JARS"
+	value="/home/bwana/brose/java/Packages/IAIK/rsa_rc4.jar:/home/bwana/brose/java/Packages/IAIK/lib/iaik_jce.jar:/home/bwana/brose/java/Packages/iSaSiLk3.0/lib/iaik_ssl.jar"/>
+	<available classname="javax.swing.JTree" property="swing.present" />
+   </target>
+
+   <target name="javatest">
+	<available classname="java.lang.ref.WeakReference"
+	property="java2" />	
+   </target>
+
+   <!-- compiles all java files including subdirs -->
+   <target name="all" depends="init, dir, gui"> </target>
+
+
+   <!-- compiles the java files in the domain directory -->
+   <target name="dir" depends="dir1,dir2"/>
+
+   <target name="dir1" if="java2">
+      <javac srcdir="${dsrc}"
+             destdir="${dclassdir}"
+             bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
+	     includes="jacorb/orb/domain/**/*.java"
+	     excludes="jacorb/orb/domain/gui/**/*.java,jacorb/orb/domain/test/**/*.java"
+      />
+   </target>
+
+   <target name="dir2" unless="java2">
+      <javac srcdir="${dsrc}"
+             destdir="${dclassdir}"
+	     includes="jacorb/orb/domain/**/*.java"
+	     excludes="jacorb/orb/domain/gui/**/*.java,jacorb/orb/domain/test/**/*.java"
+      />
+   </target>
+
+
+
+   <!-- ++++++++++++++++++  subdirs  +++++++++++++++++++++++++ -->
+
+ 
+
+   <!-- compiles all java files in the domain/test directory -->
+   <target name="test" depends="init,test1,test2" if="swing.present">
+      <antcall target="testPropertyAND"> </antcall>
+   </target>
+
+ <!-- simulates a boolean AND of the properties "swing.present" and "java2"-->
+    <target name="testPropertyAND" depends="gui1,gui2" >
+       <echo message="swing is present, compiling gui directory"/>
+   </target>
+   <target name="test1" if="java2">
+   	   <echo message="doing test1"/>
+
+      <javac srcdir="${dsrc}"
+             destdir="${dclassdir}"
+             bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
+	     includes="jacorb/orb/domain/test/**/*.java"
+	        />
+   </target>
+
+   <target name="test2" unless="java2">
+   	   <echo message="doing test2"/>
+
+      <javac srcdir="${dsrc}"
+             destdir="${dclassdir}"
+	     includes="jacorb/orb/domain/test/**/*.java"
+             />
+   </target>
+
+   <!-- compiles all java files in the domain/test directory -->
+   <target name="gui" depends="init" if="swing.present">
+      <antcall target="guiPropertyAND"> </antcall>
+  </target>
+
+
+   
+   <!-- simulates a boolean AND of the properties "swing.present" and "java2"-->
+    <target name="guiPropertyAND" depends="gui1,gui2" >
+       <echo message="swing is present, compiling gui directory"/>
+   </target>
+
+   <target name="gui1" if="java2">
+   <echo message="gui1 ausgefuehrt" />
+	<javac srcdir="${dsrc}"
+               destdir="${dclassdir}"
+               bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
+	       includes="jacorb/orb/domain/gui/**/*.java"
+        />
+	<copy
+               file="${dsrc}/jacorb/orb/domain/gui/MetaPolicy.gif"
+	       tofile="${dclassdir}/jacorb/orb/domain/gui/MetaPolicy.gif"
+	/>	
+   </target>
+
+   <target name="gui2" unless="java2">
+ <echo message="gui2 ausgefuehrt" />
+	<javac srcdir="${dsrc}"
+               destdir="${dclassdir}"
+	       includes="jacorb/orb/domain/gui/**/*.java"
+        />
+	<copy
+               file="${dsrc}/jacorb/orb/domain/gui/MetaPolicy.gif"
+	       tofile="${dclassdir}/jacorb/orb/domain/gui/MetaPolicy.gif"
+	/>	
+   </target>
+
+   <!-- +++++++++++++++++++++++++ IDL stuff +++++++++++++++++ -->
+
+   <!-- compiles the idl-generated files -->
+   <target name="idlcompile" depends="idl,copystub,idlcompile1,idlcompile2"/> 
+
+   <target name="idlcompile1" if="java2"> 
+   	<javac srcdir="${dsrc}/generated"
+               destdir="${dclassdir}"
+               bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
+	       includes="jacorb/orb/domain/**/*.java"
+	        />
+   </target>
+
+   <target name="idlcompile2" unless="java2"> 
+   	<javac srcdir="${dsrc}/generated"
+               destdir="${dclassdir}"
+	       includes="jacorb/orb/domain/**/*.java"
+        />
+   </target>
+
+   <!-- runs the idl compiler -->
+   <target name="idl" depends="init">
+           <java classname="jacorb.idl.parser" classpath="${dclassdir}" fork="yes">
+                <arg line="${idlflags} ${include}/jacorb/DomainManagement.idl"/>
+           </java>
+   </target>
+
+
+   <!-- copies the (modified) domain client stub from the template -->
+   <!-- directory to the generated directory-->
+
+   <target name="copystub" > 
+<!--      <delete file="${dsrc}/generated/jacorb/orb/domain/_DomainStub.java"/>
+	<copy file="${dsrc}/jacorb/orb/domain/template/_DomainStub.java.WithPolicyCache"
+              tofile="${dsrc}/generated/jacorb/orb/domain/_DomainStub.java"
+	/> -->
+   </target>
+
+   <!-- copies and compiles the changed domain client stub -->
+   <target name="stub" depends="copystub, stub1,stub2"/> 
+
+   <target name="stub1" if="java2"> 
+	<javac srcdir="${dsrc}"
+               destdir="${dclassdir}"
+               bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
+	       includes="generated/jacorb/orb/domain/_DomainStub.java"
+	        />
+   </target>
+
+   <target name="stub2" unless="java2"> 
+	<javac srcdir="${dsrc}"
+               destdir="${dclassdir}"
+	       includes="generated/jacorb/orb/domain/_DomainStub.java"
+	        />
+   </target>
+
+
+   <!-- only compiles the changed domain client stub -->
+
+   <target name="stubc"  depends="stubc1, stubc2"/> 
+
+   <target name="stubc1" if="java2"> 
+	<javac srcdir="${dsrc}"
+               destdir="${dclassdir}"
+               bootclasspath="${dirs.base}/classes:${java.home}/lib/rt.jar"
+  	       includes="generated/jacorb/orb/domain/_DomainStub.java"
+	        />
+   </target>
+
+   <target name="stubc2" unless="java2"> 
+	<javac srcdir="${dsrc}"
+               destdir="${dclassdir}"
+  	       includes="generated/jacorb/orb/domain/_DomainStub.java"
+	        />
+   </target>
+
+   <!-- ++++++++++++++++++++++++ running +++++++++++++++++++++ -->
+
+   <!-- runs the domain server -->
+   <target name="runServer" depends="dir">
+	<java classname="jacorb.orb.domain.DomainServer"
+      classpath="${dclasspath}:${JARS}" fork="yes">
+           <arg line="${DSURL}"/>
+           <jvmarg line="-Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=jacorb.orb.ORBSingleton"/>
+	</java>
+   </target>
+
+   <!-- runs the domain tester server -->
+   <target name="runS" depends="dir">
+        <java classname="jacorb.orb.domain.test.DomainTesterServer"
+                       classpath="${dclasspath}:${JARS}" fork="yes">
+            <jvmarg line="-Dorg.omg.CORBA.ORBClass=jacorb.orb.ORB -Dorg.omg.CORBA.ORBSingletonClass=jacorb.orb.ORBSingleton"/>	     
+	</java>
+   </target>
+
+
+ 
+   <target name="doc">
+      <javadoc packagenames="jacorb.orb.domain, jacorb.orb.domain.gui, jacorb.orb.domain.test"
+           sourcepath="${dsrc}"
+           destdir="${basedir}/doc/api"
+           author="true"
+           version="true"
+	   private="true"
+           use="true"
+           windowtitle="Domain API"
+      />
+   </target>
+
+   <target name="gendoc" >
+  <javadoc packagenames="jacorb.orb.domain.*"
+           sourcepath="${src}"
+           destdir="${basedir}/src/jacorb/orb/domain/gendoc"
+           author="true"
+           version="true"
+	   private="true"
+           use="true"
+           windowtitle="Domain API"
+  />
+   </target>
+
+   <target name="clean" depends="init">   
+       <delete> 
+	  <fileset dir="${dclassdir}/jacorb/orb/domain" includes="**"/>  
+       </delete> 
+       <delete> 
+	  <fileset dir= "${dsrc}/generated/jacorb/orb/domain" includes="**"/>  
+       </delete> 
+   </target>
+
+</project>
+
+

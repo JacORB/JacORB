@@ -1,0 +1,9 @@
+include ../Makefile.rules.win
+all: 
+	$(IDL) $(IDLFLAGS) server.idl
+	$(JAVAC) $(JAVACFLAGS) *.java
+
+clean: 
+	$(RM) *.class *Stub.java *POA*.java 
+	$(RM) *Holder.java server*H*.java
+	$(RMDIR) MyServerPackage 

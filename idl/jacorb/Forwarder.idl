@@ -1,0 +1,8 @@
+module jacorb{
+  module proxy{
+    interface Forwarder{
+	string forward(in string IOR,out string proxyId);
+	void release(in string proxyId);
+    };
+  };
+};

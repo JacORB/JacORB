@@ -1,0 +1,382 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.1 release (March 30, 1999)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Installing JacORB</TITLE>
+<META NAME="description" CONTENT="Installing JacORB">
+<META NAME="keywords" CONTENT="ProgrammingGuide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="LaTeX2HTML v99.1 release">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="ProgrammingGuide.css">
+
+<LINK REL="next" HREF="node4.html">
+<LINK REL="previous" HREF="node2.html">
+<LINK REL="up" HREF="ProgrammingGuide.html">
+<LINK REL="next" HREF="node4.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html176"
+ HREF="node4.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/lib/latex2html/icons.gif/next_motif.gif"></A> 
+<A NAME="tex2html172"
+ HREF="ProgrammingGuide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/lib/latex2html/icons.gif/up_motif.gif"></A> 
+<A NAME="tex2html166"
+ HREF="node2.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/lib/latex2html/icons.gif/previous_motif.gif"></A> 
+<A NAME="tex2html174"
+ HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/lib/latex2html/icons.gif/contents_motif.gif"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html177"
+ HREF="node4.html">Getting Started</A>
+<B> Up:</B> <A NAME="tex2html173"
+ HREF="ProgrammingGuide.html">JacORB 1.3 Programming Guide</A>
+<B> Previous:</B> <A NAME="tex2html167"
+ HREF="node2.html">Introduction</A>
+ &nbsp <B>  <A NAME="tex2html175"
+ HREF="node1.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html178"
+ HREF="node3.html#SECTION00310000000000000000">Obtaining JacORB</A>
+<LI><A NAME="tex2html179"
+ HREF="node3.html#SECTION00320000000000000000">Installation</A>
+<UL>
+<LI><A NAME="tex2html180"
+ HREF="node3.html#SECTION00321000000000000000">Ant and build files</A>
+<LI><A NAME="tex2html181"
+ HREF="node3.html#SECTION00322000000000000000">Configuration</A>
+</UL></UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00300000000000000000"></A>
+<A NAME="Ch_installing"></A>
+<BR>
+Installing JacORB
+</H1>
+<P>
+<I><B><I> 
+In this chapter  we explain how to obtain and  install JacORB and give
+an overview of the package contents.
+</I></B></I>
+<P>
+
+<H1><A NAME="SECTION00310000000000000000">
+Obtaining JacORB</A>
+</H1>
+<P>
+<I><B><I> 
+JacORB can be obtained as a g-zipped tar-archive or as a zip-archive
+from the  JacORB home page  at <code>http://jacorb.inf.fu-berlin.de/</code>.
+It   can   also   be   downloaded   via  anonymous   ftp   from   <TT> 
+ftp.inf.fu-berlin.de</TT> from the directory <TT> pub/jacorb/</TT>.
+</I></B></I>
+<P>
+<I><B><I> 
+To install JacORB, just unzip  and untar (or simply unzip) the archive
+somewhere.   This will  result in  a new  directory  <TT> JacORB1_3</TT>.
+Make   sure  your   CLASSPATH  environment   variable   contains  <TT> 
+JacORB1_3/lib/jacorb.jar</TT>.  If you plan  to recompile all or parts of
+JacORB, you should also include <TT> JacORB1_2/classes</TT>.  Extend your
+search path with  <TT> JacORB1_3/bin</TT>, so that the  shell scripts and
+batch files for the utilities in this directory are found.
+</I></B></I>
+<P>
+
+<H1><A NAME="SECTION00320000000000000000"></A>
+<A NAME="Sec_installation"></A>
+<BR>
+Installation
+</H1>
+<P>
+
+<H2><A NAME="SECTION00321000000000000000">
+Ant and build files</A>
+</H2>
+<P>
+<I><B><I> 
+JacORB will run on any JavaVM,  but to rebuild JacORB (and compile the
+ examples) you need to have the XML-based make tool ``Ant'' installed
+ on    your   machine.    Ant    can   be    downloaded   from    <TT> 
+ http://jakarta.apache.org/ant</TT>. All make  files (<TT> build.xml</TT>) are
+ written for this  tool. To rebuild JacORB completely,  just type <TT> 
+ ant</TT> in the installation directory.  Optionally, you might want to do
+ a <TT> ant clean</TT> first.
+</I></B></I>
+<P>
+<I><B><I> 
+In order to be able to  use GUI tools such as NameManager, ImRManager,
+IRBrowser, and  the KeyStoreManager, you need  to use JDK  1.2 or have
+Sun's Swing  classes installed on  your machine.  In the  latter case,
+your CLASSPATH also needs to  contain these classes. For SSL, you must
+have  JDK 1.2.  Also, you  need to  install the  cryptography  and SSL
+libraries by  IAIK, viz.  IAIK-JCE  2.5 and iSaSiLk 3.0.   Please see
+<TT> http://jcewww.iaik.tu-graz.ac.at/</TT>.
+</I></B></I>
+<P>
+
+<H2><A NAME="SECTION00322000000000000000">
+Configuration</A>
+</H2>
+<P>
+<I><B><I> 
+JacORB has a number of configuration  options which can be set as Java
+properties.  Before we will go about explaining some of the more basic
+options   here,  let's  look   at  the   different  ways   of  setting
+properties. Specific  options that apply, e.g.,  to the Implementation
+Repository  or  the  Trading  Service  are explained  in  the  chapter
+discussing these modules. There are three options for doing this.
+</I></B></I>
+<P>
+<I><B><I> 
+The most  general case is in  a properties file. JacORB  looks for and
+loads  a   file  called  either  <TT> .jacorb_properties</TT>  or  <TT> 
+jacorb.properties</TT>.   It  looks for  these  files  in  both your  home
+directory  (as in  the <TT> user.home</TT>  system property)  and in  the
+current directory.  If  it finds multiple files, it  loads all of them
+in this  order. In case of  different settings for  the same property,
+the one loaded last takes precedence.
+</I></B></I>
+<P>
+<I><B><I> 
+For  more  application-specific  properties,  you  can  pass  a  <TT> 
+java.util.Properties</TT>  object to  <TT> ORB.init()</TT>  during application
+initialization,  e.g.,  like this  (<TT> args</TT>  is  the String  array
+containing command line arguments):
+</I></B></I>
+<P>
+<I><B><I> 
+<FONT SIZE="-1"> 
+</FONT></I></B></I><PRE>
+            
+    java.util.Properties props = new java.util.Properties();
+    props.setProperty("jacorb.implname","StandardNS"); // use put() under Java 1.1
+    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, props);
+</PRE><I><B><I></I></B></I>
+<P>
+<I><B><I><FONT SIZE="-1"> 
+The third way  of specifying properties is by  passing them as command
+line  arguments   to  the  Java  interpreter.  This   option  has  the
+disadvantage  that  you cannot  use  <TT> jaco</TT>  to start  the  Java
+interpreter, which  means that  you must pass  in the  properties that
+this script sets.
+</FONT></I></B></I>
+<P>
+<I><B><I><FONT SIZE="-1"> 
+</FONT></I></B></I><I><B><FONT SIZE="-1"><TT>$ java -DOAPort=4711 -D... -D... jacorb.naming.NameServer ...</TT></FONT><I></I></B></I>
+<P>
+<I><B><I><FONT SIZE="-1"> 
+An option  passed like  this will override  any setting in  either the
+properties  file  or the  application  setup.  Properties  set in  the
+application code, however, will  always override any properties set in
+any other way.
+</FONT></I></B></I>
+<P>
+<I><B><I><FONT SIZE="-1"> 
+We are now ready to have a look at the most basic JacORB configuration
+properties.  Here is an example <TT> jacorb_properties</TT> file: 
+</FONT></I></B></I>
+<P>
+<I><B><I><FONT SIZE="-1"> 
+
+<FONT SIZE="-1"> 
+</FONT></FONT></I></B></I><PRE>
+
+##
+##  JacORB configuration options
+##
+
+########################################
+#                                      #
+#   Initial references configuration   #
+#                                      #
+########################################
+
+#
+# URLs where IORs are stored (used in orb.resolve_initial_service())
+# DO EDIT these! (Only those that you are planning to use,
+# of course ;-). 
+#
+# The ORBInitRef references are created on ORB startup time. In the 
+# cases of the services themselves, this may lead to exceptions being 
+# displayed (because the services aren't up yet). These exceptions
+# are handled properly and cause no harm! 
+
+#ORBInitRef.NameService=corbaloc::160.45.110.41:38693/\
+#                       StandardNS/NameServer%2DPOA/_root
+#ORBInitRef.NameService=file:/c:/NS_Ref
+ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
+#ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
+
+# JacORB-specific URLs
+jacorb.ImplementationRepositoryURL=http://www.x.y.z/~user/ImR_Ref
+jacorb.ProxyServerURL=http://www.x.y.z/~user/Appligator_Ref
+
+##################################
+#                                #
+#   Debug output configuration   #
+#                                #
+##################################
+
+# use (java) jacorb.util.CAD to generate an appropriate
+# verbosity level 
+# 0 = off
+# 1 = important messages and exceptions
+# 2 = informational messages and exceptions
+# &gt;= 3 = debug-level output (may confuse the unaware user :-)
+jacorb.verbosity=1
+
+# where does output go? Terminal is default
+#jacorb.logfile=LOGFILEPATH
+
+##################################################
+#                                                #
+#    WARNING: The following properties should    # 
+#    only be edited by the expert user. They     #
+#    can be left untouched for most cases!       #
+#                                                #
+##################################################
+
+################################
+#                              #
+#   Basic ORB Configuration    #
+#                              #
+################################
+
+# number of retries if connection cannot directly be established
+jacorb.retries=5
+
+# how many msecs. do we wait between retries
+jacorb.retry_interval=500
+
+# size of network buffers for outgoing messages
+jacorb.outbuf_size=2048
+
+# client-side timeout, set no non-zero to stop blocking
+# after so many msecs.
+#jacorb.connection.client_timeout=0
+
+# max time a server keeps a connection open if nothing happens
+#jacorb.connection.server_timeout=10000
+
+#jacorb.reference_caching=off
+...
+
+#########################
+#                       #
+#   POA Configuration   #
+#                       #
+#########################
+
+# displays a GUI monitoring tool for servers
+jacorb.poa.monitoring=off
+
+# thread pool configuration for request processing
+jacorb.poa.thread_pool_max=20
+jacorb.poa.thread_pool_min=5
+
+# if set, request processing threads in thePOA
+# will run at this priority. If not set or invalid,
+# MAX_PRIORITY will be used.
+#jacorb.poa.thread_priority=
+
+# size of the request queue, clients will receive Corba.TRANSIENT
+# exceptions if load exceeds this limit
+jacorb.poa.queue_max=100
+...
+</PRE><I><B><I><FONT SIZE="-1"><FONT SIZE="-1">
+
+<FONT SIZE="-1"> </FONT></FONT></FONT></I></B></I>
+<P>
+<I><B> 
+Configurable options  include the size of network  buffers, the number
+of retries JacORB makes if a connection cannot be established, and how
+long  it  shall wait  before  retrying.   The  string value  for  <TT> 
+ORBInitRef.NameService</TT> is  a URL  for a resource  used to set  up the
+JacORB name  server. This URL  will be used  by the ORB to  locate the
+file  used to  store  the  name server's  object  reference (see  also
+chapter <A HREF="node5.html#names">4</A>).
+</B></I>
+<P>
+<I><B> 
+The <TT> verbosity</TT> option tells  JacORB how much diagnostic output it
+should emit at runtime. Unless the  <TT> logfile</TT> property is set to a
+file name, diagnostic output will  be sent to the terminal. Setting the
+verbosity property to 0 means don't print any, while a level of 2 is a
+verbose debug mode.   Level 1 will emit some  information, e.g.  about
+connections  being  opened,  accepted  and  closed.  If  you  like  to
+selectively  suppress  specific  output  you  can  use  the  tool  <TT> 
+jacorb.util.CAD</TT> to generate a special verbosity level.
+</B></I>
+<P>
+<I><B> 
+The  <TT> jacorb.poa.monitoring</TT> property  determines whether  the POA
+should bring up a monitoring GUI  for servers that let you examine the
+dynamic behavior of  your POA, e.g.  how long  the request queue gets
+and whether your thread pool is  big enough.  Also, this tool lets you
+change the  state of a POA,  e.g. from <I> active</I>  to <I> holding</I>.
+Please see chapter <A HREF="node6.html#POA">5</A> on the POA for more details.
+</B></I>
+<P>
+<I><B> 
+You can now test your installation  by typing <TT> ant</TT> in one of the
+subdirectories of the <TT> demo/</TT> directory which contains a number of
+examples for using JacORB.
+</B></I>
+<P><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html176"
+ HREF="node4.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/lib/latex2html/icons.gif/next_motif.gif"></A> 
+<A NAME="tex2html172"
+ HREF="ProgrammingGuide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/lib/latex2html/icons.gif/up_motif.gif"></A> 
+<A NAME="tex2html166"
+ HREF="node2.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/lib/latex2html/icons.gif/previous_motif.gif"></A> 
+<A NAME="tex2html174"
+ HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/lib/latex2html/icons.gif/contents_motif.gif"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html177"
+ HREF="node4.html">Getting Started</A>
+<B> Up:</B> <A NAME="tex2html173"
+ HREF="ProgrammingGuide.html">JacORB 1.3 Programming Guide</A>
+<B> Previous:</B> <A NAME="tex2html167"
+ HREF="node2.html">Introduction</A>
+ &nbsp <B>  <A NAME="tex2html175"
+ HREF="node1.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+<I>Gerald Brose</I>
+<BR><I>2001-02-09</I>
+</ADDRESS>
+</BODY>
+</HTML>

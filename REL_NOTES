@@ -1,0 +1,192 @@
+Gerald Brose
+brose@inf.fu-berlin.de
+
+
+	   JacORB 1.3 RELEASE NOTES
+	____________________________________
+
+ Features
+
+	- free CORBA 2.0 implementation (LGPL license)
+
+	- 100% Java, no native code
+	- fully multithreaded, very good performance
+
+	- IDL compile, complies to rev. 2.3 of the Java language mapping
+	- DII, DSI, native IIOP
+	- POA (by Reimo Tiedemann)
+	- DynAny
+	- Implementation Repository with GUI 
+                (by Nicolas Noffke)
+        - Interface Repository with GUI 
+                (by Gerald Brose and Joerg von Frantzius)
+	- Applet support and HTTP tunneling 
+                (by Sebastian Mueller)
+	- IIOP 1.1 and Code set support 
+                (by Martin Devera)
+	- IIOP over SSL 
+                (by Gerald Brose and Nicolas Noffke)
+	- Portable Interceptors, for service context passing)
+                (by Nicolas Noffke)
+	- Domain Management (by Herbert Kiefer)
+
+	- Object Service implementations
+		- Interoperable Naming Service (with graphical interface)
+
+		- Trading Service (extension of Mark Spruiell's JTrader 
+		     by Nicolas Noffke)
+		- event service
+
+		- transaction, collection and concurrency service
+	            (by Alex Sinishin and Viacheslav Tararin of DekaSoft 
+		    Ltd., Ukraine,taras@deka.kp.km.ua)
+
+
+ Missing:
+
+	- OBV
+
+ Roadmap:
+
+        - OBV
+	- extend SSL support
+	- partial Security Service
+
+
+   H I S T O R Y      O F     C H A N G E S
+ -------------------------------------------
+
+1.3.11:
+
+        - fixed two minor but annoying syntax errors in the source
+          code... (jacorb/ir/gui/ModelBuilder.java and 
+          jacorb/orb/domain/gui/BrowserFrame.java). Also fixed
+          broken jacorb.jar file
+
+Changes for 1.3.0:
+=================
+
+        new: 
+                - Interface Repository with GUI Browser
+
+        improvements and bug fixes:
+                - Programming Guide:
+                        - new chapter, update
+                        - now in HTML
+                - fixed a memory leak
+                - Implementation Repository now uses a thread pool internally
+                - IDL compiler
+                        - function of -i2jpackage switch fixed
+                        - code generated for helper method narrow()
+                          now compliant (throw BAD_PARAM rather than 
+                          return null
+                - name server: fixed a problem with reloading persistent state  
+                        after restarting
+                - dior utility (ParsedIOR class) now corretcly
+                  displays multiple profiles
+                - updated build files
+                - ...
+
+Changes for 1.2.3:
+
+        moved build files to Ant 1.2
+
+        fixed build files for Linux with JDK 1.3
+
+        fixed bug: too many client-side releases of object references
+                (could result in INV_OBJREF exceptions)
+
+
+Changes for 1.2.2:
+
+        fixed memory leaks
+                server: properly release servant delegated
+                client: added a finalizer to generated stubs
+
+        allow "file:/"-IORs again
+
+        added client-side time outs (see properties file)
+
+        changed check for OAIAddr property (address selection 
+                on multi-homed hosts)
+
+        IDL compiler:
+                fixed bug in code generated for multi-dimensional sequences
+                fixed bug in escapeing mechanism for reserved words
+
+        fixed bug in LocateRequest code
+
+        fixed bug in CorbaLoc
+
+        fixed debug output for applets (thanks to Frank Lange of Philips)
+
+Changes for 1.2.1:
+
+        fixed a bug in connection management (null pointer in
+                reconnect())
+
+        removed a few build problems (dependance on non-security
+                package from within orb, generate idl and jaco scripts
+                automatically)
+
+        updated compiler version number
+
+
+Changes for 1.2:
+================
+
+        - new:
+                - Domain Service
+                - HTTP tunneling
+                - improved SSL integration
+
+        - IDL compiler: 
+                - #pragma version works now
+                - accepts value type definitions 
+                  (but only syntacically :-), no code is generated)
+                - bug fixes (typedefs, any)
+
+        - Implementation Repository: minor changes and fixes
+
+        - ORB: fixed ORBInitRef, now a Java property       
+
+        - bug fixes:
+                - Any/TypeCode bug
+                - ServiceContext bug (alignment)
+
+        - lots of minor stuff
+
+Changes for 1.1:
+================
+
+	- Interoperable Naming Service extensions
+		- standardized name-to-string conversions
+		- convenient URL schemes for object references
+
+	- IIOP over SSL
+		- first alpha release, includes a KeyStoreManager GUI
+
+	- Portable Interceptors
+
+	- Collection and Concurrency services
+
+	- Appligator bug fixes and resource usage improvements
+
+	- IDL compiler improvements (by Matt Briggs, Vertel Inc.)
+		- new compiler switch no_skel to suppress skeleton 
+		  code generation
+		- extended preprocessor support
+		- removed inter-package dependencies
+
+	- Improved Language Mapping compliance and IDL compiler bug fixes
+		- correct helper generation for typedef's
+		- ...
+
+	- much easier to install and configure, (no more bootclasspath
+	  fiddling, coexist with Sun JDK CORBA classes)
+
+	- new, platform-independent build files (for Jakarta's Ant)
+		
+	- internal bug fixes (memory managament, memory leaks, 
+	  CDR encapsulation size  tolerance, ...)
+

@@ -1,0 +1,28 @@
+module names {
+
+    typedef string blubHolder;
+    typedef long longHolder[2];
+    typedef sequence<short> shortHolder;
+
+    struct SHolder { string s;};
+
+    enum numHolder { one, two };
+
+    union UHolder switch (numHolder)
+    {
+            default : string s;
+    };
+
+    interface KeyHolder { };
+
+    interface Test {
+
+        attribute KeyHolder aHolder;
+
+        void op1( in blubHolder blubHolder );
+        void op2( in longHolder k );
+        void op3( in shortHolder k );
+        void opHolder();
+    };
+
+};

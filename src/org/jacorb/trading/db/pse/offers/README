@@ -1,0 +1,2 @@
+This directory contains an implementation of the OfferDatabase interface
+using ObjectStore PSE.

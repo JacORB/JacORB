@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<project name="demo" default="all" basedir="../..">
+
+  <!-- ==================================================== -->
+  <!--             Demo build file                         -->
+  <!-- ==================================================== -->
+
+   <target name="init">
+	<property name="name" value="concurrency"/>
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="lib" value="${dirs.base}/lib"/>
+	<property name="include" value="${dirs.base}/idl"/>
+	<property name="idlflags" value="-I${include}/omg -p demo -d ${dirs.base}/demo/${name}/generated"/>
+   </target>
+
+   <target name="all" depends="init">
+	<javac srcdir="${dirs.base}"
+               destdir="${classdir}"
+	       includes="demo/${name}/**/*.java"
+	        />
+   </target>
+
+
+   <target name="clean">
+   <deltree dir="${classdir}/demo/${name}"/>
+   </target>
+
+</project>
+
+
+
+
+

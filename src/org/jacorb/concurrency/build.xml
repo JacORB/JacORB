@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<project name="orb" default="all" basedir=".">
+
+  <!-- ==================================================== -->
+  <!--             Concurrency build file                   -->
+  <!-- $Id$ -->
+  <!-- ==================================================== -->
+
+   <target name="init">
+	<property name="dirs.base" value="../../.."/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="src" value="${basedir}/src"/>
+   </target>
+
+   <target name="all" depends="init">
+	<javac srcdir="${src}"
+               destdir="${classdir}"
+	       includes="jacorb/concurrency/**/*.java"
+	        />
+   </target>
+
+   <target name="clean">
+   </target>
+
+</project>
+

@@ -1,0 +1,2773 @@
+package jacorb.orb.domain;
+
+import jacorb.util.Debug;
+
+
+public class _DomainStub
+	extends org.omg.CORBA.portable.ObjectImpl
+	implements jacorb.orb.domain.Domain
+{
+
+        private PolicyCache thePolicyCache= null;
+
+        /** returns the policy cache. */
+        private PolicyCache getCache()
+        {
+	  if (thePolicyCache == null) thePolicyCache= new PolicyCache();
+	  return thePolicyCache;
+	} // getCache
+	private String[] ids = {"IDL:jacorb/orb/domain/Domain:1.0","IDL:jacorb/orb/domain/PolicyFactory:1.0","IDL:jacorb/orb/domain/Membership:1.0","IDL:jacorb/orb/domain/ObjectDomainMapper:1.0","IDL:jacorb/orb/domain/GraphNode:1.0","IDL:jacorb/orb/domain/DomainFactory:1.0","IDL:omg.org/CORBA/DomainManager:1.0","IDL:jacorb/orb/domain/DomainNamingContext:1.0"};
+	public String[] _ids()
+	{
+		return ids;
+	}
+
+	public final static java.lang.Class _opsClass = jacorb.orb.domain.DomainOperations.class;
+	public boolean hasMapping(org.omg.CORBA.Object obj)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "hasMapping", true);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				boolean _result = _is.read_boolean();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "hasMapping", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			boolean _result;			try
+			{
+			_result = _localServant.hasMapping(obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public int getParentCount()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getParentCount", true);
+				_is = _invoke(_os);
+				int _result = _is.read_long();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getParentCount", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			int _result;			try
+			{
+			_result = _localServant.getParentCount();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void NameAutoPrefix(java.lang.String a)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request("_set_NameAutoPrefix",true);
+				_os.write_string(a);				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "_set_NameAutoPrefix", _opsClass);
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+				try
+				{
+					_localServant.NameAutoPrefix(a);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+				return;
+			}
+		}
+
+	}
+
+	public void destroy(jacorb.orb.domain.Domain aDomain)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "destroy", true);
+				jacorb.orb.domain.DomainHelper.write(_os,aDomain);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "destroy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.destroy(aDomain);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain[] getParents()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getParents", true);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain[] _result = jacorb.orb.domain.DomainListHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getParents", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain[] _result;			try
+			{
+			_result = _localServant.getParents();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public org.omg.CORBA.Policy getPolicy(org.omg.CORBA.Object obj, int type)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getPolicy", true);
+				_os.write_Object(obj);
+				_os.write_long(type);
+				_is = _invoke(_os);
+				org.omg.CORBA.Policy _result = org.omg.CORBA.PolicyHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getPolicy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			org.omg.CORBA.Policy _result;			try
+			{
+			_result = _localServant.getPolicy(obj,type);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void deleteMember(org.omg.CORBA.Object obj)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "deleteMember", true);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "deleteMember", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.deleteMember(obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.MetaPropertyPolicy createMetaPropertyPolicy()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "createMetaPropertyPolicy", true);
+				_is = _invoke(_os);
+				jacorb.orb.domain.MetaPropertyPolicy _result = jacorb.orb.domain.MetaPropertyPolicyHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "createMetaPropertyPolicy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.MetaPropertyPolicy _result;			try
+			{
+			_result = _localServant.createMetaPropertyPolicy();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void deleteMapping(org.omg.CORBA.Object obj)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "deleteMapping", true);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "deleteMapping", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.deleteMapping(obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public void insertMember(org.omg.CORBA.Object obj)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "insertMember", true);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "insertMember", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.insertMember(obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public org.omg.CORBA.Object[] getMembers()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getMembers", true);
+				_is = _invoke(_os);
+				org.omg.CORBA.Object[] _result = jacorb.orb.domain.ObjectListHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getMembers", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			org.omg.CORBA.Object[] _result;			try
+			{
+			_result = _localServant.getMembers();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public boolean hasChild(jacorb.orb.domain.Domain aDomain)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "hasChild", true);
+				jacorb.orb.domain.DomainHelper.write(_os,aDomain);
+				_is = _invoke(_os);
+				boolean _result = _is.read_boolean();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "hasChild", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			boolean _result;			try
+			{
+			_result = _localServant.hasChild(aDomain);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public org.omg.CORBA.Policy create_policy(int type, org.omg.CORBA.Any initValue) throws org.omg.CORBA.PolicyError
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "create_policy", true);
+				_os.write_long(type);
+				_os.write_any(initValue);
+				_is = _invoke(_os);
+				org.omg.CORBA.Policy _result = org.omg.CORBA.PolicyHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				if( _id.equals("IDL:omg.org/CORBA/PolicyError:1.0"))
+				{
+					throw org.omg.CORBA.PolicyErrorHelper.read(_ax.getInputStream());
+				}
+				else 
+					throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "create_policy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			org.omg.CORBA.Policy _result;			try
+			{
+			_result = _localServant.create_policy(type,initValue);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void insertChild(jacorb.orb.domain.Domain child) throws jacorb.orb.domain.GraphNodePackage.ClosesCycle,jacorb.orb.domain.NameAlreadyDefined
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "insertChild", true);
+				jacorb.orb.domain.DomainHelper.write(_os,child);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				if( _id.equals("IDL:jacorb/orb/domain/GraphNode/ClosesCycle:1.0"))
+				{
+					throw jacorb.orb.domain.GraphNodePackage.ClosesCycleHelper.read(_ax.getInputStream());
+				}
+				else if( _id.equals("IDL:jacorb/orb/domain/NameAlreadyDefined:1.0"))
+				{
+					throw jacorb.orb.domain.NameAlreadyDefinedHelper.read(_ax.getInputStream());
+				}
+				else 
+					throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "insertChild", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.insertChild(child);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public boolean isRoot()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "isRoot", true);
+				_is = _invoke(_os);
+				boolean _result = _is.read_boolean();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "isRoot", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			boolean _result;			try
+			{
+			_result = _localServant.isRoot();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public int getMemberCount()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getMemberCount", true);
+				_is = _invoke(_os);
+				int _result = _is.read_long();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getMemberCount", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			int _result;			try
+			{
+			_result = _localServant.getMemberCount();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void name(java.lang.String a)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request("_set_name",true);
+				_os.write_string(a);				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "_set_name", _opsClass);
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+				try
+				{
+					_localServant.name(a);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+				return;
+			}
+		}
+
+	}
+
+	public void removeFromMapping(org.omg.CORBA.Object obj, jacorb.orb.domain.Domain dm)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "removeFromMapping", true);
+				_os.write_Object(obj);
+				jacorb.orb.domain.DomainHelper.write(_os,dm);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "removeFromMapping", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.removeFromMapping(obj,dm);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public boolean hasMember(org.omg.CORBA.Object obj)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "hasMember", true);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				boolean _result = _is.read_boolean();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "hasMember", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			boolean _result;			try
+			{
+			_result = _localServant.hasMember(obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain[] getDomains(org.omg.CORBA.Object obj)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getDomains", true);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain[] _result = jacorb.orb.domain.DomainListHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getDomains", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain[] _result;			try
+			{
+			_result = _localServant.getDomains(obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public int getChildCount()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getChildCount", true);
+				_is = _invoke(_os);
+				int _result = _is.read_long();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getChildCount", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			int _result;			try
+			{
+			_result = _localServant.getChildCount();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain findChild(java.lang.String childName)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "findChild", true);
+				jacorb.orb.domain.NameHelper.write(_os,childName);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain _result = jacorb.orb.domain.DomainHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "findChild", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain _result;			try
+			{
+			_result = _localServant.findChild(childName);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public org.omg.CORBA.Object resolveName(java.lang.String objName)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "resolveName", true);
+				jacorb.orb.domain.NameHelper.write(_os,objName);
+				_is = _invoke(_os);
+				org.omg.CORBA.Object _result = _is.read_Object();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "resolveName", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			org.omg.CORBA.Object _result;			try
+			{
+			_result = _localServant.resolveName(objName);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void deletePolicyOfType(int type)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "deletePolicyOfType", true);
+				_os.write_long(type);
+				_is = _invoke(_os);
+
+				getCache().remove(type); // Herb: added by hand
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "deletePolicyOfType", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.deletePolicyOfType(type);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public void insertParent(jacorb.orb.domain.Domain parentDomain) throws jacorb.orb.domain.GraphNodePackage.ClosesCycle,jacorb.orb.domain.NameAlreadyDefined
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "insertParent", true);
+				jacorb.orb.domain.DomainHelper.write(_os,parentDomain);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				if( _id.equals("IDL:jacorb/orb/domain/GraphNode/ClosesCycle:1.0"))
+				{
+					throw jacorb.orb.domain.GraphNodePackage.ClosesCycleHelper.read(_ax.getInputStream());
+				}
+				else if( _id.equals("IDL:jacorb/orb/domain/NameAlreadyDefined:1.0"))
+				{
+					throw jacorb.orb.domain.NameAlreadyDefinedHelper.read(_ax.getInputStream());
+				}
+				else 
+					throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "insertParent", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.insertParent(parentDomain);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain[] getChilds()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getChilds", true);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain[] _result = jacorb.orb.domain.DomainListHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getChilds", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain[] _result;			try
+			{
+			_result = _localServant.getChilds();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void renameChildDomain(java.lang.String oldName, java.lang.String newName) throws jacorb.orb.domain.InvalidName,jacorb.orb.domain.NameAlreadyDefined
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "renameChildDomain", true);
+				jacorb.orb.domain.NameHelper.write(_os,oldName);
+				jacorb.orb.domain.NameHelper.write(_os,newName);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				if( _id.equals("IDL:jacorb/orb/domain/InvalidName:1.0"))
+				{
+					throw jacorb.orb.domain.InvalidNameHelper.read(_ax.getInputStream());
+				}
+				else if( _id.equals("IDL:jacorb/orb/domain/NameAlreadyDefined:1.0"))
+				{
+					throw jacorb.orb.domain.NameAlreadyDefinedHelper.read(_ax.getInputStream());
+				}
+				else 
+					throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "renameChildDomain", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.renameChildDomain(oldName,newName);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public void renameMember(java.lang.String oldName, java.lang.String newName) throws jacorb.orb.domain.InvalidName,jacorb.orb.domain.NameAlreadyDefined
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "renameMember", true);
+				_os.write_string(oldName);
+				_os.write_string(newName);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				if( _id.equals("IDL:jacorb/orb/domain/InvalidName:1.0"))
+				{
+					throw jacorb.orb.domain.InvalidNameHelper.read(_ax.getInputStream());
+				}
+				else if( _id.equals("IDL:jacorb/orb/domain/NameAlreadyDefined:1.0"))
+				{
+					throw jacorb.orb.domain.NameAlreadyDefinedHelper.read(_ax.getInputStream());
+				}
+				else 
+					throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "renameMember", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.renameMember(oldName,newName);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.ConflictResolutionPolicy createConflictResolutionPolicy(short whichOne)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "createConflictResolutionPolicy", true);
+				_os.write_short(whichOne);
+				_is = _invoke(_os);
+				jacorb.orb.domain.ConflictResolutionPolicy _result = jacorb.orb.domain.ConflictResolutionPolicyHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "createConflictResolutionPolicy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.ConflictResolutionPolicy _result;			try
+			{
+			_result = _localServant.createConflictResolutionPolicy(whichOne);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void deleteParent(jacorb.orb.domain.Domain parentDomain)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "deleteParent", true);
+				jacorb.orb.domain.DomainHelper.write(_os,parentDomain);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "deleteParent", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.deleteParent(parentDomain);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public java.lang.String name()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request("_get_name",true);
+				_is = _invoke(_os);
+				return _is.read_string();
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+
+		else
+		{
+		org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "_get_name", _opsClass);
+		if( _so == null )
+			throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+		DomainOperations _localServant = (DomainOperations)_so.servant;
+			java.lang.String _result;
+		try
+		{
+			_result = _localServant.name();
+		}
+		finally
+		{
+			_servant_postinvoke(_so);
+		}
+		return _result;
+		}
+		}
+
+	}
+
+	public void deleteChild(jacorb.orb.domain.Domain child)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "deleteChild", true);
+				jacorb.orb.domain.DomainHelper.write(_os,child);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "deleteChild", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.deleteChild(child);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public void insertMemberWithName(java.lang.String objName, org.omg.CORBA.Object obj) throws jacorb.orb.domain.NameAlreadyDefined
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "insertMemberWithName", true);
+				jacorb.orb.domain.NameHelper.write(_os,objName);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				if( _id.equals("IDL:jacorb/orb/domain/NameAlreadyDefined:1.0"))
+				{
+					throw jacorb.orb.domain.NameAlreadyDefinedHelper.read(_ax.getInputStream());
+				}
+				else 
+					throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "insertMemberWithName", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.insertMemberWithName(objName,obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public java.lang.String[] getPathNames()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getPathNames", true);
+				_is = _invoke(_os);
+				java.lang.String[] _result = jacorb.orb.domain.NameListHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getPathNames", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			java.lang.String[] _result;			try
+			{
+			_result = _localServant.getPathNames();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain getRootDomain()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getRootDomain", true);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain _result = jacorb.orb.domain.DomainHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getRootDomain", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain _result;			try
+			{
+			_result = _localServant.getRootDomain();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public boolean areMapped(org.omg.CORBA.Object obj, jacorb.orb.domain.Domain dm)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "areMapped", true);
+				_os.write_Object(obj);
+				jacorb.orb.domain.DomainHelper.write(_os,dm);
+				_is = _invoke(_os);
+				boolean _result = _is.read_boolean();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "areMapped", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			boolean _result;			try
+			{
+			_result = _localServant.areMapped(obj,dm);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain createEmptyDomain()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "createEmptyDomain", true);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain _result = jacorb.orb.domain.DomainHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "createEmptyDomain", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain _result;			try
+			{
+			_result = _localServant.createEmptyDomain();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void set_domain_policy(org.omg.CORBA.Policy policy) throws jacorb.orb.domain.PolicyTypeAlreadyDefined
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "set_domain_policy", true);
+				org.omg.CORBA.PolicyHelper.write(_os,policy);
+				_is = _invoke(_os);
+
+                                // write strategy of policy cache is write-trough
+				// write cache after operation invoke
+				// so in case of exception no changes to the cache are made
+				getCache().write(policy);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				if( _id.equals("IDL:jacorb/orb/domain/PolicyTypeAlreadyDefined:1.0"))
+				{
+					throw jacorb.orb.domain.PolicyTypeAlreadyDefinedHelper.read(_ax.getInputStream());
+				}
+				else 
+					throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "set_domain_policy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.set_domain_policy(policy);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public void insertMapping(org.omg.CORBA.Object obj, jacorb.orb.domain.Domain[] dms)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "insertMapping", true);
+				_os.write_Object(obj);
+				jacorb.orb.domain.DomainListHelper.write(_os,dms);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "insertMapping", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.insertMapping(obj,dms);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public java.lang.String NameAutoPrefix()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request("_get_NameAutoPrefix",true);
+				_is = _invoke(_os);
+				return _is.read_string();
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+
+		else
+		{
+		org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "_get_NameAutoPrefix", _opsClass);
+		if( _so == null )
+			throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+		DomainOperations _localServant = (DomainOperations)_so.servant;
+			java.lang.String _result;
+		try
+		{
+			_result = _localServant.NameAutoPrefix();
+		}
+		finally
+		{
+			_servant_postinvoke(_so);
+		}
+		return _result;
+		}
+		}
+
+	}
+
+	public boolean hasParent(jacorb.orb.domain.Domain parentDomain)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "hasParent", true);
+				jacorb.orb.domain.DomainHelper.write(_os,parentDomain);
+				_is = _invoke(_os);
+				boolean _result = _is.read_boolean();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "hasParent", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			boolean _result;			try
+			{
+			_result = _localServant.hasParent(parentDomain);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void overwrite_domain_policy(org.omg.CORBA.Policy policy)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+
+                        getCache().write(policy);
+		        // cache write strategy is write-through
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "overwrite_domain_policy", true);
+				org.omg.CORBA.PolicyHelper.write(_os,policy);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "overwrite_domain_policy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.overwrite_domain_policy(policy);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain[] getMapping(org.omg.CORBA.Object obj)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getMapping", true);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain[] _result = jacorb.orb.domain.DomainListHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getMapping", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain[] _result;			try
+			{
+			_result = _localServant.getMapping(obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public boolean hasPolicyOfType(int type)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+
+                        // Herb: caching is handmade
+                        PolicyCache cache= getCache();
+			if ( cache.isValid(type) ) 
+			  {
+			    Debug.output(Debug.DOMAIN | Debug.DEBUG1, "domain client stub.hasPolicyOfType"
+					 +": cache hit");
+			    return true; // cache hit
+			  }
+
+                          Debug.output(Debug.DOMAIN | Debug.DEBUG1, "domain client stub.hasPolicyOfType"
+					 +": cache miss");
+
+			// else cache miss, read form server
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "hasPolicyOfType", true);
+				_os.write_long(type);
+				_is = _invoke(_os);
+				boolean _result = _is.read_boolean();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "hasPolicyOfType", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			boolean _result;			try
+			{
+			_result = _localServant.hasPolicyOfType(type);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public java.lang.String separator()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request("_get_separator",true);
+				_is = _invoke(_os);
+				return _is.read_string();
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+
+		else
+		{
+		org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "_get_separator", _opsClass);
+		if( _so == null )
+			throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+		DomainOperations _localServant = (DomainOperations)_so.servant;
+			java.lang.String _result;
+		try
+		{
+			_result = _localServant.separator();
+		}
+		finally
+		{
+			_servant_postinvoke(_so);
+		}
+		return _result;
+		}
+		}
+
+	}
+
+	public org.omg.CORBA.Policy[] getPolicies()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getPolicies", true);
+				_is = _invoke(_os);
+				org.omg.CORBA.Policy[] _result = org.omg.CORBA.PolicyListHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getPolicies", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			org.omg.CORBA.Policy[] _result;			try
+			{
+			_result = _localServant.getPolicies();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain createDomain(org.omg.CORBA.Object[] initialMembers, org.omg.CORBA.Policy[] initialPolicies, java.lang.String name)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "createDomain", true);
+				jacorb.orb.domain.ObjectListHelper.write(_os,initialMembers);
+				org.omg.CORBA.PolicyListHelper.write(_os,initialPolicies);
+				_os.write_string(name);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain _result = jacorb.orb.domain.DomainHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "createDomain", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain _result;			try
+			{
+			_result = _localServant.createDomain(initialMembers,initialPolicies,name);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.Domain resolveDomainPathName(java.lang.String pathname) throws jacorb.orb.domain.InvalidName
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "resolveDomainPathName", true);
+				jacorb.orb.domain.NameHelper.write(_os,pathname);
+				_is = _invoke(_os);
+				jacorb.orb.domain.Domain _result = jacorb.orb.domain.DomainHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				if( _id.equals("IDL:jacorb/orb/domain/InvalidName:1.0"))
+				{
+					throw jacorb.orb.domain.InvalidNameHelper.read(_ax.getInputStream());
+				}
+				else 
+					throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "resolveDomainPathName", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.Domain _result;			try
+			{
+			_result = _localServant.resolveDomainPathName(pathname);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public int getPolicyCount()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getPolicyCount", true);
+				_is = _invoke(_os);
+				int _result = _is.read_long();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getPolicyCount", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			int _result;			try
+			{
+			_result = _localServant.getPolicyCount();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.PropertyPolicy createPropertyPolicy()
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "createPropertyPolicy", true);
+				_is = _invoke(_os);
+				jacorb.orb.domain.PropertyPolicy _result = jacorb.orb.domain.PropertyPolicyHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "createPropertyPolicy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.PropertyPolicy _result;			try
+			{
+			_result = _localServant.createPropertyPolicy();
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public org.omg.CORBA.Policy getEffectiveDomainPolicy(int type)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getEffectiveDomainPolicy", true);
+				_os.write_long(type);
+				_is = _invoke(_os);
+				org.omg.CORBA.Policy _result = org.omg.CORBA.PolicyHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getEffectiveDomainPolicy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			org.omg.CORBA.Policy _result;			try
+			{
+			_result = _localServant.getEffectiveDomainPolicy(type);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void separator(java.lang.String a)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request("_set_separator",true);
+				_os.write_string(a);				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "_set_separator", _opsClass);
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+				try
+				{
+					_localServant.separator(a);
+				}
+				finally
+				{
+					_servant_postinvoke(_so);
+				}
+				return;
+			}
+		}
+
+	}
+
+	public org.omg.CORBA.Policy get_domain_policy(int policy_type)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+
+                        // Herb: caching is handmade
+		        // get_domain_policy is the only method which updates the cache from the server
+                        PolicyCache cache= getCache();
+		        org.omg.CORBA.Policy result= cache.read(policy_type);
+			if (result != null)
+			  {
+			    Debug.output(Debug.DOMAIN | Debug.DEBUG1,"domain client stub.get_domain"
+					 +"_policy: cache hit");
+			    return result; // cache hit
+			  }
+
+                          Debug.output(Debug.DOMAIN | Debug.DEBUG1, "domain client stub.get_domain"
+					 +"_policy: cache miss");
+
+			// else cache miss, read form server
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "get_domain_policy", true);
+				_os.write_long(policy_type);
+				_is = _invoke(_os);
+				org.omg.CORBA.Policy _result = org.omg.CORBA.PolicyHelper.read(_is);
+ 				cache.write(_result); // Herb: write to cache
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "get_domain_policy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			org.omg.CORBA.Policy _result;			try
+			{
+			_result = _localServant.get_domain_policy(policy_type);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public java.lang.String getNameOf(org.omg.CORBA.Object obj)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "getNameOf", true);
+				_os.write_Object(obj);
+				_is = _invoke(_os);
+				java.lang.String _result = jacorb.orb.domain.NameHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "getNameOf", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			java.lang.String _result;			try
+			{
+			_result = _localServant.getNameOf(obj);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public boolean isReachable(jacorb.orb.domain.Domain aDomain)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "isReachable", true);
+				jacorb.orb.domain.DomainHelper.write(_os,aDomain);
+				_is = _invoke(_os);
+				boolean _result = _is.read_boolean();
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "isReachable", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			boolean _result;			try
+			{
+			_result = _localServant.isReachable(aDomain);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+	public void addToMapping(org.omg.CORBA.Object obj, jacorb.orb.domain.Domain dm)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "addToMapping", true);
+				_os.write_Object(obj);
+				jacorb.orb.domain.DomainHelper.write(_os,dm);
+				_is = _invoke(_os);
+				return;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "addToMapping", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			try
+			{
+			_localServant.addToMapping(obj,dm);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return;
+		}
+
+		}
+
+	}
+
+	public jacorb.orb.domain.InitialMapPolicy createInitialMapPolicy(short whichOne)
+	{
+		while(true)
+		{
+		if(! this._is_local())
+		{
+			org.omg.CORBA.portable.InputStream _is = null;
+			try
+			{
+				org.omg.CORBA.portable.OutputStream _os = _request( "createInitialMapPolicy", true);
+				_os.write_short(whichOne);
+				_is = _invoke(_os);
+				jacorb.orb.domain.InitialMapPolicy _result = jacorb.orb.domain.InitialMapPolicyHelper.read(_is);
+				return _result;
+			}
+			catch( org.omg.CORBA.portable.RemarshalException _rx ){}
+			catch( org.omg.CORBA.portable.ApplicationException _ax )
+			{
+				String _id = _ax.getId();
+				throw new RuntimeException("Unexpected exception " + _id );
+			}
+			finally
+			{
+				this._releaseReply(_is);
+			}
+		}
+		else
+		{
+			org.omg.CORBA.portable.ServantObject _so = _servant_preinvoke( "createInitialMapPolicy", _opsClass );
+			if( _so == null )
+				throw new org.omg.CORBA.UNKNOWN("local invocations not supported!");
+			DomainOperations _localServant = (DomainOperations)_so.servant;
+			jacorb.orb.domain.InitialMapPolicy _result;			try
+			{
+			_result = _localServant.createInitialMapPolicy(whichOne);
+			}
+			finally
+			{
+				_servant_postinvoke(_so);
+			}
+			return _result;
+		}
+
+		}
+
+	}
+
+}

@@ -1,0 +1,16 @@
+module demo
+{
+    module trace
+        {
+            interface FooServer
+                {
+                    void anOperation(in string param);
+                };
+
+            interface FooRelayServer
+                {
+                    void anotherOperation(in string param);
+                };
+
+        };
+};

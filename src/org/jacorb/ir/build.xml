@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<project name="orb" default="all" basedir="../../../..">
+
+  <!-- ==================================================== -->
+  <!--             Interface Repository build               -->
+  <!-- $Id$ -->
+  <!-- ==================================================== -->
+
+   <target name="init" depends="javatest">
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+	<property name="src" value="${dirs.base}/src"/>
+   </target>
+
+   <target name="javatest">
+	<available classname="java.lang.ref.WeakReference"
+	property="java2" />	
+   </target>
+
+   <target name="all" depends="init,compile,gui"/>
+
+   <target name="compile" if="java2">
+	<javac srcdir="${src}"
+               destdir="${classdir}"
+	       includes="org/jacorb/ir/*.java"
+	        />
+   </target>
+
+   <target name="gui" depends="init" if="java2">
+	<javac srcdir="${src}"
+               destdir="${classdir}"
+	       includes="org/jacorb/ir/gui/**/*.java,org/jacorb/ir/gui/*.java"
+	        />
+   </target>
+
+   <target name="clean" depends="init">
+         <delete dir="${classdir}/org/jacorb/ir"/>
+   </target>
+
+</project>
+
+
+
+
+

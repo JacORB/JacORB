@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<project name="demo" default="all" basedir="../..">
+
+  <!-- ==================================================== -->
+  <!--             Demo build file                         -->
+  <!-- ==================================================== -->
+
+   <target name="init">
+	<property name="name" value="events"/>
+	<property name="dirs.base" value="${basedir}"/>
+	<property name="classdir" value="${dirs.base}/classes"/>
+   </target>
+
+   <target name="all" depends="init">
+	<javac srcdir="${dirs.base}/demo/${name}/"
+               destdir="${classdir}"
+	       includes="**.java"
+	        />
+   </target>
+
+   <target name="clean">
+	   <deltree dir="${classdir}/demo/${name}"/>
+   </target>
+
+</project>
+
+
+
+
+

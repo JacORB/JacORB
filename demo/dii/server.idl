@@ -1,0 +1,19 @@
+module dii{
+
+    interface server 
+    {
+	attribute long long_number;
+	    
+	exception e {
+	    string why;
+	};
+	    
+	string writeNumber( in long i ) raises (e);
+
+	void add(in long i, in long j, out long r );
+	    
+	string writeNumberWithEx( in long i ) raises (e);
+	    
+	oneway void notify( in string msg );
+    };
+};
