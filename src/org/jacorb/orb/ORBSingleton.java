@@ -48,9 +48,9 @@ public class ORBSingleton
      */
     final protected static boolean legalStartChar(int ch)
     {
-        return  
-            ( ch >= 'a' &&  ch <= 'z') || 
-            ( ch >= 'A' && ch <= 'Z');
+        return
+           ( ch >= 'a' &&  ch <= 'z') ||
+           ( ch >= 'A' && ch <= 'Z');
     }
 
 
@@ -60,9 +60,10 @@ public class ORBSingleton
      */
     final protected static boolean legalNameChar(int ch)
     {
-        return legalStartChar(ch) ||  
-            (ch == '_') 
-            || (ch >= '0' && ch <= '9');
+        return
+           legalStartChar(ch) ||  
+           (ch == '_') 
+           || (ch >= '0' && ch <= '9');
     }
 
 
@@ -430,10 +431,10 @@ public class ORBSingleton
     }
 
     public org.omg.CORBA.TypeCode create_value_tc(String id,
-                                    String name,
-                                    short type_modifier,
-                                    TypeCode concrete_base,
-                                    org.omg.CORBA.ValueMember[] members) 
+                                                  String name,
+                                                  short type_modifier,
+                                                  TypeCode concrete_base,
+                                                  org.omg.CORBA.ValueMember[] members) 
     {
         checkTCRepositorId( id );
         checkTCName( name );
@@ -455,20 +456,32 @@ public class ORBSingleton
         checkTCMemberType( boxed_type );
 
         return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_value_box,
-                                            id, name, boxed_type);
+                                            id,
+                                            name,
+                                            boxed_type);
     }
 
     public org.omg.CORBA.TypeCode create_abstract_interface_tc(String id,
                                                                String name) 
     {
-        checkTCRepositorId( id );
-        checkTCName( name );
-        return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_abstract_interface,
-					    id, 
-                                            name);
+       checkTCRepositorId( id );
+       checkTCName( name );
+       return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_abstract_interface,
+                                           id, 
+                                           name);
     }
 
-    /* not allowed on the singleton: */
+    public org.omg.CORBA.TypeCode create_native_tc(String id,
+                                                   String name) 
+    {
+       checkTCRepositorId( id );
+       checkTCName( name );
+       return new org.jacorb.orb.TypeCode (org.omg.CORBA.TCKind._tk_native,
+                                           id, 
+                                           name);
+    }
+
+   /* not allowed on the singleton: */
 
     public org.omg.CORBA.ExceptionList create_exception_list()
     {
