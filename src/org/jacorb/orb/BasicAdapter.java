@@ -679,6 +679,12 @@ public class BasicAdapter
                 {
                     byte[] buf = connection.readBuffer();
 
+                    if( buf == null )
+                    {
+                        //try again
+                        continue;
+                    }
+
                     Debug.output( 10, "Receive Request", buf );
 
                     int msg_type = buf[7];

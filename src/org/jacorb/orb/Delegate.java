@@ -227,7 +227,8 @@ public final class Delegate
 
                 LocateRequestOutputStream lros = 
                     new LocateRequestOutputStream( object_key, 
-                                                   connection.getId() );
+                                                   connection.getId(),
+                                                   (int) _pior.getProfileBody().iiop_version.minor );
                 LocateReplyInputStream lris = 
                     connection.sendLocateRequest( lros );
     
@@ -462,18 +463,20 @@ public final class Delegate
     {
         bind();
         
+        ParsedIOR p = getParsedIOR();
+
         // devik: if connection's tcs was not negotiated yet, mark all requests
         // with codeset servicecontext.
-        ctx = connection.addCodeSetContext( ctx, 
-                                            getParsedIOR() );
+        ctx = connection.addCodeSetContext( ctx, p );
     
         RequestOutputStream _os = 
              new RequestOutputStream( orb, 
-                                     connection.getId(),
-                                     "_get_policy", 
-                                     true, 
-                                     object_key, 
-                                     ctx);
+                                      connection.getId(),
+                                      "_get_policy", 
+                                      true, 
+                                      object_key, 
+                                      ctx,
+                                      (int) p.getProfileBody().iiop_version.minor );
     
         return get_policy(self, policy_type, _os);
     }
@@ -838,10 +841,10 @@ public final class Delegate
 
                 if ( use_interceptors && (info != null) )
                 {
-                    ReplyHeader_1_0 _header = rep.getHeader();
+                    ReplyHeader_1_2 _header = rep.getHeader();
               
                     //exceptions are thrown by result()
-                    if (_header.reply_status.value() == ReplyStatusType_1_0._NO_EXCEPTION)
+                    if (_header.reply_status.value() == ReplyStatusType_1_2._NO_EXCEPTION)
                     { 
                         info.reply_status = SUCCESSFUL.value;
             
@@ -1207,17 +1210,21 @@ public final class Delegate
 
         bind();
         
+        ParsedIOR p = getParsedIOR();
+
         // devik: if connection's tcs was not negotiated yet, mark all
         // requests with codeset servicecontext.
-        ctx = connection.addCodeSetContext( ctx, getParsedIOR() );
-
-        RequestOutputStream ros = new RequestOutputStream( orb, 
-                                        connection.getId(),
-                                        operation, 
-                                        responseExpected, 
-                                        object_key,
-                                        ctx, 
-                                        use_interceptors);
+        ctx = connection.addCodeSetContext( ctx, p );
+        
+        RequestOutputStream ros = 
+            new RequestOutputStream( orb, 
+                                     connection.getId(),
+                                     operation, 
+                                     responseExpected, 
+                                     object_key,
+                                     ctx,
+                                     (int) p.getProfileBody().iiop_version.minor,
+                                     use_interceptors );
         ros.setCodeSet( connection.TCS, connection.TCSW );
         return ros;
     }
