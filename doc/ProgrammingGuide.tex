@@ -2584,7 +2584,12 @@ to configure JacORB are given in the following tables.
 \hline
 \verb"jacorb.logfile" & \verb"Output destination for diagnostic log"
 \verb"file. If not set, then diagnostics are"
-\verb"sent to standard output." & \verb"file" \\
+\verb"sent to standard output. If this ends"
+\verb"with $implname then the value of the"
+\verb"jacorb.implname property is used,"
+\verb"this allows different servers to share"
+\verb"a common configuration file but write"
+\verb"log output to different files." & \verb"file" \\
 \hline
 \verb"jacorb.debug.dump_outg"
 \verb"oing_messages" & \verb"Hex dump outgoing messages. Default is"
