@@ -31,11 +31,9 @@ import org.jacorb.orb.*;
 import org.jacorb.util.*;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.apache.avalon.framework.configuration.*;
 
-
-//#ifjdk 1.2
 import org.jacorb.imr.util.ImRManager;
-//#endif
 
 /**
  *  The name server application
@@ -48,11 +46,45 @@ import org.jacorb.imr.util.ImRManager;
 public class NameServer
 {
     private static org.omg.CORBA.ORB orb = null;
-    public static String name_delimiter = "/";
-    private static String filePrefix = "_nsdb";
+    private static org.jacorb.config.Configuration configuration = null;
 
     /** the specific logger for this component */
-    private static Logger logger = Debug.getNamedLogger("jacorb.naming");
+    private static Logger logger = null;
+    private static boolean imr_register = false;
+
+    private static String filePrefix = "_nsdb";
+    private static String commandSuffix = "";
+    static String name_delimiter = "/";
+
+
+    public static void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        configuration = (org.jacorb.config.Configuration)myConfiguration;
+        logger = configuration.getNamedLogger("jacorb.naming");
+
+        /* which directory to store/load in? */
+
+        String directory = configuration.getAttribute("jacorb.naming.db_dir");
+        
+        if( directory != null )
+            filePrefix = directory + File.separatorChar + filePrefix;
+
+        if ( configuration.getAttribute("jacorb.use_imr","off").equals("on") && imr_register)
+        {
+            // don't supply "imr_register", so a ns started by an imr_ssd
+            // won't try to register himself again.
+            String command = 
+                configuration.getAttribute("jacorb.java_exec") + commandSuffix;
+            
+            ImRManager.autoRegisterServer( orb, 
+                                           "StandardNS", 
+                                           command,
+                                           ImRManager.getLocalHostName(),
+                                           true); //edit existing
+        }       
+    }
+
 
     /**
      * The servant manager (servant activator) for the name server POA
@@ -62,11 +94,21 @@ public class NameServer
         extends _ServantActivatorLocalBase
     {
         private org.omg.CORBA.ORB orb = null;
+        private org.jacorb.config.Configuration configuration = null;
+        private Logger logger = null;
 
         public NameServantActivatorImpl(org.omg.CORBA.ORB orb)
         {
             this.orb = orb;
         }
+
+        public void configure(Configuration myConfiguration)
+            throws ConfigurationException
+        {
+            this.configuration = (org.jacorb.config.Configuration)myConfiguration;
+            this.logger = configuration.getNamedLogger("jacorb.naming.activator");
+        }
+
 
         /**
          * @return - a servant initialized from a file
@@ -116,10 +158,19 @@ public class NameServer
 
             if( n == null )
             {
-                n = new NamingContextImpl();
+                n = new NamingContextImpl();               
             }
 
             n.init(adapter);
+            try
+            {
+                n.configure(configuration);
+            }
+            catch( ConfigurationException ce )
+            {
+                if (logger.isErrorEnabled())
+                    logger.error("ConfigurationException: " + ce.getMessage());
+            }
             return n;
         }
 
@@ -169,7 +220,6 @@ public class NameServer
     public static void main( String args[] )
     {
         String port = null;
-        boolean imr_register = false;
         String fileName = null;
 
         try
@@ -225,6 +275,10 @@ public class NameServer
                 }
             }
 
+
+            commandSuffix = " org.jacorb.naming.NameServer " + args[0] + " " + args[1];
+
+
             java.util.Properties props = new java.util.Properties();
             props.put("jacorb.implname", "StandardNS");
 
@@ -238,64 +292,17 @@ public class NameServer
             props.put("jacorb.orb.objectKeyMap.NameService",
                       "StandardNS/NameServer-POA/_root");
 
-            /*
-             * set a connection time out : after 10 secs. idle time,
-             * the adapter will close connections
-             */
-            if( Environment.getIntPropertyWithDefault( "jacorb.connection.server.timeout", -1 ) < 0 )
-            {
-                logger.debug( "Default server.timeout to 10000" );
-                props.put( "jacorb.connection.server.timeout", "10000" );
-            }
-
-            // If port not set on command line see if configured
-
-            if (port == null)
-            {
-                port = Environment.getProperty ("jacorb.naming.port");
-                if (port != null)
-                {
-                    try
-                    {
-                        Integer.parseInt (port);
-                    }
-                    catch (NumberFormatException ex)
-                    {
-                        port = null;
-                    }
-                }
-            }
-
             if (port != null)
             {
-                props.put ("OAPort", port);
+                props.put("OAPort", port);
             }
 
-            /* which directory to store/load in? */
-
-            String directory =
-            org.jacorb.util.Environment.getProperty("jacorb.naming.db_dir");
-
-            if( directory != null )
-                filePrefix = directory + File.separatorChar + filePrefix;
 
             /* intialize the ORB and Root POA */
 
             orb = org.omg.CORBA.ORB.init(args, props);
+            configure( ((org.jacorb.orb.ORB)orb).getConfiguration());
 
-            if ( org.jacorb.util.Environment.useImR() && imr_register)
-            {
-                //#ifjdk 1.2
-                // don't supply "imr_register", so a ns started by an imr_ssd
-                // won't try to register himself again.
-                String command = Environment.getProperty("jacorb.java_exec") +
-                " org.jacorb.naming.NameServer " + args[0] + " " + args[1];
-
-                ImRManager.autoRegisterServer(orb, "StandardNS", command,
-                                              ImRManager.getLocalHostName(),
-                                              true); //edit existing
-                //#endif
-            }
 
             org.omg.PortableServer.POA rootPOA =
             org.omg.PortableServer.POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
