@@ -22,10 +22,10 @@ package org.jacorb.notification;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.CORBA.ORB;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotifyChannelAdmin.ProxyPushConsumerOperations;
@@ -46,7 +46,7 @@ public class ProxyPushConsumerImpl
 {
 
     private org.omg.CosEventComm.PushSupplier myPushSupplier;
-    private boolean connected;
+    private boolean connected = false;
     private List subsequentDestinations_;
 
     ProxyPushConsumerImpl( SupplierAdminTieImpl myAdminServant,
@@ -61,7 +61,7 @@ public class ProxyPushConsumerImpl
                adminProperties,
                qosProperties );
 
-        init();
+        init(myAdminServant);
     }
 
     ProxyPushConsumerImpl( SupplierAdminTieImpl myAdminServant,
@@ -79,14 +79,13 @@ public class ProxyPushConsumerImpl
                qosProperties,
                key );
 
-        init();
+        init(myAdminServant);
     }
 
-    private void init()
+    private void init(SupplierAdminTieImpl supplierAdminServant)
     {
         setProxyType( ProxyType.PUSH_ANY );
-        connected = false;
-        subsequentDestinations_ = CollectionsWrapper.singletonList( myAdmin_ );
+        subsequentDestinations_ = CollectionsWrapper.singletonList( supplierAdminServant );
     }
 
     public void disconnect_push_consumer()
@@ -166,7 +165,7 @@ public class ProxyPushConsumerImpl
 
     public EventConsumer getEventConsumer()
     {
-        return null;
+	throw new UnsupportedOperationException();
     }
 
     public boolean hasEventConsumer()

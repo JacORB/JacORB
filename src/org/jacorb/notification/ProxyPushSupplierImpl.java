@@ -20,41 +20,23 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.apache.log.Logger;
-import org.omg.CORBA.OBJECT_NOT_EXIST;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.BAD_PARAM;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosEventChannelAdmin.TypeError;
 import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierOperations;
-import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOA;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPushSupplierPOA;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.PushConsumer;
-import org.omg.CosNotifyComm.StructuredPushConsumer;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.CosNotifyFilter.MappingFilter;
-import java.util.List;
-import java.util.Collections;
-import org.omg.CORBA.BAD_PARAM;
-import org.jacorb.notification.interfaces.EventConsumer;
-import java.util.LinkedList;
-import java.util.Iterator;
-import org.omg.CORBA.Any;
-import org.omg.PortableServer.Servant;
 import org.omg.CosNotifyChannelAdmin.ProxyPushSupplierPOATie;
+import org.omg.PortableServer.Servant;
 
 /**
  * @author Alphonse Bendt

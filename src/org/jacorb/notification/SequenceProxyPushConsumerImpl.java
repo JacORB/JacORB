@@ -21,26 +21,19 @@ package org.jacorb.notification;
  *
  */
 
-
-import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.apache.log.Logger;
-import org.omg.CosNotifyComm.SequencePushSupplier;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosEventComm.Disconnected;
-import org.jacorb.notification.interfaces.EventConsumer;
 import java.util.List;
-import java.util.Collections;
+
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerPOATie;
+import org.omg.CosNotifyComm.SequencePushSupplier;
+import org.omg.PortableServer.Servant;
 
 /**
  * SequenceProxyPushConsumerImpl.java
- *
- *
- * Created: Sat Jan 11 17:06:27 2003
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -50,7 +43,8 @@ public class SequenceProxyPushConsumerImpl
     extends StructuredProxyPushConsumerImpl 
     implements SequenceProxyPushConsumerOperations {
 
-    SequencePushSupplier mySequencePushSupplier_;
+    private SequencePushSupplier mySequencePushSupplier_;
+
     private List subsequentDestinations_;
 
     public SequenceProxyPushConsumerImpl(SupplierAdminTieImpl supplierAdminServant,
@@ -109,4 +103,4 @@ public class SequenceProxyPushConsumerImpl
 	return thisServant_;
     }
 
-}// SequenceProxyPushConsumerImpl
+}

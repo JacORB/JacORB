@@ -21,20 +21,19 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerOperations;
-import org.omg.CosNotifyComm.SequencePullSupplier;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CORBA.BooleanHolder;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CORBA.UserException;
 import org.omg.CORBA.SystemException;
-import org.omg.PortableServer.Servant;
+import org.omg.CORBA.UserException;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullConsumerPOATie;
+import org.omg.CosNotifyComm.SequencePullSupplier;
+import org.omg.PortableServer.Servant;
 
 /**
  * SequenceProxyPullConsumerImpl.java
- *
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -71,7 +70,7 @@ public class SequenceProxyPullConsumerImpl
     }
 
     public void connect_sequence_pull_supplier( SequencePullSupplier sequencePullSupplier )
-    throws AlreadyConnected
+	throws AlreadyConnected
     {
 
         if ( connected_ )
@@ -86,12 +85,15 @@ public class SequenceProxyPullConsumerImpl
         startTask();
     }
 
+    /**
+     * override superclass impl
+     */
     public void runPullEvent()
     {
-        runSequence();
+        runPullSequenceFromSupplier();
     }
 
-    public void runSequence()
+    private void runPullSequenceFromSupplier()
     {
         BooleanHolder _hasEvent = new BooleanHolder();
         StructuredEvent[] _events = null;

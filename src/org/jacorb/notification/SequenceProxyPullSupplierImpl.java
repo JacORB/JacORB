@@ -21,24 +21,23 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
+import java.util.Collections;
+import java.util.List;
+
 import org.jacorb.notification.interfaces.EventConsumer;
-import org.omg.CosNotifyComm.SequencePullConsumer;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CORBA.BooleanHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
-import org.omg.CORBA.BooleanHolder;
-import java.util.List;
-import java.util.Collections;
+import org.omg.CosNotification.StructuredEvent;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPullSupplierPOATie;
+import org.omg.CosNotifyComm.SequencePullConsumer;
+import org.omg.PortableServer.Servant;
 
 /**
  * SequenceProxyPullSupplierImpl.java
- *
- *
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -51,7 +50,7 @@ public class SequenceProxyPullSupplierImpl
 {
 
     private SequencePullConsumer sequencePullConsumer_;
-    private static StructuredEvent[] undefinedSequence_;
+    private static StructuredEvent[] sUndefinedSequence;
 
     public SequenceProxyPullSupplierImpl( ConsumerAdminTieImpl myAdminServant,
                                           ApplicationContext appContext,
@@ -69,13 +68,13 @@ public class SequenceProxyPullSupplierImpl
                key );
 
 
-        if ( undefinedSequence_ == null )
+        if ( sUndefinedSequence == null )
         {
             synchronized ( getClass() )
             {
-                if ( undefinedSequence_ == null )
+                if ( sUndefinedSequence == null )
                 {
-                    undefinedSequence_ = new StructuredEvent[] {undefinedStructuredEvent_};
+                    sUndefinedSequence = new StructuredEvent[] {undefinedStructuredEvent_};
                 }
             }
         }
@@ -98,7 +97,7 @@ public class SequenceProxyPullSupplierImpl
     {
         StructuredEvent[] _event = null;
         BooleanHolder _hasEvent = new BooleanHolder();
-        StructuredEvent _ret[] = undefinedSequence_;
+        StructuredEvent _ret[] = sUndefinedSequence;
 
         synchronized ( pendingEvents_ )
         {
@@ -149,7 +148,7 @@ public class SequenceProxyPullSupplierImpl
             else
             {
                 success.value = false;
-                return undefinedSequence_;
+                return sUndefinedSequence;
             }
         }
     }

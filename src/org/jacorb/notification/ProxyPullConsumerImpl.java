@@ -20,24 +20,25 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerOperations;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import java.util.List;
 import java.util.Collections;
-import org.omg.CosEventComm.PullSupplier;
-import org.jacorb.notification.interfaces.EventConsumer;
-import org.omg.CORBA.BooleanHolder;
-import org.omg.CORBA.Any;
-import org.jacorb.notification.interfaces.TimerEventSupplier;
+import java.util.List;
+
 import org.jacorb.notification.engine.TaskProcessor;
-import org.omg.CosEventComm.Disconnected;
-import org.omg.PortableServer.Servant;
-import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.TimerEventSupplier;
 import org.jacorb.util.Environment;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.BooleanHolder;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosEventComm.PullSupplier;
+import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
+import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
+import org.omg.CosNotifyChannelAdmin.NotConnected;
+import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerOperations;
+import org.omg.CosNotifyChannelAdmin.ProxyPullConsumerPOATie;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.PortableServer.Servant;
 
 /**
  * @author Alphonse Bendt
@@ -63,19 +64,16 @@ public class ProxyPullConsumerImpl
 
     /**
      * Total number of pull-Operations
-     *
      */
     private int runCounter_;
     
     /**
      * Total time spent within pull-Operations
-     *
      */
     private long runTime_;
 
     /**
      * Total number of successful pull-Operations
-     *
      */
     private int successfulPull_;
 
@@ -165,8 +163,8 @@ public class ProxyPullConsumerImpl
     }
 
     synchronized public void suspend_connection()
-    throws NotConnected,
-                ConnectionAlreadyInactive
+	throws NotConnected,
+	       ConnectionAlreadyInactive
     {
 
         if ( !connected_ )
@@ -184,7 +182,7 @@ public class ProxyPullConsumerImpl
     }
 
     synchronized public void resume_connection()
-    throws ConnectionAlreadyActive,
+	throws ConnectionAlreadyActive,
                 NotConnected
     {
 
@@ -233,7 +231,7 @@ public class ProxyPullConsumerImpl
     }
 
     public void connect_any_pull_supplier( PullSupplier pullSupplier )
-    throws AlreadyConnected
+	throws AlreadyConnected
     {
 
         if ( connected_ )
@@ -250,7 +248,7 @@ public class ProxyPullConsumerImpl
     }
 
     public void connect_pull_supplier( PullSupplier pullSupplier )
-    throws AlreadyConnected
+	throws AlreadyConnected
     {
         connect_any_pull_supplier( pullSupplier );
     }
@@ -267,7 +265,7 @@ public class ProxyPullConsumerImpl
 
     public EventConsumer getEventConsumer()
     {
-        return null;
+	throw new UnsupportedOperationException();
     }
 
     public boolean hasEventConsumer()
@@ -281,7 +279,7 @@ public class ProxyPullConsumerImpl
         {
             taskId_ = channelContext_
                       .getTaskProcessor()
-                      .registerPeriodicTask( pollInterval_, runQueueThis_, true );
+                      .executeTaskPeriodically( pollInterval_, runQueueThis_, true );
         }
     }
 
@@ -289,7 +287,7 @@ public class ProxyPullConsumerImpl
     {
         if ( taskId_ != null )
         {
-            channelContext_.getTaskProcessor().unregisterTask( taskId_ );
+            channelContext_.getTaskProcessor().cancelTask( taskId_ );
             taskId_ = null;
         }
     }

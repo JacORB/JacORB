@@ -21,30 +21,27 @@ package org.jacorb.notification;
  *
  */
 
-import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.EventConsumer;
 import org.jacorb.notification.interfaces.TimerEventConsumer;
-import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyComm.SequencePushConsumer;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosNotification.MaximumBatchSize;
+import org.omg.CosNotification.PacingInterval;
+import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
 import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
+import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.jacorb.notification.engine.TaskProcessor;
-import org.omg.CosNotification.PacingInterval;
-import org.omg.TimeBase.TimeTHelper;
-import org.omg.CosNotification.MaximumBatchSize;
-import org.omg.PortableServer.Servant;
+import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
+import org.omg.CosNotifyComm.SequencePushConsumer;
+import org.omg.PortableServer.Servant;
+import org.omg.TimeBase.TimeTHelper;
 
 /**
  * SequenceProxyPushSupplierImpl.java
- *
- *
- * Created: Sat Jan 11 16:47:42 2003
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -125,8 +122,7 @@ public class SequenceProxyPushSupplierImpl
                            {
                                engine_.scheduleTimedPushTask( SequenceProxyPushSupplierImpl.this );
                            }
-                           catch ( InterruptedException e )
-                           {}
+                           catch ( InterruptedException e ) {}
                        }
                    };
     }
@@ -134,7 +130,7 @@ public class SequenceProxyPushSupplierImpl
     // overwrite
     public void deliverEvent( NotificationEvent event )
     {
-        logger_.debug( "dispatchEvent(...)" );
+        logger_.debug( "deliverEvent(...)" );
 
         if ( connected_ )
         {
@@ -303,7 +299,7 @@ public class SequenceProxyPushSupplierImpl
         if ( pacingInterval_ > 0 )
         {
             taskId_ = channelContext_.getTaskProcessor().
-		registerPeriodicTask( pacingInterval_,
+		executeTaskPeriodically( pacingInterval_,
 				      timerCallback_,
 				      true );
         }
@@ -313,7 +309,7 @@ public class SequenceProxyPushSupplierImpl
     {
         if ( taskId_ != null )
         {
-            channelContext_.getTaskProcessor().unregisterTask( taskId_ );
+            channelContext_.getTaskProcessor().cancelTask( taskId_ );
             taskId_ = null;
         }
     }

@@ -21,44 +21,22 @@ package org.jacorb.notification;
  *
  */
 
-import org.jacorb.notification.ProxyBase;
-import org.omg.CORBA.ORB;
+import java.util.Collections;
+import java.util.List;
+
+import org.jacorb.notification.interfaces.EventConsumer;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.QoSAdminOperations;
 import org.omg.CosNotification.StructuredEvent;
-import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
-import org.omg.CosNotifyChannelAdmin.ProxyConsumerOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerOperations;
-import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotifyComm.NotifyPublishOperations;
-import org.omg.CosNotifyComm.StructuredPushConsumerOperations;
-import org.omg.CosNotifyComm.StructuredPushSupplier;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterAdminOperations;
-import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.PortableServer.POA;
-import org.apache.log.Logger;
-import java.util.List;
-import org.jacorb.notification.interfaces.EventConsumer;
-import java.util.Collections;
-import org.omg.CORBA.OBJECT_NOT_EXIST;
-import org.omg.CosNotifyChannelAdmin.SequenceProxyPushConsumerOperations;
-import org.omg.CosNotifyComm.SequencePushSupplier;
-import org.omg.PortableServer.Servant;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPushConsumerPOATie;
+import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
+import org.omg.CosNotifyComm.StructuredPushSupplier;
+import org.omg.PortableServer.Servant;
 
 /**
  * StructuredProxyPushConsumerImpl.java
- *
- *
- * Created: Mon Nov 04 01:52:01 2002
  *
  * @author Alphonse Bendt
  * @version $Id$
@@ -95,6 +73,7 @@ public class StructuredProxyPushConsumerImpl
 	}
 
 	NotificationEvent _notifyEvent = notificationEventFactory_.newEvent(structuredEvent, this);
+
 	channelContext_.dispatchEvent(_notifyEvent);
     }
 
@@ -136,7 +115,7 @@ public class StructuredProxyPushConsumerImpl
     }
 
     public EventConsumer getEventConsumer() {
-	return null;
+	throw new UnsupportedOperationException();
     }
 
     public boolean hasEventConsumer() {
@@ -163,4 +142,4 @@ public class StructuredProxyPushConsumerImpl
 	return thisServant_;
     }
 
-}// StructuredProxyPushConsumerImpl
+}

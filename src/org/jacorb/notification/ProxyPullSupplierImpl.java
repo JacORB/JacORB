@@ -20,35 +20,21 @@ package org.jacorb.notification;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosNotifyFilter.MappingFilter;
-import org.omg.CosNotification.EventType;
-import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import org.omg.CosNotifyChannelAdmin.ProxyType;
-import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
-import org.omg.CosNotifyComm.InvalidEventType;
-import org.omg.CosNotification.Property;
-import org.omg.CosNotification.NamedPropertyRangeSeqHolder;
-import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyFilter.Filter;
-import org.omg.CosNotifyFilter.FilterNotFound;
-import org.omg.CosEventChannelAdmin.AlreadyConnected;
-import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
-import org.apache.log.Logger;
-import org.omg.CORBA.Any;
-import org.omg.CosEventComm.PullConsumer;
-import org.omg.PortableServer.POA;
-import org.omg.CORBA.BooleanHolder;
-import org.jacorb.notification.interfaces.EventConsumer;
-import org.omg.CosEventComm.Disconnected;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Collections;
-import org.omg.PortableServer.Servant;
+
+import org.jacorb.notification.interfaces.EventConsumer;
+import org.omg.CORBA.Any;
+import org.omg.CORBA.BooleanHolder;
+import org.omg.CosEventChannelAdmin.AlreadyConnected;
+import org.omg.CosEventComm.Disconnected;
+import org.omg.CosEventComm.PullConsumer;
+import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
+import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.ProxyPullSupplierPOATie;
+import org.omg.CosNotifyChannelAdmin.ProxyType;
+import org.omg.PortableServer.Servant;
 
 /**
  * @author Alphonse Bendt
@@ -104,7 +90,6 @@ public class ProxyPullSupplierImpl
 	    synchronized(getClass()) {
 		if (sUndefinedAny == null) {
 		    sUndefinedAny = applicationContext_.getOrb().create_any();
-		    //    sUndefinedAny.insert_octet((byte)0);
 		}
 	    }
 	}
@@ -112,10 +97,7 @@ public class ProxyPullSupplierImpl
     }
 
     private void init(ApplicationContext appContext) {
-	logger_.debug("init");
-
 	setProxyType(ProxyType.PULL_ANY);
-        connected_ = false;
     }
 
     public void disconnect_pull_supplier() {
@@ -152,8 +134,6 @@ public class ProxyPullSupplierImpl
     public Any try_pull (BooleanHolder hasEvent)
         throws Disconnected {
 
-	logger_.debug("try_pull");
-
         if (!connected_) { 
 	    throw new Disconnected(); 
 	}
@@ -169,7 +149,9 @@ public class ProxyPullSupplierImpl
             }
         }
 	
-	logger_.debug("try_pull returns: " + event);
+	if (event == null) {
+	    throw new RuntimeException("shouldnt return null");
+	}
 
 	return event;
     }
@@ -237,7 +219,7 @@ public class ProxyPullSupplierImpl
     }
 
     public void deliverPendingEvents() {
-	// as we cannot actively deliver events we can ignore this
+	// as we do not actively deliver events we can ignore this
     }
 
     public Servant getServant() {

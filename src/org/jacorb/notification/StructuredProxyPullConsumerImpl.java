@@ -21,9 +21,12 @@ package org.jacorb.notification;
  *
  */
 
-import java.util.Collections;
 import java.util.List;
+
+import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.interfaces.EventConsumer;
+import org.jacorb.notification.interfaces.TimerEventSupplier;
+import org.jacorb.util.Environment;
 import org.omg.CORBA.BooleanHolder;
 import org.omg.CORBA.SystemException;
 import org.omg.CORBA.UserException;
@@ -39,13 +42,10 @@ import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ObtainInfoMode;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerOperations;
+import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
 import org.omg.CosNotifyComm.StructuredPullSupplier;
-import org.jacorb.notification.interfaces.TimerEventSupplier;
-import org.jacorb.notification.engine.TaskProcessor;
 import org.omg.PortableServer.Servant;
-import org.omg.CosNotifyChannelAdmin.StructuredProxyPullConsumerPOATie;
-import org.jacorb.util.Environment;
 
 /**
  * StructuredProxyPullConsumerImpl.java
@@ -90,13 +90,16 @@ public class StructuredProxyPullConsumerImpl
 		pollInterval_ = 
 		    Long.parseLong(Environment.getProperty(Properties.PULL_CONSUMER_POLLINTERVALL));
 	    } catch (NumberFormatException e) {
-		logger_.error("Invalid Number Format for Property " + Properties.PULL_CONSUMER_POLLINTERVALL, e);
+		logger_.error("Invalid Number Format for Property " 
+			      + Properties.PULL_CONSUMER_POLLINTERVALL, 
+			      e);
 	    }
 	}
 
         setProxyType( ProxyType.PULL_STRUCTURED );
 
         engine_ = channelContext.getTaskProcessor();
+
         runQueueThis_ = new Runnable()
                         {
                             public void run()
@@ -105,14 +108,11 @@ public class StructuredProxyPullConsumerImpl
                                 {
                                     engine_.scheduleTimedPullTask( StructuredProxyPullConsumerImpl.this );
                                 }
-                                catch ( InterruptedException ie )
-                                {}
+                                catch ( InterruptedException ie ) {}
 
                             }
+                        };
 
-                        }
-
-                        ;
         subsequentDestinations_ = CollectionsWrapper.singletonList( myAdmin_ );
     }
 
@@ -235,7 +235,7 @@ public class StructuredProxyPullConsumerImpl
 
     public EventConsumer getEventConsumer()
     {
-        return null;
+	throw new UnsupportedOperationException();
     }
 
     public boolean hasEventConsumer()
@@ -269,10 +269,10 @@ public class StructuredProxyPullConsumerImpl
         if ( taskId_ == null )
         {
             taskId_ = channelContext_
-                      .getTaskProcessor()
-                      .registerPeriodicTask( pollInterval_,
-                                             runQueueThis_,
-                                             true );
+		.getTaskProcessor()
+		.executeTaskPeriodically( pollInterval_,
+					  runQueueThis_,
+					  true );
         }
     }
 
@@ -281,8 +281,8 @@ public class StructuredProxyPullConsumerImpl
         if ( taskId_ != null )
         {
             channelContext_
-            .getTaskProcessor()
-            .unregisterTask( taskId_ );
+		.getTaskProcessor()
+		.cancelTask( taskId_ );
 
             taskId_ = null;
         }
