@@ -21,27 +21,44 @@ package org.jacorb.test.idl;
  */
 
 import junit.framework.*;
+import junit.extensions.TestSetup;
+import org.jacorb.idl.ParseException;
 
-public class PackageTest extends TestCase
+
+/**
+ * Value.java
+ *
+ * IDL parse tests.
+ *
+ */
+
+public class ValueTest extends TestCase
 {
-   public PackageTest (String name)
+   public ValueTest (String name)
    {
       super (name);
    }
 
+
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("Package idl");
-
-      suite.addTest (LongTest.suite ());
-      suite.addTest (PragmaTest.suite ());
-      suite.addTest (ModuleTest.suite ());
-      suite.addTest (CharTest.suite ());
-      suite.addTest (TypeDefTest.suite ());
-      suite.addTest (InterfaceTest.suite ());
-      suite.addTest (UnionTest.suite ());
-      suite.addTest (ValueTest.suite ());
+      TestSuite suite = new TestSuite ("Value Tests");
+      suite.addTest (new ValueTest ("testValueParseGood"));
 
       return suite;
+   }
+
+
+   /**
+    */
+   public void testValueParseGood ()
+   {
+      StringBuffer command = new StringBuffer ();
+      String file[] = new String[3];
+      file[0] = "-d";
+      file[1] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
+      file[2] = ((String)System.getProperty ("testdir")).concat ("/idl/Value.idl");
+
+      assertTrue ("Compiled Value.idl", org.jacorb.idl.parser.compile (file));
    }
 }

@@ -9,6 +9,21 @@ module C
 {
    module B
    {
+#if 0
+#include "Char.idl"
+#endif
+
+#ifdef ABNORMAL
+#include "abnormal.idl"
+#else
+#include "Long.idl"
+#endif
+
+// Error checking
+// #if
+// #include "Dummy.idl"
+// #endif
+
       interface AAA {};                   // Works!
       interface BB {};                    // Works!
 

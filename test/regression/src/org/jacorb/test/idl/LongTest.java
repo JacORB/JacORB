@@ -44,7 +44,7 @@ public class LongTest extends TestCase
    {
       TestSuite suite = new TestSuite ("Long Tests");
       suite.addTest (new LongTest ("testLongParseGood"));
-      //     suite.addTest (new LongTest ("testLongParseFail1"));
+      suite.addTest (new LongTest ("testLongParseFail1"));
       suite.addTest (new LongTest ("testLongParseFail2"));
 
       return suite;

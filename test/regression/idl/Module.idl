@@ -31,3 +31,70 @@ module Recursive {
     };
   };
 };
+
+module StructureUnion
+{
+   // IDL
+   struct S
+   {
+      union U switch(boolean)
+      {
+         case FALSE: string name;
+      } the_U;
+   };
+
+   interface Dummy
+   {
+      struct MyInnerUnionStruct
+      {
+         octet align;
+      };
+   };
+
+   interface MiscTester
+   {
+      struct OuterStruct
+      {
+         octet align;
+         struct InnerStruct
+         {
+            string s_mem;
+         }
+         struct_mem;
+         union InnerStructUnion switch (long)
+         {
+            case 0:
+            string mem;
+         }
+         union_mem;
+      };
+
+
+       struct TestOut
+       {
+          octet align;
+       };
+
+
+      union OuterUnion switch (long)
+      {
+         case 0:
+         struct MyInnerUnionStruct
+         {
+            octet align;
+         }
+         s_mem;
+         case 1:
+         long l_mem;
+         case 2:
+         struct TheInnerUnion
+         {
+            octet align;
+         }
+         u_mem;
+         default:
+         TestOut mymember;
+       };
+
+   };
+};

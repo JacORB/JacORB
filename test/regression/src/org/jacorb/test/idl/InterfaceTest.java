@@ -21,27 +21,45 @@ package org.jacorb.test.idl;
  */
 
 import junit.framework.*;
+import junit.extensions.TestSetup;
+import org.jacorb.idl.ParseException;
 
-public class PackageTest extends TestCase
+
+/**
+ * Module.java
+ *
+ * IDL parse tests.
+ *
+ */
+
+public class InterfaceTest extends TestCase
 {
-   public PackageTest (String name)
+   public InterfaceTest (String name)
    {
       super (name);
    }
 
+
    public static Test suite ()
    {
-      TestSuite suite = new TestSuite ("Package idl");
-
-      suite.addTest (LongTest.suite ());
-      suite.addTest (PragmaTest.suite ());
-      suite.addTest (ModuleTest.suite ());
-      suite.addTest (CharTest.suite ());
-      suite.addTest (TypeDefTest.suite ());
-      suite.addTest (InterfaceTest.suite ());
-      suite.addTest (UnionTest.suite ());
-      suite.addTest (ValueTest.suite ());
+      TestSuite suite = new TestSuite ("Interface Tests");
+      suite.addTest (new InterfaceTest ("testInterfaceParseGood"));
 
       return suite;
+   }
+
+
+   /**
+    */
+   public void testInterfaceParseGood ()
+   {
+      StringBuffer command = new StringBuffer ();
+      String file[] = new String[5];
+      file[0] = "-i2jpackage";
+      file[1] = "Reflective:org.omg.Reflective";
+      file[2] = "-d";
+      file[3] = ((String)System.getProperty ("testdir")).concat ("/src/generated");
+      file[4] = ((String)System.getProperty ("testdir")).concat ("/idl/Interface.idl");
+      assertTrue ("Compiled Interface.idl", org.jacorb.idl.parser.compile (file));
    }
 }
