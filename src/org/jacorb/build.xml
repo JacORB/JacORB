@@ -7,7 +7,7 @@
   <!-- $Id$ -->
   <!-- ==================================================== -->
 
-   <target name="init">
+   <target name="init" depends="value-handler-test">
 	<property name="Name" value="jacorb-orb"/>
 	<property name="name" value="jacorb-orb"/>
 	<property name="dirs.base" value="${basedir}"/>
@@ -19,9 +19,11 @@
 	<property name="include" value="${dirs.base}/idl"/>
 	<property name="jidlflags" value="-I${include}/omg
 	-I${include}/jacorb -ir -d ${jsrc}/generated"/>
-        <available classname="javax.rmi.CORBA.ValueHandler" property="valuehandler.present"/>
    </target>
 
+   <target name="value-handler-test" unless="no-rmi">
+        <available classname="javax.rmi.CORBA.ValueHandler" property="valuehandler.present" />
+   </target>
 
    <!-- all -->
 

@@ -13,7 +13,7 @@
 	<property name="src" value="${dirs.base}/src"/>
    </target>
 
-   <target name="javatest">
+   <target name="javatest" unless="no-rmi">
         <available classname="javax.rmi.CORBA.Stub"
                    property="rmi.iiop.present"/>
    </target>
