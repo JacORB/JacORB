@@ -1,0 +1,150 @@
+
+The \emph{Extensible Transport Framework (ETF)}, which JacORB
+implements, allows you to plug in other transport layers besides the
+ standard IIOP (TCP/IP) protocol\footnote{At the time of
+ this writing (July 2003), ETF is still a draft standard (OMG TC
+ document mars/2003-02-01).}.
+
+To use an alternative transport, you need to (a) implement it as a set
+of Java classes following the ETF specification, and (b) tell JacORB
+to use the new transport instead of (or alongside with) the standard
+IIOP transport.  We cover both steps below.
+
+\section{Implementing a new Transport}
+
+The interfaces that an ETF-compliant transport must implement are
+ described in the ETF specification, and there is thus no need to
+ repeat that information here.  JacORB's default IIOP transport, which
+ is realized in the package {\tt org.jacorb.orb.iiop}, can also serve
+ as a starting point for implementing your own transports.
+
+For each transport, the following interfaces must be implemented
+(defined in {\tt ETF.idl}, the package is {\tt org.omg.ETF}):
+
+\begin{description}
+\item[Profile] encapsulates addressing information for this transport
+\item[Listener] server-side communication endpoint, waits for incoming
+connections and passes them up to the ORB
+\item[Connection] an actual communication channel for this transport
+\item[Factories] contains factory methods for the above interfaces
+\end{description}
+
+The {\tt Handle} interface from the ETF package is implemented in the
+ ORB (by the class {\tt org.jacorb.orb.BasicAdapter}), not by
+ individual transports.  There is currently no support in JacORB for
+ the optional zero-copy mechanism; the interface {\tt
+ ConnectionZeroCopy} therefore needn't be implemented.
+
+On the server side, the {\tt Listener} must pass incoming connections
+ up to the ORB using the ``Handle'' mechanism; the {\tt accept()}
+ method needn't be implemented.  Once a {\tt Connection} has been
+ passed up to the ORB, it will never be ``returned'' to the {\tt
+ Listener} again.  The method {\tt completed\_data()} in the {\tt
+ Listener} interface therefore needn't be implemented, and neither
+ should the {\tt Listener} ever call {\tt
+ Handle.signal\_data\_available()} or {\tt Handle.closed\_by\_peer()}
+ (these methods throw a {\tt NO\_IMPLEMENT} exception in JacORB).
+
+At the time of this writing (July 2003), there is still uncertainty in
+ ETF about how server-specific Profiles (as returned by {\tt
+ Listener.endpoint()}, for example) should be turned into
+ object-specific ones for inclusion into IORs.  We have currently
+ added three new operations to the {\tt Profile} interface to resolve
+ this issue, see JacORB's version of {\tt ETF.idl} for details.
+
+\section{Configuring Transport Usage}
+
+You tell JacORB which transports it should use by listing the names of
+ their {\tt Factories} classes in the property {\tt
+ jacorb.transport.factories}.  In the standard configuration, this
+ property contains only {\tt org.jacorb.orb.iiop.IIOPFactories}, the
+ {\tt Factories} class for the standard IIOP transport.  The
+ property's value is a comma-separated list of fully qualified Java
+ class names; each of these classes must be found somewhere on the
+ CLASSPATH that JacORB is started with.  For example:
+
+\begin{scriptsize}
+\begin{verbatim}
+jacorb.transport.factories = my.transport.Factories, org.jacorb.orb.iiop.IIOPFactories
+\end{verbatim}
+\end{scriptsize}
+
+By default, a JacORB server creates listeners for each transport
+listed in the above property, and publishes profiles for each of these
+transports in any IOR it creates.  The order of profiles within an IOR
+is the same as that of the transports in the property.
+
+If you don't want your servers to listen on each of these transports
+ (e.g. because you want some of your transports only to be used for
+ client-side connections), you can specify the set of actual listeners
+ in the property {\tt jacorb.transport.server.listeners}.  The value
+ of this property is a comma-separated list of numeric profile tags,
+ one for each transport that you want listeners for, and which you
+ want published in IOR profiles.  The numeric value of a transport's
+ profile tag is the value returned by the implementation of {\tt
+ Factories.profile\_tag()} for that transport.  Standard IIOP has
+ profile tag 0 ({\tt TAG\_INTERNET\_IOP}).  Naturally, you can only
+ specify profile tag numbers here for which you have a corresponding
+ entry in {\tt jacorb.transport.factories}.
+
+So, to restrict your server-side transports to standard IIOP, you
+would write:
+
+\begin{verbatim}
+jacorb.transport.server.listeners = 0
+\end{verbatim}
+
+On the client side, the ORB must decide which of potentially many
+ transports it should use to contact a given server.  The default
+ strategy is that for each IOR, the client selects \emph{the first profile
+ for which there is a transport implementation available at the client
+ side} (specified in {\tt jacorb.transport.factories}).  Profiles for
+which the client has no transport implementation are skipped.
+
+Note that this is a purely static decision, based on availability of
+ an implementation.  JacORB does not attempt to actually establish a
+ transport connection in order to find out which transport can be
+ used.  Also, should the selected transport fail, JacORB does not
+ ``fall back'' to the next transport in the list.  (This is because
+ JacORB opens connections lazily, only when the first actual data is
+ being sent.)
+
+You can customize this strategy by providing your own implementation of
+{\tt org.jacorb.orb.ProfileSelector}, and specifying it in the
+property {\tt jacorb.transport.client.selector}.  The interface {\tt
+ProfileSelector} requires a single method,
+
+\begin{verbatim}
+   public Profile selectProfile (List profiles,
+                                 ClientConnectionManager ccm);
+\end{verbatim}
+
+For each IOR, this method receives a list of all profiles from the IOR
+ for which the client has a transport implementation, in the order in
+ which they appear in the IOR.  The method should select one profile
+ from this list and return it; this profile will then be used for
+ communication with the server.
+
+To help with the decision, JacORB's {\tt ClientConnectionManager} is
+ passed as an additional parameter.  The method implementation can use
+ it to check whether connections with a given transport, or to a given
+ server, have already been made; it can also try and pre-establish a
+ connection using a given transport and store it in the {\tt
+ ClientConnectionManager} for later use.  (See the JacORB source code
+to find out how to deal with the {\tt ClientConnectionManager}.)
+
+The default {\tt ProfileSelector} does not use the {\tt
+ ClientConnectionManager}, it simply returns the first profile from
+ the list, unconditionally.  To let JacORB use your own implementation
+ of the {\tt ProfileSelector} interface, specify the fully qualified
+ classname in the property:
+
+\begin{verbatim}
+jacorb.transport.client.selector=my.pkg.MyProfileSelector
+\end{verbatim}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 

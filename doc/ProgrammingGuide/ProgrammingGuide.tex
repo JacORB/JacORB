@@ -1,0 +1,243 @@
+ %
+\documentclass[12pt]{scrbook}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        %
+% Uncomment the follwing, if you want to use pdfTeX      %
+%                                                        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ \usepackage[pdftex]{graphicx}
+ \usepackage[pdftex,                %%% hyper-references for pdflatex
+ bookmarks=true,                    %%% generate bookmarks ...
+ bookmarksnumbered=true,            %%% ... with numbers
+ hypertexnames=false,               %%% needed for correct links to figures !!!
+ breaklinks=true,                   %%% break links if exceeding a single line
+ colorlinks=true,
+ urlcolor = blue,
+ citecolor = blue,
+ urlcolor = blue]{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        %
+% Uncomment the follwing, if you want to use plain LaTeX %
+%                                                        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage{graphicx}
+% \newcommand{\href}[2]{{\tt #1}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                        %
+% Common section for both plain LaTeX and pdfTex         %
+%                                                        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{a4wide}
+\usepackage{times}
+\usepackage{fancyhdr}
+% Note: next line required to enable longtable to work.
+\usepackage{longtable}
+
+\setcounter{secnumdepth}{2}
+
+\sloppy
+% page headings
+
+\pagestyle{fancyplain}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\lhead[\sf\bfseries\fancyplain{}{\thepage}]{\sf\fancyplain{}{\rightmark}}
+\rhead[\sf\fancyplain{}{\leftmark}]{\sf\bfseries\fancyplain{}{\thepage}}
+\cfoot{}
+
+\title{JacORB 2.0 Programming Guide}
+
+\author{Gerald Brose\\
+\small{gerald.brose@xtradyne.com}\\
+\\
+Nicolas Noffke\\
+\small{nicolas.noffke@web.de}\\
+\\
+Andr\'e Spiegel\\
+\small{spiegel@gnu.org}\\
+\\
+$$
+}
+
+\begin{document}
+
+% uniform formatting of a command line, includes leading $
+\newcommand{\cmdline}[1]{\begin{small}\noindent \texttt{\$ #1}\end{small}}
+
+% Use these instead of writing version numbers directly, so
+% version changes only have to be made in one place
+\newcommand{\JacORBDir}{JacORB2\_0}
+\newcommand{\JacORBVersion}{2.0}
+\maketitle
+
+
+\setlength{\parskip}{1.1ex}
+\newpage
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction}
+\label{ch:intro}
+
+\input{Introduction/Introduction.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Installing JacORB}
+\label{ch:installing}
+
+\input{Installation/Installation.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Configuration}
+\label{ch:configuration}
+
+\input{Configuration/configuration.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Getting Started}
+\label{ch:start}
+
+\input{GettingStarted/gettingstarted.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{The JacORB Name Service}
+\label{ch:naming}
+
+\input{Naming/Nameservice.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{The server side: POA, Threads}
+\label{ch:POA}
+
+\input{POA/Poa.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Implementation Repository}
+\label{Ch_Imr}
+
+\input{IMR/Imr.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Dynamic Management of Any Values}
+\label{ch:dynany}
+
+\input{DynAny/dynany.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Objects By Value}
+\label{ch:obv}
+
+\input{OBV/obv.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Interface Repository}
+\label{ch:interface_repository}
+
+\input{IFR/ifr.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{The JacORB Appligator}
+\label{ch:applets}
+
+\input{Appligator/appligator.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{IIOP over SSL}
+\label{ch:SSL}
+
+\input{SSL/ssl.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{BiDirectional GIOP}
+\label{ch:bidir}
+
+\input{BiDir/bidir.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Portable Interceptors}
+\label{ch:pi}
+
+\input{PI/pi.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Asynchronous Method Invocation}
+\label{ch:AMI}
+
+\input{AMI/ami.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Quality of Service}
+\label{ch:qos}
+
+\input{QoS/qos.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Connection Management and Connection Timeouts}
+\label{ch:connections}
+
+\input{Connections/connections.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Extensible Transport Framework}
+\label{ch:etf}
+
+\input{ETF/etf.tex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{JacORB utilities}
+\label{ch:tools}
+
+\input{Tools/tools.tex}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Limitations, Feedback}
+
+A few limitations and known bugs (list is incomplete):
+
+\begin{itemize}
+    \item the IDL compiler does not support
+    \begin{itemize}
+        \item the {\tt context} construct
+    \end{itemize}
+    \item the API documentation and this document are incomplete.
+\end{itemize}
+
+\subsection*{Feedback and bug reports}
+
+For bug reporting, please use our Bugzilla bugtracking database available at
+\href{http://www.jacorb.org/bugzilla}{http://www.jacorb.org/bugzilla}.  Please
+send problems as well as criticism and experience reports to our developer
+mailing list available from
+\href{http://www.jacorb.org/contact.html}{http://www.jacorb.org/contact.html}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{
+\bibliography{./guide}
+\bibliographystyle{alpha}
+}
+
+\end{document}

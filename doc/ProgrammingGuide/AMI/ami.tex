@@ -1,0 +1,111 @@
+
+
+JacORB allows you to invoke objects asynchronously, as defined in the
+\emph{Messaging} chapter of the CORBA specification (chapter 22 in
+CORBA 3.0).  Only the callback model is implemented at this time;
+there is no support for polling yet.
+
+Asynchronous Method Invocation (AMI) means that when you invoke a
+method on an object, control returns to the caller immediately; it
+does not block until the reply has been received from the remote
+object.  The results of the invocation are delivered later, as soon as
+they are received by the client ORB.  Asynchronous Invocation is
+entirely a client-side feature.  The server is never aware whether it
+is invoked synchronously or asynchronously.
+
+In the callback model, replies are delivered to a special
+\emph{ReplyHandler} object that is registered at the client side when
+the asynchronous invocation is started.  Here is a brief example for
+this (see the \emph{Messaging} specification for further details).
+Suppose you have a Server object, defined in a file server.idl.
+
+\begin{verbatim}  interface Server
+  {
+      long operation (in long p1, inout long p2);
+  };
+\end{verbatim}
+
+The first step is to compile this IDL definition with the
+``ami\_callback'' compiler switch:
+
+\begin{verbatim}  idl -ami_callback server.idl\end{verbatim}
+
+This lets the compiler generate an additional ReplyHandler class,
+named AMI\_ServerHandler.  For each operation of the Server interface,
+this class has an operation with the same name that receives the
+return value and out parameters of the original operation.  There is
+an additional method named operation\_excep that is called if the
+invocation raises an exception.  If it were defined in IDL, the
+ReplyHandler class for the above Server would look like this:
+
+\begin{verbatim}  interface AMI_ServerHandler : Messaging::ReplyHandler
+  {
+     void operation (in long ami_return_val, in long p2);
+     void operation_excep (in Messaging::ExceptionHolder excep_holder);
+  };
+\end{verbatim}
+
+To implement this interface, extend the corresponding POA class (or
+use the tie approach), as with any CORBA object:
+
+\begin{verbatim}  public class AMI_ServerHandlerImpl extends AMI_ServerHandlerPOA
+  {
+       public void operation (int ami_return_val, int p2)
+       {
+           System.out.println ("operation reply received");
+       }
+
+       public void operation_excep
+                (org.omg.Messaging.ExceptionHolder excep_holder)
+       {
+           System.out.println ("received an exception");
+       }
+
+  }
+\end{verbatim}
+
+For each method $m$ of the original Server interface, the IDL compiler
+generates a special method sendc\_$m$ into the stub class if the
+``ami\_callback'' switch is on.  The parameters of this method are (1)
+a reference to a ReplyHandler object, and (2) all \emph{in} or
+\emph{inout} parameters of the original operation, with their mode
+changed to \emph{in} (\emph{out} parameters are omitted from this
+operation).  The sendc operation does not have a return value.
+
+To actually make an asynchronous invocation, an instance of the
+ReplyHandler needs to be created, registered with the ORB, and passed
+to the sendc method.  The code for this might look as follows:
+
+\begin{verbatim}  ORB    orb = ...
+  Server s   = ...
+
+  // create handler and obtain a CORBA reference to it
+  AMI_ServerHandler h = new AMI_ServerHandlerImpl()._this (orb);
+
+  // invoke sendc
+  ((_ServerStub)s).sendc_operation (h, 4, 5);
+\end{verbatim}
+
+Note that the sendc operation is only defined in the stub, and
+therefore the cast is necessary to invoke it.  There is not yet any
+consensus in the OMG whether the sendc operation should also be
+declared in any of the Java interfaces that make up the Server type.
+Thus, the fact that you need to make a cast to the stub class
+may change in a future version of JacORB.
+
+If you want to try asynchronous invocations with code such as above,
+make sure that your client process does something else or at least
+waits after the invocation has been made, otherwise it will likely
+exit before the reply can be delivered to the handler.
+
+The \emph{Messaging} specification also defines a number of CORBA
+policies that allow you to control the timing of asynchronous
+invocations.  Since these policies are applicable to both synchronous
+and asynchronous invocations, we describe them in a separate section
+(see chapter \ref{ch:qos}).
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 

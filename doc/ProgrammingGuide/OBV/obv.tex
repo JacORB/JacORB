@@ -1,0 +1,211 @@
+
+Until CORBA 2.3, objects could only be passed using reference
+semantics: there was no way to specify that object state should be
+copied along with an object reference. A further restriction of the
+earlier CORBA versions was that all non-object types (structs, unions,
+sequences, etc.) were {\em values}, so you could not use, e.g. a
+reference-to-struct to construct a graph of structure values that
+contained shared nodes. Finally, there was no inheritance between
+structs.
+
+All these shortcomings are addressed by the {\em objects-by-value} (OBV)
+chapters of the CORBA specification: the addition of stateful
+value types supports copy semantics for objects and inheritance for
+structs, boxed value types introduce reference semantics for base
+types, and abstract interfaces determine whether an argument is sent
+by-value or by-reference by the argument's runtime type. The
+introduction of OBV into CORBA presented a major shift in the CORBA
+philosophy, which had been to strictly avoid any dependence on
+implementation details (state, in particular). It also added a
+considerable amount of marshaling complexity and interoperability
+problems. (As a personal note: Even in CORBA 2.6, the OBV marshaling
+sections are still not particularly precise...)
+
+JacORB 2.0 implements most of the OBV specification.  Boxed value
+types and regular value types work as prescribed in the standard
+(including value type inheritance, recursive value types, and
+factories).  Still missing in the current implementation is run-time
+support for abstract value types (although the compiler does accept
+the corresponding IDL syntax), and the marshaling of truncatable
+value types does not yet meet all the standard's requirements (and
+should thus be called ``beta'').
+
+\section{Example}
+
+To illustrate the use of various kinds of value types, here's an
+example which is also part of the demo programs in the JacORB
+distribution.  The demo shows the use of boxed value types and a
+recursive stateful value type. Here's the IDL definition from {\tt
+demo/value/server.idl}:
+
+\begin{verbatim}
+module demo {
+  module value {
+
+     valuetype boxedLong   long;
+     valuetype boxedString string;
+
+     valuetype Node {
+        public long id;
+        public Node next;
+     };
+
+     interface ValueServer {
+        string receive_long   (in boxedLong p1, in boxedLong p2);
+        string receive_string (in boxedString s1, in boxedString s2);
+        string receive_list   (in Node node);
+     };
+  };
+};
+\end{verbatim}
+
+From the definition of the  boxed value type {\tt boxedLong} and
+{\tt boxedString}, the IDL generates the following Java class, which
+is simply a holder for the long value. No mapped class is generated
+for the boxed string value type.
+
+\begin{verbatim}
+package demo.value;
+
+public class boxedLong
+    implements org.omg.CORBA.portable.ValueBase
+{
+    public int value;
+    private static String[] _ids = { boxedLongHelper.id() };
+
+    public boxedLong(int initial )
+    {
+        value = initial;
+    }
+    public String[] _truncatable_ids()
+    {
+        return _ids;
+    }
+}
+\end{verbatim}
+
+The boxed value definitions in IDL above permit uses of non-object
+types that are not possible with IDL primitive types. In particular, it
+is possible to pass Java {\tt null} references where a value of a
+boxed value type is expected. For example, we can call the operation
+{\tt receive\_long} and pass one initialized {\tt boxedLong} value and
+a null reference, as show in the following snippet from the client
+code:
+
+\begin{verbatim}
+    ValueServer s = ValueServerHelper.narrow( obj );
+    boxedLong boxL = new boxedLong (774);
+
+    System.out.println ("Passing two integers: "
+                       + s.receive_long ( boxL , null ));
+\end{verbatim}
+
+With a regular {\tt long} parameter, a {\tt null} reference would have
+resulted in a {\tt BAD\_PARAM} exception. With boxed value types, this
+usage is entirely legal and the result string returned from the {\tt
+  ValueServer} object is {\tt ``one or two null values''}.
+
+A second new possibility of the reference semantics that can be
+achieved by ``boxing'' primitive IDL types is {\em sharing} of values.
+With primitive values, two variables can have copies of the same
+value, but they cannot both refer to the same value. This means that
+when one of the variables is changed, the other one retains its
+orignal value. With shared values that are {\em referenced}, both
+variables would always point to the same value.
+
+The stateful value type {\tt Node} is implemented by the programmer in
+a class {\tt NodeImpl} (see the JacORB distribution for the actual
+code).  The relationship between this implementation class and the
+corresponding IDL definition is not entirely trivial, and we will
+discuss it in detail below.
+
+\section{Factories}
+
+When an instance of a (regular) value type is marshaled over the wire
+and arrives at a server, a class that implements this value type must
+be found, so that a Java object can be created to hold the state
+information.  For interface types, which are only passed by
+reference, something similar is accomplished by the POA, which
+accepts remote calls to the interface and delivers them to a local
+implementation class (the \emph{servant}).  For value type instances,
+there is no such thing as a POA, because they cannot be called
+remotely.  Thus, the ORB needs a different mechanism to know which
+Java implementation class corresponds to a given IDL value type.
+
+The CORBA standard introduces \emph{value factories} to achieve this.
+Getting your value factories right can be anywhere from trivial to
+tricky (we will cover the details in a minute), and so the standard
+suggests that ORBs also provide convenience mechanisms to relieve
+programmers from writing value factories if possible.  JacORB's
+convenience mechanism is straightforward:
+
+\begin{quotation}
+\noindent \emph{If the implementation class for an IDL value type A is named
+  AImpl, resides in the same package as A, and has a no-argument
+constructor, then no value factory is needed for that type.}
+\end{quotation}
+
+In other words, if your implementation class follows the common naming
+convention (``...Impl''), and it provides a no-arg constructor
+so that the ORB can instantiate it, then the ORB has all that it
+needs to (a) find the implementation class, and (b) create an instance
+of it (which is then initialized with the unmarshaled state from the
+wire).
+
+This mechanism ought to save you from having to write a value factory
+99\% of the time.  It works for all kinds of regular value types,
+including those with inheritance, and recursive types (where a type
+has members of its own type).
+
+If you do need more control over the instance creation process, or the
+unmarshaling from the wire, you can write your own value factory
+class and register it with the ORB using {\tt
+ORB.register\_value\_factory(}\emph{repository\_id, factory}{\tt)}.
+The \emph{factory} object needs to implement the interface {\tt
+org.omg.CORBA.portable.ValueFactory}, which requires a single method:
+
+\begin{verbatim}
+   public Serializable read_value (InputStream is);
+\end{verbatim}
+
+When an instance of type \emph{repository\_id} arrives over the wire,
+the ORB calls the {\tt read\_value()} method, which must unmarshal the
+data from the input stream, create an instance of the appropriate
+implementation class from it, and return that.
+
+The easiest way to implement this method is to create an instance of
+the implementation class, and pass it to the {\tt read\_value()} method
+of the given InputStream:
+
+\begin{verbatim}
+   public Serializable read_value (InputStream is) {
+     A result = new AImpl();
+     return is.read_value(result);
+   }
+\end{verbatim}
+
+The {\tt InputStream.read\_value()} method registers the newly created
+instance in the stream's indirection table, and then reads the data
+from the stream and initializes the given {\tt value} instance from
+it.
+
+The value factory must be registered with the ORB using {\tt
+ register\_value\_factory()}.  As a special convenience (defined in
+ the CORBA standard), if the value factory class for type {\tt A} is
+ called {\tt ADefaultFactory}, then the ORB will find it automatically
+ and use it, unless a different factory has been explicitly
+ registered.
+
+It sometimes causes confusion that you can also define \emph{factory
+methods} in a value type's IDL.  These factory methods are completely
+unrelated to the unmarshaling mechanism discussed above; they are
+simply a portable means to declare what kinds of ``constructors'' a
+value type implementation should have.  They are purely for local use,
+but since they are ``factories'', the corresponding methods must also
+be implemented in the type's {\tt ValueFactory} implementation.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 

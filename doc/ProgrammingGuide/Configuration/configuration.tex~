@@ -1,0 +1,612 @@
+This chapter explains the general mechanism how JacORB is configured,
+and lists all configuration properties.
+
+\section{Properties}
+
+JacORB has a number of configuration options which can be set as Java
+properties.  Before explaining some of the more basic options here,
+let's look at the different ways of setting properties. There are
+three options for doing this: propertied files, command line
+properties, and properties passed as arguments to ORB.init() in the
+code of your applications.
+
+\subsection{Properties file}
+
+JacORB looks for and loads a standard properties file called either
+{\tt .jacorb\_properties} or {\tt jacorb.properties}. Properties files
+with these names will be searched in the following places:
+
+\begin{enumerate}
+\item in the {\tt lib} directory of the JDK installation. (The JDK's
+  home directory denoted by the system property "java.home").
+\item in the user home directory. (This is denoted by the system
+    property "user.home". On Windows, this is
+    {\verb+c:\documents\username+}, on Unixes it's {\verb+~user+}. If
+    in doubt where your home directory is, write a small Java programm that
+  prints out this property.
+\item in the classpath.
+\end{enumerate}
+
+Properties files are searched in the order presented above. If a
+properties file is found, it is loaded, and any property values loaded
+will override values of the same property that were loaded earlier.
+
+In addition to standard JacORB properties files, a {\em custom
+  properties file} can be loaded by passing the name of that
+properties files the {\tt custom.props} property to JacORB.
+
+The value of this property is the absolute path to a properties file,
+which contains the properties you want to load. As an example, imagine that you
+usually use plain TCP/IP connections, but in some cases want to use
+SSL (see section \ref{SSL}). The different ways of achieving this are
+
+\begin{itemize}
+\item Use just one properties file, but you will have to edit that
+  file if you want to switch between SSL and
+plaintext connections. 
+\item Use commandline properties exclusively (cf. below), which may lead to very long
+commands
+\item Use a command property file for all applications and different
+  custom properties files for each application.
+\end{itemize}
+
+For example, you could   start a JacORB program like this: 
+
+\cmdline{jaco -Dcustom.props=c:/tmp/ns.props org.jacorb.naming.NameServer
+  c:/NS\_Ref}
+
+In addition to loading any standard properties files found in the
+places listed above, JacORB will now also load configuration
+properties from the file {\tt c:/tmp/ns.props}, but this last file
+will be loaded after the default properties files and its values will
+thus take precedence over earlier settings.
+
+\subsection{Command-line properties}
+
+In the same way as the {\tt custom.props} property in the example
+above, arbitrary other Java properties can be passed to JacORB
+programs using the {\tt -D<prop name>=<prop value>} command line syntax
+for the {\tt java} interpreter, but can be used in the same way with
+the {\tt jaco} script. Note that in any case the properties must
+precede the class name on the command line.
+
+The ORB configuration mechanism will
+give configuration properties passed in this way precedence over
+property values found in configuration files.
+
+\subsection{Arguments to ORB.init()}
+
+For more application--specific properties, you can pass a {\tt
+ java.util.Properties} object to {\tt ORB.init()} during application
+initialization. Properties set this way will override properties set
+by a properties file. The following code snippet demonstrates how to
+pass in a {\tt Properties} object ({\tt args} is the String array
+containing command line arguments):
+
+\small{
+\begin{verbatim}
+    java.util.Properties props = new java.util.Properties();
+    props.setProperty("jacorb.implname","StandardNS");
+    // use put() under Java 1.1
+
+    org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args, props);
+\end{verbatim}
+}
+
+\section{Common Configuration Options}
+
+We are now ready to have a look at the most basic JacORB configuration
+properties. As a starting point, you should look at the file {\tt
+  /etc/jacorb\_properties.template}, which you can adapt to your own
+needs.
+
+\subsection{Initial references}
+
+Initial references are object references that are available to CORBA
+application through the bootstrap {\tt
+  orb.resolve\_initial\_service()} API call. This call takes a string
+argument as the name of an initial reference and returns a CORBA
+object reference, e.g., to the initial name service.
+
+\renewcommand{\baselinestretch}{0.9}
+\small{
+\begin{verbatim}
+########################################
+#                                      #
+#   Initial references configuration   #
+#                                      #
+########################################
+
+#
+# URLs where IORs are stored (used in orb.resolve_initial_service())
+# DO EDIT these! (Only those that you are planning to use,
+# of course ;-).
+#
+# The ORBInitRef references are created on ORB startup time. In the
+# cases of the services themselves, this may lead to exceptions being
+# displayed (because the services aren't up yet). These exceptions
+# are handled properly and cause no harm!
+
+#ORBInitRef.NameService=corbaloc::160.45.110.41:38693/StandardNS/NameServer-POA/_root
+#ORBInitRef.NameService=file:/c:/NS_Ref
+ORBInitRef.NameService=http://www.x.y.z/~user/NS_Ref
+#ORBInitRef.TradingService=http://www.x.y.z/~user/TraderRef
+\end{verbatim}
+}
+\renewcommand{\baselinestretch}{1.0}
+\small\normalsize
+
+The  string value  for  {\tt
+ORBInitRef.NameService} is  a URL  for a resource  used to set  up the
+JacORB name  server. This URL  will be used  by the ORB to  locate the
+file  used to  store  the  name server's  object  reference (see  also
+chapter \ref{ch:naming}).
+
+\subsection{Logging}
+
+Beginning with version 2.0, JacORB uses external log kit
+implementations for writing logs. The default log kit used by JacORB
+is the Apache LogKit implementation. To plug in different loggers, you
+need to write code for a custom {\tt LoggerFactory} class yourself and
+supply the class name as the value of the {\tt
+  jacorb.log.loggerFactory} property. Any new factory needs to
+implement the interface {\tt org.jacorb.util.LoggerFactory}.
+
+\subsubsection*{Log levels and different log components}
+
+The JacORB logging mechanism can be fine-tuned to set different log
+levels for different components of JacORB. It is still possible to
+rely only on one single, default log level. This log level is
+specified like this (note that the properties have changed from
+previous JacORB versions!):
+
+\renewcommand{\baselinestretch}{0.9}
+\small{
+\begin{verbatim}
+##################################
+#                                #
+#  Default Logging configuration #
+#                                #
+##################################
+
+# Name of the factory class that plugs in a given log kit
+# The default value is JacORB's own factory for the Apache 
+# LogKit. Only edit (or uncomment) if you want a different 
+# log kit.
+#jacorb.log.loggerFactory=org.jacorb.util.LogKitLoggerFactory
+
+# log levels:
+#
+# 0 = fatal errors only = "almost off" (FATAL ERRORS)
+# 1 = non-fatal errors and exceptions (ERROR)
+# 2 = important messages (WARN)
+# 3 = informational messages and exceptions (INFO)
+# 4 = debug-level output (DEBUG) (may confuse the unaware user :-)
+jacorb.log.default.verbosity=3
+\end{verbatim}
+}
+\renewcommand{\baselinestretch}{1.0}
+\small\normalsize
+
+For other components, the individual log levels are set using log
+properties specific to that component, e.g.,\\
+\\
+{\tt jacorb.naming.log.verbosity=0}\\
+\\
+will turn logging off for the naming service, but all other parts of
+the ORB will still use the default log level. The general pattern for
+the log level property is {\tt jacorb.<component>.log.verbosity}.
+Other components are, e.g., poa, or ssl.
+
+\subsubsection*{Logging output to a file}
+
+The properties specific to file logging are the following:
+
+\renewcommand{\baselinestretch}{0.9}
+\small{
+\begin{verbatim}
+# where does output go? Terminal is default
+jacorb.logfile=c:/tmp/jacorb.log
+
+# Append to an existing log file or overwrite? (Applies to
+# file logging only)
+jacorb.logfile.append=on
+
+# If jacorb.logfile.append is on, set rolling log size in kilobytes.
+# A value of 0 implies no rolling log
+jacorb.logfile.maxLogSize=0
+\end{verbatim}
+}
+\renewcommand{\baselinestretch}{1.0}
+\small\normalsize
+
+Unless the {\tt jacorb.logfile} property is set to a file name, output
+will be sent to the terminal. The {\tt jacorb.logfile.append} value
+tells the logger whether to overwrite existing log files or to append
+to the. The {\tt jacorb.logfile.maxLogSize} property, finally,
+determines how large a log file may become before the logger
+automatically creates a new file. This value is in kilobytes. If it is
+set to 0, log files may become arbitrarily large, no log file rotation
+is used.
+
+The  {\tt jacorb.poa.monitoring} property  determines whether  the POA
+should bring up a monitoring GUI  for servers that let you examine the
+dynamic behavior of  your POA, e.g.  how long  the request queue gets
+and whether your thread pool is  big enough.  Also, this tool lets you
+change the  state of a POA,  e.g. from {\it active}  to {\it holding}.
+Please see chapter \ref{ch:POA} on the POA for more details.
+
+
+\section{Configuration Properties}
+
+A comprehensive listing and description of the properties which are used
+to configure JacORB are given in the following tables.
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{ORB Configuration}\\
+\hline
+~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
+\hline
+\verb"ORBInitRef.<service>" & Properties of this form configure initial service objects which can be resolved via the ORB resolve\_initial\_references. A variety of URL formats are supported. & URL \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.<name>" & A portable interceptor initializer class instantiated at ORB creation. & class \\
+\hline
+\verb"jacorb.orb.objectKeyMa"
+\verb"p.<name>" & Maps an object key to an arbitrary string thereby enabling better readability for corbaloc URLs. & string \\
+\hline
+\verb"jacorb.orb.print_versi"
+\verb"on" & If enabled, the ORB's version number is printed whenever the ORB is initialized. Default is on. & boolean \\
+\hline
+\verb"jacorb.log.default."
+\verb"verbosity" & Diagnostic verbosity level: 0 = off, 1 = important messages and exceptions,  $>$= 3 = debug-level output (output may be extensive) & integer \\
+\hline
+\verb"jacorb.logfile" & Output destination for diagnostic log file. If not set, then diagnostics are sent to standard output. & file \\
+\hline
+\verb"jacorb.logfile.append" & If logging to file whether to append to existing file or overwrite. Default is off. & boolean \\
+\hline
+\verb"jacorb.logfile.maxLogS"
+\verb"ize" & If appending to a file sets the size in kilobytes at which the file is rolled over. Default is off (0). & integer \\
+\hline
+\verb"jacorb.log.timestamp" & Whether to timestamp log messages. Default is off & boolean \\
+\hline
+\verb"jacorb.debug.dump_outg"
+\verb"oing_messages" & Hex dump outgoing messages. Default is off. & boolean \\
+\hline
+\verb"jacorb.debug.dump_inco"
+\verb"ming_messages" & Hex dump incoming messages. Default is off. & boolean \\
+\hline
+\verb"jacorb.giop_minor_vers"
+\verb"ion" & The GIOP minor version number to use for newly created IORs. Default is 2. & integer \\
+\hline
+\verb"jacorb.retries" & Number of retries if connection cannot directly be established. Default is 5. & integer \\
+\hline
+\verb"jacorb.retry_interval" & Time in milliseconds to wait between retries. Default is 500. & millisec. \\
+\hline
+\verb"jacorb.outbuf_size" & Size of network buffers for outgoing messages in bytes. Default is 2048. & byte \\
+\hline
+\verb"jacorb.maxManagedBufSi"
+\verb"ze" & This is NOT the maximum buffer size that can be used, but just the largest size of buffers that will be kept and managed. This value will be added to an internal constant of 5, so the real value in bytes is 2** (5 + maxManagedBufSize - 1). You only need to increase this value if you are dealing with LOTS of LARGE data structures. You may decrease it to make the buffer manager release large buffers immediately rather than keeping them for later reuse. Default is 18. & integer \\
+\hline
+\verb"jacorb.bufferManagerFl"
+\verb"ushMax" & Whether to use an additional unlimited size buffer cache for CDROutputStreams. If -1 then off, if zero then this is feature is enabled, if greater than zero then it is enabled and flushed every x seconds. Default is -1. & integer \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt.pending_reply_timeo"
+\verb"ut" &  Wait the specified number of msecs for a reply to a request. If exceeded, a org.omg.CORBA.TIMEOUT exception will be thrown. Not set by default. Default to zero & millisec. \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt.idle_timeout" & Client-side timeout. This is set to non-zero in order
+to stop blocking after specified number of milliseconds. Not set by default. &
+millisec. \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt.timeout_ignores_pen"
+\verb"ding_messages" & Controls if client-side idle timeouts take care of
+pending messages or not. & boolean. \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt.retry_on_failure" & Controls if network failures on existing connections
+should yield a COMM\_FAILURE or should trigger a remarshaling
+of all pending messages. & boolean. \\
+\hline
+\verb"jacorb.connection.serv"
+\verb"er.timeout" & Maximum time in milliseconds that a server keeps a connection open if nothing happens. Not set by default. & millisec. \\
+\hline
+\verb"jacorb.connection.max"
+\verb"_server_transports" & This property sets the
+  maximum number of TCP/IP connections that will be listened on by the
+  server--side ORB. Default is unlimited connections & integer \\
+\hline
+\verb"jacorb.connection.wait"
+\verb"_for_idle_interval" & This property sets the
+  interval to wait until the next try is made to find an idle connection to
+  close. Default is 500 & millisec.\\
+\hline
+\verb"jacorb.connection.sele"
+\verb"ction_strategy_class" & This property sets
+  the {\tt Selection\-Strategy} & class \\
+\hline
+\verb"jacorb.connection.stat"
+\verb"istics_provider_class" & This property sets
+  the {\tt Statistics\-Provider} & class \\
+\hline
+\verb"jacorb.connection.del"
+\verb"ay_close" & This property controls the behaviour after sending a GIOP
+CloseConnection messsage. If set to ``on'', the TCP/IP connection won't be
+closed directly. Instead, it is waited for the client to do so first. Default is off. & boolean \\
+\hline
+\verb"jacorb.transport.facto"
+\verb"ries" & This property controls which transport plug-ins are
+available to the ORB.  The value is a list of classes that implement the ETF
+{\tt Factories} interface.
+& comma-separated list of classes\\
+\hline
+\verb"jacorb.transport.serve"
+\verb"r.listeners" & Controls which transports should be offered by
+JacORB on the server side.  The value is a list of numeric profile
+tags for each transport that should be available on the server side.
+& comma-separated list of integers\\
+\hline
+\verb"jacorb.transport.clien"
+\verb"t.selector" & Name of a class that selects the transport profile
+to use for communication on the client side.  The value is the fully
+qualified name of a class that implements {\tt
+  org.jacorb.orb.ProfileSelector}.
+& class\\
+\hline
+\verb"jacorb.reference_cachi"
+\verb"ng" & Whether or not JacORB caches objects references. Not set by default. & boolean \\
+\hline
+\verb"jacorb.hashtable_class" & The following property specifies the class which is used for reference caching. WeakHashtable uses WeakReferences, so entries get garbage collected if only the Hashtable has a reference to them. This is useful if you have many references to short-living non-persistent CORBA objects. It is only available for java 1.2 and above. On the other hand the standard Hashtable keeps the references until they are explicitly deleted by calling \_release(). This is useful for persistent and long-living CORBA objects. Defaults to Hashtable. & class \\
+\hline
+\verb"jacorb.use_bom" & Use GIOP 1.2 byte order markers, since CORBA 2.4-5. Default is off. & boolean \\
+\hline
+\verb"jacorb.giop.add_1_0_pr"
+\verb"ofiles" & Add additional IIOP 1.0 profiles even if using IIOP 1.2. Default is off. & boolean \\
+\hline
+\verb"jacorb.dns.enable" & Use DNS names in IORs, rather than numeric
+IP addresses. Default is off. & boolean \\
+\hline
+\verb"jacorb.compactTypecode"
+\verb"s" & Whether to send compact typecodes. Options are 0 (off), 1 (Partial compaction), 2 (full compaction of all optional parameters) Default is 2. & integer \\
+\hline
+\verb"jacorb.cacheTypecodes" & Whether to cache read typecodes. Default is off. & boolean \\
+\hline
+\verb"jacorb.cachePoaNames" & Whether to cache scoped poa names. Default is off. & boolean \\
+\hline
+\verb"jacorb.interop.indirec"
+\verb"tion_encoding_disable" & Turn off indirection encoding for repeated typecodes. This fixes interoperability with certain broken ORB's eg. Orbix 2000. Default is off. & boolean \\
+\hline
+\verb"jacorb.interop.comet" & Enable additional buffer length checking and adjustment for interoperability with Comet CORBA/COM bridge which can incorrectly encode buffer lengths. Default is off. & boolean \\
+\hline
+\verb"jacorb.interop.lax_"
+\verb"boolean_encoding" & Treat any non zero CDR encoded boolean value as true (strictly should be 1 not non zero). Default is off. & boolean \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.bidir_init" & This portable interceptor must be configured to support bi-directional GIOP. Not set by default. & class \\
+\hline
+\verb"jacorb.ior_proxy_host" & The jacorb.ior\_proxy\_host and jacorb.ior\_proxy\_port properties inform the ORB what IP/port IORs should contain, if the ServerSockets IP/port can't be used (e.g. for traffic through a firewall). WARNING: this is just ÂdumbÂ replacing, so you have to take care of your configuration! Not set by default. & node \\
+\hline
+\verb"jacorb.ior_proxy_port" & See jacorb.ior\_proxy\_host above. Not set by default. & port \\
+\hline
+\verb"OAIAddr" & The Object Adapter Internet Address: IP address on multi-homed host (this gets encoded in object references). NOTE: Addresses like 127.0.0.X will only be accessible from the same machine! Not set by default. & node \\
+\hline
+\verb"OAPort" & See OAIAddr above. Not set by default. & port \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.standard_init" & Standard portable interceptor. DO NOT REMOVE. & class \\
+\hline
+\verb"jacorb.net.socket_fact"
+\verb"ory" & Sets or defines the socket factory that must implement the operations defined in the org.jacorb.orb.factory.SocketFactory interface. & class \\
+\hline
+\verb"jacorb.net.server_sock"
+\verb"et_factory" & Sets or defines the socket factory that must implement the operations defined in the org.jacorb.orb.factory.ServerSocketFactory interface. & class \\
+\hline
+\verb"jacorb.net.socket_fact"
+\verb"ory.port.min" & Sets the minimum port number that can be used for an additional supported socket factory. This property is used in conjunction with the jacorb.net.socket\_factory.port.max property. These properties enable the factory to traverse firewalls through a fixed port range. Default is unset, disabling the factory. & integer \\
+\hline
+\verb"jacorb.net.socket_fact"
+\verb"ory.port.max" & Sets the maximum port number that can be used for the additional supported socket factory. Refer to jacorb.net.socket\_factory.port.min above. Default is unset, disabling the factory. & integer \\
+\hline
+
+\end{longtable}
+\end{small}
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{Appligator Configuration}\\
+\hline
+~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
+\hline
+\verb"jacorb.ProxyServer.URL" & This is the URL for the default Appligator and is used when applets or firewall traversal is supported via the JacORB Appligator.  & URL \\
+\hline
+\verb"jacorb.ProxyServer.URL"
+\verb"-<network>-<netmask>" & Additional appligators can be configured for remote subnets using this subnet form of URL configuration. The subnet for a scoped appligator is calculated by the logical ANDing of the network and netmask values.  & URL \\
+\hline
+\verb"jacorb.ProxyServer.Nam"
+\verb"e" & The name the appligator uses when adding itself to the Name Service (if available) on start up. Default is Appligator. & string \\
+\hline
+\verb"jacorb.ProxyServer.ID" & Defines the object identity for the appligator IOR. If not set, then this defaults to 'Appligator': it is recommended that this is set to some other value for additional security. & string \\
+\hline
+\verb"jacorb.ProxyServer.Net"
+\verb"mask" & Optionally used to configure the network for the local client. When used, the calls to objects within the local subnet will not be redirected. Not set by default. & IP address \\
+\hline
+\verb"jacorb.ProxyServer.Net"
+\verb"work" & See jacorb.ProxyServer.Netmask above. Not set by default. & IP address \\
+\hline
+
+\end{longtable}
+\end{small}
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{POA Configuration}\\
+\hline
+~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
+\hline
+\verb"jacorb.poa.monitoring" & Displays a GUI monitoring tool for servers. Default is off. & boolean \\
+\hline
+\verb"jacorb.poa.thread_pool"
+\verb"_max" & Maximum thread pool configuration for request processing & integer \\
+\hline
+\verb"jacorb.poa.thread_pool"
+\verb"_min" & Minimum thread pool configuration for request processing & integer \\
+\hline
+\verb"jacorb.poa.thread_prio"
+\verb"rity" & If set, request processing threads in the POA will run at this priority. If not set or invalid, MAX\_PRIORITY will be used. Not set by default. & integer \\
+\hline
+\verb"jacorb.poa.queue_wait" & Specifies whether the POA should block
+when the request queue is full (On), or throw TRANSIENT exceptions
+(Off). Default is Off. & boolean\\
+\hline
+\verb"jacorb.poa.queue_max" & The maximum length of the request
+queue.  If this length has been reached, and further requests arrive,
+jacorb.poa.queue\_wait specifies what to do. Default is 100. & integer \\
+\hline
+\verb"jacorb.poa.queue_min" & If jacorb.poa.queue\_wait is On, and the
+request queue gets full, then the POA blocks until the queue contains
+no more than queue\_min requests. Default is 10. & integer \\
+\hline
+
+\end{longtable}
+\end{small}
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{Implementation Repository Configuration}\\
+\hline
+~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
+\hline
+\verb"jacorb.use_imr" & Switch on to contact the Implementation Repository (IR) on every server start-up. Default is off. & boolean \\
+\hline
+\verb"jacorb.use_imr_endpoin"
+\verb"t" & Switch off to prevent writing the IMR address into server IORs. This property is ignored if jacorb.use\_imr = off. Default is off. & boolean \\
+\hline
+\verb"jacorb.imr.allow_auto_"
+\verb"register" & If set to on servers that don't already have an entry on their first call to the IR, will get automatically registered. Otherwise, an UnknownServer exception is thrown. Default is off. & boolean \\
+\hline
+\verb"jacorb.imr.check_objec"
+\verb"t_liveness" & If set on the IR will try to ping every object reference that it is going to return. If the reference is not alive, then TRANSIENT is thrown. Default is off. & boolean \\
+\hline
+\verb"ORBInitRef.Implementat"
+\verb"ionRepository" & The initial reference for the IR. & URL \\
+\hline
+\verb"jacorb.imr.table_file" & File in which the IR stores data. & file \\
+\hline
+\verb"jacorb.imr.backup_file" & Backup data file for the IR. & file \\
+\hline
+\verb"jacorb.imr.ior_file" & File to which the IR writes its IOR. This is usually referred to by the initial reference for the IR (configured above).  & file \\
+\hline
+\verb"jacorb.imr.timeout" & Time in milliseconds that the implementation will wait for a started server to register. After this timeout is exceeded the IR assumes the server has failed to start. Default is 12000 (2 minutes). & millisec. \\
+\hline
+\verb"jacorb.imr.no_of_poas" & Initial number of POAs that can be registered with the IR. This is an optimization used to size internal data structures. This value can be exceeded. Default is 100. & integer \\
+\hline
+\verb"jacorb.imr.no_of_serve"
+\verb"rs" & Initial number of servers that can be registered with the IR. This is an optimization used to size internal data structures. This value can be exceeded. Default is 5. & integer \\
+\hline
+\verb"jacorb.imr.port_number" & Starts the IMR on a fixed port (equivalent to the -p option). & integer \\
+\hline
+\verb"jacorb.imr.connection_"
+\verb"timeout" & Time in milliseconds that the IR waits until a connection from an application client is terminated. Default is 2000. & millisec. \\
+\hline
+\verb"jacorb.implname" & The implementation name for persistent servers. Persistent servers should set this to a unique name. This is the service name that is registered in the IR. & name \\
+\hline
+\verb"jacorb.java_exec" & Command used by the IR to start servers. & command \\
+\hline
+
+\end{longtable}
+\end{small}
+
+
+\begin{small}
+\begin{longtable}{|p{5cm}|p{9cm}|p{2cm}|}
+\caption{Security Configuration}\\
+\hline
+~ \hfill \textbf {Property} \hfill ~ & ~ \hfill \textbf {Description} \hfill ~ & ~ \hfill \textbf {Type} \hfill ~ \endhead
+\hline
+\verb"OASSLPort" & The port number used by SSL, will be dynamically assigned by default. & port \\
+\hline
+\verb"org.omg.PortableInterc"
+\verb"eptor.ORBInitializerCl"
+\verb"ass.ForwardInit" & Portable interceptor required to support SSL. Not set by default. & class \\
+\hline
+\verb"jacorb.security.access"
+\verb"_decision" & The qualified classname of access decision object. & class \\
+\hline
+\verb"jacorb.security.princi"
+\verb"pal_authenticator" & A list of qualified classnames of principle authenticator objects, separated by commas (no whitespaces.). The first entry (that can be successfully created) will be available through the principal\_authenticator property. & class \\
+\hline
+\verb"jacorb.ssl.socket_fact"
+\verb"ory" & The qualified classname of the SSL socket factory class. & class \\
+\hline
+\verb"jacorb.ssl.server_sock"
+\verb"et_factory" & The qualified classname of the SSL server socket factory class. & class \\
+\hline
+\verb"jacorb.security.change"
+\verb"_ssl_roles" & Exchange SSL client server roles to enforce client authentication. Beware: this causes problems with peers that not prepared to handle this role change. Default is off. & boolean \\
+\hline
+\verb"jacorb.security.suppor"
+\verb"t_ssl" & Whether SSL security is supported. Default is off. & boolean \\
+\hline
+\verb"jacorb.security.ssl.cl"
+\verb"ient.supported_options" & SSL client supported options - IIOP/SSL parameters (numbers are hex values, without the leading 0x): NoProtection = 1, EstablishTrustInClient = 40, EstablishTrustInTarget = 20, mutual authentication = 60. Default is 0. Please see the programming guide for more explanation. & integer \\
+\hline
+\verb"jacorb.security.ssl.cl"
+\verb"ient.required_options" & SSL client required options (See IIOP/SSL parameters above). Default is 0. & integer \\
+\hline
+\verb"jacorb.security.ssl.se"
+\verb"rver.supported_options" & SSL server supported options (See IIOP/SSL parameters above). Default is 0. & integer \\
+\hline
+\verb"jacorb.security.ssl.se"
+\verb"rver.required_options" & SSL server required options (See IIOP/SSL parameters above). Default is 0. & integer \\
+\hline
+\verb"jacorb.security.ssl.co"
+\verb"rbaloc_ssliop.supporte"
+\verb"d_options" & Used in conjunction with jacorb.security.ssl.corbaloc\_ssliop.required\_options. If these properties are set, then two values will be placed in the IOR, "corbaloc:ssliopÂ and "ssliopÂ. If not set, only EstablishTrustInTarget is used for both supported and required options. & integer \\
+\hline
+\verb"jacorb.security.ssl.co"
+\verb"rbaloc_ssliop.required"
+\verb"_options" &  Default is 0. & integer \\
+\hline
+\verb"jacorb.security.keysto"
+\verb"re" & The name and location of the keystore. This may be absolute or relative to the home directory. NOTE (for Sun JSSE users): The javax.net.ssl.trustStore [Password] properties doesn't seem to take effect, so you may want to add trusted certificates to normal keystores. In this case, please set the property jacorb.security.jsse. trustees\_from\_ks to on, so trusted certificates are taken from the keystore instead of a dedicated truststore.  & file \\
+\hline
+\verb"jacorb.security.keysto"
+\verb"re_password" & The keystore password. & string \\
+\hline
+\verb"jacorb.security.truste"
+\verb"es" & Files with public key certificates of trusted Certificate Authorities (CA). WARNING: If no CA certificates are present, the IAIK chain verifier will accept ALL otherwise valid chains. & file \\
+\hline
+\verb"jacorb.security.defaul"
+\verb"t_user" & The name of the default key alias to look up in the keystore. & name \\
+\hline
+\verb"jacorb.security.defaul"
+\verb"t_password" & The name of the default key alias to look up in the keystore. & string \\
+\hline
+\verb"jacorb.security.iaik_d"
+\verb"ebug" & Sets IAIKS SSL classes to print debug output to standard output. Default is off. & boolean \\
+\hline
+\verb"jacorb.security.jsse.t"
+\verb"rustees_from_ks" & Sun JSSE specific settings: Use the keystore to take trusted certificates from. Default is off. & boolean \\
+\hline
+\verb"jacorb.security.ssl.se"
+\verb"rver.cipher_suites" & A comma-separated list of cipher suite names which must NOT contain whitespaces. See the JSSE documents on how to obtain the correct cipher suite strings. & string \\
+\hline
+\verb"jacorb.security.ssl.cl"
+\verb"ient.cipher_suites" & See jacorb.security.ssl.server.cipher\_suites above. & string \\
+\hline
+\end{longtable}
+\end{small}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 

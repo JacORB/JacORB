@@ -1,0 +1,173 @@
+
+JacORB offers a certain level of control over connections and timeouts. You
+can
+\begin{itemize}
+\item set connection idle timeouts.
+\item set request timing.
+\item set the maximum number of accepted TCP/IP connections on the server.
+\end{itemize}
+
+\section{Timeouts}
+\label{connection_timeouts}
+Connection idle timeouts can be set individually for the client and the
+server. They control how long an idle connection, i.e.~a connection that has
+no pending replies, will stay open. The corresponding properties are {\tt
+  jacorb.connection.client.idle\_timeout} and {\tt
+  jacorb.connection.server.timeout} and take their values as milliseconds. If
+not set, connections will stay open indefinitely (or until the OS decides to
+close them).
+
+\emph{Request timing} controls how long an individual request may take to
+complete.  The programmer can specify this using QoS policies,
+discussed in chapter \ref{ch:qos}.
+
+\section{Connection Management}
+\label{connection_management}
+
+When a client wants to invoke a remote object, it needs to send the request
+over a connection to the server. If the connection isn't present, it has to be
+created. In JacORB, this will only happen once for every combination of host
+name and port. Once the connection is established, all requests and replies
+between client and server will use the same connection. This saves resources
+while adding a thin layer of necessary synchronization, and is the recommended
+approach of the OMG. Occasionally people have requested to allow for multiple
+connections to the same server, but nobody has yet presented a good argument
+that more connections would speed up things considerably.
+
+On the server side, the property {\tt
+  jacorb.connection.max\_server\_transports} allows to set the maximum number
+of TCP/IP connections that will be listened on for requests. When using a
+network sniffer or tools like netstat, more inbound TCP/IP connections than
+the configured number may be displayed. This is for the following reason:
+Whenever the connection limit is reached, JacORB tries to close existing idle
+connections (see the subsection below). This is done on the thread
+that accepts the new connections, so JacORB will not actively accept more
+connections. However, the ServerSocket is initialized with a backlog of 20.
+This means that 20 more connections will be quasi-accepted by the OS. Only the
+21st will be rejected right away.
+
+\subsection{Basics and Design}
+\label{connection_management_basics}
+Whenever there is the need to close an existing connection because of the
+connection limit, the question arises on which of the connection to close. To
+allow for maximum flexibility, JacORB provides the interface {\tt
+  SelectionStrategy} that allows for a custom way to select a connection to
+close. Because selecting a connection usually requires some sort of
+statistical data about it, the interface {\tt
+  StatisticsProvider} allows to implement a class that collects statistical
+data.
+
+\begin{small}
+\begin{verbatim}
+package org.jacorb.orb.giop;
+
+public interface SelectionStrategy
+{
+    public ServerGIOPConnection
+        selectForClose( java.util.List connections );
+}
+
+public interface StatisticsProvider
+{
+    public void messageChunkSent( int size );
+    public void flushed();
+    public void messageReceived( int size );
+}
+\end{verbatim}
+\end{small}
+
+The interface {\tt SelectionStrategy} has only the single method of {\tt
+  selectForClose()}. This is called by the class {\tt GIOPConnectionManager}
+when a connection needs to be closed. The argument is a {\tt List} containing
+objects of type {\tt ServerGIOPConnection}. The call itself is synchronized in
+the {\tt GIOPConnectionManager}, so no additional synchronization has to be
+done by the implementor of {\tt SelectionStrategy}. When examining the
+connections, the strategy can get hold of the {\tt StatisticsProvider} via the
+method {\tt getStatisticsProvider()} of the class {\tt GIOPConnection}. The
+strategy implementor should take care only to return idle connections. While
+the connection state is checked anyway while closing (it may have changed in
+the meantime), it seems to be more efficient to avoid cycling through the
+connections. When no suitable connection is available, the strategy may
+return {\tt null}. The {\tt GIOPConnectionManager} will then wait for a
+configurable time, and try again. This goes on until a connection can be
+closed.
+
+The interface {\tt StatisticsProvider} is used to collect statistical data
+about a connection and provide it to the {\tt SelectionStrategy}.  Because the
+nature of this data may vary, there is no standard access to the data via the
+interface. Therefore, {\tt StatisticsProvider} and {\tt SelectionStrategy}
+usually need to be implemented together. Whenever a new connection is
+created\footnote{Currently, connection management is only implemented for the
+  server side. Therefore, only accepted {\tt ServerGIOPConnections}s will get
+  a {\tt StatisticsProvider}}, a new {\tt StatisticsProvider} object is
+instanciated and stored with the {\tt Transport}\footnote{This is actually
+  only done when a {\tt StatisticsProvider} is configured}. The {\tt
+  StatisticsProvider} interface is oriented along the mode of use of the {\tt
+  Transport}. For efficiency reasons, messages are not sent as one big byte
+array. Instead, they are sent piecewise over the wire. When such a chunk is
+sent, the method {\tt messageChunkSent(int size)} will be called. After the
+message has been completely sent, method {\tt flush()} is called. This whole
+process is synchronized, so all consecutive {\tt messageChunkSent}s until a
+{\tt flush()} form a single message. Therefore, no synchronization on this
+level is necessary. However, access to gathered statistical data by the {\tt
+  SelectionStrategy} is concurrent, so care has to be taken. Receiving
+messages is done only on the whole, so there exists only one method, {\tt
+  messageReceived(int size)}, to notify the {\tt StatisticsProvider} of such
+an event.
+
+JacORB comes with two pre-implemented strategies: least frequently used and
+least recently used. LFU and LRU are implemented by the classes {\tt
+  org.jacorb.orb.giop.L[F|R]USelectionStrategyImpl} and {\tt
+  org.jacorb.orb.giop. L[F|R]U\-Statistics\-ProviderImpl}.
+
+\subsection{Configuration}
+\label{connection_management_config}
+To configure connection management, the following properties are provided:
+\begin{description}
+\item {\tt jacorb.connection.max\_server\_transports} This property sets the
+  maximum number of TCP/IP connections that will be listened on by the
+  server--side ORB.
+\item {\tt jacorb.connection.wait\_for\_idle\_interval} This property sets the
+  interval to wait until the next try is made to find an idle connection to
+  close. Value is in microseconds.
+\item {\tt jacorb.connection.selection\_strategy\_class} This property sets
+  the {\tt Selection\-Strategy}.
+\item {\tt jacorb.connection.statistics\_provider\_class} This property sets
+  the {\tt Statistics\-Provider}.
+\item {\tt jacorb.connection.delay\_close} If turned on, JacORB will delay
+  closing of TCP/IP connections to avoid certain situations, where message
+  loss can occur. See also section \ref{connection_management_limitations}.
+\end{description}
+
+\subsection{Limitations}
+\label{connection_management_limitations}
+No sunshine without rain. When trying to close a connection, it is first
+checked that the connection is idle, i.e.~has no pending messages.
+If this is the case, a GIOP CloseConnection message is sent, and the
+TCP/IP connection is closed. Under high load, this can lead to the following
+situation:
+
+\begin{enumerate}
+\item Server sends the CloseConnection message.
+\item Server closes the TCP/IP connection.
+\item The client sends a new request into the connection, because it hasn't
+  yet read and acted on the CloseConnection message.
+\item The server--side OS will send a TCP RST, which cancels out the
+  CloseConnection message.
+\item The client finds the connection closed and must consider the request lost.
+\end{enumerate}
+
+To get by this situation, JacORB takes the following approach. Instead
+of closing the connection right after sending the CloseConnection
+message, we delay closing and wait for the client to close the
+connection. This behaviour is turned off by default, but can be
+enabled by setting the property {\tt jacorb.connection.delay\_close}
+to ``yes''. When non-JacORB clients are used care has to be taken that
+these ORBs do actively close the connection upon receiving a
+CloseConnection message.
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 

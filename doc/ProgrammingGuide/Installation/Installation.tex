@@ -1,0 +1,45 @@
+
+In this chapter  we explain how to obtain and  install JacORB, and give
+an overview of the package contents.
+
+\section{Downloading JacORB}
+
+
+JacORB can be downloaded as a g-zipped tar--archive or as a zip--archive
+from the  JacORB home page  at
+\href{http://www.jacorb.org}{http://www.jacorb.org}.
+
+To install JacORB, first unzip  and untar (or simply unzip) the archive
+somewhere.  This will result  in a new directory {\tt \JacORBDir}.
+After this follow the instructions in {\tt \JacORBDir/doc/INSTALL}.
+
+\section{Installation}
+\label{Sec_installation}
+
+\subsection{Requirements}
+
+JacORB requires JDK 1.2 or above properly installed on your machine.  To build
+JacORB (and compile the examples) you need to have the XML--based make tool
+``Ant'' installed on your machine.  Ant can be downloaded from
+\href{http://jakarta.apache.org/ant}{http://jakarta.apache.org/ant}. All make
+files ({\tt build.xml}) are written for this tool. To rebuild JacORB
+completely, just type {\tt ant} in the installation directory.  Optionally,
+you might want to do a {\tt ant clean} first.
+
+For SSL, you need an implementation of the SSL protocol. We currently support:
+
+\begin{enumerate}
+\item IAIK's
+  \footnote{\href{http://jcewww.iaik.tu-graz.ac.at}{http://jcewww.iaik.tu-graz.ac.at/}}
+  implementation consisting of the crypto provider IAIK--JCE 2.5 (or higher)
+  and the SSL library iSaSiLk 3.0 (or higher). Using this implementation
+  allows you to access the clients authenticated certificates.
+\item Sun's JSSE Reference implementation included in the JDK 1.4 and
+  separately available from the Developer Connection.
+\end{enumerate}
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../ProgrammingGuide"
+%%% End: 
