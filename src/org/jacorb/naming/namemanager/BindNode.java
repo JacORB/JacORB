@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -26,59 +26,56 @@ import org.jacorb.naming.*;
 
 public class BindNode
 {
-	protected Binding binding;
-	protected String typeID;
-	public boolean matched;
-	public boolean used;
+    protected Binding binding;
+    protected String typeID;
+    public boolean matched;
+    public boolean used;
 
-	public BindNode(Binding b) 
-	{ 
-		binding=b; 
-		used=false; 
-	}
-	public boolean equals(BindNode bnode)
-	{
-		return toString().equals(bnode.toString());
-	}
-	public Binding getBinding()
-	{
-		return binding; 
-	}
-	public NameComponent[] getName() 
-	{ 
-		return binding.binding_name; 
-	}
-	public String getTypeID() 
-	{ 
-		return typeID; 
-	}
-	public boolean isContext() 
-	{ 
-		return binding.binding_type.value()==BindingType._ncontext;
-	}
-	public void setTypeID(String id) 
-	{ 
-		typeID=id; 
-	}
-	// Stringrepraesentation des Nodes
-	public String toString()
-	{
-		NameComponent[] name=binding.binding_name;
-		/*
-		StringBuffer str=new StringBuffer(name[name.length-1].id);
-		if (name[name.length-1].kind.length()>0)
-			str.append(" ("+name[name.length-1].kind+")");
-		return new String(str);
-		*/
-		return name[name.length-1].id;
-	}
+    public BindNode(Binding b) 
+    { 
+        binding=b; 
+        used=false; 
+    }
+    public boolean equals(BindNode bnode)
+    {
+        return toString().equals(bnode.toString());
+    }
+    public Binding getBinding()
+    {
+        return binding; 
+    }
+    public NameComponent[] getName() 
+    { 
+        return binding.binding_name; 
+    }
+    public String getTypeID() 
+    { 
+        return typeID; 
+    }
+    public boolean isContext() 
+    { 
+        return binding.binding_type.value()==BindingType._ncontext;
+    }
+    public void setTypeID(String id) 
+    { 
+        typeID=id; 
+    }
+
+    /**
+     *  String representation of this Nodes
+     */
+
+    public String toString()
+    {
+        NameComponent[] name=binding.binding_name;
+        /*
+          StringBuffer str=new StringBuffer(name[name.length-1].id);
+          if (name[name.length-1].kind.length()>0)
+          str.append(" ("+name[name.length-1].kind+")");
+          return new String(str);
+        */
+        return name[name.length-1].id;
+    }
 }
-
-
-
-
-
-
-
 
 

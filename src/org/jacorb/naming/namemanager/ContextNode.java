@@ -27,9 +27,8 @@ import java.util.*;
 import javax.swing.tree.*;
 
 /**
- * 
- *	@author Gerald Brose, FU Berlin
- *	@version $Id$
+ *  @author Gerald Brose, FU Berlin
+ *  @version $Id$
  */
 
 public class ContextNode
@@ -44,14 +43,16 @@ public class ContextNode
     private Binding binding;
     private Vector bindingData;
 
-    public ContextNode(NamingContextExt context, DefaultTreeModel model)
+    public ContextNode( NamingContextExt context, DefaultTreeModel model )
     { 
 	used=false;
 	this.model = model;
 	this.context = context;
     }
 
-    public ContextNode(NamingContextExt context, Binding b,DefaultTreeModel model)
+    public ContextNode( NamingContextExt context, 
+                        Binding b,
+                        DefaultTreeModel model)
     { 
 	used=false;
 	this.model = model;
@@ -62,6 +63,7 @@ public class ContextNode
     /**
      * 
      */
+
     public void display() 
     {
 	update();
@@ -78,10 +80,12 @@ public class ContextNode
     { 
 	return binding.binding_name; 
     }
+
     /**
      * 
      * @param node javax.swing.tree.DefaultMutableTreeNode
      */
+
     public void setNode(DefaultMutableTreeNode node) 
     {
 	this.myDefaultNode = node;
@@ -115,6 +119,7 @@ public class ContextNode
     /**
      * update the content of this node and all its children
      */
+
     public synchronized void update()
     {
 	try
@@ -128,12 +133,12 @@ public class ContextNode
 	
 	    int childCount=myDefaultNode.getChildCount();
 	
-				// set up lists of object bindings and subcontext bindings
+            // set up lists of object bindings and subcontext bindings
 	
 	    int context_count = 0;
 	    int object_count = 0;
 				
-	    for (int i=0;i<bindings.length;i++)
+	    for( int i = 0; i < bindings.length; i++ )
 	    {				
 		if( bindings[i].binding_type == BindingType.ncontext )
 		    context_count++;
@@ -144,21 +149,22 @@ public class ContextNode
 	    ContextNode[] contexts = new ContextNode[context_count];
 	    Binding[] objects = new Binding[object_count];
 	
-	    for (int i=0;i<bindings.length;i++)
+	    for( int i = 0; i < bindings.length; i++ )
 	    {			
 		if( bindings[i].binding_type == BindingType.ncontext)
 		    contexts[ --context_count ] = 
-			new ContextNode(NamingContextExtHelper.narrow(context.resolve(bindings[i].binding_name)),bindings[i],model);
+			new ContextNode( NamingContextExtHelper.narrow( context.resolve(bindings[i].binding_name)), bindings[i], model );
 		else
 		    objects[ --object_count ] = bindings[i];
 	    }
 				
-				// Compare this node's sub contexts and mark those found in
-				// the list of context bindings as used
+            // Compare this node's sub contexts and mark those found
+            // in the list of context bindings as used
 				
-	    for (int i=0;i<childCount;i++)
+	    for( int i = 0 ; i < childCount; i++ )
 	    {
-		DefaultMutableTreeNode dmtn=(DefaultMutableTreeNode)myDefaultNode.getChildAt(i);
+		DefaultMutableTreeNode dmtn = 
+                    (DefaultMutableTreeNode)myDefaultNode.getChildAt(i);
 		context_node=(ContextNode) dmtn.getUserObject();
 		for (int j=0;j<contexts.length;j++)
 		{	
@@ -170,10 +176,10 @@ public class ContextNode
 		}
 	    }
 	
-				// Delete those child nodes that were not found in the
-				// list
+            // Delete those child nodes that were not found in the
+            // list
 	
-	    java.util.Vector removeList = new java.util.Vector();			
+	    java.util.Vector removeList = new java.util.Vector();
 	    for (int i=0;i<childCount;i++)
 	    {
 		DefaultMutableTreeNode node=(DefaultMutableTreeNode) 
@@ -193,8 +199,8 @@ public class ContextNode
 		model.removeNodeFromParent((DefaultMutableTreeNode)removeList.elementAt(i));
 	    }
 	
-				// Insert new context nodes found in the list as
-				// children of this tree node
+            // Insert new context nodes found in the list as
+            // children of this tree node
 				
 	    for (int i=0;i<contexts.length;i++)
 	    {
@@ -243,9 +249,9 @@ public class ContextNode
 		bindingData.addElement( row );
 	    }
 	
-				// recursively update child nodes
+            // recursively update child nodes
 				
-	    childCount=myDefaultNode.getChildCount();
+	    childCount = myDefaultNode.getChildCount();
 	    for (int i=0;i<childCount;i++)
 	    {
 		DefaultMutableTreeNode dmtn=(DefaultMutableTreeNode)
@@ -261,12 +267,4 @@ public class ContextNode
 	}
     }
 }
-
-
-
-
-
-
-
-
 

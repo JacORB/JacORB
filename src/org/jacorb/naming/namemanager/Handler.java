@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -64,10 +64,11 @@ public class Handler
 	bind.addActionListener(this);
 	unbind.addActionListener(this);
 
-	updateInterval=10;		
-	updater=new Updater(tree,updateInterval);
+	updateInterval = 10;		
+	updater = new Updater( tree, updateInterval);
 	updater.start();
     }
+
     public void actionPerformed(ActionEvent e)
     {
 	if (e.getActionCommand().equals("Quit"))
@@ -96,7 +97,7 @@ public class Handler
 	else if (e.getActionCommand().equals("About..."))
 	{
 	    JOptionPane.showMessageDialog(frame,
-					  "JacORB NameManager 1.1\n(C) 1998-99 Gerald Brose, Wei-ju Wu & Volker Siegel\nFreie Universitaet Berlin",
+					  "JacORB NameManager 1.1\n(C) 1998-2002 Gerald Brose, Wei-ju Wu & Volker Siegel\nFreie Universitaet Berlin",
 					  "About",JOptionPane.INFORMATION_MESSAGE);
 	}
 	else if (e.getActionCommand().equals("Options"))
@@ -160,12 +161,4 @@ public class Handler
 	System.exit(0); 
     }
 }
-
-
-
-
-
-
-
-
 

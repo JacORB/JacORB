@@ -1,7 +1,7 @@
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-98  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -42,27 +42,27 @@ public class NameManager
     {
 	org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init(args,null);
 
-	JFrame frame=new JFrame("JacORB NameManager");
+	JFrame frame = new JFrame("JacORB NameManager");
 
 	// set up menu bars and menu
-	JMenuBar menubar=new JMenuBar();
+	JMenuBar menubar = new JMenuBar();
 
-	JMenu fileMenu=new JMenu("File");
-	JMenu editMenu=new JMenu("Edit");
-	JMenu helpMenu=new JMenu("Help");
+	JMenu fileMenu = new JMenu("File");
+	JMenu editMenu = new JMenu("Edit");
+	JMenu helpMenu = new JMenu("Help");
 
-	JMenuItem quit=new JMenuItem("Quit");
+	JMenuItem quit = new JMenuItem("Quit");
 	fileMenu.add(quit);
 
-	JMenuItem options=new JMenuItem("Options");
-	JMenuItem create = new JMenuItem("New context");
-	JMenuItem unbind = new JMenuItem("Unbind name");
+	JMenuItem options = new JMenuItem("Options");
+	JMenuItem create =  new JMenuItem("New context");
+	JMenuItem unbind =  new JMenuItem("Unbind name");
 
 	editMenu.add(options);		
 	editMenu.add(create);
 	editMenu.add(unbind);
 						
-	JMenuItem about=new JMenuItem("About...");
+	JMenuItem about = new JMenuItem("About...");
 	helpMenu.add(about);
 		
 	menubar.add(fileMenu);
@@ -72,12 +72,15 @@ public class NameManager
 	NamingContextExt rootContext = null;
 	try 
 	{
-	    rootContext= NamingContextExtHelper.narrow( orb.resolve_initial_references("NameService"));	   
+	    rootContext = 
+                NamingContextExtHelper.narrow( orb.resolve_initial_references("NameService"));	   
 	}
 	catch (Exception e) 
 	{ 
-	    JOptionPane.showMessageDialog(frame,"Could not find name service",
-					  "Initialization error",JOptionPane.ERROR_MESSAGE);
+	    JOptionPane.showMessageDialog(frame,
+                                          "Could not find name service",
+					  "Initialization error",
+                                          JOptionPane.ERROR_MESSAGE);
 	    System.exit(1);
 	}
 
@@ -132,12 +135,4 @@ public class NameManager
 	System.out.println("NameManager [ <filename> ]");
     }
 }
-
-
-
-
-
-
-
-
 

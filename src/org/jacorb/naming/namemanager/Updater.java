@@ -20,33 +20,34 @@
 
 package org.jacorb.naming.namemanager;
 
-class Updater extends Thread
+class Updater 
+    extends Thread
 {
-	NSTree tree;
-	long mseconds;
-	public Updater(NSTree tr,int seconds)
-	{ 
-		tree=tr;
-		mseconds=seconds*1000; 
-	}
-	public void run()
-	{
-		for (;;)
-		{
-			try { sleep(mseconds); } catch (Exception e) {}
-			tree.update();	
-		}
-	}
-	public void setSeconds(int seconds) 
-	{
-		mseconds=seconds*1000;
-	}
+    NSTree tree;
+    long mseconds;
+
+    public Updater(NSTree tr,int seconds)
+    { 
+        tree=tr;
+        mseconds=seconds*1000; 
+    }
+
+    public void run()
+    {
+        for (;;)
+        {
+            try 
+            { 
+                sleep(mseconds); 
+            } 
+            catch (Exception e) 
+            {}
+            tree.update();	
+        }
+    }
+    public void setSeconds(int seconds) 
+    {
+        mseconds=seconds*1000;
+    }
 }
-
-
-
-
-
-
-
 

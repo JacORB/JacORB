@@ -199,7 +199,10 @@ public class AOM
     {
         ByteArrayKey oidbak = POAUtil.oid_to_bak(oid);
         Servant servant = null;
-                
+                            
+        if (logTrace.test(0))
+            logTrace.printLog(oid, " incarnate");
+
         /* all invocations of incarnate on the servant manager are serialized */
         /* all invocations of etherealize on the servant manager are serialized */
         /* invocations of incarnate and etherialize are mutually exclusive */
@@ -235,7 +238,7 @@ public class AOM
 
         if (servant == null) 
         {
-        	if (logTrace.test(0))
+            if (logTrace.test(0))
             	logTrace.printLog(oid, "servant is not incarnated (incarnate returns null)");
             return null;        
         }
