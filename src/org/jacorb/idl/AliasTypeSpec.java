@@ -174,6 +174,7 @@ public class AliasTypeSpec
 
     public String getTypeCodeExpression()
     {
+//System.out.println ("Alias: " + full_name());
         return "org.omg.CORBA.ORB.init().create_alias_tc( " + 
             full_name() + "Helper.id(),\"" + name + "\"," +
             originalType.getTypeCodeExpression() + ")";
@@ -235,10 +236,15 @@ public class AliasTypeSpec
 
 	    String fname = null;
 	    PrintWriter decl_ps = null;
- 
-	    if( ! originalType.basic() || 
-                ( originalType instanceof TemplateTypeSpec && 
-                  !(originalType instanceof StringType )))
+
+	    if
+            (
+                (! originalType.basic ()
+                && !(originalType instanceof AnyType))
+                || 
+                (originalType instanceof TemplateTypeSpec 
+                 && !(originalType instanceof StringType))
+            )
 	    {
 		/** print the holder class */
 
@@ -320,22 +326,27 @@ public class AliasTypeSpec
     }
 
 
-
-    public String holderName()
+    public String holderName ()
     {
-	if( ( originalType.basic() && 
-           (  !(originalType instanceof TemplateTypeSpec) ||
-              originalType instanceof StringType )
-              )
+        if
+        (
+            (
+                originalType.basic () && 
+                (
+                    ! (originalType instanceof TemplateTypeSpec)
+                    || originalType instanceof StringType
+                )
+            )
             || originalType instanceof AliasTypeSpec
-              )
-	{
-	    return originalType.holderName();
-	}
-	else
-	{
-	    return full_name() + "Holder";
-	}
+            || originalType instanceof AnyType
+        )
+        {
+            return originalType.holderName ();
+        }
+        else
+        {
+            return full_name () + "Holder";
+        }
     }
 
 
