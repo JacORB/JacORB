@@ -1141,16 +1141,15 @@ The startup  command is a  string that is  passed as the  {\em single}
 argument to javas {\tt Runtime.exec()} method, without interpreting it
 or adding  anything. Since {\tt  Runtime.exec()} has system--dependent
 behaviour, the startup string has to reflect that. While for most unix
-systems it is  sufficient to avoid shell--extensions like  * and
-\verb+~+,
-windows--based  systems  do  not  pass  the string  to  a  commandline
-interpreter so a simple {\tt jaco MyServer} will fail even if it works
-if directly typed in at the dos prompt. Therefore you have to ``wrap''
-the core startup command in a call to a commandline interpreter. On NT
-the  following startup  command will  do the  job: {\tt  cmd  /c "jaco
-MyServer"}.  Please  keep in  mind that if  you use the  {\tt imr\_mg}
-command to set  the startup command, you have to  escape the quotes so
-they appear inside of the resulting string.
+systems  it  is  sufficient  to  avoid shell--extensions  like  *  and
+\verb+~+,  windows--based  systems  do   not  pass  the  string  to  a
+commandline interpreter so a simple {\tt jaco MyServer} will fail even
+if it works if directly typed in at the dos prompt. Therefore you have
+to  ``wrap'' the  core  startup command  in  a call  to a  commandline
+interpreter. On NT the following startup command will do the job: {\tt
+cmd /c "jaco MyServer"}.  Please keep in mind that if you use the {\tt
+imr\_mg} command  to set the startup  command, you have  to escape the
+quotes so they appear inside of the resulting string.
 
 For a client program to be  able to issue requests, it needs an object
 reference.  Up to  this  point,  we haven't  said  anything about  how
