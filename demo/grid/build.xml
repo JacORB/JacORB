@@ -1,12 +1,17 @@
 <?xml version="1.0"?>
 
+<!DOCTYPE project [ <!ENTITY common SYSTEM "file:../../common.xml"> ]>
+
 <project name="demo" default="all" basedir="../..">
+
+  &common;
+
 
   <!-- ==================================================== -->
   <!--             Demo build file                         -->
   <!-- ==================================================== -->
 
-   <target name="init">
+   <target name="gridinit" depends="init">
 	<property name="name" value="grid"/>
 	<property name="dirs.base" value="${basedir}"/>
 	<property name="classdir" value="${dirs.base}/classes"/>
@@ -15,7 +20,7 @@
 	<property name="idlflags" value="-I${include}/omg -ir -d ${dirs.base}/demo/${name}/generated"/>
    </target>
 
-   <target name="all" depends="init,idl">
+   <target name="all" depends="gridinit,idl">
 	<javac srcdir="${dirs.base}/demo/${name}/generated"
                destdir="${classdir}"
 	       includes="**/*.java"
@@ -27,10 +32,10 @@
 	        />
    </target>
 
-   <target name="idl" depends="init">
+   <target name="idl" depends="gridinit">
         <java classname="org.jacorb.idl.parser" 
               fork="yes" 
-              classpath="${lib}/idl.jar;${java.class.path}">
+              classpath="${lib}/idl.jar;${classpath}">
 
 	      <arg line="${idlflags}
 	      ${dirs.base}/demo/${name}/server.idl"/>
@@ -38,7 +43,7 @@
    </target>
 
 
-   <target name="clean" depends="init">
+   <target name="clean" depends="gridinit">
            <delete dir="${classdir}/demo/grid"/>
            <delete dir="${dirs.base}/demo/grid/generated"/>
    </target>
