@@ -67,14 +67,9 @@ public class TestServer
             // create the object reference
             org.omg.CORBA.Object obj = poa.servant_to_reference( servant );
 
-            PrintWriter pw = new PrintWriter
-               (new FileWriter (System.getProperty( "user.home" ) +
-               File.separatorChar + "jacorbJunit.ior") );
+            System.out.println ("SERVER IOR: " + orb.object_to_string(obj));
+            System.out.flush();
 
-            // Print stringified object reference to file
-            pw.println( orb.object_to_string( obj ));
-            pw.flush();
-            pw.close();
             Debug.output( 1, "Entering ORB event loop" );
 
             // wait for requests
