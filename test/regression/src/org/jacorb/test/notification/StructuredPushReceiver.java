@@ -3,9 +3,6 @@ package org.jacorb.test.notification;
 import java.util.List;
 import java.util.Vector;
 
-import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import junit.framework.TestCase;
-
 import org.omg.CORBA.IntHolder;
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
@@ -25,15 +22,18 @@ import org.omg.CosNotifyComm.StructuredPushConsumerOperations;
 import org.omg.CosNotifyComm.StructuredPushConsumerPOATie;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.FilterNotFound;
-import org.apache.avalon.framework.logger.Logger;
+
 import org.jacorb.util.Debug;
+
+import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
+import junit.framework.TestCase;
+import org.apache.avalon.framework.logger.Logger;
 
 public class StructuredPushReceiver extends Thread
     implements StructuredPushConsumerOperations,
                TestClientOperations {
 
     Logger logger_ = Debug.getNamedLogger(getClass().getName());
-
 
     StructuredProxyPushSupplier pushSupplier_;
 
@@ -100,10 +100,11 @@ public class StructuredPushReceiver extends Thread
         }
     }
 
-    public void push_structured_event(StructuredEvent event) throws Disconnected {
+    public void push_structured_event(StructuredEvent event)
+        throws Disconnected {
         received_++;
 
-        logger_.info("=> push: " + received_);
+        logger_.info("push#" + received_ + " => " + event.remainder_of_body);
 
         if (perfListener_ != null) {
             perfListener_.eventReceived(event, System.currentTimeMillis());
@@ -122,14 +123,20 @@ public class StructuredPushReceiver extends Thread
         connected_ = false;
     }
 
-    public void offer_change(EventType[] type1, EventType[] type2) throws InvalidEventType {
+    public void offer_change(EventType[] type1,
+                             EventType[] type2)
+        throws InvalidEventType {
     }
 
     public void connect(NotificationTestCaseSetup setup,
                         EventChannel channel,
-                        boolean useOrSemantic) throws AdminLimitExceeded, AlreadyConnected, TypeError {
+                        boolean useOrSemantic)
+        throws AdminLimitExceeded,
+               AlreadyConnected,
+               TypeError {
 
-        StructuredPushConsumerPOATie receiverTie = new StructuredPushConsumerPOATie(this);
+        StructuredPushConsumerPOATie receiverTie =
+            new StructuredPushConsumerPOATie(this);
 
         ConsumerAdmin _consumerAdmin = channel.default_consumer_admin();
 
