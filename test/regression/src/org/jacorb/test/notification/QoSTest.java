@@ -74,7 +74,7 @@ public class QoSTest extends NotificationTestCase
         lifoOrder = getORB().create_any();
         lifoOrder.insert_short(LifoOrder.value);
 
-        deadlineOrder = getORB().create_any();;
+        deadlineOrder = getORB().create_any();
         deadlineOrder.insert_short(DeadlineOrder.value);
 
         priorityOrder = getORB().create_any();
@@ -127,6 +127,7 @@ public class QoSTest extends NotificationTestCase
                                      channelId);
             fail();
         } catch (UnsupportedQoS e) {
+            // expected
         }
     }
 
