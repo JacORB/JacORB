@@ -33,18 +33,9 @@ In order to run the JacORB tests the following must be in the classpath:
   - Ant (ant.jar)
   - JUnit (junit.jar)
 
-In the /lib subdirectory are 
-  - A JAXP compliant XML parser (for example, xerces.jar)
-  - JUnit (junit.jar)
-
-These are included automatically and need not be in your classpath.
-
-The initial set of tests was developed using JUnit v3.7, Ant v1.4.1
-and the Xerces v1.4.3 XML parser.
-
+The initial set of tests was developed using JUnit v3.7 and Ant v1.4.1
 JUnit is freely available at http://www.junit.org/
 Ant is freely available at http://jakarta.apache.org/ant/
-Xerces is freely available at http://xml.apache.org/
 
 
 Adding new tests
