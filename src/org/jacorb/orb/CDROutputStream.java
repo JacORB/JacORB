@@ -371,6 +371,7 @@ public class CDROutputStream
     /**
      * Add <tt>amount</tt> empty space
      */
+
     public void increaseSize( int amount )
     {
         pos += amount;
