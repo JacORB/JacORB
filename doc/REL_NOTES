@@ -56,6 +56,11 @@
            this property is off, unlike previous releases, where this check
            was always done. 
 
+      - maintenance:
+
+         * Removed property jacorb.security.change_ssl_roles and the
+           associated "Change SSL Roles" feature.
+
 2.1
 ====
 
