@@ -23,7 +23,7 @@ public class Client
         }
         catch( Exception e )
         {
-            org.jacorb.util.Debug.output(1,e);
+            e.printStackTrace();
             throw new org.omg.CORBA.UNKNOWN();
         }
     }
@@ -79,15 +79,19 @@ public class Client
             System.out.println("Acc1 : " + a1.balance() );
             System.out.println("Acc2 : " + a2.balance() );
 	
-            do{
+            do
+            {
                 System.out.println("> Transfer 50,- from Acc 2 to Acc 1.");
-                try{
+                try
+                {
                     bank.transfer(a2, a1, 50);
                     ok = true;
-                }catch (Throwable e){
+                }
+                catch (Throwable e){
                     System.out.println("Got: " + e);
                 }
-            }while (! ok);
+            }
+            while (! ok);
 
             System.out.println("\n--- Balances ---");
             System.out.println("Acc1 : " + a1.balance() );
