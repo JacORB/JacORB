@@ -18,7 +18,7 @@ gerald.brose@acm.org
         - native IIOP, supports IIOP 1.2 Code sets and IIOP over SSL 
         - GIOP 1.2, Bidirectional GIOP
         - POA
-       ´- OBV
+        - OBV
         - DynAny
         - Implementation Repository with GUI 
         - Interface Repository with GUI 
@@ -58,6 +58,9 @@ gerald.brose@acm.org
                 should now extend this class.
 
         - bug fixes:
+                DII:
+                        - User exceptions now correctly encapsuled within
+                          Request environment.
                 IDL Compiler:
                         - Fix for unions with long long discriminator type.
                 Any:
