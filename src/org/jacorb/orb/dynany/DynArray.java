@@ -62,13 +62,13 @@ public final class DynArray
     private org.omg.CORBA.TypeCode elementType;
     private org.omg.CORBA.Any[] members;
 
-    DynArray(jacorb.orb.ORB orb,org.omg.DynamicAny.DynAnyFactory dynFactory,jacorb.orb.Any any)
+    DynArray(org.jacorb.orb.ORB orb,org.omg.DynamicAny.DynAnyFactory dynFactory,jacorb.orb.Any any)
 	throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch, InvalidValue
     {
 	super(orb,dynFactory,any);
     }
 
-    DynArray(jacorb.orb.ORB orb,org.omg.DynamicAny.DynAnyFactory dynFactory,org.omg.CORBA.TypeCode tc)
+    DynArray(org.jacorb.orb.ORB orb,org.omg.DynamicAny.DynAnyFactory dynFactory,org.omg.CORBA.TypeCode tc)
 	throws InvalidValue, TypeMismatch
     {
 	if( tc.kind() != org.omg.CORBA.TCKind.tk_array )
@@ -133,7 +133,7 @@ public final class DynArray
 
     public org.omg.CORBA.Any to_any() 
     {
-	jacorb.orb.Any out_any = (jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
+	jacorb.orb.Any out_any = (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
 	out_any.type( type());
 
 	CDROutputStream os = new CDROutputStream();

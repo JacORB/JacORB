@@ -18,7 +18,7 @@ class ForwarderImpl
 
 	public ProxyEntry(org.omg.CORBA.ORB orb)
 	{
-	    this.orb = (jacorb.orb.ORB)orb;
+	    this.orb = (org.jacorb.orb.ORB)orb;
 	}
 
 	public String[] _all_interfaces(org.omg.PortableServer.POA poa, byte[] objectId)
@@ -108,7 +108,7 @@ class ForwarderImpl
 	    byte[] oid=null;
 	    Integer key = null;
 
-	    org.jacorb.orb.dsi.ServerRequest inrequest = (jacorb.orb.dsi.ServerRequest)r;         
+	    org.jacorb.orb.dsi.ServerRequest inrequest = (org.jacorb.orb.dsi.ServerRequest)r;         
 	    oid=inrequest.objectId();
 	    org.omg.PortableServer.Current poa_current=null;
 	    try
@@ -168,7 +168,7 @@ class ForwarderImpl
 			changeByteOrder(outbuffer);
 		    //send it	
 		    //debug
-		    if (jacorb.util.Environment.verbosityLevel()>=3)
+		    if (org.jacorb.util.Environment.verbosityLevel()>=3)
 		    {
 			jacorb.util.Debug.output(3,"[Proxy:Incoming byte-stream:]");
 			for(int i=0;i<inrequest.get_in().msg_hdr.message_size+12;i++)
@@ -188,16 +188,16 @@ class ForwarderImpl
 		    {
 			rep=new org.jacorb.orb.connection.ReplyInputStream(realCon, cdr.requestId());
 			key = new Integer( cdr.requestId() );
-			//			((jacorb.orb.ClientSideConnection)realCon).get_buffers().put( key, cdr);
-			((jacorb.orb.connection.ClientConnection)realCon).get_replies().put( key, rep );
-			((jacorb.orb.connection.ClientConnection)realCon).get_objects().put( key, poa_current.get_POA().servant_to_reference(this) ); 
+			//			((org.jacorb.orb.ClientSideConnection)realCon).get_buffers().put( key, cdr);
+			((org.jacorb.orb.connection.ClientConnection)realCon).get_replies().put( key, rep );
+			((org.jacorb.orb.connection.ClientConnection)realCon).get_objects().put( key, poa_current.get_POA().servant_to_reference(this) ); 
 		    }
 		    //if (! realCon.connected()) done above
 		    //	realCon.reconnect();
 		    //realCon.get_out_stream().write(cdr.getBuffer(),0,cdr.size());
 		    //realCon.get_out_stream().flush();
 		    System.out.println("["+mycounter+"]Outgoing Request with size: "+cdr.size());
-		    ((jacorb.orb.connection.ClientConnection)realCon).writeDirectly(cdr.getInternalBuffer(),cdr.size());
+		    ((org.jacorb.orb.connection.ClientConnection)realCon).writeDirectly(cdr.getInternalBuffer(),cdr.size());
 		}
 	    }
 	    catch (Exception e)
@@ -208,11 +208,11 @@ class ForwarderImpl
 	    {
 		if (cdr.response_expected())
 		{
-		    org.jacorb.orb.CDRInputStream xxx=((jacorb.orb.connection.ReplyInputStream)rep.rawResult());
-		    //		    ((jacorb.orb.connection.ClientConnection)realCon).get_buffers().remove(key);
-		    ((jacorb.orb.connection.ClientConnection)realCon).get_replies().remove(key);
-		    ((jacorb.orb.connection.ClientConnection)realCon).get_objects().remove(key);
-		    inrequest.reply(xxx.getBuffer(),((jacorb.orb.connection.ReplyInputStream)xxx).msg_hdr.message_size+12);
+		    org.jacorb.orb.CDRInputStream xxx=((org.jacorb.orb.connection.ReplyInputStream)rep.rawResult());
+		    //		    ((org.jacorb.orb.connection.ClientConnection)realCon).get_buffers().remove(key);
+		    ((org.jacorb.orb.connection.ClientConnection)realCon).get_replies().remove(key);
+		    ((org.jacorb.orb.connection.ClientConnection)realCon).get_objects().remove(key);
+		    inrequest.reply(xxx.getBuffer(),((org.jacorb.orb.connection.ReplyInputStream)xxx).msg_hdr.message_size+12);
 		}
 	    }
 	    catch (Exception e)
@@ -239,7 +239,7 @@ class ForwarderImpl
 
     public ForwarderImpl(ORB orb)
     {
-	this.orb = (jacorb.orb.ORB)orb;
+	this.orb = (org.jacorb.orb.ORB)orb;
 	try
 	{
 	    rootPOA=POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -288,14 +288,14 @@ class ForwarderImpl
 		o = forwarderPOA.create_reference(pIOR.getIOR().type_id); //create new "CORBA Object"
 		oid = new String( forwarderPOA.reference_to_id(o));
                 
-                org.jacorb.orb.Delegate delegate = (jacorb.orb.Delegate)
+                org.jacorb.orb.Delegate delegate = (org.jacorb.orb.Delegate)
                     ((org.omg.CORBA.portable.ObjectImpl)o)._get_delegate();
 
-		//jacorb.orb.connection.ClientConnection c =(jacorb.orb.connection.ClientConnection)
-                //    ((jacorb.orb.ORB)orb).getConnectionManager()._getConnection(delegate);
+		//jacorb.orb.connection.ClientConnection c =(org.jacorb.orb.connection.ClientConnection)
+                //    ((org.jacorb.orb.ORB)orb).getConnectionManager()._getConnection(delegate);
 
                 org.jacorb.orb.connection.ClientConnection c = 
-                    (jacorb.orb.connection.ClientConnection) orb.getConnectionManager()._getConnection(pIOR.getAddress(), false);
+                    (org.jacorb.orb.connection.ClientConnection) orb.getConnectionManager()._getConnection(pIOR.getAddress(), false);
 
 		MiniStub mStub = new MiniStub(c, pIOR );
 		forwardMap.put( oid,mStub );

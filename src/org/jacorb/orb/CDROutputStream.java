@@ -758,7 +758,7 @@ public class CDROutputStream
             org.omg.CORBA.portable.ObjectImpl obj = 
                 (org.omg.CORBA.portable.ObjectImpl)value;
             org.omg.IOP.IORHelper.write(this,  
-                                        ((jacorb.orb.Delegate)obj._get_delegate()).getIOR()  );
+                                        ((org.jacorb.orb.Delegate)obj._get_delegate()).getIOR()  );
         }
     }
 
@@ -848,13 +848,13 @@ public class CDROutputStream
         */
 
         int start_pos = pos;
-        int _kind = ((jacorb.orb.TypeCode)value)._kind();
+        int _kind = ((org.jacorb.orb.TypeCode)value)._kind();
 
         org.jacorb.util.Debug.output(4,"Write Type code of kind " + _kind  );
         try
         {
 
-            if( ((jacorb.orb.TypeCode)value).is_recursive() &&
+            if( ((org.jacorb.orb.TypeCode)value).is_recursive() &&
                 tcMap.containsKey( value.id()) )
             {
                 org.jacorb.util.Debug.output(4,"Write recursive Type code for id " +
@@ -962,7 +962,7 @@ public class CDROutputStream
                 case TCKind._tk_array: 
                 case TCKind._tk_sequence: 
                       beginEncapsulation();
-//                      if( ((jacorb.orb.TypeCode)value.content_type()).is_recursive())
+//                      if( ((org.jacorb.orb.TypeCode)value.content_type()).is_recursive())
 //                      {
 //                          Integer enclosing_tc_pos = (Integer)recursiveTCStack.peek();
 //                          write_long( enclosing_tc_pos.intValue() - pos );
@@ -1070,7 +1070,7 @@ public class CDROutputStream
 
     public final void write_value( org.omg.CORBA.TypeCode tc, CDRInputStream in)
     {
-        int kind = ((jacorb.orb.TypeCode)tc)._kind();
+        int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
         org.jacorb.util.Debug.output(3, "CDROutput.write_value kind " + kind );
         //int kind = tc.kind().value();
         switch (kind)
@@ -1169,7 +1169,7 @@ public class CDROutputStream
             try
             {       
                 //                recursiveTCStack.push(tc);
-                org.jacorb.orb.TypeCode disc = (jacorb.orb.TypeCode)tc.discriminator_type();
+                org.jacorb.orb.TypeCode disc = (org.jacorb.orb.TypeCode)tc.discriminator_type();
                 int def_idx = tc.default_index();
                 int member_idx = -1;
 

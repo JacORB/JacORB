@@ -162,7 +162,7 @@ public final class DynUnion
                         (CDRInputStream) member.to_any().create_input_stream());
 
 	jacorb.orb.Any out_any = 
-            (jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
+            (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
 
 	out_any.type( type() );
 	out_any.read_value( new CDRInputStream( orb, os.getBufferCopy()), type());
@@ -314,7 +314,7 @@ public final class DynUnion
 		throw new TypeMismatch();
 
 	    int members = type().member_count();
-	    Any dis_any = (jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
+	    Any dis_any = (org.jacorb.orb.Any)org.omg.CORBA.ORB.init().create_any();
 	    /* find a discriminator value that is not an explicit case label */
 	    switch( type().kind().value() )
 	    {

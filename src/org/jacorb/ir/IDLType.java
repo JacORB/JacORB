@@ -75,7 +75,7 @@ public class IDLType
         if( tc == null ) // PIDLs
             return null;
 
-        if( ((jacorb.orb.TypeCode)tc).is_recursive())
+        if( ((org.jacorb.orb.TypeCode)tc).is_recursive())
         {
             org.jacorb.util.Debug.output(2,"Placeholder for recursive sequence");
             try

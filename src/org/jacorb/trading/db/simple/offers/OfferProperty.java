@@ -35,11 +35,11 @@ public class OfferProperty implements Serializable
 	m_name = prop.name;
 	if (PropUtil.isDynamicProperty(prop.value.type()))
 	{
-	    m_value = new DynPropValue(jacorb.trading.TradingService.getORB(),prop.value);
+	    m_value = new DynPropValue(org.jacorb.trading.TradingService.getORB(),prop.value);
 	}
 	else
 	{
-	    m_value = new AnyValue(jacorb.trading.TradingService.getORB(),prop.value);
+	    m_value = new AnyValue(org.jacorb.trading.TradingService.getORB(),prop.value);
 	}
     }
 

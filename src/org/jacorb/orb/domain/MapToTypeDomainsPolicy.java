@@ -89,7 +89,7 @@ public class MapToTypeDomainsPolicy
             { // insert new domain as child domain into root domain
                 rootDomain.insertChild(domain);
             }
-            catch (jacorb.orb.domain.GraphNodePackage.ClosesCycle cc)
+            catch (org.jacorb.orb.domain.GraphNodePackage.ClosesCycle cc)
             {
                 org.jacorb.util.Debug.output(1, 
                                          "MapToTypeDomainsPolicy.OnReferenceCreation: cannot "
@@ -97,7 +97,7 @@ public class MapToTypeDomainsPolicy
                                          +"root domain " +Util.downcast(rootDomain));
                 org.jacorb.util.Debug.output(1, cc);
             }
-            catch (jacorb.orb.domain.NameAlreadyDefined already)
+            catch (org.jacorb.orb.domain.NameAlreadyDefined already)
             {
                 org.jacorb.util.Debug.output(1, "MapToTypeDomainsPolicy.OnReferenceCreation: cannot "
                                          +"insert "+Util.downcast(domain) + " as child domain to "

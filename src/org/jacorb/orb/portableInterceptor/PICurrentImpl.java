@@ -41,8 +41,8 @@ public class PICurrentImpl extends org.jacorb.orb.LocalityConstrainedObject
 
     for(int _i = 0; _i < m_slots.length; _i++){
       m_slots[_i] = m_orb.create_any();
-      ((jacorb.orb.Any) m_slots[_i]).insert_object(source.m_slots[_i].type(),
-						  ((jacorb.orb.Any) source.m_slots[_i]).value());
+      ((org.jacorb.orb.Any) m_slots[_i]).insert_object(source.m_slots[_i].type(),
+						  ((org.jacorb.orb.Any) source.m_slots[_i]).value());
     }
   }
     

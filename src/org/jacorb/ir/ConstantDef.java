@@ -75,7 +75,7 @@ public class ConstantDef
     void define()
     {
         org.jacorb.util.Debug.output( 2, "ConstantDef " + absolute_name() + " defining.");
-        value = (jacorb.orb.Any) orb.create_any();
+        value = (org.jacorb.orb.Any) orb.create_any();
         type_def = IDLType.create( typeCode, containing_repository );
         Debug.assert( typeCode != null, "typeCode null!");
         Debug.assert( type_def != null, "type_def null!");
@@ -148,7 +148,7 @@ public class ConstantDef
 
     public void value( org.omg.CORBA.Any _value)
     {
-        value = (jacorb.orb.Any)_value;
+        value = (org.jacorb.orb.Any)_value;
     }
 
     public org.omg.CORBA.IDLType type_def()

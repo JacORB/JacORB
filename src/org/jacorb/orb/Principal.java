@@ -40,7 +40,7 @@ public class Principal
 	if( obj instanceof org.jacorb.orb.Principal )
 	{
 	    String myname = new String ( name );
-	    return ( myname.equals( new String(  ((jacorb.orb.Principal)obj).name() )));
+	    return ( myname.equals( new String(  ((org.jacorb.orb.Principal)obj).name() )));
 	} 
 	else
 	    return false;

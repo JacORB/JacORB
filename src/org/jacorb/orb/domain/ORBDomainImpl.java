@@ -83,7 +83,7 @@ public class ORBDomainImpl
      * registers a domain as a local domain to this orb domain.
      * Post: isLocalTo(aDomain)
      */
-    public void insertLocalDomain(jacorb.orb.domain.Domain aDomain)
+    public void insertLocalDomain(org.jacorb.orb.domain.Domain aDomain)
     {
         theLocalDomains.put(aDomain, aDomain);
     }
@@ -92,7 +92,7 @@ public class ORBDomainImpl
      * checks whether a domain is registered as local at 
      * this orb domain. 
      */
-    public boolean isLocalTo(jacorb.orb.domain.Domain aDomain)
+    public boolean isLocalTo(org.jacorb.orb.domain.Domain aDomain)
     {
         return theLocalDomains.contains(aDomain);
     }
@@ -101,7 +101,7 @@ public class ORBDomainImpl
      * deregisters a domain as a local domain from this orb domain. 
      * Post: NOT isLocalTo(aDomain)
      */
-    public void removeLocalDomain(jacorb.orb.domain.Domain aDomain)
+    public void removeLocalDomain(org.jacorb.orb.domain.Domain aDomain)
     {
         theLocalDomains.remove(aDomain);
     }

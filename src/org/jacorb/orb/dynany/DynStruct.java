@@ -113,7 +113,7 @@ public final class DynStruct
 	    {
 		try
 		{
-		    Any a = (jacorb.orb.Any)orb.create_any();
+		    Any a = (org.jacorb.orb.Any)orb.create_any();
 		    a.read_value(is, type().member_type(i));		   
 		    members[i]= new NameValuePair( type().member_name(i), a);
 		}
@@ -132,7 +132,7 @@ public final class DynStruct
 
     public org.omg.CORBA.Any to_any() 
     {
-	jacorb.orb.Any out_any = (jacorb.orb.Any)orb.create_any();
+	jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
 	out_any.type( type());
 
 	CDROutputStream os = new CDROutputStream();

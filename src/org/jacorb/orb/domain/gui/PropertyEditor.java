@@ -196,7 +196,7 @@ public class PropertyEditor
         // TableScrollPane.setViewportView(PropertyTable);
     }
 
-    public void setTableModel(jacorb.orb.domain.gui.PropertyTableModel newTableModel)
+    public void setTableModel(org.jacorb.orb.domain.gui.PropertyTableModel newTableModel)
     {
         theTableModel = newTableModel;
     }

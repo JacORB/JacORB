@@ -179,7 +179,7 @@ public class BrowserFrame
     } // check
 
     /** initializes the tree, member list and policy list structure. */
-    private void initTree(jacorb.orb.domain.Domain RootDomain)
+    private void initTree(org.jacorb.orb.domain.Domain RootDomain)
     {
         if (RootDomain == null)
 	{
@@ -891,7 +891,7 @@ public class BrowserFrame
             Debug.output(Debug.DOMAIN | Debug.INFORMATION, "BrowserFrame.OnExit: "
                          +" unmounting of gui orb domain not possible, skipping.");
         }
-        ((jacorb.orb.ORB) getORB()).shutdown(false);
+        ((org.jacorb.orb.ORB) getORB()).shutdown(false);
         System.exit(0);
     }
 
@@ -1111,11 +1111,11 @@ public class BrowserFrame
         {
             domain.insertChild(newDomain);
         }
-        catch (jacorb.orb.domain.GraphNodePackage.ClosesCycle cc)
+        catch (org.jacorb.orb.domain.GraphNodePackage.ClosesCycle cc)
         { Debug.output(Debug.DOMAIN |1, "could not insert new domain because of"
                        +" closing cycle");
         }
-        catch (jacorb.orb.domain.NameAlreadyDefined already)
+        catch (org.jacorb.orb.domain.NameAlreadyDefined already)
         { // should not happen
             JOptionPane.showMessageDialog(mainFrame, "Please choose another name.",
                                           "Name Already in Use" , JOptionPane.ERROR_MESSAGE);
@@ -1414,14 +1414,14 @@ public class BrowserFrame
         {
             domain.insertChild(theSharedData.getDomainBuffer());
         }
-        catch (jacorb.orb.domain.GraphNodePackage.ClosesCycle cc)
+        catch (org.jacorb.orb.domain.GraphNodePackage.ClosesCycle cc)
         {
             JOptionPane.showMessageDialog(this, "This operation would close a cycle in"
                                           +" in the domain graph and is therefore not permitted.",
                                           "Paste Impossible" , JOptionPane.ERROR_MESSAGE);
             return;
         }
-        catch (jacorb.orb.domain.NameAlreadyDefined already)
+        catch (org.jacorb.orb.domain.NameAlreadyDefined already)
         {
             JOptionPane.showMessageDialog(this, "The name " + already.name + "is already"
                                           +" used in the target domain by another child. Rename that child first.",

@@ -424,13 +424,13 @@ public class PropertyPolicyImpl
 		{
                     PropPol.put(nameOfProperty, valueOfProperty);
 		}
-                catch (jacorb.orb.domain.PropertyAlreadyDefined already)
+                catch (org.jacorb.orb.domain.PropertyAlreadyDefined already)
 		{ 
                     // overwrite value
                     PropPol.removeProperty(nameOfProperty);
 		   
                     try { PropPol.put(nameOfProperty, valueOfProperty);}
-                    catch (jacorb.orb.domain.PropertyAlreadyDefined never) {
+                    catch (org.jacorb.orb.domain.PropertyAlreadyDefined never) {
                         Debug.output(Debug.DOMAIN | 1, 
                                      "Environment.updatePropertyPolicies:"
                                      +" impossible ERROR occured !!!");

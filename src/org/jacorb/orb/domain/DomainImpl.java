@@ -214,7 +214,7 @@ public class DomainImpl
   
 
 
-    public void clear(jacorb.orb.domain.Domain aDomain)
+    public void clear(org.jacorb.orb.domain.Domain aDomain)
     {
         Debug.assert(1, aDomain.getChildCount() == 0, 
                      "DomainFactory.clear: "
@@ -237,7 +237,7 @@ public class DomainImpl
         }
     } // clear
 
-    public void destroy(jacorb.orb.domain.Domain aDomain)
+    public void destroy(org.jacorb.orb.domain.Domain aDomain)
     {
         domainFactory().destroy(aDomain);
     } // destroy
@@ -366,7 +366,7 @@ public class DomainImpl
      *             already a meta policy of type 
      *             pol.policy_type() valid in this domain
      */
-    public void setMetaPolicy(jacorb.orb.domain.MetaPolicy pol) 
+    public void setMetaPolicy(org.jacorb.orb.domain.MetaPolicy pol) 
         throws org.jacorb.orb.domain.PolicyTypeAlreadyDefined
     {
         _metaPolicies.put( new Integer( pol.policy_type() ), pol);
@@ -402,7 +402,7 @@ public class DomainImpl
      * removes a meta policy from this domain.
      */
 
-    public void deleteMetaPolicy(jacorb.orb.domain.MetaPolicy pol)
+    public void deleteMetaPolicy(org.jacorb.orb.domain.MetaPolicy pol)
     {
         _metaPolicies.remove( new Integer( pol.policy_type() ) );
         // _policies.remove    ( new Integer( pol.policy_type() ) );
@@ -1555,7 +1555,7 @@ public class DomainImpl
             {
                 parentDS.insertChild( self );
             } 
-            catch (jacorb.orb.domain.NameAlreadyDefined already)
+            catch (org.jacorb.orb.domain.NameAlreadyDefined already)
             { 
                 // undo insertion and rethrow exception
                 // don't undo exchange of odm information
@@ -1588,7 +1588,7 @@ public class DomainImpl
      *  Post: NOT this.hasParent(parentDS) AND NOT parentDS.hasChild(this)
      */
 
-    public void deleteParent(jacorb.orb.domain.Domain parentDS)
+    public void deleteParent(org.jacorb.orb.domain.Domain parentDS)
     {
         Domain self;
         // TODO: check precondition
@@ -1607,7 +1607,7 @@ public class DomainImpl
      * @return true iff parentDS is a parent domain of this  domain
      */
 
-    public boolean hasParent(jacorb.orb.domain.Domain parentDS)
+    public boolean hasParent(org.jacorb.orb.domain.Domain parentDS)
     { 
         return _parents.containsKey(parentDS);
     }
@@ -1764,7 +1764,7 @@ public class DomainImpl
         {
             try
             {
-                return (jacorb.orb.domain.ORBDomain) _getORB().resolve_initial_references("LocalDomainService");
+                return (org.jacorb.orb.domain.ORBDomain) _getORB().resolve_initial_references("LocalDomainService");
             }
             catch (org.omg.CORBA.ORBPackage.InvalidName inv) 
             { 

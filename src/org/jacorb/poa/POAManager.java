@@ -40,7 +40,7 @@ public class POAManager extends org.jacorb.orb.LocalityConstrainedObject impleme
 	private org.jacorb.orb.ORB orb;
 	private Vector poas = new Vector();
 	private POAManagerMonitor monitor;
-	protected POAManager(jacorb.orb.ORB _orb) {
+	protected POAManager(org.jacorb.orb.ORB _orb) {
 		orb = _orb;
 		monitor = new POAManagerMonitorLightImpl();
 		monitor.init(this);

@@ -32,7 +32,7 @@ public class IORInterceptorInitializer
     {
         try
         {
-            ORB orb = ((jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
+            ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
             if( org.jacorb.util.Environment.supportSSL() )
             {
                 info.add_ior_interceptor(new SSLComponentInterceptor(orb));

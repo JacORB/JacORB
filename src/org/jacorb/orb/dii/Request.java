@@ -66,7 +66,7 @@ public class Request
 		  String op)
   {
     target = t;
-    orb = (jacorb.orb.ORB)_orb;
+    orb = (org.jacorb.orb.ORB)_orb;
     connection = e;
     object_key = obj_key;
     operation = op;
@@ -89,13 +89,13 @@ public class Request
 		  org.omg.CORBA.NamedValue result)
   {
     target = t;
-    orb = (jacorb.orb.ORB)_orb;
+    orb = (org.jacorb.orb.ORB)_orb;
     connection = e;
     object_key = obj_key;
     operation = op;
     arguments = (NVList)args;
     ctx = c;
-    result_value = (jacorb.orb.NamedValue)result;
+    result_value = (org.jacorb.orb.NamedValue)result;
   }
 
   public org.omg.CORBA.Object target()
@@ -146,42 +146,42 @@ public class Request
   public Any add_in_arg()
   {
     NamedValue nv = arguments.add(org.omg.CORBA.ARG_IN.value);
-    ((jacorb.orb.NamedValue)nv).set_value( orb.create_any());
+    ((org.jacorb.orb.NamedValue)nv).set_value( orb.create_any());
     return nv.value();
   }
 
   public Any add_named_in_arg(java.lang.String name)
   {
     NamedValue nv = arguments.add_item(name,org.omg.CORBA.ARG_IN.value);
-    ((jacorb.orb.NamedValue)nv).set_value( orb.create_any());
+    ((org.jacorb.orb.NamedValue)nv).set_value( orb.create_any());
     return nv.value();
   }
 
   public Any add_inout_arg()
   {
     NamedValue nv = arguments.add(org.omg.CORBA.ARG_INOUT.value);
-    ((jacorb.orb.NamedValue)nv).set_value( orb.create_any());
+    ((org.jacorb.orb.NamedValue)nv).set_value( orb.create_any());
     return nv.value();
   }	
 
   public Any add_named_inout_arg(java.lang.String name)
   {
     NamedValue nv = arguments.add_item(name,org.omg.CORBA.ARG_INOUT.value);
-    ((jacorb.orb.NamedValue)nv).set_value( orb.create_any());
+    ((org.jacorb.orb.NamedValue)nv).set_value( orb.create_any());
     return nv.value();
   }
 
   public Any add_out_arg()
   {
     NamedValue nv = arguments.add(org.omg.CORBA.ARG_OUT.value);
-    ((jacorb.orb.NamedValue)nv).set_value( orb.create_any());
+    ((org.jacorb.orb.NamedValue)nv).set_value( orb.create_any());
     return nv.value();	
   }
 
   public Any add_named_out_arg(java.lang.String name)
   {
     NamedValue nv = arguments.add_item( name, org.omg.CORBA.ARG_OUT.value );
-    ((jacorb.orb.NamedValue)nv).set_value( orb.create_any());
+    ((org.jacorb.orb.NamedValue)nv).set_value( orb.create_any());
     return nv.value();
   }
 
@@ -205,9 +205,9 @@ public class Request
       result_value.value().read_value( reply, result_value.value().type() );
 	
     /** get out/inout parameters if any */
-    for( Enumeration e = ((jacorb.orb.NVList)arguments).enumerate(); e.hasMoreElements();)
+    for( Enumeration e = ((org.jacorb.orb.NVList)arguments).enumerate(); e.hasMoreElements();)
       {
-	jacorb.orb.NamedValue nv = (jacorb.orb.NamedValue)e.nextElement();
+	jacorb.orb.NamedValue nv = (org.jacorb.orb.NamedValue)e.nextElement();
 	if( nv.flags() != org.omg.CORBA.ARG_IN.value )
 	  nv.receive(reply);   
       }
@@ -217,16 +217,16 @@ public class Request
   {
     while (true){
       org.jacorb.orb.Delegate deleg = 
-	(jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate();
+	(org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)target)._get_delegate();
 	
       RequestOutputStream ros = (RequestOutputStream) 
 	deleg.request(target, operation, response_expected);
 
       ros.setRequest(this);
 
-      for( Enumeration e = ((jacorb.orb.NVList)arguments).enumerate(); e.hasMoreElements();)
+      for( Enumeration e = ((org.jacorb.orb.NVList)arguments).enumerate(); e.hasMoreElements();)
 	{
-	  org.jacorb.orb.NamedValue nv = (jacorb.orb.NamedValue)e.nextElement();
+	  org.jacorb.orb.NamedValue nv = (org.jacorb.orb.NamedValue)e.nextElement();
 	  if( nv.flags() != org.omg.CORBA.ARG_OUT.value )
 	    nv.send(ros);   
 	}

@@ -488,7 +488,7 @@ public class CDRInputStream
                    "Can not use the singleton ORB to receive object references" + 
                    ", please initialize a full ORB instead.");
 	    else
-		return ((jacorb.orb.ORB)orb)._getObject( pior );
+		return ((org.jacorb.orb.ORB)orb)._getObject( pior );
 	}
     }
 
@@ -728,8 +728,8 @@ public class CDRInputStream
 			label.read_value( this,discriminator_type  );
 
 			jacorb.util.Debug.output(4, "non-default discr.: " + 
-                                                 ((jacorb.orb.Any)label).type().kind().value() + 
-                                                 " " + ((jacorb.orb.Any)label).value() );
+                                                 ((org.jacorb.orb.Any)label).type().kind().value() + 
+                                                 " " + ((org.jacorb.orb.Any)label).value() );
 		    }
 		    org.jacorb.util.Debug.output(4, "Member " + i + 
                                              "  start to read name at pos " + pos ); 
@@ -907,7 +907,7 @@ public class CDRInputStream
 
     final void read_value( org.omg.CORBA.TypeCode tc, CDROutputStream out)
     {
-	int kind = ((jacorb.orb.TypeCode)tc)._kind();
+	int kind = ((org.jacorb.orb.TypeCode)tc)._kind();
 
 	switch (kind)
 	{

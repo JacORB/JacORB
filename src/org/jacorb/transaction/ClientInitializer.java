@@ -25,7 +25,7 @@ public class ClientInitializer
    */
   public void post_init(ORBInitInfo info) {
     try{
-      ORB orb = ((jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
+      ORB orb = ((org.jacorb.orb.portableInterceptor.ORBInitInfoImpl) info).getORB();
       int slot_id = info.allocate_slot_id();
     
       Encoding encoding = new Encoding(ENCODING_CDR_ENCAPS.value, 

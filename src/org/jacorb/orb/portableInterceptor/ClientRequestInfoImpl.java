@@ -35,7 +35,7 @@ public class ClientRequestInfoImpl extends RequestInfoImpl
     super();
   }
 
-  public void setRequest(jacorb.orb.dii.Request request){
+  public void setRequest(org.jacorb.orb.dii.Request request){
     
     arguments = new org.omg.Dynamic.Parameter[request.arguments.count()];
     for (int i = 0; i < arguments.length; i++){

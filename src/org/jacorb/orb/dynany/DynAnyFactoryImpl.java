@@ -33,7 +33,7 @@ import org.omg.CORBA.TCKind;
 public class DynAnyFactoryImpl
     extends org.omg.DynamicAny.DynAnyFactoryPOA
 {
-    public DynAnyFactoryImpl(jacorb.orb.ORB orb)
+    public DynAnyFactoryImpl(org.jacorb.orb.ORB orb)
     {
 	_this_object( orb );
     }
@@ -48,38 +48,38 @@ public class DynAnyFactoryImpl
 	    case org.omg.CORBA.TCKind._tk_except:
   	    case org.omg.CORBA.TCKind._tk_struct:
 		org.omg.DynamicAny.DynStructPOATie dst = 
-  		    new org.omg.DynamicAny.DynStructPOATie(new DynStruct((jacorb.orb.ORB)_orb(), _this(), (jacorb.orb.Any)value));
+  		    new org.omg.DynamicAny.DynStructPOATie(new DynStruct((org.jacorb.orb.ORB)_orb(), _this(), (org.jacorb.orb.Any)value));
 		dst._this_object(_orb());
   		return dst._this();
 	    case org.omg.CORBA.TCKind._tk_enum:
 		org.omg.DynamicAny.DynEnumPOATie det = 
-		    new org.omg.DynamicAny.DynEnumPOATie(new DynEnum((jacorb.orb.ORB)_orb(),_this(),  (jacorb.orb.Any)value));
+		    new org.omg.DynamicAny.DynEnumPOATie(new DynEnum((org.jacorb.orb.ORB)_orb(),_this(),  (org.jacorb.orb.Any)value));
 		det._this_object(_orb());
 		return det._this();
 	    case org.omg.CORBA.TCKind._tk_array:
 		org.omg.DynamicAny.DynArrayPOATie dyn_array_tie = 
-		    new org.omg.DynamicAny.DynArrayPOATie(new DynArray((jacorb.orb.ORB)_orb(),_this() , (jacorb.orb.Any)value));
+		    new org.omg.DynamicAny.DynArrayPOATie(new DynArray((org.jacorb.orb.ORB)_orb(),_this() , (org.jacorb.orb.Any)value));
 		dyn_array_tie._this_object(_orb());
 		return dyn_array_tie._this();
 	    case org.omg.CORBA.TCKind._tk_sequence:
 		org.omg.DynamicAny.DynSequencePOATie dsqt = 
 		    new org.omg.DynamicAny.DynSequencePOATie(
-                        new DynSequence((jacorb.orb.ORB)_orb(), 
+                        new DynSequence((org.jacorb.orb.ORB)_orb(), 
                                         _this(), 
-                                        (jacorb.orb.Any)value));
+                                        (org.jacorb.orb.Any)value));
 		dsqt._this_object(_orb());
 		return dsqt._this();
 	    case org.omg.CORBA.TCKind._tk_union:
 		org.omg.DynamicAny.DynUnionPOATie dyn_union_tie = 
 		    new org.omg.DynamicAny.DynUnionPOATie(
-                        new DynUnion( (jacorb.orb.ORB)_orb(),
+                        new DynUnion( (org.jacorb.orb.ORB)_orb(),
                                       _this(), 
-                                      (jacorb.orb.Any)value));
+                                      (org.jacorb.orb.Any)value));
 		dyn_union_tie._this_object(_orb());
 		return dyn_union_tie._this();
 	    default:
 		org.omg.DynamicAny.DynAnyPOATie dat = 
-		    new org.omg.DynamicAny.DynAnyPOATie(new DynAny((jacorb.orb.ORB)_orb(),_this() , (jacorb.orb.Any)value));
+		    new org.omg.DynamicAny.DynAnyPOATie(new DynAny((org.jacorb.orb.ORB)_orb(),_this() , (org.jacorb.orb.Any)value));
 		dat._this_object(_orb());
 		return dat._this();
 	    }
@@ -104,17 +104,17 @@ public class DynAnyFactoryImpl
 	    switch( type.kind().value() )
 	    {
 	    case TCKind._tk_enum : 
-		return new DynEnum((jacorb.orb.ORB)_orb(), _this(), type).copy();
+		return new DynEnum((org.jacorb.orb.ORB)_orb(), _this(), type).copy();
 	    case TCKind._tk_struct : 
-		return new DynStruct((jacorb.orb.ORB)_orb(),_this() , type).copy();
+		return new DynStruct((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
 	    case TCKind._tk_sequence : 
-		return new DynSequence((jacorb.orb.ORB)_orb(),_this() , type).copy();
+		return new DynSequence((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
 	    case TCKind._tk_union : 
-		return new DynUnion((jacorb.orb.ORB)_orb(),_this() , type).copy();
+		return new DynUnion((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
 	    case TCKind._tk_array : 
-		return new DynArray((jacorb.orb.ORB)_orb(),_this() , type).copy();
+		return new DynArray((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
 	    default:
-		return new DynAny((jacorb.orb.ORB)_orb(),_this() , type).copy();
+		return new DynAny((org.jacorb.orb.ORB)_orb(),_this() , type).copy();
 	    }
 	}
 	catch( org.omg.DynamicAny.DynAnyPackage.InvalidValue iv )

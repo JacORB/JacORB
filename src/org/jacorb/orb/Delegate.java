@@ -181,7 +181,7 @@ public final class Delegate
         if( noMoreClients() )
             throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
     
-        connection = ((jacorb.orb.ORB)orb).getConnectionManager().getConnection( this );
+        connection = ((org.jacorb.orb.ORB)orb).getConnectionManager().getConnection( this );
         bound = true;
     
         /* The delegate could query the server for the object location using
@@ -521,7 +521,7 @@ public final class Delegate
 
     public org.jacorb.poa.POA getPOA()
     {
-        return (jacorb.poa.POA)poa;
+        return (org.jacorb.poa.POA)poa;
     }
 
     public boolean port_is_ssl()
@@ -544,7 +544,7 @@ public final class Delegate
         return ssl;
     }
 
-    public org.omg.CORBA.portable.ObjectImpl getReference(jacorb.poa.POA _poa)
+    public org.omg.CORBA.portable.ObjectImpl getReference(org.jacorb.poa.POA _poa)
     {
         if( _poa != null && _poa._localStubsSupported())
             poa = _poa;
@@ -607,7 +607,7 @@ public final class Delegate
         {
             //set up info object
             info = new ClientRequestInfoImpl();
-            info.orb = (jacorb.orb.ORB) orb;
+            info.orb = (org.jacorb.orb.ORB) orb;
             info.operation = ros.operation();
             info.response_expected = ros.response_expected();
             info.setRequestServiceContexts(ros.getServiceContexts());
@@ -619,7 +619,7 @@ public final class Delegate
             info.effective_target = self;
     
             if (iorOriginal != null)
-                info.target = ((jacorb.orb.ORB) orb)._getObject(pior);
+                info.target = ((org.jacorb.orb.ORB) orb)._getObject(pior);
             else
                 info.target = self;
     
@@ -647,7 +647,7 @@ public final class Delegate
             info.delegate = this;
         
             info.request_id = ros.requestId();
-            InterceptorManager manager = ((jacorb.orb.ORB) orb).getInterceptorManager();
+            InterceptorManager manager = ((org.jacorb.orb.ORB) orb).getInterceptorManager();
             info.current = manager.getCurrent();
     
             invokeInterceptors(info, ClientInterceptorIterator.SEND_REQUEST);
@@ -774,7 +774,7 @@ public final class Delegate
                         if (ros.getRequest() == null) 
                         {
                             InterceptorManager manager = 
-                                ((jacorb.orb.ORB) orb).getInterceptorManager();
+                                ((org.jacorb.orb.ORB) orb).getInterceptorManager();
                             info.current = manager.getCurrent();
     
                             invokeInterceptors(info,
@@ -886,7 +886,7 @@ public final class Delegate
         throws RemarshalException
     {
         ClientInterceptorIterator intercept_iter = 
-            ((jacorb.orb.ORB) orb).getInterceptorManager().getClientIterator();
+            ((org.jacorb.orb.ORB) orb).getInterceptorManager().getClientIterator();
         
         try{
             intercept_iter.iterate(info, op);
@@ -1007,7 +1007,7 @@ public final class Delegate
         if( noMoreClients() )
         {
             org.jacorb.util.Debug.output(2, "releasing connection to " + adport );
-            ((jacorb.orb.ORB)orb)._release( this );
+            ((org.jacorb.orb.ORB)orb)._release( this );
 
             if( bound )
                 unbind();
@@ -1056,7 +1056,7 @@ public final class Delegate
         // Interceptor-if-statement, please make shure to update 
         // get_poliy_no_intercept as well!
           
-        // Delegate d = (jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
+        // Delegate d = (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
 
         if( !bound ) 
             bind();
@@ -1081,7 +1081,7 @@ public final class Delegate
 
     public void servant_postinvoke(org.omg.CORBA.Object self, ServantObject servant) 
     {
-        ((jacorb.orb.ORB)orb).getPOACurrent()._removeContext(context);
+        ((org.jacorb.orb.ORB)orb).getPOACurrent()._removeContext(context);
     }
 
     /**
@@ -1095,15 +1095,15 @@ public final class Delegate
         {
             /* make sure that no proxified IOR is used for local invocations */
     
-            if( ((jacorb.orb.ORB)orb).isApplet())
+            if( ((org.jacorb.orb.ORB)orb).isApplet())
             {
                 org.jacorb.util.Debug.output(1, "Unproxyfying IOR:");
                 org.jacorb.orb.Delegate d =
-                    (jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
+                    (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
         
                 //ugly workaround for setting the object key.
                 org.jacorb.orb.ParsedIOR divpior =
-                    new org.jacorb.orb.ParsedIOR(((jacorb.orb.ORB)orb).unproxyfy( d.getIOR() ));
+                    new org.jacorb.orb.ParsedIOR(((org.jacorb.orb.ORB)orb).unproxyfy( d.getIOR() ));
     
                 d.setIOR(divpior.getIOR());
                 d.set_adport_and_key(divpior.getProfileBody().host+":"+divpior.getProfileBody().port,divpior.getProfileBody().object_key);
@@ -1124,7 +1124,7 @@ public final class Delegate
                                       poa, 
                                       getObjectId(), 
                                       (org.omg.PortableServer.Servant) so.servant);
-                    ((jacorb.orb.ORB)orb).getPOACurrent()._addContext(
+                    ((org.jacorb.orb.ORB)orb).getPOACurrent()._addContext(
                                       context, 
                                       Thread.currentThread());
                 }
@@ -1184,7 +1184,7 @@ public final class Delegate
     
     public void initInterceptors()
     {
-        use_interceptors = ((jacorb.orb.ORB) orb).hasClientRequestInterceptors();
+        use_interceptors = ((org.jacorb.orb.ORB) orb).hasClientRequestInterceptors();
     }
 
 

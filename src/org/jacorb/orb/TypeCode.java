@@ -279,8 +279,8 @@ public class TypeCode
 
             if( kind == TCKind._tk_sequence )
             {
-                TypeCode this_tc = (jacorb.orb.TypeCode)content_type();
-                TypeCode other_tc = (jacorb.orb.TypeCode)tc.content_type();
+                TypeCode this_tc = (org.jacorb.orb.TypeCode)content_type();
+                TypeCode other_tc = (org.jacorb.orb.TypeCode)tc.content_type();
 
                 return ( length() == tc.length() && 
                          this_tc.equal( other_tc ));
@@ -552,8 +552,8 @@ public class TypeCode
             case TCKind._tk_sequence:
             case TCKind._tk_array:
                 { 
-                    if( ((jacorb.orb.TypeCode)content_type()).is_recursive() && 
-                        ((jacorb.orb.TypeCode)content_type())._kind() == -1 )
+                    if( ((org.jacorb.orb.TypeCode)content_type()).is_recursive() && 
+                        ((org.jacorb.orb.TypeCode)content_type())._kind() == -1 )
                     {
                         TypeCode tc = (TypeCode)tcMap.get( content_type().id() );
                         org.jacorb.util.Debug.assert( tc != null, 
@@ -564,7 +564,7 @@ public class TypeCode
                         content_type = tc;
                     }  
                     else
-                        ((jacorb.orb.TypeCode)content_type()).resolve_recursion(tcMap);
+                        ((org.jacorb.orb.TypeCode)content_type()).resolve_recursion(tcMap);
                     return;
                 }
             case TCKind._tk_struct:
@@ -575,8 +575,8 @@ public class TypeCode
 
                     for( int i = 0; i < member_count(); i++ )
                     {
-                        if( ((jacorb.orb.TypeCode)member_type(i)).is_recursive()&& 
-                            ((jacorb.orb.TypeCode)member_type(i))._kind() == -1 )
+                        if( ((org.jacorb.orb.TypeCode)member_type(i)).is_recursive()&& 
+                            ((org.jacorb.orb.TypeCode)member_type(i))._kind() == -1 )
                         {    
                             TypeCode tc = (TypeCode)tcMap.get( member_type(i).id() );
                             org.jacorb.util.Debug.assert( tc != null, 
@@ -587,7 +587,7 @@ public class TypeCode
                             member_type[i] = tc;
                         }
                         else
-                            ((jacorb.orb.TypeCode)member_type(i)).resolve_recursion(tcMap);
+                            ((org.jacorb.orb.TypeCode)member_type(i)).resolve_recursion(tcMap);
                     }
                     return;
                 }
@@ -629,7 +629,7 @@ public class TypeCode
         case   TCKind._tk_array: 
             try
             {
-                return ((jacorb.orb.TypeCode)content_type()).idlTypeName() + "[]";
+                return ((org.jacorb.orb.TypeCode)content_type()).idlTypeName() + "[]";
             } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
             {}
         case   TCKind._tk_long: return "long";
@@ -649,7 +649,7 @@ public class TypeCode
             try
             {
                 return "sequence <" + 
-                    ((jacorb.orb.TypeCode)content_type()).idlTypeName() 
+                    ((org.jacorb.orb.TypeCode)content_type()).idlTypeName() 
                     + ">";
             } catch ( org.omg.CORBA.TypeCodePackage.BadKind bk )
             {}

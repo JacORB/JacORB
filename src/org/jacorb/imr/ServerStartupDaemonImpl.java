@@ -117,7 +117,7 @@ public class ServerStartupDaemonImpl
     {
 	try
 	{
-	    orb = (jacorb.orb.ORB) ORB.init( args, null );	
+	    orb = (org.jacorb.orb.ORB) ORB.init( args, null );	
 	    POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
 
 	    poa.the_POAManager().activate();

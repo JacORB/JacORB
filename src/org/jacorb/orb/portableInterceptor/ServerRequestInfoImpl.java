@@ -36,7 +36,7 @@ public class ServerRequestInfoImpl
 
     public Any sending_exception = null;
     
-    public ServerRequestInfoImpl(jacorb.orb.ORB orb, ServerRequest request,
+    public ServerRequestInfoImpl(org.jacorb.orb.ORB orb, ServerRequest request,
                                  Servant servant) {
         super();
     
@@ -61,7 +61,7 @@ public class ServerRequestInfoImpl
     public void setServant(Servant servant){
         this.servant = servant;
 
-        adapter_id = ((jacorb.poa.POA) servant._poa()).getPOAId();   
+        adapter_id = ((org.jacorb.poa.POA) servant._poa()).getPOAId();   
         String[] all_ifs = servant._all_interfaces(null, null);
         target_most_derived_interface = all_ifs[0];
     }
@@ -238,7 +238,7 @@ public class ServerRequestInfoImpl
                                  CompletionStatus.COMPLETED_MAYBE);
 
         try{
-            org.jacorb.orb.ServantDelegate delegate = (jacorb.orb.ServantDelegate) servant._get_delegate();
+            org.jacorb.orb.ServantDelegate delegate = (org.jacorb.orb.ServantDelegate) servant._get_delegate();
             return delegate._get_policy(servant._this_object(), type);
         }catch(INV_POLICY _e){
             _e.minor = 2;

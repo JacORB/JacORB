@@ -197,7 +197,7 @@ public class RequestProcessor
                 controller.getLogTrace().printLog(3, request, "invoke operation on servant (stream based)");
                 if( specialOperations.containsKey(request.operation()))
                 {
-                    ((jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(servant, 
+                    ((org.jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(servant, 
                                                                                   request.operation(), 
                                                                                   request.getInputStream(), 
                                                                                   request);
@@ -215,7 +215,7 @@ public class RequestProcessor
                 if( specialOperations.containsKey(request.operation()) && 
                     !(servant instanceof org.jacorb.orb.Forwarder) )
                 {
-                    ((jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(
+                    ((org.jacorb.orb.ServantDelegate)servant._get_delegate())._invoke(
                                                              servant, 
                                                              request.operation(), 
                                                              request.getInputStream(),

@@ -56,7 +56,7 @@ public class SSLServerSocketFactory
     private SSLServerContext defaultContext;
     private CipherSuite[] cs;
 
-    public SSLServerSocketFactory(jacorb.orb.ORB orb)
+    public SSLServerSocketFactory(org.jacorb.orb.ORB orb)
     {
         cs = SSLSetup.getCipherSuites();
 

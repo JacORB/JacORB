@@ -574,7 +574,7 @@ public class ClientConnection
 		    objects.put( key, o );
 		}
 
-		if (jacorb.util.Environment.verbosityLevel() > 4)
+		if (org.jacorb.util.Environment.verbosityLevel() > 4)
 		{
 		    //This is a costly op, since it involves buffer copying!
 		    Debug.output(5,"send request", os.getBufferCopy());

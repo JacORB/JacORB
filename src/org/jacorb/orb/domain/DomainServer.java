@@ -115,7 +115,7 @@ public class DomainServer
             { 
                 domain.insertChild(orb_domain); 
             }
-            catch(jacorb.orb.domain.GraphNodePackage.ClosesCycle cc) 
+            catch(org.jacorb.orb.domain.GraphNodePackage.ClosesCycle cc) 
             {} // never happens
 
         } 

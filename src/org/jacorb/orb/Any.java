@@ -89,7 +89,7 @@ public final class Any
         if( !typeCode.equal(a.type()))
             return false;
         else
-            return ((jacorb.orb.Any)a).value().equals(value()); // compare values
+            return ((org.jacorb.orb.Any)a).value().equals(value()); // compare values
     }
 
     public boolean equals( java.lang.Object obj )

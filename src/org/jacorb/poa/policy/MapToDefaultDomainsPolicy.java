@@ -128,7 +128,7 @@ public class MapToDefaultDomainsPolicy
                 mayBeResult[i] = 
                     nameResolver.resolveDomainPathName( pathnames[i] );
             }
-            catch (jacorb.orb.domain.InvalidName inv)
+            catch (org.jacorb.orb.domain.InvalidName inv)
             {
                 failures++;
                 Debug.output(Debug.DOMAIN | Debug.INFORMATION, 

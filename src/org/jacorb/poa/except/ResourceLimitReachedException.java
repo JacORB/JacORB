@@ -25,7 +25,7 @@ package org.jacorb.poa.except;
  *
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.0, 05/03/99, RT
- * @see     org.jacorb.poa.RequestQueue#add(jacorb.orb.dsi.ServerRequest)
- * @see     org.jacorb.poa.POA#_invoke(jacorb.orb.dsi.ServerRequest)
+ * @see     org.jacorb.poa.RequestQueue#add(org.jacorb.orb.dsi.ServerRequest)
+ * @see     org.jacorb.poa.POA#_invoke(org.jacorb.orb.dsi.ServerRequest)
  */
 public final class ResourceLimitReachedException extends java.lang.Exception {

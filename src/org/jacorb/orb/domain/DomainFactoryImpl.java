@@ -91,7 +91,7 @@ public class DomainFactoryImpl
      *       aDomain.getMemberCount() == 0, 
      *       aDomain.getParentCount() == 0
      */
-    public void clear(jacorb.orb.domain.Domain aDomain)
+    public void clear(org.jacorb.orb.domain.Domain aDomain)
     {
         Debug.assert(1, aDomain.getChildCount() == 0, 
                      "DomainFactory.clear: "
@@ -112,7 +112,7 @@ public class DomainFactoryImpl
     
     } // clear
 
-    public void destroy(jacorb.orb.domain.Domain aDomain)
+    public void destroy(org.jacorb.orb.domain.Domain aDomain)
     {
         if (aDomain.getChildCount() > 0 || aDomain.getParentCount() > 0)
             throw new org.omg.CORBA.BAD_CONTEXT();
@@ -130,7 +130,7 @@ public class DomainFactoryImpl
         {
             try
             {
-                return (jacorb.orb.domain.ORBDomain) _orb().resolve_initial_references("LocalDomainService");
+                return (org.jacorb.orb.domain.ORBDomain) _orb().resolve_initial_references("LocalDomainService");
             }
             catch (org.omg.CORBA.ORBPackage.InvalidName inv) 
             { 

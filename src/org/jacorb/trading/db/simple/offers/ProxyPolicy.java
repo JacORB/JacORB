@@ -34,7 +34,7 @@ public class ProxyPolicy implements Serializable
     public ProxyPolicy(Policy prop)
     {
 	m_name = prop.name;
-	m_value = new AnyValue(jacorb.trading.TradingService.getORB(),prop.value);
+	m_value = new AnyValue(org.jacorb.trading.TradingService.getORB(),prop.value);
     }
 
 

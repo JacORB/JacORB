@@ -70,7 +70,7 @@ public class SharedDataImpl
         try
         { 
             orb = org.omg.CORBA.ORB.init(new String[0], null);
-            org.jacorbORB= (jacorb.orb.ORB) orb;
+            org.jacorbORB= (org.jacorb.orb.ORB) orb;
         }     
         catch (org.omg.CORBA.COMM_FAILURE fail)
         {
@@ -151,7 +151,7 @@ public class SharedDataImpl
                 Debug.output(Debug.DOMAIN | Debug.INFORMATION, "SharedDataImpl.deregisterFrame: "
                              +" unmounting of gui orb domain not possible, skipping.");
             }
-            ((jacorb.orb.ORB) _orb).shutdown(false);
+            ((org.jacorb.orb.ORB) _orb).shutdown(false);
             System.exit(0);
         }
 
@@ -319,7 +319,7 @@ public class SharedDataImpl
      *  @param aDomain the domain to copy into the domain buffer
      */
 
-    public void setDomainBuffer(jacorb.orb.domain.Domain aDomain)
+    public void setDomainBuffer(org.jacorb.orb.domain.Domain aDomain)
     {
         synchronized(_domainLock)
         {

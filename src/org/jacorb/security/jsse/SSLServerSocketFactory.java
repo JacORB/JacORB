@@ -21,7 +21,7 @@ public class SSLServerSocketFactory
 {
     private javax.net.ssl.SSLServerSocketFactory factory = null;
 
-    public SSLServerSocketFactory(jacorb.orb.ORB orb)
+    public SSLServerSocketFactory(org.jacorb.orb.ORB orb)
     {
         try
         {

@@ -135,7 +135,7 @@ public class ServerRequest
     {
 	if( stream_based )
 	    throw new RuntimeException("This ServerRequest is stream-based!");
-	args = (jacorb.orb.NVList)p;
+	args = (org.jacorb.orb.NVList)p;
 	// unmarshal
 
 	if( args != null )
@@ -270,7 +270,7 @@ public class ServerRequest
 				 e.hasMoreElements(); )
 			    {
 				jacorb.orb.NamedValue nv = 
-				    (jacorb.orb.NamedValue)e.nextElement();
+				    (org.jacorb.orb.NamedValue)e.nextElement();
 				
 				if( nv.flags() != org.omg.CORBA.ARG_IN.value )
 				{ 

@@ -144,7 +144,7 @@ public final class POAUtil {
 	 * extracts the oid from a specified object reference
 	 */
 	public static byte[] extractOID(org.omg.CORBA.Object reference) {
-		return ((jacorb.orb.Delegate) ((org.omg.CORBA.portable.ObjectImpl) reference)._get_delegate()).getObjectId();
+		return ((org.jacorb.orb.Delegate) ((org.omg.CORBA.portable.ObjectImpl) reference)._get_delegate()).getObjectId();
 	}
 	/**
 	 * extracts the poa name from a specified object key

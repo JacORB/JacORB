@@ -495,7 +495,7 @@ public class IdlWriter
 
     private String idlTypeName( org.omg.CORBA.TypeCode tc )
     {
-        return ((jacorb.orb.TypeCode)tc).idlTypeName();
+        return ((org.jacorb.orb.TypeCode)tc).idlTypeName();
     }
 
 

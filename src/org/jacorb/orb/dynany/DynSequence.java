@@ -80,7 +80,7 @@ public final class DynSequence
     private int length;
     private org.omg.CORBA.TypeCode elementType;
 
-    DynSequence(jacorb.orb.ORB orb,
+    DynSequence(org.jacorb.orb.ORB orb,
                 org.omg.DynamicAny.DynAnyFactory dynFactory,
                 org.jacorb.orb.Any any)
 	throws org.omg.DynamicAny.DynAnyPackage.TypeMismatch, InvalidValue
@@ -88,7 +88,7 @@ public final class DynSequence
 	super(orb, dynFactory, any);
     }
 
-    DynSequence(jacorb.orb.ORB orb,
+    DynSequence(org.jacorb.orb.ORB orb,
                 org.omg.DynamicAny.DynAnyFactory dynFactory,
                 org.omg.CORBA.TypeCode tc)
 	throws InvalidValue, TypeMismatch
@@ -152,7 +152,7 @@ public final class DynSequence
 
 	    for( int i = 0 ; i < length; i++ )
 	    {
-		Any a = (jacorb.orb.Any)orb.create_any();
+		Any a = (org.jacorb.orb.Any)orb.create_any();
 		a.read_value(is, elementType);	
 		members.addElement(a);	       
 	    }	
@@ -166,7 +166,7 @@ public final class DynSequence
 
     public org.omg.CORBA.Any to_any() 
     {
-	jacorb.orb.Any out_any = (jacorb.orb.Any)orb.create_any();
+	jacorb.orb.Any out_any = (org.jacorb.orb.Any)orb.create_any();
 	out_any.type( type());
 
 	CDROutputStream os = new CDROutputStream();

@@ -220,7 +220,7 @@ public class ContextNode
 		jacorb.orb.ParsedIOR pior = null;
 		try
 		{
-		    pior = ((jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve(
+		    pior = ((org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)context.resolve(
 		      		       			       ncs ))._get_delegate()).getParsedIOR();
 		}
 		catch( org.omg.CosNaming.NamingContextPackage.NotFound nf )

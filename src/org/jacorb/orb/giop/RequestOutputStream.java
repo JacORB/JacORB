@@ -158,7 +158,7 @@ public class RequestOutputStream
         //jacorb.util.Debug.output(2, "Data size: " + size());
     }
   
-    public void setRequest(jacorb.orb.dii.Request request){
+    public void setRequest(org.jacorb.orb.dii.Request request){
         this.request = request;
     }
 

@@ -608,7 +608,7 @@ public class ImRManager
             usage();
         }
 
-        m_orb = (jacorb.orb.ORB) org.omg.CORBA.ORB.init(args, null);
+        m_orb = (org.jacorb.orb.ORB) org.omg.CORBA.ORB.init(args, null);
 
         try
         {

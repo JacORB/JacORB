@@ -634,7 +634,7 @@ public class ImplementationRepositoryImpl
 	    System.out.println("Please check " + _backup_file.getAbsolutePath());
 	}
 
-	orb = (jacorb.orb.ORB) org.jacorb.orb.ORB.init(args,null);
+	orb = (org.jacorb.orb.ORB) org.jacorb.orb.ORB.init(args,null);
 
 	//Write IOR to file
 	try{	  
