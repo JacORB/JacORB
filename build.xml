@@ -22,7 +22,7 @@
    </target>
 
    <!-- top-level target -->
-   <target name="all" depends="init,compiler,omg_idl,http,jacorb,libs"
+   <target name="all" depends="init,compiler,omg_idl,jacorb,libs"
       description="Build JacORB.  Use -Ddebug=(on|off) option to switch debugging on or off (default is off)."/>
 
 
@@ -122,7 +122,7 @@
       <delete file="${lib}/core_jacorb.jar"/>
        <jar jarfile="${lib}/core_jacorb.jar"
       basedir="${classdir}"
-      includes="org/jacorb/orb/**,org/jacorb/naming/*,org/jacorb/poa/**,org/jacorb/util/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/IOP_N/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**"
+      includes="org/jacorb/orb/**,org/jacorb/naming/*,org/jacorb/poa/**,org/jacorb/util/**,org/omg/CONV_FRAME/**,org/omg/CORBA/**,org/omg/CORBA_2_3/**,org/omg/CosNaming/**,org/omg/Dynamic/**,org/omg/DynamicAny/**,org/omg/GIOP/**,org/omg/IIOP/**,org/omg/IOP/**,org/omg/Portable*/**,org/omg/BiDirPolicy/**"
             excludes="org/jacorb/orb/domain/gui/*,org/jacorb/poa/gui/*,org/jacorb/util/CAD*,org/jacorb/util/tracing/*,org/jacorb/orb/connection/http/*"
       />
    </target>
