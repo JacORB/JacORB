@@ -14,10 +14,12 @@
 
 <!-- Call base-init first. The regression tests call this but -->
 <!-- have their own base-init                                 -->
-<target name="init" depends="base-init,ant-version">
+<target name="init" depends="base-init">
     <property name="debug" value="off"/>
     <!-- This value only used under Ant 1.5 -->
     <property name="debuglevel" value="lines,source"/>
+    <available classname="org.apache.tools.ant.filters.ClassConstants" property="ant15"/>
+    <antcall target="ant-version"/>
 
     <property name="architecture" value="unix"/>
     <condition property="architecture" value="windows">
@@ -74,7 +76,7 @@
 </target>
 
 <target name="ant-version" unless="ant15">
-    <available classname="org.apache.tools.ant.filters.ClassConstants" property="ant15"/>
+   <fail message="Install Ant version 1.5 or later (See http://ant.apache.org/)"/>
 </target>
 
 
@@ -108,29 +110,14 @@
 <!-- This target is a compatibility wrapper to allow either a Ant 14 or Ant  -->
 <!-- 15 to be used. Optional parameters are:                                 -->
 <!-- javac-src        Defaults to ${src}                                     -->
-<!-- javac-excludes   For file selection; defaults to '' -->
-<!-- javac-sourcpath  Compile Option Sourcepath; defaults to '' -->
+<!-- javac-excludes   For file selection; defaults to ''                     -->
+<!-- javac-sourcpath  Compile Option Sourcepath; defaults to ''              -->
 <!-- Mandatory parameter is:                                                 -->
 <!-- javac-includes   Specifies which files to compile.                      -->
-<target name="jacorb-javac" depends="check-includes, check-sourcepath,javac-14,javac-15"/>
-
-
+<!--                                                                         -->
 <!-- Note use of bootclasspath is to override ORB classes in rt.jar. Ant     -->
 <!-- doesn't allow prepend so must add in rt.jar as well                     -->
-<target name="javac-14" depends="check-src,check-excludes" unless="ant15">
-   <echo message="Compiling for ${ant.project.name}"/>
-   <javac srcdir="${javac-src}"
-          destdir="${classdir}"
-          bootclasspath="${xbootclasspath}"
-          debug="${debug}"
-          includes="${javac-includes}"
-          excludes="${javac-excludes}">
-     <src path="${javac-sourcepath}" />
-   </javac>
-</target>
-
-
-<target name="javac-15" depends="check-src,check-excludes" if="ant15">
+<target name="jacorb-javac" depends="check-includes,check-sourcepath,check-src,check-excludes">
    <echo message="Compiling for ${ant.project.name}"/>
    <javac srcdir="${javac-src}"
           destdir="${classdir}"
@@ -140,5 +127,5 @@
           sourcepath="${javac-sourcepath}"
           includes="${javac-includes}"
           excludes="${javac-excludes}">
-   </javac> 
+   </javac>
 </target>
