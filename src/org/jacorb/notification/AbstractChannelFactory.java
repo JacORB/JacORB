@@ -370,8 +370,8 @@ public abstract class AbstractChannelFactory
 
             defaultFilterFactoryServant_.configure (config_);
 
-            defaultFilterFactory_ =
-                defaultFilterFactoryServant_._this( orb_ );
+            defaultFilterFactoryServant_.preActivate();
+            defaultFilterFactory_ = FilterFactoryHelper.narrow(defaultFilterFactoryServant_.activate());
 
             filterFactoryStarted_.set(true);
         }
