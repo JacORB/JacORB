@@ -77,8 +77,10 @@ class MemberList
 
     public void setEnclosingSymbol( IdlSymbol s )
     {
+
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
+	    System.err.println("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName());
             throw new RuntimeException("Compiler Error: trying to reassign container");
         }
 
