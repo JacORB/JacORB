@@ -2281,6 +2281,16 @@ public class CDRInputStream
     }
 
     /**
+     * Unmarshals a valuetype instance from this stream.  The value returned
+     * is the same value passed in, with all the data unmarshaled
+     * (IDL-to-Java Mapping 1.2, August 2002, 1.13.1, p. 1-39).  The specified
+     * value is an uninitialized value that is added to the ORB's indirection
+     * table before unmarshaling (1.21.4.1, p. 1-117).
+     * 
+     * This method is intended to be called from custom valuetype factories.
+     * Unlike the other read_value() methods in this class, this method does
+     * not expect a GIOP value tag nor a repository id in the stream.
+     * 
      * @overrides read_value(value) in
      * org.omg.CORBA_2_3.portable.InputStream
      */
@@ -2289,10 +2299,13 @@ public class CDRInputStream
     {
         if (value instanceof org.omg.CORBA.portable.Streamable)
         {
-            ((org.omg.CORBA.portable.Streamable)value)._read(this);
-            return value;
+            register_value(value);
+            ((org.omg.CORBA.portable.Streamable)value)._read(this); 
+            return value;             
         }
-        return read_value(value.getClass()); // GB: is that okay?
+        else
+            throw new org.omg.CORBA.BAD_PARAM 
+                ("read_value is only implemented for Streamables");
     }
 
     /**
