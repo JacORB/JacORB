@@ -53,10 +53,12 @@
                  fork="yes" 
                  classpath="${classpath}">
                  <arg line="${jidlflags} -sloppy_names"/>
-                 <arg file="${include}/jacorb/DomainManagement.idl"/>                 
+                 <arg file="${include}/jacorb/DomainManagement.idl"/> 
            </java>           
 
    </target>
+
+   <target name="valuehandler" depends="valuehandler-real,valuehandler-dummy" />
 
    <target name="valuehandler-dummy" unless="valuehandler.present">
       <echo message="ValueHandler not present, creating dummy wrapper."/>
@@ -72,7 +74,7 @@
             overwrite="yes"/>
    </target>
 
-   <target name="utils" depends="init,valuehandler-dummy,valuehandler-real">
+   <target name="utils" depends="init,valuehandler">
    	<javac srcdir="${jsrc}"
                destdir="${classdir}" 
                includes="org/jacorb/util/*.java,org/jacorb/util/**/*.java"
@@ -80,7 +82,7 @@
    </target>
 
    <target name="subdirs"
-               depends="orb,utils,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
+               depends="valuehandler,orb,utils,poa,imr,ir,naming,events,concurrency,transaction,trading,tracing,security">
    </target>
 
 <!--proxy-->
