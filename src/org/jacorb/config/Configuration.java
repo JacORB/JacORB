@@ -388,7 +388,8 @@ public class Configuration
         Properties result = null;
         try
         {
-            java.net.URL url = ClassLoader.getSystemResource(name);
+            java.net.URL url = 
+                Thread.currentThread().getContextClassLoader().getResource(name);
             if (url!=null)           
             {
                 result = new Properties();
