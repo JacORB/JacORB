@@ -59,7 +59,6 @@ public class AdminLimitTest extends TestCase {
 
     ConsumerAdminTieImpl consumerAdmin_;
     ChannelContext channelContext_;
-    List events_;
     int counter_;
     ApplicationContext appContext_;
 
@@ -76,8 +75,6 @@ public class AdminLimitTest extends TestCase {
 
         consumerAdmin_ =
             new ConsumerAdminTieImpl(appContext_, channelContext_, _adminProps, _qosProps);
-
-        events_ = new Vector();
     }
 
     public void tearDown() throws Exception {
@@ -89,12 +86,14 @@ public class AdminLimitTest extends TestCase {
     public void testObtainNotificationPullSupplierFiresEvent() throws Exception {
         IntHolder _proxyId = new IntHolder();
 
+        final List _events = new Vector();
+
         ProxyCreationRequestEventListener _listener =
             new ProxyCreationRequestEventListener() {
                 public void actionProxyCreationRequest(ProxyCreationRequestEvent e)
                     throws AdminLimitExceeded {
 
-                    events_.add(e);
+                    _events.add(e);
                 }
             };
 
@@ -103,8 +102,8 @@ public class AdminLimitTest extends TestCase {
         ProxySupplier _proxySupplier =
             consumerAdmin_.obtain_notification_pull_supplier(ClientType.STRUCTURED_EVENT, _proxyId);
 
-        assertTrue(events_.size() == 1);
-        assertEquals(consumerAdmin_, ((ApplicationEvent)events_.get(0)).getSource());
+        assertTrue(_events.size() == 1);
+        assertEquals(consumerAdmin_, ((ApplicationEvent)_events.get(0)).getSource());
     }
 
     public void testDenyCreateNotificationPullSupplier() throws Exception {
