@@ -62,6 +62,8 @@ import org.omg.PortableServer.Servant;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.notification.util.QoSPropertySet;
+import org.jacorb.notification.util.AdminPropertySet;
 
 /**
  * Abstract Baseclass for Adminobjects.
@@ -532,7 +534,7 @@ public abstract class AbstractAdmin
             throw new ProxyNotFound("The proxy with ID=" + id + " does not exist");
         }
 
-        if ( !_servant.isKeyPublic() ) {
+        if ( !_servant.isIDPublic() ) {
             throw new ProxyNotFound("The proxy with ID="
                                     + id
                                     + " is a EventStyle proxy and therefor not accessible");
@@ -558,7 +560,7 @@ public abstract class AbstractAdmin
             {
                 Map.Entry _entry = (Map.Entry)_i.next();
 
-                if ( ( (AbstractProxy)_entry.getValue() ).isKeyPublic() ) {
+                if ( ( (AbstractProxy)_entry.getValue() ).isIDPublic() ) {
                     _allIDsList.add(_entry.getKey());
                 }
 
@@ -581,7 +583,7 @@ public abstract class AbstractAdmin
      * get_proxy_consumer or get_proxy_supplier.
      */
     protected void configureEventStyleID(AbstractProxy proxy) {
-        proxy.setKey(new Integer(getProxyID()), false);
+        proxy.setID(new Integer(getProxyID()), false);
 
         proxy.setFilterManager( FilterManager.EMPTY_FILTER_MANAGER );
     }
@@ -593,7 +595,7 @@ public abstract class AbstractAdmin
      * get_proxy_consumer or get_proxy_supplier.
      */
     protected void configureNotifyStyleID(AbstractProxy proxy) {
-        proxy.setKey(new Integer(getProxyID()), true);
+        proxy.setID(new Integer(getProxyID()), true);
     }
 
 
@@ -687,7 +689,7 @@ public abstract class AbstractAdmin
                                  final Map map,
                                  final Object lock) {
         synchronized(lock) {
-            map.put(proxy.getKey(), proxy);
+            map.put(proxy.getID(), proxy);
             fireProxyCreated(proxy);
         }
 
@@ -696,10 +698,22 @@ public abstract class AbstractAdmin
         proxy.setDisposeHook(new Runnable() {
                 public void run() {
                     synchronized(lock) {
-                        map.remove(proxy.getKey());
+                        map.remove(proxy.getID());
                         fireProxyRemoved(proxy);
                     }
                 }
             });
+    }
+
+
+    public final List getProxies() {
+        List _list = new ArrayList();
+
+        synchronized(modifyProxiesLock_) {
+            _list.addAll(pullServants_.values());
+            _list.addAll(pushServants_.values());
+        }
+
+        return _list;
     }
 }
