@@ -69,10 +69,16 @@ public class IIOPListener extends _ListenerLocalBase
     public IIOPListener()
     {
         if (!isSSLRequired())
+        {
             acceptor = new Acceptor();
+            acceptor.init();
+        }
             
         if (isSSLSupported())
+        {
             sslAcceptor = new SSLAcceptor();
+            sslAcceptor.init();
+        }
             
         endpoint = createEndPointProfile();
     }
@@ -411,6 +417,11 @@ public class IIOPListener extends _ListenerLocalBase
         private   boolean      terminated = false;
         
         public Acceptor()
+        {
+            // initialization deferred to init() method due to JDK bug
+        }
+        
+        public void init()
         {
             serverSocket = createServerSocket();
         }
