@@ -417,18 +417,24 @@ class OpDecl
             ( opTypeSpec.typeSpec() instanceof ArrayTypeSpec ) ||
 	    ( opTypeSpec.typeSpec() instanceof FixedPointType );
 
-	String write_str = null;
-	//	if( (!(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))    || holders )
-	//	{
+	String write_str        = null, 
+               write_str_prefix = null, 
+               write_str_suffix = null;
+
+//	if( (!(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))    || holders )
+//	{
 	    ps.println("\t\t\t\t_out = handler.createReply();");
 	    if( !(opTypeSpec.typeSpec() instanceof VoidTypeSpec ) && !complex )
 	    {
 		write_str = opTypeSpec.typeSpec().printWriteStatement("**","_out");
-		ps.print("\t\t\t\t" + write_str.substring(0,write_str.indexOf("**"))  );
+                int index = write_str.indexOf ("**");
+                write_str_prefix = write_str.substring (0, index);
+                write_str_suffix = write_str.substring (index+2);
+                ps.print ("\t\t\t\t" + write_str_prefix);
 	    }
 	    else
 		ps.print("\t\t\t\t");	  
-	    //	}
+//	}
  
 
 	if(complex)
@@ -462,8 +468,13 @@ class OpDecl
 	if(!(opTypeSpec.typeSpec() instanceof VoidTypeSpec ))
 	    ps.print(")");
 
-	if( !complex )
-	    ps.println(");");
+        if (!complex) 
+        {
+            if (opTypeSpec.typeSpec() instanceof VoidTypeSpec)
+                ps.println (");");
+            else
+                ps.println (write_str_suffix);
+        }
 	else
 	{
 	    ps.println(";");	    
