@@ -137,7 +137,6 @@
       <param name="javac-includes" value="**"/>
       <param name="javac-excludes" value="generated/**,**/RMITestServant.java,org/jacorb/test/notification/**"/>
     </antcall>
-
     <antcall target="compile-src-notification" />
   </target>
 
@@ -162,7 +161,7 @@
 
 
    <target name="run" depends="build-all" >
-      <junit fork="yes" printsummary="withOutAndErr" showoutput="false">
+      <junit fork="yes" printsummary="withOutAndErr" showoutput="true">
            <!-- ant 1.4.1 doesn't support showoutput, -->
            <!-- so I removed it for now, AS           -->
          <jvmarg value="-Xbootclasspath/p:${classpath}"/>
@@ -465,6 +464,15 @@
          <param name="test" value="org.jacorb.test.orb.AllTest"/>
       </antcall>
    </target>
+
+
+   <target name="run-all-poa"
+           description="Run all Jacorb tests in the poa package and its subpackages">
+      <antcall target="run">
+         <param name="test" value="org.jacorb.test.poa.AllTest"/>
+      </antcall>
+   </target>
+
 
    <!-- ==================================================== -->
    <!--                  run rmi tests                       -->
