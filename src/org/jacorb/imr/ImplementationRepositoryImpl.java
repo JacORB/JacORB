@@ -950,13 +950,24 @@ public class ImplementationRepositoryImpl
         public void requestReceived( byte[] request,
                                      GIOPConnection connection )
         {
-            replyNewLocation( request, connection );
+            RequestInputStream in = new RequestInputStream( orb, request );
+
+            replyNewLocation( in.req_hdr.target.object_key(), 
+                              in.req_hdr.request_id,
+                              in.getGIOPMinor(),
+                              connection );
         }
         
         public void locateRequestReceived( byte[] request,
                                            GIOPConnection connection )
         {
-            replyNewLocation( request, connection );
+            LocateRequestInputStream in = 
+                new LocateRequestInputStream( orb, request );
+
+            replyNewLocation( in.req_hdr.target.object_key(),  
+                              in.req_hdr.request_id,
+                              in.getGIOPMinor(), 
+                              connection );
         }        
 
         public void cancelRequestReceived( byte[] request,
@@ -981,13 +992,14 @@ public class ImplementationRepositoryImpl
 	 * Causes servers to start, looks up new POA locations in
 	 * the server table.
 	 */
-	private void replyNewLocation( byte[] request, 
+	private void replyNewLocation( byte[] object_key,
+                                       int request_id,
+                                       int giop_minor,
                                        GIOPConnection connection )
         {
-	    RequestInputStream in = new RequestInputStream( orb, request );
 	    String _poa_name = 
-                POAUtil.extractImplName(in.req_hdr.target.object_key()) +
-                "/" + POAUtil.extractPOAName(in.req_hdr.target.object_key());
+                POAUtil.extractImplName( object_key ) + '/' + 
+                POAUtil.extractPOAName( object_key );
 
 	    // look up POA in table
 	    ImRPOAInfo _poa = server_table.getPOA( _poa_name );
@@ -998,8 +1010,8 @@ public class ImplementationRepositoryImpl
                                                        _poa_name + 
                                                        " unknown" ),
                    connection,
-                   in.req_hdr.request_id,
-                   in.getGIOPMinor() );
+                   request_id,
+                   giop_minor );
 		return;
 	    }
 
@@ -1017,8 +1029,8 @@ public class ImplementationRepositoryImpl
             {
                 sendSysException( new org.omg.CORBA.TRANSIENT(ssf.reason),
                                   connection,
-                                  in.req_hdr.request_id,
-                                  in.getGIOPMinor() );
+                                  request_id,
+                                  giop_minor );
                 return;
 	    }
 	    
@@ -1031,28 +1043,23 @@ public class ImplementationRepositoryImpl
 		// timeout reached
 		sendSysException( new org.omg.CORBA.TRANSIENT("Timeout exceeded"),
                                   connection,
-                                  in.req_hdr.request_id,
-                                  in.getGIOPMinor() );
+                                  request_id,
+                                  giop_minor );
 		return;
 	    }
-
-	    // profile body contains new host and port of POA
-	    ProfileBody_1_0 _body = 
-                new ProfileBody_1_0( new Version( (byte) 1, 
-                                                  (byte) 0 ), 
-                                     _poa.host,
-                                     (short) _poa.port,
-                                     in.req_hdr.target.object_key() );    
             
 	    ReplyOutputStream out = 
-                new ReplyOutputStream( in.req_hdr.request_id,
+                new ReplyOutputStream( request_id,
                                        org.omg.GIOP.ReplyStatusType_1_2.LOCATION_FORWARD,
-                                       in.getGIOPMinor() );
+                                       giop_minor );
 
 	    // The typecode is for org.omg.CORBA.Object, but avoiding 
             // creation of new ObjectHolder Instance.
 	    org.omg.IOP.IOR _ior = 
-                ParsedIOR.createIOR( "org.omg/CORBA/Object", _body );
+                ParsedIOR.createObjectIOR( _poa.host,
+                                           (short) _poa.port,
+                                           object_key,
+                                           giop_minor );
 
 	    if( !_old_poa_state )
             {
@@ -1100,8 +1107,8 @@ public class ImplementationRepositoryImpl
 
                         sendSysException(new org.omg.CORBA.TRANSIENT("object not reachable"),
                                          connection,
-                                         in.req_hdr.request_id,
-                                         in.getGIOPMinor() );
+                                         request_id,
+                                         giop_minor );
                         return;
                     }
                 }
@@ -1110,8 +1117,8 @@ public class ImplementationRepositoryImpl
                     //TODO: Also set server to "down"?
                     sendSysException(new org.omg.CORBA.TRANSIENT("object not reachable"),
                                      connection,
-                                     in.req_hdr.request_id,
-                                     in.getGIOPMinor() );
+                                     request_id,
+                                     giop_minor );
                     return;                
                 }
             }
@@ -1132,8 +1139,8 @@ public class ImplementationRepositoryImpl
 		Debug.output(Debug.IMR | Debug.INFORMATION, _e);
 		sendSysException( new org.omg.CORBA.UNKNOWN(_e.toString()),
                                   connection,
-                                  in.req_hdr.request_id,
-                                  in.getGIOPMinor() );
+                                  request_id,
+                                  giop_minor );
 	    }
 	}
     
