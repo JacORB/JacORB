@@ -129,7 +129,7 @@ public class Environment
     private static String  _default_user            = null;
     private static String  _default_password        = null;
     // rt: ssl client/server is changed per default
-    private static boolean _change_ssl_roles        = true;
+    private static boolean _change_ssl_roles        = false;
     
     //
     // bnv: security features for the default user and SecInvocationPolicy objects for default security domain
