@@ -274,24 +274,25 @@ public class RequestController extends Thread {
 					if (request.remainingPOAName() != null) {
 					    orb.getBasicAdapter().deliverRequest(request, poa);
 						requestQueue.removeFirst();
-					}
-					try {
-						processRequest(request);
-						requestQueue.removeFirst();
-					} catch (CompletionRequestedException e) {
-						/* if waitForCompletion was called the poa state was changed to holding, discarding or
-						    inactive, the loop don't block in waitForContinue, the loop continues and will detect 
-						    the changed state in the next turn (for this turn the request will not processed) */
-					} catch (ShutdownInProgressException e) {
-						/* waitForShutdown was called */
-						waitForQueue();
-					} catch (org.omg.CORBA.OBJ_ADAPTER e) {
-						requestQueue.removeFirst();
-						rejectRequest(request, e);
-					} catch (org.omg.CORBA.OBJECT_NOT_EXIST e) {
-						requestQueue.removeFirst();
-						rejectRequest(request, e);
-					}
+					} else {
+    					try {
+    						processRequest(request);
+    						requestQueue.removeFirst();
+    					} catch (CompletionRequestedException e) {
+    						/* if waitForCompletion was called the poa state was changed to holding, discarding or
+    						    inactive, the loop don't block in waitForContinue, the loop continues and will detect 
+    						    the changed state in the next turn (for this turn the request will not processed) */
+    					} catch (ShutdownInProgressException e) {
+    						/* waitForShutdown was called */
+    						waitForQueue();
+    					} catch (org.omg.CORBA.OBJ_ADAPTER e) {
+    						requestQueue.removeFirst();
+    						rejectRequest(request, e);
+    					} catch (org.omg.CORBA.OBJECT_NOT_EXIST e) {
+    						requestQueue.removeFirst();
+    						rejectRequest(request, e);
+    					}
+    				}
 					continue;
 				}
 			} else
@@ -300,9 +301,6 @@ public class RequestController extends Thread {
 
 					/* Request available */
 					if (request != null) {
-						if (request.remainingPOAName() != null) {
-						    orb.getBasicAdapter().deliverRequest(request, poa);
-						}
 						if (POAUtil.isDiscarding(state)) {
 							rejectRequest(request, transient_exception);
 						} else {
