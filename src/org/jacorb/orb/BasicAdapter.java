@@ -59,7 +59,6 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
     private MessageReceptorPool receptor_pool = null;
     private RequestListener request_listener = null;
     private ReplyListener reply_listener = null;
-    private int timeout = 0;
 
     private TransportManager transport_manager = null;
     private GIOPConnectionManager giop_connection_manager = null;
@@ -109,14 +108,6 @@ public class BasicAdapter extends org.omg.ETF._HandleLocalBase
         receptor_pool = MessageReceptorPool.getInstance();
         request_listener = new ServerRequestListener( orb, rootPOA );
         reply_listener = new NoBiDirServerReplyListener();
-
-        String prop =
-            Environment.getProperty("jacorb.connection.server_timeout");
-
-        if( prop != null )
-        {
-            timeout = Integer.parseInt(prop);
-        }
 
         // create all Listeners
         
