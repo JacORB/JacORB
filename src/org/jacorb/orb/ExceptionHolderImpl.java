@@ -24,11 +24,11 @@ import java.io.*;
 import java.lang.reflect.*;
 
 import org.omg.GIOP.*;
+import org.omg.Messaging.ExceptionHolder;
 import org.omg.CORBA.ExceptionList;
 import org.omg.CORBA.UnknownUserException;
 import org.omg.CORBA.UserException;
 
-import org._orgModule;
 import org.jacorb.ir.*;
 import org.jacorb.util.*;
 import org.jacorb.orb.connection.*;
