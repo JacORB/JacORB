@@ -34,35 +34,50 @@ import java.util.Vector;
  * @author Reimo Tiedemann, FU Berlin
  * @version 1.03, 21/01/00, RT
  */
+
 public class Current 
     extends org.jacorb.orb.LocalityConstrainedObject 
     implements org.omg.PortableServer.Current 
 {
     private Vector contextVector = new Vector();          // stores InvocationContext elements
     private Hashtable contextTable = new Hashtable();     // InvocationContext -> Thread
-    private Current() {
+
+    private Current() 
+    {
     }
-    synchronized public void _addContext(InvocationContext context, Thread t) {
+
+    synchronized public void _addContext(InvocationContext context, Thread t) 
+    {
         contextVector.insertElementAt(context, 0);
         contextTable.put(context, t);
     }
-    public static Current _Current_init() {
+
+    public static Current _Current_init() 
+    {
         return new Current();
     }
-    synchronized public void _removeContext(InvocationContext c) {
+
+    synchronized public void _removeContext(InvocationContext c) 
+    {
         contextVector.removeElement(c);
         contextTable.remove(c);
     }
-    public byte[] get_object_id() throws NoContext {
+
+    public byte[] get_object_id() 
+        throws NoContext 
+    {
         return getInvocationContext().getObjectId();
     }
+
     public org.omg.PortableServer.POA get_POA() 
-      throws NoContext 
+        throws NoContext 
     {
         return getInvocationContext().getPOA();
     }
     
-    synchronized private InvocationContext getInvocationContext() throws NoContext {
+    synchronized private InvocationContext getInvocationContext() 
+        throws NoContext 
+    {
         java.lang.Object context;
         Thread ct = Thread.currentThread();
         java.util.Enumeration e = contextVector.elements();
@@ -73,10 +88,15 @@ public class Current
         throw new NoContext();
     }
     
-    protected org.omg.CORBA.ORB getORB() throws NoContext {
+    protected org.omg.CORBA.ORB getORB() 
+        throws NoContext 
+    {
         return getInvocationContext().getORB();
     }
-    protected org.omg.PortableServer.Servant getServant() throws NoContext {
+
+    protected org.omg.PortableServer.Servant getServant() 
+        throws NoContext 
+    {
         return getInvocationContext().getServant();
     }
     
