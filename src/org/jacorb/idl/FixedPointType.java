@@ -197,8 +197,7 @@ public class FixedPointType
         }
         catch(java.io.IOException i)
         {
-            System.err.println("File IO error");
-            i.printStackTrace();
+            throw new RuntimeException("File IO error" + i);
         }
     }
 

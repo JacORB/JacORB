@@ -107,7 +107,6 @@ class RaisesExpr
             catch( Exception ex )
             {
                 // any type cast errors
-                // ex.printStackTrace();
             }
             parser.fatal_error( "Illegal type in raises clause: " +
                     name.toString(), token );
@@ -144,10 +143,3 @@ class RaisesExpr
         }
     }
 }
-
-
-
-
-
-
-

@@ -40,8 +40,6 @@ class Case
     /** this case's element's type's spec */
     public ElementSpec element_spec = null;
 
-    //    String enum_type_name = null;
-
     /** the switch type's spec */
     TypeSpec type_spec = null;
 
@@ -95,25 +93,6 @@ class Case
     public void setTypeSpec( TypeSpec s )
     {
         // and enum type name if necessary
-//          if(s.type_spec instanceof ConstrTypeSpec)
-//          {
-//              enum_type_name = ((ConstrTypeSpec)s.type_spec).typeName();
-//          }
-//          else if( s.type_spec instanceof ScopedName )
-//          {
-//              TypeSpec ts=((ScopedName)s.type_spec).resolvedTypeSpec();
-
-//              while( ts instanceof ScopedName || ts instanceof AliasTypeSpec )
-//              {
-//                  if( ts instanceof ScopedName )
-//                      ts = ((ScopedName)ts).resolvedTypeSpec();
-//                  if( ts instanceof AliasTypeSpec )
-//                      ts = ((AliasTypeSpec)ts).originalType();
-//              }
-
-//              if( ts instanceof ConstrTypeSpec )
-//                  enum_type_name = ((ConstrTypeSpec)ts).c_type_spec.full_name();
-//          }
         type_spec = s;
         type_spec.setPackage( pack_name );
     }
@@ -124,7 +103,6 @@ class Case
         if( type_spec.type_spec instanceof ConstrTypeSpec )
         {
             return ( (ConstrTypeSpec)type_spec.type_spec ).full_name();
-            //typeName();
         }
         else if( type_spec.type_spec instanceof ScopedName )
         {
@@ -279,4 +257,3 @@ class Case
 
 
 }
-

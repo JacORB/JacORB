@@ -124,7 +124,6 @@ public class OpDecl
 
         myInterface = enclosing_symbol;
 
-        //        escapeName();
         if( opAttribute == ONEWAY )
         {
             if( !raisesExpr.empty() )
@@ -167,12 +166,6 @@ public class OpDecl
                 // for out and inout params
                 myInterface.addImportedNameHolder( param.paramTypeSpec.holderName() );
             }
-//              else
-//              {
-//                  if( logger.isWarnEnabled() )
-//   logger.warn( "addImportedName " + param.paramTypeSpec.toString()  );
-//                  myInterface.addImportedName( param.paramTypeSpec.toString() );
-//              }
             if( !(param.paramTypeSpec.typeSpec() instanceof BaseType ))
             {
 
@@ -202,13 +195,6 @@ public class OpDecl
 
             myInterface.addImportedName( opTypeSpec.typeName() );
         }
-
-        if( ( !NameTable.defined( opTypeSpec.typeName(), "type" ) ) &&
-            ( !NameTable.defined( opTypeSpec.typeName(), "interface" ) ) )
-        {
-            //parser.error("Not a type: "+opTypeSpec.typeName(), token );
-        }
-
         raisesExpr.parse();
     }
 
@@ -461,7 +447,6 @@ public class OpDecl
                 ps.println( "\t\t\t\t" + p.asIn().printWriteStatement( "_os" ) );
         }
 
-        //ps.println( "\t\t\t\t_invoke(_os, ami_handler);" );
         ps.println( "\t\t\t\t((org.jacorb.orb.Delegate)_get_delegate()).invoke(this, _os, ami_handler);" );
         ps.println( "\t\t\t\treturn;");
 
@@ -653,7 +638,6 @@ public class OpDecl
             if( p.paramAttribute != ParamDecl.MODE_IN )
             {
                 ps.println( "\t\t\t\t" + p.printWriteStatement( ( "_arg" + ( argc ) ), "_out" ) );
-                //  ps.println("\t\t\t\t_arg" + (argc) + "._write(_out);");
             }
             argc++;
         }
@@ -782,9 +766,7 @@ public class OpDecl
         if( paramDecls.size() > 0 )
         {
             // remove extra trailing ","
-            //sb.deleteCharAt( sb.length()-1);
-            // ugly workaround for non exisitng delete in jdk1.1
-            sb = new StringBuffer( sb.toString().substring( 0, sb.length() - 1 ) );
+            sb.deleteCharAt( sb.length()-1);
         }
         sb.append( ")" );
 

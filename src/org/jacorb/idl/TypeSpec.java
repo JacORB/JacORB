@@ -102,7 +102,7 @@ public class TypeSpec
     public boolean basic()
     {
         if( type_spec == null )
-            System.err.println("Error, typespec null " + getClass().getName() );
+            logger.warn("Typespec null " + getClass().getName() );
         return type_spec.basic();
     }
 

@@ -261,7 +261,6 @@ public class Method
             ps.println( "\t\t\ttry" );
             ps.println( "\t\t\t{" );
             ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request(\"_get_" + name + "\",true);" );
-            //ps.println( "\t\t\t\t_invoke(_os, ami_handler);" );
             ps.println( "\t\t\t\t((org.jacorb.orb.Delegate)_get_delegate()).invoke(this, _os, ami_handler);" );
             ps.println( "\t\t\t\treturn;" );
             ps.println( "\t\t\t}" );
@@ -287,7 +286,6 @@ public class Method
             ps.println( "\t\t\t{" );
             ps.println( "\t\t\t\torg.omg.CORBA.portable.OutputStream _os = _request(\"_set_" + name + "\",true);" );
             ps.println( "\t\t\t\t" + parameterType.typeSpec().printWriteStatement( "attr_" + name, "_os" ) );
-            //ps.println( "\t\t\t\t_invoke(_os, ami_handler);" );
             ps.println( "\t\t\t\t((org.jacorb.orb.Delegate)_get_delegate()).invoke(this, _os, ami_handler);" );
             ps.println( "\t\t\t\treturn;" );
             ps.println( "\t\t\t}" );
@@ -349,4 +347,3 @@ public class Method
 
 
 }
-

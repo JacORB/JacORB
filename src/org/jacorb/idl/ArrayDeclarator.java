@@ -100,19 +100,6 @@ class ArrayDeclarator
             ( (FixedArraySize)e.nextElement() ).parse();
     }
 
-    public void define()
-    {
-        try
-        {
-            NameTable.define( full_name(), "type" );
-        }
-        catch( NameAlreadyDefined p )
-        {
-            //parser.error("Array declarator " +
-            // full_name() + " already declared",p_info);
-        }
-    }
-
     public void setEnclosingSymbol( IdlSymbol s )
     {
         if( enclosing_symbol != null && enclosing_symbol != s )

@@ -128,13 +128,10 @@ public class ScopedName
             if( isPseudoScope( copy.toString() ) )
                 newHead.append( "Package" );
             j++;
-            // old: newHead.append(scopes[j++]);
         }
 
         if( tail != null )
             newHead.append( "." + tail );
-        // debug: System.out.println("Unpseudo returns: " +
-        //   newHead.toString());
         return newHead.toString();
 
     }
@@ -363,7 +360,6 @@ public class ScopedName
                 }
 
                 result = t.toString();
-                //System.out.println("ScopedName: checking " + result );
                 if( NameTable.defined( result ) )
                 {
                     String unmap2 = unMap( result );
@@ -467,7 +463,6 @@ public class ScopedName
 
         while( !NameTable.defined( prefix + buf.toString() ) )
         {
-//        System.out.println("sub = " + sub + ", Looking at " +  prefix +  buf.toString()  + " hash: " + (new String (prefix + buf.toString())).hashCode() );
             if( sub > p_scopes.length )
             {
                 parser.fatal_error( "Undefined name: " + pack_name + "." + s, token );
@@ -655,8 +650,6 @@ public class ScopedName
 
     public void print( PrintWriter ps )
     {
-        //throw new RuntimeException("Compiler Error, don't call print() on ScopedName!");
-        // ps.print(toString());
     }
 
     public String IDLName()

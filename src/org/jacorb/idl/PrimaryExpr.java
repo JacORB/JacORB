@@ -51,7 +51,6 @@ class PrimaryExpr
         else if( symbol instanceof ScopedName )
         {
             ps.print( ( (ScopedName)symbol ).resolvedName() );
-            //            ps.print( ConstDecl.namedValue( (ScopedName)symbol));
         }
         else // Literal
             symbol.print( ps );
@@ -88,7 +87,7 @@ class PrimaryExpr
         }
         else if( symbol instanceof ScopedName )
         {
-            ConstExprEvaluator eval = 
+            ConstExprEvaluator eval =
                 new ConstExprEvaluator( ConstDecl.namedValue( (ScopedName)symbol ));
             if( logger.isDebugEnabled() )
                 logger.debug( "PrimaryExpr: returning value " + eval.getValue().intValue());
@@ -134,6 +133,3 @@ class PrimaryExpr
         return symbol.get_token();
     }
 }
-
-
-

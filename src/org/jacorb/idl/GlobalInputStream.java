@@ -93,7 +93,6 @@ public class GlobalInputStream
     public static void include(String fname, int lookahead, boolean useIncludePath)
         throws FileNotFoundException
     {
-        //      System.out.println("Including " + fname + " , lookahead char is " + (char)lookahead);
         included = true;
         PositionInfo position = lexer.getPosition();
         position.file = currentFile();

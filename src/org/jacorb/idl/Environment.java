@@ -24,7 +24,6 @@ package org.jacorb.idl;
 
 public final class Environment
 {
-    private static int verbosity = 0;
     /**
      * <code>JAVA14</code> denotes whether we are using JDK 1.4.
      */
@@ -34,51 +33,6 @@ public final class Environment
     {
         String javaVer = System.getProperty ("java.version");
         JAVA14 = (javaVer.indexOf ("1.4") != -1);
-    }
-
-    /**
-     * called by the parser to set the verbosity level
-     */
-
-    static final void verbosityLevel( int level )
-    {
-        verbosity = level;
-
-    }
-
-
-    /**
-     * @deprecated
-     */
-
-    static final boolean isEnabled( int msg_level )
-    {
-        return msg_level <= verbosity;
-    }
-
-    /**
-     * @deprecated
-     */
-
-    static final void output( int msg_level, String msg )
-    {
-        if( msg_level > verbosity )
-            return;
-
-        System.out.println( "   [ " + msg + " ]" );
-    }
-
-    /**
-     * @deprecated
-     */
-
-    static final void output( int msg_level, Throwable t )
-    {
-        if( msg_level > verbosity )
-            return;
-
-        System.out.println( "## Exception ##" );
-        t.printStackTrace();
     }
 
 

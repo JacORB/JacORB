@@ -150,7 +150,7 @@ public class StructType
     {
         if (enclosing_symbol != null && enclosing_symbol != s)
         {
-            System.err.println("was " + enclosing_symbol.getClass().getName() +
+            logger.error("was " + enclosing_symbol.getClass().getName() +
                                 " now: " + s.getClass().getName());
             throw new RuntimeException("Compiler Error: trying to reassign container for " + name);
         }
@@ -651,13 +651,10 @@ public class StructType
                     printHelperClass(className, printWriter);
                     printWriter.close();
                 }
-
-                // written = true;
             }
             catch (java.io.IOException i)
             {
-                System.err.println("File IO error");
-                i.printStackTrace();
+                throw new RuntimeException("File IO error" + i);
             }
         }
     }
@@ -666,7 +663,4 @@ public class StructType
     {
         visitor.visitStruct(this);
     }
-
-
-
 }

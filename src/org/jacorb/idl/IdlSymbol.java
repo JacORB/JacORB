@@ -451,7 +451,7 @@ public class IdlSymbol
                         _id = (String)sd.idMap.get (name);
                         break;
                     }
-                    // Not had a #pragma prefix; attempt to determine using prefix
+                    // Not had a #pragma prefix, attempt to determine using prefix
                     else
                     {
                         // Slightly horrible...this says 'if the current token prefix
@@ -642,7 +642,6 @@ public class IdlSymbol
 
     public void accept( IDLTreeVisitor visitor )
     {
-        // nothing here, all work done in subclasses;
+        // nothing here, all work done in subclasses.
     }
-
 }

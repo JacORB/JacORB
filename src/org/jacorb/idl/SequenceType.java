@@ -337,7 +337,6 @@ public class SequenceType
         }
         try
         {
-            //NameTable.define(typeName(), "type");
             NameTable.define(full_name(), "type");
         }
         catch (NameAlreadyDefined n)
@@ -566,10 +565,7 @@ public class SequenceType
         }
         catch (java.io.IOException i)
         {
-            System.err.println("File IO error");
-            i.printStackTrace();
+            throw new RuntimeException("File IO error" + i);
         }
     }
-
-
 }

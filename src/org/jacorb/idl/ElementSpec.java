@@ -21,7 +21,7 @@ package org.jacorb.idl;
  */
 
 /**
- * 
+ *
  * @version $Id$
  */
 
@@ -96,7 +96,7 @@ class ElementSpec
                     seqTs = (SequenceType)ts;
                     ts = ( (SequenceType)ts.typeSpec() ).elementTypeSpec().typeSpec();
                 }
-                
+
                 //                if( ts.typeName().equals( containingUnion.typeName() ) ||
                 if( ScopedName.isRecursionScope( ts.typeName() ) )
                 {
@@ -118,7 +118,7 @@ class ElementSpec
 
             // fix for bug#115: only set the element spec's type spec to the resolved
             // type if it is not an Interface! Otherwise the compile may loop!
-            if( ! ( ts instanceof ConstrTypeSpec && 
+            if( ! ( ts instanceof ConstrTypeSpec &&
                     ((ConstrTypeSpec)ts).declaration() instanceof Interface) )
             {
                 t = ts;
@@ -134,15 +134,11 @@ class ElementSpec
             parser.error( "Declarator " + d.name() +
                     " already defined in union " + containingUnion.full_name(), token );
         }
-        //        d.parse();
-
 
         if( logger.isDebugEnabled() )
         {
             logger.debug("ElementSpec.parse-end(): element_spec is " +  t.typeSpec().getClass().getName());
         }
-
-
     }
 
     public void print( java.io.PrintWriter ps )
@@ -156,4 +152,3 @@ class ElementSpec
 
 
 }
-

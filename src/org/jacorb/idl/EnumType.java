@@ -134,7 +134,6 @@ public class EnumType
             String prefix = (pack_name.length() > 0 ?
                               full_name().substring(0, full_name().lastIndexOf('.') + 1) :
                               "");
-            //           String prefix = (pack_name.length() > 0 ? pack_name + "." : "");
 
             for (Enumeration e = enumlist.v.elements(); e.hasMoreElements();)
             {
@@ -361,16 +360,6 @@ public class EnumType
         pw.println("\t\tvalue = i;");
         pw.println("\t}");
 
-        //          pw.println("\tpublic boolean equals(java.lang.Object other)");
-        //          pw.println("\t{");
-        //          pw.println("\t\treturn (other instanceof " + className + ") && value == ((" + className + ")other).value();");
-        //          pw.println("\t}");
-        //
-        //          pw.println("\tpublic int hashCode()");
-        //          pw.println("\t{");
-        //          pw.println("\t\treturn (\"" + pack_name + "." + className + "\" + value()).hashCode();");
-        //          pw.println("\t}");
-
         pw.println("\tjava.lang.Object readResolve()");
         pw.println("\tthrows java.io.ObjectStreamException");
         pw.println("\t{");
@@ -446,8 +435,7 @@ public class EnumType
             }
             catch (java.io.IOException i)
             {
-                System.err.println("File IO error");
-                i.printStackTrace();
+                throw new RuntimeException("File IO error" + i);
             }
         }
     }

@@ -252,7 +252,7 @@ public class ValueDecl
                     }
                     else
                     {
-                        System.out.println(" Declaration is " + ts.declaration().getClass());
+                        logger.error(" Declaration is " + ts.declaration().getClass());
                         parser.fatal_error("Non-value type in inheritance spec: \n\t" +
                                            inheritanceSpec, token);
                     }
@@ -290,7 +290,7 @@ public class ValueDecl
     {
         if (enclosing_symbol != null && enclosing_symbol != s)
         {
-            System.err.println("was " + enclosing_symbol.getClass().getName() +
+            logger.error("was " + enclosing_symbol.getClass().getName() +
                                " now: " + s.getClass().getName());
             throw new RuntimeException("Compiler Error: trying to reassign container for " +
                                        name);
@@ -819,7 +819,7 @@ public class ValueDecl
 
 
     /**
-     */ 
+     */
 
     public void accept(IDLTreeVisitor visitor)
     {
@@ -829,4 +829,3 @@ public class ValueDecl
 
 
 }
-

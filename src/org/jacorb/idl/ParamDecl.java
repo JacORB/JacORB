@@ -86,8 +86,8 @@ public class ParamDecl
      */
     public ParamDecl asIn()
     {
-        return new ParamDecl( MODE_IN, 
-                              this.paramTypeSpec, 
+        return new ParamDecl( MODE_IN,
+                              this.paramTypeSpec,
                               this.simple_declarator) ;
     }
 
@@ -104,8 +104,6 @@ public class ParamDecl
         {
             throw new ParseException("parameter TypeSpec is null " + name, this.myPosition );
         }
-
-        //simple_declarator.print(ps);
     }
 
     public void print( PrintWriter ps )
@@ -113,9 +111,6 @@ public class ParamDecl
         switch( paramAttribute )
         {
             case MODE_IN:
-                //    if( paramTypeSpec instanceof ConstrTypeSpec )
-                //ps.print( paramTypeSpec.typeName() );
-                //else
                 ps.print( paramTypeSpec.toString() );
                 break;
             case MODE_OUT:
@@ -124,7 +119,6 @@ public class ParamDecl
                 break;
         }
         ps.print( " " + simple_declarator );
-        //simple_declarator.print(ps);
     }
 
     public String printWriteStatement( String ps )
@@ -152,6 +146,3 @@ public class ParamDecl
 
 
 }
-
-
-

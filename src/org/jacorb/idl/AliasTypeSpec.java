@@ -104,7 +104,6 @@ public class AliasTypeSpec
 
     public void setPackage(String s)
     {
-        //s = parser.pack_replace(s);
         if (pack_name.length() > 0)
             pack_name = s + "." + pack_name;
         else
@@ -298,12 +297,10 @@ public class AliasTypeSpec
                     printHelperClass(className, decl_ps);
                     decl_ps.close();
                 }
-                // written = true;
             }
             catch(java.io.IOException i)
             {
-                System.err.println("File IO error");
-                i.printStackTrace();
+                throw new RuntimeException("File IO error" + i);
             }
         }
     }

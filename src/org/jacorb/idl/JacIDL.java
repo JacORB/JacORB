@@ -52,7 +52,6 @@ public class JacIDL
     private boolean _omgprefix;
     private boolean _generateincluded;
     private boolean _parseonly;
-    //    private boolean _globalimport;
     private boolean _noskel;
     private boolean _nostub;
     private boolean _sloppyforward;
@@ -377,7 +376,6 @@ public class JacIDL
         resetFileLists();
         DirectoryScanner ds = getDirectoryScanner(_srcdir);
         String files[] = ds.getIncludedFiles();
-        //log("files: "+files);
         scanFiles(files);
 
         // ***********************************

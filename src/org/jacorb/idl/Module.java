@@ -68,7 +68,6 @@ public class Module
 
         if (pack_name.length() > 0)
         {
-            //  unreplacedName = unreplacedName + "." + pack_name;
             pack_name = s + "." + pack_name;
             spec.setPackage(s);
         }
@@ -172,7 +171,7 @@ public class Module
     }
 
     /**
-     */ 
+     */
 
     public void accept(IDLTreeVisitor visitor)
     {
@@ -181,4 +180,3 @@ public class Module
 
 
 }
-

@@ -207,7 +207,6 @@ class ConstDecl extends Declaration
 
         try
         {
-            //new RuntimeException().printStackTrace();
             String fullName = ScopedName.unPseudoName(full_name());
             String className;
             if (fullName.indexOf('.') > 0)
@@ -302,8 +301,7 @@ class ConstDecl extends Declaration
         }
         catch (java.io.IOException i)
         {
-            System.err.println("File IO error");
-            i.printStackTrace();
+            throw new RuntimeException("File IO error" + i);
         }
     }
 }

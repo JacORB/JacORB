@@ -81,7 +81,7 @@ public class InterfaceBody
                     }
                     catch( InterruptedException ie )
                     {
-                        System.out.println( "ParseThread " + this + " interrupted!" );
+                        logger.info( "ParseThread " + this + " interrupted!" );
                     }
                 }
             }

@@ -245,7 +245,7 @@ parser code
                     }
 
                     if( ! org.jacorb.idl.IDLTreeVisitor.class.isAssignableFrom( codeGeneratorClass ))
-                        throw new ParseException( "Not a valid code generator: " + 
+                        throw new ParseException( "Not a valid code generator: " +
                             codeGeneratorClass.getName() );
                     setGenerator( (org.jacorb.idl.IDLTreeVisitor) codeGeneratorClass.newInstance());
                     continue;
@@ -263,9 +263,9 @@ parser code
                         usage(argv, "-W");
 
                     int level = Integer.parseInt( argv[++i] );
-                    
+
                     logger.setPriority(Environment.intToPriority(level));
-                    
+
                     continue;
                 }
                 if( argv[i].startsWith("-D"))
@@ -916,7 +916,7 @@ specification ::=
 
                 if (! ((org.jacorb.idl.parser)CUP$parser).parse_only  )
                 {
-                     org.jacorb.idl.IDLTreeVisitor backend = 
+                     org.jacorb.idl.IDLTreeVisitor backend =
                         ((org.jacorb.idl.parser)CUP$parser).getGenerator();
                      if( backend != null )
                      {
@@ -924,7 +924,7 @@ specification ::=
                           // the visitor
                           RESULT.accept( backend );
                      }
-                     else                        
+                     else
                      {
                           // use the default code generator for the Java Mapping
                           RESULT.print( new java.io.PrintWriter( java.lang.System.out ) );
@@ -1004,7 +1004,6 @@ interface ::=
                 b.my_interface = RESULT;
                 b.setEnclosingSymbol(RESULT);
                 RESULT.set_included( parser.include_state );
-                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
          :}
          | ABSTRACT INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
@@ -1017,7 +1016,6 @@ interface ::=
                 b.my_interface = RESULT;
                 b.setEnclosingSymbol(RESULT);
                 RESULT.set_included( parser.include_state );
-                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
          :}
          | LOCAL INTERFACE ID:i inheritance_spec:is LCBRACE interface_body:b RCBRACE
@@ -1043,20 +1041,17 @@ interface ::=
                 b.my_interface = RESULT;
                 b.setEnclosingSymbol(RESULT);
                 RESULT.set_included( parser.include_state );
-                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
          :}
         | INTERFACE ID:i
           {:
                 RESULT.set_token(i);
-                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
           :}
         | ABSTRACT INTERFACE ID:i
           {:
                 RESULT.set_token(i);
                 RESULT.set_abstract();
-                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
           :}
         | LOCAL INTERFACE ID:i
@@ -1070,7 +1065,6 @@ interface ::=
           {:
                 RESULT.set_pseudo();
                 RESULT.set_token(i);
-                // RESULT.set_locality( parser.getLocalityContraint());
                 parser.closeScope( (Scope)RESULT );
           :}
         ;
@@ -1111,7 +1105,7 @@ inheritance_spec ::=
                 {:
                         RESULT.v = (Vector)sl.v.clone();
                 :}
-        | COLON 
+        | COLON
                 {:
                         lexer.emit_warn("Illegal IDL: empty inheritance spec after colon!");
                 :}
@@ -1260,7 +1254,7 @@ value_inheritance_spec ::=
                         RESULT.v = (Vector)vn.v.clone();
                         RESULT.supports = (Vector)interface_names.v.clone();
                 :}
-        | COLON 
+        | COLON
                 {:
                         lexer.emit_warn("Illegal IDL: empty inheritance spec after colon!");
                 :}
@@ -1744,11 +1738,11 @@ fixed_pt_const_type ::=
         FIXED
         ;
 
-// 
+//
 double_type ::=
           DOUBLE
         | LONG DOUBLE
-          {: 
+          {:
                 RESULT.setLongDouble();
                 lexer.emit_warn("IDL type long double not supported by standard IDL/Java mappings!");
           :}

@@ -361,9 +361,9 @@ public class lexer
         return (String)defines.get( symbol );
     }
 
-    /** 
+    /**
      *   record information about the last lexical scope so that it can be
-     *  restored later 
+     *  restored later
      */
 
     public static int currentLine()
@@ -416,9 +416,6 @@ public class lexer
             current_position = 1;
             line = new StringBuffer();
         }
-
-//          if( logger.isDebugEnabled() )
-//              logger.debug("Lexer.advance() next_char is " + next_char + " (" + (char)next_char + ")");
     }
 
 
@@ -436,8 +433,8 @@ public class lexer
         {
             logger.error(  GlobalInputStream.currentFile().getAbsolutePath() +
                            ", line: " + current_line +
-                           "(" + current_position + "): " + 
-                           message + "\n\t" + 
+                           "(" + current_position + "): " +
+                           message + "\n\t" +
                            line.toString() );
         }
         error_count++;
@@ -454,7 +451,7 @@ public class lexer
             if (parser.getLogger().isErrorEnabled())
             {
                 logger.error( t.fileName + ", line:" + t.line_no +
-                              "(" + t.char_pos + "): " + message + 
+                              "(" + t.char_pos + "): " + message +
                               "\n\t" + t.line_val );
             }
             error_count++;
@@ -462,11 +459,11 @@ public class lexer
     }
 
 
-    /** 
+    /**
      *  Emit a warning message.  The message will be marked with both the
      *  current line number and the position in the line.  Messages are
      *  printed on standard error (System.err).
-     *  
+     *
      *  @param message the message to print.
      */
 
@@ -653,14 +650,12 @@ public class lexer
                 current_line = 0;
                 advance();
                 advance();
-                //    System.out.println("returning from include, next_char is: " + (char)next_char);
                 return;
             }
             else if( dir.equals( "define" ) )
             {
                 if( !conditionalCompilation )
                     return;
-                //              advance();      // skip ' '
                 swallow_whitespace();
                 String name = get_string();
                 StringBuffer text = new StringBuffer();
@@ -678,7 +673,6 @@ public class lexer
                     text.append( (char)next_char );
                     advance();
                 }
-                // System.out.println("#Defined symbol " + name + " as: " + text.toString() );
                 define( name, text.toString() );
             }
             else if( dir.equals( "error" ) )
@@ -691,12 +685,12 @@ public class lexer
             }
             else if( dir.equals( "undef" ) )
             {
+                // Undefining symbol
                 if( !conditionalCompilation )
                     return;
-                swallow_whitespace(); // advance();     // skip ' '
+                swallow_whitespace();
                 String name = get_string();
                 undefine( name );
-                // System.out.println("#Undefined symbol " + name  );
             }
             else if( dir.equals( "if" ) || dir.equals( "elif" ) )
             {
@@ -773,7 +767,7 @@ public class lexer
                 ifStack.push( new Boolean( conditionalCompilation ) );
                 if( !conditionalCompilation )
                     return;
-                swallow_whitespace(); //advance();      // skip ' '
+                swallow_whitespace();
                 String name = get_string();
                 conditionalCompilation = ( defined( name ) != null );
             }
@@ -782,7 +776,7 @@ public class lexer
                 ifStack.push( new Boolean( conditionalCompilation ) );
                 if( !conditionalCompilation )
                     return;
-                swallow_whitespace();//advance();       // skip ' '
+                swallow_whitespace();
                 String name = get_string();
                 conditionalCompilation = ( defined( name ) == null );
             }
@@ -897,7 +891,6 @@ public class lexer
             while( next_char != '\n' && next_char != '\f' && next_char != '\r' &&
                     next_char != EOF_CHAR )
             {
-                // System.out.println("Advancing after directive, next_char is: " + (char)next_char);
                 advance();
             }
             return;
@@ -919,7 +912,6 @@ public class lexer
             advance();
             c = (char)next_char;
         }
-        //      System.out.println("get string returns " + sb.toString());
         return sb.toString();
     }
 
@@ -1003,9 +995,6 @@ public class lexer
         }
 
         // check if it's a keyword
-//          if( logger.isInfoEnabled() )
-//              logger.info( "Advancing after symbol " + result_str );
-
         keyword_num = (Integer)keywords.get( result_str );
         if( keyword_num != null )
         {
@@ -1078,7 +1067,7 @@ public class lexer
             else
             {
                 // check for name clashes only loosely (i.e. case sensitive)
-                colliding_keyword = 
+                colliding_keyword =
                     (String)keywords.get(str);
             }
 
@@ -1147,7 +1136,6 @@ public class lexer
     {
         parser.set_included( GlobalInputStream.includeState() );
         token result = real_next_token();
-        // System.out.println("# next_token() => " + result.sym);
         return result;
     }
 
@@ -1159,7 +1147,6 @@ public class lexer
                 next_char == '\f' || next_char == '\r' )
         {
             /* advance past it and try the next character */
-            //System.out.println("Swallowing whitespace: " + next_char +  (char)next_char);
             advance();
         }
     }
@@ -1362,21 +1349,18 @@ public class lexer
                         value.append( (char)next_char );
                         advance();
                     }
-                    /* read integer part */
+                    // Read integer part
                     while( next_char >= '0' && next_char <= '9' )
                     {
                         value.append( (char)next_char );
-                        // System.out.println("Read integer part " + value.toString());
                         advance();
                     }
 
-                    /* read fraction */
+                    // Read fraction
                     if( next_char == '.' )
                     {
                         fraction = new StringBuffer();
                         advance();
-
-                        // System.out.println("Reading fraction part");
 
                         while( next_char >= '0' && next_char <= '9' )
                         {
@@ -1385,10 +1369,9 @@ public class lexer
                         }
                     }
 
+                    // Read exponent
                     if( next_char == 'e' || next_char == 'E' )
                     {
-                        // System.out.println("Reading exponent");
-
                         if( fraction == null )
                             fraction = new StringBuffer();
 
@@ -1770,7 +1753,6 @@ public class lexer
                     in_string = false;
                     advance();
                     return new token( sym.DBLQUOTE );
-                    //              return new org.jacorb.idl.str_token(sym.ID, "", getPosition());
                 }
 
                 StringBuffer result = new StringBuffer();
@@ -2000,4 +1982,3 @@ public class lexer
         return result;
     }
 }
-

@@ -514,9 +514,9 @@ public class UnionType
             }
             else
             {
-                System.err.println("Something went wrong in UnionType, "
-                                   + "could not identify switch type "
-                                   + switch_type_spec.type_spec);
+                logger.error("Something went wrong in UnionType, "
+                             + "could not identify switch type "
+                             + switch_type_spec.type_spec);
             }
 
         }
@@ -1320,8 +1320,7 @@ public class UnionType
                 }
                 catch (java.io.IOException i)
                 {
-                    System.err.println("File IO error");
-                    i.printStackTrace();
+                    throw new RuntimeException("File IO error" + i);
                 }
             }
         }

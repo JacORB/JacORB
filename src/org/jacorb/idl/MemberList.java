@@ -78,7 +78,7 @@ public class MemberList
 
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println( "was " + enclosing_symbol.getClass().getName() + 
+            logger.error("was " + enclosing_symbol.getClass().getName() +
                                 " now: " + s.getClass().getName() );
 
             throw new RuntimeException( "Compiler Error: trying to reassign container" );
@@ -94,7 +94,3 @@ public class MemberList
     }
 
 }
-
-
-
-

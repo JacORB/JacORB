@@ -46,14 +46,6 @@ public class ArrayTypeSpec
     {
         super(num);
         declarator = ad;
-        //    try
-        //    {
-        //        declarator.parse();
-        //    }
-        //    catch (ParseError p)
-        //    {
-        //        p.printStackTrace();
-        //    }
         name = declarator.name();
         set_token(ad.get_token());
         setEnclosingSymbol(ad.getEnclosingSymbol());
@@ -507,9 +499,7 @@ public class ArrayTypeSpec
         }
         catch (java.io.IOException i)
         {
-            System.err.println("File IO error");
-            i.printStackTrace();
+            throw new RuntimeException("File IO error" + i);
         }
     }
-
 }

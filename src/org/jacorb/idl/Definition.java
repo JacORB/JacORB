@@ -38,7 +38,7 @@ public class Definition
         super( num );
         pack_name = "";
     }
-    
+
     public Definition (Declaration d)
     {
         super (new_num());
@@ -57,7 +57,7 @@ public class Definition
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
+            logger.error("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
             throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
         }
         enclosing_symbol = s;
@@ -91,7 +91,7 @@ public class Definition
     }
 
     /**
-     */ 
+     */
 
     public void accept( IDLTreeVisitor visitor )
     {
@@ -100,9 +100,3 @@ public class Definition
 
 
 }
-
-
-
-
-
-

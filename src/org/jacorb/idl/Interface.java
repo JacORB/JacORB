@@ -109,7 +109,6 @@ public class Interface
     public Object clone()
     {
         throw new RuntimeException("Don't clone me, i am an interface!");
-        // return null;
     }
 
     public void setEnclosingSymbol(IdlSymbol s)
@@ -282,7 +281,6 @@ public class Interface
             else
             {
                 // this is another forward declaration, ignore
-                //parser.error("Interface " + typeName() + " already defined", token);
             }
         }
 
@@ -485,8 +483,6 @@ public class Interface
         printPackage(ps);
         printClassComment(name, ps);
         printSuperclassImports(ps);
-
-        //printImport(ps);
 
         if (is_pseudo)
         {
@@ -1359,20 +1355,11 @@ public class Interface
 
             if (replyHandler != null)
                 replyHandler.print (_ps);
-
-            //IRMap.enter(this);
         }
-
     }
-
-    /**
-     */
 
     public void accept(IDLTreeVisitor visitor)
     {
         visitor.visitInterface(this);
     }
-
-
-
 }

@@ -110,7 +110,7 @@ public class Value
     {
         if( enclosing_symbol != null && enclosing_symbol != s )
         {
-            System.err.println( "was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
+            logger.error("was " + enclosing_symbol.getClass().getName() + " now: " + s.getClass().getName() );
             throw new RuntimeException( "Compiler Error: trying to reassign container for " + name );
         }
         if( s == null )
