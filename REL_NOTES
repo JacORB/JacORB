@@ -47,8 +47,9 @@ gerald.brose@acm.org
         - Initial References:
                 Support has been added for resolving object references from
                 JNDI and as resources. This can be done using 'jndi:' or
-                'resource:' based URLs. Unrecognised URL types are now passed down
-                to the underlying JDK for processing ('https:', 'ftp:' etc.).
+                'resource:' based URLs. Unrecognised URL types are now passed 
+                down to the underlying JDK for processing ('https:', 'ftp:' 
+                etc.).
 
         - Local Objects: 
                 The org.jacorb.orb.LocalityConstrainedObject class has
@@ -73,6 +74,8 @@ gerald.brose@acm.org
                         - Fix for equal operation on aliased types.
                         - Fix for insertion and extraction of basic types when
                           any contains an aliased (from typedef) basic type.
+                        - Fix for insert_Object operation to determine the
+                          IDL name from the RepositoryId.
                 ORB:
                         - Fix for IORs not containing zero character padding.
                         - Passing a null to object_to_string now returns the
@@ -83,20 +86,29 @@ gerald.brose@acm.org
                           operations for these types will throw NO_IMPLEMENT.
                         - DII support operations on singleton ORB now correctly
                           throw NO_IMPLEMENT.
-                        - The create_operation_list operation is now implemented.
-                DynAnys:
+                        - The create_operation_list operation is now 
+                          implemented.
+                        - Fix for CDRInputStream::read_TypeCode operation to 
+                          handle recursive and repeated TypeCodes.
+                        - Fix for ORBSingleton::create_struct_tc and
+                          ORBSingleton::create_union_tc operations to 
+                          correctly construct recursive TypeCodes.
+                DynAny:
                         - Operations called on a DynAny that has been 
-                          destroyed now throw an OBJECT_NOT_EXIST exception
+                          destroyed now throw an OBJECT_NOT_EXIST exception.
                         - Enabled creation of DynAnys with TCKind tk_null and
-                          tk_void
-                        - Fixed the get_dyn_any/insert_dyn_any operations
-                        - Fixed handling of user exceptions
+                          tk_void.
+                        - Fixed the get_dyn_any/insert_dyn_any operations.
+                        - Fixed handling of user exceptions.
                         - Fixed initialization of current position for
-                          DynStructs and DynUnions
-                        - Fixed iteration operations for DynUnions
+                          DynStructs and DynUnions.
+                        - Fixed iteration operations for DynUnions.
                         - Fixed implementation of DynUnion operations
                           set_to_no_active_member, set_to_default_member and
-                          set_discriminator
+                          set_discriminator.
+               TypeCode:
+                        - Fix for TypeCode API to correctly handle recursive
+                          TypeCodes.
 
          - Portable Interceptors:
                - Adapted to CORBA 2.5 IDL (ForwardRequest exception
@@ -324,9 +336,10 @@ gerald.brose@acm.org
               org.jacorb.orb.standardInterceptors.IORInterceptorInitializer
 
         - IDL compiler:
-                . added the -nostub switch to suppress generation of client stubs
-                . added the -sloppy_forward switch for forward declared interfaces
-                  without definitions
+                . added the -nostub switch to suppress generation of client 
+                  stubs
+                . added the -sloppy_forward switch for forward declared 
+                  interfaces without definitions
                 . name resolution bug fixed
                 . stricter checks in lots of places (thanks to Paul Locke)
                 . minor bug fixes
@@ -480,4 +493,3 @@ Changes for 1.1:
                 
         - internal bug fixes (memory managament, memory leaks, 
           CDR encapsulation size  tolerance, ...)
-
