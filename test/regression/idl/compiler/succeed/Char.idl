@@ -1,0 +1,27 @@
+#pragma prefix "encoding.idl"
+
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            interface CharTester
+            {
+               union CharUnionDef switch(char) {
+                  case 'c':
+                  char neg_mem;
+                  case 'a':
+                  case 'b':
+                  case 'd':
+                  default:
+                  string default_mem;
+               };
+            };
+         };
+      };
+   };
+};

@@ -1,0 +1,20 @@
+
+typedef struct sMyStruct {
+  string name;
+  string address;
+} MyStruct;
+
+
+#ifdef RUN_ONE
+typedef sequence <MyStruct> MyStructList;
+#endif
+#ifdef RUN_TWO
+typedef sequence <::MyStruct> MyStructList;
+#endif
+#ifdef RUN_THREE
+interface Paul {
+  typedef sequence <MyStruct> MyStructList;
+};
+#endif
+
+

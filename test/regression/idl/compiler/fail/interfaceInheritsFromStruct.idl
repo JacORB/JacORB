@@ -1,0 +1,15 @@
+
+/**
+ * This example comprises an interface that inherits
+ * from something that is not an interface. Clearly
+ * this is incorrect. 
+ * RESULT: Runtime exception in Jacorb compiler. 
+ */
+
+struct s_MyStruct {
+  string name;
+};
+
+interface Paul : s_MyStruct {
+    void baz();
+};

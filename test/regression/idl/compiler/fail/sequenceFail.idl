@@ -1,0 +1,13 @@
+module seqFail
+{
+ 
+    typedef sequence< string, 0 > emptySeq;
+
+    typedef sequence< string, -1 > negativeSeq;
+
+    typedef string emptyStringArray[0];
+
+    typedef string negativeStringArray[-7];
+
+
+};

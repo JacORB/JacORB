@@ -1,0 +1,17 @@
+
+module org
+{
+   module jacorb
+   {
+      module test
+      {
+         module idl
+         {
+            module Longs
+            {
+               const long long UnsignedValue2 = 18446744073709551615;
+            };
+         };
+      };
+   };
+};

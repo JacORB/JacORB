@@ -1,0 +1,8 @@
+/**
+ * This interface defines an operation, one of whose
+ * exceptions is of an unknown type. 
+ * RESULT: Jacorb compiler correctly finds this error. 
+ */
+interface Paul {
+  void foo( in long arg1 ) raises (NoSuchThing);
+};
