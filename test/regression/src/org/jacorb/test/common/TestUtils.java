@@ -21,53 +21,53 @@ package org.jacorb.test.common;
  *
  */
 
-import java.util.Vector;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Utility class used to setup JUnit-TestSuite 
- * see file
- * ../notification/org/jacorb/test/notification/EventChannelTest.java
- * for an usage example.
- *
+ * Utility class used to setup JUnit-TestSuite
+ * 
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class TestUtils 
+public class TestUtils
 {
-    
     private static final String[] STRING_ARRAY_TEMPLATE = new String[0];
-    
+
     /**
-     * this method returns a List of all public Methods which Names
-     * start with the Prefix "test" and accept no Parameters e.g:
-     *
+     * this method returns a List of all public Methods which Names start with the Prefix "test" and
+     * accept no Parameters e.g:
+     * 
      * <ul>
      * <li>testOperation
      * <li>testSomething
      * </ul>
-     *
+     *  
      */
-    public static String[] getTestMethods(Class clazz) {
-	return getTestMethods(clazz, "test");
+    public static String[] getTestMethods(Class clazz)
+    {
+        return getTestMethods(clazz, "test");
     }
 
-    public static String[] getTestMethods(Class clazz, 
-					  String prefix) {
+    public static String[] getTestMethods(Class clazz, String prefix)
+    {
+        Method[] methods = clazz.getMethods();
 
-	Method[] methods = clazz.getMethods();
+        List result = new ArrayList();
 
-	Vector result = new Vector();
+        for (int x = 0; x < methods.length; ++x)
+        {
+            if (methods[x].getName().startsWith(prefix))
+            {
+                if (methods[x].getParameterTypes().length == 0)
+                {
+                    result.add(methods[x].getName());
+                }
+            }
+        }
 
-	for (int x=0; x<methods.length; ++x) {
-	    if (methods[x].getName().startsWith(prefix)) {
-		if (methods[x].getParameterTypes().length == 0) {
-		    result.add(methods[x].getName());
-		}
-	    }
-	}
-
-	return (String[])result.toArray(STRING_ARRAY_TEMPLATE);
-    }    
+        return (String[]) result.toArray(STRING_ARRAY_TEMPLATE);
+    }
 }
