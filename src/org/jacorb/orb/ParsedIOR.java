@@ -305,7 +305,20 @@ public class ParsedIOR
 
     public String getCodebaseComponent()
     {
-        return components.getStringComponent (TAG_JAVA_CODEBASE.value);
+        String codebase =
+            components.getStringComponent (TAG_JAVA_CODEBASE.value);
+        if (codebase != null)
+            return codebase;
+        else if (effectiveProfile instanceof IIOPProfile)
+        {
+            TaggedComponentList iiopComponents =
+                ((IIOPProfile)effectiveProfile).getComponents();
+            return iiopComponents.getStringComponent(TAG_JAVA_CODEBASE.value);
+        }
+        else
+            // TODO Should there be a component access mechanism for all
+            //      ETF profiles?  Clarify with OMG.
+            return null;
     }
 
     /**
