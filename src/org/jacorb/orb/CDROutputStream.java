@@ -941,9 +941,16 @@ public class CDROutputStream
 
     public final void write_fixed (final java.math.BigDecimal value) 
     {    
-        String v = value.movePointRight(value.scale()).toString();
+        String v = value.unscaledValue().toString ();
         byte [] representation;
         int b, c;
+
+        // Strip off any leading '-' from value to encode
+
+        if (v.startsWith ("-"))
+        {
+            v = v.substring (1);
+        }
 
         if( (v.length() %2) == 0)
         {
