@@ -38,6 +38,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
 import org.omg.CORBA.ORB;
+import org.omg.CosNotification.Property;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.MappingFilter;
@@ -154,6 +155,12 @@ public abstract class AbstractMessage
         public Any toAny()
         {
             return AbstractMessage.this.toAny();
+        }
+
+
+        public Property[] toTypedEvent() throws NoTranslationException
+        {
+            return AbstractMessage.this.toTypedEvent();
         }
 
 
@@ -403,6 +410,16 @@ public abstract class AbstractMessage
      * @return an <code>Any</code> value
      */
     public abstract Any toAny();
+
+
+    /**
+     * convert this message to a TypedEvent.
+     *
+     * @return a sequence of name-value pairs.
+     * @throws NoTranslationException if the contents of the message
+     * cannot be translated into a TypedEvent.
+     */
+    public abstract Property[] toTypedEvent() throws NoTranslationException;
 
     /**
      * Access this NotificationEvent as StructuredEvent.

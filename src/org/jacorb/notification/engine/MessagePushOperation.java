@@ -20,26 +20,24 @@ package org.jacorb.notification.engine;
  *   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyComm.StructuredPushConsumer;
-
 import org.jacorb.notification.interfaces.Message;
+import org.omg.CosEventComm.Disconnected;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class PushStructuredOperation extends MessagePushOperation {
+public abstract class MessagePushOperation implements PushOperation {
 
-    private StructuredPushConsumer pushConsumer_;
+    protected Message message_;
 
-    public PushStructuredOperation(StructuredPushConsumer pushConsumer, Message message) {
-        super(message);
-
-        pushConsumer_ = pushConsumer;
+    public MessagePushOperation(Message message) {
+        message_ = (Message)message.clone();
     }
 
-    public void invokePush() throws Disconnected {
-        pushConsumer_.push_structured_event(message_.toStructuredEvent());
+    public void dispose() {
+        message_.dispose();
     }
+
+    public abstract void invokePush() throws Disconnected;
 }

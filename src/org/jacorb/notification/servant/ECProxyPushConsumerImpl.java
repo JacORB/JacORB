@@ -36,16 +36,6 @@ public class ECProxyPushConsumerImpl
     extends ProxyPushConsumerImpl
     implements ProxyPushConsumerOperations
 {
-
-    ECProxyPushConsumerImpl( SupplierAdminTieImpl myAdminServant,
-                             ChannelContext channelContext)
-    {
-        super( myAdminServant,
-               channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public void connect_push_supplier( org.omg.CosEventComm.PushSupplier pushSupplier )
         throws AlreadyConnected
     {

@@ -34,17 +34,12 @@ import org.omg.CosNotifyFilter.MappingFilter;
  * @version $Id$
  */
 
-public interface FilterStage
+public interface FilterStage extends FilterStageSource
 {
     /**
      * check if this FilterStage has been disposed.
      */
     boolean isDisposed();
-
-    /**
-     * get FilterStages following this Node.
-     */
-    List getSubsequentFilterStages();
 
     /**
      * get Filters associated to this FilterStage.
@@ -87,5 +82,4 @@ public interface FilterStage
      * @return a PriorityFilter or null if no Filter is attached
      */
     MappingFilter getPriorityFilter();
-
 }

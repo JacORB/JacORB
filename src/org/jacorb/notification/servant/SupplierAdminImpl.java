@@ -23,11 +23,13 @@ package org.jacorb.notification.servant;
 
 import java.util.List;
 
-import org.jacorb.notification.ChannelContext;
+import org.jacorb.notification.CollectionsWrapper;
 import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.interfaces.FilterStageSource;
 import org.jacorb.notification.interfaces.MessageConsumer;
 
 import org.omg.CORBA.IntHolder;
+import org.omg.CORBA.ORB;
 import org.omg.CORBA.UNKNOWN;
 import org.omg.CosEventChannelAdmin.ProxyPullConsumer;
 import org.omg.CosEventChannelAdmin.ProxyPushConsumer;
@@ -42,6 +44,7 @@ import org.omg.CosNotifyChannelAdmin.SupplierAdminHelper;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminOperations;
 import org.omg.CosNotifyChannelAdmin.SupplierAdminPOATie;
 import org.omg.CosNotifyComm.InvalidEventType;
+import org.omg.PortableServer.POA;
 import org.omg.PortableServer.Servant;
 
 /**
@@ -49,32 +52,27 @@ import org.omg.PortableServer.Servant;
  * @version $Id$
  */
 
-public class SupplierAdminTieImpl
+public class SupplierAdminImpl
     extends AbstractAdmin
     implements SupplierAdminOperations,
                Disposable
 {
-    private SupplierAdminPOATie thisCorbaServant_;
+    protected Servant thisServant_;
 
     private SupplierAdmin thisCorbaRef_;
 
-    ////////////////////////////////////////
-
-    public SupplierAdminTieImpl(ChannelContext channelContext)
-    {
-        super(channelContext);
-    }
+    private FilterStageSource subsequentFilterStagesSource_;
 
     ////////////////////////////////////////
 
     public synchronized Servant getServant()
     {
-        if ( thisCorbaServant_ == null )
+        if ( thisServant_ == null )
             {
-                thisCorbaServant_ = new SupplierAdminPOATie( this );
+                thisServant_ = new SupplierAdminPOATie( this );
             }
 
-        return thisCorbaServant_;
+        return thisServant_;
     }
 
 
@@ -137,7 +135,7 @@ public class SupplierAdminTieImpl
     }
 
 
-    private AbstractProxy obtain_notification_pull_consumer_servant( ClientType clientType )
+    private AbstractProxy obtain_notification_pull_consumer_servant( ClientType clientType ) throws Exception
     {
         AbstractProxy _servant = AbstractProxyConsumer.newProxyPullConsumer(this, clientType);
 
@@ -185,7 +183,7 @@ public class SupplierAdminTieImpl
     }
 
 
-    private AbstractProxy obtain_notification_push_consumer_servant( ClientType clientType )
+    private AbstractProxy obtain_notification_push_consumer_servant( ClientType clientType ) throws Exception
     {
         AbstractProxy _servant = AbstractProxyConsumer.newProxyPushConsumer(this, clientType);
 
@@ -209,9 +207,10 @@ public class SupplierAdminTieImpl
     public ProxyPushConsumer obtain_push_consumer()
     {
         try {
-            AbstractProxy _servant =
-                new ECProxyPushConsumerImpl( this,
-                                             getChannelContext());
+            AbstractProxyConsumer _servant =
+                new ECProxyPushConsumerImpl();
+
+            _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(this));
 
             configureEventStyleID(_servant);
 
@@ -232,9 +231,10 @@ public class SupplierAdminTieImpl
     public ProxyPullConsumer obtain_pull_consumer()
     {
         try {
-            AbstractProxy _servant =
-                new ECProxyPullConsumerImpl( this,
-                                             getChannelContext());
+            AbstractProxyConsumer _servant =
+                new ECProxyPullConsumerImpl();
+
+            _servant.setSubsequentDestinations(CollectionsWrapper.singletonList(this));
 
             configureEventStyleID(_servant);
 
@@ -256,7 +256,12 @@ public class SupplierAdminTieImpl
 
     public List getSubsequentFilterStages()
     {
-        return getChannelServant().getAllConsumerAdmins();
+        return subsequentFilterStagesSource_.getSubsequentFilterStages();
+    }
+
+
+    public void setSubsequentFilterStageSource(FilterStageSource source) {
+        subsequentFilterStagesSource_ = source;
     }
 
 

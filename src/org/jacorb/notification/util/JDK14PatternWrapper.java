@@ -32,12 +32,11 @@ public class JDK14PatternWrapper extends PatternWrapper
 {
     private Pattern pattern_;
 
-    public JDK14PatternWrapper() {}
-
     public void compile( String patternString )
     {
         pattern_ = java.util.regex.Pattern.compile( patternString );
     }
+
 
     public int match( String text )
     {
@@ -52,6 +51,7 @@ public class JDK14PatternWrapper extends PatternWrapper
             return 0;
         }
     }
+
 
     public String toString()
     {

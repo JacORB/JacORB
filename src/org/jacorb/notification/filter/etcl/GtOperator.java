@@ -23,25 +23,23 @@ package org.jacorb.notification.filter.etcl;
 
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
-import org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode;
-import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
-import org.omg.DynamicAny.DynAnyPackage.TypeMismatch;
-
-import antlr.Token;
 import org.jacorb.notification.filter.EvaluationResult;
 
-/**
- * A simple node to represent GT (>) operation
- */
-public class GtOperator extends AbstractTCLNode {
+import antlr.Token;
 
-    public GtOperator(Token tok) {
+/**
+ * A node to represent GT (>) operation
+ */
+public class GtOperator extends AbstractTCLNode
+{
+    public GtOperator(Token tok)
+    {
         super(tok);
     }
 
     public EvaluationResult evaluate(EvaluationContext context)
-        throws EvaluationException {
-
+        throws EvaluationException
+    {
         EvaluationResult _left, _right;
 
         _left = left().evaluate(context);
@@ -49,33 +47,39 @@ public class GtOperator extends AbstractTCLNode {
 
         int _comp = _left.compareTo(_right);
 
-        if (_comp == -1 || _comp == 0) {
+        if (_comp == -1 || _comp == 0)
+        {
             return EvaluationResult.BOOL_FALSE;
         }
         return EvaluationResult.BOOL_TRUE;
     }
 
-    public String toString() {
+    public String toString()
+    {
         return ">";
     }
 
-    public String getName() {
+    public String getName()
+    {
         return "GtOperator";
     }
 
-    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptInOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptInOrder(visitor);
         visitor.visitGt(this);
         right().acceptInOrder(visitor);
     }
 
-    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPreOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         visitor.visitGt(this);
         left().acceptPreOrder(visitor);
         right().acceptPreOrder(visitor);
     }
 
-    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException {
+    public void acceptPostOrder(AbstractTCLVisitor visitor) throws VisitorException
+    {
         left().acceptPostOrder(visitor);
         right().acceptPostOrder(visitor);
         visitor.visitGt(this);

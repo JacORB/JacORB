@@ -41,9 +41,9 @@ import org.omg.CosNotifyFilter.FilterNotFound;
 import org.jacorb.notification.interfaces.Disposable;
 
 import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-import org.apache.avalon.framework.logger.Logger;
-import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.Configurable;
+import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
@@ -62,9 +62,9 @@ public class FilterManager
 
     ////////////////////////////////////////
 
-    private ChannelContext channelContext_;
-
     private Map filters_;
+
+    private ORB orb_;
 
     private Object filtersLock_;
 
@@ -77,6 +77,7 @@ public class FilterManager
     private Map filterId2callbackId_ = new Hashtable();
 
     private Logger logger_ = null;
+
     private org.jacorb.config.Configuration config_ = null;
 
 
@@ -92,12 +93,13 @@ public class FilterManager
     }
 
 
-    public FilterManager(ChannelContext channelContext)
+    public FilterManager(ORB orb)
     {
         this( new HashMap() );
 
-        channelContext_ = channelContext;
+        setORB(orb);
     }
+
 
     public void configure (Configuration conf)
     {
@@ -222,7 +224,7 @@ public class FilterManager
     private void attachFilterListener(int filterId, Filter filter) {
         FilterCallback filterCallback =
             new FilterCallback(this,
-                               channelContext_.getORB(),
+                               getORB(),
                                filterId,
                                filter);
 
@@ -241,6 +243,16 @@ public class FilterManager
 
             filterCallback.dispose();
         }
+    }
+
+
+    public ORB getORB() {
+        return orb_;
+    }
+
+
+    public void setORB(ORB orb) {
+        orb_ = orb;
     }
 }
 

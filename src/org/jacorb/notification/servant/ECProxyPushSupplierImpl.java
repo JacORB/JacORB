@@ -38,13 +38,10 @@ public class ECProxyPushSupplierImpl
     extends ProxyPushSupplierImpl
     implements ProxyPushSupplierOperations
 {
-    ECProxyPushSupplierImpl(AbstractAdmin myAdminServant,
-                            ChannelContext channelContext)
-        throws UnsupportedQoS
-    {
+    ECProxyPushSupplierImpl()
 
-        super(myAdminServant,
-              channelContext);
+    {
+        super();
 
         isIDPublic_ = false;
     }

@@ -93,11 +93,9 @@ public class ProxyPullConsumerImpl
 
     ////////////////////////////////////////
 
-    ProxyPullConsumerImpl(AbstractAdmin adminServant,
-                          ChannelContext channelContext)
+    public ProxyPullConsumerImpl()
     {
-        super( adminServant,
-               channelContext);
+        super();
 
         configureTimerCallback();
     }
@@ -199,7 +197,7 @@ public class ProxyPullConsumerImpl
                 ++successfulPullCounter_;
 
                 Message _message =
-                    messageFactory_.newMessage( event, this );
+                    getMessageFactory().newMessage( event, this );
 
                 checkMessageProperties(_message);
 

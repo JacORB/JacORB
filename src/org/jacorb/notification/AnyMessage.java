@@ -22,23 +22,22 @@ package org.jacorb.notification;
  */
 
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
+import org.jacorb.notification.filter.ComponentName;
 import org.jacorb.notification.filter.EvaluationContext;
 import org.jacorb.notification.filter.EvaluationException;
 import org.jacorb.notification.filter.EvaluationResult;
-import org.jacorb.notification.filter.ComponentName;
 import org.jacorb.notification.filter.FilterUtils;
-import org.jacorb.notification.interfaces.FilterStage;
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.AnyHolder;
+import org.omg.CORBA.TCKind;
 import org.omg.CosNotification.EventHeader;
 import org.omg.CosNotification.EventType;
 import org.omg.CosNotification.FixedEventHeader;
 import org.omg.CosNotification.Property;
+import org.omg.CosNotification.PropertySeqHelper;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotifyFilter.Filter;
 import org.omg.CosNotifyFilter.MappingFilter;
@@ -82,12 +81,9 @@ public class AnyMessage extends AbstractMessage
      */
     protected StructuredEvent structuredEventValue_;
 
-    ////////////////////////////////////////
+    private Property[] typedEventValue_;
 
-    public AnyMessage( )
-    {
-        super( );
-    }
+    private boolean isTranslationPossible_ = true;
 
     ////////////////////////////////////////
 
@@ -103,6 +99,8 @@ public class AnyMessage extends AbstractMessage
 
         anyValue_ = null;
         structuredEventValue_ = null;
+        typedEventValue_ = null;
+        isTranslationPossible_ = true;
     }
 
 
@@ -115,6 +113,35 @@ public class AnyMessage extends AbstractMessage
     public synchronized Any toAny()
     {
         return anyValue_;
+    }
+
+
+    public synchronized Property[] toTypedEvent() throws NoTranslationException
+    {
+        if (!isTranslationPossible_) {
+            throw new NoTranslationException();
+        }
+
+        if (typedEventValue_ == null) {
+            try {
+                Property[] _typedEventValue = PropertySeqHelper.extract(anyValue_);
+
+                if (!_typedEventValue[0].name.equals("operation")) {
+                    throw new IllegalArgumentException();
+                }
+
+                if (!_typedEventValue[0].value.type().kind().equals(TCKind.tk_string)) {
+                    throw new IllegalArgumentException();
+                }
+
+                typedEventValue_ = _typedEventValue;
+            } catch (Throwable e) {
+                isTranslationPossible_ = false;
+
+                throw new NoTranslationException();
+            }
+        }
+        return typedEventValue_;
     }
 
 

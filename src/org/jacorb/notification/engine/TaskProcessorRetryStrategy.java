@@ -65,7 +65,6 @@ public class TaskProcessorRetryStrategy extends RetryStrategy
             }
             catch (InterruptedException e)
             {
-//                 logger_.error("Interrupted", e);
             }
         }
     };
@@ -96,6 +95,7 @@ public class TaskProcessorRetryStrategy extends RetryStrategy
     public void retry() throws RetryException
     {
         messageConsumer_.disableDelivery();
+
         taskProcessor_.executeTaskAfterDelay(backoutInterval_,
                                              enableMessageConsumer_);
     }

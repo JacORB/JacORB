@@ -21,7 +21,6 @@ package org.jacorb.notification;
  *
  */
 
-
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +49,7 @@ import org.omg.CosNotifyFilter.UnsupportedFilterableData;
 import org.omg.TimeBase.TimeTHelper;
 import org.omg.TimeBase.UtcT;
 import org.omg.TimeBase.UtcTHelper;
+import org.omg.CORBA.TCKind;
 
 /**
  * Adapts a StructuredEvent to the Message Interface.
@@ -58,11 +58,15 @@ import org.omg.TimeBase.UtcTHelper;
  * @version $Id$
  */
 
-class StructuredEventMessage extends AbstractMessage
+public class StructuredEventMessage extends AbstractMessage
 {
     private Any anyValue_;
 
     private StructuredEvent structuredEventValue_;
+
+    private Property[] typedEventValue_;
+
+    private boolean isTranslationPossible_ = true;
 
     private String constraintKey_;
 
@@ -78,11 +82,11 @@ class StructuredEventMessage extends AbstractMessage
 
     ////////////////////////////////////////
 
-    public synchronized void setStructuredEventValue( StructuredEvent event,
-                                                      boolean startTimeSupported,
-                                                      boolean timeOutSupported)
+    public synchronized void setStructuredEvent( StructuredEvent structuredEvent,
+                                                 boolean startTimeSupported,
+                                                 boolean timeOutSupported)
     {
-        structuredEventValue_ = event;
+        structuredEventValue_ = structuredEvent;
 
         constraintKey_ =
             FilterUtils.calcConstraintKey( structuredEventValue_.header.fixed_header.event_type.domain_name,
@@ -98,6 +102,8 @@ class StructuredEventMessage extends AbstractMessage
 
         anyValue_ = null;
         structuredEventValue_ = null;
+        typedEventValue_ = null;
+        isTranslationPossible_ = true;
         constraintKey_ = null;
         startTime_ = null;
         stopTime_ = null;
@@ -128,6 +134,34 @@ class StructuredEventMessage extends AbstractMessage
     }
 
 
+    public synchronized Property[] toTypedEvent() throws NoTranslationException {
+
+        if (!isTranslationPossible_) {
+            throw new NoTranslationException();
+        }
+
+        if (typedEventValue_ == null) {
+            try {
+                if (!structuredEventValue_.filterable_data[0].name.equals("operation")) {
+                    throw new IllegalArgumentException();
+                }
+
+                if (!structuredEventValue_.filterable_data[0].value.type().kind().equals(TCKind.tk_string)) {
+                    throw new IllegalArgumentException();
+                }
+
+                typedEventValue_ = structuredEventValue_.filterable_data;
+            } catch (Exception e) {
+                isTranslationPossible_ = false;
+
+                throw new NoTranslationException();
+            }
+        }
+
+        return typedEventValue_;
+    }
+
+
     public String getConstraintKey()
     {
         return constraintKey_;
@@ -137,10 +171,10 @@ class StructuredEventMessage extends AbstractMessage
     public EvaluationResult extractFilterableData(EvaluationContext context,
                                                   ComponentName root,
                                                   String v) throws EvaluationException {
-            Any _any =
-                context.getDynamicEvaluator().evaluatePropertyList(toStructuredEvent().filterable_data, v);
+        Any _any =
+            context.getDynamicEvaluator().evaluatePropertyList(toStructuredEvent().filterable_data, v);
 
-            return EvaluationResult.fromAny(_any);
+        return EvaluationResult.fromAny(_any);
     }
 
 
@@ -159,6 +193,7 @@ class StructuredEventMessage extends AbstractMessage
 
     private void parseQosSettings(boolean startTimeSupported,
                                   boolean timeoutSupported) {
+
         Property[] props = toStructuredEvent().header.variable_header;
 
         for (int x=0; x < props.length; ++x) {

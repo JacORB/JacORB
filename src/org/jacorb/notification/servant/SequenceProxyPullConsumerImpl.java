@@ -47,15 +47,6 @@ public class SequenceProxyPullConsumerImpl
 
     ////////////////////////////////////////
 
-    public SequenceProxyPullConsumerImpl( AbstractAdmin admin,
-                                          ChannelContext channelContext)
-    {
-        super( admin,
-               channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public ProxyType MyType() {
         return ProxyType.PULL_SEQUENCE;
     }
@@ -107,7 +98,7 @@ public class SequenceProxyPullConsumerImpl
             for ( int x = 0; x < _events.length; ++x )
             {
                 Message msg =
-                    messageFactory_.newMessage( _events[ x ], this );
+                    getMessageFactory().newMessage( _events[ x ], this );
 
                 getTaskProcessor().processMessage( msg );
             }

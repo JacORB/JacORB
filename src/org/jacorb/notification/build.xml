@@ -28,7 +28,7 @@
     <mkdir dir="${src}/generated/${etcl.target.package}" />
 
     <path id="antlr.classpath">
-      <pathelement path="${basedir}/lib/antlr-2.7.2.jar" />
+      <pathelement path="${basedir}/lib/antlr-2.7.3.jar" />
     </path>
   </target>
 

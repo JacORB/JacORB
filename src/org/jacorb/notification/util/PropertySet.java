@@ -116,20 +116,20 @@ public abstract class PropertySet
     }
 
 
-    public Property[] toArray()
+    public synchronized Property[] toArray()
     {
         if (arrayView_ == null || modified_)
             {
-                Property[] _ps = new Property[properties_.size()];
+                Property[] _props = new Property[properties_.size()];
 
                 Iterator i = properties_.keySet().iterator();
                 int x = 0;
                 while (i.hasNext())
                     {
                         String _key = (String)i.next();
-                        _ps[x++] = new Property(_key, (Any)properties_.get(_key));
+                        _props[x++] = new Property(_key, (Any)properties_.get(_key));
                     }
-                arrayView_ = _ps;
+                arrayView_ = _props;
                 modified_ = false;
             }
         return arrayView_;
@@ -167,9 +167,6 @@ public abstract class PropertySet
         for (int x = 0; x < props.length; ++x)
             {
                 if (ignoredNames_.contains(props[x].name)) {
-//                     if (logger_.isDebugEnabled()) {
-//                         logger_.debug("ignore property " + props[x].name);
-//                     }
                     continue;
                 }
 
@@ -182,10 +179,6 @@ public abstract class PropertySet
 
                 properties_.put(props[x].name, props[x].value);
 
-//                 if (logger_.isDebugEnabled()) {
-//                     logger_.debug("set " + props[x].name + " => " + props[x].value);
-//                 }
-
                 if (listeners_.containsKey(props[x].name))
                     {
                         if (!props[x].value.equals(_oldValue))
@@ -195,7 +188,9 @@ public abstract class PropertySet
                     }
             }
 
-        modified_ = true;
+        synchronized(this) {
+            modified_ = true;
+        }
 
         Iterator i = _toBeNotified.iterator();
         while (i.hasNext())
@@ -222,11 +217,6 @@ public abstract class PropertySet
             {
                 if (!getValidNames().contains(props[x].name))
                     {
-//                         if (logger_.isErrorEnabled()) {
-//                             logger_.error("Property " + props[x].name + " is unknown");
-
-//                             logger_.error("valid name: " + getValidNames());
-//                         }
                         errorList.add(badProperty(props[x].name));
                     }
             }

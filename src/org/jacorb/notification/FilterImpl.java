@@ -38,7 +38,6 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.CachingWildcardMap;
 import org.jacorb.notification.util.WildcardMap;
-//import org.jacorb.util.Debug;
 
 import org.omg.CORBA.Any;
 import org.omg.CORBA.NO_IMPLEMENT;
@@ -894,10 +893,46 @@ public class FilterImpl
     }
 
 
+    /**
+     * match the TypedEvent to the associated constraints. return
+     * the id of the first matching filter or NO_CONSTRAINT.
+     */
+    protected int match_typed_internal( Property[] typedEvent )
+        throws UnsupportedFilterableData
+    {
+        EvaluationContext _evaluationContext = null;
+        Message _event = null;
+
+        try {
+            _evaluationContext = applicationContext_.newEvaluationContext();
+
+            _event =
+                messageFactory_.newMessage( typedEvent );
+
+            return match(_evaluationContext, _event );
+        }
+        finally {
+            try {
+                _event.dispose();
+            }
+            catch (Exception e) {
+                logger_.fatalError("Error disposing event", e);
+            }
+
+            try {
+                _evaluationContext.dispose();
+            }
+            catch (Exception e) {
+                logger_.fatalError("Error releasing EvaluationContext", e);
+            }
+        }
+    }
+
+
     public boolean match_typed( Property[] properties )
         throws UnsupportedFilterableData
     {
-        throw new NO_IMPLEMENT();
+        return match_typed_internal(properties) >= 0;
     }
 
 

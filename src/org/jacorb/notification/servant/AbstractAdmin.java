@@ -28,9 +28,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.jacorb.notification.ChannelContext;
-import org.jacorb.notification.EventChannelImpl;
+import org.jacorb.notification.ChannelContextDependency;
+import org.jacorb.notification.Dependant;
+import org.jacorb.notification.EventChannelDependency;
 import org.jacorb.notification.FilterManager;
 import org.jacorb.notification.MessageFactory;
+import org.jacorb.notification.MessageFactoryDependency;
 import org.jacorb.notification.OfferManager;
 import org.jacorb.notification.SubscriptionManager;
 import org.jacorb.notification.interfaces.Disposable;
@@ -47,7 +50,6 @@ import org.omg.CosNotification.QoSAdminOperations;
 import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.AdminLimitExceeded;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
-import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.ProxyNotFound;
 import org.omg.CosNotifyFilter.Filter;
@@ -74,8 +76,12 @@ public abstract class AbstractAdmin
     implements QoSAdminOperations,
                FilterAdminOperations,
                FilterStage,
+               Dependant,
                ManageableServant,
-               Configurable
+               ChannelContextDependency,
+               Configurable,
+               MessageFactoryDependency,
+               EventChannelDependency
 {
     /**
      * the default InterFilterGroupOperator used.
@@ -97,8 +103,6 @@ public abstract class AbstractAdmin
 
     protected final Map pushServants_ = new HashMap();
 
-    private ChannelContext channelContext_;
-
     private Integer id_;
 
     private boolean isIDPublic_;
@@ -119,44 +123,33 @@ public abstract class AbstractAdmin
 
     private final List proxyEventListener_ = new ArrayList();
 
+    private MessageFactory messageFactory_;
+
     /**
      * hook that is run during dispose
      */
     private Runnable disposeHook_;
 
+    private ChannelContext channelContext_;
+
+    private EventChannel eventChannel_;
+
     ////////////////////////////////////////
 
-    protected AbstractAdmin() {
-    }
-
-    protected AbstractAdmin(ChannelContext channelContext)
-    {
-        channelContext_ = channelContext;
-
-        filterManager_ =
-            new FilterManager(channelContext_);
-
-        setPOA(channelContext_.getPOA());
-
-        setORB(channelContext_.getORB());
-
-        configure( ( (org.jacorb.orb.ORB)channelContext_.getORB() ).getConfiguration() );
-    }
 
     public void configure (Configuration conf)
     {
         logger_ = ((org.jacorb.config.Configuration)conf).
             getNamedLogger(getClass().getName());
 
-        filterManager_.configure (conf);
+        filterManager_.configure(conf);
 
         qosSettings_  = new QoSPropertySet(conf, QoSPropertySet.ADMIN_QOS);
     }
 
-    ////////////////////////////////////////
 
-    public ChannelContext getChannelContext() {
-        return channelContext_;
+    public final void setMessageFactory(MessageFactory factory) {
+        messageFactory_ = factory;
     }
 
 
@@ -194,7 +187,6 @@ public abstract class AbstractAdmin
         poa_ = poa;
     }
 
-
     protected ORB getORB()
     {
         return orb_;
@@ -204,24 +196,17 @@ public abstract class AbstractAdmin
     public void setORB(ORB orb)
     {
         orb_ = orb;
+
+        filterManager_ =
+            new FilterManager(orb);
+
+        configure( ( (org.jacorb.orb.ORB)getORB() ).getConfiguration() );
     }
 
 
     protected MessageFactory getMessageFactory()
     {
-        return channelContext_.getMessageFactory();
-    }
-
-
-    protected EventChannelImpl getChannelServant()
-    {
-        return channelContext_.getEventChannelServant();
-    }
-
-
-    private EventChannel getChannel()
-    {
-        return EventChannelHelper.narrow(getChannelServant().activate());
+        return messageFactory_;
     }
 
 
@@ -273,19 +258,23 @@ public abstract class AbstractAdmin
     }
 
 
-    public InterFilterGroupOperator MyOperator()
+    public final InterFilterGroupOperator MyOperator()
     {
         return filterGroupOperator_;
     }
 
 
-    public EventChannel MyChannel()
+    public final EventChannel MyChannel()
     {
-        return getChannel();
+        return eventChannel_;
     }
 
 
-    public int MyID()
+    public final void setEventChannel(EventChannel channel) {
+        eventChannel_ = channel;
+    }
+
+    public final int MyID()
     {
         return getID().intValue();
     }
@@ -518,7 +507,7 @@ public abstract class AbstractAdmin
 
             if (_servant == null)
             {
-                _servant = (AbstractProxy)pullServants_.get(_id);
+                _servant = (AbstractProxy)pushServants_.get(_id);
             }
         }
 
@@ -530,7 +519,7 @@ public abstract class AbstractAdmin
         if ( !_servant.isIDPublic() ) {
             throw new ProxyNotFound("The proxy with ID="
                                     + id
-                                    + " is a EventStyle proxy and therefor not accessible");
+                                    + " is a EventStyle proxy and therefor not accessible by ID");
         }
 
         return _servant;
@@ -578,6 +567,8 @@ public abstract class AbstractAdmin
     protected void configureEventStyleID(AbstractProxy proxy) {
         proxy.setID(new Integer(getProxyID()), false);
 
+        channelContext_.resolveDependencies(proxy);
+
         proxy.setFilterManager( FilterManager.EMPTY_FILTER_MANAGER );
     }
 
@@ -589,20 +580,16 @@ public abstract class AbstractAdmin
      */
     protected void configureNotifyStyleID(AbstractProxy proxy) {
         proxy.setID(new Integer(getProxyID()), true);
+
+        channelContext_.resolveDependencies(proxy);
     }
 
 
     /**
      * configure initial QoS Settings for a proxy.
      */
-    protected void configureQoS(AbstractProxy proxy)  {
-        try {
-            proxy.set_qos(qosSettings_.get_qos());
-        } catch (UnsupportedQoS e) {
-            logger_.fatalError("unexpected exception", e);
-
-            throw new RuntimeException(e.getMessage());
-        }
+    protected void configureQoS(AbstractProxy proxy) throws UnsupportedQoS {
+        proxy.set_qos(qosSettings_.get_qos());
     }
 
 
@@ -631,6 +618,7 @@ public abstract class AbstractAdmin
      * satisfy method implementation
      */
     public void preActivate() {
+        // No OP
     }
 
 
@@ -687,7 +675,7 @@ public abstract class AbstractAdmin
         }
 
         // this hook is run when proxy.dispose() is called.
-        // it removes proxy from proxies again.
+        // it removes proxy from map again.
         proxy.setDisposeHook(new Runnable() {
                 public void run() {
                     synchronized(lock) {
@@ -709,5 +697,15 @@ public abstract class AbstractAdmin
         }
 
         return _list;
+    }
+
+
+    public final void setChannelContext(ChannelContext context) {
+        channelContext_ = context;
+    }
+
+
+    public ChannelContext getChannelContext() {
+        return channelContext_;
     }
 }

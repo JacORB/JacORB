@@ -22,166 +22,229 @@ package org.jacorb.notification;
  */
 
 import org.jacorb.notification.engine.TaskProcessor;
-import org.jacorb.notification.interfaces.ProxyEventListener;
+import org.jacorb.notification.engine.TaskProcessorDependency;
+import org.jacorb.notification.interfaces.Disposable;
+import org.jacorb.notification.queue.EventQueueFactory;
+import org.jacorb.notification.queue.EventQueueFactoryDependency;
+import org.jacorb.notification.servant.ManageableServant;
 
+import org.omg.CORBA.ORB;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyFilter.FilterFactory;
-
-import org.apache.avalon.framework.logger.Logger;
 import org.omg.PortableServer.POA;
-import org.omg.CORBA.ORB;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.Configurable;
-import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.Configuration;
-import org.jacorb.notification.queue.EventQueueFactory;
+import org.apache.avalon.framework.configuration.ConfigurationException;
+import org.apache.avalon.framework.logger.Logger;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
 
-public class ChannelContext implements Configurable
+public class ChannelContext implements Configurable, Disposable
 {
-    private ORB orb_;
+    class DependencyNotSatisfied extends RuntimeException {
+        DependencyNotSatisfied(String name) {
+            super("The Dependency for: " + name + " could not be satisfied");
+        }
+    }
 
-    private POA poa_;
-
-    private MessageFactory messageFactory_;
-
-    private EventChannelImpl eventChannelServant_;
-
-    private EventChannelFactory eventChannelFactory_;
-
-    private EventChannelFactoryImpl eventChannelFactoryServant_;
-
-    private FilterFactory defaultFilterFactory_;
-
-    private TaskProcessor taskProcessor_;
-
-    private EventQueueFactory eventQueueFactory_ = new EventQueueFactory();
+    private Map map_;
+    private Logger logger_;
 
     ////////////////////////////////////////
 
-    public void configure(Configuration configuration) throws ConfigurationException {
-        eventQueueFactory_.configure(configuration);
+    public ChannelContext() {
+        map_ = new HashMap();
     }
 
-    public EventQueueFactory getEventQueueFactory() {
-        return eventQueueFactory_;
+    private void ensureDependency(String name) throws DependencyNotSatisfied {
+        if (!map_.containsKey(name)) {
+            throw new DependencyNotSatisfied(name);
+        }
     }
 
+    public Object clone() {
+        ChannelContext context = new ChannelContext();
 
-    public TaskProcessor getTaskProcessor()
-    {
-        return taskProcessor_;
+        context.map_ = new HashMap(map_);
+        logger_ = ((org.jacorb.config.Configuration)context.getConfiguration()).getNamedLogger(getClass().getName());
+
+        return context;
     }
 
+    public void configure(Configuration config) {
+        map_.put(Configuration.class.getName(), config);
 
-    public void setTaskProcessor(TaskProcessor taskProcessor)
-    {
-        taskProcessor_ = taskProcessor;
-    }
+        logger_ = ((org.jacorb.config.Configuration)config).getNamedLogger(getClass().getName());
 
+        Iterator i = map_.values().iterator();
 
-    private EventChannelFactory getEventChannelFactory()
-    {
-        return eventChannelFactory_;
-    }
-
-
-    private void setEventChannelFactory(EventChannelFactory argEventChannelFactory)
-    {
-        eventChannelFactory_ = argEventChannelFactory;
-    }
-
-
-    public EventChannelFactoryImpl getEventChannelFactoryServant()
-    {
-        return eventChannelFactoryServant_;
-    }
-
-
-    public void setEventChannelFactoryServant(EventChannelFactoryImpl argEventChannelFactoryServant)
-    {
-        eventChannelFactoryServant_ = argEventChannelFactoryServant;
-    }
-
-
-    public FilterFactory getDefaultFilterFactory()
-    {
-        return defaultFilterFactory_;
-    }
-
-
-    public void setDefaultFilterFactory(FilterFactory argDefaultFilterFactory)
-    {
-        defaultFilterFactory_ = argDefaultFilterFactory;
-    }
-
-
-    public EventChannelImpl getEventChannelServant()
-    {
-        return eventChannelServant_;
-    }
-
-
-    public void setEventChannelServant(EventChannelImpl argEventChannelServant)
-    {
-        if (argEventChannelServant == null)
-            {
-                throw new RuntimeException();
+        while (i.hasNext()) {
+            try {
+                ((Configurable)i.next()).configure(config);
+            } catch (ClassCastException e) {
+            } catch (ConfigurationException e) {
+                logger_.error("failed to configure element", e);
             }
-        eventChannelServant_ = argEventChannelServant;
-    }
-
-
-    public Object clone()
-    {
-        ChannelContext _copy = new ChannelContext();
-
-        _copy.setEventChannelFactory(eventChannelFactory_);
-        _copy.setEventChannelFactoryServant(eventChannelFactoryServant_);
-        _copy.setDefaultFilterFactory(defaultFilterFactory_);
-
-        return _copy;
-    }
-
-
-    public void setPOA(POA poa) {
-        poa_ = poa;
-    }
-
-
-    public POA getPOA() {
-        return poa_;
-    }
-
-
-    public void setORB(ORB orb) {
-        orb_ = orb;
-
-        try {
-            configure(((org.jacorb.orb.ORB)orb).getConfiguration());
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
 
-    public ORB getORB() {
-        return orb_;
+    public void dispose() {
+        Iterator i = map_.values().iterator();
+
+        while (i.hasNext()) {
+            try {
+                ((Disposable)i.next()).dispose();
+            } catch (ClassCastException e) {
+            }
+        }
+        map_.clear();
+    }
+
+
+    private Object get(String name) {
+        ensureDependency(name);
+
+        return map_.get(name);
+    }
+
+
+    private EventQueueFactory getEventQueueFactory() {
+        return (EventQueueFactory)get(EventQueueFactory.class.getName());
+    }
+
+    public void setEventQueueFactory(EventQueueFactory factory) {
+        map_.put(EventQueueFactory.class.getName(), factory);
+    }
+
+
+    private TaskProcessor getTaskProcessor()
+    {
+        return (TaskProcessor)get(TaskProcessor.class.getName());
+    }
+
+
+    private Configuration getConfiguration() {
+        return (Configuration)get(Configuration.class.getName());
+    }
+
+    public void setTaskProcessor(TaskProcessor taskProcessor)
+    {
+        map_.put(TaskProcessor.class.getName(), taskProcessor);
+    }
+
+
+    public void setPOA(POA poa) {
+        map_.put(POA.class.getName(), poa);
+    }
+
+
+    private POA getPOA() {
+        return (POA)get(POA.class.getName());
+    }
+
+
+    public void setORB(ORB orb) {
+        map_.put(ORB.class.getName(), orb);
+    }
+
+
+    private ORB getORB() {
+        return (ORB)get(ORB.class.getName());
     }
 
 
     public void setMessageFactory(MessageFactory messageFactory) {
-        messageFactory_ = messageFactory;
+        map_.put(MessageFactory.class.getName(), messageFactory);
     }
 
 
-    public MessageFactory getMessageFactory()
+    private MessageFactory getMessageFactory()
     {
-        return messageFactory_;
+        return (MessageFactory)get(MessageFactory.class.getName());
+    }
+
+
+    public void setEventChannel(EventChannel eventChannel) {
+        map_.put(EventChannel.class.getName(), eventChannel);
+    }
+
+
+    private EventChannel getEventChannel() {
+        return (EventChannel)get(EventChannel.class.getName());
+    }
+
+    public void setEventChannelFactory(EventChannelFactory factory) {
+        map_.put(EventChannelFactory.class.getName(), factory);
+    }
+
+
+    private EventChannelFactory getEventChannelFactory() {
+        return (EventChannelFactory)get(EventChannelFactory.class.getName());
+    }
+
+    public void resolveDependencies(Dependant o) {
+        try {
+            ManageableServant _manageableServant = (ManageableServant)o;
+
+            _manageableServant.setORB(getORB());
+            _manageableServant.setPOA(getPOA());
+        } catch (ClassCastException e) {}
+
+        try {
+            EventQueueFactoryDependency _eventQueueFactoryUser = (EventQueueFactoryDependency)o;
+
+            _eventQueueFactoryUser.setEventQueueFactory(getEventQueueFactory());
+        } catch (ClassCastException e) {
+        }
+
+        try {
+            TaskProcessorDependency _taskProcessorUser = (TaskProcessorDependency)o;
+
+            _taskProcessorUser.setTaskProcessor(getTaskProcessor());
+        } catch (ClassCastException e) {}
+
+        try {
+            MessageFactoryDependency _messageFactoryUser = (MessageFactoryDependency)o;
+
+            _messageFactoryUser.setMessageFactory(getMessageFactory());
+        } catch (ClassCastException e) {}
+
+        try {
+            EventChannelDependency ec = (EventChannelDependency)o;
+
+            ec.setEventChannel(getEventChannel());
+        } catch (ClassCastException e) {}
+
+        try {
+            EventChannelFactoryDependency ef = (EventChannelFactoryDependency)o;
+
+            ef.setEventChannelFactory(getEventChannelFactory());
+        } catch (ClassCastException e) {}
+
+
+        try {
+            Configurable _configurable = (Configurable)o;
+
+            _configurable.configure(getConfiguration());
+        } catch (ClassCastException e) {
+        } catch (ConfigurationException e) {
+            logger_.fatalError("configuration failed", e);
+        }
+
+        try {
+            ChannelContextDependency _container = (ChannelContextDependency)o;
+
+            _container.setChannelContext((ChannelContext)clone());
+        } catch (ClassCastException e) {
+        }
     }
 }

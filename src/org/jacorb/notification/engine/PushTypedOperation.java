@@ -21,25 +21,28 @@ package org.jacorb.notification.engine;
  */
 
 import org.omg.CosEventComm.Disconnected;
-import org.omg.CosNotifyComm.StructuredPushConsumer;
+import org.omg.CosEventComm.PushConsumer;
 
 import org.jacorb.notification.interfaces.Message;
+import org.omg.CORBA.Request;
 
 /**
  * @author Alphonse Bendt
  * @version $Id$
  */
-public class PushStructuredOperation extends MessagePushOperation {
+public class PushTypedOperation implements PushOperation {
 
-    private StructuredPushConsumer pushConsumer_;
+    private Request request_;
 
-    public PushStructuredOperation(StructuredPushConsumer pushConsumer, Message message) {
-        super(message);
-
-        pushConsumer_ = pushConsumer;
+    public PushTypedOperation(Request request) {
+        request_ = request;
     }
 
     public void invokePush() throws Disconnected {
-        pushConsumer_.push_structured_event(message_.toStructuredEvent());
+        request_.invoke();
+    }
+
+    public void dispose() {
+        // No Op
     }
 }

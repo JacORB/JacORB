@@ -64,15 +64,6 @@ public class SequenceProxyPullSupplierImpl
 
     ////////////////////////////////////////
 
-    public SequenceProxyPullSupplierImpl( AbstractAdmin myAdminServant,
-                                          ChannelContext channelContext)
-    {
-        super( myAdminServant,
-               channelContext );
-    }
-
-    ////////////////////////////////////////
-
     public ProxyType MyType() {
         return ProxyType.PULL_SEQUENCE;
     }

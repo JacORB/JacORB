@@ -63,7 +63,7 @@ import java.util.ArrayList;
 
 public class WildcardMap
 {
-    static final int DEFAULT_TOPLEVEL_SIZE = 4;
+    public static final int DEFAULT_TOPLEVEL_SIZE = 4;
 
     private EntryList topLevel_;
 
@@ -72,6 +72,7 @@ public class WildcardMap
     public WildcardMap( int topLevelSize )
     {
         super();
+
         topLevel_ = new EntryList( topLevelSize );
     }
 
@@ -96,6 +97,7 @@ public class WildcardMap
     public Object remove( Object key )
     {
         char[] _key = key.toString().toCharArray();
+
         return topLevel_.remove( _key, 0, _key.length );
     }
 
@@ -116,7 +118,6 @@ public class WildcardMap
     public Object put( Object key, Object value )
     {
         char[] _key = key.toString().toCharArray();
-
         WCEntry _entry = new WCEntry( _key, 0, _key.length, value );
         Object _ret = topLevel_.put( _entry );
 
@@ -133,6 +134,7 @@ public class WildcardMap
     public Object getNoExpansion( Object key )
     {
         char[] _key = key.toString().toCharArray();
+
         return topLevel_.getSingle( _key, 0, _key.length );
     }
 
@@ -148,6 +150,7 @@ public class WildcardMap
     public Object[] getWithExpansion( Object key )
     {
         char[] _key = key.toString().toCharArray();
+
         return topLevel_.getMultiple( _key, 0, _key.length );
     }
 
@@ -188,23 +191,23 @@ public class WildcardMap
  */
 class EntryList
 {
-    static int DEFAULT_INITIAL_SIZE = 2;
+    private static int DEFAULT_INITIAL_SIZE = 2;
 
-    PatternWrapper myPattern_;
+    private PatternWrapper myPattern_;
 
-    char[] key_;
+    private char[] key_;
 
-    int start_;
+    private int start_;
 
-    int end_;
+    private int end_;
 
-    int depth_;
+    private int depth_;
 
-    int splitted = 0;
+    private int splitted = 0;
 
-    WCEntry myEntry_;
+    private WCEntry myEntry_;
 
-    EntryList[] entries_;
+    private EntryList[] entries_;
 
     ////////////////////////////////////////
     // Constructors
@@ -214,12 +217,12 @@ class EntryList
         this( null, 0, 0, 0, null, size );
     }
 
-    EntryList( char[] key, int start, int end, int depth, WCEntry value )
+    private EntryList( char[] key, int start, int end, int depth, WCEntry value )
     {
         this( key, start, end, depth, value, DEFAULT_INITIAL_SIZE );
     }
 
-    EntryList( char[] key, int start, int end, int depth, WCEntry entry, int size )
+    private EntryList( char[] key, int start, int end, int depth, WCEntry entry, int size )
     {
         myEntry_ = entry;
         key_ = key;
@@ -235,7 +238,7 @@ class EntryList
     /**
      * check if this EntryList has an Entry associated
      */
-    boolean hasEntry()
+    private boolean hasEntry()
     {
         return myEntry_ != null;
     }
@@ -381,7 +384,7 @@ class EntryList
     /**
      * check if the Key for this List ends with a star.
      */
-    boolean endsWithStar()
+    private boolean endsWithStar()
     {
         return key_[ end_ -1 ] == '*';
     }
@@ -522,7 +525,7 @@ class EntryList
     }
 
 
-    static Object remove( EntryList l, char[] key, int start, int stop )
+    private static Object remove( EntryList l, char[] key, int start, int stop )
     {
         int _cursor = start;
         EntryList _current = l;
@@ -583,7 +586,7 @@ class EntryList
         }
     }
 
-    void addLeadingStar()
+    private void addLeadingStar()
     {
         int _newLength = end_ - start_ + 1;
 
@@ -852,7 +855,7 @@ class EntryList
         return _ret;
     }
 
-    static int compareKeyToPattern( char[] string1,
+    private static int compareKeyToPattern( char[] string1,
                                     int start1,
                                     int stop1,
                                     PatternWrapper p )
@@ -895,12 +898,12 @@ class WCEntry
     /**
      * start index of key within key_ array
      */
-    int start_;
+    private int start_;
 
     /**
      * stop index of key within key_ array
      */
-    int stop_;
+    private int stop_;
 
     /**
      * this array contains the key. start and stop index of the key are denoted by start_ and stop_

@@ -37,7 +37,6 @@ import antlr.Token;
 
 public class ETCLComponentName extends AbstractTCLNode implements ComponentName
 {
-
     String value_;
 
     String componentName_;
@@ -51,6 +50,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
     public ETCLComponentName( Token tok )
     {
         super( tok );
+
         setName( "ComponentName" );
         value_ = tok.getText();
     }
@@ -85,6 +85,7 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
             break;
 
         case AbstractTCLNode.DOT:
+            // fallthrough
         case AbstractTCLNode.ASSOC:
             _ret = _event.extractValue(context,
                                        this );
@@ -94,11 +95,6 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
             throw new RuntimeException("Unexpected Nodetype: "
                                        + getNameForType(_left.getType()));
         }
-
-//         if ( logger_.isDebugEnabled() )
-//         {
-//             logger_.debug( "Result: " + _ret );
-//         }
 
         return _ret;
     }
@@ -115,13 +111,12 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
         componentName_ = name;
     }
 
-    /**
-     * access the complete ComponentName.
-     */
+
     public String getComponentName()
     {
         return componentName_;
     }
+
 
     public void acceptPostOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
@@ -131,11 +126,13 @@ public class ETCLComponentName extends AbstractTCLNode implements ComponentName
         visitor.visitComponent( this );
     }
 
+
     public void acceptPreOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {
         visitor.visitComponent( this );
         ( ( AbstractTCLNode ) getFirstChild() ).acceptPreOrder( visitor );
     }
+
 
     public void acceptInOrder( AbstractTCLVisitor visitor ) throws VisitorException
     {

@@ -35,6 +35,7 @@ import org.jacorb.notification.conf.Default;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.EventChannelEvent;
 import org.jacorb.notification.interfaces.EventChannelEventListener;
+import org.jacorb.notification.queue.EventQueueFactory;
 import org.jacorb.notification.servant.ManageableServant;
 import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.util.PatternWrapper;
@@ -61,6 +62,7 @@ import org.omg.CosNotification.UnsupportedQoS;
 import org.omg.CosNotifyChannelAdmin.ChannelNotFound;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
+import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactoryPOA;
 import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.CosNotifyFilter.FilterFactory;
@@ -113,19 +115,24 @@ public class EventChannelFactoryImpl
     ////////////////////////////////////////
 
     private static final long SHUTDOWN_INTERVAL = 1000;
+
     private static final Object[] INTEGER_ARRAY_TEMPLATE = new Integer[ 0 ];
+
     private static final String STANDARD_IMPL_NAME =
         "JacORB-NotificationService";
+
     private static final String NOTIFICATION_SERVICE_SHORTCUT =
         "NotificationService";
+
     private static final String EVENTCHANNEL_FACTORY_POA_NAME =
         "EventChannelFactoryPOA";
+
     private static final String OBJECT_NAME = "_ECFactory";
 
     ////////////////////////////////////////
 
     private Logger logger_ = null;
-    private org.jacorb.config.Configuration config_ = null;
+    private Configuration config_;
     private ORB orb_;
     private POA eventChannelFactoryPOA_;
     private POA rootPOA_;
@@ -143,6 +150,8 @@ public class EventChannelFactoryImpl
     private String staticURL_;
     private Runnable destroyMethod_;
 
+    private ChannelContext defaultChannelContext_;
+
     ////////////////////////////////////////
 
     private EventChannelFactoryImpl() {
@@ -153,8 +162,12 @@ public class EventChannelFactoryImpl
 
     public void configure (Configuration conf)
     {
-        config_ = ((org.jacorb.config.Configuration)conf);
-        logger_ = config_.getNamedLogger(getClass().getName());
+        config_ = conf;
+
+        logger_ = ((org.jacorb.config.Configuration)conf).getNamedLogger(getClass().getName());;
+
+        defaultChannelContext_.configure(conf);
+
         applicationContext_.configure (conf);
 
         String _filterFactoryConf =
@@ -179,7 +192,6 @@ public class EventChannelFactoryImpl
 
     public void setORB(ORB orb) {
         orb_ = orb;
-        org.jacorb.orb.ORB jorb = (org.jacorb.orb.ORB)orb_;
 
         try {
             org.omg.CORBA.Object obj =
@@ -187,8 +199,6 @@ public class EventChannelFactoryImpl
             rootPOA_ = POAHelper.narrow(obj);
 
             applicationContext_ = new ApplicationContext(orb, rootPOA_);
-
-            configure (jorb.getConfiguration());
 
             org.omg.CORBA.Policy[] _policies = new org.omg.CORBA.Policy []
             {
@@ -206,6 +216,8 @@ public class EventChannelFactoryImpl
 
             rootPOA_.the_POAManager().activate();
         } catch (Exception e) {
+            e.printStackTrace();
+
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -375,7 +387,6 @@ public class EventChannelFactoryImpl
     public EventChannelImpl create_channel_servant( final int channelID,
                                                     Property[] qualitiyOfServiceProperties,
                                                     Property[] administrativeProperties )
-
         throws UnsupportedAdmin,
                UnsupportedQoS,
                ObjectNotActive,
@@ -408,33 +419,47 @@ public class EventChannelFactoryImpl
         checkQoSSettings(_qosSettings);
 
         // create channel context
-        ChannelContext _channelContext = newChannelContext();
+        ChannelContext _channelContext = (ChannelContext)defaultChannelContext_.clone();
+
+        _channelContext.setORB(applicationContext_.getOrb());
+
+        _channelContext.setPOA(applicationContext_.getPoa());
 
         _channelContext.setMessageFactory(applicationContext_.
                                           getMessageFactory());
 
-        _channelContext.setORB(applicationContext_.getOrb());
-
         _channelContext.setTaskProcessor(applicationContext_.
                                          getTaskProcessor());
 
-        _channelContext.setPOA(applicationContext_.getPoa());
+        EventQueueFactory _factory = new EventQueueFactory();
+
+        _factory.configure( ( (org.jacorb.orb.ORB)applicationContext_.getOrb() ).getConfiguration() );
+
+        _channelContext.setEventQueueFactory(_factory);
 
         // create new servant
         final EventChannelImpl _eventChannelServant =
-            new EventChannelImpl(_channelContext);
+            new EventChannelImpl();
+
+        _eventChannelServant.setDefaultFilterFactory( defaultFilterFactory_ );
+
+        _channelContext.resolveDependencies(_eventChannelServant);
 
         try {
             org.jacorb.orb.ORB jorb =
                 (org.jacorb.orb.ORB)applicationContext_.getOrb();
             _eventChannelServant.configure (jorb.getConfiguration());
         } catch (Throwable ex) {
+            ex.printStackTrace();
+
+            throw new RuntimeException(ex);
         }
         _eventChannelServant.setKey(channelID);
         _eventChannelServant.set_qos(_qosSettings.toArray());
         _eventChannelServant.set_admin(_adminSettings.toArray());
         _eventChannelServant.setORB(applicationContext_.getOrb());
         _eventChannelServant.setPOA(applicationContext_.getPoa());
+
         return _eventChannelServant;
     }
 
@@ -675,7 +700,7 @@ public class EventChannelFactoryImpl
                                  filterFactoryConf + "'");
 
                 defaultFilterFactory_ = FilterFactoryHelper.narrow
-                    (getORB(). string_to_object(filterFactoryConf));
+                    (getORB().string_to_object(filterFactoryConf));
             }
             catch (Throwable e)
             {
@@ -692,6 +717,7 @@ public class EventChannelFactoryImpl
 
             defaultFilterFactoryServant_ =
                 new FilterFactoryImpl( applicationContext_ );
+
             defaultFilterFactoryServant_.configure (config_);
 
             defaultFilterFactory_ =
@@ -702,6 +728,11 @@ public class EventChannelFactoryImpl
 
     public void preActivate()
     {
+        defaultChannelContext_ = new ChannelContext();
+
+        configure (((org.jacorb.orb.ORB)orb_).getConfiguration());
+
+        defaultChannelContext_.setEventChannelFactory(EventChannelFactoryHelper.narrow(activate()));
     }
 
 
@@ -808,6 +839,8 @@ public class EventChannelFactoryImpl
                 ((org.jacorb.orb.ORB)orb_).addObjectKey(NOTIFICATION_SERVICE_SHORTCUT,
                                                         ior_);
             } catch (Exception e) {
+                e.printStackTrace();
+
                 throw new RuntimeException(e.getMessage());
             }
         }
@@ -871,15 +904,6 @@ public class EventChannelFactoryImpl
         return staticInfo_;
     }
 
-    private ChannelContext newChannelContext() {
-        ChannelContext _context = new ChannelContext();
-
-        _context.setDefaultFilterFactory( defaultFilterFactory_ );
-        _context.setEventChannelFactoryServant( this );
-
-        return _context;
-    }
-
 
     private static void help()
     {
@@ -913,12 +937,11 @@ public class EventChannelFactoryImpl
         // PatternWrapper may cause a ClassNotFoundException if
         // running on < JDK1.4 and gnu.regexp is NOT installed.
         // Therefor the Error should occur as _early_ as possible.
-        PatternWrapper.class.getName();
+        //        PatternWrapper.class.getName();
 
         try
         {
             // process arguments
-
             for ( int i = 0; i < args.length; i++ )
             {
                 if ( args[ i ].equals( "-printIOR" ) )
@@ -1013,6 +1036,9 @@ public class EventChannelFactoryImpl
         EventChannelFactoryImpl _factory = new EventChannelFactoryImpl();
 
         _factory.setORB(_orb);
+
+        _factory.preActivate();
+
         // force activation
         _factory.activate();
 

@@ -32,13 +32,14 @@ import org.jacorb.notification.interfaces.AdminEvent;
 import org.jacorb.notification.interfaces.AdminEventListener;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.interfaces.FilterStage;
+import org.jacorb.notification.interfaces.FilterStageSource;
 import org.jacorb.notification.interfaces.ProxyEvent;
 import org.jacorb.notification.interfaces.ProxyEventListener;
 import org.jacorb.notification.servant.AbstractAdmin;
-import org.jacorb.notification.servant.ConsumerAdminTieImpl;
+import org.jacorb.notification.servant.ConsumerAdminImpl;
 import org.jacorb.notification.servant.FilterStageListManager;
 import org.jacorb.notification.servant.ManageableServant;
-import org.jacorb.notification.servant.SupplierAdminTieImpl;
+import org.jacorb.notification.servant.SupplierAdminImpl;
 import org.jacorb.notification.util.AdminPropertySet;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.QoSPropertySet;
@@ -60,7 +61,7 @@ import org.omg.CosNotifyChannelAdmin.ConsumerAdmin;
 import org.omg.CosNotifyChannelAdmin.ConsumerAdminHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannel;
 import org.omg.CosNotifyChannelAdmin.EventChannelFactory;
-import org.omg.CosNotifyChannelAdmin.EventChannelFactoryHelper;
+import org.omg.CosNotifyChannelAdmin.EventChannelHelper;
 import org.omg.CosNotifyChannelAdmin.EventChannelPOA;
 import org.omg.CosNotifyChannelAdmin.InterFilterGroupOperator;
 import org.omg.CosNotifyChannelAdmin.SupplierAdmin;
@@ -83,16 +84,24 @@ import org.apache.avalon.framework.logger.Logger;
 public class EventChannelImpl
     extends EventChannelPOA
     implements Disposable,
+               Dependant,
                ManageableServant,
-               Configurable
+               Configurable,
+               ChannelContextDependency,
+               EventChannelFactoryDependency
 {
     private Logger logger_ = null;
     private Configuration configuration_ = null;
     private ORB orb_;
     private POA poa_;
+
+    private ChannelContext channelContext_;
+
     private EventChannel thisRef_;
+
+    private EventChannelFactory eventChannelFactory_;
     private FilterFactory defaultFilterFactory_;
-    private EventChannelFactoryImpl eventChannelFactory_;
+
     private String ior_;
     private int key_;
     private FilterStageListManager listManager_;
@@ -162,8 +171,6 @@ public class EventChannelImpl
      */
     private int maxNumberOfSuppliers_;
 
-    private ChannelContext channelContext_;
-
     private SubscriptionManager subscriptionManager_ =
         new SubscriptionManager();
 
@@ -220,13 +227,14 @@ public class EventChannelImpl
 
     ////////////////////////////////////////
 
-    EventChannelImpl(ChannelContext channelContext)
+    public void setDefaultFilterFactory(FilterFactory filterFactory) {
+        defaultFilterFactory_ = filterFactory;
+    }
+
+    public EventChannelImpl()
     {
         super();
-        channelContext_ = channelContext;
-        eventChannelFactory_ = channelContext.getEventChannelFactoryServant();
-        defaultFilterFactory_ = channelContext.getDefaultFilterFactory();
-        channelContext_.setEventChannelServant(this);
+
         listManager_ = new FilterStageListManager() {
                 public void fetchListData(FilterStageListManager.List list) {
 
@@ -240,6 +248,11 @@ public class EventChannelImpl
                     }
                 }
             };
+    }
+
+
+    public void setChannelContext(ChannelContext context) {
+        channelContext_ = context;
     }
 
 
@@ -295,6 +308,8 @@ public class EventChannelImpl
         if (thisRef_ == null)
         {
             thisRef_ = _this( orb_ );
+
+            channelContext_.setEventChannel(thisRef_);
 
             try {
                 ior_ = orb_.object_to_string(poa_.servant_to_reference(getServant()));
@@ -425,7 +440,7 @@ public class EventChannelImpl
 
 
     private AbstractAdmin newConsumerAdmin(ChannelContext context, Integer key) {
-        AbstractAdmin _admin = new ConsumerAdminTieImpl(context);
+        AbstractAdmin _admin = new ConsumerAdminImpl();
 
         configureAdmin(_admin);
 
@@ -443,7 +458,13 @@ public class EventChannelImpl
 
     private AbstractAdmin newSupplierAdmin(ChannelContext context,
                                            Integer key) {
-        AbstractAdmin _admin = new SupplierAdminTieImpl(context);
+        SupplierAdminImpl _admin = new SupplierAdminImpl();
+
+        _admin.setSubsequentFilterStageSource(new FilterStageSource() {
+                public List getSubsequentFilterStages() {
+                    return getAllConsumerAdmins();
+                }
+            });
 
         configureAdmin(_admin);
 
@@ -454,8 +475,12 @@ public class EventChannelImpl
 
 
     private void configureAdmin(AbstractAdmin admin) {
+        channelContext_.resolveDependencies(admin);
+
         admin.configure (configuration_);
+
         admin.setSubscriptionManager(subscriptionManager_);
+
         admin.setOfferManager(offerManager_);
     }
 
@@ -557,7 +582,7 @@ public class EventChannelImpl
      */
     public EventChannelFactory MyFactory()
     {
-        return EventChannelFactoryHelper.narrow(eventChannelFactory_.activate());
+        return eventChannelFactory_;
     }
 
 
@@ -740,13 +765,13 @@ public class EventChannelImpl
 
         if ( _key != null )
         {
-            if ( admin instanceof SupplierAdminTieImpl )
+            if ( admin instanceof SupplierAdminImpl )
             {
                 synchronized(modifySupplierAdminsLock_) {
                     supplierAdminServants_.remove( _key );
                 }
             }
-            else if ( admin instanceof ConsumerAdminTieImpl )
+            else if ( admin instanceof ConsumerAdminImpl )
             {
                 synchronized(modifyConsumerAdminsLock_) {
                     consumerAdminServants_.remove( _key );
@@ -754,7 +779,7 @@ public class EventChannelImpl
             }
         }
 
-        if ( admin instanceof ConsumerAdminTieImpl  )
+        if ( admin instanceof ConsumerAdminImpl  )
         {
             synchronized (modifyConsumerAdminsLock_) {
                 listManager_.actionSourceModified();
@@ -794,8 +819,6 @@ public class EventChannelImpl
 
                 return SupplierAdminHelper.narrow(  _admin.activate() );
             } else {
-                logger_.error("request for supplier admin: " + identifier + " could not be served: " + supplierAdminServants_);
-
                 throw new AdminNotFound("ID " + identifier + " does not exist.");
             }
         }
@@ -804,12 +827,7 @@ public class EventChannelImpl
 
     public int[] get_all_consumeradmins()
     {
-        int[] _allKeys;
-        //        int _defaultConsumerAdmin = 0;
-
-//         if (isDefaultConsumerAdminActive()) {
-//             _defaultConsumerAdmin = 1;
-//         }
+        int[] _allKeys;//         }
 
         synchronized(modifyConsumerAdminsLock_) {
             _allKeys = new int[consumerAdminServants_.size()]; // + _defaultConsumerAdmin];
@@ -819,10 +837,6 @@ public class EventChannelImpl
             while (i.hasNext()) {
                 _allKeys[x++] = ((Integer)i.next()).intValue();
             }
-
-//             if (_defaultConsumerAdmin == 1) {
-//                 _allKeys[x] = 0;
-//             }
         }
 
         return _allKeys;
@@ -832,24 +846,16 @@ public class EventChannelImpl
     public int[] get_all_supplieradmins()
     {
         int[] _allKeys;
-        //        int _defaultSupplierAdmin = 0;
 
-//         if (isDefaultSupplierAdminActive()) {
-//             _defaultSupplierAdmin = 1;
-//         }
 
         synchronized(modifySupplierAdminsLock_) {
-            _allKeys = new int[supplierAdminServants_.size()]; // + _defaultSupplierAdmin];
+            _allKeys = new int[supplierAdminServants_.size()];
 
             Iterator i = supplierAdminServants_.keySet().iterator();
             int x = 0;
             while (i.hasNext()) {
                 _allKeys[x++] = ((Integer)i.next()).intValue();
             }
-
-//             if (_defaultSupplierAdmin == 1) {
-//                 _allKeys[x] = 0;
-//             }
         }
 
         return _allKeys;
@@ -1022,12 +1028,6 @@ public class EventChannelImpl
     }
 
 
-    public ChannelContext getChannelContext()
-    {
-        return channelContext_;
-    }
-
-
     public boolean isPersistent() {
         return false;
     }
@@ -1060,4 +1060,10 @@ public class EventChannelImpl
 
         return PropertySet.map2Props(_copy);
     }
+
+
+    public void setEventChannelFactory(EventChannelFactory f) {
+        eventChannelFactory_ = f;
+    }
 }
+

@@ -21,20 +21,15 @@ package org.jacorb.notification.servant;
  *
  */
 
-import org.jacorb.notification.ChannelContext;
 import org.jacorb.notification.engine.PushSequenceOperation;
 import org.jacorb.notification.interfaces.Message;
 
 import org.omg.CosEventChannelAdmin.AlreadyConnected;
 import org.omg.CosEventChannelAdmin.TypeError;
-import org.omg.CosEventComm.Disconnected;
 import org.omg.CosNotification.MaximumBatchSize;
 import org.omg.CosNotification.PacingInterval;
 import org.omg.CosNotification.StructuredEvent;
 import org.omg.CosNotification.UnsupportedQoS;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyActive;
-import org.omg.CosNotifyChannelAdmin.ConnectionAlreadyInactive;
-import org.omg.CosNotifyChannelAdmin.NotConnected;
 import org.omg.CosNotifyChannelAdmin.ProxyType;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierOperations;
 import org.omg.CosNotifyChannelAdmin.SequenceProxyPushSupplierPOATie;
@@ -86,21 +81,12 @@ public class SequenceProxyPushSupplierImpl
 
     ////////////////////////////////////////
 
-    public SequenceProxyPushSupplierImpl( AbstractAdmin myAdminServant,
-                                          ChannelContext channelContext)
-    {
-        super( myAdminServant,
-               channelContext);
-    }
-
-    ////////////////////////////////////////
-
     public ProxyType MyType() {
         return ProxyType.PUSH_SEQUENCE;
     }
 
 
-    public void preActivate() throws UnsupportedQoS
+    public void preActivate() throws UnsupportedQoS, Exception
     {
         super.preActivate();
 
@@ -265,6 +251,7 @@ public class SequenceProxyPushSupplierImpl
             if ( pacingInterval_ != _pacingInterval )
             {
                 pacingInterval_ = _pacingInterval;
+
                 return true;
             }
         }

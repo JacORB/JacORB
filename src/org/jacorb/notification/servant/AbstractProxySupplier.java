@@ -32,6 +32,7 @@ import org.jacorb.notification.interfaces.Message;
 import org.jacorb.notification.interfaces.MessageConsumer;
 import org.jacorb.notification.queue.EventQueue;
 import org.jacorb.notification.queue.EventQueueFactory;
+import org.jacorb.notification.queue.EventQueueFactoryDependency;
 import org.jacorb.notification.util.PropertySet;
 import org.jacorb.notification.util.PropertySetListener;
 import org.jacorb.notification.engine.TaskExecutor;
@@ -74,7 +75,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 public abstract class AbstractProxySupplier
     extends AbstractProxy
     implements MessageConsumer,
-               NotifySubscribeOperations
+               NotifySubscribeOperations,
+               EventQueueFactoryDependency
 {
     private static final EventType[] EMPTY_EVENT_TYPE_ARRAY = new EventType[0];
 
@@ -97,6 +99,10 @@ public abstract class AbstractProxySupplier
 
     private int errorThreshold_;
 
+    private ConsumerAdmin consumerAdmin_;
+
+    private EventQueueFactory eventQueueFactory_;
+
     /**
      * lock variable used to control access to the reference to the
      * pending messages queue. calls to set_qos may cause the
@@ -116,11 +122,11 @@ public abstract class AbstractProxySupplier
 
     ////////////////////////////////////////
 
-    protected AbstractProxySupplier(AbstractAdmin admin,
-                                    ChannelContext channelContext)
+    public AbstractProxySupplier() {}
+
+    protected AbstractProxySupplier(ChannelContext channelContext)
     {
-        super(admin,
-              channelContext);
+        super();
 
         if (isPushSupplier()) {
 
@@ -153,11 +159,19 @@ public abstract class AbstractProxySupplier
 
     ////////////////////////////////////////
 
-    public void preActivate() throws UnsupportedQoS
+    public final void setEventQueueFactory(EventQueueFactory factory) {
+        eventQueueFactory_ = factory;
+    }
+
+    protected EventQueueFactory getEventQueueFactory() {
+        return eventQueueFactory_;
+    }
+
+    public void preActivate() throws UnsupportedQoS, Exception
     {
         synchronized (pendingMessagesRefLock_)
         {
-            pendingMessages_ = channelContext_.getEventQueueFactory().newEventQueue(qosSettings_);
+            pendingMessages_ = getEventQueueFactory().newEventQueue(qosSettings_);
         }
 
         if (logger_.isInfoEnabled())
@@ -177,7 +191,7 @@ public abstract class AbstractProxySupplier
     private void configureEventQueue() throws UnsupportedQoS
     {
         EventQueue _newQueue =
-            channelContext_.getEventQueueFactory().newEventQueue( qosSettings_ );
+            getEventQueueFactory().newEventQueue( qosSettings_ );
 
         try
         {
@@ -383,7 +397,7 @@ public abstract class AbstractProxySupplier
 
     public final ConsumerAdmin MyAdmin()
     {
-        return ConsumerAdminHelper.narrow(admin_.activate());
+        return consumerAdmin_;
     }
 
 
@@ -514,28 +528,32 @@ public abstract class AbstractProxySupplier
         switch ( clientType.value() )
         {
             case ClientType._ANY_EVENT:
-                _servant = new ProxyPullSupplierImpl(admin,
-                                                     admin.getChannelContext());
+                _servant = new ProxyPullSupplierImpl();
+
                 break;
 
             case ClientType._STRUCTURED_EVENT:
                 _servant =
-                    new StructuredProxyPullSupplierImpl( admin,
-                                                         admin.getChannelContext());
+                    new StructuredProxyPullSupplierImpl();
                 break;
 
             case ClientType._SEQUENCE_EVENT:
                 _servant =
-                    new SequenceProxyPullSupplierImpl( admin,
-                                                       admin.getChannelContext());
+                    new SequenceProxyPullSupplierImpl();
 
                 break;
 
             default:
                 throw new BAD_PARAM();
         }
+
+        admin.getChannelContext().resolveDependencies(_servant);
+
+        _servant.consumerAdmin_ = ConsumerAdminHelper.narrow(admin.activate());
+
         _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
                             getConfiguration());
+
         return _servant;
     }
 
@@ -552,29 +570,29 @@ public abstract class AbstractProxySupplier
         {
 
             case ClientType._ANY_EVENT:
-                _servant = new ProxyPushSupplierImpl( admin,
-                                                      admin.getChannelContext());
+                _servant = new ProxyPushSupplierImpl();
                 break;
 
             case ClientType._STRUCTURED_EVENT:
                 _servant =
-                    new StructuredProxyPushSupplierImpl( admin,
-                                                         admin.getChannelContext());
+                    new StructuredProxyPushSupplierImpl();
                 break;
 
             case ClientType._SEQUENCE_EVENT:
                 _servant =
-                    new SequenceProxyPushSupplierImpl( admin,
-                                                       admin.getChannelContext());
+                    new SequenceProxyPushSupplierImpl();
                 break;
 
             default:
                 throw new BAD_PARAM("The ClientType: " + clientType.value() + " is unknown");
         }
 
+        admin.getChannelContext().resolveDependencies(_servant);
+
+        _servant.consumerAdmin_ = ConsumerAdminHelper.narrow(admin.activate());
+
         _servant.configure (((org.jacorb.orb.ORB)admin.getORB()).
                             getConfiguration());
-
 
         return _servant;
     }
