@@ -85,6 +85,8 @@ public final class Delegate
     private Hashtable pending_replies = new Hashtable();
     private Barrier pending_replies_sync = new Barrier();
 
+    private boolean do_init = true;
+
     /* constructors: */
     public Delegate()
     {}
@@ -94,7 +96,7 @@ public final class Delegate
         this.orb = orb;
         ior = _pior.getIOR();
         pior = _pior;
-        _init();
+        //_init();
     }
 
     protected Delegate(org.omg.CORBA.ORB orb, String object_reference ) 
@@ -107,7 +109,7 @@ public final class Delegate
         }
         else
             throw new org.omg.CORBA.INV_OBJREF("Not an IOR: "+object_reference);
-        _init();
+        //_init();
     }
 
     protected Delegate(org.omg.CORBA.ORB orb, org.omg.IOP.IOR _ior )
@@ -115,7 +117,7 @@ public final class Delegate
         this.orb = orb;
         ior = _ior;
         pior = new ParsedIOR( ior );
-        _init();
+        //_init();
     }
 
 
@@ -145,6 +147,14 @@ public final class Delegate
     private void _init()
     {
         org.omg.IIOP.ProfileBody_1_1 pb = pior.getProfileBody();
+
+        if( pb == null )
+        {
+            throw new org.omg.CORBA.INV_OBJREF( "No TAG_INTERNET_IOP found in object_reference" );
+        }
+
+
+
         int port = pb.port;
 
         // bnv: consults SSL tagged component
@@ -173,12 +183,18 @@ public final class Delegate
             org.jacorb.util.Debug.output( 3, "Delegate bound to " + adport );
 
         initInterceptors();
+        
+        do_init = false;
     }
 
     public synchronized void bind() 
     { 
         if( bound )
             return;
+
+        if( do_init )
+            _init();
+        
         /*    
         if( noMoreClients() )
             throw new org.omg.CORBA.INV_OBJREF("This reference has already been released!");
@@ -607,10 +623,10 @@ public final class Delegate
         ReplyInputStream rep = null;
         ClientRequestInfoImpl info = null;
         RequestOutputStream ros = null;
-        
+
         if( !bound )
             bind();
-    
+            
         ros = (RequestOutputStream) os;
     
         if ( use_interceptors && ros.separateHeader() )
@@ -1146,18 +1162,19 @@ public final class Delegate
                                                                      boolean responseExpected )
     {    
         // NOTE: When making changes to this method which are outside of the 
-        // Interceptor-if-statement, please make shure to update 
+        // Interceptor-if-statement, please make sure to update 
         // get_poliy_no_intercept as well!
           
-        // Delegate d = (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
+        // Delegate d =
+        // (org.jacorb.orb.Delegate)((org.omg.CORBA.portable.ObjectImpl)self)._get_delegate();
 
         if( !bound ) 
             bind();
         
-        // devik: if connection's tcs was not negotiated yet, mark all requests
-        // with codeset servicecontext.
-
+        // devik: if connection's tcs was not negotiated yet, mark all
+        // requests with codeset servicecontext.
         ctx = connection.addCodeSetContext( ctx, pior );
+
         RequestOutputStream ros = new RequestOutputStream( orb, 
                                         connection.getId(),
                                         operation, 

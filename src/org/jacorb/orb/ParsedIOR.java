@@ -159,6 +159,7 @@ public class ParsedIOR
                                    org.omg.IIOP.ProfileBody_1_1 profileBody )
     {
         if ( profileBody == null ||
+             profileBody.iiop_version == null ||
              ( char )profileBody.iiop_version.minor == (( char ) 0 ) ||
              profileBody.components == null
              )
@@ -273,16 +274,21 @@ public class ParsedIOR
                 if ( body != null )
                 {
                     internetProfiles.addElement( body );
-                    org.jacorb.util.Debug.output( 4, "IOP 1.1 decoded" );                    
+                    org.jacorb.util.Debug.output( 4, "IOP 1.1 decoded" ); 
                 }
 
- 
 		iiopFound = true;
 		break;
 	    }
 	} 
-	if( !iiopFound && _ior.profiles.length > 0 ) // only if this not null
-	    throw new org.omg.CORBA.INV_OBJREF("no TAG_INTERNET_IOP found in object_reference");
+
+        //to test IORs with no profile
+        //internetProfiles.clear();
+
+
+//  	if( !iiopFound && _ior.profiles.length > 0 ) // only if this not null
+//  	    throw new org.omg.CORBA.INV_OBJREF("no TAG_INTERNET_IOP found in object_reference");
+
         profileBodies = 
             new org.omg.IIOP.ProfileBody_1_1[ internetProfiles.size() ];
         internetProfiles.copyInto( profileBodies );
@@ -395,7 +401,14 @@ public class ParsedIOR
 
     public org.omg.IIOP.ProfileBody_1_1 getProfileBody() // chg by devik
     {
-        return profileBodies[ effectiveProfileBody ];        
+        if( profileBodies.length > effectiveProfileBody )
+        {
+            return profileBodies[ effectiveProfileBody ];
+        }
+        else
+        {
+            return null;
+        }            
     }
 
     public org.omg.IIOP.ProfileBody_1_1[] getProfileBodies()
@@ -405,7 +418,14 @@ public class ParsedIOR
 
     public org.omg.IOP.TaggedProfile getEffectiveProfile() // chg by bnv
     {
-        return ior.profiles[ effectiveProfileBody ];
+        if( profileBodies.length > effectiveProfileBody )
+        {
+            return ior.profiles[ effectiveProfileBody ];
+        }
+        else
+        {
+            return null;
+        }            
     }
 
     public String getAddress()
