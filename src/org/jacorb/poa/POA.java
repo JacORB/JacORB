@@ -957,24 +957,53 @@ public class POA
         return orb;
     }
 
-    public byte[] getPOAId() 
+
+    /**
+     * Get the flag (byte) that describes the mode of the object key.
+     * This flag contains information describing the object represented
+     * by the object key. (eg, lifespan policy)
+     */
+    private byte getObjectKeyFlag()
+    {
+        byte flag = 0;
+
+        if( isPersistent() )
+        {
+            flag |= POAConstants.PERSISTENT;
+        }
+
+        return flag;
+    }
+
+
+   public byte[] getPOAId() 
     {
         if (poaId == null) 
         {
+            byte flag = getObjectKeyFlag();
+
             byte[] impl_name = 
-                POAUtil.maskId( ( Environment.implName() != null) ? 
+                POAUtil.maskId( (Environment.implName() != null) ? 
                                 Environment.implName() :
-                                Environment.serverId());
+                                Environment.serverId() );
             int in_length = impl_name.length;
+
             byte[] poa_name = _getQualifiedName().getBytes();
             int pn_length = poa_name.length;
                         
-            if (pn_length == 0) {
-                poaId = impl_name;
-                        
-            } else {
-                poaId = new byte[in_length + pn_length + 1];                    
-                int offset = 0;
+            int offset = 0;
+            if (pn_length == 0)
+            {
+                poaId = new byte[in_length + 1];
+                poaId[offset] = flag;
+                offset++;
+                System.arraycopy(impl_name, 0, poaId, offset, in_length);
+            }
+            else
+            {
+                poaId = new byte[in_length + pn_length + 2];
+                poaId[offset] = flag;
+                offset++;                
                 System.arraycopy(impl_name, 0, poaId, offset, in_length);
                 offset += in_length;
                 poaId[offset] = POAConstants.OBJECT_KEY_SEP_BYTE;
@@ -986,13 +1015,13 @@ public class POA
     }
 
     protected org.omg.CORBA.Object getReference 
-    (byte[] oid, String intf_rep_id, boolean cache) 
+        (byte[] oid, String intf_rep_id, boolean cache) 
     {               
-        byte[] object_id = POAUtil.maskId (oid);                
+        byte[] object_id = POAUtil.maskId (oid);
         int pid_length = getPOAId().length;
         int oid_length = object_id.length;
-        byte [] object_key = new byte[pid_length + oid_length + 1];         
-        int offset = 0;         
+        byte [] object_key = new byte[pid_length + oid_length + 1];
+        int offset = 0;
 
         System.arraycopy (getPOAId(), 0, object_key, offset, pid_length);
         offset += pid_length;
@@ -1007,7 +1036,7 @@ public class POA
         
         if (result == null)
         {
-            result =  ((org.jacorb.orb.ORB)orb).getReference
+            result = ((org.jacorb.orb.ORB)orb).getReference
                 (this, object_key, intf_rep_id, !isPersistent());
 
             if (cache)
