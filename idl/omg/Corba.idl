@@ -917,6 +917,5 @@ module CORBA
     };
 }; // CORBA module
 
-
 #endif
 #undef Status
