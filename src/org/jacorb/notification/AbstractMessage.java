@@ -78,9 +78,9 @@ public abstract class AbstractMessage extends AbstractPoolable
         {
 
             // i would like to write this() here to call the no-args
-            // construtor.
-            // this compiles but gives some rare java.lang.VerifyError
-            // exceptions at runtime
+            // constructor.
+            // this compiles but results in java.lang.VerifyErrors
+            // at runtime
             addReference();
 
             priority_ = priority;
@@ -168,7 +168,6 @@ public abstract class AbstractMessage extends AbstractPoolable
                                                               componentName,
                                                               s);
         }
-
 
         public boolean hasStartTime()
         {
@@ -258,7 +257,7 @@ public abstract class AbstractMessage extends AbstractPoolable
                                          timeOut_,
                                          timeoutOverride_);
             }
-            catch (InterruptedException e)
+            catch (IllegalArgumentException e)
             {
                 return null;
             }
@@ -279,6 +278,13 @@ public abstract class AbstractMessage extends AbstractPoolable
             eventStateListener_ = l;
         }
 
+        public Message.MessageStateListener removeMessageStateListener() {
+            Message.MessageStateListener _l = eventStateListener_;
+            eventStateListener_ = null;
+
+            return _l;
+        }
+
         public synchronized void actionTimeout()
         {
             inValid_ = true;
@@ -289,11 +295,11 @@ public abstract class AbstractMessage extends AbstractPoolable
             return "-->" + AbstractMessage.this.toString();
         }
 
-        private void checkInvalid() throws InterruptedException
+        private void checkInvalid() throws IllegalArgumentException
         {
             if (isInvalid())
             {
-                throw new InterruptedException("This Notification has been invalidated");
+                throw new IllegalArgumentException("This Notification has been invalidated");
             }
         }
     }
@@ -402,8 +408,8 @@ public abstract class AbstractMessage extends AbstractPoolable
     public EvaluationResult extractValue(EvaluationContext context,
                                          ComponentName componentRootNode,
                                          RuntimeVariableNode runtimeVariable )
-    throws EvaluationException,
-                DynamicTypeException
+        throws EvaluationException,
+               DynamicTypeException
     {
         EvaluationResult _ret = null;
         String _completePath = componentRootNode.getComponentName();
@@ -433,19 +439,19 @@ public abstract class AbstractMessage extends AbstractPoolable
     }
 
     public abstract EvaluationResult extractFilterableData(EvaluationContext context,
-            ComponentName componentRootNode,
-            String variable)
-    throws EvaluationException;
+                                                           ComponentName componentRootNode,
+                                                           String variable)
+        throws EvaluationException;
 
     public abstract EvaluationResult extractVariableHeader(EvaluationContext context,
-            ComponentName componentRootNode,
-            String variable)
-    throws EvaluationException;
+                                                           ComponentName componentRootNode,
+                                                           String variable)
+        throws EvaluationException;
 
 
     public EvaluationResult extractValue( EvaluationContext evaluationContext,
                                           ComponentName componentRootNode )
-    throws EvaluationException
+        throws EvaluationException
 
     {
         EvaluationResult _ret = null;
@@ -516,5 +522,5 @@ public abstract class AbstractMessage extends AbstractPoolable
 
     public abstract boolean match(MappingFilter filter,
                                   AnyHolder value)
-    throws UnsupportedFilterableData;
+        throws UnsupportedFilterableData;
 }
