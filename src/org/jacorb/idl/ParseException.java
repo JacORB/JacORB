@@ -50,9 +50,9 @@ public class ParseException
 
     public String getMessage()
     {
-        return "IDL Parse error in " + 
+        return 
             ( position != null ?  position.toString() : "" ) + 
-            ": " + super.getMessage();
+            ": " + "parse error: " + super.getMessage();
     }
     
 
