@@ -230,6 +230,8 @@ public class Environment
                             new BufferedInputStream( 
                                  new FileInputStream( strtok.nextToken() )));
                     }
+		    
+		    loaded = true;
                 } 
                 catch ( IOException e ) 
                 {                    
