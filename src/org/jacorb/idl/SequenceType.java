@@ -139,6 +139,7 @@ public class SequenceType
 
     public void setRecursive()
     {
+        Environment.output(2 ,"Sequence " +  typeName  + " set recursive ------- this: " + this);
 	recursive = true;
     }
 
@@ -149,7 +150,6 @@ public class SequenceType
     public String getTypeCodeExpression()
     {
 	String originalType = null;
-
 
 	if( recursive )
 	{	

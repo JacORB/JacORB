@@ -39,12 +39,19 @@ class AddExpr
         super(num);
     }
 
-    public void print(PrintWriter ps){
-        if( add_expr != null ){
+    public void print(PrintWriter ps)
+    {
+        if( add_expr != null )
+        {
             add_expr.print(ps);
             ps.print( operator );
         } 
         mult_expr.print(ps);
+    }
+
+    public void setContained( boolean contained )
+    {
+        mult_expr.setContained( contained );
     }
 
     public void setPackage( String s)

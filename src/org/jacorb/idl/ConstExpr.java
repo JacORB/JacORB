@@ -38,9 +38,13 @@ class ConstExpr
     }
 
     public void parse() 
-         
     {
         or_expr.parse();
+    }
+
+    public void setContained( boolean contained )
+    {
+        or_expr.setContained( contained );
     }
 
     public void print(PrintWriter ps)

@@ -49,6 +49,11 @@ class AndExpr
         shift_expr.print(ps);
     }
 
+    public void setContained( boolean contained )
+    {
+        shift_expr.setContained( contained );
+    }
+
     public void setPackage( String s)
     {
         s = parser.pack_replace(s);

@@ -49,6 +49,7 @@ class EnumType
         et.enumlist = this.enumlist;
         et.pack_name = this.pack_name;
         et.name = this.name;
+        et.token = this.token;
         et.included = this.included;
         et.enclosing_symbol = this.enclosing_symbol;
         return et;

@@ -84,6 +84,7 @@ class ConstDecl
 	const_expr.parse();
 	t.typeName = name;
 	values.put( t.resolvedName(), const_expr.value() );
+        const_expr.setContained( contained());
     }
 
     int pos_int_const()

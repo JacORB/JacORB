@@ -43,6 +43,12 @@ class UnaryExpr
         ps.print( unary_op);
         primary_expr.print(ps);
     }
+
+    public void setContained( boolean contained )
+    {
+        primary_expr.setContained( contained );
+    }
+
     public void setPackage( String s)
     {
         s = parser.pack_replace(s);

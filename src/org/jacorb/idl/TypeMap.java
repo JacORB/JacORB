@@ -107,6 +107,7 @@ class TypeMap
 	    throw new RuntimeException("Could not find forward declaration!");
     }
 
+
 }	
 
 

@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 class PrimaryExpr 
     extends IdlSymbol
 {
+    private boolean contained = false;
     public IdlSymbol symbol;
 
     public PrimaryExpr(int num)
@@ -59,6 +60,10 @@ class PrimaryExpr
         symbol.parse();
     }
 
+    public void setContained( boolean contained )
+    {
+        this.contained = contained;
+    }
 
     public void setPackage( String s)
     {
@@ -108,7 +113,7 @@ class PrimaryExpr
         else if( symbol instanceof ScopedName)
         {
             //            return ConstDecl.namedValue( (ScopedName)symbol);
-            return ((ScopedName)symbol).resolvedName();
+            return ((ScopedName)symbol).resolvedName() + ( contained ? "" : ".value" );
         } 
         else 
             return ((Literal)symbol).string;

@@ -113,11 +113,24 @@ class Member
 	else if( type_spec.typeSpec() instanceof SequenceType )
 	{
 	    TypeSpec ts = ((SequenceType)type_spec.typeSpec()).elementTypeSpec().typeSpec();
-	    if( ts.typeName().equals( containing_struct.typeName()) )
+            SequenceType seqTs = (SequenceType)type_spec.typeSpec();
+            while( ts instanceof SequenceType )
+            {
+                seqTs = (SequenceType)ts;
+                ts = ((SequenceType)ts.typeSpec()).elementTypeSpec().typeSpec();
+            }
+
+            //           if( ts.typeName().equals( containing_struct.typeName()) || 
+            if( ScopedName.isRecursionScope( ts.typeName() ))
 	    {
-		((SequenceType)type_spec.typeSpec()).setRecursive();
+		seqTs.setRecursive();
 	    }
 	}
+        else if( type_spec instanceof ConstrTypeSpec )
+        {
+            type_spec.parse();
+        }
+
 
 
 	for( Enumeration e = declarators.v.elements(); e.hasMoreElements();)
@@ -218,7 +231,10 @@ class Member
 	    type_spec.print(ps); 
 	}
 
-	ps.print( prefix + type_spec.toString() + " " + declarator.toString() + ";" ); 
+	if( type_spec.typeSpec() instanceof StringType )
+            ps.print( prefix + type_spec.toString() + " " + declarator.toString() + " = \"\";" ); 
+        else
+            ps.print( prefix + type_spec.toString() + " " + declarator.toString() + ";" ); 
     }
 }
 

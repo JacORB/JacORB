@@ -49,6 +49,11 @@ class MultExpr
         unary_expr.print(ps);
     }
 
+    public void setContained( boolean contained )
+    {
+        unary_expr.setContained( contained );
+    }
+
     public void setPackage( String s)
     {
         s = parser.pack_replace(s);

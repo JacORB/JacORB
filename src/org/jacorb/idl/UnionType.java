@@ -66,11 +66,12 @@ class UnionType
 	ut.switch_type_spec = this.switch_type_spec;
 	ut.switch_body = switch_body;
 	ut.pack_name = this.pack_name;
-	ut.name = this.name;
-	ut.written = this.written;
+	ut.name =      this.name;
+	ut.written =   this.written;
 	ut.scopeData = this.scopeData;
 	ut.enclosing_symbol = this.enclosing_symbol;
-	return ut;		
+        ut.token = this.token;
+        return ut;		
     }
 
     public void setScopeData(ScopeData data)
@@ -212,7 +213,9 @@ class UnionType
 	    switch_type_spec.parse();
 	    switch_body.setTypeSpec(switch_type_spec);
             switch_body.setUnion(this);
+            ScopedName.addRecursionScope( typeName() );
             switch_body.parse();
+            ScopedName.removeRecursionScope( typeName() );
 	} 
 	catch ( NameAlreadyDefined p )
 	{
@@ -534,9 +537,9 @@ class UnionType
 
                     if( i < caseLabelNum-1 )
                     {
-                        if( switch_is_enum )
-                            pw.print(") && !discriminator.equals( ");
-                        else
+//                          if( switch_is_enum )
+//                              pw.print(") && !discriminator.equals( ");
+//                          else
                             pw.print(" && _discriminator != ");
                     }
 
@@ -896,7 +899,10 @@ class UnionType
  	    TypeSpec t = c.element_spec.t;
  	    if( t instanceof ScopedName )
  		t = ((ScopedName)t).resolvedTypeSpec();
- 	    t = t.typeSpec();	    Declarator d = c.element_spec.d;
+
+ 	    t = t.typeSpec();	    
+            Declarator d = c.element_spec.d;
+
 	    int caseLabelNum = c.case_label_list.v.size();
 	    for( int i=0; i < caseLabelNum;i++) 
 	    {
@@ -933,9 +939,12 @@ class UnionType
 			       + "_" + _t.substring( _t.lastIndexOf('.')+1) + ");");	
 		}
 		ps.print("\t\t\tmembers[" + (mi++) + "] = new org.omg.CORBA.UnionMember(\""+d.name()+"\",label_any,");
-		if( t instanceof ConstrTypeSpec )
+
+		if( t instanceof ConstrTypeSpec  )
 		    ps.print( t.typeSpec().toString() + "Helper.type(),");
-		else
+//  		else if( t instanceof SequenceType )
+//  		    ps.print( ((SequenceType)t).helperName() + ".type(),");
+                else
 		    ps.print( t.typeSpec().getTypeCodeExpression() + ",");
 
 		ps.println("null);");

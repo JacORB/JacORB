@@ -42,7 +42,7 @@ class IdlSymbol
     protected boolean included = false;
     protected boolean inhibitionFlag = false;
     str_token token;
-    private String _id;
+    protected String _id;
     private String _version;
     protected IdlSymbol enclosing_symbol;
     protected String omg_package_prefix = "";
@@ -257,7 +257,6 @@ class IdlSymbol
 
         if( _id == null )
         {
-
             //	    while( enc != null && enc.getEnclosingSymbol() != null )
             while( enc != null  )
             {
@@ -309,6 +308,7 @@ class IdlSymbol
 				//		_id = org.jacorb.orb.ir.RepositoryID.toRepositoryID( full_name());
             }
         }
+        Environment.output(2, "Id for name " + name + " is " + _id );
         return _id;
     }
 	
@@ -400,8 +400,6 @@ class IdlSymbol
 
 
 }
-
-
 
 
 

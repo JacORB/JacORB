@@ -39,6 +39,11 @@ class OrExpr
 	super(num);
     }
 
+    public void setContained( boolean contained )
+    {
+        xor_expr.setContained( contained );
+    }
+
     public void print(PrintWriter ps)
     {
 	if( or_expr != null ){
