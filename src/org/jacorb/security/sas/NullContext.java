@@ -21,13 +21,14 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.PortableInterceptor.ClientRequestInfo;
 import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class NullContext implements ISASContext
 {
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
 
     public String getMechOID() {
         return "";

@@ -30,6 +30,7 @@ import org.omg.CosNaming.NamingContextExtPackage.*;
 
 import org.apache.avalon.framework.logger.Logger;
 
+import org.jacorb.util.Debug;
 import org.jacorb.util.Environment;
 
 /**
@@ -51,7 +52,7 @@ public class NamingContextImpl
     private Hashtable contexts = new Hashtable();
 
     /** the logger used by the naming service implementation */
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.naming");
+    private static Logger logger = Debug.getNamedLogger("jacorb.naming");
 
     /** the POAs used */
     transient private org.omg.PortableServer.POA poa;

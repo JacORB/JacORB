@@ -30,7 +30,7 @@ import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.MessageProp;
 import org.ietf.jgss.Oid;
-
+import org.jacorb.util.Debug;
 import sun.security.jgss.spi.GSSContextSpi;
 import sun.security.jgss.spi.GSSCredentialSpi;
 import sun.security.jgss.spi.GSSNameSpi;
@@ -45,7 +45,7 @@ import sun.security.jgss.spi.GSSNameSpi;
 public final class GSSUPContextSpi implements GSSContextSpi
 {
     /** the logger used by the naming service implementation */
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
 
     private Provider provider = null;
     private Oid mechOid = null;

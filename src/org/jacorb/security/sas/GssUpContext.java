@@ -21,6 +21,7 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.GSSUP.GSSUPMechOID;
 import org.omg.GSSUP.InitialContextToken;
@@ -29,7 +30,7 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 
 public class GssUpContext implements ISASContext
 {
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
     private static String username = "";
     private static String password = "";
     private InitialContextToken initialContextToken = null;

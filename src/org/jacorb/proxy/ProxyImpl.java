@@ -107,7 +107,7 @@ class ProxyImpl extends ProxyPOA
 
         idString = Environment.getProperty ("jacorb.ProxyServer.ID", DEFAULT_ID);
         id = idString.getBytes();
-        logger = org.jacorb.util.Debug.getNamedLogger("jacorb.appligator");
+        logger = Debug.getNamedLogger("jacorb.appligator");
 
         try
         {

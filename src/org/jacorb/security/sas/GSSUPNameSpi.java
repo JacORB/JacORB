@@ -25,6 +25,7 @@ import java.security.Provider;
 import org.apache.avalon.framework.logger.Logger;
 import org.ietf.jgss.GSSException;
 import org.ietf.jgss.Oid;
+import org.jacorb.util.Debug;
 import org.omg.CORBA.Any;
 import org.omg.GSSUP.InitialContextToken;
 import org.omg.GSSUP.InitialContextTokenHelper;
@@ -41,7 +42,7 @@ import sun.security.jgss.spi.GSSNameSpi;
 public final class GSSUPNameSpi implements GSSNameSpi
 {
     /** the logger used by the naming service implementation */
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.GSSUP");
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS.GSSUP");
 
     private static Oid mechOid;
 

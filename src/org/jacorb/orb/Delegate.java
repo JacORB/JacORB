@@ -32,7 +32,8 @@ import org.jacorb.orb.iiop.*;
 import org.jacorb.orb.portableInterceptor.*;
 import org.jacorb.orb.util.*;
 import org.jacorb.poa.util.POAUtil;
-import org.jacorb.util.*;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Time;
 import org.jacorb.util.Environment;
 
 import org.omg.CORBA.*;
@@ -77,7 +78,7 @@ public final class Delegate
     private org.jacorb.poa.POA poa;
 
     private org.jacorb.orb.ORB orb = null;
-    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.orb");
+    private Logger logger = Debug.getNamedLogger("jacorb.orb");
 
     /** set after the first attempt to determine whether
         this reference is to a local object */
@@ -846,7 +847,7 @@ public final class Delegate
                     {
                         if (logger.isDebugEnabled())
                             logger.debug("invoke: RemarshalException");
-                        
+
                         // RequestOutputStream has been created for
                         // another connection, so try again
                         throw new RemarshalException();
@@ -1141,7 +1142,7 @@ public final class Delegate
                 }
             }
             // If it fails fall back to a remote call.
-            catch (Throwable e) 
+            catch (Throwable e)
             {
                 if (logger.isDebugEnabled())
                     logger.debug("trying is_a remotely");

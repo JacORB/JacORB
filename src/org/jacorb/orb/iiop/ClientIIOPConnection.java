@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
+import org.jacorb.util.Environment;
 import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.IIOPAddress;
 import org.jacorb.orb.factory.SocketFactory;
@@ -69,7 +71,7 @@ public class ClientIIOPConnection
     private boolean use_ssl  = false;
     private int     ssl_port = -1;
 
-    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.iiop.conn");
+    private Logger logger = Debug.getNamedLogger("jacorb.iiop.conn");
 
 
     //for testing purposes only: # of open transports
@@ -94,13 +96,13 @@ public class ClientIIOPConnection
             {
                 if (logger.isErrorEnabled())
                 {
-                    logger.error("Unable to create int from string >" + prop + "< \n" + 
+                    logger.error("Unable to create int from string >" + prop + "< \n" +
                                  "Please check property \"jacorb.connection.client.idle_timeout\"" );
                 }
             }
         }
     }
-    
+
     public ClientIIOPConnection (ClientIIOPConnection other)
     {
         super (other);
@@ -113,11 +115,11 @@ public class ClientIIOPConnection
     /**
      * Attempts to establish a 1-to-1 connection with a server using the
      * Listener endpoint from the given Profile description.  It shall
-     * throw a COMM_FAILURE exception if it fails (e.g. if the endpoint 
-     * is unreachable) or a TIMEOUT exception if the given time_out period 
+     * throw a COMM_FAILURE exception if it fails (e.g. if the endpoint
+     * is unreachable) or a TIMEOUT exception if the given time_out period
      * has expired before a connection is established. If the connection
      * is successfully established it shall store the used Profile data.
-     * 
+     *
      */
     public synchronized void connect (org.omg.ETF.Profile server_profile, long time_out)
     {
@@ -129,18 +131,18 @@ public class ClientIIOPConnection
             }
             else
             {
-                throw new org.omg.CORBA.BAD_PARAM 
+                throw new org.omg.CORBA.BAD_PARAM
                     ( "attempt to connect an IIOP connection "
                     + "to a non-IIOP profile: " + server_profile.getClass());
             }
-            
+
             checkSSL();
             IIOPAddress address = target_profile.getAddress();
-            
+
             connection_info = address.getIP() + ":"
                               + (use_ssl ? ssl_port
                                          : address.getPort());
-            
+
             if (logger.isDebugEnabled())
             {
                 logger.debug("Trying to connect to " + connection_info);
@@ -228,9 +230,9 @@ public class ClientIIOPConnection
         List addressList = new ArrayList();
         addressList.add    (target_profile.getAddress());
         addressList.addAll (target_profile.getAlternateAddresses());
-        
+
         Iterator addressIterator = addressList.iterator();
-        
+
         while (result == null && addressIterator.hasNext())
         {
             try
@@ -270,10 +272,10 @@ public class ClientIIOPConnection
         else
         {
             throw new IOException ("connection failure without exception");
-        }        
+        }
     }
 
-    
+
     public synchronized void close()
     {
         try
@@ -281,7 +283,7 @@ public class ClientIIOPConnection
             if (connected && socket != null)
             {
                 socket.close ();
-            
+
                 //this will cause exceptions when trying to read from
                 //the streams. Better than "nulling" them.
                 if( in_stream != null )
@@ -292,11 +294,11 @@ public class ClientIIOPConnection
                 {
                     out_stream.close();
                 }
-            
+
                 //for testing purposes
                 --openTransports;
             }
-            
+
             connected = false;
         }
         catch (IOException ex)
@@ -310,17 +312,17 @@ public class ClientIIOPConnection
                         connection_info + " closed.");
         }
     }
-    
+
     public boolean isSSL()
     {
         return use_ssl;
     }
-    
+
     public org.omg.ETF.Profile get_server_profile()
     {
         return target_profile;
     }
-    
+
     /**
      * Check if this client should use SSL when connecting to
      * the server described by the target_profile.  The result
@@ -332,7 +334,7 @@ public class ClientIIOPConnection
             = (CompoundSecMechList)target_profile.getComponent
                                            (TAG_CSI_SEC_MECH_LIST.value,
                                             CompoundSecMechListHelper.class);
-        
+
         TLS_SEC_TRANS tls = null;
         if (sas != null && sas.mechanism_list[0].transport_mech.tag == TAG_TLS_SEC_TRANS.value) {
             try
@@ -381,12 +383,12 @@ public class ClientIIOPConnection
         if(  Environment.isPropertyOn( "jacorb.security.support_ssl" ))
         {
             client_required = Environment.getIntProperty
-            ( 
-                "jacorb.security.ssl.client.required_options", 16 
+            (
+                "jacorb.security.ssl.client.required_options", 16
             );
             client_supported = Environment.getIntProperty
             (
-                "jacorb.security.ssl.client.supported_options", 16 
+                "jacorb.security.ssl.client.supported_options", 16
             );
         }
 
@@ -445,15 +447,15 @@ public class ClientIIOPConnection
             ssl_port = -1;
         }
     }
-    
+
     private SocketFactory getSocketFactory()
     {
         return TransportManager.socket_factory;
     }
-    
+
     private SocketFactory getSSLSocketFactory()
     {
         return TransportManager.ssl_socket_factory;
     }
-    
+
 }// Client_TCP_IP_Transport

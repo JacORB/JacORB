@@ -45,7 +45,7 @@ public class ThreadPool
     private LinkedList job_queue = null;
     private ConsumerFactory factory = null;
 
-    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.util.tpool");
+    private Logger logger = Debug.getNamedLogger("jacorb.util.tpool");
 
     public ThreadPool( ConsumerFactory factory )
     {
@@ -101,7 +101,7 @@ public class ThreadPool
 
         if (logger.isDebugEnabled())
         {
-            logger.debug("[" + idle_threads + "/" + total_threads + 
+            logger.debug("[" + idle_threads + "/" + total_threads +
                          "] added idle thread");
         }
 

@@ -38,7 +38,7 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 public class JsseContext implements ISASContext
 {
     /** the logger used by the naming service implementation */
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
 
     private X509Certificate client_cert = null;
 

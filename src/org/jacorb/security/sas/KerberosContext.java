@@ -27,6 +27,7 @@ import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
+import org.jacorb.util.Debug;
 import org.omg.CSI.KRB5MechOID;
 import org.omg.CSIIOP.CompoundSecMechList;
 import org.omg.PortableInterceptor.ClientRequestInfo;
@@ -35,7 +36,7 @@ import org.omg.PortableInterceptor.ServerRequestInfo;
 public class KerberosContext implements ISASContext
 {
     /** the logger used by the naming service implementation */
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
 
     //private GSSManager gssManager = GSSManager.getInstance();
     private GSSContext validatedContext = null;

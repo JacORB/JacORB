@@ -75,7 +75,7 @@ public class ClientConnection
     //the transports profile.
     private org.omg.ETF.Profile registeredProfile = null;
 
-    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.giop");
+    private Logger logger = Debug.getNamedLogger("jacorb.giop");
 
 
     public ClientConnection( GIOPConnection connection,
@@ -405,7 +405,7 @@ public class ClientConnection
     /**
      * the transport has been
      * removed underneath the GIOP layer
-     */ 
+     */
 
     public void streamClosed()
     {

@@ -61,7 +61,7 @@ public abstract class GIOPConnection
     private boolean writer_active = false;
     private Object write_sync = new Object();
 
-    private Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.giop.conn");
+    private Logger logger = Debug.getNamedLogger("jacorb.giop.conn");
 
     /*
      * Connection OSF character formats.
@@ -296,7 +296,7 @@ public abstract class GIOPConnection
 
                 if (logger.isDebugEnabled())
                 {
-                    logger.debug("TCP_IP_GIOPTransport.getMessage() with header: \n" + 
+                    logger.debug("TCP_IP_GIOPTransport.getMessage() with header: \n" +
                                  header + "\nsize : " + Messages.MSG_HEADER_SIZE );
                 }
 
@@ -345,7 +345,7 @@ public abstract class GIOPConnection
             {
                 logger.error( "Failed to read GIOP message, incorrect magic number" );
             }
-            
+
             if (logger.isDebugEnabled())
             {
                 logger.debug("GIOPConnection.getMessage()" + msg_header.value );
@@ -387,10 +387,9 @@ public abstract class GIOPConnection
                 {
                     if (logger.isErrorEnabled())
                     {
-                        logger.error( "RInvalid GIOP major version encountered: " +
+                        logger.error( "Invalid GIOP major version encountered: " +
                                      Messages.getGIOPMajor( message ) );
                     }
-
                     Debug.output( 3, "GIOPConnection.receiveMessages()", message );
 
                     continue;
@@ -582,7 +581,7 @@ public abstract class GIOPConnection
                         if (logger.isErrorEnabled())
                         {
                             logger.error( "Received a message of type " +
-                                          msg_type + 
+                                          msg_type +
                                           " with the more fragments follow bit set, but there is already an fragmented, incomplete message with the same request id " +
                                           request_id + "!" );
                         }

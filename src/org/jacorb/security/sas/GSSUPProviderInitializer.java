@@ -21,6 +21,7 @@ package org.jacorb.security.sas;
  */
 
 import org.apache.avalon.framework.logger.Logger;
+import org.jacorb.util.Debug;
 import org.omg.IOP.ENCODING_CDR_ENCAPS;
 import org.omg.IOP.Encoding;
 import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
@@ -39,7 +40,7 @@ public class GSSUPProviderInitializer
     implements ORBInitializer
 {
     /** the logger used by the naming service implementation */
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS");
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS");
 
     /**
      * This method registers the interceptors.

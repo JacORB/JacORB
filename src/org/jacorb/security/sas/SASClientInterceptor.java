@@ -28,6 +28,7 @@ import org.jacorb.orb.CDRInputStream;
 import org.jacorb.orb.MinorCodes;
 import org.jacorb.orb.giop.ClientConnection;
 import org.jacorb.orb.portableInterceptor.ClientRequestInfoImpl;
+import org.jacorb.util.Debug;
 import org.omg.ATLAS.ATLASProfile;
 import org.omg.ATLAS.ATLASProfileHelper;
 import org.omg.ATLAS.AuthTokenData;
@@ -77,7 +78,7 @@ public class SASClientInterceptor
     protected String name = null;
 
     /** the logger used by the naming service implementation */
-    private static Logger logger = org.jacorb.util.Debug.getNamedLogger("jacorb.SAS.CSS");
+    private static Logger logger = Debug.getNamedLogger("jacorb.SAS.CSS");
 
     protected byte[] contextToken = new byte[0];
     protected boolean useStateful = true;
