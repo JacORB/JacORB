@@ -550,9 +550,14 @@ jacorb.poa.thread_pool_min=5
 # MAX_PRIORITY will be used.
 #jacorb.poa.thread_priority=
 
-# size of the request queue, clients will receive Corba.TRANSIENT
-# exceptions if load exceeds this limit
+# Properties controlling the POA's request queue.  If queue_wait is off,
+# then if there are more than queue_max requests in the queue, the
+# client gets TRANSIENT exceptions for any requests.  If queue_wait is on,
+# then the call blocks at the server side until no more than queue_min
+# requests are left in the queue.  The new request is then delivered as usual.
+jacorb.poa.queue_wait=off
 jacorb.poa.queue_max=100
+jacorb.poa.queue_min=10
 
 
 ##################################
