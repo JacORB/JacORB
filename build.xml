@@ -141,6 +141,8 @@
         <exclude name="*template*" />
       </fileset>
     </chmod>
+
+    <fixcrlf srcdir="bin" eol="dos" includes="**/*.bat" />
    </target>
 
    <!-- This target creates a jar file that contains the -->
