@@ -452,7 +452,7 @@ public class Environment
         readValue("_retry_interval","retry_interval",jacorbPrefix+"retry_interval");
         readValue("_cache_entry_lifetime","_cache_entry_lifetime",jacorbPrefix+"domain.cache_entry.lifetime");
         readValue("_outbuf_size","outbuf_size",jacorbPrefix+"outbuf_size");
-        readValue("_max_managedbufsize","maxManagedBufSize",jacorbPrefix+"maxManagedBufSize");
+        readValue("_max_managed_bufsize","maxManagedBufSize",jacorbPrefix+"maxManagedBufSize");
         readValue("_orb_domain_filename","ds",jacorbPrefix+"orb_domain.filename");
         readValue("_default_domains","ds",jacorbPrefix+"poa.default_domains");
 
