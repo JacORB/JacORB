@@ -4083,7 +4083,19 @@ to configure JacORB are given in the following tables.
 \verb"ut" &  Wait the specified number of msecs for a reply to a request. If exceeded, a org.omg.CORBA.TIMEOUT exception will be thrown. Not set by default. Default to zero & millisec. \\
 \hline
 \verb"jacorb.connection.clie"
-\verb"nt.idle_timeout" & Client-side timeout. This is set to non-zero in order to stop blocking after specified number of milliseconds. Not set by default. & millisec. \\
+\verb"nt.idle_timeout" & Client-side timeout. This is set to non-zero in order
+to stop blocking after specified number of milliseconds. Not set by default. &
+millisec. \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt.timeout_ignores_pen"
+\verb"ding_messages" & Controls if client-side idle timeouts take care of
+pending messages or not. & boolean. \\
+\hline
+\verb"jacorb.connection.clie"
+\verb"nt.retry_on_failure" & Controls if network failures on existing connections
+should yield a COMM\_FAILURE or should trigger a remarshaling
+of all pending messages. & boolean. \\
 \hline
 \verb"jacorb.connection.serv"
 \verb"er.timeout" & Maximum time in milliseconds that a server keeps a connection open if nothing happens. Not set by default. & millisec. \\
