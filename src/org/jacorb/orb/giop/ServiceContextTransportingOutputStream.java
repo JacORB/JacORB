@@ -68,7 +68,7 @@ public class ServiceContextTransportingOutputStream
     //If ServiceContexts are actually added, this will be the last
     //contexts, and the context_data is used to fill up to the next 8
     //byte boundary.
-    private static ServiceContext padding_ctx = new ServiceContext( 0x4A4143FF,
+    private static ServiceContext padding_ctx = new ServiceContext( 0x4A414301,
                                                                     new byte[0] );
 
     private Vector contexts = null;
