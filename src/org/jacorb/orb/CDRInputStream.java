@@ -71,7 +71,7 @@ public class CDRInputStream
     private Hashtable repIdMap = new Hashtable();
 
     public boolean littleEndian = false;
-	
+
     /** indices into the actual buffer */
     protected byte[] buffer = null;
     protected int pos = 0;
@@ -313,56 +313,26 @@ public class CDRInputStream
 	    value[j] = read_boolean(); // inlining later...
     }
 
-    public final char read_char(int tcs)
-    {
-	switch(tcs)
-	{
-	case 0:
-	case CodeSet.ISO8859_1: 
-	    index++; 
-	    return (char)(0xff & buffer[pos++]);	       	
-	case CodeSet.UTF8:
-	    short b=(short)(0xff & buffer[pos++]); 
-	    index++;
-	    //System.out.print("{"+b+"}");
-	    if ( (b & 0x80) == 0) 
-            {
-		return (char)b;
-            }
-	    else if((b & 0xe0) == 0xc0) 
-	    { 
-		index++; 
-                return (char)(((b & 0x1F) << 6) | 
-                              ((short)buffer[pos++] & 0x3F)); 
-	    }
-	    else 
-            {
-		index += 2; 
-		short b2 = (short)(0xff & buffer[pos++]);	
-                return (char)(( ( b & 0x0F) << 12) | 
-                              ( (b2 & 0x3F) << 6) | 
-                              ( (short)buffer[pos++] & 0x3F));
-	    }
-	case CodeSet.UTF16:
-	    index += 2; 
-	    pos += 2;
-            if( littleEndian ) // fix ???
-                return (char)((buffer[pos-1] << 8) | (buffer[pos-2] & 0xFF));
-            else
-                return (char)((buffer[pos-2] << 8) | (buffer[pos-1] & 0xFF));
-	}
-	throw new Error("Bad CodeSet: "+tcs);
-    }
 	
     public final char read_char()
     {
-	return read_char(codeSet);
+        if( codeSet == CodeSet.ISO8859_1 )
+        {
+	    index++; 
+
+	    return (char)(0xff & buffer[pos++]);	       	
+        }
+        else
+        {
+            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
+                                             CodeSet.csName( codeSet ) );
+        }
     }
 
     public final void read_char_array(char[] value, int offset, int length)
     {
 	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_char(codeSet ); // inlining later...
+	    value[j] = read_char(); // inlining later...
     }
 
     public final double read_double() 
@@ -569,51 +539,47 @@ public class CDRInputStream
 	for(int j=offset; j < offset+length; j++)
 	    value[j] = read_short(); // inlining later...
     }
-
+	
     public final String read_string()
     {
-	return read_string( codeSet );
-    }
-	
-    public final String read_string( int tcs )
-    {
+        if( codeSet != CodeSet.ISO8859_1 )
+        {
+            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
+                                             CodeSet.csName( codeSet ) );
+            
+        }
+
 	int remainder = 4 - (index % 4);
-	if (remainder != 4)
+	if( remainder != 4 )
 	{
 	    index += remainder;
-	    pos+=remainder;
+	    pos += remainder;
 	}
 
-	// read size, size is in bytes not chars, but in GIOP prior to
-	// 1.2, UTF16 wstring length is encoded as char count !!
+	// read size (#bytes == #chars)
 	int size = _read4int( littleEndian, buffer, pos);
 	index += 4; 
 	pos += 4;
 
-	if( size <= 0 ) 
-	    return ""; // not allowed by specs, but possible :-)
-	
-	// performace, devik: the next code is one of fastest ways how
-	// to do it because String constructor which is taking byte[]
-	// as parameter will do its own conversion internaly. Only
-	// slow ops in sequence bellow are "new" and read_char. The
-	// new operations can be made faster by caching char[]
-	// buffer. The read_char might be inlined but the performance
-	// gain will not be so big expecially on Java Hotspot engine.
-	char[] buf = new char[size];
-	int i;
-	int endPos = pos + 
-	    ((tcs==CodeSet.UTF16 &&  giop_minor < 2 ) ? size*2 : size);
+	char[] buf = new char[ size ];
+        for( int i = 0; i < size; i++ )
+        {
+            buf[ i ] = (char) buffer[ pos++ ];
+        }
+        
+        index += size;
 
-	for( i=0; pos < endPos; i++ ) 
-	    buf[i] = read_char( tcs );
-	
-	// devik: detect optional terminating zero, it's not optional in spec.
-	// but clever orb should be able to handle missing terminator
-	if( buf[i-1] == 0 ) 
-	    i--; 
-	
-	return new String( buf, 0, i );
+        if( (giop_minor < 2) &&
+            (size > 0) &&
+            (buf[ size - 1 ] == 0) )
+        {
+            //omit terminating NULL char
+            return new String( buf, 0, size - 1 );
+        }
+        else
+        {
+            return new String( buf );
+        }
     }
 
     /**
@@ -889,18 +855,205 @@ public class CDRInputStream
 
     public final char read_wchar()
     {
-	return read_char( codeSetW );
+        if( giop_minor == 2 )
+        {
+            //ignore size indicator
+            read_wchar_size();
+            
+            boolean wchar_little_endian = readBOM();
+            
+            return read_wchar( wchar_little_endian );
+        }
+        else
+        {
+            return read_wchar( littleEndian );
+        }
+    }
+        
+    /**
+     * The number of bytes this char takes. This is actually not
+     * necessary since the encodings used are either fixed-length
+     * (UTF-16) or have their length encoded internally (UTF-8).  
+     */
+    private final int read_wchar_size()
+    {
+        index++;
+        
+        return buffer[ pos++ ];
+    }
+
+
+    private final char read_wchar( boolean wchar_little_endian )
+    {
+	switch( codeSetW )
+	{
+            case CodeSet.UTF8 :
+            {
+                if( giop_minor < 2 )
+                {
+                    throw new Error( "GIOP 1." + giop_minor + 
+                                     " only allows 2 Byte encodings for wchar, but the selected TCSW is UTF-8" );
+                }
+
+                short b = (short) (0xff & buffer[pos++]); 
+                index++;
+
+                if( (b & 0x80) == 0 ) 
+                {
+                    return (char) b;
+                }
+                else if( (b & 0xe0) == 0xc0 ) 
+                { 
+                    index++; 
+                    return (char)(((b & 0x1F) << 6) | 
+                                  ((short)buffer[pos++] & 0x3F)); 
+                }
+                else 
+                {
+                    index += 2; 
+                    short b2 = (short)(0xff & buffer[pos++]);	
+                    return (char)(( ( b & 0x0F) << 12) | 
+                                  ( (b2 & 0x3F) << 6) | 
+                                  ( (short)buffer[pos++] & 0x3F));
+                }
+            }
+            case CodeSet.UTF16 :
+            {
+                char c;
+
+                if( wchar_little_endian )
+                {
+                    c = (char) ( (buffer[ pos++ ] & 0xFF) | 
+                                 (buffer[ pos++ ] << 8) );
+                }
+                else
+                {
+                    c = (char) ( (buffer[ pos++ ] << 8) | 
+                                 (buffer[ pos++ ] & 0xFF) );
+                }
+                
+                index += 2;
+                return c;
+            }
+        }
+    
+	throw new Error( "Bad CodeSet: " + codeSetW );
+    }
+
+    /**
+     * Read the byte order marker indicating the endianess.
+     *
+     * @ return true for little endianess, false otherwise (including
+     * no BOM present. In this case, big endianess is assumed per
+     * spec).  
+     */
+    private final boolean readBOM()
+    {
+        if( (buffer[ pos     ] == (byte) 0xFE) &&
+            (buffer[ pos + 1 ] == (byte) 0xFF) )
+        {
+            //encountering a byte order marker indicating big
+            //endianess
+
+            pos += 2;
+            index += 2;
+            
+            return false;
+        }
+        else if( (buffer[ pos     ] == (byte) 0xFF) &&
+                 (buffer[ pos + 1 ] == (byte) 0xFE) )
+        {
+            //encountering a byte order marker indicating
+            //little endianess
+            
+            pos += 2;
+            index += 2;
+            
+            return true;
+        }
+        else
+        {
+            //no BOM so big endian per spec.
+            return false;
+        }
     }
 
     public final void read_wchar_array(char[] value, int offset, int length)
     {
 	for(int j=offset; j < offset+length; j++)
-	    value[j] = read_char( codeSetW ); // inlining later...
+	    value[j] = read_wchar(); // inlining later...
     }
 
     public final String read_wstring()
     {
-	return read_string( codeSetW );
+	int remainder = 4 - (index % 4);
+	if( remainder != 4 )
+	{
+	    index += remainder;
+	    pos += remainder;
+	}
+
+        if( giop_minor == 2 )
+        {	
+            // read size in bytes
+            int size = _read4int( littleEndian, buffer, pos);
+            index += 4; 
+            pos += 4;
+            
+            char[] buf = new char[ size ];
+            
+            int i = 0;
+            int endPos = pos + size;
+
+            boolean wchar_litte_endian = readBOM();
+
+            while( pos < endPos )
+            {
+                //ignore size
+                read_wchar_size();
+
+                buf[ i++ ] = read_wchar( wchar_litte_endian );
+            }
+            
+            return new String( buf );
+        }
+        else //GIOP 1.1 / 1.0
+        {
+            // read size
+            int size = _read4int( littleEndian, buffer, pos);
+            index += 4; 
+            pos += 4;
+            char[] buf = new char[ size ];
+
+            int endPos = pos + size;
+
+            if( codeSetW == CodeSet.UTF16 )
+            {                
+                //size is in chars, but char has 2 bytes
+                endPos += size;
+            }
+
+            int i = 0;
+
+            while( pos < endPos )
+            {
+                //use the stream-wide endianess
+                buf[ i++ ] = read_wchar( littleEndian ); 
+            }
+            
+            if( (i != 0) &&
+                (buf[ i - 1 ] == 0) )
+            {
+                //don't return terminating NUL
+                return new String( buf, 0, i - 1 );
+            }
+            else
+            {
+                //doesn't have a terminating NUL. This is actually not
+                //allowed.
+                return new String( buf, 0, i );
+            }
+        }                
     }
 
     public boolean markSupported()

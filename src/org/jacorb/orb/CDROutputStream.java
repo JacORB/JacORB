@@ -21,12 +21,10 @@ package org.jacorb.orb;
  */
 
 import java.io.*;
-import java.lang.*;
 import java.util.*;
 
 import org.jacorb.orb.connection.CodeSet;
 import org.jacorb.ir.RepositoryID;
-import org.jacorb.orb.connection.Messages;
 import org.jacorb.util.*;
 
 import org.omg.CORBA.TCKind;
@@ -421,48 +419,27 @@ public class CDROutputStream
 
   
     /**
-     * Writes char according to specified encoding. Note that check is not
-     * called so call it before using this method. Each character can take
-     * up to 3 bytes.
+     * Writes char according to specified encoding.
      */
     public final void write_char( char c )
     {
-        check(3);
-        switch( codeSet )
+        check( 1 );
+
+        if( codeSet == CodeSet.ISO8859_1 )
         {
-        case 0:
-        case CodeSet.ISO8859_1:
-            short x = (short)c;
-            if( x > 255 || x < 0 )
-                throw new org.omg.CORBA.MARSHAL("char ("+x+") out of range for ISO8859_1");
-            index++; 
-            buffer[pos++] = (byte)c;
-            break;
-        case CodeSet.UTF8:
-            if (c <= 0x007F) 
+            if( c > 255 || c < 0 )
             {
-                buffer[pos++]=(byte)c; index++; 
-            } 
-            else if (c > 0x07FF) 
-            {
-                buffer[pos++]=(byte)(0xE0 | ((c >> 12) & 0x0F));
-                buffer[pos++]=(byte)(0x80 | ((c >>  6) & 0x3F));
-                buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
-                index+=3; 
-            } 
-            else 
-            {
-                buffer[pos++]=(byte)(0xC0 | ((c >>  6) & 0x1F));
-                buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
-                index+=2; 
+                throw new org.omg.CORBA.MARSHAL("char (" + c + 
+                                                ") out of range for ISO8859_1");
             }
-            break;
-        case CodeSet.UTF16:
-            buffer[pos++] = (byte)((c >>>  8) & 0xFF);
-            buffer[pos++] = (byte)(c & 0xFF);
-            index+=2; 
-            break;
-        default: throw new Error("Bad codeset: " + codeSet);
+
+            index++; 
+            buffer[ pos++ ] = (byte) c;
+        }
+        else
+        {
+            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
+                                             CodeSet.csName( codeSet ) );
         }
     }
 
@@ -475,67 +452,133 @@ public class CDROutputStream
             write_char( value[i] );
     }
         
-    public final void write_string (String s)
+    public final void write_string( String s )
     {
         if( s == null )
+        {
             throw new org.omg.CORBA.MARSHAL("Null References");
-                
-        check(7 + s.length()*3,4);    // the worst case
-        int size = s.length();
-        int startPos = pos;           // store position for length indicator
-        pos += 4; 
-        index += 4;             // reserve for length indicator
-                
-        // write characters in current encoding, add null terminator
-        for(int i=0; i<size;i++) 
-            write_char( s.charAt(i) );
-        write_char( (char)0 );
-                        
-        _write4int(buffer,startPos,pos-startPos-4); // write length indicator
+        }
+
+        if( codeSet != CodeSet.ISO8859_1 )
+        {
+            throw new org.omg.CORBA.MARSHAL( "The char type only allows single-byte codesets, but the selected one is: " + 
+                                             CodeSet.csName( codeSet ) );
+            
+        }
+        
+        //size indicator ulong + length in chars( i.e. bytes for type char)
+        int size = 4 + s.length();
+
+        if( giop_minor < 2 )
+        {
+            size += 1; //terminating NUL char
+        }
+
+        check( size, 4 );
+            
+        _write4int( buffer, pos, size - 4 ); // write length indicator        
+            
+        pos += 4;
+        index += 4;
+        
+        for( int i = 0; i < s.length(); i++ )
+        {
+            buffer[ pos++ ] = (byte) s.charAt( i );
+        }
+        
+        index += s.length();
+        
+        if( giop_minor < 2 )
+        {
+            buffer[ pos++ ] = (byte) 0; //terminating NUL char
+            index++;
+        }
     }
 
-        
-    public final void write_wchar (char c)
+    public final void write_wchar( char c )
+    {
+        write_wchar( c, true );
+    }
+
+    private final void write_wchar( char c, boolean write_bom )
     {
         check(3);
+
         switch( codeSetW )
         {
-        case 0:
-        case CodeSet.ISO8859_1:
-            /*
-             * DOES IT MAKE SENSE TO HAVE ISO 8859-1 AS WCHAR CODESET?
-             */
-            short x = (short)c;
-            if( x > 255 || x < 0 )
-                throw new org.omg.CORBA.MARSHAL("char ("+x+") out of range for ISO8859_1");
-            index++; 
-            buffer[pos++] = (byte)c;
-            break;
-        case CodeSet.UTF8:
-            if (c <= 0x007F) 
+            case CodeSet.UTF8 :
             {
-                buffer[pos++]=(byte)c; index++; 
-            } 
-            else if (c > 0x07FF) 
-            {
-                buffer[pos++]=(byte)(0xE0 | ((c >> 12) & 0x0F));
-                buffer[pos++]=(byte)(0x80 | ((c >>  6) & 0x3F));
-                buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
-                index+=3; 
-            } 
-            else 
-            {
-                buffer[pos++]=(byte)(0xC0 | ((c >>  6) & 0x1F));
-                buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
-                index+=2; 
+                if( c <= 0x007F ) 
+                {
+                    if( giop_minor == 2 )
+                    {
+                        //the chars length in bytes
+                        write_octet( (byte) 1 );
+                    }
+
+                    buffer[ pos++ ] = (byte) c; 
+                } 
+                else if( c > 0x07FF ) 
+                {
+                    if( giop_minor == 2 )
+                    {
+                        //the chars length in bytes
+                        write_octet( (byte) 3 );
+                    }
+
+                    buffer[pos++]=(byte)(0xE0 | ((c >> 12) & 0x0F));
+                    buffer[pos++]=(byte)(0x80 | ((c >>  6) & 0x3F));
+                    buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
+
+                    index += 3; 
+                } 
+                else 
+                {
+                    if( giop_minor == 2 )
+                    {
+                        //the chars length in bytes
+                        write_octet( (byte) 2 );
+                    }
+
+                    buffer[pos++]=(byte)(0xC0 | ((c >>  6) & 0x1F));
+                    buffer[pos++]=(byte)(0x80 | ((c >>  0) & 0x3F));
+
+                    index += 2; 
+                }
+                break;
             }
-            break;
-        case CodeSet.UTF16:
-            buffer[pos++] = (byte)((c >>>  8) & 0xFF);
-            buffer[pos++] = (byte)(c & 0xFF);
-            index+=2; 
-            break;
-        default: throw new Error("Bad codeset: " + codeSet);
+            case CodeSet.UTF16 :
+            {
+                if( giop_minor == 2 )
+                {
+                    //the chars length in bytes
+                    write_octet( (byte) 2 );
+
+                    if( write_bom )
+                    {
+                        //big endian encoding
+                        buffer[ pos++ ] = (byte) 0xFE;
+                        buffer[ pos++ ] = (byte) 0xFF;
+                        
+                        index += 2; 
+                    }
+
+                    //write unaligned
+                    buffer[pos++] = (byte)((c >> 8) & 0xFF);
+                    buffer[pos++] = (byte) (c       & 0xFF);
+                }
+                else
+                {
+                    //UTF-16 char is treated as an ushort (write aligned)
+                    write_short( (short) c );
+                }
+
+                break;
+            }
+            default : 
+            {
+                throw new Error("Bad codeset: " + codeSet);
+            }
         }
     }
 
@@ -544,37 +587,71 @@ public class CDROutputStream
         if( value == null ) 
             throw new org.omg.CORBA.MARSHAL("Null References");
 
-        check(length*3);
+        check( length * 3 );
 
         for( int i = offset; i < offset+length; i++)
-            write_char( value[i] );
+            write_wchar( value[i] );
     }
         
     public final void write_wstring( String s )
     {      
         if( s == null ) 
+        {
             throw new org.omg.CORBA.MARSHAL("Null References");
+        }
                 
-        check(7 + s.length()*3, 4);  // the worst case
+        //size ulong + no of bytes per char (max 3 if UTF-8) +
+        //terminating NUL
+        check( 4 + s.length() * 3 + 3, 4);
 
-        int size = s.length();
         int startPos = pos;         // store position for length indicator
         pos += 4; 
         index += 4;                 // reserve for length indicator
-                
+
+        //the byte order marker
+        if( giop_minor == 2 )
+        {
+            //big endian encoding
+            buffer[ pos++ ] = (byte) 0xFE;
+            buffer[ pos++ ] = (byte) 0xFF;
+            
+            index += 2;             
+        }
+
         // write characters in current wide encoding, add null terminator
-        for( int i=0; i < size; i++ ) 
-            write_wchar( s.charAt(i) );
+        for( int i = 0; i < s.length(); i++ ) 
+        {
+            write_wchar( s.charAt(i), false ); //no BOM
+        }
 
-        write_wchar( (char)0 );
+        if( giop_minor < 2 )
+        {
+            //terminating NUL char
+            write_wchar( (char)0, false ); //no BOM
+        }
                         
-        boolean sizeInChars = 
-            ( giop_minor < 2 && codeSetW == CodeSet.UTF16 );
+        int size = 0;
+        if( giop_minor == 2 )
+        {
+            //size in bytes (without the size ulong)
+            size = pos - startPos - 4;
+        }
+        else
+        {
+            if( codeSetW == CodeSet.UTF8 )
+            {
+                //size in bytes (without the size ulong)
+                size = pos - startPos - 4;
+            }
+            else if( codeSetW == CodeSet.UTF16 )
+            {
+                //size in chars (+ NUL char)
+                size = s.length() + 1;
+            }
+        }
 
-        _write4int( buffer, 
-                    startPos, 
-                    pos-startPos-4 >> ( sizeInChars ? 1 : 0 ) ); // write length indicator
-
+        // write length indicator
+        _write4int( buffer, startPos, size );
     }
 
     public  final void write_double (double value)
@@ -802,7 +879,7 @@ public class CDROutputStream
     {
         check(3,2);
         
-        buffer[pos]   = (byte)((value >>>  8) & 0xFF);
+        buffer[pos]   = (byte)((value >>  8) & 0xFF);
         buffer[pos+1] = (byte)(value & 0xFF);
         index += 2; pos+=2;
     }
