@@ -30,12 +30,12 @@ import java.io.*;
 import java.util.*;
 
 class Member 
-    extends IdlSymbol 
+    extends Declaration
 {
     public TypeSpec type_spec;
     public SymbolList declarators;
     public Vector extendVector;
-    public StructType containing_struct;
+    public TypeDeclaration containingType;
 
     public Declarator declarator;
 
@@ -65,9 +65,9 @@ class Member
     }
 
 
-    public void setStruct(StructType s)
+    public void setContainingType (TypeDeclaration t)
     {
-	containing_struct = s;
+	containingType = t;
     }
 
     /** must be set by MemberList before parsing */
@@ -98,13 +98,13 @@ class Member
 	    {
 		if( ((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec instanceof StructType )
 		{
-		    //	System.out.println("Struct " + containing_struct.typeName() + " contains struct " + ((ConstrTypeSpec)type_spec.typeSpec()).typeName());
+		    //	System.out.println("Type " + containingType.typeName() + " contains type " + ((ConstrTypeSpec)type_spec.typeSpec()).typeName());
 		    if(
-		       ((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec.typeName().equals(containing_struct.typeName())
+		       ((ConstrTypeSpec)type_spec.typeSpec()).c_type_spec.typeName().equals(containingType.typeName())
 		       )
 		    {
-			parser.fatal_error("Illegal recursion in struct (use sequence<" + 
-					   containing_struct.typeName()+ "> instead)", token);
+			parser.fatal_error("Illegal type recursion (use sequence<" + 
+					   containingType.typeName()+ "> instead)", token);
 		    }
 		}
 	    }
@@ -120,7 +120,7 @@ class Member
                 ts = ((SequenceType)ts.typeSpec()).elementTypeSpec().typeSpec();
             }
 
-            //           if( ts.typeName().equals( containing_struct.typeName()) || 
+            //           if( ts.typeName().equals( containingType.typeName()) || 
             if( ScopedName.isRecursionScope( ts.typeName() ))
 	    {
 		seqTs.setRecursive();
@@ -182,7 +182,7 @@ class Member
             {
                 try
                 {
-                    NameTable.define( containing_struct + "." + d.name() , 
+                    NameTable.define( containingType + "." + d.name() , 
                                       "declarator" );
                 }
                 catch( NameAlreadyDefined nad )
