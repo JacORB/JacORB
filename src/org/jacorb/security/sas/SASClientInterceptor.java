@@ -257,7 +257,7 @@ public class SASClientInterceptor
         {
             logger.warn("No SAS security context found (exception): "+e);
         }
-        if (ctx == null) return;
+        if (ctx == null || ctx.context_data.length <= 1) return;
 
         try
         {
