@@ -3,7 +3,7 @@ package org.jacorb.idl;
 /*
  *        JacORB - a free Java ORB
  *
- *   Copyright (C) 1997-2001  Gerald Brose.
+ *   Copyright (C) 1997-2002  Gerald Brose.
  *
  *   This library is free software; you can redistribute it and/or
  *   modify it under the terms of the GNU Library General Public
@@ -25,8 +25,9 @@ import java.util.*;
 class SwitchBody 
     extends IdlSymbol
 {
-    /** v holds case list */
-    Vector v = new Vector();
+    /** holds case list */
+    Vector caseListVector = new Vector();
+
     TypeSpec ts = null;
     UnionType myUnion = null;
 
@@ -38,7 +39,7 @@ class SwitchBody
     public void setTypeSpec( TypeSpec s )
     {
 	ts = s;
-	for( Enumeration e = v.elements(); e.hasMoreElements();)
+	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
 	    c.setPackage(pack_name );
@@ -54,7 +55,7 @@ class SwitchBody
     public void setUnion( UnionType ut )
     {
         myUnion = ut;
-	for( Enumeration e = v.elements(); e.hasMoreElements();)
+	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
 	    c.setUnion( ut );
@@ -66,7 +67,7 @@ class SwitchBody
 	if( enclosing_symbol != null && enclosing_symbol != s )
 	    throw new RuntimeException("Compiler Error: trying to reassign container for " + name );
 	enclosing_symbol = s;
-	for( Enumeration e = v.elements(); e.hasMoreElements();)
+	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
 	    ((IdlSymbol)e.nextElement()).setEnclosingSymbol( s );
     }
 
@@ -82,18 +83,45 @@ class SwitchBody
 	    ts.setPackage( s);
     }
 
-    public void parse() 		 
-    {
-	for( Enumeration e = v.elements(); e.hasMoreElements();)
-	    ((IdlSymbol)e.nextElement()).parse();
-	ts.parse();
+    /**
+     * do the parsing
+     */
 
+    public void parse() 		 
+    {        
+        Hashtable usedLabelNames = new Hashtable();
+
+	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
+        {
+            Case theCase = (Case)e.nextElement();
+	    theCase.parse();
+
+            // get all case labels and check for duplicates
+
+            IdlSymbol[] labels = theCase.getLabels();
+            for( int i = 0; i < labels.length; i++ )
+            {
+                IdlSymbol sym = 
+                    (IdlSymbol)usedLabelNames.get(labels[i].toString());
+                if( sym != null )
+                {                    
+                    parser.error("Duplicate case label <" + 
+                                 sym.toString() + 
+                                 ">", sym.get_token() );
+                }
+                usedLabelNames.put( sym.toString(), sym );
+            }
+        }
+        usedLabelNames.clear();
+
+	ts.parse();
         myUnion.addImportedName( ts.typeName() );
+        
     }
 
     public void print(java.io.PrintWriter ps)
     {	
-	for( Enumeration e = v.elements(); e.hasMoreElements();)
+	for( Enumeration e = caseListVector.elements(); e.hasMoreElements();)
 	{
 	    Case c = (Case)e.nextElement();
 	    c.print(ps);
