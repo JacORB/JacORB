@@ -37,6 +37,12 @@ public class serverImpl
 	sah.value = s;
     }
 
+    public String op5( org.omg.CORBA.StringHolder ws)
+    {
+        ws.value = "1234567890";
+        return "op5 done.";
+    }
+
     public void print(String s)
     {
 	System.out.println(s);
