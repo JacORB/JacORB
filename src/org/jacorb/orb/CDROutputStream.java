@@ -127,7 +127,7 @@ public class CDROutputStream
     /** Nesting level of chunked valuetypes */
     private int valueNestingLevel = 0;
 
-    private List deferredArrayQueue = new Vector();
+    private List deferredArrayQueue = new ArrayList();
 
     private org.omg.CORBA.ORB orb = null;
 
