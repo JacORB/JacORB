@@ -43,6 +43,7 @@ public class POAManager
     private org.jacorb.orb.ORB orb;
     private Vector poas = new Vector();
     private POAManagerMonitor monitor;
+    protected boolean poaCreationFailed;
 
 
     protected POAManager(org.jacorb.orb.ORB _orb)
@@ -57,6 +58,8 @@ public class POAManager
 
     public void activate() throws AdapterInactive
     {
+        checkCreation ();
+
         switch (state.value())
         {
             case State._INACTIVE :
@@ -96,6 +99,8 @@ public class POAManager
         (boolean etherealize_objects, boolean wait_for_completion)
         throws AdapterInactive
     {
+        checkCreation ();
+
         if (wait_for_completion && isInInvocationContext())
         {
             throw new org.omg.CORBA.BAD_INV_ORDER();
@@ -144,6 +149,8 @@ public class POAManager
     public void discard_requests(boolean wait_for_completion)
         throws AdapterInactive
     {
+        checkCreation ();
+
         if (wait_for_completion && isInInvocationContext())
         {
             throw new org.omg.CORBA.BAD_INV_ORDER();
@@ -216,6 +223,8 @@ public class POAManager
     public void hold_requests(boolean wait_for_completion)
         throws AdapterInactive
     {
+        checkCreation ();
+
         if (wait_for_completion && isInInvocationContext())
         {
             throw new org.omg.CORBA.BAD_INV_ORDER();
@@ -295,5 +304,14 @@ public class POAManager
     {
         poas.removeElement(poa);
         monitor.removePOA(poa._getQualifiedName());
+    }
+
+
+    private void checkCreation ()
+    {
+        if (poaCreationFailed)
+        {
+            throw new org.omg.CORBA.INTERNAL ("POA Creation failed; unable to deactive");
+        }
     }
 }
