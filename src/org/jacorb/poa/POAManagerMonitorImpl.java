@@ -127,8 +127,8 @@ public class POAManagerMonitorImpl
             try {
                 view._addPOA(expandPOAName(name));
             } catch (Throwable exception) {
-                System.err.println("Exception occurred in _addPOA() of POAManagerMonitor");
-                exception.printStackTrace();
+                org.jacorb.util.Debug.output(0, "Exception occurred in addPOA() of POAManagerMonitor");
+                org.jacorb.util.Debug.output(0, exception);
             }
             printMessage("register POA "+name);
         }
@@ -136,14 +136,14 @@ public class POAManagerMonitorImpl
     public synchronized void closeMonitor() {
         if (view != null) {
             try {
-                POAManagerMonitor newMonitor = (POAManagerMonitor)Class.forName("org.jacorb.poa.POAManagerMonitorLightImpl").newInstance();
+                POAManagerMonitor newMonitor = (POAManagerMonitor)Class.forName("org.jacorb.poa.POAManagerMonitorImpl").newInstance();
                 newMonitor.init(model);
                 model.setMonitor(newMonitor);
                 POAManagerMonitorView tmp = view;
                 view = null;
                 tmp._destroy();
             } catch (Throwable exception) {
-                org.jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitorLightImpl");
+                org.jacorb.util.Debug.output(0, "Exception occurred in closeMonitor() of POAManagerMonitorImpl");
                 org.jacorb.util.Debug.output(0, exception);
             }
         }
