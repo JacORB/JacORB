@@ -158,18 +158,18 @@ public final class Delegate
      * inside of _invoke, where they get handled properly (falling
      * back, etc.)
      *  */
-    private void bind() 
+    private void bind( int initial_request_id ) 
     { 
         synchronized( bind_sync )
         {
             if( bound )
                 return;
 
-
             _pior.init();
     
             connection = conn_mg.getConnection( _pior.getAdPort(),
-                                                _pior.useSSL() );
+                                                _pior.useSSL(),
+                                                initial_request_id );
             bound = true;
             
             /* The delegate could query the server for the object
@@ -191,10 +191,11 @@ public final class Delegate
                                                        connection.getId(),
                                                        (int) _pior.getProfileBody().iiop_version.minor );
                     
-                    ReplyPlaceholder place_holder = 
-                        connection.sendRequest( lros,
-                                                true, //response expected
-                                                lros.getRequestId() );
+                    ReplyPlaceholder place_holder = new ReplyPlaceholder();
+
+                    connection.sendRequest( lros,
+                                            place_holder,
+                                            lros.getRequestId() );
                     
                     
                     LocateReplyInputStream lris =
@@ -237,6 +238,11 @@ public final class Delegate
         }
     }
     
+    private void bind()
+    {
+        bind( 0 );
+    }
+
     private void rebind( String object_reference ) 
     {
         synchronized( bind_sync )
@@ -268,15 +274,20 @@ public final class Delegate
             
             _pior = p;
 
+            int initial_request_id = 0;
+
             if( connection != null )
             {
-                conn_mg.releaseConnection( connection );                
+                initial_request_id = connection.getId();
+
+                conn_mg.releaseConnection( connection );
+                connection = null;
             }
 
             //to tell bind() that it has to take action
             bound = false;
 
-            bind();
+            bind( initial_request_id );
         }
     }    
         
@@ -719,24 +730,29 @@ public final class Delegate
         ReplyPlaceholder placeholder = null;
         try
         {          
-            placeholder = connection.sendRequest( ros,
-                                                  ros.response_expected(),
-                                                  ros.requestId() );
- 
-            // devik: if tcs was not negotiated yet, in every context
-            // we will send tcs wanted. After first such request was
-            // sent (and it is here) we can mark connection tcs as
-            // negotiated
-            //connection.markTcsNegotiated();
-
-            //store pending replies, so in the case of a LocationForward
-            //a RemarshalException can be thrown to *all* waiting threads. 
             if( ros.response_expected())
             {
+                placeholder = new ReplyPlaceholder();
+
+                //store pending replies, so in the case of a
+                //LocationForward a RemarshalException can be thrown
+                //to *all* waiting threads.
+
                 synchronized( pending_replies )
                 {
-                        pending_replies.put( placeholder, placeholder );
+                    pending_replies.put( placeholder, placeholder );
                 }
+
+                synchronized( bind_sync )
+                {
+                    connection.sendRequest( ros,
+                                            placeholder,
+                                            ros.requestId() );
+                }
+            }
+            else
+            {
+                connection.sendRequest( ros );
             }
         } 
         catch( org.omg.CORBA.SystemException cfe )
