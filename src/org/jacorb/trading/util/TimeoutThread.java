@@ -41,7 +41,6 @@ public class TimeoutThread extends Thread {
 	}	
 
       }catch (Exception e){
-	org.jacorb.util.Debug.output(2, e);
       }
     }    
   }
@@ -50,7 +49,6 @@ public class TimeoutThread extends Thread {
    * Stop the alarm timer.
    */
   public void stopTimer(Thread interruptee){
-    org.jacorb.util.Debug.output(2, "Timer.stop for interruptee " + interruptee.toString());
 
     TimerListNode _current = (TimerListNode) current_nodes.get(interruptee);
     _current.stopTimer();

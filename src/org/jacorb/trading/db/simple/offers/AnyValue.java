@@ -94,15 +94,12 @@ public class AnyValue implements Serializable
 	}
 	catch (org.omg.CORBA.TypeCodePackage.BadKind e) 
 	{
-	    org.jacorb.util.Debug.output(4, e );
 	    // ignore
 	}
 	catch (BAD_OPERATION e) 
 	{
-	    org.jacorb.util.Debug.output(4, e );
 	    // ignore
 	}
-	org.jacorb.util.Debug.output(4, "AnyValue, tc_kind " + type.kind() + (result? " " : " not" ) + " supported");
 	return result;
     }
 
@@ -328,19 +325,15 @@ public class AnyValue implements Serializable
 	    }
 	}
 	catch (org.omg.CORBA.TypeCodePackage.BadKind e) {
-	    org.jacorb.util.Debug.output(2,e);
 	    throw new RuntimeException(e.getMessage());
 	}
 	catch (org.omg.DynamicAny.DynAnyPackage.InvalidValue e) {
-	    org.jacorb.util.Debug.output(2,e);
 	    throw new RuntimeException(e.getMessage());
 	}
 	catch (org.omg.DynamicAny.DynAnyPackage.TypeMismatch e) {
-	    org.jacorb.util.Debug.output(2,e);
 	    throw new RuntimeException(e.getMessage());
 	}
 	catch (org.omg.DynamicAny.DynAnyFactoryPackage.InconsistentTypeCode e) {
-	    org.jacorb.util.Debug.output(2,e);
 	    throw new RuntimeException(e.getMessage());
 	}
 	//**//

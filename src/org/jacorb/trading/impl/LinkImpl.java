@@ -12,7 +12,10 @@ import java.util.*;
  * @author Nicolas Noffke
  */
 
-public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperations  {
+public class LinkImpl 
+    extends org.omg.CosTrading.LinkPOA 
+    implements LinkOperations  
+{
 
     private TraderComp m_traderComp;
     private SupportAttrib m_support;
@@ -189,12 +192,12 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
 	try {
 	    org.omg.CORBA.Object _obj = target.register_if();
 	    _reg = RegisterHelper.narrow(_obj);
-	}catch (Exception e){
+	}
+        catch (Exception e){
 	    // if we get an exception here, we assume that the lookup reference is
 	    // invalid. It might as well be an network error, but since we cannot 
 	    // confirm the lookup reference, we don't accept it.
-	    org.jacorb.util.Debug.output(2, e);
-	    throw new InvalidLookupRef(target);
+            throw new InvalidLookupRef(target);
 	}
 
 	// default_follow_rule too permissive?
@@ -351,13 +354,6 @@ public class LinkImpl extends org.omg.CosTrading.LinkPOA implements LinkOperatio
     }    
     
 } // LinkImpl
-
-
-
-
-
-
-
 
 
 

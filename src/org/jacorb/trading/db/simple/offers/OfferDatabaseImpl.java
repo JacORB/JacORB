@@ -364,7 +364,6 @@ public class OfferDatabaseImpl implements OfferDatabase
       fileOut.close();
     }
     catch (IOException e) {
-	org.jacorb.util.Debug.output(1,e);
       throw new RuntimeException(e.getMessage());
     }
   }

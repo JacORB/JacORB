@@ -39,7 +39,6 @@ public class TimerListNode{
       try{
 	wait();
       }catch(Exception _e){
-	org.jacorb.util.Debug.output(2, _e);
       }
 	
     return next;
@@ -61,23 +60,17 @@ public class TimerListNode{
     if (do_interrupt){
       interrupt_sent = true;
       interruptee.interrupt();
-      org.jacorb.util.Debug.output(2, "interrupt for interruptee " + interruptee.toString());
     }
-    else
-      org.jacorb.util.Debug.output(2, "not interrupting " + interruptee.toString());
   }
 
   public synchronized void stopTimer(){
-    org.jacorb.util.Debug.output(2, "Timer.stop (node) for interruptee " + interruptee.toString());
 
     if (! interrupt_sent)
       do_interrupt = false;
     else
       try{
 	wait(); //wait for interrupt to come
-	org.jacorb.util.Debug.output(2, "waiting for interrupt " + interruptee.toString());
       }catch(Exception _e){
-	org.jacorb.util.Debug.output(2, _e);
       }	
   }
 } // TimerListNode

@@ -14,6 +14,11 @@
 package org.jacorb.trading.impl;
 
 import java.util.*;
+
+import org.apache.avalon.framework.logger.*;
+import org.apache.avalon.framework.configuration.*;
+
+
 import org.omg.CORBA.*;
 import org.omg.CosTrading.*;
 import org.omg.CosTrading.LookupPackage.*;
@@ -22,9 +27,11 @@ import org.omg.CosTrading.ProxyPackage.ProxyInfo;
 import org.omg.CosTrading.LinkPackage.LinkInfo;
 import org.omg.CosTradingRepos.*;
 import org.omg.CosTradingRepos.ServiceTypeRepositoryPackage.*;
+
 import org.jacorb.trading.constraint.*;
 import org.jacorb.trading.db.OfferDatabase;
 import org.jacorb.trading.util.*;
+import org.jacorb.config.Configuration;
 
 /**
  * Implementation of CosTrading::Lookup
@@ -48,22 +55,21 @@ public class LookupImpl
     private QueryPropagator m_query_distrib; // threadpool for concurrent query distribution
     private LinkInfo[] m_links_cache; // array of federated traders
 
-
     private static int count = 0;
-    private boolean m_debug = false;
-    private int m_debug_verbosity = 2;
+    private Logger logger;
+
     //////////////////////////////////////////////////////////////// new!
     private LookupImpl()
     {
     }
 
 
-    public LookupImpl(
-		      TraderComp traderComp,
+    public LookupImpl(TraderComp traderComp,
 		      SupportAttrib supportAttrib,
 		      ImportAttrib importAttrib,
 		      OfferDatabase db,
-		      LinkImpl link)
+		      LinkImpl link,
+                      org.jacorb.config.Configuration config)
     {
 	m_traderComp = traderComp;
 	m_support = supportAttrib;
@@ -71,18 +77,11 @@ public class LookupImpl
 	m_db = db;
 	org.omg.CORBA.Object obj = supportAttrib.getTypeRepos();
 	m_repos = ServiceTypeRepositoryHelper.narrow(obj);
+        this.logger = config.getNamedLogger("jacorb.trading");
+        this.m_query_cache_max = config.getAttributeAsInteger("jtrader.impl.cache_max",100);
 
 	//////////////////////////////////////////////////////////////// new!
 	m_link_if = link;
-	String _m_cache_max =  org.jacorb.util.Environment.getProperty("jtrader.impl.cache_max");
-	if (_m_cache_max != null){
-	    try{
-		m_query_cache_max = Integer.parseInt(_m_cache_max);
-	    }catch (Exception _e){
-		//possibly wrong number
-		org.jacorb.util.Debug.output(2, _e);
-	    }
-	}
 
 	// standard load factor of Hashtable is 0.75, so if we want to store efficiently 
 	// m_query_cache_max elements, we have to account for the load factor.
@@ -91,29 +90,15 @@ public class LookupImpl
 	m_query_cache_queue = new Vector(m_query_cache_max + 2);
 
 	m_query_distrib = new QueryPropagator();
-
-	String _tmp = org.jacorb.util.Environment.getProperty("jtrader.debug");
-	if (_tmp != null){
-	    try {
-		m_debug = (Boolean.valueOf(_tmp)).booleanValue();
-	    }catch (Exception _e){
-		// possibly invalid number
-		org.jacorb.util.Debug.output(2, _e);
-	    }
-	}
-	//m_debug = false;
- 
-    
-	_tmp = org.jacorb.util.Environment.getProperty("jtrader.debug_verbosity"); 
-	if (_tmp != null){
-	    try {
-		m_debug_verbosity = Integer.parseInt(_tmp);
-	    }catch (Exception _e){
-		// possibly invalid number
-		org.jacorb.util.Debug.output(2, _e);
-	    }
-	}
-	//////////////////////////////////////////////////////////////// new!
+        try
+        {
+            m_query_distrib.configure(config);
+        }
+        catch( ConfigurationException ce )
+        {
+            logger.error("ConfigurationException", ce );
+            throw new org.omg.CORBA.INITIALIZE(ce.getMessage());
+        }
     }
 
 
@@ -280,8 +265,6 @@ public class LookupImpl
 	DuplicatePolicyName
     {
 	int no = count++;
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "### query started: " + no);
 
 	// retrieve complete information about the service type from the
 	// repository - may throw IllegalServiceType, UnknownServiceType
@@ -296,9 +279,6 @@ public class LookupImpl
 		throw new DuplicatePolicyName(policies[i].name);
 	    policyTable.put(policies[i].name, policies[i].value);
 	}
-
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "### check id: " + no);
 
 	// check request_id
 	// request_id set?
@@ -326,14 +306,8 @@ public class LookupImpl
 	    // initializing anyway so we don't run into NullPointerEcxecptions
 	    offers.value = new Offer[0];
 	    limits_applied.value = new String[0];
-	    if (m_debug) 
-		org.jacorb.util.Debug.output(m_debug_verbosity, "### Refused query request. Reason: Query was already executed");
-	    if (m_debug) 
-		org.jacorb.util.Debug.output(m_debug_verbosity, "### Returned from query " + no);
 	    return;
 	}
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "### passed id check: " + no);
 
 	// if hop_count policy not set, we generate one from the defaults
 	if (! policyTable.containsKey("hop_count"))
@@ -350,8 +324,9 @@ public class LookupImpl
 	// if we have generated new policies, we merge them with the existing ones
 	if (_generated_policies.size() > 0)
 	{
-	    org.omg.CosTrading.Policy[] _new_policies = new org.omg.CosTrading.Policy[policies.length + 
-										     _generated_policies.size()];
+	    org.omg.CosTrading.Policy[] _new_policies = 
+                new org.omg.CosTrading.Policy[policies.length + 
+                                              _generated_policies.size()];
 	    System.arraycopy(policies, 0, _new_policies, 0, policies.length);
 
 	    Enumeration _gen_polic_enum = _generated_policies.elements();
@@ -362,9 +337,6 @@ public class LookupImpl
 	    policies = _new_policies;
 	}
 
-	//////////////////////////////////////////////////////////////// new!  
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "### passed policy gen: " + no);
 
 	// determine our limiting policies
 	int searchCard = getPolicyValue(policyTable, "search_card",
@@ -427,13 +399,10 @@ public class LookupImpl
 	// to use the links with always again
 	Hashtable _used_links = new Hashtable();
 
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "++++++++++++++++++++++++ distribution started");
 	if (hop_count > 0 &&
 	    link_follow_rule.value() == FollowOption.always.value())
 	    distributeQuery(_queries, _templ, link_follow_rule, _used_links);
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "++++++++++++++++++++++++ distribution finished");
+
 	//////////////////////////////////////////////////////////////// new!
 
 	// if no preference is supplied, "first" is the default
@@ -570,19 +539,14 @@ public class LookupImpl
 	    while (_results.hasMoreElements()){  
 		QueryContainer _distrib_query = (QueryContainer) _results.nextElement();
 		try{
-		    if (m_debug) 
-			org.jacorb.util.Debug.output(m_debug_verbosity, "+++++++++++++++Lookup, going to wait for " + _distrib_query.no);
 		    _distrib_query.resultReady(); //blocks until remote query returned
-		    if (m_debug) 
-			org.jacorb.util.Debug.output(m_debug_verbosity, "+++++++++++++++Lookup, finished waiting for " + _distrib_query.no);
 		}catch(Exception _e){
-		    org.jacorb.util.Debug.output(2, _e);
+                    _e.printStackTrace();
 		    continue; // possibly InterruptedException, dropping this result
 		}
 	  
 		UserException _query_exception = _distrib_query.getException();
 		if (_query_exception != null){
-		    org.jacorb.util.Debug.output(2, _query_exception);
 		    _dropped.addElement(_distrib_query);
 		    continue; // an exception occured during distributed query execution,
 		    // dropping this result
@@ -711,9 +675,7 @@ public class LookupImpl
 		OfferIteratorImpl iter = new OfferIteratorImpl(_offer_array, 0);
 		iter._this_object( _orb() );
 		offer_itr.value = iter._this();
-		if (m_debug) 
-		    org.jacorb.util.Debug.output(m_debug_verbosity, "Returned " + _offer_array.length + " offers via Iterator");
- 
+
 	    }
 
 	    // build array of applied_limits from vector
@@ -722,13 +684,6 @@ public class LookupImpl
 	    int _i = 0;
 	    while (_applied_limits.hasMoreElements())
 		limits_applied.value[_i++] = (String) _applied_limits.nextElement();
-
-
-	    if (m_debug) 
-		org.jacorb.util.Debug.output(m_debug_verbosity, "Returned " + offers.value.length + " offers");
-	    if (m_debug) 
-		org.jacorb.util.Debug.output(m_debug_verbosity, "### Returned from query " + no);
-	    //////////////////////////////////////////////////////////////// new! 
 
 	}	
 	finally {
@@ -996,11 +951,6 @@ public class LookupImpl
 	return true;
     }
 }
-
-
-
-
-
 
 
 

@@ -1,5 +1,8 @@
 package org.jacorb.trading.util;
 
+import org.apache.avalon.framework.logger.*;
+import org.apache.avalon.framework.configuration.*;
+
 import java.util.*;
 import org.omg.CORBA.*;
 import java.lang.*;
@@ -14,14 +17,23 @@ import java.lang.*;
  * @author Nicolas Noffke
  */
 
-public class QueryPropagator {
+public class QueryPropagator 
+    implements Configurable
+{
+    /** the configuration object  */
+    private org.jacorb.config.Configuration configuration = null;
+    private Logger logger = null;
+
     /**
      * This class represents a thread wich executes the remote query()-calls.
      * For efficiency reasons it is an inner class so we can access attributes
      * of QueryPropagator in an easy fashion.
      *
      */	
-    private class QueryThread extends Thread{
+
+    private class QueryThread 
+        extends Thread
+    {
 	private QueryContainer m_query = null;
 	private int no = 0;
 	private TimeoutThread m_timer;
@@ -29,7 +41,8 @@ public class QueryPropagator {
 	/**
 	 * Default constructor, nothing done here.
 	 */
-	public QueryThread(TimeoutThread timer){
+	public QueryThread(TimeoutThread timer)
+        {
 	    no = threadc++;
 	    m_total_threads++;
 
@@ -42,8 +55,6 @@ public class QueryPropagator {
 	 * The threads main loop.
 	 */
 	public void run(){
-	    if (m_debug) 
-	    	org.jacorb.util.Debug.output(m_debug_verbosity, "Thread started (" + no + ")");
 	    do {
 		m_idle_threads++;
 		getWork();
@@ -83,7 +94,7 @@ public class QueryPropagator {
 	    }
 	    catch (Exception e)
 	    {
-		org.jacorb.util.Debug.output(2, e);
+                //		org.jacorb.util.Debug.output(2, e);
 		
 		// initializing anyway, for safety reasons
 		m_query.m_offers.value = new org.omg.CosTrading.Offer[0];
@@ -100,17 +111,14 @@ public class QueryPropagator {
 	 * It uses two semaphores and the consumer-producer pattern for concurrency 
 	 * control.
 	 */
-	private void getWork(){
-	    if (m_debug) 
-		org.jacorb.util.Debug.output(m_debug_verbosity, "++Thread waiting for work: (" + no + ")");
+	private void getWork()
+        {
 	    m_query_cons.P();
 	    m_query = m_new_query; // get new QueryContainer
 
 	    m_idle_threads--;
 	    m_query_prod.V();
 
-	    if (m_debug) 
-		org.jacorb.util.Debug.output(m_debug_verbosity, "++Thread got work: (T: " + no + ") (Q:" + m_query.no + ")");
 	}
     } // QueryThread
 
@@ -132,72 +140,40 @@ public class QueryPropagator {
     private TimeoutThread m_timer = null;
 
     private static int threadc = 0;
-    private boolean m_debug = false;
     private int m_debug_verbosity = 2;
 
     /**
      * Constructor of QueryPropagator
      *
      */
-    public QueryPropagator() {
+    public QueryPropagator() 
+    {
 	m_idle_threads_sema = new Semaphore();
 	m_query_cons = new Semaphore(0); // setting semaphore to 0, since consumers 
 	                                 // must block until first producer issues a V()
 	m_query_prod = new Semaphore();
 
-	String _tmp =  org.jacorb.util.Environment.getProperty("jtrader.util.max_threads");
-	if (_tmp != null){
-	    try {
-		m_max_threads = Integer.parseInt(_tmp);
-	    }catch (Exception _e){
-		// possibly invalid number
-		org.jacorb.util.Debug.output(2, _e);
-	    }
-	}
-
-	_tmp =  org.jacorb.util.Environment.getProperty("jtrader.util.min_threads");
-	if (_tmp != null){
-	    try {
-		m_min_threads = Integer.parseInt(_tmp);
-	    }catch (Exception _e){
-		// possibly invalid number
-		org.jacorb.util.Debug.output(2, _e);
-	    }
-	}
-
-	_tmp =  org.jacorb.util.Environment.getProperty("jtrader.util.query_timeout");
-	if (_tmp != null){
-	    try {
-		m_query_timeout = Integer.parseInt(_tmp);
-	    }catch (Exception _e){
-		// possibly invalid number
-		org.jacorb.util.Debug.output(2, _e);
-	    }
-	}
-
-	_tmp = org.jacorb.util.Environment.getProperty("jtrader.debug");
-	if (_tmp != null){
-	    try {
-		m_debug = (Boolean.valueOf(_tmp)).booleanValue();
-	    }catch (Exception _e){
-		// possibly invalid number
-		org.jacorb.util.Debug.output(2, _e);
-	    }
-	}
-
-	_tmp = org.jacorb.util.Environment.getProperty("jtrader.debug_verbosity");
-	if (_tmp != null){
-	    try {
-		m_debug_verbosity = Integer.parseInt(_tmp);
-	    }catch (Exception _e){
-		// possibly invalid number
-		org.jacorb.util.Debug.output(2, _e);
-	    }
-	}
-
 	m_timer = new TimeoutThread(m_query_timeout);
     }
 	
+    public void configure(Configuration myConfiguration)
+        throws ConfigurationException
+    {
+        this.configuration = 
+            (org.jacorb.config.Configuration)myConfiguration;
+        logger = 
+            configuration.getNamedLogger("jacorb.trading");
+
+        m_max_threads = 
+            configuration.getAttributeAsInteger("jtrader.util.max_threads",10);
+        m_min_threads = 
+            configuration.getAttributeAsInteger("jtrader.util.min_threads",1);
+        m_query_timeout =  
+            configuration.getAttributeAsInteger("jtrader.util.query_timeout");
+    }
+
+
+
     /**
      * This method takes a new QueryContainer and schedules it to a QueryThread
      * to execute the remote query. Counterpart to getWork. <br>
@@ -208,30 +184,26 @@ public class QueryPropagator {
     public void  putWork(QueryContainer query){
 
 	boolean _none_idle;
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "Put work (waiting): query(" + query.no + ")");
+	if (logger.isDebugEnabled()) 
+	    logger.debug("Put work (waiting): query(" + query.no + ")");
 	m_query_prod.P();
 	_none_idle = m_idle_threads < m_min_threads && m_total_threads < m_max_threads;
 	m_new_query = query;
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "Put work (got P) query(" + m_new_query.no + ")");
+	if (logger.isDebugEnabled()) 
+	    logger.debug("Put work (got P) query(" + m_new_query.no + ")");
 	m_query_cons.V();
-	if (m_debug) 
-	    org.jacorb.util.Debug.output(m_debug_verbosity, "left put work: query(" + m_new_query.no + ")");
+	if (logger.isDebugEnabled()) 
+	    logger.debug("left put work: query(" + m_new_query.no + ")");
 
  	if (_none_idle){ 
 	    // no threads idle and maximum thread count not reached, so start new one
-	    if (m_debug) 
-		org.jacorb.util.Debug.output(m_debug_verbosity, "Not enough Threads: " + m_idle_threads);
+	    if (logger.isDebugEnabled()) 
+		logger.debug("Not enough Threads: " + m_idle_threads);
 	    QueryThread _thread = new QueryThread(m_timer);
 	    // new thread will call getWork() as first action
  	}
     }
 } // QueryPropagator
-
-
-
-
 
 
 
