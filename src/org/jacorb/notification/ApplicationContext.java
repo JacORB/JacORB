@@ -27,7 +27,6 @@ import org.jacorb.notification.engine.DefaultTaskProcessor;
 import org.jacorb.notification.engine.TaskProcessor;
 import org.jacorb.notification.filter.DynamicEvaluator;
 import org.jacorb.notification.filter.EvaluationContext;
-import org.jacorb.notification.filter.EvaluationResult;
 import org.jacorb.notification.interfaces.AbstractPoolable;
 import org.jacorb.notification.interfaces.Disposable;
 import org.jacorb.notification.util.AbstractObjectPool;
@@ -48,7 +47,7 @@ public class ApplicationContext implements Disposable, Configurable
     private ORB orb_;
     private POA poa_;
     private TaskProcessor taskProcessor_;
-    private AbstractObjectPool evaluationResultPool_;
+  //  private AbstractObjectPool evaluationResultPool_;
     private AbstractObjectPool evaluationContextPool_;
     private MessageFactory notificationEventFactory_;
     private DynAnyFactory dynAnyFactory_;
@@ -85,21 +84,21 @@ public class ApplicationContext implements Disposable, Configurable
                 }
             };
 
-        evaluationResultPool_ =
-            new AbstractObjectPool("EvaluationResultPool")
-            {
-                public Object newInstance()
-                {
-                    return new EvaluationResult();
-                }
-
-                public void activateObject( Object o )
-                {
-                    AbstractPoolable obj = (AbstractPoolable) o;
-                    obj.reset();
-                    obj.setObjectPool( this );
-                }
-            };
+//        evaluationResultPool_ =
+//            new AbstractObjectPool("EvaluationResultPool")
+//            {
+//                public Object newInstance()
+//                {
+//                    return new EvaluationResult();
+//                }
+//
+//                public void activateObject( Object o )
+//                {
+//                    AbstractPoolable obj = (AbstractPoolable) o;
+//                    obj.reset();
+//                    obj.setObjectPool( this );
+//                }
+//            };
 
         notificationEventFactory_ = new MessageFactory();
 
@@ -118,7 +117,7 @@ public class ApplicationContext implements Disposable, Configurable
         configuration_ = conf;
         dynamicEvaluator_.configure (conf);
         evaluationContextPool_.configure(conf);
-        evaluationResultPool_.configure(conf);
+     //   evaluationResultPool_.configure(conf);
         notificationEventFactory_.configure(conf);
         ((DefaultTaskProcessor)taskProcessor_).configure (conf);
     }
@@ -173,10 +172,10 @@ public class ApplicationContext implements Disposable, Configurable
         poa_ = newPoa;
     }
 
-    private EvaluationResult newEvaluationResult()
-    {
-        return ( EvaluationResult ) evaluationResultPool_.lendObject();
-    }
+//    private EvaluationResult newEvaluationResult()
+//    {
+//        return ( EvaluationResult ) evaluationResultPool_.lendObject();
+//    }
 
     public EvaluationContext newEvaluationContext()
     {
