@@ -45,6 +45,7 @@ gerald.brose@acm.org
          - ORB:
                - Reverted to old (1.3) IOR format to maintain backwards
                  compatability.
+               - Added support for GIOP 1.2 Fragments
          - IDL Compiler:
                - Fix for long long constant assignment from constant.
          - Tools:
